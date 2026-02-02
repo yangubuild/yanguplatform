@@ -2,6 +2,7 @@
 // This file defines all platform-wide settings, subdomains, and feature flags
 
 export const PLATFORM_NAME = "YANGU" as const;
+export const PLATFORM_DOMAIN = "yangu.io" as const;
 
 export const SUBDOMAINS = {
   shop: {
