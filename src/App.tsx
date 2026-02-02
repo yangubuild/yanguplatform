@@ -18,6 +18,8 @@ import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import SurfacePreview from "./pages/SurfacePreview";
 import SurfaceEditor from "./pages/SurfaceEditor";
+import KYC from "./pages/KYC";
+import Billing from "./pages/Billing";
 
 const queryClient = new QueryClient();
 
@@ -70,6 +72,26 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <SurfaceEditor />
+                  </ProtectedRoute>
+                }
+              />
+              
+              {/* KYC - protected */}
+              <Route
+                path="/kyc"
+                element={
+                  <ProtectedRoute>
+                    <KYC />
+                  </ProtectedRoute>
+                }
+              />
+              
+              {/* Billing - protected */}
+              <Route
+                path="/billing"
+                element={
+                  <ProtectedRoute>
+                    <Billing />
                   </ProtectedRoute>
                 }
               />

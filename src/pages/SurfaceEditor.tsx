@@ -190,7 +190,7 @@ export default function SurfaceEditor() {
                 />
               )}
               {activeSection === "publish" && (
-                <PublishSection surface={surface} />
+                <PublishSection surface={surface} userId={user!.id} />
               )}
               {(activeSection === "content" || activeSection === "appearance" || activeSection === "seo") && (
                 <Card className="p-8 text-center">
