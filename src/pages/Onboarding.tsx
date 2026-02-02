@@ -178,14 +178,16 @@ export default function Onboarding() {
     }
   }, []);
 
-  // Check slug availability
+  // Check slug availability - normalize to lowercase for consistency
   const checkSlugAvailability = useCallback(async (slugToCheck: string, creatorType: CreatorType) => {
-    if (!slugToCheck || slugToCheck.length < 3) {
+    const normalizedSlug = slugToCheck.trim().toLowerCase();
+    
+    if (!normalizedSlug || normalizedSlug.length < 3) {
       setSlugAvailable(null);
       return;
     }
 
-    if (!/^[a-zA-Z0-9_-]+$/.test(slugToCheck)) {
+    if (!/^[a-zA-Z0-9_-]+$/.test(normalizedSlug)) {
       setSlugAvailable(null);
       return;
     }
@@ -207,7 +209,7 @@ export default function Onboarding() {
 
       const { data, error } = await supabase.rpc("is_slug_available", {
         _domain_id: domains.id,
-        _slug: slugToCheck,
+        _slug: normalizedSlug,
       });
 
       if (error) {
@@ -265,34 +267,84 @@ export default function Onboarding() {
       return;
     }
 
+    // Normalize slug to lowercase for storage
+    const normalizedSlug = data.slug.trim().toLowerCase();
+    
     setIsLoading(true);
     try {
-      const { error } = await supabase.rpc("complete_onboarding", {
-        _user_id: user.id,
-        _username: savedUsername,
-        _display_name: savedDisplayName || null,
-        _creator_type: selectedRole,
-        _surface_slug: data.slug,
-      });
+      // If user already completed onboarding (creating additional surface), just create the surface directly
+      if (isCreateNewSurface && profile?.onboarding_completed) {
+        console.log("[Onboarding] Creating new surface directly (user already onboarded)");
+        
+        // Get domain ID for the selected creator type
+        const { data: domainData, error: domainError } = await supabase
+          .from("surface_domains")
+          .select("id")
+          .eq("domain", CREATOR_TYPES[selectedRole].domain)
+          .single();
 
-      if (error) {
-        if (error.message.includes("already taken")) {
-          toast.error("This URL is no longer available");
-          setSlugAvailable(false);
-        } else if (error.message.includes("Username")) {
-          toast.error(error.message);
-          setCurrentStep("username");
-        } else {
-          toast.error(error.message);
+        if (domainError || !domainData) {
+          console.error("Domain lookup error:", domainError);
+          toast.error("Failed to find domain configuration");
+          return;
         }
-        return;
-      }
 
-      await refreshProfile();
-      toast.success("Welcome to YANGU! Your space is ready.");
-      navigate("/dashboard");
+        // Create the surface directly
+        const { error: surfaceError } = await supabase
+          .from("public_surfaces")
+          .insert({
+            user_id: user.id,
+            domain_id: domainData.id,
+            slug: normalizedSlug,
+            title: `${savedUsername}'s ${CREATOR_TYPES[selectedRole].label} Space`,
+            is_published: false,
+          });
+
+        if (surfaceError) {
+          console.error("Surface creation error:", surfaceError);
+          if (surfaceError.message.includes("duplicate") || surfaceError.code === "23505") {
+            toast.error("This URL is no longer available");
+            setSlugAvailable(false);
+          } else {
+            toast.error(surfaceError.message || "Failed to create surface");
+          }
+          return;
+        }
+
+        toast.success("New surface created! Customize it before going live.");
+        navigate("/dashboard");
+      } else {
+        // First-time onboarding: call complete_onboarding RPC
+        console.log("[Onboarding] First-time onboarding, calling complete_onboarding");
+        
+        const { error } = await supabase.rpc("complete_onboarding", {
+          _user_id: user.id,
+          _username: savedUsername,
+          _display_name: savedDisplayName || null,
+          _creator_type: selectedRole,
+          _surface_slug: normalizedSlug,
+        });
+
+        if (error) {
+          if (error.message.includes("already taken")) {
+            toast.error("This URL is no longer available");
+            setSlugAvailable(false);
+          } else if (error.message.includes("Username")) {
+            toast.error(error.message);
+            setCurrentStep("username");
+          } else {
+            toast.error(error.message);
+          }
+          return;
+        }
+
+        await refreshProfile();
+        toast.success("Welcome to YANGU! Your space is ready.");
+        navigate("/dashboard");
+      }
     } catch (err) {
-      toast.error("Failed to complete onboarding");
+      console.error("Onboarding error:", err);
+      toast.error("Failed to complete setup");
     } finally {
       setIsLoading(false);
     }
