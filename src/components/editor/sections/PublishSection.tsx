@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/primitives";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Rocket, 
   CheckCircle2, 
@@ -39,8 +40,10 @@ interface EligibilityStatus {
 
 export function PublishSection({ surface, userId }: PublishSectionProps) {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [eligibility, setEligibility] = useState<EligibilityStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isPublishing, setIsPublishing] = useState(false);
 
   const isPublished = surface.is_published;
 
@@ -81,6 +84,49 @@ export function PublishSection({ surface, userId }: PublishSectionProps) {
       fetchEligibility();
     }
   }, [userId]);
+
+  // Publish handler with eligibility guard
+  const handlePublish = async () => {
+    const canPublish = eligibility?.canPublish ?? false;
+
+    // Guard: prevent publishing if not eligible
+    if (!canPublish) {
+      toast({
+        title: "Cannot publish",
+        description: "Complete KYC and Subscription to publish.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Guard: prevent publishing if already published
+    if (isPublished) {
+      toast({
+        title: "Already published",
+        description: "This surface is already live.",
+      });
+      return;
+    }
+
+    setIsPublishing(true);
+
+    try {
+      // TODO: Implement actual publish logic (create trial record, set is_published=true)
+      toast({
+        title: "Publishing coming soon",
+        description: "The publish functionality will be implemented next.",
+      });
+    } catch (err) {
+      console.error("Error publishing:", err);
+      toast({
+        title: "Publish failed",
+        description: "An error occurred while publishing. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsPublishing(false);
+    }
+  };
 
   // Loading state
   if (isLoading) {
@@ -277,11 +323,16 @@ export function PublishSection({ surface, userId }: PublishSectionProps) {
           </div>
           <Button
             size="lg"
-            disabled={!canPublish || isPublished}
+            disabled={!canPublish || isPublished || isPublishing}
+            onClick={handlePublish}
             className="gap-2"
           >
-            <Rocket className="h-4 w-4" />
-            {isPublished ? "Published" : "Publish Surface"}
+            {isPublishing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Rocket className="h-4 w-4" />
+            )}
+            {isPublished ? "Published" : isPublishing ? "Publishing..." : "Publish Surface"}
           </Button>
         </div>
 
