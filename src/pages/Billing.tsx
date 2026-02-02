@@ -1,10 +1,87 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Card, SecondaryButton } from "@/components/primitives";
-import { CreditCard, ArrowLeft, Clock, Check } from "lucide-react";
+import { CreditCard, ArrowLeft, Clock, Check, CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
 
 export default function Billing() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [hasUsedTrial, setHasUsedTrial] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  useEffect(() => {
+    async function checkAdminAndTrialStatus() {
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        // Check if user is admin
+        const { data: adminData } = await supabase.rpc("has_role", {
+          _user_id: user.id,
+          _role: "admin",
+        });
+        setIsAdmin(adminData ?? false);
+
+        // Check current trial status
+        const { data: trialData } = await supabase.rpc("has_used_trial", {
+          _user_id: user.id,
+        });
+        setHasUsedTrial(trialData ?? false);
+      } catch (err) {
+        console.error("Error checking status:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    checkAdminAndTrialStatus();
+  }, [user]);
+
+  const handleActivateTrial = async () => {
+    if (!user) return;
+
+    setIsUpdating(true);
+    try {
+      // Create a trial record (expires in 30 days)
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 30);
+
+      const { error } = await supabase
+        .from("trials")
+        .insert({
+          user_id: user.id,
+          expires_at: expiresAt.toISOString(),
+        });
+
+      if (error) throw error;
+
+      setHasUsedTrial(true);
+      toast({
+        title: "Trial Activated",
+        description: "Your trial has been activated for testing (30 days).",
+      });
+    } catch (err) {
+      console.error("Error activating trial:", err);
+      toast({
+        title: "Error",
+        description: "Failed to activate trial. Check console for details.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -18,6 +95,27 @@ export default function Billing() {
             Unlock unlimited publishing with a subscription
           </p>
         </div>
+
+        {/* Current Status */}
+        {!isLoading && (
+          <div className={`mb-6 p-4 rounded-lg border ${
+            hasUsedTrial 
+              ? "bg-success/10 border-success/20" 
+              : "bg-muted/30 border-border"
+          }`}>
+            <div className="flex items-center gap-2">
+              {hasUsedTrial ? (
+                <CheckCircle2 className="h-5 w-5 text-success" />
+              ) : (
+                <Clock className="h-5 w-5 text-muted-foreground" />
+              )}
+              <span className="font-medium">Trial Status:</span>
+              <Badge variant={hasUsedTrial ? "default" : "secondary"}>
+                {hasUsedTrial ? "Trial Used" : "Trial Available"}
+              </Badge>
+            </div>
+          </div>
+        )}
 
         <div className="space-y-4 mb-8">
           <div className="flex items-start gap-3 p-4 rounded-lg border border-border bg-muted/30">
@@ -94,6 +192,31 @@ export default function Billing() {
             Go Back
           </SecondaryButton>
         </div>
+
+        {/* Admin Dev Button */}
+        {isAdmin && !isLoading && (
+          <div className="mt-6 pt-6 border-t border-border">
+            <div className="p-4 rounded-lg bg-warning/10 border border-warning/20">
+              <p className="text-xs text-warning mb-3 font-medium">
+                ⚠️ Admin Only - Development Testing
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleActivateTrial}
+                disabled={isUpdating || hasUsedTrial}
+                className="w-full"
+              >
+                {isUpdating ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : hasUsedTrial ? (
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                ) : null}
+                {hasUsedTrial ? "Trial Already Used" : "Activate Trial (dev only)"}
+              </Button>
+            </div>
+          </div>
+        )}
       </Card>
     </div>
   );
