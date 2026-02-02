@@ -17,9 +17,8 @@ export default function Dashboard() {
     toast.info(`Editing "${surface.title}" coming soon!`);
   };
 
-  const handlePreview = (surface: { domain: { domain: string }; slug: string }) => {
-    const url = `https://${surface.domain.domain}/${surface.slug}`;
-    window.open(url, "_blank");
+  const handlePreview = (surface: { id: string }) => {
+    navigate(`/s/${surface.id}`);
   };
 
   const hasSurfaces = surfaces && surfaces.length > 0;

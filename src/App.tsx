@@ -16,6 +16,7 @@ import UpdatePassword from "./pages/auth/UpdatePassword";
 import AuthCallback from "./pages/auth/AuthCallback";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
+import SurfacePreview from "./pages/SurfacePreview";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,9 @@ const App = () => (
             <Routes>
               {/* Public routes */}
               <Route path="/" element={<Index />} />
+              
+              {/* Surface preview - public for published, owner-only for drafts */}
+              <Route path="/s/:id" element={<SurfacePreview />} />
               
               {/* Auth routes */}
               <Route path="/auth/login" element={<Login />} />

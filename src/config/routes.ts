@@ -13,7 +13,10 @@ export const ROUTES = {
   settings: "/settings",
   profile: "/profile",
   
-  // Surface routes (user's public pages)
+  // Surface preview (internal, before real domain)
+  surfacePreview: (id: string) => `/s/${id}`,
+  
+  // Surface routes (user's public pages - future real domains)
   surface: (username: string) => `/@${username}`,
   surfaceShop: (username: string) => `/@${username}/shop`,
   surfaceSite: (username: string) => `/@${username}/site`,
