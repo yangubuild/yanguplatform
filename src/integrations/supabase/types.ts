@@ -357,6 +357,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          creator_type: Database["public"]["Enums"]["creator_type"] | null
           display_name: string | null
           id: string
           onboarding_completed: boolean
@@ -366,6 +367,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          creator_type?: Database["public"]["Enums"]["creator_type"] | null
           display_name?: string | null
           id: string
           onboarding_completed?: boolean
@@ -375,6 +377,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          creator_type?: Database["public"]["Enums"]["creator_type"] | null
           display_name?: string | null
           id?: string
           onboarding_completed?: boolean
@@ -641,11 +644,30 @@ export type Database = {
         Args: { _surface_id: string; _user_id: string }
         Returns: boolean
       }
-      complete_onboarding: {
-        Args: { _display_name?: string; _user_id: string; _username: string }
-        Returns: boolean
-      }
+      complete_onboarding:
+        | {
+            Args: {
+              _display_name?: string
+              _user_id: string
+              _username: string
+            }
+            Returns: boolean
+          }
+        | {
+            Args: {
+              _creator_type?: Database["public"]["Enums"]["creator_type"]
+              _display_name?: string
+              _surface_slug?: string
+              _user_id: string
+              _username: string
+            }
+            Returns: string
+          }
       count_published_surfaces: { Args: { _user_id: string }; Returns: number }
+      get_default_domain_for_creator: {
+        Args: { _creator_type: Database["public"]["Enums"]["creator_type"] }
+        Returns: string
+      }
       has_approved_kyc: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
@@ -656,12 +678,17 @@ export type Database = {
       }
       has_used_trial: { Args: { _user_id: string }; Returns: boolean }
       is_owner: { Args: { _user_id: string }; Returns: boolean }
+      is_slug_available: {
+        Args: { _domain_id: string; _slug: string }
+        Returns: boolean
+      }
       is_username_available: { Args: { _username: string }; Returns: boolean }
     }
     Enums: {
       ad_status: "draft" | "pending_review" | "active" | "paused" | "rejected"
       agent_status: "draft" | "active" | "paused" | "archived"
       app_role: "admin" | "user"
+      creator_type: "seller" | "builder" | "organization" | "learner"
       kyc_status: "pending" | "submitted" | "approved" | "rejected"
       login_mode: "disabled" | "optional" | "required"
       payment_status: "pending" | "completed" | "failed" | "refunded"
@@ -802,6 +829,7 @@ export const Constants = {
       ad_status: ["draft", "pending_review", "active", "paused", "rejected"],
       agent_status: ["draft", "active", "paused", "archived"],
       app_role: ["admin", "user"],
+      creator_type: ["seller", "builder", "organization", "learner"],
       kyc_status: ["pending", "submitted", "approved", "rejected"],
       login_mode: ["disabled", "optional", "required"],
       payment_status: ["pending", "completed", "failed", "refunded"],
