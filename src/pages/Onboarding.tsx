@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -88,7 +88,11 @@ type OnboardingStep = "username" | "role" | "surface";
 
 export default function Onboarding() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, profile, isLoading: authLoading, refreshProfile } = useAuth();
+  
+  // Check if this is a "create new surface" flow (from dashboard)
+  const isCreateNewSurface = searchParams.get("new") === "1";
   
   // Step state
   const [currentStep, setCurrentStep] = useState<OnboardingStep>("username");
@@ -122,16 +126,24 @@ export default function Onboarding() {
   const debouncedUsername = useDebounce(username, 500);
   const debouncedSlug = useDebounce(slug, 500);
 
-  // Redirect if not authenticated or already onboarded
+  // Redirect if not authenticated, or if already onboarded and not creating new surface
   useEffect(() => {
     if (!authLoading) {
       if (!user) {
+        console.log("[Onboarding] No user, redirecting to login");
         navigate("/auth/login");
-      } else if (profile?.onboarding_completed) {
+      } else if (profile?.onboarding_completed && !isCreateNewSurface) {
+        console.log("[Onboarding] Onboarding completed, redirecting to dashboard");
         navigate("/dashboard");
+      } else if (isCreateNewSurface && profile?.onboarding_completed) {
+        // For "create new surface", skip to role selection with existing username
+        console.log("[Onboarding] Create new surface mode, skipping to role selection");
+        setSavedUsername(profile.username || "");
+        setSavedDisplayName(profile.display_name || "");
+        setCurrentStep("role");
       }
     }
-  }, [user, profile, authLoading, navigate]);
+  }, [user, profile, authLoading, navigate, isCreateNewSurface]);
 
   // Check username availability
   const checkUsernameAvailability = useCallback(async (usernameToCheck: string) => {
