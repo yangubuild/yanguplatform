@@ -1,7 +1,18 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/primitives";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Rocket, CheckCircle2, AlertCircle, Clock, Shield, CreditCard } from "lucide-react";
+import { 
+  Rocket, 
+  CheckCircle2, 
+  Clock, 
+  Shield, 
+  CreditCard,
+  ArrowRight,
+  Loader2
+} from "lucide-react";
 
 interface SurfaceData {
   id: string;
@@ -16,36 +27,145 @@ interface SurfaceData {
 
 interface PublishSectionProps {
   surface: SurfaceData;
+  userId: string;
 }
 
-export function PublishSection({ surface }: PublishSectionProps) {
+interface EligibilityStatus {
+  hasApprovedKyc: boolean;
+  hasUsedTrial: boolean;
+  publishedCount: number;
+  canPublish: boolean;
+}
+
+export function PublishSection({ surface, userId }: PublishSectionProps) {
+  const navigate = useNavigate();
+  const [eligibility, setEligibility] = useState<EligibilityStatus | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
   const isPublished = surface.is_published;
 
-  // Placeholder requirements - these will be checked via API later
+  // Fetch eligibility status from database
+  useEffect(() => {
+    async function fetchEligibility() {
+      try {
+        // Run all eligibility checks in parallel
+        const [kycResult, trialResult, countResult] = await Promise.all([
+          supabase.rpc("has_approved_kyc", { _user_id: userId }),
+          supabase.rpc("has_used_trial", { _user_id: userId }),
+          supabase.rpc("count_published_surfaces", { _user_id: userId }),
+        ]);
+
+        const hasApprovedKyc = kycResult.data ?? false;
+        const hasUsedTrial = trialResult.data ?? false;
+        const publishedCount = countResult.data ?? 0;
+
+        // Determine if user can publish:
+        // - If KYC approved, can always publish
+        // - If first surface (publishedCount === 0) and trial not used, can publish (free trial)
+        const canPublish = hasApprovedKyc || (publishedCount === 0 && !hasUsedTrial);
+
+        setEligibility({
+          hasApprovedKyc,
+          hasUsedTrial,
+          publishedCount,
+          canPublish,
+        });
+      } catch (err) {
+        console.error("Error fetching eligibility:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    if (userId) {
+      fetchEligibility();
+    }
+  }, [userId]);
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-2xl font-bold">Publish</h2>
+          <p className="text-muted-foreground">Make your surface live and accessible to everyone</p>
+        </div>
+        <Card className="p-8 flex items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </Card>
+      </div>
+    );
+  }
+
+  // Build requirements list with real status
   const requirements: Array<{
     id: string;
     label: string;
     description: string;
     status: "pending" | "completed";
     icon: typeof Shield;
-  }> = [
-    {
-      id: "kyc",
-      label: "Identity Verification (KYC)",
-      description: "Complete identity verification to publish surfaces",
-      status: "pending",
-      icon: Shield,
-    },
-    {
-      id: "trial",
-      label: "Trial or Subscription",
-      description: "Your first surface is free. Additional surfaces require a subscription.",
-      status: "pending",
-      icon: CreditCard,
-    },
-  ];
+    ctaLabel?: string;
+    ctaRoute?: string;
+  }> = [];
 
-  const allRequirementsMet = false; // Placeholder
+  // KYC requirement
+  requirements.push({
+    id: "kyc",
+    label: "Identity Verification (KYC)",
+    description: eligibility?.hasApprovedKyc
+      ? "Your identity has been verified"
+      : "Complete identity verification to publish surfaces",
+    status: eligibility?.hasApprovedKyc ? "completed" : "pending",
+    icon: Shield,
+    ctaLabel: eligibility?.hasApprovedKyc ? undefined : "Start KYC",
+    ctaRoute: eligibility?.hasApprovedKyc ? undefined : "/kyc",
+  });
+
+  // Trial/Subscription requirement
+  // User can publish if: KYC approved OR (first surface AND trial not used)
+  const hasTrialAvailable = eligibility?.publishedCount === 0 && !eligibility?.hasUsedTrial;
+  const hasActiveSubscription = eligibility?.hasApprovedKyc; // For now, KYC approval implies full access
+
+  let trialStatus: "pending" | "completed" = "pending";
+  let trialDescription = "";
+  let trialCtaLabel: string | undefined;
+  let trialCtaRoute: string | undefined;
+
+  if (hasActiveSubscription) {
+    trialStatus = "completed";
+    trialDescription = "You have full publishing access";
+  } else if (hasTrialAvailable) {
+    trialStatus = "completed";
+    trialDescription = "Your first surface is free! You can publish this one without payment.";
+  } else {
+    trialStatus = "pending";
+    trialDescription = "You've used your free trial. Subscribe to publish more surfaces.";
+    trialCtaLabel = "Start Trial / Subscribe";
+    trialCtaRoute = "/billing";
+  }
+
+  requirements.push({
+    id: "trial",
+    label: "Trial or Subscription",
+    description: trialDescription,
+    status: trialStatus,
+    icon: CreditCard,
+    ctaLabel: trialCtaLabel,
+    ctaRoute: trialCtaRoute,
+  });
+
+  const canPublish = eligibility?.canPublish ?? false;
+
+  // Determine what's blocking publishing
+  const blockers: string[] = [];
+  if (!eligibility?.hasApprovedKyc && !hasTrialAvailable) {
+    if (!eligibility?.hasApprovedKyc) {
+      blockers.push("Complete identity verification (KYC)");
+    }
+    if (eligibility?.hasUsedTrial && eligibility?.publishedCount > 0) {
+      blockers.push("Subscribe to publish additional surfaces");
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -87,12 +207,21 @@ export function PublishSection({ surface }: PublishSectionProps) {
         <Card className="p-6">
           <h3 className="font-semibold mb-4">Publishing Requirements</h3>
           <p className="text-sm text-muted-foreground mb-6">
-            Complete the following requirements to publish your surface:
+            {canPublish 
+              ? "You're ready to publish! Click the button below to make your surface live."
+              : "Complete the following requirements to publish your surface:"}
           </p>
 
           <div className="space-y-4">
             {requirements.map((req) => (
-              <div key={req.id} className="flex items-start gap-3 p-4 rounded-lg border border-border bg-muted/30">
+              <div 
+                key={req.id} 
+                className={`flex items-start gap-3 p-4 rounded-lg border ${
+                  req.status === "completed" 
+                    ? "border-success/20 bg-success/5" 
+                    : "border-border bg-muted/30"
+                }`}
+              >
                 <div className={`p-2 rounded-full ${
                   req.status === "completed" ? "bg-success/10" : "bg-warning/10"
                 }`}>
@@ -100,14 +229,30 @@ export function PublishSection({ surface }: PublishSectionProps) {
                     req.status === "completed" ? "text-success" : "text-warning"
                   }`} />
                 </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-medium">{req.label}</span>
-                    <Badge variant={req.status === "completed" ? "default" : "outline"} className="text-xs">
+                    <Badge 
+                      variant={req.status === "completed" ? "default" : "outline"} 
+                      className={`text-xs ${req.status === "completed" ? "bg-success text-success-foreground" : ""}`}
+                    >
                       {req.status === "completed" ? "Complete" : "Pending"}
                     </Badge>
                   </div>
                   <p className="text-sm text-muted-foreground mt-1">{req.description}</p>
+                  
+                  {/* CTA Button for pending requirements */}
+                  {req.ctaLabel && req.ctaRoute && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-3"
+                      onClick={() => navigate(req.ctaRoute!)}
+                    >
+                      {req.ctaLabel}
+                      <ArrowRight className="h-3 w-3 ml-2" />
+                    </Button>
+                  )}
                 </div>
               </div>
             ))}
@@ -120,17 +265,19 @@ export function PublishSection({ surface }: PublishSectionProps) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h3 className="font-semibold">
-              {isPublished ? "Manage Publication" : "Ready to Publish?"}
+              {isPublished ? "Manage Publication" : canPublish ? "Ready to Publish!" : "Cannot Publish Yet"}
             </h3>
             <p className="text-sm text-muted-foreground">
               {isPublished
                 ? "Your surface is currently live and accessible."
-                : "Once published, your surface will be visible to everyone."}
+                : canPublish
+                ? "All requirements met. You can now publish your surface."
+                : "Complete the requirements above to enable publishing."}
             </p>
           </div>
           <Button
             size="lg"
-            disabled={!allRequirementsMet || isPublished}
+            disabled={!canPublish || isPublished}
             className="gap-2"
           >
             <Rocket className="h-4 w-4" />
@@ -138,12 +285,20 @@ export function PublishSection({ surface }: PublishSectionProps) {
           </Button>
         </div>
 
-        {!allRequirementsMet && !isPublished && (
-          <div className="mt-4 p-3 rounded-lg bg-muted/50 border border-border">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <AlertCircle className="h-4 w-4" />
-              <span>Complete all requirements above to enable publishing.</span>
-            </div>
+        {/* Show blocking reasons */}
+        {!canPublish && !isPublished && blockers.length > 0 && (
+          <div className="mt-4 p-4 rounded-lg bg-muted/50 border border-border">
+            <p className="text-sm font-medium text-muted-foreground mb-2">
+              To publish, you need to:
+            </p>
+            <ul className="space-y-1">
+              {blockers.map((blocker, idx) => (
+                <li key={idx} className="text-sm text-muted-foreground flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-warning" />
+                  {blocker}
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </Card>

@@ -12,6 +12,8 @@ export const ROUTES = {
   dashboard: "/dashboard",
   settings: "/settings",
   profile: "/profile",
+  kyc: "/kyc",
+  billing: "/billing",
   
   // Surface preview (internal, before real domain)
   surfacePreview: (id: string) => `/s/${id}`,
