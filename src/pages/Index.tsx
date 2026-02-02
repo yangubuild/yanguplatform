@@ -1,3 +1,4 @@
+import { MarketingShell } from "@/components/primitives";
 import { Header } from "@/components/landing/Header";
 import { Hero } from "@/components/landing/Hero";
 import { Surfaces } from "@/components/landing/Surfaces";
@@ -7,16 +8,12 @@ import { Footer } from "@/components/landing/Footer";
 
 const Index = () => {
   return (
-    <div className="min-h-screen">
-      <Header />
-      <main>
-        <Hero />
-        <Surfaces />
-        <Features />
-        <CTA />
-      </main>
-      <Footer />
-    </div>
+    <MarketingShell header={<Header />} footer={<Footer />}>
+      <Hero />
+      <Surfaces />
+      <Features />
+      <CTA />
+    </MarketingShell>
   );
 };
 
