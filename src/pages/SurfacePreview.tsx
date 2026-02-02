@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { AppShell, PageContainer, Card, PrimaryButton, SecondaryButton } from "@/components/primitives";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Globe, Pencil, ArrowLeft, Lock } from "lucide-react";
+import { Loader2, Globe, Pencil, ArrowLeft, Lock, ExternalLink } from "lucide-react";
 
 interface SurfaceData {
   id: string;
@@ -44,8 +44,15 @@ export default function SurfacePreview() {
         return;
       }
 
+      // Must be authenticated to use owner preview
+      if (!user) {
+        setAccessDenied(true);
+        setIsLoading(false);
+        return;
+      }
+
       try {
-        // Fetch surface with domain and settings
+        // Fetch surface with domain
         const { data: surfaceData, error: surfaceError } = await supabase
           .from("public_surfaces")
           .select(`
@@ -68,7 +75,7 @@ export default function SurfacePreview() {
         if (surfaceError) {
           console.error("Surface fetch error:", surfaceError);
           
-          // Check if it's an RLS error (user trying to access unpublished surface they don't own)
+          // Check if it's an RLS error
           if (surfaceError.code === "PGRST116" || surfaceError.message.includes("security")) {
             setAccessDenied(true);
             setIsLoading(false);
@@ -86,14 +93,11 @@ export default function SurfacePreview() {
           return;
         }
 
-        // Check access: if not published, only owner can view
-        if (!surfaceData.is_published) {
-          const currentUserId = user?.id;
-          if (!currentUserId || currentUserId !== surfaceData.user_id) {
-            setAccessDenied(true);
-            setIsLoading(false);
-            return;
-          }
+        // Owner check: only the owner can use this preview route
+        if (user.id !== surfaceData.user_id) {
+          setAccessDenied(true);
+          setIsLoading(false);
+          return;
         }
 
         // Fetch settings separately
@@ -120,7 +124,7 @@ export default function SurfacePreview() {
     if (!authLoading) {
       fetchSurface();
     }
-  }, [id, user?.id, authLoading]);
+  }, [id, user?.id, authLoading, user]);
 
   const handleEdit = () => {
     navigate(`/surfaces/${id}/edit`);
@@ -128,6 +132,12 @@ export default function SurfacePreview() {
 
   const handleBack = () => {
     navigate(-1);
+  };
+
+  const handleViewPublic = () => {
+    if (surface?.is_published) {
+      navigate(`/s/${surface.domain.domain}/${surface.slug}`);
+    }
   };
 
   // Loading state
@@ -152,7 +162,7 @@ export default function SurfacePreview() {
           </div>
           <h1 className="text-2xl font-bold mb-2">Not Available</h1>
           <p className="text-muted-foreground mb-6">
-            This surface is not published yet or you don't have permission to view it.
+            This preview is only available to the surface owner.
           </p>
           <SecondaryButton onClick={() => navigate("/")}>
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -182,7 +192,6 @@ export default function SurfacePreview() {
   }
 
   const fullUrl = `${surface.domain.domain}/${surface.slug}`;
-  const isOwner = user?.id === surface.user_id;
 
   return (
     <AppShell>
@@ -196,6 +205,22 @@ export default function SurfacePreview() {
             <ArrowLeft className="h-4 w-4" />
             Back
           </button>
+
+          {/* Owner Preview Banner */}
+          <div className="p-3 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-between">
+            <p className="text-sm text-primary">
+              <strong>Owner Preview</strong> — Only you can see this view
+            </p>
+            {surface.is_published && (
+              <button
+                onClick={handleViewPublic}
+                className="text-sm text-primary hover:underline flex items-center gap-1"
+              >
+                View public page
+                <ExternalLink className="h-3 w-3" />
+              </button>
+            )}
+          </div>
 
           {/* Surface Preview Card */}
           <Card className="p-8">
@@ -218,12 +243,10 @@ export default function SurfacePreview() {
                   </div>
                 </div>
 
-                {isOwner && (
-                  <PrimaryButton onClick={handleEdit}>
-                    <Pencil className="h-4 w-4 mr-2" />
-                    Edit Surface
-                  </PrimaryButton>
-                )}
+                <PrimaryButton onClick={handleEdit}>
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Edit Surface
+                </PrimaryButton>
               </div>
 
               {/* Surface Type Badge */}
@@ -262,7 +285,7 @@ export default function SurfacePreview() {
               </div>
 
               {/* Draft Notice */}
-              {!surface.is_published && isOwner && (
+              {!surface.is_published && (
                 <div className="p-4 rounded-lg bg-warning/10 border border-warning/20">
                   <p className="text-sm text-warning">
                     This surface is still a draft. Complete your setup and publish it to make it visible to the public.

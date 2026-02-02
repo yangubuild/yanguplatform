@@ -17,7 +17,7 @@ export default function Dashboard() {
   };
 
   const handlePreview = (surface: { id: string }) => {
-    navigate(`/s/${surface.id}`);
+    navigate(`/s/${surface.id}/preview`);
   };
 
   const hasSurfaces = surfaces && surfaces.length > 0;
