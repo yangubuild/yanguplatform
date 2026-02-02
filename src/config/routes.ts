@@ -16,6 +16,9 @@ export const ROUTES = {
   // Surface preview (internal, before real domain)
   surfacePreview: (id: string) => `/s/${id}`,
   
+  // Surface editor
+  surfaceEditor: (id: string) => `/surfaces/${id}/edit`,
+  
   // Surface routes (user's public pages - future real domains)
   surface: (username: string) => `/@${username}`,
   surfaceShop: (username: string) => `/@${username}/shop`,

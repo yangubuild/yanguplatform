@@ -123,8 +123,7 @@ export default function SurfacePreview() {
   }, [id, user?.id, authLoading]);
 
   const handleEdit = () => {
-    // TODO: Navigate to surface editor
-    navigate(`/dashboard`);
+    navigate(`/surfaces/${id}/edit`);
   };
 
   const handleBack = () => {
