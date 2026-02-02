@@ -15,8 +15,11 @@ export const ROUTES = {
   kyc: "/kyc",
   billing: "/billing",
   
-  // Surface preview (internal, before real domain)
-  surfacePreview: (id: string) => `/s/${id}`,
+  // Surface owner preview (internal, before real domain)
+  surfacePreview: (id: string) => `/s/${id}/preview`,
+  
+  // Public surface route (published surfaces)
+  publicSurface: (domain: string, slug: string) => `/s/${domain}/${slug}`,
   
   // Surface editor
   surfaceEditor: (id: string) => `/surfaces/${id}/edit`,

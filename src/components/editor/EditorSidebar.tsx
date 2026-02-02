@@ -1,5 +1,5 @@
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { FileText, Palette, Search, Rocket, LayoutGrid, ArrowLeft } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
+import { FileText, Palette, Search, Rocket, LayoutGrid, ArrowLeft, Eye } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -13,6 +13,7 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 export type EditorSection = "overview" | "content" | "appearance" | "seo" | "publish";
 
@@ -32,6 +33,13 @@ const sections = [
 
 export function EditorSidebar({ activeSection, onSectionChange, surfaceTitle }: EditorSidebarProps) {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+
+  const handlePreview = () => {
+    if (id) {
+      navigate(`/s/${id}/preview`);
+    }
+  };
 
   return (
     <Sidebar collapsible="none" className="border-r border-border bg-sidebar">
@@ -72,6 +80,21 @@ export function EditorSidebar({ activeSection, onSectionChange, surfaceTitle }: 
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Preview Button */}
+        <SidebarGroup>
+          <SidebarGroupContent className="px-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handlePreview}
+              className="w-full justify-start gap-2"
+            >
+              <Eye className="h-4 w-4" />
+              Preview Surface
+            </Button>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
