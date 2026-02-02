@@ -14,6 +14,345 @@ export type Database = {
   }
   public: {
     Tables: {
+      ad_placements: {
+        Row: {
+          ad_id: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          placement_type: string
+          position: number | null
+          surface_id: string | null
+        }
+        Insert: {
+          ad_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          placement_type: string
+          position?: number | null
+          surface_id?: string | null
+        }
+        Update: {
+          ad_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          placement_type?: string
+          position?: number | null
+          surface_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_placements_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ad_placements_surface_id_fkey"
+            columns: ["surface_id"]
+            isOneToOne: false
+            referencedRelation: "public_surfaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ads: {
+        Row: {
+          budget_cents: number | null
+          clicks: number | null
+          content: string | null
+          created_at: string
+          ends_at: string | null
+          id: string
+          image_url: string | null
+          impressions: number | null
+          spent_cents: number | null
+          starts_at: string | null
+          status: Database["public"]["Enums"]["ad_status"]
+          target_url: string
+          targeting: Json | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          budget_cents?: number | null
+          clicks?: number | null
+          content?: string | null
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          image_url?: string | null
+          impressions?: number | null
+          spent_cents?: number | null
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["ad_status"]
+          target_url: string
+          targeting?: Json | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          budget_cents?: number | null
+          clicks?: number | null
+          content?: string | null
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          image_url?: string | null
+          impressions?: number | null
+          spent_cents?: number | null
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["ad_status"]
+          target_url?: string
+          targeting?: Json | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      agent_onboardings: {
+        Row: {
+          agent_id: string
+          created_at: string
+          description: string | null
+          id: string
+          input_options: Json | null
+          input_type: string | null
+          is_required: boolean | null
+          step_order: number
+          title: string
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          input_options?: Json | null
+          input_type?: string | null
+          is_required?: boolean | null
+          step_order: number
+          title: string
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          input_options?: Json | null
+          input_type?: string | null
+          is_required?: boolean | null
+          step_order?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_onboardings_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agents: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          max_tokens: number | null
+          metadata: Json | null
+          model: string | null
+          name: string
+          status: Database["public"]["Enums"]["agent_status"]
+          surface_id: string | null
+          system_prompt: string | null
+          temperature: number | null
+          tools: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          max_tokens?: number | null
+          metadata?: Json | null
+          model?: string | null
+          name: string
+          status?: Database["public"]["Enums"]["agent_status"]
+          surface_id?: string | null
+          system_prompt?: string | null
+          temperature?: number | null
+          tools?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          max_tokens?: number | null
+          metadata?: Json | null
+          model?: string | null
+          name?: string
+          status?: Database["public"]["Enums"]["agent_status"]
+          surface_id?: string | null
+          system_prompt?: string | null
+          temperature?: number | null
+          tools?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agents_surface_id_fkey"
+            columns: ["surface_id"]
+            isOneToOne: false
+            referencedRelation: "public_surfaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          ip_address: unknown
+          new_data: Json | null
+          old_data: Json | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          ip_address?: unknown
+          new_data?: Json | null
+          old_data?: Json | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          ip_address?: unknown
+          new_data?: Json | null
+          old_data?: Json | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      kyc_verifications: {
+        Row: {
+          created_at: string
+          document_urls: string[] | null
+          id: string
+          metadata: Json | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["kyc_status"]
+          submitted_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          document_urls?: string[] | null
+          id?: string
+          metadata?: Json | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["kyc_status"]
+          submitted_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          document_urls?: string[] | null
+          id?: string
+          metadata?: Json | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["kyc_status"]
+          submitted_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          metadata: Json | null
+          status: Database["public"]["Enums"]["payment_status"]
+          stripe_invoice_id: string | null
+          stripe_payment_intent_id: string | null
+          subscription_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          stripe_invoice_id?: string | null
+          stripe_payment_intent_id?: string | null
+          subscription_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          stripe_invoice_id?: string | null
+          stripe_payment_intent_id?: string | null
+          subscription_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -44,6 +383,234 @@ export type Database = {
         }
         Relationships: []
       }
+      public_surfaces: {
+        Row: {
+          created_at: string
+          custom_domain: string | null
+          description: string | null
+          domain_id: string
+          id: string
+          is_featured: boolean
+          is_published: boolean
+          metadata: Json | null
+          published_at: string | null
+          slug: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          custom_domain?: string | null
+          description?: string | null
+          domain_id: string
+          id?: string
+          is_featured?: boolean
+          is_published?: boolean
+          metadata?: Json | null
+          published_at?: string | null
+          slug: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          custom_domain?: string | null
+          description?: string | null
+          domain_id?: string
+          id?: string
+          is_featured?: boolean
+          is_published?: boolean
+          metadata?: Json | null
+          published_at?: string | null
+          slug?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_surfaces_domain_id_fkey"
+            columns: ["domain_id"]
+            isOneToOne: false
+            referencedRelation: "surface_domains"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean | null
+          canceled_at: string | null
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          plan_id: string
+          status: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cancel_at_period_end?: boolean | null
+          canceled_at?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan_id: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cancel_at_period_end?: boolean | null
+          canceled_at?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan_id?: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      surface_domains: {
+        Row: {
+          created_at: string
+          description: string | null
+          domain: string
+          id: string
+          is_active: boolean
+          label: string
+          surface_type: Database["public"]["Enums"]["surface_type"]
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          domain: string
+          id?: string
+          is_active?: boolean
+          label: string
+          surface_type: Database["public"]["Enums"]["surface_type"]
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          domain?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          surface_type?: Database["public"]["Enums"]["surface_type"]
+        }
+        Relationships: []
+      }
+      surface_settings: {
+        Row: {
+          accent_color: string | null
+          created_at: string
+          custom_css: string | null
+          favicon_url: string | null
+          id: string
+          login_mode: Database["public"]["Enums"]["login_mode"]
+          logo_url: string | null
+          primary_color: string | null
+          seo_description: string | null
+          seo_image_url: string | null
+          seo_title: string | null
+          social_links: Json | null
+          surface_id: string
+          updated_at: string
+        }
+        Insert: {
+          accent_color?: string | null
+          created_at?: string
+          custom_css?: string | null
+          favicon_url?: string | null
+          id?: string
+          login_mode?: Database["public"]["Enums"]["login_mode"]
+          logo_url?: string | null
+          primary_color?: string | null
+          seo_description?: string | null
+          seo_image_url?: string | null
+          seo_title?: string | null
+          social_links?: Json | null
+          surface_id: string
+          updated_at?: string
+        }
+        Update: {
+          accent_color?: string | null
+          created_at?: string
+          custom_css?: string | null
+          favicon_url?: string | null
+          id?: string
+          login_mode?: Database["public"]["Enums"]["login_mode"]
+          logo_url?: string | null
+          primary_color?: string | null
+          seo_description?: string | null
+          seo_image_url?: string | null
+          seo_title?: string | null
+          social_links?: Json | null
+          surface_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "surface_settings_surface_id_fkey"
+            columns: ["surface_id"]
+            isOneToOne: true
+            referencedRelation: "public_surfaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trials: {
+        Row: {
+          converted_at: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          started_at: string
+          surface_id: string | null
+          user_id: string
+        }
+        Insert: {
+          converted_at?: string | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          started_at?: string
+          surface_id?: string | null
+          user_id: string
+        }
+        Update: {
+          converted_at?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          started_at?: string
+          surface_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trials_surface_id_fkey"
+            columns: ["surface_id"]
+            isOneToOne: false
+            referencedRelation: "public_surfaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -70,10 +637,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_publish_surface: {
+        Args: { _surface_id: string; _user_id: string }
+        Returns: boolean
+      }
       complete_onboarding: {
         Args: { _display_name?: string; _user_id: string; _username: string }
         Returns: boolean
       }
+      count_published_surfaces: { Args: { _user_id: string }; Returns: number }
+      has_approved_kyc: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -81,11 +654,24 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_used_trial: { Args: { _user_id: string }; Returns: boolean }
       is_owner: { Args: { _user_id: string }; Returns: boolean }
       is_username_available: { Args: { _username: string }; Returns: boolean }
     }
     Enums: {
+      ad_status: "draft" | "pending_review" | "active" | "paused" | "rejected"
+      agent_status: "draft" | "active" | "paused" | "archived"
       app_role: "admin" | "user"
+      kyc_status: "pending" | "submitted" | "approved" | "rejected"
+      login_mode: "disabled" | "optional" | "required"
+      payment_status: "pending" | "completed" | "failed" | "refunded"
+      subscription_status:
+        | "active"
+        | "canceled"
+        | "past_due"
+        | "trialing"
+        | "unpaid"
+      surface_type: "shop" | "store" | "site" | "studio" | "live" | "community"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -213,7 +799,20 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      ad_status: ["draft", "pending_review", "active", "paused", "rejected"],
+      agent_status: ["draft", "active", "paused", "archived"],
       app_role: ["admin", "user"],
+      kyc_status: ["pending", "submitted", "approved", "rejected"],
+      login_mode: ["disabled", "optional", "required"],
+      payment_status: ["pending", "completed", "failed", "refunded"],
+      subscription_status: [
+        "active",
+        "canceled",
+        "past_due",
+        "trialing",
+        "unpaid",
+      ],
+      surface_type: ["shop", "store", "site", "studio", "live", "community"],
     },
   },
 } as const
