@@ -2,11 +2,14 @@ import { createContext, useContext, useEffect, useState, ReactNode, useCallback 
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
+export type CreatorType = "seller" | "builder" | "organization" | "learner";
+
 export interface Profile {
   id: string;
   username: string | null;
   display_name: string | null;
   avatar_url: string | null;
+  creator_type: CreatorType | null;
   onboarding_completed: boolean;
   created_at: string;
   updated_at: string;
