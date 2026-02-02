@@ -27,10 +27,13 @@ export default function Dashboard() {
 
   const handleCreateSurface = () => {
     if (hasDraft) {
+      console.log("[Dashboard] Create Surface blocked: draft exists", { hasDraft, surfaceCount: surfaces?.length });
       toast.info("Complete or publish your existing draft surface first.");
       return;
     }
-    navigate("/onboarding");
+    console.log("[Dashboard] Navigating to /onboarding?new=1");
+    toast.info("Redirecting to create new surface...");
+    navigate("/onboarding?new=1");
   };
 
   return (
