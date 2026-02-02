@@ -5,7 +5,7 @@ import { IconButton } from "./Buttons";
 
 interface BannerProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Visual variant */
-  variant?: "default" | "info" | "success" | "warning" | "danger";
+  variant?: "default" | "info" | "success" | "warning" | "danger" | "accent";
   /** Show dismiss button */
   dismissible?: boolean;
   /** Called when dismiss button clicked */
@@ -20,6 +20,7 @@ const variantClasses = {
   success: "bg-success/10 text-success border-success/20",
   warning: "bg-warning/10 text-warning border-warning/20",
   danger: "bg-danger/10 text-danger border-danger/20",
+  accent: "bg-accent/10 text-accent-foreground border-accent/20",
 };
 
 /**

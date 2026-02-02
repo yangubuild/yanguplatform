@@ -45,13 +45,17 @@ export function Header() {
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
           
-          <Button variant="ghost" size="sm" className="hidden sm:flex">
-            Sign In
-          </Button>
+          <Link to="/auth/login">
+            <Button variant="ghost" size="sm" className="hidden sm:flex">
+              Sign In
+            </Button>
+          </Link>
           
-          <Button variant="accent" size="sm" className="hidden sm:flex">
-            Get Started
-          </Button>
+          <Link to="/auth/signup">
+            <Button variant="accent" size="sm" className="hidden sm:flex">
+              Get Started
+            </Button>
+          </Link>
 
           {/* Mobile menu button */}
           <Button
@@ -79,8 +83,12 @@ export function Header() {
               Pricing
             </a>
             <div className="flex flex-col gap-2 pt-4">
-              <Button variant="outline" className="w-full">Sign In</Button>
-              <Button variant="accent" className="w-full">Get Started</Button>
+              <Link to="/auth/login">
+                <Button variant="outline" className="w-full">Sign In</Button>
+              </Link>
+              <Link to="/auth/signup">
+                <Button variant="accent" className="w-full">Get Started</Button>
+              </Link>
             </div>
           </div>
         </div>
