@@ -1,5 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useSurfaces } from "@/hooks/useSurfaces";
+import { useNavigate } from "react-router-dom";
 import { AppShell } from "@/components/primitives";
 import { PageContainer, Card, Banner, PrimaryButton } from "@/components/primitives";
 import { SurfaceCard } from "@/components/dashboard/SurfaceCard";
@@ -7,6 +8,7 @@ import { Plus, Rocket, Users, BarChart3, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const { profile } = useAuth();
   const { data: surfaces, isLoading: surfacesLoading } = useSurfaces();
 
@@ -21,6 +23,15 @@ export default function Dashboard() {
   };
 
   const hasSurfaces = surfaces && surfaces.length > 0;
+  const hasDraft = surfaces?.some((s) => !s.is_published);
+
+  const handleCreateSurface = () => {
+    if (hasDraft) {
+      toast.info("Complete or publish your existing draft surface first.");
+      return;
+    }
+    navigate("/onboarding");
+  };
 
   return (
     <AppShell>
@@ -37,7 +48,7 @@ export default function Dashboard() {
                   Ready to build your next surface?
                 </p>
               </div>
-              <PrimaryButton>
+              <PrimaryButton onClick={handleCreateSurface} disabled={hasDraft}>
                 <Plus className="mr-2 h-4 w-4" />
                 Create Surface
               </PrimaryButton>
@@ -95,7 +106,7 @@ export default function Dashboard() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold">Your Surfaces</h2>
-                <PrimaryButton size="sm">
+                <PrimaryButton size="sm" onClick={handleCreateSurface} disabled={hasDraft}>
                   <Plus className="mr-2 h-4 w-4" />
                   New Surface
                 </PrimaryButton>
@@ -120,7 +131,7 @@ export default function Dashboard() {
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                 Create your first surface to start building your online presence. Choose from shops, portfolios, communities, and more.
               </p>
-              <PrimaryButton>
+              <PrimaryButton onClick={handleCreateSurface}>
                 <Plus className="mr-2 h-4 w-4" />
                 Create Your First Surface
               </PrimaryButton>
