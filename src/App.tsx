@@ -17,6 +17,7 @@ import AuthCallback from "./pages/auth/AuthCallback";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import SurfacePreview from "./pages/SurfacePreview";
+import SurfaceEditor from "./pages/SurfaceEditor";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +60,16 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              
+              {/* Surface Editor - protected */}
+              <Route
+                path="/surfaces/:id/edit"
+                element={
+                  <ProtectedRoute>
+                    <SurfaceEditor />
                   </ProtectedRoute>
                 }
               />

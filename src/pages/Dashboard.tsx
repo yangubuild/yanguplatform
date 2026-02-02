@@ -12,9 +12,8 @@ export default function Dashboard() {
   const { profile } = useAuth();
   const { data: surfaces, isLoading: surfacesLoading } = useSurfaces();
 
-  const handleEdit = (surface: { id: string; title: string }) => {
-    // TODO: Navigate to surface editor
-    toast.info(`Editing "${surface.title}" coming soon!`);
+  const handleEdit = (surface: { id: string }) => {
+    navigate(`/surfaces/${surface.id}/edit`);
   };
 
   const handlePreview = (surface: { id: string }) => {
