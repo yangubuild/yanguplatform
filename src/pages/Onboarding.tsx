@@ -12,57 +12,88 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Loader2, Check, X, AtSign, Store, Palette, Users, BookOpen, ArrowRight, ArrowLeft, Link2 } from "lucide-react";
+import { 
+  Loader2, Check, X, AtSign, ArrowRight, ArrowLeft, Link2,
+  ShoppingBag, Package, Hotel, Users, Sparkles, Eye
+} from "lucide-react";
 import { PLATFORM_DOMAIN } from "@/config/platform";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Card } from "@/components/primitives/Card";
 import { cn } from "@/lib/utils";
 
-// Creator types with their associated domains
-const CREATOR_TYPES = {
-  seller: {
-    id: "seller",
-    label: "Seller",
-    description: "Sell products online",
-    icon: Store,
+// ============================================================
+// LOCKED DOMAIN MAP - DO NOT CHANGE
+// ============================================================
+const ONBOARDING_PATHS = {
+  shop: {
+    id: "shop",
+    label: "Sell Products",
+    description: "Fashion, restaurants, electronics, food, retail shops",
+    icon: ShoppingBag,
     domain: "yangu.shop",
+    surfaceType: "shop",
     color: "text-emerald-500",
     bgColor: "bg-emerald-500/10",
     borderColor: "border-emerald-500/50",
   },
-  builder: {
-    id: "builder",
-    label: "Builder",
-    description: "Showcase your portfolio",
-    icon: Palette,
-    domain: "yangu.studio",
-    color: "text-amber-500",
-    bgColor: "bg-amber-500/10",
-    borderColor: "border-amber-500/50",
+  store: {
+    id: "store",
+    label: "Sell in Bulk / Trade",
+    description: "Supermarkets, hardware, bulk goods, agriculture, wholesalers",
+    icon: Package,
+    domain: "yangu.store",
+    surfaceType: "store",
+    color: "text-blue-500",
+    bgColor: "bg-blue-500/10",
+    borderColor: "border-blue-500/50",
   },
-  organization: {
-    id: "organization",
-    label: "Organization",
-    description: "Build a community",
-    icon: Users,
-    domain: "yangu.community",
-    color: "text-cyan-500",
-    bgColor: "bg-cyan-500/10",
-    borderColor: "border-cyan-500/50",
-  },
-  learner: {
-    id: "learner",
-    label: "Learner",
-    description: "Create your personal site",
-    icon: BookOpen,
+  site: {
+    id: "site",
+    label: "Offer Services",
+    description: "Hotels, motels, tours, travel, real estate, consultancy",
+    icon: Hotel,
     domain: "yangu.site",
+    surfaceType: "site",
     color: "text-violet-500",
     bgColor: "bg-violet-500/10",
     borderColor: "border-violet-500/50",
   },
+  community: {
+    id: "community",
+    label: "Build or Join a Community",
+    description: "NGOs, schools, agencies, freelancers, coaches, influencers",
+    icon: Users,
+    domain: "yangu.community",
+    surfaceType: "community",
+    color: "text-cyan-500",
+    bgColor: "bg-cyan-500/10",
+    borderColor: "border-cyan-500/50",
+  },
+  studio: {
+    id: "studio",
+    label: "Create Ads with AI",
+    description: "Generate ads, videos, images from product links",
+    icon: Sparkles,
+    domain: "yangu.studio",
+    surfaceType: null, // Studio is NOT a surface - it's a global tool
+    color: "text-amber-500",
+    bgColor: "bg-amber-500/10",
+    borderColor: "border-amber-500/50",
+  },
+  explore: {
+    id: "explore",
+    label: "Just Explore",
+    description: "Browse, discover, join communities",
+    icon: Eye,
+    domain: "yangu.io",
+    surfaceType: null, // No surface created - just explore
+    color: "text-gray-500",
+    bgColor: "bg-gray-500/10",
+    borderColor: "border-gray-500/50",
+  },
 } as const;
 
-type CreatorType = keyof typeof CREATOR_TYPES;
+type OnboardingPathKey = keyof typeof ONBOARDING_PATHS;
 
 const usernameSchema = z.object({
   username: z
@@ -86,7 +117,7 @@ const slugSchema = z.object({
 type UsernameFormData = z.infer<typeof usernameSchema>;
 type SlugFormData = z.infer<typeof slugSchema>;
 
-type OnboardingStep = "username" | "role" | "surface" | "select-org";
+type OnboardingStep = "username" | "goal" | "surface" | "select-org";
 
 export default function Onboarding() {
   const navigate = useNavigate();
@@ -107,8 +138,8 @@ export default function Onboarding() {
   const [savedUsername, setSavedUsername] = useState("");
   const [savedDisplayName, setSavedDisplayName] = useState("");
   
-  // Role state
-  const [selectedRole, setSelectedRole] = useState<CreatorType | null>(null);
+  // Goal/Path state - direct domain selection
+  const [selectedPath, setSelectedPath] = useState<OnboardingPathKey | null>(null);
   
   // Slug state
   const [isCheckingSlug, setIsCheckingSlug] = useState(false);
@@ -148,11 +179,11 @@ export default function Onboarding() {
         setSavedDisplayName(profile.display_name || "");
         
         if (activeOrg) {
-          // User has an active org, proceed to role selection
+          // User has an active org, proceed to goal selection
           setSelectedOrgId(activeOrg.id);
-          setCurrentStep("role");
+          setCurrentStep("goal");
         } else {
-          // No active org - show org selector (or error)
+          // No active org - show org selector
           console.log("[Onboarding] No active org found, showing selector");
           setCurrentStep("select-org");
         }
@@ -193,8 +224,11 @@ export default function Onboarding() {
     }
   }, []);
 
-  // Check slug availability - normalize to lowercase for consistency
-  const checkSlugAvailability = useCallback(async (slugToCheck: string, creatorType: CreatorType) => {
+  // Check slug availability against the selected domain
+  const checkSlugAvailability = useCallback(async (slugToCheck: string, pathKey: OnboardingPathKey) => {
+    const path = ONBOARDING_PATHS[pathKey];
+    if (!path.surfaceType) return; // No slug check needed for non-surface paths
+    
     const normalizedSlug = slugToCheck.trim().toLowerCase();
     
     if (!normalizedSlug || normalizedSlug.length < 3) {
@@ -209,11 +243,11 @@ export default function Onboarding() {
 
     setIsCheckingSlug(true);
     try {
-      // Get domain ID for the selected creator type
+      // Get domain ID directly from the locked domain map
       const { data: domains, error: domainError } = await supabase
         .from("surface_domains")
         .select("id")
-        .eq("domain", CREATOR_TYPES[creatorType].domain)
+        .eq("domain", path.domain)
         .single();
 
       if (domainError || !domains) {
@@ -247,18 +281,18 @@ export default function Onboarding() {
   }, [debouncedUsername, checkUsernameAvailability]);
 
   useEffect(() => {
-    if (selectedRole && debouncedSlug) {
-      checkSlugAvailability(debouncedSlug, selectedRole);
+    if (selectedPath && debouncedSlug && ONBOARDING_PATHS[selectedPath].surfaceType) {
+      checkSlugAvailability(debouncedSlug, selectedPath);
     }
-  }, [debouncedSlug, selectedRole, checkSlugAvailability]);
+  }, [debouncedSlug, selectedPath, checkSlugAvailability]);
 
-  // When role is selected, auto-populate slug with username
+  // When path is selected, auto-populate slug with username
   useEffect(() => {
-    if (selectedRole && savedUsername) {
+    if (selectedPath && savedUsername && ONBOARDING_PATHS[selectedPath].surfaceType) {
       slugForm.setValue("slug", savedUsername);
       setSlugAvailable(null); // Reset to trigger check
     }
-  }, [selectedRole, savedUsername, slugForm]);
+  }, [selectedPath, savedUsername, slugForm]);
 
   const handleUsernameSubmit = (data: UsernameFormData) => {
     if (usernameAvailable !== true) {
@@ -267,21 +301,78 @@ export default function Onboarding() {
     }
     setSavedUsername(data.username);
     setSavedDisplayName(data.displayName || "");
-    setCurrentStep("role");
+    setCurrentStep("goal");
   };
 
-  const handleRoleSelect = (role: CreatorType) => {
-    setSelectedRole(role);
-    setCurrentStep("surface");
+  const handlePathSelect = async (pathKey: OnboardingPathKey) => {
+    const path = ONBOARDING_PATHS[pathKey];
+    setSelectedPath(pathKey);
+    
+    // If path doesn't create a surface (studio/explore), complete onboarding directly
+    if (!path.surfaceType) {
+      await completeOnboardingWithoutSurface(pathKey);
+    } else {
+      setCurrentStep("surface");
+    }
   };
 
   const handleOrgSelect = (orgId: string) => {
     setSelectedOrgId(orgId);
-    setCurrentStep("role");
+    setCurrentStep("goal");
+  };
+
+  // Complete onboarding for paths that don't create a surface
+  const completeOnboardingWithoutSurface = async (pathKey: OnboardingPathKey) => {
+    if (!user) return;
+    
+    setIsLoading(true);
+    try {
+      // For first-time users, we need to set up their profile
+      if (!profile?.onboarding_completed) {
+        // Update profile directly - no creator_type needed
+        const { error } = await supabase
+          .from("profiles")
+          .update({
+            username: savedUsername,
+            display_name: savedDisplayName || null,
+            onboarding_completed: true,
+          })
+          .eq("id", user.id);
+
+        if (error) {
+          if (error.message.includes("username")) {
+            toast.error("Username is no longer available");
+            setCurrentStep("username");
+          } else {
+            toast.error(error.message);
+          }
+          return;
+        }
+
+        await refreshProfile();
+      }
+      
+      if (pathKey === "studio") {
+        toast.success("Welcome to YANGU Studio! Create amazing AI content.");
+        navigate("/dashboard"); // Studio is accessed from dashboard sidebar
+      } else {
+        toast.success("Welcome to YANGU! Start exploring.");
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      console.error("Onboarding error:", err);
+      toast.error("Failed to complete setup");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleFinalSubmit = async (data: SlugFormData) => {
-    if (!user || !selectedRole) return;
+    if (!user || !selectedPath) return;
+    
+    const path = ONBOARDING_PATHS[selectedPath];
+    if (!path.surfaceType) return; // Shouldn't happen, but guard
+    
     if (slugAvailable === false) {
       toast.error("Please choose an available URL");
       return;
@@ -292,7 +383,7 @@ export default function Onboarding() {
     
     setIsLoading(true);
     try {
-      // If user already completed onboarding (creating additional surface), just create the surface directly
+      // If user already completed onboarding (creating additional surface)
       if (isCreateNewSurface && profile?.onboarding_completed) {
         console.log("[Onboarding] Creating new surface directly (user already onboarded)");
         
@@ -303,11 +394,11 @@ export default function Onboarding() {
           return;
         }
 
-        // Get domain ID for the selected creator type
+        // Get domain ID from the locked domain map
         const { data: domainData, error: domainError } = await supabase
           .from("surface_domains")
           .select("id")
-          .eq("domain", CREATOR_TYPES[selectedRole].domain)
+          .eq("domain", path.domain)
           .single();
 
         if (domainError || !domainData) {
@@ -317,16 +408,14 @@ export default function Onboarding() {
         }
 
         // Create the surface in the surfaces table (org-owned)
-        const { data: surfaceData, error: surfaceError } = await supabase
+        const { error: surfaceError } = await supabase
           .from("surfaces")
           .insert({
             org_id: orgId,
-            surface_type: selectedRole,
-            title: `${savedUsername}'s ${CREATOR_TYPES[selectedRole].label} Space`,
+            surface_type: path.surfaceType,
+            title: `${savedUsername}'s ${path.label}`,
             status: "draft",
-          })
-          .select("id")
-          .single();
+          });
 
         if (surfaceError) {
           console.error("Surface creation error:", surfaceError);
@@ -339,14 +428,14 @@ export default function Onboarding() {
           return;
         }
 
-        // Also create corresponding public_surfaces entry (for public display)
+        // Create corresponding public_surfaces entry
         const { error: publicSurfaceError } = await supabase
           .from("public_surfaces")
           .insert({
             user_id: user.id,
             domain_id: domainData.id,
             slug: normalizedSlug,
-            title: `${savedUsername}'s ${CREATOR_TYPES[selectedRole].label} Space`,
+            title: `${savedUsername}'s ${path.label}`,
             is_published: false,
           });
 
@@ -364,27 +453,87 @@ export default function Onboarding() {
         toast.success("New surface created! Customize it before going live.");
         navigate("/dashboard");
       } else {
-        // First-time onboarding: call complete_onboarding RPC
-        console.log("[Onboarding] First-time onboarding, calling complete_onboarding");
+        // First-time onboarding: update profile + create surface
+        console.log("[Onboarding] First-time onboarding");
         
-        const { error } = await supabase.rpc("complete_onboarding", {
-          _user_id: user.id,
-          _username: savedUsername,
-          _display_name: savedDisplayName || null,
-          _creator_type: selectedRole,
-          _surface_slug: normalizedSlug,
-        });
+        // First update the profile (without creator_type)
+        const { error: profileError } = await supabase
+          .from("profiles")
+          .update({
+            username: savedUsername,
+            display_name: savedDisplayName || null,
+            onboarding_completed: true,
+          })
+          .eq("id", user.id);
 
-        if (error) {
-          if (error.message.includes("already taken")) {
-            toast.error("This URL is no longer available");
-            setSlugAvailable(false);
-          } else if (error.message.includes("Username")) {
-            toast.error(error.message);
+        if (profileError) {
+          if (profileError.message.includes("username")) {
+            toast.error("Username is no longer available");
             setCurrentStep("username");
           } else {
-            toast.error(error.message);
+            toast.error(profileError.message);
           }
+          return;
+        }
+
+        // Get the user's org (should have been created on signup)
+        const { data: membership, error: membershipError } = await supabase
+          .from("org_memberships")
+          .select("org_id")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (membershipError || !membership) {
+          console.error("Org lookup error:", membershipError);
+          toast.error("Organization not found");
+          return;
+        }
+
+        // Get domain ID
+        const { data: domainData, error: domainError } = await supabase
+          .from("surface_domains")
+          .select("id")
+          .eq("domain", path.domain)
+          .single();
+
+        if (domainError || !domainData) {
+          console.error("Domain lookup error:", domainError);
+          toast.error("Failed to find domain configuration");
+          return;
+        }
+
+        // Create the surface
+        const { error: surfaceError } = await supabase
+          .from("surfaces")
+          .insert({
+            org_id: membership.org_id,
+            surface_type: path.surfaceType,
+            title: `${savedUsername}'s ${path.label}`,
+            status: "draft",
+          });
+
+        if (surfaceError) {
+          console.error("Surface creation error:", surfaceError);
+          toast.error(surfaceError.message || "Failed to create surface");
+          return;
+        }
+
+        // Create public_surfaces entry
+        const { error: publicSurfaceError } = await supabase
+          .from("public_surfaces")
+          .insert({
+            user_id: user.id,
+            domain_id: domainData.id,
+            slug: normalizedSlug,
+            title: `${savedUsername}'s ${path.label}`,
+            is_published: false,
+          });
+
+        if (publicSurfaceError) {
+          console.error("Public surface creation error:", publicSurfaceError);
+          toast.error(publicSurfaceError.message || "Failed to create surface");
           return;
         }
 
@@ -401,21 +550,19 @@ export default function Onboarding() {
   };
 
   const goBack = () => {
-    if (currentStep === "role") {
+    if (currentStep === "goal") {
       if (isCreateNewSurface && profile?.onboarding_completed) {
-        // For create new surface, going back might go to org selector if no active org
         if (!activeOrg) {
           setCurrentStep("select-org");
         } else {
-          // Can't go back further, just close
           navigate("/dashboard");
         }
       } else {
         setCurrentStep("username");
       }
     } else if (currentStep === "surface") {
-      setSelectedRole(null);
-      setCurrentStep("role");
+      setSelectedPath(null);
+      setCurrentStep("goal");
     } else if (currentStep === "select-org") {
       navigate("/dashboard");
     }
@@ -532,49 +679,57 @@ export default function Onboarding() {
     );
   }
 
-  // Step 2: Role Selection
-  if (currentStep === "role") {
+  // Step 2: Goal Selection (CTA-based)
+  if (currentStep === "goal") {
     return (
       <AuthShell
-        title="What brings you here?"
-        subtitle="Choose your primary role to get started"
+        title="What do you want to do?"
+        subtitle="Choose your path - this determines where you'll publish"
         showBackLink={false}
       >
         <div className="space-y-4">
           <div className="grid grid-cols-1 gap-3">
-            {Object.entries(CREATOR_TYPES).map(([key, role]) => {
-              const Icon = role.icon;
+            {Object.entries(ONBOARDING_PATHS).map(([key, path]) => {
+              const Icon = path.icon;
               return (
                 <Card
                   key={key}
                   variant="outlined"
                   interactive
-                  onClick={() => handleRoleSelect(key as CreatorType)}
+                  onClick={() => handlePathSelect(key as OnboardingPathKey)}
                   className={cn(
                     "p-4 flex items-center gap-4 transition-all",
-                    "hover:border-accent"
+                    "hover:border-accent",
+                    isLoading && "opacity-50 pointer-events-none"
                   )}
                 >
-                  <div className={cn("p-3 rounded-lg", role.bgColor)}>
-                    <Icon className={cn("h-5 w-5", role.color)} />
+                  <div className={cn("p-3 rounded-lg", path.bgColor)}>
+                    <Icon className={cn("h-5 w-5", path.color)} />
                   </div>
-                  <div className="flex-1">
-                    <h3 className="font-medium">{role.label}</h3>
-                    <p className="text-sm text-muted-foreground">{role.description}</p>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium">{path.label}</h3>
+                    <p className="text-sm text-muted-foreground truncate">{path.description}</p>
                   </div>
-                  <div className="text-xs text-muted-foreground font-mono">
-                    {role.domain}
+                  <div className="text-xs text-muted-foreground font-mono shrink-0">
+                    {path.domain}
                   </div>
                 </Card>
               );
             })}
           </div>
 
+          {isLoading && (
+            <div className="flex justify-center py-4">
+              <Loader2 className="h-6 w-6 animate-spin text-accent" />
+            </div>
+          )}
+
           <Button
             type="button"
             variant="ghost"
             className="w-full"
             onClick={goBack}
+            disabled={isLoading}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
@@ -584,10 +739,10 @@ export default function Onboarding() {
     );
   }
 
-  // Step 3: Surface URL
-  if (currentStep === "surface" && selectedRole) {
-    const roleConfig = CREATOR_TYPES[selectedRole];
-    const Icon = roleConfig.icon;
+  // Step 3: Surface URL (only for paths that create surfaces)
+  if (currentStep === "surface" && selectedPath) {
+    const pathConfig = ONBOARDING_PATHS[selectedPath];
+    const Icon = pathConfig.icon;
 
     return (
       <AuthShell
@@ -596,13 +751,13 @@ export default function Onboarding() {
         showBackLink={false}
       >
         <form onSubmit={slugForm.handleSubmit(handleFinalSubmit)} className="space-y-6">
-          {/* Selected role indicator */}
-          <Card variant="ghost" className={cn("p-3 border", roleConfig.borderColor, roleConfig.bgColor)}>
+          {/* Selected path indicator */}
+          <Card variant="ghost" className={cn("p-3 border", pathConfig.borderColor, pathConfig.bgColor)}>
             <div className="flex items-center gap-3">
-              <Icon className={cn("h-5 w-5", roleConfig.color)} />
+              <Icon className={cn("h-5 w-5", pathConfig.color)} />
               <div>
-                <p className="text-sm font-medium">{roleConfig.label}</p>
-                <p className="text-xs text-muted-foreground">{roleConfig.domain}</p>
+                <p className="text-sm font-medium">{pathConfig.label}</p>
+                <p className="text-xs text-muted-foreground">{pathConfig.domain}</p>
               </div>
             </div>
           </Card>
@@ -637,13 +792,13 @@ export default function Onboarding() {
               <p className="text-sm text-destructive">{slugForm.formState.errors.slug.message}</p>
             ) : slugAvailable === true ? (
               <p className="text-sm text-success">
-                {roleConfig.domain}/{slug} is available!
+                {pathConfig.domain}/{slug} is available!
               </p>
             ) : slugAvailable === false ? (
               <p className="text-sm text-destructive">This URL is already taken</p>
             ) : slug.length >= 3 ? (
               <p className="text-sm text-muted-foreground">
-                {roleConfig.domain}/{slug}
+                {pathConfig.domain}/{slug}
               </p>
             ) : null}
           </div>
