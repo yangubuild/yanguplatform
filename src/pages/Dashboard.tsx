@@ -3,10 +3,10 @@ import { useSurfaces } from "@/hooks/useSurfaces";
 import { useNavigate } from "react-router-dom";
 import { useDomain } from "@/contexts/DomainContext";
 import { AppShell } from "@/components/primitives";
-import { PageContainer, Card, Banner, PrimaryButton } from "@/components/primitives";
+import { PageContainer, Card, Banner, PrimaryButton, SecondaryButton } from "@/components/primitives";
 import { SurfaceCard } from "@/components/dashboard/SurfaceCard";
 import { DomainBadge } from "@/components/domain/DomainBadge";
-import { Plus, Rocket, Users, BarChart3, Loader2 } from "lucide-react";
+import { Plus, Rocket, Users, BarChart3, Loader2, Sparkles } from "lucide-react";
 
 
 export default function Dashboard() {
@@ -30,6 +30,13 @@ export default function Dashboard() {
     navigate("/onboarding?new=1");
   };
 
+  const handleOpenStudio = () => {
+    // Studio is a global tool - opens the AI creative studio
+    // For now, show a toast. Future: navigate to /studio
+    console.log("[Dashboard] Opening Studio");
+    // navigate("/studio"); // Future route
+  };
+
   return (
     <AppShell>
       <PageContainer size="xl">
@@ -48,10 +55,16 @@ export default function Dashboard() {
                   {routeConfig.primaryCta.replace(/^(Open|Claim|Build|Start|Showcase|Go)/, "Ready to $1").toLowerCase()}?
                 </p>
               </div>
-              <PrimaryButton onClick={handleCreateSurface}>
-                <Plus className="mr-2 h-4 w-4" />
-                Create Surface
-              </PrimaryButton>
+              <div className="flex gap-3">
+                <SecondaryButton onClick={handleOpenStudio}>
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  AI Studio
+                </SecondaryButton>
+                <PrimaryButton onClick={handleCreateSurface}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Surface
+                </PrimaryButton>
+              </div>
             </div>
           </Banner>
 
