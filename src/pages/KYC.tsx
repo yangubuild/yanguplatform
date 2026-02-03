@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useRoles } from "@/hooks/useRoles";
 import { Card, SecondaryButton } from "@/components/primitives";
 import { Shield, ArrowLeft, Clock, CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,28 +12,21 @@ import { Badge } from "@/components/ui/badge";
 export default function KYC() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isOwner, isLoading: rolesLoading } = useRoles();
   const { toast } = useToast();
   
-  const [isAdmin, setIsAdmin] = useState(false);
   const [kycStatus, setKycStatus] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
-    async function checkAdminAndKycStatus() {
+    async function fetchKycStatus() {
       if (!user) {
         setIsLoading(false);
         return;
       }
 
       try {
-        // Check if user is admin
-        const { data: adminData } = await supabase.rpc("has_role", {
-          _user_id: user.id,
-          _role: "admin",
-        });
-        setIsAdmin(adminData ?? false);
-
         // Check current KYC status
         const { data: kycData } = await supabase
           .from("kyc_verifications")
@@ -42,13 +36,13 @@ export default function KYC() {
 
         setKycStatus(kycData?.status ?? null);
       } catch (err) {
-        console.error("Error checking status:", err);
+        console.error("Error checking KYC status:", err);
       } finally {
         setIsLoading(false);
       }
     }
 
-    checkAdminAndKycStatus();
+    fetchKycStatus();
   }, [user]);
 
   const handleApproveKyc = async () => {
@@ -178,12 +172,12 @@ export default function KYC() {
           </Button>
         </div>
 
-        {/* Admin Dev Button */}
-        {isAdmin && !isLoading && (
+        {/* Admin/Owner Dev Button */}
+        {isOwner && !isLoading && !rolesLoading && (
           <div className="mt-6 pt-6 border-t border-border">
             <div className="p-4 rounded-lg bg-warning/10 border border-warning/20">
               <p className="text-xs text-warning mb-3 font-medium">
-                ⚠️ Admin Only - Development Testing
+                ⚠️ Owner Only - Development Testing
               </p>
               <Button
                 variant="outline"
