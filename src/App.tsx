@@ -5,7 +5,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/hooks/useAuth";
+import { DomainProvider } from "@/contexts/DomainContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { DomainGate } from "@/components/domain/DomainGate";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/auth/Login";
@@ -32,9 +34,11 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<Index />} />
+            <DomainProvider>
+              <DomainGate>
+                <Routes>
+                  {/* Public routes */}
+                  <Route path="/" element={<Index />} />
               
               {/* Owner preview route - requires auth + ownership */}
               <Route path="/s/:id/preview" element={<SurfacePreview />} />
@@ -100,9 +104,11 @@ const App = () => (
                 }
               />
               
-              {/* Catch-all */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+                  {/* Catch-all */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </DomainGate>
+            </DomainProvider>
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>
