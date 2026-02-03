@@ -7,7 +7,7 @@ import { PageContainer, Card, Banner, PrimaryButton } from "@/components/primiti
 import { SurfaceCard } from "@/components/dashboard/SurfaceCard";
 import { DomainBadge } from "@/components/domain/DomainBadge";
 import { Plus, Rocket, Users, BarChart3, Loader2 } from "lucide-react";
-import { toast } from "sonner";
+
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -24,16 +24,9 @@ export default function Dashboard() {
   };
 
   const hasSurfaces = surfaces && surfaces.length > 0;
-  const hasDraft = surfaces?.some((s) => !s.is_published);
 
   const handleCreateSurface = () => {
-    if (hasDraft) {
-      console.log("[Dashboard] Create Surface blocked: draft exists", { hasDraft, surfaceCount: surfaces?.length });
-      toast.info("Complete or publish your existing draft surface first.");
-      return;
-    }
     console.log("[Dashboard] Navigating to /onboarding?new=1");
-    toast.info("Redirecting to create new surface...");
     navigate("/onboarding?new=1");
   };
 
@@ -55,7 +48,7 @@ export default function Dashboard() {
                   {routeConfig.primaryCta.replace(/^(Open|Claim|Build|Start|Showcase|Go)/, "Ready to $1").toLowerCase()}?
                 </p>
               </div>
-              <PrimaryButton onClick={handleCreateSurface} disabled={hasDraft}>
+              <PrimaryButton onClick={handleCreateSurface}>
                 <Plus className="mr-2 h-4 w-4" />
                 Create Surface
               </PrimaryButton>
@@ -113,7 +106,7 @@ export default function Dashboard() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold">Your Surfaces</h2>
-                <PrimaryButton size="sm" onClick={handleCreateSurface} disabled={hasDraft}>
+                <PrimaryButton size="sm" onClick={handleCreateSurface}>
                   <Plus className="mr-2 h-4 w-4" />
                   New Surface
                 </PrimaryButton>
