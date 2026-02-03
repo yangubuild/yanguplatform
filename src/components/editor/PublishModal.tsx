@@ -8,7 +8,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/primitives";
 import { usePublishFlow, type OrgDomain } from "@/hooks/usePublish";
 import { useDomain } from "@/contexts/DomainContext";
@@ -30,7 +29,6 @@ interface PublishModalProps {
   onOpenChange: (open: boolean) => void;
   surfaceId: string;
   surfaceTitle: string;
-  orgId: string;
   currentDomainId?: string;
   onPublishSuccess?: (domainHost: string, surfaceSlug: string) => void;
 }
@@ -47,14 +45,16 @@ export function PublishModal({
   onOpenChange,
   surfaceId,
   surfaceTitle,
-  orgId,
   currentDomainId,
   onPublishSuccess,
 }: PublishModalProps) {
   const navigate = useNavigate();
   const { domainId: activeDomainId } = useDomain();
   
+  // usePublishFlow now uses active org internally - no orgId prop needed
   const {
+    activeOrg,
+    activeOrgLoading,
     domains,
     domainsLoading,
     selectedDomainId,
@@ -66,7 +66,7 @@ export function PublishModal({
     publishResult,
     canPublish,
     reset,
-  } = usePublishFlow(surfaceId, orgId);
+  } = usePublishFlow(surfaceId);
 
   const [publishSuccess, setPublishSuccess] = useState(false);
   const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
@@ -190,54 +190,73 @@ export function PublishModal({
         </DialogHeader>
 
         <div className="space-y-6 py-4">
+          {/* Loading state for org */}
+          {activeOrgLoading && (
+            <div className="flex items-center justify-center p-8">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          )}
+
+          {/* No org found */}
+          {!activeOrgLoading && !activeOrg && (
+            <Card className="p-4 text-center">
+              <AlertTriangle className="h-8 w-8 text-warning mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">
+                No organization found. Please complete onboarding first.
+              </p>
+            </Card>
+          )}
+
           {/* Domain Selection */}
-          <div className="space-y-3">
-            <label className="text-sm font-medium">Select Domain</label>
-            
-            {domainsLoading ? (
-              <div className="flex items-center justify-center p-8">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-              </div>
-            ) : domains.length === 0 ? (
-              <Card className="p-4 text-center">
-                <AlertTriangle className="h-8 w-8 text-warning mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">
-                  No domains available for this organization.
-                </p>
-              </Card>
-            ) : (
-              <div className="grid gap-2">
-                {domains.map((domain) => (
-                  <button
-                    key={domain.id}
-                    onClick={() => handleDomainSelect(domain)}
-                    className={`flex items-center gap-3 p-3 rounded-lg border text-left transition-colors ${
-                      selectedDomainId === domain.id
-                        ? "border-accent bg-accent/5"
-                        : "border-border hover:border-muted-foreground/50 hover:bg-muted/50"
-                    }`}
-                  >
-                    <div className={`p-2 rounded-full ${
-                      selectedDomainId === domain.id ? "bg-accent/10" : "bg-muted"
-                    }`}>
-                      <Globe className={`h-4 w-4 ${
-                        selectedDomainId === domain.id ? "text-accent" : "text-muted-foreground"
-                      }`} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{domain.host}</p>
-                      <p className="text-xs text-muted-foreground capitalize">
-                        {domain.domain_type}
-                      </p>
-                    </div>
-                    {selectedDomainId === domain.id && (
-                      <CheckCircle2 className="h-5 w-5 text-accent shrink-0" />
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          {!activeOrgLoading && activeOrg && (
+            <div className="space-y-3">
+              <label className="text-sm font-medium">Select Domain</label>
+              
+              {domainsLoading ? (
+                <div className="flex items-center justify-center p-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+              ) : domains.length === 0 ? (
+                <Card className="p-4 text-center">
+                  <AlertTriangle className="h-8 w-8 text-warning mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">
+                    No domains available for your organization.
+                  </p>
+                </Card>
+              ) : (
+                <div className="grid gap-2">
+                  {domains.map((domain) => (
+                    <button
+                      key={domain.id}
+                      onClick={() => handleDomainSelect(domain)}
+                      className={`flex items-center gap-3 p-3 rounded-lg border text-left transition-colors ${
+                        selectedDomainId === domain.id
+                          ? "border-accent bg-accent/5"
+                          : "border-border hover:border-muted-foreground/50 hover:bg-muted/50"
+                      }`}
+                    >
+                      <div className={`p-2 rounded-full ${
+                        selectedDomainId === domain.id ? "bg-accent/10" : "bg-muted"
+                      }`}>
+                        <Globe className={`h-4 w-4 ${
+                          selectedDomainId === domain.id ? "text-accent" : "text-muted-foreground"
+                        }`} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{domain.host}</p>
+                        <p className="text-xs text-muted-foreground capitalize">
+                          {domain.domain_type}
+                        </p>
+                      </div>
+                      {selectedDomainId === domain.id && (
+                        <CheckCircle2 className="h-5 w-5 text-accent shrink-0" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Eligibility Status */}
           {selectedDomainId && (
@@ -337,7 +356,7 @@ export function PublishModal({
           </Button>
           <Button
             onClick={handlePublish}
-            disabled={!selectedDomainId || !canPublish || isPublishing}
+            disabled={!selectedDomainId || !canPublish || isPublishing || !activeOrg}
             className="gap-2"
           >
             {isPublishing ? (

@@ -5,7 +5,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useActiveOrg } from "@/hooks/useActiveOrg";
 import { AuthShell } from "@/components/auth/AuthShell";
+import { OrgSelector } from "@/components/OrgSelector";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -84,12 +86,13 @@ const slugSchema = z.object({
 type UsernameFormData = z.infer<typeof usernameSchema>;
 type SlugFormData = z.infer<typeof slugSchema>;
 
-type OnboardingStep = "username" | "role" | "surface";
+type OnboardingStep = "username" | "role" | "surface" | "select-org";
 
 export default function Onboarding() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user, profile, isLoading: authLoading, refreshProfile } = useAuth();
+  const { data: activeOrg, isLoading: orgLoading } = useActiveOrg();
   
   // Check if this is a "create new surface" flow (from dashboard)
   const isCreateNewSurface = searchParams.get("new") === "1";
@@ -111,6 +114,9 @@ export default function Onboarding() {
   const [isCheckingSlug, setIsCheckingSlug] = useState(false);
   const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
 
+  // Selected org for surface creation (when user has multiple orgs)
+  const [selectedOrgId, setSelectedOrgId] = useState<string | null>(null);
+
   const usernameForm = useForm<UsernameFormData>({
     resolver: zodResolver(usernameSchema),
     defaultValues: { username: "", displayName: "" },
@@ -128,7 +134,7 @@ export default function Onboarding() {
 
   // Redirect if not authenticated, or if already onboarded and not creating new surface
   useEffect(() => {
-    if (!authLoading) {
+    if (!authLoading && !orgLoading) {
       if (!user) {
         console.log("[Onboarding] No user, redirecting to login");
         navigate("/auth/login");
@@ -136,14 +142,23 @@ export default function Onboarding() {
         console.log("[Onboarding] Onboarding completed, redirecting to dashboard");
         navigate("/dashboard");
       } else if (isCreateNewSurface && profile?.onboarding_completed) {
-        // For "create new surface", skip to role selection with existing username
-        console.log("[Onboarding] Create new surface mode, skipping to role selection");
+        // For "create new surface", check if user has an active org
+        console.log("[Onboarding] Create new surface mode");
         setSavedUsername(profile.username || "");
         setSavedDisplayName(profile.display_name || "");
-        setCurrentStep("role");
+        
+        if (activeOrg) {
+          // User has an active org, proceed to role selection
+          setSelectedOrgId(activeOrg.id);
+          setCurrentStep("role");
+        } else {
+          // No active org - show org selector (or error)
+          console.log("[Onboarding] No active org found, showing selector");
+          setCurrentStep("select-org");
+        }
       }
     }
-  }, [user, profile, authLoading, navigate, isCreateNewSurface]);
+  }, [user, profile, authLoading, orgLoading, navigate, isCreateNewSurface, activeOrg]);
 
   // Check username availability
   const checkUsernameAvailability = useCallback(async (usernameToCheck: string) => {
@@ -260,6 +275,11 @@ export default function Onboarding() {
     setCurrentStep("surface");
   };
 
+  const handleOrgSelect = (orgId: string) => {
+    setSelectedOrgId(orgId);
+    setCurrentStep("role");
+  };
+
   const handleFinalSubmit = async (data: SlugFormData) => {
     if (!user || !selectedRole) return;
     if (slugAvailable === false) {
@@ -276,6 +296,13 @@ export default function Onboarding() {
       if (isCreateNewSurface && profile?.onboarding_completed) {
         console.log("[Onboarding] Creating new surface directly (user already onboarded)");
         
+        // Use the resolved active org - NEVER accept from client
+        const orgId = selectedOrgId || activeOrg?.id;
+        if (!orgId) {
+          toast.error("No organization found. Please complete onboarding first.");
+          return;
+        }
+
         // Get domain ID for the selected creator type
         const { data: domainData, error: domainError } = await supabase
           .from("surface_domains")
@@ -289,8 +316,31 @@ export default function Onboarding() {
           return;
         }
 
-        // Create the surface directly
-        const { error: surfaceError } = await supabase
+        // Create the surface in the surfaces table (org-owned)
+        const { data: surfaceData, error: surfaceError } = await supabase
+          .from("surfaces")
+          .insert({
+            org_id: orgId,
+            surface_type: selectedRole,
+            title: `${savedUsername}'s ${CREATOR_TYPES[selectedRole].label} Space`,
+            status: "draft",
+          })
+          .select("id")
+          .single();
+
+        if (surfaceError) {
+          console.error("Surface creation error:", surfaceError);
+          if (surfaceError.message.includes("duplicate") || surfaceError.code === "23505") {
+            toast.error("This URL is no longer available");
+            setSlugAvailable(false);
+          } else {
+            toast.error(surfaceError.message || "Failed to create surface");
+          }
+          return;
+        }
+
+        // Also create corresponding public_surfaces entry (for public display)
+        const { error: publicSurfaceError } = await supabase
           .from("public_surfaces")
           .insert({
             user_id: user.id,
@@ -300,13 +350,13 @@ export default function Onboarding() {
             is_published: false,
           });
 
-        if (surfaceError) {
-          console.error("Surface creation error:", surfaceError);
-          if (surfaceError.message.includes("duplicate") || surfaceError.code === "23505") {
+        if (publicSurfaceError) {
+          console.error("Public surface creation error:", publicSurfaceError);
+          if (publicSurfaceError.message.includes("duplicate") || publicSurfaceError.code === "23505") {
             toast.error("This URL is no longer available");
             setSlugAvailable(false);
           } else {
-            toast.error(surfaceError.message || "Failed to create surface");
+            toast.error(publicSurfaceError.message || "Failed to create surface");
           }
           return;
         }
@@ -352,19 +402,53 @@ export default function Onboarding() {
 
   const goBack = () => {
     if (currentStep === "role") {
-      setCurrentStep("username");
+      if (isCreateNewSurface && profile?.onboarding_completed) {
+        // For create new surface, going back might go to org selector if no active org
+        if (!activeOrg) {
+          setCurrentStep("select-org");
+        } else {
+          // Can't go back further, just close
+          navigate("/dashboard");
+        }
+      } else {
+        setCurrentStep("username");
+      }
     } else if (currentStep === "surface") {
       setSelectedRole(null);
       setCurrentStep("role");
+    } else if (currentStep === "select-org") {
+      navigate("/dashboard");
     }
   };
 
-  if (authLoading) {
+  if (authLoading || orgLoading) {
     return (
       <AuthShell title="Loading..." showBackLink={false}>
         <div className="flex justify-center py-8">
           <Loader2 className="h-8 w-8 animate-spin text-accent" />
         </div>
+      </AuthShell>
+    );
+  }
+
+  // Step: Org Selection (only shown when no active org and creating new surface)
+  if (currentStep === "select-org") {
+    return (
+      <AuthShell
+        title="Select Organization"
+        subtitle="Choose which organization to create the surface in"
+        showBackLink={false}
+      >
+        <OrgSelector onSelect={handleOrgSelect} />
+        <Button
+          type="button"
+          variant="ghost"
+          className="w-full mt-4"
+          onClick={() => navigate("/dashboard")}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Dashboard
+        </Button>
       </AuthShell>
     );
   }

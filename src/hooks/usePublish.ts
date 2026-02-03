@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useActiveOrg } from "./useActiveOrg";
 
 export interface EligibilityResult {
   eligible: boolean;
@@ -161,9 +162,15 @@ export function usePublishSurface() {
 
 /**
  * Combined hook for the complete publish flow
+ * Uses the user's active organization automatically - does NOT accept orgId from props
  */
-export function usePublishFlow(surfaceId: string, orgId: string | null) {
+export function usePublishFlow(surfaceId: string) {
   const { user } = useAuth();
+  const { data: activeOrg, isLoading: activeOrgLoading } = useActiveOrg();
+  
+  // Use active org ID - never accept from client
+  const orgId = activeOrg?.id || null;
+  
   const { data: domains, isLoading: domainsLoading } = useOrgDomains(orgId);
   const eligibilityHook = usePublishEligibility();
   const publishMutation = usePublishSurface();
@@ -197,9 +204,13 @@ export function usePublishFlow(surfaceId: string, orgId: string | null) {
   }, [eligibilityHook]);
 
   return {
+    // Active org
+    activeOrg,
+    activeOrgLoading,
+    
     // Domains
     domains: domains || [],
-    domainsLoading,
+    domainsLoading: domainsLoading || activeOrgLoading,
     selectedDomainId,
     selectDomain,
     
