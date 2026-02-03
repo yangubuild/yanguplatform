@@ -19,7 +19,7 @@ import AuthCallback from "./pages/auth/AuthCallback";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import SurfacePreview from "./pages/SurfacePreview";
-import PublicSurface from "./pages/PublicSurface";
+import PublicSurfacePage from "./pages/PublicSurfacePage";
 import SurfaceEditor from "./pages/SurfaceEditor";
 import KYC from "./pages/KYC";
 import Billing from "./pages/Billing";
@@ -43,8 +43,16 @@ const App = () => (
               {/* Owner preview route - requires auth + ownership */}
               <Route path="/s/:id/preview" element={<SurfacePreview />} />
               
-              {/* Public surface route - published surfaces only */}
-              <Route path="/s/:domain/:slug" element={<PublicSurface />} />
+              {/* Public surface routes - domain-scoped resolution */}
+              <Route path="/surface" element={<PublicSurfacePage />} />
+              <Route path="/@:username" element={<PublicSurfacePage />} />
+              <Route path="/store" element={<PublicSurfacePage />} />
+              <Route path="/storefront" element={<PublicSurfacePage />} />
+              <Route path="/services" element={<PublicSurfacePage />} />
+              <Route path="/portfolio" element={<PublicSurfacePage />} />
+              <Route path="/live" element={<PublicSurfacePage />} />
+              <Route path="/feed" element={<PublicSurfacePage />} />
+              <Route path="/groups" element={<PublicSurfacePage />} />
               
               {/* Auth routes */}
               <Route path="/auth/login" element={<Login />} />

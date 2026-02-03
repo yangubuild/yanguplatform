@@ -18,8 +18,16 @@ export const ROUTES = {
   // Surface owner preview (internal, before real domain)
   surfacePreview: (id: string) => `/s/${id}/preview`,
   
-  // Public surface route (published surfaces)
-  publicSurface: (domain: string, slug: string) => `/s/${domain}/${slug}`,
+  // Public surface routes (domain-scoped)
+  publicSurface: "/surface",
+  publicProfile: (username: string) => `/@${username}`,
+  publicStore: "/store",
+  publicStorefront: "/storefront",
+  publicServices: "/services",
+  publicPortfolio: "/portfolio",
+  publicLive: "/live",
+  publicFeed: "/feed",
+  publicGroups: "/groups",
   
   // Surface editor
   surfaceEditor: (id: string) => `/surfaces/${id}/edit`,
