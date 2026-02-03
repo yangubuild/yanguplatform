@@ -43,6 +43,7 @@ export const UNIVERSAL_ROUTES = [
   "/billing",
   "/settings",
   "/profile",
+  "/dev/seed", // Dev-only seeder
 ] as const;
 
 // Domain-specific route configurations
