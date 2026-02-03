@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { FileText, Palette, Search, Rocket, LayoutGrid, ArrowLeft, Eye } from "lucide-react";
+import { FileText, Palette, Search, Rocket, LayoutGrid, ArrowLeft, Eye, LogOut, User } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -14,6 +14,16 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/hooks/useAuth";
 
 export type EditorSection = "overview" | "content" | "appearance" | "seo" | "publish";
 
@@ -34,10 +44,34 @@ const sections = [
 export function EditorSidebar({ activeSection, onSectionChange, surfaceTitle }: EditorSidebarProps) {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const { toast } = useToast();
+  const { user } = useAuth();
 
   const handlePreview = () => {
     if (id) {
       navigate(`/s/${id}/preview`);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        toast({
+          title: "Logout failed",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+      navigate("/login");
+    } catch (err) {
+      console.error("Logout error:", err);
+      toast({
+        title: "Logout failed",
+        description: "An unexpected error occurred.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -100,7 +134,35 @@ export function EditorSidebar({ activeSection, onSectionChange, surfaceTitle }: 
       </SidebarContent>
 
       <SidebarFooter className="border-t border-border p-4">
-        <p className="text-xs text-muted-foreground">
+        {/* User Menu with Logout */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="w-full justify-start gap-2">
+              <User className="h-4 w-4" />
+              <span className="truncate text-sm">{user?.email || "Account"}</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-56">
+            <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+              <LayoutGrid className="h-4 w-4 mr-2" />
+              Dashboard
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/kyc")}>
+              <FileText className="h-4 w-4 mr-2" />
+              KYC Verification
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/billing")}>
+              <Rocket className="h-4 w-4 mr-2" />
+              Billing
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
+              <LogOut className="h-4 w-4 mr-2" />
+              Log out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <p className="text-xs text-muted-foreground mt-2">
           Press <kbd className="px-1.5 py-0.5 rounded bg-muted text-xs">⌘B</kbd> to toggle sidebar
         </p>
       </SidebarFooter>

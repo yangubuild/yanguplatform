@@ -5,6 +5,7 @@ import { Card } from "@/components/primitives";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useRoles } from "@/hooks/useRoles";
 import { 
   Rocket, 
   CheckCircle2, 
@@ -12,7 +13,8 @@ import {
   Shield, 
   CreditCard,
   ArrowRight,
-  Loader2
+  Loader2,
+  ExternalLink
 } from "lucide-react";
 
 interface SurfaceData {
@@ -29,6 +31,7 @@ interface SurfaceData {
 interface PublishSectionProps {
   surface: SurfaceData;
   userId: string;
+  onSurfaceUpdate?: (updates: Partial<SurfaceData>) => void;
 }
 
 interface EligibilityStatus {
@@ -38,14 +41,16 @@ interface EligibilityStatus {
   canPublish: boolean;
 }
 
-export function PublishSection({ surface, userId }: PublishSectionProps) {
+export function PublishSection({ surface, userId, onSurfaceUpdate }: PublishSectionProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isOwner, isLoading: rolesLoading } = useRoles();
   const [eligibility, setEligibility] = useState<EligibilityStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isPublishing, setIsPublishing] = useState(false);
 
   const isPublished = surface.is_published;
+  const publicUrl = `${surface.domain.domain}/${surface.slug}`;
 
   // Fetch eligibility status from database
   useEffect(() => {
@@ -89,6 +94,16 @@ export function PublishSection({ surface, userId }: PublishSectionProps) {
   const handlePublish = async () => {
     const canPublish = eligibility?.canPublish ?? false;
 
+    // Guard: only owner/admin can publish
+    if (!isOwner) {
+      toast({
+        title: "Permission denied",
+        description: "Only owners can publish surfaces.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Guard: prevent publishing if not eligible
     if (!canPublish) {
       toast({
@@ -111,16 +126,73 @@ export function PublishSection({ surface, userId }: PublishSectionProps) {
     setIsPublishing(true);
 
     try {
-      // TODO: Implement actual publish logic (create trial record, set is_published=true)
+      // If user hasn't used trial and has no KYC, create a trial record first
+      const needsTrial = !eligibility?.hasApprovedKyc && !eligibility?.hasUsedTrial;
+      
+      if (needsTrial) {
+        // Create trial record (30 days)
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + 30);
+        
+        const { error: trialError } = await supabase
+          .from("trials")
+          .insert({
+            user_id: userId,
+            surface_id: surface.id,
+            expires_at: expiresAt.toISOString(),
+          });
+
+        if (trialError) {
+          console.error("Trial creation error:", trialError);
+          toast({
+            title: "Failed to activate trial",
+            description: trialError.message,
+            variant: "destructive",
+          });
+          setIsPublishing(false);
+          return;
+        }
+      }
+
+      // Update surface to published
+      const { error: publishError } = await supabase
+        .from("public_surfaces")
+        .update({
+          is_published: true,
+          published_at: new Date().toISOString(),
+        })
+        .eq("id", surface.id);
+
+      if (publishError) {
+        console.error("Publish error:", publishError);
+        toast({
+          title: "Publish failed",
+          description: publishError.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Update local state
+      onSurfaceUpdate?.({ is_published: true });
+
       toast({
-        title: "Publishing coming soon",
-        description: "The publish functionality will be implemented next.",
+        title: "Surface published! 🎉",
+        description: `Your surface is now live at ${publicUrl}`,
       });
+
+      // Refetch eligibility to update trial status
+      setEligibility((prev) => prev ? {
+        ...prev,
+        hasUsedTrial: needsTrial ? true : prev.hasUsedTrial,
+        publishedCount: prev.publishedCount + 1,
+      } : null);
+
     } catch (err) {
       console.error("Error publishing:", err);
       toast({
         title: "Publish failed",
-        description: "An error occurred while publishing. Please try again.",
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -129,7 +201,7 @@ export function PublishSection({ surface, userId }: PublishSectionProps) {
   };
 
   // Loading state
-  if (isLoading) {
+  if (isLoading || rolesLoading) {
     return (
       <div className="space-y-6">
         <div>
@@ -241,9 +313,20 @@ export function PublishSection({ surface, userId }: PublishSectionProps) {
             </div>
             <p className="text-sm text-muted-foreground mt-1">
               {isPublished
-                ? `Accessible at ${surface.domain.domain}/${surface.slug}`
+                ? `Accessible at ${publicUrl}`
                 : "Only you can view this surface. Publish to make it public."}
             </p>
+            {isPublished && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-3 gap-2"
+                onClick={() => window.open(`https://${publicUrl}`, "_blank")}
+              >
+                <ExternalLink className="h-3 w-3" />
+                View Live
+              </Button>
+            )}
           </div>
         </div>
       </Card>
