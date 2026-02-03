@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useRoles } from "@/hooks/useRoles";
 import { Card, SecondaryButton } from "@/components/primitives";
 import { CreditCard, ArrowLeft, Clock, Check, CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,41 +12,34 @@ import { Badge } from "@/components/ui/badge";
 export default function Billing() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isOwner, isLoading: rolesLoading } = useRoles();
   const { toast } = useToast();
   
-  const [isAdmin, setIsAdmin] = useState(false);
   const [hasUsedTrial, setHasUsedTrial] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
-    async function checkAdminAndTrialStatus() {
+    async function fetchTrialStatus() {
       if (!user) {
         setIsLoading(false);
         return;
       }
 
       try {
-        // Check if user is admin
-        const { data: adminData } = await supabase.rpc("has_role", {
-          _user_id: user.id,
-          _role: "admin",
-        });
-        setIsAdmin(adminData ?? false);
-
         // Check current trial status
         const { data: trialData } = await supabase.rpc("has_used_trial", {
           _user_id: user.id,
         });
         setHasUsedTrial(trialData ?? false);
       } catch (err) {
-        console.error("Error checking status:", err);
+        console.error("Error checking trial status:", err);
       } finally {
         setIsLoading(false);
       }
     }
 
-    checkAdminAndTrialStatus();
+    fetchTrialStatus();
   }, [user]);
 
   const handleActivateTrial = async () => {
@@ -193,12 +187,12 @@ export default function Billing() {
           </SecondaryButton>
         </div>
 
-        {/* Admin Dev Button */}
-        {isAdmin && !isLoading && (
+        {/* Admin/Owner Dev Button */}
+        {isOwner && !isLoading && !rolesLoading && (
           <div className="mt-6 pt-6 border-t border-border">
             <div className="p-4 rounded-lg bg-warning/10 border border-warning/20">
               <p className="text-xs text-warning mb-3 font-medium">
-                ⚠️ Admin Only - Development Testing
+                ⚠️ Owner Only - Development Testing
               </p>
               <Button
                 variant="outline"
