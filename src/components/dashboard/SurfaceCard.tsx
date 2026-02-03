@@ -1,8 +1,10 @@
 import { Card } from "@/components/primitives";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Pencil, Globe } from "lucide-react";
+import { DomainBadge } from "@/components/domain/DomainBadge";
+import { ExternalLink, Pencil, Globe, Eye } from "lucide-react";
 import type { SurfaceWithDomain } from "@/hooks/useSurfaces";
+import type { DomainType } from "@/contexts/DomainContext";
 
 interface SurfaceCardProps {
   surface: SurfaceWithDomain;
@@ -12,6 +14,11 @@ interface SurfaceCardProps {
 
 export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
   const fullUrl = `${surface.domain.domain}/${surface.slug}`;
+  const liveUrl = `https://${fullUrl}`;
+
+  const handleViewLive = () => {
+    window.open(liveUrl, "_blank");
+  };
 
   return (
     <Card className="p-5">
@@ -27,17 +34,23 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
           </div>
           <Badge 
             variant={surface.is_published ? "default" : "secondary"}
-            className="flex-shrink-0"
+            className={`flex-shrink-0 ${surface.is_published ? "bg-success text-success-foreground" : ""}`}
           >
-            {surface.is_published ? "Published" : "Draft"}
+            {surface.is_published ? "Live" : "Draft"}
           </Badge>
         </div>
 
         {/* Domain Type */}
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-xs">
-            {surface.domain.label}
-          </Badge>
+          <DomainBadge 
+            domainType={surface.domain.surface_type as DomainType} 
+            size="sm" 
+          />
+          {surface.is_featured && (
+            <Badge variant="outline" className="text-xs bg-accent/10 text-accent border-accent/20">
+              Featured
+            </Badge>
+          )}
         </div>
 
         {/* Description */}
@@ -58,15 +71,27 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
             <Pencil className="h-4 w-4 mr-2" />
             Edit
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex-1"
-            onClick={() => onPreview?.(surface)}
-          >
-            <ExternalLink className="h-4 w-4 mr-2" />
-            Preview
-          </Button>
+          {surface.is_published ? (
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1"
+              onClick={handleViewLive}
+            >
+              <ExternalLink className="h-4 w-4 mr-2" />
+              View Live
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1"
+              onClick={() => onPreview?.(surface)}
+            >
+              <Eye className="h-4 w-4 mr-2" />
+              Preview
+            </Button>
+          )}
         </div>
       </div>
     </Card>
