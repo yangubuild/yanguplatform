@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useRoles } from "@/hooks/useRoles";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   Rocket, 
   CheckCircle2, 
@@ -14,7 +15,8 @@ import {
   CreditCard,
   ArrowRight,
   Loader2,
-  ExternalLink
+  ExternalLink,
+  Bug
 } from "lucide-react";
 
 interface SurfaceData {
@@ -44,6 +46,7 @@ interface EligibilityStatus {
 export function PublishSection({ surface, userId, onSurfaceUpdate }: PublishSectionProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const { isOwner, isAdmin, isLoading: rolesLoading } = useRoles();
   const [eligibility, setEligibility] = useState<EligibilityStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -92,23 +95,32 @@ export function PublishSection({ surface, userId, onSurfaceUpdate }: PublishSect
 
   // Publish handler with eligibility guard
   const handlePublish = async () => {
-    const canPublish = eligibility?.canPublish ?? false;
+    const canPublishEligibility = eligibility?.canPublish ?? false;
 
     // Log role values for debugging
-    console.log("Publish clicked - isOwner:", isOwner, "isAdmin:", isAdmin);
+    console.log("Publish clicked - isOwner:", isOwner, "isAdmin:", isAdmin, "rolesLoading:", rolesLoading);
+
+    // Guard: roles must be loaded first
+    if (rolesLoading) {
+      toast({
+        title: "Please wait",
+        description: "Loading permissions...",
+      });
+      return;
+    }
 
     // Guard: only owner/admin can publish (isOwner = isAdmin for Phase 1)
     if (!isOwner) {
       toast({
         title: "Permission denied",
-        description: "You don't have permission to publish this surface.",
+        description: "Only admins can publish surfaces.",
         variant: "destructive",
       });
       return;
     }
 
     // Guard: prevent publishing if not eligible
-    if (!canPublish) {
+    if (!canPublishEligibility) {
       toast({
         title: "Cannot publish",
         description: "Complete KYC and Subscription to publish.",
@@ -193,9 +205,10 @@ export function PublishSection({ surface, userId, onSurfaceUpdate }: PublishSect
 
     } catch (err) {
       console.error("Error publishing:", err);
+      const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred";
       toast({
         title: "Publish failed",
-        description: "An unexpected error occurred. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -203,20 +216,8 @@ export function PublishSection({ surface, userId, onSurfaceUpdate }: PublishSect
     }
   };
 
-  // Loading state
-  if (isLoading || rolesLoading) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-2xl font-bold">Publish</h2>
-          <p className="text-muted-foreground">Make your surface live and accessible to everyone</p>
-        </div>
-        <Card className="p-8 flex items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        </Card>
-      </div>
-    );
-  }
+  // Loading state for eligibility only (show debug even while loading)
+  const eligibilityLoading = isLoading;
 
   // Build requirements list with real status
   const requirements: Array<{
@@ -288,6 +289,12 @@ export function PublishSection({ surface, userId, onSurfaceUpdate }: PublishSect
     }
   }
 
+  // Permission check: show warning only when not loading and not owner
+  const showPermissionWarning = !rolesLoading && !isOwner;
+
+  // Button disabled states
+  const isButtonDisabled = rolesLoading || !canPublish || isPublished || isPublishing || !isOwner;
+
   return (
     <div className="space-y-6">
       <div>
@@ -295,150 +302,220 @@ export function PublishSection({ surface, userId, onSurfaceUpdate }: PublishSect
         <p className="text-muted-foreground">Make your surface live and accessible to everyone</p>
       </div>
 
-      {/* Current Status */}
-      <Card className="p-6">
-        <div className="flex items-start gap-4">
-          <div className={`p-3 rounded-full ${isPublished ? "bg-success/10" : "bg-muted"}`}>
-            {isPublished ? (
-              <CheckCircle2 className="h-6 w-6 text-success" />
-            ) : (
-              <Clock className="h-6 w-6 text-muted-foreground" />
-            )}
+      {/* Debug Section (Temporary) */}
+      <Card className="p-4 border-dashed border-warning/50 bg-warning/5">
+        <div className="flex items-center gap-2 mb-3">
+          <Bug className="h-4 w-4 text-warning" />
+          <h4 className="text-sm font-semibold text-warning">Debug Info (Dev Only)</h4>
+        </div>
+        <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+          <div className="text-muted-foreground">Session User ID:</div>
+          <div className="truncate">{user?.id ?? "null"}</div>
+          
+          <div className="text-muted-foreground">isAdmin:</div>
+          <div className={isAdmin ? "text-success" : "text-destructive"}>
+            {String(isAdmin)}
           </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <h3 className="font-semibold">
-                {isPublished ? "Your surface is live!" : "Your surface is in draft mode"}
-              </h3>
-              <Badge variant={isPublished ? "default" : "secondary"}>
-                {isPublished ? "Published" : "Draft"}
-              </Badge>
-            </div>
-            <p className="text-sm text-muted-foreground mt-1">
-              {isPublished
-                ? `Accessible at ${publicUrl}`
-                : "Only you can view this surface. Publish to make it public."}
-            </p>
-            {isPublished && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="mt-3 gap-2"
-                onClick={() => window.open(`https://${publicUrl}`, "_blank")}
-              >
-                <ExternalLink className="h-3 w-3" />
-                View Live
-              </Button>
-            )}
+          
+          <div className="text-muted-foreground">isOwner (= isAdmin):</div>
+          <div className={isOwner ? "text-success" : "text-destructive"}>
+            {String(isOwner)}
+          </div>
+          
+          <div className="text-muted-foreground">Roles Loading:</div>
+          <div className={rolesLoading ? "text-warning" : "text-muted-foreground"}>
+            {String(rolesLoading)}
+          </div>
+
+          <div className="text-muted-foreground">Eligibility Loading:</div>
+          <div className={eligibilityLoading ? "text-warning" : "text-muted-foreground"}>
+            {String(eligibilityLoading)}
           </div>
         </div>
       </Card>
 
-      {/* Publishing Requirements */}
-      {!isPublished && (
-        <Card className="p-6">
-          <h3 className="font-semibold mb-4">Publishing Requirements</h3>
-          <p className="text-sm text-muted-foreground mb-6">
-            {canPublish 
-              ? "You're ready to publish! Click the button below to make your surface live."
-              : "Complete the following requirements to publish your surface:"}
+      {/* Permission Warning */}
+      {showPermissionWarning && (
+        <Card className="p-4 border-destructive/50 bg-destructive/5">
+          <p className="text-sm text-destructive font-medium">
+            You don't have permission to publish. Only admins can publish surfaces.
           </p>
-
-          <div className="space-y-4">
-            {requirements.map((req) => (
-              <div 
-                key={req.id} 
-                className={`flex items-start gap-3 p-4 rounded-lg border ${
-                  req.status === "completed" 
-                    ? "border-success/20 bg-success/5" 
-                    : "border-border bg-muted/30"
-                }`}
-              >
-                <div className={`p-2 rounded-full ${
-                  req.status === "completed" ? "bg-success/10" : "bg-warning/10"
-                }`}>
-                  <req.icon className={`h-4 w-4 ${
-                    req.status === "completed" ? "text-success" : "text-warning"
-                  }`} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-medium">{req.label}</span>
-                    <Badge 
-                      variant={req.status === "completed" ? "default" : "outline"} 
-                      className={`text-xs ${req.status === "completed" ? "bg-success text-success-foreground" : ""}`}
-                    >
-                      {req.status === "completed" ? "Complete" : "Pending"}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-1">{req.description}</p>
-                  
-                  {/* CTA Button for pending requirements */}
-                  {req.ctaLabel && req.ctaRoute && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="mt-3"
-                      onClick={() => navigate(req.ctaRoute!)}
-                    >
-                      {req.ctaLabel}
-                      <ArrowRight className="h-3 w-3 ml-2" />
-                    </Button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
         </Card>
       )}
 
-      {/* Publish Action */}
-      <Card className="p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h3 className="font-semibold">
-              {isPublished ? "Manage Publication" : canPublish ? "Ready to Publish!" : "Cannot Publish Yet"}
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              {isPublished
-                ? "Your surface is currently live and accessible."
-                : canPublish
-                ? "All requirements met. You can now publish your surface."
-                : "Complete the requirements above to enable publishing."}
-            </p>
-          </div>
-          <Button
-            size="lg"
-            disabled={!canPublish || isPublished || isPublishing}
-            onClick={handlePublish}
-            className="gap-2"
-          >
-            {isPublishing ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Rocket className="h-4 w-4" />
-            )}
-            {isPublished ? "Published" : isPublishing ? "Publishing..." : "Publish Surface"}
-          </Button>
-        </div>
+      {/* Loading state for eligibility */}
+      {eligibilityLoading ? (
+        <Card className="p-8 flex items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </Card>
+      ) : (
+        <>
+          {/* Current Status */}
+          <Card className="p-6">
+            <div className="flex items-start gap-4">
+              <div className={`p-3 rounded-full ${isPublished ? "bg-success/10" : "bg-muted"}`}>
+                {isPublished ? (
+                  <CheckCircle2 className="h-6 w-6 text-success" />
+                ) : (
+                  <Clock className="h-6 w-6 text-muted-foreground" />
+                )}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold">
+                    {isPublished ? "Your surface is live!" : "Your surface is in draft mode"}
+                  </h3>
+                  <Badge variant={isPublished ? "default" : "secondary"}>
+                    {isPublished ? "Published" : "Draft"}
+                  </Badge>
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {isPublished
+                    ? `Accessible at ${publicUrl}`
+                    : "Only you can view this surface. Publish to make it public."}
+                </p>
+                {isPublished && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-3 gap-2"
+                    onClick={() => window.open(`https://${publicUrl}`, "_blank")}
+                  >
+                    <ExternalLink className="h-3 w-3" />
+                    View Live
+                  </Button>
+                )}
+              </div>
+            </div>
+          </Card>
 
-        {/* Show blocking reasons */}
-        {!canPublish && !isPublished && blockers.length > 0 && (
-          <div className="mt-4 p-4 rounded-lg bg-muted/50 border border-border">
-            <p className="text-sm font-medium text-muted-foreground mb-2">
-              To publish, you need to:
-            </p>
-            <ul className="space-y-1">
-              {blockers.map((blocker, idx) => (
-                <li key={idx} className="text-sm text-muted-foreground flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-warning" />
-                  {blocker}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </Card>
+          {/* Publishing Requirements */}
+          {!isPublished && (
+            <Card className="p-6">
+              <h3 className="font-semibold mb-4">Publishing Requirements</h3>
+              <p className="text-sm text-muted-foreground mb-6">
+                {canPublish 
+                  ? "You're ready to publish! Click the button below to make your surface live."
+                  : "Complete the following requirements to publish your surface:"}
+              </p>
+
+              <div className="space-y-4">
+                {requirements.map((req) => (
+                  <div 
+                    key={req.id} 
+                    className={`flex items-start gap-3 p-4 rounded-lg border ${
+                      req.status === "completed" 
+                        ? "border-success/20 bg-success/5" 
+                        : "border-border bg-muted/30"
+                    }`}
+                  >
+                    <div className={`p-2 rounded-full ${
+                      req.status === "completed" ? "bg-success/10" : "bg-warning/10"
+                    }`}>
+                      <req.icon className={`h-4 w-4 ${
+                        req.status === "completed" ? "text-success" : "text-warning"
+                      }`} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-medium">{req.label}</span>
+                        <Badge 
+                          variant={req.status === "completed" ? "default" : "outline"} 
+                          className={`text-xs ${req.status === "completed" ? "bg-success text-success-foreground" : ""}`}
+                        >
+                          {req.status === "completed" ? "Complete" : "Pending"}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">{req.description}</p>
+                      
+                      {/* CTA Button for pending requirements */}
+                      {req.ctaLabel && req.ctaRoute && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="mt-3"
+                          onClick={() => navigate(req.ctaRoute!)}
+                        >
+                          {req.ctaLabel}
+                          <ArrowRight className="h-3 w-3 ml-2" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          {/* Publish Action */}
+          <Card className="p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="font-semibold">
+                  {isPublished 
+                    ? "Manage Publication" 
+                    : rolesLoading 
+                    ? "Loading permissions..." 
+                    : !isOwner
+                    ? "No Permission"
+                    : canPublish 
+                    ? "Ready to Publish!" 
+                    : "Cannot Publish Yet"}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {isPublished
+                    ? "Your surface is currently live and accessible."
+                    : rolesLoading
+                    ? "Please wait while we verify your permissions."
+                    : !isOwner
+                    ? "Only admins can publish surfaces."
+                    : canPublish
+                    ? "All requirements met. You can now publish your surface."
+                    : "Complete the requirements above to enable publishing."}
+                </p>
+              </div>
+              <Button
+                size="lg"
+                disabled={isButtonDisabled}
+                onClick={handlePublish}
+                className="gap-2"
+              >
+                {isPublishing ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : rolesLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Rocket className="h-4 w-4" />
+                )}
+                {isPublished 
+                  ? "Published" 
+                  : isPublishing 
+                  ? "Publishing..." 
+                  : rolesLoading
+                  ? "Loading..."
+                  : "Publish Surface"}
+              </Button>
+            </div>
+
+            {/* Show blocking reasons */}
+            {!canPublish && !isPublished && !rolesLoading && isOwner && blockers.length > 0 && (
+              <div className="mt-4 p-4 rounded-lg bg-muted/50 border border-border">
+                <p className="text-sm font-medium text-muted-foreground mb-2">
+                  To publish, you need to:
+                </p>
+                <ul className="space-y-1">
+                  {blockers.map((blocker, idx) => (
+                    <li key={idx} className="text-sm text-muted-foreground flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-warning" />
+                      {blocker}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </Card>
+        </>
+      )}
     </div>
   );
 }
