@@ -2,17 +2,39 @@
 // Creates test org, domains, and memberships for development testing
 // ONLY accessible in development mode
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { AppShell, PageContainer, Card } from "@/components/primitives";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Database, CheckCircle, AlertTriangle, Zap } from "lucide-react";
+import { Loader2, Database, CheckCircle, AlertTriangle, Zap, Link } from "lucide-react";
 import { Navigate } from "react-router-dom";
 
 // Only allow in development
 const isDev = import.meta.env.DEV;
+
+// Supabase connection info
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "";
+const SUPABASE_ANON_KEY_EXISTS = !!import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+function extractProjectRef(url: string): string {
+  try {
+    const match = url.match(/https:\/\/([^.]+)\.supabase\.co/);
+    return match ? match[1] : "unknown";
+  } catch {
+    return "parse-error";
+  }
+}
+
+const PROJECT_REF = extractProjectRef(SUPABASE_URL);
+
+// Log connection info to console
+console.log("=== SUPABASE CONNECTION INFO ===");
+console.log("VITE_SUPABASE_URL:", SUPABASE_URL);
+console.log("Project Ref:", PROJECT_REF);
+console.log("VITE_SUPABASE_ANON_KEY exists:", SUPABASE_ANON_KEY_EXISTS);
+console.log("================================");
 
 // Domain configurations to seed
 const DOMAINS_TO_SEED = [
@@ -305,6 +327,24 @@ export default function DevSeed() {
               Create test organization and domains for development
             </p>
           </div>
+
+          {/* Supabase Connection Info */}
+          <Card className="p-6 border-primary/30 bg-primary/5">
+            <div className="flex items-center gap-2 mb-3">
+              <Link className="h-4 w-4 text-primary" />
+              <h2 className="text-sm font-medium text-primary">
+                Supabase Connection
+              </h2>
+            </div>
+            <div className="space-y-2 text-sm">
+              <Row label="VITE_SUPABASE_URL" value={SUPABASE_URL || "(not set)"} />
+              <Row label="Project Ref" value={PROJECT_REF} />
+              <Row 
+                label="VITE_SUPABASE_ANON_KEY exists" 
+                value={SUPABASE_ANON_KEY_EXISTS ? "✓ true" : "✗ false"} 
+              />
+            </div>
+          </Card>
 
           {/* Current User Info */}
           <Card className="p-6">
