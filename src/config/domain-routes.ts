@@ -53,7 +53,8 @@ export const DOMAIN_ROUTE_CONFIG: Record<DomainType, DomainRouteConfig> = {
       ...UNIVERSAL_ROUTES,
       "/surfaces/:id/edit",
       "/s/:id/preview",
-      "/s/:domain/:slug",
+      "/surface",
+      "/@:username",
     ],
     defaultRoute: "/dashboard",
     primaryCta: "Claim Your Space",
@@ -71,13 +72,14 @@ export const DOMAIN_ROUTE_CONFIG: Record<DomainType, DomainRouteConfig> = {
   shop: {
     allowedRoutes: [
       ...UNIVERSAL_ROUTES,
+      "/surface",
+      "/storefront",
+      "/storefront/settings",
       "/products",
       "/products/:id",
       "/products/new",
       "/orders",
       "/orders/:id",
-      "/storefront",
-      "/storefront/settings",
     ],
     defaultRoute: "/storefront",
     primaryCta: "Open Your Shop",
@@ -95,17 +97,19 @@ export const DOMAIN_ROUTE_CONFIG: Record<DomainType, DomainRouteConfig> = {
   store: {
     allowedRoutes: [
       ...UNIVERSAL_ROUTES,
+      "/surface",
+      "/store",
       "/inventory",
       "/inventory/:id",
       "/listings",
       "/listings/new",
       "/transactions",
     ],
-    defaultRoute: "/inventory",
+    defaultRoute: "/store",
     primaryCta: "List Your Items",
     secondaryCta: "Browse Store",
     navItems: [
-      { label: "Inventory", path: "/inventory", icon: "Package" },
+      { label: "Store", path: "/store", icon: "Package" },
       { label: "Listings", path: "/listings", icon: "Tag" },
       { label: "Transactions", path: "/transactions", icon: "ArrowLeftRight" },
     ],
@@ -117,6 +121,7 @@ export const DOMAIN_ROUTE_CONFIG: Record<DomainType, DomainRouteConfig> = {
   site: {
     allowedRoutes: [
       ...UNIVERSAL_ROUTES,
+      "/surface",
       "/pages",
       "/pages/:id",
       "/pages/new",
@@ -139,6 +144,7 @@ export const DOMAIN_ROUTE_CONFIG: Record<DomainType, DomainRouteConfig> = {
   studio: {
     allowedRoutes: [
       ...UNIVERSAL_ROUTES,
+      "/surface",
       "/portfolio",
       "/portfolio/:id",
       "/services",
@@ -163,19 +169,21 @@ export const DOMAIN_ROUTE_CONFIG: Record<DomainType, DomainRouteConfig> = {
   live: {
     allowedRoutes: [
       ...UNIVERSAL_ROUTES,
+      "/surface",
+      "/live",
       "/sessions",
       "/sessions/:id",
       "/sessions/new",
       "/schedule",
       "/go-live",
     ],
-    defaultRoute: "/sessions",
+    defaultRoute: "/live",
     primaryCta: "Go Live",
     secondaryCta: "Watch Now",
     navItems: [
+      { label: "Live", path: "/live", icon: "Radio" },
       { label: "Sessions", path: "/sessions", icon: "Video" },
       { label: "Schedule", path: "/schedule", icon: "Calendar" },
-      { label: "Go Live", path: "/go-live", icon: "Radio" },
     ],
     label: "Live",
     icon: "Radio",
@@ -185,10 +193,11 @@ export const DOMAIN_ROUTE_CONFIG: Record<DomainType, DomainRouteConfig> = {
   community: {
     allowedRoutes: [
       ...UNIVERSAL_ROUTES,
+      "/surface",
+      "/feed",
       "/groups",
       "/groups/:id",
       "/groups/new",
-      "/feed",
       "/members",
       "/events",
       "/events/:id",
