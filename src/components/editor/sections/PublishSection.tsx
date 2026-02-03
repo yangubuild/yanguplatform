@@ -44,7 +44,7 @@ interface EligibilityStatus {
 export function PublishSection({ surface, userId, onSurfaceUpdate }: PublishSectionProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { isOwner, isLoading: rolesLoading } = useRoles();
+  const { isOwner, isAdmin, isLoading: rolesLoading } = useRoles();
   const [eligibility, setEligibility] = useState<EligibilityStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isPublishing, setIsPublishing] = useState(false);
@@ -94,11 +94,14 @@ export function PublishSection({ surface, userId, onSurfaceUpdate }: PublishSect
   const handlePublish = async () => {
     const canPublish = eligibility?.canPublish ?? false;
 
-    // Guard: only owner/admin can publish
+    // Log role values for debugging
+    console.log("Publish clicked - isOwner:", isOwner, "isAdmin:", isAdmin);
+
+    // Guard: only owner/admin can publish (isOwner = isAdmin for Phase 1)
     if (!isOwner) {
       toast({
         title: "Permission denied",
-        description: "Only owners can publish surfaces.",
+        description: "You don't have permission to publish this surface.",
         variant: "destructive",
       });
       return;
