@@ -23,6 +23,7 @@ import PublicSurfacePage from "./pages/PublicSurfacePage";
 import SurfaceEditor from "./pages/SurfaceEditor";
 import KYC from "./pages/KYC";
 import Billing from "./pages/Billing";
+import DevSeed from "./pages/dev/DevSeed";
 
 const queryClient = new QueryClient();
 
@@ -112,8 +113,11 @@ const App = () => (
                 }
               />
               
-                  {/* Catch-all */}
-                  <Route path="*" element={<NotFound />} />
+              {/* Dev routes - only in development */}
+              <Route path="/dev/seed" element={<DevSeed />} />
+              
+              {/* Catch-all */}
+              <Route path="*" element={<NotFound />} />
                 </Routes>
               </DomainGate>
             </DomainProvider>
