@@ -69,6 +69,25 @@ export default function DevSeed() {
     );
   }
 
+  // Wait for org_membership to exist (created by trigger)
+  async function waitForMembership(orgId: string, maxAttempts = 10): Promise<boolean> {
+    for (let i = 0; i < maxAttempts; i++) {
+      const { data } = await supabase
+        .from("org_memberships")
+        .select("org_id")
+        .eq("org_id", orgId)
+        .eq("user_id", user!.id)
+        .eq("role", "owner")
+        .maybeSingle();
+
+      if (data) return true;
+      
+      // Wait 100ms before retrying
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    return false;
+  }
+
   async function handleSeed() {
     if (!user) return;
 
@@ -106,6 +125,13 @@ export default function DevSeed() {
         throw orgError;
       }
 
+      // Step 2: Wait for org_membership trigger to complete
+      const membershipExists = await waitForMembership(orgData.id);
+      if (!membershipExists) {
+        throw new Error("Timeout waiting for org membership to be created by trigger");
+      }
+
+      // Step 3: Now insert domains (RLS should pass)
       await seedDomainsForOrg(orgData.id, orgData.name);
     } catch (err) {
       console.error("Seeding error:", err);
