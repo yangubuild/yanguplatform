@@ -59,6 +59,64 @@ export type Database = {
           },
         ]
       }
+      admin_overrides: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          domain_id: string | null
+          enabled: boolean | null
+          id: string
+          org_id: string | null
+          override_type: string
+          reason: string | null
+          surface_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          domain_id?: string | null
+          enabled?: boolean | null
+          id?: string
+          org_id?: string | null
+          override_type: string
+          reason?: string | null
+          surface_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          domain_id?: string | null
+          enabled?: boolean | null
+          id?: string
+          org_id?: string | null
+          override_type?: string
+          reason?: string | null
+          surface_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_overrides_domain_id_fkey"
+            columns: ["domain_id"]
+            isOneToOne: false
+            referencedRelation: "domains"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_overrides_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_overrides_surface_id_fkey"
+            columns: ["surface_id"]
+            isOneToOne: false
+            referencedRelation: "surfaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ads: {
         Row: {
           budget_cents: number | null
@@ -258,6 +316,41 @@ export type Database = {
         }
         Relationships: []
       }
+      domains: {
+        Row: {
+          created_at: string | null
+          domain_type: string
+          host: string
+          id: string
+          is_active: boolean | null
+          org_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          domain_type: string
+          host: string
+          id?: string
+          is_active?: boolean | null
+          org_id: string
+        }
+        Update: {
+          created_at?: string | null
+          domain_type?: string
+          host?: string
+          id?: string
+          is_active?: boolean | null
+          org_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "domains_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       kyc_verifications: {
         Row: {
           created_at: string
@@ -297,6 +390,94 @@ export type Database = {
           submitted_at?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      org_billing: {
+        Row: {
+          kyc_status: string
+          org_id: string
+          plan_tier: string
+          subscription_status: string
+          trial_active: boolean | null
+          trial_started_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          kyc_status?: string
+          org_id: string
+          plan_tier?: string
+          subscription_status?: string
+          trial_active?: boolean | null
+          trial_started_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          kyc_status?: string
+          org_id?: string
+          plan_tier?: string
+          subscription_status?: string
+          trial_active?: boolean | null
+          trial_started_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_billing_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_memberships: {
+        Row: {
+          created_at: string | null
+          org_id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          org_id: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          org_id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_memberships_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orgs: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          owner_user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          owner_user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          owner_user_id?: string
         }
         Relationships: []
       }
@@ -517,6 +698,61 @@ export type Database = {
         }
         Relationships: []
       }
+      surface_publishes: {
+        Row: {
+          blocked_reasons: Json | null
+          domain_id: string
+          id: string
+          org_id: string
+          published_at: string | null
+          state: string
+          surface_id: string
+          unpublished_at: string | null
+        }
+        Insert: {
+          blocked_reasons?: Json | null
+          domain_id: string
+          id?: string
+          org_id: string
+          published_at?: string | null
+          state: string
+          surface_id: string
+          unpublished_at?: string | null
+        }
+        Update: {
+          blocked_reasons?: Json | null
+          domain_id?: string
+          id?: string
+          org_id?: string
+          published_at?: string | null
+          state?: string
+          surface_id?: string
+          unpublished_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "surface_publishes_domain_id_fkey"
+            columns: ["domain_id"]
+            isOneToOne: false
+            referencedRelation: "domains"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "surface_publishes_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "surface_publishes_surface_id_fkey"
+            columns: ["surface_id"]
+            isOneToOne: false
+            referencedRelation: "surfaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       surface_settings: {
         Row: {
           accent_color: string | null
@@ -572,6 +808,41 @@ export type Database = {
             columns: ["surface_id"]
             isOneToOne: true
             referencedRelation: "public_surfaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      surfaces: {
+        Row: {
+          created_at: string | null
+          id: string
+          org_id: string
+          status: string
+          surface_type: string
+          title: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          org_id: string
+          status?: string
+          surface_type: string
+          title?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          org_id?: string
+          status?: string
+          surface_type?: string
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "surfaces_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
             referencedColumns: ["id"]
           },
         ]
@@ -664,6 +935,18 @@ export type Database = {
             Returns: string
           }
       count_published_surfaces: { Args: { _user_id: string }; Returns: number }
+      evaluate_publish_eligibility: {
+        Args: {
+          p_domain_id: string
+          p_org_id: string
+          p_surface_id: string
+          p_user_id: string
+        }
+        Returns: {
+          eligible: boolean
+          reasons: string[]
+        }[]
+      }
       get_default_domain_for_creator: {
         Args: { _creator_type: Database["public"]["Enums"]["creator_type"] }
         Returns: string
@@ -683,6 +966,10 @@ export type Database = {
         Returns: boolean
       }
       is_username_available: { Args: { _username: string }; Returns: boolean }
+      request_publish_surface: {
+        Args: { p_domain_id: string; p_surface_id: string }
+        Returns: Json
+      }
     }
     Enums: {
       ad_status: "draft" | "pending_review" | "active" | "paused" | "rejected"
