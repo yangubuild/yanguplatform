@@ -216,7 +216,6 @@ export function PublishSection({ surface, userId, orgId, onSurfaceUpdate }: Publ
         onOpenChange={setIsModalOpen}
         surfaceId={surface.id}
         surfaceTitle={surface.title}
-        orgId={orgId || ""}
         currentDomainId={surface.domain.id}
         onPublishSuccess={handlePublishSuccess}
       />
