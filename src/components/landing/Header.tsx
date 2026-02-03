@@ -2,11 +2,16 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/ThemeProvider";
-import { PLATFORM_NAME } from "@/config/platform";
+import { useDomain } from "@/contexts/DomainContext";
+import { useAuth } from "@/hooks/useAuth";
+import { DomainBadge } from "@/components/domain/DomainBadge";
+import { DomainCta } from "@/components/domain/DomainCta";
 import { Menu, X, Sun, Moon } from "lucide-react";
 
 export function Header() {
   const { theme, toggleTheme } = useTheme();
+  const { routeConfig, domainType, isLoading: isDomainLoading } = useDomain();
+  const { isAuthenticated } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -17,7 +22,10 @@ export function Header() {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent">
             <span className="text-lg font-bold text-accent-foreground">Y</span>
           </div>
-          <span className="text-xl font-bold tracking-tight">{PLATFORM_NAME}</span>
+          <span className="text-xl font-bold tracking-tight">{routeConfig.label}</span>
+          {domainType !== "io" && !isDomainLoading && (
+            <DomainBadge size="sm" className="ml-2 hidden sm:flex" />
+          )}
         </Link>
 
         {/* Desktop Navigation */}
@@ -45,17 +53,28 @@ export function Header() {
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
           
-          <Link to="/auth/login">
-            <Button variant="ghost" size="sm" className="hidden sm:flex">
-              Sign In
-            </Button>
-          </Link>
-          
-          <Link to="/auth/signup">
-            <Button variant="accent" size="sm" className="hidden sm:flex">
-              Get Started
-            </Button>
-          </Link>
+          {isAuthenticated ? (
+            <Link to={routeConfig.defaultRoute}>
+              <Button variant="accent" size="sm" className="hidden sm:flex">
+                Go to Dashboard
+              </Button>
+            </Link>
+          ) : (
+            <>
+              <Link to="/auth/login">
+                <Button variant="ghost" size="sm" className="hidden sm:flex">
+                  Sign In
+                </Button>
+              </Link>
+              
+              <DomainCta 
+                variant="primary" 
+                size="sm" 
+                className="hidden sm:flex" 
+                isAuthenticated={isAuthenticated}
+              />
+            </>
+          )}
 
           {/* Mobile menu button */}
           <Button
@@ -83,12 +102,22 @@ export function Header() {
               Pricing
             </a>
             <div className="flex flex-col gap-2 pt-4">
-              <Link to="/auth/login">
-                <Button variant="outline" className="w-full">Sign In</Button>
-              </Link>
-              <Link to="/auth/signup">
-                <Button variant="accent" className="w-full">Get Started</Button>
-              </Link>
+              {isAuthenticated ? (
+                <Link to={routeConfig.defaultRoute}>
+                  <Button variant="accent" className="w-full">Go to Dashboard</Button>
+                </Link>
+              ) : (
+                <>
+                  <Link to="/auth/login">
+                    <Button variant="outline" className="w-full">Sign In</Button>
+                  </Link>
+                  <DomainCta 
+                    variant="primary" 
+                    className="w-full" 
+                    isAuthenticated={isAuthenticated}
+                  />
+                </>
+              )}
             </div>
           </div>
         </div>

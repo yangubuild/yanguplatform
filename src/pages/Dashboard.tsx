@@ -1,15 +1,18 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useSurfaces } from "@/hooks/useSurfaces";
 import { useNavigate } from "react-router-dom";
+import { useDomain } from "@/contexts/DomainContext";
 import { AppShell } from "@/components/primitives";
 import { PageContainer, Card, Banner, PrimaryButton } from "@/components/primitives";
 import { SurfaceCard } from "@/components/dashboard/SurfaceCard";
+import { DomainBadge } from "@/components/domain/DomainBadge";
 import { Plus, Rocket, Users, BarChart3, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const { profile } = useAuth();
+  const { domainType, routeConfig } = useDomain();
   const { data: surfaces, isLoading: surfacesLoading } = useSurfaces();
 
   const handleEdit = (surface: { id: string }) => {
@@ -42,11 +45,14 @@ export default function Dashboard() {
           <Banner variant="accent">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h1 className="text-2xl font-bold">
-                  Welcome back, {profile?.display_name || `@${profile?.username}`}!
-                </h1>
-                <p className="text-muted-foreground mt-1">
-                  Ready to build your next surface?
+                <div className="flex items-center gap-3 mb-1">
+                  <h1 className="text-2xl font-bold">
+                    Welcome back, {profile?.display_name || `@${profile?.username}`}!
+                  </h1>
+                  {domainType !== "io" && <DomainBadge size="sm" />}
+                </div>
+                <p className="text-muted-foreground">
+                  {routeConfig.primaryCta.replace(/^(Open|Claim|Build|Start|Showcase|Go)/, "Ready to $1").toLowerCase()}?
                 </p>
               </div>
               <PrimaryButton onClick={handleCreateSurface} disabled={hasDraft}>
