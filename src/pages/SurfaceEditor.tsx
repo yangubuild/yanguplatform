@@ -17,6 +17,7 @@ interface SurfaceData {
   is_published: boolean;
   user_id: string;
   domain_id: string;
+  org_id: string | null;
   domain: {
     id: string;
     domain: string;
@@ -66,6 +67,18 @@ export default function SurfaceEditor() {
           .eq("id", id)
           .maybeSingle();
 
+        // Get org_id from surfaces table (which links to orgs)
+        let orgId: string | null = null;
+        const { data: surfaceOrg } = await supabase
+          .from("surfaces")
+          .select("org_id")
+          .eq("id", id)
+          .maybeSingle();
+        
+        if (surfaceOrg) {
+          orgId = surfaceOrg.org_id;
+        }
+
         if (surfaceError) {
           console.error("Surface fetch error:", surfaceError);
           if (surfaceError.code === "PGRST116" || surfaceError.message.includes("security")) {
@@ -94,6 +107,7 @@ export default function SurfaceEditor() {
 
         const typedSurface: SurfaceData = {
           ...surfaceData,
+          org_id: orgId,
           domain: surfaceData.domain as SurfaceData["domain"],
         };
 
@@ -193,6 +207,7 @@ export default function SurfaceEditor() {
                 <PublishSection
                   surface={surface}
                   userId={user!.id}
+                  orgId={surface.org_id || undefined}
                   onSurfaceUpdate={handleSurfaceUpdate}
                 />
               )}
