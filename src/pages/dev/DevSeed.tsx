@@ -25,12 +25,21 @@ const DOMAINS_TO_SEED = [
   { host: "yangu.site", domain_type: "site" },
 ] as const;
 
+interface SeedError {
+  step: "create_org_failed" | "wait_for_membership_failed" | "insert_domains_failed" | "fetch_domains_failed";
+  message: string;
+  code?: string;
+  details?: string | null;
+  hint?: string | null;
+  raw?: unknown;
+}
+
 interface SeedResult {
   success: boolean;
   orgId?: string;
   orgName?: string;
   domains?: Array<{ host: string; id: string }>;
-  error?: string;
+  error?: SeedError;
 }
 
 export default function DevSeed() {
@@ -88,15 +97,32 @@ export default function DevSeed() {
     return false;
   }
 
+  function createSeedError(
+    step: SeedError["step"],
+    err: unknown
+  ): SeedError {
+    const error = err as { message?: string; code?: string; details?: string; hint?: string };
+    return {
+      step,
+      message: error?.message || "Unknown error",
+      code: error?.code,
+      details: error?.details,
+      hint: error?.hint,
+      raw: err,
+    };
+  }
+
   async function handleSeed() {
     if (!user) return;
 
     setIsSeeding(true);
     setResult(null);
 
+    let orgId: string | null = null;
+    let orgName: string | null = null;
+
+    // Step 1: Create organization
     try {
-      // Step 1: Create organization
-      // The trigger will auto-create org_memberships and org_billing
       const { data: orgData, error: orgError } = await supabase
         .from("orgs")
         .insert({
@@ -109,43 +135,91 @@ export default function DevSeed() {
       if (orgError) {
         // Check if org already exists
         if (orgError.code === "23505") {
-          // Unique violation - try to find existing org
-          const { data: existingOrg } = await supabase
+          const { data: existingOrg, error: fetchError } = await supabase
             .from("orgs")
             .select("id, name")
             .eq("owner_user_id", user.id)
             .eq("name", "YANGU Test Org")
-            .single();
+            .maybeSingle();
+
+          if (fetchError) {
+            const seedError = createSeedError("create_org_failed", fetchError);
+            console.error("DEV SEED ERROR", seedError);
+            setResult({ success: false, error: seedError });
+            setIsSeeding(false);
+            return;
+          }
 
           if (existingOrg) {
-            // Use existing org and continue with domain seeding
-            return await seedDomainsForOrg(existingOrg.id, existingOrg.name);
+            orgId = existingOrg.id;
+            orgName = existingOrg.name;
+          } else {
+            const seedError = createSeedError("create_org_failed", orgError);
+            console.error("DEV SEED ERROR", seedError);
+            setResult({ success: false, error: seedError });
+            setIsSeeding(false);
+            return;
           }
+        } else {
+          const seedError = createSeedError("create_org_failed", orgError);
+          console.error("DEV SEED ERROR", seedError);
+          setResult({ success: false, error: seedError });
+          setIsSeeding(false);
+          return;
         }
-        throw orgError;
+      } else if (orgData) {
+        orgId = orgData.id;
+        orgName = orgData.name;
       }
-
-      // Step 2: Wait for org_membership trigger to complete
-      const membershipExists = await waitForMembership(orgData.id);
-      if (!membershipExists) {
-        throw new Error("Timeout waiting for org membership to be created by trigger");
-      }
-
-      // Step 3: Now insert domains (RLS should pass)
-      await seedDomainsForOrg(orgData.id, orgData.name);
     } catch (err) {
-      console.error("Seeding error:", err);
-      setResult({
-        success: false,
-        error: err instanceof Error ? err.message : "Failed to seed data",
-      });
+      const seedError = createSeedError("create_org_failed", err);
+      console.error("DEV SEED ERROR", seedError);
+      setResult({ success: false, error: seedError });
+      setIsSeeding(false);
+      return;
+    }
+
+    if (!orgId || !orgName) {
+      const seedError = createSeedError("create_org_failed", { message: "No org created or found" });
+      console.error("DEV SEED ERROR", seedError);
+      setResult({ success: false, error: seedError });
+      setIsSeeding(false);
+      return;
+    }
+
+    // Step 2: Wait for org_membership trigger to complete
+    try {
+      const membershipExists = await waitForMembership(orgId);
+      if (!membershipExists) {
+        const seedError = createSeedError("wait_for_membership_failed", {
+          message: "Timeout waiting for org_membership to be created by trigger",
+        });
+        console.error("DEV SEED ERROR", seedError);
+        setResult({ success: false, error: seedError });
+        setIsSeeding(false);
+        return;
+      }
+    } catch (err) {
+      const seedError = createSeedError("wait_for_membership_failed", err);
+      console.error("DEV SEED ERROR", seedError);
+      setResult({ success: false, error: seedError });
+      setIsSeeding(false);
+      return;
+    }
+
+    // Step 3: Insert domains
+    try {
+      await seedDomainsForOrg(orgId, orgName);
+    } catch (err) {
+      const seedError = createSeedError("insert_domains_failed", err);
+      console.error("DEV SEED ERROR", seedError);
+      setResult({ success: false, error: seedError });
     } finally {
       setIsSeeding(false);
     }
   }
 
   async function seedDomainsForOrg(orgId: string, orgName: string) {
-    // Step 2: Upsert domains
     const domainResults: Array<{ host: string; id: string }> = [];
 
     for (const domain of DOMAINS_TO_SEED) {
@@ -169,18 +243,30 @@ export default function DevSeed() {
 
       if (domainError) {
         // If upsert fails, try to fetch existing
-        const { data: existingDomain } = await supabase
+        const { data: existingDomain, error: fetchError } = await supabase
           .from("domains")
           .select("id, host")
           .eq("host", domain.host)
-          .single();
+          .maybeSingle();
+
+        if (fetchError) {
+          const seedError = createSeedError("fetch_domains_failed", fetchError);
+          console.error("DEV SEED ERROR", seedError);
+          throw fetchError;
+        }
 
         if (existingDomain) {
           // Update org_id for existing domain
-          await supabase
+          const { error: updateError } = await supabase
             .from("domains")
             .update({ org_id: orgId, is_active: true })
             .eq("id", existingDomain.id);
+
+          if (updateError) {
+            const seedError = createSeedError("insert_domains_failed", updateError);
+            console.error("DEV SEED ERROR", seedError);
+            throw updateError;
+          }
 
           domainResults.push({
             host: existingDomain.host,
@@ -311,9 +397,37 @@ export default function DevSeed() {
                         </div>
                       </div>
                     </div>
-                  ) : (
-                    <p className="text-sm text-destructive">{result.error}</p>
-                  )}
+                  ) : result.error ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="destructive">{result.error.step}</Badge>
+                        {result.error.code && (
+                          <Badge variant="outline" className="font-mono text-xs">
+                            {result.error.code}
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-destructive font-medium">
+                        {result.error.message}
+                      </p>
+                      {result.error.hint && (
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Hint:</strong> {result.error.hint}
+                        </p>
+                      )}
+                      {result.error.details && (
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Details:</strong> {result.error.details}
+                        </p>
+                      )}
+                      <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 overflow-auto max-h-64">
+                        <p className="text-xs font-medium text-destructive mb-2">Full Error (JSON):</p>
+                        <pre className="text-xs font-mono text-destructive whitespace-pre-wrap break-all">
+                          {JSON.stringify(result.error.raw, null, 2)}
+                        </pre>
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </Card>
