@@ -1180,6 +1180,7 @@ export type Database = {
         Args: { p_domain_id: string; p_surface_id: string }
         Returns: Json
       }
+      resolve_route: { Args: { p_host: string; p_path: string }; Returns: Json }
       spend_credits: {
         Args: {
           _amount: number
