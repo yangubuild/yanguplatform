@@ -316,6 +316,42 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_transactions: {
+        Row: {
+          amount: number
+          balance_after: number
+          created_at: string
+          description: string | null
+          id: string
+          reference_id: string | null
+          reference_type: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          balance_after: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          reference_id?: string | null
+          reference_type?: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          reference_id?: string | null
+          reference_type?: string | null
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       domains: {
         Row: {
           created_at: string | null
@@ -623,6 +659,125 @@ export type Database = {
           },
         ]
       }
+      studio_assets: {
+        Row: {
+          asset_type: string
+          created_at: string
+          download_credits: number
+          file_url: string | null
+          generation_prompt: string | null
+          id: string
+          is_uploaded: boolean
+          language: string | null
+          metadata: Json | null
+          platform: string | null
+          project_id: string
+          thumbnail_url: string | null
+          title: string | null
+          user_id: string
+          variation_index: number | null
+        }
+        Insert: {
+          asset_type: string
+          created_at?: string
+          download_credits?: number
+          file_url?: string | null
+          generation_prompt?: string | null
+          id?: string
+          is_uploaded?: boolean
+          language?: string | null
+          metadata?: Json | null
+          platform?: string | null
+          project_id: string
+          thumbnail_url?: string | null
+          title?: string | null
+          user_id: string
+          variation_index?: number | null
+        }
+        Update: {
+          asset_type?: string
+          created_at?: string
+          download_credits?: number
+          file_url?: string | null
+          generation_prompt?: string | null
+          id?: string
+          is_uploaded?: boolean
+          language?: string | null
+          metadata?: Json | null
+          platform?: string | null
+          project_id?: string
+          thumbnail_url?: string | null
+          title?: string | null
+          user_id?: string
+          variation_index?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "studio_assets_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "studio_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      studio_projects: {
+        Row: {
+          album_published: boolean
+          album_slug: string | null
+          brand_blueprint: Json | null
+          brand_description: string | null
+          brand_name: string | null
+          content_types: string[] | null
+          created_at: string
+          id: string
+          metadata: Json | null
+          product_url: string | null
+          status: string
+          target_language: string | null
+          target_platforms: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          album_published?: boolean
+          album_slug?: string | null
+          brand_blueprint?: Json | null
+          brand_description?: string | null
+          brand_name?: string | null
+          content_types?: string[] | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          product_url?: string | null
+          status?: string
+          target_language?: string | null
+          target_platforms?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          album_published?: boolean
+          album_slug?: string | null
+          brand_blueprint?: Json | null
+          brand_description?: string | null
+          brand_name?: string | null
+          content_types?: string[] | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          product_url?: string | null
+          status?: string
+          target_language?: string | null
+          target_platforms?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           cancel_at_period_end: boolean | null
@@ -885,6 +1040,27 @@ export type Database = {
           },
         ]
       }
+      user_credits: {
+        Row: {
+          balance: number
+          created_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -911,6 +1087,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_credits: {
+        Args: {
+          _amount: number
+          _description?: string
+          _transaction_type?: string
+          _user_id: string
+        }
+        Returns: Json
+      }
       can_publish_surface: {
         Args: { _surface_id: string; _user_id: string }
         Returns: boolean
@@ -968,6 +1153,16 @@ export type Database = {
       is_username_available: { Args: { _username: string }; Returns: boolean }
       request_publish_surface: {
         Args: { p_domain_id: string; p_surface_id: string }
+        Returns: Json
+      }
+      spend_credits: {
+        Args: {
+          _amount: number
+          _description?: string
+          _reference_id?: string
+          _reference_type?: string
+          _user_id: string
+        }
         Returns: Json
       }
     }
