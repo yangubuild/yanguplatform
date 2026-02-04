@@ -24,6 +24,7 @@ import SurfaceEditor from "./pages/SurfaceEditor";
 import KYC from "./pages/KYC";
 import Billing from "./pages/Billing";
 import DevSeed from "./pages/dev/DevSeed";
+import Studio from "./pages/Studio";
 
 const queryClient = new QueryClient();
 
@@ -109,6 +110,16 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Billing />
+                  </ProtectedRoute>
+                }
+              />
+              
+              {/* Studio - Global AI creative engine (no KYC, no subscription, no publish) */}
+              <Route
+                path="/studio"
+                element={
+                  <ProtectedRoute>
+                    <Studio />
                   </ProtectedRoute>
                 }
               />
