@@ -1,6 +1,6 @@
 import { useEffect, useState, ReactNode } from "react";
 import { useLocation } from "react-router-dom";
-import { resolveRoute, isDevEnvironment, type ResolvedRoute } from "@/lib/routing/resolveRoute";
+import { resolveRoute, isDevEnvironment, type ResolvedRoute, type RouteDebugInfo } from "@/lib/routing/resolveRoute";
 import { DomainHome } from "./DomainHome";
 import { IdentityHub } from "./IdentityHub";
 import { SurfaceViewer } from "./SurfaceViewer";
@@ -25,6 +25,58 @@ const INTERNAL_ROUTES = [
 ];
 
 /**
+ * Debug bar component - temporary for debugging route resolution
+ */
+function RouteDebugBar({ debug, route }: { debug: RouteDebugInfo | null; route: ResolvedRoute | null }) {
+  if (!debug) return null;
+  
+  return (
+    <div className="fixed bottom-0 left-0 right-0 bg-black/90 text-white text-xs p-2 z-[9999] font-mono">
+      <div className="max-w-7xl mx-auto flex flex-wrap gap-4">
+        <div>
+          <span className="text-muted-foreground">rawHost:</span>{" "}
+          <span className="text-green-400">{debug.rawHost}</span>
+        </div>
+        <div>
+          <span className="text-muted-foreground">hostname:</span>{" "}
+          <span className="text-green-400">{debug.hostname}</span>
+        </div>
+        <div>
+          <span className="text-muted-foreground">canonicalHost:</span>{" "}
+          <span className="text-yellow-400">{debug.canonicalHost}</span>
+        </div>
+        <div>
+          <span className="text-muted-foreground">path:</span>{" "}
+          <span className="text-blue-400">{debug.path}</span>
+        </div>
+        <div>
+          <span className="text-muted-foreground">route_kind:</span>{" "}
+          <span className="text-purple-400">{route?.route_kind ?? "null"}</span>
+        </div>
+        {route?.reason && (
+          <div>
+            <span className="text-muted-foreground">reason:</span>{" "}
+            <span className="text-red-400">{route.reason}</span>
+          </div>
+        )}
+        {route?.publish_id && (
+          <div>
+            <span className="text-muted-foreground">publish_id:</span>{" "}
+            <span className="text-cyan-400">{route.publish_id}</span>
+          </div>
+        )}
+        {route?.surface_id && (
+          <div>
+            <span className="text-muted-foreground">surface_id:</span>{" "}
+            <span className="text-cyan-400">{route.surface_id}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/**
  * Resolves public domain routing based on host + path.
  * In dev environments or for internal routes, falls through to children.
  * On production platform domains, resolves via the database.
@@ -32,6 +84,7 @@ const INTERNAL_ROUTES = [
 export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
   const location = useLocation();
   const [resolvedRoute, setResolvedRoute] = useState<ResolvedRoute | null>(null);
+  const [debugInfo, setDebugInfo] = useState<RouteDebugInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [shouldUseInternalRouting, setShouldUseInternalRouting] = useState(false);
 
@@ -54,11 +107,12 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
 
       // Resolve via database for production platform domains
       try {
-        const result = await resolveRoute();
-        setResolvedRoute(result);
+        const { route, debug } = await resolveRoute();
+        setResolvedRoute(route);
+        setDebugInfo(debug);
         
         // If route_kind is not_found with unknown_host, fall through to internal routing
-        if (result.route_kind === "not_found" && result.reason === "unknown_host") {
+        if (route.route_kind === "not_found" && route.reason === "unknown_host") {
           setShouldUseInternalRouting(true);
         }
       } catch (err) {
@@ -91,9 +145,12 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
     return <>{children}</>;
   }
 
+  // Content based on route_kind
+  let content: ReactNode;
+  
   switch (resolvedRoute.route_kind) {
     case "surface":
-      return (
+      content = (
         <SurfaceViewer
           surfaceId={resolvedRoute.surface_id!}
           publishId={resolvedRoute.publish_id}
@@ -101,28 +158,39 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
           platformKey={resolvedRoute.platform_key}
         />
       );
+      break;
 
     case "platform_home":
-      return (
+      content = (
         <DomainHome
           platformKey={resolvedRoute.platform_key}
           host={resolvedRoute.host}
         />
       );
+      break;
 
     case "identity_profile":
-      return (
+      content = (
         <IdentityHub
           username={resolvedRoute.username!}
           host={resolvedRoute.host}
           platformKey={resolvedRoute.platform_key}
         />
       );
+      break;
 
     case "not_found":
-      return <NotFound />;
+      content = <NotFound />;
+      break;
 
     default:
-      return <>{children}</>;
+      content = <>{children}</>;
   }
+
+  return (
+    <>
+      {content}
+      <RouteDebugBar debug={debugInfo} route={resolvedRoute} />
+    </>
+  );
 }
