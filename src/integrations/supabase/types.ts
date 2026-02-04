@@ -969,6 +969,7 @@ export type Database = {
       }
       surfaces: {
         Row: {
+          archived_at: string | null
           created_at: string | null
           id: string
           org_id: string
@@ -977,6 +978,7 @@ export type Database = {
           title: string | null
         }
         Insert: {
+          archived_at?: string | null
           created_at?: string | null
           id?: string
           org_id: string
@@ -985,6 +987,7 @@ export type Database = {
           title?: string | null
         }
         Update: {
+          archived_at?: string | null
           created_at?: string | null
           id?: string
           org_id?: string
@@ -1096,6 +1099,7 @@ export type Database = {
         }
         Returns: Json
       }
+      archive_surface: { Args: { p_surface_id: string }; Returns: Json }
       can_publish_surface: {
         Args: { _surface_id: string; _user_id: string }
         Returns: boolean
@@ -1120,6 +1124,7 @@ export type Database = {
             Returns: string
           }
       count_published_surfaces: { Args: { _user_id: string }; Returns: number }
+      delete_surface: { Args: { p_surface_id: string }; Returns: Json }
       evaluate_publish_eligibility: {
         Args: {
           p_domain_id: string
@@ -1151,6 +1156,10 @@ export type Database = {
         Returns: boolean
       }
       is_username_available: { Args: { _username: string }; Returns: boolean }
+      rename_surface: {
+        Args: { p_new_title: string; p_surface_id: string }
+        Returns: Json
+      }
       request_publish_surface: {
         Args: { p_domain_id: string; p_surface_id: string }
         Returns: Json
@@ -1163,6 +1172,11 @@ export type Database = {
           _reference_type?: string
           _user_id: string
         }
+        Returns: Json
+      }
+      unarchive_surface: { Args: { p_surface_id: string }; Returns: Json }
+      unpublish_surface: {
+        Args: { p_domain_id: string; p_surface_id: string }
         Returns: Json
       }
     }
