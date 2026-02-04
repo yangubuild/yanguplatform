@@ -22,7 +22,7 @@ export interface OrgDomain {
   host: string;
   domain_type: string;
   is_active: boolean;
-  org_id: string;
+  owner_org_id: string | null;
 }
 
 // Domain types that support surface publishing
@@ -41,8 +41,8 @@ export function useOrgDomains(orgId: string | null) {
 
       const { data, error } = await supabase
         .from("domains")
-        .select("id, host, domain_type, is_active, org_id")
-        .eq("org_id", orgId)
+        .select("id, host, domain_type, is_active, owner_org_id")
+        .eq("owner_org_id", orgId)
         .eq("is_active", true)
         .order("host");
 

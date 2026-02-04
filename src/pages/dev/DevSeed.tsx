@@ -38,13 +38,13 @@ console.log("================================");
 
 // Domain configurations to seed
 const DOMAINS_TO_SEED = [
-  { host: "yangu.io", domain_type: "io" },
-  { host: "yangu.community", domain_type: "community" },
-  { host: "yangu.studio", domain_type: "studio" },
-  { host: "yangu.shop", domain_type: "shop" },
-  { host: "yangu.store", domain_type: "store" },
-  { host: "yangu.live", domain_type: "live" },
-  { host: "yangu.site", domain_type: "site" },
+  { host: "yangu.io", domain_type: "io", platform_key: "io" },
+  { host: "yangu.community", domain_type: "community", platform_key: "community" },
+  { host: "yangu.studio", domain_type: "studio", platform_key: "studio" },
+  { host: "yangu.shop", domain_type: "shop", platform_key: "shop" },
+  { host: "yangu.store", domain_type: "store", platform_key: "store" },
+  { host: "yangu.live", domain_type: "live", platform_key: "live" },
+  { host: "yangu.site", domain_type: "site", platform_key: "site" },
 ] as const;
 
 interface SeedError {
@@ -252,7 +252,9 @@ export default function DevSeed() {
           {
             host: domain.host,
             domain_type: domain.domain_type,
-            org_id: orgId,
+            kind: "platform" as const,
+            platform_key: domain.platform_key,
+            owner_org_id: orgId,
             is_active: true,
           },
           {
@@ -278,10 +280,10 @@ export default function DevSeed() {
         }
 
         if (existingDomain) {
-          // Update org_id for existing domain
+          // Update owner_org_id for existing domain
           const { error: updateError } = await supabase
             .from("domains")
-            .update({ org_id: orgId, is_active: true })
+            .update({ owner_org_id: orgId, is_active: true })
             .eq("id", existingDomain.id);
 
           if (updateError) {
