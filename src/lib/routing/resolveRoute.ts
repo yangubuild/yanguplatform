@@ -19,11 +19,27 @@ export interface ResolvedRoute {
  * Calls the resolve_route RPC to determine what content to show
  * based on the current host and path.
  */
+/**
+ * Normalize a hostname for route resolution:
+ * - Use hostname (not host) to exclude port
+ * - Lowercase
+ * - Strip leading "www."
+ */
+function normalizeHostname(hostname: string): string {
+  let normalized = hostname.toLowerCase();
+  if (normalized.startsWith("www.")) {
+    normalized = normalized.slice(4);
+  }
+  return normalized;
+}
+
 export async function resolveRoute(
   host?: string,
   path?: string
 ): Promise<ResolvedRoute> {
-  const currentHost = host ?? window.location.host;
+  // Use hostname (no port) and normalize it
+  const rawHostname = host ?? window.location.hostname;
+  const currentHost = normalizeHostname(rawHostname);
   const currentPath = path ?? window.location.pathname;
 
   const { data, error } = await supabase.rpc("resolve_route", {
