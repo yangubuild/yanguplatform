@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveOrg } from "@/hooks/useActiveOrg";
@@ -133,6 +134,7 @@ type OnboardingStep = "username" | "goal" | "surface" | "select-org";
 export default function Onboarding() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const queryClient = useQueryClient();
   const { user, profile, isLoading: authLoading, refreshProfile } = useAuth();
   const { data: activeOrg, isLoading: orgLoading } = useActiveOrg();
   
@@ -461,6 +463,8 @@ export default function Onboarding() {
           return;
         }
 
+        // Invalidate surfaces cache so dashboard shows the new surface
+        queryClient.invalidateQueries({ queryKey: ["surfaces"] });
         toast.success("New surface created! Customize it before going live.");
         navigate("/dashboard");
       } else {
@@ -549,6 +553,8 @@ export default function Onboarding() {
         }
 
         await refreshProfile();
+        // Invalidate surfaces cache so dashboard shows the new surface
+        queryClient.invalidateQueries({ queryKey: ["surfaces"] });
         toast.success("Welcome to YANGU! Your space is ready.");
         navigate("/dashboard");
       }
