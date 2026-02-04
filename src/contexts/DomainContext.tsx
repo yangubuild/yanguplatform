@@ -1,28 +1,15 @@
-import { createContext, useContext, useEffect, useState, ReactNode, useMemo } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { createContext, useContext, useState, ReactNode, useMemo } from "react";
 import { getDomainRouteConfig, isRouteAllowedForDomain, DEFAULT_DOMAIN_TYPE, type DomainRouteConfig } from "@/config/domain-routes";
 import type { Database } from "@/integrations/supabase/types";
+import { normalizeHostname } from "@/lib/routing/resolveRoute";
 
 type DomainType = Database["public"]["Enums"]["surface_type"] | "io";
 
-// Domain lookup result from database
-interface DomainRecord {
-  id: string;
-  host: string;
-  domain_type: string;
-  org_id: string;
-  is_active: boolean;
-}
-
 // Context state shape
 interface DomainContextState {
-  /** Unique domain ID from database */
-  domainId: string | null;
   /** Type of domain (io, shop, studio, etc.) */
   domainType: DomainType;
-  /** Organization that owns this domain */
-  orgId: string | null;
-  /** Whether the domain is active */
+  /** Whether the domain is active (always true for known domains) */
   isActive: boolean;
   /** Current host being resolved */
   host: string;
@@ -36,7 +23,8 @@ interface DomainContextState {
   isFallback: boolean;
 }
 
-// Known YANGU domains and their types
+// Known YANGU platform domains and their types
+// This is static resolution - no database lookup needed
 const KNOWN_DOMAINS: Record<string, DomainType> = {
   "yangu.io": "io",
   "yangu.shop": "shop",
@@ -61,143 +49,44 @@ interface DomainProviderProps {
   children: ReactNode;
 }
 
+/**
+ * Resolve domain type statically from hostname.
+ * No database lookups - actual route resolution happens via RPC in PublicRouteResolver.
+ */
+function resolveDomainType(host: string): { domainType: DomainType; isFallback: boolean } {
+  // Normalize host (strip www, lowercase)
+  const normalizedHost = normalizeHostname(host);
+  
+  // Check if it's a development/preview environment
+  const isDev = DEV_PATTERNS.some((pattern) => pattern.test(host));
+  if (isDev) {
+    return { domainType: "io", isFallback: true };
+  }
+
+  // Check known YANGU domains (static resolution)
+  const knownType = KNOWN_DOMAINS[normalizedHost];
+  if (knownType) {
+    return { domainType: knownType, isFallback: false };
+  }
+
+  // Unknown domain - could be custom domain, default to io
+  // Actual routing will be handled by PublicRouteResolver via RPC
+  return { domainType: "io", isFallback: true };
+}
+
 export function DomainProvider({ children }: DomainProviderProps) {
-  const [state, setState] = useState<Omit<DomainContextState, "routeConfig">>({
-    domainId: null,
-    domainType: DEFAULT_DOMAIN_TYPE,
-    orgId: null,
+  // Resolve domain type synchronously on mount - no async needed
+  const host = typeof window !== "undefined" ? window.location.host : "";
+  const { domainType, isFallback } = resolveDomainType(host);
+  
+  const [state] = useState<Omit<DomainContextState, "routeConfig">>({
+    domainType,
     isActive: true,
-    host: typeof window !== "undefined" ? window.location.host : "",
-    isLoading: true,
+    host,
+    isLoading: false,
     error: null,
-    isFallback: false,
+    isFallback,
   });
-
-  useEffect(() => {
-    async function resolveDomain() {
-      const host = window.location.host;
-      
-      // Check if it's a development/preview environment
-      const isDev = DEV_PATTERNS.some((pattern) => pattern.test(host));
-      
-      if (isDev) {
-        // In development, default to identity hub (io)
-        setState((prev) => ({
-          ...prev,
-          host,
-          domainType: "io",
-          isActive: true,
-          isLoading: false,
-          isFallback: true,
-        }));
-        return;
-      }
-
-      // Check known YANGU domains first (static resolution)
-      const knownType = KNOWN_DOMAINS[host];
-      if (knownType) {
-        // Still look up in DB to get domain_id and org_id
-        try {
-          const { data, error } = await supabase
-            .from("domains")
-            .select("id, host, domain_type, owner_org_id, is_active")
-            .eq("host", host)
-            .eq("is_active", true)
-            .maybeSingle();
-
-          if (error) throw error;
-
-          if (data) {
-            setState({
-              domainId: data.id,
-              domainType: data.domain_type as DomainType,
-              orgId: data.owner_org_id,
-              isActive: data.is_active ?? true,
-              host,
-              isLoading: false,
-              error: null,
-              isFallback: false,
-            });
-          } else {
-            // Known domain but not in DB - use static config
-            setState({
-              domainId: null,
-              domainType: knownType,
-              orgId: null,
-              isActive: true,
-              host,
-              isLoading: false,
-              error: null,
-              isFallback: true,
-            });
-          }
-        } catch (err) {
-          console.error("Domain resolution error:", err);
-          setState({
-            domainId: null,
-            domainType: knownType,
-            orgId: null,
-            isActive: true,
-            host,
-            isLoading: false,
-            error: err instanceof Error ? err.message : "Domain resolution failed",
-            isFallback: true,
-          });
-        }
-        return;
-      }
-
-      // Custom domain - look up in database
-      try {
-        const { data, error } = await supabase
-          .from("domains")
-          .select("id, host, domain_type, owner_org_id, is_active")
-          .eq("host", host)
-          .maybeSingle();
-
-        if (error) throw error;
-
-        if (data && data.is_active) {
-          setState({
-            domainId: data.id,
-            domainType: data.domain_type as DomainType,
-            orgId: data.owner_org_id,
-            isActive: data.is_active ?? true,
-            host,
-            isLoading: false,
-            error: null,
-            isFallback: false,
-          });
-        } else {
-          // Domain not found or inactive - fallback to identity hub
-          setState({
-            domainId: null,
-            domainType: DEFAULT_DOMAIN_TYPE,
-            orgId: null,
-            isActive: false,
-            host,
-            isLoading: false,
-            error: data ? "Domain is inactive" : "Domain not found",
-            isFallback: true,
-          });
-        }
-      } catch (err) {
-        console.error("Domain resolution error:", err);
-        setState({
-          domainId: null,
-          domainType: DEFAULT_DOMAIN_TYPE,
-          orgId: null,
-          isActive: true,
-          host,
-          isLoading: false,
-          error: err instanceof Error ? err.message : "Domain resolution failed",
-          isFallback: true,
-        });
-      }
-    }
-
-    resolveDomain();
-  }, []);
 
   // Compute route config based on domain type
   const contextValue = useMemo<DomainContextState>(() => ({
