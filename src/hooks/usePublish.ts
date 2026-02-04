@@ -25,8 +25,13 @@ export interface OrgDomain {
   org_id: string;
 }
 
+// Domain types that support surface publishing
+// LOCKED: studio and io do NOT support surface publishing
+const PUBLISHABLE_DOMAIN_TYPES = ["shop", "store", "site", "community", "live"];
+
 /**
  * Hook to fetch domains owned by an organization
+ * Filters out studio/io domains - these do NOT support surface publishing
  */
 export function useOrgDomains(orgId: string | null) {
   return useQuery({
@@ -46,7 +51,13 @@ export function useOrgDomains(orgId: string | null) {
         throw error;
       }
 
-      return data || [];
+      // Filter out studio/io domains - they don't support surface publishing
+      // Studio uses album_slug + album_published for sharing (free)
+      const publishableDomains = (data || []).filter(
+        (domain) => PUBLISHABLE_DOMAIN_TYPES.includes(domain.domain_type)
+      );
+
+      return publishableDomains;
     },
     enabled: !!orgId,
   });
