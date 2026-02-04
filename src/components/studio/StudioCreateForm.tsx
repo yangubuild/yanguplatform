@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Link2, Upload, Sparkles, Coins } from "lucide-react";
-import { Card, PrimaryButton, SecondaryButton } from "@/components/primitives";
+import { Link2, Sparkles, Coins } from "lucide-react";
+import { Card, PrimaryButton } from "@/components/primitives";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -52,6 +52,13 @@ export interface StudioFormData {
   language: string;
 }
 
+/**
+ * StudioCreateForm - Form for creating new Studio projects
+ * 
+ * LOCKED BEHAVIOR:
+ * - Shows "Generation uses credits" label
+ * - NO Publish button, NO domain selector, NO KYC trigger, NO subscription gate
+ */
 export function StudioCreateForm({ onSubmit, isLoading, creditCost = 1 }: StudioCreateFormProps) {
   const [productUrl, setProductUrl] = useState("");
   const [brandName, setBrandName] = useState("");
@@ -205,23 +212,25 @@ export function StudioCreateForm({ onSubmit, isLoading, creditCost = 1 }: Studio
         </div>
       </Card>
 
-      {/* Submit */}
-      <div className="flex flex-col sm:flex-row items-center gap-4">
-        <PrimaryButton
-          type="submit"
-          size="lg"
-          disabled={!isValid || isLoading}
-          className="w-full sm:w-auto"
-        >
-          <Sparkles className="mr-2 h-5 w-5" />
-          {isLoading ? "Generating..." : "Generate Content"}
-        </PrimaryButton>
-        
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Coins className="h-4 w-4" />
-          <span>Generation uses <strong className="text-foreground">{creditCost}</strong> credits</span>
+      {/* Submit with credit warning */}
+      <Card className="p-6 border-warning/30 bg-warning/5">
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          <PrimaryButton
+            type="submit"
+            size="lg"
+            disabled={!isValid || isLoading}
+            className="w-full sm:w-auto"
+          >
+            <Sparkles className="mr-2 h-5 w-5" />
+            {isLoading ? "Generating..." : "Generate Content"}
+          </PrimaryButton>
+          
+          <div className="flex items-center gap-2 text-sm text-warning">
+            <Coins className="h-4 w-4" />
+            <span><strong>Generation uses credits</strong> — costs {creditCost} credit{creditCost !== 1 ? 's' : ''}</span>
+          </div>
         </div>
-      </div>
+      </Card>
     </form>
   );
 }
