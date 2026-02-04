@@ -31,10 +31,7 @@ export default function Dashboard() {
   };
 
   const handleOpenStudio = () => {
-    // Studio is a global tool - opens the AI creative studio
-    // For now, show a toast. Future: navigate to /studio
-    console.log("[Dashboard] Opening Studio");
-    // navigate("/studio"); // Future route
+    navigate("/studio");
   };
 
   return (
