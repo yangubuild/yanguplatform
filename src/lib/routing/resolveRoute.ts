@@ -50,6 +50,7 @@ export interface RouteDebugInfo {
   canonicalHost: string;
   path: string;
   resolverResponse: unknown;
+  rpcError: string | null;
 }
 
 export async function resolveRoute(
@@ -67,20 +68,32 @@ export async function resolveRoute(
     p_path: normalizedPath,
   });
 
+  // Format error for debug display
+  let rpcErrorStr: string | null = null;
+  if (error) {
+    const parts: string[] = [];
+    if (error.message) parts.push(`message: ${error.message}`);
+    if (error.details) parts.push(`details: ${error.details}`);
+    if (error.hint) parts.push(`hint: ${error.hint}`);
+    if (error.code) parts.push(`code: ${error.code}`);
+    rpcErrorStr = parts.length > 0 ? parts.join(" | ") : JSON.stringify(error);
+  }
+
   const debug: RouteDebugInfo = {
     rawHost,
     hostname,
     canonicalHost,
     path: normalizedPath,
     resolverResponse: data,
+    rpcError: rpcErrorStr,
   };
 
   if (error) {
-    console.error("Route resolution error:", error);
+    console.error("Route resolution error:", rpcErrorStr);
     return {
       route: {
         route_kind: "not_found",
-        reason: error.message,
+        reason: rpcErrorStr || "RPC error",
       },
       debug,
     };

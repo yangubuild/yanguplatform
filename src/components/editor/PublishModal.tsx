@@ -12,7 +12,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/primitives";
 import { usePublishFlow, type OrgDomain } from "@/hooks/usePublish";
-import { useDomain } from "@/contexts/DomainContext";
 import {
   Loader2,
   Globe,
@@ -52,7 +51,7 @@ export function PublishModal({
   onPublishSuccess,
 }: PublishModalProps) {
   const navigate = useNavigate();
-  const { domainId: activeDomainId } = useDomain();
+  // Note: activeDomainId is no longer available from useDomain - use first domain from list instead
   
   // usePublishFlow now uses active org internally - no orgId prop needed
   const {
@@ -81,17 +80,16 @@ export function PublishModal({
   // Auto-select domain on open
   useEffect(() => {
     if (open && domains.length > 0 && !selectedDomainId) {
-      // Priority: current surface domain > active domain context > first domain
+      // Priority: current surface domain > first domain
       const defaultDomain = 
         domains.find((d) => d.id === currentDomainId) ||
-        domains.find((d) => d.id === activeDomainId) ||
         domains[0];
       
       if (defaultDomain) {
         selectDomain(defaultDomain.id);
       }
     }
-  }, [open, domains, selectedDomainId, currentDomainId, activeDomainId, selectDomain]);
+  }, [open, domains, selectedDomainId, currentDomainId, selectDomain]);
 
   // Reset on close
   useEffect(() => {

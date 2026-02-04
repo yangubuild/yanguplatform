@@ -31,15 +31,11 @@ function RouteDebugBar({ debug, route }: { debug: RouteDebugInfo | null; route: 
   if (!debug) return null;
   
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-black/90 text-white text-xs p-2 z-[9999] font-mono">
+    <div className="fixed bottom-0 left-0 right-0 bg-black/90 text-white text-xs p-2 z-[9999] font-mono overflow-x-auto">
       <div className="max-w-7xl mx-auto flex flex-wrap gap-4">
         <div>
           <span className="text-muted-foreground">rawHost:</span>{" "}
           <span className="text-green-400">{debug.rawHost}</span>
-        </div>
-        <div>
-          <span className="text-muted-foreground">hostname:</span>{" "}
-          <span className="text-green-400">{debug.hostname}</span>
         </div>
         <div>
           <span className="text-muted-foreground">canonicalHost:</span>{" "}
@@ -57,6 +53,12 @@ function RouteDebugBar({ debug, route }: { debug: RouteDebugInfo | null; route: 
           <div>
             <span className="text-muted-foreground">reason:</span>{" "}
             <span className="text-red-400">{route.reason}</span>
+          </div>
+        )}
+        {debug.rpcError && (
+          <div className="w-full">
+            <span className="text-muted-foreground">rpcError:</span>{" "}
+            <span className="text-red-400 break-all">{debug.rpcError}</span>
           </div>
         )}
         {route?.publish_id && (
