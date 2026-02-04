@@ -9,21 +9,21 @@ import { PublishSection } from "@/components/editor/sections/PublishSection";
 import { Card, SecondaryButton } from "@/components/primitives";
 import { Loader2, ArrowLeft, Lock } from "lucide-react";
 
+interface ActivePublish {
+  id: string;
+  domain_id: string;
+  domain_host: string;
+  published_at: string | null;
+}
+
 interface SurfaceData {
   id: string;
-  title: string;
-  description: string | null;
-  slug: string;
-  is_published: boolean;
-  user_id: string;
-  domain_id: string;
-  org_id: string | null;
-  domain: {
-    id: string;
-    domain: string;
-    label: string;
-    surface_type: string;
-  };
+  title: string | null;
+  surface_type: string;
+  status: string;
+  org_id: string;
+  archived_at: string | null;
+  activePublishes: ActivePublish[];
 }
 
 export default function SurfaceEditor() {
@@ -46,46 +46,37 @@ export default function SurfaceEditor() {
         return;
       }
 
-      try {
-        const { data: surfaceData, error: surfaceError } = await supabase
-          .from("public_surfaces")
-          .select(`
-            id,
-            title,
-            description,
-            slug,
-            is_published,
-            user_id,
-            domain_id,
-            domain:surface_domains!inner(
-              id,
-              domain,
-              label,
-              surface_type
-            )
-          `)
-          .eq("id", id)
-          .maybeSingle();
+      if (!user) {
+        setAccessDenied(true);
+        setIsLoading(false);
+        return;
+      }
 
-        // Get org_id from surfaces table (which links to orgs)
-        let orgId: string | null = null;
-        const { data: surfaceOrg } = await supabase
+      try {
+        // Get user's org memberships to check access
+        const { data: memberships, error: membershipError } = await supabase
+          .from("org_memberships")
+          .select("org_id, role")
+          .eq("user_id", user.id);
+
+        if (membershipError) {
+          console.error("Membership fetch error:", membershipError);
+          setAccessDenied(true);
+          setIsLoading(false);
+          return;
+        }
+
+        const orgIds = memberships?.map((m) => m.org_id) || [];
+
+        // Fetch surface from surfaces table
+        const { data: surfaceData, error: surfaceError } = await supabase
           .from("surfaces")
-          .select("org_id")
+          .select("id, title, surface_type, status, org_id, archived_at")
           .eq("id", id)
           .maybeSingle();
-        
-        if (surfaceOrg) {
-          orgId = surfaceOrg.org_id;
-        }
 
         if (surfaceError) {
           console.error("Surface fetch error:", surfaceError);
-          if (surfaceError.code === "PGRST116" || surfaceError.message.includes("security")) {
-            setAccessDenied(true);
-            setIsLoading(false);
-            return;
-          }
           setError("Failed to load surface");
           setIsLoading(false);
           return;
@@ -97,21 +88,40 @@ export default function SurfaceEditor() {
           return;
         }
 
-        // Check ownership
-        const currentUserId = user?.id;
-        if (!currentUserId || currentUserId !== surfaceData.user_id) {
+        // Check if user has access to this surface's org
+        if (!orgIds.includes(surfaceData.org_id)) {
           setAccessDenied(true);
           setIsLoading(false);
           return;
         }
 
-        const typedSurface: SurfaceData = {
-          ...surfaceData,
-          org_id: orgId,
-          domain: surfaceData.domain as SurfaceData["domain"],
-        };
+        // Fetch active publishes
+        const { data: publishes } = await supabase
+          .from("surface_publishes")
+          .select(`
+            id,
+            domain_id,
+            published_at,
+            domains!inner (
+              host,
+              domain_type
+            )
+          `)
+          .eq("surface_id", id)
+          .eq("state", "published")
+          .is("unpublished_at", null);
 
-        setSurface(typedSurface);
+        const activePublishes: ActivePublish[] = (publishes || []).map((pub) => ({
+          id: pub.id,
+          domain_id: pub.domain_id,
+          domain_host: (pub.domains as any)?.host || "",
+          published_at: pub.published_at,
+        }));
+
+        setSurface({
+          ...surfaceData,
+          activePublishes,
+        });
       } catch (err) {
         console.error("Error fetching surface:", err);
         setError("An unexpected error occurred");
@@ -123,7 +133,7 @@ export default function SurfaceEditor() {
     if (!authLoading) {
       fetchSurface();
     }
-  }, [id, user?.id, authLoading]);
+  }, [id, user?.id, authLoading, user]);
 
   const handleSurfaceUpdate = (updates: Partial<SurfaceData>) => {
     setSurface((prev) => (prev ? { ...prev, ...updates } : null));
@@ -184,7 +194,7 @@ export default function SurfaceEditor() {
         <EditorSidebar
           activeSection={activeSection}
           onSectionChange={setActiveSection}
-          surfaceTitle={surface.title}
+          surfaceTitle={surface.title || "Untitled Surface"}
         />
         <SidebarInset>
           {/* Top bar */}

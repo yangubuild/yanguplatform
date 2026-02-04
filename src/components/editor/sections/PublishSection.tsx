@@ -5,9 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useRoles } from "@/hooks/useRoles";
-import { useAuth } from "@/hooks/useAuth";
 import { PublishModal } from "@/components/editor/PublishModal";
-import { DomainBadge } from "@/components/domain/DomainBadge";
+import { useSurfaceActions } from "@/hooks/useSurfaceActions";
 import { 
   Rocket, 
   CheckCircle2, 
@@ -15,19 +14,24 @@ import {
   ExternalLink,
   Globe,
   ArrowRight,
+  GlobeIcon,
 } from "lucide-react";
+
+interface ActivePublish {
+  id: string;
+  domain_id: string;
+  domain_host: string;
+  published_at: string | null;
+}
 
 interface SurfaceData {
   id: string;
-  title: string;
-  is_published: boolean;
-  domain: {
-    id: string;
-    domain: string;
-    label: string;
-    surface_type: string;
-  };
-  slug: string;
+  title: string | null;
+  surface_type: string;
+  status: string;
+  org_id: string;
+  archived_at: string | null;
+  activePublishes: ActivePublish[];
 }
 
 interface PublishSectionProps {
@@ -42,21 +46,36 @@ export function PublishSection({ surface, userId, orgId, onSurfaceUpdate }: Publ
   const { toast } = useToast();
   const { isOwner, isLoading: rolesLoading } = useRoles();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { unpublishSurface } = useSurfaceActions();
 
-  const isPublished = surface.is_published;
-  const publicUrl = `${surface.domain.domain}/${surface.slug}`;
-  const fullPublicUrl = `https://${publicUrl}`;
+  const isPublished = surface.activePublishes.length > 0;
+  const isArchived = !!surface.archived_at;
 
   // Permission check
   const showPermissionWarning = !rolesLoading && !isOwner;
 
   // Handle successful publish
   const handlePublishSuccess = (domainHost: string) => {
-    onSurfaceUpdate?.({ is_published: true });
+    // Refetch will happen via query invalidation
     toast({
       title: "Surface published! 🎉",
-      description: `Your surface is now live at ${domainHost}/${surface.slug}`,
+      description: `Your surface is now live at ${domainHost}`,
     });
+  };
+
+  // Handle unpublish
+  const handleUnpublish = (domainId: string) => {
+    unpublishSurface.mutate(
+      { surfaceId: surface.id, domainId },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Surface unpublished",
+            description: "Your surface is no longer live.",
+          });
+        },
+      }
+    );
   };
 
   return (
@@ -66,8 +85,17 @@ export function PublishSection({ surface, userId, orgId, onSurfaceUpdate }: Publ
         <p className="text-muted-foreground">Make your surface live and accessible to everyone</p>
       </div>
 
+      {/* Archived Warning */}
+      {isArchived && (
+        <Card className="p-4 border-warning/50 bg-warning/5">
+          <p className="text-sm text-warning font-medium">
+            This surface is archived. Restore it from your dashboard before publishing.
+          </p>
+        </Card>
+      )}
+
       {/* Permission Warning */}
-      {showPermissionWarning && (
+      {!isArchived && showPermissionWarning && (
         <Card className="p-4 border-destructive/50 bg-destructive/5">
           <p className="text-sm text-destructive font-medium">
             You don't have permission to publish. Only organization owners or admins can publish surfaces.
@@ -90,70 +118,67 @@ export function PublishSection({ surface, userId, orgId, onSurfaceUpdate }: Publ
               <h3 className="font-semibold">
                 {isPublished ? "Your surface is live!" : "Your surface is in draft mode"}
               </h3>
-              <Badge variant={isPublished ? "default" : "secondary"}>
-                {isPublished ? "Published" : "Draft"}
+              <Badge 
+                variant={isPublished ? "default" : "secondary"}
+                className={isPublished ? "bg-success text-success-foreground" : ""}
+              >
+                {isPublished ? "Live" : "Draft"}
               </Badge>
             </div>
             <p className="text-sm text-muted-foreground mt-1">
               {isPublished
-                ? `Accessible at ${publicUrl}`
+                ? `Published on ${surface.activePublishes.length} domain${surface.activePublishes.length > 1 ? "s" : ""}`
                 : "Only you can view this surface. Publish to make it public."}
             </p>
-            
-            {isPublished && (
-              <div className="flex items-center gap-3 mt-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                  onClick={() => window.open(fullPublicUrl, "_blank")}
-                >
-                  <ExternalLink className="h-3 w-3" />
-                  View Live
-                </Button>
-                <DomainBadge 
-                  domainType={surface.domain.surface_type as any} 
-                  size="sm" 
-                />
-              </div>
-            )}
           </div>
         </div>
       </Card>
 
-      {/* Domain Info */}
-      <Card className="p-6">
-        <div className="flex items-start gap-4">
-          <div className="p-3 rounded-full bg-accent/10">
-            <Globe className="h-6 w-6 text-accent" />
-          </div>
-          <div className="flex-1">
-            <h3 className="font-semibold">Current Domain</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              This surface is configured to publish on:
-            </p>
-            <div className="mt-3 p-3 rounded-lg bg-muted/50 border border-border">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="font-medium">{surface.domain.domain}</p>
-                  <p className="text-xs text-muted-foreground capitalize">
-                    {surface.domain.label} • {surface.domain.surface_type}
-                  </p>
+      {/* Active Publishes */}
+      {isPublished && (
+        <Card className="p-6">
+          <h3 className="font-semibold mb-4">Active Publications</h3>
+          <div className="space-y-3">
+            {surface.activePublishes.map((pub) => (
+              <div
+                key={pub.id}
+                className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border border-border"
+              >
+                <div className="flex items-center gap-3">
+                  <Globe className="h-5 w-5 text-muted-foreground" />
+                  <div>
+                    <p className="font-medium">{pub.domain_host}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Published {pub.published_at ? new Date(pub.published_at).toLocaleDateString() : ""}
+                    </p>
+                  </div>
                 </div>
-                <Badge variant="outline" className="shrink-0">
-                  {surface.slug}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => window.open(`https://${pub.domain_host}`, "_blank")}
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleUnpublish(pub.domain_id)}
+                    disabled={unpublishSurface.isPending || !isOwner}
+                  >
+                    <GlobeIcon className="h-4 w-4 mr-1" />
+                    Unpublish
+                  </Button>
+                </div>
               </div>
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              Full URL: <span className="font-mono">{publicUrl}</span>
-            </p>
+            ))}
           </div>
-        </div>
-      </Card>
+        </Card>
+      )}
 
       {/* Publish Action */}
-      {!isPublished && (
+      {!isArchived && (
         <Card className="p-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
@@ -162,6 +187,8 @@ export function PublishSection({ surface, userId, orgId, onSurfaceUpdate }: Publ
                   ? "Loading permissions..." 
                   : !isOwner
                   ? "No Permission"
+                  : isPublished
+                  ? "Publish to Another Domain"
                   : "Ready to Publish"}
               </h3>
               <p className="text-sm text-muted-foreground">
@@ -169,42 +196,21 @@ export function PublishSection({ surface, userId, orgId, onSurfaceUpdate }: Publ
                   ? "Please wait while we verify your permissions."
                   : !isOwner
                   ? "Only organization owners or admins can publish surfaces."
+                  : isPublished
+                  ? "You can publish this surface to additional domains."
                   : "Click the button to select a domain and publish your surface."}
               </p>
             </div>
             <Button
               size="lg"
-              disabled={rolesLoading || !isOwner}
+              variant={isPublished ? "outline" : "default"}
+              disabled={rolesLoading || !isOwner || isArchived}
               onClick={() => setIsModalOpen(true)}
               className="gap-2"
             >
               <Rocket className="h-4 w-4" />
-              Publish Surface
+              {isPublished ? "Add Domain" : "Publish Surface"}
               <ArrowRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </Card>
-      )}
-
-      {/* Republish Action (when already published) */}
-      {isPublished && (
-        <Card className="p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h3 className="font-semibold">Manage Publication</h3>
-              <p className="text-sm text-muted-foreground">
-                Your surface is currently live. You can republish to a different domain if needed.
-              </p>
-            </div>
-            <Button
-              variant="outline"
-              size="lg"
-              disabled={rolesLoading || !isOwner}
-              onClick={() => setIsModalOpen(true)}
-              className="gap-2"
-            >
-              <Globe className="h-4 w-4" />
-              Change Domain
             </Button>
           </div>
         </Card>
@@ -215,8 +221,8 @@ export function PublishSection({ surface, userId, orgId, onSurfaceUpdate }: Publ
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
         surfaceId={surface.id}
-        surfaceTitle={surface.title}
-        currentDomainId={surface.domain.id}
+        surfaceTitle={surface.title || "Untitled Surface"}
+        currentDomainId={surface.activePublishes[0]?.domain_id}
         onPublishSuccess={handlePublishSuccess}
       />
     </div>
