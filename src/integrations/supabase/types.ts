@@ -874,8 +874,10 @@ export type Database = {
           blocked_reasons: Json | null
           domain_id: string
           id: string
+          is_primary: boolean
           org_id: string
           published_at: string | null
+          slug: string | null
           state: string
           surface_id: string
           unpublished_at: string | null
@@ -884,8 +886,10 @@ export type Database = {
           blocked_reasons?: Json | null
           domain_id: string
           id?: string
+          is_primary?: boolean
           org_id: string
           published_at?: string | null
+          slug?: string | null
           state: string
           surface_id: string
           unpublished_at?: string | null
@@ -894,8 +898,10 @@ export type Database = {
           blocked_reasons?: Json | null
           domain_id?: string
           id?: string
+          is_primary?: boolean
           org_id?: string
           published_at?: string | null
+          slug?: string | null
           state?: string
           surface_id?: string
           unpublished_at?: string | null
