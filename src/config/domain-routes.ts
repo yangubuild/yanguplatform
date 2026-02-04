@@ -224,6 +224,48 @@ export function getDomainRouteConfig(domainType: DomainType | null): DomainRoute
   return DOMAIN_ROUTE_CONFIG[domainType ?? DEFAULT_DOMAIN_TYPE];
 }
 
+// Reserved internal routes that should NEVER be treated as public slugs
+const RESERVED_ROUTES = [
+  "/admin",
+  "/api",
+  "/auth",
+  "/dashboard",
+  "/dev",
+  "/settings",
+  "/onboarding",
+  "/kyc",
+  "/billing",
+  "/surfaces",
+  "/s",
+  "/studio",
+];
+
+// Platform domains that support surface publishing via slug
+const PUBLISHING_DOMAINS: DomainType[] = ["shop", "store", "site", "studio", "live", "community"];
+
+/**
+ * Check if a route looks like a public slug (single segment, not reserved)
+ */
+export function isPublicSlugRoute(route: string): boolean {
+  // Must start with /
+  if (!route.startsWith("/")) return false;
+  
+  // Check if it's a reserved internal route
+  const isReserved = RESERVED_ROUTES.some((reserved) => 
+    route === reserved || route.startsWith(reserved + "/")
+  );
+  if (isReserved) return false;
+  
+  // /@username is always allowed
+  if (route.startsWith("/@")) return true;
+  
+  // Single segment slug: /something (no additional slashes except the leading one)
+  const pathWithoutLeadingSlash = route.slice(1);
+  const isSimpleSlug = pathWithoutLeadingSlash.length > 0 && !pathWithoutLeadingSlash.includes("/");
+  
+  return isSimpleSlug;
+}
+
 // Check if a route is allowed for a domain type
 export function isRouteAllowedForDomain(
   route: string,
@@ -237,11 +279,26 @@ export function isRouteAllowedForDomain(
   }
   
   // Check pattern matches (e.g., /products/:id)
-  return config.allowedRoutes.some((allowedRoute) => {
+  const patternMatch = config.allowedRoutes.some((allowedRoute) => {
     const pattern = allowedRoute
       .replace(/:[^/]+/g, "[^/]+")
       .replace(/\//g, "\\/");
     const regex = new RegExp(`^${pattern}$`);
     return regex.test(route);
   });
+  
+  if (patternMatch) return true;
+  
+  // On platform domains that support publishing, allow public slug routes
+  // These will be resolved by the PublicRouteResolver via RPC
+  if (domainType && PUBLISHING_DOMAINS.includes(domainType) && isPublicSlugRoute(route)) {
+    return true;
+  }
+  
+  // Also allow on io domain for identity profiles
+  if (domainType === "io" && isPublicSlugRoute(route)) {
+    return true;
+  }
+  
+  return false;
 }

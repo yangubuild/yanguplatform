@@ -58,6 +58,9 @@ const App = () => (
                 <Route path="/feed" element={<PublicSurfacePage />} />
                 <Route path="/groups" element={<PublicSurfacePage />} />
                 
+                {/* Dynamic slug routes - resolved by PublicRouteResolver via RPC */}
+                <Route path="/:slug" element={<PublicSurfacePage />} />
+                
                 {/* Auth routes */}
                 <Route path="/auth/login" element={<Login />} />
                 <Route path="/auth/signup" element={<Signup />} />
