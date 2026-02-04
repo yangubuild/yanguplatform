@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { getDomainRouteConfig, DEFAULT_DOMAIN_TYPE, type DomainRouteConfig } from "@/config/domain-routes";
+import { getDomainRouteConfig, isRouteAllowedForDomain, DEFAULT_DOMAIN_TYPE, type DomainRouteConfig } from "@/config/domain-routes";
 import type { Database } from "@/integrations/supabase/types";
 
 type DomainType = Database["public"]["Enums"]["surface_type"] | "io";
@@ -223,19 +223,10 @@ export function useDomain(): DomainContextState {
 
 // Hook to check if current domain allows a specific route
 export function useDomainRoute(route: string): boolean {
-  const { routeConfig } = useDomain();
+  const { domainType } = useDomain();
   
-  // Check if route matches any allowed pattern
-  return routeConfig.allowedRoutes.some((allowedRoute) => {
-    if (allowedRoute === route) return true;
-    
-    // Convert route pattern to regex
-    const pattern = allowedRoute
-      .replace(/:[^/]+/g, "[^/]+")
-      .replace(/\//g, "\\/");
-    const regex = new RegExp(`^${pattern}$`);
-    return regex.test(route);
-  });
+  // Use the centralized route checking logic that handles public slugs
+  return isRouteAllowedForDomain(route, domainType);
 }
 
 export { DomainContext };
