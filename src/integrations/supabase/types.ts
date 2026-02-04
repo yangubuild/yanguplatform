@@ -1163,6 +1163,16 @@ export type Database = {
         Args: { _creator_type: Database["public"]["Enums"]["creator_type"] }
         Returns: string
       }
+      get_own_kyc_documents: {
+        Args: never
+        Returns: {
+          created_at: string
+          document_count: number
+          id: string
+          status: Database["public"]["Enums"]["kyc_status"]
+          submitted_at: string
+        }[]
+      }
       has_approved_kyc: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
