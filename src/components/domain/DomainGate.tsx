@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useDomain, useDomainRoute } from "@/contexts/DomainContext";
+import { isPublicSlugRoute } from "@/config/domain-routes";
 import { Loader2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -16,6 +17,9 @@ interface DomainGateProps {
  * DomainGate wraps routes that should only be accessible
  * on certain domain types. It checks if the current route
  * is allowed for the active domain and redirects if not.
+ * 
+ * Note: Public slug routes (like /my-slug) are always allowed
+ * on platform domains that support surface publishing.
  */
 export function DomainGate({ 
   children, 
@@ -24,7 +28,19 @@ export function DomainGate({
 }: DomainGateProps) {
   const location = useLocation();
   const { isLoading, isActive, error, routeConfig, domainType } = useDomain();
+  
+  // Check if this is a potential public slug route - these should always pass through
+  // to let PublicRouteResolver handle them via RPC
+  const isPotentialSlugRoute = isPublicSlugRoute(location.pathname);
   const isRouteAllowed = useDomainRoute(location.pathname);
+  
+  // Debug logging (temporary)
+  console.log("[DomainGate] Debug:", {
+    pathname: location.pathname,
+    domainType,
+    isRouteAllowed,
+    isPotentialSlugRoute,
+  });
 
   // Show loading state while resolving domain
   if (isLoading && showLoading) {
@@ -62,7 +78,8 @@ export function DomainGate({
   }
 
   // Redirect if route not allowed for this domain type
-  if (!isRouteAllowed) {
+  // BUT: Always allow potential slug routes through - let PublicRouteResolver handle them
+  if (!isRouteAllowed && !isPotentialSlugRoute) {
     console.warn(
       `Route "${location.pathname}" not allowed on domain type "${domainType}". Redirecting to ${routeConfig.defaultRoute}`
     );
@@ -81,8 +98,10 @@ export function DomainRouteGuard({ children }: { children: ReactNode }) {
   const location = useLocation();
   const { routeConfig, domainType } = useDomain();
   const isRouteAllowed = useDomainRoute(location.pathname);
+  const isPotentialSlugRoute = isPublicSlugRoute(location.pathname);
 
-  if (!isRouteAllowed) {
+  // Allow potential slug routes through - let PublicRouteResolver handle them
+  if (!isRouteAllowed && !isPotentialSlugRoute) {
     console.warn(
       `Route "${location.pathname}" not allowed on domain type "${domainType}".`
     );
