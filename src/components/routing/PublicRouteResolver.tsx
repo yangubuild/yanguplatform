@@ -110,6 +110,14 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
       // Resolve via database for production platform domains
       try {
         const { route, debug } = await resolveRoute();
+        
+        // Temporary debug logging (dev + prod)
+        console.log("[PUBLIC ROUTE RESOLVED]", {
+          canonicalHost: debug.canonicalHost,
+          path: debug.path,
+          result: route,
+        });
+        
         setResolvedRoute(route);
         setDebugInfo(debug);
         
