@@ -21,11 +21,10 @@ export interface ResolvedRoute {
  */
 /**
  * Normalize a hostname for route resolution:
- * - Use hostname (not host) to exclude port
  * - Lowercase
  * - Strip leading "www."
  */
-function normalizeHostname(hostname: string): string {
+export function normalizeHostname(hostname: string): string {
   let normalized = hostname.toLowerCase();
   if (normalized.startsWith("www.")) {
     normalized = normalized.slice(4);
@@ -33,29 +32,64 @@ function normalizeHostname(hostname: string): string {
   return normalized;
 }
 
+/**
+ * Normalize a path for route resolution:
+ * - Ensure it starts with "/"
+ */
+export function normalizePath(path: string): string {
+  if (!path || path === "") return "/";
+  return path.startsWith("/") ? path : "/" + path;
+}
+
+/**
+ * Debug info returned alongside the route resolution
+ */
+export interface RouteDebugInfo {
+  rawHost: string;
+  hostname: string;
+  canonicalHost: string;
+  path: string;
+  resolverResponse: unknown;
+}
+
 export async function resolveRoute(
   host?: string,
   path?: string
-): Promise<ResolvedRoute> {
-  // Use hostname (no port) and normalize it
-  const rawHostname = host ?? window.location.hostname;
-  const currentHost = normalizeHostname(rawHostname);
-  const currentPath = path ?? window.location.pathname;
+): Promise<{ route: ResolvedRoute; debug: RouteDebugInfo }> {
+  // Capture raw values
+  const rawHost = window.location.host;
+  const hostname = host ?? window.location.hostname;
+  const canonicalHost = normalizeHostname(hostname);
+  const normalizedPath = normalizePath(path ?? window.location.pathname);
 
   const { data, error } = await supabase.rpc("resolve_route", {
-    p_host: currentHost,
-    p_path: currentPath,
+    p_host: canonicalHost,
+    p_path: normalizedPath,
   });
+
+  const debug: RouteDebugInfo = {
+    rawHost,
+    hostname,
+    canonicalHost,
+    path: normalizedPath,
+    resolverResponse: data,
+  };
 
   if (error) {
     console.error("Route resolution error:", error);
     return {
-      route_kind: "not_found",
-      reason: error.message,
+      route: {
+        route_kind: "not_found",
+        reason: error.message,
+      },
+      debug,
     };
   }
 
-  return data as unknown as ResolvedRoute;
+  return {
+    route: data as unknown as ResolvedRoute,
+    debug,
+  };
 }
 
 /**
