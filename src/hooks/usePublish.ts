@@ -76,6 +76,10 @@ export function useOrgDomains(orgId: string | null) {
 /**
  * Hook to check publish eligibility for a surface on a specific domain
  */
+/**
+ * Hook to check publish eligibility for a surface on a specific domain
+ * Relies ONLY on the Supabase RPC - no client-side blocking logic
+ */
 export function usePublishEligibility() {
   const [eligibility, setEligibility] = useState<EligibilityResult | null>(null);
   const [isChecking, setIsChecking] = useState(false);
@@ -84,8 +88,8 @@ export function usePublishEligibility() {
   const checkEligibility = useCallback(async (
     orgId: string,
     domainId: string,
-    surfaceId: string,
-    userId: string
+    slug: string,
+    surfaceId: string | null
   ): Promise<EligibilityResult> => {
     setIsChecking(true);
     setError(null);
@@ -96,8 +100,8 @@ export function usePublishEligibility() {
         {
           p_org_id: orgId,
           p_domain_id: domainId,
+          p_slug: slug,
           p_surface_id: surfaceId,
-          p_user_id: userId,
         }
       );
 
@@ -188,8 +192,12 @@ export function usePublishSurface() {
  * Combined hook for the complete publish flow
  * Uses the user's active organization automatically - does NOT accept orgId from props
  */
+/**
+ * Combined hook for the complete publish flow
+ * Uses the user's active organization automatically - does NOT accept orgId from props
+ * Relies ONLY on the Supabase RPC for eligibility - no client-side blocking
+ */
 export function usePublishFlow(surfaceId: string, surfaceTitle?: string) {
-  const { user } = useAuth();
   const { data: activeOrg, isLoading: activeOrgLoading } = useActiveOrg();
   
   // Use active org ID - never accept from client
@@ -202,14 +210,38 @@ export function usePublishFlow(surfaceId: string, surfaceTitle?: string) {
   const [selectedDomainId, setSelectedDomainId] = useState<string | null>(null);
   const [customSlug, setCustomSlug] = useState<string | null>(null);
 
-  // Check eligibility when domain is selected
+  // Generate a default slug from surface title
+  const defaultSlug = surfaceTitle
+    ? surfaceTitle
+        .toLowerCase()
+        .replace(/[^a-z0-9-]/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "")
+    : null;
+
+  // Check eligibility when domain or slug changes
+  // RPC signature: (orgId, domainId, slug, surfaceId ?? null)
+  const checkEligibilityForCurrentState = useCallback(async (domainId: string, slug: string) => {
+    if (orgId) {
+      await eligibilityHook.checkEligibility(orgId, domainId, slug, surfaceId ?? null);
+    }
+  }, [orgId, surfaceId, eligibilityHook]);
+
+  // Select domain and trigger eligibility check
   const selectDomain = useCallback(async (domainId: string) => {
     setSelectedDomainId(domainId);
-    
-    if (orgId && user?.id) {
-      await eligibilityHook.checkEligibility(orgId, domainId, surfaceId, user.id);
+    const slugToCheck = customSlug || defaultSlug || "";
+    await checkEligibilityForCurrentState(domainId, slugToCheck);
+  }, [customSlug, defaultSlug, checkEligibilityForCurrentState]);
+
+  // Update slug and re-check eligibility
+  const updateSlug = useCallback(async (slug: string | null) => {
+    setCustomSlug(slug);
+    if (selectedDomainId) {
+      const slugToCheck = slug || defaultSlug || "";
+      await checkEligibilityForCurrentState(selectedDomainId, slugToCheck);
     }
-  }, [orgId, user?.id, surfaceId, eligibilityHook]);
+  }, [selectedDomainId, defaultSlug, checkEligibilityForCurrentState]);
 
   // Publish to selected domain with optional custom slug
   const publish = useCallback(async (slug?: string) => {
@@ -232,15 +264,6 @@ export function usePublishFlow(surfaceId: string, surfaceTitle?: string) {
     eligibilityHook.reset();
   }, [eligibilityHook]);
 
-  // Generate a default slug from surface title
-  const defaultSlug = surfaceTitle
-    ? surfaceTitle
-        .toLowerCase()
-        .replace(/[^a-z0-9-]/g, "-")
-        .replace(/-+/g, "-")
-        .replace(/^-|-$/g, "")
-    : null;
-
   return {
     // Active org
     activeOrg,
@@ -252,12 +275,12 @@ export function usePublishFlow(surfaceId: string, surfaceTitle?: string) {
     selectedDomainId,
     selectDomain,
     
-    // Slug
+    // Slug - use updateSlug to set and re-check eligibility
     customSlug,
-    setCustomSlug,
+    setCustomSlug: updateSlug,
     defaultSlug,
     
-    // Eligibility
+    // Eligibility - ONLY from RPC, no client-side blocking
     eligibility: eligibilityHook.eligibility,
     isCheckingEligibility: eligibilityHook.isChecking,
     eligibilityError: eligibilityHook.error,
@@ -270,6 +293,7 @@ export function usePublishFlow(surfaceId: string, surfaceTitle?: string) {
     
     // Utilities
     reset,
+    // canPublish relies ONLY on RPC result - no client-side checks
     canPublish: eligibilityHook.eligibility?.eligible ?? false,
   };
 }
