@@ -1145,6 +1145,10 @@ export type Database = {
             }
             Returns: string
           }
+      count_org_active_publishes: {
+        Args: { p_org_id: string }
+        Returns: number
+      }
       count_published_surfaces: { Args: { _user_id: string }; Returns: number }
       delete_surface: { Args: { p_surface_id: string }; Returns: Json }
       evaluate_publish_eligibility: {
@@ -1188,6 +1192,10 @@ export type Database = {
         Returns: boolean
       }
       is_username_available: { Args: { _username: string }; Returns: boolean }
+      org_has_active_subscription: {
+        Args: { p_org_id: string }
+        Returns: boolean
+      }
       rename_surface: {
         Args: { p_new_title: string; p_surface_id: string }
         Returns: Json
