@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { forceDeleteSurface } from "@/lib/forceDeleteSurface";
 
 interface RpcResponse {
   success: boolean;
@@ -105,26 +106,17 @@ export function useSurfaceActions() {
 
   const deleteSurface = useMutation({
     mutationFn: async (surfaceId: string) => {
-      const { data, error } = await supabase.rpc("delete_surface", {
-        p_surface_id: surfaceId,
-      });
-      if (error) throw error;
-      return data as unknown as RpcResponse;
-    },
-    onSuccess: (data) => {
-      if (data?.success) {
-        toast.success("Surface deleted");
-        invalidate();
-      } else {
-        if (data?.requires_unpublish) {
-          toast.error("Cannot delete a live surface. Unpublish it first.");
-        } else {
-          toast.error(data?.error || "Failed to delete surface");
-        }
+      const success = await forceDeleteSurface(surfaceId);
+      if (!success) {
+        throw new Error("Failed to delete surface");
       }
+      return { success: true };
     },
-    onError: (error: Error) => {
-      toast.error(error.message);
+    onSuccess: () => {
+      invalidate();
+    },
+    onError: () => {
+      // Error toast already shown by forceDeleteSurface
     },
   });
 
