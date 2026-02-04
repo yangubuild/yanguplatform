@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { 
   Loader2, Check, X, AtSign, ArrowRight, ArrowLeft, Link2,
-  ShoppingBag, Package, Hotel, Users, Sparkles, Eye
+  ShoppingBag, Package, Hotel, Users, Sparkles, Eye, Radio
 } from "lucide-react";
 import { PLATFORM_DOMAIN } from "@/config/platform";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -61,13 +61,24 @@ const ONBOARDING_PATHS = {
   community: {
     id: "community",
     label: "Build or Join a Community",
-    description: "NGOs, schools, agencies, freelancers, coaches, influencers",
+    description: "NGOs, schools, agencies, freelancers, coaches, groups",
     icon: Users,
     domain: "yangu.community",
     surfaceType: "community",
     color: "text-cyan-500",
     bgColor: "bg-cyan-500/10",
     borderColor: "border-cyan-500/50",
+  },
+  live: {
+    id: "live",
+    label: "Influencer / Live Selling",
+    description: "Content creators, influencers, live sellers, streamers",
+    icon: Radio,
+    domain: "yangu.live",
+    surfaceType: "live",
+    color: "text-rose-500",
+    bgColor: "bg-rose-500/10",
+    borderColor: "border-rose-500/50",
   },
   studio: {
     id: "studio",
