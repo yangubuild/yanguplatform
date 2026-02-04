@@ -100,7 +100,7 @@ export function DomainProvider({ children }: DomainProviderProps) {
         try {
           const { data, error } = await supabase
             .from("domains")
-            .select("id, host, domain_type, org_id, is_active")
+            .select("id, host, domain_type, owner_org_id, is_active")
             .eq("host", host)
             .eq("is_active", true)
             .maybeSingle();
@@ -111,8 +111,8 @@ export function DomainProvider({ children }: DomainProviderProps) {
             setState({
               domainId: data.id,
               domainType: data.domain_type as DomainType,
-              orgId: data.org_id,
-              isActive: data.is_active,
+              orgId: data.owner_org_id,
+              isActive: data.is_active ?? true,
               host,
               isLoading: false,
               error: null,
@@ -151,7 +151,7 @@ export function DomainProvider({ children }: DomainProviderProps) {
       try {
         const { data, error } = await supabase
           .from("domains")
-          .select("id, host, domain_type, org_id, is_active")
+          .select("id, host, domain_type, owner_org_id, is_active")
           .eq("host", host)
           .maybeSingle();
 
@@ -161,8 +161,8 @@ export function DomainProvider({ children }: DomainProviderProps) {
           setState({
             domainId: data.id,
             domainType: data.domain_type as DomainType,
-            orgId: data.org_id,
-            isActive: data.is_active,
+            orgId: data.owner_org_id,
+            isActive: data.is_active ?? true,
             host,
             isLoading: false,
             error: null,

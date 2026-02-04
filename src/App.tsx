@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { DomainProvider } from "@/contexts/DomainContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { DomainGate } from "@/components/domain/DomainGate";
+import { PublicRouteResolver } from "@/components/routing";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/auth/Login";
@@ -37,7 +38,8 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <DomainProvider>
-            <DomainGate>
+            <PublicRouteResolver>
+              <DomainGate>
               <Routes>
                 {/* Public routes */}
                 <Route path="/" element={<Index />} />
@@ -130,7 +132,8 @@ const App = () => (
                 {/* Catch-all */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </DomainGate>
+              </DomainGate>
+            </PublicRouteResolver>
           </DomainProvider>
         </BrowserRouter>
       </TooltipProvider>
