@@ -58,7 +58,7 @@ export default function KYC() {
         .maybeSingle();
 
       if (existingKyc) {
-        // Update existing record
+        // Update existing record - trigger will sync to org_billing
         const { error } = await supabase
           .from("kyc_verifications")
           .update({ 
@@ -70,7 +70,7 @@ export default function KYC() {
 
         if (error) throw error;
       } else {
-        // Create new approved record
+        // Create new approved record - trigger will sync to org_billing
         const { error } = await supabase
           .from("kyc_verifications")
           .insert({
@@ -87,7 +87,7 @@ export default function KYC() {
       setKycStatus("approved");
       toast({
         title: "KYC Approved",
-        description: "Your KYC status has been set to approved for testing.",
+        description: "Your KYC status has been synced. You can now publish surfaces.",
       });
     } catch (err) {
       console.error("Error approving KYC:", err);
