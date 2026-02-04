@@ -38,8 +38,14 @@ export function useOrgDomains(orgId: string | null) {
   return useQuery({
     queryKey: ["org-domains", orgId],
     queryFn: async (): Promise<OrgDomain[]> => {
-      if (!orgId) return [];
+      // Safety check - should never happen due to enabled flag
+      if (!orgId) {
+        console.warn("[useOrgDomains] Called without orgId - returning empty");
+        return [];
+      }
 
+      console.log("[useOrgDomains] Fetching domains for org:", orgId);
+      
       const { data, error } = await supabase
         .from("domains")
         .select("id, host, domain_type, is_active, owner_org_id")
@@ -48,7 +54,7 @@ export function useOrgDomains(orgId: string | null) {
         .order("host");
 
       if (error) {
-        console.error("Error fetching org domains:", error);
+        console.error("[useOrgDomains] Error fetching org domains:", error.message, error.details, error.hint);
         throw error;
       }
 
@@ -60,7 +66,10 @@ export function useOrgDomains(orgId: string | null) {
 
       return publishableDomains;
     },
-    enabled: !!orgId,
+    // CRITICAL: Only run when we have a valid orgId
+    enabled: !!orgId && orgId.length > 0,
+    // Don't retry on error to avoid spamming the server
+    retry: false,
   });
 }
 
