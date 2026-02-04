@@ -1,29 +1,33 @@
+import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { useSurfaces } from "@/hooks/useSurfaces";
+import { useSurfaces, type SurfaceWithPublishes } from "@/hooks/useSurfaces";
 import { useNavigate } from "react-router-dom";
 import { useDomain } from "@/contexts/DomainContext";
 import { AppShell } from "@/components/primitives";
 import { PageContainer, Card, Banner, PrimaryButton, SecondaryButton } from "@/components/primitives";
 import { SurfaceCard } from "@/components/dashboard/SurfaceCard";
 import { DomainBadge } from "@/components/domain/DomainBadge";
-import { Plus, Rocket, Users, BarChart3, Loader2, Sparkles } from "lucide-react";
-
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Plus, Rocket, Users, BarChart3, Loader2, Sparkles, Archive } from "lucide-react";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const { profile } = useAuth();
   const { domainType, routeConfig } = useDomain();
-  const { data: surfaces, isLoading: surfacesLoading } = useSurfaces();
+  const [showArchived, setShowArchived] = useState(false);
+  const { data: surfaces, isLoading: surfacesLoading } = useSurfaces({ showArchived });
 
-  const handleEdit = (surface: { id: string }) => {
+  const handleEdit = (surface: SurfaceWithPublishes) => {
     navigate(`/surfaces/${surface.id}/edit`);
   };
 
-  const handlePreview = (surface: { id: string }) => {
+  const handlePreview = (surface: SurfaceWithPublishes) => {
     navigate(`/s/${surface.id}/preview`);
   };
 
   const hasSurfaces = surfaces && surfaces.length > 0;
+  const activeSurfacesCount = surfaces?.filter((s) => s.activePublishes.length > 0).length || 0;
 
   const handleCreateSurface = () => {
     console.log("[Dashboard] Navigating to /onboarding?new=1");
@@ -74,9 +78,7 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Active Surfaces</p>
-                  <p className="text-2xl font-bold">
-                    {surfaces?.filter((s) => s.is_published).length || 0}
-                  </p>
+                  <p className="text-2xl font-bold">{activeSurfacesCount}</p>
                 </div>
               </div>
             </Card>
@@ -115,7 +117,23 @@ export default function Dashboard() {
           ) : hasSurfaces ? (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold">Your Surfaces</h2>
+                <div className="flex items-center gap-4">
+                  <h2 className="text-xl font-semibold">Your Surfaces</h2>
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      id="show-archived"
+                      checked={showArchived}
+                      onCheckedChange={setShowArchived}
+                    />
+                    <Label
+                      htmlFor="show-archived"
+                      className="text-sm text-muted-foreground cursor-pointer flex items-center gap-1"
+                    >
+                      <Archive className="h-3.5 w-3.5" />
+                      Show archived
+                    </Label>
+                  </div>
+                </div>
                 <PrimaryButton size="sm" onClick={handleCreateSurface}>
                   <Plus className="mr-2 h-4 w-4" />
                   New Surface
