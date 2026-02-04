@@ -145,17 +145,30 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
     );
   }
 
-  // Use internal React Router routing
+  // Use internal React Router routing ONLY for:
+  // 1. Dev environment
+  // 2. Internal routes (/auth, /dashboard, etc.)
+  // 3. Unknown hosts (localhost, preview domains)
   if (shouldUseInternalRouting) {
     return <>{children}</>;
   }
 
-  // Render based on resolved route
+  // *** CRITICAL: From here on, we are on a PRODUCTION PLATFORM DOMAIN ***
+  // We must NEVER fall through to React Router for public paths.
+  // The RPC response fully determines what to render.
+
+  // If somehow resolvedRoute is null (shouldn't happen), show NotFound instead of falling through
   if (!resolvedRoute) {
-    return <>{children}</>;
+    console.error("[PublicRouteResolver] No route resolved on production domain, showing NotFound");
+    return (
+      <>
+        <NotFound />
+        <RouteDebugBar debug={debugInfo} route={null} />
+      </>
+    );
   }
 
-  // Content based on route_kind
+  // Content based on route_kind - NO default fallthrough to React Router
   let content: ReactNode;
   
   switch (resolvedRoute.route_kind) {
@@ -190,11 +203,11 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
       break;
 
     case "not_found":
+    default:
+      // CRITICAL: Treat any unknown route_kind as not_found
+      // Never fall through to React Router on production platform domains
       content = <NotFound />;
       break;
-
-    default:
-      content = <>{children}</>;
   }
 
   return (
