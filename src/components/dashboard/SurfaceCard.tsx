@@ -151,49 +151,49 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={() => {
-                      setNewTitle(surface.title || "");
-                      setRenameDialogOpen(true);
-                    }}
-                  >
-                    <Pencil className="h-4 w-4 mr-2" />
-                    Rename
-                  </DropdownMenuItem>
+                  {!isArchived && (
+                    <>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setNewTitle(surface.title || "");
+                          setRenameDialogOpen(true);
+                        }}
+                      >
+                        <Pencil className="h-4 w-4 mr-2" />
+                        Rename
+                      </DropdownMenuItem>
 
-                  {hasActivePublish && !isArchived && (
-                    <DropdownMenuItem onClick={openUnpublishDialog}>
-                      <GlobeIcon className="h-4 w-4 mr-2" />
-                      Unpublish
+                      {hasActivePublish && (
+                        <DropdownMenuItem onClick={openUnpublishDialog}>
+                          <GlobeIcon className="h-4 w-4 mr-2" />
+                          Unpublish
+                        </DropdownMenuItem>
+                      )}
+
+                      <DropdownMenuSeparator />
+
+                      <DropdownMenuItem onClick={() => setArchiveDialogOpen(true)}>
+                        <Archive className="h-4 w-4 mr-2" />
+                        Archive
+                      </DropdownMenuItem>
+                    </>
+                  )}
+
+                  {isArchived && (
+                    <DropdownMenuItem onClick={handleRestore}>
+                      <RotateCcw className="h-4 w-4 mr-2" />
+                      Unarchive
                     </DropdownMenuItem>
                   )}
 
                   <DropdownMenuSeparator />
-
-                  {isArchived ? (
-                    <DropdownMenuItem onClick={handleRestore}>
-                      <RotateCcw className="h-4 w-4 mr-2" />
-                      Restore
-                    </DropdownMenuItem>
-                  ) : (
-                    <DropdownMenuItem onClick={() => setArchiveDialogOpen(true)}>
-                      <Archive className="h-4 w-4 mr-2" />
-                      Archive
-                    </DropdownMenuItem>
-                  )}
-
-                  {!hasActivePublish && (
-                    <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => setDeleteDialogOpen(true)}
-                        className="text-destructive focus:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete
-                      </DropdownMenuItem>
-                    </>
-                  )}
+                  <DropdownMenuItem
+                    onClick={() => setDeleteDialogOpen(true)}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
