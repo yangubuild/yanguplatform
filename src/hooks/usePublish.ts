@@ -95,7 +95,9 @@ export function usePublishEligibility() {
     setError(null);
 
     try {
-      const { data, error: rpcError } = await supabase.rpc(
+      // Call RPC with exact signature: (p_org_id, p_domain_id, p_slug, p_surface_id)
+      // Using type assertion as types may not be regenerated yet
+      const { data, error: rpcError } = await (supabase.rpc as Function)(
         "evaluate_publish_eligibility",
         {
           p_org_id: orgId,
@@ -110,9 +112,10 @@ export function usePublishEligibility() {
         throw new Error(rpcError.message);
       }
 
-      // The RPC returns an array with one row
-      const result = Array.isArray(data) && data.length > 0
-        ? { eligible: data[0].eligible, reasons: data[0].reasons || [] }
+      // RPC returns: { eligible: boolean, reasons: string[] }[]
+      const row = Array.isArray(data) && data.length > 0 ? data[0] : null;
+      const result: EligibilityResult = row
+        ? { eligible: Boolean(row.eligible), reasons: row.reasons || [] }
         : { eligible: false, reasons: ["Unable to check eligibility"] };
 
       setEligibility(result);
