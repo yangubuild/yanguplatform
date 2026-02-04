@@ -359,7 +359,10 @@ export type Database = {
           host: string
           id: string
           is_active: boolean | null
-          org_id: string
+          kind: string
+          owner_org_id: string | null
+          platform_key: string | null
+          points_to_surface_publish_id: string | null
         }
         Insert: {
           created_at?: string | null
@@ -367,7 +370,10 @@ export type Database = {
           host: string
           id?: string
           is_active?: boolean | null
-          org_id: string
+          kind: string
+          owner_org_id?: string | null
+          platform_key?: string | null
+          points_to_surface_publish_id?: string | null
         }
         Update: {
           created_at?: string | null
@@ -375,14 +381,24 @@ export type Database = {
           host?: string
           id?: string
           is_active?: boolean | null
-          org_id?: string
+          kind?: string
+          owner_org_id?: string | null
+          platform_key?: string | null
+          points_to_surface_publish_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "domains_org_id_fkey"
-            columns: ["org_id"]
+            foreignKeyName: "domains_owner_org_id_fkey"
+            columns: ["owner_org_id"]
             isOneToOne: false
             referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "domains_points_to_surface_publish_id_fkey"
+            columns: ["points_to_surface_publish_id"]
+            isOneToOne: false
+            referencedRelation: "surface_publishes"
             referencedColumns: ["id"]
           },
         ]
