@@ -1,7 +1,6 @@
 import { ReactNode } from "react";
-import { Navigate, useLocation } from "react-router-dom";
-import { useDomain, useDomainRoute } from "@/contexts/DomainContext";
-import { isPublicSlugRoute } from "@/config/domain-routes";
+import { useLocation } from "react-router-dom";
+import { useDomain } from "@/contexts/DomainContext";
 import { Loader2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -14,32 +13,27 @@ interface DomainGateProps {
 }
 
 /**
- * DomainGate wraps routes that should only be accessible
- * on certain domain types. It checks if the current route
- * is allowed for the active domain and redirects if not.
+ * DomainGate provides domain context awareness.
  * 
- * Note: Public slug routes (like /my-slug) are always allowed
- * on platform domains that support surface publishing.
+ * IMPORTANT: Route access control is now handled by PublicRouteResolver via RPC.
+ * DomainGate only handles:
+ * 1. Loading state while domain context initializes
+ * 2. Inactive domain display
+ * 
+ * It does NOT redirect based on route patterns - that's the job of PublicRouteResolver.
  */
 export function DomainGate({ 
   children, 
   showLoading = true,
-  inactiveRedirect = "/" 
 }: DomainGateProps) {
   const location = useLocation();
-  const { isLoading, isActive, error, routeConfig, domainType } = useDomain();
-  
-  // Check if this is a potential public slug route - these should always pass through
-  // to let PublicRouteResolver handle them via RPC
-  const isPotentialSlugRoute = isPublicSlugRoute(location.pathname);
-  const isRouteAllowed = useDomainRoute(location.pathname);
+  const { isLoading, isActive, domainType } = useDomain();
   
   // Debug logging (temporary)
-  console.log("[DomainGate] Debug:", {
+  console.log("[DomainGate] Allowing through:", {
     pathname: location.pathname,
     domainType,
-    isRouteAllowed,
-    isPotentialSlugRoute,
+    isActive,
   });
 
   // Show loading state while resolving domain
@@ -54,7 +48,7 @@ export function DomainGate({
     );
   }
 
-  // Show inactive domain page
+  // Show inactive domain page (only for explicitly inactive domains)
   if (!isActive) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -77,36 +71,15 @@ export function DomainGate({
     );
   }
 
-  // Redirect if route not allowed for this domain type
-  // BUT: Always allow potential slug routes through - let PublicRouteResolver handle them
-  if (!isRouteAllowed && !isPotentialSlugRoute) {
-    console.warn(
-      `Route "${location.pathname}" not allowed on domain type "${domainType}". Redirecting to ${routeConfig.defaultRoute}`
-    );
-    return <Navigate to={routeConfig.defaultRoute} replace />;
-  }
-
+  // Let all routes through - PublicRouteResolver handles routing via RPC
   return <>{children}</>;
 }
 
 /**
- * DomainRouteGuard is a simpler version that only checks
- * if the route is allowed without showing loading states.
- * Use this for wrapping individual route elements.
+ * DomainRouteGuard - DEPRECATED
+ * Route access control is now handled by PublicRouteResolver.
+ * This component just passes through children.
  */
 export function DomainRouteGuard({ children }: { children: ReactNode }) {
-  const location = useLocation();
-  const { routeConfig, domainType } = useDomain();
-  const isRouteAllowed = useDomainRoute(location.pathname);
-  const isPotentialSlugRoute = isPublicSlugRoute(location.pathname);
-
-  // Allow potential slug routes through - let PublicRouteResolver handle them
-  if (!isRouteAllowed && !isPotentialSlugRoute) {
-    console.warn(
-      `Route "${location.pathname}" not allowed on domain type "${domainType}".`
-    );
-    return <Navigate to={routeConfig.defaultRoute} replace />;
-  }
-
   return <>{children}</>;
 }
