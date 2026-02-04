@@ -15,6 +15,7 @@ export interface PublishResult {
   state?: "published" | "blocked";
   reasons?: string[];
   error?: string;
+  slug?: string;
 }
 
 export interface OrgDomain {
@@ -138,13 +139,16 @@ export function usePublishSurface() {
     mutationFn: async ({
       surfaceId,
       domainId,
+      slug,
     }: {
       surfaceId: string;
       domainId: string;
+      slug?: string;
     }): Promise<PublishResult> => {
       const { data, error } = await supabase.rpc("request_publish_surface", {
         p_surface_id: surfaceId,
         p_domain_id: domainId,
+        p_slug: slug || null,
       });
 
       if (error) {
@@ -175,7 +179,7 @@ export function usePublishSurface() {
  * Combined hook for the complete publish flow
  * Uses the user's active organization automatically - does NOT accept orgId from props
  */
-export function usePublishFlow(surfaceId: string) {
+export function usePublishFlow(surfaceId: string, surfaceTitle?: string) {
   const { user } = useAuth();
   const { data: activeOrg, isLoading: activeOrgLoading } = useActiveOrg();
   
@@ -187,6 +191,7 @@ export function usePublishFlow(surfaceId: string) {
   const publishMutation = usePublishSurface();
 
   const [selectedDomainId, setSelectedDomainId] = useState<string | null>(null);
+  const [customSlug, setCustomSlug] = useState<string | null>(null);
 
   // Check eligibility when domain is selected
   const selectDomain = useCallback(async (domainId: string) => {
@@ -197,22 +202,35 @@ export function usePublishFlow(surfaceId: string) {
     }
   }, [orgId, user?.id, surfaceId, eligibilityHook]);
 
-  // Publish to selected domain
-  const publish = useCallback(async () => {
+  // Publish to selected domain with optional custom slug
+  const publish = useCallback(async (slug?: string) => {
     if (!selectedDomainId) {
       throw new Error("No domain selected");
     }
 
+    const finalSlug = slug || customSlug || undefined;
+
     return publishMutation.mutateAsync({
       surfaceId,
       domainId: selectedDomainId,
+      slug: finalSlug,
     });
-  }, [selectedDomainId, surfaceId, publishMutation]);
+  }, [selectedDomainId, surfaceId, customSlug, publishMutation]);
 
   const reset = useCallback(() => {
     setSelectedDomainId(null);
+    setCustomSlug(null);
     eligibilityHook.reset();
   }, [eligibilityHook]);
+
+  // Generate a default slug from surface title
+  const defaultSlug = surfaceTitle
+    ? surfaceTitle
+        .toLowerCase()
+        .replace(/[^a-z0-9-]/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "")
+    : null;
 
   return {
     // Active org
@@ -224,6 +242,11 @@ export function usePublishFlow(surfaceId: string) {
     domainsLoading: domainsLoading || activeOrgLoading,
     selectedDomainId,
     selectDomain,
+    
+    // Slug
+    customSlug,
+    setCustomSlug,
+    defaultSlug,
     
     // Eligibility
     eligibility: eligibilityHook.eligibility,

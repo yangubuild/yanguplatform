@@ -1182,10 +1182,12 @@ export type Database = {
         Args: { p_new_title: string; p_surface_id: string }
         Returns: Json
       }
-      request_publish_surface: {
-        Args: { p_domain_id: string; p_surface_id: string }
-        Returns: Json
-      }
+      request_publish_surface:
+        | { Args: { p_domain_id: string; p_surface_id: string }; Returns: Json }
+        | {
+            Args: { p_domain_id: string; p_slug?: string; p_surface_id: string }
+            Returns: Json
+          }
       resolve_route: { Args: { p_host: string; p_path: string }; Returns: Json }
       spend_credits: {
         Args: {

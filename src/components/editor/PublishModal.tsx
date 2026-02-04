@@ -8,6 +8,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Card } from "@/components/primitives";
 import { usePublishFlow, type OrgDomain } from "@/hooks/usePublish";
 import { useDomain } from "@/contexts/DomainContext";
@@ -22,6 +24,7 @@ import {
   ArrowRight,
   Shield,
   CreditCard,
+  Link2,
 } from "lucide-react";
 
 interface PublishModalProps {
@@ -59,6 +62,9 @@ export function PublishModal({
     domainsLoading,
     selectedDomainId,
     selectDomain,
+    customSlug,
+    setCustomSlug,
+    defaultSlug,
     eligibility,
     isCheckingEligibility,
     publish,
@@ -66,10 +72,11 @@ export function PublishModal({
     publishResult,
     canPublish,
     reset,
-  } = usePublishFlow(surfaceId);
+  } = usePublishFlow(surfaceId, surfaceTitle);
 
   const [publishSuccess, setPublishSuccess] = useState(false);
   const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
+  const [publishedSlug, setPublishedSlug] = useState<string | null>(null);
 
   // Auto-select domain on open
   useEffect(() => {
@@ -92,19 +99,23 @@ export function PublishModal({
       reset();
       setPublishSuccess(false);
       setPublishedUrl(null);
+      setPublishedSlug(null);
     }
   }, [open, reset]);
 
   // Handle publish
   const handlePublish = async () => {
     try {
-      const result = await publish();
+      const slugToUse = customSlug || defaultSlug || undefined;
+      const result = await publish(slugToUse);
       
       if (result.success) {
         const selectedDomain = domains.find((d) => d.id === selectedDomainId);
         if (selectedDomain) {
-          setPublishedUrl(`https://${selectedDomain.host}`);
-          onPublishSuccess?.(selectedDomain.host, surfaceTitle);
+          const finalSlug = result.slug || slugToUse;
+          setPublishedUrl(`https://${selectedDomain.host}/${finalSlug}`);
+          setPublishedSlug(finalSlug || null);
+          onPublishSuccess?.(selectedDomain.host, finalSlug || surfaceTitle);
         }
         setPublishSuccess(true);
       }
@@ -120,6 +131,10 @@ export function PublishModal({
 
   // Get selected domain details
   const selectedDomain = domains.find((d) => d.id === selectedDomainId);
+  
+  // Compute the preview URL
+  const previewSlug = customSlug || defaultSlug || "your-surface";
+  const previewUrl = selectedDomain ? `${selectedDomain.host}/${previewSlug}` : null;
 
   // Success state
   if (publishSuccess) {
@@ -255,6 +270,33 @@ export function PublishModal({
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Slug Input - show when domain is selected */}
+          {selectedDomainId && selectedDomain && (
+            <div className="space-y-3">
+              <Label htmlFor="publish-slug" className="text-sm font-medium flex items-center gap-2">
+                <Link2 className="h-4 w-4" />
+                URL Slug
+              </Label>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground shrink-0">
+                    {selectedDomain.host}/
+                  </span>
+                  <Input
+                    id="publish-slug"
+                    placeholder={defaultSlug || "your-surface"}
+                    value={customSlug || ""}
+                    onChange={(e) => setCustomSlug(e.target.value || null)}
+                    className="flex-1"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  This will be the URL where your surface is accessible
+                </p>
+              </div>
             </div>
           )}
 
