@@ -9,18 +9,28 @@ import { StudioCreateForm, StudioFormData } from "@/components/studio/StudioCrea
 import { StudioOutputOptions } from "@/components/studio/StudioOutputOptions";
 import { useCredits, useSpendCredits } from "@/hooks/useCredits";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 /**
  * YANGU.STUDIO - Global AI-powered creative engine
  * 
- * IMPORTANT RULES:
+ * LOCKED BEHAVIOR RULES:
  * - NO Publish button
  * - NO domain selector
  * - NO KYC trigger
  * - NO subscription gate
- * - Credits ONLY for generation/download
- * - Sharing studio links is FREE
+ * - Always accessible to any logged-in user from Dashboard
+ * 
+ * LOCKED UI COPY:
+ * - "Generation uses credits"
+ * - "Downloads use credits"
+ * - "Sharing studio links is free"
+ * - "Viewing studio albums is free"
+ * 
+ * OUTPUT OPTIONS:
+ * - Download Assets → uses credits (calls spend_credits RPC)
+ * - Generate Studio Link → FREE (sets album_published=true)
  */
 export default function Studio() {
   const navigate = useNavigate();
@@ -30,9 +40,11 @@ export default function Studio() {
   
   const [activeTab, setActiveTab] = useState("create");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isGeneratingLink, setIsGeneratingLink] = useState(false);
   const [generatedProject, setGeneratedProject] = useState<{
     id: string;
     albumUrl?: string;
+    albumSlug?: string;
     assets: Array<{ id: string; type: string; downloadCredits: number }>;
   } | null>(null);
 
@@ -59,15 +71,43 @@ export default function Studio() {
         referenceType: "studio_generation",
       });
 
+      // Create project in database
+      const slug = `project-${Date.now()}`;
+      const { data: project, error: projectError } = await supabase
+        .from("studio_projects")
+        .insert({
+          user_id: user.id,
+          title: data.brandName || "Untitled Project",
+          product_url: data.productUrl,
+          brand_name: data.brandName || null,
+          brand_description: data.brandDescription || null,
+          target_platforms: data.platforms,
+          target_language: data.language,
+          content_types: data.contentTypes,
+          album_slug: slug,
+          status: "generating",
+        })
+        .select()
+        .single();
+
+      if (projectError) throw projectError;
+
       // TODO: Call AI generation edge function
       // For now, simulate success
       await new Promise((resolve) => setTimeout(resolve, 2000));
       
+      // Update status to completed
+      await supabase
+        .from("studio_projects")
+        .update({ status: "completed" })
+        .eq("id", project.id);
+
       toast.success("Content generated successfully!");
       
-      // Mock generated project
+      // Mock generated assets
       setGeneratedProject({
-        id: "mock-project-id",
+        id: project.id,
+        albumSlug: slug,
         assets: [
           { id: "1", type: "video_ad", downloadCredits: 2 },
           { id: "2", type: "image_ad", downloadCredits: 1 },
@@ -82,7 +122,7 @@ export default function Studio() {
   };
 
   const handleDownload = async () => {
-    if (!generatedProject) return;
+    if (!generatedProject || !user?.id) return;
     
     const totalCredits = generatedProject.assets.reduce(
       (sum, asset) => sum + asset.downloadCredits,
@@ -95,6 +135,7 @@ export default function Studio() {
     }
 
     try {
+      // Downloads use credits - call spend_credits RPC
       await spendCredits.mutateAsync({
         amount: totalCredits,
         description: "Asset download",
@@ -103,25 +144,40 @@ export default function Studio() {
       });
 
       // TODO: Trigger actual download
-      toast.success("Download started!");
+      toast.success("Download started! Credits deducted.");
     } catch (error) {
       toast.error("Download failed");
     }
   };
 
   const handleGenerateLink = async () => {
-    if (!generatedProject || !profile?.username) return;
+    if (!generatedProject || !profile?.username || !user?.id) return;
 
-    // Generate album link is FREE
-    const slug = `project-${Date.now()}`;
-    const albumUrl = `yangu.studio/album/@${profile.username}/${slug}`;
-    
-    setGeneratedProject({
-      ...generatedProject,
-      albumUrl,
-    });
+    setIsGeneratingLink(true);
 
-    toast.success("Studio link generated! Sharing is free.");
+    try {
+      // Generate album link is FREE - just update album_published=true
+      const { error } = await supabase
+        .from("studio_projects")
+        .update({ album_published: true })
+        .eq("id", generatedProject.id);
+
+      if (error) throw error;
+
+      const albumUrl = `yangu.studio/album/@${profile.username}/${generatedProject.albumSlug}`;
+      
+      setGeneratedProject({
+        ...generatedProject,
+        albumUrl,
+      });
+
+      toast.success("Studio link generated! Sharing is free.");
+    } catch (error) {
+      console.error("Failed to generate link:", error);
+      toast.error("Failed to generate link");
+    } finally {
+      setIsGeneratingLink(false);
+    }
   };
 
   const totalDownloadCredits = generatedProject?.assets.reduce(
@@ -133,7 +189,7 @@ export default function Studio() {
     <AppShell>
       <PageContainer size="xl">
         <div className="space-y-6">
-          {/* Header */}
+          {/* Header - NO Publish button, NO domain selector */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <SecondaryButton 
@@ -156,7 +212,7 @@ export default function Studio() {
             <CreditBadge />
           </div>
 
-          {/* Info Banner - Always visible */}
+          {/* Info Banner - Shows all 4 labels */}
           <StudioInfoBanner />
 
           {/* Tabs */}
@@ -181,40 +237,44 @@ export default function Studio() {
                       <div>
                         <p className="font-semibold">Content Generated!</p>
                         <p className="text-sm text-muted-foreground">
-                          Choose how to use your assets below.
+                          Choose how to use your assets below. Remember: downloads use credits, sharing links is free.
                         </p>
                       </div>
                     </div>
                   </Banner>
 
-                  {/* Preview of generated assets would go here */}
+                  {/* Preview of generated assets */}
                   <Card className="p-6">
                     <h3 className="font-semibold mb-4">Generated Assets</h3>
                     <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
                       {generatedProject.assets.map((asset) => (
                         <div
                           key={asset.id}
-                          className="aspect-video bg-surface-sunken rounded-lg flex items-center justify-center"
+                          className="aspect-video bg-surface-sunken rounded-lg flex items-center justify-center relative"
                         >
                           <span className="text-sm text-muted-foreground">
                             {asset.type.replace("_", " ")}
+                          </span>
+                          <span className="absolute bottom-2 right-2 text-xs bg-background/80 px-2 py-0.5 rounded">
+                            {asset.downloadCredits} credits
                           </span>
                         </div>
                       ))}
                     </div>
                   </Card>
 
-                  {/* Output Options */}
+                  {/* Output Options - Download (credits) vs Share Link (free) */}
                   <StudioOutputOptions
                     onDownload={handleDownload}
                     onGenerateLink={handleGenerateLink}
                     downloadCredits={totalDownloadCredits}
                     isDownloading={spendCredits.isPending}
+                    isGeneratingLink={isGeneratingLink}
                     albumUrl={generatedProject.albumUrl}
                   />
 
                   <SecondaryButton onClick={() => setGeneratedProject(null)}>
-                    Create New
+                    Create New Project
                   </SecondaryButton>
                 </div>
               ) : (
@@ -231,7 +291,7 @@ export default function Studio() {
                 <FolderOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                 <h3 className="text-lg font-semibold mb-2">Your Library</h3>
                 <p className="text-muted-foreground mb-4">
-                  Generated and uploaded assets will appear here.
+                  Generated and uploaded assets will appear here. Sharing studio albums is always free.
                 </p>
                 <SecondaryButton onClick={() => setActiveTab("create")}>
                   Create Your First Project
