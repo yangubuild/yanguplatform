@@ -24,6 +24,7 @@ import SurfaceEditor from "./pages/SurfaceEditor";
 import KYC from "./pages/KYC";
 import Billing from "./pages/Billing";
 import DevSeed from "./pages/dev/DevSeed";
+import TestDomainVerification from "./pages/dev/TestDomainVerification";
 import Studio from "./pages/Studio";
 
 /**
@@ -131,6 +132,8 @@ const App = () => (
                 
                 {/* Dev routes - only in development */}
                 <Route path="/dev/seed" element={<DevSeed />} />
+                <Route path="/dev/test-domain-verification" element={<TestDomainVerification />} />
+                
                 
                 {/* Catch-all */}
                 <Route path="*" element={<NotFound />} />
