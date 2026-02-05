@@ -275,7 +275,7 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
           <DialogHeader>
             <DialogTitle>Unpublish Surface</DialogTitle>
             <DialogDescription>
-              This removes the surface from the live domain but keeps it saved.
+              This will remove the surface from the live site. You can publish it again anytime.
             </DialogDescription>
           </DialogHeader>
           {surface.activePublishes.length > 1 && (
@@ -315,8 +315,7 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>Archive Surface</AlertDialogTitle>
             <AlertDialogDescription>
-              This will hide the surface from your dashboard. You can restore it
-              later from the archived surfaces view.
+              Archived surfaces are hidden and can't be published until unarchived.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
