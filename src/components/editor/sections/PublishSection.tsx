@@ -89,7 +89,7 @@ export function PublishSection({ surface, userId, orgId, onSurfaceUpdate }: Publ
       {isArchived && (
         <Card className="p-4 border-warning/50 bg-warning/5">
           <p className="text-sm text-warning font-medium">
-            This surface is archived. Restore it from your dashboard before publishing.
+            This surface is archived. Unarchive it to publish.
           </p>
         </Card>
       )}

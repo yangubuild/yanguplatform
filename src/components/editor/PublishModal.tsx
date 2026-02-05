@@ -37,9 +37,11 @@ interface PublishModalProps {
 
 // Map blocked reasons to actionable items
 const REASON_ACTIONS: Record<string, { icon: typeof Shield; route: string; label: string }> = {
-  "KYC verification required": { icon: Shield, route: "/kyc", label: "Complete KYC" },
-  "Active subscription required for additional surfaces": { icon: CreditCard, route: "/billing", label: "Upgrade Plan" },
-  "User must be owner or admin to publish": { icon: Shield, route: "/dashboard", label: "Contact Owner" },
+  "Verify your identity to publish on this domain.": { icon: Shield, route: "/kyc", label: "Verify Identity" },
+  "An active plan is required to publish additional surfaces.": { icon: CreditCard, route: "/billing", label: "Upgrade Plan" },
+  "You can publish 1 surface for free. Upgrade to publish more.": { icon: CreditCard, route: "/billing", label: "Upgrade Plan" },
+  "This link is already in use on this domain. Try a different name.": { icon: Link2, route: "", label: "" },
+  "This domain isn't available for publishing.": { icon: Globe, route: "", label: "" },
 };
 
 export function PublishModal({
@@ -328,7 +330,7 @@ export function PublishModal({
                       }`}>
                         {eligibility.eligible 
                           ? "Ready to publish!" 
-                          : "Cannot publish yet"}
+                          : "You can't publish this yet."}
                       </p>
                       
                       {!eligibility.eligible && eligibility.reasons.length > 0 && (
@@ -373,7 +375,7 @@ export function PublishModal({
               <div className="flex items-start gap-3">
                 <XCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-medium text-destructive">Publish blocked</p>
+                  <p className="font-medium text-destructive">You can't publish this yet.</p>
                   {publishResult.reasons && publishResult.reasons.length > 0 && (
                     <ul className="mt-2 space-y-1">
                       {publishResult.reasons.map((reason, idx) => (
