@@ -29,9 +29,9 @@ export function useStartDomainVerification() {
       const { data, error } = await (supabase.rpc as Function)(
         "start_domain_verification",
         {
-          org_id: orgId,
-          domain_id: domainId,
-          method: method,
+          p_org_id: orgId,
+          p_domain_id: domainId,
+          p_method: method,
         }
       );
 
