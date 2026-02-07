@@ -1,28 +1,29 @@
 import { useState } from "react";
 import {
-  Home,
-  Info,
-  Heart,
-  Lightbulb,
-  Code2,
-  LayoutGrid,
+  Compass,
   Sparkles,
-  Type,
-  PenTool,
-  Menu,
+  HelpCircle,
+  Bot,
+  FileText,
+  Users,
+  Heart,
+  ScrollText,
+  Shield,
   X,
 } from "lucide-react";
+import { Youtube, Twitter, Instagram } from "lucide-react";
+import yanguLogo from "@/assets/yangu-logo.png";
 
 const navItems = [
-  { icon: Home, label: "Home", active: true },
-  { icon: Info, label: "About Us", active: false },
-  { icon: Heart, label: "Sponsor", active: false },
-  { icon: Lightbulb, label: "Inspiration", active: false },
-  { icon: Code2, label: "No-code", active: false },
-  { icon: LayoutGrid, label: "Templates", active: false },
-  { icon: Sparkles, label: "Ai", active: false },
-  { icon: Type, label: "Typography", active: false },
-  { icon: PenTool, label: "Design Tools", active: false },
+  { icon: Compass, label: "Explore", active: true },
+  { icon: Sparkles, label: "Discover Yangu", active: false },
+  { icon: HelpCircle, label: "Why Yangu", active: false },
+  { icon: Bot, label: "Ada ai", active: false },
+  { icon: FileText, label: "Blog", active: false },
+  { icon: Users, label: "Community", active: false },
+  { icon: Heart, label: "Affiliates", active: false },
+  { icon: ScrollText, label: "Terms", active: false },
+  { icon: Shield, label: "Privacy", active: false },
 ];
 
 interface MassSidebarProps {
@@ -31,7 +32,7 @@ interface MassSidebarProps {
 }
 
 export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
-  const [activeItem, setActiveItem] = useState("Home");
+  const [activeItem, setActiveItem] = useState("Explore");
 
   return (
     <>
@@ -58,30 +59,11 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
 
         {/* Logo */}
         <div className="p-6">
-          <div className="w-12 h-12 relative">
-            <svg viewBox="0 0 48 48" className="w-full h-full">
-              <defs>
-                <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#f0f0f0" />
-                  <stop offset="50%" stopColor="#c0c0c0" />
-                  <stop offset="100%" stopColor="#909090" />
-                </linearGradient>
-              </defs>
-              <circle cx="24" cy="24" r="22" fill="url(#logoGradient)" />
-              <text
-                x="24"
-                y="30"
-                textAnchor="middle"
-                fontSize="16"
-                fontWeight="bold"
-                fontFamily="serif"
-                fontStyle="italic"
-                fill="#0f0f0f"
-              >
-                Mass
-              </text>
-            </svg>
-          </div>
+          <img 
+            src={yanguLogo} 
+            alt="Yangu" 
+            className="h-10 w-auto"
+          />
         </div>
 
         {/* Navigation */}
@@ -106,16 +88,29 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
           })}
         </nav>
 
-      {/* Endorsed badge */}
-      <div className="p-4 m-3 rounded-xl bg-[#1a1a1a]">
-        <div className="text-[#666666] text-xs mb-2">Endorsed by</div>
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-full bg-[#4ade80] flex items-center justify-center">
-            <span className="text-black text-xs font-bold">P</span>
-          </div>
-          <span className="text-white font-medium">Plaiter</span>
+        {/* Social icons */}
+        <div className="px-6 py-4 flex items-center gap-4">
+          <a href="#" className="text-[#666666] hover:text-white transition-colors">
+            <Youtube className="w-5 h-5" />
+          </a>
+          <a href="#" className="text-[#666666] hover:text-white transition-colors">
+            <Twitter className="w-5 h-5" />
+          </a>
+          <a href="#" className="text-[#666666] hover:text-white transition-colors">
+            <Instagram className="w-5 h-5" />
+          </a>
         </div>
-      </div>
+
+        {/* Endorsed badge */}
+        <div className="p-4 m-3 rounded-xl bg-[#1a1a1a]">
+          <div className="text-[#666666] text-xs mb-2">Endorsed by</div>
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-full bg-[#f97316] flex items-center justify-center">
+              <span className="text-white text-xs font-bold">P</span>
+            </div>
+            <span className="text-white font-medium">Plaiter</span>
+          </div>
+        </div>
       </aside>
     </>
   );

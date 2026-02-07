@@ -270,6 +270,10 @@
     animation: fadeIn 0.5s ease-out forwards;
   }
 
+  .animate-scroll-x {
+    animation: scrollX 25s linear infinite;
+  }
+
   @keyframes float {
     0%, 100% { transform: translateY(0px); }
     50% { transform: translateY(-20px); }
@@ -283,5 +287,10 @@
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
+  }
+
+  @keyframes scrollX {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
   }
 }

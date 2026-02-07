@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Menu } from "lucide-react";
 import { MassSidebar } from "./MassSidebar";
-import { MassTopBar } from "./MassTopBar";
+import { MassHeader } from "./MassHeader";
 import { MassHero } from "./MassHero";
+import { MassSearchBar } from "./MassSearchBar";
 import { MassResourceSection } from "./MassResourceSection";
 import {
   featuredResources,
@@ -33,8 +34,9 @@ export function MassLandingPage() {
       {/* Main Content */}
       <main className="lg:ml-[220px] min-h-screen">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-16 lg:pt-8">
-          <MassTopBar />
+          <MassHeader />
           <MassHero />
+          <MassSearchBar />
           
           <MassResourceSection title="Featured" resources={featuredResources} />
           <MassResourceSection title="Inspiration" resources={inspirationResources} />
