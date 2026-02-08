@@ -22,9 +22,23 @@ export function MassLandingPage() {
     <div 
       className="min-h-screen relative"
       style={{
-        background: 'linear-gradient(180deg, #15261F 0%, #0A1710 40%, #060B09 100%)',
+        background: 'linear-gradient(180deg, #15261F 0%, #0A1710 55%, #060B09 100%)',
       }}
     >
+      {/* Subtle bloom overlay */}
+      <div 
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle at 25% 10%, rgba(41,96,72,0.18) 0%, rgba(10,23,16,0) 55%)',
+        }}
+      />
+      {/* Global darkening overlay */}
+      <div 
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          background: 'rgba(0,0,0,0.15)',
+        }}
+      />
       {/* Mobile menu button */}
       <button
         onClick={() => setSidebarOpen(true)}
