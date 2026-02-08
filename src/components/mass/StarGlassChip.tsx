@@ -5,7 +5,7 @@ interface StarGlassChipProps {
 export function StarGlassChip({ className = "" }: StarGlassChipProps) {
   return (
     <span
-      className={`inline-flex items-center justify-center rounded-full transition-all duration-150 hover:brightness-110 ${className}`}
+      className={`inline-flex items-center justify-center rounded-full relative overflow-hidden ${className}`}
       style={{
         height: "22px",
         paddingLeft: "8px",
@@ -25,7 +25,24 @@ export function StarGlassChip({ className = "" }: StarGlassChipProps) {
         `,
       }}
     >
+      {/* Animated shimmer effect */}
       <span
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: `linear-gradient(
+            105deg,
+            transparent 20%,
+            rgba(255,255,255,0.12) 40%,
+            rgba(255,255,255,0.20) 50%,
+            rgba(255,255,255,0.12) 60%,
+            transparent 80%
+          )`,
+          backgroundSize: "200% 100%",
+          animation: "shimmer 3s ease-in-out infinite",
+        }}
+      />
+      <span
+        className="relative z-10"
         style={{
           fontSize: "12px",
           lineHeight: 1,
@@ -34,6 +51,16 @@ export function StarGlassChip({ className = "" }: StarGlassChipProps) {
       >
         ★
       </span>
+      <style>{`
+        @keyframes shimmer {
+          0% {
+            background-position: 200% 0;
+          }
+          100% {
+            background-position: -200% 0;
+          }
+        }
+      `}</style>
     </span>
   );
 }
