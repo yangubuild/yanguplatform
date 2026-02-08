@@ -50,14 +50,14 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         style={{
-          background: 'linear-gradient(180deg, #15261F 0%, #0A1710 100%)',
+          background: '#0A1710',
         }}
       >
-        {/* Right edge gradient fade separator (no line) */}
+        {/* Right edge separator */}
         <div 
-          className="absolute right-0 top-0 bottom-0 w-[12px] pointer-events-none"
+          className="absolute right-0 top-0 bottom-0 w-[1px] pointer-events-none"
           style={{
-            background: 'linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 100%)',
+            background: 'rgba(255,255,255,0.06)',
           }}
         />
         
@@ -97,19 +97,13 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
                 className={`relative w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm transition-all mb-1 ${
                   isActive
                     ? "text-white"
-                    : "text-white/55 hover:text-white/70"
+                    : "text-white/50 hover:text-white/70"
                 }`}
                 style={isActive ? {
-                  background: 'linear-gradient(180deg, rgba(41,96,72,0.55) 0%, rgba(23,70,56,0.45) 100%)',
-                  boxShadow: '0 0 18px rgba(41,96,72,0.18)',
-                  border: '1px solid rgba(255,255,255,0.08)',
+                  background: '#296048',
                 } : isHovered ? {
-                  background: 'rgba(23,70,56,0.45)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                } : {
-                  background: 'rgba(21,38,31,0.35)',
-                  border: '1px solid rgba(255,255,255,0.06)',
-                }}
+                  background: 'rgba(41,96,72,0.3)',
+                } : undefined}
               >
                 <div className="flex items-center gap-3">
                   <Icon className="w-4 h-4" strokeWidth={1.5} />
@@ -127,14 +121,13 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
         <div 
           className="p-4 mx-3 mb-4 rounded-xl"
           style={{
-            background: 'rgba(21,38,31,0.45)',
-            border: '1px solid rgba(255,255,255,0.06)',
+            background: '#15261F',
           }}
         >
           <div className="text-white font-medium text-sm mb-1">Start Selling</div>
           <div className="text-white/40 text-xs mb-3">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</div>
           <button 
-            className="w-full py-2.5 rounded-lg text-sm font-medium text-white transition-colors"
+            className="w-full py-2.5 rounded-lg text-sm font-medium text-white"
             style={{
               background: '#F46D2A',
             }}
