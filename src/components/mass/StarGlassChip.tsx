@@ -10,17 +10,17 @@ export function StarGlassChip({ className = "" }: StarGlassChipProps) {
         height: "18px",
         width: "18px",
         background: `linear-gradient(180deg, 
-          rgba(41,96,72,0.50) 0%, 
-          rgba(23,70,56,0.40) 45%, 
-          rgba(21,38,31,0.55) 100%
+          rgba(180,180,180,0.35) 0%, 
+          rgba(120,120,120,0.25) 45%, 
+          rgba(60,60,60,0.40) 100%
         )`,
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",
-        border: "1px solid rgba(255,255,255,0.15)",
+        border: "1px solid rgba(255,255,255,0.20)",
         boxShadow: `
-          inset 0 1px 0 rgba(255,255,255,0.25),
-          inset 0 -1px 0 rgba(0,0,0,0.20),
-          0 2px 8px rgba(10,23,16,0.40)
+          inset 0 1px 0 rgba(255,255,255,0.35),
+          inset 0 -1px 0 rgba(0,0,0,0.30),
+          0 2px 8px rgba(0,0,0,0.30)
         `,
       }}
     >
@@ -32,9 +32,9 @@ export function StarGlassChip({ className = "" }: StarGlassChipProps) {
             110deg,
             transparent 0%,
             transparent 30%,
-            rgba(255,255,255,0.35) 45%,
-            rgba(255,255,255,0.50) 50%,
-            rgba(255,255,255,0.35) 55%,
+            rgba(255,255,255,0.40) 45%,
+            rgba(255,255,255,0.60) 50%,
+            rgba(255,255,255,0.40) 55%,
             transparent 70%,
             transparent 100%
           )`,
