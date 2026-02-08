@@ -70,7 +70,7 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
             <img 
               src={item.customIcon} 
               alt={item.label} 
-              className="w-4 h-4 opacity-65" 
+              className="w-5 h-5" 
               style={{ filter: 'brightness(0) invert(1) opacity(0.65)' }}
             />
           ) : Icon ? (
