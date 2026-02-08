@@ -3,7 +3,6 @@ import {
   Home,
   Info,
   Sparkles,
-  Bot,
   PenLine,
   Users,
   Sparkle,
@@ -15,6 +14,7 @@ import {
   Instagram,
 } from "lucide-react";
 import yanguLogo from "@/assets/yangu-logo-full.png";
+import adaIcon from "@/assets/ada-icon.png";
 
 const topNavItems = [
   { icon: Home, label: "Explore", id: "explore" },
@@ -23,7 +23,7 @@ const topNavItems = [
 ];
 
 const bottomNavItems = [
-  { icon: Bot, label: "Ada ai", id: "ada-ai" },
+  { icon: null, customIcon: adaIcon, label: "Ada ai", id: "ada-ai" },
   { icon: PenLine, label: "Blog", id: "blog" },
   { icon: Users, label: "Community", id: "community" },
   { icon: Sparkle, label: "Affiliates", id: "affiliates" },
@@ -40,7 +40,7 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
   const [activeItem, setActiveItem] = useState("why-yangu");
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
-  const renderNavItem = (item: typeof topNavItems[0]) => {
+  const renderNavItem = (item: { icon: typeof Home | null; customIcon?: string; label: string; id: string; isActive?: boolean }) => {
     const Icon = item.icon;
     const isActive = activeItem === item.id;
     const isHovered = hoveredItem === item.id;
@@ -66,7 +66,16 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
         }}
       >
         <div className="flex items-center gap-3">
-          <Icon className="w-4 h-4" strokeWidth={1.5} />
+          {item.customIcon ? (
+            <img 
+              src={item.customIcon} 
+              alt={item.label} 
+              className="w-4 h-4 opacity-65" 
+              style={{ filter: 'brightness(0) invert(1) opacity(0.65)' }}
+            />
+          ) : Icon ? (
+            <Icon className="w-4 h-4" strokeWidth={1.5} />
+          ) : null}
           <span className="font-normal">{item.label}</span>
         </div>
         {showArrow && (
