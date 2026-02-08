@@ -53,13 +53,6 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
           background: 'linear-gradient(180deg, #15261F 0%, #0A1710 100%)',
         }}
       >
-        {/* Right edge gradient fade (no line) */}
-        <div 
-          className="absolute right-0 top-0 bottom-0 w-[20px] pointer-events-none"
-          style={{
-            background: 'linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.65) 100%)',
-          }}
-        />
         
         {/* Close button for mobile */}
         <button
