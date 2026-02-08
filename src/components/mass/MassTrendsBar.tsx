@@ -1,5 +1,4 @@
 import { TrendingUp } from "lucide-react";
-import { useRef } from "react";
 
 const trendItems = [
   "restaurants",
@@ -18,13 +17,14 @@ const trendItems = [
 ];
 
 export function MassTrendsBar() {
-  const scrollRef = useRef<HTMLDivElement>(null);
+  // Duplicate items for seamless loop
+  const duplicatedItems = [...trendItems, ...trendItems];
 
   return (
-    <div className="flex items-center gap-4 mt-4">
+    <div className="flex items-center gap-4 mt-4 overflow-hidden">
       {/* View Trends label */}
       <button 
-        className="flex items-center gap-2 shrink-0 group"
+        className="flex items-center gap-2 shrink-0 group z-10"
       >
         <TrendingUp 
           className="w-4 h-4" 
@@ -38,26 +38,32 @@ export function MassTrendsBar() {
         </span>
       </button>
 
-      {/* Scrollable pills container */}
-      <div 
-        ref={scrollRef}
-        className="flex items-center gap-2 overflow-x-auto scrollbar-hide"
-        style={{
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
-        }}
-      >
-        {trendItems.map((item, index) => (
-          <button
-            key={index}
-            className="shrink-0 px-2 py-1 text-sm transition-colors duration-200 hover:text-white/75"
-            style={{
-              color: 'rgba(255,255,255,0.55)',
-            }}
-          >
-            {item}
-          </button>
-        ))}
+      {/* Animated scrolling container */}
+      <div className="overflow-hidden flex-1">
+        <div 
+          className="flex items-center gap-6 animate-scroll-left"
+          style={{
+            width: 'max-content',
+          }}
+        >
+          {duplicatedItems.map((item, index) => (
+            <span
+              key={index}
+              className="shrink-0 text-sm cursor-pointer transition-colors duration-200"
+              style={{
+                color: 'rgba(255,255,255,0.55)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = 'rgba(255,255,255,0.9)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = 'rgba(255,255,255,0.55)';
+              }}
+            >
+              {item}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   );
