@@ -43,7 +43,7 @@ function GlassStar() {
 }
 
 const categoryColors: Record<string, string> = {
-  Sale: "#f97316",
+  Sale: "#F16612",
   Learn: "#14b8a6",
   Build: "#3b82f6",
   Scale: "#8b5cf6",
@@ -54,7 +54,12 @@ export function MassResourceCard({ image, title, subtitle, category, featured = 
 
   return (
     <div className="group cursor-pointer">
-      <div className="relative overflow-hidden rounded-xl mb-3">
+      <div 
+        className="relative overflow-hidden rounded-xl mb-3"
+        style={{
+          boxShadow: '0 10px 40px -10px rgba(0, 0, 0, 0.5)'
+        }}
+      >
         <img
           src={image}
           alt={title}
@@ -80,7 +85,7 @@ export function MassResourceCard({ image, title, subtitle, category, featured = 
           </span>
         </div>
         {subtitle && (
-          <p className="text-[#888888] text-sm">{subtitle}</p>
+          <p style={{ color: 'rgba(255, 255, 255, 0.55)' }} className="text-sm">{subtitle}</p>
         )}
       </div>
     </div>

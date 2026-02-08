@@ -1,12 +1,13 @@
 import { useState } from "react";
 import {
   Home,
-  Circle,
+  Info,
   Sparkles,
   Bot,
   Pencil,
   Users,
   Heart,
+  Circle,
   CircleDot,
   X,
 } from "lucide-react";
@@ -14,18 +15,18 @@ import { Youtube, Twitter, Instagram } from "lucide-react";
 import yanguLogo from "@/assets/yangu-logo.png";
 
 const topNavItems = [
-  { icon: Home, label: "Explore", active: true },
-  { icon: Circle, label: "Discover Yangu", active: false },
-  { icon: Sparkles, label: "Why Yangu", active: false },
+  { icon: Home, label: "Explore", id: "explore" },
+  { icon: Info, label: "Discover Yangu", id: "discover" },
+  { icon: Sparkles, label: "Why Yangu", id: "why" },
 ];
 
 const bottomNavItems = [
-  { icon: Bot, label: "Ada ai", active: false },
-  { icon: Pencil, label: "Blog", active: false },
-  { icon: Users, label: "Community", active: false },
-  { icon: Heart, label: "Affiliates", active: false },
-  { icon: Circle, label: "Terms", active: false },
-  { icon: CircleDot, label: "Privacy", active: false },
+  { icon: Bot, label: "Ada ai", id: "ada" },
+  { icon: Pencil, label: "Blog", id: "blog" },
+  { icon: Users, label: "Community", id: "community" },
+  { icon: Heart, label: "Affiliates", id: "affiliates" },
+  { icon: Circle, label: "Terms", id: "terms" },
+  { icon: CircleDot, label: "Privacy", id: "privacy" },
 ];
 
 interface MassSidebarProps {
@@ -34,7 +35,7 @@ interface MassSidebarProps {
 }
 
 export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
-  const [activeItem, setActiveItem] = useState("Explore");
+  const [activeItem, setActiveItem] = useState("why");
 
   return (
     <>
@@ -47,14 +48,14 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
       )}
       
       <aside
-        className={`fixed left-0 top-0 h-screen w-[220px] bg-[#0f0f0f] flex flex-col z-50 transition-transform duration-300 lg:translate-x-0 ${
+        className={`fixed left-0 top-0 h-screen w-[220px] bg-black flex flex-col z-50 transition-transform duration-300 lg:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Close button for mobile */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-[#666666] hover:text-white lg:hidden"
+          className="absolute top-4 right-4 p-2 text-white/40 hover:text-white lg:hidden"
         >
           <X className="w-5 h-5" />
         </button>
@@ -64,7 +65,7 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
           <img 
             src={yanguLogo} 
             alt="Yangu" 
-            className="h-10 w-auto"
+            className="h-8 w-auto"
           />
         </div>
 
@@ -73,16 +74,20 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
           {/* Top nav group */}
           {topNavItems.map((item) => {
             const Icon = item.icon;
-            const isActive = activeItem === item.label;
+            const isActive = activeItem === item.id;
             return (
               <button
-                key={item.label}
-                onClick={() => setActiveItem(item.label)}
+                key={item.id}
+                onClick={() => setActiveItem(item.id)}
                 className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-colors mb-1 ${
                   isActive
-                    ? "bg-[#262626] text-white"
-                    : "text-[#888888] hover:text-white hover:bg-[#1a1a1a]"
+                    ? "text-white"
+                    : "text-white/55 hover:text-white/80"
                 }`}
+                style={isActive ? {
+                  background: 'rgba(36, 92, 68, 0.45)',
+                  border: '1px solid rgba(255, 255, 255, 0.06)'
+                } : undefined}
               >
                 <Icon className="w-4 h-4" />
                 <span>{item.label}</span>
@@ -96,16 +101,20 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
           {/* Bottom nav group */}
           {bottomNavItems.map((item) => {
             const Icon = item.icon;
-            const isActive = activeItem === item.label;
+            const isActive = activeItem === item.id;
             return (
               <button
-                key={item.label}
-                onClick={() => setActiveItem(item.label)}
+                key={item.id}
+                onClick={() => setActiveItem(item.id)}
                 className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-colors mb-1 ${
                   isActive
-                    ? "bg-[#262626] text-white"
-                    : "text-[#888888] hover:text-white hover:bg-[#1a1a1a]"
+                    ? "text-white"
+                    : "text-white/55 hover:text-white/80"
                 }`}
+                style={isActive ? {
+                  background: 'rgba(36, 92, 68, 0.45)',
+                  border: '1px solid rgba(255, 255, 255, 0.06)'
+                } : undefined}
               >
                 <Icon className="w-4 h-4" />
                 <span>{item.label}</span>
@@ -114,35 +123,28 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
           })}
         </nav>
 
-        {/* Start Selling CTA Box */}
-        <div className="p-4 m-3 rounded-xl bg-[#0a1f1a] border border-[#1a3a2e]">
-          <p className="text-[#14b8a6] text-sm mb-3 leading-relaxed">
-            Sell Online With Yangu and unlock the power of AI to grow your business.
-          </p>
-          <button className="w-full bg-[#f97316] hover:bg-[#ea580c] text-white font-medium py-2.5 px-4 rounded-lg transition-colors text-sm">
-            Start Building
-          </button>
-        </div>
-
         {/* Social icons */}
         <div className="px-6 py-4 flex items-center gap-4">
-          <a href="#" className="text-[#666666] hover:text-white transition-colors">
+          <a href="#" className="text-white/40 hover:text-white transition-colors">
             <Youtube className="w-5 h-5" />
           </a>
-          <a href="#" className="text-[#666666] hover:text-white transition-colors">
+          <a href="#" className="text-white/40 hover:text-white transition-colors">
             <Twitter className="w-5 h-5" />
           </a>
-          <a href="#" className="text-[#666666] hover:text-white transition-colors">
+          <a href="#" className="text-white/40 hover:text-white transition-colors">
             <Instagram className="w-5 h-5" />
           </a>
         </div>
 
         {/* Endorsed badge */}
-        <div className="p-4 m-3 rounded-xl bg-[#1a1a1a]">
-          <div className="text-[#666666] text-xs mb-2">Endorsed by</div>
+        <div className="p-4 m-3 rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.04)' }}>
+          <div className="text-white/38 text-xs mb-2">Endorsed by</div>
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-[#f97316] flex items-center justify-center">
-              <span className="text-white text-xs font-bold">P</span>
+            <div 
+              className="w-6 h-6 rounded-full flex items-center justify-center"
+              style={{ background: '#F16612' }}
+            >
+              <span className="text-black text-xs font-bold">P</span>
             </div>
             <span className="text-white font-medium">Plaiter</span>
           </div>
