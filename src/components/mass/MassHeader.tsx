@@ -1,4 +1,4 @@
-import { ArrowRight, TrendingUp } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 
 const trendItems = [
   "build your brand kit today",
@@ -12,19 +12,9 @@ const trendItems = [
 
 export function MassHeader() {
   return (
-    <header className="flex flex-col gap-3 mb-6">
-      {/* Top row - Auth buttons */}
-      <div className="flex items-center justify-end gap-3">
-        <button className="px-5 py-2.5 rounded-full border border-[#333333] text-white text-sm hover:bg-[#1a1a1a] transition-colors">
-          Sign in
-        </button>
-        <button className="px-5 py-2.5 rounded-full bg-[#f97316] text-white text-sm font-medium hover:bg-[#ea580c] transition-colors">
-          Start selling
-        </button>
-      </div>
-      
-      {/* Bottom row - Trends ticker */}
-      <div className="flex items-center gap-4">
+    <header className="flex items-center justify-between gap-4 mb-6">
+      {/* Left side - View Trends and ticker */}
+      <div className="flex items-center gap-4 flex-1 min-w-0">
         {/* View Trends button */}
         <button className="flex items-center gap-2 text-[#f97316] text-sm font-medium whitespace-nowrap">
           <TrendingUp className="w-4 h-4" />
@@ -32,9 +22,9 @@ export function MassHeader() {
         </button>
         
         {/* Scrolling trend ticker */}
-        <div className="flex-1 overflow-hidden min-w-0">
+        <div className="flex-1 overflow-hidden min-w-0 hidden md:block">
           <div className="relative">
-            <div className="flex animate-scroll-x gap-6">
+            <div className="flex animate-scroll-x gap-3">
               {[...trendItems, ...trendItems].map((item, index) => (
                 <span 
                   key={index} 
@@ -46,6 +36,16 @@ export function MassHeader() {
             </div>
           </div>
         </div>
+      </div>
+      
+      {/* Right side - Auth buttons */}
+      <div className="flex items-center gap-3 flex-shrink-0">
+        <button className="px-5 py-2 rounded-full border border-[#333333] text-white text-sm hover:bg-[#1a1a1a] transition-colors">
+          Sign in
+        </button>
+        <button className="px-5 py-2 rounded-full bg-[#f97316] text-white text-sm font-medium hover:bg-[#ea580c] transition-colors">
+          Start selling
+        </button>
       </div>
     </header>
   );
