@@ -1,8 +1,6 @@
 export function MassHeader() {
   return (
-    <header className="flex items-center justify-between gap-4 mb-8">
-      {/* Left side - Home title */}
-      <h1 className="text-white/50 text-lg font-normal">Home</h1>
+    <header className="flex items-center justify-end gap-4 mb-8">
       
       {/* Right side - Buttons */}
       <div className="flex items-center gap-3">

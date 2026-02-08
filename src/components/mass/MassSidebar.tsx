@@ -12,6 +12,7 @@ import {
   X,
   ChevronRight,
 } from "lucide-react";
+import yanguLogo from "@/assets/yangu-logo-full.png";
 
 const navItems = [
   { icon: Home, label: "Home", id: "home", isActive: true },
@@ -64,9 +65,7 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
 
         {/* Logo */}
         <div className="p-5 pb-6">
-          <div className="w-11 h-11 rounded-full bg-white flex items-center justify-center">
-            <span className="text-black font-bold text-sm italic">Mass</span>
-          </div>
+          <img src={yanguLogo} alt="Yangu" className="h-8 w-auto" />
         </div>
 
         {/* Navigation */}
