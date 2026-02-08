@@ -1,4 +1,5 @@
 export { MassLandingPage } from "./MassLandingPage";
+export { StarGlassChip } from "./StarGlassChip";
 export { MassSidebar } from "./MassSidebar";
 export { MassHeader } from "./MassHeader";
 export { MassSearchBar } from "./MassSearchBar";
