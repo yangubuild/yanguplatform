@@ -50,7 +50,7 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         style={{
-          background: 'transparent',
+          background: 'rgba(8,18,13,0.85)',
         }}
       >
         
