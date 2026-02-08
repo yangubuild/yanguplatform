@@ -46,15 +46,18 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
       )}
       
       <aside
-        className={`fixed left-0 top-0 h-screen w-[240px] bg-[#141414] flex flex-col z-50 transition-transform duration-300 lg:translate-x-0 ${
+        className={`fixed left-0 top-0 h-screen w-[240px] flex flex-col z-50 transition-transform duration-300 lg:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
+        style={{
+          background: 'linear-gradient(90deg, #15261F 0%, #0A1710 100%)',
+        }}
       >
         {/* Right edge gradient fade for depth separation */}
         <div 
-          className="absolute right-0 top-0 bottom-0 w-[1px] pointer-events-none"
+          className="absolute right-0 top-0 bottom-0 w-[2px] pointer-events-none"
           style={{
-            background: 'linear-gradient(to bottom, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 100%)',
+            background: 'linear-gradient(to bottom, rgba(41,96,72,0.3) 0%, rgba(10,23,16,0.8) 100%)',
           }}
         />
         
@@ -94,13 +97,13 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
                 className={`relative w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm transition-all mb-1 ${
                   isActive
                     ? "text-white"
-                    : "text-white/50 hover:text-white/70"
+                    : "text-white/65 hover:text-white/80"
                 }`}
                 style={isActive ? {
-                  background: 'linear-gradient(135deg, rgba(60,60,60,0.5) 0%, rgba(40,40,40,0.4) 50%, rgba(30,30,30,0.3) 100%)',
-                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 1px 2px rgba(0,0,0,0.2)',
+                  background: 'linear-gradient(135deg, #296048 0%, #174638 100%)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(41,96,72,0.25)',
                 } : isHovered ? {
-                  background: 'linear-gradient(135deg, rgba(50,50,50,0.3) 0%, rgba(35,35,35,0.2) 100%)',
+                  background: 'linear-gradient(135deg, #174638 0%, #15261F 100%)',
                 } : undefined}
               >
                 <div className="flex items-center gap-3">
@@ -115,15 +118,24 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
           })}
         </nav>
 
-        {/* Endorsed badge */}
-        <div className="p-4 mx-3 mb-4 rounded-xl bg-[#1c1c1c]">
-          <div className="text-white/40 text-xs mb-2">Endorsed by</div>
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-[#F16612] flex items-center justify-center">
-              <span className="text-black text-xs font-bold">P</span>
-            </div>
-            <span className="text-white font-medium text-sm">Plaiter</span>
-          </div>
+        {/* Start Selling CTA */}
+        <div 
+          className="p-4 mx-3 mb-4 rounded-xl"
+          style={{
+            background: 'linear-gradient(135deg, #174638 0%, #15261F 100%)',
+            border: '1px solid rgba(255,255,255,0.08)',
+          }}
+        >
+          <div className="text-white font-medium text-sm mb-1">Start Selling</div>
+          <div className="text-white/45 text-xs mb-3">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</div>
+          <button 
+            className="w-full py-2.5 rounded-lg text-sm font-medium text-white transition-colors"
+            style={{
+              background: '#F46D2A',
+            }}
+          >
+            Start Building
+          </button>
         </div>
       </aside>
     </>
