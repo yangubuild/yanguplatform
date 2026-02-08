@@ -22,7 +22,7 @@ export function MassLandingPage() {
     <div 
       className="min-h-screen"
       style={{
-        background: '#0A1710',
+        background: '#08120D',
       }}
     >
       {/* Mobile menu button */}
