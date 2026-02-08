@@ -19,11 +19,11 @@ export function MassLandingPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#0f0f0f] relative">
+    <div className="min-h-screen bg-[#141414] relative">
       {/* Mobile menu button */}
       <button
         onClick={() => setSidebarOpen(true)}
-        className="fixed top-4 left-4 z-30 p-2 rounded-lg bg-[#1a1a1a] text-white lg:hidden"
+        className="fixed top-4 left-4 z-30 p-2 rounded-lg bg-[#1c1c1c] text-white lg:hidden"
       >
         <Menu className="w-6 h-6" />
       </button>
@@ -32,8 +32,8 @@ export function MassLandingPage() {
       <MassSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Main Content */}
-      <main className="lg:ml-[220px] min-h-screen">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 pt-16 lg:pt-6">
+      <main className="lg:ml-[240px] min-h-screen">
+        <div className="max-w-[1100px] mx-auto px-6 lg:px-10 py-6 pt-16 lg:pt-8">
           <MassHeader />
           <MassHero />
           <MassSearchBar />
