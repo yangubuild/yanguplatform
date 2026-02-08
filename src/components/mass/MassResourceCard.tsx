@@ -22,27 +22,26 @@ export function MassResourceCard({ image, title, category, featured = false, url
         />
       </div>
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <span className="text-white font-medium text-sm">{title}</span>
           {featured && (
             <span 
-              className="inline-flex items-center justify-center w-[18px] h-[18px] rounded-full"
+              className="inline-flex items-center justify-center w-[16px] h-[16px] rounded-full transition-all duration-200 group-hover:scale-110"
               style={{
-                background: 'linear-gradient(145deg, rgba(80,80,80,0.4) 0%, rgba(50,50,50,0.3) 100%)',
-                boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.1), 0 1px 2px rgba(0,0,0,0.2)',
-                border: '1px solid rgba(255,255,255,0.08)',
+                background: 'linear-gradient(145deg, rgba(70,70,70,0.6) 0%, rgba(45,45,45,0.5) 100%)',
+                boxShadow: 'inset 0 0.5px 0.5px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.15)',
+                border: '1px solid rgba(255,255,255,0.06)',
               }}
             >
               <svg 
-                width="8" 
-                height="8" 
+                width="7" 
+                height="7" 
                 viewBox="0 0 10 10" 
                 fill="none"
-                className="text-white/50"
               >
                 <path 
-                  d="M5 1V9M1 5H9" 
-                  stroke="currentColor" 
+                  d="M5 2V8M2 5H8" 
+                  stroke="rgba(255,255,255,0.45)" 
                   strokeWidth="1.5" 
                   strokeLinecap="round"
                 />
