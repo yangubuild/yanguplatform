@@ -65,7 +65,7 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
 
         {/* Logo */}
         <div className="p-5 pb-6">
-          <img src={yanguLogo} alt="Yangu" className="h-8 w-auto" />
+          <img src={yanguLogo} alt="Yangu" className="h-12 w-auto" />
         </div>
 
         {/* Navigation */}
