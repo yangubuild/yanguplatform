@@ -25,8 +25,8 @@ export function MassHero() {
       <div className="absolute right-6 md:right-12 top-1/2 -translate-y-1/2 hidden md:block">
         <img 
           src="/yangu-y-hero.png" 
-          alt="" 
-          className="w-40 h-auto opacity-30"
+          alt=""
+          className="w-64 h-auto opacity-30"
         />
       </div>
     </div>
