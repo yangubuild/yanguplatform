@@ -122,7 +122,7 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
           <div className="text-white font-medium text-sm mb-1">Start Selling</div>
           <div className="text-white/40 text-xs mb-3">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</div>
           <button 
-            className="w-full py-2.5 rounded-lg text-sm font-medium text-white"
+            className="w-full py-3 rounded-full text-sm font-medium text-white transition-opacity hover:opacity-90"
             style={{
               background: '#F46D2A',
             }}
