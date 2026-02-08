@@ -1163,18 +1163,31 @@ export type Database = {
       }
       count_published_surfaces: { Args: { _user_id: string }; Returns: number }
       delete_surface: { Args: { p_surface_id: string }; Returns: Json }
-      evaluate_publish_eligibility: {
-        Args: {
-          p_domain_id: string
-          p_org_id: string
-          p_slug: string
-          p_surface_id: string
-        }
-        Returns: {
-          eligible: boolean
-          reasons: string[]
-        }[]
-      }
+      evaluate_publish_eligibility:
+        | {
+            Args: {
+              p_domain_id: string
+              p_org_id: string
+              p_slug: string
+              p_surface_id: string
+            }
+            Returns: {
+              eligible: boolean
+              reasons: string[]
+            }[]
+          }
+        | {
+            Args: {
+              p_domain_id: string
+              p_org_id: string
+              p_slug: string
+              p_surface_id: string
+            }
+            Returns: {
+              eligible: boolean
+              reasons: string[]
+            }[]
+          }
       get_default_domain_for_creator: {
         Args: { _creator_type: Database["public"]["Enums"]["creator_type"] }
         Returns: string
