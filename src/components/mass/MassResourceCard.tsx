@@ -19,7 +19,7 @@ export function MassResourceCard({ image, title, category, featured = false, url
       <div 
         className="relative overflow-hidden rounded-xl mb-3"
         style={{
-          background: '#0D1F17',
+          background: '#0A1710',
         }}
       >
         <img
