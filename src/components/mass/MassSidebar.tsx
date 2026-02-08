@@ -2,31 +2,27 @@ import { useState } from "react";
 import {
   Home,
   Info,
-  Sparkles,
-  Bot,
-  Pencil,
-  Users,
   Heart,
-  Circle,
-  CircleDot,
+  Lightbulb,
+  Code,
+  Layout,
+  Sparkles,
+  Type,
+  Palette,
   X,
 } from "lucide-react";
-import { Youtube, Twitter, Instagram } from "lucide-react";
-import yanguLogo from "@/assets/yangu-logo.png";
 
-const topNavItems = [
-  { icon: Home, label: "Explore", id: "explore" },
-  { icon: Info, label: "Discover Yangu", id: "discover" },
-  { icon: Sparkles, label: "Why Yangu", id: "why" },
-];
-
-const bottomNavItems = [
-  { icon: Bot, label: "Ada ai", id: "ada" },
-  { icon: Pencil, label: "Blog", id: "blog" },
-  { icon: Users, label: "Community", id: "community" },
-  { icon: Heart, label: "Affiliates", id: "affiliates" },
-  { icon: Circle, label: "Terms", id: "terms" },
-  { icon: CircleDot, label: "Privacy", id: "privacy" },
+const navItems = [
+  { icon: Home, label: "Home", id: "home", isActive: true },
+  { icon: Info, label: "About Us", id: "about" },
+  { icon: Heart, label: "Sponsor", id: "sponsor" },
+  { divider: true },
+  { icon: Lightbulb, label: "Inspiration", id: "inspiration" },
+  { icon: Code, label: "No-code", id: "nocode" },
+  { icon: Layout, label: "Templates", id: "templates" },
+  { icon: Sparkles, label: "Ai", id: "ai" },
+  { icon: Type, label: "Typography", id: "typography" },
+  { icon: Palette, label: "Design Tools", id: "design-tools" },
 ];
 
 interface MassSidebarProps {
@@ -35,7 +31,7 @@ interface MassSidebarProps {
 }
 
 export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
-  const [activeItem, setActiveItem] = useState("why");
+  const [activeItem, setActiveItem] = useState("home");
 
   return (
     <>
@@ -48,7 +44,7 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
       )}
       
       <aside
-        className={`fixed left-0 top-0 h-screen w-[220px] bg-black flex flex-col z-50 transition-transform duration-300 lg:translate-x-0 ${
+        className={`fixed left-0 top-0 h-screen w-[220px] bg-[#0f0f0f] flex flex-col z-50 transition-transform duration-300 lg:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -61,60 +57,31 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
         </button>
 
         {/* Logo */}
-        <div className="p-6">
-          <img 
-            src={yanguLogo} 
-            alt="Yangu" 
-            className="h-8 w-auto"
-          />
+        <div className="p-6 pb-4">
+          <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
+            <span className="text-black font-bold text-sm italic">Mass</span>
+          </div>
         </div>
 
         {/* Navigation */}
         <nav className="flex-1 px-3 py-2 overflow-y-auto">
-          {/* Top nav group */}
-          {topNavItems.map((item) => {
-            const Icon = item.icon;
+          {navItems.map((item, index) => {
+            if (item.divider) {
+              return <div key={`divider-${index}`} className="h-4" />;
+            }
+            
+            const Icon = item.icon!;
             const isActive = activeItem === item.id;
+            
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveItem(item.id)}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-colors mb-1 ${
+                onClick={() => setActiveItem(item.id!)}
+                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-all mb-0.5 ${
                   isActive
-                    ? "text-white"
-                    : "text-white/55 hover:text-white/80"
+                    ? "bg-[#1a1a1a] text-white"
+                    : "text-white/50 hover:text-white/80 hover:bg-white/5"
                 }`}
-                style={isActive ? {
-                  background: 'rgba(36, 92, 68, 0.45)',
-                  border: '1px solid rgba(255, 255, 255, 0.06)'
-                } : undefined}
-              >
-                <Icon className="w-4 h-4" />
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
-          
-          {/* Spacer between groups */}
-          <div className="h-6" />
-          
-          {/* Bottom nav group */}
-          {bottomNavItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeItem === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveItem(item.id)}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-colors mb-1 ${
-                  isActive
-                    ? "text-white"
-                    : "text-white/55 hover:text-white/80"
-                }`}
-                style={isActive ? {
-                  background: 'rgba(36, 92, 68, 0.45)',
-                  border: '1px solid rgba(255, 255, 255, 0.06)'
-                } : undefined}
               >
                 <Icon className="w-4 h-4" />
                 <span>{item.label}</span>
@@ -123,27 +90,11 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
           })}
         </nav>
 
-        {/* Social icons */}
-        <div className="px-6 py-4 flex items-center gap-4">
-          <a href="#" className="text-white/40 hover:text-white transition-colors">
-            <Youtube className="w-5 h-5" />
-          </a>
-          <a href="#" className="text-white/40 hover:text-white transition-colors">
-            <Twitter className="w-5 h-5" />
-          </a>
-          <a href="#" className="text-white/40 hover:text-white transition-colors">
-            <Instagram className="w-5 h-5" />
-          </a>
-        </div>
-
         {/* Endorsed badge */}
-        <div className="p-4 m-3 rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.04)' }}>
-          <div className="text-white/38 text-xs mb-2">Endorsed by</div>
+        <div className="p-4 m-3 rounded-xl bg-[#1a1a1a]">
+          <div className="text-white/40 text-xs mb-2">Endorsed by</div>
           <div className="flex items-center gap-2">
-            <div 
-              className="w-6 h-6 rounded-full flex items-center justify-center"
-              style={{ background: '#F16612' }}
-            >
+            <div className="w-6 h-6 rounded-full bg-[#F16612] flex items-center justify-center">
               <span className="text-black text-xs font-bold">P</span>
             </div>
             <span className="text-white font-medium">Plaiter</span>
