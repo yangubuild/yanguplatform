@@ -2,29 +2,33 @@ import { useState } from "react";
 import {
   Home,
   Info,
-  Heart,
-  Lightbulb,
-  Code,
-  Layout,
   Sparkles,
-  Type,
-  Palette,
+  Bot,
+  PenLine,
+  Users,
+  Sparkle,
+  Shield,
   X,
   ChevronRight,
+  Youtube,
+  Twitter,
+  Instagram,
 } from "lucide-react";
 import yanguLogo from "@/assets/yangu-logo-full.png";
 
-const navItems = [
-  { icon: Home, label: "Home", id: "home", isActive: true },
-  { icon: Info, label: "About Us", id: "about" },
-  { icon: Heart, label: "Sponsor", id: "sponsor" },
-  { divider: true },
-  { icon: Lightbulb, label: "Inspiration", id: "inspiration" },
-  { icon: Code, label: "No-code", id: "nocode" },
-  { icon: Layout, label: "Templates", id: "templates" },
-  { icon: Sparkles, label: "Ai", id: "ai" },
-  { icon: Type, label: "Typography", id: "typography" },
-  { icon: Palette, label: "Design Tools", id: "design-tools" },
+const topNavItems = [
+  { icon: Home, label: "Explore", id: "explore" },
+  { icon: Info, label: "Discover Yangu", id: "discover" },
+  { icon: Sparkles, label: "Why Yangu", id: "why-yangu", isActive: true },
+];
+
+const bottomNavItems = [
+  { icon: Bot, label: "Ada ai", id: "ada-ai" },
+  { icon: PenLine, label: "Blog", id: "blog" },
+  { icon: Users, label: "Community", id: "community" },
+  { icon: Sparkle, label: "Affiliates", id: "affiliates" },
+  { icon: Info, label: "Terms", id: "terms" },
+  { icon: Shield, label: "Privacy", id: "privacy" },
 ];
 
 interface MassSidebarProps {
@@ -33,8 +37,44 @@ interface MassSidebarProps {
 }
 
 export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
-  const [activeItem, setActiveItem] = useState("home");
+  const [activeItem, setActiveItem] = useState("why-yangu");
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+
+  const renderNavItem = (item: typeof topNavItems[0]) => {
+    const Icon = item.icon;
+    const isActive = activeItem === item.id;
+    const isHovered = hoveredItem === item.id;
+    const showArrow = isHovered && !isActive;
+    
+    return (
+      <button
+        key={item.id}
+        onClick={() => setActiveItem(item.id)}
+        onMouseEnter={() => setHoveredItem(item.id)}
+        onMouseLeave={() => setHoveredItem(null)}
+        className="relative w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm transition-all mb-1"
+        style={isActive ? {
+          background: 'linear-gradient(90deg, #296048 0%, #174638 55%, rgba(10,23,16,0.18) 100%)',
+          boxShadow: '0 0 18px rgba(41,96,72,0.18)',
+          color: '#FFFFFF',
+        } : isHovered ? {
+          background: 'rgba(21,38,31,0.22)',
+          color: 'rgba(255,255,255,0.85)',
+        } : {
+          background: 'transparent',
+          color: 'rgba(255,255,255,0.65)',
+        }}
+      >
+        <div className="flex items-center gap-3">
+          <Icon className="w-4 h-4" strokeWidth={1.5} />
+          <span className="font-normal">{item.label}</span>
+        </div>
+        {showArrow && (
+          <ChevronRight className="w-4 h-4 text-white/30" />
+        )}
+      </button>
+    );
+  };
 
   return (
     <>
@@ -70,64 +110,27 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
 
         {/* Navigation */}
         <nav className="flex-1 px-3 overflow-y-auto">
-          {navItems.map((item, index) => {
-            if (item.divider) {
-              return <div key={`divider-${index}`} className="h-6" />;
-            }
-            
-            const Icon = item.icon!;
-            const isActive = activeItem === item.id;
-            const isHovered = hoveredItem === item.id;
-            const showArrow = isHovered && !isActive;
-            
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveItem(item.id!)}
-                onMouseEnter={() => setHoveredItem(item.id!)}
-                onMouseLeave={() => setHoveredItem(null)}
-                className="relative w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm transition-all mb-1"
-                style={isActive ? {
-                  background: 'linear-gradient(90deg, #296048 0%, #174638 55%, rgba(10,23,16,0.18) 100%)',
-                  boxShadow: '0 0 18px rgba(41,96,72,0.18)',
-                  color: '#FFFFFF',
-                } : isHovered ? {
-                  background: 'rgba(21,38,31,0.22)',
-                  color: 'rgba(255,255,255,0.85)',
-                } : {
-                  background: 'rgba(10,23,16,0.14)',
-                  color: 'rgba(255,255,255,0.65)',
-                }}
-              >
-                <div className="flex items-center gap-3">
-                  <Icon className="w-4 h-4" strokeWidth={1.5} />
-                  <span className="font-normal">{item.label}</span>
-                </div>
-                {showArrow && (
-                  <ChevronRight className="w-4 h-4 text-white/30" />
-                )}
-              </button>
-            );
-          })}
+          {/* Top nav group */}
+          {topNavItems.map(renderNavItem)}
+          
+          {/* Spacer between groups */}
+          <div className="h-8" />
+          
+          {/* Bottom nav group */}
+          {bottomNavItems.map(renderNavItem)}
         </nav>
 
-        {/* Start Selling CTA */}
-        <div 
-          className="p-4 mx-3 mb-4 rounded-xl"
-          style={{
-            background: '#152A20',
-          }}
-        >
-          <div className="text-white font-medium text-sm mb-1">Start Selling</div>
-          <div className="text-white/40 text-xs mb-3">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</div>
-          <button 
-            className="w-full py-3 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-90"
-            style={{
-              background: '#F46D2A',
-            }}
-          >
-            Start Building
-          </button>
+        {/* Social icons at bottom */}
+        <div className="px-5 py-6 flex items-center gap-4">
+          <a href="#" className="text-white/40 hover:text-white/70 transition-colors">
+            <Youtube className="w-5 h-5" />
+          </a>
+          <a href="#" className="text-white/40 hover:text-white/70 transition-colors">
+            <Twitter className="w-5 h-5" />
+          </a>
+          <a href="#" className="text-white/40 hover:text-white/70 transition-colors">
+            <Instagram className="w-5 h-5" />
+          </a>
         </div>
       </aside>
     </>
