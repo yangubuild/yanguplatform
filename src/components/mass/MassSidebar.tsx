@@ -50,14 +50,14 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         style={{
-          background: '#0D1F17',
+          background: 'linear-gradient(180deg, #15261F 0%, #0A1710 100%)',
         }}
       >
-        {/* Right edge separator */}
+        {/* Right edge gradient fade (no line) */}
         <div 
-          className="absolute right-0 top-0 bottom-0 w-[1px] pointer-events-none"
+          className="absolute right-0 top-0 bottom-0 w-[20px] pointer-events-none"
           style={{
-            background: 'rgba(255,255,255,0.06)',
+            background: 'linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.65) 100%)',
           }}
         />
         
@@ -94,16 +94,20 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
                 onClick={() => setActiveItem(item.id!)}
                 onMouseEnter={() => setHoveredItem(item.id!)}
                 onMouseLeave={() => setHoveredItem(null)}
-                className={`relative w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm transition-all mb-1 ${
-                  isActive
-                    ? "text-white"
-                    : "text-white/50 hover:text-white/70"
-                }`}
+                className={`relative w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm transition-all mb-1`}
                 style={isActive ? {
-                  background: '#1B4D3E',
+                  background: 'linear-gradient(180deg, #296048 0%, #174638 100%)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 0 20px rgba(41, 96, 72, 0.22)',
+                  color: '#FFFFFF',
                 } : isHovered ? {
-                  background: 'rgba(27,77,62,0.4)',
-                } : undefined}
+                  background: 'linear-gradient(180deg, rgba(23, 70, 56, 0.55), rgba(21, 38, 31, 0.55))',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  color: 'rgba(255,255,255,0.85)',
+                } : {
+                  background: 'linear-gradient(180deg, rgba(21, 38, 31, 0.45), rgba(10, 23, 16, 0.45))',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  color: 'rgba(255,255,255,0.65)',
+                }}
               >
                 <div className="flex items-center gap-3">
                   <Icon className="w-4 h-4" strokeWidth={1.5} />
