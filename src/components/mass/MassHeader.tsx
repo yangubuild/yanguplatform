@@ -2,14 +2,28 @@ export function MassHeader() {
   return (
     <header className="flex items-center justify-between gap-4 mb-8">
       {/* Left side - Home title */}
-      <h1 className="text-white/50 text-lg font-normal">Home</h1>
+      <h1 className="text-white/65 text-lg font-normal">Home</h1>
       
-      {/* Right side - Submit resource button */}
-      <button 
-        className="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors bg-[#1c1c1c] text-white hover:bg-[#252525] border border-white/10"
-      >
-        Submit resource
-      </button>
+      {/* Right side - Buttons */}
+      <div className="flex items-center gap-3">
+        <button 
+          className="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors text-white"
+          style={{
+            background: '#15261F',
+            border: '1px solid rgba(255,255,255,0.12)',
+          }}
+        >
+          Sign in
+        </button>
+        <button 
+          className="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors text-white"
+          style={{
+            background: '#F46D2A',
+          }}
+        >
+          Start selling
+        </button>
+      </div>
     </header>
   );
 }

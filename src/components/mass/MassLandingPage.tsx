@@ -19,7 +19,12 @@ export function MassLandingPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#141414] relative">
+    <div 
+      className="min-h-screen relative"
+      style={{
+        background: 'linear-gradient(180deg, #15261F 0%, #0A1710 40%, #060B09 100%)',
+      }}
+    >
       {/* Mobile menu button */}
       <button
         onClick={() => setSidebarOpen(true)}
