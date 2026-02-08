@@ -50,7 +50,7 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         style={{
-          background: 'linear-gradient(180deg, #15261F 0%, #0A1710 100%)',
+          background: 'transparent',
         }}
       >
         
@@ -87,18 +87,16 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
                 onClick={() => setActiveItem(item.id!)}
                 onMouseEnter={() => setHoveredItem(item.id!)}
                 onMouseLeave={() => setHoveredItem(null)}
-                className={`relative w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm transition-all mb-1`}
+                className="relative w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm transition-all mb-1"
                 style={isActive ? {
-                  background: 'linear-gradient(180deg, #296048 0%, #174638 100%)',
-                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 0 20px rgba(41, 96, 72, 0.22)',
+                  background: 'linear-gradient(90deg, #296048 0%, #174638 55%, rgba(10,23,16,0.18) 100%)',
+                  boxShadow: '0 0 18px rgba(41,96,72,0.18)',
                   color: '#FFFFFF',
                 } : isHovered ? {
-                  background: 'linear-gradient(180deg, rgba(23, 70, 56, 0.55), rgba(21, 38, 31, 0.55))',
-                  border: '1px solid rgba(255,255,255,0.08)',
+                  background: 'rgba(21,38,31,0.22)',
                   color: 'rgba(255,255,255,0.85)',
                 } : {
-                  background: 'linear-gradient(180deg, rgba(21, 38, 31, 0.45), rgba(10, 23, 16, 0.45))',
-                  border: '1px solid rgba(255,255,255,0.06)',
+                  background: 'rgba(10,23,16,0.14)',
                   color: 'rgba(255,255,255,0.65)',
                 }}
               >
