@@ -7,19 +7,16 @@ import { MassSearchBar } from "./MassSearchBar";
 import { MassResourceSection } from "./MassResourceSection";
 import {
   featuredResources,
-  inspirationResources,
-  noCodeResources,
-  templateResources,
-  aiResources,
-  typographyResources,
-  designToolsResources,
+  learnResources,
+  buildResources,
+  scaleResources,
 } from "./resourceData";
 
 export function MassLandingPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#0f0f0f]">
+    <div className="min-h-screen bg-gradient-to-br from-[#0a1f1a] via-[#0f2922] to-[#0a1f1a]">
       {/* Mobile menu button */}
       <button
         onClick={() => setSidebarOpen(true)}
@@ -39,12 +36,9 @@ export function MassLandingPage() {
           <MassSearchBar />
           
           <MassResourceSection title="Featured" resources={featuredResources} />
-          <MassResourceSection title="Inspiration" resources={inspirationResources} />
-          <MassResourceSection title="No Code" resources={noCodeResources} />
-          <MassResourceSection title="Templates" resources={templateResources} />
-          <MassResourceSection title="Ai" resources={aiResources} />
-          <MassResourceSection title="Typography" resources={typographyResources} />
-          <MassResourceSection title="Design Tools" resources={designToolsResources} />
+          <MassResourceSection title="Learn" resources={learnResources} />
+          <MassResourceSection title="Build" resources={buildResources} />
+          <MassResourceSection title="Scale" resources={scaleResources} />
         </div>
       </main>
     </div>

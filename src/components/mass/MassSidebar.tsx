@@ -114,6 +114,16 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
           })}
         </nav>
 
+        {/* Start Selling CTA Box */}
+        <div className="p-4 m-3 rounded-xl bg-[#0a1f1a] border border-[#1a3a2e]">
+          <p className="text-[#14b8a6] text-sm mb-3 leading-relaxed">
+            Sell Online With Yangu and unlock the power of AI to grow your business.
+          </p>
+          <button className="w-full bg-[#f97316] hover:bg-[#ea580c] text-white font-medium py-2.5 px-4 rounded-lg transition-colors text-sm">
+            Start Building
+          </button>
+        </div>
+
         {/* Social icons */}
         <div className="px-6 py-4 flex items-center gap-4">
           <a href="#" className="text-[#666666] hover:text-white transition-colors">

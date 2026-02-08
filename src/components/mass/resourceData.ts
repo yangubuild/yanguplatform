@@ -1,283 +1,193 @@
-export const featuredResources = [
+export interface Resource {
+  image: string;
+  title: string;
+  subtitle: string;
+  category: "Sale" | "Learn" | "Build" | "Scale";
+  featured?: boolean;
+}
+
+export const featuredResources: Resource[] = [
   {
     image: "https://framerusercontent.com/images/LnXUeoRLtFdfqGFphNz2RHNZVk.jpg?width=2400&height=1800",
-    title: "Gramerz",
-    category: "Inspiration",
+    title: "Live Shopping",
+    subtitle: "Sell Products Live",
+    category: "Sale",
     featured: true,
   },
   {
     image: "https://framerusercontent.com/images/bE2r4D8FDICBHISLhFehg0fZvI.jpg?width=2400&height=1800",
-    title: "Jobhunt",
-    category: "Templates",
+    title: "Ada AI",
+    subtitle: "Your 24/7 AI assistant",
+    category: "Sale",
     featured: true,
   },
   {
     image: "https://framerusercontent.com/images/kRIOHbPRgtbfe4Z0NlK2qSiO5Q.jpg?width=1200&height=900",
-    title: "Homfort",
-    category: "Templates",
+    title: "Digital E-Shop",
+    subtitle: "Sell Products Online",
+    category: "Sale",
     featured: true,
   },
   {
     image: "https://framerusercontent.com/images/lFB33SIMWsogDBI02316XDG3tfc.jpg?width=1200&height=900",
-    title: "Dwello",
-    category: "Templates",
+    title: "Digital Menu",
+    subtitle: "Increase your sales with digital menu",
+    category: "Sale",
     featured: true,
   },
   {
     image: "https://framerusercontent.com/images/kUNPmKVFYs9FN6p19KwE8pNZdA.png?width=278&height=181",
-    title: "Mobbin",
-    category: "Inspiration",
+    title: "Social Marketing",
+    subtitle: "Grow Your Audience With AI",
+    category: "Sale",
     featured: true,
   },
   {
     image: "https://framerusercontent.com/images/NgkQ2uqwhqhzp1GpuNpksVYeAE.png?width=2920&height=1602",
-    title: "Runway",
-    category: "Ai",
+    title: "Learn From 1000+ Courses",
+    subtitle: "(Ebooks, courses, business skills)",
+    category: "Learn",
     featured: true,
   },
+];
+
+export const learnResources: Resource[] = [
   {
     image: "https://framerusercontent.com/images/mEAxnN029jRMMnVb24MVnsrUeHE.jpeg?width=1600&height=1085",
-    title: "Learnfy",
-    category: "Templates",
-    featured: true,
+    title: "Learn From 1000+ Courses",
+    subtitle: "(Ebooks, courses, business skills)",
+    category: "Learn",
   },
   {
     image: "https://framerusercontent.com/images/O1XE3m9LcBRskOvexF1hpVFrTxc.jpg?width=1208&height=840",
-    title: "Crate",
-    category: "Templates",
-    featured: true,
-  },
-];
-
-export const inspirationResources = [
-  {
-    image: "https://framerusercontent.com/images/LnXUeoRLtFdfqGFphNz2RHNZVk.jpg?width=2400&height=1800",
-    title: "Gramerz",
-    category: "Inspiration",
-  },
-  {
-    image: "https://framerusercontent.com/images/kUNPmKVFYs9FN6p19KwE8pNZdA.png?width=278&height=181",
-    title: "Mobbin",
-    category: "Inspiration",
+    title: "Organize Work Every Day",
+    subtitle: "(Tasks, goals, team planning)",
+    category: "Learn",
   },
   {
     image: "https://framerusercontent.com/images/xgZmgz5YDwDdQhd0RLniNpa6nU.png?width=225&height=225",
-    title: "One Page Love",
-    category: "Inspiration",
-  },
-  {
-    image: "https://framerusercontent.com/images/1WrG0jJrNIsQcp6GDSNXBKwzAgo.jpg?width=600&height=600",
-    title: "Site Inspire",
-    category: "Inspiration",
-  },
-  {
-    image: "https://framerusercontent.com/images/V3PExwvRrGWwqJNS52QyqgcNU.jpg?width=686&height=386",
-    title: "Product Hunt",
-    category: "Inspiration",
-  },
-  {
-    image: "https://framerusercontent.com/images/mxpH3gXSqTcbKEAbJtoDTvVxoa4.jpg?width=600&height=600",
-    title: "Awwwards",
-    category: "Inspiration",
+    title: "Documents",
+    subtitle: "Create And Manage Documents",
+    category: "Learn",
   },
 ];
 
-export const noCodeResources = [
+export const buildResources: Resource[] = [
   {
     image: "https://framerusercontent.com/images/jjVzS6V0rxaPtwgro5T0jtT1SU.webp?width=480&height=480",
-    title: "Bravo Studio",
-    category: "No Code",
+    title: "Business Name Generator",
+    subtitle: "Find A Business Name with AI",
+    category: "Build",
   },
   {
     image: "https://framerusercontent.com/images/LPLJLjZ9YP6IDi5Y38zeDr0Yhk.png?width=1280&height=669",
-    title: "Adalo",
-    category: "No Code",
+    title: "Slogan Generator",
+    subtitle: "AI Creates A Catchy Slogan for you",
+    category: "Build",
   },
   {
     image: "https://framerusercontent.com/images/vRKHvYWGkrco7ma8f6v0qd6Zd6U.webp?width=1920&height=1080",
-    title: "Webflow",
-    category: "No Code",
+    title: "Mission Statement Generator",
+    subtitle: "AI Writes Your Mission",
+    category: "Build",
   },
   {
     image: "https://framerusercontent.com/images/QxoRb0hyzjhf04lfada38CWDQ.webp?width=900&height=900",
-    title: "BuildShip",
-    category: "No Code",
+    title: "Vision Statement Generator",
+    subtitle: "AI helps you Define Your Vision",
+    category: "Build",
   },
   {
     image: "https://framerusercontent.com/images/1EYuHNLIZfd3KPA2YNNQ3SExdQ.png?width=2200&height=1155",
-    title: "Voiceflow",
-    category: "No Code",
+    title: "Design A Brand Logo",
+    subtitle: "Create professional logos with AI",
+    category: "Build",
   },
   {
     image: "https://framerusercontent.com/images/e08XkYTDTj364yoqwtnAc4aJFs.webp?width=1920&height=1080",
-    title: "Glide",
-    category: "No Code",
+    title: "Website Builder",
+    subtitle: "Build Websites With AI",
+    category: "Build",
   },
   {
     image: "https://framerusercontent.com/images/PnnqkVgF0MoMLyv4nvZk7qwI.webp?width=200&height=200",
-    title: "FlutterFlow",
-    category: "No Code",
+    title: "Digital E-Shop",
+    subtitle: "Sell Products Online",
+    category: "Build",
   },
   {
     image: "https://framerusercontent.com/images/HK6KSLTZ1lO0yslbw7PLMLK5o7k.webp?width=900&height=460",
-    title: "Airtable",
-    category: "No Code",
+    title: "Real Estate",
+    subtitle: "Sale properties faster with AI",
+    category: "Build",
   },
-];
-
-export const templateResources = [
   {
     image: "https://framerusercontent.com/images/3nk8HG5ItlAWCv0U6jySow4IEFQ.jpg?width=2400&height=1800",
-    title: "Seis",
-    category: "Templates",
-  },
-  {
-    image: "https://framerusercontent.com/images/bE2r4D8FDICBHISLhFehg0fZvI.jpg?width=2400&height=1800",
-    title: "Jobhunt",
-    category: "Templates",
+    title: "E-Shop Connect",
+    subtitle: "Connect With Global Wholesalers",
+    category: "Build",
   },
   {
     image: "https://framerusercontent.com/images/Nzdiy3XNG5dC2jF8fhxfL0mNwgs.jpg?width=2400&height=1800",
-    title: "Treq",
-    category: "Templates",
+    title: "Digital Menu",
+    subtitle: "Increase your sales with digital menu",
+    category: "Build",
   },
   {
     image: "https://framerusercontent.com/images/p0R2sbIk02iPvix3d6dTG9Jo8aQ.png?width=2400&height=1800",
-    title: "Hedge",
-    category: "Templates",
-  },
-  {
-    image: "https://framerusercontent.com/images/vYO2Q9qJlYGeNAZb3QvlMHc64sY.jpg?width=1200&height=900",
-    title: "Inndigo",
-    category: "Templates",
-  },
-  {
-    image: "https://framerusercontent.com/images/kRIOHbPRgtbfe4Z0NlK2qSiO5Q.jpg?width=1200&height=900",
-    title: "Homfort",
-    category: "Templates",
-  },
-  {
-    image: "https://framerusercontent.com/images/lFB33SIMWsogDBI02316XDG3tfc.jpg?width=1200&height=900",
-    title: "Dwello",
-    category: "Templates",
-  },
-  {
-    image: "https://framerusercontent.com/images/mEAxnN029jRMMnVb24MVnsrUeHE.jpeg?width=1600&height=1085",
-    title: "Learnfy",
-    category: "Templates",
+    title: "Digital Signature",
+    subtitle: "Sign Documents Online",
+    category: "Build",
   },
 ];
 
-export const aiResources = [
+export const scaleResources: Resource[] = [
   {
     image: "https://framerusercontent.com/images/iC27oS3MuMxHlirXF2aX4OwR4.jpg?width=686&height=386",
-    title: "design.ai",
-    category: "Ai",
+    title: "Social Marketing",
+    subtitle: "Grow Your Audience With AI",
+    category: "Scale",
   },
   {
     image: "https://framerusercontent.com/images/NgkQ2uqwhqhzp1GpuNpksVYeAE.png?width=2920&height=1602",
-    title: "Runway",
-    category: "Ai",
+    title: "Live Shopping",
+    subtitle: "Sell Products Live",
+    category: "Scale",
   },
   {
     image: "https://framerusercontent.com/images/jk8g42padnAY0o4tKhbV4kdzf1o.png?width=1920&height=1080",
-    title: "Dall-E",
-    category: "Ai",
+    title: "VLS (Video Live Selling)",
+    subtitle: "Sell With Live Video",
+    category: "Scale",
   },
   {
     image: "https://framerusercontent.com/images/NOZs9Jd135hsIVpEMdnSvE4qIk.png?width=800&height=800",
-    title: "Canva",
-    category: "Ai",
+    title: "CRM",
+    subtitle: "Manage Customer Relationships",
+    category: "Scale",
   },
   {
     image: "https://framerusercontent.com/images/Y9fiyZpn4qkBDzGhQdc9fba9vSM.png?width=2560&height=1707",
-    title: "Jasper.ai",
-    category: "Ai",
+    title: "Sales CRM",
+    subtitle: "Track Leads And Sales",
+    category: "Scale",
   },
   {
     image: "https://framerusercontent.com/images/owETFKhMJo9D1KuJk6xgJWNlL0.jpg?width=717&height=478",
-    title: "Adobe Firefly",
-    category: "Ai",
+    title: "Email Marketing",
+    subtitle: "Send Marketing Emails",
+    category: "Scale",
   },
   {
     image: "https://framerusercontent.com/images/9BKk3iSbRxIZ9rhvAsbBx5YdAak.png?width=1200&height=650",
-    title: "Uizard",
-    category: "Ai",
+    title: "Digital Reporting",
+    subtitle: "Track Business Performance",
+    category: "Scale",
   },
   {
     image: "https://framerusercontent.com/images/SlX28zZGsaeYtT1j6QA7ZGUtYM.png?width=2000&height=1000",
-    title: "Midjourney",
-    category: "Ai",
-  },
-];
-
-export const typographyResources = [
-  {
-    image: "https://framerusercontent.com/images/FlhlTNQ6AjAnv5C3rBkmtZpVk.webp?width=1200&height=800",
-    title: "Noto Emoji",
-    category: "Typography",
-  },
-  {
-    image: "https://framerusercontent.com/images/CqpYAdVfkpH6JV78fjcvKWQn7s.png?width=1024&height=681",
-    title: "SUSE",
-    category: "Typography",
-  },
-  {
-    image: "https://framerusercontent.com/images/J1UeN1SbnnVYkfErop1BGhr6u8.jpg?width=741&height=415",
-    title: "Instrument Serif",
-    category: "Typography",
-  },
-  {
-    image: "https://framerusercontent.com/images/L5tdN9voLwxA0LNCEUIe0c7ToKc.webp?width=768&height=432",
-    title: "Bricolage Grotesque",
-    category: "Typography",
-  },
-  {
-    image: "https://framerusercontent.com/images/9ZmCvO8AMq4kGx9gyGXxYjHeT9M.png?width=3200&height=2400",
-    title: "Lato",
-    category: "Typography",
-  },
-  {
-    image: "https://framerusercontent.com/images/BoinieSGipyjDZoGBKgmAAB6M.webp?width=1920&height=1920",
-    title: "Schibsted Grotesk",
-    category: "Typography",
-  },
-];
-
-export const designToolsResources = [
-  {
-    image: "https://framerusercontent.com/images/qZoq8Dpi0EnsgM2Eq83XQznjBh0.jpeg?width=960&height=500",
-    title: "Spline",
-    category: "Design Tools",
-  },
-  {
-    image: "https://framerusercontent.com/images/jdVKZKJRJlnd9LYwBlsWA5eA.webp?width=2000&height=2000",
-    title: "Rive",
-    category: "Design Tools",
-  },
-  {
-    image: "https://framerusercontent.com/images/Pk1iSrOQU8CUBOGoBgQK5BBTrQ.png?width=225&height=225",
-    title: "Jitter",
-    category: "Design Tools",
-  },
-  {
-    image: "https://framerusercontent.com/images/r0QJn0uhrvF4URUliaRo0yT3M.png?width=1400&height=612",
-    title: "Lottie",
-    category: "Design Tools",
-  },
-  {
-    image: "https://framerusercontent.com/images/3lQ13d5SlHQKLMZfw4eYCh076I.png?width=1200&height=630",
-    title: "Penpot",
-    category: "Design Tools",
-  },
-  {
-    image: "https://framerusercontent.com/images/42ShomEpp7guOys6ZNat24U.png?width=252&height=200",
-    title: "UXPin",
-    category: "Design Tools",
-  },
-  {
-    image: "https://framerusercontent.com/images/EsVxhA1OMyzUgiR9DOkn5vLsKFk.jpg?width=1200&height=853",
-    title: "Figma",
-    category: "Design Tools",
+    title: "Ada AI",
+    subtitle: "Your 24/7 AI assistant",
+    category: "Scale",
   },
 ];

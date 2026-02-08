@@ -10,7 +10,7 @@ export function MassHero() {
           <span className="text-[#666666]">Sell Online.</span>
         </h1>
         <p className="text-[#888888] text-base md:text-lg">
-          An Internet Business hub that exists to deliver sustainable income for everyone.
+          Your all-in-one platform to build, market, and scale a business with live video and AI.
         </p>
       </div>
       

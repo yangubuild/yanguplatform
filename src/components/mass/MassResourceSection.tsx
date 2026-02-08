@@ -1,11 +1,5 @@
 import { MassResourceCard } from "./MassResourceCard";
-
-interface Resource {
-  image: string;
-  title: string;
-  category: string;
-  featured?: boolean;
-}
+import type { Resource } from "./resourceData";
 
 interface MassResourceSectionProps {
   title: string;
@@ -22,6 +16,7 @@ export function MassResourceSection({ title, resources }: MassResourceSectionPro
             key={index}
             image={resource.image}
             title={resource.title}
+            subtitle={resource.subtitle}
             category={resource.category}
             featured={resource.featured}
           />

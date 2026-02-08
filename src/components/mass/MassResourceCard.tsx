@@ -1,7 +1,8 @@
 interface MassResourceCardProps {
   image: string;
   title: string;
-  category: string;
+  subtitle?: string;
+  category: "Sale" | "Learn" | "Build" | "Scale" | string;
   featured?: boolean;
 }
 
@@ -41,7 +42,16 @@ function GlassStar() {
   );
 }
 
-export function MassResourceCard({ image, title, category, featured = false }: MassResourceCardProps) {
+const categoryColors: Record<string, string> = {
+  Sale: "#f97316",
+  Learn: "#14b8a6",
+  Build: "#3b82f6",
+  Scale: "#8b5cf6",
+};
+
+export function MassResourceCard({ image, title, subtitle, category, featured = false }: MassResourceCardProps) {
+  const categoryColor = categoryColors[category] || "#666666";
+
   return (
     <div className="group cursor-pointer">
       <div className="relative overflow-hidden rounded-xl mb-3">
@@ -51,14 +61,27 @@ export function MassResourceCard({ image, title, category, featured = false }: M
           className="w-full aspect-[4/3] object-cover transition-transform duration-300 group-hover:scale-105"
         />
       </div>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className={`text-white ${featured ? 'font-semibold' : 'font-normal'}`}>
-            {title}
+      <div className="space-y-1">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className={`text-white ${featured ? 'font-semibold' : 'font-normal'}`}>
+              {title}
+            </span>
+            {featured && <GlassStar />}
+          </div>
+          <span 
+            className="text-xs font-medium px-2 py-0.5 rounded-full"
+            style={{ 
+              color: categoryColor,
+              backgroundColor: `${categoryColor}20`
+            }}
+          >
+            {category}
           </span>
-          {featured && <GlassStar />}
         </div>
-        <span className="text-[#666666] text-sm">{category}</span>
+        {subtitle && (
+          <p className="text-[#888888] text-sm">{subtitle}</p>
+        )}
       </div>
     </div>
   );
