@@ -17,9 +17,9 @@ export function MassResourceCard({ image, title, category, featured = false, url
       className="group cursor-pointer block"
     >
       <div 
-        className="relative overflow-hidden rounded-xl mb-3 transition-shadow duration-300 group-hover:shadow-[0_0_26px_rgba(41,96,72,0.18)]"
+        className="relative overflow-hidden rounded-xl mb-3"
         style={{
-          background: 'rgba(10,23,16,0.35)',
+          background: '#0A1710',
         }}
       >
         <img

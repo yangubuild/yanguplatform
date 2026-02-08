@@ -8,12 +8,9 @@ export function MassSearchBar() {
         <input
           type="text"
           placeholder="Search Yangu to buy, learn, create or sell ..."
-          className="w-full pl-11 pr-4 py-3 rounded-xl text-white placeholder:text-white/45 focus:outline-none transition-colors text-sm"
+          className="w-full pl-11 pr-4 py-3 rounded-xl text-white placeholder:text-white/40 focus:outline-none text-sm"
           style={{
-            background: 'rgba(10,23,16,0.55)',
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
-            border: '1px solid rgba(255,255,255,0.08)',
+            background: '#15261F',
           }}
         />
       </div>
