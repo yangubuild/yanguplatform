@@ -50,7 +50,7 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         style={{
-          background: '#0A1710',
+          background: '#0D1F17',
         }}
       >
         {/* Right edge separator */}
@@ -100,9 +100,9 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
                     : "text-white/50 hover:text-white/70"
                 }`}
                 style={isActive ? {
-                  background: '#296048',
+                  background: '#1B4D3E',
                 } : isHovered ? {
-                  background: 'rgba(41,96,72,0.3)',
+                  background: 'rgba(27,77,62,0.4)',
                 } : undefined}
               >
                 <div className="flex items-center gap-3">
@@ -121,7 +121,7 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
         <div 
           className="p-4 mx-3 mb-4 rounded-xl"
           style={{
-            background: '#15261F',
+            background: '#152A20',
           }}
         >
           <div className="text-white font-medium text-sm mb-1">Start Selling</div>

@@ -3,7 +3,7 @@ export function MassHero() {
     <div 
       className="relative overflow-hidden rounded-2xl p-10 md:p-12 mb-0 min-h-[200px]"
       style={{
-        background: '#174638',
+        background: '#1B4D3E',
       }}
     >
       <div className="relative z-10 max-w-md">
