@@ -2,6 +2,7 @@ export { MassLandingPage } from "./MassLandingPage";
 export { StarGlassChip } from "./StarGlassChip";
 export { MassSidebar } from "./MassSidebar";
 export { MassHeader } from "./MassHeader";
+export { MassTrendsBar } from "./MassTrendsBar";
 export { MassSearchBar } from "./MassSearchBar";
 export { MassHero } from "./MassHero";
 export { MassResourceCard } from "./MassResourceCard";

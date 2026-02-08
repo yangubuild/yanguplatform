@@ -1,9 +1,10 @@
+import { MassTrendsBar } from "./MassTrendsBar";
+
 export function MassHeader() {
   return (
-    <header className="flex items-center justify-end gap-4 mb-8">
-      
-      {/* Right side - Buttons */}
-      <div className="flex items-center gap-3">
+    <header className="mb-8">
+      {/* Top row - Buttons aligned right */}
+      <div className="flex items-center justify-end gap-3">
         <button 
           className="px-5 py-2.5 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-90"
           style={{
@@ -21,6 +22,9 @@ export function MassHeader() {
           Start selling
         </button>
       </div>
+
+      {/* Trends bar - directly below buttons */}
+      <MassTrendsBar />
     </header>
   );
 }
