@@ -7,56 +7,59 @@ export function StarGlassChip({ className = "" }: StarGlassChipProps) {
     <span
       className={`inline-flex items-center justify-center rounded-full relative overflow-hidden ${className}`}
       style={{
-        height: "16px",
-        width: "16px",
+        height: "18px",
+        width: "18px",
         background: `linear-gradient(180deg, 
-          rgba(255,255,255,0.14) 0%, 
-          rgba(255,255,255,0.08) 45%, 
-          rgba(0,0,0,0.22) 100%
+          rgba(180,180,180,0.35) 0%, 
+          rgba(120,120,120,0.25) 45%, 
+          rgba(60,60,60,0.40) 100%
         )`,
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",
-        border: "1px solid rgba(255,255,255,0.10)",
+        border: "1px solid rgba(255,255,255,0.20)",
         boxShadow: `
-          inset 0 1px 0 rgba(255,255,255,0.18),
-          inset 0 -1px 0 rgba(0,0,0,0.35),
-          0 4px 12px rgba(0,0,0,0.25)
+          inset 0 1px 0 rgba(255,255,255,0.35),
+          inset 0 -1px 0 rgba(0,0,0,0.30),
+          0 2px 8px rgba(0,0,0,0.30)
         `,
       }}
     >
-      {/* Animated shimmer effect */}
+      {/* Animated silver shimmer effect */}
       <span
         className="absolute inset-0 pointer-events-none"
         style={{
           background: `linear-gradient(
-            105deg,
-            transparent 20%,
-            rgba(255,255,255,0.12) 40%,
-            rgba(255,255,255,0.20) 50%,
-            rgba(255,255,255,0.12) 60%,
-            transparent 80%
+            110deg,
+            transparent 0%,
+            transparent 30%,
+            rgba(255,255,255,0.40) 45%,
+            rgba(255,255,255,0.60) 50%,
+            rgba(255,255,255,0.40) 55%,
+            transparent 70%,
+            transparent 100%
           )`,
-          backgroundSize: "200% 100%",
-          animation: "shimmer 3s ease-in-out infinite",
+          backgroundSize: "250% 100%",
+          animation: "silverShimmer 2.5s ease-in-out infinite",
         }}
       />
       <span
         className="relative z-10"
         style={{
-          fontSize: "9px",
+          fontSize: "10px",
           lineHeight: 1,
-          color: "rgba(255,255,255,0.75)",
+          color: "rgba(255,255,255,0.90)",
+          textShadow: "0 0 2px rgba(255,255,255,0.3)",
         }}
       >
         ★
       </span>
       <style>{`
-        @keyframes shimmer {
+        @keyframes silverShimmer {
           0% {
-            background-position: 200% 0;
+            background-position: 250% 0;
           }
           100% {
-            background-position: -200% 0;
+            background-position: -250% 0;
           }
         }
       `}</style>
