@@ -1112,6 +1112,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _evaluate_publish_eligibility_internal: {
+        Args: {
+          p_domain_id: string
+          p_org_id: string
+          p_surface_id: string
+          p_user_id: string
+        }
+        Returns: {
+          eligible: boolean
+          reasons: string[]
+        }[]
+      }
       add_credits: {
         Args: {
           _amount: number
@@ -1155,8 +1167,8 @@ export type Database = {
         Args: {
           p_domain_id: string
           p_org_id: string
+          p_slug: string
           p_surface_id: string
-          p_user_id: string
         }
         Returns: {
           eligible: boolean
