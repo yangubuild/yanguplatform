@@ -7,15 +7,15 @@ export function MassHeader() {
       {/* Right side - Buttons */}
       <div className="flex items-center gap-3">
         <button 
-          className="px-5 py-2.5 rounded-lg text-sm font-medium text-white"
+          className="px-5 py-2.5 rounded-full text-sm font-medium text-white"
           style={{
-            background: '#15261F',
+            background: '#152A20',
           }}
         >
           Sign in
         </button>
         <button 
-          className="px-5 py-2.5 rounded-lg text-sm font-medium text-white"
+          className="px-5 py-2.5 rounded-full text-sm font-medium text-white"
           style={{
             background: '#F46D2A',
           }}
