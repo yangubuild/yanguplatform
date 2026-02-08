@@ -109,7 +109,7 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-3 overflow-y-auto">
+        <nav className="px-3 overflow-y-auto">
           {/* Top nav group */}
           {topNavItems.map(renderNavItem)}
           
@@ -118,20 +118,23 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
           
           {/* Bottom nav group */}
           {bottomNavItems.map(renderNavItem)}
+          
+          {/* Social icons */}
+          <div className="px-4 pt-6 flex items-center gap-4">
+            <a href="#" className="text-white/40 hover:text-white/70 transition-colors">
+              <Youtube className="w-5 h-5" />
+            </a>
+            <a href="#" className="text-white/40 hover:text-white/70 transition-colors">
+              <Twitter className="w-5 h-5" />
+            </a>
+            <a href="#" className="text-white/40 hover:text-white/70 transition-colors">
+              <Instagram className="w-5 h-5" />
+            </a>
+          </div>
         </nav>
-
-        {/* Social icons at bottom */}
-        <div className="px-5 py-6 flex items-center gap-4">
-          <a href="#" className="text-white/40 hover:text-white/70 transition-colors">
-            <Youtube className="w-5 h-5" />
-          </a>
-          <a href="#" className="text-white/40 hover:text-white/70 transition-colors">
-            <Twitter className="w-5 h-5" />
-          </a>
-          <a href="#" className="text-white/40 hover:text-white/70 transition-colors">
-            <Instagram className="w-5 h-5" />
-          </a>
-        </div>
+        
+        {/* Spacer to push content up */}
+        <div className="flex-1" />
       </aside>
     </>
   );
