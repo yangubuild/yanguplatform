@@ -7,9 +7,8 @@ export function StarGlassChip({ className = "" }: StarGlassChipProps) {
     <span
       className={`inline-flex items-center justify-center rounded-full relative overflow-hidden ${className}`}
       style={{
-        height: "22px",
-        paddingLeft: "8px",
-        paddingRight: "10px",
+        height: "16px",
+        width: "16px",
         background: `linear-gradient(180deg, 
           rgba(255,255,255,0.14) 0%, 
           rgba(255,255,255,0.08) 45%, 
@@ -21,7 +20,7 @@ export function StarGlassChip({ className = "" }: StarGlassChipProps) {
         boxShadow: `
           inset 0 1px 0 rgba(255,255,255,0.18),
           inset 0 -1px 0 rgba(0,0,0,0.35),
-          0 6px 18px rgba(0,0,0,0.35)
+          0 4px 12px rgba(0,0,0,0.25)
         `,
       }}
     >
@@ -44,9 +43,9 @@ export function StarGlassChip({ className = "" }: StarGlassChipProps) {
       <span
         className="relative z-10"
         style={{
-          fontSize: "12px",
+          fontSize: "9px",
           lineHeight: 1,
-          color: "rgba(255,255,255,0.80)",
+          color: "rgba(255,255,255,0.75)",
         }}
       >
         ★
