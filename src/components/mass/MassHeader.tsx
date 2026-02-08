@@ -2,7 +2,7 @@ import { MassTrendsBar } from "./MassTrendsBar";
 
 export function MassHeader() {
   return (
-    <header className="mb-8">
+    <header className="mb-8 lg:overflow-visible">
       {/* Top row - Buttons aligned right */}
       <div className="flex items-center justify-end gap-3">
         <button 
