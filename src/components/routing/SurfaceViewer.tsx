@@ -4,14 +4,14 @@ interface SurfaceViewerProps {
   surfaceId: string;
   publishId?: string;
   host?: string;
-  platformKey?: string;
+  domainType?: string;
 }
 
 /**
  * Placeholder component for rendering a published surface
  * Will be replaced with full surface rendering logic
  */
-export function SurfaceViewer({ surfaceId, publishId, host, platformKey }: SurfaceViewerProps) {
+export function SurfaceViewer({ surfaceId, publishId, host, domainType }: SurfaceViewerProps) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background">
       <div className="text-center space-y-4">
@@ -32,9 +32,9 @@ export function SurfaceViewer({ surfaceId, publishId, host, platformKey }: Surfa
             </p>
           )}
         </div>
-        {platformKey && (
+        {domainType && (
           <span className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
-            {platformKey}
+            {domainType}
           </span>
         )}
         <p className="text-sm text-muted-foreground max-w-md mx-auto mt-4">

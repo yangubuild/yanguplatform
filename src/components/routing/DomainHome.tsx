@@ -1,7 +1,7 @@
 import { Globe } from "lucide-react";
 
 interface DomainHomeProps {
-  platformKey?: string;
+  domainType?: string;
   host?: string;
 }
 
@@ -9,7 +9,7 @@ interface DomainHomeProps {
  * Placeholder component for platform home pages
  * Shows when visiting a platform domain root without a primary surface
  */
-export function DomainHome({ platformKey, host }: DomainHomeProps) {
+export function DomainHome({ domainType, host }: DomainHomeProps) {
   const platformLabels: Record<string, string> = {
     io: "Identity Hub",
     shop: "Shop",
@@ -20,7 +20,7 @@ export function DomainHome({ platformKey, host }: DomainHomeProps) {
     community: "Community",
   };
 
-  const label = platformKey ? platformLabels[platformKey] || platformKey : "Home";
+  const label = domainType ? platformLabels[domainType] || domainType : "Home";
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background">

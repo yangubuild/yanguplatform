@@ -3,14 +3,14 @@ import { User } from "lucide-react";
 interface IdentityHubProps {
   username: string;
   host?: string;
-  platformKey?: string;
+  domainType?: string;
 }
 
 /**
  * Placeholder component for identity profile pages
  * Shows when visiting /@username on a platform domain
  */
-export function IdentityHub({ username, host, platformKey }: IdentityHubProps) {
+export function IdentityHub({ username, host, domainType }: IdentityHubProps) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background">
       <div className="text-center space-y-4">
@@ -24,9 +24,9 @@ export function IdentityHub({ username, host, platformKey }: IdentityHubProps) {
         <p className="text-sm text-muted-foreground max-w-md mx-auto">
           Identity profile page placeholder. Full profile rendering coming soon.
         </p>
-        {platformKey && (
+        {domainType && (
           <span className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
-            {platformKey}
+            {domainType}
           </span>
         )}
       </div>
