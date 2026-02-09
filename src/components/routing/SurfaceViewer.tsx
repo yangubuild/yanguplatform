@@ -29,16 +29,23 @@ export function SurfaceViewer({ surfaceId, publishId, host, domainType }: Surfac
   useEffect(() => {
     async function load() {
       setLoading(true);
+      console.log("[SurfaceViewer] Calling get_published_surface", { p_publish_id: publishId ?? null, p_surface_id: publishId ? null : surfaceId });
       const { data: result, error: err } = await supabase.rpc("get_published_surface", {
         p_publish_id: publishId ?? undefined,
         p_surface_id: publishId ? undefined : surfaceId,
       });
 
+      console.log("[SurfaceViewer] RPC response:", { data: result, error: err });
+
       if (err) {
-        setError(err.message);
+        console.error("[SurfaceViewer] RPC error:", err);
+        setError(`RPC error: ${err.message} (code: ${err.code})`);
       } else if (result && typeof result === "object" && "error" in (result as Record<string, unknown>)) {
-        setError((result as Record<string, unknown>).error as string);
+        const rpcError = (result as Record<string, unknown>).error as string;
+        console.error("[SurfaceViewer] RPC returned error payload:", result);
+        setError(`RPC payload error: ${rpcError}`);
       } else {
+        console.log("[SurfaceViewer] Parsed surface data:", result);
         setData(result as unknown as PublishedSurface);
       }
       setLoading(false);
