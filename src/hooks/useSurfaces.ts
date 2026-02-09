@@ -7,6 +7,7 @@ export interface ActivePublish {
   domain_id: string;
   domain_host: string;
   domain_type: string;
+  slug: string | null;
   published_at: string | null;
 }
 
@@ -84,6 +85,7 @@ export function useSurfaces(options: UseSurfacesOptions = {}) {
           id,
           surface_id,
           domain_id,
+          slug,
           published_at,
           domains!surface_publishes_domain_id_fkey (
             host,
@@ -112,6 +114,7 @@ export function useSurfaces(options: UseSurfacesOptions = {}) {
             domain_id: pub.domain_id,
             domain_host: (pub.domains as any)?.host || "",
             domain_type: (pub.domains as any)?.domain_type || "",
+            slug: pub.slug,
             published_at: pub.published_at,
           });
         }
