@@ -1,0 +1,2 @@
+ALTER TABLE public.surface_publishes DROP CONSTRAINT surface_publishes_state_check;
+ALTER TABLE public.surface_publishes ADD CONSTRAINT surface_publishes_state_check CHECK (state = ANY (ARRAY['blocked'::text, 'published'::text, 'unpublished'::text]));
