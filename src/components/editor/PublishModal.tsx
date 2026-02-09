@@ -111,27 +111,37 @@ export function PublishModal({
     try {
       const slugToUse = customSlug || defaultSlug || undefined;
       const result = await publish(slugToUse);
-      
-      if (result.success) {
-        // Update draft_slug on the surface after successful publish
-        if (slugToUse) {
-          await supabase
-            .from("surfaces")
-            .update({ draft_slug: slugToUse } as any)
-            .eq("id", surfaceId);
-        }
 
-        const selectedDomain = domains.find((d) => d.id === selectedDomainId);
-        if (selectedDomain) {
-          const finalSlug = result.slug || slugToUse;
-          setPublishedUrl(`https://${selectedDomain.host}/${finalSlug}`);
-          setPublishedSlug(finalSlug || null);
-          onPublishSuccess?.(selectedDomain.host, finalSlug || surfaceTitle);
-        }
-        setPublishSuccess(true);
+      console.log("[PublishModal] RPC result:", JSON.stringify(result));
+
+      if (!result.success || !result.publish_id) {
+        // Error is shown via publishResult in the UI
+        console.warn("[PublishModal] Publish blocked or failed:", result);
+        return;
       }
+
+      // Update draft_slug on the surface after successful publish
+      if (slugToUse) {
+        await supabase
+          .from("surfaces")
+          .update({ draft_slug: slugToUse } as any)
+          .eq("id", surfaceId);
+      }
+
+      // Build URL ONLY from RPC response (source of truth)
+      const host = (result as any).domain
+        ?? domains.find((d) => d.id === selectedDomainId)?.host;
+      const path = result.slug ? `/${result.slug}` : "/";
+      const url = host ? `https://${host}${path}` : null;
+
+      console.log("[PublishModal] Published URL:", url, "host:", host, "slug:", result.slug);
+
+      setPublishedUrl(url);
+      setPublishedSlug(result.slug ?? null);
+      setPublishSuccess(true);
+      onPublishSuccess?.(host || "", result.slug || "");
     } catch (err) {
-      console.error("Publish failed:", err);
+      console.error("[PublishModal] Publish failed:", err);
     }
   };
 
