@@ -1202,6 +1202,10 @@ export type Database = {
           submitted_at: string
         }[]
       }
+      get_published_surface: {
+        Args: { p_publish_id?: string; p_surface_id?: string }
+        Returns: Json
+      }
       has_approved_kyc: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
