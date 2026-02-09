@@ -126,11 +126,35 @@ export function useSurfaceActions() {
     },
   });
 
+  const republishSurface = useMutation({
+    mutationFn: async ({ surfaceId, domainId, slug }: { surfaceId: string; domainId: string; slug: string }) => {
+      const { data, error } = await supabase.rpc("request_publish_surface", {
+        p_surface_id: surfaceId,
+        p_domain_id: domainId,
+        p_slug: slug,
+      });
+      if (error) throw error;
+      return data as unknown as RpcResponse;
+    },
+    onSuccess: (data) => {
+      if (data?.success) {
+        toast.success("Surface republished");
+        invalidate();
+      } else {
+        toast.error(data?.error || "Failed to republish surface");
+      }
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+
   return {
     renameSurface,
     unpublishSurface,
     archiveSurface,
     unarchiveSurface,
     deleteSurface,
+    republishSurface,
   };
 }

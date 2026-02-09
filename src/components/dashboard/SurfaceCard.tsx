@@ -44,7 +44,15 @@ import {
   Trash2,
   RotateCcw,
   GlobeIcon,
+  Loader2,
+  CloudOff,
+  Rocket,
 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { SurfaceWithPublishes } from "@/hooks/useSurfaces";
 import { useSurfaceActions } from "@/hooks/useSurfaceActions";
 
@@ -59,6 +67,7 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
   const [unpublishDialogOpen, setUnpublishDialogOpen] = useState(false);
+  const [republishDialogOpen, setRepublishDialogOpen] = useState(false);
   const [newTitle, setNewTitle] = useState(surface.title || "");
   const [selectedDomainId, setSelectedDomainId] = useState<string>("");
 
@@ -68,11 +77,19 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
     archiveSurface,
     unarchiveSurface,
     deleteSurface,
+    republishSurface,
   } = useSurfaceActions();
 
   const isArchived = !!surface.archived_at;
   const hasActivePublish = surface.activePublishes.length > 0;
   const isPublished = hasActivePublish;
+
+  // For republish: find most recent publish record (from activePublishes which are already fetched)
+  // If not live, we need the last known publish info — but activePublishes is empty when unpublished.
+  // We'll store last publish info from the surface's draft fields as fallback.
+  const lastPublish = surface.activePublishes[0] || null;
+  const canRepublish = !isPublished && !isArchived && !!surface.draft_domain_id && !!surface.draft_slug;
+
 
   const handleRename = () => {
     if (newTitle.trim()) {
@@ -128,6 +145,23 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
       setSelectedDomainId(surface.activePublishes[0].domain_id);
     }
     setUnpublishDialogOpen(true);
+  };
+
+  const handleRepublish = () => {
+    if (lastPublish) {
+      republishSurface.mutate({
+        surfaceId: surface.id,
+        domainId: lastPublish.domain_id,
+        slug: lastPublish.slug || surface.draft_slug || "",
+      });
+    } else if (surface.draft_domain_id && surface.draft_slug) {
+      republishSurface.mutate({
+        surfaceId: surface.id,
+        domainId: surface.draft_domain_id,
+        slug: surface.draft_slug,
+      });
+    }
+    setRepublishDialogOpen(false);
   };
 
   return (
@@ -221,6 +255,49 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
 
           {/* Actions */}
           <div className="flex items-center gap-2 pt-2 border-t border-border">
+            {isArchived ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex-1">
+                    <Button variant="outline" size="sm" className="w-full" disabled>
+                      <Archive className="h-4 w-4 mr-2" />
+                      Archived
+                    </Button>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>Unarchive this surface to manage publishing</TooltipContent>
+              </Tooltip>
+            ) : isPublished ? (
+              <Button
+                variant="destructive"
+                size="sm"
+                className="flex-1"
+                onClick={openUnpublishDialog}
+                disabled={unpublishSurface.isPending}
+              >
+                {unpublishSurface.isPending ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <CloudOff className="h-4 w-4 mr-2" />
+                )}
+                {unpublishSurface.isPending ? "Unpublishing..." : "Unpublish"}
+              </Button>
+            ) : canRepublish ? (
+              <Button
+                variant="accent"
+                size="sm"
+                className="flex-1"
+                onClick={() => setRepublishDialogOpen(true)}
+                disabled={republishSurface.isPending}
+              >
+                {republishSurface.isPending ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Rocket className="h-4 w-4 mr-2" />
+                )}
+                {republishSurface.isPending ? "Publishing..." : "Republish"}
+              </Button>
+            ) : null}
             <Button
               variant="outline"
               size="sm"
@@ -230,16 +307,6 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
             >
               <Pencil className="h-4 w-4 mr-2" />
               Edit
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1"
-              onClick={() => onPreview?.(surface)}
-              disabled={isArchived}
-            >
-              <Globe className="h-4 w-4 mr-2" />
-              Preview
             </Button>
           </div>
         </div>
@@ -357,6 +424,27 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {deleteSurface.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Republish Dialog */}
+      <AlertDialog open={republishDialogOpen} onOpenChange={setRepublishDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Republish Surface</AlertDialogTitle>
+            <AlertDialogDescription>
+              Republish this page and make it live again?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleRepublish}
+              disabled={republishSurface.isPending}
+            >
+              {republishSurface.isPending ? "Publishing..." : "Republish"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
