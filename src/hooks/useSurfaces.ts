@@ -85,7 +85,7 @@ export function useSurfaces(options: UseSurfacesOptions = {}) {
           surface_id,
           domain_id,
           published_at,
-          domains!inner (
+          domains!surface_publishes_domain_id_fkey (
             host,
             domain_type
           )
