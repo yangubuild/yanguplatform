@@ -173,14 +173,17 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
   
   switch (resolvedRoute.route_kind) {
     case "surface":
-      content = (
-        <SurfaceViewer
-          surfaceId={resolvedRoute.surface_id!}
-          publishId={resolvedRoute.publish_id}
-          host={resolvedRoute.host}
-          domainType={resolvedRoute.domain_type}
-        />
-      );
+      if (!resolvedRoute.publish_id) {
+        content = <NotFound />;
+      } else {
+        content = (
+          <SurfaceViewer
+            publishId={resolvedRoute.publish_id}
+            host={resolvedRoute.host}
+            domainType={resolvedRoute.domain_type}
+          />
+        );
+      }
       break;
 
     case "platform_home":

@@ -4,8 +4,7 @@ import { Loader2, Globe, Layout } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface SurfaceViewerProps {
-  surfaceId: string;
-  publishId?: string;
+  publishId: string;
   host?: string;
   domainType?: string;
 }
@@ -21,7 +20,7 @@ interface PublishedSurface {
   org_id: string;
 }
 
-export function SurfaceViewer({ surfaceId, publishId, host, domainType }: SurfaceViewerProps) {
+export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProps) {
   const [data, setData] = useState<PublishedSurface | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -29,10 +28,9 @@ export function SurfaceViewer({ surfaceId, publishId, host, domainType }: Surfac
   useEffect(() => {
     async function load() {
       setLoading(true);
-      console.log("[SurfaceViewer] Calling get_published_surface", { p_publish_id: publishId ?? null, p_surface_id: publishId ? null : surfaceId });
+      console.log("[SurfaceViewer] Calling get_published_surface", { p_publish_id: publishId });
       const { data: result, error: err } = await supabase.rpc("get_published_surface", {
-        p_publish_id: publishId ?? undefined,
-        p_surface_id: publishId ? undefined : surfaceId,
+        p_publish_id: publishId,
       });
 
       console.log("[SurfaceViewer] RPC response:", { data: result, error: err });
@@ -51,7 +49,7 @@ export function SurfaceViewer({ surfaceId, publishId, host, domainType }: Surfac
       setLoading(false);
     }
     load();
-  }, [surfaceId, publishId]);
+  }, [publishId]);
 
   if (loading) {
     return (
