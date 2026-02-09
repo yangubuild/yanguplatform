@@ -23,6 +23,8 @@ interface SurfaceData {
   status: string;
   org_id: string;
   archived_at: string | null;
+  draft_slug: string | null;
+  draft_domain_id: string | null;
   activePublishes: ActivePublish[];
 }
 
@@ -71,7 +73,7 @@ export default function SurfaceEditor() {
         // Fetch surface from surfaces table
         const { data: surfaceData, error: surfaceError } = await supabase
           .from("surfaces")
-          .select("id, title, surface_type, status, org_id, archived_at")
+          .select("id, title, surface_type, status, org_id, archived_at, draft_slug, draft_domain_id")
           .eq("id", id)
           .maybeSingle();
 
@@ -120,6 +122,8 @@ export default function SurfaceEditor() {
 
         setSurface({
           ...surfaceData,
+          draft_slug: (surfaceData as any).draft_slug || null,
+          draft_domain_id: (surfaceData as any).draft_domain_id || null,
           activePublishes,
         });
       } catch (err) {

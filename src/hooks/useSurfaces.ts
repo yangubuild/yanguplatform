@@ -18,6 +18,8 @@ export interface SurfaceWithPublishes {
   org_id: string;
   archived_at: string | null;
   created_at: string | null;
+  draft_slug: string | null;
+  draft_domain_id: string | null;
   activePublishes: ActivePublish[];
 }
 
@@ -54,7 +56,7 @@ export function useSurfaces(options: UseSurfacesOptions = {}) {
       // Fetch surfaces for user's orgs
       let query = supabase
         .from("surfaces")
-        .select("id, title, surface_type, status, org_id, archived_at, created_at")
+        .select("id, title, surface_type, status, org_id, archived_at, created_at, draft_slug, draft_domain_id")
         .in("org_id", orgIds)
         .order("created_at", { ascending: false });
 
@@ -123,6 +125,8 @@ export function useSurfaces(options: UseSurfacesOptions = {}) {
         org_id: surface.org_id,
         archived_at: surface.archived_at,
         created_at: surface.created_at,
+        draft_slug: (surface as any).draft_slug || null,
+        draft_domain_id: (surface as any).draft_domain_id || null,
         activePublishes: publishesBySurface[surface.id] || [],
       }));
     },

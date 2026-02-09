@@ -31,6 +31,8 @@ interface SurfaceData {
   status: string;
   org_id: string;
   archived_at: string | null;
+  draft_slug: string | null;
+  draft_domain_id: string | null;
   activePublishes: ActivePublish[];
 }
 
@@ -222,6 +224,7 @@ export function PublishSection({ surface, userId, orgId, onSurfaceUpdate }: Publ
         onOpenChange={setIsModalOpen}
         surfaceId={surface.id}
         surfaceTitle={surface.title || "Untitled Surface"}
+        draftSlug={surface.draft_slug}
         currentDomainId={surface.activePublishes[0]?.domain_id}
         onPublishSuccess={handlePublishSuccess}
       />

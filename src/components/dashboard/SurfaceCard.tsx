@@ -76,8 +76,17 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
 
   const handleRename = () => {
     if (newTitle.trim()) {
-      renameSurface.mutate({ surfaceId: surface.id, newTitle: newTitle.trim() });
-      setRenameDialogOpen(false);
+      renameSurface.mutate(
+        { surfaceId: surface.id, newTitle: newTitle.trim() },
+        {
+          onSuccess: (data) => {
+            setRenameDialogOpen(false);
+            if (data?.slug_available === false) {
+              // Toast already shown by useSurfaceActions
+            }
+          },
+        }
+      );
     }
   };
 

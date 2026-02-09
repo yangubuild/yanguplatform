@@ -256,12 +256,15 @@ export default function Onboarding() {
 
     setIsCheckingSlug(true);
     try {
-      // Get domain ID directly from the locked domain map
+      // Get domain ID from the `domains` table (NOT surface_domains)
+      // This ensures slug check uses the same domain_id as publish flow
       const { data: domains, error: domainError } = await supabase
-        .from("surface_domains")
+        .from("domains")
         .select("id")
-        .eq("domain", path.domain)
-        .single();
+        .eq("host", path.domain)
+        .eq("is_active", true)
+        .limit(1)
+        .maybeSingle();
 
       if (domainError || !domains) {
         console.error("Domain lookup error:", domainError);
@@ -407,12 +410,14 @@ export default function Onboarding() {
           return;
         }
 
-        // Get domain ID from the locked domain map
+        // Get domain ID from the `domains` table (same as slug check)
         const { data: domainData, error: domainError } = await supabase
-          .from("surface_domains")
+          .from("domains")
           .select("id")
-          .eq("domain", path.domain)
-          .single();
+          .eq("host", path.domain)
+          .eq("is_active", true)
+          .limit(1)
+          .maybeSingle();
 
         if (domainError || !domainData) {
           console.error("Domain lookup error:", domainError);
@@ -420,7 +425,19 @@ export default function Onboarding() {
           return;
         }
 
-        // Create the surface in the surfaces table (org-owned)
+        // Final availability check before creating (race condition guard)
+        const { data: stillAvailable } = await supabase.rpc("is_slug_available", {
+          _domain_id: domainData.id,
+          _slug: normalizedSlug,
+        });
+
+        if (!stillAvailable) {
+          toast.error("This URL was just taken. Please choose another.");
+          setSlugAvailable(false);
+          return;
+        }
+
+        // Create the surface with draft_slug + draft_domain_id
         const { error: surfaceError } = await supabase
           .from("surfaces")
           .insert({
@@ -428,7 +445,9 @@ export default function Onboarding() {
             surface_type: path.surfaceType,
             title: `${savedUsername}'s ${path.label}`,
             status: "draft",
-          });
+            draft_slug: normalizedSlug,
+            draft_domain_id: domainData.id,
+          } as any);
 
         if (surfaceError) {
           console.error("Surface creation error:", surfaceError);
@@ -437,28 +456,6 @@ export default function Onboarding() {
             setSlugAvailable(false);
           } else {
             toast.error(surfaceError.message || "Failed to create surface");
-          }
-          return;
-        }
-
-        // Create corresponding public_surfaces entry
-        const { error: publicSurfaceError } = await supabase
-          .from("public_surfaces")
-          .insert({
-            user_id: user.id,
-            domain_id: domainData.id,
-            slug: normalizedSlug,
-            title: `${savedUsername}'s ${path.label}`,
-            is_published: false,
-          });
-
-        if (publicSurfaceError) {
-          console.error("Public surface creation error:", publicSurfaceError);
-          if (publicSurfaceError.message.includes("duplicate") || publicSurfaceError.code === "23505") {
-            toast.error("This URL is no longer available");
-            setSlugAvailable(false);
-          } else {
-            toast.error(publicSurfaceError.message || "Failed to create surface");
           }
           return;
         }
@@ -506,12 +503,14 @@ export default function Onboarding() {
           return;
         }
 
-        // Get domain ID
+        // Get domain ID from the `domains` table
         const { data: domainData, error: domainError } = await supabase
-          .from("surface_domains")
+          .from("domains")
           .select("id")
-          .eq("domain", path.domain)
-          .single();
+          .eq("host", path.domain)
+          .eq("is_active", true)
+          .limit(1)
+          .maybeSingle();
 
         if (domainError || !domainData) {
           console.error("Domain lookup error:", domainError);
@@ -519,7 +518,19 @@ export default function Onboarding() {
           return;
         }
 
-        // Create the surface
+        // Final availability check before creating (race condition guard)
+        const { data: stillAvailable } = await supabase.rpc("is_slug_available", {
+          _domain_id: domainData.id,
+          _slug: normalizedSlug,
+        });
+
+        if (!stillAvailable) {
+          toast.error("This URL was just taken. Please choose another.");
+          setSlugAvailable(false);
+          return;
+        }
+
+        // Create the surface with draft_slug + draft_domain_id
         const { error: surfaceError } = await supabase
           .from("surfaces")
           .insert({
@@ -527,28 +538,13 @@ export default function Onboarding() {
             surface_type: path.surfaceType,
             title: `${savedUsername}'s ${path.label}`,
             status: "draft",
-          });
+            draft_slug: normalizedSlug,
+            draft_domain_id: domainData.id,
+          } as any);
 
         if (surfaceError) {
           console.error("Surface creation error:", surfaceError);
           toast.error(surfaceError.message || "Failed to create surface");
-          return;
-        }
-
-        // Create public_surfaces entry
-        const { error: publicSurfaceError } = await supabase
-          .from("public_surfaces")
-          .insert({
-            user_id: user.id,
-            domain_id: domainData.id,
-            slug: normalizedSlug,
-            title: `${savedUsername}'s ${path.label}`,
-            is_published: false,
-          });
-
-        if (publicSurfaceError) {
-          console.error("Public surface creation error:", publicSurfaceError);
-          toast.error(publicSurfaceError.message || "Failed to create surface");
           return;
         }
 
