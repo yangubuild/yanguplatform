@@ -13,6 +13,7 @@ interface ActivePublish {
   id: string;
   domain_id: string;
   domain_host: string;
+  slug: string | null;
   published_at: string | null;
 }
 
@@ -103,6 +104,7 @@ export default function SurfaceEditor() {
           .select(`
             id,
             domain_id,
+            slug,
             published_at,
             domains!inner (
               host,
@@ -117,6 +119,7 @@ export default function SurfaceEditor() {
           id: pub.id,
           domain_id: pub.domain_id,
           domain_host: (pub.domains as any)?.host || "",
+          slug: pub.slug || null,
           published_at: pub.published_at,
         }));
 

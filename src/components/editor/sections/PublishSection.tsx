@@ -21,6 +21,7 @@ interface ActivePublish {
   id: string;
   domain_id: string;
   domain_host: string;
+  slug: string | null;
   published_at: string | null;
 }
 
@@ -149,7 +150,9 @@ export function PublishSection({ surface, userId, orgId, onSurfaceUpdate }: Publ
                 <div className="flex items-center gap-3">
                   <Globe className="h-5 w-5 text-muted-foreground" />
                   <div>
-                    <p className="font-medium">{pub.domain_host}</p>
+                    <p className="font-medium">
+                      {pub.domain_host}{pub.slug ? `/${pub.slug}` : ""}
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       Published {pub.published_at ? new Date(pub.published_at).toLocaleDateString() : ""}
                     </p>
@@ -159,7 +162,10 @@ export function PublishSection({ surface, userId, orgId, onSurfaceUpdate }: Publ
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => window.open(`https://${pub.domain_host}`, "_blank")}
+                    onClick={() => {
+                      const path = pub.slug ? `/${pub.slug}` : "/";
+                      window.open(`https://${pub.domain_host}${path}`, "_blank");
+                    }}
                   >
                     <ExternalLink className="h-4 w-4" />
                   </Button>

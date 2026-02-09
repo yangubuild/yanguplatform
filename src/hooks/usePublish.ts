@@ -16,6 +16,7 @@ export interface PublishResult {
   reasons?: string[];
   error?: string;
   slug?: string;
+  domain?: string;
 }
 
 export interface OrgDomain {
