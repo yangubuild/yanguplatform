@@ -9,7 +9,7 @@ export interface ResolvedRoute {
   surface_id?: string;
   domain_id?: string;
   host?: string;
-  platform_key?: string;
+  domain_type?: string;
   username?: string;
   slug?: string;
   reason?: string;

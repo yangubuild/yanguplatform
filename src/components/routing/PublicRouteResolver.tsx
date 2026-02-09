@@ -178,7 +178,7 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
           surfaceId={resolvedRoute.surface_id!}
           publishId={resolvedRoute.publish_id}
           host={resolvedRoute.host}
-          platformKey={resolvedRoute.platform_key}
+          domainType={resolvedRoute.domain_type}
         />
       );
       break;
@@ -186,7 +186,7 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
     case "platform_home":
       content = (
         <DomainHome
-          platformKey={resolvedRoute.platform_key}
+          domainType={resolvedRoute.domain_type}
           host={resolvedRoute.host}
         />
       );
@@ -197,7 +197,7 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
         <IdentityHub
           username={resolvedRoute.username!}
           host={resolvedRoute.host}
-          platformKey={resolvedRoute.platform_key}
+          domainType={resolvedRoute.domain_type}
         />
       );
       break;
