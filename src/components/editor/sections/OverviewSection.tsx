@@ -22,6 +22,8 @@ interface SurfaceData {
   status: string;
   org_id: string;
   archived_at: string | null;
+  draft_slug: string | null;
+  draft_domain_id: string | null;
   activePublishes: ActivePublish[];
 }
 
@@ -48,10 +50,14 @@ export function OverviewSection({ surface, userId, onSurfaceUpdate }: OverviewSe
     renameSurface.mutate(
       { surfaceId: surface.id, newTitle: newTitle.trim() },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
           onSurfaceUpdate({ title: newTitle.trim() });
           setIsEditing(false);
-          toast.success("Surface renamed successfully!");
+          if (data?.slug_available === false) {
+            // Warning toast already shown by useSurfaceActions
+          } else {
+            toast.success("Surface renamed successfully!");
+          }
         },
         onError: () => {
           toast.error("Failed to rename surface");

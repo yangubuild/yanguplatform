@@ -8,6 +8,8 @@ interface RpcResponse {
   error?: string;
   message?: string;
   requires_unpublish?: boolean;
+  draft_slug?: string;
+  slug_available?: boolean;
 }
 
 export function useSurfaceActions() {
@@ -29,7 +31,11 @@ export function useSurfaceActions() {
     },
     onSuccess: (data) => {
       if (data?.success) {
-        toast.success("Surface renamed");
+        if (data.slug_available === false) {
+          toast.warning("Surface renamed, but the URL slug is already taken. Update it before publishing.");
+        } else {
+          toast.success("Surface renamed");
+        }
         invalidate();
       } else {
         toast.error(data?.error || "Failed to rename surface");

@@ -993,6 +993,8 @@ export type Database = {
         Row: {
           archived_at: string | null
           created_at: string | null
+          draft_domain_id: string | null
+          draft_slug: string | null
           id: string
           org_id: string
           status: string
@@ -1002,6 +1004,8 @@ export type Database = {
         Insert: {
           archived_at?: string | null
           created_at?: string | null
+          draft_domain_id?: string | null
+          draft_slug?: string | null
           id?: string
           org_id: string
           status?: string
@@ -1011,6 +1015,8 @@ export type Database = {
         Update: {
           archived_at?: string | null
           created_at?: string | null
+          draft_domain_id?: string | null
+          draft_slug?: string | null
           id?: string
           org_id?: string
           status?: string
@@ -1018,6 +1024,13 @@ export type Database = {
           title?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "surfaces_draft_domain_id_fkey"
+            columns: ["draft_domain_id"]
+            isOneToOne: false
+            referencedRelation: "domains"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "surfaces_org_id_fkey"
             columns: ["org_id"]

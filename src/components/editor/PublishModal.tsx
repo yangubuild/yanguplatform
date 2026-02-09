@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import {
   Dialog,
@@ -31,6 +32,7 @@ interface PublishModalProps {
   onOpenChange: (open: boolean) => void;
   surfaceId: string;
   surfaceTitle: string;
+  draftSlug?: string | null;
   currentDomainId?: string;
   onPublishSuccess?: (domainHost: string, surfaceSlug: string) => void;
 }
@@ -49,6 +51,7 @@ export function PublishModal({
   onOpenChange,
   surfaceId,
   surfaceTitle,
+  draftSlug,
   currentDomainId,
   onPublishSuccess,
 }: PublishModalProps) {
@@ -73,7 +76,7 @@ export function PublishModal({
     publishResult,
     canPublish,
     reset,
-  } = usePublishFlow(surfaceId, surfaceTitle);
+  } = usePublishFlow(surfaceId, surfaceTitle, draftSlug);
 
   const [publishSuccess, setPublishSuccess] = useState(false);
   const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
@@ -110,6 +113,14 @@ export function PublishModal({
       const result = await publish(slugToUse);
       
       if (result.success) {
+        // Update draft_slug on the surface after successful publish
+        if (slugToUse) {
+          await supabase
+            .from("surfaces")
+            .update({ draft_slug: slugToUse } as any)
+            .eq("id", surfaceId);
+        }
+
         const selectedDomain = domains.find((d) => d.id === selectedDomainId);
         if (selectedDomain) {
           const finalSlug = result.slug || slugToUse;

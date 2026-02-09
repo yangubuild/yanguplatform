@@ -200,7 +200,7 @@ export function usePublishSurface() {
  * Uses the user's active organization automatically - does NOT accept orgId from props
  * Relies ONLY on the Supabase RPC for eligibility - no client-side blocking
  */
-export function usePublishFlow(surfaceId: string, surfaceTitle?: string) {
+export function usePublishFlow(surfaceId: string, surfaceTitle?: string, draftSlug?: string | null) {
   const { data: activeOrg, isLoading: activeOrgLoading } = useActiveOrg();
   
   // Use active org ID - never accept from client
@@ -213,14 +213,16 @@ export function usePublishFlow(surfaceId: string, surfaceTitle?: string) {
   const [selectedDomainId, setSelectedDomainId] = useState<string | null>(null);
   const [customSlug, setCustomSlug] = useState<string | null>(null);
 
-  // Generate a default slug from surface title
-  const defaultSlug = surfaceTitle
-    ? surfaceTitle
-        .toLowerCase()
-        .replace(/[^a-z0-9-]/g, "-")
-        .replace(/-+/g, "-")
-        .replace(/^-|-$/g, "")
-    : null;
+  // Generate a default slug: prefer draftSlug, then slugified title
+  const defaultSlug = draftSlug
+    ? draftSlug
+    : surfaceTitle
+      ? surfaceTitle
+          .toLowerCase()
+          .replace(/[^a-z0-9-]/g, "-")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "")
+      : null;
 
   // Check eligibility when domain or slug changes
   // RPC signature: (orgId, domainId, slug, surfaceId ?? null)
