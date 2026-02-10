@@ -1,4 +1,4 @@
-import { Search } from "lucide-react";
+import { Search, TrendingUp } from "lucide-react";
 import navHeroBanner from "@/assets/nav-hero-banner.png";
 
 export function NavDashPromoCards() {
@@ -8,7 +8,7 @@ export function NavDashPromoCards() {
       <div
         className="relative rounded-2xl overflow-hidden"
         style={{
-          height: 180,
+          height: 220,
           background: "linear-gradient(135deg, #1a2530 0%, #232a30 40%, #1a3028 100%)",
         }}
       >
@@ -18,7 +18,6 @@ export function NavDashPromoCards() {
           className="absolute inset-0 w-full h-full object-cover opacity-90"
           style={{ objectPosition: "center" }}
         />
-        {/* Dark overlay for text readability */}
         <div
           className="absolute inset-0"
           style={{
@@ -47,6 +46,25 @@ export function NavDashPromoCards() {
           >
             Join Now
           </button>
+        </div>
+
+        {/* Sales Metric - bottom right of banner */}
+        <div className="absolute bottom-3 right-4 z-10 flex items-center gap-2">
+          <TrendingUp
+            className="w-5 h-5"
+            style={{ color: "#4ade80" }}
+          />
+          <div className="text-right">
+            <span
+              className="text-base font-semibold block leading-tight"
+              style={{ color: "#4ade80" }}
+            >
+              $1,532,492.32
+            </span>
+            <span className="text-xs" style={{ color: "#4ade80" }}>
+              + 22.6%
+            </span>
+          </div>
         </div>
       </div>
 
