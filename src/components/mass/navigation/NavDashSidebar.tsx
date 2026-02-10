@@ -12,6 +12,10 @@ import {
   Package,
   Users,
   TrendingUp,
+  Globe,
+  Link,
+  UtensilsCrossed,
+  Store,
 } from "lucide-react";
 
 import adaIcon from "@/assets/ada-icon.png";
@@ -20,7 +24,18 @@ const navItems = [
   { icon: Compass, label: "Explore", chevron: true },
   { icon: Tag, label: "Offers", chevron: false, badge: "+120%", dot: true },
   { icon: null, label: "Ada AI", chevron: true, customIcon: "ada" },
-  { icon: ShoppingBag, label: "Seller", chevron: true },
+  {
+    icon: ShoppingBag,
+    label: "Seller",
+    chevron: true,
+    subItems: [
+      { icon: ShoppingBag, label: "Eshop" },
+      { icon: Store, label: "Estore" },
+      { icon: UtensilsCrossed, label: "Emenu" },
+      { icon: Globe, label: "Esite" },
+      { icon: Link, label: "Eshop Connect" },
+    ],
+  },
   { icon: Sparkles, label: "Influencer", chevron: true },
   { icon: Clapperboard, label: "Yangu Studio", chevron: true },
   { icon: Monitor, label: "Visionaire", chevron: true },
@@ -141,15 +156,42 @@ export function NavDashSidebar({ isOpen = true, onClose }: NavDashSidebarProps) 
                         {item.badge}
                       </span>
                     )}
-                    {item.chevron && (
+                    {item.chevron && item.subItems ? (
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
+                        style={{ color: "rgba(255,255,255,0.3)" }}
+                      />
+                    ) : item.chevron ? (
                       <ChevronRight
                         className="w-3.5 h-3.5"
                         style={{ color: "rgba(255,255,255,0.3)" }}
                       />
-                    )}
+                    ) : null}
                   </div>
                 </button>
-                {isExpanded && (
+                {isExpanded && item.subItems ? (
+                  <div className="pl-8 pb-1">
+                    {item.subItems.map((sub) => {
+                      const SubIcon = sub.icon;
+                      const isSubActive = activeItem === sub.label;
+                      return (
+                        <button
+                          key={sub.label}
+                          onClick={() => setActiveItem(sub.label)}
+                          className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-all duration-200 mb-0.5 ${
+                            isSubActive ? "nav-offers-active" : "hover:bg-white/[0.06]"
+                          }`}
+                          style={{
+                            color: isSubActive ? "#4ade80" : "rgba(255,255,255,0.55)",
+                          }}
+                        >
+                          <SubIcon className="w-[16px] h-[16px]" strokeWidth={1.8} />
+                          <span className="font-medium">{sub.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : isExpanded ? (
                   <div className="pl-10 pb-1">
                     <div
                       className="text-xs py-1.5 cursor-pointer hover:text-white transition-colors"
@@ -158,7 +200,7 @@ export function NavDashSidebar({ isOpen = true, onClose }: NavDashSidebarProps) 
                       Coming soon
                     </div>
                   </div>
-                )}
+                ) : null}
               </div>
             );
           })}
