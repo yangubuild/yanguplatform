@@ -293,4 +293,9 @@
     0% { transform: translateX(0); }
     100% { transform: translateX(-50%); }
   }
+
+  @keyframes borderTrace {
+    0% { stroke-dashoffset: 0; }
+    100% { stroke-dashoffset: calc(-1px * var(--perim, 1000)); }
+  }
 }

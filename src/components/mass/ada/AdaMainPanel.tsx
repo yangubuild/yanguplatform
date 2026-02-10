@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { X, Mic, Settings, ChevronDown, Smartphone, Plus, ArrowUp, AudioLines, User } from "lucide-react";
 import adaLogo from "@/assets/ada-logo-full.png";
 
@@ -8,7 +8,26 @@ export function AdaMainPanel() {
   const [inputValue, setInputValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [voiceText, setVoiceText] = useState("");
+  const [boxSize, setBoxSize] = useState({ w: 0, h: 0 });
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const boxRef = useRef<HTMLDivElement>(null);
+
+  // Track box dimensions for SVG border trace
+  useEffect(() => {
+    const el = boxRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      setBoxSize({ w: width, h: height });
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // Compute perimeter for stroke-dasharray
+  const perim = boxSize.w && boxSize.h ? 2 * (boxSize.w + boxSize.h - 4 * 16) + 2 * Math.PI * 16 : 0;
+  const dashLen = perim * 0.15;
+  const gapLen = perim - dashLen;
 
   // Auto-resize textarea
   useEffect(() => {
@@ -142,30 +161,59 @@ export function AdaMainPanel() {
           <>
             {/* Chat input box */}
             <div className="w-full max-w-2xl mb-8">
-              <div className="relative rounded-2xl p-[1px] overflow-hidden">
-                {/* Animated gradient border */}
-                <div
-                  className="absolute inset-0 rounded-2xl animate-spin transition-opacity duration-500"
-                  style={{
-                    background: "conic-gradient(from 0deg, transparent 0%, rgba(212,149,43,0.45) 25%, rgba(244,168,61,0.45) 40%, transparent 50%, transparent 75%, rgba(212,149,43,0.45) 90%, rgba(244,168,61,0.45) 100%)",
-                    animationDuration: "8s",
-                    animationTimingFunction: "linear",
-                    animationPlayState: isFocused || inputValue ? "paused" : "running",
-                    opacity: isFocused || inputValue ? 0 : 1,
-                  }}
-                />
-                {/* Glow layer */}
-                <div
-                  className="absolute inset-0 rounded-2xl animate-spin blur-md transition-opacity duration-500"
-                  style={{
-                    background: "conic-gradient(from 0deg, transparent 0%, #D4952B 25%, #F4A83D 40%, transparent 50%, transparent 75%, #D4952B 90%, #F4A83D 100%)",
-                    animationDuration: "8s",
-                    animationTimingFunction: "linear",
-                    animationPlayState: isFocused || inputValue ? "paused" : "running",
-                    opacity: isFocused || inputValue ? 0 : 0.3,
-                  }}
-                />
-              <div className="relative rounded-2xl p-4 transition-colors duration-500" style={{ background: "#050A07", border: isFocused || inputValue ? "1px solid rgba(255,255,255,0.1)" : "none" }}>
+              <div ref={boxRef} className="relative rounded-2xl">
+                {/* SVG border trace animation */}
+                {perim > 0 && (
+                  <>
+                    <svg
+                      className="absolute inset-0 w-full h-full pointer-events-none transition-opacity duration-500"
+                      style={{ opacity: isFocused || inputValue ? 0 : 1 }}
+                    >
+                      <defs>
+                        <linearGradient id="traceGrad" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stopColor="rgba(244,168,61,0.5)" />
+                          <stop offset="40%" stopColor="rgba(212,149,43,0.3)" />
+                          <stop offset="100%" stopColor="transparent" />
+                        </linearGradient>
+                      </defs>
+                      <rect
+                        x="0.5" y="0.5"
+                        width={boxSize.w - 1} height={boxSize.h - 1}
+                        rx="16" ry="16"
+                        fill="none"
+                        stroke="url(#traceGrad)"
+                        strokeWidth="1"
+                        style={{
+                          strokeDasharray: `${dashLen} ${gapLen}`,
+                          strokeDashoffset: 0,
+                          "--perim": perim,
+                          animation: "borderTrace 3s linear infinite",
+                        } as React.CSSProperties}
+                      />
+                    </svg>
+                    {/* Glow layer */}
+                    <svg
+                      className="absolute inset-0 w-full h-full pointer-events-none blur-sm transition-opacity duration-500"
+                      style={{ opacity: isFocused || inputValue ? 0 : 0.25 }}
+                    >
+                      <rect
+                        x="0.5" y="0.5"
+                        width={boxSize.w - 1} height={boxSize.h - 1}
+                        rx="16" ry="16"
+                        fill="none"
+                        stroke="#D4952B"
+                        strokeWidth="2"
+                        style={{
+                          strokeDasharray: `${dashLen} ${gapLen}`,
+                          strokeDashoffset: 0,
+                          "--perim": perim,
+                          animation: "borderTrace 3s linear infinite",
+                        } as React.CSSProperties}
+                      />
+                    </svg>
+                  </>
+                )}
+              <div className="relative rounded-2xl p-4 transition-colors duration-500" style={{ background: "#050A07", border: isFocused || inputValue ? "1px solid rgba(255,255,255,0.1)" : "1px solid transparent" }}>
                 <textarea
                   ref={textareaRef}
                   value={inputValue}
