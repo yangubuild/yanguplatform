@@ -30,6 +30,7 @@ import Community from "./pages/Community";
 import AdaAi from "./pages/AdaAi";
 import WhyYangu from "./pages/WhyYangu";
 import DiscoverYangu from "./pages/DiscoverYangu";
+import NavigationDashboard from "./pages/NavigationDashboard";
 
 console.log("[Supabase]", import.meta.env.VITE_SUPABASE_URL);
 
@@ -54,6 +55,7 @@ const App = () => (
                 <Route path="/ada-ai" element={<AdaAi />} />
                 <Route path="/why-yangu" element={<WhyYangu />} />
                 <Route path="/discover" element={<DiscoverYangu />} />
+                <Route path="/navigation" element={<NavigationDashboard />} />
                 
                 {/* Owner preview route - requires auth + ownership */}
                 <Route path="/s/:id/preview" element={<SurfacePreview />} />
