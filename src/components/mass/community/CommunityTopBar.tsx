@@ -15,7 +15,7 @@ export function CommunityTopBar() {
             <img
               src={theme === "dark" ? yanguLogoFull : yanguLogo}
               alt="Yangu"
-              className="h-14 w-auto"
+              className="h-10 w-auto"
             />
           </a>
           <a
