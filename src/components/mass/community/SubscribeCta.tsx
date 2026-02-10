@@ -1,17 +1,18 @@
+import { useCommunityTheme, getThemeColors } from "./CommunityThemeContext";
+
 export function SubscribeCta() {
+  const { theme } = useCommunityTheme();
+  const c = getThemeColors(theme);
+
   return (
-    <section className="w-full px-6" style={{ backgroundColor: "#FFFFFF" }}>
+    <section className="w-full px-6 transition-colors duration-300" style={{ backgroundColor: c.bg }}>
       <div
         className="mx-auto my-10 flex max-w-[1200px] items-center justify-between overflow-hidden rounded-2xl px-10 py-16"
         style={{ backgroundColor: "#111827" }}
       >
         <div>
           <h2 className="max-w-[360px] text-[24px] font-bold leading-tight text-white sm:text-[28px]">
-            Be the first to
-            <br />
-            know about new creators
-            <br />
-            and communities
+            Be the first to<br />know about new creators<br />and communities
           </h2>
           <button className="mt-5 rounded-lg border border-white/30 px-5 py-[8px] text-[13px] font-medium text-white transition-colors hover:bg-white/10">
             Subscribe to Discover

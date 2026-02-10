@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Sun, Moon } from "lucide-react";
+import { CommunityThemeProvider, useCommunityTheme, getThemeColors } from "./CommunityThemeContext";
 import { CommunityTopBar } from "./CommunityTopBar";
 import { CommunityHero } from "./CommunityHero";
 import { CommunityFilterBar } from "./CommunityFilterBar";
@@ -7,37 +9,33 @@ import { CreatorSpotlight } from "./CreatorSpotlight";
 import { SubscribeCta } from "./SubscribeCta";
 import { BottomCta } from "./BottomCta";
 import { CommunityFooter } from "./CommunityFooter";
-import { communityItems, categories } from "./communityData";
+import { communityItems } from "./communityData";
 
-export function CommunityPage() {
+function CommunityPageInner() {
   const [activeFilter, setActiveFilter] = useState("Explore");
+  const { theme, toggle } = useCommunityTheme();
+  const colors = getThemeColors(theme);
 
   const isExplore = activeFilter === "Explore";
 
-  // Trending: first 8 items (2 rows of 4)
   const trendingItems = isExplore ? communityItems.slice(0, 8) : [];
-  // Popular: next 8 items (2 rows of 4)
   const popularItems = isExplore ? communityItems.slice(8, 16) : [];
-  // Be more productive: 4 items (1 row)
   const productiveItems = isExplore
     ? communityItems.filter((i) => i.category === "Be more productive").slice(0, 4)
     : [];
-  // Start and scale my business: 8 items (2 rows)
   const businessItems = isExplore
     ? communityItems.filter((i) => i.category === "Start and scale my business").slice(0, 8)
     : [];
-
   const filteredItems = isExplore
     ? []
     : communityItems.filter((i) => i.category === activeFilter);
 
   return (
     <div
-      className="min-h-screen"
+      className="min-h-screen transition-colors duration-300"
       style={{
-        backgroundColor: "#FFFFFF",
-        fontFamily:
-          "'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        backgroundColor: colors.bg,
+        fontFamily: "'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
       }}
     >
       <CommunityTopBar />
@@ -61,6 +59,27 @@ export function CommunityPage() {
           <CommunityFooter />
         </>
       )}
+
+      {/* Theme toggle FAB */}
+      <button
+        onClick={toggle}
+        className="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full shadow-lg transition-all duration-300 hover:scale-110"
+        style={{
+          backgroundColor: theme === "light" ? "#111827" : "#F0F0F0",
+          color: theme === "light" ? "#F0F0F0" : "#111827",
+        }}
+        title={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+      >
+        {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
+      </button>
     </div>
+  );
+}
+
+export function CommunityPage() {
+  return (
+    <CommunityThemeProvider>
+      <CommunityPageInner />
+    </CommunityThemeProvider>
   );
 }
