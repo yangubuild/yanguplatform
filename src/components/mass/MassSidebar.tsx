@@ -55,6 +55,8 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
           setActiveItem(item.id);
           if (item.id === "community") navigate("/community");
           if (item.id === "ada-ai") navigate("/ada-ai");
+          if (item.id === "why-yangu") navigate("/why-yangu");
+          if (item.id === "explore") navigate("/");
         }}
         onMouseEnter={() => setHoveredItem(item.id)}
         onMouseLeave={() => setHoveredItem(null)}

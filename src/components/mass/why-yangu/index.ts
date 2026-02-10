@@ -1,0 +1,1 @@
+export { WhyYanguPage } from "./WhyYanguPage";
