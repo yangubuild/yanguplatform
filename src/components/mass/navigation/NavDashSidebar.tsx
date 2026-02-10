@@ -11,7 +11,6 @@ import {
   Monitor,
   Package,
   Users,
-  TrendingUp,
 } from "lucide-react";
 import yanguLogo from "@/assets/yangu-logo-full.png";
 import adaIcon from "@/assets/ada-icon.png";
@@ -65,32 +64,6 @@ export function NavDashSidebar({ isOpen = true, onClose }: NavDashSidebarProps) 
             style={{ background: "#232a30" }}
           >
             <img src={yanguLogo} alt="Yangu" className="h-8 w-auto" />
-          </div>
-        </div>
-
-        {/* Sales Metric Card */}
-        <div className="px-3 py-2">
-          <div
-            className="rounded-xl px-3 py-2.5 flex items-center gap-2.5"
-            style={{
-              background: "linear-gradient(135deg, #1e2a2a 0%, #232a30 100%)",
-            }}
-          >
-            <TrendingUp
-              className="w-5 h-5 shrink-0"
-              style={{ color: "#4ade80" }}
-            />
-            <div className="min-w-0">
-              <span
-                className="text-lg font-semibold block leading-tight"
-                style={{ color: "#4ade80" }}
-              >
-                $1,532,492.32
-              </span>
-              <span className="text-xs" style={{ color: "#4ade80" }}>
-                + 22.6%
-              </span>
-            </div>
           </div>
         </div>
 
