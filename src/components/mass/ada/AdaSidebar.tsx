@@ -127,7 +127,7 @@ export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
           <div
             className="rounded-xl p-4 flex items-center justify-between"
             style={{
-              background: "linear-gradient(135deg, #D4952B 0%, #F4A83D 100%)",
+               background: "linear-gradient(135deg, #C4841F 0%, #D4952B 40%, #F4A83D 100%)",
             }}
           >
             <div>

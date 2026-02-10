@@ -50,16 +50,16 @@ export function AdaMainPanel() {
           <ChevronDown className="w-3.5 h-3.5 text-white/40" />
         </div>
         <div className="flex items-center gap-3">
-          <button className="p-2 text-white/40 hover:text-white/70 rounded-lg border border-white/10">
+          <button className="p-2 text-white/40 hover:text-white/70 rounded-lg border border-white/10" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.08))" }}>
             <Smartphone className="w-4 h-4" />
           </button>
-          <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 text-white/50 text-sm hover:text-white/70">
+          <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 text-white/50 text-sm hover:text-white/70" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.08))" }}>
             <Settings className="w-3.5 h-3.5" />
             Extensions
             <ChevronDown className="w-3 h-3" />
           </button>
-          <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 text-white/50 text-sm hover:text-white/70">
-            <span className="text-[#E0A030]">✦</span>
+          <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#D4952B]/30 text-white text-sm hover:brightness-110 transition-all" style={{ background: "linear-gradient(135deg, rgba(212,149,43,0.15), rgba(244,168,61,0.25))" }}>
+            <span className="text-[#F4A83D]">✦</span>
             Upgrade to Pro
           </button>
           <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
