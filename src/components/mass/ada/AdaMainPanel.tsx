@@ -146,7 +146,7 @@ export function AdaMainPanel() {
                 <div
                   className="absolute inset-0 rounded-2xl animate-spin"
                   style={{
-                    background: "conic-gradient(from 0deg, transparent 0%, #D4952B 25%, #F4A83D 40%, transparent 50%, transparent 75%, #D4952B 90%, #F4A83D 100%)",
+                    background: "conic-gradient(from 0deg, transparent 0%, rgba(212,149,43,0.45) 25%, rgba(244,168,61,0.45) 40%, transparent 50%, transparent 75%, rgba(212,149,43,0.45) 90%, rgba(244,168,61,0.45) 100%)",
                     animationDuration: "8s",
                     animationTimingFunction: "linear",
                   }}
