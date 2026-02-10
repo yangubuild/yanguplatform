@@ -1,5 +1,6 @@
 import { Search } from "lucide-react";
 import yanguLogo from "@/assets/yangu-logo-community.png";
+import yanguLogoFull from "@/assets/yangu-logo-full.png";
 import { useCommunityTheme, getThemeColors } from "./CommunityThemeContext";
 
 export function CommunityTopBar() {
@@ -8,19 +9,18 @@ export function CommunityTopBar() {
 
   return (
     <header className="w-full transition-colors duration-300" style={{ backgroundColor: c.bg }}>
-      <div className="mx-auto flex h-[56px] max-w-[1200px] items-center justify-between px-6">
+      <div className="mx-auto flex h-[64px] max-w-[1200px] items-center justify-between px-6">
         <div className="flex items-center gap-4">
           <a href="/" className="flex items-center">
             <img
-              src={yanguLogo}
+              src={theme === "dark" ? yanguLogoFull : yanguLogo}
               alt="Yangu"
-              className="h-12 w-auto"
-              style={{ filter: theme === "dark" ? "brightness(0) invert(1)" : "none" }}
+              className="h-14 w-auto"
             />
           </a>
           <a
             href="#"
-            className="hidden text-[14px] underline decoration-gray-300 underline-offset-2 sm:inline"
+            className="hidden text-[14px] sm:inline"
             style={{ color: c.textMuted }}
           >
             create a community
