@@ -49,7 +49,8 @@ export function AudienceToggle({ value, onChange }: AudienceToggleProps) {
         <div
           className="absolute left-0 bottom-full mb-2 w-48 rounded-xl py-2 z-50"
           style={{
-            background: "#1a1a1a",
+            background: "rgba(10, 23, 16, 0.85)",
+            backdropFilter: "blur(12px)",
             border: "1px solid rgba(255,255,255,0.12)",
           }}
         >
