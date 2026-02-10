@@ -12,7 +12,7 @@ export function CommunityFooter() {
         <img
           src={theme === "dark" ? yanguLogoFull : yanguLogo}
           alt="Yangu"
-          className="h-14 w-auto"
+          className="h-8 w-auto"
           style={{ opacity: 0.6 }}
         />
         <div className="flex gap-6">
