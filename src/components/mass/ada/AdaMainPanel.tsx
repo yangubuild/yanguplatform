@@ -46,7 +46,7 @@ export function AdaMainPanel() {
       {/* Top bar */}
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-2">
-          <img src={adaLogo} alt="Ada AI" className="h-6 w-auto" />
+          <img src={adaLogo} alt="Ada AI" className="h-8 w-auto" />
           <ChevronDown className="w-3.5 h-3.5 text-white/40" />
         </div>
         <div className="flex items-center gap-3">
