@@ -52,7 +52,7 @@ export function CommunityTopBar() {
             <input
               type="text"
               placeholder="Search"
-              className="w-full rounded-2xl bg-white py-[12px] pl-11 pr-4 text-[14px] text-gray-700 placeholder:text-gray-400 focus:outline-none"
+              className="w-full rounded-2xl bg-white py-[12px] pl-11 pr-4 text-[14px] text-gray-700 placeholder:text-gray-400 focus:outline-none transition-all duration-200 hover:border-[#F46D2A] hover:shadow-[0_2px_16px_rgba(244,109,42,0.2)]"
               style={{
                 border: "1.5px solid rgba(244,109,42,0.25)",
                 boxShadow: "0 2px 12px rgba(244,109,42,0.1)",
