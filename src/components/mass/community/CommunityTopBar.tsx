@@ -39,7 +39,7 @@ export function CommunityTopBar() {
           className="mx-auto max-w-[520px] text-[24px] font-extrabold leading-[1.2] tracking-tight sm:text-[30px]"
           style={{ color: "#111827" }}
         >
-          Whatever it is, there's a community for that
+          Build and run your community
         </h1>
         <p className="mx-auto mt-1.5 max-w-[380px] text-[12px] leading-relaxed" style={{ color: "#9CA3AF" }}>
           Find communities, creators, and products that transform your life
