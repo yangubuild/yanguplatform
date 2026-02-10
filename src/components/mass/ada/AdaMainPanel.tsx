@@ -76,20 +76,54 @@ export function AdaMainPanel() {
     setInputValue("");
   };
 
-  const rotatingWords = ["Own!", "Idea!", "Business!", "Product!", "Community!"];
+  const rotatingWords = ["Own", "Idea", "Business", "Product", "Community"];
   const [wordIndex, setWordIndex] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [displayText, setDisplayText] = useState("Own");
+  const phaseRef = useRef<"hold" | "erase" | "pause" | "type">("hold");
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setIsTransitioning(true);
-      setTimeout(() => {
-        setWordIndex((prev) => (prev + 1) % rotatingWords.length);
-        setIsTransitioning(false);
-      }, 220);
-    }, 1820); // 1600ms hold + 220ms transition
-    return () => clearInterval(interval);
-  }, []);
+    let timeout: ReturnType<typeof setTimeout>;
+    const currentWord = rotatingWords[wordIndex];
+    const nextWord = rotatingWords[(wordIndex + 1) % rotatingWords.length];
+
+    if (phaseRef.current === "hold") {
+      setDisplayText(currentWord);
+      timeout = setTimeout(() => {
+        phaseRef.current = "erase";
+        setDisplayText(currentWord);
+        // start erasing
+        let i = currentWord.length;
+        const eraseStep = () => {
+          i--;
+          if (i > 0) {
+            setDisplayText(currentWord.slice(0, i));
+            timeout = setTimeout(eraseStep, 45);
+          } else {
+            setDisplayText("");
+            // pause with just "!" visible
+            timeout = setTimeout(() => {
+              phaseRef.current = "type";
+              let j = 0;
+              const typeStep = () => {
+                j++;
+                if (j <= nextWord.length) {
+                  setDisplayText(nextWord.slice(0, j));
+                  timeout = setTimeout(typeStep, 55);
+                } else {
+                  phaseRef.current = "hold";
+                  setWordIndex((prev) => (prev + 1) % rotatingWords.length);
+                }
+              };
+              typeStep();
+            }, 120);
+          }
+        };
+        eraseStep();
+      }, 1200);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [wordIndex]);
 
   return (
     <main
@@ -135,25 +169,9 @@ export function AdaMainPanel() {
         {/* Welcome text */}
         <h1 className="text-white text-4xl md:text-5xl font-bold text-center mb-2 flex items-center justify-center gap-3">
           <span>Build your</span>
-          <span className="relative h-[1.2em] overflow-hidden inline-flex" style={{ minWidth: "4.5em" }}>
-            <span
-              key={wordIndex}
-              className="absolute left-0 text-[#F4A83D]"
-              style={{
-                transform: isTransitioning ? "translateY(-100%)" : "translateY(0)",
-                transition: "transform 220ms linear",
-              }}
-            >
-              {rotatingWords[wordIndex]}
-            </span>
-            <span
-              className="absolute left-0 text-[#F4A83D]"
-              style={{
-                transform: isTransitioning ? "translateY(0)" : "translateY(100%)",
-                transition: "transform 220ms linear",
-              }}
-            >
-              {rotatingWords[(wordIndex + 1) % rotatingWords.length]}
+          <span className="inline-flex" style={{ minWidth: "4.5em" }}>
+            <span className="text-[#F4A83D]">
+              {displayText}!
             </span>
           </span>
         </h1>
