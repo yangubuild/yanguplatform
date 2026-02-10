@@ -233,11 +233,11 @@ export function NavDashSidebar({ isOpen = true, onClose }: NavDashSidebarProps) 
         <div className="px-3 pb-3">
           <div className="flex items-center gap-2.5 px-2 py-2">
             <div
-              className="w-8 h-8 rounded-full shrink-0 overflow-hidden"
-              style={{
-                background: "linear-gradient(135deg, #f59e0b, #ef4444)",
-              }}
-            />
+              className="w-8 h-8 rounded-full shrink-0 overflow-hidden flex items-center justify-center"
+              style={{ background: "#2a3038" }}
+            >
+              <Users className="w-4 h-4" style={{ color: "rgba(255,255,255,0.6)" }} />
+            </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold text-white leading-tight truncate">
                 Kafeero Azizi

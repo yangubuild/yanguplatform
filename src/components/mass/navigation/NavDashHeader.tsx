@@ -1,4 +1,4 @@
-import { Menu, Search, Gift, Bell, ChevronDown } from "lucide-react";
+import { Menu, Search, Gift, Bell, ChevronDown, User } from "lucide-react";
 import yanguLogo from "@/assets/yangu-logo-full.png";
 
 interface NavDashHeaderProps {
@@ -85,12 +85,14 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
 
         {/* Avatar */}
         <div
-          className="w-8 h-8 rounded-full"
+          className="w-8 h-8 rounded-full flex items-center justify-center"
           style={{
-            background: "linear-gradient(135deg, #f59e0b, #ef4444)",
+            background: "#2a3038",
             border: "2px solid rgba(255,255,255,0.1)",
           }}
-        />
+        >
+          <User className="w-4 h-4" style={{ color: "rgba(255,255,255,0.6)" }} />
+        </div>
       </div>
     </header>
   );
