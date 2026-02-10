@@ -58,7 +58,13 @@ export function AdaMainPanel() {
             Extensions
             <ChevronDown className="w-3 h-3" />
           </button>
-          <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#D4952B]/30 text-white text-sm hover:brightness-110 transition-all" style={{ background: "linear-gradient(135deg, rgba(212,149,43,0.15), rgba(244,168,61,0.25))" }}>
+          <button
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-white text-sm transition-all"
+            style={{
+              background: "linear-gradient(90deg, #C4841F 0%, rgba(212,149,43,0.45) 55%, rgba(10,10,10,0.18) 100%)",
+              boxShadow: "0 0 18px rgba(212,149,43,0.18)",
+            }}
+          >
             <span className="text-[#F4A83D]">✦</span>
             Upgrade to Pro
           </button>
