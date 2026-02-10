@@ -141,22 +141,22 @@ export function AdaMainPanel() {
           <>
             {/* Chat input box */}
             <div className="w-full max-w-2xl mb-8">
-              <div className="relative rounded-2xl p-[1.5px] overflow-hidden">
+              <div className="relative rounded-2xl p-[1px] overflow-hidden">
                 {/* Animated gradient border */}
                 <div
                   className="absolute inset-0 rounded-2xl animate-spin"
                   style={{
                     background: "conic-gradient(from 0deg, transparent 0%, #D4952B 25%, #F4A83D 40%, transparent 50%, transparent 75%, #D4952B 90%, #F4A83D 100%)",
-                    animationDuration: "4s",
+                    animationDuration: "8s",
                     animationTimingFunction: "linear",
                   }}
                 />
                 {/* Glow layer */}
                 <div
-                  className="absolute inset-0 rounded-2xl animate-spin blur-md opacity-40"
+                  className="absolute inset-0 rounded-2xl animate-spin blur-md opacity-30"
                   style={{
                     background: "conic-gradient(from 0deg, transparent 0%, #D4952B 25%, #F4A83D 40%, transparent 50%, transparent 75%, #D4952B 90%, #F4A83D 100%)",
-                    animationDuration: "4s",
+                    animationDuration: "8s",
                     animationTimingFunction: "linear",
                   }}
                 />
