@@ -1,33 +1,38 @@
 import { Search } from "lucide-react";
 import yanguLogo from "@/assets/yangu-logo-community.png";
+import { useCommunityTheme, getThemeColors } from "./CommunityThemeContext";
 
 export function CommunityTopBar() {
+  const { theme } = useCommunityTheme();
+  const c = getThemeColors(theme);
+
   return (
-    <header className="w-full" style={{ backgroundColor: "#FFFFFF" }}>
-      {/* Nav row */}
+    <header className="w-full transition-colors duration-300" style={{ backgroundColor: c.bg }}>
       <div className="mx-auto flex h-[56px] max-w-[1200px] items-center justify-between px-6">
         <div className="flex items-center gap-4">
           <a href="/" className="flex items-center">
-            <img src={yanguLogo} alt="Yangu" className="h-12 w-auto" />
+            <img
+              src={yanguLogo}
+              alt="Yangu"
+              className="h-12 w-auto"
+              style={{ filter: theme === "dark" ? "brightness(0) invert(1)" : "none" }}
+            />
           </a>
           <a
             href="#"
-            className="hidden text-[14px] text-gray-400 underline decoration-gray-300 underline-offset-2 hover:text-gray-600 sm:inline"
+            className="hidden text-[14px] underline decoration-gray-300 underline-offset-2 sm:inline"
+            style={{ color: c.textMuted }}
           >
             create a community
           </a>
         </div>
         <div className="flex items-center gap-3">
-          <a href="#" className="hidden text-[14px] text-gray-500 hover:text-gray-700 sm:inline">
+          <a href="#" className="hidden text-[14px] sm:inline" style={{ color: c.textMuted }}>
             List on community
           </a>
           <button
             className="rounded-lg border px-5 py-[8px] text-[14px] font-medium transition-colors hover:opacity-90"
-            style={{
-              backgroundColor: "transparent",
-              borderColor: "#D1D5DB",
-              color: "#374151",
-            }}
+            style={{ backgroundColor: "transparent", borderColor: c.signInBorder, color: c.signInText }}
           >
             Sign in
           </button>
@@ -40,27 +45,27 @@ export function CommunityTopBar() {
         </div>
       </div>
 
-      {/* Hero content inside header area */}
       <div className="mx-auto max-w-[1200px] px-6 pb-5 pt-4 text-center">
         <h1
           className="mx-auto max-w-[520px] text-[24px] font-extrabold leading-[1.2] tracking-tight sm:text-[30px]"
-          style={{ color: "#111827" }}
+          style={{ color: c.text }}
         >
           Build and run your community
         </h1>
-        <p className="mx-auto mt-1.5 max-w-[380px] text-[12px] leading-relaxed" style={{ color: "#9CA3AF" }}>
+        <p className="mx-auto mt-1.5 max-w-[380px] text-[12px] leading-relaxed" style={{ color: c.textSecondary }}>
           Find communities, creators, and products that transform your life
         </p>
 
-        {/* Search */}
         <div className="mx-auto mt-5 max-w-[420px]">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2" size={18} style={{ color: c.textMuted }} />
             <input
               type="text"
               placeholder="Search"
-              className="w-full rounded-2xl bg-white py-[12px] pl-11 pr-4 text-[14px] text-gray-700 placeholder:text-gray-400 focus:outline-none transition-all duration-200 hover:border-[#F46D2A] hover:shadow-[0_2px_16px_rgba(244,109,42,0.2)]"
+              className="w-full rounded-2xl py-[12px] pl-11 pr-4 text-[14px] focus:outline-none transition-all duration-200 hover:border-[#F46D2A] hover:shadow-[0_2px_16px_rgba(244,109,42,0.2)]"
               style={{
+                backgroundColor: theme === "dark" ? "rgba(10,23,16,0.55)" : "#FFFFFF",
+                color: c.inputText,
                 border: "1.5px solid rgba(244,109,42,0.25)",
                 boxShadow: "0 2px 12px rgba(244,109,42,0.1)",
               }}

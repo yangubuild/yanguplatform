@@ -1,13 +1,16 @@
 import type { CommunityItem } from "./communityData";
+import { useCommunityTheme, getThemeColors } from "./CommunityThemeContext";
 
 interface CommunityCardProps {
   item: CommunityItem;
 }
 
 export function CommunityCard({ item }: CommunityCardProps) {
+  const { theme } = useCommunityTheme();
+  const c = getThemeColors(theme);
+
   return (
     <a href="#" className="group block">
-      {/* Thumbnail */}
       <div className="relative aspect-[16/10] overflow-hidden rounded-xl">
         <img
           src={item.image}
@@ -16,26 +19,16 @@ export function CommunityCard({ item }: CommunityCardProps) {
           loading="lazy"
         />
       </div>
-      {/* Price */}
       {item.price && (
-        <p className="mt-2.5 text-[12px] font-semibold" style={{ color: "#111827" }}>
-          {item.price}
-        </p>
+        <p className="mt-2.5 text-[12px] font-semibold" style={{ color: c.priceText }}>{item.price}</p>
       )}
-      {/* Description */}
       <p
         className={`${item.price ? "mt-1" : "mt-2.5"} text-[12px] leading-[1.5] line-clamp-2`}
-        style={{ color: "#6B7280" }}
+        style={{ color: c.descText }}
       >
         {item.description}
       </p>
-      {/* Community name */}
-      <p
-        className="mt-0.5 text-[11px] font-medium"
-        style={{ color: "#9CA3AF" }}
-      >
-        {item.title}
-      </p>
+      <p className="mt-0.5 text-[11px] font-medium" style={{ color: c.nameText }}>{item.title}</p>
     </a>
   );
 }

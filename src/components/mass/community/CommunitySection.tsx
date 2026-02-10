@@ -1,5 +1,6 @@
 import { CommunityCard } from "./CommunityCard";
 import type { CommunityItem } from "./communityData";
+import { useCommunityTheme, getThemeColors } from "./CommunityThemeContext";
 
 interface CommunitySectionProps {
   title: string;
@@ -8,25 +9,18 @@ interface CommunitySectionProps {
 }
 
 export function CommunitySection({ title, items, showSeeAll = true }: CommunitySectionProps) {
+  const { theme } = useCommunityTheme();
+  const c = getThemeColors(theme);
+
   if (items.length === 0) return null;
 
   return (
-    <section className="w-full px-6" style={{ backgroundColor: "#FFFFFF" }}>
+    <section className="w-full px-6 transition-colors duration-300" style={{ backgroundColor: c.bg }}>
       <div className="mx-auto max-w-[1200px] pb-4 pt-10">
-        {/* Section header */}
         <div className="mb-5 flex items-center justify-between">
-          <h2
-            className="text-[16px] font-bold"
-            style={{ color: "#111827" }}
-          >
-            {title}
-          </h2>
+          <h2 className="text-[16px] font-bold" style={{ color: c.text }}>{title}</h2>
           {showSeeAll && (
-            <a
-              href="#"
-              className="text-[13px] font-medium transition-colors hover:underline"
-              style={{ color: "#6B7280" }}
-            >
+            <a href="#" className="text-[13px] font-medium transition-colors hover:underline" style={{ color: c.seeAllText }}>
               See all
             </a>
           )}

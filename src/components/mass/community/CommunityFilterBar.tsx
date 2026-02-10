@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { categories } from "./communityData";
+import { useCommunityTheme, getThemeColors } from "./CommunityThemeContext";
 
 interface CommunityFilterBarProps {
   onFilterChange?: (category: string) => void;
@@ -8,6 +9,8 @@ interface CommunityFilterBarProps {
 
 export function CommunityFilterBar({ onFilterChange }: CommunityFilterBarProps) {
   const [active, setActive] = useState("Explore");
+  const { theme } = useCommunityTheme();
+  const c = getThemeColors(theme);
 
   const handleClick = (cat: string) => {
     setActive(cat);
@@ -16,15 +19,11 @@ export function CommunityFilterBar({ onFilterChange }: CommunityFilterBarProps) 
 
   return (
     <div
-      className="sticky top-0 z-20 w-full px-6"
-      style={{ backgroundColor: "#FFFFFF" }}
+      className="sticky top-0 z-20 w-full px-6 transition-colors duration-300"
+      style={{ backgroundColor: c.bg }}
     >
       <div className="mx-auto flex max-w-[1200px] items-center gap-3 py-4">
-        <div
-          className="flex flex-1 gap-3 overflow-x-auto"
-          style={{ scrollbarWidth: "none" }}
-        >
-          <style>{`.scrollbar-hide::-webkit-scrollbar{display:none}`}</style>
+        <div className="flex flex-1 gap-3 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
           {categories.map((cat) => {
             const isActive = active === cat;
             return (
@@ -34,11 +33,11 @@ export function CommunityFilterBar({ onFilterChange }: CommunityFilterBarProps) 
                 className="shrink-0 whitespace-nowrap rounded-lg px-4 py-[7px] text-[13px] font-medium transition-colors"
                 style={
                   isActive
-                    ? { backgroundColor: "#111827", color: "#FFFFFF" }
+                    ? { backgroundColor: c.filterActiveBg, color: c.filterActiveText }
                     : {
-                        backgroundColor: "#FFFFFF",
-                        color: "#374151",
-                        border: "1px solid #E5E7EB",
+                        backgroundColor: c.filterInactiveBg,
+                        color: c.filterInactiveText,
+                        border: `1px solid ${c.filterInactiveBorder}`,
                       }
                 }
               >
@@ -47,8 +46,10 @@ export function CommunityFilterBar({ onFilterChange }: CommunityFilterBarProps) 
             );
           })}
         </div>
-        {/* Scroll arrow */}
-        <button className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-200 text-gray-400 hover:text-gray-600">
+        <button
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-colors"
+          style={{ borderColor: c.scrollBtnBorder, color: c.scrollBtnText }}
+        >
           <ChevronRight size={16} />
         </button>
       </div>

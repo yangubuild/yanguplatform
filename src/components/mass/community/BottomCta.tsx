@@ -1,6 +1,11 @@
+import { useCommunityTheme, getThemeColors } from "./CommunityThemeContext";
+
 export function BottomCta() {
+  const { theme } = useCommunityTheme();
+  const c = getThemeColors(theme);
+
   return (
-    <section className="w-full px-6 pb-0" style={{ backgroundColor: "#FFFFFF" }}>
+    <section className="w-full px-6 pb-0 transition-colors duration-300" style={{ backgroundColor: c.bg }}>
       <div
         className="mx-auto max-w-[1200px] overflow-hidden rounded-2xl px-10 py-16"
         style={{ background: "linear-gradient(135deg, #EF4444 0%, #F97316 100%)" }}
@@ -15,12 +20,8 @@ export function BottomCta() {
             </button>
           </div>
           <div className="hidden gap-3 sm:flex">
-            <div className="flex h-[90px] w-[90px] items-center justify-center rounded-xl bg-white/20 text-[10px] font-bold text-white">
-              spi
-            </div>
-            <div className="flex h-[90px] w-[90px] items-center justify-center rounded-xl bg-white/20 text-[10px] font-bold text-white">
-              MAKER
-            </div>
+            <div className="flex h-[90px] w-[90px] items-center justify-center rounded-xl bg-white/20 text-[10px] font-bold text-white">spi</div>
+            <div className="flex h-[90px] w-[90px] items-center justify-center rounded-xl bg-white/20 text-[10px] font-bold text-white">MAKER</div>
           </div>
         </div>
       </div>
