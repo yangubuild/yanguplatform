@@ -97,11 +97,10 @@ export function NavDashSidebar({ isOpen = true, onClose }: NavDashSidebarProps) 
                       setExpandedItem(isExpanded ? null : item.label);
                     }
                   }}
-                  className="w-full flex items-center justify-between gap-2.5 px-3 py-2.5 rounded-xl text-sm transition-colors mb-0.5"
+                  className={`w-full flex items-center justify-between gap-2.5 px-3 py-2.5 rounded-xl text-sm transition-all duration-300 mb-0.5 group ${
+                    isActive ? "nav-offers-active" : "hover:bg-white/[0.06]"
+                  }`}
                   style={{
-                    background: isActive
-                      ? "linear-gradient(90deg, rgba(74,222,128,0.22) 0%, rgba(74,222,128,0.08) 100%)"
-                      : "transparent",
                     color: isActive ? "#4ade80" : "rgba(255,255,255,0.7)",
                   }}
                 >
