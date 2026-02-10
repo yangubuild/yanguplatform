@@ -76,6 +76,21 @@ export function AdaMainPanel() {
     setInputValue("");
   };
 
+  const rotatingWords = ["Own!", "Idea!", "Business!", "Product!", "Community!"];
+  const [wordIndex, setWordIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setWordIndex((prev) => (prev + 1) % rotatingWords.length);
+        setIsTransitioning(false);
+      }, 220);
+    }, 1820); // 1600ms hold + 220ms transition
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <main
       className="lg:ml-[280px] flex-1 min-h-screen flex flex-col"
@@ -118,8 +133,29 @@ export function AdaMainPanel() {
       {/* Center content */}
       <div className="flex-1 flex flex-col items-center justify-center px-6">
         {/* Welcome text */}
-        <h1 className="text-white text-4xl md:text-5xl font-bold text-center mb-2">
-          Welcome Back!
+        <h1 className="text-white text-4xl md:text-5xl font-bold text-center mb-2 flex items-center justify-center gap-3">
+          <span>Build your</span>
+          <span className="relative h-[1.2em] overflow-hidden inline-flex" style={{ minWidth: "4.5em" }}>
+            <span
+              key={wordIndex}
+              className="absolute left-0 text-[#F4A83D]"
+              style={{
+                transform: isTransitioning ? "translateY(-100%)" : "translateY(0)",
+                transition: "transform 220ms linear",
+              }}
+            >
+              {rotatingWords[wordIndex]}
+            </span>
+            <span
+              className="absolute left-0 text-[#F4A83D]"
+              style={{
+                transform: isTransitioning ? "translateY(0)" : "translateY(100%)",
+                transition: "transform 220ms linear",
+              }}
+            >
+              {rotatingWords[(wordIndex + 1) % rotatingWords.length]}
+            </span>
+          </span>
         </h1>
         <p className="text-white/40 text-2xl md:text-3xl font-light text-center mb-10">
           Alexandria Attaya
