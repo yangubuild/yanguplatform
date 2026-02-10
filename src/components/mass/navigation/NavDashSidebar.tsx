@@ -209,14 +209,14 @@ export function NavDashSidebar({ isOpen = true, onClose }: NavDashSidebarProps) 
         {/* Upgrade Card */}
         <div className="px-3 pb-2">
           <div
-            className="rounded-xl p-4"
+            className="rounded-xl p-4 backdrop-blur-md border border-white/10"
             style={{
-              background: "rgba(255,255,255,0.95)",
-              color: "#1a1a1a",
+              background: "rgba(74, 222, 128, 0.08)",
+              color: "#fff",
             }}
           >
-            <p className="text-sm font-bold mb-0.5">Upgrade your plan</p>
-            <p className="text-[11px] leading-snug mb-3" style={{ color: "#555" }}>
+            <p className="text-sm font-bold mb-0.5 text-white">Upgrade your plan</p>
+            <p className="text-[11px] leading-snug mb-3" style={{ color: "rgba(255,255,255,0.55)" }}>
               40% fewer restrictions, better rates! Use code "SECRET" when you
               upgrade.
             </p>
