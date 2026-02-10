@@ -1,349 +1,575 @@
-import { useState } from "react";
-import { 
-  MessageSquare, Video, Users, BookOpen, Gift, FileText, 
-  Calendar, Layout, Send, Radio, ChevronDown, ChevronUp,
-  Store, CreditCard, BarChart3, Smartphone, Clock, Shield,
-  Sparkles, Zap, Globe, TrendingUp, Heart, Star
-} from "lucide-react";
-import yanguYIcon from "@/assets/yangu-y-icon.png";
+import { useState, useEffect, useRef } from "react";
+import { ChevronDown, ChevronUp, ChevronRight } from "lucide-react";
 import yanguLogoFull from "@/assets/yangu-logo-full.png";
+import yanguYIcon from "@/assets/yangu-y-icon.png";
 
-/* ── Stats Counter ── */
-function StatItem({ value, label }: { value: string; label: string }) {
+/* ═══════════════════════════════════════════
+   Animated Counter
+   ═══════════════════════════════════════════ */
+function AnimatedCounter({ target, prefix = "", suffix = "" }: { target: number; prefix?: string; suffix?: string }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+  const started = useRef(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !started.current) {
+          started.current = true;
+          let start = 0;
+          const duration = 2000;
+          const step = (timestamp: number) => {
+            if (!start) start = timestamp;
+            const progress = Math.min((timestamp - start) / duration, 1);
+            setCount(Math.floor(progress * target));
+            if (progress < 1) requestAnimationFrame(step);
+          };
+          requestAnimationFrame(step);
+        }
+      },
+      { threshold: 0.5 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [target]);
+
   return (
-    <div className="text-center px-6">
-      <div className="text-2xl md:text-3xl font-bold text-white">{value}</div>
-      <div className="text-xs text-white/50 mt-1">{label}</div>
+    <div ref={ref} className="text-center">
+      <div className="text-3xl md:text-5xl font-bold text-white tabular-nums">
+        {prefix}{count.toLocaleString()}{suffix}
+      </div>
     </div>
   );
 }
 
-/* ── App Icon Chip ── */
-function AppChip({ icon: Icon, label, active, onClick }: { icon: any; label: string; active?: boolean; onClick?: () => void }) {
+/* ═══════════════════════════════════════════
+   FAQ Item
+   ═══════════════════════════════════════════ */
+function FaqItem({ question, answer }: { question: string; answer: string }) {
+  const [open, setOpen] = useState(false);
   return (
     <button
-      onClick={onClick}
-      className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-        active 
-          ? "bg-[#F46D2A] text-white" 
-          : "bg-[#152A20] text-white/70 hover:bg-[#1a3528] hover:text-white"
-      }`}
+      className="w-full text-left border-b border-white/[0.08] py-6 group"
+      onClick={() => setOpen(!open)}
     >
-      <Icon className="w-4 h-4" />
-      {label}
+      <div className="flex items-center justify-between gap-4">
+        <span className="text-[17px] font-medium text-white group-hover:text-white/90">{question}</span>
+        {open ? (
+          <ChevronUp className="w-5 h-5 text-white/40 flex-shrink-0" />
+        ) : (
+          <ChevronDown className="w-5 h-5 text-white/40 flex-shrink-0" />
+        )}
+      </div>
+      {open && (
+        <p className="text-white/50 text-[15px] mt-4 leading-[1.6] pr-8">{answer}</p>
+      )}
     </button>
   );
 }
 
-/* ── Business Model Card ── */
-function BusinessModelCard({ icon: Icon, title, description }: { icon: any; title: string; description: string }) {
-  return (
-    <div 
-      className="rounded-2xl p-6 transition-all hover:scale-[1.02] cursor-pointer"
-      style={{
-        background: "linear-gradient(135deg, #152A20 0%, #0f1f17 100%)",
-        border: "1px solid rgba(255,255,255,0.06)",
-      }}
-    >
-      <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(244, 109, 42, 0.15)" }}>
-        <Icon className="w-5 h-5 text-[#F46D2A]" />
-      </div>
-      <h3 className="text-white font-semibold text-lg mb-2">{title}</h3>
-      <p className="text-white/50 text-sm leading-relaxed">{description}</p>
-    </div>
-  );
-}
-
-/* ── Tool Feature Card ── */
-function ToolCard({ icon: Icon, title, description, highlight }: { icon: any; title: string; description: string; highlight?: boolean }) {
-  return (
-    <div 
-      className="rounded-2xl p-6 flex flex-col gap-3"
-      style={{
-        background: highlight 
-          ? "linear-gradient(135deg, rgba(244,109,42,0.12) 0%, rgba(15,31,23,1) 100%)" 
-          : "linear-gradient(135deg, #152A20 0%, #0f1f17 100%)",
-        border: highlight ? "1px solid rgba(244,109,42,0.2)" : "1px solid rgba(255,255,255,0.06)",
-      }}
-    >
-      <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: highlight ? "rgba(244,109,42,0.2)" : "rgba(255,255,255,0.06)" }}>
-        <Icon className={`w-5 h-5 ${highlight ? "text-[#F46D2A]" : "text-white/60"}`} />
-      </div>
-      <h3 className="text-white font-semibold">{title}</h3>
-      <p className="text-white/50 text-sm leading-relaxed">{description}</p>
-    </div>
-  );
-}
-
-/* ── FAQ Item ── */
-function FaqItem({ question, answer }: { question: string; answer: string }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div 
-      className="border-b border-white/8 py-5 cursor-pointer"
-      onClick={() => setOpen(!open)}
-    >
-      <div className="flex items-center justify-between">
-        <h3 className="text-white font-medium text-[15px]">{question}</h3>
-        {open ? <ChevronUp className="w-4 h-4 text-white/40" /> : <ChevronDown className="w-4 h-4 text-white/40" />}
-      </div>
-      {open && (
-        <p className="text-white/50 text-sm mt-3 leading-relaxed">{answer}</p>
-      )}
-    </div>
-  );
-}
-
-/* ── App Details Data ── */
+/* ═══════════════════════════════════════════
+   App data
+   ═══════════════════════════════════════════ */
 const apps = [
-  { icon: MessageSquare, label: "Chat", title: "Chat", description: "Talk to all of your community members in a live group chat.", features: ["Group messaging", "Private tiers", "Free or paid"] },
-  { icon: Video, label: "Livestreams", title: "Livestreams", description: "Go live with your audience and engage in real-time.", features: ["HD streaming", "Chat overlay", "Recordings"] },
-  { icon: Users, label: "Forums", title: "Forums", description: "Build threaded discussions for deeper community engagement.", features: ["Topic threads", "Moderation", "Pinned posts"] },
-  { icon: BookOpen, label: "Courses", title: "Courses", description: "Create and sell structured educational content.", features: ["Video lessons", "Quizzes", "Certificates"] },
-  { icon: Gift, label: "Content rewards", title: "Content Rewards", description: "Reward your most engaged community members.", features: ["Points system", "Badges", "Leaderboards"] },
-  { icon: FileText, label: "Files", title: "Files", description: "Share downloadable resources with your audience.", features: ["Secure hosting", "Download tracking", "Version control"] },
-  { icon: Calendar, label: "Calendar bookings", title: "Calendar Bookings", description: "Let customers book time with you directly.", features: ["Auto scheduling", "Reminders", "Timezone support"] },
-  { icon: Layout, label: "Content", title: "Content", description: "Publish gated content for your subscribers.", features: ["Rich editor", "Media embeds", "Access tiers"] },
+  {
+    icon: "/discover/icon-chat.webp",
+    iconLg: "/discover/icon-chat-lg.webp",
+    label: "Chat",
+    title: "Chat",
+    desc: "Talk to all of your community members in a live group chat.",
+    features: ["Group messaging", "Private tiers", "Free or paid"],
+    preview: "/discover/preview-chat.webp",
+  },
+  {
+    icon: "/discover/icon-livestreams.webp",
+    label: "Livestreams",
+    title: "Livestreams",
+    desc: "Go live with your audience in HD. Engage with real-time chat, replays and recordings.",
+    features: ["HD streaming", "Live chat overlay", "Automatic recordings"],
+    preview: "/discover/preview-chat.webp",
+  },
+  {
+    icon: "/discover/icon-forums.webp",
+    label: "Forums",
+    title: "Forums",
+    desc: "Build threaded discussions for deeper community engagement and knowledge sharing.",
+    features: ["Topic threads", "Moderation tools", "Pinned posts"],
+    preview: "/discover/preview-chat.webp",
+  },
+  {
+    icon: "/discover/icon-courses.webp",
+    label: "Courses",
+    title: "Courses",
+    desc: "Create and sell structured educational content with video lessons and quizzes.",
+    features: ["Video lessons", "Progress tracking", "Certificates"],
+    preview: "/discover/preview-chat.webp",
+  },
+  {
+    icon: "/discover/icon-content-rewards.webp",
+    label: "Content rewards",
+    title: "Content Rewards",
+    desc: "Reward your most engaged community members with points, badges and perks.",
+    features: ["Points system", "Custom badges", "Leaderboards"],
+    preview: "/discover/preview-chat.webp",
+  },
+  {
+    icon: "/discover/icon-files.webp",
+    label: "Files",
+    title: "Files",
+    desc: "Share downloadable resources securely with your audience.",
+    features: ["Secure hosting", "Download tracking", "Version control"],
+    preview: "/discover/preview-chat.webp",
+  },
+  {
+    icon: "/discover/icon-calendar.webp",
+    label: "Calendar bookings",
+    title: "Calendar Bookings",
+    desc: "Let customers book 1:1 or group sessions with you directly.",
+    features: ["Auto scheduling", "Reminders", "Timezone support"],
+    preview: "/discover/preview-chat.webp",
+  },
+  {
+    icon: "/discover/icon-content.webp",
+    label: "Content",
+    title: "Content",
+    desc: "Publish gated content for your subscribers with a rich editor.",
+    features: ["Rich editor", "Media embeds", "Access tiers"],
+    preview: "/discover/preview-chat.webp",
+  },
+  {
+    icon: "/discover/icon-discord.webp",
+    label: "Discord",
+    title: "Discord",
+    desc: "Gate access to your Discord server and manage roles automatically.",
+    features: ["Role syncing", "Auto-invite", "Access revocation"],
+    preview: "/discover/preview-chat.webp",
+  },
+  {
+    icon: "/discover/icon-telegram.webp",
+    label: "Telegram",
+    title: "Telegram",
+    desc: "Monetize your Telegram groups and channels with gated access.",
+    features: ["Auto-invite links", "Member management", "Payment gating"],
+    preview: "/discover/preview-chat.webp",
+  },
+  {
+    icon: "/discover/icon-events.webp",
+    label: "Events",
+    title: "Events",
+    desc: "Host virtual or in-person events and sell tickets to your audience.",
+    features: ["Ticketing", "Reminders", "Check-in system"],
+    preview: "/discover/preview-chat.webp",
+  },
 ];
 
-/* ── Business Models Data ── */
+/* Business models */
 const businessModels = [
-  { icon: BookOpen, title: "Coaching & Courses", description: "Sell knowledge through structured courses, 1:1 coaching, and group mentorship programs." },
-  { icon: Users, title: "Paid Communities", description: "Build exclusive communities with gated access, premium content, and member-only perks." },
-  { icon: Zap, title: "Agencies", description: "Manage clients, deliver services, and scale your agency with built-in tools." },
-  { icon: Globe, title: "Software", description: "Distribute and monetize your software products with licensing and access management." },
-  { icon: TrendingUp, title: "Platforms", description: "Launch your own marketplace or platform and earn from every transaction." },
+  { title: "Coaching and courses", href: "#" },
+  { title: "Paid group", href: "#" },
+  { title: "Agency", href: "#" },
+  { title: "Software", href: "#" },
+  { title: "Platforms", href: "#" },
 ];
 
-/* ── FAQ Data ── */
+/* Tools data */
+const tools = [
+  {
+    title: "My store",
+    desc: "Launch a high-converting store page in seconds.",
+    mockup: (
+      <div className="rounded-xl overflow-hidden bg-[#1a1a1a] p-4 h-[200px] flex flex-col gap-3">
+        <div className="h-3 w-20 rounded bg-white/10" />
+        <div className="flex-1 rounded-lg bg-gradient-to-br from-orange-500/20 to-orange-600/10 flex items-center justify-center">
+          <div className="text-center">
+            <div className="h-8 w-8 rounded-full bg-orange-500/30 mx-auto mb-2" />
+            <div className="h-2 w-16 rounded bg-white/10 mx-auto" />
+          </div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    title: "Payments",
+    desc: "Accept payments in hundreds of countries.",
+    mockup: (
+      <div className="rounded-xl overflow-hidden bg-[#1a1a1a] p-4 h-[200px] flex flex-col justify-between">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-white/60 text-xs">New payment</span>
+            <span className="text-white text-sm font-semibold">$760.00</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-white/60 text-xs">New payment</span>
+            <span className="text-white text-sm font-semibold">$341.50</span>
+          </div>
+        </div>
+        <div className="flex items-end gap-1 h-16">
+          {[40, 60, 35, 80, 55, 70, 90, 45, 65, 75, 50, 85].map((h, i) => (
+            <div key={i} className="flex-1 rounded-sm bg-green-500/40" style={{ height: `${h}%` }} />
+          ))}
+        </div>
+      </div>
+    ),
+  },
+  {
+    title: "Affiliates",
+    desc: "Track your sales in real time and access user data.",
+    mockup: (
+      <div className="rounded-xl overflow-hidden bg-[#1a1a1a] p-4 h-[200px] flex flex-col justify-between">
+        <div className="space-y-1">
+          {["$10k", "$5k", "$2.5k", "$1k"].map((v) => (
+            <div key={v} className="flex items-center gap-2">
+              <span className="text-white/30 text-[10px] w-8">{v}</span>
+              <div className="flex-1 h-px bg-white/5" />
+            </div>
+          ))}
+        </div>
+        <div className="h-16 relative">
+          <svg viewBox="0 0 200 60" className="w-full h-full">
+            <path d="M0,50 C30,45 50,30 80,25 C110,20 140,35 170,15 L200,10" fill="none" stroke="rgba(74,222,128,0.6)" strokeWidth="2" />
+            <path d="M0,50 C30,45 50,30 80,25 C110,20 140,35 170,15 L200,10 L200,60 L0,60 Z" fill="url(#grad)" />
+            <defs>
+              <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="rgba(74,222,128,0.2)" />
+                <stop offset="100%" stopColor="rgba(74,222,128,0)" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
+    ),
+  },
+  {
+    title: "Mobile app",
+    desc: "Do it all right from your pocket with the full-featured Yangu mobile app.",
+    mockup: (
+      <div className="rounded-xl overflow-hidden bg-[#1a1a1a] p-4 h-[200px] flex items-center justify-center">
+        <div className="w-20 h-36 rounded-xl border border-white/10 bg-[#111] flex flex-col items-center justify-center gap-2">
+          <div className="w-6 h-6 rounded-lg bg-orange-500/30" />
+          <div className="h-1.5 w-10 rounded bg-white/10" />
+          <div className="h-1.5 w-8 rounded bg-white/5" />
+        </div>
+      </div>
+    ),
+  },
+  {
+    title: "Buy now, pay later",
+    desc: "Collect cash up front and enable your customers to pay over time.",
+    mockup: (
+      <div className="rounded-xl overflow-hidden bg-[#1a1a1a] p-4 h-[200px] flex flex-col items-center justify-center gap-3">
+        <div className="text-white/60 text-xs">Monetise</div>
+        <div className="w-full max-w-[140px] rounded-lg bg-blue-500/20 py-3 text-center">
+          <span className="text-white text-sm font-medium">Buy now</span>
+        </div>
+        <div className="w-full max-w-[140px] rounded-lg bg-white/5 py-3 text-center">
+          <span className="text-white/60 text-sm">Buy now</span>
+        </div>
+      </div>
+    ),
+  },
+  {
+    title: "Dispute fighter",
+    desc: "Yangu automatically handles and fights disputes on your behalf.",
+    mockup: (
+      <div className="rounded-xl overflow-hidden bg-[#1a1a1a] p-4 h-[200px] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 rounded-full bg-green-500/20 mx-auto mb-3 flex items-center justify-center">
+            <svg className="w-6 h-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <div className="h-2 w-20 rounded bg-white/10 mx-auto" />
+        </div>
+      </div>
+    ),
+  },
+];
+
+/* FAQ data */
 const faqs = [
-  { question: "What can I sell on Yangu?", answer: "You can sell almost anything digital — courses, coaching, community access, software, templates, services, and more. Yangu supports a wide range of business models from solo creators to full agencies." },
-  { question: "Why should I use Yangu?", answer: "Yangu provides an all-in-one platform to build, market, and scale your online business. With built-in AI tools, live video, payments, and community features, you don't need to piece together multiple services." },
-  { question: "How is Yangu different from other payment platforms?", answer: "Yangu isn't just a payment processor — it's a complete business platform. We handle payments, community, content delivery, marketing, and AI-powered growth tools all in one place." },
-  { question: "How is Yangu different from other social networks?", answer: "Unlike social networks that monetize your attention, Yangu is designed to monetize your expertise. Every feature is built to help creators earn sustainable income from their knowledge and skills." },
-  { question: "Can software developers use Yangu?", answer: "Absolutely. Yangu offers APIs, webhooks, CLI tools, and SDK access so developers can build custom integrations, distribute software, and create unique experiences on the platform." },
-  { question: "Does Yangu charge a subscription fee?", answer: "No. Yangu is free to start with no monthly subscription. We only take a small percentage per transaction, so you only pay when you earn." },
-  { question: "How does Yangu help with distribution?", answer: "Yangu's marketplace and discovery features help new customers find your products. Combined with built-in affiliate tools and SEO optimization, your reach grows organically." },
+  { q: "What can I sell on Whop?", a: "You can sell almost anything digital — courses, coaching, community access, software, templates, services, and more. Yangu supports a wide range of business models from solo creators to full agencies." },
+  { q: "Why should I use Whop?", a: "Yangu provides an all-in-one platform to build, market, and scale your online business. With built-in AI tools, live video, payments, and community features, you don't need to piece together multiple services." },
+  { q: "How is Whop different than other payment platforms?", a: "Yangu isn't just a payment processor — it's a complete business platform. We handle payments, community, content delivery, marketing, and AI-powered growth tools all in one place." },
+  { q: "How is Whop different than other social networks?", a: "Unlike social networks that monetize your attention, Yangu is designed to monetize your expertise. Every feature is built to help creators earn sustainable income from their knowledge and skills." },
+  { q: "Can software developers use Whop?", a: "Absolutely. Yangu offers APIs, webhooks, CLI tools, and SDK access so developers can build custom integrations, distribute software, and create unique experiences on the platform." },
+  { q: "Does Whop charge a subscription fee?", a: "No. Yangu is free to start with no monthly subscription. We only take a small percentage per transaction, so you only pay when you earn." },
+  { q: "How does Whop help with distribution?", a: "Yangu's marketplace and discovery features help new customers find your products. Combined with built-in affiliate tools and SEO optimization, your reach grows organically." },
 ];
 
-/* ── MAIN PAGE ── */
+/* ═══════════════════════════════════════════
+   MAIN PAGE COMPONENT
+   ═══════════════════════════════════════════ */
 export function DiscoverYanguPage() {
   const [activeApp, setActiveApp] = useState(0);
+  const [activeModel, setActiveModel] = useState(0);
 
   return (
-    <div className="min-h-screen" style={{ background: "#08120D" }}>
-      {/* ─── Top Nav ─── */}
-      <nav className="flex items-center justify-between px-6 md:px-12 py-5 max-w-[1200px] mx-auto">
-        <img src={yanguLogoFull} alt="Yangu" className="h-7" />
-        <div className="hidden md:flex items-center gap-8 text-sm text-white/60">
+    <div className="min-h-screen overflow-clip" style={{ background: "#08120D" }}>
+      {/* ──────── NAV ──────── */}
+      <nav className="relative z-20 flex items-center justify-between px-4 md:px-10 py-4 max-w-[1312px] mx-auto">
+        <img src={yanguLogoFull} alt="Yangu" className="h-6" />
+        <div className="hidden md:flex items-center gap-6 text-[14px] text-white/60">
           <a href="/community" className="hover:text-white transition-colors">Community</a>
           <a href="/why-yangu" className="hover:text-white transition-colors">Why Yangu</a>
           <a href="/ada-ai" className="hover:text-white transition-colors">Ada AI</a>
         </div>
-        <div className="flex items-center gap-3">
-          <a href="/auth/login" className="px-4 py-2 rounded-lg text-sm font-medium text-white hover:bg-white/5 transition-colors">
+        <div className="flex items-center gap-2">
+          <a href="/auth/login" className="px-4 py-2 rounded-lg text-[14px] font-medium text-white border border-white/10 hover:bg-white/5 transition-colors">
             Sign in
           </a>
-          <a 
-            href="/auth/signup" 
-            className="px-5 py-2.5 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-90"
-            style={{ background: "#F46D2A" }}
-          >
+          <a href="/auth/signup" className="px-4 py-2 rounded-lg text-[14px] font-medium text-white bg-[#F46D2A] hover:opacity-90 transition-opacity hidden sm:inline-block">
             Start selling
           </a>
         </div>
       </nav>
 
-      {/* ─── Hero ─── */}
-      <section className="text-center px-6 pt-16 pb-20 max-w-[900px] mx-auto">
-        <h1 className="text-5xl md:text-7xl font-bold leading-[1.05] tracking-tight mb-6">
-          <span className="text-white">Our mission is to deliver </span>
-          <span className="text-[#F46D2A]">everyone</span>
-          <span className="text-white"> a sustainable </span>
-          <span className="text-[#F46D2A]">income.</span>
-        </h1>
-        <p className="text-white/50 text-lg md:text-xl max-w-[600px] mx-auto mb-10 leading-relaxed">
-          Paid groups, software, coaching, courses, services — whatever you sell, Yangu is where the internet does business.
-        </p>
-        <a 
-          href="/auth/signup"
-          className="inline-block px-8 py-4 rounded-xl text-base font-semibold text-white transition-all hover:opacity-90 hover:scale-[1.02]"
-          style={{ background: "#F46D2A" }}
-        >
-          Start selling
-        </a>
-        <p className="text-white/30 text-sm mt-4">No subscription required</p>
-      </section>
+      <div className="flex flex-col gap-[160px] md:gap-[200px]">
 
-      {/* ─── Stats Bar ─── */}
-      <section className="flex items-center justify-center gap-8 md:gap-16 py-10 border-y border-white/6 max-w-[800px] mx-auto mb-20">
-        <StatItem value="$2.1B+" label="Made by sellers on Yangu" />
-        <StatItem value="82K+" label="Sellers on Yangu" />
-        <StatItem value="15M+" label="Users on Yangu" />
-      </section>
+        {/* ══════════════════════════════════════
+           SECTION 1 — HERO
+           ══════════════════════════════════════ */}
+        <section className="max-w-[1312px] mx-auto px-4 md:px-10 mt-20 flex flex-col items-center text-center">
+          <div className="max-w-[1250px] mx-auto">
+            <h1 className="text-[40px] md:text-[80px] font-bold leading-[110%] text-balance text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+              Our mission is to deliver{" "}
+              <span className="text-[#F46D2A]">everyone</span>{" "}
+              a sustainable{" "}
+              <span className="text-[#F46D2A]">income.</span>
+            </h1>
+          </div>
+          <p className="text-white/50 mt-4 text-[18px] md:text-[24px] leading-[125%] text-balance max-w-[600px]">
+            Paid groups, software, coaching, courses, services — whatever you sell, Yangu is where the internet does business.
+          </p>
+          <a
+            href="/auth/signup"
+            className="mt-8 inline-flex items-center justify-center rounded-xl px-8 py-4 text-[16px] font-semibold text-white bg-[#3578F7] hover:bg-[#2b6ae0] transition-colors"
+          >
+            Start selling
+          </a>
+          <p className="text-white/30 text-[14px] mt-3">No subscription required</p>
 
-      {/* ─── Supported Business Models ─── */}
-      <section className="px-6 max-w-[1100px] mx-auto mb-24">
-        <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-4">
-          Supported business models
-        </h2>
-        <p className="text-white/40 text-center mb-12 max-w-[500px] mx-auto">
-          Whatever your business looks like, Yangu has the tools to help you grow.
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {businessModels.map((model) => (
-            <BusinessModelCard key={model.title} {...model} />
-          ))}
-        </div>
-      </section>
-
-      {/* ─── Build with Apps ─── */}
-      <section className="px-6 max-w-[1100px] mx-auto mb-24">
-        <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-4">
-          Build your product with Yangu apps
-        </h2>
-        <p className="text-white/40 text-center mb-10 max-w-[550px] mx-auto">
-          Pick from powerful apps like chat, courses, livestreams and more — and instantly give your customers a home base.
-        </p>
-
-        {/* App chips row */}
-        <div className="flex flex-wrap justify-center gap-2 mb-10">
-          {apps.map((app, i) => (
-            <AppChip key={app.label} icon={app.icon} label={app.label} active={i === activeApp} onClick={() => setActiveApp(i)} />
-          ))}
-        </div>
-
-        {/* Active App Detail */}
-        <div 
-          className="rounded-2xl p-8 md:p-12 max-w-[800px] mx-auto"
-          style={{
-            background: "linear-gradient(135deg, #152A20 0%, #0f1f17 100%)",
-            border: "1px solid rgba(255,255,255,0.06)",
-          }}
-        >
-          <div className="flex items-start gap-4 mb-6">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: "rgba(244,109,42,0.15)" }}>
-              {(() => { const Icon = apps[activeApp].icon; return <Icon className="w-6 h-6 text-[#F46D2A]" />; })()}
-            </div>
-            <div>
-              <h3 className="text-white text-xl font-bold">{apps[activeApp].title}</h3>
-              <p className="text-white/50 text-sm mt-1">{apps[activeApp].description}</p>
+          {/* Hero image area — large rounded card */}
+          <div className="mt-16 w-full max-w-[1100px] aspect-[16/9] rounded-2xl overflow-hidden relative" style={{ background: "linear-gradient(180deg, #1a1a1a 0%, #111 100%)", border: "1px solid rgba(255,255,255,0.06)" }}>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center">
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-amber-400/30 to-orange-500/20 mx-auto mb-4 flex items-center justify-center">
+                  <img src={yanguYIcon} alt="" className="w-12 h-12 opacity-60" />
+                </div>
+                <div className="text-white/80 text-xl font-semibold mb-1">YANGU</div>
+                <div className="flex items-center justify-center gap-8 mt-4 text-white/40 text-sm">
+                  <span>458 products</span>
+                  <span>19.5M members</span>
+                  <span>287 reviews</span>
+                </div>
+              </div>
             </div>
           </div>
-          <ul className="space-y-2 mb-8">
-            {apps[activeApp].features.map((f) => (
-              <li key={f} className="flex items-center gap-3 text-white/60 text-sm">
-                <Star className="w-3.5 h-3.5 text-[#F46D2A]" />
-                {f}
-              </li>
-            ))}
-          </ul>
-          <a 
-            href="/auth/signup"
-            className="inline-block px-6 py-3 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
-            style={{ background: "#F46D2A" }}
-          >
-            Get started
-          </a>
-        </div>
-      </section>
+        </section>
 
-      {/* ─── All Tools Section ─── */}
-      <section className="px-6 max-w-[1100px] mx-auto mb-24">
-        <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-4">
-          All the tools you need to grow, all in one app
-        </h2>
-        <p className="text-white/40 text-center mb-12 max-w-[500px] mx-auto">
-          From storefront to payments, everything you need is built in.
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <ToolCard icon={Store} title="My Store" description="Launch a high-converting store page in seconds. Showcase your products beautifully." highlight />
-          <ToolCard icon={CreditCard} title="Payments" description="Accept payments in hundreds of countries with instant payouts and low fees." />
-          <ToolCard icon={BarChart3} title="Affiliates" description="Track your sales in real time and access detailed user data and analytics." />
-          <ToolCard icon={Smartphone} title="Mobile App" description="Do it all right from your pocket with the full-featured Yangu mobile app." />
-          <ToolCard icon={Clock} title="Buy Now, Pay Later" description="Collect cash up front and enable your customers to pay over time." />
-          <ToolCard icon={Shield} title="Dispute Fighter" description="Yangu automatically handles and fights disputes on your behalf." />
-        </div>
-      </section>
-
-      {/* ─── Pricing Section ─── */}
-      <section className="px-6 max-w-[600px] mx-auto mb-24">
-        <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-12">
-          Yangu pricing
-        </h2>
-        <div 
-          className="rounded-2xl p-10 text-center"
-          style={{
-            background: "linear-gradient(135deg, #152A20 0%, #0f1f17 100%)",
-            border: "1px solid rgba(255,255,255,0.08)",
-          }}
-        >
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6" style={{ background: "rgba(244,109,42,0.12)" }}>
-            <Sparkles className="w-8 h-8 text-[#F46D2A]" />
+        {/* ══════════════════════════════════════
+           SECTION 2 — STATS
+           ══════════════════════════════════════ */}
+        <section className="max-w-[1312px] mx-auto px-4 md:px-10 w-full">
+          <div className="grid grid-cols-3 gap-4">
+            <div className="text-center">
+              <AnimatedCounter target={2600931795} prefix="$" />
+              <p className="text-white/40 text-[13px] mt-2">Made by sellers on Yangu</p>
+            </div>
+            <div className="text-center">
+              <AnimatedCounter target={181449} />
+              <p className="text-white/40 text-[13px] mt-2">Sellers on Yangu</p>
+            </div>
+            <div className="text-center">
+              <AnimatedCounter target={14044120} />
+              <p className="text-white/40 text-[13px] mt-2">Users on Yangu</p>
+            </div>
           </div>
-          <div className="text-white/50 text-sm font-medium mb-2">Free to start</div>
-          <div className="text-white text-4xl font-bold mb-1">$0<span className="text-lg font-normal text-white/40">/ Month</span></div>
-          <p className="text-white/40 text-sm mb-8">Just 2.9% + $0.30 per transaction</p>
-          
-          <a 
-            href="/auth/signup"
-            className="inline-block px-8 py-3.5 rounded-xl text-sm font-semibold text-white w-full transition-opacity hover:opacity-90 mb-8"
-            style={{ background: "#F46D2A" }}
-          >
-            Start selling for free
-          </a>
+        </section>
 
-          <ul className="text-left space-y-3">
-            {[
-              "Accept payments and offer BNPL",
-              "Host courses, chats, livestreams, and more",
-              "Design store pages",
-              "Get listed on the Yangu Marketplace",
-              "Manage affiliates",
-            ].map((item) => (
-              <li key={item} className="flex items-center gap-3 text-white/60 text-sm">
-                <Heart className="w-3.5 h-3.5 text-[#F46D2A] flex-shrink-0" />
-                {item}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      {/* ─── FAQ ─── */}
-      <section className="px-6 max-w-[700px] mx-auto mb-24">
-        <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-12">
-          Frequently asked questions
-        </h2>
-        <div>
-          {faqs.map((faq) => (
-            <FaqItem key={faq.question} {...faq} />
-          ))}
-        </div>
-      </section>
-
-      {/* ─── Bottom CTA ─── */}
-      <section className="px-6 pb-20">
-        <div 
-          className="max-w-[900px] mx-auto rounded-2xl py-20 px-8 text-center"
-          style={{
-            background: "radial-gradient(ellipse at 40% 60%, #1a5c3a 0%, #0f3d2a 30%, #0a2e1e 50%, #0d1f15 70%, #0a1710 100%)",
-          }}
-        >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
-            Start selling with Yangu.
+        {/* ══════════════════════════════════════
+           SECTION 3 — SUPPORTED BUSINESS MODELS
+           ══════════════════════════════════════ */}
+        <section className="max-w-[1312px] mx-auto px-4 md:px-10 w-full">
+          <h2 className="text-[32px] md:text-[48px] font-bold text-white text-center leading-[110%]">
+            Supported business models
           </h2>
-          <a 
-            href="/auth/signup"
-            className="inline-block px-8 py-4 rounded-xl text-base font-semibold text-white transition-all hover:opacity-90 hover:scale-[1.02]"
-            style={{ background: "#F46D2A" }}
-          >
-            Get started
-          </a>
-        </div>
-      </section>
+          <div className="mt-12 flex flex-wrap justify-center gap-3">
+            {businessModels.map((model, i) => (
+              <button
+                key={model.title}
+                onClick={() => setActiveModel(i)}
+                className={`px-6 py-3 rounded-xl text-[15px] font-medium transition-all ${
+                  i === activeModel
+                    ? "bg-white text-black"
+                    : "bg-white/[0.06] text-white/70 hover:bg-white/[0.1] hover:text-white"
+                }`}
+              >
+                {model.title}
+              </button>
+            ))}
+          </div>
+        </section>
 
-      {/* ─── Footer ─── */}
+        {/* ══════════════════════════════════════
+           SECTION 4 — BUILD WITH APPS
+           ══════════════════════════════════════ */}
+        <section className="max-w-[1312px] mx-auto px-4 md:px-10 w-full">
+          <h2 className="text-[32px] md:text-[48px] font-bold text-white text-center leading-[110%]">
+            Build your product with Yangu apps
+          </h2>
+          <p className="text-white/50 text-[18px] md:text-[20px] text-center mt-4 max-w-[600px] mx-auto leading-[140%]">
+            Pick from thousands of apps, like chat, courses, livestreams and games — and instantly give your customers a home base.
+          </p>
+
+          {/* App chips row */}
+          <div className="mt-10 flex flex-wrap justify-center gap-2">
+            {apps.map((app, i) => (
+              <button
+                key={app.label}
+                onClick={() => setActiveApp(i)}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-[14px] font-medium transition-all ${
+                  i === activeApp
+                    ? "bg-white/[0.12] text-white ring-1 ring-white/20"
+                    : "bg-white/[0.04] text-white/50 hover:bg-white/[0.08] hover:text-white/70"
+                }`}
+              >
+                <img src={app.icon} alt="" className="w-5 h-5" />
+                {app.label}
+              </button>
+            ))}
+            <span className="flex items-center px-3 text-white/30 text-[14px]">+ More</span>
+          </div>
+
+          {/* Active app detail card */}
+          <div className="mt-10 max-w-[960px] mx-auto grid md:grid-cols-2 gap-0 rounded-2xl overflow-hidden" style={{ background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.06)" }}>
+            {/* Left — info */}
+            <div className="p-8 md:p-10 flex flex-col justify-center">
+              <div className="flex items-center gap-3 mb-4">
+                <img src={apps[activeApp].icon} alt="" className="w-10 h-10" />
+                <h3 className="text-white text-[22px] font-bold">{apps[activeApp].title}</h3>
+              </div>
+              <p className="text-white/50 text-[15px] leading-[1.6] mb-6">{apps[activeApp].desc}</p>
+              <ul className="space-y-2 mb-8">
+                {apps[activeApp].features.map((f) => (
+                  <li key={f} className="flex items-center gap-2 text-white/60 text-[14px]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white/30" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <a
+                href="/auth/signup"
+                className="inline-flex items-center justify-center rounded-xl px-6 py-3 text-[14px] font-semibold text-white bg-[#3578F7] hover:bg-[#2b6ae0] transition-colors w-fit"
+              >
+                Get started
+              </a>
+            </div>
+            {/* Right — preview */}
+            <div className="relative hidden md:block">
+              <img
+                src={apps[activeApp].preview}
+                alt={apps[activeApp].title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════
+           SECTION 5 — ALL TOOLS
+           ══════════════════════════════════════ */}
+        <section className="max-w-[1312px] mx-auto px-4 md:px-10 w-full">
+          <h2 className="text-[32px] md:text-[48px] font-bold text-white text-center leading-[110%]">
+            All the tools you need to grow, all in one app
+          </h2>
+          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {tools.map((tool) => (
+              <div
+                key={tool.title}
+                className="rounded-2xl overflow-hidden flex flex-col"
+                style={{ background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.06)" }}
+              >
+                {tool.mockup}
+                <div className="p-5 pt-4">
+                  <h3 className="text-white font-semibold text-[16px] mb-1">{tool.title}</h3>
+                  <p className="text-white/40 text-[14px] leading-[1.5]">{tool.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════
+           SECTION 6 — PRICING
+           ══════════════════════════════════════ */}
+        <section className="max-w-[1312px] mx-auto px-4 md:px-10 w-full">
+          <h2 className="text-[32px] md:text-[48px] font-bold text-white text-center leading-[110%]">
+            Whop pricing
+          </h2>
+          <div className="mt-12 max-w-[480px] mx-auto rounded-2xl p-8 md:p-10 text-center" style={{ background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.06)" }}>
+            <img src="/discover/liberty.svg" alt="" className="w-16 h-16 mx-auto mb-6 opacity-80" />
+            <div className="text-white/50 text-[14px] font-medium mb-1">Free to start</div>
+            <div className="text-white text-[48px] font-bold leading-none">
+              $0<span className="text-[20px] font-normal text-white/40">/ Month</span>
+            </div>
+            <p className="text-white/40 text-[14px] mt-2 mb-8">Just 2.7% + $0.30 per transaction</p>
+            <a
+              href="/auth/signup"
+              className="block w-full rounded-xl py-3.5 text-[15px] font-semibold text-white bg-[#3578F7] hover:bg-[#2b6ae0] transition-colors mb-8"
+            >
+              Start selling for free
+            </a>
+            <ul className="text-left space-y-3">
+              {[
+                "Accept payments and offer BNPL",
+                "Host courses, chats, livestreams, and more",
+                "Design store pages",
+                "Get listed on the Yangu Marketplace",
+                "Manage affiliates",
+              ].map((item) => (
+                <li key={item} className="flex items-center gap-3 text-white/60 text-[14px]">
+                  <ChevronRight className="w-4 h-4 text-white/30 flex-shrink-0" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════
+           SECTION 7 — FAQ
+           ══════════════════════════════════════ */}
+        <section className="max-w-[1312px] mx-auto px-4 md:px-10 w-full">
+          <h2 className="text-[32px] md:text-[48px] font-bold text-white text-center leading-[110%]">
+            Frequently asked questions
+          </h2>
+          <div className="mt-12 max-w-[720px] mx-auto">
+            {faqs.map((faq) => (
+              <FaqItem key={faq.q} question={faq.q} answer={faq.a} />
+            ))}
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════
+           SECTION 8 — BOTTOM CTA
+           ══════════════════════════════════════ */}
+        <section className="max-w-[1312px] mx-auto px-4 md:px-10 w-full pb-20">
+          <div className="rounded-2xl py-20 px-8 text-center relative overflow-hidden" style={{ background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.06)" }}>
+            <img src="/discover/car.svg" alt="" className="w-32 h-32 mx-auto mb-6 opacity-60" />
+            <h2 className="text-[40px] md:text-[56px] font-bold text-white leading-[110%]">
+              Start selling with Yangu.
+            </h2>
+            <a
+              href="/auth/signup"
+              className="mt-8 inline-flex items-center justify-center rounded-xl px-8 py-4 text-[16px] font-semibold text-white bg-[#3578F7] hover:bg-[#2b6ae0] transition-colors"
+            >
+              Get started
+            </a>
+          </div>
+        </section>
+      </div>
+
+      {/* ──────── FOOTER ──────── */}
       <footer className="py-8 text-center">
         <div className="flex items-center justify-center gap-2 text-white/50 text-sm">
           <span>©</span>
