@@ -11,7 +11,7 @@ import yanguLogo from "@/assets/yangu-logo-community.png";
 function CreatorSpotlight() {
   return (
     <section className="w-full" style={{ backgroundColor: "#FFFFFF" }}>
-      <div className="mx-auto max-w-[1200px] px-6 pb-4 pt-10">
+      <div className="mx-auto max-w-[1200px] px-6 pb-4 pt-14">
         <div className="mb-5 flex items-center justify-between">
           <h2 className="text-[16px] font-bold" style={{ color: "#111827" }}>
             Creators you might like
@@ -28,7 +28,7 @@ function CreatorSpotlight() {
       </div>
       {/* Full-width horizontal scroll of large portrait cards */}
       <div
-        className="flex gap-3 overflow-x-auto px-6"
+        className="flex gap-4 overflow-x-auto px-6 pb-6"
         style={{ scrollbarWidth: "none" }}
       >
         {creatorItems.map((creator) => (
@@ -36,7 +36,7 @@ function CreatorSpotlight() {
             key={creator.id}
             href="#"
             className="group relative shrink-0 overflow-hidden rounded-2xl"
-            style={{ width: "180px", height: "240px" }}
+            style={{ width: "210px", height: "280px" }}
           >
             <img
               src={creator.image}
