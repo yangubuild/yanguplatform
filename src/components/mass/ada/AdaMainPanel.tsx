@@ -163,13 +163,13 @@ export function AdaMainPanel() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setChatMode(chatMode === "search" ? null : "search")}
-                      className={`px-2 py-1 text-xs font-medium transition-colors ${chatMode === "search" ? "text-[#F46D2A]" : "text-white/30 hover:text-white/50"}`}
+                      className={`px-2 py-1 text-xs font-medium transition-colors ${chatMode === "search" ? "text-[#F4A83D]" : "text-white/30 hover:text-white/50"}`}
                     >
                       Search
                     </button>
                     <button
                       onClick={() => setChatMode(chatMode === "discuss" ? null : "discuss")}
-                      className={`px-2 py-1 text-xs font-medium transition-colors ${chatMode === "discuss" ? "text-[#F46D2A]" : "text-white/30 hover:text-white/50"}`}
+                      className={`px-2 py-1 text-xs font-medium transition-colors ${chatMode === "discuss" ? "text-[#F4A83D]" : "text-white/30 hover:text-white/50"}`}
                     >
                       Discuss
                     </button>
