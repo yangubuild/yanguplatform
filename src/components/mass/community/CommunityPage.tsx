@@ -47,7 +47,7 @@ function CreatorSpotlight() {
             <div
               className="absolute inset-0"
               style={{
-                background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 50%)",
+                background: "linear-gradient(to top, rgba(234,120,50,0.7) 0%, rgba(234,120,50,0.3) 30%, rgba(0,0,0,0) 60%)",
               }}
             />
             {/* Name + role at bottom */}
