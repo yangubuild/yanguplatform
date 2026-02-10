@@ -4,10 +4,13 @@ import { MassSidebar } from "../MassSidebar";
 import { MassHeader } from "../MassHeader";
 import { WhyYanguSidebar } from "./WhyYanguSidebar";
 import { WhyYanguContent } from "./WhyYanguContent";
+import { WhyYanguDevelopersContent } from "./WhyYanguDevelopersContent";
+import { AudienceToggle, type Audience } from "./AudienceToggle";
 import yanguYIcon from "@/assets/yangu-y-icon.png";
 
 export function WhyYanguPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [audience, setAudience] = useState<Audience>("builders");
 
   return (
     <div className="min-h-screen" style={{ background: "#08120D" }}>
@@ -27,16 +30,21 @@ export function WhyYanguPage() {
         <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-10 py-6 pt-16 lg:pt-8">
           <MassHeader />
 
+          {/* Audience toggle */}
+          <div className="flex items-center gap-3 mt-6">
+            <AudienceToggle value={audience} onChange={setAudience} />
+          </div>
+
           {/* Page layout: sidebar + content */}
-          <div className="flex gap-8 mt-8">
+          <div className="flex gap-8 mt-6">
             {/* Left sidebar nav */}
             <div className="hidden md:block w-[220px] flex-shrink-0">
-              <WhyYanguSidebar />
+              <WhyYanguSidebar audience={audience} />
             </div>
 
             {/* Right content area */}
             <div className="flex-1 min-w-0">
-              <WhyYanguContent />
+              {audience === "builders" ? <WhyYanguContent /> : <WhyYanguDevelopersContent />}
             </div>
           </div>
         </div>
