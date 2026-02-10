@@ -1,4 +1,5 @@
 import { useCommunityTheme, getThemeColors } from "./CommunityThemeContext";
+import bottomCtaBg from "@/assets/bottom-cta-bg.jpg";
 
 export function BottomCta() {
   const { theme } = useCommunityTheme();
@@ -8,7 +9,7 @@ export function BottomCta() {
     <section className="w-full px-6 pb-0 transition-colors duration-300" style={{ backgroundColor: c.bg }}>
       <div
         className="mx-auto max-w-[1200px] overflow-hidden rounded-2xl px-10 py-16"
-        style={{ background: "linear-gradient(135deg, #EF4444 0%, #F97316 100%)" }}
+        style={{ backgroundImage: `url(${bottomCtaBg})`, backgroundSize: "cover", backgroundPosition: "center" }}
       >
         <div className="flex items-center justify-between">
           <div>
