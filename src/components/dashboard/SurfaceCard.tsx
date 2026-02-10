@@ -182,42 +182,48 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
   };
 
   const attemptListOnCommunity = async () => {
-    // Step: Eligibility check
-    console.log("[Community] Step: can_list_on_community →", { p_surface_id: surface.id });
-    const { data: eligible, error: eligError } = await (supabase.rpc as any)("can_list_on_community", {
-      p_surface_id: surface.id,
-    });
-    console.log("[Community] can_list_on_community result:", { eligible, error: eligError });
-    if (eligError) {
-      console.error("[Community] FAIL can_list_on_community:", eligError);
-      toast.error(eligError.message);
-      return;
-    }
-    if (!eligible) {
-      console.warn("[Community] Not eligible — stopping flow");
-      toast.error("Not eligible for Community (must be published on yangu.community).");
-      return;
-    }
-
-    // Step: List
+    // Call list_on_community directly — it enforces all eligibility rules server-side
     console.log("[Community] Step: list_on_community →", { p_surface_id: surface.id });
     const { data: listResult, error: listError } = await (supabase.rpc as any)("list_on_community", {
       p_surface_id: surface.id,
     });
     console.log("[Community] list_on_community result:", { data: listResult, error: listError });
+
     if (listError) {
       console.error("[Community] FAIL list_on_community:", listError);
-      toast.error(listError.message);
+      // Map known RPC error codes to user-friendly messages
+      const msg = listError.message || "";
+      if (msg.includes("surface_archived")) {
+        toast.error("Surface is archived — unarchive it first.");
+      } else if (msg.includes("not_eligible")) {
+        toast.error("Must be published on yangu.community first.");
+      } else if (msg.includes("permission") || msg.includes("denied")) {
+        toast.error("You don't have permission to list this surface.");
+      } else {
+        toast.error(msg || "Failed to list on Community");
+      }
       return;
     }
-    if (listResult && !listResult.success) {
+
+    // Handle structured { success, error } response
+    if (listResult && typeof listResult === "object" && "success" in listResult && !listResult.success) {
       console.error("[Community] list_on_community returned failure:", listResult);
-      toast.error(listResult.error || "Failed to list on Community");
+      const errMsg = (listResult as any).error || "";
+      if (errMsg.includes("surface_archived")) {
+        toast.error("Surface is archived — unarchive it first.");
+      } else if (errMsg.includes("not_eligible")) {
+        toast.error("Must be published on yangu.community first.");
+      } else if (errMsg.includes("permission") || errMsg.includes("denied")) {
+        toast.error("You don't have permission to list this surface.");
+      } else {
+        toast.error(errMsg || "Failed to list on Community");
+      }
       return;
     }
+
     toast.success("Listed on Community");
 
-    // Refetch listing row
+    // Refetch listing row for verification
     console.log("[Community] Refetching community_listings for surface", surface.id);
     const { data: listingRow, error: fetchErr } = await (supabase as any)
       .from("community_listings")
@@ -226,7 +232,7 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
       .maybeSingle();
     console.log("[Community] community_listings row:", listingRow, "error:", fetchErr);
 
-    // Invalidate queries to update UI
+    // Invalidate queries to update UI (badge + menu toggle)
     invalidateCommunity();
     console.log("[Community] === DONE ===");
   };
