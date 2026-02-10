@@ -15,14 +15,14 @@ export function CommunityFilterBar({ onFilterChange }: CommunityFilterBarProps) 
 
   return (
     <div
-      className="sticky top-[56px] z-20 w-full border-b px-6"
+      className="sticky top-0 z-20 w-full border-b px-6"
       style={{ backgroundColor: "#FFFFFF", borderColor: "#E5E7EB" }}
     >
       <div
-        className="mx-auto flex max-w-[1200px] gap-1.5 overflow-x-auto py-2.5 scrollbar-hide"
+        className="mx-auto flex max-w-[1200px] gap-1.5 overflow-x-auto py-2.5"
         style={{ scrollbarWidth: "none" }}
       >
-        <style>{`.scrollbar-hide::-webkit-scrollbar { display: none; }`}</style>
+        <style>{`.scrollbar-hide::-webkit-scrollbar{display:none}`}</style>
         {categories.map((cat) => {
           const isActive = active === cat;
           return (
@@ -33,7 +33,7 @@ export function CommunityFilterBar({ onFilterChange }: CommunityFilterBarProps) 
               style={
                 isActive
                   ? { backgroundColor: "#111827", color: "#FFFFFF" }
-                  : { backgroundColor: "transparent", color: "#4B5563", border: "1px solid #E5E7EB" }
+                  : { backgroundColor: "#F3F4F6", color: "#4B5563" }
               }
             >
               {cat}
