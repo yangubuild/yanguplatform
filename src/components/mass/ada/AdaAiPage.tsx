@@ -9,7 +9,7 @@ export function AdaAiPage() {
   return (
     <div
       className="min-h-screen flex"
-      style={{ background: "#0e0e0e" }}
+      style={{ background: "#08120D" }}
     >
       {/* Mobile menu button */}
       <button
