@@ -160,7 +160,10 @@ export function AdaMainPanel() {
                     <Plus className="w-4 h-4" />
                   </button>
                   <div className="flex items-center gap-2">
-                    <button className="px-4 py-1.5 rounded-full text-sm font-medium text-white/50 border border-white/10 hover:text-white/70 transition-colors">
+                    <button className="px-3 py-1 rounded-full text-xs font-medium text-white/50 border border-white/10 hover:text-white/70 transition-colors">
+                      Search
+                    </button>
+                    <button className="px-3 py-1 rounded-full text-xs font-medium text-white/50 border border-white/10 hover:text-white/70 transition-colors">
                       Discuss
                     </button>
                     <button
