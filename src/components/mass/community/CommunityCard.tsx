@@ -8,7 +8,7 @@ export function CommunityCard({ item }: CommunityCardProps) {
   return (
     <a href="#" className="group block">
       {/* Thumbnail */}
-      <div className="relative aspect-[16/10] overflow-hidden rounded-xl">
+      <div className="relative aspect-[16/10] overflow-hidden rounded-2xl">
         <img
           src={item.image}
           alt={item.title}
@@ -27,9 +27,16 @@ export function CommunityCard({ item }: CommunityCardProps) {
           </span>
         )}
       </div>
+      {/* Description */}
+      <p
+        className="mt-3 text-[14px] leading-[1.5] line-clamp-2"
+        style={{ color: "#374151" }}
+      >
+        {item.description}
+      </p>
       {/* Title */}
       <h3
-        className="mt-3 text-[14px] font-semibold leading-snug"
+        className="mt-1 text-[14px] font-semibold leading-snug"
         style={{ color: "#111827" }}
       >
         {item.title}
