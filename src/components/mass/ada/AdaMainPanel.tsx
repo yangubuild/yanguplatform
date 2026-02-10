@@ -172,8 +172,8 @@ export function AdaMainPanel() {
                     <button
                       onClick={handleSend}
                       disabled={!inputValue.trim()}
-                      className="w-9 h-9 rounded-full flex items-center justify-center transition-colors disabled:opacity-30"
-                      style={{ background: inputValue.trim() ? "linear-gradient(135deg, #D4952B, #F4A83D)" : "rgba(255,255,255,0.1)" }}
+                      className="w-9 h-9 rounded-full flex items-center justify-center transition-colors"
+                      style={{ background: "linear-gradient(135deg, #D4952B, #F4A83D)" }}
                     >
                       <ArrowUp className="w-5 h-5 text-white" />
                     </button>
