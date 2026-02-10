@@ -12,11 +12,11 @@ export function CommunityTopBar() {
       <div className="mx-auto flex h-[64px] max-w-[1200px] items-center justify-between px-6">
         <div className="flex items-center gap-4">
           <a href="/" className="flex items-center">
-            <img
-              src={theme === "dark" ? yanguLogoFull : yanguLogo}
-              alt="Yangu"
-              className="h-10 w-auto"
-            />
+            {theme === "dark" ? (
+              <img src={yanguLogoFull} alt="Yangu" className="h-10 w-auto" />
+            ) : (
+              <img src={yanguLogo} alt="Yangu" className="h-12 w-auto" />
+            )}
           </a>
           <a
             href="#"
