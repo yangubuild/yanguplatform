@@ -27,6 +27,8 @@ import DevSeed from "./pages/dev/DevSeed";
 import TestDomainVerification from "./pages/dev/TestDomainVerification";
 import Studio from "./pages/Studio";
 
+console.log("[Supabase]", import.meta.env.VITE_SUPABASE_URL);
+
 /**
  * App component - contains all providers EXCEPT QueryClientProvider
  * QueryClientProvider is in main.tsx to ensure it wraps the entire app
