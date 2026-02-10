@@ -87,7 +87,7 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
     republishSurface,
   } = useSurfaceActions();
 
-  const { isListed, status: communityStatus, listOnCommunity, unlistFromCommunity } = useCommunityListing(surface.id);
+  const { isListed, status: communityStatus, listOnCommunity, unlistFromCommunity, invalidate: invalidateCommunity } = useCommunityListing(surface.id);
 
   const isArchived = !!surface.archived_at;
   const hasActivePublish = surface.activePublishes.length > 0;
@@ -166,10 +166,11 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
 
   // Community listing flow
   const handleListOnCommunity = async () => {
+    console.log("[Community] === START List on Community ===", { surfaceId: surface.id, archived_at: surface.archived_at });
     setCommunityLoading(true);
     try {
-      // If archived, show unarchive modal instead
       if (isArchived) {
+        console.log("[Community] Surface is archived, showing unarchive modal");
         setUnarchiveModalOpen(true);
         setCommunityLoading(false);
         return;
@@ -181,41 +182,92 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
   };
 
   const attemptListOnCommunity = async () => {
-    // Check eligibility first
+    // Step: Eligibility check
+    console.log("[Community] Step: can_list_on_community →", { p_surface_id: surface.id });
     const { data: eligible, error: eligError } = await (supabase.rpc as any)("can_list_on_community", {
       p_surface_id: surface.id,
     });
+    console.log("[Community] can_list_on_community result:", { eligible, error: eligError });
     if (eligError) {
+      console.error("[Community] FAIL can_list_on_community:", eligError);
       toast.error(eligError.message);
       return;
     }
     if (!eligible) {
+      console.warn("[Community] Not eligible — stopping flow");
       toast.error("Not eligible for Community (must be published on yangu.community).");
       return;
     }
 
-    // Attempt to list
-    listOnCommunity.mutate();
+    // Step: List
+    console.log("[Community] Step: list_on_community →", { p_surface_id: surface.id });
+    const { data: listResult, error: listError } = await (supabase.rpc as any)("list_on_community", {
+      p_surface_id: surface.id,
+    });
+    console.log("[Community] list_on_community result:", { data: listResult, error: listError });
+    if (listError) {
+      console.error("[Community] FAIL list_on_community:", listError);
+      toast.error(listError.message);
+      return;
+    }
+    if (listResult && !listResult.success) {
+      console.error("[Community] list_on_community returned failure:", listResult);
+      toast.error(listResult.error || "Failed to list on Community");
+      return;
+    }
+    toast.success("Listed on Community");
+
+    // Refetch listing row
+    console.log("[Community] Refetching community_listings for surface", surface.id);
+    const { data: listingRow, error: fetchErr } = await (supabase as any)
+      .from("community_listings")
+      .select("*")
+      .eq("surface_id", surface.id)
+      .maybeSingle();
+    console.log("[Community] community_listings row:", listingRow, "error:", fetchErr);
+
+    // Invalidate queries to update UI
+    invalidateCommunity();
+    console.log("[Community] === DONE ===");
   };
 
   const handleUnarchiveAndList = async () => {
     setUnarchiveModalOpen(false);
     setCommunityLoading(true);
     try {
-      // Unarchive first
+      // Step: Unarchive
+      console.log("[Community] Step: unarchive_surface →", { p_surface_id: surface.id, current_archived_at: surface.archived_at });
       const { data, error } = await supabase.rpc("unarchive_surface", {
         p_surface_id: surface.id,
       });
+      console.log("[Community] unarchive_surface result:", { data, error });
       if (error) {
+        console.error("[Community] FAIL unarchive_surface:", error);
         toast.error(error.message);
         return;
       }
       const result = data as unknown as { success: boolean; error?: string };
       if (!result?.success) {
+        console.error("[Community] unarchive_surface returned failure:", result);
         toast.error(result?.error || "Failed to unarchive surface");
         return;
       }
       toast.success("Surface restored");
+
+      // Verify unarchive by refetching
+      console.log("[Community] Verifying unarchive — refetching surface row");
+      const { data: freshSurface, error: refetchErr } = await (supabase as any)
+        .from("surfaces")
+        .select("id, archived_at")
+        .eq("id", surface.id)
+        .maybeSingle();
+      console.log("[Community] Surface after unarchive:", freshSurface, "error:", refetchErr);
+      if (freshSurface?.archived_at) {
+        console.error("[Community] Surface still archived after unarchive RPC!");
+        toast.error("Surface is still archived — cannot list on Community");
+        return;
+      }
+
       // Now attempt listing
       await attemptListOnCommunity();
     } finally {
