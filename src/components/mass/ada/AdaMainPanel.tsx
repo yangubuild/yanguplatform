@@ -17,7 +17,7 @@ export function AdaMainPanel() {
 
   const startVoice = () => {
     setMode("voice");
-    setVoiceText("Create a mystical, fantasy-style warrior standing on a cliff during sunset...");
+    setVoiceText("Help me build a brand strategy for my online store and set up my first surface...");
   };
 
   const stopVoice = () => {
