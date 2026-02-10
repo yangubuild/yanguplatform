@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { X, Mic, Settings, ChevronDown, Smartphone, Plus, ArrowUp, AudioLines } from "lucide-react";
+import { X, Mic, Settings, ChevronDown, Smartphone, Plus, ArrowUp, AudioLines, User } from "lucide-react";
 
 export function AdaMainPanel() {
   const [mode, setMode] = useState<"chat" | "voice">("chat");
@@ -61,7 +61,9 @@ export function AdaMainPanel() {
             <span className="text-[#F46D2A]">✦</span>
             Upgrade to Pro
           </button>
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-orange-600" />
+          <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+            <User className="w-4 h-4 text-white/50" />
+          </div>
         </div>
       </div>
 
