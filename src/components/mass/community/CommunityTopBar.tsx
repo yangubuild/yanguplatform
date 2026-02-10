@@ -46,13 +46,24 @@ export function CommunityTopBar() {
         </p>
 
         {/* Search */}
-        <div className="mx-auto mt-4 max-w-[340px]">
+        <div className="mx-auto mt-5 max-w-[420px]">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
             <input
               type="text"
               placeholder="Search"
-              className="w-full rounded-md border border-gray-200 bg-white py-[7px] pl-9 pr-3 text-[12px] text-gray-700 placeholder:text-gray-400 focus:border-gray-300 focus:outline-none"
+              className="w-full rounded-xl border border-gray-200 bg-gray-50 py-[12px] pl-11 pr-4 text-[14px] text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2"
+              style={{ 
+                transition: "border-color 0.2s, box-shadow 0.2s",
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = "#F46D2A";
+                e.target.style.boxShadow = "0 0 0 2px rgba(244,109,42,0.3)";
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = "#E5E7EB";
+                e.target.style.boxShadow = "none";
+              }}
             />
           </div>
         </div>
