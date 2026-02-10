@@ -10,44 +10,57 @@ import yanguLogo from "@/assets/yangu-logo-community.png";
 /* ── Creators you might like ── */
 function CreatorSpotlight() {
   return (
-    <section className="w-full px-6" style={{ backgroundColor: "#FFFFFF" }}>
-      <div className="mx-auto max-w-[1200px] pb-4 pt-10">
+    <section className="w-full" style={{ backgroundColor: "#FFFFFF" }}>
+      <div className="mx-auto max-w-[1200px] px-6 pb-4 pt-10">
         <div className="mb-5 flex items-center justify-between">
           <h2 className="text-[16px] font-bold" style={{ color: "#111827" }}>
             Creators you might like
           </h2>
           <div className="flex gap-1">
-            <button className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 text-gray-400 hover:text-gray-600">
+            <button className="flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 text-gray-400 hover:text-gray-600">
               <ChevronLeft size={16} />
             </button>
-            <button className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 text-gray-400 hover:text-gray-600">
+            <button className="flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 text-gray-400 hover:text-gray-600">
               <ChevronRight size={16} />
             </button>
           </div>
         </div>
-        <div className="flex gap-6 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
-          {creatorItems.map((creator) => (
-            <a
-              key={creator.id}
-              href="#"
-              className="group flex w-[140px] shrink-0 flex-col items-center text-center"
-            >
-              <div className="mb-2 h-[100px] w-[100px] overflow-hidden rounded-full">
-                <img
-                  src={creator.image}
-                  alt={creator.name}
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-              </div>
-              <h3 className="text-[13px] font-semibold" style={{ color: "#111827" }}>
+      </div>
+      {/* Full-width horizontal scroll of large portrait cards */}
+      <div
+        className="flex gap-3 overflow-x-auto px-6"
+        style={{ scrollbarWidth: "none" }}
+      >
+        {creatorItems.map((creator) => (
+          <a
+            key={creator.id}
+            href="#"
+            className="group relative shrink-0 overflow-hidden rounded-2xl"
+            style={{ width: "180px", height: "240px" }}
+          >
+            <img
+              src={creator.image}
+              alt={creator.name}
+              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+            {/* Gradient overlay */}
+            <div
+              className="absolute inset-0"
+              style={{
+                background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 50%)",
+              }}
+            />
+            {/* Name + role at bottom */}
+            <div className="absolute bottom-0 left-0 p-3">
+              <h3 className="text-[14px] font-bold leading-tight text-white">
                 {creator.name}
               </h3>
-              <p className="text-[11px]" style={{ color: "#9CA3AF" }}>
+              <p className="mt-0.5 text-[11px] text-white/70">
                 {creator.role}
               </p>
-            </a>
-          ))}
-        </div>
+            </div>
+          </a>
+        ))}
       </div>
     </section>
   );
