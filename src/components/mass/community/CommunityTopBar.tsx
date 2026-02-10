@@ -52,17 +52,10 @@ export function CommunityTopBar() {
             <input
               type="text"
               placeholder="Search"
-              className="w-full rounded-xl border border-gray-200 bg-gray-50 py-[12px] pl-11 pr-4 text-[14px] text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2"
-              style={{ 
-                transition: "border-color 0.2s, box-shadow 0.2s",
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = "#F46D2A";
-                e.target.style.boxShadow = "0 0 0 2px rgba(244,109,42,0.3)";
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = "#E5E7EB";
-                e.target.style.boxShadow = "none";
+              className="w-full rounded-2xl bg-white py-[12px] pl-11 pr-4 text-[14px] text-gray-700 placeholder:text-gray-400 focus:outline-none"
+              style={{
+                border: "1.5px solid rgba(244,109,42,0.25)",
+                boxShadow: "0 2px 12px rgba(244,109,42,0.1)",
               }}
             />
           </div>
