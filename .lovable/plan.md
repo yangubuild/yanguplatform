@@ -1,109 +1,46 @@
 
-# Landing Page: Match PDF Design Exactly
 
-This plan updates the landing page to exactly match the PDF screenshot, keeping only the existing card background images unchanged while updating everything else.
+# Fix "List on Community" — PostgREST Schema Cache Issue
 
-## Key Design Elements from PDF
+## Diagnosis
 
-1. **Full Dark Green/Teal Background** - The entire page has a gradient from `#0a1f1a` to `#0f2922` (dark green/teal), not grey/black
-2. **Sidebar with "Start Selling" CTA Box** - Blue text CTA box at bottom of sidebar with orange "Start Building" button
-3. **Header** - "View Trends" in orange with scrolling ticker, Sign in/Start selling buttons on right
-4. **Hero** - Green gradient background, "Build and. Sell Online." text, 3D Y icon
-5. **Search Bar** - Centered between hero and cards with search/mic icons
-6. **Resource Categories** - FEATURED, LEARN, BUILD, SCALE (not the current categories)
-7. **Cards** - Have icons, titles, subtitles and category labels (Sale, Learn, Build, Scale) on each card
+The frontend code is already correct. The 404 errors are NOT caused by missing code — they come from PostgREST not seeing `community_listings`, `list_on_community`, and `unlist_from_community` in its schema cache.
 
----
+No frontend logic changes are needed. The RPCs are called correctly.
 
-## Files to Update
+## What You Need To Do (on your side)
 
-### 1. MassLandingPage.tsx
-- Change page background from `#0f0f0f` (grey) to dark green gradient
-- Update section categories from (Featured, Inspiration, No Code, Templates, Ai, Typography, Design Tools) to (Featured, Learn, Build, Scale)
+Run this SQL in the Supabase SQL Editor (not a migration — just a command):
 
-### 2. MassSidebar.tsx
-- Add "Start Selling" CTA box with description text and orange "Start Building" button at bottom (before "Endorsed by" section)
-- Keep existing navigation structure
+```sql
+NOTIFY pgrst, 'reload schema';
+```
 
-### 3. resourceData.ts
-- Update ALL card data to match PDF exactly (titles, subtitles, categories)
-- Keep existing image URLs unchanged
-- Categories should be: "Sale", "Learn", "Build", "Scale"
-- Add subtitle field to each resource
+If that doesn't resolve the 404s, restart the PostgREST service from the Supabase dashboard (Settings > API > Reload).
 
-**FEATURED section cards:**
-1. Live Shopping - "Sell Products Live" - Sale
-2. Ada AI - "Your 24/7 AI assistant" - Sale  
-3. Digital E-Shop - "Sell Products Online" - Sale
-4. Digital Menu - "Increase your sales with digital menu" - Sale
-5. Social Marketing - "Grow Your Audience With AI" - Sale
-6. Learn From 1000+ Courses - "(Ebooks, courses, business skills)" - Learn
+## Frontend Change (small)
 
-**LEARN section cards:**
-1. Learn From 1000+ Courses - "(Ebooks, courses, business skills)" - Learn
-2. Organize Work Every Day - "(Tasks, goals, team planning)" - Learn
-3. Documents - "Create And Manage Documents" - Learn
+Add enhanced debug logging so you can see exactly what's happening after the schema reload:
 
-**BUILD section cards:**
-1. Business Name Generator - "Find A Business Name with AI" - Build
-2. Slogan Generator - "AI Creates A Catchy Slogan for you" - Build
-3. Mission Statement Generator - "AI Writes Your Mission" - Build
-4. Vision Statement Generator - "AI helps you Define Your Vision" - Build
-5. Design A Brand Logo - (Logo builder) - Build
-6. Website Builder - "Build Websites With AI" - Build
-7. Digital E-Shop - "Sell Products Online" - Build
-8. Real Estate - "Sale properties faster with AI" - Build
-9. E-Shop Connect - "Connect With Global Wholesalers" - Build
-10. Digital Menu - "Increase your sales with digital menu" - Build
-11. Digital Signature - "Sign Documents Online" - Build
+1. **In `useCommunityListing.ts`** — Add a `console.warn` when the `community_listings` query returns a 404, so it's clear the issue is schema cache vs. a real missing table:
 
-**SCALE section cards:**
-1. Social Marketing - "Grow Your Audience With AI" - Scale
-2. Live Shopping - "Sell Products Live" - Scale
-3. VLS (Video Live Selling) - "Sell With Live Video" - Scale
-4. CRM - "Manage Customer Relationships" - Scale
-5. Sales CRM - "Track Leads And Sales" - Scale
-6. Email Marketing - "Send Marketing Emails" - Scale
-7. Digital Reporting - "Track Business Performance" - Scale
-8. Ada AI - "Your 24/7 AI assistant" - Scale
+   - Log the full error object including `code` and `hint` fields
+   - Silently return `null` instead of throwing (so the UI stays functional)
 
-### 4. MassResourceCard.tsx
-- Add subtitle display below title
-- Show category label on each card (Sale, Learn, Build, Scale in different colors)
-- Keep glass star for featured cards
+2. **In `SurfaceCard.tsx`** — Add a one-line debug log at the top of `attemptListOnCommunity` showing `VITE_SUPABASE_URL` so you can confirm the correct instance is being hit.
 
-### 5. MassResourceSection.tsx
-- No major changes needed, just update styling if needed
+These are minor additions (under 5 lines total) to help you confirm when the schema cache reloads successfully.
 
-### 6. MassHero.tsx
-- Update subtitle text to: "Your all-in-one platform to build, market, and scale a business with live video and AI."
-- Keep green gradient background
+## Expected Outcome After Schema Reload
 
-### 7. MassSearchBar.tsx
-- Update placeholder to: "Search Yangu to buy, learn, create or sell..."
+- `POST /rpc/list_on_community` returns `200` with `{ success: true }` or a structured error
+- `GET /community_listings?surface_id=eq.xxx` returns `200` with the listing row
+- UI shows "Community" badge and "Unlist from Community" menu item
 
----
+## Technical Details
 
-## Color Scheme
+| File | Change |
+|------|--------|
+| `src/hooks/useCommunityListing.ts` | Gracefully handle 404 in listing query (warn + return null) |
+| `src/components/dashboard/SurfaceCard.tsx` | Log `VITE_SUPABASE_URL` at start of listing flow |
 
-| Element | Color |
-|---------|-------|
-| Page background | Dark green gradient `#0a1f1a` → `#0f2922` |
-| Sidebar | `#0f0f0f` (dark) |
-| Hero gradient | `#1a3a2e` → `#0f2922` → `#0a1f1a` |
-| Orange accent | `#f97316` |
-| "Sale" category | Orange `#f97316` |
-| "Learn" category | Teal/cyan `#14b8a6` |
-| "Build" category | Blue `#3b82f6` |
-| "Scale" category | Purple `#8b5cf6` |
-
----
-
-## Technical Implementation Order
-
-1. Update `MassLandingPage.tsx` - change background color
-2. Update `MassSidebar.tsx` - add Start Selling CTA box
-3. Update `resourceData.ts` - restructure to FEATURED, LEARN, BUILD, SCALE with new card data
-4. Update `MassResourceCard.tsx` - add subtitle display and category color coding
-5. Update `MassHero.tsx` - change subtitle text
-6. Update `MassSearchBar.tsx` - change placeholder text
