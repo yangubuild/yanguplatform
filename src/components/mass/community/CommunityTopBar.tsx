@@ -5,30 +5,37 @@ export function CommunityTopBar() {
   return (
     <header className="w-full" style={{ backgroundColor: "#FFFFFF" }}>
       {/* Nav row */}
-      <div className="mx-auto flex h-[48px] max-w-[1200px] items-center justify-between px-6">
-        <div className="flex items-center gap-3">
+      <div className="mx-auto flex h-[56px] max-w-[1200px] items-center justify-between px-6">
+        <div className="flex items-center gap-4">
           <a href="/" className="flex items-center">
-            <img src={yanguLogo} alt="Yangu" className="h-[24px] w-auto" />
+            <img src={yanguLogo} alt="Yangu" className="h-[32px] w-auto" />
           </a>
           <a
             href="#"
-            className="hidden text-[12px] text-gray-400 underline decoration-gray-300 underline-offset-2 hover:text-gray-600 sm:inline"
+            className="hidden text-[14px] text-gray-400 underline decoration-gray-300 underline-offset-2 hover:text-gray-600 sm:inline"
           >
             create a community
           </a>
         </div>
-        <div className="flex items-center gap-4">
-          <a href="#" className="hidden text-[12px] text-gray-500 hover:text-gray-700 sm:inline">
+        <div className="flex items-center gap-3">
+          <a href="#" className="hidden text-[14px] text-gray-500 hover:text-gray-700 sm:inline">
             List on community
           </a>
-          <a href="#" className="text-[12px] text-gray-500 hover:text-gray-700">
-            Login
-          </a>
           <button
-            className="rounded-md px-3.5 py-[5px] text-[12px] font-semibold text-white hover:opacity-90"
+            className="rounded-lg border px-5 py-[8px] text-[14px] font-medium transition-colors hover:opacity-90"
+            style={{
+              backgroundColor: "transparent",
+              borderColor: "#D1D5DB",
+              color: "#374151",
+            }}
+          >
+            Sign in
+          </button>
+          <button
+            className="rounded-lg px-5 py-[8px] text-[14px] font-medium text-white transition-colors hover:opacity-90"
             style={{ backgroundColor: "#F46D2A" }}
           >
-            Subscribe
+            Start selling
           </button>
         </div>
       </div>
