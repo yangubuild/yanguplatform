@@ -16,10 +16,10 @@ export function CommunityFilterBar({ onFilterChange }: CommunityFilterBarProps) 
 
   return (
     <div
-      className="sticky top-0 z-20 w-full border-b px-6"
-      style={{ backgroundColor: "#FFFFFF", borderColor: "#E5E7EB" }}
+      className="sticky top-0 z-20 w-full px-6"
+      style={{ backgroundColor: "#FFFFFF" }}
     >
-      <div className="mx-auto flex max-w-[1200px] items-center gap-3 py-3">
+      <div className="mx-auto flex max-w-[1200px] items-center gap-3 py-4">
         <div
           className="flex flex-1 gap-3 overflow-x-auto"
           style={{ scrollbarWidth: "none" }}
@@ -31,7 +31,7 @@ export function CommunityFilterBar({ onFilterChange }: CommunityFilterBarProps) 
               <button
                 key={cat}
                 onClick={() => handleClick(cat)}
-                className="shrink-0 whitespace-nowrap rounded-full px-4 py-[7px] text-[13px] font-medium transition-colors"
+                className="shrink-0 whitespace-nowrap rounded-lg px-4 py-[7px] text-[13px] font-medium transition-colors"
                 style={
                   isActive
                     ? { backgroundColor: "#111827", color: "#FFFFFF" }
