@@ -6,6 +6,7 @@ export function AdaMainPanel() {
   const [mode, setMode] = useState<"chat" | "voice">("chat");
   const [chatMode, setChatMode] = useState<"search" | "discuss" | null>(null);
   const [inputValue, setInputValue] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
   const [voiceText, setVoiceText] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -144,27 +145,33 @@ export function AdaMainPanel() {
               <div className="relative rounded-2xl p-[1px] overflow-hidden">
                 {/* Animated gradient border */}
                 <div
-                  className="absolute inset-0 rounded-2xl animate-spin"
+                  className="absolute inset-0 rounded-2xl animate-spin transition-opacity duration-500"
                   style={{
                     background: "conic-gradient(from 0deg, transparent 0%, rgba(212,149,43,0.45) 25%, rgba(244,168,61,0.45) 40%, transparent 50%, transparent 75%, rgba(212,149,43,0.45) 90%, rgba(244,168,61,0.45) 100%)",
                     animationDuration: "8s",
                     animationTimingFunction: "linear",
+                    animationPlayState: isFocused || inputValue ? "paused" : "running",
+                    opacity: isFocused || inputValue ? 0 : 1,
                   }}
                 />
                 {/* Glow layer */}
                 <div
-                  className="absolute inset-0 rounded-2xl animate-spin blur-md opacity-30"
+                  className="absolute inset-0 rounded-2xl animate-spin blur-md transition-opacity duration-500"
                   style={{
                     background: "conic-gradient(from 0deg, transparent 0%, #D4952B 25%, #F4A83D 40%, transparent 50%, transparent 75%, #D4952B 90%, #F4A83D 100%)",
                     animationDuration: "8s",
                     animationTimingFunction: "linear",
+                    animationPlayState: isFocused || inputValue ? "paused" : "running",
+                    opacity: isFocused || inputValue ? 0 : 0.3,
                   }}
                 />
-              <div className="relative rounded-2xl bg-[#050A07] p-4">
+              <div className="relative rounded-2xl p-4 transition-colors duration-500" style={{ background: "#050A07", border: isFocused || inputValue ? "1px solid rgba(255,255,255,0.1)" : "none" }}>
                 <textarea
                   ref={textareaRef}
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
+                  onFocus={() => setIsFocused(true)}
+                  onBlur={() => setIsFocused(false)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
