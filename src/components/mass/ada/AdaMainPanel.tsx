@@ -169,20 +169,13 @@ export function AdaMainPanel() {
                       className="absolute inset-0 w-full h-full pointer-events-none transition-opacity duration-500"
                       style={{ opacity: isFocused || inputValue ? 0 : 1 }}
                     >
-                      <defs>
-                        <linearGradient id="traceGrad" gradientUnits="userSpaceOnUse">
-                          <stop offset="0%" stopColor="rgba(244,168,61,0.5)" />
-                          <stop offset="40%" stopColor="rgba(212,149,43,0.3)" />
-                          <stop offset="100%" stopColor="transparent" />
-                        </linearGradient>
-                      </defs>
                       <rect
                         x="0.5" y="0.5"
                         width={boxSize.w - 1} height={boxSize.h - 1}
                         rx="16" ry="16"
                         fill="none"
-                        stroke="url(#traceGrad)"
-                        strokeWidth="1"
+                        stroke="rgba(244,168,61,0.6)"
+                        strokeWidth="1.5"
                         style={{
                           strokeDasharray: `${dashLen} ${gapLen}`,
                           strokeDashoffset: 0,
