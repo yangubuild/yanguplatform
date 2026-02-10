@@ -49,7 +49,7 @@ export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
         className={`fixed left-0 top-0 h-screen w-[280px] flex flex-col z-50 transition-transform duration-300 lg:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
-        style={{ background: "#1a1a1a" }}
+        style={{ background: "#0A1710" }}
       >
         {/* Close button mobile */}
         <button

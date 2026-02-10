@@ -40,7 +40,7 @@ export function AdaMainPanel() {
       className="lg:ml-[280px] flex-1 min-h-screen flex flex-col"
       style={{
         background:
-          "radial-gradient(ellipse at 50% 100%, rgba(212,149,43,0.10) 0%, rgba(14,14,14,0) 60%), #0e0e0e",
+          "radial-gradient(ellipse at 50% 100%, rgba(212,149,43,0.10) 0%, rgba(8,18,13,0) 60%), #08120D",
       }}
     >
       {/* Top bar */}
