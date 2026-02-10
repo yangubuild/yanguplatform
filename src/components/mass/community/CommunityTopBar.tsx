@@ -3,7 +3,7 @@ import yanguLogo from "@/assets/yangu-logo-community.png";
 
 export function CommunityTopBar() {
   return (
-    <header className="w-full border-b" style={{ backgroundColor: "#FFFFFF", borderColor: "#E5E7EB" }}>
+    <header className="w-full" style={{ backgroundColor: "#FFFFFF" }}>
       {/* Nav row */}
       <div className="mx-auto flex h-[48px] max-w-[1200px] items-center justify-between px-6">
         <div className="flex items-center gap-3">
