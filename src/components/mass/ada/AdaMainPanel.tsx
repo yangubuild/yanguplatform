@@ -4,6 +4,7 @@ import adaLogo from "@/assets/ada-logo-full.png";
 
 export function AdaMainPanel() {
   const [mode, setMode] = useState<"chat" | "voice">("chat");
+  const [chatMode, setChatMode] = useState<"search" | "discuss" | null>(null);
   const [inputValue, setInputValue] = useState("");
   const [voiceText, setVoiceText] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -160,10 +161,16 @@ export function AdaMainPanel() {
                     <Plus className="w-4 h-4" />
                   </button>
                   <div className="flex items-center gap-2">
-                    <button className="px-3 py-1 rounded-full text-xs font-medium text-white/50 border border-white/10 hover:text-white/70 transition-colors">
+                    <button
+                      onClick={() => setChatMode(chatMode === "search" ? null : "search")}
+                      className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${chatMode === "search" ? "text-[#F46D2A] border-[#F46D2A]/40 bg-[#F46D2A]/10" : "text-white/50 border-white/10 hover:text-white/70"}`}
+                    >
                       Search
                     </button>
-                    <button className="px-3 py-1 rounded-full text-xs font-medium text-white/50 border border-white/10 hover:text-white/70 transition-colors">
+                    <button
+                      onClick={() => setChatMode(chatMode === "discuss" ? null : "discuss")}
+                      className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${chatMode === "discuss" ? "text-[#F46D2A] border-[#F46D2A]/40 bg-[#F46D2A]/10" : "text-white/50 border-white/10 hover:text-white/70"}`}
+                    >
                       Discuss
                     </button>
                     <button
