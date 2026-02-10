@@ -1,4 +1,5 @@
 import { Search } from "lucide-react";
+import yanguLogo from "@/assets/yangu-logo-community.png";
 import yanguLogoFull from "@/assets/yangu-logo-full.png";
 import { useCommunityTheme, getThemeColors } from "./CommunityThemeContext";
 
@@ -12,10 +13,9 @@ export function CommunityTopBar() {
         <div className="flex items-center gap-4">
           <a href="/" className="flex items-center">
             <img
-              src={yanguLogoFull}
+              src={theme === "dark" ? yanguLogoFull : yanguLogo}
               alt="Yangu"
               className="h-10 w-auto"
-              style={{ filter: theme === "light" ? "brightness(0)" : "none" }}
             />
           </a>
           <a
