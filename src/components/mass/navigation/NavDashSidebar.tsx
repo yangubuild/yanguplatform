@@ -75,16 +75,16 @@ export function NavDashSidebar({ isOpen = true, onClose }: NavDashSidebarProps) 
           >
             <TrendingUp
               className="w-5 h-5 shrink-0"
-              style={{ color: "#b5622a" }}
+              style={{ color: "#6dbb8a" }}
             />
             <div className="min-w-0">
               <span
                 className="text-lg font-semibold block leading-tight"
-                style={{ color: "#b5622a" }}
+                style={{ color: "#6dbb8a" }}
               >
                 $1,532,492.32
               </span>
-              <span className="text-xs" style={{ color: "#b5622a" }}>
+              <span className="text-xs" style={{ color: "#6dbb8a" }}>
                 + 22.6%
               </span>
               <span className="text-[10px] block mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>
