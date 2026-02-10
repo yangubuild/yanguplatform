@@ -23,7 +23,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
         >
           <Menu className="w-5 h-5" />
         </button>
-        <img src={yanguLogo} alt="Yangu" className="h-7 w-auto" />
+        <img src={yanguLogo} alt="Yangu" className="h-10 w-auto" />
       </div>
 
       {/* Right */}
