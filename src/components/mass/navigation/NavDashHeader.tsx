@@ -41,7 +41,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
 
         {/* Balance pill */}
         <button
-          className="flex items-center gap-2 h-9 px-3 rounded-full"
+          className="flex items-center gap-2 h-9 px-3 rounded-lg"
           style={{
             background: "#2a3038",
             color: "rgba(255,255,255,0.75)",
@@ -49,7 +49,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
         >
           <div
             className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold"
-            style={{ background: "#E74C3C", color: "#fff" }}
+            style={{ background: "linear-gradient(135deg, #b5622a 0%, #5c2a12 100%)", color: "#fff" }}
           >
             $
           </div>
@@ -59,9 +59,9 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
 
         {/* Deposit button */}
         <button
-          className="h-9 px-5 rounded-full text-xs font-bold text-white"
+          className="h-9 px-5 rounded-lg text-xs font-bold text-white"
           style={{
-            background: "linear-gradient(90deg, #4ade80 0%, #f59e0b 100%)",
+            background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)",
           }}
         >
           Deposit
