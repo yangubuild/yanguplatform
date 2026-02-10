@@ -151,6 +151,9 @@ export function AdaMainPanel() {
                     <Plus className="w-4 h-4" />
                   </button>
                   <div className="flex items-center gap-2">
+                    <button className="px-4 py-1.5 rounded-full text-sm font-medium text-white" style={{ background: "#F46D2A" }}>
+                      Discuss
+                    </button>
                     <button
                       onClick={startVoice}
                       className="w-9 h-9 rounded-full flex items-center justify-center text-white/40 hover:text-white/70 transition-colors"
