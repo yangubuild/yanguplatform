@@ -11,8 +11,9 @@ import {
   Monitor,
   Package,
   Users,
+  TrendingUp,
 } from "lucide-react";
-import yanguLogo from "@/assets/yangu-logo-full.png";
+
 import adaIcon from "@/assets/ada-icon.png";
 
 const navItems = [
@@ -57,13 +58,27 @@ export function NavDashSidebar({ isOpen = true, onClose }: NavDashSidebarProps) 
         }`}
         style={{ background: "#1a2025" }}
       >
-        {/* Logo */}
+        {/* Daily Sales Metric */}
         <div className="px-3 pt-3 pb-1">
           <div
-            className="rounded-xl px-3 py-2.5 flex items-center gap-2"
+            className="rounded-xl px-3 py-2.5 flex items-center gap-2.5"
             style={{ background: "#232a30" }}
           >
-            <img src={yanguLogo} alt="Yangu" className="h-8 w-auto" />
+            <TrendingUp
+              className="w-5 h-5 shrink-0"
+              style={{ color: "#4ade80" }}
+            />
+            <div className="min-w-0">
+              <span
+                className="text-lg font-semibold block leading-tight"
+                style={{ color: "#4ade80" }}
+              >
+                $1,532,492.32
+              </span>
+              <span className="text-xs" style={{ color: "#4ade80" }}>
+                + 22.6%
+              </span>
+            </div>
           </div>
         </div>
 
@@ -85,9 +100,9 @@ export function NavDashSidebar({ isOpen = true, onClose }: NavDashSidebarProps) 
                   className="w-full flex items-center justify-between gap-2.5 px-3 py-2.5 rounded-xl text-sm transition-colors mb-0.5"
                   style={{
                     background: isActive
-                      ? "linear-gradient(90deg, rgba(74,222,128,0.18) 0%, rgba(250,204,21,0.13) 100%)"
+                      ? "linear-gradient(90deg, rgba(74,222,128,0.22) 0%, rgba(74,222,128,0.08) 100%)"
                       : "transparent",
-                    color: isActive ? "#facc15" : "rgba(255,255,255,0.7)",
+                    color: isActive ? "#4ade80" : "rgba(255,255,255,0.7)",
                   }}
                 >
                   <div className="flex items-center gap-3">
@@ -106,14 +121,14 @@ export function NavDashSidebar({ isOpen = true, onClose }: NavDashSidebarProps) 
                         className="w-[18px] h-[18px]"
                         strokeWidth={1.8}
                         style={{
-                          color: isActive ? "#facc15" : undefined,
+                          color: isActive ? "#4ade80" : undefined,
                         }}
                       />
                     ) : null}
                     {item.dot && (
                       <span
                         className="w-2 h-2 rounded-full -ml-1.5"
-                        style={{ background: "#facc15" }}
+                        style={{ background: "#4ade80" }}
                       />
                     )}
                     <span className="font-medium">{item.label}</span>
@@ -124,9 +139,9 @@ export function NavDashSidebar({ isOpen = true, onClose }: NavDashSidebarProps) 
                         className="text-[10px] px-1.5 py-0.5 rounded-md font-bold"
                         style={{
                           background: isActive
-                            ? "rgba(250,204,21,0.2)"
+                            ? "rgba(74,222,128,0.2)"
                             : "rgba(74,222,128,0.15)",
-                          color: isActive ? "#facc15" : "#4ade80",
+                          color: "#4ade80",
                         }}
                       >
                         {item.badge}
