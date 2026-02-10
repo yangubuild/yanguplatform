@@ -1,14 +1,17 @@
 export function CommunityHero() {
   return (
-    <section className="w-full py-16 sm:py-20 px-4 text-center" style={{ backgroundColor: "#FFFFFF" }}>
+    <section
+      className="w-full px-6 pb-8 pt-14 text-center sm:pt-20"
+      style={{ backgroundColor: "#FFFFFF" }}
+    >
       <h1
-        className="text-4xl sm:text-5xl lg:text-6xl font-bold max-w-3xl mx-auto leading-tight"
+        className="mx-auto max-w-[680px] text-[36px] font-extrabold leading-[1.15] tracking-tight sm:text-[48px] lg:text-[56px]"
         style={{ color: "#111827" }}
       >
         Whatever it is, there's a Circle for that
       </h1>
       <p
-        className="mt-4 text-lg sm:text-xl max-w-xl mx-auto"
+        className="mx-auto mt-4 max-w-[480px] text-[16px] leading-relaxed sm:text-[18px]"
         style={{ color: "#6B7280" }}
       >
         Find communities, creators, and products that transform your life

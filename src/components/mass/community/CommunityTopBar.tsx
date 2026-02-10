@@ -1,38 +1,65 @@
 export function CommunityTopBar() {
   return (
-    <header className="w-full border-b" style={{ backgroundColor: "#FFFFFF", borderColor: "#E5E7EB" }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <header
+      className="sticky top-0 z-30 w-full border-b"
+      style={{ backgroundColor: "#FFFFFF", borderColor: "#E5E7EB" }}
+    >
+      <div className="mx-auto flex h-[60px] max-w-[1200px] items-center justify-between px-6">
         {/* Logo */}
-        <div className="flex items-center gap-2">
-          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-            <circle cx="14" cy="14" r="14" fill="#111827" />
-            <circle cx="14" cy="14" r="6" fill="#FFFFFF" />
+        <a href="/" className="flex items-center gap-2">
+          {/* Circle ring icon matching discover.circle.so */}
+          <svg
+            width="32"
+            height="32"
+            viewBox="0 0 32 32"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle cx="16" cy="16" r="15" stroke="#111827" strokeWidth="2" fill="none" />
+            <circle cx="16" cy="16" r="7" fill="#111827" />
           </svg>
-          <span className="text-lg font-semibold" style={{ color: "#111827" }}>Discover</span>
-        </div>
+          <span
+            className="text-[17px] font-semibold tracking-tight"
+            style={{ color: "#111827" }}
+          >
+            Discover
+          </span>
+        </a>
 
         {/* Actions */}
         <div className="flex items-center gap-2">
           <button
-            className="hidden sm:inline-flex px-4 py-2 text-sm font-medium rounded-lg border transition-colors"
-            style={{ color: "#374151", borderColor: "#D1D5DB", backgroundColor: "transparent" }}
+            className="hidden items-center rounded-lg border px-4 py-[7px] text-[14px] font-medium transition-colors hover:bg-gray-50 sm:inline-flex"
+            style={{
+              color: "#374151",
+              borderColor: "#D1D5DB",
+              backgroundColor: "transparent",
+            }}
           >
             Create a Circle
           </button>
           <button
-            className="hidden sm:inline-flex px-4 py-2 text-sm font-medium rounded-lg border transition-colors"
-            style={{ color: "#374151", borderColor: "#D1D5DB", backgroundColor: "transparent" }}
+            className="hidden items-center rounded-lg border px-4 py-[7px] text-[14px] font-medium transition-colors hover:bg-gray-50 sm:inline-flex"
+            style={{
+              color: "#374151",
+              borderColor: "#D1D5DB",
+              backgroundColor: "transparent",
+            }}
           >
             List on Discover
           </button>
           <button
-            className="px-4 py-2 text-sm font-medium rounded-lg border transition-colors"
-            style={{ color: "#374151", borderColor: "#D1D5DB", backgroundColor: "transparent" }}
+            className="inline-flex items-center rounded-lg border px-4 py-[7px] text-[14px] font-medium transition-colors hover:bg-gray-50"
+            style={{
+              color: "#374151",
+              borderColor: "#D1D5DB",
+              backgroundColor: "transparent",
+            }}
           >
             Login
           </button>
           <button
-            className="px-4 py-2 text-sm font-medium rounded-lg text-white transition-colors"
+            className="inline-flex items-center rounded-lg px-4 py-[7px] text-[14px] font-medium text-white transition-colors hover:opacity-90"
             style={{ backgroundColor: "#7C3AED" }}
           >
             Subscribe
