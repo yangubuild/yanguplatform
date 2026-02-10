@@ -26,6 +26,7 @@ import Billing from "./pages/Billing";
 import DevSeed from "./pages/dev/DevSeed";
 import TestDomainVerification from "./pages/dev/TestDomainVerification";
 import Studio from "./pages/Studio";
+import Community from "./pages/Community";
 
 console.log("[Supabase]", import.meta.env.VITE_SUPABASE_URL);
 
@@ -46,6 +47,7 @@ const App = () => (
               <Routes>
                 {/* Public routes */}
                 <Route path="/" element={<Index />} />
+                <Route path="/community" element={<Community />} />
                 
                 {/* Owner preview route - requires auth + ownership */}
                 <Route path="/s/:id/preview" element={<SurfacePreview />} />

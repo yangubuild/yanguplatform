@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Home,
   Info,
@@ -37,6 +38,7 @@ interface MassSidebarProps {
 }
 
 export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
+  const navigate = useNavigate();
   const [activeItem, setActiveItem] = useState("why-yangu");
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
@@ -49,7 +51,10 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
     return (
       <button
         key={item.id}
-        onClick={() => setActiveItem(item.id)}
+        onClick={() => {
+          setActiveItem(item.id);
+          if (item.id === "community") navigate("/community");
+        }}
         onMouseEnter={() => setHoveredItem(item.id)}
         onMouseLeave={() => setHoveredItem(null)}
         className="relative w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm transition-all mb-1"
