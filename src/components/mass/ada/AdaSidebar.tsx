@@ -11,6 +11,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import adaIcon from "@/assets/ada-icon.png";
+import adaLogo from "@/assets/ada-logo-full.png";
 
 const sidebarNavItems = [
   { icon: PenLine, label: "Chat", id: "chat" },
@@ -60,8 +61,7 @@ export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
 
         {/* Header */}
         <div className="flex items-center gap-3 px-5 pt-5 pb-2">
-          <img src={adaIcon} alt="Ada" className="w-7 h-7" />
-          <span className="text-white font-semibold text-base">AI Chat</span>
+          <img src={adaLogo} alt="Ada AI" className="h-7 w-auto" />
           <div className="flex-1" />
           <button className="text-white/40 hover:text-white/70">
             <Search className="w-4 h-4" />
@@ -93,7 +93,7 @@ export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
         <div className="px-4 pt-4 pb-2">
           <button
             className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg font-medium text-sm text-white transition-colors"
-            style={{ background: "#F46D2A" }}
+            style={{ background: "linear-gradient(135deg, #D4952B, #F4A83D)" }}
           >
             <span>+</span> New Chat
           </button>
@@ -127,7 +127,7 @@ export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
           <div
             className="rounded-xl p-4 flex items-center justify-between"
             style={{
-              background: "linear-gradient(135deg, #F46D2A 0%, #e85d1a 100%)",
+              background: "linear-gradient(135deg, #D4952B 0%, #F4A83D 100%)",
             }}
           >
             <div>

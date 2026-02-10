@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { X, Mic, Settings, ChevronDown, Smartphone, Plus, ArrowUp, AudioLines, User } from "lucide-react";
+import adaLogo from "@/assets/ada-logo-full.png";
 
 export function AdaMainPanel() {
   const [mode, setMode] = useState<"chat" | "voice">("chat");
@@ -39,13 +40,13 @@ export function AdaMainPanel() {
       className="lg:ml-[280px] flex-1 min-h-screen flex flex-col"
       style={{
         background:
-          "radial-gradient(ellipse at 50% 100%, rgba(244,109,42,0.10) 0%, rgba(14,14,14,0) 60%), #0e0e0e",
+          "radial-gradient(ellipse at 50% 100%, rgba(212,149,43,0.10) 0%, rgba(14,14,14,0) 60%), #0e0e0e",
       }}
     >
       {/* Top bar */}
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-2">
-          <span className="text-white/80 text-sm font-medium">Ada AI</span>
+          <img src={adaLogo} alt="Ada AI" className="h-6 w-auto" />
           <ChevronDown className="w-3.5 h-3.5 text-white/40" />
         </div>
         <div className="flex items-center gap-3">
@@ -58,7 +59,7 @@ export function AdaMainPanel() {
             <ChevronDown className="w-3 h-3" />
           </button>
           <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 text-white/50 text-sm hover:text-white/70">
-            <span className="text-[#F46D2A]">✦</span>
+            <span className="text-[#E0A030]">✦</span>
             Upgrade to Pro
           </button>
           <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
@@ -104,7 +105,7 @@ export function AdaMainPanel() {
             <p className="text-white/70 text-center text-base md:text-lg max-w-md mb-2 leading-relaxed">
               {voiceText.split("sunset").map((part, i, arr) =>
                 i < arr.length - 1 ? (
-                  <span key={i}>{part}<span className="text-[#F46D2A]">sunset</span></span>
+                  <span key={i}>{part}<span className="text-[#E0A030]">sunset</span></span>
                 ) : (
                   <span key={i}>{part}</span>
                 )
@@ -122,8 +123,8 @@ export function AdaMainPanel() {
               </button>
               <button
                 onClick={stopVoice}
-                className="w-14 h-14 rounded-full flex items-center justify-center text-white shadow-lg shadow-orange-500/20"
-                style={{ background: "#F46D2A" }}
+                className="w-14 h-14 rounded-full flex items-center justify-center text-white shadow-lg shadow-amber-500/20"
+                style={{ background: "linear-gradient(135deg, #D4952B, #F4A83D)" }}
               >
                 <ArrowUp className="w-6 h-6" />
               </button>
@@ -166,7 +167,7 @@ export function AdaMainPanel() {
                       onClick={handleSend}
                       disabled={!inputValue.trim()}
                       className="w-9 h-9 rounded-full flex items-center justify-center transition-colors disabled:opacity-30"
-                      style={{ background: inputValue.trim() ? "#F46D2A" : "rgba(255,255,255,0.1)" }}
+                      style={{ background: inputValue.trim() ? "linear-gradient(135deg, #D4952B, #F4A83D)" : "rgba(255,255,255,0.1)" }}
                     >
                       <ArrowUp className="w-5 h-5 text-white" />
                     </button>
