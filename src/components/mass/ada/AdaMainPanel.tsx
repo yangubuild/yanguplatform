@@ -196,14 +196,14 @@ export function AdaMainPanel() {
                         rx="16" ry="16"
                         fill="none"
                         stroke="#F4A83D"
-                        strokeWidth="1.5"
+                        strokeWidth="2"
                         style={{ strokeDasharray: `${dashLen} ${gapLen}` }}
                       />
                     </svg>
                     {/* Glow layer */}
                     <svg
-                      className="absolute inset-0 w-full h-full pointer-events-none blur-sm transition-opacity duration-500"
-                      style={{ opacity: isFocused || inputValue ? 0 : 0.4 }}
+                      className="absolute inset-0 w-full h-full pointer-events-none blur-md transition-opacity duration-500"
+                      style={{ opacity: isFocused || inputValue ? 0 : 0.6 }}
                     >
                       <rect
                         ref={glowRef}
@@ -212,7 +212,7 @@ export function AdaMainPanel() {
                         rx="16" ry="16"
                         fill="none"
                         stroke="#F4A83D"
-                        strokeWidth="3"
+                        strokeWidth="4"
                         style={{ strokeDasharray: `${dashLen} ${gapLen}` }}
                       />
                     </svg>
