@@ -92,8 +92,11 @@ export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
         {/* New Chat button */}
         <div className="px-4 pt-4 pb-2">
           <button
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg font-medium text-sm text-white transition-colors"
-            style={{ background: "linear-gradient(135deg, #D4952B, #F4A83D)" }}
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-medium text-sm text-white transition-all"
+            style={{
+              background: "linear-gradient(90deg, #C4841F 0%, rgba(212,149,43,0.45) 55%, rgba(26,26,26,0.18) 100%)",
+              boxShadow: "0 0 18px rgba(212,149,43,0.18)",
+            }}
           >
             <span>+</span> New Chat
           </button>
@@ -127,7 +130,8 @@ export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
           <div
             className="rounded-xl p-4 flex items-center justify-between"
             style={{
-               background: "linear-gradient(135deg, #C4841F 0%, #D4952B 40%, #F4A83D 100%)",
+              background: "linear-gradient(90deg, #C4841F 0%, rgba(212,149,43,0.45) 55%, rgba(26,26,26,0.18) 100%)",
+              boxShadow: "0 0 18px rgba(212,149,43,0.18)",
             }}
           >
             <div>
