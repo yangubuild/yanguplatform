@@ -222,7 +222,7 @@ export function NavDashSidebar({ isOpen = true, onClose }: NavDashSidebarProps) 
             </p>
             <button
               className="w-full py-2 rounded-lg text-xs font-bold text-white"
-              style={{ background: "linear-gradient(180deg, #f5c542 0%, #e8922d 100%)" }}
+              style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
             >
               See Plans
             </button>
