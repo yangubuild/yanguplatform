@@ -1,97 +1,87 @@
 
+# Navigation Dashboard Page
 
-# Add Community Page (discover.circle.so replica)
+## Overview
+Create a new isolated marketing page at `/navigation` that replicates the BC.GAME reference layout exactly -- a dark sidebar with expandable navigation categories, a top header bar with search/deposit/icons, and a main content area featuring promotional banner cards in a horizontal carousel/grid.
 
-## Scope
+## Page Structure (from the reference image)
 
-Add a pixel-accurate replica of `discover.circle.so` as a new `/community` route. This is a purely additive, front-end-only change. No existing routes, auth, logic, or shared UI will be touched.
+### 1. Left Sidebar
+- **App promo card** at top (dark card with "Application - Unlock Fun with Exclusive Features" + small image)
+- **Token ticker** row (icon + "BC Token" + red percentage badge + price)
+- **Nav items with chevron dropdowns:**
+  - Casino (with icon + chevron)
+  - Sports (with icon + chevron)
+  - Lottery (with icon + chevron)
+  - Crypto Futures (with icon + chevron)
+  - Promotions (with icon + chevron)
+- **Separator**
+- **Bottom nav items (no chevron):**
+  - VIP Club (with icon)
+  - Bonus (with icon + green "+120%" badge)
+  - Quest Hub (with icon)
 
-## What the page looks like (from discover.circle.so)
+Colors: Background `#1A1D26` (dark charcoal), text white/70, active items green-highlighted, badges in green/red.
 
-The page has a white/light background with these sections top-to-bottom:
+### 2. Top Header Bar
+- Hamburger menu icon (left)
+- Logo "BC.GAME" (left)
+- Right side: Search icon, currency selector ("AED 0.00" with dropdown), green "Deposit" button, gift icon, chat icon, bell icon, avatar circle
 
-1. **Top bar** -- Circle logo on left; "Create a Circle", "List on Discover", "Login" (ghost buttons), "Subscribe" (filled purple #7C3AED button) on right
-2. **Hero** -- Large heading: "Whatever it is, there's a Circle for that", subtitle: "Find communities, creators, and products that transform your life"
-3. **Category filter pills** -- Horizontal scrollable row: Explore (active by default), Be more productive, Start and scale my business, Improve my health, Grow my brand and audience, Build my tech skills, Lead with confidence, Grow my network, Strengthen my relationships, Grow my wealth, Pursue new interests
-4. **"Trending" section** -- Grid of community cards (3-col desktop, 2-col tablet, 1-col mobile)
-5. **More category sections** below with same card format
+Colors: Background `#1A1D26`, Deposit button green `#27AE60`, currency badge dark with red icon.
 
-Each **community card** has:
-- Large thumbnail image (rounded corners, aspect ~16:10)
-- Optional price pill overlay (e.g. "From $35 / month") at bottom-left of image
-- Community name below the image
-
-## Guardrails (confirmed)
-
-- `/` route: NOT modified -- remains `<Index />`
-- `/auth/*` routes: NOT modified
-- No redirects, route guards, or layout wrapper changes
-- `/community` inserted as a new public route above the `*` catch-all
+### 3. Main Content Area
+- Background: `#0E1116` (near-black)
+- **3 promotional banner cards** in a horizontal row:
+  - Card 1: "EXCLUSIVE" badge, "120% BONUS", "+ 100 FREE SPINS IN CASINO", "DEPOSIT NOW" button (dark outlined), casino wheel image (right side)
+  - Card 2: "EXCLUSIVE" badge, "80% BONUS", "+ 5 FREE BET IN SPORTS", "DEPOSIT NOW" button, sports trophy/helmet image, green "Check >" button
+  - Card 3: "EXCLUSIVE" badge, "DOUBLE THE SPINS", "BET $10 GET 20 FREE SPINS", "PLAY NOW" button, game artwork image
+- Each card has a green-tinted gradient background
+- Pagination dots below the cards
 
 ## Files to Create
 
 | File | Purpose |
 |------|---------|
-| `src/components/mass/community/CommunityPage.tsx` | Full page: top bar, hero, filters, card grid (white bg, standalone layout) |
-| `src/components/mass/community/CommunityHero.tsx` | Hero section -- heading + subtitle on white background |
-| `src/components/mass/community/CommunityTopBar.tsx` | Top bar with logo + action buttons |
-| `src/components/mass/community/CommunityFilterBar.tsx` | Horizontal scrollable category pills |
-| `src/components/mass/community/CommunityCard.tsx` | Card with image, optional price badge overlay, title |
-| `src/components/mass/community/CommunitySection.tsx` | Section wrapper ("Trending" heading + card grid) |
-| `src/components/mass/community/communityData.ts` | Static data: community items with image URLs, titles, prices, categories |
-| `src/components/mass/community/index.ts` | Barrel exports |
-| `src/pages/Community.tsx` | Thin page wrapper rendering CommunityPage |
+| `src/components/mass/navigation/NavigationDashboardPage.tsx` | Main page component with sidebar + header + content |
+| `src/components/mass/navigation/NavDashSidebar.tsx` | Left sidebar with app card, token ticker, nav items |
+| `src/components/mass/navigation/NavDashHeader.tsx` | Top header bar with search, deposit, icons |
+| `src/components/mass/navigation/NavDashPromoCards.tsx` | Horizontal promotional banner cards |
+| `src/components/mass/navigation/index.ts` | Barrel export |
+| `src/pages/NavigationDashboard.tsx` | Route page wrapper |
 
-## Files to Modify (minimal, targeted)
+## Files to Modify
 
 | File | Change |
 |------|--------|
-| `src/App.tsx` | Add import for `Community` page; insert `<Route path="/community" element={<Community />} />` after line 48 (the `/` route), before surface routes. No other changes. |
-| `src/components/mass/MassSidebar.tsx` | Change the "Community" nav item click handler to navigate to `/community` using `useNavigate` from react-router-dom. Only this one item is changed. |
+| `src/App.tsx` | Add route: `<Route path="/navigation" element={<NavigationDashboard />} />` |
+| `src/components/mass/MassSidebar.tsx` | Add "Navigation" nav item linking to `/navigation` |
 
-## Design Specifications
+## Technical Details
 
-- **Background**: `#FFFFFF` (white) -- distinct from the dark landing page
-- **Top bar**: White bg, Circle-style logo (text "Discover" or Yangu-branded), ghost buttons with subtle borders, "Subscribe" button filled purple `#7C3AED`
-- **Hero heading**: Black `#111827`, large bold ~48px, centered
-- **Hero subtitle**: Gray `#6B7280`, ~18px, centered
-- **Filter pills**: Rounded-full, light gray `#F3F4F6` inactive bg, dark `#111827` active bg with white text, horizontally scrollable with hidden scrollbar
-- **Card grid**: 3 columns desktop, 2 tablet, 1 mobile, gap-6
-- **Cards**: Rounded-xl corners, image fills top portion, optional "From $XX / month" badge (semi-transparent dark bg, white text, positioned bottom-left of image), title below in dark text
-- **Typography**: System sans-serif (Inter/default Tailwind)
+### Color Palette (exact from reference)
+- Page background: `#0E1116`
+- Sidebar/header background: `#1A1D26`
+- Card backgrounds: linear gradient with green tint (`#1B3D2E` to `#1A1D26`)
+- Green accent: `#27AE60` (deposit button, active states)
+- Red accent: `#E74C3C` (percentage badges)
+- "EXCLUSIVE" badge: dark `#2A2D36` with white border
+- Text primary: `#FFFFFF`
+- Text secondary: `rgba(255,255,255,0.5)`
+- Card border: `rgba(255,255,255,0.06)`
 
-## Community Data (sample entries matching discover.circle.so)
+### Icons
+All icons from `lucide-react`: `Search`, `ChevronDown`, `Gift`, `MessageSquare`, `Bell`, `Menu`, `Gamepad2`, `Trophy`, `Ticket`, `TrendingUp`, `Megaphone`, `Crown`, `Star`, `Compass`
 
-Categories: Explore, Productivity, Entrepreneurship, Health, Brand and Audience, Tech Skills, Leadership, Networking, Relationships, Wealth, New Interests
+### Layout
+- Sidebar: fixed left, `w-[220px]`, full height
+- Header: sticky top, full width minus sidebar
+- Content: scrollable below header, `lg:ml-[220px]`
+- Promo cards: `grid grid-cols-1 md:grid-cols-3 gap-4`
+- Cards: `rounded-xl`, `min-h-[180px]`, with right-side decorative images (placeholder colored circles since no real images)
 
-Each entry:
-```text
-{
-  image: string (placeholder community thumbnails)
-  title: string (community name)
-  price?: string (e.g. "From $35 / month")
-  category: string
-}
-```
-
-Approximately 15-20 sample community cards across "Trending" and category sections.
-
-## What is NOT touched
-
-- No auth changes
-- No database/backend changes
-- No RPC calls
-- No shared UI primitives modified
-- No existing page component modified
-- No route order changes except inserting one new route
-- No redirects or guards added
-- `/` continues to render `MassLandingPage`
-- All `/auth/*` routes unchanged
-
-## Acceptance Checks
-
-- Visiting `/` shows the current dark landing page (unchanged)
-- Visiting `/auth/signup` shows signup (unchanged)
-- Visiting `/community` shows the new white-background community discovery page
-- Clicking "Community" in the sidebar navigates to `/community`
-
+### Patterns
+- Follows the same isolated-page pattern as `/community`, `/ada-ai`, `/why-yangu`
+- This page has its **own sidebar** (`NavDashSidebar`) distinct from `MassSidebar`, matching the BC.GAME reference exactly
+- No auth, no platform logic, no backend -- purely static UI
+- Mobile responsive with hamburger menu toggle for sidebar
