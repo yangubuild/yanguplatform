@@ -18,14 +18,7 @@ import adaIcon from "@/assets/ada-icon.png";
 
 const navItems = [
   { icon: Compass, label: "Explore", chevron: true },
-  {
-    icon: Tag,
-    label: "Offers",
-    chevron: false,
-    active: true,
-    badge: "+120%",
-    dot: true,
-  },
+  { icon: Tag, label: "Offers", chevron: false, badge: "+120%", dot: true },
   { icon: null, label: "Ada AI", chevron: true, customIcon: "ada" },
   { icon: ShoppingBag, label: "Seller", chevron: true },
   { icon: Sparkles, label: "Influencer", chevron: true },
@@ -41,6 +34,7 @@ interface NavDashSidebarProps {
 }
 
 export function NavDashSidebar({ isOpen = true, onClose }: NavDashSidebarProps) {
+  const [activeItem, setActiveItem] = useState("Offers");
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
 
   return (
@@ -87,12 +81,13 @@ export function NavDashSidebar({ isOpen = true, onClose }: NavDashSidebarProps) 
           {navItems.map((item) => {
             const Icon = item.icon;
             const isExpanded = expandedItem === item.label;
-            const isActive = item.active;
+            const isActive = activeItem === item.label;
 
             return (
               <div key={item.label}>
                 <button
                   onClick={() => {
+                    setActiveItem(item.label);
                     if (item.chevron) {
                       setExpandedItem(isExpanded ? null : item.label);
                     }
