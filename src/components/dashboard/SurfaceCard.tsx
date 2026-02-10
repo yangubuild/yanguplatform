@@ -47,6 +47,8 @@ import {
   Loader2,
   CloudOff,
   Rocket,
+  Users,
+  UserMinus,
 } from "lucide-react";
 import {
   Tooltip,
@@ -55,6 +57,9 @@ import {
 } from "@/components/ui/tooltip";
 import type { SurfaceWithPublishes } from "@/hooks/useSurfaces";
 import { useSurfaceActions } from "@/hooks/useSurfaceActions";
+import { useCommunityListing } from "@/hooks/useCommunityListing";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface SurfaceCardProps {
   surface: SurfaceWithPublishes;
@@ -68,6 +73,8 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
   const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
   const [unpublishDialogOpen, setUnpublishDialogOpen] = useState(false);
   const [republishDialogOpen, setRepublishDialogOpen] = useState(false);
+  const [unarchiveModalOpen, setUnarchiveModalOpen] = useState(false);
+  const [communityLoading, setCommunityLoading] = useState(false);
   const [newTitle, setNewTitle] = useState(surface.title || "");
   const [selectedDomainId, setSelectedDomainId] = useState<string>("");
 
@@ -80,16 +87,14 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
     republishSurface,
   } = useSurfaceActions();
 
+  const { isListed, status: communityStatus, listOnCommunity, unlistFromCommunity } = useCommunityListing(surface.id);
+
   const isArchived = !!surface.archived_at;
   const hasActivePublish = surface.activePublishes.length > 0;
   const isPublished = hasActivePublish;
 
-  // For republish: find most recent publish record (from activePublishes which are already fetched)
-  // If not live, we need the last known publish info — but activePublishes is empty when unpublished.
-  // We'll store last publish info from the surface's draft fields as fallback.
   const lastPublish = surface.activePublishes[0] || null;
   const canRepublish = !isPublished && !isArchived && !!surface.draft_domain_id && !!surface.draft_slug;
-
 
   const handleRename = () => {
     if (newTitle.trim()) {
@@ -98,9 +103,6 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
         {
           onSuccess: (data) => {
             setRenameDialogOpen(false);
-            if (data?.slug_available === false) {
-              // Toast already shown by useSurfaceActions
-            }
           },
         }
       );
@@ -109,14 +111,12 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
 
   const handleUnpublish = () => {
     if (surface.activePublishes.length === 1) {
-      // Single publish - unpublish directly
       unpublishSurface.mutate({
         surfaceId: surface.id,
         domainId: surface.activePublishes[0].domain_id,
       });
       setUnpublishDialogOpen(false);
     } else if (selectedDomainId) {
-      // Multiple publishes - use selected domain
       unpublishSurface.mutate({
         surfaceId: surface.id,
         domainId: selectedDomainId,
@@ -164,6 +164,69 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
     setRepublishDialogOpen(false);
   };
 
+  // Community listing flow
+  const handleListOnCommunity = async () => {
+    setCommunityLoading(true);
+    try {
+      // If archived, show unarchive modal instead
+      if (isArchived) {
+        setUnarchiveModalOpen(true);
+        setCommunityLoading(false);
+        return;
+      }
+      await attemptListOnCommunity();
+    } finally {
+      setCommunityLoading(false);
+    }
+  };
+
+  const attemptListOnCommunity = async () => {
+    // Check eligibility first
+    const { data: eligible, error: eligError } = await (supabase.rpc as any)("can_list_on_community", {
+      p_surface_id: surface.id,
+    });
+    if (eligError) {
+      toast.error(eligError.message);
+      return;
+    }
+    if (!eligible) {
+      toast.error("Not eligible for Community (must be published on yangu.community).");
+      return;
+    }
+
+    // Attempt to list
+    listOnCommunity.mutate();
+  };
+
+  const handleUnarchiveAndList = async () => {
+    setUnarchiveModalOpen(false);
+    setCommunityLoading(true);
+    try {
+      // Unarchive first
+      const { data, error } = await supabase.rpc("unarchive_surface", {
+        p_surface_id: surface.id,
+      });
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      const result = data as unknown as { success: boolean; error?: string };
+      if (!result?.success) {
+        toast.error(result?.error || "Failed to unarchive surface");
+        return;
+      }
+      toast.success("Surface restored");
+      // Now attempt listing
+      await attemptListOnCommunity();
+    } finally {
+      setCommunityLoading(false);
+    }
+  };
+
+  const handleUnlistFromCommunity = () => {
+    unlistFromCommunity.mutate();
+  };
+
   return (
     <>
       <Card className={`p-5 ${isArchived ? "opacity-60" : ""}`}>
@@ -180,6 +243,11 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              {isListed && (
+                <Badge variant="outline" className="text-xs border-success text-success">
+                  Community
+                </Badge>
+              )}
               <Badge
                 variant={isPublished ? "default" : "secondary"}
                 className={`flex-shrink-0 ${isPublished ? "bg-success text-success-foreground" : ""}`}
@@ -215,6 +283,21 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
 
                       <DropdownMenuSeparator />
 
+                      {/* Community listing actions in dropdown */}
+                      {isListed ? (
+                        <DropdownMenuItem onClick={handleUnlistFromCommunity}>
+                          <UserMinus className="h-4 w-4 mr-2" />
+                          Unlist from Community
+                        </DropdownMenuItem>
+                      ) : (
+                        <DropdownMenuItem onClick={handleListOnCommunity}>
+                          <Users className="h-4 w-4 mr-2" />
+                          List on Community
+                        </DropdownMenuItem>
+                      )}
+
+                      <DropdownMenuSeparator />
+
                       <DropdownMenuItem onClick={() => setArchiveDialogOpen(true)}>
                         <Archive className="h-4 w-4 mr-2" />
                         Archive
@@ -223,10 +306,16 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
                   )}
 
                   {isArchived && (
-                    <DropdownMenuItem onClick={handleRestore}>
-                      <RotateCcw className="h-4 w-4 mr-2" />
-                      Unarchive
-                    </DropdownMenuItem>
+                    <>
+                      <DropdownMenuItem onClick={handleRestore}>
+                        <RotateCcw className="h-4 w-4 mr-2" />
+                        Unarchive
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleListOnCommunity}>
+                        <Users className="h-4 w-4 mr-2" />
+                        List on Community
+                      </DropdownMenuItem>
+                    </>
                   )}
 
                   <DropdownMenuSeparator />
@@ -311,6 +400,34 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
           </div>
         </div>
       </Card>
+
+      {/* Unarchive & List Modal */}
+      <AlertDialog open={unarchiveModalOpen} onOpenChange={setUnarchiveModalOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Surface is Archived</AlertDialogTitle>
+            <AlertDialogDescription>
+              This surface is archived. Unarchive it to list on Community.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleUnarchiveAndList}
+              disabled={communityLoading}
+            >
+              {communityLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                "Unarchive & Continue"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Rename Dialog */}
       <Dialog open={renameDialogOpen} onOpenChange={setRenameDialogOpen}>
