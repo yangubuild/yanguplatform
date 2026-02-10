@@ -11,6 +11,8 @@ export function AdaMainPanel() {
   const [boxSize, setBoxSize] = useState({ w: 0, h: 0 });
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
+  const traceRef = useRef<SVGRectElement>(null);
+  const glowRef = useRef<SVGRectElement>(null);
 
   // Track box dimensions for SVG border trace
   useEffect(() => {
@@ -28,6 +30,24 @@ export function AdaMainPanel() {
   const perim = boxSize.w && boxSize.h ? 2 * (boxSize.w + boxSize.h - 4 * 16) + 2 * Math.PI * 16 : 0;
   const dashLen = perim * 0.15;
   const gapLen = perim - dashLen;
+
+  // Animate stroke-dashoffset via rAF for seamless border trace
+  useEffect(() => {
+    if (!perim) return;
+    let raf: number;
+    let start: number | null = null;
+    const duration = 3000; // 3s per loop
+    const tick = (ts: number) => {
+      if (!start) start = ts;
+      const progress = ((ts - start) % duration) / duration;
+      const offset = -progress * perim;
+      if (traceRef.current) traceRef.current.style.strokeDashoffset = `${offset}`;
+      if (glowRef.current) glowRef.current.style.strokeDashoffset = `${offset}`;
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [perim]);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -170,38 +190,30 @@ export function AdaMainPanel() {
                       style={{ opacity: isFocused || inputValue ? 0 : 1 }}
                     >
                       <rect
+                        ref={traceRef}
                         x="0.5" y="0.5"
                         width={boxSize.w - 1} height={boxSize.h - 1}
                         rx="16" ry="16"
                         fill="none"
-                        stroke="rgba(244,168,61,0.6)"
+                        stroke="#F4A83D"
                         strokeWidth="1.5"
-                        style={{
-                          strokeDasharray: `${dashLen} ${gapLen}`,
-                          strokeDashoffset: 0,
-                          "--perim": perim,
-                          animation: "borderTrace 3s linear infinite",
-                        } as React.CSSProperties}
+                        style={{ strokeDasharray: `${dashLen} ${gapLen}` }}
                       />
                     </svg>
                     {/* Glow layer */}
                     <svg
                       className="absolute inset-0 w-full h-full pointer-events-none blur-sm transition-opacity duration-500"
-                      style={{ opacity: isFocused || inputValue ? 0 : 0.25 }}
+                      style={{ opacity: isFocused || inputValue ? 0 : 0.4 }}
                     >
                       <rect
+                        ref={glowRef}
                         x="0.5" y="0.5"
                         width={boxSize.w - 1} height={boxSize.h - 1}
                         rx="16" ry="16"
                         fill="none"
-                        stroke="#D4952B"
-                        strokeWidth="2"
-                        style={{
-                          strokeDasharray: `${dashLen} ${gapLen}`,
-                          strokeDashoffset: 0,
-                          "--perim": perim,
-                          animation: "borderTrace 3s linear infinite",
-                        } as React.CSSProperties}
+                        stroke="#F4A83D"
+                        strokeWidth="3"
+                        style={{ strokeDasharray: `${dashLen} ${gapLen}` }}
                       />
                     </svg>
                   </>
