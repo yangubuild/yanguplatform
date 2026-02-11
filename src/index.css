@@ -333,3 +333,19 @@
   background-size: 200% 100%;
   animation: nav-offers-shimmer 2s ease-in-out infinite;
 }
+
+.nav-item-hover {
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.nav-item-hover:hover {
+  background: linear-gradient(
+    90deg,
+    rgba(74, 222, 128, 0.04) 0%,
+    rgba(74, 222, 128, 0.10) 50%,
+    rgba(74, 222, 128, 0.04) 100%
+  );
+  background-size: 200% 100%;
+  animation: nav-offers-shimmer 3s ease-in-out infinite;
+  color: rgba(255, 255, 255, 0.85);
+}
