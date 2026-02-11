@@ -85,14 +85,26 @@ export function BlogHeader({ onSubscribeClick }: BlogHeaderProps) {
         </div>
 
         {/* Right: sign in + subscribe */}
-        <div className="flex items-center gap-5 justify-end">
-          <button className="text-white/70 hover:text-white text-sm transition-colors">
+        <div className="flex items-center gap-3 justify-end">
+          <button
+            className="px-5 py-2.5 text-sm font-medium transition-all hover:brightness-110"
+            style={{
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.15)",
+              borderRadius: 12,
+              color: "rgba(255,255,255,0.85)",
+            }}
+          >
             Sign in
           </button>
           <button
             onClick={onSubscribeClick}
-            className="rounded-full px-5 py-2 text-sm font-medium transition-all hover:brightness-110"
-            style={{ background: "#C5F0E0", color: "#111" }}
+            className="px-5 py-2.5 text-sm font-medium transition-all hover:brightness-110"
+            style={{
+              background: "linear-gradient(90deg, #b5622a, #5c2a12)",
+              borderRadius: 12,
+              color: "#fff",
+            }}
           >
             Subscribe
           </button>
