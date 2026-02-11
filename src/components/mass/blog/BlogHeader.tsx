@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { Menu, Search, X } from "lucide-react";
+import { Search, X } from "lucide-react";
+import yanguLogo from "@/assets/yangu-logo-blog.png";
 
 interface BlogHeaderProps {
   onSubscribeClick: () => void;
@@ -73,32 +74,9 @@ export function BlogHeader({ onSubscribeClick }: BlogHeaderProps) {
             pointerEvents: scrolled ? "auto" : "none",
           }}
         >
-          <div
-            style={{
-              width: 80,
-              height: 1,
-              background: "rgba(255,255,255,0.2)",
-            }}
-          />
-          <span
-            className="px-4 whitespace-nowrap select-none"
-            style={{
-              fontFamily: "'Lufga', sans-serif",
-              fontSize: 18,
-              fontWeight: 400,
-              color: "#FFFFFF",
-              letterSpacing: "0.15em",
-            }}
-          >
-            EVERY
-          </span>
-          <div
-            style={{
-              width: 80,
-              height: 1,
-              background: "rgba(255,255,255,0.2)",
-            }}
-          />
+          <div style={{ width: 80, height: 1, background: "rgba(255,255,255,0.2)" }} />
+          <img src={yanguLogo} alt="Yangu" className="h-6 w-auto px-4" />
+          <div style={{ width: 80, height: 1, background: "rgba(255,255,255,0.2)" }} />
         </div>
 
         {/* Right: sign in + subscribe */}
