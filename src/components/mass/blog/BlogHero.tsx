@@ -1,3 +1,5 @@
+import yanguLogo from "@/assets/yangu-logo-blog.png";
+
 interface BlogHeroProps {
   onSubscribeClick: () => void;
 }
@@ -5,20 +7,8 @@ interface BlogHeroProps {
 export function BlogHero({ onSubscribeClick }: BlogHeroProps) {
   return (
     <section className="flex flex-col items-center text-center px-6 pt-20 pb-16">
-      {/* Logo text — faded, background feel */}
-      <h1
-        className="select-none"
-        style={{
-          fontFamily: "'Lufga', sans-serif",
-          fontSize: "clamp(5rem, 10vw, 9rem)",
-          fontWeight: 600,
-          color: "rgba(255,255,255,0.08)",
-          letterSpacing: "0.08em",
-          lineHeight: 1,
-        }}
-      >
-        yangu
-      </h1>
+      {/* Logo */}
+      <img src={yanguLogo} alt="Yangu" className="h-16 w-auto" />
 
       {/* Divider */}
       <div className="w-16 mt-8 mb-14" style={{ height: 1, background: "rgba(255,255,255,0.2)" }} />
