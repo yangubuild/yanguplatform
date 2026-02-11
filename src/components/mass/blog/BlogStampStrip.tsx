@@ -37,8 +37,8 @@ export function BlogStampStrip() {
                 onMouseLeave={() => setHovered(null)}
                 className="relative flex-shrink-0 cursor-pointer"
                 style={{
-                  width: 195,
-                  height: 260,
+                  width: 230,
+                  height: 306,
                   marginLeft: -18,
                   marginRight: -18,
                   marginBottom: stamp.y,
@@ -53,7 +53,7 @@ export function BlogStampStrip() {
                   src={stamp.src}
                   alt={stamp.id}
                   loading="eager"
-                  style={{ display: "block", width: 195, height: 260, objectFit: "contain" }}
+                  style={{ display: "block", width: 230, height: 306, objectFit: "contain" }}
                 />
               </button>
             );
