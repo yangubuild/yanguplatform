@@ -139,7 +139,8 @@ export function BlogStampStrip() {
                     className="absolute inset-0 w-full h-full object-cover"
                     style={{
                       mixBlendMode: "multiply",
-                      opacity: 0.7,
+                      opacity: 0.9,
+                      filter: "contrast(1.2) saturate(1.1)",
                     }}
                   />
                 </div>
