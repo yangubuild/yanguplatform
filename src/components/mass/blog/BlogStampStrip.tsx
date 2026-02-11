@@ -8,12 +8,12 @@ import stampWrite from "@/assets/every-stamps/Write.png";
 import stampOrganize from "@/assets/every-stamps/Organize.png";
 
 const STAMPS = [
-  { id: "read", src: stampRead },
-  { id: "email", src: stampEmail },
-  { id: "speak", src: stampSpeak },
-  { id: "listen", src: stampListen },
-  { id: "write", src: stampWrite },
-  { id: "organize", src: stampOrganize },
+  { id: "read", src: stampRead, y: 3 },
+  { id: "email", src: stampEmail, y: -3 },
+  { id: "speak", src: stampSpeak, y: 4 },
+  { id: "listen", src: stampListen, y: -2 },
+  { id: "write", src: stampWrite, y: 3 },
+  { id: "organize", src: stampOrganize, y: -3 },
 ];
 
 export function BlogStampStrip() {
@@ -23,15 +23,11 @@ export function BlogStampStrip() {
     <section className="px-4 py-8">
       <div
         className="relative mx-auto flex flex-nowrap justify-center overflow-x-auto"
-        style={{
-          maxWidth: 1200,
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-        }}
+        style={{ maxWidth: 1200, scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         <style>{`.stamp-strip-wrap::-webkit-scrollbar{display:none}`}</style>
 
-        <div className="stamp-strip-wrap flex flex-nowrap items-center justify-center">
+        <div className="stamp-strip-wrap flex flex-nowrap items-end justify-center">
           {STAMPS.map((stamp) => {
             const isHov = hovered === stamp.id;
             return (
@@ -43,15 +39,12 @@ export function BlogStampStrip() {
                 style={{
                   width: 195,
                   height: 260,
-                  marginLeft: -8,
-                  marginRight: -8,
-                  transform: isHov ? "scale(1.08) translateY(-4px)" : "scale(1)",
-                  filter: isHov
-                    ? "brightness(1.06) saturate(1.08)"
-                    : "brightness(1) saturate(1)",
-                  boxShadow: isHov
-                    ? "0 12px 36px rgba(0,0,0,0.5)"
-                    : "0 4px 14px rgba(0,0,0,0.25)",
+                  marginLeft: -10,
+                  marginRight: -10,
+                  marginBottom: stamp.y,
+                  transform: isHov ? "scale(1.12) translateY(-6px)" : "scale(1)",
+                  filter: isHov ? "brightness(1.06) saturate(1.08)" : "brightness(1) saturate(1)",
+                  boxShadow: isHov ? "0 14px 40px rgba(0,0,0,0.55)" : "0 4px 14px rgba(0,0,0,0.25)",
                   transition: "transform 250ms ease, filter 200ms ease, box-shadow 250ms ease",
                   zIndex: isHov ? 10 : 1,
                 }}
@@ -60,12 +53,7 @@ export function BlogStampStrip() {
                   src={stamp.src}
                   alt={stamp.id}
                   loading="eager"
-                  style={{
-                    display: "block",
-                    width: 195,
-                    height: 260,
-                    objectFit: "contain",
-                  }}
+                  style={{ display: "block", width: 195, height: 260, objectFit: "contain" }}
                 />
               </button>
             );
