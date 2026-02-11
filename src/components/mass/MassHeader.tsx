@@ -16,7 +16,7 @@ export function MassHeader() {
         <button 
           className="px-5 py-2.5 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-90"
           style={{
-            background: 'linear-gradient(180deg, #b5622a 0%, #5c2a12 100%)',
+            background: 'linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)',
           }}
         >
           Start selling
