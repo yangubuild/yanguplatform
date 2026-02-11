@@ -39,8 +39,8 @@ export function BlogStampStrip() {
                 style={{
                   width: 195,
                   height: 260,
-                  marginLeft: -10,
-                  marginRight: -10,
+                  marginLeft: -18,
+                  marginRight: -18,
                   marginBottom: stamp.y,
                   transform: isHov ? "scale(1.12) translateY(-6px)" : "scale(1)",
                   filter: isHov ? "brightness(1.06) saturate(1.08)" : "brightness(1) saturate(1)",
