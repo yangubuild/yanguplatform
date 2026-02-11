@@ -28,13 +28,13 @@ function InterstitialBlock() {
       <div className="mx-auto text-center" style={{ maxWidth: 1100 }}>
         <span
           className="text-lg"
-          style={{ fontFamily: "Georgia, 'Times New Roman', serif", color: "rgba(255,255,255,0.3)" }}
+          style={{ fontFamily: "'Lufga', sans-serif", color: "rgba(255,255,255,0.3)" }}
         >
           EVERY
         </span>
         <h2
           className="mt-4 text-xl md:text-2xl font-medium leading-tight"
-          style={{ fontFamily: "Georgia, 'Times New Roman', serif", color: "#fff" }}
+          style={{ fontFamily: "'Lufga', sans-serif", color: "#fff" }}
         >
           Ideas and Apps to Thrive in the AI Age
         </h2>
@@ -71,7 +71,7 @@ export function BlogPage() {
   const openSubscribe = useCallback(() => setShowModal(true), []);
 
   return (
-    <div className="min-h-screen" style={{ background: "#000000", color: "#FFFFFF" }}>
+    <div className="min-h-screen" style={{ background: "#08120D", color: "#FFFFFF", fontFamily: "'Lufga', sans-serif" }}>
       <BlogHeader onSubscribeClick={openSubscribe} />
       <BlogHero onSubscribeClick={openSubscribe} />
       <BlogStampStrip />

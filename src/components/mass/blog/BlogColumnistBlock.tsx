@@ -48,7 +48,7 @@ export function BlogColumnistBlock() {
           <div>
             <h3
               className="text-lg font-medium mb-1"
-              style={{ fontFamily: "Georgia, 'Times New Roman', serif", color: "#fff" }}
+              style={{ fontFamily: "'Lufga', sans-serif", color: "#fff" }}
             >
               Dan Shipper
             </h3>

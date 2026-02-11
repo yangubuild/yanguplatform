@@ -21,7 +21,7 @@ export function BlogEssayItem({ essay }: Props) {
         <h4
           className="text-sm leading-snug transition-colors duration-200 group-hover:text-white"
           style={{
-            fontFamily: "Georgia, 'Times New Roman', serif",
+            fontFamily: "'Lufga', sans-serif",
             color: "rgba(255,255,255,0.8)",
           }}
         >

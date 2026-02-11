@@ -9,7 +9,7 @@ export function BlogHero({ onSubscribeClick }: BlogHeroProps) {
       <h1
         className="tracking-wide"
         style={{
-          fontFamily: "Georgia, 'Times New Roman', serif",
+          fontFamily: "'Lufga', sans-serif",
           fontSize: "clamp(3.5rem, 7vw, 6rem)",
           fontWeight: 400,
           color: "#FFFFFF",
@@ -26,7 +26,7 @@ export function BlogHero({ onSubscribeClick }: BlogHeroProps) {
       <h2
         className="mx-auto"
         style={{
-          fontFamily: "Georgia, 'Times New Roman', serif",
+          fontFamily: "'Lufga', sans-serif",
           fontSize: "clamp(2rem, 4vw, 3.2rem)",
           fontWeight: 400,
           color: "#FFFFFF",
