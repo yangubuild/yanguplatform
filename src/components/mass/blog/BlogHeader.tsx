@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Menu, Search, X } from "lucide-react";
 
 interface BlogHeaderProps {
@@ -8,15 +8,22 @@ interface BlogHeaderProps {
 export function BlogHeader({ onSubscribeClick }: BlogHeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
-      // Show small header logo once scrolled past the hero logo area
       setScrolled(window.scrollY > 200);
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (searchOpen && searchRef.current) {
+      searchRef.current.focus();
+    }
+  }, [searchOpen]);
 
   return (
     <header
@@ -33,18 +40,28 @@ export function BlogHeader({ onSubscribeClick }: BlogHeaderProps) {
           gridTemplateColumns: "1fr auto 1fr",
         }}
       >
-        {/* Left: menu + search */}
-        <div className="flex items-center gap-4">
+        {/* Left: search icon with expandable input */}
+        <div className="flex items-center gap-3">
           <button
-            onClick={() => setMenuOpen(!menuOpen)}
+            onClick={() => setSearchOpen(!searchOpen)}
             className="text-white/70 hover:text-white transition-colors"
-            aria-label="Menu"
+            aria-label="Search"
           >
-            {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {searchOpen ? <X className="w-5 h-5" /> : <Search className="w-5 h-5" />}
           </button>
-          <button className="text-white/70 hover:text-white transition-colors" aria-label="Search">
-            <Search className="w-5 h-5" />
-          </button>
+          <div
+            className="overflow-hidden transition-all duration-300 ease-out"
+            style={{ width: searchOpen ? 220 : 0 }}
+          >
+            <input
+              ref={searchRef}
+              type="text"
+              placeholder="Search…"
+              className="w-[220px] bg-transparent border-b text-sm text-white/90 placeholder:text-white/40 outline-none py-1"
+              style={{ borderColor: "rgba(255,255,255,0.2)" }}
+              onBlur={() => setSearchOpen(false)}
+            />
+          </div>
         </div>
 
         {/* Center: small EVERY logo with divider lines, visible on scroll */}
