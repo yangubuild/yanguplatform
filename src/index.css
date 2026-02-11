@@ -335,17 +335,18 @@
 }
 
 .nav-item-hover {
-  transition: background 0.2s ease, color 0.2s ease;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 .nav-item-hover:hover {
   background: linear-gradient(
     90deg,
-    rgba(74, 222, 128, 0.04) 0%,
-    rgba(74, 222, 128, 0.10) 50%,
-    rgba(74, 222, 128, 0.04) 100%
-  );
-  background-size: 200% 100%;
-  animation: nav-offers-shimmer 3s ease-in-out infinite;
-  color: rgba(255, 255, 255, 0.85);
+    rgba(74, 222, 128, 0.06) 0%,
+    rgba(74, 222, 128, 0.18) 40%,
+    rgba(74, 222, 128, 0.06) 70%,
+    rgba(74, 222, 128, 0.14) 100%
+  ) !important;
+  background-size: 200% 100% !important;
+  animation: nav-offers-shimmer 3s ease-in-out infinite !important;
+  color: rgba(255, 255, 255, 0.9) !important;
 }

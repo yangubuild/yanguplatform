@@ -226,7 +226,7 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
                     <button
                       onClick={() => handleItemClick(item.label, !!item.subItems, item.chevron)}
                       className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 ${
-                        isActive ? "nav-offers-active" : "hover:bg-white/[0.06]"
+                        isActive ? "nav-offers-active" : "nav-item-hover"
                       }`}
                       title={item.label}
                       style={{
@@ -254,7 +254,7 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
                   <button
                     onClick={() => handleItemClick(item.label, !!item.subItems, item.chevron)}
                     className={`w-full flex items-center justify-between gap-2.5 px-3 py-2.5 rounded-xl text-sm transition-all duration-300 mb-0.5 group ${
-                      isActive ? "nav-offers-active" : "hover:bg-white/[0.06]"
+                      isActive ? "nav-offers-active" : "nav-item-hover"
                     }`}
                     style={{ color: isActive ? "#4ade80" : "rgba(255,255,255,0.7)" }}
                   >
@@ -310,7 +310,7 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
                             key={sub.label}
                             onClick={() => setActiveItem(sub.label)}
                             className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-all duration-200 mb-0.5 ${
-                              isSubActive ? "nav-offers-active" : "hover:bg-white/[0.06]"
+                              isSubActive ? "nav-offers-active" : "nav-item-hover"
                             }`}
                             style={{ color: isSubActive ? "#4ade80" : "rgba(255,255,255,0.55)" }}
                           >
