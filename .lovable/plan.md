@@ -1,87 +1,118 @@
 
-# Navigation Dashboard Page
+
+# Blog Page -- 1:1 Every.to Homepage Clone (Revised)
 
 ## Overview
-Create a new isolated marketing page at `/navigation` that replicates the BC.GAME reference layout exactly -- a dark sidebar with expandable navigation categories, a top header bar with search/deposit/icons, and a main content area featuring promotional banner cards in a horizontal carousel/grid.
+Create a strict, pixel-perfect clone of the Every.to homepage at `/blog`. No YANGU branding changes, no invented sections. Every section, interaction, and visual detail matches the reference exactly. Branding swap is a separate future phase.
 
-## Page Structure (from the reference image)
+## File Structure
 
-### 1. Left Sidebar
-- **App promo card** at top (dark card with "Application - Unlock Fun with Exclusive Features" + small image)
-- **Token ticker** row (icon + "BC Token" + red percentage badge + price)
-- **Nav items with chevron dropdowns:**
-  - Casino (with icon + chevron)
-  - Sports (with icon + chevron)
-  - Lottery (with icon + chevron)
-  - Crypto Futures (with icon + chevron)
-  - Promotions (with icon + chevron)
-- **Separator**
-- **Bottom nav items (no chevron):**
-  - VIP Club (with icon)
-  - Bonus (with icon + green "+120%" badge)
-  - Quest Hub (with icon)
+```text
+src/components/mass/blog/
+  BlogPage.tsx              -- Full-page shell (black bg, no sidebar)
+  BlogHeader.tsx            -- Sticky: hamburger + search (left), "Sign in" + "Subscribe" (right)
+  BlogHero.tsx              -- "EVERY" logo, divider, headline, subtext, Subscribe CTA
+  BlogStampStrip.tsx        -- 6 postage stamps in a single scrollable row at ALL breakpoints
+  BlogFeaturedGrid.tsx      -- 3-column: left cards, center feature, right "Recent Essays" list
+  BlogSectionModule.tsx     -- Reusable: section heading + subtitle + arrow + card grid
+  BlogArticleCard.tsx       -- Image + date + column tag + title + subtitle + author
+  BlogEssayItem.tsx         -- Thumbnail + title row (Recent Essays sidebar)
+  BlogProductCard.tsx       -- Product thumbnail + name + description + "Try it" link
+  BlogColumnistBlock.tsx    -- Author spotlight (image, bio, article list)
+  BlogPodcastSection.tsx    -- Podcast artwork + description + episode list
+  BlogConsultingBanner.tsx  -- Bottom CTA banner
+  BlogExplorePanel.tsx      -- Fixed bottom-right popup
+  BlogSubscribeModal.tsx    -- Auto-triggered subscribe modal (split layout)
+  BlogFooter.tsx            -- Minimal footer if present on reference
+  blogData.ts               -- All mock data
+  index.ts                  -- Barrel exports
+src/pages/Blog.tsx          -- Route wrapper
+```
 
-Colors: Background `#1A1D26` (dark charcoal), text white/70, active items green-highlighted, badges in green/red.
+## Routing
 
-### 2. Top Header Bar
-- Hamburger menu icon (left)
-- Logo "BC.GAME" (left)
-- Right side: Search icon, currency selector ("AED 0.00" with dropdown), green "Deposit" button, gift icon, chat icon, bell icon, avatar circle
+- Add `<Route path="/blog" element={<Blog />} />` in `App.tsx`
+- Update `MassSidebar.tsx` to navigate to `/blog` on "Blog" click
 
-Colors: Background `#1A1D26`, Deposit button green `#27AE60`, currency badge dark with red icon.
+## Exact Section Order (top to bottom, matching Every.to)
 
-### 3. Main Content Area
-- Background: `#0E1116` (near-black)
-- **3 promotional banner cards** in a horizontal row:
-  - Card 1: "EXCLUSIVE" badge, "120% BONUS", "+ 100 FREE SPINS IN CASINO", "DEPOSIT NOW" button (dark outlined), casino wheel image (right side)
-  - Card 2: "EXCLUSIVE" badge, "80% BONUS", "+ 5 FREE BET IN SPORTS", "DEPOSIT NOW" button, sports trophy/helmet image, green "Check >" button
-  - Card 3: "EXCLUSIVE" badge, "DOUBLE THE SPINS", "BET $10 GET 20 FREE SPINS", "PLAY NOW" button, game artwork image
-- Each card has a green-tinted gradient background
-- Pagination dots below the cards
+1. **Sticky Header** -- hamburger + search (left), "Sign in" + rounded "Subscribe" button (right). White on black. Thin bottom border.
 
-## Files to Create
+2. **Hero** -- Large serif "EVERY" logo centered, thin divider, headline, subtext "Trusted by 100,000 builders", mint "Subscribe" button. Centered with generous vertical spacing.
 
-| File | Purpose |
-|------|---------|
-| `src/components/mass/navigation/NavigationDashboardPage.tsx` | Main page component with sidebar + header + content |
-| `src/components/mass/navigation/NavDashSidebar.tsx` | Left sidebar with app card, token ticker, nav items |
-| `src/components/mass/navigation/NavDashHeader.tsx` | Top header bar with search, deposit, icons |
-| `src/components/mass/navigation/NavDashPromoCards.tsx` | Horizontal promotional banner cards |
-| `src/components/mass/navigation/index.ts` | Barrel export |
-| `src/pages/NavigationDashboard.tsx` | Route page wrapper |
+3. **Stamp Strip** -- 6 stamps in a single horizontal row: Read, Email, Speak, Listen, Write, Organize. Scalloped edges via CSS radial-gradient mask. Bold colored backgrounds, icon placeholders. Hover: "with [Product]" text fades in, translateY(-2px), shadow increase. **At ALL screen sizes the strip stays a single row -- on narrower viewports it scrolls horizontally (overflow-x: auto, flex-nowrap). Never wraps to multiple rows.**
 
-## Files to Modify
+4. **Featured Content Grid** -- 3-column: left 2 stacked cards, center large feature, right "RECENT ESSAYS" list (4 items).
 
-| File | Change |
-|------|--------|
-| `src/App.tsx` | Add route: `<Route path="/navigation" element={<NavigationDashboard />} />` |
-| `src/components/mass/MassSidebar.tsx` | Add "Navigation" nav item linking to `/navigation` |
+5. **"Built by Every"** -- 4-column product cards (Monologue, Sparkle, Cora, Spiral).
 
-## Technical Details
+6. **"Ideas and Apps" interstitial** -- Centered logo + heading + chip strip + dashed separator.
 
-### Color Palette (exact from reference)
-- Page background: `#0E1116`
-- Sidebar/header background: `#1A1D26`
-- Card backgrounds: linear gradient with green tint (`#1B3D2E` to `#1A1D26`)
-- Green accent: `#27AE60` (deposit button, active states)
-- Red accent: `#E74C3C` (percentage badges)
-- "EXCLUSIVE" badge: dark `#2A2D36` with white border
-- Text primary: `#FFFFFF`
-- Text secondary: `rgba(255,255,255,0.5)`
-- Card border: `rgba(255,255,255,0.06)`
+7. **"Every Studio"** -- Heading + 4 article cards.
 
-### Icons
-All icons from `lucide-react`: `Search`, `ChevronDown`, `Gift`, `MessageSquare`, `Bell`, `Menu`, `Gamepad2`, `Trophy`, `Ticket`, `TrendingUp`, `Megaphone`, `Crown`, `Star`, `Compass`
+8. **"Dispatches From the Frontiers of AI"** -- Heading + 4 article cards.
 
-### Layout
-- Sidebar: fixed left, `w-[220px]`, full height
-- Header: sticky top, full width minus sidebar
-- Content: scrollable below header, `lg:ml-[220px]`
-- Promo cards: `grid grid-cols-1 md:grid-cols-3 gap-4`
-- Cards: `rounded-xl`, `min-h-[180px]`, with right-side decorative images (placeholder colored circles since no real images)
+9. **Second "Ideas and Apps" interstitial** -- Same layout repeated.
 
-### Patterns
-- Follows the same isolated-page pattern as `/community`, `/ada-ai`, `/why-yangu`
-- This page has its **own sidebar** (`NavDashSidebar`) distinct from `MassSidebar`, matching the BC.GAME reference exactly
-- No auth, no platform logic, no backend -- purely static UI
-- Mobile responsive with hamburger menu toggle for sidebar
+10. **"Putting AI to Work"** -- Heading + 4 article cards.
+
+11. **"The Future of Programming"** -- Heading + 4 article cards.
+
+12. **"The New Rules of Writing"** -- Heading + 4 article cards.
+
+13. **"From Our Columnists"** -- Author spotlight (Dan Shipper) + 3 article cards.
+
+14. **Podcast** -- Artwork, description, platform icons, 3 episode cards.
+
+15. **Consulting CTA Banner** -- "Stop Planning Your AI Strategy..." + "Learn more" + illustration placeholder.
+
+16. **Explore Panel** -- Fixed bottom-right trigger. Dark panel with icon list. Close on ESC/outside click. Scale+fade animation.
+
+17. **Subscribe Modal** -- 35% scroll OR 10s trigger, once/day localStorage. Split: left white (headline, checklist, email input, CTA, "Maybe later"), right warm bg (product image, pill tag). Focus trap. Close via X/overlay/ESC/"Maybe later".
+
+## Interactions
+
+| Element | Behavior |
+|---|---|
+| Stamp tiles | "with [X]" text fade in (200ms), translateY(-2px), shadow increase |
+| Article cards | Image zoom (scale 1.02), card lift, title brightness |
+| "Try it" links | Arrow shifts right 2px |
+| Section arrows | Shift right on hover |
+| Subscribe button | Brightness increase |
+| Explore panel items | Background highlight, icon color shift |
+
+## Scroll Animations
+
+- IntersectionObserver (threshold 0.1) per section
+- opacity 0 to 1, translateY 8px to 0, 400ms ease-out
+- One-time trigger only
+
+## Visual Specs
+
+- Background: `#000000`
+- Text: `#FFFFFF` headings, `rgba(255,255,255,0.7)` body
+- Serif: `Georgia, 'Times New Roman', serif` for logo/headlines
+- Subscribe button: `#C5F0E0` fill, dark text
+- Dividers: `rgba(255,255,255,0.15)` 1px, some dashed
+- Max content width: ~1100px centered
+- Card bg: `#111111` / `#1a1a1a`
+
+## Responsive Strategy
+
+- **Desktop** (1440px+): full reference layout
+- **Tablet** (768-1024px): grids collapse to 2 columns; **stamp strip stays a single horizontal row with horizontal scroll** (overflow-x auto, flex-nowrap, hide scrollbar with `scrollbar-width: none` / `::-webkit-scrollbar { display: none }`)
+- **Mobile** (<768px): single column; stamp strip same single-row horizontal scroll; header compacts
+
+## Files Modified
+
+- `src/App.tsx` -- add `/blog` route
+- `src/components/mass/MassSidebar.tsx` -- add blog nav handler
+
+## Technical Notes
+
+- No backend, auth, database, or platform logic changes
+- Fully isolated in `src/components/mass/blog/`
+- Scalloped edges via CSS `radial-gradient` mask-image
+- All content from local `blogData.ts` mock data
+- Subscribe modal localStorage key: `every_subscribe_modal_last_shown`
+
