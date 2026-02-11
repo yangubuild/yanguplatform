@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { NavDashSidebar, ICON_RAIL_W } from "./NavDashSidebar";
+import { NavDashSidebar, PRIMARY_FULL_W } from "./NavDashSidebar";
 import { NavDashHeader } from "./NavDashHeader";
 import { NavDashPromoCards } from "./NavDashPromoCards";
 
 export function NavigationDashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarWidth, setSidebarWidth] = useState(ICON_RAIL_W);
+  const [sidebarWidth, setSidebarWidth] = useState(PRIMARY_FULL_W);
 
   return (
     <div
