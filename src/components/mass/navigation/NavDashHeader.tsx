@@ -39,6 +39,9 @@ const CURRENCIES = [
   { code: "KWD", symbol: "د.ك", name: "Kuwaiti Dinar" },
   { code: "BHD", symbol: "BD", name: "Bahraini Dinar" },
   { code: "OMR", symbol: "﷼", name: "Omani Rial" },
+  { code: "UGX", symbol: "USh", name: "Ugandan Shilling" },
+  { code: "TZS", symbol: "TSh", name: "Tanzanian Shilling" },
+  { code: "RWF", symbol: "FRw", name: "Rwandan Franc" },
 ];
 
 interface NavDashHeaderProps {
