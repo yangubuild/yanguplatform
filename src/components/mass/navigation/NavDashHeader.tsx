@@ -51,6 +51,9 @@ interface NavDashHeaderProps {
 export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
   const [selectedCurrency, setSelectedCurrency] = useState(CURRENCIES[0]);
   const [currencyOpen, setCurrencyOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -58,10 +61,19 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setCurrencyOpen(false);
       }
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setSearchOpen(false);
+      }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (searchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [searchOpen]);
   return (
     <header
       className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-5 h-16"
@@ -85,15 +97,33 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
       {/* Right */}
       <div className="flex items-center gap-2.5">
         {/* Search */}
-        <button
-          className="w-9 h-9 rounded-[10px] flex items-center justify-center"
-          style={{
-            background: "#2a3038",
-            color: "rgba(255,255,255,0.5)",
-          }}
-        >
-          <Search className="w-4 h-4" />
-        </button>
+        <div className="relative flex items-center" ref={searchContainerRef}>
+          <div
+            className="flex items-center h-9 rounded-[10px] overflow-hidden transition-all duration-300 ease-in-out"
+            style={{
+              width: searchOpen ? "260px" : "36px",
+              background: "#2a3038",
+            }}
+          >
+            {searchOpen && (
+              <input
+                ref={searchInputRef}
+                type="text"
+                placeholder="Search..."
+                className="h-full bg-transparent border-none outline-none text-xs pl-3 pr-2 flex-1"
+                style={{ color: "rgba(255,255,255,0.85)" }}
+                onKeyDown={(e) => { if (e.key === "Escape") setSearchOpen(false); }}
+              />
+            )}
+            <button
+              onClick={() => setSearchOpen(!searchOpen)}
+              className="w-9 h-9 flex-shrink-0 flex items-center justify-center"
+              style={{ color: "rgba(255,255,255,0.5)" }}
+            >
+              <Search className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
 
         {/* Balance pill with currency dropdown */}
         <div className="relative" ref={dropdownRef}>
