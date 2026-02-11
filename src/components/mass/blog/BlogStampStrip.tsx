@@ -20,7 +20,7 @@ export function BlogStampStrip() {
   const [hovered, setHovered] = useState<string | null>(null);
 
   return (
-    <section className="px-4 py-8">
+    <section className="px-4 py-8" style={{ background: "linear-gradient(180deg, rgba(181,98,42,0.08) 0%, rgba(92,42,18,0.04) 60%, transparent 100%)" }}>
       <div
         className="relative mx-auto flex flex-nowrap justify-center overflow-hidden"
         style={{ maxWidth: 1100 }}
