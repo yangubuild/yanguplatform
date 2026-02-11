@@ -1,3 +1,11 @@
+import featuredMain from "@/assets/blog/featured-main.jpg";
+import featuredLeft1 from "@/assets/blog/featured-left-1.jpg";
+import featuredLeft2 from "@/assets/blog/featured-left-2.jpg";
+import essay1 from "@/assets/blog/essay-1.jpg";
+import essay2 from "@/assets/blog/essay-2.jpg";
+import essay3 from "@/assets/blog/essay-3.jpg";
+import essay4 from "@/assets/blog/essay-4.jpg";
+
 // Mock data for Blog page — 1:1 Every.to clone
 
 export interface BlogArticle {
@@ -59,7 +67,7 @@ export const featuredArticles: BlogArticle[] = [
     date: "Feb 8, 2026",
     column: "PRODUCT DEEP DIVE",
     author: "Dan Shipper",
-    image: "/placeholder.svg",
+    image: featuredMain,
   },
   {
     id: "2",
@@ -67,7 +75,7 @@ export const featuredArticles: BlogArticle[] = [
     date: "Feb 7, 2026",
     column: "DISPATCHES",
     author: "Evan Armstrong",
-    image: "/placeholder.svg",
+    image: featuredLeft1,
   },
   {
     id: "3",
@@ -76,15 +84,15 @@ export const featuredArticles: BlogArticle[] = [
     date: "Feb 6, 2026",
     column: "EVERY STUDIO",
     author: "Dan Shipper",
-    image: "/placeholder.svg",
+    image: featuredLeft2,
   },
 ];
 
 export const recentEssays: BlogEssay[] = [
-  { id: "e1", title: "The Future of Knowledge Work Is Here", author: "Dan Shipper", image: "/placeholder.svg" },
-  { id: "e2", title: "How to Build an AI-First Company", author: "Evan Armstrong", image: "/placeholder.svg" },
-  { id: "e3", title: "The Compound Effect of Writing Daily", author: "Casey Rosengren", image: "/placeholder.svg" },
-  { id: "e4", title: "Why Taste Matters More Than Ever in AI", author: "Dan Shipper", image: "/placeholder.svg" },
+  { id: "e1", title: "The Future of Knowledge Work Is Here", author: "Dan Shipper", image: essay1 },
+  { id: "e2", title: "How to Build an AI-First Company", author: "Evan Armstrong", image: essay2 },
+  { id: "e3", title: "The Compound Effect of Writing Daily", author: "Casey Rosengren", image: essay3 },
+  { id: "e4", title: "Why Taste Matters More Than Ever in AI", author: "Dan Shipper", image: essay4 },
 ];
 
 export const products: BlogProduct[] = [

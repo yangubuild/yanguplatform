@@ -10,10 +10,10 @@ export function BlogFeaturedGrid() {
         className="mx-auto grid gap-8"
         style={{
           maxWidth: 1100,
-          gridTemplateColumns: "1fr 1.4fr 1fr",
+          gridTemplateColumns: "1fr 1.6fr 1fr",
         }}
       >
-        {/* Left — 2 stacked cards */}
+        {/* Left — 2 stacked smaller cards */}
         <div className="flex flex-col gap-8 max-md:hidden">
           <BlogArticleCard article={featuredArticles[1]} />
           <BlogArticleCard article={featuredArticles[2]} />
