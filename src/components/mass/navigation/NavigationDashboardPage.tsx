@@ -3,8 +3,17 @@ import { NavDashSidebar } from "./NavDashSidebar";
 import { NavDashHeader } from "./NavDashHeader";
 import { NavDashPromoCards } from "./NavDashPromoCards";
 
+const RAIL_WIDTH = 60;
+const FULL_WIDTH = 260;
+const EXTENDED_WIDTH = 260;
+const EXTENDED_ITEMS = ["Visionaire"];
+
 export function NavigationDashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeItem, setActiveItem] = useState("Offers");
+
+  const hasExtended = EXTENDED_ITEMS.includes(activeItem);
+  const totalWidth = hasExtended ? RAIL_WIDTH + EXTENDED_WIDTH : FULL_WIDTH;
 
   return (
     <div
@@ -17,9 +26,13 @@ export function NavigationDashboardPage() {
       <NavDashSidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        onActiveChange={setActiveItem}
       />
 
-      <div className="pt-16 lg:ml-[260px]">
+      <div
+        className="pt-16 transition-all duration-300"
+        style={{ marginLeft: totalWidth }}
+      >
         <NavDashPromoCards />
       </div>
     </div>
