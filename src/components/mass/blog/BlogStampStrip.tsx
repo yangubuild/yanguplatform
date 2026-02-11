@@ -8,12 +8,12 @@ import stampWrite from "@/assets/every-stamps/Write.png";
 import stampOrganize from "@/assets/every-stamps/Organize.png";
 
 const STAMPS = [
-  { id: "read", src: stampRead, y: 3 },
-  { id: "email", src: stampEmail, y: -3 },
-  { id: "speak", src: stampSpeak, y: 4 },
-  { id: "listen", src: stampListen, y: -2 },
-  { id: "write", src: stampWrite, y: 3 },
-  { id: "organize", src: stampOrganize, y: -3 },
+  { id: "read", src: stampRead, y: 3, w: 195, h: 260 },
+  { id: "email", src: stampEmail, y: -3, w: 195, h: 260 },
+  { id: "speak", src: stampSpeak, y: 4, w: 195, h: 260 },
+  { id: "listen", src: stampListen, y: -2, w: 195, h: 260 },
+  { id: "write", src: stampWrite, y: 3, w: 195, h: 260 },
+  { id: "organize", src: stampOrganize, y: -3, w: 220, h: 290 },
 ];
 
 export function BlogStampStrip() {
@@ -37,8 +37,8 @@ export function BlogStampStrip() {
                 onMouseLeave={() => setHovered(null)}
                 className="relative flex-shrink-0 cursor-pointer"
                 style={{
-                  width: 195,
-                  height: 260,
+                  width: stamp.w,
+                  height: stamp.h,
                   marginLeft: -18,
                   marginRight: -18,
                   marginBottom: stamp.y,
@@ -53,7 +53,7 @@ export function BlogStampStrip() {
                   src={stamp.src}
                   alt={stamp.id}
                   loading="eager"
-                  style={{ display: "block", width: 195, height: 260, objectFit: "contain" }}
+                  style={{ display: "block", width: stamp.w, height: stamp.h, objectFit: "contain" }}
                 />
               </button>
             );
