@@ -43,12 +43,12 @@ export interface StampItem {
 }
 
 export const stamps: StampItem[] = [
-  { id: "read", label: "Read", withText: "with Every", color: "#D4E157", icon: "📖" },
-  { id: "email", label: "Email", withText: "with Cora", color: "#FF8A65", icon: "✉️" },
-  { id: "speak", label: "Speak", withText: "with Monologue", color: "#CE93D8", icon: "🎙️" },
-  { id: "listen", label: "Listen", withText: "with AI & I", color: "#4FC3F7", icon: "🎧" },
-  { id: "write", label: "Write", withText: "with Spiral", color: "#FFD54F", icon: "✍️" },
-  { id: "organize", label: "Organize", withText: "with Sparkle", color: "#81C784", icon: "✨" },
+  { id: "read", label: "Read", withText: "our articles", color: "#1a8a4a", icon: "📖" },
+  { id: "email", label: "Email", withText: "with Cora", color: "#1a1adb", icon: "✉️" },
+  { id: "speak", label: "Speak", withText: "with Monologue", color: "#8b2abf", icon: "🎙️" },
+  { id: "listen", label: "Listen", withText: "to our podcast", color: "#c0461a", icon: "🎧" },
+  { id: "write", label: "Write", withText: "with Spiral", color: "#d4691a", icon: "✍️" },
+  { id: "organize", label: "Organize", withText: "with Sparkle", color: "#b8a030", icon: "✨" },
 ];
 
 export const featuredArticles: BlogArticle[] = [
