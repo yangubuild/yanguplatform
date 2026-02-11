@@ -23,6 +23,7 @@ import adaIcon from "@/assets/ada-icon.png";
 const navItems = [
   { icon: Compass, label: "Explore", chevron: true },
   { icon: Tag, label: "Offers", chevron: false, badge: "+120%", dot: true },
+  { icon: Monitor, label: "Dashboard", chevron: true },
   { icon: null, label: "Ada AI", chevron: true, customIcon: "ada" },
   {
     icon: ShoppingBag,
