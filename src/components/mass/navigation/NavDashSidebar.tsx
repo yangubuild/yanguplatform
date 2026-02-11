@@ -89,8 +89,9 @@ const visionaireSections = [
   },
 ];
 
-/* ─── ICON RAIL WIDTH / SECONDARY WIDTH ─── */
-const ICON_RAIL_W = 60;
+/* ─── WIDTHS ─── */
+const PRIMARY_FULL_W = 200;
+const PRIMARY_ICON_W = 60;
 const SECONDARY_W = 240;
 
 interface NavDashSidebarProps {
@@ -105,28 +106,35 @@ export function NavDashSidebar({ isOpen = true, onClose, onWidthChange }: NavDas
   const [secondaryOpen, setSecondaryOpen] = useState(false);
   const [secondaryActiveItem, setSecondaryActiveItem] = useState("Home");
 
-  const handleIconClick = (id: string) => {
+  // Derived: is the active item one that has a secondary panel?
+  const hasSecondary = secondaryOpen;
+  const primaryW = hasSecondary ? PRIMARY_ICON_W : PRIMARY_FULL_W;
+  const totalWidth = primaryW + (hasSecondary ? SECONDARY_W : 0);
+
+  const handleItemClick = (id: string) => {
     setActiveItem(id);
 
     if (id === "seller") {
       setExpandedSeller((p) => !p);
-      // Don't close secondary for seller toggle
       return;
     }
 
-    if (id === "visionaire") {
-      const willOpen = !secondaryOpen || activeItem !== "visionaire";
+    const item = navItems.find((n) => n.id === id);
+    if (item?.hasSecondary) {
+      // Toggle secondary open
+      const willOpen = !secondaryOpen || activeItem !== id;
       setSecondaryOpen(willOpen);
-      onWidthChange?.(ICON_RAIL_W + (willOpen ? SECONDARY_W : 0));
+      const newPrimary = willOpen ? PRIMARY_ICON_W : PRIMARY_FULL_W;
+      const newSecondary = willOpen ? SECONDARY_W : 0;
+      onWidthChange?.(newPrimary + newSecondary);
     } else {
+      // Close secondary, restore full sidebar
       if (secondaryOpen) {
         setSecondaryOpen(false);
-        onWidthChange?.(ICON_RAIL_W);
+        onWidthChange?.(PRIMARY_FULL_W);
       }
     }
   };
-
-  const totalWidth = ICON_RAIL_W + (secondaryOpen ? SECONDARY_W : 0);
 
   return (
     <>
@@ -146,10 +154,10 @@ export function NavDashSidebar({ isOpen = true, onClose, onWidthChange }: NavDas
         }`}
         style={{ width: totalWidth }}
       >
-        {/* ═══ PRIMARY: Icon Rail ═══ */}
+        {/* ═══ PRIMARY SIDEBAR ═══ */}
         <div
-          className="h-full flex flex-col items-center py-3 shrink-0"
-          style={{ width: ICON_RAIL_W, background: "#1a2025" }}
+          className="h-full flex flex-col py-3 shrink-0 transition-all duration-300 overflow-hidden"
+          style={{ width: primaryW, background: "#1a2025" }}
         >
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -158,8 +166,10 @@ export function NavDashSidebar({ isOpen = true, onClose, onWidthChange }: NavDas
             return (
               <button
                 key={item.id}
-                onClick={() => handleIconClick(item.id)}
-                className="w-10 h-10 flex items-center justify-center rounded-xl mb-1 transition-all duration-200 relative group"
+                onClick={() => handleItemClick(item.id)}
+                className={`flex items-center rounded-xl mb-1 transition-all duration-200 relative group ${
+                  hasSecondary ? "w-10 h-10 justify-center mx-auto" : "w-full h-10 px-3 gap-3"
+                }`}
                 style={{
                   background: isActive ? "rgba(74,222,128,0.15)" : "transparent",
                   color: isActive ? "#4ade80" : "rgba(255,255,255,0.55)",
@@ -178,8 +188,25 @@ export function NavDashSidebar({ isOpen = true, onClose, onWidthChange }: NavDas
                     }}
                   />
                 ) : Icon ? (
-                  <Icon className="w-[18px] h-[18px]" strokeWidth={1.8} />
+                  <Icon className="w-[18px] h-[18px] shrink-0" strokeWidth={1.8} />
                 ) : null}
+
+                {/* Text label — only in full mode */}
+                {!hasSecondary && (
+                  <span className="text-sm font-medium truncate whitespace-nowrap">
+                    {item.label}
+                  </span>
+                )}
+
+                {/* Badge — only in full mode */}
+                {!hasSecondary && item.badge && (
+                  <span
+                    className="ml-auto text-[10px] px-1.5 py-0.5 rounded-md font-bold shrink-0"
+                    style={{ background: "rgba(74,222,128,0.15)", color: "#4ade80" }}
+                  >
+                    {item.badge}
+                  </span>
+                )}
 
                 {item.dot && (
                   <span
@@ -188,13 +215,15 @@ export function NavDashSidebar({ isOpen = true, onClose, onWidthChange }: NavDas
                   />
                 )}
 
-                {/* Tooltip */}
-                <span
-                  className="absolute left-full ml-2 px-2 py-1 rounded-md text-xs font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-150 z-[60]"
-                  style={{ background: "#2a3038", color: "rgba(255,255,255,0.85)" }}
-                >
-                  {item.label}
-                </span>
+                {/* Tooltip — only in icon-only mode */}
+                {hasSecondary && (
+                  <span
+                    className="absolute left-full ml-2 px-2 py-1 rounded-md text-xs font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-150 z-[60]"
+                    style={{ background: "#2a3038", color: "rgba(255,255,255,0.85)" }}
+                  >
+                    {item.label}
+                  </span>
+                )}
               </button>
             );
           })}
@@ -265,4 +294,4 @@ export function NavDashSidebar({ isOpen = true, onClose, onWidthChange }: NavDas
   );
 }
 
-export { ICON_RAIL_W, SECONDARY_W };
+export { PRIMARY_FULL_W, PRIMARY_ICON_W, SECONDARY_W };
