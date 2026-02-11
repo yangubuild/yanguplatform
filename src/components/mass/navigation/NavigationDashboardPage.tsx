@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { NavDashSidebar, PRIMARY_FULL_W } from "./NavDashSidebar";
+import { NavDashSidebar } from "./NavDashSidebar";
 import { NavDashHeader } from "./NavDashHeader";
 import { NavDashPromoCards } from "./NavDashPromoCards";
 
 export function NavigationDashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarWidth, setSidebarWidth] = useState(PRIMARY_FULL_W);
 
   return (
     <div
@@ -18,13 +17,9 @@ export function NavigationDashboardPage() {
       <NavDashSidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
-        onWidthChange={setSidebarWidth}
       />
 
-      <div
-        className="pt-16 transition-all duration-300"
-        style={{ marginLeft: sidebarWidth }}
-      >
+      <div className="pt-16 lg:ml-[260px]">
         <NavDashPromoCards />
       </div>
     </div>
