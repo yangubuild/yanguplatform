@@ -333,10 +333,10 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
         {/* === EXTENDED SIDEBAR (Visionaire panel) === */}
         {hasExtendedPanel && (
           <div
-            className="h-full flex flex-col overflow-hidden"
+          className="h-full flex flex-col overflow-hidden"
             style={{
               width: EXTENDED_WIDTH,
-              background: "#111518",
+              background: "#1a2025",
               borderLeft: "1px solid rgba(255,255,255,0.06)",
             }}
           >
@@ -364,16 +364,11 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
                         key={subItem.label}
                         onClick={() => setExtendedActiveItem(subItem.label)}
                         className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 mb-0.5 ${
-                          isSubActive ? "" : "hover:bg-white/[0.06]"
+                          isSubActive ? "nav-offers-active" : "hover:bg-white/[0.06]"
                         }`}
-                        style={
-                          isSubActive
-                            ? {
-                                background: "linear-gradient(90deg, #c0392b 0%, #a93226 100%)",
-                                color: "#fff",
-                              }
-                            : { color: "rgba(255,255,255,0.6)" }
-                        }
+                        style={{
+                          color: isSubActive ? "#4ade80" : "rgba(255,255,255,0.6)",
+                        }}
                       >
                         <div className="flex items-center gap-3">
                           <SubIcon className="w-[18px] h-[18px]" strokeWidth={1.8} />
@@ -382,7 +377,7 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
                         {subItem.badge && (
                           <span
                             className="text-[10px] px-2 py-0.5 rounded-md font-bold"
-                            style={{ background: "#c0392b", color: "#fff" }}
+                            style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)", color: "#fff" }}
                           >
                             {subItem.badge}
                           </span>
