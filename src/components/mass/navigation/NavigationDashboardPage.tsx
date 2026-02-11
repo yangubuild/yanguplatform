@@ -6,7 +6,7 @@ import { NavDashPromoCards } from "./NavDashPromoCards";
 const RAIL_WIDTH = 60;
 const FULL_WIDTH = 260;
 const EXTENDED_WIDTH = 260;
-const EXTENDED_ITEMS = ["Visionaire"];
+const EXTENDED_ITEMS = ["Visionaire", "Dashboard"];
 
 export function NavigationDashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);

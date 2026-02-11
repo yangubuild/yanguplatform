@@ -29,12 +29,21 @@ import {
   Settings,
   Zap,
   Sparkle,
+  Grid3X3,
+  Building2,
+  CreditCard,
+  FileBarChart,
+  BarChart3,
+  Tag as TagAlt,
+  UserCircle,
+  ShieldCheck,
+  Briefcase,
 } from "lucide-react";
 
 import adaIcon from "@/assets/ada-icon.png";
 
 // Items that have an extended sidebar panel
-const EXTENDED_SIDEBAR_ITEMS = ["Visionaire"];
+const EXTENDED_SIDEBAR_ITEMS = ["Visionaire", "Dashboard"];
 
 const navItems = [
   { icon: Compass, label: "Explore", chevron: true },
@@ -87,6 +96,41 @@ const visionaireSections = [
       { icon: Settings, label: "Product Descriptions" },
       { icon: Zap, label: "Product Ideas" },
       { icon: Sparkle, label: "Book Title Generator" },
+    ],
+  },
+];
+
+// Dashboard extended sidebar content
+const dashboardSections = [
+  {
+    title: "GENERAL",
+    items: [
+      { icon: Home, label: "Dashboard" },
+      { icon: Grid3X3, label: "My Apps" },
+      { icon: Building2, label: "My Business" },
+    ],
+  },
+  {
+    title: "USER MANAGEMENT",
+    items: [
+      { icon: CreditCard, label: "Payments" },
+      { icon: FileBarChart, label: "Invoices" },
+    ],
+  },
+  {
+    title: "MARKETING",
+    items: [
+      { icon: BarChart3, label: "Ads" },
+      { icon: TagAlt, label: "Promo Codes" },
+      { icon: Users, label: "Affiliates" },
+    ],
+  },
+  {
+    title: "ACCOUNT",
+    items: [
+      { icon: UserCircle, label: "Profile" },
+      { icon: ShieldCheck, label: "Admin" },
+      { icon: Briefcase, label: "My Agency" },
     ],
   },
 ];
@@ -330,66 +374,73 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
           )}
         </div>
 
-        {/* === EXTENDED SIDEBAR (Visionaire panel) === */}
-        {hasExtendedPanel && (
-          <div
-          className="h-full flex flex-col overflow-hidden"
-            style={{
-              width: EXTENDED_WIDTH,
-              background: "#1a2025",
-              borderLeft: "1px solid rgba(255,255,255,0.06)",
-            }}
-          >
-            {/* Panel header */}
-            <div className="px-4 pt-4 pb-2 flex items-center gap-2.5">
-              <BookOpen className="w-5 h-5" style={{ color: "rgba(255,255,255,0.8)" }} />
-              <span className="text-sm font-semibold text-white">Visionaire Library</span>
-            </div>
+        {/* === EXTENDED SIDEBAR === */}
+        {hasExtendedPanel && (() => {
+          const panelConfig = activeItem === "Visionaire"
+            ? { icon: BookOpen, title: "Visionaire Library", sections: visionaireSections, defaultActive: "Home" }
+            : { icon: LayoutDashboard, title: "Dashboard", sections: dashboardSections, defaultActive: "Dashboard" };
+          const PanelIcon = panelConfig.icon;
 
-            {/* Panel content */}
-            <nav className="flex-1 overflow-y-auto px-3 pb-4">
-              {visionaireSections.map((section) => (
-                <div key={section.title} className="mb-4">
-                  <p
-                    className="text-[10px] font-bold tracking-wider px-2 mb-2"
-                    style={{ color: "rgba(255,255,255,0.35)" }}
-                  >
-                    {section.title}
-                  </p>
-                  {section.items.map((subItem) => {
-                    const SubIcon = subItem.icon;
-                    const isSubActive = extendedActiveItem === subItem.label;
-                    return (
-                      <button
-                        key={subItem.label}
-                        onClick={() => setExtendedActiveItem(subItem.label)}
-                        className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 mb-0.5 ${
-                          isSubActive ? "nav-offers-active" : "hover:bg-white/[0.06]"
-                        }`}
-                        style={{
-                          color: isSubActive ? "#4ade80" : "rgba(255,255,255,0.6)",
-                        }}
-                      >
-                        <div className="flex items-center gap-3">
-                          <SubIcon className="w-[18px] h-[18px]" strokeWidth={1.8} />
-                          <span className="font-medium">{subItem.label}</span>
-                        </div>
-                        {subItem.badge && (
-                          <span
-                            className="text-[10px] px-2 py-0.5 rounded-md font-bold"
-                            style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)", color: "#fff" }}
-                          >
-                            {subItem.badge}
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              ))}
-            </nav>
-          </div>
-        )}
+          return (
+            <div
+              className="h-full flex flex-col overflow-hidden"
+              style={{
+                width: EXTENDED_WIDTH,
+                background: "#1a2025",
+                borderLeft: "1px solid rgba(255,255,255,0.06)",
+              }}
+            >
+              {/* Panel header */}
+              <div className="px-4 pt-4 pb-2 flex items-center gap-2.5">
+                <PanelIcon className="w-5 h-5" style={{ color: "rgba(255,255,255,0.8)" }} />
+                <span className="text-sm font-semibold text-white">{panelConfig.title}</span>
+              </div>
+
+              {/* Panel content */}
+              <nav className="flex-1 overflow-y-auto px-3 pb-4">
+                {panelConfig.sections.map((section) => (
+                  <div key={section.title} className="mb-4">
+                    <p
+                      className="text-[10px] font-bold tracking-wider px-2 mb-2"
+                      style={{ color: "rgba(255,255,255,0.35)" }}
+                    >
+                      {section.title}
+                    </p>
+                    {section.items.map((subItem) => {
+                      const SubIcon = subItem.icon;
+                      const isSubActive = extendedActiveItem === subItem.label;
+                      return (
+                        <button
+                          key={subItem.label}
+                          onClick={() => setExtendedActiveItem(subItem.label)}
+                          className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 mb-0.5 ${
+                            isSubActive ? "nav-offers-active" : "hover:bg-white/[0.06]"
+                          }`}
+                          style={{
+                            color: isSubActive ? "#4ade80" : "rgba(255,255,255,0.6)",
+                          }}
+                        >
+                          <div className="flex items-center gap-3">
+                            <SubIcon className="w-[18px] h-[18px]" strokeWidth={1.8} />
+                            <span className="font-medium">{subItem.label}</span>
+                          </div>
+                          {"badge" in subItem && (subItem as any).badge && (
+                            <span
+                              className="text-[10px] px-2 py-0.5 rounded-md font-bold"
+                              style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)", color: "#fff" }}
+                            >
+                              {(subItem as any).badge}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ))}
+              </nav>
+            </div>
+          );
+        })()}
       </div>
     </>
   );
