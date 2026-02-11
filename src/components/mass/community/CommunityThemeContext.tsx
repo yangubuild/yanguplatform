@@ -24,7 +24,7 @@ export function getThemeColors(theme: CommunityTheme) {
       border: "rgba(255,255,255,0.12)",
       cardBg: "#0A1710",
       filterBg: "#0A1710",
-      filterActiveBg: "#F46D2A",
+      filterActiveBg: "linear-gradient(180deg, #b5622a 0%, #5c2a12 100%)",
       filterActiveText: "#FFFFFF",
       filterInactiveBg: "transparent",
       filterInactiveText: "#9CA3AF",

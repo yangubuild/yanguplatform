@@ -33,7 +33,7 @@ export function CommunityFilterBar({ onFilterChange }: CommunityFilterBarProps) 
                 className="shrink-0 whitespace-nowrap rounded-lg px-4 py-[7px] text-[13px] font-medium transition-colors"
                 style={
                   isActive
-                    ? { backgroundColor: c.filterActiveBg, color: c.filterActiveText }
+                    ? { background: c.filterActiveBg, color: c.filterActiveText }
                     : {
                         backgroundColor: c.filterInactiveBg,
                         color: c.filterInactiveText,
