@@ -53,7 +53,7 @@ export function BlogPodcastSection() {
           <div>
             <h3
               className="text-xl font-medium mb-2"
-              style={{ fontFamily: "Georgia, 'Times New Roman', serif", color: "#fff" }}
+              style={{ fontFamily: "'Lufga', sans-serif", color: "#fff" }}
             >
               AI & I
             </h3>
@@ -82,7 +82,7 @@ export function BlogPodcastSection() {
               </span>
               <h4
                 className="text-sm font-medium leading-snug group-hover:text-white transition-colors"
-                style={{ fontFamily: "Georgia, 'Times New Roman', serif", color: "rgba(255,255,255,0.85)" }}
+                style={{ fontFamily: "'Lufga', sans-serif", color: "rgba(255,255,255,0.85)" }}
               >
                 {ep.title}
               </h4>

@@ -51,7 +51,7 @@ export function BlogArticleCard({ article, size = "default" }: Props) {
       <h3
         className="font-medium leading-snug transition-colors duration-200 group-hover:text-white"
         style={{
-          fontFamily: "Georgia, 'Times New Roman', serif",
+          fontFamily: "'Lufga', sans-serif",
           fontSize: isLarge ? 22 : 16,
           color: "rgba(255,255,255,0.85)",
         }}

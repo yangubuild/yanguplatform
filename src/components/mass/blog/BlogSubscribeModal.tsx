@@ -110,7 +110,7 @@ export function BlogSubscribeModal() {
         <div className="flex-1 p-8 md:p-10" style={{ background: "#FFFFFF" }}>
           <h2
             className="text-xl md:text-2xl font-medium leading-tight mb-2"
-            style={{ fontFamily: "Georgia, 'Times New Roman', serif", color: "#111" }}
+            style={{ fontFamily: "'Lufga', sans-serif", color: "#111" }}
           >
             The Only Subscription You Need to Stay at the Edge of AI
           </h2>

@@ -22,7 +22,7 @@ export function BlogHeader({ onSubscribeClick }: BlogHeaderProps) {
     <header
       className="sticky top-0 z-50 w-full"
       style={{
-        background: "#000000",
+        background: "#08120D",
         borderBottom: "1px solid rgba(255,255,255,0.1)",
       }}
     >
@@ -66,7 +66,7 @@ export function BlogHeader({ onSubscribeClick }: BlogHeaderProps) {
           <span
             className="px-4 whitespace-nowrap select-none"
             style={{
-              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontFamily: "'Lufga', sans-serif",
               fontSize: 18,
               fontWeight: 400,
               color: "#FFFFFF",

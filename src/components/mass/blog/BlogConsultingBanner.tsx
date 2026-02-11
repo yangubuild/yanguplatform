@@ -36,7 +36,7 @@ export function BlogConsultingBanner() {
         <div className="flex-1">
           <h2
             className="text-2xl font-medium mb-3 leading-tight"
-            style={{ fontFamily: "Georgia, 'Times New Roman', serif", color: "#fff" }}
+            style={{ fontFamily: "'Lufga', sans-serif", color: "#fff" }}
           >
             Stop Planning Your AI Strategy. Start Executing It.
           </h2>
