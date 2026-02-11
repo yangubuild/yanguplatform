@@ -1,0 +1,36 @@
+import type { BlogEssay } from "./blogData";
+
+interface Props {
+  essay: BlogEssay;
+}
+
+export function BlogEssayItem({ essay }: Props) {
+  return (
+    <a
+      href="#"
+      className="group flex items-start gap-3 py-3 transition-colors"
+      style={{ textDecoration: "none", borderBottom: "1px solid rgba(255,255,255,0.08)" }}
+    >
+      <div
+        className="flex-shrink-0 w-12 h-12 rounded overflow-hidden"
+        style={{ background: "#1a1a1a" }}
+      >
+        <img src={essay.image} alt={essay.title} className="w-full h-full object-cover" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <h4
+          className="text-sm leading-snug transition-colors duration-200 group-hover:text-white"
+          style={{
+            fontFamily: "Georgia, 'Times New Roman', serif",
+            color: "rgba(255,255,255,0.8)",
+          }}
+        >
+          {essay.title}
+        </h4>
+        <span className="text-xs mt-1 block" style={{ color: "rgba(255,255,255,0.4)" }}>
+          {essay.author}
+        </span>
+      </div>
+    </a>
+  );
+}
