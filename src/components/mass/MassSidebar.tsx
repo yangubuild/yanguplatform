@@ -20,7 +20,6 @@ import adaIcon from "@/assets/ada-icon.png";
 
 const topNavItems = [
   { icon: Home, label: "Explore", id: "explore" },
-  { icon: Info, label: "Discover Yangu", id: "discover" },
   { icon: Sparkles, label: "Why Yangu", id: "why-yangu", isActive: true },
   { icon: Compass, label: "Navigation", id: "navigation" },
 ];
