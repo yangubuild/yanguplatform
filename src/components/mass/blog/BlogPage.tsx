@@ -104,7 +104,7 @@ export function BlogPage() {
 
 
       {/* Yangu Studio */}
-      <BlogSectionModule title="Yangu Studio" subtitle="Lessons from engineers shipping AI products.">
+      <BlogSectionModule title="Yangu Studio" subtitle="Lessons from engineers shipping AI products." dashedBorder>
         <ArticleGrid articles={studioArticles} />
       </BlogSectionModule>
 

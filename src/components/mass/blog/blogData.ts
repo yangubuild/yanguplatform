@@ -9,6 +9,10 @@ import adaAiImg from "@/assets/products/ada-ai.jpg";
 import foundawebImg from "@/assets/products/foundaweb.jpg";
 import visionaireImg from "@/assets/products/visionaire.jpg";
 import vlsImg from "@/assets/products/vls.jpg";
+import studioImg1 from "@/assets/blog/studio-1.jpg";
+import studioImg2 from "@/assets/blog/studio-2.jpg";
+import studioImg3 from "@/assets/blog/studio-3.jpg";
+import studioImg4 from "@/assets/blog/studio-4.jpg";
 
 // Mock data for Blog page — 1:1 Every.to clone
 
@@ -107,10 +111,10 @@ export const products: BlogProduct[] = [
 ];
 
 export const studioArticles: BlogArticle[] = [
-  { id: "s1", title: "Compound Engineering: Building AI That Gets Smarter", date: "Feb 5, 2026", column: "YANGU STUDIO", author: "Dan Shipper", image: "/placeholder.svg" },
-  { id: "s2", title: "The Architecture of Modern AI Applications", date: "Feb 3, 2026", column: "YANGU STUDIO", author: "Dan Shipper", image: "/placeholder.svg" },
-  { id: "s3", title: "Shipping AI Products at Scale: A Retrospective", date: "Feb 1, 2026", column: "YANGU STUDIO", author: "Dan Shipper", image: "/placeholder.svg" },
-  { id: "s4", title: "How We Built Spiral's Writing Engine", date: "Jan 29, 2026", column: "YANGU STUDIO", author: "Dan Shipper", image: "/placeholder.svg" },
+  { id: "s1", title: "Compound Engineering: The Definitive Guide", subtitle: "A comprehensive handbook for the AI-native engineering philosophy", date: "Feb 5, 2026", column: "YANGU STUDIO", author: "Dan Shipper", image: studioImg1 },
+  { id: "s2", title: "Compound Engineering: How Every Codes With Agents", subtitle: "A four-step engineering process for software teams that don't write code", date: "Feb 3, 2026", column: "YANGU STUDIO", author: "Dan Shipper", image: studioImg2 },
+  { id: "s3", title: "Teach Your AI to Think Like a Senior Engineer", subtitle: "These are the eight strategies I use to help my AI learn my codebase, my patterns, and my preferences", date: "Feb 1, 2026", column: "YANGU STUDIO", author: "Dan Shipper", image: studioImg3 },
+  { id: "s4", title: "Stop Coding and Start Planning", subtitle: "Spend an hour teaching AI how you think, and it gets smarter with every feature you build", date: "Jan 29, 2026", column: "YANGU STUDIO", author: "Dan Shipper", image: studioImg4 },
 ];
 
 export const dispatchArticles: BlogArticle[] = [

@@ -14,12 +14,12 @@ export function BlogArticleCard({ article, size = "default" }: Props) {
       className="group block transition-all duration-200 hover:-translate-y-0.5"
       style={{ textDecoration: "none" }}
     >
-      {/* Image */}
+      {/* Image — tall 3:4 aspect ratio */}
       <div
-        className="overflow-hidden rounded-lg mb-3"
+        className="overflow-hidden rounded-lg mb-4"
         style={{
           background: "#1a1a1a",
-          aspectRatio: isLarge ? "16/10" : "16/9",
+          aspectRatio: isLarge ? "4/5" : "3/4",
         }}
       >
         <img
@@ -29,31 +29,13 @@ export function BlogArticleCard({ article, size = "default" }: Props) {
         />
       </div>
 
-      {/* Meta */}
-      <div className="flex items-center gap-2 mb-2">
-        <span className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
-          {article.date}
-        </span>
-        {article.column && (
-          <>
-            <span style={{ color: "rgba(255,255,255,0.25)" }}>·</span>
-            <span
-              className="text-xs font-medium uppercase tracking-wider"
-              style={{ color: "rgba(255,255,255,0.5)", fontSize: 10 }}
-            >
-              {article.column}
-            </span>
-          </>
-        )}
-      </div>
-
       {/* Title */}
       <h3
         className="font-medium leading-snug transition-colors duration-200 group-hover:text-white"
         style={{
           fontFamily: "'Lufga', sans-serif",
-          fontSize: isLarge ? 22 : 16,
-          color: "rgba(255,255,255,0.85)",
+          fontSize: isLarge ? 22 : 18,
+          color: "rgba(255,255,255,0.9)",
         }}
       >
         {article.title}
@@ -61,18 +43,21 @@ export function BlogArticleCard({ article, size = "default" }: Props) {
 
       {/* Subtitle */}
       {article.subtitle && (
-        <p className="mt-1.5 text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}>
+        <p className="mt-2 text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>
           {article.subtitle}
         </p>
       )}
 
       {/* Author */}
-      <div className="flex items-center gap-2 mt-3">
+      <div className="flex items-center gap-2 mt-4">
         <div
-          className="w-6 h-6 rounded-full"
+          className="w-7 h-7 rounded-full"
           style={{ background: "#333" }}
         />
-        <span className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>
+        <span
+          className="text-xs font-medium uppercase tracking-wider"
+          style={{ color: "rgba(255,255,255,0.5)", letterSpacing: "0.08em" }}
+        >
           {article.author}
         </span>
       </div>
