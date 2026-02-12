@@ -83,10 +83,10 @@ export function BlogPage() {
       </BlogSectionModule>
 
 
+      {/* Interstitial Banner */}
+      <BlogInterstitialBanner />
+
       {/* Putting AI to Work */}
-      <BlogSectionModule title="Putting AI to Work">
-        <ArticleGrid articles={aiWorkArticles} />
-      </BlogSectionModule>
 
       {/* Future of Programming */}
       <BlogSectionModule title="The Future of Programming">
