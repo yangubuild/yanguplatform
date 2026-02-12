@@ -1,4 +1,4 @@
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation, Link } from "react-router-dom";
 import { AdminSidebar } from "./AdminSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import {
@@ -9,7 +9,6 @@ import {
   BreadcrumbSeparator,
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
-import { Link } from "react-router-dom";
 import { sectionLabels } from "./adminNavConfig";
 import { Bell, FileWarning, ServerCrash, CreditCard } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -30,25 +29,25 @@ function AdaAlertsButton() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button className="relative p-2 rounded-lg hover:bg-muted transition-colors">
-          <Bell className="h-5 w-5 text-muted-foreground" />
-          <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-destructive ring-2 ring-background" />
+        <button className="relative p-2 rounded-lg hover:bg-[hsl(var(--admin-surface-elevated)/0.5)] transition-colors">
+          <Bell className="h-5 w-5 text-[hsl(var(--admin-text-muted))]" />
+          <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-[hsl(24,95%,53%)] ring-2 ring-[hsl(var(--admin-bg))]" />
         </button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-80 p-0">
-        <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-          <p className="text-sm font-semibold">ADA Alerts</p>
-          <Badge variant="outline" className="text-[10px]">{mockAdaAlerts.length}</Badge>
+      <PopoverContent align="end" className="w-80 p-0 admin-glass-card border-[hsl(var(--admin-border)/0.5)]">
+        <div className="px-4 py-3 border-b border-[hsl(var(--admin-border)/0.4)] flex items-center justify-between">
+          <p className="text-sm font-semibold text-[hsl(var(--admin-text))]" style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>ADA Alerts</p>
+          <Badge variant="outline" className="text-[10px] border-[hsl(var(--admin-border)/0.5)] text-[hsl(24,95%,53%)]">{mockAdaAlerts.length}</Badge>
         </div>
-        <div className="divide-y divide-border">
+        <div className="divide-y divide-[hsl(var(--admin-border)/0.3)]">
           {mockAdaAlerts.map((a) => (
-            <div key={a.id} className="px-4 py-2.5 flex items-start gap-3 hover:bg-muted/50 transition-colors">
-              <div className={`p-1.5 rounded-md shrink-0 ${a.severity === "error" ? "bg-destructive/10" : "bg-warning/10"}`}>
-                <a.icon className={`h-4 w-4 ${a.severity === "error" ? "text-destructive" : "text-warning"}`} />
+            <div key={a.id} className="px-4 py-2.5 flex items-start gap-3 hover:bg-[hsl(var(--admin-surface-elevated)/0.3)] transition-colors">
+              <div className={`p-1.5 rounded-md shrink-0 ${a.severity === "error" ? "bg-[hsl(0,72%,51%,0.12)]" : "bg-[hsl(38,92%,50%,0.12)]"}`}>
+                <a.icon className={`h-4 w-4 ${a.severity === "error" ? "text-[hsl(0,72%,51%)]" : "text-[hsl(38,92%,55%)]"}`} />
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-medium">{a.label}</p>
-                <p className="text-[11px] text-muted-foreground truncate">{a.detail}</p>
+                <p className="text-xs font-medium text-[hsl(var(--admin-text))]">{a.label}</p>
+                <p className="text-[11px] text-[hsl(var(--admin-text-muted))] truncate">{a.detail}</p>
               </div>
             </div>
           ))}
@@ -63,7 +62,7 @@ function RoleBadge() {
   const label = isAdmin ? "Admin" : isContentEditor ? "Content Editor" : null;
   if (!label) return null;
   return (
-    <Badge variant="outline" className="text-[10px] font-medium">
+    <Badge variant="outline" className="text-[10px] font-medium border-[hsl(var(--admin-border)/0.5)] text-[hsl(var(--admin-text-muted))]">
       Role: {label}
     </Badge>
   );
@@ -83,28 +82,29 @@ export function AdminShell() {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className="admin-shell flex w-full">
         <AdminSidebar />
         <div className="flex flex-1 flex-col min-w-0">
-          <header className="sticky top-0 z-40 h-14 flex items-center justify-between border-b border-border bg-surface-elevated/80 backdrop-blur-sm px-4 lg:px-6">
+          {/* Glass Header */}
+          <header className="admin-glass-header sticky top-0 z-40 h-14 flex items-center justify-between px-4 lg:px-6">
             <div className="flex items-center gap-4">
-              <SidebarTrigger className="lg:hidden" />
+              <SidebarTrigger className="lg:hidden text-[hsl(var(--admin-text-muted))]" />
               <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem>
                     {segments.length > 0 ? (
                       <BreadcrumbLink asChild>
-                        <Link to="/manage">Management</Link>
+                        <Link to="/manage" className="text-[hsl(var(--admin-text-muted))] hover:text-[hsl(24,95%,53%)] transition-colors text-sm">Management</Link>
                       </BreadcrumbLink>
                     ) : (
-                      <BreadcrumbPage>Management</BreadcrumbPage>
+                      <BreadcrumbPage className="text-[hsl(var(--admin-text))] text-sm">Management</BreadcrumbPage>
                     )}
                   </BreadcrumbItem>
                   {segments.length > 0 && (
                     <>
-                      <BreadcrumbSeparator />
+                      <BreadcrumbSeparator className="text-[hsl(var(--admin-text-muted))]" />
                       <BreadcrumbItem>
-                        <BreadcrumbPage>{sectionTitle}</BreadcrumbPage>
+                        <BreadcrumbPage className="text-[hsl(var(--admin-text))] text-sm">{sectionTitle}</BreadcrumbPage>
                       </BreadcrumbItem>
                     </>
                   )}
@@ -116,7 +116,8 @@ export function AdminShell() {
               {isAdmin && <AdaAlertsButton />}
             </div>
           </header>
-          <main className="flex-1 p-4 lg:p-6">
+          {/* Main Content Canvas */}
+          <main className="flex-1 p-6 lg:p-8">
             <Outlet />
           </main>
         </div>

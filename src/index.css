@@ -86,6 +86,17 @@
     --sidebar-accent-foreground: 222 47% 11%;
     --sidebar-border: 214 32% 91%;
     --sidebar-ring: 217 91% 60%;
+
+    /* Admin Panel tokens (light - fallback) */
+    --admin-bg: 222 20% 7%;
+    --admin-surface: 222 20% 10%;
+    --admin-surface-elevated: 222 20% 13%;
+    --admin-border: 220 15% 18%;
+    --admin-accent: 24 95% 53%;
+    --admin-accent-foreground: 0 0% 100%;
+    --admin-glow: 0 0 30px hsl(24 95% 53% / 0.15);
+    --admin-text: 220 15% 90%;
+    --admin-text-muted: 220 10% 55%;
   }
 
   .dark {
@@ -162,6 +173,17 @@
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 217 33% 17%;
     --sidebar-ring: 217 91% 60%;
+
+    /* Admin Panel tokens (dark) */
+    --admin-bg: 222 20% 7%;
+    --admin-surface: 222 20% 10%;
+    --admin-surface-elevated: 222 20% 13%;
+    --admin-border: 220 15% 18%;
+    --admin-accent: 24 95% 53%;
+    --admin-accent-foreground: 0 0% 100%;
+    --admin-glow: 0 0 30px hsl(24 95% 53% / 0.15);
+    --admin-text: 220 15% 90%;
+    --admin-text-muted: 220 10% 55%;
   }
 }
 
@@ -250,6 +272,124 @@
   .badge-studio { @apply bg-amber-500/10 text-amber-500 border-amber-500/20; }
   .badge-live { @apply bg-rose-500/10 text-rose-500 border-rose-500/20; }
   .badge-community { @apply bg-cyan-500/10 text-cyan-500 border-cyan-500/20; }
+
+  /* ── Admin Glass System ─────────────────────── */
+  .admin-shell {
+    background: hsl(var(--admin-bg));
+    color: hsl(var(--admin-text));
+    min-height: 100vh;
+  }
+
+  .admin-glass-card {
+    background: hsl(var(--admin-surface) / 0.6);
+    backdrop-filter: blur(16px);
+    border: 1px solid hsl(var(--admin-border) / 0.5);
+    border-radius: 1rem;
+    box-shadow: 
+      0 0 0 1px hsl(var(--admin-border) / 0.15),
+      inset 0 1px 0 0 hsl(0 0% 100% / 0.03),
+      0 4px 24px -4px hsl(0 0% 0% / 0.35);
+  }
+
+  .admin-glass-card:hover {
+    border-color: hsl(var(--admin-border) / 0.7);
+    box-shadow: 
+      0 0 0 1px hsl(var(--admin-border) / 0.25),
+      inset 0 1px 0 0 hsl(0 0% 100% / 0.05),
+      0 8px 32px -4px hsl(0 0% 0% / 0.4);
+  }
+
+  .admin-glass-sidebar {
+    background: hsl(var(--admin-surface) / 0.4);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid hsl(var(--admin-border) / 0.4);
+  }
+
+  .admin-glass-header {
+    background: hsl(var(--admin-surface) / 0.5);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid hsl(var(--admin-border) / 0.4);
+  }
+
+  .admin-btn-primary {
+    background: linear-gradient(135deg, hsl(24 95% 53%) 0%, hsl(24 90% 40%) 100%);
+    color: hsl(0 0% 100%);
+    border: 1px solid hsl(24 95% 53% / 0.3);
+    border-radius: 0.625rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    padding: 0.5rem 1.25rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 0 20px hsl(24 95% 53% / 0.15);
+  }
+
+  .admin-btn-primary:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 0 28px hsl(24 95% 53% / 0.25);
+  }
+
+  .admin-btn-secondary {
+    background: transparent;
+    color: hsl(var(--admin-text));
+    border: 1px solid hsl(var(--admin-border) / 0.6);
+    border-radius: 0.625rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    padding: 0.5rem 1.25rem;
+    transition: all 0.2s ease;
+  }
+
+  .admin-btn-secondary:hover {
+    background: hsl(var(--admin-surface-elevated) / 0.5);
+    border-color: hsl(var(--admin-border));
+  }
+
+  .admin-btn-danger {
+    background: linear-gradient(135deg, hsl(0 72% 51%) 0%, hsl(0 72% 38%) 100%);
+    color: hsl(0 0% 100%);
+    border: 1px solid hsl(0 72% 51% / 0.3);
+    border-radius: 0.625rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    padding: 0.5rem 1.25rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 0 20px hsl(0 72% 51% / 0.15);
+  }
+
+  .admin-btn-danger:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 0 28px hsl(0 72% 51% / 0.25);
+  }
+
+  /* Admin nav item styling */
+  .admin-nav-item {
+    transition: all 0.2s ease;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    color: hsl(var(--admin-text-muted));
+  }
+
+  .admin-nav-item:hover {
+    background: hsl(var(--admin-surface-elevated) / 0.5);
+    color: hsl(var(--admin-text));
+  }
+
+  .admin-nav-item-active {
+    background: hsl(24 95% 53% / 0.12) !important;
+    color: hsl(24 95% 53%) !important;
+    font-weight: 500;
+    box-shadow: inset 3px 0 0 hsl(24 95% 53%);
+  }
+
+  .admin-section-title {
+    font-family: 'Lufga', 'Inter', system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-size: 0.65rem;
+    color: hsl(var(--admin-text-muted));
+    padding: 0.75rem 0.75rem 0.25rem;
+  }
 }
 
 @layer utilities {

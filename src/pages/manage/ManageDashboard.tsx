@@ -6,10 +6,10 @@ import {
   Inbox, Clock, ArrowUpRight,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import { AdminGlassCard, AdminPageHeader, AdminMetricCard } from "@/components/manage/AdminGlassCard";
 import { AdminStatusBadge } from "@/components/manage/AdminStatusBadge";
 
 /* ── ADA AI Command Assistant ─────────────────────────── */
@@ -21,40 +21,41 @@ function AdaCommandWidget() {
   ];
 
   return (
-    <Card className="col-span-full lg:col-span-2">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Bot className="h-5 w-5 text-accent" />
-            ADA AI Command Assistant
-          </CardTitle>
-          <Badge variant="outline" className="text-xs bg-success/10 text-success border-success/20">
-            <Activity className="h-3 w-3 mr-1" /> Monitoring Active
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <Input placeholder="Ask ADA…" className="bg-muted/50" />
+    <AdminGlassCard className="col-span-full lg:col-span-2">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-base font-semibold flex items-center gap-2 text-[hsl(var(--admin-text))] font-display">
+          <Bot className="h-5 w-5 text-[hsl(24,95%,53%)]" />
+          ADA AI Command Assistant
+        </h3>
+        <Badge variant="outline" className="text-xs bg-[hsl(160,84%,45%,0.1)] text-[hsl(160,84%,45%)] border-[hsl(160,84%,45%,0.2)]">
+          <Activity className="h-3 w-3 mr-1" /> Monitoring Active
+        </Badge>
+      </div>
+      <div className="space-y-4">
+        <Input
+          placeholder="Ask ADA…"
+          className="bg-[hsl(var(--admin-surface-elevated)/0.4)] border-[hsl(var(--admin-border)/0.5)] text-[hsl(var(--admin-text))] placeholder:text-[hsl(var(--admin-text-muted))]"
+        />
         <div className="space-y-2">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Suggested Alerts</p>
+          <p className="text-xs font-medium text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Suggested Alerts</p>
           {alerts.map((a) => (
             <button
               key={a.label}
-              className="flex w-full items-center justify-between rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted/50 transition-colors"
+              className="flex w-full items-center justify-between rounded-lg border border-[hsl(var(--admin-border)/0.4)] px-3 py-2 text-sm hover:bg-[hsl(var(--admin-surface-elevated)/0.3)] transition-colors text-[hsl(var(--admin-text))]"
             >
               <span className="flex items-center gap-2">
-                <a.icon className="h-4 w-4 text-muted-foreground" />
+                <a.icon className="h-4 w-4 text-[hsl(var(--admin-text-muted))]" />
                 {a.label}
               </span>
               <span className="flex items-center gap-2">
-                <Badge variant="secondary" className="text-xs">{a.count}</Badge>
-                <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+                <Badge variant="outline" className="text-xs border-[hsl(var(--admin-border)/0.5)] text-[hsl(24,95%,53%)]">{a.count}</Badge>
+                <ChevronRight className="h-3.5 w-3.5 text-[hsl(var(--admin-text-muted))]" />
               </span>
             </button>
           ))}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </AdminGlassCard>
   );
 }
 
@@ -67,37 +68,34 @@ function MessagesWidget() {
   ];
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base flex items-center gap-2">
-          <MessageSquare className="h-5 w-5 text-accent" />
-          Live Communications
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <AdminGlassCard>
+      <h3 className="text-base font-semibold flex items-center gap-2 mb-4 text-[hsl(var(--admin-text))] font-display">
+        <MessageSquare className="h-5 w-5 text-[hsl(24,95%,53%)]" />
+        Live Communications
+      </h3>
+      <div className="space-y-4">
         {stats.map((s) => (
           <div key={s.label} className="flex items-center justify-between">
-            <span className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span className="flex items-center gap-2 text-sm text-[hsl(var(--admin-text-muted))]">
               <s.icon className="h-4 w-4" />
               {s.label}
             </span>
-            <span className="text-sm font-semibold">{s.value}</span>
+            <span className="text-sm font-semibold text-[hsl(var(--admin-text))]">{s.value}</span>
           </div>
         ))}
-        {/* Mock chat bubble */}
-        <div className="rounded-lg bg-muted/50 border border-border p-3 space-y-2">
+        <div className="rounded-lg bg-[hsl(var(--admin-surface-elevated)/0.3)] border border-[hsl(var(--admin-border)/0.3)] p-3 space-y-2">
           <div className="flex items-start gap-2">
-            <div className="h-6 w-6 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
-              <Users className="h-3 w-3 text-accent" />
+            <div className="h-6 w-6 rounded-full bg-[hsl(24,95%,53%,0.15)] flex items-center justify-center shrink-0">
+              <Users className="h-3 w-3 text-[hsl(24,95%,53%)]" />
             </div>
             <div className="text-xs">
-              <p className="font-medium">User #1042</p>
-              <p className="text-muted-foreground">Having trouble with payment…</p>
+              <p className="font-medium text-[hsl(var(--admin-text))]">User #1042</p>
+              <p className="text-[hsl(var(--admin-text-muted))]">Having trouble with payment…</p>
             </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </AdminGlassCard>
   );
 }
 
@@ -112,20 +110,20 @@ function SystemHealthWidget() {
   return (
     <div className="col-span-full grid gap-4 sm:grid-cols-3">
       {items.map((item) => (
-        <Card key={item.label} className="p-4">
+        <AdminGlassCard key={item.label} className="p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-success/10">
-                <item.icon className="h-5 w-5 text-success" />
+              <div className="p-2 rounded-lg bg-[hsl(160,84%,45%,0.1)]">
+                <item.icon className="h-5 w-5 text-[hsl(160,84%,45%)]" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">{item.label}</p>
-                <p className="text-sm font-semibold">{item.value}</p>
+                <p className="text-xs text-[hsl(var(--admin-text-muted))]">{item.label}</p>
+                <p className="text-sm font-semibold text-[hsl(var(--admin-text))]">{item.value}</p>
               </div>
             </div>
             <AdminStatusBadge status={item.status} />
           </div>
-        </Card>
+        </AdminGlassCard>
       ))}
     </div>
   );
@@ -140,26 +138,24 @@ function MonetizationWidget() {
   ];
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base flex items-center gap-2">
-          <CreditCard className="h-5 w-5 text-accent" />
-          Monetization Status
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Gateway Health</p>
+    <AdminGlassCard>
+      <h3 className="text-base font-semibold flex items-center gap-2 mb-4 text-[hsl(var(--admin-text))] font-display">
+        <CreditCard className="h-5 w-5 text-[hsl(24,95%,53%)]" />
+        Monetization Status
+      </h3>
+      <div className="space-y-3">
+        <p className="text-xs font-medium text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Gateway Health</p>
         {gateways.map((g) => (
           <div key={g.name} className="flex items-center justify-between">
-            <span className="text-sm font-medium">{g.name}</span>
+            <span className="text-sm font-medium text-[hsl(var(--admin-text))]">{g.name}</span>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">{g.latency}</span>
+              <span className="text-xs text-[hsl(var(--admin-text-muted))]">{g.latency}</span>
               <AdminStatusBadge status={g.status} />
             </div>
           </div>
         ))}
-      </CardContent>
-    </Card>
+      </div>
+    </AdminGlassCard>
   );
 }
 
@@ -174,29 +170,27 @@ function IntegrationWidget() {
   ];
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base flex items-center gap-2">
-          <Plug className="h-5 w-5 text-accent" />
-          Integration Status
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
+    <AdminGlassCard>
+      <h3 className="text-base font-semibold flex items-center gap-2 mb-4 text-[hsl(var(--admin-text))] font-display">
+        <Plug className="h-5 w-5 text-[hsl(24,95%,53%)]" />
+        Integration Status
+      </h3>
+      <div className="space-y-3">
         {integrations.map((i) => (
           <div key={i.name} className="flex items-center justify-between">
-            <span className="text-sm">{i.name}</span>
+            <span className="text-sm text-[hsl(var(--admin-text))]">{i.name}</span>
             <div className="flex items-center gap-2">
               {i.enabled ? (
-                <ToggleRight className="h-5 w-5 text-success" />
+                <ToggleRight className="h-5 w-5 text-[hsl(160,84%,45%)]" />
               ) : (
-                <ToggleLeft className="h-5 w-5 text-muted-foreground" />
+                <ToggleLeft className="h-5 w-5 text-[hsl(var(--admin-text-muted))]" />
               )}
               <AdminStatusBadge status={i.enabled ? "active" : "paused"} />
             </div>
           </div>
         ))}
-      </CardContent>
-    </Card>
+      </div>
+    </AdminGlassCard>
   );
 }
 
@@ -210,60 +204,31 @@ function GrowthFunnelWidget() {
   ];
 
   return (
-    <Card className="col-span-full lg:col-span-2">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base flex items-center gap-2">
-          <TrendingUp className="h-5 w-5 text-accent" />
-          Growth Funnel
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <AdminGlassCard className="col-span-full lg:col-span-2">
+      <h3 className="text-base font-semibold flex items-center gap-2 mb-4 text-[hsl(var(--admin-text))] font-display">
+        <TrendingUp className="h-5 w-5 text-[hsl(24,95%,53%)]" />
+        Growth Funnel
+      </h3>
+      <div className="space-y-4">
         {steps.map((step, idx) => (
           <div key={step.label} className="space-y-1.5">
             <div className="flex items-center justify-between text-sm">
-              <span className="flex items-center gap-2">
+              <span className="flex items-center gap-2 text-[hsl(var(--admin-text))]">
                 {idx < steps.length - 1 && (
-                  <Sparkles className="h-3.5 w-3.5 text-accent" />
+                  <Sparkles className="h-3.5 w-3.5 text-[hsl(24,95%,53%)]" />
                 )}
                 {idx === steps.length - 1 && (
-                  <Zap className="h-3.5 w-3.5 text-warning" />
+                  <Zap className="h-3.5 w-3.5 text-[hsl(38,92%,55%)]" />
                 )}
                 {step.label}
               </span>
-              <span className="font-semibold">{step.value}%</span>
+              <span className="font-semibold text-[hsl(var(--admin-text))]">{step.value}%</span>
             </div>
-            <Progress value={step.value} className="h-2" />
+            <Progress value={step.value} className="h-2 bg-[hsl(var(--admin-surface-elevated))]" />
           </div>
         ))}
-      </CardContent>
-    </Card>
-  );
-}
-
-/* ── Live Metrics (existing-style quick stats) ────────── */
-function LiveMetrics() {
-  const metrics = [
-    { label: "Active Users", value: "1,247", icon: Users, color: "text-accent" },
-    { label: "Page Views (24h)", value: "8,903", icon: Eye, color: "text-success" },
-    { label: "Uptime", value: "99.97%", icon: Activity, color: "text-success" },
-  ];
-
-  return (
-    <div className="col-span-full grid gap-4 sm:grid-cols-3">
-      {metrics.map((m) => (
-        <Card key={m.label} className="p-5">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-accent/10">
-              <m.icon className={`h-6 w-6 ${m.color}`} />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">{m.label}</p>
-              <p className="text-2xl font-bold">{m.value}</p>
-            </div>
-          </div>
-        </Card>
-      ))}
-    </div>
+      </div>
+    </AdminGlassCard>
   );
 }
 
@@ -271,39 +236,37 @@ function LiveMetrics() {
 function SupportTicketsWidget() {
   const navigate = useNavigate();
   const items = [
-    { label: "Open Tickets", count: 3, icon: Clock, color: "text-warning", filter: "open" },
-    { label: "Urgent Tickets", count: 2, icon: AlertTriangle, color: "text-destructive", filter: "urgent" },
-    { label: "Unread Tickets", count: 2, icon: Inbox, color: "text-accent", filter: "unread" },
-    { label: "Escalated", count: 1, icon: ArrowUpRight, color: "text-destructive", filter: "escalated" },
+    { label: "Open Tickets", count: 3, icon: Clock, color: "text-[hsl(38,92%,55%)]", filter: "open" },
+    { label: "Urgent Tickets", count: 2, icon: AlertTriangle, color: "text-[hsl(0,72%,51%)]", filter: "urgent" },
+    { label: "Unread Tickets", count: 2, icon: Inbox, color: "text-[hsl(24,95%,53%)]", filter: "unread" },
+    { label: "Escalated", count: 1, icon: ArrowUpRight, color: "text-[hsl(0,72%,51%)]", filter: "escalated" },
   ];
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base flex items-center gap-2">
-          <Inbox className="h-5 w-5 text-accent" />
-          Support Inbox
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-2">
+    <AdminGlassCard>
+      <h3 className="text-base font-semibold flex items-center gap-2 mb-4 text-[hsl(var(--admin-text))] font-display">
+        <Inbox className="h-5 w-5 text-[hsl(24,95%,53%)]" />
+        Support Inbox
+      </h3>
+      <div className="space-y-2">
         {items.map((item) => (
           <button
             key={item.label}
-            className="flex w-full items-center justify-between rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted/50 transition-colors"
+            className="flex w-full items-center justify-between rounded-lg border border-[hsl(var(--admin-border)/0.4)] px-3 py-2 text-sm hover:bg-[hsl(var(--admin-surface-elevated)/0.3)] transition-colors"
             onClick={() => navigate(`/manage/messages?filter=${item.filter}`)}
           >
-            <span className="flex items-center gap-2">
+            <span className="flex items-center gap-2 text-[hsl(var(--admin-text))]">
               <item.icon className={`h-4 w-4 ${item.color}`} />
               {item.label}
             </span>
             <span className="flex items-center gap-2">
-              <Badge variant="secondary" className="text-xs">{item.count}</Badge>
-              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+              <Badge variant="outline" className="text-xs border-[hsl(var(--admin-border)/0.5)] text-[hsl(24,95%,53%)]">{item.count}</Badge>
+              <ChevronRight className="h-3.5 w-3.5 text-[hsl(var(--admin-text-muted))]" />
             </span>
           </button>
         ))}
-      </CardContent>
-    </Card>
+      </div>
+    </AdminGlassCard>
   );
 }
 
@@ -311,10 +274,32 @@ function SupportTicketsWidget() {
 export default function ManageDashboard() {
   return (
     <div className="space-y-6">
-      {/* Live Metrics */}
-      <LiveMetrics />
+      <AdminPageHeader
+        title="Platform Health Dashboard"
+        description="Real-time overview of your platform operations"
+      />
 
-      {/* Row: ADA + Messages + Support */}
+      {/* Live Metrics */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <AdminMetricCard
+          label="Active Users"
+          value="1,247"
+          icon={<Users className="h-5 w-5" />}
+        />
+        <AdminMetricCard
+          label="Page Views (24h)"
+          value="8,903"
+          icon={<Eye className="h-5 w-5" />}
+          trend={<span className="text-xs text-[hsl(160,84%,45%)]">↑ 12%</span>}
+        />
+        <AdminMetricCard
+          label="Uptime"
+          value="99.97%"
+          icon={<Activity className="h-5 w-5" />}
+        />
+      </div>
+
+      {/* Row: ADA + Support */}
       <div className="grid gap-4 lg:grid-cols-3">
         <AdaCommandWidget />
         <div className="space-y-4">

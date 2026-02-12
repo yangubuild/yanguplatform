@@ -1,23 +1,10 @@
 import { useLocation } from "react-router-dom";
 import {
-  Users,
-  Layers,
-  Megaphone,
-  Bot,
-  Globe,
-  Settings,
-  ScrollText,
-  BarChart3,
-  FileText,
-  Newspaper,
-  Calendar,
-  Palette,
-  Puzzle,
-  FlaskConical,
-  FileStack,
-  ShieldAlert,
-  Construction,
+  Users, Layers, Megaphone, Bot, Globe, Settings, ScrollText,
+  BarChart3, FileText, Newspaper, Calendar, Palette, Puzzle,
+  FlaskConical, FileStack, ShieldAlert, Construction,
 } from "lucide-react";
+import { AdminGlassCard } from "@/components/manage/AdminGlassCard";
 
 const sections: Record<string, { label: string; icon: React.ElementType }> = {
   users: { label: "Users", icon: Users },
@@ -47,13 +34,17 @@ export default function ManagePlaceholder() {
 
   return (
     <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
-        <Icon className="h-8 w-8 text-muted-foreground" />
-      </div>
-      <h2 className="text-xl font-semibold text-foreground">{title} — Coming soon</h2>
-      <p className="text-sm text-muted-foreground max-w-xs">
-        This module will be enabled in the next step.
-      </p>
+      <AdminGlassCard className="p-8 flex flex-col items-center gap-4 max-w-sm">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[hsl(var(--admin-surface-elevated)/0.6)]">
+          <Icon className="h-8 w-8 text-[hsl(var(--admin-text-muted))]" />
+        </div>
+        <h2 className="text-xl font-semibold text-[hsl(var(--admin-text))] font-display">{title}</h2>
+        <p className="text-sm text-[hsl(var(--admin-text-muted))]">
+          This module will be enabled in the next phase.
+        </p>
+        <div className="w-full h-px bg-[hsl(var(--admin-border)/0.3)]" />
+        <p className="text-xs text-[hsl(var(--admin-text-muted))]">Coming soon</p>
+      </AdminGlassCard>
     </div>
   );
 }
