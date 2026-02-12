@@ -5,6 +5,10 @@ import essay1 from "@/assets/blog/essay-1.jpg";
 import essay2 from "@/assets/blog/essay-2.jpg";
 import essay3 from "@/assets/blog/essay-3.jpg";
 import essay4 from "@/assets/blog/essay-4.jpg";
+import adaAiImg from "@/assets/products/ada-ai.jpg";
+import foundawebImg from "@/assets/products/foundaweb.jpg";
+import visionaireImg from "@/assets/products/visionaire.jpg";
+import vlsImg from "@/assets/products/vls.jpg";
 
 // Mock data for Blog page — 1:1 Every.to clone
 
@@ -96,10 +100,10 @@ export const recentEssays: BlogEssay[] = [
 ];
 
 export const products: BlogProduct[] = [
-  { id: "p1", name: "Ada AI", description: "The Intelligence Layer of Yangu — ADA AI is the thinking layer of the Yangu ecosystem.", image: "/placeholder.svg", link: "#" },
-  { id: "p2", name: "Foundaweb", description: "AI website builder for businesses. Create websites and business pages and launch without code.", image: "/placeholder.svg", link: "#" },
-  { id: "p3", name: "Visionaire", description: "AI digital knowledge engine that gives instant access to ready-to-use intellectual assets.", image: "/placeholder.svg", link: "#" },
-  { id: "p4", name: "VLS", description: "Helps entrepreneurs build and scale their businesses.", image: "/placeholder.svg", link: "#" },
+  { id: "p1", name: "Ada AI", description: "The Intelligence Layer of Yangu — ADA AI is the thinking layer of the Yangu ecosystem.", image: adaAiImg, link: "#" },
+  { id: "p2", name: "Foundaweb", description: "AI website builder for businesses. Create websites and business pages and launch without code.", image: foundawebImg, link: "#" },
+  { id: "p3", name: "Visionaire", description: "AI digital knowledge engine that gives instant access to ready-to-use intellectual assets.", image: visionaireImg, link: "#" },
+  { id: "p4", name: "VLS", description: "Helps entrepreneurs build and scale their businesses.", image: vlsImg, link: "#" },
 ];
 
 export const studioArticles: BlogArticle[] = [
