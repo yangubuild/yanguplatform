@@ -88,15 +88,15 @@
     --sidebar-ring: 217 91% 60%;
 
     /* Admin Panel tokens (light - fallback, same as dark for admin-only) */
-    --admin-bg: 220 15% 5%;
-    --admin-surface: 220 12% 9%;
-    --admin-surface-elevated: 220 12% 12%;
-    --admin-border: 220 10% 16%;
+    --admin-bg: 150 20% 5%;
+    --admin-surface: 150 15% 8%;
+    --admin-surface-elevated: 150 14% 11%;
+    --admin-border: 150 12% 15%;
     --admin-accent: 24 95% 53%;
     --admin-accent-foreground: 0 0% 100%;
     --admin-glow: 0 0 30px hsl(24 95% 53% / 0.15);
-    --admin-text: 220 15% 92%;
-    --admin-text-muted: 220 8% 48%;
+    --admin-text: 150 10% 92%;
+    --admin-text-muted: 150 8% 48%;
   }
 
   .dark {
@@ -175,15 +175,15 @@
     --sidebar-ring: 217 91% 60%;
 
     /* Admin Panel tokens (dark) */
-    --admin-bg: 220 15% 5%;
-    --admin-surface: 220 12% 9%;
-    --admin-surface-elevated: 220 12% 12%;
-    --admin-border: 220 10% 16%;
+    --admin-bg: 150 20% 5%;
+    --admin-surface: 150 15% 8%;
+    --admin-surface-elevated: 150 14% 11%;
+    --admin-border: 150 12% 15%;
     --admin-accent: 24 95% 53%;
     --admin-accent-foreground: 0 0% 100%;
     --admin-glow: 0 0 30px hsl(24 95% 53% / 0.15);
-    --admin-text: 220 15% 92%;
-    --admin-text-muted: 220 8% 48%;
+    --admin-text: 150 10% 92%;
+    --admin-text-muted: 150 8% 48%;
   }
 }
 
