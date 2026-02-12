@@ -65,18 +65,18 @@ export default function ManageAda() {
         {/* Monitors */}
         <div className="grid gap-4 sm:grid-cols-3">
           {monitors.map((m) => (
-            <Card key={m.label} className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${m.status === "error" ? "bg-destructive/10" : "bg-warning/10"}`}>
-                    <m.icon className={`h-5 w-5 ${m.status === "error" ? "text-destructive" : "text-warning"}`} />
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">{m.label}</p>
-                    <p className="text-lg font-bold">{m.count}</p>
-                  </div>
+            <Card key={m.label} className="p-4 overflow-hidden">
+              <div className="flex items-start gap-3">
+                <div className={`p-2 rounded-lg shrink-0 ${m.status === "error" ? "bg-destructive/10" : "bg-warning/10"}`}>
+                  <m.icon className={`h-5 w-5 ${m.status === "error" ? "text-destructive" : "text-warning"}`} />
                 </div>
-                <AdminStatusBadge status={m.status === "error" ? "rejected" : "pending"} />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-xs text-muted-foreground truncate">{m.label}</p>
+                    <AdminStatusBadge status={m.status === "error" ? "rejected" : "pending"} />
+                  </div>
+                  <p className="text-2xl font-bold mt-1">{m.count}</p>
+                </div>
               </div>
             </Card>
           ))}
