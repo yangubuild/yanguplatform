@@ -87,16 +87,16 @@
     --sidebar-border: 214 32% 91%;
     --sidebar-ring: 217 91% 60%;
 
-    /* Admin Panel tokens (light - fallback) */
-    --admin-bg: 222 20% 7%;
-    --admin-surface: 222 20% 10%;
-    --admin-surface-elevated: 222 20% 13%;
-    --admin-border: 220 15% 18%;
+    /* Admin Panel tokens (light - fallback, same as dark for admin-only) */
+    --admin-bg: 220 15% 5%;
+    --admin-surface: 220 12% 9%;
+    --admin-surface-elevated: 220 12% 12%;
+    --admin-border: 220 10% 16%;
     --admin-accent: 24 95% 53%;
     --admin-accent-foreground: 0 0% 100%;
     --admin-glow: 0 0 30px hsl(24 95% 53% / 0.15);
-    --admin-text: 220 15% 90%;
-    --admin-text-muted: 220 10% 55%;
+    --admin-text: 220 15% 92%;
+    --admin-text-muted: 220 8% 48%;
   }
 
   .dark {
@@ -175,15 +175,15 @@
     --sidebar-ring: 217 91% 60%;
 
     /* Admin Panel tokens (dark) */
-    --admin-bg: 222 20% 7%;
-    --admin-surface: 222 20% 10%;
-    --admin-surface-elevated: 222 20% 13%;
-    --admin-border: 220 15% 18%;
+    --admin-bg: 220 15% 5%;
+    --admin-surface: 220 12% 9%;
+    --admin-surface-elevated: 220 12% 12%;
+    --admin-border: 220 10% 16%;
     --admin-accent: 24 95% 53%;
     --admin-accent-foreground: 0 0% 100%;
     --admin-glow: 0 0 30px hsl(24 95% 53% / 0.15);
-    --admin-text: 220 15% 90%;
-    --admin-text-muted: 220 10% 55%;
+    --admin-text: 220 15% 92%;
+    --admin-text-muted: 220 8% 48%;
   }
 }
 
@@ -300,15 +300,15 @@
   }
 
   .admin-glass-sidebar {
-    background: hsl(var(--admin-surface) / 0.4);
+    background: hsl(150 15% 6% / 0.85);
     backdrop-filter: blur(20px);
-    border-right: 1px solid hsl(var(--admin-border) / 0.4);
+    border-right: 1px solid hsl(160 20% 12% / 0.4);
   }
 
   .admin-glass-header {
-    background: hsl(var(--admin-surface) / 0.5);
+    background: hsl(150 12% 7% / 0.7);
     backdrop-filter: blur(20px);
-    border-bottom: 1px solid hsl(var(--admin-border) / 0.4);
+    border-bottom: 1px solid hsl(160 20% 12% / 0.3);
   }
 
   .admin-btn-primary {
@@ -375,7 +375,7 @@
   }
 
   .admin-nav-item-active {
-    background: hsl(24 95% 53% / 0.12) !important;
+    background: hsl(160 60% 30% / 0.15) !important;
     color: hsl(24 95% 53%) !important;
     font-weight: 500;
     box-shadow: inset 3px 0 0 hsl(24 95% 53%);
@@ -384,9 +384,9 @@
   .admin-section-title {
     font-family: 'Lufga', 'Inter', system-ui, sans-serif;
     font-weight: 700;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     color: hsl(var(--admin-text-muted));
     padding: 0.75rem 0.75rem 0.25rem;
   }
