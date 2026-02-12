@@ -1,16 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import { X, Mic, Settings, ChevronDown, Smartphone, Plus, ArrowUp, AudioLines, User, Shield, Loader2 } from "lucide-react";
+import { X, Mic, Settings, ChevronDown, Smartphone, Plus, ArrowUp, AudioLines, User, Loader2 } from "lucide-react";
 import adaLogo from "@/assets/ada-logo-full.png";
 import { useAuth } from "@/hooks/useAuth";
-import { useRoles } from "@/hooks/useRoles";
 import { useAdaVoice } from "@/hooks/useAdaVoice";
 import { supabase } from "@/integrations/supabase/client";
 
 export function AdaMainPanel() {
-  const navigate = useNavigate();
   const { user, profile, isAuthenticated } = useAuth();
-  const { isAdmin } = useRoles();
   const [mode, setMode] = useState<"chat" | "voice">("chat");
   const [chatMode, setChatMode] = useState<"search" | "discuss" | null>(null);
   const [inputValue, setInputValue] = useState("");
@@ -210,16 +206,6 @@ export function AdaMainPanel() {
             Extensions
             <ChevronDown className="w-3 h-3" />
           </button>
-          {isAdmin && (
-            <button
-              onClick={() => navigate("/manage/ada")}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 text-white/50 text-sm hover:text-white/70"
-              style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.08))" }}
-            >
-              <Shield className="w-3.5 h-3.5" />
-              Command Center
-            </button>
-          )}
           <button
             className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-white text-sm transition-all"
             style={{
