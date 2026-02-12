@@ -6,10 +6,11 @@ interface CommunitySectionProps {
   title: string;
   items: CommunityItem[];
   showSeeAll?: boolean;
+  seeAllHref?: string;
   linkMap?: Map<string, string>;
 }
 
-export function CommunitySection({ title, items, showSeeAll = true, linkMap }: CommunitySectionProps) {
+export function CommunitySection({ title, items, showSeeAll = true, seeAllHref, linkMap }: CommunitySectionProps) {
   const { theme } = useCommunityTheme();
   const c = getThemeColors(theme);
 
@@ -21,8 +22,8 @@ export function CommunitySection({ title, items, showSeeAll = true, linkMap }: C
         <div className="mb-5 flex items-center justify-between">
           <h2 className="text-[16px] font-bold" style={{ color: c.text }}>{title}</h2>
           {showSeeAll && (
-            <a href="#" className="text-[13px] font-medium transition-colors hover:underline" style={{ color: c.seeAllText }}>
-              See all
+            <a href={seeAllHref || "#"} className="text-[13px] font-medium transition-colors hover:underline" style={{ color: c.seeAllText }}>
+              See all &gt;
             </a>
           )}
         </div>
