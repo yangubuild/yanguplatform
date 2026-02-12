@@ -41,6 +41,7 @@ import ManageNotFound from "./pages/manage/ManageNotFound";
 import ManageUsers from "./pages/manage/ManageUsers";
 import ManageSurfaces from "./pages/manage/ManageSurfaces";
 import ManageCommunity from "./pages/manage/ManageCommunity";
+import ManageBlog from "./pages/manage/ManageBlog";
 
 console.log("[Supabase]", import.meta.env.VITE_SUPABASE_URL);
 
@@ -172,7 +173,7 @@ const App = () => (
                   {/* Analytics */}
                   <Route path="analytics" element={<ManageRoleGate allowedRoles={["admin", "analyst"]}><ManagePlaceholder /></ManageRoleGate>} />
                   {/* Content */}
-                  <Route path="content/blog" element={<ManageRoleGate allowedRoles={["admin", "writer"]}><ManagePlaceholder /></ManageRoleGate>} />
+                  <Route path="content/blog" element={<ManageRoleGate allowedRoles={["admin", "writer"]}><ManageBlog /></ManageRoleGate>} />
                   <Route path="content/news" element={<ManageRoleGate allowedRoles={["admin", "writer"]}><ManagePlaceholder /></ManageRoleGate>} />
                   <Route path="content/events" element={<ManageRoleGate allowedRoles={["admin", "writer"]}><ManagePlaceholder /></ManageRoleGate>} />
                   {/* Design & Pages */}
