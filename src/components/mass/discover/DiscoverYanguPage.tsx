@@ -167,7 +167,7 @@ export function DiscoverYanguPage() {
         </p>
         <a 
           href="/auth/signup"
-          className="inline-block px-8 py-4 rounded-xl text-base font-semibold text-white transition-all hover:opacity-90 hover:scale-[1.02]"
+          className="inline-block px-6 py-2.5 rounded-lg text-sm font-semibold text-white transition-all hover:brightness-110"
           style={{ background: "linear-gradient(90deg, #b5622a, #5c2a12)" }}
         >
           Start selling
@@ -240,7 +240,7 @@ export function DiscoverYanguPage() {
           </ul>
           <a 
             href="/auth/signup"
-            className="inline-block px-6 py-3 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            className="inline-block px-6 py-2.5 rounded-lg text-sm font-semibold text-white transition-all hover:brightness-110"
             style={{ background: "linear-gradient(90deg, #b5622a, #5c2a12)" }}
           >
             Get started
@@ -287,7 +287,7 @@ export function DiscoverYanguPage() {
           
           <a 
             href="/auth/signup"
-            className="inline-block px-8 py-3.5 rounded-xl text-sm font-semibold text-white w-full transition-opacity hover:opacity-90 mb-8"
+            className="inline-block px-6 py-2.5 rounded-lg text-sm font-semibold text-white w-full transition-all hover:brightness-110"
             style={{ background: "linear-gradient(90deg, #b5622a, #5c2a12)" }}
           >
             Start selling for free
@@ -335,7 +335,7 @@ export function DiscoverYanguPage() {
           </h2>
           <a 
             href="/auth/signup"
-            className="inline-block px-8 py-4 rounded-xl text-base font-semibold text-white transition-all hover:opacity-90 hover:scale-[1.02]"
+            className="inline-block px-6 py-2.5 rounded-lg text-sm font-semibold text-white transition-all hover:brightness-110"
             style={{ background: "linear-gradient(90deg, #b5622a, #5c2a12)" }}
           >
             Get started

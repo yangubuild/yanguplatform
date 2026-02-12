@@ -38,8 +38,8 @@ export function BlogHero({ onSubscribeClick }: BlogHeroProps) {
       {/* CTA */}
       <button
         onClick={onSubscribeClick}
-        className="mt-8 px-10 py-3.5 text-sm font-medium transition-all hover:brightness-110"
-        style={{ background: "linear-gradient(90deg, #b5622a, #5c2a12)", borderRadius: 12, color: "#fff" }}
+        className="mt-8 px-6 py-2.5 rounded-lg text-sm font-semibold transition-all hover:brightness-110"
+        style={{ background: "linear-gradient(90deg, #b5622a, #5c2a12)", color: "#fff" }}
       >
         Subscribe
       </button>
