@@ -31,13 +31,13 @@ export function CommunityTopBar() {
             List on community
           </a>
           <button
-            className="rounded-lg border px-5 py-[8px] text-[14px] font-medium transition-colors hover:opacity-90"
+            className="h-7 rounded-lg border px-4 text-[13px] font-medium transition-colors hover:opacity-90"
             style={{ backgroundColor: "transparent", borderColor: c.signInBorder, color: c.signInText }}
           >
             Sign in
           </button>
           <button
-            className="rounded-lg px-5 py-[8px] text-[14px] font-medium text-white transition-opacity hover:opacity-90"
+            className="h-7 rounded-lg px-4 text-[13px] font-medium text-white transition-opacity hover:opacity-90"
             style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
           >
             Start selling
