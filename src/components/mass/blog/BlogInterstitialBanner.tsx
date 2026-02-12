@@ -35,22 +35,11 @@ export function BlogInterstitialBanner() {
         />
 
         {/* Content overlay */}
-        <div className="relative z-10 flex flex-col items-center justify-center px-6 pt-14 pb-6">
-          {/* YANGU title */}
-          <span
-            className="text-lg tracking-wide"
-            style={{
-              fontFamily: "'Lufga', sans-serif",
-              color: "rgba(255,255,255,0.5)",
-              letterSpacing: "0.15em",
-            }}
-          >
-            YANGU
-          </span>
-
+        {/* Content overlay */}
+        <div className="relative z-10 flex flex-col items-center justify-center px-6 pt-16 pb-0">
           {/* Main headline */}
           <h2
-            className="mt-4 text-center leading-tight"
+            className="text-center leading-tight"
             style={{
               fontFamily: "'Georgia', 'Times New Roman', serif",
               fontSize: "clamp(26px, 4vw, 42px)",
@@ -61,8 +50,8 @@ export function BlogInterstitialBanner() {
             Ideas and <span style={{ fontStyle: "italic" }}>A</span>pps to Thrive in the AI Age
           </h2>
 
-          {/* App icons row */}
-          <div className="flex items-end justify-center gap-3 sm:gap-5 mt-10">
+          {/* App icons row — half-cut at bottom */}
+          <div className="flex items-end justify-center gap-3 sm:gap-5 mt-10" style={{ marginBottom: "-45px" }}>
             {APP_ICONS.map((icon) => (
               <div
                 key={icon.alt}
