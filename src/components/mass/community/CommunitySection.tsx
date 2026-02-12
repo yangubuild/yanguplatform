@@ -6,9 +6,10 @@ interface CommunitySectionProps {
   title: string;
   items: CommunityItem[];
   showSeeAll?: boolean;
+  linkMap?: Map<string, string>;
 }
 
-export function CommunitySection({ title, items, showSeeAll = true }: CommunitySectionProps) {
+export function CommunitySection({ title, items, showSeeAll = true, linkMap }: CommunitySectionProps) {
   const { theme } = useCommunityTheme();
   const c = getThemeColors(theme);
 
@@ -27,7 +28,7 @@ export function CommunitySection({ title, items, showSeeAll = true }: CommunityS
         </div>
         <div className="grid grid-cols-1 gap-x-5 gap-y-7 sm:grid-cols-2 lg:grid-cols-4">
           {items.map((item) => (
-            <CommunityCard key={item.id} item={item} />
+            <CommunityCard key={item.id} item={item} href={linkMap?.get(item.id)} />
           ))}
         </div>
       </div>

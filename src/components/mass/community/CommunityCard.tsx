@@ -3,14 +3,15 @@ import { useCommunityTheme, getThemeColors } from "./CommunityThemeContext";
 
 interface CommunityCardProps {
   item: CommunityItem;
+  href?: string;
 }
 
-export function CommunityCard({ item }: CommunityCardProps) {
+export function CommunityCard({ item, href }: CommunityCardProps) {
   const { theme } = useCommunityTheme();
   const c = getThemeColors(theme);
 
   return (
-    <a href="#" className="group block">
+    <a href={href || "#"} className="group block" target={href ? "_blank" : undefined} rel={href ? "noopener noreferrer" : undefined}>
       <div className="relative aspect-[16/10] overflow-hidden rounded-xl">
         <img
           src={item.image}
