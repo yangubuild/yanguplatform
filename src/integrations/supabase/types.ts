@@ -348,6 +348,82 @@ export type Database = {
           },
         ]
       }
+      community_promotions: {
+        Row: {
+          category_key: string | null
+          created_at: string
+          ends_at: string | null
+          id: string
+          is_active: boolean
+          section: string
+          starts_at: string
+          surface_id: string
+          tier: number
+          updated_at: string
+        }
+        Insert: {
+          category_key?: string | null
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          section: string
+          starts_at?: string
+          surface_id: string
+          tier?: number
+          updated_at?: string
+        }
+        Update: {
+          category_key?: string | null
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          section?: string
+          starts_at?: string
+          surface_id?: string
+          tier?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_promotions_surface_id_fkey"
+            columns: ["surface_id"]
+            isOneToOne: false
+            referencedRelation: "surfaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_surface_stats: {
+        Row: {
+          clicks_7d: number
+          clicks_total: number
+          surface_id: string
+          updated_at: string
+        }
+        Insert: {
+          clicks_7d?: number
+          clicks_total?: number
+          surface_id: string
+          updated_at?: string
+        }
+        Update: {
+          clicks_7d?: number
+          clicks_total?: number
+          surface_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_surface_stats_surface_id_fkey"
+            columns: ["surface_id"]
+            isOneToOne: true
+            referencedRelation: "surfaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       credit_transactions: {
         Row: {
           amount: number
@@ -1222,6 +1298,26 @@ export type Database = {
         Returns: {
           eligible: boolean
           reasons: string[]
+        }[]
+      }
+      get_community_section: {
+        Args: {
+          p_category_key?: string
+          p_limit?: number
+          p_offset?: number
+          p_section: string
+        }
+        Returns: {
+          category: string
+          cover_image: string
+          description: string
+          domain_host: string
+          listed_at: string
+          org_id: string
+          price_text: string
+          slug: string
+          surface_id: string
+          title: string
         }[]
       }
       get_default_domain_for_creator: {
