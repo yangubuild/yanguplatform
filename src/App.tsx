@@ -36,6 +36,7 @@ import { AdminRoute } from "@/components/auth/AdminRoute";
 import { AdminShell } from "@/components/manage/AdminShell";
 import ManageDashboard from "./pages/manage/ManageDashboard";
 import ManagePlaceholder from "./pages/manage/ManagePlaceholder";
+import ManageNotFound from "./pages/manage/ManageNotFound";
 
 console.log("[Supabase]", import.meta.env.VITE_SUPABASE_URL);
 
@@ -158,7 +159,14 @@ const App = () => (
                   }
                 >
                   <Route index element={<ManageDashboard />} />
-                  <Route path=":section" element={<ManagePlaceholder />} />
+                  <Route path="users" element={<ManagePlaceholder />} />
+                  <Route path="surfaces" element={<ManagePlaceholder />} />
+                  <Route path="community" element={<ManagePlaceholder />} />
+                  <Route path="agents" element={<ManagePlaceholder />} />
+                  <Route path="domains" element={<ManagePlaceholder />} />
+                  <Route path="settings" element={<ManagePlaceholder />} />
+                  <Route path="audit-logs" element={<ManagePlaceholder />} />
+                  <Route path="*" element={<ManageNotFound />} />
                 </Route>
                 
                 {/* Dev routes - only in development */}
