@@ -56,7 +56,7 @@ export const adminNavGroups: AdminNavGroup[] = [
     label: "Platform",
     items: [
       { title: "Users", to: "/manage/users", icon: Users, allowedRoles: ["admin"] },
-      { title: "Surfaces", to: "/manage/surfaces", icon: Layers, allowedRoles: ["admin"] },
+      { title: "Navigation", to: "/manage/navigation", icon: Layers, allowedRoles: ["admin"] },
       { title: "Community", to: "/manage/community", icon: Megaphone, allowedRoles: ["admin", "moderator"] },
       { title: "Messages", to: "/manage/messages", icon: MessageSquare, allowedRoles: ["admin", "content_editor"] },
       { title: "Agents", to: "/manage/agents", icon: Bot, allowedRoles: ["admin"] },
@@ -119,3 +119,4 @@ sectionLabels["content/events"] = "Events (Registration)";
 sectionLabels["ada"] = "ADA AI";
 sectionLabels["messages"] = "Messages & Support";
 sectionLabels["content"] = "Content Engine";
+sectionLabels["navigation"] = "Navigation Manager";
