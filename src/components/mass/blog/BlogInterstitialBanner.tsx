@@ -36,7 +36,7 @@ export function BlogInterstitialBanner() {
 
         {/* Content overlay */}
         {/* Content overlay */}
-        <div className="relative z-10 flex flex-col items-center justify-center px-6 pt-16 pb-0">
+        <div className="relative z-10 flex flex-col items-center justify-center px-6 pt-16 pb-16">
           {/* Main headline */}
           <h2
             className="text-center leading-tight"
@@ -51,7 +51,7 @@ export function BlogInterstitialBanner() {
           </h2>
 
           {/* App icons row — half-cut at bottom */}
-          <div className="flex items-end justify-center gap-3 sm:gap-5 mt-10" style={{ transform: "translateY(50%)" }}>
+          <div className="flex items-end justify-center gap-3 sm:gap-5 mt-10 mb-0" style={{ transform: "translateY(55px)" }}>
             {APP_ICONS.map((icon) => (
               <div
                 key={icon.alt}
