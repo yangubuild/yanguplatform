@@ -13,6 +13,10 @@ import studioImg1 from "@/assets/blog/studio-1.jpg";
 import studioImg2 from "@/assets/blog/studio-2.jpg";
 import studioImg3 from "@/assets/blog/studio-3.jpg";
 import studioImg4 from "@/assets/blog/studio-4.jpg";
+import dispatchImg1 from "@/assets/blog/dispatch-1.jpg";
+import dispatchImg2 from "@/assets/blog/dispatch-2.jpg";
+import dispatchImg3 from "@/assets/blog/dispatch-3.jpg";
+import dispatchImg4 from "@/assets/blog/dispatch-4.jpg";
 
 // Mock data for Blog page — 1:1 Every.to clone
 
@@ -118,10 +122,10 @@ export const studioArticles: BlogArticle[] = [
 ];
 
 export const dispatchArticles: BlogArticle[] = [
-  { id: "d1", title: "The AI Race Is Over. The Application Race Has Begun.", date: "Feb 4, 2026", column: "DISPATCHES", author: "Evan Armstrong", image: "/placeholder.svg" },
-  { id: "d2", title: "OpenAI's New Strategy Is Hiding in Plain Sight", date: "Feb 2, 2026", column: "DISPATCHES", author: "Evan Armstrong", image: "/placeholder.svg" },
-  { id: "d3", title: "Google's AI Moment Is Finally Here", date: "Jan 30, 2026", column: "DISPATCHES", author: "Evan Armstrong", image: "/placeholder.svg" },
-  { id: "d4", title: "Why Apple Intelligence Will Win the Consumer AI War", date: "Jan 28, 2026", column: "DISPATCHES", author: "Evan Armstrong", image: "/placeholder.svg" },
+  { id: "d1", title: "Vibe Check: Opus 4.6—The Best Coding Model We've Tested (With Some Maddening Habits)", subtitle: "It one-shotted a problem other models missed—and brings agentic, parallel work to non-coding tasks", date: "Feb 4, 2026", column: "DISPATCHES", author: "Dan Shipper", image: dispatchImg1 },
+  { id: "d2", title: "Vibe Check: OpenAI's Codex App Gains Ground on Claude Code", subtitle: "OpenAI nailed the interface. But it's built for hardcore engineering.", date: "Feb 2, 2026", column: "DISPATCHES", author: "Dan Shipper", image: dispatchImg2 },
+  { id: "d3", title: "Vibe Check: Claude Cowork Is Claude Code for the Rest of Us", subtitle: "The asynchronous, agentic workflow developers love is finally accessible to everyone—but the polish isn't there yet", date: "Jan 30, 2026", column: "DISPATCHES", author: "Katie Parrott", image: dispatchImg3 },
+  { id: "d4", title: "The Boring Businesses That Will Dominate the AI Era", subtitle: "They're not the companies with the best models—they're the ones that own what AI has to flow through.", date: "Jan 28, 2026", column: "DISPATCHES", author: "Tina He", image: dispatchImg4 },
 ];
 
 export const aiWorkArticles: BlogArticle[] = [
