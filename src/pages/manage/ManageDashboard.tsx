@@ -3,14 +3,109 @@ import {
   CreditCard, Plug, TrendingUp, Activity, AlertTriangle,
   Send, Zap, Eye, Users, FileWarning, ServerCrash,
   ToggleLeft, ToggleRight, ChevronRight, Sparkles,
-  Inbox, Clock, ArrowUpRight,
+  Inbox, Clock, ArrowUpRight, Search, Bell, UserCircle,
+  Megaphone, BarChart3, Lock,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { AdminGlassCard, AdminPageHeader, AdminMetricCard } from "@/components/manage/AdminGlassCard";
+import { AdminGlassCard, AdminPageHeader } from "@/components/manage/AdminGlassCard";
 import { AdminStatusBadge } from "@/components/manage/AdminStatusBadge";
+
+/* ── Live Metrics ─────────────────────────────────────── */
+function LiveMetrics() {
+  const metrics = [
+    { label: "Active Users", value: "15,432", icon: Users, color: "text-[hsl(var(--admin-text-muted))]", sparkColor: "#5B8DEF" },
+    { label: "Revenue Today", value: "$8,432", icon: CreditCard, color: "text-[hsl(160,84%,45%)]", sparkColor: "#4ADE80", trend: "↗" },
+    { label: "Support Tickets", value: "24", icon: Inbox, color: "text-[hsl(24,95%,53%)]", sparkColor: "#F97316" },
+  ];
+
+  return (
+    <AdminGlassCard>
+      <h3 className="text-base font-semibold text-[hsl(var(--admin-text))] font-display mb-4">Live Metrics</h3>
+      <div className="grid gap-4 sm:grid-cols-3">
+        {metrics.map((m) => (
+          <div key={m.label} className="admin-glass-card p-4 relative overflow-hidden">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs text-[hsl(var(--admin-text-muted))]">{m.label}</span>
+              <div className={`p-1.5 rounded-lg bg-[hsl(var(--admin-surface-elevated)/0.6)] ${m.color}`}>
+                <m.icon className="h-4 w-4" />
+              </div>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl font-bold text-[hsl(var(--admin-text))] font-display">{m.value}</span>
+              {m.trend && <span className="text-xs text-[hsl(160,84%,45%)]">{m.trend}</span>}
+            </div>
+            {/* Sparkline placeholder */}
+            <svg className="absolute bottom-0 left-0 right-0 h-10 w-full opacity-30" viewBox="0 0 200 40" preserveAspectRatio="none">
+              <path
+                d={m.sparkColor === "#5B8DEF"
+                  ? "M0 30 Q25 25 50 28 Q75 20 100 22 Q125 15 150 20 Q175 25 200 18"
+                  : m.sparkColor === "#4ADE80"
+                  ? "M0 35 Q25 30 50 25 Q75 32 100 20 Q125 28 150 15 Q175 22 200 10"
+                  : "M0 20 L200 20"
+                }
+                fill="none"
+                stroke={m.sparkColor}
+                strokeWidth="2"
+              />
+            </svg>
+            {/* Progress bar for tickets */}
+            {m.sparkColor === "#F97316" && (
+              <div className="mt-3 h-1.5 rounded-full bg-[hsl(var(--admin-surface-elevated))] overflow-hidden">
+                <div className="h-full rounded-full bg-[hsl(24,95%,53%)]" style={{ width: "65%" }} />
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </AdminGlassCard>
+  );
+}
+
+/* ── Quick Actions ────────────────────────────────────── */
+function QuickActions() {
+  return (
+    <AdminGlassCard>
+      <h3 className="text-base font-semibold text-[hsl(var(--admin-text))] font-display mb-4">Quick Actions</h3>
+      <div className="flex flex-wrap gap-3">
+        <button className="admin-btn-secondary flex items-center gap-2">
+          <Megaphone className="h-4 w-4" />
+          Send Announcement
+        </button>
+        <button className="admin-btn-secondary flex items-center gap-2">
+          <BarChart3 className="h-4 w-4" />
+          Monitor Transactions
+        </button>
+        <button className="ml-auto admin-btn-secondary flex items-center gap-2 border-[hsl(24,95%,53%/0.4)] text-[hsl(24,95%,53%)]">
+          <Lock className="h-4 w-4" />
+          Access Cloud
+        </button>
+      </div>
+    </AdminGlassCard>
+  );
+}
+
+/* ── ADA Action Required Banner ───────────────────────── */
+function AdaActionBanner() {
+  return (
+    <div className="rounded-2xl border-2 border-[hsl(24,95%,53%/0.5)] bg-[hsl(24,95%,53%/0.05)] p-5">
+      <div className="flex items-start gap-3 mb-4">
+        <div className="p-2 rounded-lg bg-[hsl(0,72%,51%/0.15)]">
+          <AlertTriangle className="h-5 w-5 text-[hsl(0,72%,51%)]" />
+        </div>
+        <div>
+          <h4 className="text-base font-semibold text-[hsl(var(--admin-text))] font-display">ADA Action Required</h4>
+          <p className="text-sm text-[hsl(var(--admin-text-muted))]">Payment gateway latency (M-Pesa)</p>
+        </div>
+      </div>
+      <button className="admin-btn-primary w-full py-3 text-center justify-center flex">
+        Open ADA Context
+      </button>
+    </div>
+  );
+}
 
 /* ── ADA AI Command Assistant ─────────────────────────── */
 function AdaCommandWidget() {
@@ -21,14 +116,14 @@ function AdaCommandWidget() {
   ];
 
   return (
-    <AdminGlassCard className="col-span-full lg:col-span-2">
+    <AdminGlassCard>
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-base font-semibold flex items-center gap-2 text-[hsl(var(--admin-text))] font-display">
           <Bot className="h-5 w-5 text-[hsl(24,95%,53%)]" />
           ADA AI Command Assistant
         </h3>
         <Badge variant="outline" className="text-xs bg-[hsl(160,84%,45%,0.1)] text-[hsl(160,84%,45%)] border-[hsl(160,84%,45%,0.2)]">
-          <Activity className="h-3 w-3 mr-1" /> Monitoring Active
+          <Activity className="h-3 w-3 mr-1" /> Monitoring
         </Badge>
       </div>
       <div className="space-y-4">
@@ -59,46 +154,6 @@ function AdaCommandWidget() {
   );
 }
 
-/* ── Live Communications ──────────────────────────────── */
-function MessagesWidget() {
-  const stats = [
-    { label: "Active Conversations", value: 12, icon: MessageSquare },
-    { label: "New Messages", value: 34, icon: Send },
-    { label: "Open Tickets", value: 5, icon: AlertTriangle },
-  ];
-
-  return (
-    <AdminGlassCard>
-      <h3 className="text-base font-semibold flex items-center gap-2 mb-4 text-[hsl(var(--admin-text))] font-display">
-        <MessageSquare className="h-5 w-5 text-[hsl(24,95%,53%)]" />
-        Live Communications
-      </h3>
-      <div className="space-y-4">
-        {stats.map((s) => (
-          <div key={s.label} className="flex items-center justify-between">
-            <span className="flex items-center gap-2 text-sm text-[hsl(var(--admin-text-muted))]">
-              <s.icon className="h-4 w-4" />
-              {s.label}
-            </span>
-            <span className="text-sm font-semibold text-[hsl(var(--admin-text))]">{s.value}</span>
-          </div>
-        ))}
-        <div className="rounded-lg bg-[hsl(var(--admin-surface-elevated)/0.3)] border border-[hsl(var(--admin-border)/0.3)] p-3 space-y-2">
-          <div className="flex items-start gap-2">
-            <div className="h-6 w-6 rounded-full bg-[hsl(24,95%,53%,0.15)] flex items-center justify-center shrink-0">
-              <Users className="h-3 w-3 text-[hsl(24,95%,53%)]" />
-            </div>
-            <div className="text-xs">
-              <p className="font-medium text-[hsl(var(--admin-text))]">User #1042</p>
-              <p className="text-[hsl(var(--admin-text-muted))]">Having trouble with payment…</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </AdminGlassCard>
-  );
-}
-
 /* ── System Health HUD ────────────────────────────────── */
 function SystemHealthWidget() {
   const items = [
@@ -108,7 +163,7 @@ function SystemHealthWidget() {
   ];
 
   return (
-    <div className="col-span-full grid gap-4 sm:grid-cols-3">
+    <div className="grid gap-4 sm:grid-cols-3">
       {items.map((item) => (
         <AdminGlassCard key={item.label} className="p-4">
           <div className="flex items-center justify-between">
@@ -141,10 +196,9 @@ function MonetizationWidget() {
     <AdminGlassCard>
       <h3 className="text-base font-semibold flex items-center gap-2 mb-4 text-[hsl(var(--admin-text))] font-display">
         <CreditCard className="h-5 w-5 text-[hsl(24,95%,53%)]" />
-        Monetization Status
+        Gateway Health
       </h3>
       <div className="space-y-3">
-        <p className="text-xs font-medium text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Gateway Health</p>
         {gateways.map((g) => (
           <div key={g.name} className="flex items-center justify-between">
             <span className="text-sm font-medium text-[hsl(var(--admin-text))]">{g.name}</span>
@@ -166,27 +220,23 @@ function IntegrationWidget() {
     { name: "SendGrid", enabled: false },
     { name: "Amazon SES", enabled: true },
     { name: "Ada AI", enabled: true },
-    { name: "Kitchen Visionboard", enabled: false },
   ];
 
   return (
     <AdminGlassCard>
       <h3 className="text-base font-semibold flex items-center gap-2 mb-4 text-[hsl(var(--admin-text))] font-display">
         <Plug className="h-5 w-5 text-[hsl(24,95%,53%)]" />
-        Integration Status
+        Integrations
       </h3>
       <div className="space-y-3">
         {integrations.map((i) => (
           <div key={i.name} className="flex items-center justify-between">
             <span className="text-sm text-[hsl(var(--admin-text))]">{i.name}</span>
-            <div className="flex items-center gap-2">
-              {i.enabled ? (
-                <ToggleRight className="h-5 w-5 text-[hsl(160,84%,45%)]" />
-              ) : (
-                <ToggleLeft className="h-5 w-5 text-[hsl(var(--admin-text-muted))]" />
-              )}
-              <AdminStatusBadge status={i.enabled ? "active" : "paused"} />
-            </div>
+            {i.enabled ? (
+              <ToggleRight className="h-5 w-5 text-[hsl(160,84%,45%)]" />
+            ) : (
+              <ToggleLeft className="h-5 w-5 text-[hsl(var(--admin-text-muted))]" />
+            )}
           </div>
         ))}
       </div>
@@ -214,10 +264,9 @@ function GrowthFunnelWidget() {
           <div key={step.label} className="space-y-1.5">
             <div className="flex items-center justify-between text-sm">
               <span className="flex items-center gap-2 text-[hsl(var(--admin-text))]">
-                {idx < steps.length - 1 && (
+                {idx < steps.length - 1 ? (
                   <Sparkles className="h-3.5 w-3.5 text-[hsl(24,95%,53%)]" />
-                )}
-                {idx === steps.length - 1 && (
+                ) : (
                   <Zap className="h-3.5 w-3.5 text-[hsl(38,92%,55%)]" />
                 )}
                 {step.label}
@@ -237,9 +286,8 @@ function SupportTicketsWidget() {
   const navigate = useNavigate();
   const items = [
     { label: "Open Tickets", count: 3, icon: Clock, color: "text-[hsl(38,92%,55%)]", filter: "open" },
-    { label: "Urgent Tickets", count: 2, icon: AlertTriangle, color: "text-[hsl(0,72%,51%)]", filter: "urgent" },
-    { label: "Unread Tickets", count: 2, icon: Inbox, color: "text-[hsl(24,95%,53%)]", filter: "unread" },
-    { label: "Escalated", count: 1, icon: ArrowUpRight, color: "text-[hsl(0,72%,51%)]", filter: "escalated" },
+    { label: "Urgent", count: 2, icon: AlertTriangle, color: "text-[hsl(0,72%,51%)]", filter: "urgent" },
+    { label: "Unread", count: 2, icon: Inbox, color: "text-[hsl(24,95%,53%)]", filter: "unread" },
   ];
 
   return (
@@ -273,38 +321,22 @@ function SupportTicketsWidget() {
 /* ── Main Dashboard ───────────────────────────────────── */
 export default function ManageDashboard() {
   return (
-    <div className="space-y-6">
-      <AdminPageHeader
-        title="Platform Health Dashboard"
-        description="Real-time overview of your platform operations"
-      />
-
+    <div className="space-y-5">
       {/* Live Metrics */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <AdminMetricCard
-          label="Active Users"
-          value="1,247"
-          icon={<Users className="h-5 w-5" />}
-        />
-        <AdminMetricCard
-          label="Page Views (24h)"
-          value="8,903"
-          icon={<Eye className="h-5 w-5" />}
-          trend={<span className="text-xs text-[hsl(160,84%,45%)]">↑ 12%</span>}
-        />
-        <AdminMetricCard
-          label="Uptime"
-          value="99.97%"
-          icon={<Activity className="h-5 w-5" />}
-        />
-      </div>
+      <LiveMetrics />
+
+      {/* Quick Actions */}
+      <QuickActions />
+
+      {/* ADA Action Required Banner */}
+      <AdaActionBanner />
 
       {/* Row: ADA + Support */}
       <div className="grid gap-4 lg:grid-cols-3">
-        <AdaCommandWidget />
-        <div className="space-y-4">
-          <SupportTicketsWidget />
+        <div className="lg:col-span-2">
+          <AdaCommandWidget />
         </div>
+        <SupportTicketsWidget />
       </div>
 
       {/* System Health HUD */}
