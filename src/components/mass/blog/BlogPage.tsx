@@ -102,8 +102,6 @@ export function BlogPage() {
         <div className="mx-auto" style={{ maxWidth: 1100, height: 1, background: "rgba(255,255,255,0.1)" }} />
       </div>
 
-      {/* Interstitial 1 */}
-      <InterstitialBlock />
 
       {/* Yangu Studio */}
       <BlogSectionModule title="Yangu Studio" subtitle="Lessons from engineers shipping AI products.">
@@ -115,8 +113,6 @@ export function BlogPage() {
         <ArticleGrid articles={dispatchArticles} />
       </BlogSectionModule>
 
-      {/* Interstitial 2 */}
-      <InterstitialBlock />
 
       {/* Putting AI to Work */}
       <BlogSectionModule title="Putting AI to Work">
