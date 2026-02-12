@@ -20,8 +20,8 @@ import adaIcon from "@/assets/ada-icon.png";
 
 const topNavItems = [
   { icon: Home, label: "Explore", id: "explore" },
+  { icon: Info, label: "Discover Yangu", id: "discover" },
   { icon: Sparkles, label: "Why Yangu", id: "why-yangu", isActive: true },
-  { icon: Compass, label: "Navigation", id: "navigation" },
 ];
 
 const bottomNavItems = [
@@ -58,7 +58,7 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
           if (item.id === "ada-ai") navigate("/ada-ai");
           if (item.id === "why-yangu") navigate("/why-yangu");
           if (item.id === "explore") navigate("/");
-          if (item.id === "navigation") navigate("/navigation");
+          if (item.id === "discover") navigate("/discover");
           if (item.id === "blog") navigate("/blog");
         }}
         onMouseEnter={() => setHoveredItem(item.id)}
