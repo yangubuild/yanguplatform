@@ -46,6 +46,7 @@ import ManageAda from "./pages/manage/ManageAda";
 import ManageMessages from "./pages/manage/ManageMessages";
 import ManageNews from "./pages/manage/ManageNews";
 import ManageEvents from "./pages/manage/ManageEvents";
+import ManageContentHome from "./pages/manage/ManageContentHome";
 
 console.log("[Supabase]", import.meta.env.VITE_SUPABASE_URL);
 
@@ -179,9 +180,10 @@ const App = () => (
                   {/* Analytics */}
                   <Route path="analytics" element={<ManageRoleGate allowedRoles={["admin", "analyst"]}><ManagePlaceholder /></ManageRoleGate>} />
                   {/* Content */}
-                  <Route path="content/blog" element={<ManageRoleGate allowedRoles={["admin", "writer"]}><ManageBlog /></ManageRoleGate>} />
-                  <Route path="content/news" element={<ManageRoleGate allowedRoles={["admin", "writer"]}><ManageNews /></ManageRoleGate>} />
-                  <Route path="content/events" element={<ManageRoleGate allowedRoles={["admin", "writer"]}><ManageEvents /></ManageRoleGate>} />
+                  <Route path="content" element={<ManageRoleGate allowedRoles={["admin", "writer", "content_editor"]}><ManageContentHome /></ManageRoleGate>} />
+                  <Route path="content/blog" element={<ManageRoleGate allowedRoles={["admin", "writer", "content_editor"]}><ManageBlog /></ManageRoleGate>} />
+                  <Route path="content/news" element={<ManageRoleGate allowedRoles={["admin", "writer", "content_editor"]}><ManageNews /></ManageRoleGate>} />
+                  <Route path="content/events" element={<ManageRoleGate allowedRoles={["admin", "writer", "content_editor"]}><ManageEvents /></ManageRoleGate>} />
                   {/* Design & Pages */}
                   <Route path="branding" element={<ManageRoleGate allowedRoles={["admin", "designer"]}><ManagePlaceholder /></ManageRoleGate>} />
                   <Route path="pages" element={<ManageRoleGate allowedRoles={["admin", "designer"]}><ManagePlaceholder /></ManageRoleGate>} />

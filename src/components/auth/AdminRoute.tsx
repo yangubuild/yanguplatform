@@ -10,12 +10,11 @@ interface AdminRouteProps {
 
 /**
  * Gate for /manage. Allows any user with at least one manage-level role.
- * Currently only "admin" exists in the DB, so only admins pass.
- * When writer/designer/analyst/moderator roles are added, they'll also pass.
+ * Currently "admin" and "content_editor" are supported.
  */
 export function AdminRoute({ children }: AdminRouteProps) {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const { hasAnyManageRole, isLoading: rolesLoading } = useRoles();
+  const { hasAnyManageRole, isContentEditor, isAdmin, isLoading: rolesLoading } = useRoles();
   const location = useLocation();
 
   if (authLoading || rolesLoading) {
@@ -40,6 +39,11 @@ export function AdminRoute({ children }: AdminRouteProps) {
         </p>
       </div>
     );
+  }
+
+  // content_editor landing on /manage root → redirect to content home
+  if (isContentEditor && !isAdmin && location.pathname === "/manage") {
+    return <Navigate to="/manage/content" replace />;
   }
 
   return <>{children}</>;

@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { Link } from "react-router-dom";
 import { ShieldX } from "lucide-react";
 import { useRoles, ManageRole } from "@/hooks/useRoles";
 
@@ -10,17 +11,17 @@ interface ManageRoleGateProps {
 
 /**
  * Renders children only if the user has one of the allowed manage roles.
- * Admin always passes. Shows an access-denied message inside AdminShell otherwise.
+ * Admin always passes. Shows an access-denied message with a back link otherwise.
  */
 export function ManageRoleGate({ allowedRoles, children }: ManageRoleGateProps) {
-  const { manageRoles, isAdmin } = useRoles();
+  const { manageRoles, isAdmin, isContentEditor } = useRoles();
 
-  // Admin bypasses all gates
   if (isAdmin) return <>{children}</>;
 
   const hasAccess = manageRoles.some((r) => allowedRoles.includes(r));
 
   if (!hasAccess) {
+    const backTo = isContentEditor ? "/manage/content" : "/manage";
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
@@ -30,6 +31,9 @@ export function ManageRoleGate({ allowedRoles, children }: ManageRoleGateProps) 
         <p className="text-sm text-muted-foreground max-w-xs">
           You don't have permission to access this section.
         </p>
+        <Link to={backTo} className="text-sm text-accent hover:underline mt-2">
+          ← Back to {isContentEditor ? "Content Engine" : "Dashboard"}
+        </Link>
       </div>
     );
   }

@@ -58,7 +58,7 @@ export const adminNavGroups: AdminNavGroup[] = [
       { title: "Users", to: "/manage/users", icon: Users, allowedRoles: ["admin"] },
       { title: "Surfaces", to: "/manage/surfaces", icon: Layers, allowedRoles: ["admin"] },
       { title: "Community", to: "/manage/community", icon: Megaphone, allowedRoles: ["admin", "moderator"] },
-      { title: "Messages", to: "/manage/messages", icon: MessageSquare, allowedRoles: ["admin"] },
+      { title: "Messages", to: "/manage/messages", icon: MessageSquare, allowedRoles: ["admin", "content_editor"] },
       { title: "Agents", to: "/manage/agents", icon: Bot, allowedRoles: ["admin"] },
       { title: "Domains", to: "/manage/domains", icon: Globe, allowedRoles: ["admin"] },
     ],
@@ -66,9 +66,9 @@ export const adminNavGroups: AdminNavGroup[] = [
   {
     label: "Content Engine",
     items: [
-      { title: "Blog (Layout & Engine)", to: "/manage/content/blog", icon: FileText, allowedRoles: ["admin", "writer"] },
-      { title: "Articles / News", to: "/manage/content/news", icon: Newspaper, allowedRoles: ["admin", "writer"] },
-      { title: "Events (Registration)", to: "/manage/content/events", icon: Calendar, allowedRoles: ["admin", "writer"] },
+      { title: "Blog (Layout & Engine)", to: "/manage/content/blog", icon: FileText, allowedRoles: ["admin", "writer", "content_editor"] },
+      { title: "Articles / News", to: "/manage/content/news", icon: Newspaper, allowedRoles: ["admin", "writer", "content_editor"] },
+      { title: "Events (Registration)", to: "/manage/content/events", icon: Calendar, allowedRoles: ["admin", "writer", "content_editor"] },
     ],
   },
   {
@@ -89,7 +89,7 @@ export const adminNavGroups: AdminNavGroup[] = [
   {
     label: "System",
     items: [
-      { title: "Settings", to: "/manage/settings", icon: Settings, allowedRoles: ["admin"] },
+      { title: "Settings", to: "/manage/settings", icon: Settings, allowedRoles: ["admin", "content_editor"] },
       { title: "Audit Logs", to: "/manage/audit-logs", icon: ScrollText, allowedRoles: ["admin", "moderator"] },
     ],
   },
@@ -118,3 +118,4 @@ sectionLabels["content/news"] = "Articles / News";
 sectionLabels["content/events"] = "Events (Registration)";
 sectionLabels["ada"] = "ADA AI";
 sectionLabels["messages"] = "Messages & Support";
+sectionLabels["content"] = "Content Engine";
