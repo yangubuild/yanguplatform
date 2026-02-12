@@ -171,12 +171,14 @@ export const chipLabels = [
 ];
 
 export const exploreItems = [
-  { icon: "📖", label: "Read an article" },
-  { icon: "🎧", label: "Listen to a podcast" },
-  { icon: "✉️", label: "Get inbox zero with Cora" },
-  { icon: "✨", label: "Organize with Sparkle" },
-  { icon: "✍️", label: "Write with Spiral" },
-  { icon: "🎙️", label: "Voice dictation with Monologue" },
+  { icon: "📰", label: "Read an article" },
+  { icon: "👕", label: "Buy our exclusive merch" },
+  { icon: "💬", label: "Join our subscriber-only Discord" },
+  { icon: "🎙️", label: "Listen to the 'AI and I' podcast" },
+  { icon: "📧", label: "Get to inbox zero with Cora" },
+  { icon: "✨", label: "Use Sparkle to organize your Mac" },
+  { icon: "↩️", label: "Use Spiral to write with AI" },
+  { icon: "𝑀", label: "Use Monologue for voice dictation" },
   { icon: "👥", label: "Create a team" },
-  { icon: "💌", label: "Refer a friend" },
+  { icon: "💛", label: "Refer a friend and get paid", muted: true },
 ];

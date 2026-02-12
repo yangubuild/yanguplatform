@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { ChevronUp, ChevronDown, ArrowRight } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { exploreItems } from "./blogData";
 
 export function BlogExplorePanel() {
@@ -29,70 +29,94 @@ export function BlogExplorePanel() {
   }, [open]);
 
   return (
-    <div ref={panelRef} className="fixed bottom-6 right-6 z-50" style={{ maxWidth: 320 }}>
-      {/* Panel */}
+    <div ref={panelRef} className="fixed bottom-6 right-6 z-50" style={{ maxWidth: 420 }}>
       {open && (
         <div
-          className="mb-3 rounded-xl overflow-hidden transition-all duration-[280ms] ease-out"
+          className="mb-3 overflow-hidden"
           style={{
-            background: "#111",
-            border: "1px solid rgba(255,255,255,0.1)",
-            animation: "scale-in 0.28s ease-out",
+            background: "linear-gradient(180deg, #0f1f17 0%, #0a1710 100%)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: 8,
           }}
         >
-          <div className="p-4">
-            <h3
-              className="text-xs font-semibold uppercase tracking-widest mb-4"
-              style={{ color: "rgba(255,255,255,0.55)", letterSpacing: "0.12em" }}
+          {/* Header */}
+          <button
+            onClick={() => setOpen(false)}
+            className="w-full flex items-center justify-between px-6 py-5"
+            style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}
+          >
+            <span
+              className="text-xs font-semibold uppercase tracking-widest"
+              style={{ color: "rgba(255,255,255,0.45)", letterSpacing: "0.14em" }}
             >
               Explore the Every Universe
-            </h3>
+            </span>
+            <ChevronDown className="w-4 h-4" style={{ color: "rgba(255,255,255,0.4)" }} />
+          </button>
 
-            <div className="flex flex-col">
-              {exploreItems.map((item, i) => (
-                <a
-                  key={i}
-                  href="#"
-                  className="flex items-center gap-3 py-2.5 px-2 rounded-lg transition-colors hover:bg-white/5"
-                  style={{ textDecoration: "none" }}
-                >
-                  <span className="text-base">{item.icon}</span>
-                  <span className="text-sm flex-1" style={{ color: "rgba(255,255,255,0.7)" }}>
-                    {item.label}
-                  </span>
-                  <ArrowRight className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.25)" }} />
-                </a>
-              ))}
-            </div>
+          {/* Items */}
+          <div className="px-4 py-3 flex flex-col">
+            {exploreItems.map((item, i) => (
+              <a
+                key={i}
+                href="#"
+                className="group flex items-center justify-between gap-4 px-3 py-3.5 transition-colors"
+                style={{
+                  textDecoration: "none",
+                  borderRadius: 6,
+                  color: (item as any).muted ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.75)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)";
+                  e.currentTarget.style.color = "#fff";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "transparent";
+                  e.currentTarget.style.color = (item as any).muted ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.75)";
+                }}
+              >
+                <div className="flex items-center gap-4">
+                  <span className="text-base w-6 text-center">{item.icon}</span>
+                  <span className="text-sm">{item.label}</span>
+                </div>
+                <ChevronRight className="w-4 h-4 opacity-40 group-hover:opacity-70" />
+              </a>
+            ))}
           </div>
 
           {/* Bottom CTA */}
-          <div className="p-4 pt-2">
+          <div className="px-5 pb-5 pt-2">
             <button
-              className="w-full rounded-full py-2.5 text-sm font-medium transition-all hover:brightness-110"
-              style={{ background: "#C5F0E0", color: "#111" }}
+              className="w-full py-3.5 text-sm font-medium flex items-center justify-center gap-2 transition-all hover:brightness-110"
+              style={{
+                background: "transparent",
+                color: "rgba(255,255,255,0.7)",
+                border: "1px solid rgba(255,255,255,0.15)",
+                borderRadius: 6,
+              }}
             >
-              Create your free account →
+              Create your free account <span style={{ fontSize: 16 }}>→</span>
             </button>
           </div>
         </div>
       )}
 
-      {/* Trigger */}
-      <button
-        onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-medium transition-all hover:brightness-110"
-        style={{
-          background: "#222",
-          color: "rgba(255,255,255,0.7)",
-          border: "1px solid rgba(255,255,255,0.1)",
-        }}
-      >
-        {open ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronUp className="w-3.5 h-3.5" />}
-        <span className="uppercase tracking-wider" style={{ letterSpacing: "0.1em" }}>
+      {/* Trigger - simple text button */}
+      {!open && (
+        <button
+          onClick={() => setOpen(true)}
+          className="flex items-center gap-2 px-5 py-3 text-xs font-medium uppercase tracking-wider transition-all hover:brightness-110"
+          style={{
+            background: "linear-gradient(180deg, #0f1f17 0%, #0a1710 100%)",
+            color: "rgba(255,255,255,0.6)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: 6,
+            letterSpacing: "0.1em",
+          }}
+        >
           Explore
-        </span>
-      </button>
+        </button>
+      )}
     </div>
   );
 }
