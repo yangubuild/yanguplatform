@@ -316,6 +316,38 @@ export type Database = {
         }
         Relationships: []
       }
+      community_listings: {
+        Row: {
+          id: string
+          listed_at: string
+          status: string
+          surface_id: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          listed_at?: string
+          status?: string
+          surface_id: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          listed_at?: string
+          status?: string
+          surface_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_listings_surface_id_fkey"
+            columns: ["surface_id"]
+            isOneToOne: true
+            referencedRelation: "surfaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       credit_transactions: {
         Row: {
           amount: number
@@ -1147,6 +1179,10 @@ export type Database = {
         Returns: Json
       }
       archive_surface: { Args: { p_surface_id: string }; Returns: Json }
+      can_list_on_community: {
+        Args: { p_surface_id: string }
+        Returns: boolean
+      }
       can_publish_surface: {
         Args: { _surface_id: string; _user_id: string }
         Returns: boolean
@@ -1221,6 +1257,7 @@ export type Database = {
         Returns: boolean
       }
       is_username_available: { Args: { _username: string }; Returns: boolean }
+      list_on_community: { Args: { p_surface_id: string }; Returns: Json }
       org_has_active_subscription: {
         Args: { p_org_id: string }
         Returns: boolean
@@ -1247,6 +1284,7 @@ export type Database = {
         Returns: Json
       }
       unarchive_surface: { Args: { p_surface_id: string }; Returns: Json }
+      unlist_from_community: { Args: { p_surface_id: string }; Returns: Json }
       unpublish_surface: {
         Args: { p_domain_id: string; p_surface_id: string }
         Returns: Json
