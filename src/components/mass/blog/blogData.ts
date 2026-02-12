@@ -17,6 +17,22 @@ import dispatchImg1 from "@/assets/blog/dispatch-1.jpg";
 import dispatchImg2 from "@/assets/blog/dispatch-2.jpg";
 import dispatchImg3 from "@/assets/blog/dispatch-3.jpg";
 import dispatchImg4 from "@/assets/blog/dispatch-4.jpg";
+import aiWork1 from "@/assets/blog/ai-work-1.jpg";
+import aiWork2 from "@/assets/blog/ai-work-2.jpg";
+import aiWork3 from "@/assets/blog/ai-work-3.jpg";
+import aiWork4 from "@/assets/blog/ai-work-4.jpg";
+import prog1 from "@/assets/blog/prog-1.jpg";
+import prog2 from "@/assets/blog/prog-2.jpg";
+import prog3 from "@/assets/blog/prog-3.jpg";
+import prog4 from "@/assets/blog/prog-4.jpg";
+import event1 from "@/assets/blog/event-1.jpg";
+import event2 from "@/assets/blog/event-2.jpg";
+import event3 from "@/assets/blog/event-3.jpg";
+import event4 from "@/assets/blog/event-4.jpg";
+import podcastHero from "@/assets/blog/podcast-hero.jpg";
+import podcast1 from "@/assets/blog/podcast-1.jpg";
+import podcast2 from "@/assets/blog/podcast-2.jpg";
+import podcast3 from "@/assets/blog/podcast-3.jpg";
 
 // Mock data for Blog page — 1:1 Every.to clone
 
@@ -129,24 +145,31 @@ export const dispatchArticles: BlogArticle[] = [
 ];
 
 export const aiWorkArticles: BlogArticle[] = [
-  { id: "a1", title: "Automating Your Research Workflow with AI", date: "Feb 3, 2026", column: "PUTTING AI TO WORK", author: "Dan Shipper", image: "/placeholder.svg" },
-  { id: "a2", title: "The Best AI Tools for Writers in 2026", date: "Feb 1, 2026", column: "PUTTING AI TO WORK", author: "Casey Rosengren", image: "/placeholder.svg" },
-  { id: "a3", title: "How I Use AI to Read 100 Articles a Week", date: "Jan 29, 2026", column: "PUTTING AI TO WORK", author: "Dan Shipper", image: "/placeholder.svg" },
-  { id: "a4", title: "Building a Personal AI Knowledge Base", date: "Jan 27, 2026", column: "PUTTING AI TO WORK", author: "Dan Shipper", image: "/placeholder.svg" },
+  { id: "a1", title: "Automating Your Research Workflow with AI", subtitle: "'Does this mean I'm good at my job?'", date: "Feb 3, 2026", column: "PUTTING AI TO WORK", author: "Katie Parrott", image: aiWork1 },
+  { id: "a2", title: "How AI Can Cut Your Planning Cycle From Two Weeks to Two Days", subtitle: "Three simple tools will save you hours—plus, the seven-step process for implementation", date: "Feb 1, 2026", column: "PUTTING AI TO WORK", author: "Austin Tedesco", image: aiWork2 },
+  { id: "a3", title: "Think First, AI Second", subtitle: "Three principles for keeping your cognitive edge while leveraging AI's capabilities", date: "Jan 29, 2026", column: "PUTTING AI TO WORK", author: "Ines Lee", image: aiWork3 },
+  { id: "a4", title: "Vibe Check: Skills Need a 'Share' Button", subtitle: "The feature is powerful for individuals and tricky for teams—but it does lighten the cognitive load", date: "Jan 27, 2026", column: "PUTTING AI TO WORK", author: "Katie Parrott", image: aiWork4 },
 ];
 
 export const programmingArticles: BlogArticle[] = [
-  { id: "f1", title: "Vibe Coding Is the Future of Software", date: "Feb 2, 2026", column: "THE FUTURE OF PROGRAMMING", author: "Dan Shipper", image: "/placeholder.svg" },
-  { id: "f2", title: "Why Every Developer Should Learn Prompt Engineering", date: "Jan 31, 2026", column: "THE FUTURE OF PROGRAMMING", author: "Dan Shipper", image: "/placeholder.svg" },
-  { id: "f3", title: "The End of Boilerplate Code", date: "Jan 28, 2026", column: "THE FUTURE OF PROGRAMMING", author: "Dan Shipper", image: "/placeholder.svg" },
-  { id: "f4", title: "How AI Is Changing the Way We Debug", date: "Jan 26, 2026", column: "THE FUTURE OF PROGRAMMING", author: "Dan Shipper", image: "/placeholder.svg" },
+  { id: "f1", title: "Compound Engineering: The Definitive Guide", subtitle: "A comprehensive handbook for the AI-native engineering philosophy", date: "Feb 2, 2026", column: "THE FUTURE OF PROGRAMMING", author: "Kieran Klaassen", image: prog1 },
+  { id: "f2", title: "Vibe Check: OpenAI's Codex App Gains Ground on Claude Code", subtitle: "OpenAI nailed the interface. But it's built for hardcore engineering.", date: "Jan 31, 2026", column: "THE FUTURE OF PROGRAMMING", author: "Dan Shipper", image: prog2 },
+  { id: "f3", title: "How I Use Claude Code to Ship Like a Team of Five", subtitle: "It's the first AI tool that feels like delegating to a colleague, not prompting a chatbot", date: "Jan 28, 2026", column: "THE FUTURE OF PROGRAMMING", author: "Kieran Klaassen", image: prog3 },
+  { id: "f4", title: "I Stopped Reading Code. My Code Reviews Got Better.", subtitle: "How 13 AI agents reviewing in parallel caught a critical bug I would have otherwise missed", date: "Jan 26, 2026", column: "THE FUTURE OF PROGRAMMING", author: "Kieran Klaassen", image: prog4 },
 ];
 
-export const writingArticles: BlogArticle[] = [
-  { id: "w1", title: "Writing in the Age of AI: A New Framework", date: "Feb 1, 2026", column: "THE NEW RULES OF WRITING", author: "Casey Rosengren", image: "/placeholder.svg" },
-  { id: "w2", title: "How to Use AI Without Losing Your Voice", date: "Jan 30, 2026", column: "THE NEW RULES OF WRITING", author: "Casey Rosengren", image: "/placeholder.svg" },
-  { id: "w3", title: "The 3x Writing Method: Speed Without Sacrifice", date: "Jan 27, 2026", column: "THE NEW RULES OF WRITING", author: "Casey Rosengren", image: "/placeholder.svg" },
-  { id: "w4", title: "Why the Best Writers Will Embrace AI First", date: "Jan 25, 2026", column: "THE NEW RULES OF WRITING", author: "Casey Rosengren", image: "/placeholder.svg" },
+export interface BlogEvent {
+  id: string;
+  title: string;
+  date: string;
+  image: string;
+}
+
+export const eventArticles: BlogEvent[] = [
+  { id: "ev1", title: "Yangu AI Week 2026", date: "July 7–11, 2026", image: event1 },
+  { id: "ev2", title: "Yangu Builders/Sellers Event", date: "July 15, 2026", image: event2 },
+  { id: "ev3", title: "Yangu Influencers Live Stream", date: "July 22, 2026", image: event3 },
+  { id: "ev4", title: "Yangu Developers Community", date: "July 29, 2026", image: event4 },
 ];
 
 export const columnistArticles: BlogArticle[] = [
@@ -156,10 +179,12 @@ export const columnistArticles: BlogArticle[] = [
 ];
 
 export const podcastEpisodes: BlogEpisode[] = [
-  { id: "ep1", episode: 88, title: "The Future of AI-Powered Writing", subtitle: "Dan Shipper interviews the founders of Anthropic about Claude's creative capabilities", image: "/placeholder.svg" },
-  { id: "ep2", episode: 87, title: "Building Products in the Age of LLMs", subtitle: "How startups are rethinking product development with AI at the core", image: "/placeholder.svg" },
-  { id: "ep3", episode: 86, title: "The State of AI in 2026", subtitle: "A comprehensive look at where we are and where we're headed", image: "/placeholder.svg" },
+  { id: "ep1", episode: 88, title: "Every's Head of Consulting Just Automated Her Job", subtitle: "Natalia Quintero on why resources and fancy tools don't predict success, the power of internal AI champions, and building Claudie", image: podcast1 },
+  { id: "ep2", episode: 87, title: "Opus 4.5 Changed How Andrew Wilkinson Works and Lives", subtitle: "Tiny's cofounder on the relationship counselor, email client, and personal stylist he created with AI", image: podcast2 },
+  { id: "ep3", episode: 86, title: "Why Your AI Learning Projects Keep Fizzling Out", subtitle: "Founder Nir Zicherman on what general-purpose LLMs can't do—and what real learning requires", image: podcast3 },
 ];
+
+export const podcastHeroImage = podcastHero;
 
 export const chipLabels = [
   "Newsletter",
