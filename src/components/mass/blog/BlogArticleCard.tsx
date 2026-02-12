@@ -50,9 +50,11 @@ export function BlogArticleCard({ article, size = "default" }: Props) {
 
       {/* Author */}
       <div className="flex items-center gap-2 mt-4">
-        <div
-          className="w-7 h-7 rounded-full"
-          style={{ background: "#333" }}
+        <img
+          src={`https://api.dicebear.com/9.x/notionists/svg?seed=${encodeURIComponent(article.author)}`}
+          alt={article.author}
+          className="w-7 h-7 rounded-full object-cover"
+          style={{ background: "#222" }}
         />
         <span
           className="text-xs font-medium uppercase tracking-wider"

@@ -41,9 +41,10 @@ export function BlogColumnistBlock() {
 
         {/* Spotlight */}
         <div className="flex flex-col md:flex-row gap-8 mb-10">
-          <div
-            className="w-24 h-24 rounded-full flex-shrink-0"
-            style={{ background: "#222" }}
+          <img
+            src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face"
+            alt="Dan Shipper"
+            className="w-24 h-24 rounded-full flex-shrink-0 object-cover"
           />
           <div>
             <h3
