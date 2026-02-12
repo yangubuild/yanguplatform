@@ -82,7 +82,7 @@ export const featuredArticles: BlogArticle[] = [
     title: "Building AI Products That People Actually Use",
     subtitle: "Lessons from shipping to 100,000+ users",
     date: "Feb 6, 2026",
-    column: "EVERY STUDIO",
+    column: "YANGU STUDIO",
     author: "Dan Shipper",
     image: featuredLeft2,
   },
@@ -96,17 +96,17 @@ export const recentEssays: BlogEssay[] = [
 ];
 
 export const products: BlogProduct[] = [
-  { id: "p1", name: "Monologue", description: "Voice-to-text for thinkers. Speak your ideas, get polished prose.", image: "/placeholder.svg", link: "#" },
-  { id: "p2", name: "Sparkle", description: "AI file organizer for your Mac. Automatically sort and tag files.", image: "/placeholder.svg", link: "#" },
-  { id: "p3", name: "Cora", description: "AI email assistant. Draft replies, summarize threads, reach inbox zero.", image: "/placeholder.svg", link: "#" },
-  { id: "p4", name: "Spiral", description: "AI writing partner. Brainstorm, draft, and edit with intelligence.", image: "/placeholder.svg", link: "#" },
+  { id: "p1", name: "Ada AI", description: "The Intelligence Layer of Yangu — ADA AI is the thinking layer of the Yangu ecosystem.", image: "/placeholder.svg", link: "#" },
+  { id: "p2", name: "Foundaweb", description: "AI website builder for businesses. Create websites and business pages and launch without code.", image: "/placeholder.svg", link: "#" },
+  { id: "p3", name: "Visionaire", description: "AI digital knowledge engine that gives instant access to ready-to-use intellectual assets.", image: "/placeholder.svg", link: "#" },
+  { id: "p4", name: "Yangu Studio", description: "From Blank Canvas, to Brand Magic! AI ads and creative agents.", image: "/placeholder.svg", link: "#" },
 ];
 
 export const studioArticles: BlogArticle[] = [
-  { id: "s1", title: "Compound Engineering: Building AI That Gets Smarter", date: "Feb 5, 2026", column: "EVERY STUDIO", author: "Dan Shipper", image: "/placeholder.svg" },
-  { id: "s2", title: "The Architecture of Modern AI Applications", date: "Feb 3, 2026", column: "EVERY STUDIO", author: "Dan Shipper", image: "/placeholder.svg" },
-  { id: "s3", title: "Shipping AI Products at Scale: A Retrospective", date: "Feb 1, 2026", column: "EVERY STUDIO", author: "Dan Shipper", image: "/placeholder.svg" },
-  { id: "s4", title: "How We Built Spiral's Writing Engine", date: "Jan 29, 2026", column: "EVERY STUDIO", author: "Dan Shipper", image: "/placeholder.svg" },
+  { id: "s1", title: "Compound Engineering: Building AI That Gets Smarter", date: "Feb 5, 2026", column: "YANGU STUDIO", author: "Dan Shipper", image: "/placeholder.svg" },
+  { id: "s2", title: "The Architecture of Modern AI Applications", date: "Feb 3, 2026", column: "YANGU STUDIO", author: "Dan Shipper", image: "/placeholder.svg" },
+  { id: "s3", title: "Shipping AI Products at Scale: A Retrospective", date: "Feb 1, 2026", column: "YANGU STUDIO", author: "Dan Shipper", image: "/placeholder.svg" },
+  { id: "s4", title: "How We Built Spiral's Writing Engine", date: "Jan 29, 2026", column: "YANGU STUDIO", author: "Dan Shipper", image: "/placeholder.svg" },
 ];
 
 export const dispatchArticles: BlogArticle[] = [
