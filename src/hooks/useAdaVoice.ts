@@ -117,5 +117,18 @@ export function useAdaVoice({ chatId, userId, isAuthenticated, onTranscript }: U
     });
   }, [chatId, userId, onTranscript]);
 
-  return { isRecording, isTranscribing, startRecording, stopRecording };
+  const cancelRecording = useCallback(() => {
+    const recorder = recorderRef.current;
+    if (recorder && recorder.state !== "inactive") {
+      recorder.onstop = () => {}; // discard
+      recorder.stop();
+    }
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+    chunksRef.current = [];
+    setIsRecording(false);
+    setIsTranscribing(false);
+  }, []);
+
+  return { isRecording, isTranscribing, startRecording, stopRecording, cancelRecording };
 }

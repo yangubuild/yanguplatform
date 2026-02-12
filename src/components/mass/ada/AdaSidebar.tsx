@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   PenLine,
@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import adaIcon from "@/assets/ada-icon.png";
 import adaLogo from "@/assets/ada-logo-full.png";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 const sidebarNavItems = [
   { icon: PenLine, label: "Chat", id: "chat" },
@@ -20,11 +22,13 @@ const sidebarNavItems = [
   { icon: Share2, label: "Share", id: "share" },
 ];
 
-const chatHistory = [
-  { title: "Best way to stay...", time: "9s ago" },
-  { title: "Why is my phon...", time: "3h ago" },
-  { title: "Measure monito...", time: "7h ago" },
-];
+const ANON_CHATS_KEY = "ada_anon_chats";
+
+interface ChatHistoryItem {
+  id: string;
+  title: string;
+  updated_at: string;
+}
 
 interface AdaSidebarProps {
   isOpen?: boolean;
@@ -33,7 +37,61 @@ interface AdaSidebarProps {
 
 export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
   const [activeNav, setActiveNav] = useState("chat");
+  const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([]);
+
+  // Load chat history
+  const loadHistory = useCallback(async () => {
+    if (isAuthenticated && user) {
+      const { data } = await supabase
+        .from("ada_chats")
+        .select("id, title, updated_at")
+        .eq("user_id", user.id)
+        .order("updated_at", { ascending: false })
+        .limit(50);
+      setChatHistory((data || []).map(c => ({ id: c.id, title: c.title || "Untitled", updated_at: c.updated_at })));
+    } else {
+      try {
+        const chats = JSON.parse(localStorage.getItem(ANON_CHATS_KEY) || "[]");
+        setChatHistory(chats.map((c: any) => ({ id: c.id, title: c.title || "Untitled", updated_at: "" })));
+      } catch { setChatHistory([]); }
+    }
+  }, [isAuthenticated, user]);
+
+  useEffect(() => { loadHistory(); }, [loadHistory]);
+
+  // Refresh history when a new chat is created
+  useEffect(() => {
+    const handler = () => { setTimeout(loadHistory, 500); };
+    window.addEventListener("ada-new-chat", handler);
+    window.addEventListener("ada-chat-created", handler);
+    return () => {
+      window.removeEventListener("ada-new-chat", handler);
+      window.removeEventListener("ada-chat-created", handler);
+    };
+  }, [loadHistory]);
+
+  const handleNewChat = () => {
+    window.dispatchEvent(new CustomEvent("ada-new-chat"));
+  };
+
+  const handleLoadChat = (chatId: string) => {
+    window.dispatchEvent(new CustomEvent("ada-load-chat", { detail: chatId }));
+    onClose?.();
+  };
+
+  const timeAgo = (dateStr: string) => {
+    if (!dateStr) return "";
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return "now";
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    return `${days}d ago`;
+  };
 
   return (
     <>
@@ -92,6 +150,7 @@ export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
         {/* New Chat button */}
         <div className="px-4 pt-4 pb-2">
           <button
+            onClick={handleNewChat}
             className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-medium text-sm text-white transition-all"
             style={{
               background: "linear-gradient(90deg, #C4841F 0%, rgba(212,149,43,0.45) 55%, rgba(26,26,26,0.18) 100%)",
@@ -108,18 +167,24 @@ export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
             All chat
           </p>
           <div className="space-y-1">
-            {chatHistory.map((chat, i) => (
+            {chatHistory.length === 0 && (
+              <p className="text-white/30 text-xs px-3 py-2">No chats yet</p>
+            )}
+            {chatHistory.map((chat) => (
               <button
-                key={i}
+                key={chat.id}
+                onClick={() => handleLoadChat(chat.id)}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left hover:bg-white/5 transition-colors"
               >
                 <MessageCircle className="w-4 h-4 text-white/30 flex-shrink-0" />
                 <span className="text-white/70 text-sm truncate flex-1">
                   {chat.title}
                 </span>
-                <span className="text-white/30 text-xs flex-shrink-0">
-                  {chat.time}
-                </span>
+                {chat.updated_at && (
+                  <span className="text-white/30 text-xs flex-shrink-0">
+                    {timeAgo(chat.updated_at)}
+                  </span>
+                )}
               </button>
             ))}
           </div>
