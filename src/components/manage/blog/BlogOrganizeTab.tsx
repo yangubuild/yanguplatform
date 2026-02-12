@@ -1,8 +1,6 @@
 import * as React from "react";
 import {
   GripVertical,
-  Eye,
-  EyeOff,
   Pencil,
   LayoutGrid,
   Star,
@@ -15,6 +13,7 @@ import {
   Headphones,
   Sparkles,
   Flag,
+  Shield,
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,20 +26,21 @@ interface BlogSection {
   title: string;
   icon: LucideIcon;
   visible: boolean;
+  adaReview: boolean;
 }
 
 const defaultSections: BlogSection[] = [
-  { id: "hero", title: "Hero Banner (Top)", icon: Star, visible: true },
-  { id: "dispatches", title: "Dispatches From The Frontiers Of AI", icon: Newspaper, visible: true },
-  { id: "essays", title: "Recent Essays", icon: BookOpen, visible: true },
-  { id: "built-by-yangu", title: "Built By Yangu", icon: Wrench, visible: true },
-  { id: "studio", title: "Yangu Studio", icon: Palette, visible: true },
-  { id: "ai-at-work", title: "Putting AI At Work", icon: Sparkles, visible: true },
-  { id: "programming", title: "Future Of Programming", icon: Code, visible: true },
-  { id: "events", title: "Yangu Events", icon: Calendar, visible: true },
-  { id: "podcast", title: "Yangu Podcast", icon: Headphones, visible: true },
-  { id: "new-tools", title: "New Tools Category", icon: LayoutGrid, visible: true },
-  { id: "finale", title: "Finale Hero Banner", icon: Flag, visible: true },
+  { id: "hero", title: "Hero Banner (Top)", icon: Star, visible: true, adaReview: false },
+  { id: "dispatches", title: "Dispatches From The Frontiers Of AI", icon: Newspaper, visible: true, adaReview: false },
+  { id: "essays", title: "Recent Essays", icon: BookOpen, visible: true, adaReview: false },
+  { id: "built-by-yangu", title: "Built By Yangu", icon: Wrench, visible: true, adaReview: false },
+  { id: "studio", title: "Yangu Studio", icon: Palette, visible: true, adaReview: false },
+  { id: "ai-at-work", title: "Putting AI At Work", icon: Sparkles, visible: true, adaReview: false },
+  { id: "programming", title: "Future Of Programming", icon: Code, visible: true, adaReview: false },
+  { id: "events", title: "Yangu Events", icon: Calendar, visible: true, adaReview: false },
+  { id: "podcast", title: "Yangu Podcast", icon: Headphones, visible: true, adaReview: false },
+  { id: "new-tools", title: "New Tools Category", icon: LayoutGrid, visible: true, adaReview: false },
+  { id: "finale", title: "Finale Hero Banner", icon: Flag, visible: true, adaReview: false },
 ];
 
 export function BlogOrganizeTab() {
@@ -70,6 +70,12 @@ export function BlogOrganizeTab() {
   const toggleVisibility = (id: string) => {
     setSections((prev) =>
       prev.map((s) => (s.id === id ? { ...s, visible: !s.visible } : s))
+    );
+  };
+
+  const toggleAdaReview = (id: string) => {
+    setSections((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, adaReview: !s.adaReview } : s))
     );
   };
 
@@ -109,6 +115,18 @@ export function BlogOrganizeTab() {
               onCheckedChange={() => toggleVisibility(section.id)}
               className="scale-75"
             />
+            <button
+              onClick={() => toggleAdaReview(section.id)}
+              title={section.adaReview ? "ADA Review active" : "Enable ADA Review"}
+              className={cn(
+                "h-7 w-7 flex items-center justify-center rounded-md transition-colors",
+                section.adaReview
+                  ? "text-primary bg-primary/10"
+                  : "text-muted-foreground/40 hover:text-muted-foreground"
+              )}
+            >
+              <Shield className="h-3.5 w-3.5" />
+            </button>
             <Button
               variant="ghost"
               size="icon"
