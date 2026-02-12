@@ -6,20 +6,20 @@ import { BlogFeaturedGrid } from "./BlogFeaturedGrid";
 import { BlogSectionModule } from "./BlogSectionModule";
 import { BlogArticleCard } from "./BlogArticleCard";
 import { BlogProductCard } from "./BlogProductCard";
-import { BlogColumnistBlock } from "./BlogColumnistBlock";
 import { BlogPodcastSection } from "./BlogPodcastSection";
 import { BlogConsultingBanner } from "./BlogConsultingBanner";
 import { BlogExplorePanel } from "./BlogExplorePanel";
 import { BlogSubscribeModal } from "./BlogSubscribeModal";
 import { BlogFooter } from "./BlogFooter";
 import { BlogInterstitialBanner } from "./BlogInterstitialBanner";
+import { BlogEventCard } from "./BlogEventCard";
 import {
   products,
   studioArticles,
   dispatchArticles,
   aiWorkArticles,
   programmingArticles,
-  writingArticles,
+  eventArticles,
   chipLabels,
 } from "./blogData";
 
@@ -71,7 +71,6 @@ export function BlogPage() {
         <div className="mx-auto" style={{ maxWidth: 1100, height: 1, background: "rgba(255,255,255,0.1)" }} />
       </div>
 
-
       {/* Yangu Studio */}
       <BlogSectionModule title="Yangu Studio" subtitle="Lessons from engineers shipping AI products." dashedBorder>
         <ArticleGrid articles={studioArticles} />
@@ -82,27 +81,27 @@ export function BlogPage() {
         <ArticleGrid articles={dispatchArticles} />
       </BlogSectionModule>
 
-
       {/* Interstitial Banner */}
       <BlogInterstitialBanner />
 
       {/* Putting AI to Work */}
-      <BlogSectionModule title="Putting AI to Work">
+      <BlogSectionModule title="Putting AI to Work" subtitle="Everything you need to know about how to use LLMs.">
         <ArticleGrid articles={aiWorkArticles} />
       </BlogSectionModule>
 
       {/* Future of Programming */}
-      <BlogSectionModule title="The Future of Programming">
+      <BlogSectionModule title="The Future of Programming" subtitle="Build more. Code less.">
         <ArticleGrid articles={programmingArticles} />
       </BlogSectionModule>
 
-      {/* New Rules of Writing */}
-      <BlogSectionModule title="The New Rules of Writing">
-        <ArticleGrid articles={writingArticles} />
+      {/* Yangu Events */}
+      <BlogSectionModule title="Yangu Events" subtitle="Upcoming events and meetups.">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {eventArticles.map((ev) => (
+            <BlogEventCard key={ev.id} event={ev} />
+          ))}
+        </div>
       </BlogSectionModule>
-
-      {/* Columnists */}
-      <BlogColumnistBlock />
 
       {/* Podcast */}
       <BlogPodcastSection />
