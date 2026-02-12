@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { Menu, Search, Gift, Bell, ChevronDown, User } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Menu, Search, Gift, Bell, ChevronDown, User, Settings } from "lucide-react";
+import { useRoles } from "@/hooks/useRoles";
 import yanguLogo from "@/assets/yangu-logo-full.png";
 
 const CURRENCIES = [
@@ -49,6 +51,7 @@ interface NavDashHeaderProps {
 }
 
 export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
+  const { isAdmin } = useRoles();
   const [selectedCurrency, setSelectedCurrency] = useState(CURRENCIES[0]);
   const [currencyOpen, setCurrencyOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -192,6 +195,18 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
         >
           <Gift className="w-4 h-4" />
         </button>
+
+        {/* Admin Management link */}
+        {isAdmin && (
+          <Link
+            to="/manage"
+            className="w-9 h-9 rounded-[10px] flex items-center justify-center"
+            style={{ background: "#2a3038", color: "rgba(255,255,255,0.5)" }}
+            title="Management"
+          >
+            <Settings className="w-4 h-4" />
+          </Link>
+        )}
 
         {/* Notification */}
         <button

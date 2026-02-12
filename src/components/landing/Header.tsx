@@ -4,14 +4,16 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/ThemeProvider";
 import { useDomain } from "@/contexts/DomainContext";
 import { useAuth } from "@/hooks/useAuth";
+import { useRoles } from "@/hooks/useRoles";
 import { DomainBadge } from "@/components/domain/DomainBadge";
 import { DomainCta } from "@/components/domain/DomainCta";
-import { Menu, X, Sun, Moon } from "lucide-react";
+import { Menu, X, Sun, Moon, Settings } from "lucide-react";
 
 export function Header() {
   const { theme, toggleTheme } = useTheme();
   const { routeConfig, domainType, isLoading: isDomainLoading } = useDomain();
   const { isAuthenticated } = useAuth();
+  const { isAdmin } = useRoles();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -54,11 +56,21 @@ export function Header() {
           </Button>
           
           {isAuthenticated ? (
-            <Link to={routeConfig.defaultRoute}>
-              <Button variant="accent" size="sm" className="hidden sm:flex">
-                Go to Dashboard
-              </Button>
-            </Link>
+            <div className="hidden items-center gap-2 sm:flex">
+              {isAdmin && (
+                <Link to="/manage">
+                  <Button variant="ghost" size="sm">
+                    <Settings className="mr-1.5 h-4 w-4" />
+                    Management
+                  </Button>
+                </Link>
+              )}
+              <Link to={routeConfig.defaultRoute}>
+                <Button variant="accent" size="sm">
+                  Go to Dashboard
+                </Button>
+              </Link>
+            </div>
           ) : (
             <>
               <Link to="/auth/login">
@@ -103,9 +115,19 @@ export function Header() {
             </a>
             <div className="flex flex-col gap-2 pt-4">
               {isAuthenticated ? (
-                <Link to={routeConfig.defaultRoute}>
-                  <Button variant="accent" className="w-full">Go to Dashboard</Button>
-                </Link>
+                <>
+                  {isAdmin && (
+                    <Link to="/manage" onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="outline" className="w-full">
+                        <Settings className="mr-1.5 h-4 w-4" />
+                        Management
+                      </Button>
+                    </Link>
+                  )}
+                  <Link to={routeConfig.defaultRoute}>
+                    <Button variant="accent" className="w-full">Go to Dashboard</Button>
+                  </Link>
+                </>
               ) : (
                 <>
                   <Link to="/auth/login">
