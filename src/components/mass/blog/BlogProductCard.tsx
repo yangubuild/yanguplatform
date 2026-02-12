@@ -14,7 +14,7 @@ const PRODUCT_COLORS: Record<string, { bg: string; gradient: string }> = {
     bg: "#3A1010",
     gradient: "linear-gradient(135deg, #E74C3C 0%, #C0392B 60%, #3A1010 100%)",
   },
-  "Yangu Studio": {
+  "VLS AI": {
     bg: "#0A2A14",
     gradient: "linear-gradient(135deg, #27AE60 0%, #1E8449 60%, #0A2A14 100%)",
   },
