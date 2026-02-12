@@ -3,7 +3,9 @@ import {
   CreditCard, Plug, TrendingUp, Activity, AlertTriangle,
   Send, Zap, Eye, Users, FileWarning, ServerCrash,
   ToggleLeft, ToggleRight, ChevronRight, Sparkles,
+  Inbox, Clock, ArrowUpRight,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -265,6 +267,46 @@ function LiveMetrics() {
   );
 }
 
+/* ── Support Tickets Widget ────────────────────────────── */
+function SupportTicketsWidget() {
+  const navigate = useNavigate();
+  const items = [
+    { label: "Open Tickets", count: 3, icon: Clock, color: "text-warning", filter: "open" },
+    { label: "Urgent Tickets", count: 2, icon: AlertTriangle, color: "text-destructive", filter: "urgent" },
+    { label: "Unread Tickets", count: 2, icon: Inbox, color: "text-accent", filter: "unread" },
+    { label: "Escalated", count: 1, icon: ArrowUpRight, color: "text-destructive", filter: "escalated" },
+  ];
+
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base flex items-center gap-2">
+          <Inbox className="h-5 w-5 text-accent" />
+          Support Inbox
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {items.map((item) => (
+          <button
+            key={item.label}
+            className="flex w-full items-center justify-between rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted/50 transition-colors"
+            onClick={() => navigate(`/manage/messages?filter=${item.filter}`)}
+          >
+            <span className="flex items-center gap-2">
+              <item.icon className={`h-4 w-4 ${item.color}`} />
+              {item.label}
+            </span>
+            <span className="flex items-center gap-2">
+              <Badge variant="secondary" className="text-xs">{item.count}</Badge>
+              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+            </span>
+          </button>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
+
 /* ── Main Dashboard ───────────────────────────────────── */
 export default function ManageDashboard() {
   return (
@@ -272,10 +314,12 @@ export default function ManageDashboard() {
       {/* Live Metrics */}
       <LiveMetrics />
 
-      {/* Row: ADA + Messages */}
+      {/* Row: ADA + Messages + Support */}
       <div className="grid gap-4 lg:grid-cols-3">
         <AdaCommandWidget />
-        <MessagesWidget />
+        <div className="space-y-4">
+          <SupportTicketsWidget />
+        </div>
       </div>
 
       {/* System Health HUD */}
