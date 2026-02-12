@@ -1,4 +1,5 @@
-import { Search, Puzzle, ArrowUpCircle, ChevronDown, Plus, History } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Search, Puzzle, ArrowUpCircle, ChevronDown, Plus, History, ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import adaLogo from "@/assets/ada-logo-full.png";
 
@@ -9,10 +10,19 @@ interface AdaCommandHeaderProps {
 const models = ["gemini-3-flash-preview", "gemini-2.5-pro", "gpt-5-mini"];
 
 export function AdaCommandHeader({ isAdmin }: AdaCommandHeaderProps) {
+  const navigate = useNavigate();
+
   return (
     <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
       {/* Left side */}
       <div className="flex items-center gap-4">
+        <button
+          onClick={() => navigate("/ada-ai")}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-[hsl(var(--admin-text-muted))] border border-[hsl(var(--admin-border)/0.3)] hover:bg-[hsl(var(--admin-surface-elevated)/0.4)] transition-colors"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Back to ADA AI Chat
+        </button>
         <img src={adaLogo} alt="ADA AI" className="h-7 opacity-90" />
         {isAdmin && (
           <>

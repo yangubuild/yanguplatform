@@ -1,8 +1,14 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { X, Mic, Settings, ChevronDown, Smartphone, Plus, ArrowUp, AudioLines, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { X, Mic, Settings, ChevronDown, Smartphone, Plus, ArrowUp, AudioLines, User, Shield } from "lucide-react";
 import adaLogo from "@/assets/ada-logo-full.png";
+import { useAuth } from "@/hooks/useAuth";
+import { useRoles } from "@/hooks/useRoles";
 
 export function AdaMainPanel() {
+  const navigate = useNavigate();
+  const { profile, isAuthenticated } = useAuth();
+  const { isAdmin } = useRoles();
   const [mode, setMode] = useState<"chat" | "voice">("chat");
   const [chatMode, setChatMode] = useState<"search" | "discuss" | null>(null);
   const [inputValue, setInputValue] = useState("");
@@ -148,6 +154,16 @@ export function AdaMainPanel() {
             Extensions
             <ChevronDown className="w-3 h-3" />
           </button>
+          {isAdmin && (
+            <button
+              onClick={() => navigate("/manage/ada")}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 text-white/50 text-sm hover:text-white/70"
+              style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.08))" }}
+            >
+              <Shield className="w-3.5 h-3.5" />
+              Command Center
+            </button>
+          )}
           <button
             className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-white text-sm transition-all"
             style={{
@@ -175,9 +191,14 @@ export function AdaMainPanel() {
             </span>
           </span>
         </h1>
-        <p className="text-white/40 text-2xl md:text-3xl font-light text-center mb-10">
-          Alexandria Attaya
-        </p>
+        {isAuthenticated && profile?.display_name && (
+          <p className="text-white/40 text-2xl md:text-3xl font-light text-center mb-10">
+            {profile.display_name}
+          </p>
+        )}
+        {(!isAuthenticated || !profile?.display_name) && (
+          <div className="mb-10" />
+        )}
 
         {mode === "voice" ? (
           <>
