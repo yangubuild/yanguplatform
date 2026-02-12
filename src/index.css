@@ -80,21 +80,21 @@
     /* Sidebar */
     --sidebar-background: 150 20% 5%;
     --sidebar-foreground: 150 10% 92%;
-    --sidebar-primary: 24 95% 53%;
+    --sidebar-primary: 25 85% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 150 14% 11%;
     --sidebar-accent-foreground: 150 10% 92%;
     --sidebar-border: 150 12% 15%;
-    --sidebar-ring: 24 95% 53%;
+    --sidebar-ring: 25 85% 45%;
 
     /* Admin Panel tokens (light - fallback, same as dark for admin-only) */
     --admin-bg: 150 20% 5%;
     --admin-surface: 150 15% 8%;
     --admin-surface-elevated: 150 14% 11%;
     --admin-border: 150 12% 15%;
-    --admin-accent: 24 95% 53%;
+    --admin-accent: 25 85% 45%;
     --admin-accent-foreground: 0 0% 100%;
-    --admin-glow: 0 0 30px hsl(24 95% 53% / 0.15);
+    --admin-glow: 0 0 30px hsl(25 85% 45% / 0.18);
     --admin-text: 150 10% 92%;
     --admin-text-muted: 150 8% 48%;
   }
@@ -122,8 +122,8 @@
     --muted: 150 12% 15%;
     --muted-foreground: 150 10% 60%;
 
-    /* Accent - Yangu Orange in dark */
-    --accent: 24 95% 53%;
+    /* Accent - Yangu Burnt Orange in dark */
+    --accent: 25 85% 45%;
     --accent-foreground: 0 0% 100%;
 
     /* Brand colors (same as light, they pop on dark) */
@@ -150,12 +150,12 @@
     /* Borders */
     --border: 150 12% 15%;
     --input: 150 12% 15%;
-    --ring: 24 95% 53%;
+    --ring: 25 85% 45%;
 
     /* Gradients for dark */
-    --gradient-primary: linear-gradient(135deg, hsl(24 95% 53%) 0%, hsl(24 90% 40%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(25 85% 45%) 0%, hsl(20 75% 30%) 100%);
     --gradient-hero: linear-gradient(180deg, hsl(150 20% 5%) 0%, hsl(150 15% 8%) 100%);
-    --gradient-glow: radial-gradient(ellipse at center, hsl(24 95% 53% / 0.2) 0%, transparent 70%);
+    --gradient-glow: radial-gradient(ellipse at center, hsl(25 85% 45% / 0.2) 0%, transparent 70%);
 
     /* Shadows for dark */
     --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.3);
@@ -167,21 +167,21 @@
     /* Sidebar */
     --sidebar-background: 150 20% 5%;
     --sidebar-foreground: 150 10% 92%;
-    --sidebar-primary: 24 95% 53%;
+    --sidebar-primary: 25 85% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 150 14% 11%;
     --sidebar-accent-foreground: 150 10% 92%;
     --sidebar-border: 150 12% 15%;
-    --sidebar-ring: 24 95% 53%;
+    --sidebar-ring: 25 85% 45%;
 
     /* Admin Panel tokens (dark) */
     --admin-bg: 150 20% 5%;
     --admin-surface: 150 15% 8%;
     --admin-surface-elevated: 150 14% 11%;
     --admin-border: 150 12% 15%;
-    --admin-accent: 24 95% 53%;
+    --admin-accent: 25 85% 45%;
     --admin-accent-foreground: 0 0% 100%;
-    --admin-glow: 0 0 30px hsl(24 95% 53% / 0.15);
+    --admin-glow: 0 0 30px hsl(25 85% 45% / 0.18);
     --admin-text: 150 10% 92%;
     --admin-text-muted: 150 8% 48%;
   }
@@ -312,20 +312,20 @@
   }
 
   .admin-btn-primary {
-    background: linear-gradient(135deg, hsl(24 95% 53%) 0%, hsl(24 90% 40%) 100%);
+    background: linear-gradient(135deg, hsl(25 85% 45%) 0%, hsl(20 75% 30%) 100%);
     color: hsl(0 0% 100%);
-    border: 1px solid hsl(24 95% 53% / 0.3);
+    border: 1px solid hsl(25 85% 45% / 0.3);
     border-radius: 0.625rem;
     font-weight: 600;
     font-size: 0.875rem;
     padding: 0.5rem 1.25rem;
     transition: all 0.2s ease;
-    box-shadow: 0 0 20px hsl(24 95% 53% / 0.15);
+    box-shadow: 0 0 20px hsl(25 85% 45% / 0.15);
   }
 
   .admin-btn-primary:hover {
     filter: brightness(1.1);
-    box-shadow: 0 0 28px hsl(24 95% 53% / 0.25);
+    box-shadow: 0 0 28px hsl(25 85% 45% / 0.25);
   }
 
   .admin-btn-secondary {
@@ -375,10 +375,10 @@
   }
 
   .admin-nav-item-active {
-    background: hsl(160 60% 30% / 0.15) !important;
-    color: hsl(24 95% 53%) !important;
+    background: hsl(25 85% 45% / 0.1) !important;
+    color: hsl(25 85% 45%) !important;
     font-weight: 500;
-    box-shadow: inset 3px 0 0 hsl(24 95% 53%);
+    box-shadow: inset 3px 0 0 hsl(25 85% 45%);
   }
 
   .admin-section-title {
