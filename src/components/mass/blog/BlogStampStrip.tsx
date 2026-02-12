@@ -8,12 +8,12 @@ import stampWrite from "@/assets/every-stamps/Write.png";
 import stampOrganize from "@/assets/every-stamps/Organize.png";
 
 const STAMPS = [
-  { id: "read", src: stampRead, y: 3, w: 195, h: 260 },
-  { id: "email", src: stampEmail, y: -3, w: 195, h: 260 },
-  { id: "speak", src: stampSpeak, y: 4, w: 195, h: 260 },
-  { id: "listen", src: stampListen, y: -2, w: 195, h: 260 },
-  { id: "write", src: stampWrite, y: 3, w: 195, h: 260 },
-  { id: "organize", src: stampOrganize, y: -3, w: 220, h: 290 },
+  { id: "read", src: stampRead, y: 3, w: 170, h: 300 },
+  { id: "email", src: stampEmail, y: -3, w: 170, h: 300 },
+  { id: "speak", src: stampSpeak, y: 4, w: 170, h: 300 },
+  { id: "listen", src: stampListen, y: -2, w: 170, h: 300 },
+  { id: "write", src: stampWrite, y: 3, w: 170, h: 300 },
+  { id: "organize", src: stampOrganize, y: -3, w: 190, h: 330 },
 ];
 
 export function BlogStampStrip() {
