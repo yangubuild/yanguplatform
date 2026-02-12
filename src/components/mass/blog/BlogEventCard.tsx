@@ -1,3 +1,4 @@
+import { ArrowUpRight } from "lucide-react";
 import type { BlogEvent } from "./blogData";
 
 interface Props {
@@ -40,17 +41,19 @@ export function BlogEventCard({ event }: Props) {
         {event.date}
       </p>
 
-      {/* Register Now button */}
-      <button
-        className="mt-4 text-xs font-semibold uppercase tracking-wider px-5 py-2 rounded-lg transition-colors duration-200"
-        style={{
-          background: "linear-gradient(90deg, #b5622a, #5c2a12)",
-          color: "#fff",
-          letterSpacing: "0.1em",
-        }}
-      >
-        Register Now
-      </button>
+      {/* Register Now link */}
+      <div className="flex items-center justify-between mt-4">
+        <span
+          className="text-sm font-medium"
+          style={{ color: "rgba(255,255,255,0.7)" }}
+        >
+          Register Now
+        </span>
+        <ArrowUpRight
+          className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+          style={{ color: "rgba(255,255,255,0.5)" }}
+        />
+      </div>
     </a>
   );
 }
