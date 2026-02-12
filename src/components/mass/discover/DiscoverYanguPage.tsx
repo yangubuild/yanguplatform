@@ -131,10 +131,10 @@ export function DiscoverYanguPage() {
   const [activeApp, setActiveApp] = useState(0);
 
   return (
-    <div className="min-h-screen" style={{ background: "#08120D" }}>
+    <div className="min-h-screen" style={{ background: "#08120D", fontFamily: "'Lufga', sans-serif" }}>
       {/* ─── Top Nav ─── */}
       <nav className="flex items-center justify-between px-6 md:px-12 py-5 max-w-[1200px] mx-auto">
-        <img src={yanguLogoFull} alt="Yangu" className="h-7" />
+        <img src={yanguLogoFull} alt="Yangu" className="h-10" />
         <div className="hidden md:flex items-center gap-8 text-sm text-white/60">
           <a href="/community" className="hover:text-white transition-colors">Community</a>
           <a href="/why-yangu" className="hover:text-white transition-colors">Why Yangu</a>
