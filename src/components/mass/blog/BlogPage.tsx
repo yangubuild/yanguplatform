@@ -30,7 +30,7 @@ function InterstitialBlock() {
           className="text-lg"
           style={{ fontFamily: "'Lufga', sans-serif", color: "rgba(255,255,255,0.3)" }}
         >
-          EVERY
+          YANGU
         </span>
         <h2
           className="mt-4 text-xl md:text-2xl font-medium leading-tight"
@@ -83,8 +83,13 @@ export function BlogPage() {
 
       <BlogFeaturedGrid />
 
-      {/* Built by Every */}
-      <BlogSectionModule title="Built by Every" subtitle="Try out our AI-powered products.">
+      {/* Divider above products */}
+      <div className="px-6">
+        <div className="mx-auto" style={{ maxWidth: 1100, height: 1, background: "rgba(255,255,255,0.1)" }} />
+      </div>
+
+      {/* Built by Yangu */}
+      <BlogSectionModule title="Built by Yangu" subtitle="Try out our AI-powered products.">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {products.map((p) => (
             <BlogProductCard key={p.id} product={p} />
@@ -92,11 +97,16 @@ export function BlogPage() {
         </div>
       </BlogSectionModule>
 
+      {/* Divider below products */}
+      <div className="px-6">
+        <div className="mx-auto" style={{ maxWidth: 1100, height: 1, background: "rgba(255,255,255,0.1)" }} />
+      </div>
+
       {/* Interstitial 1 */}
       <InterstitialBlock />
 
-      {/* Every Studio */}
-      <BlogSectionModule title="Every Studio" subtitle="Lessons from engineers shipping AI products.">
+      {/* Yangu Studio */}
+      <BlogSectionModule title="Yangu Studio" subtitle="Lessons from engineers shipping AI products.">
         <ArticleGrid articles={studioArticles} />
       </BlogSectionModule>
 
