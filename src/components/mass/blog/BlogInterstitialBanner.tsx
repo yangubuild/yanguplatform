@@ -51,7 +51,7 @@ export function BlogInterstitialBanner() {
           </h2>
 
           {/* App icons row — half-cut at bottom */}
-          <div className="flex items-end justify-center gap-3 sm:gap-5 mt-10" style={{ marginBottom: "-45px" }}>
+          <div className="flex items-end justify-center gap-3 sm:gap-5 mt-10" style={{ transform: "translateY(50%)" }}>
             {APP_ICONS.map((icon) => (
               <div
                 key={icon.alt}
