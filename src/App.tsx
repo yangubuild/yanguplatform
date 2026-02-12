@@ -42,6 +42,8 @@ import ManageUsers from "./pages/manage/ManageUsers";
 import ManageSurfaces from "./pages/manage/ManageSurfaces";
 import ManageCommunity from "./pages/manage/ManageCommunity";
 import ManageBlog from "./pages/manage/ManageBlog";
+import ManageAda from "./pages/manage/ManageAda";
+import ManageMessages from "./pages/manage/ManageMessages";
 
 console.log("[Supabase]", import.meta.env.VITE_SUPABASE_URL);
 
@@ -164,6 +166,8 @@ const App = () => (
                   }
                 >
                   <Route index element={<ManageDashboard />} />
+                  <Route path="ada" element={<ManageAda />} />
+                  <Route path="messages" element={<ManageMessages />} />
                   {/* Platform */}
                   <Route path="users" element={<ManageUsers />} />
                   <Route path="surfaces" element={<ManageSurfaces />} />

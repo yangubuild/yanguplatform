@@ -1,4 +1,5 @@
 import {
+  MessageSquare,
   LayoutDashboard,
   Users,
   Layers,
@@ -39,6 +40,12 @@ export interface AdminNavGroup {
 
 export const adminNavGroups: AdminNavGroup[] = [
   {
+    label: "AI",
+    items: [
+      { title: "ADA AI", to: "/manage/ada", icon: Bot, allowedRoles: ["admin"] },
+    ],
+  },
+  {
     label: "Overview",
     items: [
       { title: "Dashboard", to: "/manage", icon: LayoutDashboard, end: true, allowedRoles: ["admin"] },
@@ -51,6 +58,7 @@ export const adminNavGroups: AdminNavGroup[] = [
       { title: "Users", to: "/manage/users", icon: Users, allowedRoles: ["admin"] },
       { title: "Surfaces", to: "/manage/surfaces", icon: Layers, allowedRoles: ["admin"] },
       { title: "Community", to: "/manage/community", icon: Megaphone, allowedRoles: ["admin", "moderator"] },
+      { title: "Messages", to: "/manage/messages", icon: MessageSquare, allowedRoles: ["admin"] },
       { title: "Agents", to: "/manage/agents", icon: Bot, allowedRoles: ["admin"] },
       { title: "Domains", to: "/manage/domains", icon: Globe, allowedRoles: ["admin"] },
     ],
@@ -108,3 +116,5 @@ sectionLabels["alerts-security"] = "Alerts & Security";
 sectionLabels["content/blog"] = "Blog";
 sectionLabels["content/news"] = "News";
 sectionLabels["content/events"] = "Events";
+sectionLabels["ada"] = "ADA AI";
+sectionLabels["messages"] = "Messages & Support";
