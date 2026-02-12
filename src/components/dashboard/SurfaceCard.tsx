@@ -347,11 +347,25 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
                           <UserMinus className="h-4 w-4 mr-2" />
                           Unlist from Community
                         </DropdownMenuItem>
-                      ) : (
+                      ) : isPublished ? (
                         <DropdownMenuItem onClick={handleListOnCommunity}>
                           <Users className="h-4 w-4 mr-2" />
                           List on Community
                         </DropdownMenuItem>
+                      ) : (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div>
+                              <DropdownMenuItem disabled>
+                                <Users className="h-4 w-4 mr-2" />
+                                List on Community
+                              </DropdownMenuItem>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent side="left">
+                            Publish this surface to list it on Community.
+                          </TooltipContent>
+                        </Tooltip>
                       )}
 
                       <DropdownMenuSeparator />
@@ -368,10 +382,6 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
                       <DropdownMenuItem onClick={handleRestore}>
                         <RotateCcw className="h-4 w-4 mr-2" />
                         Unarchive
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleListOnCommunity}>
-                        <Users className="h-4 w-4 mr-2" />
-                        List on Community
                       </DropdownMenuItem>
                     </>
                   )}
