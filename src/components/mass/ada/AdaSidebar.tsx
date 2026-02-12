@@ -8,7 +8,6 @@ import {
   Search,
   X,
   MessageCircle,
-  Sparkles,
 } from "lucide-react";
 import adaIcon from "@/assets/ada-icon.png";
 import adaLogo from "@/assets/ada-logo-full.png";
@@ -190,24 +189,8 @@ export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
           </div>
         </div>
 
-        {/* Upgrade CTA */}
-        <div className="p-4">
-          <div
-            className="rounded-xl p-4 flex items-center justify-between"
-            style={{
-              background: "linear-gradient(90deg, #C4841F 0%, rgba(212,149,43,0.45) 55%, rgba(26,26,26,0.18) 100%)",
-              boxShadow: "0 0 18px rgba(212,149,43,0.18)",
-            }}
-          >
-            <div>
-              <p className="text-white font-semibold text-sm">Get pro features</p>
-              <button className="text-white/80 text-xs mt-1 underline">
-                Upgrade Now
-              </button>
-            </div>
-            <Sparkles className="w-8 h-8 text-yellow-300" />
-          </div>
-        </div>
+        {/* Bottom spacer */}
+        <div className="p-4" />
       </aside>
     </>
   );

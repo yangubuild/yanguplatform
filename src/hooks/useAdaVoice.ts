@@ -6,7 +6,7 @@ interface UseAdaVoiceOptions {
   chatId: string | null;
   userId: string | null;
   isAuthenticated: boolean;
-  onTranscript: (transcript: string, meta: { audio_path: string; language: string; duration_ms: number }) => void;
+  onTranscript: (transcript: string, meta: { audio_path: string; language: string; duration_ms: number; mime_type: string; size_bytes: number }) => void;
 }
 
 export function useAdaVoice({ chatId, userId, isAuthenticated, onTranscript }: UseAdaVoiceOptions) {
@@ -27,24 +27,27 @@ export function useAdaVoice({ chatId, userId, isAuthenticated, onTranscript }: U
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
 
-      // Prefer webm, fallback to ogg
+      // Prefer webm, fallback to ogg, then mp4
       const mimeType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
         ? "audio/webm;codecs=opus"
         : MediaRecorder.isTypeSupported("audio/ogg;codecs=opus")
         ? "audio/ogg;codecs=opus"
+        : MediaRecorder.isTypeSupported("audio/mp4")
+        ? "audio/mp4"
         : "audio/webm";
 
+      console.log("[AdaVoice] Starting recording with mimeType:", mimeType);
       const recorder = new MediaRecorder(stream, { mimeType });
       chunksRef.current = [];
       recorder.ondataavailable = (e) => {
         if (e.data.size > 0) chunksRef.current.push(e.data);
       };
-      recorder.start(250); // collect in 250ms chunks
+      recorder.start(250);
       recorderRef.current = recorder;
       startTimeRef.current = Date.now();
       setIsRecording(true);
     } catch (err) {
-      console.error("Mic access error:", err);
+      console.error("[AdaVoice] Mic access error:", err);
       toast({ title: "Could not access microphone", variant: "destructive" });
     }
   }, [isAuthenticated, userId]);
@@ -62,12 +65,19 @@ export function useAdaVoice({ chatId, userId, isAuthenticated, onTranscript }: U
         streamRef.current?.getTracks().forEach((t) => t.stop());
         streamRef.current = null;
 
-        const ext = recorder.mimeType.includes("ogg") ? "ogg" : "webm";
-        const blob = new Blob(chunksRef.current, { type: recorder.mimeType });
+        const mimeType = recorder.mimeType;
+        // Map mimeType to extension
+        let ext = "webm";
+        if (mimeType.includes("ogg")) ext = "ogg";
+        else if (mimeType.includes("mp4")) ext = "m4a";
+
+        const blob = new Blob(chunksRef.current, { type: mimeType });
         chunksRef.current = [];
 
+        console.log("[AdaVoice] Recording stopped. Blob size:", blob.size, "mimeType:", mimeType, "ext:", ext);
+
         if (blob.size < 500) {
-          // Too short / empty
+          console.log("[AdaVoice] Blob too small, discarding");
           resolve();
           return;
         }
@@ -78,16 +88,20 @@ export function useAdaVoice({ chatId, userId, isAuthenticated, onTranscript }: U
           const ts = Date.now();
           const filePath = `${userId}/${effectiveChatId}/${ts}.${ext}`;
 
-          // Upload to ada-audio bucket
+          console.log("[AdaVoice] Uploading to ada-audio:", filePath);
+
+          // Upload to ada-audio bucket with upsert
           const { error: upErr } = await supabase.storage
             .from("ada-audio")
-            .upload(filePath, blob, { contentType: recorder.mimeType, upsert: false });
+            .upload(filePath, blob, { contentType: blob.type, upsert: true });
 
           if (upErr) {
-            console.error("Upload error:", upErr);
+            console.error("[AdaVoice] Upload error:", upErr);
             toast({ title: "Audio upload failed", variant: "destructive" });
             return;
           }
+
+          console.log("[AdaVoice] Upload success, calling ada-transcribe-audio");
 
           // Call edge function
           const { data, error: fnErr } = await supabase.functions.invoke("ada-transcribe-audio", {
@@ -95,18 +109,22 @@ export function useAdaVoice({ chatId, userId, isAuthenticated, onTranscript }: U
           });
 
           if (fnErr || !data?.transcript) {
-            console.error("Transcription error:", fnErr, data);
+            console.error("[AdaVoice] Transcription error:", fnErr, data);
             toast({ title: "Transcription failed", variant: "destructive" });
             return;
           }
+
+          console.log("[AdaVoice] Transcript:", data.transcript, "Language:", data.language);
 
           onTranscript(data.transcript, {
             audio_path: filePath,
             language: data.language || "unknown",
             duration_ms: durationMs,
+            mime_type: mimeType,
+            size_bytes: blob.size,
           });
         } catch (err) {
-          console.error("Voice pipeline error:", err);
+          console.error("[AdaVoice] Voice pipeline error:", err);
           toast({ title: "Voice processing error", variant: "destructive" });
         } finally {
           setIsTranscribing(false);
@@ -120,7 +138,7 @@ export function useAdaVoice({ chatId, userId, isAuthenticated, onTranscript }: U
   const cancelRecording = useCallback(() => {
     const recorder = recorderRef.current;
     if (recorder && recorder.state !== "inactive") {
-      recorder.onstop = () => {}; // discard
+      recorder.onstop = () => {};
       recorder.stop();
     }
     streamRef.current?.getTracks().forEach((t) => t.stop());
