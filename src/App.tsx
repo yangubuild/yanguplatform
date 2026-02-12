@@ -34,6 +34,7 @@ import NavigationDashboard from "./pages/NavigationDashboard";
 import Blog from "./pages/Blog";
 import { AdminRoute } from "@/components/auth/AdminRoute";
 import { AdminShell } from "@/components/manage/AdminShell";
+import { ManageRoleGate } from "@/components/manage/ManageRoleGate";
 import ManageDashboard from "./pages/manage/ManageDashboard";
 import ManagePlaceholder from "./pages/manage/ManagePlaceholder";
 import ManageNotFound from "./pages/manage/ManageNotFound";
@@ -162,13 +163,28 @@ const App = () => (
                   }
                 >
                   <Route index element={<ManageDashboard />} />
+                  {/* Platform */}
                   <Route path="users" element={<ManageUsers />} />
                   <Route path="surfaces" element={<ManageSurfaces />} />
-                  <Route path="community" element={<ManageCommunity />} />
+                  <Route path="community" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManageCommunity /></ManageRoleGate>} />
                   <Route path="agents" element={<ManagePlaceholder />} />
                   <Route path="domains" element={<ManagePlaceholder />} />
+                  {/* Analytics */}
+                  <Route path="analytics" element={<ManageRoleGate allowedRoles={["admin", "analyst"]}><ManagePlaceholder /></ManageRoleGate>} />
+                  {/* Content */}
+                  <Route path="content/blog" element={<ManageRoleGate allowedRoles={["admin", "writer"]}><ManagePlaceholder /></ManageRoleGate>} />
+                  <Route path="content/news" element={<ManageRoleGate allowedRoles={["admin", "writer"]}><ManagePlaceholder /></ManageRoleGate>} />
+                  <Route path="content/events" element={<ManageRoleGate allowedRoles={["admin", "writer"]}><ManagePlaceholder /></ManageRoleGate>} />
+                  {/* Design & Pages */}
+                  <Route path="branding" element={<ManageRoleGate allowedRoles={["admin", "designer"]}><ManagePlaceholder /></ManageRoleGate>} />
+                  <Route path="pages" element={<ManageRoleGate allowedRoles={["admin", "designer"]}><ManagePlaceholder /></ManageRoleGate>} />
+                  {/* Operations */}
+                  <Route path="integrations" element={<ManagePlaceholder />} />
+                  <Route path="research-testing" element={<ManageRoleGate allowedRoles={["admin", "analyst"]}><ManagePlaceholder /></ManageRoleGate>} />
+                  <Route path="alerts-security" element={<ManagePlaceholder />} />
+                  {/* System */}
                   <Route path="settings" element={<ManagePlaceholder />} />
-                  <Route path="audit-logs" element={<ManagePlaceholder />} />
+                  <Route path="audit-logs" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManagePlaceholder /></ManageRoleGate>} />
                   <Route path="*" element={<ManageNotFound />} />
                 </Route>
                 

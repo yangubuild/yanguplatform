@@ -10,22 +10,19 @@ import {
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
 import { Link } from "react-router-dom";
-
-const sectionLabels: Record<string, string> = {
-  users: "Users",
-  surfaces: "Surfaces",
-  community: "Community (Promotions)",
-  agents: "Agents",
-  domains: "Domains",
-  settings: "Settings",
-  "audit-logs": "Audit Logs",
-};
+import { sectionLabels } from "./adminNavConfig";
 
 export function AdminShell() {
   const location = useLocation();
-  const segments = location.pathname.replace(/^\/manage\/?/, "").split("/").filter(Boolean);
-  const sectionSlug = segments[0] ?? "";
-  const sectionTitle = sectionLabels[sectionSlug] ?? (sectionSlug ? sectionSlug.charAt(0).toUpperCase() + sectionSlug.slice(1) : "Dashboard");
+  const tail = location.pathname.replace(/^\/manage\/?/, "");
+  const segments = tail.split("/").filter(Boolean);
+
+  // Build a display title from the full remaining path
+  const fullSlug = segments.join("/");
+  const sectionTitle =
+    sectionLabels[fullSlug] ??
+    sectionLabels[segments[0] ?? ""] ??
+    (segments[0] ? segments[0].charAt(0).toUpperCase() + segments[0].slice(1) : "Dashboard");
 
   return (
     <SidebarProvider>
@@ -38,7 +35,7 @@ export function AdminShell() {
               <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem>
-                    {sectionSlug ? (
+                    {segments.length > 0 ? (
                       <BreadcrumbLink asChild>
                         <Link to="/manage">Management</Link>
                       </BreadcrumbLink>
@@ -46,7 +43,7 @@ export function AdminShell() {
                       <BreadcrumbPage>Management</BreadcrumbPage>
                     )}
                   </BreadcrumbItem>
-                  {sectionSlug && (
+                  {segments.length > 0 && (
                     <>
                       <BreadcrumbSeparator />
                       <BreadcrumbItem>
@@ -57,7 +54,6 @@ export function AdminShell() {
                 </BreadcrumbList>
               </Breadcrumb>
             </div>
-            {/* Right-side area reserved for future actions */}
             <div className="flex items-center gap-2" />
           </header>
           <main className="flex-1 p-4 lg:p-6">

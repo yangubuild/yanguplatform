@@ -8,9 +8,14 @@ interface AdminRouteProps {
   children: ReactNode;
 }
 
+/**
+ * Gate for /manage. Allows any user with at least one manage-level role.
+ * Currently only "admin" exists in the DB, so only admins pass.
+ * When writer/designer/analyst/moderator roles are added, they'll also pass.
+ */
 export function AdminRoute({ children }: AdminRouteProps) {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const { isAdmin, isLoading: rolesLoading } = useRoles();
+  const { hasAnyManageRole, isLoading: rolesLoading } = useRoles();
   const location = useLocation();
 
   if (authLoading || rolesLoading) {
@@ -25,7 +30,7 @@ export function AdminRoute({ children }: AdminRouteProps) {
     return <Navigate to="/auth/login" state={{ from: location }} replace />;
   }
 
-  if (!isAdmin) {
+  if (!hasAnyManageRole) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4">
         <ShieldX className="h-16 w-16 text-muted-foreground" />
