@@ -32,6 +32,10 @@ import WhyYangu from "./pages/WhyYangu";
 import DiscoverYangu from "./pages/DiscoverYangu";
 import NavigationDashboard from "./pages/NavigationDashboard";
 import Blog from "./pages/Blog";
+import { AdminRoute } from "@/components/auth/AdminRoute";
+import { AdminShell } from "@/components/manage/AdminShell";
+import ManageDashboard from "./pages/manage/ManageDashboard";
+import ManagePlaceholder from "./pages/manage/ManagePlaceholder";
 
 console.log("[Supabase]", import.meta.env.VITE_SUPABASE_URL);
 
@@ -144,10 +148,22 @@ const App = () => (
                   }
                 />
                 
+                {/* Admin management panel */}
+                <Route
+                  path="/manage"
+                  element={
+                    <AdminRoute>
+                      <AdminShell />
+                    </AdminRoute>
+                  }
+                >
+                  <Route index element={<ManageDashboard />} />
+                  <Route path=":section" element={<ManagePlaceholder />} />
+                </Route>
+                
                 {/* Dev routes - only in development */}
                 <Route path="/dev/seed" element={<DevSeed />} />
                 <Route path="/dev/test-domain-verification" element={<TestDomainVerification />} />
-                
                 
                 {/* Catch-all */}
                 <Route path="*" element={<NotFound />} />
