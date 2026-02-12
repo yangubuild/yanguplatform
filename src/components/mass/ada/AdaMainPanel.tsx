@@ -28,7 +28,7 @@ function saveAnonChats(chats: { id: string; title: string; messages: ChatMessage
 export function AdaMainPanel() {
   const { user, profile, isAuthenticated } = useAuth();
   const [mode, setMode] = useState<"chat" | "voice">("chat");
-  const [chatMode, setChatMode] = useState<"search" | "discuss" | null>(null);
+  const [chatMode, setChatMode] = useState<"search" | "discuss">("discuss");
   const [inputValue, setInputValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [voiceText, setVoiceText] = useState("");
@@ -53,6 +53,8 @@ export function AdaMainPanel() {
       .select("id")
       .single();
     if (error || !data) { console.error("create chat err", error); return null; }
+    // Notify sidebar
+    window.dispatchEvent(new CustomEvent("ada-chat-created"));
     return data.id as string;
   }, [user]);
 
@@ -61,6 +63,7 @@ export function AdaMainPanel() {
     const chats = getAnonChats();
     chats.unshift({ id, title: firstMsg.slice(0, 60), messages: [] });
     saveAnonChats(chats);
+    window.dispatchEvent(new CustomEvent("ada-chat-created"));
     return id;
   }, []);
 
@@ -78,6 +81,89 @@ export function AdaMainPanel() {
       if (chat) { chat.messages.push(msg); saveAnonChats(chats); }
     }
   }, [isAuthenticated, user]);
+
+  // --- Search mode: query knowledge tables ---
+  const handleSearch = useCallback(async (query: string, cid: string) => {
+    setIsThinking(true);
+    try {
+      // Search knowledge_sources
+      const { data: sources } = await supabase
+        .from("knowledge_sources")
+        .select("id, title, url, source_type")
+        .ilike("title", `%${query}%`)
+        .eq("is_active", true)
+        .limit(5);
+
+      // Search knowledge_chunks
+      const { data: chunks } = await supabase
+        .from("knowledge_chunks")
+        .select("id, content, source_id")
+        .ilike("content", `%${query}%`)
+        .limit(5);
+
+      // Search community listings (platform listings)
+      const { data: listings } = await supabase
+        .from("surfaces")
+        .select("id, title, surface_type, status")
+        .ilike("title", `%${query}%`)
+        .eq("status", "published")
+        .limit(5);
+
+      // Build structured results
+      let resultContent = `**Search results for "${query}":**\n\n`;
+      let found = false;
+
+      if (sources && sources.length > 0) {
+        found = true;
+        resultContent += `**Knowledge Sources:**\n`;
+        sources.forEach(s => {
+          resultContent += `- ${s.title} (${s.source_type})${s.url ? ` — ${s.url}` : ""}\n`;
+        });
+        resultContent += "\n";
+      }
+
+      if (chunks && chunks.length > 0) {
+        found = true;
+        resultContent += `**Knowledge Chunks:**\n`;
+        chunks.forEach(c => {
+          resultContent += `- ${c.content.slice(0, 120)}…\n`;
+        });
+        resultContent += "\n";
+      }
+
+      if (listings && listings.length > 0) {
+        found = true;
+        resultContent += `**Platform Listings:**\n`;
+        listings.forEach(l => {
+          resultContent += `- ${l.title} (${l.surface_type})\n`;
+        });
+      }
+
+      if (!found) {
+        resultContent = `No results found for "${query}". Try different keywords or switch to Discuss mode for a conversation.`;
+      }
+
+      const assistantMsg: ChatMessage = {
+        id: `msg_${Date.now()}`,
+        role: "assistant",
+        content: resultContent,
+        created_at: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, assistantMsg]);
+      await persistMessage(cid, assistantMsg);
+    } catch (err) {
+      console.error("[AdaSearch] Error:", err);
+      const errMsg: ChatMessage = {
+        id: `msg_${Date.now()}`,
+        role: "assistant",
+        content: "Search failed. Please try again.",
+        created_at: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, errMsg]);
+    } finally {
+      setIsThinking(false);
+    }
+  }, [persistMessage]);
 
   // --- Send message (text) ---
   const handleSend = useCallback(async (overrideText?: string) => {
@@ -104,35 +190,82 @@ export function AdaMainPanel() {
     setMessages(prev => [...prev, userMsg]);
     setInputValue("");
     setPendingAttachments([]);
-    setIsThinking(true);
 
     await persistMessage(cid, userMsg);
 
-    // Stub assistant response (replace with real pipeline later)
-    setTimeout(async () => {
-      const assistantMsg: ChatMessage = {
-        id: `msg_${Date.now()}`,
-        role: "assistant",
-        content: "I'm ADA, your AI assistant on YANGU. I received your message and I'm ready to help! (Full AI response pipeline coming soon.)",
-        created_at: new Date().toISOString(),
-      };
-      setMessages(prev => [...prev, assistantMsg]);
-      setIsThinking(false);
-      await persistMessage(cid!, assistantMsg);
-    }, 1500);
-  }, [inputValue, activeChatId, isAuthenticated, pendingAttachments, createDbChat, createAnonChat, persistMessage]);
+    // Route by mode
+    if (chatMode === "search" && text) {
+      await handleSearch(text, cid);
+    } else {
+      // Discuss mode: stub assistant response
+      setIsThinking(true);
+      setTimeout(async () => {
+        const assistantMsg: ChatMessage = {
+          id: `msg_${Date.now()}`,
+          role: "assistant",
+          content: "I'm ADA, your AI assistant on YANGU. I received your message and I'm ready to help! (Full AI response pipeline coming soon.)",
+          created_at: new Date().toISOString(),
+        };
+        setMessages(prev => [...prev, assistantMsg]);
+        setIsThinking(false);
+        await persistMessage(cid!, assistantMsg);
+      }, 1500);
+    }
+  }, [inputValue, activeChatId, isAuthenticated, pendingAttachments, chatMode, createDbChat, createAnonChat, persistMessage, handleSearch]);
 
   // --- Voice ---
   const handleVoiceTranscript = useCallback(async (
     transcript: string,
-    meta: { audio_path: string; language: string; duration_ms: number }
+    meta: { audio_path: string; language: string; duration_ms: number; mime_type: string; size_bytes: number }
   ) => {
     setMode("chat");
     setVoiceText("");
     if (!transcript.trim()) return;
-    // Send transcript directly as a message
-    await handleSend(transcript);
-  }, [handleSend]);
+
+    // Ensure chat session
+    let cid = activeChatId;
+    if (!cid) {
+      cid = isAuthenticated ? await createDbChat(transcript.slice(0, 60)) : createAnonChat(transcript.slice(0, 60));
+      if (!cid) return;
+      setActiveChatId(cid);
+    }
+
+    // Insert transcript as user message with audio metadata
+    const userMsg: ChatMessage = {
+      id: `msg_${Date.now()}`,
+      role: "user",
+      content: transcript,
+      metadata: {
+        audio_path: meta.audio_path,
+        language: meta.language,
+        duration_ms: meta.duration_ms,
+        mime_type: meta.mime_type,
+        size_bytes: meta.size_bytes,
+      },
+      created_at: new Date().toISOString(),
+    };
+
+    setMessages(prev => [...prev, userMsg]);
+    await persistMessage(cid, userMsg);
+
+    // Route by mode
+    if (chatMode === "search" && transcript) {
+      await handleSearch(transcript, cid);
+    } else {
+      setIsThinking(true);
+      setTimeout(async () => {
+        const assistantMsg: ChatMessage = {
+          id: `msg_${Date.now()}`,
+          role: "assistant",
+          content: "I'm ADA, your AI assistant on YANGU. I received your voice message and I'm ready to help! (Full AI response pipeline coming soon.)",
+          created_at: new Date().toISOString(),
+        };
+        setMessages(prev => [...prev, assistantMsg]);
+        setIsThinking(false);
+        await persistMessage(cid!, assistantMsg);
+      }, 1500);
+    }
+  }, [activeChatId, isAuthenticated, chatMode, createDbChat, createAnonChat, persistMessage, handleSearch]);
 
   const { isRecording, isTranscribing, startRecording, stopRecording, cancelRecording } = useAdaVoice({
     chatId: activeChatId,
@@ -172,7 +305,6 @@ export function AdaMainPanel() {
       }
       setPendingAttachments(prev => [...prev, { name: file.name, type: file.type, size: file.size, path: filePath }]);
     }
-    // Reset file input
     if (fileInputRef.current) fileInputRef.current.value = "";
   }, [user, activeChatId, createDbChat]);
 
@@ -337,6 +469,9 @@ export function AdaMainPanel() {
   }, [wordIndex]);
 
   const hasMessages = messages.length > 0;
+  const placeholder = chatMode === "search"
+    ? "Search YANGU (products, services, tools)…"
+    : "Discuss with Ada…";
 
   return (
     <main
@@ -356,7 +491,7 @@ export function AdaMainPanel() {
         onChange={handleFileSelect}
       />
 
-      {/* Top bar */}
+      {/* Top bar — NO Upgrade button */}
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-2">
           <img src={adaLogo} alt="Ada AI" className="h-8 w-auto" />
@@ -370,16 +505,6 @@ export function AdaMainPanel() {
             <Settings className="w-3.5 h-3.5" />
             Extensions
             <ChevronDown className="w-3 h-3" />
-          </button>
-          <button
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-white text-sm transition-all"
-            style={{
-              background: "linear-gradient(90deg, #C4841F 0%, rgba(212,149,43,0.45) 55%, rgba(10,10,10,0.18) 100%)",
-              boxShadow: "0 0 18px rgba(212,149,43,0.18)",
-            }}
-          >
-            <span className="text-[#F4A83D]">✦</span>
-            Upgrade to Pro
           </button>
           <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
             <User className="w-4 h-4 text-white/50" />
@@ -450,46 +575,54 @@ export function AdaMainPanel() {
           </>
         ) : hasMessages ? (
           <>
-            {/* Chat thread view */}
+            {/* Chat thread view — messages render directly on page bg */}
             <div className="w-full max-w-2xl flex-1 overflow-y-auto mb-4 space-y-4 py-4" style={{ maxHeight: "calc(100vh - 280px)" }}>
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                   <div
-                    className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm ${
+                    className={`max-w-[80%] px-4 py-3 text-sm ${
                       msg.role === "user"
-                        ? "text-white"
-                        : "text-white/90"
+                        ? "text-right"
+                        : ""
                     }`}
                     style={{
-                      background: msg.role === "user"
-                        ? "rgba(212,149,43,0.15)"
-                        : "rgba(255,255,255,0.05)",
-                      border: msg.role === "user"
-                        ? "1px solid rgba(212,149,43,0.25)"
-                        : "1px solid rgba(255,255,255,0.08)",
+                      color: msg.role === "user"
+                        ? "rgba(224, 176, 100, 0.85)"
+                        : "#ffffff",
+                      background: msg.role === "assistant"
+                        ? "rgba(255,255,255,0.03)"
+                        : "transparent",
+                      borderRadius: "12px",
                     }}
                   >
-                    {msg.content}
+                    <span style={{ whiteSpace: "pre-wrap" }}>{msg.content}</span>
                     {/* Attachment chips */}
                     {msg.metadata && (msg.metadata as any).attachments && (
                       <div className="flex flex-wrap gap-1 mt-2">
                         {((msg.metadata as any).attachments as { name: string; type: string }[]).map((a, i) => (
-                          <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs text-white/60 bg-white/5 border border-white/10">
+                          <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs text-white/60 border border-white/10">
                             <Paperclip className="w-3 h-3" />
                             {a.name}
                           </span>
                         ))}
                       </div>
                     )}
+                    {/* Audio metadata indicator */}
+                    {msg.metadata && (msg.metadata as any).audio_path && (
+                      <span className="inline-flex items-center gap-1 mt-1 text-xs text-white/30">
+                        <AudioLines className="w-3 h-3" />
+                        Voice ({(msg.metadata as any).language || "?"})
+                      </span>
+                    )}
                   </div>
                 </div>
               ))}
               {isThinking && (
                 <div className="flex justify-start">
-                  <div className="max-w-[80%] rounded-2xl px-4 py-3 text-sm text-white/60" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                  <div className="max-w-[80%] px-4 py-3 text-sm text-white/60">
                     <span className="flex items-center gap-2">
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Thinking / Searching YANGU…
+                      {chatMode === "search" ? "Searching YANGU…" : "Thinking / Searching YANGU…"}
                     </span>
                   </div>
                 </div>
@@ -524,7 +657,7 @@ export function AdaMainPanel() {
                       handleSend();
                     }
                   }}
-                  placeholder="Ask Ada..."
+                  placeholder={placeholder}
                   rows={1}
                   className="w-full bg-transparent text-white/90 text-sm placeholder:text-white/30 resize-none outline-none mb-3"
                 />
@@ -533,6 +666,18 @@ export function AdaMainPanel() {
                     <Plus className="w-4 h-4" />
                   </button>
                   <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setChatMode("search")}
+                      className={`px-2 py-1 text-xs font-medium transition-colors ${chatMode === "search" ? "text-[#F4A83D]" : "text-white/30 hover:text-white/50"}`}
+                    >
+                      Search
+                    </button>
+                    <button
+                      onClick={() => setChatMode("discuss")}
+                      className={`px-2 py-1 text-xs font-medium transition-colors ${chatMode === "discuss" ? "text-[#F4A83D]" : "text-white/30 hover:text-white/50"}`}
+                    >
+                      Discuss
+                    </button>
                     <button onClick={startVoice} className="w-9 h-9 rounded-full flex items-center justify-center text-white/40 hover:text-white/70 transition-colors">
                       <AudioLines className="w-5 h-5" />
                     </button>
@@ -634,7 +779,7 @@ export function AdaMainPanel() {
                         handleSend();
                       }
                     }}
-                    placeholder="Ask Ada to create something..."
+                    placeholder={placeholder}
                     rows={2}
                     className="w-full bg-transparent text-white/90 text-sm placeholder:text-white/30 resize-none outline-none mb-3"
                   />
@@ -644,13 +789,13 @@ export function AdaMainPanel() {
                     </button>
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => setChatMode(chatMode === "search" ? null : "search")}
+                        onClick={() => setChatMode("search")}
                         className={`px-2 py-1 text-xs font-medium transition-colors ${chatMode === "search" ? "text-[#F4A83D]" : "text-white/30 hover:text-white/50"}`}
                       >
                         Search
                       </button>
                       <button
-                        onClick={() => setChatMode(chatMode === "discuss" ? null : "discuss")}
+                        onClick={() => setChatMode("discuss")}
                         className={`px-2 py-1 text-xs font-medium transition-colors ${chatMode === "discuss" ? "text-[#F4A83D]" : "text-white/30 hover:text-white/50"}`}
                       >
                         Discuss
