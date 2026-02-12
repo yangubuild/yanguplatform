@@ -109,7 +109,7 @@ export function BlogPage() {
       </BlogSectionModule>
 
       {/* Dispatches */}
-      <BlogSectionModule title="Dispatches From the Frontiers of AI">
+      <BlogSectionModule title="Dispatches From the Frontiers of AI" subtitle="The latest models, capabilities, products, and use cases." dashedBorder>
         <ArticleGrid articles={dispatchArticles} />
       </BlogSectionModule>
 
