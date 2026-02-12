@@ -9,7 +9,6 @@ import { CreatorSpotlight } from "./CreatorSpotlight";
 import { SubscribeCta } from "./SubscribeCta";
 import { BottomCta } from "./BottomCta";
 import { CommunityFooter } from "./CommunityFooter";
-import { communityItems } from "./communityData";
 import { useCommunityListings } from "@/hooks/useCommunityListings";
 import type { CommunityItem } from "./communityData";
 
@@ -20,7 +19,6 @@ function mapListingToItem(l: { surface_id: string; title: string; domain_host: s
     title: l.title || "Untitled",
     description: l.title || "",
     category: l.category || "Explore",
-    // link is constructed in the card via domain_host/slug
   };
 }
 
@@ -31,22 +29,15 @@ function CommunityPageInner() {
 
   const { data: liveListings, isLoading } = useCommunityListings(24, 0);
 
-  // Map live listings into CommunityItem shape; fall back to static data when empty
-  const hasLive = liveListings && liveListings.length > 0;
-  const liveItems: CommunityItem[] = hasLive ? liveListings.map(mapListingToItem) : [];
+  const items: CommunityItem[] = (liveListings ?? []).map(mapListingToItem);
 
-  // Build a url map for live items so cards can link correctly
   const linkMap = new Map<string, string>();
-  if (hasLive) {
-    for (const l of liveListings) {
-      linkMap.set(l.surface_id, `https://${l.domain_host}/${l.slug}`);
-    }
+  for (const l of liveListings ?? []) {
+    linkMap.set(l.surface_id, `https://${l.domain_host}/${l.slug}`);
   }
 
-  // Use live data when available, otherwise fall back to static mock data
-  const items = hasLive ? liveItems : communityItems;
-
   const isExplore = activeFilter === "Explore";
+  const isEmpty = items.length === 0;
 
   const trendingItems = isExplore ? items.slice(0, 8) : [];
   const popularItems = isExplore ? items.slice(8, 16) : [];
@@ -76,6 +67,13 @@ function CommunityPageInner() {
         <div className="flex justify-center py-20">
           <Loader2 className="h-8 w-8 animate-spin" style={{ color: colors.text }} />
         </div>
+      ) : isEmpty ? (
+        <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
+          <p className="text-[15px] font-medium" style={{ color: colors.text }}>No listings yet</p>
+          <p className="mt-1 text-[13px]" style={{ color: colors.descText }}>
+            Communities listed on Yangu will appear here.
+          </p>
+        </div>
       ) : isExplore ? (
         <>
           <CommunitySection title="Trending" items={trendingItems} showSeeAll={false} linkMap={linkMap} />
@@ -89,12 +87,17 @@ function CommunityPageInner() {
         </>
       ) : (
         <>
-          <CommunitySection title={activeFilter} items={filteredItems} showSeeAll={false} linkMap={linkMap} />
+          {filteredItems.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
+              <p className="text-[15px] font-medium" style={{ color: colors.text }}>No listings in this category</p>
+            </div>
+          ) : (
+            <CommunitySection title={activeFilter} items={filteredItems} showSeeAll={false} linkMap={linkMap} />
+          )}
           <CommunityFooter />
         </>
       )}
 
-      {/* Theme toggle FAB */}
       <button
         onClick={toggle}
         className="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full shadow-lg transition-all duration-300 hover:scale-110"
