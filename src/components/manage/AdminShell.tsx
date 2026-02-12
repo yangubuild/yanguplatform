@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { AdminSidebar } from "./AdminSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -12,13 +11,14 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Link } from "react-router-dom";
 import { sectionLabels } from "./adminNavConfig";
-import { Bell, FileWarning, ServerCrash, CreditCard, X } from "lucide-react";
+import { Bell, FileWarning, ServerCrash, CreditCard } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useRoles } from "@/hooks/useRoles";
 
 const mockAdaAlerts = [
   { id: "1", icon: FileWarning, label: "Content flagged", detail: "Blog post #412 needs review", severity: "warning" as const },
@@ -58,12 +58,23 @@ function AdaAlertsButton() {
   );
 }
 
+function RoleBadge() {
+  const { isAdmin, isContentEditor } = useRoles();
+  const label = isAdmin ? "Admin" : isContentEditor ? "Content Editor" : null;
+  if (!label) return null;
+  return (
+    <Badge variant="outline" className="text-[10px] font-medium">
+      Role: {label}
+    </Badge>
+  );
+}
+
 export function AdminShell() {
   const location = useLocation();
+  const { isAdmin } = useRoles();
   const tail = location.pathname.replace(/^\/manage\/?/, "");
   const segments = tail.split("/").filter(Boolean);
 
-  // Build a display title from the full remaining path
   const fullSlug = segments.join("/");
   const sectionTitle =
     sectionLabels[fullSlug] ??
@@ -100,7 +111,10 @@ export function AdminShell() {
                 </BreadcrumbList>
               </Breadcrumb>
             </div>
-            <AdaAlertsButton />
+            <div className="flex items-center gap-3">
+              <RoleBadge />
+              {isAdmin && <AdaAlertsButton />}
+            </div>
           </header>
           <main className="flex-1 p-4 lg:p-6">
             <Outlet />

@@ -10,17 +10,17 @@ import { AdaAiPanel } from "@/components/manage/blog/AdaAiPanel";
 import { useRoles } from "@/hooks/useRoles";
 
 const tabs = [
-  { value: "organize", label: "Organize", icon: LayoutGrid },
-  { value: "read", label: "Read", icon: BookOpen },
-  { value: "write", label: "Write", icon: PenTool },
-  { value: "speak", label: "Speak", icon: Mic },
-  { value: "listen", label: "Listen", icon: Headphones },
-  { value: "watch", label: "Watch", icon: Video },
+  { value: "organize", label: "Organize", icon: LayoutGrid, adminOnly: true },
+  { value: "read", label: "Read", icon: BookOpen, adminOnly: false },
+  { value: "write", label: "Write", icon: PenTool, adminOnly: false },
+  { value: "speak", label: "Speak", icon: Mic, adminOnly: false },
+  { value: "listen", label: "Listen", icon: Headphones, adminOnly: false },
+  { value: "watch", label: "Watch", icon: Video, adminOnly: false },
 ] as const;
 
 export default function ManageBlog() {
   const { isAdmin } = useRoles();
-
+  const visibleTabs = isAdmin ? tabs : tabs.filter((t) => !t.adminOnly);
   return (
     <div className="flex gap-6">
       <div className="flex-1 min-w-0 space-y-6">
@@ -31,9 +31,9 @@ export default function ManageBlog() {
           </p>
         </div>
 
-        <Tabs defaultValue="organize" className="w-full">
+        <Tabs defaultValue={visibleTabs[0]?.value ?? "read"} className="w-full">
           <TabsList className="w-full justify-start gap-1 bg-muted/50 p-1 h-auto flex-wrap">
-            {tabs.map((t) => (
+            {visibleTabs.map((t) => (
               <TabsTrigger
                 key={t.value}
                 value={t.value}

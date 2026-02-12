@@ -9,7 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
  * via has_role but will return false until the enum is extended.
  */
 export type AppRole = "admin" | "user";
-export type ManageRole = "admin" | "writer" | "designer" | "analyst" | "moderator";
+export type ManageRole = "admin" | "writer" | "designer" | "analyst" | "moderator" | "content_editor";
 
 interface RolesState {
   roles: AppRole[];
@@ -20,12 +20,13 @@ interface RolesState {
   isDesigner: boolean;
   isAnalyst: boolean;
   isModerator: boolean;
+  isContentEditor: boolean;
   hasAnyManageRole: boolean;
   isLoading: boolean;
   refetch: () => Promise<void>;
 }
 
-const MANAGE_ROLES: ManageRole[] = ["admin", "writer", "designer", "analyst", "moderator"];
+const MANAGE_ROLES: ManageRole[] = ["admin", "writer", "designer", "analyst", "moderator", "content_editor"];
 
 /**
  * Hook to fetch and manage user roles from the database.
@@ -70,7 +71,7 @@ export function useRoles(): RolesState {
 
       // Check additional manage roles (will return false until enum is extended)
       // We attempt each but swallow errors for roles not yet in the enum
-      const additionalRoles: ManageRole[] = ["writer", "designer", "analyst", "moderator"];
+      const additionalRoles: ManageRole[] = ["writer", "designer", "analyst", "moderator", "content_editor"];
       const checks = await Promise.allSettled(
         additionalRoles.map(async (role) => {
           try {
@@ -119,6 +120,7 @@ export function useRoles(): RolesState {
   const isDesigner = manageRoles.includes("designer");
   const isAnalyst = manageRoles.includes("analyst");
   const isModerator = manageRoles.includes("moderator");
+  const isContentEditor = manageRoles.includes("content_editor");
   const hasAnyManageRole = manageRoles.length > 0;
 
   return {
@@ -130,6 +132,7 @@ export function useRoles(): RolesState {
     isDesigner,
     isAnalyst,
     isModerator,
+    isContentEditor,
     hasAnyManageRole,
     isLoading: authLoading || isLoading,
     refetch: fetchRoles,
