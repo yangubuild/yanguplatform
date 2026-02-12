@@ -40,6 +40,7 @@ import ManagePlaceholder from "./pages/manage/ManagePlaceholder";
 import ManageNotFound from "./pages/manage/ManageNotFound";
 import ManageUsers from "./pages/manage/ManageUsers";
 import ManageSurfaces from "./pages/manage/ManageSurfaces";
+import ManageNavigation from "./pages/manage/ManageNavigation";
 import ManageCommunity from "./pages/manage/ManageCommunity";
 import ManageBlog from "./pages/manage/ManageBlog";
 import ManageAda from "./pages/manage/ManageAda";
@@ -174,6 +175,7 @@ const App = () => (
                   {/* Platform */}
                   <Route path="users" element={<ManageUsers />} />
                   <Route path="surfaces" element={<ManageSurfaces />} />
+                  <Route path="navigation" element={<ManageNavigation />} />
                   <Route path="community" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManageCommunity /></ManageRoleGate>} />
                   <Route path="agents" element={<ManagePlaceholder />} />
                   <Route path="domains" element={<ManagePlaceholder />} />
