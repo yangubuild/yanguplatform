@@ -12,6 +12,7 @@ import { BlogConsultingBanner } from "./BlogConsultingBanner";
 import { BlogExplorePanel } from "./BlogExplorePanel";
 import { BlogSubscribeModal } from "./BlogSubscribeModal";
 import { BlogFooter } from "./BlogFooter";
+import { BlogInterstitialBanner } from "./BlogInterstitialBanner";
 import {
   products,
   studioArticles,
