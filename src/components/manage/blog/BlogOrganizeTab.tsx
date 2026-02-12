@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Badge } from "@/components/ui/badge";
 import {
   GripVertical,
   Pencil,
@@ -21,26 +22,29 @@ import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { BlogSectionLayoutEditor } from "./BlogSectionLayoutEditor";
 
+type ContentFeed = "Articles" | "Events" | "Podcasts" | "Tools" | "Mixed";
+
 interface BlogSection {
   id: string;
   title: string;
   icon: LucideIcon;
   visible: boolean;
   adaReview: boolean;
+  contentFeed: ContentFeed;
 }
 
 const defaultSections: BlogSection[] = [
-  { id: "hero", title: "Hero Banner (Top)", icon: Star, visible: true, adaReview: false },
-  { id: "dispatches", title: "Dispatches From The Frontiers Of AI", icon: Newspaper, visible: true, adaReview: false },
-  { id: "essays", title: "Recent Essays", icon: BookOpen, visible: true, adaReview: false },
-  { id: "built-by-yangu", title: "Built By Yangu", icon: Wrench, visible: true, adaReview: false },
-  { id: "studio", title: "Yangu Studio", icon: Palette, visible: true, adaReview: false },
-  { id: "ai-at-work", title: "Putting AI At Work", icon: Sparkles, visible: true, adaReview: false },
-  { id: "programming", title: "Future Of Programming", icon: Code, visible: true, adaReview: false },
-  { id: "events", title: "Yangu Events", icon: Calendar, visible: true, adaReview: false },
-  { id: "podcast", title: "Yangu Podcast", icon: Headphones, visible: true, adaReview: false },
-  { id: "new-tools", title: "New Tools Category", icon: LayoutGrid, visible: true, adaReview: false },
-  { id: "finale", title: "Finale Hero Banner", icon: Flag, visible: true, adaReview: false },
+  { id: "hero", title: "Hero Banner (Top)", icon: Star, visible: true, adaReview: false, contentFeed: "Mixed" },
+  { id: "dispatches", title: "Dispatches From The Frontiers Of AI", icon: Newspaper, visible: true, adaReview: false, contentFeed: "Articles" },
+  { id: "essays", title: "Recent Essays", icon: BookOpen, visible: true, adaReview: false, contentFeed: "Articles" },
+  { id: "built-by-yangu", title: "Built By Yangu", icon: Wrench, visible: true, adaReview: false, contentFeed: "Tools" },
+  { id: "studio", title: "Yangu Studio", icon: Palette, visible: true, adaReview: false, contentFeed: "Tools" },
+  { id: "ai-at-work", title: "Putting AI At Work", icon: Sparkles, visible: true, adaReview: false, contentFeed: "Articles" },
+  { id: "programming", title: "Future Of Programming", icon: Code, visible: true, adaReview: false, contentFeed: "Articles" },
+  { id: "events", title: "Yangu Events", icon: Calendar, visible: true, adaReview: false, contentFeed: "Events" },
+  { id: "podcast", title: "Yangu Podcast", icon: Headphones, visible: true, adaReview: false, contentFeed: "Podcasts" },
+  { id: "new-tools", title: "New Tools Category", icon: LayoutGrid, visible: true, adaReview: false, contentFeed: "Tools" },
+  { id: "finale", title: "Finale Hero Banner", icon: Flag, visible: true, adaReview: false, contentFeed: "Mixed" },
 ];
 
 export function BlogOrganizeTab() {
@@ -108,6 +112,7 @@ export function BlogOrganizeTab() {
             <GripVertical className="h-4 w-4 text-muted-foreground shrink-0" />
             <section.icon className="h-4 w-4 text-muted-foreground shrink-0" />
             <span className="text-sm font-medium flex-1">{section.title}</span>
+            <Badge variant="outline" className="text-[10px] shrink-0">{section.contentFeed}</Badge>
             <span className="text-xs text-muted-foreground tabular-nums">#{index + 1}</span>
 
             <Switch

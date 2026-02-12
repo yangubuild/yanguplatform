@@ -64,11 +64,11 @@ export const adminNavGroups: AdminNavGroup[] = [
     ],
   },
   {
-    label: "Content",
+    label: "Content Engine",
     items: [
-      { title: "Blog", to: "/manage/content/blog", icon: FileText, allowedRoles: ["admin", "writer"] },
-      { title: "News", to: "/manage/content/news", icon: Newspaper, allowedRoles: ["admin", "writer"] },
-      { title: "Events", to: "/manage/content/events", icon: Calendar, allowedRoles: ["admin", "writer"] },
+      { title: "Blog (Layout & Engine)", to: "/manage/content/blog", icon: FileText, allowedRoles: ["admin", "writer"] },
+      { title: "Articles / News", to: "/manage/content/news", icon: Newspaper, allowedRoles: ["admin", "writer"] },
+      { title: "Events (Registration)", to: "/manage/content/events", icon: Calendar, allowedRoles: ["admin", "writer"] },
     ],
   },
   {
@@ -113,8 +113,8 @@ for (const group of adminNavGroups) {
 sectionLabels["community"] = "Community (Promotions)";
 sectionLabels["research-testing"] = "Research & Testing";
 sectionLabels["alerts-security"] = "Alerts & Security";
-sectionLabels["content/blog"] = "Blog";
-sectionLabels["content/news"] = "News";
-sectionLabels["content/events"] = "Events";
+sectionLabels["content/blog"] = "Blog (Layout & Engine)";
+sectionLabels["content/news"] = "Articles / News";
+sectionLabels["content/events"] = "Events (Registration)";
 sectionLabels["ada"] = "ADA AI";
 sectionLabels["messages"] = "Messages & Support";
