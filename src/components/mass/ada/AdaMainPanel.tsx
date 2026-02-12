@@ -1,19 +1,77 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { X, Mic, Settings, ChevronDown, Smartphone, Plus, ArrowUp, AudioLines, User, Shield } from "lucide-react";
+import { X, Mic, Settings, ChevronDown, Smartphone, Plus, ArrowUp, AudioLines, User, Shield, Loader2 } from "lucide-react";
 import adaLogo from "@/assets/ada-logo-full.png";
 import { useAuth } from "@/hooks/useAuth";
 import { useRoles } from "@/hooks/useRoles";
+import { useAdaVoice } from "@/hooks/useAdaVoice";
+import { supabase } from "@/integrations/supabase/client";
 
 export function AdaMainPanel() {
   const navigate = useNavigate();
-  const { profile, isAuthenticated } = useAuth();
+  const { user, profile, isAuthenticated } = useAuth();
   const { isAdmin } = useRoles();
   const [mode, setMode] = useState<"chat" | "voice">("chat");
   const [chatMode, setChatMode] = useState<"search" | "discuss" | null>(null);
   const [inputValue, setInputValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [voiceText, setVoiceText] = useState("");
+  const [activeChatId, setActiveChatId] = useState<string | null>(null);
+
+  const handleVoiceTranscript = useCallback(async (
+    transcript: string,
+    meta: { audio_path: string; language: string; duration_ms: number }
+  ) => {
+    // Set the transcript in the input and auto-send
+    setMode("chat");
+    setVoiceText("");
+
+    if (!transcript.trim()) return;
+
+    // Persist to ada_messages if authenticated
+    if (isAuthenticated && user) {
+      try {
+        // Ensure we have a chat
+        let cid = activeChatId;
+        if (!cid) {
+          const { data: chat } = await supabase
+            .from("ada_chats")
+            .insert({ user_id: user.id, title: transcript.slice(0, 60) })
+            .select("id")
+            .single();
+          if (chat) {
+            cid = chat.id;
+            setActiveChatId(cid);
+          }
+        }
+
+        if (cid) {
+          await supabase.from("ada_messages").insert({
+            chat_id: cid,
+            role: "user",
+            content: transcript,
+            metadata: {
+              audio_path: meta.audio_path,
+              language: meta.language,
+              duration_ms: meta.duration_ms,
+            },
+          });
+        }
+      } catch (err) {
+        console.error("Failed to save voice message:", err);
+      }
+    }
+
+    // Put transcript in input (the existing handleSend pipeline can be extended later)
+    setInputValue(transcript);
+  }, [isAuthenticated, user, activeChatId]);
+
+  const { isRecording, isTranscribing, startRecording, stopRecording } = useAdaVoice({
+    chatId: activeChatId,
+    userId: user?.id ?? null,
+    isAuthenticated,
+    onTranscript: handleVoiceTranscript,
+  });
   const [boxSize, setBoxSize] = useState({ w: 0, h: 0 });
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
@@ -65,15 +123,13 @@ export function AdaMainPanel() {
 
   const startVoice = () => {
     setMode("voice");
-    setVoiceText("Help me build a brand strategy for my online store and set up my first surface...");
+    setVoiceText("");
+    startRecording();
   };
 
   const stopVoice = () => {
-    setMode("chat");
-    if (voiceText) {
-      setInputValue(voiceText);
-    }
-    setVoiceText("");
+    stopRecording();
+    // Mode will switch back to chat in handleVoiceTranscript
   };
 
   const handleSend = () => {
@@ -233,7 +289,9 @@ export function AdaMainPanel() {
                 )
               )}
             </p>
-            <p className="text-white/40 text-sm mb-6">Listening...</p>
+            <p className="text-white/40 text-sm mb-6">
+              {isTranscribing ? "Transcribing..." : "Listening..."}
+            </p>
 
             {/* Voice controls */}
             <div className="flex items-center gap-4 mb-8">
