@@ -147,7 +147,7 @@ export function DiscoverYanguPage() {
           <a 
             href="/auth/signup" 
             className="px-5 py-2.5 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-90"
-            style={{ background: "#F46D2A" }}
+            style={{ background: "linear-gradient(90deg, #b5622a, #5c2a12)" }}
           >
             Start selling
           </a>
@@ -168,7 +168,7 @@ export function DiscoverYanguPage() {
         <a 
           href="/auth/signup"
           className="inline-block px-8 py-4 rounded-xl text-base font-semibold text-white transition-all hover:opacity-90 hover:scale-[1.02]"
-          style={{ background: "#F46D2A" }}
+          style={{ background: "linear-gradient(90deg, #b5622a, #5c2a12)" }}
         >
           Start selling
         </a>
@@ -241,7 +241,7 @@ export function DiscoverYanguPage() {
           <a 
             href="/auth/signup"
             className="inline-block px-6 py-3 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
-            style={{ background: "#F46D2A" }}
+            style={{ background: "linear-gradient(90deg, #b5622a, #5c2a12)" }}
           >
             Get started
           </a>
@@ -288,7 +288,7 @@ export function DiscoverYanguPage() {
           <a 
             href="/auth/signup"
             className="inline-block px-8 py-3.5 rounded-xl text-sm font-semibold text-white w-full transition-opacity hover:opacity-90 mb-8"
-            style={{ background: "#F46D2A" }}
+            style={{ background: "linear-gradient(90deg, #b5622a, #5c2a12)" }}
           >
             Start selling for free
           </a>
@@ -336,7 +336,7 @@ export function DiscoverYanguPage() {
           <a 
             href="/auth/signup"
             className="inline-block px-8 py-4 rounded-xl text-base font-semibold text-white transition-all hover:opacity-90 hover:scale-[1.02]"
-            style={{ background: "#F46D2A" }}
+            style={{ background: "linear-gradient(90deg, #b5622a, #5c2a12)" }}
           >
             Get started
           </a>
