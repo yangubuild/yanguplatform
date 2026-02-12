@@ -23,38 +23,6 @@ import {
   chipLabels,
 } from "./blogData";
 
-function InterstitialBlock() {
-  return (
-    <section className="px-6 py-14">
-      <div className="mx-auto text-center" style={{ maxWidth: 1100 }}>
-        <span
-          className="text-lg"
-          style={{ fontFamily: "'Lufga', sans-serif", color: "rgba(255,255,255,0.3)" }}
-        >
-          YANGU
-        </span>
-        <h2
-          className="mt-4 text-xl md:text-2xl font-medium leading-tight"
-          style={{ fontFamily: "'Lufga', sans-serif", color: "#fff" }}
-        >
-          Ideas and Apps to Thrive in the AI Age
-        </h2>
-        <div className="flex flex-wrap justify-center gap-2 mt-6">
-          {chipLabels.map((label) => (
-            <span
-              key={label}
-              className="px-4 py-1.5 rounded-full text-xs"
-              style={{ border: "1px solid rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.55)" }}
-            >
-              {label}
-            </span>
-          ))}
-        </div>
-        <div className="mt-8 mx-auto" style={{ maxWidth: 600, height: 1, borderTop: "1px dashed rgba(255,255,255,0.15)" }} />
-      </div>
-    </section>
-  );
-}
 
 function ArticleGrid({ articles }: { articles: typeof studioArticles }) {
   return (
