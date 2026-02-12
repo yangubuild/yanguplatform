@@ -134,12 +134,7 @@ export function DiscoverYanguPage() {
     <div className="min-h-screen" style={{ background: "#08120D", fontFamily: "'Lufga', sans-serif" }}>
       {/* ─── Top Nav ─── */}
       <nav className="flex items-center justify-between px-6 md:px-12 py-5 max-w-[1200px] mx-auto">
-        <img src={yanguLogoFull} alt="Yangu" className="h-10" />
-        <div className="hidden md:flex items-center gap-8 text-sm text-white/60">
-          <a href="/community" className="hover:text-white transition-colors">Community</a>
-          <a href="/why-yangu" className="hover:text-white transition-colors">Why Yangu</a>
-          <a href="/ada-ai" className="hover:text-white transition-colors">Ada AI</a>
-        </div>
+        <a href="/"><img src={yanguLogoFull} alt="Yangu" className="h-10" /></a>
         <div className="flex items-center gap-3">
           <a href="/auth/login" className="px-4 py-2 rounded-lg text-sm font-medium text-white hover:bg-white/5 transition-colors">
             Sign in
