@@ -100,30 +100,30 @@
   }
 
   .dark {
-    /* Dark theme - Deep, sophisticated with vibrant accents */
-    --background: 222 47% 5%;
-    --foreground: 210 40% 98%;
+    /* Dark theme - YANGU deep green base */
+    --background: 150 20% 5%;
+    --foreground: 150 10% 95%;
 
-    --card: 222 47% 8%;
-    --card-foreground: 210 40% 98%;
+    --card: 150 15% 8%;
+    --card-foreground: 150 10% 95%;
 
-    --popover: 222 47% 8%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 150 15% 8%;
+    --popover-foreground: 150 10% 95%;
 
     /* Primary - Bright in dark mode */
-    --primary: 210 40% 98%;
-    --primary-foreground: 222 47% 11%;
+    --primary: 150 10% 95%;
+    --primary-foreground: 150 20% 5%;
 
     /* Secondary */
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 150 12% 15%;
+    --secondary-foreground: 150 10% 95%;
 
     /* Muted */
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 150 12% 15%;
+    --muted-foreground: 150 10% 60%;
 
-    /* Accent - Electric blue remains vibrant */
-    --accent: 217 91% 60%;
+    /* Accent - Yangu Orange in dark */
+    --accent: 24 95% 53%;
     --accent-foreground: 0 0% 100%;
 
     /* Brand colors (same as light, they pop on dark) */
@@ -143,26 +143,26 @@
     --destructive-foreground: 0 0% 100%;
 
     /* Surface colors */
-    --surface: 222 47% 8%;
-    --surface-elevated: 222 47% 10%;
-    --surface-sunken: 222 47% 4%;
+    --surface: 150 15% 8%;
+    --surface-elevated: 150 14% 11%;
+    --surface-sunken: 150 20% 4%;
 
     /* Borders */
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 217 91% 60%;
+    --border: 150 12% 15%;
+    --input: 150 12% 15%;
+    --ring: 24 95% 53%;
 
     /* Gradients for dark */
-    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(263 70% 60%) 100%);
-    --gradient-hero: linear-gradient(180deg, hsl(222 47% 5%) 0%, hsl(222 47% 8%) 100%);
-    --gradient-glow: radial-gradient(ellipse at center, hsl(217 91% 60% / 0.2) 0%, transparent 70%);
+    --gradient-primary: linear-gradient(135deg, hsl(24 95% 53%) 0%, hsl(24 90% 40%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(150 20% 5%) 0%, hsl(150 15% 8%) 100%);
+    --gradient-glow: radial-gradient(ellipse at center, hsl(24 95% 53% / 0.2) 0%, transparent 70%);
 
     /* Shadows for dark */
     --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.3);
     --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.4), 0 2px 4px -2px hsl(0 0% 0% / 0.3);
     --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.5), 0 4px 6px -4px hsl(0 0% 0% / 0.4);
     --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.6), 0 8px 10px -6px hsl(0 0% 0% / 0.5);
-    --shadow-glow: 0 0 60px hsl(217 91% 60% / 0.3);
+    --shadow-glow: 0 0 60px hsl(24 95% 53% / 0.3);
 
     /* Sidebar */
     --sidebar-background: 150 20% 5%;
