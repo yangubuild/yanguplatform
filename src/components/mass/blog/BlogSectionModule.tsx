@@ -5,9 +5,10 @@ interface Props {
   title: string;
   subtitle?: string;
   children: ReactNode;
+  dashedBorder?: boolean;
 }
 
-export function BlogSectionModule({ title, subtitle, children }: Props) {
+export function BlogSectionModule({ title, subtitle, children, dashedBorder }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 
@@ -37,6 +38,11 @@ export function BlogSectionModule({ title, subtitle, children }: Props) {
       }}
     >
       <div className="mx-auto" style={{ maxWidth: 1100 }}>
+        {/* Dashed top border */}
+        {dashedBorder && (
+          <div className="mb-6" style={{ borderTop: "1px dashed rgba(255,255,255,0.15)" }} />
+        )}
+
         {/* Heading */}
         <div className="flex items-center justify-between mb-2">
           <h2
@@ -60,6 +66,11 @@ export function BlogSectionModule({ title, subtitle, children }: Props) {
         {!subtitle && <div className="mb-8" />}
 
         {children}
+
+        {/* Dashed bottom border */}
+        {dashedBorder && (
+          <div className="mt-10" style={{ borderTop: "1px dashed rgba(255,255,255,0.15)" }} />
+        )}
       </div>
     </section>
   );
