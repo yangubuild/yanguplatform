@@ -43,15 +43,15 @@ export function AnthropicSlotImagesPanel() {
     setUploading(slotIndex);
     try {
       const ext = file.name.split(".").pop();
-      const path = `anthropic-covers/slot${slotIndex}.${ext}`;
+      const path = `slot${slotIndex}.${ext}`;
 
       const { error: uploadError } = await supabase.storage
-        .from("ada-media")
+        .from("blog-section-images")
         .upload(path, file, { upsert: true });
       if (uploadError) throw uploadError;
 
       const { data: urlData } = supabase.storage
-        .from("ada-media")
+        .from("blog-section-images")
         .getPublicUrl(path);
 
       const imageUrl = urlData.publicUrl;
