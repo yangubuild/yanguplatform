@@ -1578,6 +1578,10 @@ export type Database = {
         }
         Returns: Json
       }
+      admin_grant_credits_by_email: {
+        Args: { p_amount: number; p_email: string; p_note?: string }
+        Returns: undefined
+      }
       archive_surface: { Args: { p_surface_id: string }; Returns: Json }
       can_list_on_community: {
         Args: { p_surface_id: string }
