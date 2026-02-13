@@ -28,9 +28,11 @@ export function BlogEssayItem({ essay, titleClamp }: Props) {
         className="flex-shrink-0 rounded overflow-hidden"
         style={{ background: "#1a1a1a", width: 72, height: 72 }}
       >
-        <img src={essay.image} alt={essay.title} className="w-full h-full object-cover" style={{ display: "block" }}
-          onError={(e) => { e.currentTarget.style.display = "none"; }}
-        />
+        {essay.image ? (
+          <img src={essay.image} alt={essay.title} className="w-full h-full object-cover" style={{ display: "block", objectPosition: "center" }}
+            onError={(e) => { e.currentTarget.style.display = "none"; }}
+          />
+        ) : null}
       </div>
       <div className="flex-1 min-w-0 flex flex-col justify-center">
         <h4

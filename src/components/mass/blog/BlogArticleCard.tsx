@@ -40,15 +40,17 @@ export function BlogArticleCard({ article, size = "default", fillImage, titleCla
             : { flexShrink: 0, aspectRatio: isLarge ? "4/5" : "3/4" }),
         }}
       >
-        <img
-          src={article.image}
-          alt={article.title}
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-          style={{ display: "block" }}
-          onError={(e) => {
-            e.currentTarget.style.display = "none";
-          }}
-        />
+        {article.image ? (
+          <img
+            src={article.image}
+            alt={article.title}
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+            style={{ display: "block", objectPosition: "center" }}
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+            }}
+          />
+        ) : null}
       </div>
 
       {/* Text content — fixed height, won't push layout */}

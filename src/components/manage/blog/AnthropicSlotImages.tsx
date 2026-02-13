@@ -38,7 +38,7 @@ export function AnthropicSlotImages() {
     setUploading(slotKey);
     try {
       const ext = file.name.split(".").pop() ?? "jpg";
-      const path = `${SECTION_KEY}/${slotKey}-${Date.now()}.${ext}`;
+      const path = `${SECTION_KEY}/${slotKey}.${ext}`;
 
       const { error: uploadErr } = await supabase.storage
         .from(BUCKET)
@@ -71,6 +71,15 @@ export function AnthropicSlotImages() {
     const row = slots[slotKey];
     if (!row) return;
     try {
+      // Try to extract storage path from URL and delete from storage
+      try {
+        const url = new URL(row.image_url);
+        const pathMatch = url.pathname.match(/\/object\/public\/blog-section-images\/(.+)/);
+        if (pathMatch) {
+          await supabase.storage.from(BUCKET).remove([pathMatch[1]]);
+        }
+      } catch { /* ignore storage delete errors */ }
+
       await supabase
         .from("blog_section_images")
         .delete()
