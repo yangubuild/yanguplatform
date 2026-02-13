@@ -170,6 +170,51 @@ export function AdaMainPanel() {
     }
   }, [persistMessage, messages]);
 
+  // --- Image generation via /image command ---
+  const handleImageGenerate = useCallback(async (prompt: string, cid: string) => {
+    setIsThinking(true);
+    try {
+      const { data: fnData, error: fnErr } = await supabase.functions.invoke("ada-generate-image", {
+        body: { prompt, chatId: cid, provider: "openai" },
+      });
+
+      let content: string;
+      if (fnErr || !fnData?.ok) {
+        console.error("[AdaImage] error:", fnErr, fnData);
+        content = fnData?.message || "Image generation failed. Please try again.";
+        if (fnData?.error_code === "PROVIDER_DISABLED") {
+          content = "Image generation is currently disabled by the administrator.";
+        }
+      } else {
+        content = `![Generated image](${fnData.image_url})\n\n*Generated with DALL·E 3*`;
+      }
+
+      const assistantMsg: ChatMessage = {
+        id: `msg_${Date.now()}`,
+        role: "assistant",
+        content,
+        metadata: fnData?.ok ? { type: "image", provider: "openai", storage_path: fnData.storage_path } : undefined,
+        created_at: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, assistantMsg]);
+      // Only persist locally if the edge function didn't already persist
+      if (!fnData?.ok) {
+        await persistMessage(cid, assistantMsg);
+      }
+    } catch (err) {
+      console.error("[AdaImage] Error:", err);
+      const errMsg: ChatMessage = {
+        id: `msg_${Date.now()}`,
+        role: "assistant",
+        content: "Image generation failed. Please try again.",
+        created_at: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, errMsg]);
+    } finally {
+      setIsThinking(false);
+    }
+  }, [persistMessage]);
+
   // --- Send message (text) ---
   // --- Discuss mode: call AI ---
   const handleDiscuss = useCallback(async (text: string, cid: string) => {
@@ -237,13 +282,27 @@ export function AdaMainPanel() {
     setPendingAttachments([]);
     await persistMessage(cid, userMsg);
 
-    // Route by intent
-    if (currentIntent === "search" && text) {
+    // Route: /image command takes priority
+    if (text.startsWith("/image ")) {
+      const imagePrompt = text.slice(7).trim();
+      if (imagePrompt) {
+        await handleImageGenerate(imagePrompt, cid);
+      } else {
+        const errMsg: ChatMessage = {
+          id: `msg_${Date.now()}`,
+          role: "assistant",
+          content: "Please provide a prompt after `/image`. Example: `/image a sunset over mountains`",
+          created_at: new Date().toISOString(),
+        };
+        setMessages(prev => [...prev, errMsg]);
+        await persistMessage(cid, errMsg);
+      }
+    } else if (currentIntent === "search" && text) {
       await handleSearch(text, cid);
     } else {
       await handleDiscuss(text, cid);
     }
-  }, [inputValue, activeChatId, isAuthenticated, pendingAttachments, intent, createDbChat, createAnonChat, persistMessage, handleSearch, handleDiscuss]);
+  }, [inputValue, activeChatId, isAuthenticated, pendingAttachments, intent, createDbChat, createAnonChat, persistMessage, handleSearch, handleDiscuss, handleImageGenerate]);
 
   // --- Voice ---
   const handleVoiceTranscript = useCallback(async (
@@ -622,7 +681,28 @@ export function AdaMainPanel() {
                       borderRadius: "12px",
                     }}
                   >
-                    <span style={{ whiteSpace: "pre-wrap" }}>{msg.content}</span>
+                    {/* Render inline images from markdown-style ![alt](url) */}
+                    {msg.content.match(/!\[.*?\]\(.*?\)/) ? (
+                      <div>
+                        {msg.content.split(/(!?\[.*?\]\(.*?\))/).map((part, idx) => {
+                          const imgMatch = part.match(/^!\[(.*?)\]\((.*?)\)$/);
+                          if (imgMatch) {
+                            return (
+                              <img
+                                key={idx}
+                                src={imgMatch[2]}
+                                alt={imgMatch[1]}
+                                className="rounded-lg max-w-full mt-2 mb-2"
+                                style={{ maxHeight: "400px" }}
+                              />
+                            );
+                          }
+                          return part ? <span key={idx} style={{ whiteSpace: "pre-wrap" }}>{part}</span> : null;
+                        })}
+                      </div>
+                    ) : (
+                      <span style={{ whiteSpace: "pre-wrap" }}>{msg.content}</span>
+                    )}
                     {/* Attachment chips */}
                     {msg.metadata && (msg.metadata as any).attachments && (
                       <div className="flex flex-wrap gap-1 mt-2">
