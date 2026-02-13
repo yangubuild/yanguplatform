@@ -416,30 +416,6 @@ export type Database = {
         }
         Relationships: []
       }
-      blog_section_images: {
-        Row: {
-          id: string
-          image_url: string
-          section_key: string
-          slot_key: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          image_url: string
-          section_key: string
-          slot_key: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          image_url?: string
-          section_key?: string
-          slot_key?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       community_listings: {
         Row: {
           id: string
