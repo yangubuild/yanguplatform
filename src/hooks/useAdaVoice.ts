@@ -96,8 +96,8 @@ export function useAdaVoice({ chatId, userId, isAuthenticated, onTranscript }: U
             .upload(filePath, blob, { contentType: blob.type, upsert: true });
 
           if (upErr) {
-            console.error("[AdaVoice] Upload error:", upErr);
-            toast({ title: "Audio upload failed", variant: "destructive" });
+            console.error("[AdaVoice] Upload error:", JSON.stringify(upErr));
+            toast({ title: `Audio upload failed: ${upErr.message || "unknown"}`, variant: "destructive" });
             return;
           }
 
@@ -108,9 +108,19 @@ export function useAdaVoice({ chatId, userId, isAuthenticated, onTranscript }: U
             body: { bucket: "ada-audio", path: filePath },
           });
 
-          if (fnErr || !data?.transcript) {
-            console.error("[AdaVoice] Transcription error:", fnErr, data);
-            toast({ title: "Transcription failed", variant: "destructive" });
+          console.log("[AdaVoice] Edge fn response:", { data, fnErr });
+
+          if (fnErr) {
+            const errDetail = typeof fnErr === "object" ? JSON.stringify(fnErr) : String(fnErr);
+            console.error("[AdaVoice] Edge function error:", errDetail);
+            toast({ title: `Transcription failed: ${data?.error || errDetail}`, variant: "destructive" });
+            return;
+          }
+
+          if (!data?.transcript) {
+            const serverErr = data?.error || data?.detail || "No transcript returned";
+            console.error("[AdaVoice] No transcript:", serverErr);
+            toast({ title: `Transcription failed: ${serverErr}`, variant: "destructive" });
             return;
           }
 
