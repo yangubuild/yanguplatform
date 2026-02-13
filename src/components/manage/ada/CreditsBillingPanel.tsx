@@ -1,7 +1,15 @@
 import { useState } from "react";
-import { CreditCard, Search, Plus, Minus, Gift, Clock, RotateCcw, AlertTriangle } from "lucide-react";
+import { CreditCard, Search, Plus, Minus, Gift, Clock, RotateCcw, AlertTriangle, Send } from "lucide-react";
 import { AdaGlassModule } from "./AdaGlassModule";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface AdminAction {
   id: string;
@@ -11,12 +19,21 @@ interface AdminAction {
   timestamp: string;
 }
 
+const BONUS_PRESETS = [50, 100, 250];
+
 export function CreditsBillingPanel() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUser, setSelectedUser] = useState<{ id: string; email: string; username: string; balance: number; plan: string; rateLimit: string } | null>(null);
   const [actionLog, setActionLog] = useState<AdminAction[]>([]);
   const [creditAmount, setCreditAmount] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+
+  // Grant modal state
+  const [grantOpen, setGrantOpen] = useState(false);
+  const [grantEmail, setGrantEmail] = useState("");
+  const [grantAmount, setGrantAmount] = useState("");
+  const [grantNote, setGrantNote] = useState("");
+  const [isGranting, setIsGranting] = useState(false);
 
   const logAction = (action: string, target: string, amount?: number) => {
     setActionLog((prev) => [
@@ -28,7 +45,6 @@ export function CreditsBillingPanel() {
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
     setIsSearching(true);
-    // Stub: would call supabase to find user
     setTimeout(() => {
       setSelectedUser({
         id: "stub-user-id",
@@ -68,9 +84,40 @@ export function CreditsBillingPanel() {
     toast({ title: "Pending backend wiring", description: "Rate limit flags reset." });
   };
 
+  const handleGrantCredits = async () => {
+    if (!grantEmail.trim()) {
+      toast({ title: "Email required", variant: "destructive" });
+      return;
+    }
+    const amt = parseInt(grantAmount);
+    if (!amt || amt <= 0) {
+      toast({ title: "Enter a positive amount", variant: "destructive" });
+      return;
+    }
+    setIsGranting(true);
+    try {
+      const { error } = await supabase.rpc("admin_grant_credits_by_email", {
+        p_email: grantEmail.trim(),
+        p_amount: amt,
+        p_note: grantNote.trim() || null,
+      });
+      if (error) throw error;
+      logAction("Granted credits", grantEmail.trim(), amt);
+      toast({ title: "Credits granted", description: `${amt} credits → ${grantEmail.trim()}` });
+      setGrantEmail("");
+      setGrantAmount("");
+      setGrantNote("");
+      setGrantOpen(false);
+    } catch (err: any) {
+      toast({ title: "Grant failed", description: err.message || "Unknown error", variant: "destructive" });
+    } finally {
+      setIsGranting(false);
+    }
+  };
+
   return (
     <AdaGlassModule title="Credits & Billing Controls" icon={CreditCard}>
-      {/* Search */}
+      {/* Top bar: Search + Grant button */}
       <div className="flex gap-2 mb-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[hsl(var(--admin-text-muted))]" />
@@ -89,6 +136,70 @@ export function CreditsBillingPanel() {
         >
           {isSearching ? "Searching..." : "Search"}
         </button>
+
+        {/* Grant Credits Modal */}
+        <Dialog open={grantOpen} onOpenChange={setGrantOpen}>
+          <DialogTrigger asChild>
+            <button className="flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-medium bg-[hsl(160,84%,39%/0.15)] text-[hsl(160,84%,39%)] border border-[hsl(160,84%,39%/0.25)] hover:bg-[hsl(160,84%,39%/0.25)] transition-colors">
+              <Gift className="h-3.5 w-3.5" /> Grant Credits
+            </button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md bg-card border-border">
+            <DialogHeader>
+              <DialogTitle className="text-base font-semibold">Grant Credits by Email</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 pt-2">
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">User Email</label>
+                <input
+                  value={grantEmail}
+                  onChange={(e) => setGrantEmail(e.target.value)}
+                  placeholder="user@example.com"
+                  className="w-full px-3 py-2 rounded-md text-sm bg-muted/50 border border-border text-foreground placeholder:text-muted-foreground outline-none focus:border-accent"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Amount</label>
+                <input
+                  type="number"
+                  value={grantAmount}
+                  onChange={(e) => setGrantAmount(e.target.value)}
+                  placeholder="100"
+                  min="1"
+                  className="w-full px-3 py-2 rounded-md text-sm bg-muted/50 border border-border text-foreground outline-none focus:border-accent"
+                />
+                <div className="flex gap-1.5 mt-2">
+                  {BONUS_PRESETS.map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => setGrantAmount(String(p))}
+                      className="px-3 py-1 rounded text-xs font-medium border border-border text-muted-foreground hover:bg-accent/10 hover:text-accent transition-colors"
+                    >
+                      +{p}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Note (optional)</label>
+                <input
+                  value={grantNote}
+                  onChange={(e) => setGrantNote(e.target.value)}
+                  placeholder="e.g. Beta tester bonus"
+                  className="w-full px-3 py-2 rounded-md text-sm bg-muted/50 border border-border text-foreground placeholder:text-muted-foreground outline-none focus:border-accent"
+                />
+              </div>
+              <button
+                onClick={handleGrantCredits}
+                disabled={isGranting}
+                className="w-full flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium bg-accent text-accent-foreground hover:bg-accent/90 transition-colors disabled:opacity-50"
+              >
+                <Send className="h-3.5 w-3.5" />
+                {isGranting ? "Granting..." : "Grant Credits"}
+              </button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {selectedUser && (
