@@ -10,7 +10,9 @@ export function BlogArticleCard({ article, size = "default" }: Props) {
 
   return (
     <a
-      href="#"
+      href={article.url || "#"}
+      target={article.url ? "_blank" : undefined}
+      rel={article.url ? "noopener noreferrer" : undefined}
       className="group block transition-all duration-200 hover:-translate-y-0.5"
       style={{ textDecoration: "none" }}
     >

@@ -7,7 +7,9 @@ interface Props {
 export function BlogEssayItem({ essay }: Props) {
   return (
     <a
-      href="#"
+      href={essay.url || "#"}
+      target={essay.url ? "_blank" : undefined}
+      rel={essay.url ? "noopener noreferrer" : undefined}
       className="group flex items-start gap-3 py-3 transition-colors"
       style={{ textDecoration: "none", borderBottom: "1px solid rgba(255,255,255,0.08)" }}
     >

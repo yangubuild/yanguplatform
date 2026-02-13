@@ -45,6 +45,7 @@ export interface BlogArticle {
   author: string;
   authorAvatar?: string;
   image: string;
+  url?: string;
 }
 
 export interface BlogEssay {
@@ -52,6 +53,7 @@ export interface BlogEssay {
   title: string;
   author: string;
   image: string;
+  url?: string;
 }
 
 export interface BlogProduct {
