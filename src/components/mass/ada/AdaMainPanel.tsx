@@ -6,6 +6,7 @@ import { useAdaVoice } from "@/hooks/useAdaVoice";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { generateIdeogramImage } from "@/lib/ai/ideogram";
+import { generateQwenImage } from "@/lib/ai/qwen";
 
 interface ChatMessage {
   id: string;
@@ -172,23 +173,26 @@ export function AdaMainPanel() {
   }, [persistMessage, messages]);
 
   // --- Image generation via /image command ---
-  const handleImageGenerate = useCallback(async (prompt: string, cid: string) => {
+  const handleImageGenerate = useCallback(async (prompt: string, cid: string, provider: "ideogram" | "qwen" = "ideogram") => {
     setIsThinking(true);
     try {
-      const result = await generateIdeogramImage(prompt);
+      const result = provider === "qwen"
+        ? await generateQwenImage(prompt)
+        : await generateIdeogramImage(prompt);
 
       let content: string;
       let metadata: Record<string, unknown> | undefined;
 
       if (!result.ok || !result.images || result.images.length === 0) {
-        console.error("[AdaImage] Ideogram error:", result.error);
+        console.error(`[AdaImage] ${provider} error:`, result.error);
         content = result.error || "Image generation failed. Please try again.";
       } else {
         const img = result.images[0];
-        content = `![Generated image](${img.url})\n\n*Generated with Ideogram*`;
+        const providerLabel = provider === "qwen" ? "Qwen" : "Ideogram";
+        content = `![Generated image](${img.url})\n\n*Generated with ${providerLabel}*`;
         metadata = {
           type: "image",
-          provider: "ideogram",
+          provider,
           storage_path: img.storage_path,
           generation_id: result.generation_id,
         };
@@ -285,10 +289,24 @@ export function AdaMainPanel() {
     await persistMessage(cid, userMsg);
 
     // Route: /image command takes priority
-    if (text.startsWith("/image ")) {
+    if (text.startsWith("/image:qwen ")) {
+      const imagePrompt = text.slice(12).trim();
+      if (imagePrompt) {
+        await handleImageGenerate(imagePrompt, cid, "qwen");
+      } else {
+        const errMsg: ChatMessage = {
+          id: `msg_${Date.now()}`,
+          role: "assistant",
+          content: "Please provide a prompt after `/image:qwen`. Example: `/image:qwen a sunset over mountains`",
+          created_at: new Date().toISOString(),
+        };
+        setMessages(prev => [...prev, errMsg]);
+        await persistMessage(cid, errMsg);
+      }
+    } else if (text.startsWith("/image ")) {
       const imagePrompt = text.slice(7).trim();
       if (imagePrompt) {
-        await handleImageGenerate(imagePrompt, cid);
+        await handleImageGenerate(imagePrompt, cid, "ideogram");
       } else {
         const errMsg: ChatMessage = {
           id: `msg_${Date.now()}`,
