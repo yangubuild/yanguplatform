@@ -83,6 +83,47 @@ export type Database = {
         }
         Relationships: []
       }
+      ada_media: {
+        Row: {
+          chat_id: string | null
+          created_at: string
+          id: string
+          kind: string
+          metadata: Json | null
+          provider: string
+          storage_path: string
+          user_id: string
+        }
+        Insert: {
+          chat_id?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          metadata?: Json | null
+          provider: string
+          storage_path: string
+          user_id: string
+        }
+        Update: {
+          chat_id?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          metadata?: Json | null
+          provider?: string
+          storage_path?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ada_media_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "ada_chats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ada_messages: {
         Row: {
           chat_id: string
@@ -569,6 +610,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      feature_flags: {
+        Row: {
+          enabled: boolean
+          key: string
+          updated_at: string
+        }
+        Insert: {
+          enabled?: boolean
+          key: string
+          updated_at?: string
+        }
+        Update: {
+          enabled?: boolean
+          key?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       knowledge_chunks: {
         Row: {
