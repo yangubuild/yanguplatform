@@ -13,7 +13,6 @@ serve(async (req) => {
   }
 
   try {
-    // Verify caller is authenticated
     const authHeader = req.headers.get("authorization");
     if (!authHeader) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -30,24 +29,50 @@ serve(async (req) => {
       );
     }
 
-    // Use service role to download the audio file
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    // Log env presence (booleans only)
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const openaiKey = Deno.env.get("OPENAI_API_KEY");
+
+    console.log("[ada-transcribe] env check:", {
+      hasSupabaseUrl: !!supabaseUrl,
+      hasServiceRoleKey: !!serviceRoleKey,
+      hasOpenaiKey: !!openaiKey,
+    });
+
+    if (!supabaseUrl || !serviceRoleKey) {
+      return new Response(
+        JSON.stringify({ error: "Server misconfigured: missing SUPABASE_URL or SERVICE_ROLE_KEY" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!openaiKey) {
+      return new Response(
+        JSON.stringify({ error: "Missing OPENAI_API_KEY — configure it in backend secrets" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
+    // Download audio
     const { data: fileData, error: dlError } = await supabase.storage
       .from(bucket)
       .download(path);
 
     if (dlError || !fileData) {
-      console.error("Storage download error:", dlError);
+      console.error("[ada-transcribe] Storage download error:", dlError);
       return new Response(
         JSON.stringify({ error: "Failed to download audio", detail: dlError?.message }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Determine mime type from extension
+    const arrayBuf = await fileData.arrayBuffer();
+    console.log("[ada-transcribe] Storage download OK, bytes:", arrayBuf.byteLength);
+
+    // Determine mime/ext
     const ext = path.split(".").pop()?.toLowerCase() ?? "webm";
     const mimeMap: Record<string, string> = {
       webm: "audio/webm",
@@ -57,22 +82,14 @@ serve(async (req) => {
       m4a: "audio/mp4",
     };
     const mimeType = mimeMap[ext] || "audio/webm";
+    console.log("[ada-transcribe] mimeType:", mimeType, "ext:", ext);
 
     // Send to OpenAI Whisper
-    const openaiKey = Deno.env.get("OPENAI_API_KEY");
-    if (!openaiKey) {
-      return new Response(
-        JSON.stringify({ error: "OPENAI_API_KEY not configured" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
     const formData = new FormData();
-    const audioBlob = new Blob([await fileData.arrayBuffer()], { type: mimeType });
+    const audioBlob = new Blob([arrayBuf], { type: mimeType });
     formData.append("file", audioBlob, `audio.${ext}`);
     formData.append("model", "whisper-1");
     formData.append("response_format", "verbose_json");
-    // Don't set language — let Whisper auto-detect (supports en, fr, ar, sw, ha, yo, am)
 
     const whisperRes = await fetch("https://api.openai.com/v1/audio/transcriptions", {
       method: "POST",
@@ -80,16 +97,41 @@ serve(async (req) => {
       body: formData,
     });
 
+    const whisperBody = await whisperRes.text();
+    console.log("[ada-transcribe] Whisper status:", whisperRes.status);
+    console.log("[ada-transcribe] Whisper body:", whisperBody);
+
     if (!whisperRes.ok) {
-      const errText = await whisperRes.text();
-      console.error("Whisper error:", errText);
+      // Surface specific errors
+      if (whisperRes.status === 401 || whisperRes.status === 403) {
+        return new Response(
+          JSON.stringify({ error: "Missing/invalid OPENAI_API_KEY", detail: whisperBody }),
+          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Parse error for quota/model issues
+      let parsed: any = {};
+      try { parsed = JSON.parse(whisperBody); } catch {}
+      const errMsg = parsed?.error?.message || whisperBody;
+      const errCode = parsed?.error?.code || "";
+
       return new Response(
-        JSON.stringify({ error: "Whisper transcription failed", detail: errText }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: errMsg, code: errCode, detail: whisperBody }),
+        { status: whisperRes.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const whisperData = await whisperRes.json();
+    // Parse successful response
+    let whisperData: any;
+    try {
+      whisperData = JSON.parse(whisperBody);
+    } catch {
+      return new Response(
+        JSON.stringify({ error: "Failed to parse Whisper response", detail: whisperBody }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     return new Response(
       JSON.stringify({
@@ -99,7 +141,7 @@ serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
-    console.error("ada-transcribe-audio error:", err);
+    console.error("[ada-transcribe] unhandled error:", err);
     return new Response(
       JSON.stringify({ error: "Internal server error", detail: String(err) }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
