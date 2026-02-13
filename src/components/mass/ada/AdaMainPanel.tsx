@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAdaVoice } from "@/hooks/useAdaVoice";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { generateIdeogramImage } from "@/lib/ai/ideogram";
 
 interface ChatMessage {
   id: string;
@@ -174,33 +175,34 @@ export function AdaMainPanel() {
   const handleImageGenerate = useCallback(async (prompt: string, cid: string) => {
     setIsThinking(true);
     try {
-      const { data: fnData, error: fnErr } = await supabase.functions.invoke("ada-generate-image", {
-        body: { prompt, chatId: cid, provider: "openai" },
-      });
+      const result = await generateIdeogramImage(prompt);
 
       let content: string;
-      if (fnErr || !fnData?.ok) {
-        console.error("[AdaImage] error:", fnErr, fnData);
-        content = fnData?.message || "Image generation failed. Please try again.";
-        if (fnData?.error_code === "PROVIDER_DISABLED") {
-          content = "Image generation is currently disabled by the administrator.";
-        }
+      let metadata: Record<string, unknown> | undefined;
+
+      if (!result.ok || !result.images || result.images.length === 0) {
+        console.error("[AdaImage] Ideogram error:", result.error);
+        content = result.error || "Image generation failed. Please try again.";
       } else {
-        content = `![Generated image](${fnData.image_url})\n\n*Generated with DALL·E 3*`;
+        const img = result.images[0];
+        content = `![Generated image](${img.url})\n\n*Generated with Ideogram*`;
+        metadata = {
+          type: "image",
+          provider: "ideogram",
+          storage_path: img.storage_path,
+          generation_id: result.generation_id,
+        };
       }
 
       const assistantMsg: ChatMessage = {
         id: `msg_${Date.now()}`,
         role: "assistant",
         content,
-        metadata: fnData?.ok ? { type: "image", provider: "openai", storage_path: fnData.storage_path } : undefined,
+        metadata,
         created_at: new Date().toISOString(),
       };
       setMessages(prev => [...prev, assistantMsg]);
-      // Only persist locally if the edge function didn't already persist
-      if (!fnData?.ok) {
-        await persistMessage(cid, assistantMsg);
-      }
+      await persistMessage(cid, assistantMsg);
     } catch (err) {
       console.error("[AdaImage] Error:", err);
       const errMsg: ChatMessage = {

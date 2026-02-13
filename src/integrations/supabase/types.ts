@@ -377,6 +377,45 @@ export type Database = {
           },
         ]
       }
+      ai_image_generations: {
+        Row: {
+          created_at: string
+          error: string | null
+          id: string
+          params: Json
+          prompt: string
+          provider: string
+          result_images: Json | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          params?: Json
+          prompt: string
+          provider?: string
+          result_images?: Json | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          params?: Json
+          prompt?: string
+          provider?: string
+          result_images?: Json | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -1533,6 +1572,10 @@ export type Database = {
         Returns: number
       }
       count_published_surfaces: { Args: { _user_id: string }; Returns: number }
+      create_ideogram_generation: {
+        Args: { p_params?: Json; p_prompt: string }
+        Returns: string
+      }
       delete_surface: { Args: { p_surface_id: string }; Returns: Json }
       evaluate_publish_eligibility: {
         Args: {
@@ -1583,6 +1626,27 @@ export type Database = {
         Args: { _creator_type: Database["public"]["Enums"]["creator_type"] }
         Returns: string
       }
+      get_my_image_generations: {
+        Args: { p_limit?: number; p_offset?: number }
+        Returns: {
+          created_at: string
+          error: string | null
+          id: string
+          params: Json
+          prompt: string
+          provider: string
+          result_images: Json | null
+          status: string
+          updated_at: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "ai_image_generations"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_own_kyc_documents: {
         Args: never
         Returns: {
@@ -1628,6 +1692,15 @@ export type Database = {
             Returns: Json
           }
       resolve_route: { Args: { p_host: string; p_path: string }; Returns: Json }
+      set_generation_status: {
+        Args: {
+          p_error?: string
+          p_generation_id: string
+          p_result_images?: Json
+          p_status: string
+        }
+        Returns: undefined
+      }
       spend_credits: {
         Args: {
           _amount: number
