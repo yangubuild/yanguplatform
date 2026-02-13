@@ -102,22 +102,31 @@ serve(async (req) => {
     console.log("[ada-transcribe] Whisper body:", whisperBody);
 
     if (!whisperRes.ok) {
-      // Surface specific errors
-      if (whisperRes.status === 401 || whisperRes.status === 403) {
+      // Parse error body
+      let parsed: any = {};
+      try { parsed = JSON.parse(whisperBody); } catch {}
+      const errCode = parsed?.error?.code || "";
+      const errMsg = parsed?.error?.message || whisperBody;
+
+      // Quota exceeded – return graceful JSON (200 with ok:false)
+      if (whisperRes.status === 429 || errCode === "insufficient_quota") {
+        console.log("[ada-transcribe] Quota exceeded, returning graceful response");
         return new Response(
-          JSON.stringify({ error: "Missing/invalid OPENAI_API_KEY", detail: whisperBody }),
-          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          JSON.stringify({ ok: false, error_code: "INSUFFICIENT_QUOTA", message: "Voice temporarily unavailable. Please try again later." }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
-      // Parse error for quota/model issues
-      let parsed: any = {};
-      try { parsed = JSON.parse(whisperBody); } catch {}
-      const errMsg = parsed?.error?.message || whisperBody;
-      const errCode = parsed?.error?.code || "";
+      // Auth errors
+      if (whisperRes.status === 401 || whisperRes.status === 403) {
+        return new Response(
+          JSON.stringify({ ok: false, error_code: "AUTH_ERROR", message: "Missing/invalid OPENAI_API_KEY", detail: whisperBody }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
 
       return new Response(
-        JSON.stringify({ error: errMsg, code: errCode, detail: whisperBody }),
+        JSON.stringify({ ok: false, error_code: errCode || "UPSTREAM_ERROR", message: errMsg, detail: whisperBody }),
         { status: whisperRes.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -135,6 +144,7 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({
+        ok: true,
         transcript: whisperData.text ?? "",
         language: whisperData.language ?? "unknown",
       }),

@@ -112,15 +112,25 @@ export function useAdaVoice({ chatId, userId, isAuthenticated, onTranscript }: U
 
           if (fnErr) {
             const errDetail = typeof fnErr === "object" ? JSON.stringify(fnErr) : String(fnErr);
-            console.error("[AdaVoice] Edge function error:", errDetail);
-            toast({ title: `Transcription failed: ${data?.error || errDetail}`, variant: "destructive" });
+            console.error("[AdaVoice] Transcription error:", errDetail, data);
+            toast({ title: `Transcription failed: ${data?.error || data?.message || errDetail}`, variant: "destructive" });
+            return;
+          }
+
+          // Graceful quota / error handling
+          if (data?.ok === false) {
+            console.warn("[AdaVoice] Graceful error:", data.error_code, data.message);
+            if (data.error_code === "INSUFFICIENT_QUOTA") {
+              toast({ title: "Voice temporarily unavailable (quota).", variant: "destructive" });
+            } else {
+              toast({ title: data.message || "Transcription failed", variant: "destructive" });
+            }
             return;
           }
 
           if (!data?.transcript) {
-            const serverErr = data?.error || data?.detail || "No transcript returned";
-            console.error("[AdaVoice] No transcript:", serverErr);
-            toast({ title: `Transcription failed: ${serverErr}`, variant: "destructive" });
+            console.error("[AdaVoice] No transcript in response");
+            toast({ title: "No transcript returned", variant: "destructive" });
             return;
           }
 
