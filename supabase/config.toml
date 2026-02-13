@@ -1,1 +1,4 @@
 project_id = "xcipuyvcwfytlsjryhvs"
+
+[functions.ada-generate-image]
+verify_jwt = false
