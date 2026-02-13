@@ -77,10 +77,10 @@ export function BlogFeaturedGrid() {
         style={{
           maxWidth: 1100,
           display: "grid",
-          gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr) 340px",
+          gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1.6fr) 320px",
           gridTemplateRows: "repeat(2, minmax(0, 1fr))",
-          gap: "24px",
-          minHeight: 640,
+          gap: "28px",
+          minHeight: 680,
         }}
       >
         {/* Left col — 2 stacked medium cards */}

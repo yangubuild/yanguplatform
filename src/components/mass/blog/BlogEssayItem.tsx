@@ -21,29 +21,32 @@ export function BlogEssayItem({ essay, titleClamp }: Props) {
       href={essay.url || "#"}
       target={essay.url ? "_blank" : undefined}
       rel={essay.url ? "noopener noreferrer" : undefined}
-      className="group flex items-start gap-3 py-3 transition-colors"
+      className="group flex items-start gap-4 py-4 transition-colors"
       style={{ textDecoration: "none", borderBottom: "1px solid rgba(255,255,255,0.08)" }}
     >
       <div
-        className="flex-shrink-0 w-12 h-12 rounded overflow-hidden"
-        style={{ background: "#1a1a1a", aspectRatio: "1/1" }}
+        className="flex-shrink-0 rounded overflow-hidden"
+        style={{ background: "#1a1a1a", width: 72, height: 72 }}
       >
         <img src={essay.image} alt={essay.title} className="w-full h-full object-cover" style={{ display: "block" }}
           onError={(e) => { e.currentTarget.style.display = "none"; }}
         />
       </div>
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 flex flex-col justify-center">
         <h4
-          className="text-sm leading-snug transition-colors duration-200 group-hover:text-white"
+          className="text-[15px] leading-snug font-medium transition-colors duration-200 group-hover:text-white"
           style={{
             fontFamily: "'Lufga', sans-serif",
-            color: "rgba(255,255,255,0.8)",
+            color: "rgba(255,255,255,0.85)",
             ...(titleClamp ? clampStyle(titleClamp) : {}),
           }}
         >
           {essay.title}
         </h4>
-        <span className="text-xs mt-1 block" style={{ color: "rgba(255,255,255,0.4)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+        <span
+          className="text-[11px] mt-1.5 block font-semibold uppercase tracking-wider"
+          style={{ color: "rgba(255,255,255,0.45)", letterSpacing: "0.08em" }}
+        >
           {essay.author}
         </span>
       </div>

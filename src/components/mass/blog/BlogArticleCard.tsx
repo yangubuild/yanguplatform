@@ -30,10 +30,10 @@ export function BlogArticleCard({ article, size = "default", titleClamp, excerpt
     >
       {/* Image — fixed aspect-ratio container */}
       <div
-        className="overflow-hidden rounded-lg mb-4 flex-shrink-0"
+        className="overflow-hidden rounded-lg flex-shrink-0"
         style={{
           background: "#1a1a1a",
-          aspectRatio: isLarge ? "4/5" : "16/10",
+          aspectRatio: isLarge ? "4/5" : "3/4",
         }}
       >
         <img
@@ -47,12 +47,33 @@ export function BlogArticleCard({ article, size = "default", titleClamp, excerpt
         />
       </div>
 
+      {/* Meta line: date + column */}
+      <div className="mt-3 mb-1 flex items-center gap-1.5">
+        <span
+          className="text-[11px] uppercase tracking-wide"
+          style={{ color: "rgba(255,255,255,0.45)", letterSpacing: "0.06em" }}
+        >
+          {article.date || article.author}
+        </span>
+        {article.column && (
+          <>
+            <span style={{ color: "rgba(255,255,255,0.25)" }} className="text-[11px]">IN</span>
+            <span
+              className="text-[11px] uppercase tracking-wide font-semibold"
+              style={{ color: "rgba(255,255,255,0.65)", letterSpacing: "0.06em" }}
+            >
+              {article.column}
+            </span>
+          </>
+        )}
+      </div>
+
       {/* Title */}
       <h3
         className="font-medium leading-snug transition-colors duration-200 group-hover:text-white"
         style={{
           fontFamily: "'Lufga', sans-serif",
-          fontSize: isLarge ? 22 : 18,
+          fontSize: isLarge ? 28 : 18,
           color: "rgba(255,255,255,0.9)",
           ...(titleClamp ? clampStyle(titleClamp) : {}),
         }}
@@ -63,7 +84,7 @@ export function BlogArticleCard({ article, size = "default", titleClamp, excerpt
       {/* Subtitle */}
       {article.subtitle && (
         <p
-          className="mt-2 text-sm leading-relaxed"
+          className="mt-1.5 text-sm leading-relaxed"
           style={{
             color: "rgba(255,255,255,0.45)",
             ...(excerptClamp ? clampStyle(excerptClamp) : {}),
@@ -73,17 +94,17 @@ export function BlogArticleCard({ article, size = "default", titleClamp, excerpt
         </p>
       )}
 
-      {/* Author / Date */}
-      <div className="flex items-center gap-2 mt-auto pt-4">
+      {/* Author */}
+      <div className="flex items-center gap-2 mt-auto pt-3">
         <img
           src={`https://api.dicebear.com/9.x/notionists/svg?seed=${encodeURIComponent(article.author)}`}
           alt={article.author}
-          className="w-7 h-7 rounded-full object-cover flex-shrink-0"
+          className="w-6 h-6 rounded-full object-cover flex-shrink-0"
           style={{ background: "#222" }}
         />
         <span
-          className="text-xs font-medium uppercase tracking-wider"
-          style={{ color: "rgba(255,255,255,0.5)", letterSpacing: "0.08em" }}
+          className="text-[11px] font-semibold uppercase tracking-wider"
+          style={{ color: "rgba(255,255,255,0.55)", letterSpacing: "0.08em" }}
         >
           {article.author}
         </span>
