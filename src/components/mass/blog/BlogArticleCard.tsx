@@ -102,12 +102,6 @@ export function BlogArticleCard({ article, size = "default", fillImage, titleCla
 
         {/* Author */}
         <div className="flex items-center gap-2 mt-2.5">
-          <img
-            src={`https://api.dicebear.com/9.x/notionists/svg?seed=${encodeURIComponent(article.author)}`}
-            alt={article.author}
-            className="w-6 h-6 rounded-full object-cover flex-shrink-0"
-            style={{ background: "#222" }}
-          />
           <span
             className="text-[11px] font-semibold uppercase tracking-wider"
             style={{ color: "rgba(255,255,255,0.55)", letterSpacing: "0.08em" }}

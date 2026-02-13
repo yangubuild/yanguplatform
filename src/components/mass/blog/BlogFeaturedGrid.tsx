@@ -20,11 +20,11 @@ function pubToArticle(pub: AnthropicPublication, fallbackImage: string): BlogArt
     subtitle: decodeEntities(pub.excerpt) || undefined,
     date: pub.published_at
       ? new Date(pub.published_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-      : "New",
+      : "",
     column: pub.category || "Research",
     author: pub.published_at
       ? new Date(pub.published_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-      : "New",
+      : "",
     image: pub.image_url || fallbackImage,
     url: pub.url,
   };
