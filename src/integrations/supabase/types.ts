@@ -416,6 +416,45 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_video_generations: {
+        Row: {
+          created_at: string
+          error: string | null
+          id: string
+          params: Json
+          prompt: string
+          provider: string
+          result_videos: Json | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          params?: Json
+          prompt: string
+          provider?: string
+          result_videos?: Json | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          params?: Json
+          prompt?: string
+          provider?: string
+          result_videos?: Json | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -1572,6 +1611,10 @@ export type Database = {
         Returns: number
       }
       count_published_surfaces: { Args: { _user_id: string }; Returns: number }
+      create_creatify_generation: {
+        Args: { p_params?: Json; p_prompt: string }
+        Returns: string
+      }
       create_ideogram_generation: {
         Args: { p_params?: Json; p_prompt: string }
         Returns: string
@@ -1651,6 +1694,27 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      get_my_video_generations: {
+        Args: { p_limit?: number; p_offset?: number }
+        Returns: {
+          created_at: string
+          error: string | null
+          id: string
+          params: Json
+          prompt: string
+          provider: string
+          result_videos: Json | null
+          status: string
+          updated_at: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "ai_video_generations"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_own_kyc_documents: {
         Args: never
         Returns: {
@@ -1701,6 +1765,15 @@ export type Database = {
           p_error?: string
           p_generation_id: string
           p_result_images?: Json
+          p_status: string
+        }
+        Returns: undefined
+      }
+      set_video_generation_status: {
+        Args: {
+          p_error?: string
+          p_generation_id: string
+          p_result_videos?: Json
           p_status: string
         }
         Returns: undefined

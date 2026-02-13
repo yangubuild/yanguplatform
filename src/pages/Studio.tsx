@@ -11,6 +11,7 @@ import { useCredits, useSpendCredits } from "@/hooks/useCredits";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { generateCreatifyVideo } from "@/lib/ai/creatify";
 
 /**
  * YANGU.STUDIO - Global AI-powered creative engine
@@ -45,6 +46,7 @@ export default function Studio() {
     id: string;
     albumUrl?: string;
     albumSlug?: string;
+    videoUrl?: string;
     assets: Array<{ id: string; type: string; downloadCredits: number }>;
   } | null>(null);
 
@@ -92,10 +94,28 @@ export default function Studio() {
 
       if (projectError) throw projectError;
 
-      // TODO: Call AI generation edge function
-      // For now, simulate success
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      
+      // Call Creatify for video generation if video_ad is selected
+      let videoUrl: string | undefined;
+      if (data.contentTypes.includes("video_ad") || data.contentTypes.includes("ugc_video")) {
+        const videoResult = await generateCreatifyVideo(
+          data.productUrl,
+          {
+            aspect_ratio: "9:16",
+            duration: 30,
+          }
+        );
+
+        if (videoResult.ok && videoResult.videos && videoResult.videos.length > 0) {
+          videoUrl = videoResult.videos[0].url;
+        } else {
+          console.warn("Video generation failed:", videoResult.error);
+          toast.error(videoResult.error || "Video generation failed, but project was created.");
+        }
+      } else {
+        // Non-video types: simulate for now
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      }
+
       // Update status to completed
       await supabase
         .from("studio_projects")
@@ -104,13 +124,14 @@ export default function Studio() {
 
       toast.success("Content generated successfully!");
       
-      // Mock generated assets
       setGeneratedProject({
         id: project.id,
         albumSlug: slug,
+        videoUrl,
         assets: [
-          { id: "1", type: "video_ad", downloadCredits: 2 },
-          { id: "2", type: "image_ad", downloadCredits: 1 },
+          ...(data.contentTypes.includes("video_ad") ? [{ id: "1", type: "video_ad", downloadCredits: 2 }] : []),
+          ...(data.contentTypes.includes("image_ad") ? [{ id: "2", type: "image_ad", downloadCredits: 1 }] : []),
+          ...(data.contentTypes.includes("ugc_video") ? [{ id: "3", type: "ugc_video", downloadCredits: 2 }] : []),
         ],
       });
     } catch (error) {
@@ -246,6 +267,17 @@ export default function Studio() {
                   {/* Preview of generated assets */}
                   <Card className="p-6">
                     <h3 className="font-semibold mb-4">Generated Assets</h3>
+                    {generatedProject.videoUrl && (
+                      <div className="mb-4">
+                        <video
+                          src={generatedProject.videoUrl}
+                          controls
+                          className="w-full max-w-md rounded-lg mx-auto"
+                          poster=""
+                        />
+                        <p className="text-xs text-muted-foreground text-center mt-2">Generated with Creatify</p>
+                      </div>
+                    )}
                     <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
                       {generatedProject.assets.map((asset) => (
                         <div

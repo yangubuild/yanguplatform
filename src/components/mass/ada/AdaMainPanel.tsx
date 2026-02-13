@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { generateIdeogramImage } from "@/lib/ai/ideogram";
 import { generateQwenImage } from "@/lib/ai/qwen";
+import { generateCreatifyVideo } from "@/lib/ai/creatify";
 
 interface ChatMessage {
   id: string;
@@ -221,6 +222,52 @@ export function AdaMainPanel() {
     }
   }, [persistMessage]);
 
+  // --- Video generation via /video command ---
+  const handleVideoGenerate = useCallback(async (prompt: string, cid: string) => {
+    setIsThinking(true);
+    try {
+      const result = await generateCreatifyVideo(prompt);
+
+      let content: string;
+      let metadata: Record<string, unknown> | undefined;
+
+      if (!result.ok || !result.videos || result.videos.length === 0) {
+        console.error("[AdaVideo] Creatify error:", result.error);
+        content = result.error || "Video generation failed. Please try again.";
+      } else {
+        const vid = result.videos[0];
+        content = `🎬 **Video generated!**\n\n[▶ Play video](${vid.url})\n\n*Generated with Creatify*`;
+        metadata = {
+          type: "video",
+          provider: "creatify",
+          storage_path: vid.storage_path,
+          generation_id: result.generation_id,
+        };
+      }
+
+      const assistantMsg: ChatMessage = {
+        id: `msg_${Date.now()}`,
+        role: "assistant",
+        content,
+        metadata,
+        created_at: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, assistantMsg]);
+      await persistMessage(cid, assistantMsg);
+    } catch (err) {
+      console.error("[AdaVideo] Error:", err);
+      const errMsg: ChatMessage = {
+        id: `msg_${Date.now()}`,
+        role: "assistant",
+        content: "Video generation failed. Please try again.",
+        created_at: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, errMsg]);
+    } finally {
+      setIsThinking(false);
+    }
+  }, [persistMessage]);
+
   // --- Send message (text) ---
   // --- Discuss mode: call AI ---
   const handleDiscuss = useCallback(async (text: string, cid: string) => {
@@ -288,8 +335,23 @@ export function AdaMainPanel() {
     setPendingAttachments([]);
     await persistMessage(cid, userMsg);
 
-    // Route: /image command takes priority
-    if (text.startsWith("/image:qwen ")) {
+    // Route: /video command
+    if (text.startsWith("/video ")) {
+      const videoPrompt = text.slice(7).trim();
+      if (videoPrompt) {
+        await handleVideoGenerate(videoPrompt, cid);
+      } else {
+        const errMsg: ChatMessage = {
+          id: `msg_${Date.now()}`,
+          role: "assistant",
+          content: "Please provide a prompt or URL after `/video`. Example: `/video https://myshop.com/product`",
+          created_at: new Date().toISOString(),
+        };
+        setMessages(prev => [...prev, errMsg]);
+        await persistMessage(cid, errMsg);
+      }
+    // Route: /image command
+    } else if (text.startsWith("/image:qwen ")) {
       const imagePrompt = text.slice(12).trim();
       if (imagePrompt) {
         await handleImageGenerate(imagePrompt, cid, "qwen");
@@ -322,7 +384,7 @@ export function AdaMainPanel() {
     } else {
       await handleDiscuss(text, cid);
     }
-  }, [inputValue, activeChatId, isAuthenticated, pendingAttachments, intent, createDbChat, createAnonChat, persistMessage, handleSearch, handleDiscuss, handleImageGenerate]);
+  }, [inputValue, activeChatId, isAuthenticated, pendingAttachments, intent, createDbChat, createAnonChat, persistMessage, handleSearch, handleDiscuss, handleImageGenerate, handleVideoGenerate]);
 
   // --- Voice ---
   const handleVoiceTranscript = useCallback(async (
