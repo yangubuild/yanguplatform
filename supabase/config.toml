@@ -2,3 +2,6 @@ project_id = "xcipuyvcwfytlsjryhvs"
 
 [functions.ada-generate-image]
 verify_jwt = false
+
+[functions.ingest-anthropic-research]
+verify_jwt = false

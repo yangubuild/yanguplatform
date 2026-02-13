@@ -611,6 +611,48 @@ export type Database = {
           },
         ]
       }
+      external_publications: {
+        Row: {
+          category: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          image_source: string
+          image_url: string | null
+          published_at: string | null
+          source_key: string
+          title: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          image_source?: string
+          image_url?: string | null
+          published_at?: string | null
+          source_key: string
+          title: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          image_source?: string
+          image_url?: string | null
+          published_at?: string | null
+          source_key?: string
+          title?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       feature_flags: {
         Row: {
           enabled: boolean
@@ -1478,6 +1520,19 @@ export type Database = {
         Returns: {
           eligible: boolean
           reasons: string[]
+        }[]
+      }
+      get_anthropic_publications: {
+        Args: { p_limit?: number; p_offset?: number }
+        Returns: {
+          category: string
+          excerpt: string
+          id: string
+          image_source: string
+          image_url: string
+          published_at: string
+          title: string
+          url: string
         }[]
       }
       get_community_section: {
