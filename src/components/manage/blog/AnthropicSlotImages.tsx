@@ -38,7 +38,21 @@ export function AnthropicSlotImages() {
     setUploading(slotKey);
     try {
       const ext = file.name.split(".").pop() ?? "jpg";
-      const path = `${SECTION_KEY}/${slotKey}.${ext}`;
+      // Use a unique path every time to bust CDN/browser cache
+      const uniqueId = crypto.randomUUID();
+      const path = `${SECTION_KEY}/${slotKey}/${uniqueId}.${ext}`;
+
+      // Delete old file from storage if one exists
+      const oldRow = slots[slotKey];
+      if (oldRow) {
+        try {
+          const url = new URL(oldRow.image_url);
+          const pathMatch = url.pathname.match(/\/object\/public\/blog-section-images\/(.+)/);
+          if (pathMatch) {
+            await supabase.storage.from(BUCKET).remove([pathMatch[1]]);
+          }
+        } catch { /* ignore */ }
+      }
 
       const { error: uploadErr } = await supabase.storage
         .from(BUCKET)
