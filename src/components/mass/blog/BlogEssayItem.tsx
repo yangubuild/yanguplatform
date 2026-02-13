@@ -1,10 +1,21 @@
 import type { BlogEssay } from "./blogData";
+import type { CSSProperties } from "react";
 
 interface Props {
   essay: BlogEssay;
+  titleClamp?: number;
 }
 
-export function BlogEssayItem({ essay }: Props) {
+function clampStyle(lines: number): CSSProperties {
+  return {
+    display: "-webkit-box",
+    WebkitLineClamp: lines,
+    WebkitBoxOrient: "vertical" as const,
+    overflow: "hidden",
+  };
+}
+
+export function BlogEssayItem({ essay, titleClamp }: Props) {
   return (
     <a
       href={essay.url || "#"}
@@ -27,11 +38,12 @@ export function BlogEssayItem({ essay }: Props) {
           style={{
             fontFamily: "'Lufga', sans-serif",
             color: "rgba(255,255,255,0.8)",
+            ...(titleClamp ? clampStyle(titleClamp) : {}),
           }}
         >
           {essay.title}
         </h4>
-        <span className="text-xs mt-1 block" style={{ color: "rgba(255,255,255,0.4)" }}>
+        <span className="text-xs mt-1 block" style={{ color: "rgba(255,255,255,0.4)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           {essay.author}
         </span>
       </div>

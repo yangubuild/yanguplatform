@@ -1,11 +1,23 @@
 import type { BlogArticle } from "./blogData";
+import type { CSSProperties } from "react";
 
 interface Props {
   article: BlogArticle;
   size?: "default" | "large";
+  titleClamp?: number;
+  excerptClamp?: number;
 }
 
-export function BlogArticleCard({ article, size = "default" }: Props) {
+function clampStyle(lines: number): CSSProperties {
+  return {
+    display: "-webkit-box",
+    WebkitLineClamp: lines,
+    WebkitBoxOrient: "vertical" as const,
+    overflow: "hidden",
+  };
+}
+
+export function BlogArticleCard({ article, size = "default", titleClamp, excerptClamp }: Props) {
   const isLarge = size === "large";
 
   return (
@@ -13,15 +25,15 @@ export function BlogArticleCard({ article, size = "default" }: Props) {
       href={article.url || "#"}
       target={article.url ? "_blank" : undefined}
       rel={article.url ? "noopener noreferrer" : undefined}
-      className="group block transition-all duration-200 hover:-translate-y-0.5"
-      style={{ textDecoration: "none" }}
+      className="group flex flex-col transition-all duration-200 hover:-translate-y-0.5"
+      style={{ textDecoration: "none", height: "100%" }}
     >
       {/* Image — fixed aspect-ratio container */}
       <div
-        className="overflow-hidden rounded-lg mb-4"
+        className="overflow-hidden rounded-lg mb-4 flex-shrink-0"
         style={{
           background: "#1a1a1a",
-          aspectRatio: isLarge ? "4/5" : "3/4",
+          aspectRatio: isLarge ? "4/5" : "16/10",
         }}
       >
         <img
@@ -30,7 +42,6 @@ export function BlogArticleCard({ article, size = "default" }: Props) {
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
           style={{ display: "block" }}
           onError={(e) => {
-            // Fallback to a neutral placeholder on broken images
             e.currentTarget.style.display = "none";
           }}
         />
@@ -43,6 +54,7 @@ export function BlogArticleCard({ article, size = "default" }: Props) {
           fontFamily: "'Lufga', sans-serif",
           fontSize: isLarge ? 22 : 18,
           color: "rgba(255,255,255,0.9)",
+          ...(titleClamp ? clampStyle(titleClamp) : {}),
         }}
       >
         {article.title}
@@ -50,17 +62,23 @@ export function BlogArticleCard({ article, size = "default" }: Props) {
 
       {/* Subtitle */}
       {article.subtitle && (
-        <p className="mt-2 text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>
+        <p
+          className="mt-2 text-sm leading-relaxed"
+          style={{
+            color: "rgba(255,255,255,0.45)",
+            ...(excerptClamp ? clampStyle(excerptClamp) : {}),
+          }}
+        >
           {article.subtitle}
         </p>
       )}
 
-      {/* Author */}
-      <div className="flex items-center gap-2 mt-4">
+      {/* Author / Date */}
+      <div className="flex items-center gap-2 mt-auto pt-4">
         <img
           src={`https://api.dicebear.com/9.x/notionists/svg?seed=${encodeURIComponent(article.author)}`}
           alt={article.author}
-          className="w-7 h-7 rounded-full object-cover"
+          className="w-7 h-7 rounded-full object-cover flex-shrink-0"
           style={{ background: "#222" }}
         />
         <span
