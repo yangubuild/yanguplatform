@@ -15,9 +15,11 @@ export function BlogEssayItem({ essay }: Props) {
     >
       <div
         className="flex-shrink-0 w-12 h-12 rounded overflow-hidden"
-        style={{ background: "#1a1a1a" }}
+        style={{ background: "#1a1a1a", aspectRatio: "1/1" }}
       >
-        <img src={essay.image} alt={essay.title} className="w-full h-full object-cover" />
+        <img src={essay.image} alt={essay.title} className="w-full h-full object-cover" style={{ display: "block" }}
+          onError={(e) => { e.currentTarget.style.display = "none"; }}
+        />
       </div>
       <div className="flex-1 min-w-0">
         <h4

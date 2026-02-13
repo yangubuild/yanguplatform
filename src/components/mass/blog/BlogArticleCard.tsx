@@ -16,7 +16,7 @@ export function BlogArticleCard({ article, size = "default" }: Props) {
       className="group block transition-all duration-200 hover:-translate-y-0.5"
       style={{ textDecoration: "none" }}
     >
-      {/* Image — tall 3:4 aspect ratio */}
+      {/* Image — fixed aspect-ratio container */}
       <div
         className="overflow-hidden rounded-lg mb-4"
         style={{
@@ -28,6 +28,11 @@ export function BlogArticleCard({ article, size = "default" }: Props) {
           src={article.image}
           alt={article.title}
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+          style={{ display: "block" }}
+          onError={(e) => {
+            // Fallback to a neutral placeholder on broken images
+            e.currentTarget.style.display = "none";
+          }}
         />
       </div>
 

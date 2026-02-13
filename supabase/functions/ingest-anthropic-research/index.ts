@@ -6,6 +6,55 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
+async function generateCoverImage(
+  title: string,
+  apiKey: string,
+): Promise<Uint8Array | null> {
+  try {
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash-image",
+        messages: [
+          {
+            role: "user",
+            text: `Generate a stylish abstract editorial cover image for an AI research publication titled "${title}". Use a muted earth-tone palette (cream, tan, dark green, charcoal). Geometric and minimal. No text. 3:4 aspect ratio.`,
+          },
+        ],
+        modalities: ["image", "text"],
+      }),
+    });
+
+    if (!res.ok) {
+      console.error("Image gen failed:", res.status, await res.text());
+      return null;
+    }
+
+    const data = await res.json();
+    const imageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+    if (!imageUrl) return null;
+
+    // data:image/png;base64,...
+    const base64 = imageUrl.split(",")[1];
+    if (!base64) return null;
+
+    // Decode base64 to Uint8Array
+    const binaryStr = atob(base64);
+    const bytes = new Uint8Array(binaryStr.length);
+    for (let i = 0; i < binaryStr.length; i++) {
+      bytes[i] = binaryStr.charCodeAt(i);
+    }
+    return bytes;
+  } catch (err) {
+    console.error("Image generation error:", err);
+    return null;
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -14,10 +63,11 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const lovableApiKey = Deno.env.get("LOVABLE_API_KEY") || "";
     const supabase = createClient(supabaseUrl, serviceKey);
 
     // Try sitemap first, fallback to research page
-    let urls: { url: string; title?: string; published_at?: string; category?: string; image_url?: string }[] = [];
+    let urls: { url: string }[] = [];
 
     try {
       const sitemapRes = await fetch("https://www.anthropic.com/sitemap.xml", {
@@ -25,14 +75,13 @@ Deno.serve(async (req) => {
       });
       if (sitemapRes.ok) {
         const sitemapText = await sitemapRes.text();
-        // Extract /research/ URLs from sitemap
         const urlMatches = sitemapText.matchAll(/<loc>(https:\/\/www\.anthropic\.com\/research\/[^<]+)<\/loc>/g);
         for (const m of urlMatches) {
           urls.push({ url: m[1] });
         }
       }
     } catch {
-      // Sitemap fetch failed, try research page
+      // Sitemap fetch failed
     }
 
     if (urls.length === 0) {
@@ -67,21 +116,24 @@ Deno.serve(async (req) => {
     // Check which URLs are already in DB
     const { data: existing } = await supabase
       .from("external_publications")
-      .select("url")
+      .select("url, image_url")
       .eq("source_key", "anthropic_research");
 
-    const existingUrls = new Set((existing || []).map((r: { url: string }) => r.url));
-    const newUrls = urls.filter((u) => !existingUrls.has(u.url));
+    const existingMap = new Map(
+      (existing || []).map((r: { url: string; image_url: string | null }) => [r.url, r.image_url])
+    );
+    const newUrls = urls.filter((u) => !existingMap.has(u.url));
 
     let inserted = 0;
+    let imagesGenerated = 0;
 
     for (const entry of newUrls.slice(0, 30)) {
-      // Fetch each page to extract metadata
       let title = "";
       let image_url: string | null = null;
       let published_at: string | null = null;
       let category: string | null = null;
       let excerpt: string | null = null;
+      let image_source = "generated";
 
       try {
         const pageRes = await fetch(entry.url, {
@@ -90,16 +142,13 @@ Deno.serve(async (req) => {
         if (pageRes.ok) {
           const html = await pageRes.text();
 
-          // Extract title from og:title or <title>
           const ogTitle = html.match(/<meta\s+property="og:title"\s+content="([^"]+)"/i);
           const titleTag = html.match(/<title>([^<]+)<\/title>/i);
           title = ogTitle?.[1] || titleTag?.[1] || entry.url.split("/").pop()?.replace(/-/g, " ") || "Untitled";
 
-          // Extract og:image
-          const ogImage = html.match(/<meta\s+property="og:image"\s+content="([^"]+)"/i);
-          image_url = ogImage?.[1] || null;
+          // Do NOT use Anthropic og:image — always generate our own
+          // image_url stays null here, we generate below
 
-          // Extract published date from various meta tags
           const datePublished = html.match(/<meta\s+property="article:published_time"\s+content="([^"]+)"/i)
             || html.match(/<meta\s+name="date"\s+content="([^"]+)"/i)
             || html.match(/"datePublished"\s*:\s*"([^"]+)"/i);
@@ -109,20 +158,44 @@ Deno.serve(async (req) => {
             } catch { /* invalid date */ }
           }
 
-          // Extract og:description for excerpt
           const ogDesc = html.match(/<meta\s+property="og:description"\s+content="([^"]+)"/i);
           excerpt = ogDesc?.[1] || null;
 
-          // Try to extract category
           const ogType = html.match(/<meta\s+property="article:section"\s+content="([^"]+)"/i);
           category = ogType?.[1] || "Research";
         }
       } catch {
-        // Page fetch failed, use URL-derived title
         title = entry.url.split("/").pop()?.replace(/-/g, " ") || "Untitled";
       }
 
       if (!title) continue;
+
+      // Generate cover image
+      if (lovableApiKey) {
+        const imageBytes = await generateCoverImage(title, lovableApiKey);
+        if (imageBytes) {
+          const slug = entry.url.split("/").pop() || "cover";
+          const storagePath = `covers/${slug}-${Date.now()}.png`;
+
+          const { error: uploadErr } = await supabase.storage
+            .from("ada-media")
+            .upload(storagePath, imageBytes, {
+              contentType: "image/png",
+              upsert: false,
+            });
+
+          if (!uploadErr) {
+            const { data: publicUrl } = supabase.storage
+              .from("ada-media")
+              .getPublicUrl(storagePath);
+            image_url = publicUrl?.publicUrl || null;
+            image_source = "generated";
+            imagesGenerated++;
+          } else {
+            console.error("Upload error:", uploadErr);
+          }
+        }
+      }
 
       const { error } = await supabase.from("external_publications").upsert(
         {
@@ -132,7 +205,7 @@ Deno.serve(async (req) => {
           category,
           published_at,
           image_url,
-          image_source: image_url ? "anthropic" : "generated",
+          image_source,
           excerpt,
         },
         { onConflict: "url" }
@@ -141,12 +214,52 @@ Deno.serve(async (req) => {
       if (!error) inserted++;
     }
 
+    // For existing rows with null image_url, generate images now
+    let backfilled = 0;
+    if (lovableApiKey) {
+      const { data: noImage } = await supabase
+        .from("external_publications")
+        .select("id, title, url")
+        .eq("source_key", "anthropic_research")
+        .is("image_url", null)
+        .limit(10);
+
+      for (const row of noImage || []) {
+        const imageBytes = await generateCoverImage(row.title, lovableApiKey);
+        if (imageBytes) {
+          const slug = row.url.split("/").pop() || "cover";
+          const storagePath = `covers/${slug}-${Date.now()}.png`;
+
+          const { error: uploadErr } = await supabase.storage
+            .from("ada-media")
+            .upload(storagePath, imageBytes, {
+              contentType: "image/png",
+              upsert: false,
+            });
+
+          if (!uploadErr) {
+            const { data: publicUrl } = supabase.storage
+              .from("ada-media")
+              .getPublicUrl(storagePath);
+
+            await supabase
+              .from("external_publications")
+              .update({ image_url: publicUrl?.publicUrl, image_source: "generated" })
+              .eq("id", row.id);
+            backfilled++;
+          }
+        }
+      }
+    }
+
     return new Response(
       JSON.stringify({
         ok: true,
         total_found: urls.length,
         new_inserted: inserted,
-        already_existing: existingUrls.size,
+        already_existing: existingMap.size,
+        images_generated: imagesGenerated,
+        images_backfilled: backfilled,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

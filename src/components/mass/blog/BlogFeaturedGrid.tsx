@@ -57,27 +57,31 @@ export function BlogFeaturedGrid() {
 
   return (
     <section className="px-6 py-10">
+      {/* Desktop 3-column grid with row spanning */}
       <div
-        className="mx-auto grid gap-8"
+        className="mx-auto max-md:hidden"
         style={{
           maxWidth: 1100,
-          gridTemplateColumns: "1fr 1.6fr 1fr",
+          display: "grid",
+          gridTemplateColumns: "1fr 1.6fr 340px",
+          gridTemplateRows: "repeat(2, minmax(0, 1fr))",
+          gap: "24px",
         }}
       >
-        {/* Left — 2 stacked smaller cards */}
-        <div className="flex flex-col gap-8 max-md:hidden">
-          {topCards.map((a) => (
-            <BlogArticleCard key={a.id} article={a} />
-          ))}
-        </div>
+        {/* Left col — 2 stacked medium cards */}
+        {topCards.map((a, i) => (
+          <div key={a.id} style={{ gridColumn: 1, gridRow: i + 1 }}>
+            <BlogArticleCard article={a} size="default" />
+          </div>
+        ))}
 
-        {/* Center — large featured */}
-        <div>
+        {/* Center — big card spanning both rows */}
+        <div style={{ gridColumn: 2, gridRow: "1 / span 2" }}>
           <BlogArticleCard article={mainCard} size="large" />
         </div>
 
-        {/* Right — Recent Publications */}
-        <div className="max-md:hidden">
+        {/* Right — Recent Publications spanning both rows */}
+        <div style={{ gridColumn: 3, gridRow: "1 / span 2" }}>
           <div className="flex items-center justify-between mb-4">
             <h3
               className="text-xs font-semibold uppercase tracking-widest"
