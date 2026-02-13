@@ -28,7 +28,7 @@ function saveAnonChats(chats: { id: string; title: string; messages: ChatMessage
 export function AdaMainPanel() {
   const { user, profile, isAuthenticated } = useAuth();
   const [mode, setMode] = useState<"chat" | "voice">("chat");
-  const [chatMode, setChatMode] = useState<"search" | "discuss">("discuss");
+  const [intent, setIntent] = useState<"search" | "discuss" | null>(null);
   const [inputValue, setInputValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [voiceText, setVoiceText] = useState("");
@@ -82,11 +82,10 @@ export function AdaMainPanel() {
     }
   }, [isAuthenticated, user]);
 
-  // --- Search mode: query knowledge tables ---
+  // --- Search mode: query knowledge tables + AI summarization ---
   const handleSearch = useCallback(async (query: string, cid: string) => {
     setIsThinking(true);
     try {
-      // Search knowledge_sources
       const { data: sources } = await supabase
         .from("knowledge_sources")
         .select("id, title, url, source_type")
@@ -94,14 +93,12 @@ export function AdaMainPanel() {
         .eq("is_active", true)
         .limit(5);
 
-      // Search knowledge_chunks
       const { data: chunks } = await supabase
         .from("knowledge_chunks")
         .select("id, content, source_id")
         .ilike("content", `%${query}%`)
         .limit(5);
 
-      // Search community listings (platform listings)
       const { data: listings } = await supabase
         .from("surfaces")
         .select("id, title, surface_type, status")
@@ -109,44 +106,52 @@ export function AdaMainPanel() {
         .eq("status", "published")
         .limit(5);
 
-      // Build structured results
-      let resultContent = `**Search results for "${query}":**\n\n`;
+      // Build search context for AI
+      let searchContext = "";
       let found = false;
 
       if (sources && sources.length > 0) {
         found = true;
-        resultContent += `**Knowledge Sources:**\n`;
-        sources.forEach(s => {
-          resultContent += `- ${s.title} (${s.source_type})${s.url ? ` — ${s.url}` : ""}\n`;
-        });
-        resultContent += "\n";
+        searchContext += `Knowledge Sources:\n`;
+        sources.forEach(s => { searchContext += `- ${s.title} (${s.source_type})${s.url ? ` — ${s.url}` : ""}\n`; });
       }
-
       if (chunks && chunks.length > 0) {
         found = true;
-        resultContent += `**Knowledge Chunks:**\n`;
-        chunks.forEach(c => {
-          resultContent += `- ${c.content.slice(0, 120)}…\n`;
-        });
-        resultContent += "\n";
+        searchContext += `Knowledge Chunks:\n`;
+        chunks.forEach(c => { searchContext += `- ${c.content.slice(0, 120)}…\n`; });
       }
-
       if (listings && listings.length > 0) {
         found = true;
-        resultContent += `**Platform Listings:**\n`;
-        listings.forEach(l => {
-          resultContent += `- ${l.title} (${l.surface_type})\n`;
-        });
+        searchContext += `Platform Listings:\n`;
+        listings.forEach(l => { searchContext += `- ${l.title} (${l.surface_type})\n`; });
+      }
+      if (!found) {
+        searchContext = `No results found for "${query}".`;
       }
 
-      if (!found) {
-        resultContent = `No results found for "${query}". Try different keywords or switch to Discuss mode for a conversation.`;
+      // Call AI to summarize/present results
+      const convMessages = messages.slice(-10).map(m => ({ role: m.role, content: m.content }));
+      convMessages.push({ role: "user", content: query });
+
+      const { data: fnData, error: fnErr } = await supabase.functions.invoke("ada-chat", {
+        body: { messages: convMessages, intent: "search", search_context: searchContext },
+      });
+
+      let content: string;
+      if (fnErr || !fnData?.ok) {
+        console.error("[AdaSearch] AI error:", fnErr, fnData);
+        // Fallback to raw results
+        content = found
+          ? `**Search results for "${query}":**\n\n${searchContext}`
+          : `No results found for "${query}". Try different keywords or switch to Discuss.`;
+      } else {
+        content = fnData.content;
       }
 
       const assistantMsg: ChatMessage = {
         id: `msg_${Date.now()}`,
         role: "assistant",
-        content: resultContent,
+        content,
         created_at: new Date().toISOString(),
       };
       setMessages(prev => [...prev, assistantMsg]);
@@ -163,14 +168,55 @@ export function AdaMainPanel() {
     } finally {
       setIsThinking(false);
     }
-  }, [persistMessage]);
+  }, [persistMessage, messages]);
+
+  // --- Send message (text) ---
+  // --- Discuss mode: call AI ---
+  const handleDiscuss = useCallback(async (text: string, cid: string) => {
+    setIsThinking(true);
+    try {
+      const convMessages = messages.slice(-10).map(m => ({ role: m.role, content: m.content }));
+      convMessages.push({ role: "user", content: text });
+
+      const { data: fnData, error: fnErr } = await supabase.functions.invoke("ada-chat", {
+        body: { messages: convMessages, intent: "discuss" },
+      });
+
+      let content: string;
+      if (fnErr || !fnData?.ok) {
+        console.error("[AdaDiscuss] AI error:", fnErr, fnData);
+        if (fnData?.error) {
+          toast({ title: fnData.error, variant: "destructive" });
+        }
+        content = "I'm having trouble responding right now. Please try again.";
+      } else {
+        content = fnData.content;
+      }
+
+      const assistantMsg: ChatMessage = {
+        id: `msg_${Date.now()}`,
+        role: "assistant",
+        content,
+        created_at: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, assistantMsg]);
+      await persistMessage(cid, assistantMsg);
+    } catch (err) {
+      console.error("[AdaDiscuss] Error:", err);
+    } finally {
+      setIsThinking(false);
+    }
+  }, [messages, persistMessage]);
 
   // --- Send message (text) ---
   const handleSend = useCallback(async (overrideText?: string) => {
     const text = (overrideText || inputValue).trim();
     if (!text && pendingAttachments.length === 0) return;
 
-    // Ensure chat session
+    // Capture current intent and reset to neutral
+    const currentIntent = intent;
+    setIntent(null);
+
     let cid = activeChatId;
     if (!cid) {
       cid = isAuthenticated ? await createDbChat(text || "Attachment") : createAnonChat(text || "Attachment");
@@ -178,7 +224,6 @@ export function AdaMainPanel() {
       setActiveChatId(cid);
     }
 
-    // Build user message
     const userMsg: ChatMessage = {
       id: `msg_${Date.now()}`,
       role: "user",
@@ -190,28 +235,15 @@ export function AdaMainPanel() {
     setMessages(prev => [...prev, userMsg]);
     setInputValue("");
     setPendingAttachments([]);
-
     await persistMessage(cid, userMsg);
 
-    // Route by mode
-    if (chatMode === "search" && text) {
+    // Route by intent
+    if (currentIntent === "search" && text) {
       await handleSearch(text, cid);
     } else {
-      // Discuss mode: stub assistant response
-      setIsThinking(true);
-      setTimeout(async () => {
-        const assistantMsg: ChatMessage = {
-          id: `msg_${Date.now()}`,
-          role: "assistant",
-          content: "I'm ADA, your AI assistant on YANGU. I received your message and I'm ready to help! (Full AI response pipeline coming soon.)",
-          created_at: new Date().toISOString(),
-        };
-        setMessages(prev => [...prev, assistantMsg]);
-        setIsThinking(false);
-        await persistMessage(cid!, assistantMsg);
-      }, 1500);
+      await handleDiscuss(text, cid);
     }
-  }, [inputValue, activeChatId, isAuthenticated, pendingAttachments, chatMode, createDbChat, createAnonChat, persistMessage, handleSearch]);
+  }, [inputValue, activeChatId, isAuthenticated, pendingAttachments, intent, createDbChat, createAnonChat, persistMessage, handleSearch, handleDiscuss]);
 
   // --- Voice ---
   const handleVoiceTranscript = useCallback(async (
@@ -248,24 +280,17 @@ export function AdaMainPanel() {
     setMessages(prev => [...prev, userMsg]);
     await persistMessage(cid, userMsg);
 
-    // Route by mode
-    if (chatMode === "search" && transcript) {
+    // Capture current intent and reset
+    const currentIntent = intent;
+    setIntent(null);
+
+    // Route by intent
+    if (currentIntent === "search" && transcript) {
       await handleSearch(transcript, cid);
     } else {
-      setIsThinking(true);
-      setTimeout(async () => {
-        const assistantMsg: ChatMessage = {
-          id: `msg_${Date.now()}`,
-          role: "assistant",
-          content: "I'm ADA, your AI assistant on YANGU. I received your voice message and I'm ready to help! (Full AI response pipeline coming soon.)",
-          created_at: new Date().toISOString(),
-        };
-        setMessages(prev => [...prev, assistantMsg]);
-        setIsThinking(false);
-        await persistMessage(cid!, assistantMsg);
-      }, 1500);
+      await handleDiscuss(transcript, cid);
     }
-  }, [activeChatId, isAuthenticated, chatMode, createDbChat, createAnonChat, persistMessage, handleSearch]);
+  }, [activeChatId, isAuthenticated, intent, createDbChat, createAnonChat, persistMessage, handleSearch, handleDiscuss]);
 
   const { isRecording, isTranscribing, startRecording, stopRecording, cancelRecording } = useAdaVoice({
     chatId: activeChatId,
@@ -469,9 +494,11 @@ export function AdaMainPanel() {
   }, [wordIndex]);
 
   const hasMessages = messages.length > 0;
-  const placeholder = chatMode === "search"
+  const placeholder = intent === "search"
     ? "Search YANGU (products, services, tools)…"
-    : "Discuss with Ada…";
+    : intent === "discuss"
+    ? "Discuss with Ada…"
+    : "Ask Ada…";
 
   return (
     <main
@@ -622,7 +649,7 @@ export function AdaMainPanel() {
                   <div className="max-w-[80%] px-4 py-3 text-sm text-white/60">
                     <span className="flex items-center gap-2">
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      {chatMode === "search" ? "Searching YANGU…" : "Thinking / Searching YANGU…"}
+                      {intent === "search" ? "Searching YANGU…" : "Thinking…"}
                     </span>
                   </div>
                 </div>
@@ -667,14 +694,14 @@ export function AdaMainPanel() {
                   </button>
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => setChatMode("search")}
-                      className={`px-2 py-1 text-xs font-medium transition-colors ${chatMode === "search" ? "text-[#F4A83D]" : "text-white/30 hover:text-white/50"}`}
+                      onClick={() => setIntent(prev => prev === "search" ? null : "search")}
+                      className={`px-2 py-1 text-xs font-medium transition-colors ${intent === "search" ? "text-[#F4A83D]" : "text-white/30 hover:text-white/50"}`}
                     >
                       Search
                     </button>
                     <button
-                      onClick={() => setChatMode("discuss")}
-                      className={`px-2 py-1 text-xs font-medium transition-colors ${chatMode === "discuss" ? "text-[#F4A83D]" : "text-white/30 hover:text-white/50"}`}
+                      onClick={() => setIntent(prev => prev === "discuss" ? null : "discuss")}
+                      className={`px-2 py-1 text-xs font-medium transition-colors ${intent === "discuss" ? "text-[#F4A83D]" : "text-white/30 hover:text-white/50"}`}
                     >
                       Discuss
                     </button>
@@ -789,14 +816,14 @@ export function AdaMainPanel() {
                     </button>
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => setChatMode("search")}
-                        className={`px-2 py-1 text-xs font-medium transition-colors ${chatMode === "search" ? "text-[#F4A83D]" : "text-white/30 hover:text-white/50"}`}
+                        onClick={() => setIntent(prev => prev === "search" ? null : "search")}
+                        className={`px-2 py-1 text-xs font-medium transition-colors ${intent === "search" ? "text-[#F4A83D]" : "text-white/30 hover:text-white/50"}`}
                       >
                         Search
                       </button>
                       <button
-                        onClick={() => setChatMode("discuss")}
-                        className={`px-2 py-1 text-xs font-medium transition-colors ${chatMode === "discuss" ? "text-[#F4A83D]" : "text-white/30 hover:text-white/50"}`}
+                        onClick={() => setIntent(prev => prev === "discuss" ? null : "discuss")}
+                        className={`px-2 py-1 text-xs font-medium transition-colors ${intent === "discuss" ? "text-[#F4A83D]" : "text-white/30 hover:text-white/50"}`}
                       >
                         Discuss
                       </button>
