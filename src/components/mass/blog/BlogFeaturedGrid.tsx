@@ -2,6 +2,7 @@ import { BlogArticleCard } from "./BlogArticleCard";
 import { BlogEssayItem } from "./BlogEssayItem";
 import { featuredArticles, recentEssays } from "./blogData";
 import { useAnthropicPublications, type AnthropicPublication } from "@/hooks/useAnthropicPublications";
+import { useBlogSlotImages } from "@/hooks/useBlogSlotImages";
 import { ArrowRight } from "lucide-react";
 import type { BlogArticle, BlogEssay } from "./blogData";
 
@@ -13,7 +14,7 @@ function decodeEntities(str: string | null | undefined): string | undefined {
   return txt.value;
 }
 
-function pubToArticle(pub: AnthropicPublication, fallbackImage: string): BlogArticle {
+function pubToArticle(pub: AnthropicPublication, slotImage: string | undefined): BlogArticle {
   return {
     id: pub.id,
     title: decodeEntities(pub.title) || pub.title,
@@ -25,42 +26,57 @@ function pubToArticle(pub: AnthropicPublication, fallbackImage: string): BlogArt
     author: pub.published_at
       ? new Date(pub.published_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
       : "",
-    image: pub.image_url || fallbackImage,
+    image: slotImage || "",
     url: pub.url,
   };
 }
 
-function pubToEssay(pub: AnthropicPublication, fallbackImage: string): BlogEssay {
+function pubToEssay(pub: AnthropicPublication, slotImage: string | undefined): BlogEssay {
   return {
     id: pub.id,
     title: decodeEntities(pub.title) || pub.title,
     author: pub.published_at
       ? new Date(pub.published_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
       : "New",
-    image: pub.image_url || fallbackImage,
+    image: slotImage || "",
     url: pub.url,
   };
 }
 
+function fallbackArticle(article: BlogArticle, slotImage: string | undefined): BlogArticle {
+  return { ...article, image: slotImage || "" };
+}
+
+function fallbackEssay(essay: BlogEssay, slotImage: string | undefined): BlogEssay {
+  return { ...essay, image: slotImage || "" };
+}
+
 export function BlogFeaturedGrid() {
   const { data: publications } = useAnthropicPublications(7);
+  const { data: slotMap } = useBlogSlotImages("anthropic_research");
+  const slots = slotMap || {};
 
   const hasPubs = publications && publications.length >= 3;
 
+  // Slot mapping: slot1=left-top, slot2=center-big, slot3=left-bottom, slot4-7=right list
   const topCards = hasPubs
     ? [
-        pubToArticle(publications[1], featuredArticles[1]?.image || ""),
-        pubToArticle(publications[2], featuredArticles[2]?.image || ""),
+        pubToArticle(publications[1], slots.slot1),
+        pubToArticle(publications[2], slots.slot3),
       ]
-    : [featuredArticles[1], featuredArticles[2]];
+    : [
+        fallbackArticle(featuredArticles[1], slots.slot1),
+        fallbackArticle(featuredArticles[2], slots.slot3),
+      ];
 
   const mainCard = hasPubs
-    ? pubToArticle(publications[0], featuredArticles[0]?.image || "")
-    : featuredArticles[0];
+    ? pubToArticle(publications[0], slots.slot2)
+    : fallbackArticle(featuredArticles[0], slots.slot2);
 
+  const essaySlotKeys = ["slot4", "slot5", "slot6", "slot7"];
   const essayList = hasPubs
-    ? publications.slice(3, 7).map((p, i) => pubToEssay(p, recentEssays[i]?.image || ""))
-    : recentEssays;
+    ? publications.slice(3, 7).map((p, i) => pubToEssay(p, slots[essaySlotKeys[i]]))
+    : recentEssays.map((e, i) => fallbackEssay(e, slots[essaySlotKeys[i]]));
 
   return (
     <section className="px-6 py-10">
@@ -79,6 +95,7 @@ export function BlogFeaturedGrid() {
         {topCards.map((a, i) => (
           <div
             key={a.id}
+            data-slot={i === 0 ? "slot1" : "slot3"}
             style={{ gridColumn: 1, gridRow: i + 1, display: "flex", flexDirection: "column", overflow: "hidden" }}
           >
             <BlogArticleCard article={a} size="default" fillImage titleClamp={2} excerptClamp={1} />
@@ -86,7 +103,7 @@ export function BlogFeaturedGrid() {
         ))}
 
         {/* Center — big card spanning both rows */}
-        <div style={{ gridColumn: 2, gridRow: "1 / span 2", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        <div data-slot="slot2" style={{ gridColumn: 2, gridRow: "1 / span 2", display: "flex", flexDirection: "column", overflow: "hidden" }}>
           <BlogArticleCard article={mainCard} size="large" fillImage titleClamp={2} excerptClamp={2} />
         </div>
 
@@ -102,8 +119,10 @@ export function BlogFeaturedGrid() {
             <ArrowRight className="w-4 h-4 transition-transform duration-200 hover:translate-x-0.5" style={{ color: "rgba(255,255,255,0.4)" }} />
           </div>
           <div className="flex-1 flex flex-col">
-            {essayList.map((essay) => (
-              <BlogEssayItem key={essay.id} essay={essay} titleClamp={2} />
+            {essayList.map((essay, i) => (
+              <div key={essay.id} data-slot={essaySlotKeys[i]}>
+                <BlogEssayItem essay={essay} titleClamp={2} />
+              </div>
             ))}
           </div>
         </div>
@@ -111,7 +130,11 @@ export function BlogFeaturedGrid() {
 
       {/* Mobile fallback */}
       <div className="md:hidden mt-6 mx-auto flex flex-col gap-6" style={{ maxWidth: 1100 }}>
-        {(hasPubs ? [mainCard, ...topCards] : featuredArticles).map((a) => (
+        {(hasPubs ? [mainCard, ...topCards] : [
+          fallbackArticle(featuredArticles[0], slots.slot2),
+          fallbackArticle(featuredArticles[1], slots.slot1),
+          fallbackArticle(featuredArticles[2], slots.slot3),
+        ]).map((a) => (
           <BlogArticleCard key={a.id} article={a} titleClamp={2} excerptClamp={2} />
         ))}
       </div>
