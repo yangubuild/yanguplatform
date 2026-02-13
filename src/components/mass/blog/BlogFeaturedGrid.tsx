@@ -2,6 +2,7 @@ import { BlogArticleCard } from "./BlogArticleCard";
 import { BlogEssayItem } from "./BlogEssayItem";
 import { featuredArticles, recentEssays } from "./blogData";
 import { useAnthropicPublications, type AnthropicPublication } from "@/hooks/useAnthropicPublications";
+import { useBlogSlotImages } from "@/hooks/useBlogSlotImages";
 import { ArrowRight } from "lucide-react";
 import type { BlogArticle, BlogEssay } from "./blogData";
 
@@ -13,7 +14,7 @@ function decodeEntities(str: string | null | undefined): string | undefined {
   return txt.value;
 }
 
-function pubToArticle(pub: AnthropicPublication, fallbackImage: string): BlogArticle {
+function pubToArticle(pub: AnthropicPublication, slotImage: string): BlogArticle {
   return {
     id: pub.id,
     title: decodeEntities(pub.title) || pub.title,
@@ -25,42 +26,45 @@ function pubToArticle(pub: AnthropicPublication, fallbackImage: string): BlogArt
     author: pub.published_at
       ? new Date(pub.published_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
       : "",
-    image: pub.image_url || fallbackImage,
+    image: slotImage,
     url: pub.url,
   };
 }
 
-function pubToEssay(pub: AnthropicPublication, fallbackImage: string): BlogEssay {
+function pubToEssay(pub: AnthropicPublication, slotImage: string): BlogEssay {
   return {
     id: pub.id,
     title: decodeEntities(pub.title) || pub.title,
     author: pub.published_at
       ? new Date(pub.published_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
       : "New",
-    image: pub.image_url || fallbackImage,
+    image: slotImage,
     url: pub.url,
   };
 }
 
 export function BlogFeaturedGrid() {
   const { data: publications } = useAnthropicPublications(7);
+  const { getSlotImage } = useBlogSlotImages();
 
   const hasPubs = publications && publications.length >= 3;
 
+  // Slot mapping: slot1 = left top, slot2 = left bottom, slot3 = center big
   const topCards = hasPubs
     ? [
-        pubToArticle(publications[1], featuredArticles[1]?.image || ""),
-        pubToArticle(publications[2], featuredArticles[2]?.image || ""),
+        pubToArticle(publications[1], getSlotImage(1)),
+        pubToArticle(publications[2], getSlotImage(2)),
       ]
-    : [featuredArticles[1], featuredArticles[2]];
+    : [{ ...featuredArticles[1], image: getSlotImage(1) }, { ...featuredArticles[2], image: getSlotImage(2) }];
 
   const mainCard = hasPubs
-    ? pubToArticle(publications[0], featuredArticles[0]?.image || "")
-    : featuredArticles[0];
+    ? pubToArticle(publications[0], getSlotImage(3))
+    : { ...featuredArticles[0], image: getSlotImage(3) };
 
+  // Slots 4-7 for recent publications list
   const essayList = hasPubs
-    ? publications.slice(3, 7).map((p, i) => pubToEssay(p, recentEssays[i]?.image || ""))
-    : recentEssays;
+    ? publications.slice(3, 7).map((p, i) => pubToEssay(p, getSlotImage(4 + i)))
+    : recentEssays.map((e, i) => ({ ...e, image: getSlotImage(4 + i) }));
 
   return (
     <section className="px-6 py-10">
@@ -111,7 +115,7 @@ export function BlogFeaturedGrid() {
 
       {/* Mobile fallback */}
       <div className="md:hidden mt-6 mx-auto flex flex-col gap-6" style={{ maxWidth: 1100 }}>
-        {(hasPubs ? [mainCard, ...topCards] : featuredArticles).map((a) => (
+        {(hasPubs ? [mainCard, ...topCards] : featuredArticles.map((a, i) => ({ ...a, image: getSlotImage(i + 1) }))).map((a) => (
           <BlogArticleCard key={a.id} article={a} titleClamp={2} excerptClamp={2} />
         ))}
       </div>
