@@ -84,6 +84,11 @@ serve(async (req) => {
         p_status: "failed",
         p_error: `Ideogram API error: ${ideRes.status}`,
       });
+      // Refund reserved credits on failure
+      const costCredits = (gen.params as Record<string, unknown>)?.cost_credits;
+      if (costCredits && Number(costCredits) > 0) {
+        try { await admin.rpc("refund_credits", { p_amount: Number(costCredits), p_ref_type: "image", p_ref_id: generation_id, p_note: "Ideogram API error" }); } catch (_) {}
+      }
       return json({ ok: false, error_code: "IDEOGRAM_ERROR", message: "Image generation failed" }, 502);
     }
 
@@ -96,6 +101,10 @@ serve(async (req) => {
         p_status: "failed",
         p_error: "No images returned from Ideogram",
       });
+      const costCredits2 = (gen.params as Record<string, unknown>)?.cost_credits;
+      if (costCredits2 && Number(costCredits2) > 0) {
+        try { await admin.rpc("refund_credits", { p_amount: Number(costCredits2), p_ref_type: "image", p_ref_id: generation_id, p_note: "No images returned" }); } catch (_) {}
+      }
       return json({ ok: false, error_code: "NO_IMAGES", message: "No images returned" }, 502);
     }
 
@@ -144,6 +153,10 @@ serve(async (req) => {
         p_status: "failed",
         p_error: "Failed to store any images",
       });
+      const costCredits3 = (gen.params as Record<string, unknown>)?.cost_credits;
+      if (costCredits3 && Number(costCredits3) > 0) {
+        try { await admin.rpc("refund_credits", { p_amount: Number(costCredits3), p_ref_type: "image", p_ref_id: generation_id, p_note: "Upload failed" }); } catch (_) {}
+      }
       return json({ ok: false, error_code: "UPLOAD_FAILED", message: "Failed to store images" }, 500);
     }
 
@@ -153,6 +166,14 @@ serve(async (req) => {
       p_status: "succeeded",
       p_result_images: JSON.stringify(resultImages),
     });
+
+    // Charge reserved credits on success
+    const costCredits = (gen.params as Record<string, unknown>)?.cost_credits;
+    if (costCredits && Number(costCredits) > 0) {
+      try {
+        await admin.rpc("charge_reserved", { p_ref_type: "image", p_ref_id: generation_id, p_amount: Number(costCredits) });
+      } catch (e) { console.warn("[ideogram-generate] charge_reserved failed:", e); }
+    }
 
     console.log("[ideogram-generate] Success:", resultImages.length, "images for generation:", generation_id);
 

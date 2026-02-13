@@ -56,6 +56,14 @@ serve(async (req) => {
     await admin.rpc("set_video_generation_status", { p_generation_id: generation_id, p_status: "processing" });
 
     const genParams = gen.params as Record<string, unknown> || {};
+    const costCredits = genParams.cost_credits ? Number(genParams.cost_credits) : 0;
+
+    // Helper: refund credits on failure
+    const refundIfNeeded = async (note: string) => {
+      if (costCredits > 0) {
+        try { await admin.rpc("refund_credits", { p_amount: costCredits, p_ref_type: "video", p_ref_id: generation_id, p_note: note }); } catch (_) {}
+      }
+    };
     const creatifyHeaders = {
       "Content-Type": "application/json",
       "X-API-ID": creatifyApiId,
@@ -91,6 +99,7 @@ serve(async (req) => {
           p_status: "failed",
           p_error: `Creatify link creation failed: ${linkRes.status}`,
         });
+        await refundIfNeeded("Link creation failed");
         return json({ ok: false, error_code: "CREATIFY_ERROR", message: "Link creation failed" }, 502);
       }
 
@@ -121,6 +130,7 @@ serve(async (req) => {
           p_status: "failed",
           p_error: `Creatify video creation failed: ${createRes.status}`,
         });
+        await refundIfNeeded("Video creation failed");
         return json({ ok: false, error_code: "CREATIFY_ERROR", message: "Video creation failed" }, 502);
       }
 
@@ -157,6 +167,7 @@ serve(async (req) => {
             p_status: "failed",
             p_error: `Creatify: ${errMsg}`,
           });
+          await refundIfNeeded("Creatify video failed");
           return json({ ok: false, error_code: "CREATIFY_FAILED", message: errMsg }, 502);
         }
         // pending/processing → keep polling
@@ -188,6 +199,7 @@ serve(async (req) => {
           p_status: "failed",
           p_error: `Creatify text video failed: ${createRes.status} — ${errText}`,
         });
+        await refundIfNeeded("Text video creation failed");
         return json({ ok: false, error_code: "CREATIFY_ERROR", message: "Video creation failed" }, 502);
       }
 
@@ -219,6 +231,7 @@ serve(async (req) => {
             p_status: "failed",
             p_error: `Creatify: ${errMsg}`,
           });
+          await refundIfNeeded("Creatify text video failed");
           return json({ ok: false, error_code: "CREATIFY_FAILED", message: errMsg }, 502);
         }
       }
@@ -230,6 +243,7 @@ serve(async (req) => {
         p_status: "failed",
         p_error: "Creatify video timed out after 5 minutes",
       });
+      await refundIfNeeded("Timed out");
       return json({ ok: false, error_code: "TIMEOUT", message: "Video generation timed out" }, 504);
     }
 
@@ -242,6 +256,7 @@ serve(async (req) => {
         p_status: "failed",
         p_error: "Failed to download generated video",
       });
+      await refundIfNeeded("Download failed");
       return json({ ok: false, error_code: "DOWNLOAD_FAILED", message: "Failed to download video" }, 502);
     }
 
@@ -259,6 +274,7 @@ serve(async (req) => {
         p_status: "failed",
         p_error: "Failed to store video",
       });
+      await refundIfNeeded("Upload failed");
       return json({ ok: false, error_code: "UPLOAD_FAILED", message: "Failed to store video" }, 500);
     }
 
@@ -296,6 +312,11 @@ serve(async (req) => {
       p_status: "succeeded",
       p_result_videos: JSON.stringify(resultVideos),
     });
+
+    // Charge reserved credits on success
+    if (costCredits > 0) {
+      try { await admin.rpc("charge_reserved", { p_ref_type: "video", p_ref_id: generation_id, p_amount: costCredits }); } catch (e) { console.warn("[creatify-generate] charge_reserved failed:", e); }
+    }
 
     console.log("[creatify-generate] Success for generation:", generation_id);
 

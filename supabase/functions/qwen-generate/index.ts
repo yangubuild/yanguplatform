@@ -88,6 +88,8 @@ serve(async (req) => {
         p_status: "failed",
         p_error: `Qwen API error: ${submitRes.status}`,
       });
+      const cc = (gen.params as Record<string, unknown>)?.cost_credits;
+      if (cc && Number(cc) > 0) { try { await admin.rpc("refund_credits", { p_amount: Number(cc), p_ref_type: "image", p_ref_id: generation_id, p_note: "Qwen submit error" }); } catch (_) {} }
       return json({ ok: false, error_code: "QWEN_ERROR", message: "Image generation submission failed" }, 502);
     }
 
@@ -101,6 +103,8 @@ serve(async (req) => {
         p_status: "failed",
         p_error: "No task_id returned from Qwen",
       });
+      const cc2 = (gen.params as Record<string, unknown>)?.cost_credits;
+      if (cc2 && Number(cc2) > 0) { try { await admin.rpc("refund_credits", { p_amount: Number(cc2), p_ref_type: "image", p_ref_id: generation_id, p_note: "No task_id" }); } catch (_) {} }
       return json({ ok: false, error_code: "QWEN_ERROR", message: "No task ID returned" }, 502);
     }
 
@@ -132,6 +136,8 @@ serve(async (req) => {
           p_status: "failed",
           p_error: `Qwen task failed: ${errMsg}`,
         });
+        const cc3 = (gen.params as Record<string, unknown>)?.cost_credits;
+        if (cc3 && Number(cc3) > 0) { try { await admin.rpc("refund_credits", { p_amount: Number(cc3), p_ref_type: "image", p_ref_id: generation_id, p_note: "Qwen task failed" }); } catch (_) {} }
         return json({ ok: false, error_code: "QWEN_TASK_FAILED", message: errMsg }, 502);
       }
       // PENDING / RUNNING → keep polling
@@ -143,6 +149,8 @@ serve(async (req) => {
         p_status: "failed",
         p_error: "Qwen task timed out after 60s",
       });
+      const cc4 = (gen.params as Record<string, unknown>)?.cost_credits;
+      if (cc4 && Number(cc4) > 0) { try { await admin.rpc("refund_credits", { p_amount: Number(cc4), p_ref_type: "image", p_ref_id: generation_id, p_note: "Timeout" }); } catch (_) {} }
       return json({ ok: false, error_code: "TIMEOUT", message: "Image generation timed out" }, 504);
     }
 
@@ -156,6 +164,8 @@ serve(async (req) => {
         p_status: "failed",
         p_error: "No images returned from Qwen",
       });
+      const cc5 = (gen.params as Record<string, unknown>)?.cost_credits;
+      if (cc5 && Number(cc5) > 0) { try { await admin.rpc("refund_credits", { p_amount: Number(cc5), p_ref_type: "image", p_ref_id: generation_id, p_note: "No images" }); } catch (_) {} }
       return json({ ok: false, error_code: "NO_IMAGES", message: "No images returned" }, 502);
     }
 
@@ -201,6 +211,8 @@ serve(async (req) => {
         p_status: "failed",
         p_error: "Failed to store any images",
       });
+      const cc6 = (gen.params as Record<string, unknown>)?.cost_credits;
+      if (cc6 && Number(cc6) > 0) { try { await admin.rpc("refund_credits", { p_amount: Number(cc6), p_ref_type: "image", p_ref_id: generation_id, p_note: "Upload failed" }); } catch (_) {} }
       return json({ ok: false, error_code: "UPLOAD_FAILED", message: "Failed to store images" }, 500);
     }
 
@@ -210,6 +222,12 @@ serve(async (req) => {
       p_status: "succeeded",
       p_result_images: JSON.stringify(resultImages),
     });
+
+    // Charge reserved credits on success
+    const ccSuccess = (gen.params as Record<string, unknown>)?.cost_credits;
+    if (ccSuccess && Number(ccSuccess) > 0) {
+      try { await admin.rpc("charge_reserved", { p_ref_type: "image", p_ref_id: generation_id, p_amount: Number(ccSuccess) }); } catch (e) { console.warn("[qwen-generate] charge_reserved failed:", e); }
+    }
 
     console.log("[qwen-generate] Success:", resultImages.length, "images for generation:", generation_id);
 
