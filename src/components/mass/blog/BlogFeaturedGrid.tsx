@@ -42,13 +42,6 @@ function pubToEssay(pub: AnthropicPublication, fallbackImage: string): BlogEssay
   };
 }
 
-const lineClamp = (lines: number): React.CSSProperties => ({
-  display: "-webkit-box",
-  WebkitLineClamp: lines,
-  WebkitBoxOrient: "vertical" as const,
-  overflow: "hidden",
-});
-
 export function BlogFeaturedGrid() {
   const { data: publications } = useAnthropicPublications(7);
 
@@ -71,32 +64,34 @@ export function BlogFeaturedGrid() {
 
   return (
     <section className="px-6 py-10">
-      {/* Desktop 3-column grid with strict row spanning */}
+      {/* Desktop 3-column grid */}
       <div
         className="mx-auto max-md:hidden"
         style={{
           maxWidth: 1100,
           display: "grid",
           gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1.6fr) 320px",
-          gridTemplateRows: "repeat(2, minmax(0, 1fr))",
-          gap: "28px",
-          minHeight: 680,
+          gridTemplateRows: "1fr 1fr",
+          gap: "28px 28px",
         }}
       >
-        {/* Left col — 2 stacked medium cards */}
+        {/* Left col — 2 stacked cards, each in its own row */}
         {topCards.map((a, i) => (
-          <div key={a.id} style={{ gridColumn: 1, gridRow: i + 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
-            <BlogArticleCard article={a} size="default" titleClamp={2} excerptClamp={2} />
+          <div
+            key={a.id}
+            style={{ gridColumn: 1, gridRow: i + 1, display: "flex", flexDirection: "column", overflow: "hidden" }}
+          >
+            <BlogArticleCard article={a} size="default" fillImage titleClamp={2} excerptClamp={1} />
           </div>
         ))}
 
         {/* Center — big card spanning both rows */}
-        <div style={{ gridColumn: 2, gridRow: "1 / span 2", display: "flex", flexDirection: "column", minHeight: 0 }}>
-          <BlogArticleCard article={mainCard} size="large" titleClamp={2} excerptClamp={3} />
+        <div style={{ gridColumn: 2, gridRow: "1 / span 2", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+          <BlogArticleCard article={mainCard} size="large" fillImage titleClamp={2} excerptClamp={2} />
         </div>
 
         {/* Right — Recent Publications spanning both rows */}
-        <div style={{ gridColumn: 3, gridRow: "1 / span 2", display: "flex", flexDirection: "column", minHeight: 0 }}>
+        <div style={{ gridColumn: 3, gridRow: "1 / span 2", display: "flex", flexDirection: "column", overflow: "hidden" }}>
           <div className="flex items-center justify-between mb-4">
             <h3
               className="text-xs font-semibold uppercase tracking-widest"
@@ -106,7 +101,7 @@ export function BlogFeaturedGrid() {
             </h3>
             <ArrowRight className="w-4 h-4 transition-transform duration-200 hover:translate-x-0.5" style={{ color: "rgba(255,255,255,0.4)" }} />
           </div>
-          <div className="flex-1 flex flex-col justify-between">
+          <div className="flex-1 flex flex-col">
             {essayList.map((essay) => (
               <BlogEssayItem key={essay.id} essay={essay} titleClamp={2} />
             ))}
