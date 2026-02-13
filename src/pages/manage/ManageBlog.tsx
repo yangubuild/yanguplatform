@@ -8,6 +8,7 @@ import { BlogReadTab } from "@/components/manage/blog/BlogReadTab";
 import { BlogSpeakTab } from "@/components/manage/blog/BlogSpeakTab";
 import { AdaAiPanel } from "@/components/manage/blog/AdaAiPanel";
 import { AnthropicFeedPanel } from "@/components/manage/blog/AnthropicFeedPanel";
+import { AnthropicSlotImages } from "@/components/manage/blog/AnthropicSlotImages";
 import { useRoles } from "@/hooks/useRoles";
 
 const tabs = [
@@ -67,6 +68,7 @@ export default function ManageBlog() {
         </Tabs>
 
         {isAdmin && <AnthropicFeedPanel />}
+        {isAdmin && <AnthropicSlotImages />}
       </div>
 
       {isAdmin && <AdaAiPanel />}
