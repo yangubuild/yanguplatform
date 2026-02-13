@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.ideogram-generate]
 verify_jwt = false
+
+[functions.qwen-generate]
+verify_jwt = false

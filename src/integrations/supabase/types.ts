@@ -1576,6 +1576,10 @@ export type Database = {
         Args: { p_params?: Json; p_prompt: string }
         Returns: string
       }
+      create_qwen_generation: {
+        Args: { p_params?: Json; p_prompt: string }
+        Returns: string
+      }
       delete_surface: { Args: { p_surface_id: string }; Returns: Json }
       evaluate_publish_eligibility: {
         Args: {
