@@ -1587,6 +1587,10 @@ export type Database = {
         Args: { _surface_id: string; _user_id: string }
         Returns: boolean
       }
+      charge_reserved: {
+        Args: { p_amount: number; p_ref_id: string; p_ref_type: string }
+        Returns: undefined
+      }
       complete_onboarding:
         | {
             Args: {
@@ -1611,18 +1615,24 @@ export type Database = {
         Returns: number
       }
       count_published_surfaces: { Args: { _user_id: string }; Returns: number }
-      create_creatify_generation: {
-        Args: { p_params?: Json; p_prompt: string }
-        Returns: string
-      }
-      create_ideogram_generation: {
-        Args: { p_params?: Json; p_prompt: string }
-        Returns: string
-      }
-      create_qwen_generation: {
-        Args: { p_params?: Json; p_prompt: string }
-        Returns: string
-      }
+      create_creatify_generation:
+        | { Args: { p_params?: Json; p_prompt: string }; Returns: string }
+        | {
+            Args: { p_cost_credits?: number; p_params?: Json; p_prompt: string }
+            Returns: string
+          }
+      create_ideogram_generation:
+        | { Args: { p_params?: Json; p_prompt: string }; Returns: string }
+        | {
+            Args: { p_cost_credits?: number; p_params?: Json; p_prompt: string }
+            Returns: string
+          }
+      create_qwen_generation:
+        | { Args: { p_params?: Json; p_prompt: string }; Returns: string }
+        | {
+            Args: { p_cost_credits?: number; p_params?: Json; p_prompt: string }
+            Returns: string
+          }
       delete_surface: { Args: { p_surface_id: string }; Returns: Json }
       evaluate_publish_eligibility: {
         Args: {
@@ -1673,6 +1683,7 @@ export type Database = {
         Args: { _creator_type: Database["public"]["Enums"]["creator_type"] }
         Returns: string
       }
+      get_my_credit_balance: { Args: never; Returns: number }
       get_my_image_generations: {
         Args: { p_limit?: number; p_offset?: number }
         Returns: {
@@ -1729,6 +1740,10 @@ export type Database = {
         Args: { p_publish_id?: string; p_surface_id?: string }
         Returns: Json
       }
+      grant_credits: {
+        Args: { p_amount: number; p_note?: string; p_user_id: string }
+        Returns: undefined
+      }
       has_approved_kyc: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
@@ -1749,6 +1764,15 @@ export type Database = {
         Args: { p_org_id: string }
         Returns: boolean
       }
+      refund_credits: {
+        Args: {
+          p_amount: number
+          p_note?: string
+          p_ref_id: string
+          p_ref_type: string
+        }
+        Returns: undefined
+      }
       rename_surface: {
         Args: { p_new_title: string; p_surface_id: string }
         Returns: Json
@@ -1759,6 +1783,10 @@ export type Database = {
             Args: { p_domain_id: string; p_slug?: string; p_surface_id: string }
             Returns: Json
           }
+      reserve_credits: {
+        Args: { p_amount: number; p_ref_id: string; p_ref_type: string }
+        Returns: undefined
+      }
       resolve_route: { Args: { p_host: string; p_path: string }; Returns: Json }
       set_generation_status: {
         Args: {
