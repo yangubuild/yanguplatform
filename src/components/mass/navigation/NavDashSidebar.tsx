@@ -5,7 +5,7 @@ import {
   ChevronRight,
   Compass,
   Tag,
-  MessageSquare,
+  MessageCircle,
   ShoppingBag,
   Sparkles,
   Palette,
@@ -65,7 +65,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { icon: Compass, label: "Explore", chevron: true, to: "/dashboard/explore" },
   { icon: Tag, label: "Offers", chevron: false, badge: "+120%", dot: true, to: "/dashboard/offers" },
-  { icon: Mail, label: "Messages", chevron: false, to: "/dashboard/messages" },
+  { icon: MessageCircle, label: "Messages", chevron: false, to: "/dashboard/messages" },
   { icon: LayoutDashboard, label: "Dashboard", chevron: true, to: "/dashboard" },
   { icon: null, label: "Ada AI", chevron: true, customIcon: "ada", to: "/dashboard/ada" },
   {
