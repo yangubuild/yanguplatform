@@ -66,7 +66,7 @@ const navItems: NavItem[] = [
   { icon: Compass, label: "Explore", chevron: true, to: "/dashboard/explore" },
   { icon: Tag, label: "Offers", chevron: false, badge: "+120%", dot: true, to: "/dashboard/offers" },
   { icon: MessageCircle, label: "Messages", chevron: false, to: "/dashboard/messages" },
-  { icon: LayoutDashboard, label: "Dashboard", chevron: true, to: "/dashboard" },
+  { icon: LayoutDashboard, label: "Dashboard", chevron: true, to: "/dashboard/dashboard" },
   { icon: null, label: "Ada AI", chevron: true, customIcon: "ada", to: "/dashboard/ada" },
   {
     icon: ShoppingBag,
@@ -123,32 +123,33 @@ const dashboardSections = [
   {
     title: "GENERAL",
     items: [
-      { icon: Home, label: "Dashboard", to: "/dashboard" },
-      { icon: Grid3X3, label: "My Apps", to: "/dashboard/app-store" },
-      { icon: Building2, label: "My Business" },
+      { icon: Home, label: "Dashboard", to: "/dashboard/dashboard" },
+      { icon: Grid3X3, label: "My Apps", to: "/dashboard/dashboard/my-apps" },
+      { icon: Building2, label: "My Business", to: "/dashboard/dashboard/my-business" },
     ],
   },
   {
     title: "USER MANAGEMENT",
     items: [
-      { icon: CreditCard, label: "Payments" },
-      { icon: FileBarChart, label: "Invoices" },
+      { icon: CreditCard, label: "Payments", to: "/dashboard/dashboard/payments" },
+      { icon: FileBarChart, label: "Invoices", to: "/dashboard/dashboard/invoices" },
     ],
   },
   {
     title: "MARKETING",
     items: [
-      { icon: BarChart3, label: "Ads" },
-      { icon: TagAlt, label: "Promo Codes" },
-      { icon: Users, label: "Affiliates" },
+      { icon: BarChart3, label: "Ads", to: "/dashboard/dashboard/ads" },
+      { icon: TagAlt, label: "Promo Codes", to: "/dashboard/dashboard/promo-codes" },
+      { icon: Users, label: "Affiliates", to: "/dashboard/dashboard/affiliates" },
     ],
   },
   {
     title: "ACCOUNT",
     items: [
-      { icon: UserCircle, label: "Profile", to: "/dashboard/profile" },
-      { icon: ShieldCheck, label: "Admin", to: "/dashboard/admin", gate: "admin" as const },
+      { icon: UserCircle, label: "Profile", to: "/dashboard/dashboard/profile" },
+      { icon: ShieldCheck, label: "Admin", to: "/dashboard/dashboard/admin", gate: "admin" as const },
       { icon: Briefcase, label: "My Agency", to: "/dashboard/agency", gate: "agency" as const },
+      { icon: TrendingUp, label: "Earnings", to: "/dashboard/dashboard/earnings" },
     ],
   },
 ];
@@ -191,6 +192,7 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
   const isPathActive = (path?: string) => {
     if (!path) return false;
     if (path === "/dashboard") return location.pathname === "/dashboard";
+    if (path === "/dashboard/dashboard") return location.pathname === "/dashboard/dashboard" || location.pathname.startsWith("/dashboard/dashboard/");
     return location.pathname.startsWith(path);
   };
 
