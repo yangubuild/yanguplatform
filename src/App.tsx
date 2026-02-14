@@ -55,6 +55,7 @@ import ManagePromos from "./pages/manage/ManagePromos";
 import { NavigationDashboardPage } from "@/components/mass/navigation";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import DashboardPlaceholder from "./pages/dashboard/DashboardPlaceholder";
+import DashboardModuleLayout from "./pages/dashboard/DashboardModuleLayout";
 import { DashboardRoleGate } from "@/components/auth/DashboardRoleGate";
 
 console.log("[Supabase]", import.meta.env.VITE_SUPABASE_URL);
@@ -137,7 +138,31 @@ const App = () => (
                   <Route path="app-store" element={<DashboardPlaceholder />} />
                   <Route path="community" element={<DashboardPlaceholder />} />
                   <Route path="profile" element={<DashboardPlaceholder />} />
-                  <Route path="earnings" element={<DashboardPlaceholder />} />
+
+                  {/* Dashboard module nested routes */}
+                  <Route path="dashboard" element={<DashboardModuleLayout />}>
+                    <Route index element={<DashboardHome />} />
+                    <Route path="my-apps" element={<DashboardPlaceholder />} />
+                    <Route path="my-business" element={<DashboardPlaceholder />} />
+                    <Route path="payments" element={<DashboardPlaceholder />} />
+                    <Route path="invoices" element={<DashboardPlaceholder />} />
+                    <Route path="ads" element={<DashboardPlaceholder />} />
+                    <Route path="promo-codes" element={<DashboardPlaceholder />} />
+                    <Route path="affiliates" element={<DashboardPlaceholder />} />
+                    <Route path="profile" element={<DashboardPlaceholder />} />
+                    <Route
+                      path="admin"
+                      element={
+                        <DashboardRoleGate requiredRole="admin">
+                          <DashboardPlaceholder />
+                        </DashboardRoleGate>
+                      }
+                    />
+                    <Route path="earnings" element={<DashboardPlaceholder />} />
+                  </Route>
+
+                  {/* Earnings alias redirect */}
+                  <Route path="earnings" element={<Navigate to="/dashboard/dashboard/earnings" replace />} />
 
                   {/* Seller nested routes */}
                   <Route path="seller/eshop" element={<DashboardPlaceholder />} />
