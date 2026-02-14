@@ -165,19 +165,19 @@ const App = () => (
                       <Route path="analytics" element={<AgencyAnalyticsPage />} />
                       <Route path="members" element={<AgencyMembersPage />} />
                     </Route>
+                    {/* Admin — redirect to Management Panel */}
                     <Route
                       path="admin"
                       element={
                         <DashboardRoleGate requiredRole="admin">
-                          <DashboardPlaceholder />
+                          <Navigate to="/manage" replace />
                         </DashboardRoleGate>
                       }
                     />
-                    <Route path="earnings" element={<DashboardPlaceholder />} />
+                    {/* Earnings removed — summary lives in Dashboard Home */}
                   </Route>
 
-                  {/* Earnings alias redirect */}
-                  <Route path="earnings" element={<Navigate to="/dashboard/dashboard/earnings" replace />} />
+                  {/* Earnings removed — no longer a separate page */}
 
                   {/* Seller nested routes */}
                   <Route path="seller/eshop" element={<DashboardPlaceholder />} />
@@ -186,23 +186,9 @@ const App = () => (
                   <Route path="seller/esite" element={<DashboardPlaceholder />} />
                   <Route path="seller/eshop-connect" element={<DashboardPlaceholder />} />
 
-                  {/* Role-gated routes */}
-                  <Route
-                    path="admin"
-                    element={
-                      <DashboardRoleGate requiredRole="admin">
-                        <DashboardPlaceholder />
-                      </DashboardRoleGate>
-                    }
-                  />
-                  <Route
-                    path="agency"
-                    element={
-                      <DashboardRoleGate requiredRole="agency">
-                        <DashboardPlaceholder />
-                      </DashboardRoleGate>
-                    }
-                  />
+                  {/* Role-gated routes — Admin redirects to /manage, Agency redirects to nested agency */}
+                  <Route path="admin" element={<Navigate to="/manage" replace />} />
+                  <Route path="agency" element={<Navigate to="/dashboard/dashboard/agency" replace />} />
 
                   {/* Catch-all inside dashboard */}
                   <Route path="*" element={<Navigate to="/dashboard" replace />} />
