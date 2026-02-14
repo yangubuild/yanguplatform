@@ -162,7 +162,7 @@ const dashboardSections = [
     items: [
       { icon: UserCircle, label: "Profile", to: "/dashboard/dashboard/profile" },
       { icon: ShieldCheck, label: "Admin", to: "/dashboard/dashboard/admin", gate: "admin" as const },
-      { icon: Briefcase, label: "My Agency", to: "/dashboard/agency", gate: "agency" as const },
+      { icon: Briefcase, label: "My Agency", to: "/dashboard/dashboard/agency", gate: "agency" as const },
       { icon: TrendingUp, label: "Earnings", to: "/dashboard/dashboard/earnings" },
     ],
   },
