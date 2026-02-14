@@ -32,7 +32,7 @@ import {
   EXTENDED_SIDEBAR_ITEMS,
   VISIONAIRE_SECTIONS,
   DASHBOARD_SECTIONS,
-  resolveUserType,
+  resolveAccountType,
   isNavItemVisible,
   type NavItem,
   type NavSection,
@@ -64,20 +64,23 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
   // Total sidebar width for layout offset
   const totalWidth = hasExtendedPanel ? RAIL_WIDTH + EXTENDED_WIDTH : FULL_WIDTH;
 
-  // Resolve user type once
-  const userType = useMemo(
-    () => resolveUserType({ isAdmin, creatorType: profile?.creator_type }),
+  // Resolve account type once
+  const accountType = useMemo(
+    () => resolveAccountType({ isAdmin, creatorType: profile?.creator_type }),
     [isAdmin, profile?.creator_type]
   );
 
-  // Dev diagnostics (no hooks inside conditionals)
+  // Alias for template usage
+  const userType = accountType;
+
+  // Dev diagnostics
   useMemo(() => {
     if (!import.meta.env.DEV) return;
     const allowedRoutes = DASHBOARD_SECTIONS
       .flatMap((s) => s.items)
-      .filter((i) => isNavItemVisible(i, userType)).length;
-    console.debug("[NAV]", userType, allowedRoutes);
-  }, [userType]);
+      .filter((i) => isNavItemVisible(i, accountType)).length;
+    console.debug("[ACCOUNT_TYPE]", accountType, allowedRoutes);
+  }, [accountType]);
 
   // Check if a path matches current location
   const isPathActive = (path?: string) => {

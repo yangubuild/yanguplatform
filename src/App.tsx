@@ -162,16 +162,12 @@ const App = () => (
                     <Route path="ads" element={<DashboardPlaceholder />} />
                     <Route path="promo-codes" element={<DashboardPlaceholder />} />
                     <Route path="affiliates" element={<DashboardPlaceholder />} />
-                    <Route path="profile" element={<ProfilePage />} />
-                    <Route path="profile/edit" element={<EditProfilePage />} />
-                    <Route path="profile/subscription" element={<SubscriptionPage />} />
-                    <Route path="agency" element={<RequireRole allowed={["org"]}><AgencyLayout /></RequireRole>}>
-                      <Route index element={<AgencyHomePage />} />
-                      <Route path="analytics" element={<AgencyAnalyticsPage />} />
-                      <Route path="members" element={<AgencyMembersPage />} />
-                      <Route path="pricing" element={<AgencyPricingPage />} />
-                      <Route path="support" element={<AgencySupportPage />} />
-                    </Route>
+                    {/* Legacy redirects for old /dashboard/dashboard/ paths */}
+                    <Route path="profile" element={<Navigate to="/dashboard/profile" replace />} />
+                    <Route path="profile/*" element={<Navigate to="/dashboard/profile" replace />} />
+                    <Route path="agency" element={<Navigate to="/dashboard/agency" replace />} />
+                    <Route path="agency/*" element={<Navigate to="/dashboard/agency" replace />} />
+                    <Route path="earnings" element={<Navigate to="/dashboard/profile" replace />} />
                     {/* Admin — redirect to Management Panel */}
                     <Route
                       path="admin"
@@ -181,10 +177,16 @@ const App = () => (
                         </DashboardRoleGate>
                       }
                     />
-                    {/* Earnings removed — summary lives in Dashboard Home */}
                   </Route>
 
-                  {/* Earnings removed — no longer a separate page */}
+                  {/* Agency routes — agency only */}
+                  <Route path="agency" element={<RequireRole allowed={["agency"]}><AgencyLayout /></RequireRole>}>
+                    <Route index element={<AgencyHomePage />} />
+                    <Route path="analytics" element={<AgencyAnalyticsPage />} />
+                    <Route path="members" element={<AgencyMembersPage />} />
+                    <Route path="pricing" element={<AgencyPricingPage />} />
+                    <Route path="support" element={<AgencySupportPage />} />
+                  </Route>
 
                   {/* Seller nested routes */}
                   <Route path="seller/eshop" element={<DashboardPlaceholder />} />
@@ -193,9 +195,8 @@ const App = () => (
                   <Route path="seller/esite" element={<DashboardPlaceholder />} />
                   <Route path="seller/eshop-connect" element={<DashboardPlaceholder />} />
 
-                  {/* Role-gated routes — Admin redirects to /manage, Agency redirects to nested agency */}
+                  {/* Admin redirect */}
                   <Route path="admin" element={<Navigate to="/manage" replace />} />
-                  <Route path="agency" element={<Navigate to="/dashboard/dashboard/agency" replace />} />
 
                   {/* Catch-all inside dashboard */}
                   <Route path="*" element={<Navigate to="/dashboard" replace />} />

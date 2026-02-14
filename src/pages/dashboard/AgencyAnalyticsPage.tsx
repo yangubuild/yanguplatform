@@ -47,7 +47,7 @@ export default function AgencyAnalyticsPage() {
     <div className="p-6 max-w-[1200px] mx-auto space-y-6">
       {/* Back */}
       <button
-        onClick={() => navigate("/dashboard/dashboard/agency")}
+        onClick={() => navigate("/dashboard/agency")}
         className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
         <ArrowLeft className="w-4 h-4" /> Back to Agency Management

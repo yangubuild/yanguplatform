@@ -337,7 +337,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
                   </div>
                 </div>
                 <button
-                  onClick={() => navigate("/dashboard/dashboard/earnings")}
+                  onClick={() => navigate("/dashboard/profile")}
                   className="w-full h-8 rounded-lg text-xs font-bold text-white mt-1"
                   style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
                 >

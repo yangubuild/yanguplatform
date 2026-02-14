@@ -52,7 +52,7 @@ export default function AgencyHomePage() {
       desc: "View member insights and data",
       color: "hsl(142 71% 45%)",
       bg: "hsl(142 71% 95%)",
-      onClick: () => navigate("/dashboard/dashboard/agency/analytics"),
+      onClick: () => navigate("/dashboard/agency/analytics"),
     },
     {
       icon: Palette,
@@ -76,7 +76,7 @@ export default function AgencyHomePage() {
       desc: "View and respond to member issues",
       color: "hsl(142 71% 45%)",
       bg: "hsl(142 71% 95%)",
-      onClick: () => navigate("/dashboard/dashboard/agency/support"),
+      onClick: () => navigate("/dashboard/agency/support"),
     },
     {
       icon: DollarSign,
@@ -84,7 +84,7 @@ export default function AgencyHomePage() {
       desc: "Set up subscription plans",
       color: "hsl(38 92% 50%)",
       bg: "hsl(38 92% 95%)",
-      onClick: () => navigate("/dashboard/dashboard/agency/pricing"),
+      onClick: () => navigate("/dashboard/agency/pricing"),
     },
   ];
 
@@ -139,7 +139,7 @@ export default function AgencyHomePage() {
       <Card className="border border-border">
         <CardContent className="p-4 flex flex-col sm:flex-row items-center gap-3">
           <Input placeholder="Search members..." className="flex-1" />
-          <Button variant="outline" onClick={() => navigate("/dashboard/dashboard/agency/members")}>
+          <Button variant="outline" onClick={() => navigate("/dashboard/agency/members")}>
             View All Members
           </Button>
         </CardContent>

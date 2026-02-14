@@ -12,21 +12,27 @@ import {
   ShieldCheck, Briefcase, GraduationCap,
 } from "lucide-react";
 
-// ── User type model ──────────────────────────────────────────
-export type UserType = "personal" | "org" | "admin";
+// ── Account type model ───────────────────────────────────────
+export type AccountType = "user" | "agency" | "admin";
+
+/** @deprecated Use AccountType instead */
+export type UserType = AccountType;
 
 /**
- * Resolve a normalized UserType from auth/profile data.
- * Priority: admin > org > personal.
+ * Resolve account type from auth/profile data.
+ * Priority: admin > agency > user.
  */
-export function resolveUserType(opts: {
+export function resolveAccountType(opts: {
   isAdmin: boolean;
   creatorType: string | null | undefined;
-}): UserType {
+}): AccountType {
   if (opts.isAdmin) return "admin";
-  if (opts.creatorType === "organization") return "org";
-  return "personal";
+  if (opts.creatorType === "organization") return "agency";
+  return "user";
 }
+
+/** @deprecated Use resolveAccountType instead */
+export const resolveUserType = resolveAccountType;
 
 // ── Nav item types ───────────────────────────────────────────
 export interface NavItem {
@@ -38,8 +44,8 @@ export interface NavItem {
   customIcon?: string;
   to?: string;
   subItems?: NavSubItem[];
-  /** Roles allowed to see this item. If omitted → all roles. */
-  rolesAllowed?: UserType[];
+  /** Account types allowed to see this item. If omitted → all types. */
+  rolesAllowed?: AccountType[];
 }
 
 export interface NavSubItem {
@@ -47,8 +53,8 @@ export interface NavSubItem {
   label: string;
   to?: string;
   badge?: string;
-  /** Roles allowed to see this sub-item. If omitted → all roles. */
-  rolesAllowed?: UserType[];
+  /** Account types allowed to see this sub-item. If omitted → all types. */
+  rolesAllowed?: AccountType[];
 }
 
 export interface NavSection {
@@ -144,14 +150,14 @@ export const DASHBOARD_SECTIONS: NavSection[] = [
     items: [
       { icon: UserCircle, label: "Profile", to: "/dashboard/profile" },
       { icon: ShieldCheck, label: "Admin", to: "/manage", rolesAllowed: ["admin"] },
-      { icon: Briefcase, label: "My Agency", to: "/dashboard/dashboard/agency", rolesAllowed: ["org"] },
+      { icon: Briefcase, label: "My Agency", to: "/dashboard/agency", rolesAllowed: ["agency"] },
     ],
   },
 ];
 
 // ── Helpers ──────────────────────────────────────────────────
-/** Filter a nav item by userType. */
-export function isNavItemVisible(item: { rolesAllowed?: UserType[] }, userType: UserType): boolean {
+/** Filter a nav item by accountType. */
+export function isNavItemVisible(item: { rolesAllowed?: AccountType[] }, accountType: AccountType): boolean {
   if (!item.rolesAllowed) return true;
-  return item.rolesAllowed.includes(userType);
+  return item.rolesAllowed.includes(accountType);
 }

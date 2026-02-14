@@ -2,18 +2,18 @@ import { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useRoles } from "@/hooks/useRoles";
-import { resolveUserType, UserType } from "@/config/dashboardNav";
+import { resolveAccountType, AccountType } from "@/config/dashboardNav";
 import { Loader2 } from "lucide-react";
 
 interface RequireRoleProps {
-  allowed: UserType[];
+  allowed: AccountType[];
   children: ReactNode;
   /** Where to redirect if role doesn't match. Defaults to /dashboard/profile */
   redirectTo?: string;
 }
 
 /**
- * Route guard that redirects silently if the user's resolved role
+ * Route guard that redirects silently if the user's resolved account type
  * is not in the allowed list.
  */
 export function RequireRole({ allowed, children, redirectTo = "/dashboard/profile" }: RequireRoleProps) {
@@ -28,9 +28,9 @@ export function RequireRole({ allowed, children, redirectTo = "/dashboard/profil
     );
   }
 
-  const userType = resolveUserType({ isAdmin, creatorType: profile?.creator_type });
+  const accountType = resolveAccountType({ isAdmin, creatorType: profile?.creator_type });
 
-  if (!allowed.includes(userType)) {
+  if (!allowed.includes(accountType)) {
     return <Navigate to={redirectTo} replace />;
   }
 

@@ -11,7 +11,7 @@ interface DashboardRoleGateProps {
 }
 
 /**
- * Silently redirects to /dashboard if user lacks the required role.
+ * Silently redirects to /dashboard/profile if user lacks the required role.
  */
 export function DashboardRoleGate({ children, requiredRole }: DashboardRoleGateProps) {
   const { isAdmin, isLoading: rolesLoading } = useRoles();
@@ -26,11 +26,11 @@ export function DashboardRoleGate({ children, requiredRole }: DashboardRoleGateP
   }
 
   if (requiredRole === "admin" && !isAdmin) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/dashboard/profile" replace />;
   }
 
   if (requiredRole === "agency" && profile?.creator_type !== "organization") {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/dashboard/profile" replace />;
   }
 
   return <>{children}</>;
