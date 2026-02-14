@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import {
   ChevronDown,
   ChevronRight,
@@ -40,11 +41,23 @@ import {
   ShieldCheck,
   Briefcase,
   Mail,
+  LogOut,
+  HelpCircle,
+  Languages,
+  Moon,
+  CreditCard as CreditCardIcon,
 } from "lucide-react";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import adaIcon from "@/assets/ada-icon.png";
 import { useRoles } from "@/hooks/useRoles";
-import { useAuth } from "@/hooks/useAuth";
 import { useDailySalesCounter } from "@/hooks/useDailySalesCounter";
 
 // Items that have an extended sidebar panel
@@ -170,7 +183,7 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
   const location = useLocation();
   const dailySales = useDailySalesCounter();
   const { isAdmin } = useRoles();
-  const { profile } = useAuth();
+  const { profile, signOut } = useAuth();
 
   const [activeItem, setActiveItem] = useState("Offers");
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
@@ -401,6 +414,7 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
                     40% fewer restrictions, better rates! Use code "SECRET" when you upgrade.
                   </p>
                   <button
+                    onClick={() => navigate("/dashboard/dashboard/profile/subscription")}
                     className="w-full py-2 rounded-lg text-xs font-bold text-white"
                     style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
                   >
@@ -409,24 +423,49 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
                 </div>
               </div>
               <div className="px-3 pb-3">
-                <button
-                  onClick={() => navigate("/dashboard/profile")}
-                  className="w-full flex items-center gap-2.5 px-2 py-2"
-                >
-                  <div
-                    className="w-8 h-8 rounded-full shrink-0 overflow-hidden flex items-center justify-center"
-                    style={{ background: "#2a3038" }}
-                  >
-                    <Users className="w-4 h-4" style={{ color: "rgba(255,255,255,0.6)" }} />
-                  </div>
-                  <div className="min-w-0 flex-1 text-left">
-                    <p className="text-sm font-semibold text-white leading-tight truncate">
-                      {profile?.display_name || "User"}
-                    </p>
-                    <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.45)" }}>View Profile</p>
-                  </div>
-                  <ChevronDown className="w-3.5 h-3.5 shrink-0" style={{ color: "rgba(255,255,255,0.35)" }} />
-                </button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="w-full flex items-center gap-2.5 px-2 py-2">
+                      <div
+                        className="w-8 h-8 rounded-full shrink-0 overflow-hidden flex items-center justify-center"
+                        style={{ background: "#2a3038" }}
+                      >
+                        <Users className="w-4 h-4" style={{ color: "rgba(255,255,255,0.6)" }} />
+                      </div>
+                      <div className="min-w-0 flex-1 text-left">
+                        <p className="text-sm font-semibold text-white leading-tight truncate">
+                          {profile?.display_name || "User"}
+                        </p>
+                        <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.45)" }}>View Profile</p>
+                      </div>
+                      <ChevronDown className="w-3.5 h-3.5 shrink-0" style={{ color: "rgba(255,255,255,0.35)" }} />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent side="top" align="start" className="w-56 mb-1">
+                    <DropdownMenuItem onClick={() => navigate("/dashboard/dashboard/profile/subscription")}>
+                      <CreditCardIcon className="w-4 h-4 mr-2" /> Manage subscription
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/dashboard/dashboard/profile/edit")}>
+                      <Settings className="w-4 h-4 mr-2" /> Account settings
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>
+                      <HelpCircle className="w-4 h-4 mr-2" /> Help and support
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Languages className="w-4 h-4 mr-2" /> Language
+                      <ChevronRight className="w-3.5 h-3.5 ml-auto" style={{ color: "rgba(255,255,255,0.35)" }} />
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Moon className="w-4 h-4 mr-2" /> Theme
+                      <ChevronRight className="w-3.5 h-3.5 ml-auto" style={{ color: "rgba(255,255,255,0.35)" }} />
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => signOut()} className="text-destructive focus:text-destructive">
+                      <LogOut className="w-4 h-4 mr-2" /> Log out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </>
           )}

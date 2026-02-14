@@ -56,6 +56,9 @@ import { NavigationDashboardPage } from "@/components/mass/navigation";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import DashboardPlaceholder from "./pages/dashboard/DashboardPlaceholder";
 import DashboardModuleLayout from "./pages/dashboard/DashboardModuleLayout";
+import ProfilePage from "./pages/dashboard/ProfilePage";
+import EditProfilePage from "./pages/dashboard/EditProfilePage";
+import SubscriptionPage from "./pages/dashboard/SubscriptionPage";
 import MessagesPage from "./pages/dashboard/MessagesPage";
 import { DashboardRoleGate } from "@/components/auth/DashboardRoleGate";
 
@@ -150,7 +153,9 @@ const App = () => (
                     <Route path="ads" element={<DashboardPlaceholder />} />
                     <Route path="promo-codes" element={<DashboardPlaceholder />} />
                     <Route path="affiliates" element={<DashboardPlaceholder />} />
-                    <Route path="profile" element={<DashboardPlaceholder />} />
+                    <Route path="profile" element={<ProfilePage />} />
+                    <Route path="profile/edit" element={<EditProfilePage />} />
+                    <Route path="profile/subscription" element={<SubscriptionPage />} />
                     <Route
                       path="admin"
                       element={
