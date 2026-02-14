@@ -53,48 +53,68 @@ serve(async (req) => {
     if (action === "list-templates") {
       console.log("[creatify-generate] Fetching templates from Creatify API");
 
-      const res = await fetch("https://api.creatify.ai/api/custom_templates/", {
-        headers: creatifyHeaders,
-      });
+      // Fetch all pages from /api/custom_templates/
+      let allTemplates: Record<string, unknown>[] = [];
+      let nextUrl: string | null = "https://api.creatify.ai/api/custom_templates/";
 
-      if (!res.ok) {
-        const errText = await res.text();
-        console.error("[creatify-generate] Templates fetch failed:", res.status, errText);
-        return json({ ok: false, error_code: "CREATIFY_ERROR", message: `Failed to fetch templates: ${res.status}` }, 502);
+      while (nextUrl) {
+        const res = await fetch(nextUrl, { headers: creatifyHeaders });
+        if (!res.ok) {
+          const errText = await res.text();
+          console.error("[creatify-generate] Templates fetch failed:", res.status, errText);
+          return json({ ok: false, error_code: "CREATIFY_ERROR", message: `Failed to fetch templates: ${res.status}` }, 502);
+        }
+        const body = await res.json();
+        const page = Array.isArray(body) ? body : (body.results || []);
+        allTemplates = allTemplates.concat(page);
+        nextUrl = (!Array.isArray(body) && body.next) ? String(body.next) : null;
+        console.log("[creatify-generate] Fetched page, running total:", allTemplates.length, "next:", nextUrl);
       }
 
-      const templates = await res.json();
-      const templateList = Array.isArray(templates) ? templates : (templates.results || []);
+      console.log("[creatify-generate] Total templates from Creatify:", allTemplates.length);
+
+      // If account truly has 0 templates, return clear reason
+      if (allTemplates.length === 0) {
+        return json({
+          ok: true,
+          templates: [],
+          count: 0,
+          reason: "no_templates_in_account",
+          message: "This Creatify account has no custom templates. Create templates in the Creatify dashboard first.",
+        });
+      }
 
       // Upsert into cache table
-      if (templateList.length > 0) {
-        const rows = templateList.map((t: Record<string, unknown>) => ({
-          id: String(t.id),
-          name: String(t.name || t.title || "Untitled"),
-          preview_url: t.preview_url || t.thumbnail || null,
-          aspect_ratio: t.aspect_ratio || null,
-          metadata: JSON.stringify({ raw_keys: Object.keys(t) }),
-          fetched_at: new Date().toISOString(),
-        }));
+      const rows = allTemplates.map((t) => ({
+        id: String(t.template_id || t.id),
+        name: String(t.name || t.title || "Untitled"),
+        preview_url: (t.preview || t.preview_url || t.thumbnail || null) as string | null,
+        aspect_ratio: (t.aspect_ratio || null) as string | null,
+        metadata: JSON.stringify({ raw_keys: Object.keys(t) }),
+        fetched_at: new Date().toISOString(),
+      }));
 
-        const { error: upsertErr } = await admin
-          .from("creatify_templates")
-          .upsert(rows, { onConflict: "id" });
+      const { error: upsertErr, count: upsertCount } = await admin
+        .from("creatify_templates")
+        .upsert(rows, { onConflict: "id", count: "exact" });
 
-        if (upsertErr) {
-          console.warn("[creatify-generate] Template cache upsert warning:", upsertErr);
-        }
+      if (upsertErr) {
+        console.warn("[creatify-generate] Template cache upsert error:", upsertErr.message);
+      } else {
+        console.log("[creatify-generate] Upserted", upsertCount, "rows into creatify_templates");
       }
+
+      const mapped = rows.map((r) => ({
+        id: r.id,
+        name: r.name,
+        preview_url: r.preview_url,
+        aspect_ratio: r.aspect_ratio,
+      }));
 
       return json({
         ok: true,
-        templates: templateList.map((t: Record<string, unknown>) => ({
-          id: String(t.id),
-          name: String(t.name || t.title || "Untitled"),
-          preview_url: t.preview_url || t.thumbnail || null,
-          aspect_ratio: t.aspect_ratio || null,
-        })),
-        count: templateList.length,
+        templates: mapped,
+        count: mapped.length,
       });
     }
 
