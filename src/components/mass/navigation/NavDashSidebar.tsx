@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   ChevronDown,
   ChevronRight,
@@ -38,35 +39,52 @@ import {
   UserCircle,
   ShieldCheck,
   Briefcase,
+  Mail,
 } from "lucide-react";
 
 import adaIcon from "@/assets/ada-icon.png";
+import { useRoles } from "@/hooks/useRoles";
+import { useAuth } from "@/hooks/useAuth";
 
 // Items that have an extended sidebar panel
 const EXTENDED_SIDEBAR_ITEMS = ["Visionaire", "Dashboard"];
 
-const navItems = [
-  { icon: Compass, label: "Explore", chevron: true },
-  { icon: Tag, label: "Offers", chevron: false, badge: "+120%", dot: true },
-  { icon: LayoutDashboard, label: "Dashboard", chevron: true },
-  { icon: null, label: "Ada AI", chevron: true, customIcon: "ada" },
+interface NavItem {
+  icon: any;
+  label: string;
+  chevron: boolean;
+  badge?: string;
+  dot?: boolean;
+  customIcon?: string;
+  to?: string;
+  subItems?: { icon: any; label: string; to: string }[];
+  /** "admin" | "agency" — hidden if user lacks the role */
+  gate?: "admin" | "agency";
+}
+
+const navItems: NavItem[] = [
+  { icon: Compass, label: "Explore", chevron: true, to: "/dashboard/explore" },
+  { icon: Tag, label: "Offers", chevron: false, badge: "+120%", dot: true, to: "/dashboard/offers" },
+  { icon: Mail, label: "Messages", chevron: false, to: "/dashboard/messages" },
+  { icon: LayoutDashboard, label: "Dashboard", chevron: true, to: "/dashboard" },
+  { icon: null, label: "Ada AI", chevron: true, customIcon: "ada", to: "/dashboard/ada" },
   {
     icon: ShoppingBag,
     label: "Seller",
     chevron: true,
     subItems: [
-      { icon: ShoppingBag, label: "Eshop" },
-      { icon: Store, label: "Estore" },
-      { icon: UtensilsCrossed, label: "Emenu" },
-      { icon: Globe, label: "Esite" },
-      { icon: Link, label: "Eshop Connect" },
+      { icon: ShoppingBag, label: "Eshop", to: "/dashboard/seller/eshop" },
+      { icon: Store, label: "Estore", to: "/dashboard/seller/estore" },
+      { icon: UtensilsCrossed, label: "Emenu", to: "/dashboard/seller/emenu" },
+      { icon: Globe, label: "Esite", to: "/dashboard/seller/esite" },
+      { icon: Link, label: "Eshop Connect", to: "/dashboard/seller/eshop-connect" },
     ],
   },
-  { icon: Sparkles, label: "Influencer", chevron: true },
-  { icon: Palette, label: "Yangu Studio", chevron: true },
-  { icon: BookOpen, label: "Visionaire", chevron: true },
-  { icon: Package, label: "App Store", chevron: false, badge: "+120%" },
-  { icon: Users, label: "Community", chevron: false },
+  { icon: Sparkles, label: "Influencer", chevron: true, to: "/dashboard/influencer" },
+  { icon: Palette, label: "Yangu Studio", chevron: true, to: "/dashboard/studio" },
+  { icon: BookOpen, label: "Visionaire", chevron: true, to: "/dashboard/visionaire" },
+  { icon: Package, label: "App Store", chevron: false, badge: "+120%", to: "/dashboard/app-store" },
+  { icon: Users, label: "Community", chevron: false, to: "/dashboard/community" },
 ];
 
 // Visionaire extended sidebar content
@@ -105,8 +123,8 @@ const dashboardSections = [
   {
     title: "GENERAL",
     items: [
-      { icon: Home, label: "Dashboard" },
-      { icon: Grid3X3, label: "My Apps" },
+      { icon: Home, label: "Dashboard", to: "/dashboard" },
+      { icon: Grid3X3, label: "My Apps", to: "/dashboard/app-store" },
       { icon: Building2, label: "My Business" },
     ],
   },
@@ -128,9 +146,9 @@ const dashboardSections = [
   {
     title: "ACCOUNT",
     items: [
-      { icon: UserCircle, label: "Profile" },
-      { icon: ShieldCheck, label: "Admin" },
-      { icon: Briefcase, label: "My Agency" },
+      { icon: UserCircle, label: "Profile", to: "/dashboard/profile" },
+      { icon: ShieldCheck, label: "Admin", to: "/dashboard/admin", gate: "admin" as const },
+      { icon: Briefcase, label: "My Agency", to: "/dashboard/agency", gate: "agency" as const },
     ],
   },
 ];
@@ -146,6 +164,11 @@ const FULL_WIDTH = 260;
 const EXTENDED_WIDTH = 260;
 
 export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDashSidebarProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isAdmin } = useRoles();
+  const { profile } = useAuth();
+
   const [activeItem, setActiveItem] = useState("Offers");
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const [extendedActiveItem, setExtendedActiveItem] = useState("Home");
@@ -155,15 +178,41 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
   // Total sidebar width for layout offset
   const totalWidth = hasExtendedPanel ? RAIL_WIDTH + EXTENDED_WIDTH : FULL_WIDTH;
 
-  const handleItemClick = (label: string, hasSubItems: boolean, hasChevron: boolean) => {
+  // Agency gate: show "My Agency" only for organization creator types
+  const isAgencyUser = profile?.creator_type === "organization";
+
+  const isItemVisible = (item: NavItem) => {
+    if (item.gate === "admin" && !isAdmin) return false;
+    if (item.gate === "agency" && !isAgencyUser) return false;
+    return true;
+  };
+
+  // Check if a path matches current location
+  const isPathActive = (path?: string) => {
+    if (!path) return false;
+    if (path === "/dashboard") return location.pathname === "/dashboard";
+    return location.pathname.startsWith(path);
+  };
+
+  const handleItemClick = (item: NavItem) => {
+    const label = item.label;
     setActiveItem(label);
     onActiveChange?.(label);
-    if (hasSubItems && hasChevron) {
+
+    if (item.subItems && item.chevron) {
       setExpandedItem(expandedItem === label ? null : label);
     } else {
       setExpandedItem(null);
+      if (item.to) navigate(item.to);
     }
   };
+
+  const handleSubItemClick = (sub: { label: string; to: string }) => {
+    setActiveItem(sub.label);
+    navigate(sub.to);
+  };
+
+  const visibleNavItems = navItems.filter(isItemVisible);
 
   return (
     <>
@@ -214,17 +263,17 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
 
           {/* Nav items */}
           <nav className={`flex-1 overflow-y-auto pb-2 ${hasExtendedPanel ? "px-1 pt-2" : "px-2"}`}>
-            {navItems.map((item) => {
+            {visibleNavItems.map((item) => {
               const Icon = item.icon;
               const isExpanded = expandedItem === item.label;
-              const isActive = activeItem === item.label;
+              const isActive = activeItem === item.label || isPathActive(item.to);
 
               if (hasExtendedPanel) {
                 // ICON-ONLY (collapsed) mode
                 return (
                   <div key={item.label} className="flex justify-center mb-0.5">
                     <button
-                      onClick={() => handleItemClick(item.label, !!item.subItems, item.chevron)}
+                      onClick={() => handleItemClick(item)}
                       className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 ${
                         isActive ? "nav-offers-active" : "nav-item-hover"
                       }`}
@@ -252,7 +301,7 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
               return (
                 <div key={item.label}>
                   <button
-                    onClick={() => handleItemClick(item.label, !!item.subItems, item.chevron)}
+                    onClick={() => handleItemClick(item)}
                     className={`w-full flex items-center justify-between gap-2.5 px-3 py-2.5 rounded-xl text-sm transition-all duration-300 mb-0.5 group ${
                       isActive ? "nav-offers-active" : "nav-item-hover"
                     }`}
@@ -304,11 +353,11 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
                     <div className="pl-8 pb-1">
                       {item.subItems.map((sub) => {
                         const SubIcon = sub.icon;
-                        const isSubActive = activeItem === sub.label;
+                        const isSubActive = isPathActive(sub.to);
                         return (
                           <button
                             key={sub.label}
-                            onClick={() => setActiveItem(sub.label)}
+                            onClick={() => handleSubItemClick(sub)}
                             className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-all duration-200 mb-0.5 ${
                               isSubActive ? "nav-offers-active" : "nav-item-hover"
                             }`}
@@ -356,19 +405,24 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
                 </div>
               </div>
               <div className="px-3 pb-3">
-                <div className="flex items-center gap-2.5 px-2 py-2">
+                <button
+                  onClick={() => navigate("/dashboard/profile")}
+                  className="w-full flex items-center gap-2.5 px-2 py-2"
+                >
                   <div
                     className="w-8 h-8 rounded-full shrink-0 overflow-hidden flex items-center justify-center"
                     style={{ background: "#2a3038" }}
                   >
                     <Users className="w-4 h-4" style={{ color: "rgba(255,255,255,0.6)" }} />
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-white leading-tight truncate">Kafeero Azizi</p>
+                  <div className="min-w-0 flex-1 text-left">
+                    <p className="text-sm font-semibold text-white leading-tight truncate">
+                      {profile?.display_name || "User"}
+                    </p>
                     <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.45)" }}>View Profile</p>
                   </div>
                   <ChevronDown className="w-3.5 h-3.5 shrink-0" style={{ color: "rgba(255,255,255,0.35)" }} />
-                </div>
+                </button>
               </div>
             </>
           )}
@@ -398,45 +452,57 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
 
               {/* Panel content */}
               <nav className="flex-1 overflow-y-auto px-3 pb-4">
-                {panelConfig.sections.map((section) => (
-                  <div key={section.title} className="mb-4">
-                    <p
-                      className="text-[10px] font-bold tracking-wider px-2 mb-2"
-                      style={{ color: "rgba(255,255,255,0.35)" }}
-                    >
-                      {section.title}
-                    </p>
-                    {section.items.map((subItem) => {
-                      const SubIcon = subItem.icon;
-                      const isSubActive = extendedActiveItem === subItem.label;
-                      return (
-                        <button
-                          key={subItem.label}
-                          onClick={() => setExtendedActiveItem(subItem.label)}
-                          className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 mb-0.5 ${
-                            isSubActive ? "nav-offers-active" : "nav-item-hover"
-                          }`}
-                          style={{
-                            color: isSubActive ? "#4ade80" : "rgba(255,255,255,0.6)",
-                          }}
-                        >
-                          <div className="flex items-center gap-3">
-                            <SubIcon className="w-[18px] h-[18px]" strokeWidth={1.8} />
-                            <span className="font-medium">{subItem.label}</span>
-                          </div>
-                          {"badge" in subItem && (subItem as any).badge && (
-                            <span
-                              className="text-[10px] px-2 py-0.5 rounded-md font-bold"
-                              style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)", color: "#fff" }}
-                            >
-                              {(subItem as any).badge}
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                ))}
+                {panelConfig.sections.map((section) => {
+                  const visibleItems = section.items.filter((subItem: any) => {
+                    if (subItem.gate === "admin" && !isAdmin) return false;
+                    if (subItem.gate === "agency" && !isAgencyUser) return false;
+                    return true;
+                  });
+                  if (visibleItems.length === 0) return null;
+
+                  return (
+                    <div key={section.title} className="mb-4">
+                      <p
+                        className="text-[10px] font-bold tracking-wider px-2 mb-2"
+                        style={{ color: "rgba(255,255,255,0.35)" }}
+                      >
+                        {section.title}
+                      </p>
+                      {visibleItems.map((subItem: any) => {
+                        const SubIcon = subItem.icon;
+                        const isSubActive = extendedActiveItem === subItem.label || isPathActive(subItem.to);
+                        return (
+                          <button
+                            key={subItem.label}
+                            onClick={() => {
+                              setExtendedActiveItem(subItem.label);
+                              if (subItem.to) navigate(subItem.to);
+                            }}
+                            className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 mb-0.5 ${
+                              isSubActive ? "nav-offers-active" : "nav-item-hover"
+                            }`}
+                            style={{
+                              color: isSubActive ? "#4ade80" : "rgba(255,255,255,0.6)",
+                            }}
+                          >
+                            <div className="flex items-center gap-3">
+                              <SubIcon className="w-[18px] h-[18px]" strokeWidth={1.8} />
+                              <span className="font-medium">{subItem.label}</span>
+                            </div>
+                            {"badge" in subItem && subItem.badge && (
+                              <span
+                                className="text-[10px] px-2 py-0.5 rounded-md font-bold"
+                                style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)", color: "#fff" }}
+                              >
+                                {subItem.badge}
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
               </nav>
             </div>
           );

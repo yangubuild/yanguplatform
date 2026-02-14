@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/hooks/useAuth";
 import { DomainProvider } from "@/contexts/DomainContext";
@@ -30,7 +30,6 @@ import Community from "./pages/Community";
 import AdaAi from "./pages/AdaAi";
 import WhyYangu from "./pages/WhyYangu";
 import DiscoverYangu from "./pages/DiscoverYangu";
-import NavigationDashboard from "./pages/NavigationDashboard";
 import Blog from "./pages/Blog";
 import Subscriptions from "./pages/Subscriptions";
 import { AdminRoute } from "@/components/auth/AdminRoute";
@@ -51,6 +50,12 @@ import ManageEvents from "./pages/manage/ManageEvents";
 import ManageContentHome from "./pages/manage/ManageContentHome";
 import ManagePricing from "./pages/manage/ManagePricing";
 import ManagePromos from "./pages/manage/ManagePromos";
+
+// App Shell + dashboard pages
+import { NavigationDashboardPage } from "@/components/mass/navigation";
+import DashboardHome from "./pages/dashboard/DashboardHome";
+import DashboardPlaceholder from "./pages/dashboard/DashboardPlaceholder";
+import { DashboardRoleGate } from "@/components/auth/DashboardRoleGate";
 
 console.log("[Supabase]", import.meta.env.VITE_SUPABASE_URL);
 
@@ -75,7 +80,6 @@ const App = () => (
                 <Route path="/ada-ai" element={<AdaAi />} />
                 <Route path="/why-yangu" element={<WhyYangu />} />
                 <Route path="/discover" element={<DiscoverYangu />} />
-                <Route path="/navigation" element={<NavigationDashboard />} />
                 <Route path="/blog" element={<Blog />} />
                 
                 {/* Owner preview route - requires auth + ownership */}
@@ -113,15 +117,59 @@ const App = () => (
                   }
                 />
                 
-                {/* Protected routes - require auth and completed onboarding */}
+                {/* ====== APP SHELL: /dashboard/* ====== */}
                 <Route
                   path="/dashboard"
                   element={
                     <ProtectedRoute>
-                      <Dashboard />
+                      <NavigationDashboardPage />
                     </ProtectedRoute>
                   }
-                />
+                >
+                  <Route index element={<DashboardHome />} />
+                  <Route path="explore" element={<DashboardPlaceholder />} />
+                  <Route path="offers" element={<DashboardPlaceholder />} />
+                  <Route path="messages" element={<DashboardPlaceholder />} />
+                  <Route path="ada" element={<DashboardPlaceholder />} />
+                  <Route path="studio" element={<DashboardPlaceholder />} />
+                  <Route path="influencer" element={<DashboardPlaceholder />} />
+                  <Route path="visionaire" element={<DashboardPlaceholder />} />
+                  <Route path="app-store" element={<DashboardPlaceholder />} />
+                  <Route path="community" element={<DashboardPlaceholder />} />
+                  <Route path="profile" element={<DashboardPlaceholder />} />
+                  <Route path="earnings" element={<DashboardPlaceholder />} />
+
+                  {/* Seller nested routes */}
+                  <Route path="seller/eshop" element={<DashboardPlaceholder />} />
+                  <Route path="seller/estore" element={<DashboardPlaceholder />} />
+                  <Route path="seller/emenu" element={<DashboardPlaceholder />} />
+                  <Route path="seller/esite" element={<DashboardPlaceholder />} />
+                  <Route path="seller/eshop-connect" element={<DashboardPlaceholder />} />
+
+                  {/* Role-gated routes */}
+                  <Route
+                    path="admin"
+                    element={
+                      <DashboardRoleGate requiredRole="admin">
+                        <DashboardPlaceholder />
+                      </DashboardRoleGate>
+                    }
+                  />
+                  <Route
+                    path="agency"
+                    element={
+                      <DashboardRoleGate requiredRole="agency">
+                        <DashboardPlaceholder />
+                      </DashboardRoleGate>
+                    }
+                  />
+
+                  {/* Catch-all inside dashboard */}
+                  <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                </Route>
+                
+                {/* Legacy route — redirect old /navigation to /dashboard */}
+                <Route path="/navigation" element={<Navigate to="/dashboard" replace />} />
                 
                 {/* Surface Editor - protected */}
                 <Route
@@ -163,7 +211,7 @@ const App = () => (
                   }
                 />
                 
-                {/* Studio - Global AI creative engine (no KYC, no subscription, no publish) */}
+                {/* Studio - Global AI creative engine */}
                 <Route
                   path="/studio"
                   element={

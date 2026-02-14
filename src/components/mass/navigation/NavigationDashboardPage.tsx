@@ -1,7 +1,7 @@
 import { useState } from "react";
+import { Outlet } from "react-router-dom";
 import { NavDashSidebar } from "./NavDashSidebar";
 import { NavDashHeader } from "./NavDashHeader";
-import { NavDashPromoCards } from "./NavDashPromoCards";
 
 const RAIL_WIDTH = 60;
 const FULL_WIDTH = 260;
@@ -33,7 +33,8 @@ export function NavigationDashboardPage() {
         className="pt-16 transition-all duration-300"
         style={{ marginLeft: totalWidth }}
       >
-        <NavDashPromoCards />
+        {/* Routed outlet — all /dashboard/* pages render here */}
+        <Outlet />
       </div>
     </div>
   );
