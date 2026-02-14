@@ -14,9 +14,6 @@ import {
   Moon,
   Settings,
   CreditCard as CreditCardIcon,
-  UserCircle,
-  ShieldCheck,
-  Briefcase,
 } from "lucide-react";
 
 import {
@@ -283,94 +280,6 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
             })}
           </nav>
 
-          {/* === ACCOUNT SECTION (always visible) === */}
-          <div className={`shrink-0 ${hasExtendedPanel ? "px-1 pb-1" : "px-2 pb-1"}`}>
-            {hasExtendedPanel ? (
-              <>
-                {/* Icon-only account items */}
-                <div className="flex justify-center mb-0.5">
-                  <button
-                    onClick={() => navigate("/dashboard/profile")}
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 ${
-                      isPathActive("/dashboard/profile") ? "nav-offers-active" : "nav-item-hover"
-                    }`}
-                    title="Profile"
-                    style={{ color: isPathActive("/dashboard/profile") ? "#4ade80" : "rgba(255,255,255,0.55)" }}
-                  >
-                    <UserCircle className="w-[18px] h-[18px]" strokeWidth={1.8} />
-                  </button>
-                </div>
-                {accountType === "admin" && (
-                  <div className="flex justify-center mb-0.5">
-                    <button
-                      onClick={() => navigate("/manage")}
-                      className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 ${
-                        isPathActive("/manage") ? "nav-offers-active" : "nav-item-hover"
-                      }`}
-                      title="Admin"
-                      style={{ color: isPathActive("/manage") ? "#4ade80" : "rgba(255,255,255,0.55)" }}
-                    >
-                      <ShieldCheck className="w-[18px] h-[18px]" strokeWidth={1.8} />
-                    </button>
-                  </div>
-                )}
-                {accountType === "agency" && (
-                  <div className="flex justify-center mb-0.5">
-                    <button
-                      onClick={() => navigate("/dashboard/agency")}
-                      className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 ${
-                        isPathActive("/dashboard/agency") ? "nav-offers-active" : "nav-item-hover"
-                      }`}
-                      title="My Agency"
-                      style={{ color: isPathActive("/dashboard/agency") ? "#4ade80" : "rgba(255,255,255,0.55)" }}
-                    >
-                      <Briefcase className="w-[18px] h-[18px]" strokeWidth={1.8} />
-                    </button>
-                  </div>
-                )}
-              </>
-            ) : (
-              <>
-                {/* Divider */}
-                <div className="mx-1 my-2 border-t" style={{ borderColor: "rgba(255,255,255,0.08)" }} />
-                {/* Full account items */}
-                <button
-                  onClick={() => navigate("/dashboard/profile")}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-300 mb-0.5 ${
-                    isPathActive("/dashboard/profile") ? "nav-offers-active" : "nav-item-hover"
-                  }`}
-                  style={{ color: isPathActive("/dashboard/profile") ? "#4ade80" : "rgba(255,255,255,0.7)" }}
-                >
-                  <UserCircle className="w-[18px] h-[18px]" strokeWidth={1.8} />
-                  <span className="font-medium">Profile</span>
-                </button>
-                {accountType === "admin" && (
-                  <button
-                    onClick={() => navigate("/manage")}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-300 mb-0.5 ${
-                      isPathActive("/manage") ? "nav-offers-active" : "nav-item-hover"
-                    }`}
-                    style={{ color: isPathActive("/manage") ? "#4ade80" : "rgba(255,255,255,0.7)" }}
-                  >
-                    <ShieldCheck className="w-[18px] h-[18px]" strokeWidth={1.8} />
-                    <span className="font-medium">Admin</span>
-                  </button>
-                )}
-                {accountType === "agency" && (
-                  <button
-                    onClick={() => navigate("/dashboard/agency")}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-300 mb-0.5 ${
-                      isPathActive("/dashboard/agency") ? "nav-offers-active" : "nav-item-hover"
-                    }`}
-                    style={{ color: isPathActive("/dashboard/agency") ? "#4ade80" : "rgba(255,255,255,0.7)" }}
-                  >
-                    <Briefcase className="w-[18px] h-[18px]" strokeWidth={1.8} />
-                    <span className="font-medium">My Agency</span>
-                  </button>
-                )}
-              </>
-            )}
-          </div>
 
           {/* Upgrade card + profile - only in full mode */}
           {!hasExtendedPanel && (
