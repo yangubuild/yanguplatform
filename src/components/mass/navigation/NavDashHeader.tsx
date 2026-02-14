@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Menu, Search, Gift, Bell, ChevronDown, User, Settings } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Menu, Search, Gift, Bell, ChevronDown, User, MessageCircle, TrendingUp, X } from "lucide-react";
 import { useRoles } from "@/hooks/useRoles";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import yanguLogo from "@/assets/yangu-logo-full.png";
 
 const CURRENCIES = [
@@ -46,13 +47,33 @@ const CURRENCIES = [
   { code: "RWF", symbol: "FRw", name: "Rwandan Franc" },
 ];
 
+const MOCK_NOTIFICATIONS = [
+  { id: "1", type: "message" as const, title: "New message from Team Yangu", time: "2m ago", read: false },
+  { id: "2", type: "offer" as const, title: "Flash sale: 30% off premium", time: "1h ago", read: false },
+  { id: "3", type: "order" as const, title: "Order #4821 confirmed", time: "3h ago", read: true },
+  { id: "4", type: "message" as const, title: "Ada replied to your thread", time: "5h ago", read: true },
+  { id: "5", type: "offer" as const, title: "New partnership offer received", time: "1d ago", read: true },
+];
+
+function getStoredCurrency() {
+  try {
+    const stored = localStorage.getItem("yangu_currency");
+    if (stored) {
+      const found = CURRENCIES.find((c) => c.code === stored);
+      if (found) return found;
+    }
+  } catch {}
+  return CURRENCIES[0];
+}
+
 interface NavDashHeaderProps {
   onMenuToggle?: () => void;
 }
 
 export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
   const { isAdmin } = useRoles();
-  const [selectedCurrency, setSelectedCurrency] = useState(CURRENCIES[0]);
+  const navigate = useNavigate();
+  const [selectedCurrency, setSelectedCurrency] = useState(getStoredCurrency);
   const [currencyOpen, setCurrencyOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -77,6 +98,19 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
       searchInputRef.current.focus();
     }
   }, [searchOpen]);
+
+  function handleCurrencySelect(cur: typeof CURRENCIES[number]) {
+    setSelectedCurrency(cur);
+    setCurrencyOpen(false);
+    try { localStorage.setItem("yangu_currency", cur.code); } catch {}
+  }
+
+  const notifRouteMap: Record<string, string> = {
+    message: "/dashboard/messages",
+    offer: "/dashboard/offers",
+    order: "/dashboard/seller",
+  };
+
   return (
     <header
       className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-5 h-16"
@@ -160,7 +194,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
               {CURRENCIES.map((cur) => (
                 <button
                   key={cur.code}
-                  onClick={() => { setSelectedCurrency(cur); setCurrencyOpen(false); }}
+                  onClick={() => handleCurrencySelect(cur)}
                   className="w-full flex items-center gap-3 px-3 py-2 text-left transition-colors"
                   style={{
                     color: cur.code === selectedCurrency.code ? "#fff" : "rgba(255,255,255,0.6)",
@@ -178,15 +212,56 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
           )}
         </div>
 
-        {/* Deposit button */}
-        <button
-          className="h-9 px-5 rounded-lg text-xs font-bold text-white"
-          style={{
-            background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)",
-          }}
-        >
-          Deposit
-        </button>
+        {/* Earnings button (was Deposit) */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <button
+              className="h-9 px-5 rounded-lg text-xs font-bold text-white"
+              style={{
+                background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)",
+              }}
+            >
+              Earnings
+            </button>
+          </PopoverTrigger>
+          <PopoverContent
+            align="end"
+            className="w-64 p-0 border-0"
+            style={{
+              background: "#2a3038",
+              border: "1px solid rgba(255,255,255,0.08)",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+            }}
+          >
+            <div className="p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4" style={{ color: "rgba(74,222,128,0.8)" }} />
+                <span className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.85)" }}>Earnings Summary</span>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-[11px]" style={{ color: "rgba(255,255,255,0.5)" }}>This month</span>
+                  <span className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.85)" }}>{selectedCurrency.symbol} 0.00</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[11px]" style={{ color: "rgba(255,255,255,0.5)" }}>Pending</span>
+                  <span className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.85)" }}>{selectedCurrency.symbol} 0.00</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[11px]" style={{ color: "rgba(255,255,255,0.5)" }}>All time</span>
+                  <span className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.85)" }}>{selectedCurrency.symbol} 0.00</span>
+                </div>
+              </div>
+              <button
+                onClick={() => navigate("/dashboard/dashboard/earnings")}
+                className="w-full h-8 rounded-lg text-xs font-bold text-white mt-1"
+                style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
+              >
+                View reports
+              </button>
+            </div>
+          </PopoverContent>
+        </Popover>
 
         {/* Gift icon */}
         <button
@@ -196,25 +271,64 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
           <Gift className="w-4 h-4" />
         </button>
 
-        {/* Admin Management link */}
-        {isAdmin && (
-          <Link
-            to="/manage"
-            className="w-9 h-9 rounded-[10px] flex items-center justify-center"
-            style={{ background: "#2a3038", color: "rgba(255,255,255,0.5)" }}
-            title="Management"
-          >
-            <Settings className="w-4 h-4" />
-          </Link>
-        )}
-
-        {/* Notification */}
+        {/* Global Chat (replaced Settings) */}
         <button
+          onClick={() => navigate("/dashboard/messages?tab=global")}
           className="w-9 h-9 rounded-[10px] flex items-center justify-center"
-          style={{ color: "rgba(255,255,255,0.5)" }}
+          style={{ background: "#2a3038", color: "rgba(255,255,255,0.5)" }}
+          title="Global Chat"
         >
-          <Bell className="w-4 h-4" />
+          <MessageCircle className="w-4 h-4" />
         </button>
+
+        {/* Notifications */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <button
+              className="w-9 h-9 rounded-[10px] flex items-center justify-center relative"
+              style={{ color: "rgba(255,255,255,0.5)" }}
+            >
+              <Bell className="w-4 h-4" />
+              {MOCK_NOTIFICATIONS.some((n) => !n.read) && (
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style={{ background: "#ef4444" }} />
+              )}
+            </button>
+          </PopoverTrigger>
+          <PopoverContent
+            align="end"
+            className="w-72 p-0 border-0"
+            style={{
+              background: "#2a3038",
+              border: "1px solid rgba(255,255,255,0.08)",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+            }}
+          >
+            <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+              <span className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.85)" }}>Notifications</span>
+              <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>
+                {MOCK_NOTIFICATIONS.filter((n) => !n.read).length} new
+              </span>
+            </div>
+            <div className="max-h-64 overflow-y-auto">
+              {MOCK_NOTIFICATIONS.map((notif) => (
+                <button
+                  key={notif.id}
+                  onClick={() => navigate(notifRouteMap[notif.type] || "/dashboard")}
+                  className="w-full flex items-start gap-3 px-4 py-2.5 text-left transition-colors"
+                  style={{ background: notif.read ? "transparent" : "rgba(74,222,128,0.04)" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = notif.read ? "transparent" : "rgba(74,222,128,0.04)")}
+                >
+                  {!notif.read && <span className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#4ade80" }} />}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[11px] truncate" style={{ color: "rgba(255,255,255,0.8)" }}>{notif.title}</p>
+                    <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>{notif.time}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
 
         {/* Avatar */}
         <div
