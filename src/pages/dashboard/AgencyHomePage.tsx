@@ -6,13 +6,10 @@ import {
   Palette,
   Link2,
   MessageSquare,
-  Users,
-  GraduationCap,
-  Hammer,
-  TrendingUp,
+  DollarSign,
   ShieldCheck,
-  X,
   Image,
+  HeadphonesIcon,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,7 +23,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 
-/* ── stat blocks mock data ── */
 const stats = [
   { label: "Total Members", value: 11, color: "hsl(var(--foreground))" },
   { label: "LEARN Phase", value: 3, color: "hsl(142 71% 45%)" },
@@ -75,18 +71,25 @@ export default function AgencyHomePage() {
       onClick: () => setCommunityLinkOpen(true),
     },
     {
-      icon: MessageSquare,
-      title: "Member Support Tickets",
+      icon: HeadphonesIcon,
+      title: "Member Support",
       desc: "View and respond to member issues",
       color: "hsl(142 71% 45%)",
       bg: "hsl(142 71% 95%)",
-      onClick: () => {},
+      onClick: () => navigate("/dashboard/dashboard/agency/support"),
+    },
+    {
+      icon: DollarSign,
+      title: "Pricing & Packages",
+      desc: "Set up subscription plans",
+      color: "hsl(38 92% 50%)",
+      bg: "hsl(38 92% 95%)",
+      onClick: () => navigate("/dashboard/dashboard/agency/pricing"),
     },
   ];
 
   return (
     <div className="p-6 max-w-[1200px] mx-auto space-y-8">
-      {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>
           Agency Management
@@ -95,7 +98,7 @@ export default function AgencyHomePage() {
       </div>
 
       {/* Action Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {actionCards.map((card) => (
           <Card
             key={card.title}

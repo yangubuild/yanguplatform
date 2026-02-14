@@ -63,6 +63,8 @@ import AgencyLayout from "./pages/dashboard/AgencyLayout";
 import AgencyHomePage from "./pages/dashboard/AgencyHomePage";
 import AgencyAnalyticsPage from "./pages/dashboard/AgencyAnalyticsPage";
 import AgencyMembersPage from "./pages/dashboard/AgencyMembersPage";
+import AgencyPricingPage from "./pages/dashboard/AgencyPricingPage";
+import AgencySupportPage from "./pages/dashboard/AgencySupportPage";
 import MessagesPage from "./pages/dashboard/MessagesPage";
 import { DashboardRoleGate } from "@/components/auth/DashboardRoleGate";
 
@@ -164,6 +166,8 @@ const App = () => (
                       <Route index element={<AgencyHomePage />} />
                       <Route path="analytics" element={<AgencyAnalyticsPage />} />
                       <Route path="members" element={<AgencyMembersPage />} />
+                      <Route path="pricing" element={<AgencyPricingPage />} />
+                      <Route path="support" element={<AgencySupportPage />} />
                     </Route>
                     {/* Admin — redirect to Management Panel */}
                     <Route
