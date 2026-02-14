@@ -59,6 +59,10 @@ import DashboardModuleLayout from "./pages/dashboard/DashboardModuleLayout";
 import ProfilePage from "./pages/dashboard/ProfilePage";
 import EditProfilePage from "./pages/dashboard/EditProfilePage";
 import SubscriptionPage from "./pages/dashboard/SubscriptionPage";
+import AgencyLayout from "./pages/dashboard/AgencyLayout";
+import AgencyHomePage from "./pages/dashboard/AgencyHomePage";
+import AgencyAnalyticsPage from "./pages/dashboard/AgencyAnalyticsPage";
+import AgencyMembersPage from "./pages/dashboard/AgencyMembersPage";
 import MessagesPage from "./pages/dashboard/MessagesPage";
 import { DashboardRoleGate } from "@/components/auth/DashboardRoleGate";
 
@@ -156,6 +160,11 @@ const App = () => (
                     <Route path="profile" element={<ProfilePage />} />
                     <Route path="profile/edit" element={<EditProfilePage />} />
                     <Route path="profile/subscription" element={<SubscriptionPage />} />
+                    <Route path="agency" element={<AgencyLayout />}>
+                      <Route index element={<AgencyHomePage />} />
+                      <Route path="analytics" element={<AgencyAnalyticsPage />} />
+                      <Route path="members" element={<AgencyMembersPage />} />
+                    </Route>
                     <Route
                       path="admin"
                       element={
