@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Menu, Search, Gift, Bell, ChevronDown, User, MessageCircle, TrendingUp, Globe, ShoppingBag } from "lucide-react";
+import { Menu, Search, Gift, Bell, ChevronDown, User, MessageCircle, TrendingUp, Globe } from "lucide-react";
 import { useRoles } from "@/hooks/useRoles";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { GlobalChatPopup } from "@/components/messages/GlobalChatPopup";
@@ -355,7 +355,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
                 style={{ background: "#2a3038", color: "rgba(255,255,255,0.5)" }}
                 title="Offers"
               >
-                <ShoppingBag className="w-4 h-4" />
+                <Gift className="w-4 h-4" />
               </button>
             </PopoverTrigger>
             <PopoverContent
@@ -396,14 +396,6 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
               </div>
             </PopoverContent>
           </Popover>
-
-          {/* Gift icon */}
-          <button
-            className="w-9 h-9 rounded-[10px] flex items-center justify-center"
-            style={{ background: "#2a3038", color: "rgba(255,255,255,0.5)" }}
-          >
-            <Gift className="w-4 h-4" />
-          </button>
 
           {/* Global Chat overlay trigger */}
           <button
