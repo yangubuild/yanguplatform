@@ -141,7 +141,7 @@ export default function SubscriptionPage() {
           <p className="text-lg font-bold text-white mb-0.5">Free</p>
           <p className="text-xs mb-4" style={{ color: "rgba(255,255,255,0.4)" }}>Member since Dec 25, 2025</p>
           <button
-            onClick={() => navigate("/dashboard/dashboard/profile/subscription")}
+            onClick={() => navigate("/dashboard/profile/subscription")}
             className="flex items-center gap-2 w-full justify-center py-2 rounded-xl text-sm"
             style={{ border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.6)" }}
           >

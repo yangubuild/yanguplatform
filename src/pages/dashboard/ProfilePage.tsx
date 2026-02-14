@@ -91,7 +91,7 @@ export default function ProfilePage() {
               <DropdownMenuItem onClick={handleCopyLink}>
                 <Link2 className="w-4 h-4 mr-2" /> Copy link
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate("/dashboard/dashboard/profile/edit")}>
+              <DropdownMenuItem onClick={() => navigate("/dashboard/profile/edit")}>
                 <Pencil className="w-4 h-4 mr-2" /> Edit profile
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -130,14 +130,14 @@ export default function ProfilePage() {
         {/* Action buttons */}
         <div className="flex gap-3 mt-5">
           <button
-            onClick={() => navigate("/dashboard/dashboard/profile/edit")}
+            onClick={() => navigate("/dashboard/profile/edit")}
             className="flex-1 py-2.5 rounded-xl text-sm font-semibold border transition-colors"
             style={{ borderColor: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.85)", background: "transparent" }}
           >
             Edit profile
           </button>
           <button
-            onClick={() => navigate("/dashboard/dashboard/profile/subscription")}
+            onClick={() => navigate("/dashboard/profile/subscription")}
             className="flex-1 py-2.5 rounded-xl text-sm font-semibold border transition-colors"
             style={{ borderColor: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.85)", background: "transparent" }}
           >

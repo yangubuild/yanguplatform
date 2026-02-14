@@ -148,7 +148,9 @@ const App = () => (
                   <Route path="visionaire" element={<DashboardPlaceholder />} />
                   <Route path="app-store" element={<DashboardPlaceholder />} />
                   <Route path="community" element={<DashboardPlaceholder />} />
-                  <Route path="profile" element={<DashboardPlaceholder />} />
+                  <Route path="profile" element={<ProfilePage />} />
+                  <Route path="profile/edit" element={<EditProfilePage />} />
+                  <Route path="profile/subscription" element={<SubscriptionPage />} />
 
                   {/* Dashboard module nested routes */}
                   <Route path="dashboard" element={<DashboardModuleLayout />}>
@@ -163,7 +165,7 @@ const App = () => (
                     <Route path="profile" element={<ProfilePage />} />
                     <Route path="profile/edit" element={<EditProfilePage />} />
                     <Route path="profile/subscription" element={<SubscriptionPage />} />
-                    <Route path="agency" element={<RequireRole allowed={["org", "admin"]}><AgencyLayout /></RequireRole>}>
+                    <Route path="agency" element={<RequireRole allowed={["org"]}><AgencyLayout /></RequireRole>}>
                       <Route index element={<AgencyHomePage />} />
                       <Route path="analytics" element={<AgencyAnalyticsPage />} />
                       <Route path="members" element={<AgencyMembersPage />} />

@@ -290,7 +290,7 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
                     40% fewer restrictions, better rates! Use code "SECRET" when you upgrade.
                   </p>
                   <button
-                    onClick={() => navigate("/dashboard/dashboard/profile/subscription")}
+                    onClick={() => navigate("/dashboard/profile/subscription")}
                     className="w-full py-2 rounded-lg text-xs font-bold text-white"
                     style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
                   >
@@ -318,10 +318,10 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent side="top" align="start" className="w-56 mb-1">
-                    <DropdownMenuItem onClick={() => navigate("/dashboard/dashboard/profile/subscription")}>
+                    <DropdownMenuItem onClick={() => navigate("/dashboard/profile/subscription")}>
                       <CreditCardIcon className="w-4 h-4 mr-2" /> Manage subscription
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/dashboard/dashboard/profile/edit")}>
+                    <DropdownMenuItem onClick={() => navigate("/dashboard/profile/edit")}>
                       <Settings className="w-4 h-4 mr-2" /> Account settings
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />

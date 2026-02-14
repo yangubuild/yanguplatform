@@ -487,7 +487,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
               </div>
               <div className="py-1">
                 <button
-                  onClick={() => navigate("/dashboard/dashboard/profile")}
+                  onClick={() => navigate("/dashboard/profile")}
                   className="w-full px-4 py-2.5 text-left text-xs transition-colors"
                   style={{ color: "rgba(255,255,255,0.7)" }}
                   onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
