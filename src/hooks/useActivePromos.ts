@@ -11,6 +11,9 @@ export interface PromoCampaign {
   reward_payload: Record<string, unknown>;
   trigger_type: string;
   is_active: boolean;
+  starts_at: string | null;
+  ends_at: string | null;
+  created_at: string | null;
 }
 
 export function useActivePromos() {

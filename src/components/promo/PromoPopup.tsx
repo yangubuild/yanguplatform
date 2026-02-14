@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Gift, X } from "lucide-react";
+import { useState, useRef } from "react";
+import { Gift } from "lucide-react";
 import { useActivePromos, PromoCampaign } from "@/hooks/useActivePromos";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
@@ -17,14 +17,32 @@ export function PromoPopup() {
   const { data: promos, isLoading } = useActivePromos();
   const queryClient = useQueryClient();
   const [claiming, setClaiming] = useState(false);
-  const [dismissing, setDismissing] = useState(false);
-  const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+  // Local cooldown: track dismissed/claimed keys for this page load
+  const cooldownRef = useRef<Set<string>>(new Set());
+  // Force re-render after cooldown update
+  const [, setTick] = useState(0);
 
   if (isLoading || !promos || promos.length === 0) return null;
 
-  // Show first non-dismissed promo
-  const current = promos.find((p) => !dismissed.has(p.key));
+  // Filter out cooled-down promos, sort by soonest ending then newest
+  const available = promos
+    .filter((p) => !cooldownRef.current.has(p.key))
+    .sort((a, b) => {
+      // Soonest ending first (nulls last)
+      if (a.ends_at && b.ends_at) return new Date(a.ends_at).getTime() - new Date(b.ends_at).getTime();
+      if (a.ends_at && !b.ends_at) return -1;
+      if (!a.ends_at && b.ends_at) return 1;
+      // Then newest first
+      return (b.created_at || "").localeCompare(a.created_at || "");
+    });
+
+  const current = available[0];
   if (!current) return null;
+
+  const addCooldown = (key: string) => {
+    cooldownRef.current.add(key);
+    setTick((t) => t + 1);
+  };
 
   const handleClaim = async (promo: PromoCampaign) => {
     setClaiming(true);
@@ -34,29 +52,28 @@ export function PromoPopup() {
       });
       if (error || (data && data.error)) {
         toast.error(data?.error || "Failed to claim reward");
+      } else if (data?.alreadyRedeemed) {
+        toast.info("You've already claimed this reward.");
       } else {
         toast.success(`🎉 ${promo.title} claimed!`);
-        queryClient.invalidateQueries({ queryKey: ["active-promos"] });
         queryClient.invalidateQueries({ queryKey: ["user-credits"] });
       }
+      queryClient.invalidateQueries({ queryKey: ["active-promos"] });
     } catch {
       toast.error("Failed to claim reward");
     } finally {
       setClaiming(false);
-      setDismissed((prev) => new Set(prev).add(promo.key));
+      addCooldown(promo.key);
     }
   };
 
   const handleDismiss = async (promo: PromoCampaign) => {
-    setDismissing(true);
+    addCooldown(promo.key);
     try {
       await supabase.rpc("dismiss_promo" as any, { p_campaign_key: promo.key });
       queryClient.invalidateQueries({ queryKey: ["active-promos"] });
     } catch {
       // silent
-    } finally {
-      setDismissing(false);
-      setDismissed((prev) => new Set(prev).add(promo.key));
     }
   };
 
@@ -83,7 +100,7 @@ export function PromoPopup() {
           <Button
             variant="outline"
             onClick={() => handleDismiss(current)}
-            disabled={dismissing}
+            disabled={claiming}
           >
             Dismiss
           </Button>
