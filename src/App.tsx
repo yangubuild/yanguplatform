@@ -56,6 +56,7 @@ import { NavigationDashboardPage } from "@/components/mass/navigation";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import DashboardPlaceholder from "./pages/dashboard/DashboardPlaceholder";
 import DashboardModuleLayout from "./pages/dashboard/DashboardModuleLayout";
+import MessagesPage from "./pages/dashboard/MessagesPage";
 import { DashboardRoleGate } from "@/components/auth/DashboardRoleGate";
 
 console.log("[Supabase]", import.meta.env.VITE_SUPABASE_URL);
@@ -130,7 +131,7 @@ const App = () => (
                   <Route index element={<DashboardHome />} />
                   <Route path="explore" element={<DashboardPlaceholder />} />
                   <Route path="offers" element={<DashboardPlaceholder />} />
-                  <Route path="messages" element={<DashboardPlaceholder />} />
+                  <Route path="messages" element={<MessagesPage />} />
                   <Route path="ada" element={<DashboardPlaceholder />} />
                   <Route path="studio" element={<DashboardPlaceholder />} />
                   <Route path="influencer" element={<DashboardPlaceholder />} />
