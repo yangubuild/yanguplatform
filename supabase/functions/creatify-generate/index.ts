@@ -36,10 +36,73 @@ serve(async (req) => {
     const { data: { user }, error: userErr } = await userClient.auth.getUser();
     if (userErr || !user) return json({ ok: false, error_code: "AUTH_INVALID", message: "Invalid auth token" }, 401);
 
-    const { generation_id } = await req.json();
-    if (!generation_id) return json({ ok: false, error_code: "BAD_REQUEST", message: "generation_id is required" }, 400);
+    const body = await req.json();
+    const action = body.action || "generate"; // default to legacy behavior
+
+    const creatifyHeaders = {
+      "Content-Type": "application/json",
+      "X-API-ID": creatifyApiId,
+      "X-API-KEY": creatifyApiKey,
+    };
 
     const admin = createClient(supabaseUrl, serviceKey);
+
+    // ──────────────────────────────────────────────
+    // ACTION: list-templates
+    // ──────────────────────────────────────────────
+    if (action === "list-templates") {
+      console.log("[creatify-generate] Fetching templates from Creatify API");
+
+      const res = await fetch("https://api.creatify.ai/api/custom_templates/", {
+        headers: creatifyHeaders,
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error("[creatify-generate] Templates fetch failed:", res.status, errText);
+        return json({ ok: false, error_code: "CREATIFY_ERROR", message: `Failed to fetch templates: ${res.status}` }, 502);
+      }
+
+      const templates = await res.json();
+      const templateList = Array.isArray(templates) ? templates : (templates.results || []);
+
+      // Upsert into cache table
+      if (templateList.length > 0) {
+        const rows = templateList.map((t: Record<string, unknown>) => ({
+          id: String(t.id),
+          name: String(t.name || t.title || "Untitled"),
+          preview_url: t.preview_url || t.thumbnail || null,
+          aspect_ratio: t.aspect_ratio || null,
+          metadata: JSON.stringify({ raw_keys: Object.keys(t) }),
+          fetched_at: new Date().toISOString(),
+        }));
+
+        const { error: upsertErr } = await admin
+          .from("creatify_templates")
+          .upsert(rows, { onConflict: "id" });
+
+        if (upsertErr) {
+          console.warn("[creatify-generate] Template cache upsert warning:", upsertErr);
+        }
+      }
+
+      return json({
+        ok: true,
+        templates: templateList.map((t: Record<string, unknown>) => ({
+          id: String(t.id),
+          name: String(t.name || t.title || "Untitled"),
+          preview_url: t.preview_url || t.thumbnail || null,
+          aspect_ratio: t.aspect_ratio || null,
+        })),
+        count: templateList.length,
+      });
+    }
+
+    // ──────────────────────────────────────────────
+    // ACTION: generate (default / legacy)
+    // ──────────────────────────────────────────────
+    const { generation_id } = body;
+    if (!generation_id) return json({ ok: false, error_code: "BAD_REQUEST", message: "generation_id is required" }, 400);
 
     // Load generation row
     const { data: gen, error: genErr } = await admin
@@ -64,26 +127,16 @@ serve(async (req) => {
         try { await admin.rpc("refund_credits", { p_amount: costCredits, p_ref_type: "video", p_ref_id: generation_id, p_note: note }); } catch (_) {}
       }
     };
-    const creatifyHeaders = {
-      "Content-Type": "application/json",
-      "X-API-ID": creatifyApiId,
-      "X-API-KEY": creatifyApiKey,
-    };
 
     console.log("[creatify-generate] Starting for generation:", generation_id);
 
-    // The prompt is treated as a product URL for link-to-video,
-    // or as a text description. We'll use link_to_videos endpoint.
-    // If prompt looks like a URL, use it directly; otherwise use it as script text.
     const isUrl = gen.prompt.startsWith("http://") || gen.prompt.startsWith("https://");
 
     let videoOutputUrl: string | null = null;
     let thumbnailUrl: string | null = null;
 
     if (isUrl) {
-      // === FLOW A: URL-to-Video (2-step: create link, then create video) ===
-
-      // Step 1: Create link
+      // === FLOW A: URL-to-Video ===
       console.log("[creatify-generate] Creating link from URL:", gen.prompt);
       const linkRes = await fetch("https://api.creatify.ai/api/links/", {
         method: "POST",
@@ -107,7 +160,6 @@ serve(async (req) => {
       const linkId = linkData.id;
       console.log("[creatify-generate] Link created:", linkId);
 
-      // Step 2: Create video from link
       const videoBody: Record<string, unknown> = {
         link_id: linkId,
         aspect_ratio: genParams.aspect_ratio || "9:16",
@@ -115,6 +167,7 @@ serve(async (req) => {
       };
       if (genParams.visual_style) videoBody.visual_style = genParams.visual_style;
       if (genParams.script_text) videoBody.script_text = genParams.script_text;
+      if (genParams.template_id) videoBody.template_id = genParams.template_id;
 
       const createRes = await fetch("https://api.creatify.ai/api/link_to_videos/", {
         method: "POST",
@@ -138,7 +191,6 @@ serve(async (req) => {
       const videoId = createData.id;
       console.log("[creatify-generate] Video job created:", videoId);
 
-      // Step 3: Poll for completion (max ~5 min)
       for (let attempt = 0; attempt < 60; attempt++) {
         await new Promise(r => setTimeout(r, 5000));
 
@@ -170,20 +222,16 @@ serve(async (req) => {
           await refundIfNeeded("Creatify video failed");
           return json({ ok: false, error_code: "CREATIFY_FAILED", message: errMsg }, 502);
         }
-        // pending/processing → keep polling
       }
     } else {
-      // === FLOW B: Text-based video (use link_to_videos with a script) ===
-      // For text prompts without a URL, we still use the API but pass script_text
-      // We need a placeholder link — use Creatify's text-to-video if available
-      // Fallback: treat the prompt as a script and create a minimal link
-
+      // === FLOW B: Text-based video ===
       const videoBody: Record<string, unknown> = {
         script_text: gen.prompt,
         aspect_ratio: genParams.aspect_ratio || "9:16",
         duration: genParams.duration || 30,
       };
       if (genParams.visual_style) videoBody.visual_style = genParams.visual_style;
+      if (genParams.template_id) videoBody.template_id = genParams.template_id;
 
       const createRes = await fetch("https://api.creatify.ai/api/link_to_videos/", {
         method: "POST",
@@ -207,7 +255,6 @@ serve(async (req) => {
       const videoId = createData.id;
       console.log("[creatify-generate] Text video job created:", videoId);
 
-      // Poll for completion
       for (let attempt = 0; attempt < 60; attempt++) {
         await new Promise(r => setTimeout(r, 5000));
 

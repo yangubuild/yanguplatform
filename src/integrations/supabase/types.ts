@@ -626,6 +626,36 @@ export type Database = {
           },
         ]
       }
+      creatify_templates: {
+        Row: {
+          aspect_ratio: string | null
+          fetched_at: string
+          id: string
+          metadata: Json | null
+          name: string
+          preview_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          aspect_ratio?: string | null
+          fetched_at?: string
+          id: string
+          metadata?: Json | null
+          name: string
+          preview_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          aspect_ratio?: string | null
+          fetched_at?: string
+          id?: string
+          metadata?: Json | null
+          name?: string
+          preview_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       credit_transactions: {
         Row: {
           amount: number

@@ -119,6 +119,7 @@ export default function Studio() {
           {
             aspect_ratio: "9:16",
             duration: 30,
+            template_id: data.templateId,
           }
         );
 

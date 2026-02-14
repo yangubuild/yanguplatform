@@ -5,6 +5,7 @@ export interface CreatifyParams {
   duration?: number;
   visual_style?: string;
   script_text?: string;
+  template_id?: string;
 }
 
 export interface CreatifyVideo {
