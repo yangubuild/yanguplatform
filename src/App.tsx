@@ -32,6 +32,7 @@ import WhyYangu from "./pages/WhyYangu";
 import DiscoverYangu from "./pages/DiscoverYangu";
 import NavigationDashboard from "./pages/NavigationDashboard";
 import Blog from "./pages/Blog";
+import Subscriptions from "./pages/Subscriptions";
 import { AdminRoute } from "@/components/auth/AdminRoute";
 import { AdminShell } from "@/components/manage/AdminShell";
 import { ManageRoleGate } from "@/components/manage/ManageRoleGate";
@@ -146,6 +147,16 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <Billing />
+                    </ProtectedRoute>
+                  }
+                />
+                
+                {/* Subscriptions - upgrade page */}
+                <Route
+                  path="/subscriptions"
+                  element={
+                    <ProtectedRoute>
+                      <Subscriptions />
                     </ProtectedRoute>
                   }
                 />
