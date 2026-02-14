@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useCreatifyTemplates } from "@/hooks/useCreatifyTemplates";
 
 const CONTENT_TYPES = [
   { id: "video_ad", label: "Video Ad" },
@@ -50,6 +51,7 @@ export interface StudioFormData {
   contentTypes: string[];
   platforms: string[];
   language: string;
+  templateId?: string;
 }
 
 /**
@@ -66,6 +68,8 @@ export function StudioCreateForm({ onSubmit, isLoading, creditCost = 1 }: Studio
   const [contentTypes, setContentTypes] = useState<string[]>(["video_ad", "image_ad"]);
   const [platforms, setPlatforms] = useState<string[]>(["meta"]);
   const [language, setLanguage] = useState("en");
+  const [templateId, setTemplateId] = useState<string>("");
+  const { data: templates, isLoading: templatesLoading } = useCreatifyTemplates();
 
   const handleContentTypeToggle = (typeId: string) => {
     setContentTypes((prev) =>
@@ -92,6 +96,7 @@ export function StudioCreateForm({ onSubmit, isLoading, creditCost = 1 }: Studio
       contentTypes,
       platforms,
       language,
+      templateId: templateId || undefined,
     });
   };
 
@@ -172,6 +177,7 @@ export function StudioCreateForm({ onSubmit, isLoading, creditCost = 1 }: Studio
         <div className="space-y-4">
           <h3 className="font-semibold">What to Generate</h3>
           <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+
             {CONTENT_TYPES.map((type) => (
               <label
                 key={type.id}
@@ -184,6 +190,24 @@ export function StudioCreateForm({ onSubmit, isLoading, creditCost = 1 }: Studio
                 <span className="text-sm font-medium">{type.label}</span>
               </label>
             ))}
+          </div>
+
+          {/* Template dropdown */}
+          <div className="space-y-2">
+            <Label htmlFor="template">Template</Label>
+            <Select value={templateId} onValueChange={setTemplateId}>
+              <SelectTrigger id="template">
+                <SelectValue placeholder={templatesLoading ? "Loading…" : "Auto (no template)"} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Auto (no template)</SelectItem>
+                {(templates || []).map((t) => (
+                  <SelectItem key={t.id} value={t.id}>
+                    {t.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </Card>
