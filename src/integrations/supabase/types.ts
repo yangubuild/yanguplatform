@@ -1614,6 +1614,10 @@ export type Database = {
             }
             Returns: string
           }
+      consume_entitlement: {
+        Args: { p_amount?: number; p_asset_type: string }
+        Returns: undefined
+      }
       count_org_active_publishes: {
         Args: { p_org_id: string }
         Returns: number
