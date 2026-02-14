@@ -1,7 +1,6 @@
-import { NavigationDashboardPage } from "@/components/mass/navigation";
+import { Navigate } from "react-router-dom";
 
-const NavigationDashboard = () => {
-  return <NavigationDashboardPage />;
-};
+/** Legacy route — redirects to new /dashboard App Shell */
+const NavigationDashboard = () => <Navigate to="/dashboard" replace />;
 
 export default NavigationDashboard;
