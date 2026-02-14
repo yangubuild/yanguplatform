@@ -21,6 +21,13 @@ export async function consumeEntitlement(
 
     if (error) {
       const msg = error.message || "";
+
+      // If the entitlement tables don't exist yet, fall back to credits-only mode
+      if (msg.includes("does not exist") || msg.includes("relation")) {
+        console.warn("[consumeEntitlement] Entitlement tables not set up, falling back to credits-only:", msg);
+        return { allowed: true };
+      }
+
       if (
         msg.includes("No active subscription") ||
         msg.includes("Quota exceeded") ||
