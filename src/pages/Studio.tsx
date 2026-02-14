@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { generateCreatifyVideo } from "@/lib/ai/creatify";
+import { consumeEntitlement } from "@/lib/entitlements";
 
 /**
  * YANGU.STUDIO - Global AI-powered creative engine
@@ -66,6 +67,21 @@ export default function Studio() {
     setIsGenerating(true);
     
     try {
+      // Entitlement gating per content type
+      for (const ct of data.contentTypes) {
+        let assetType = "image";
+        if (ct === "video_ad" || ct === "ugc_video") assetType = "video";
+        else if (ct === "image_ad" || ct === "carousel") assetType = "image";
+        else if (ct === "copy") assetType = "poster"; // maps copy/CTAs to poster entitlement
+
+        const ent = await consumeEntitlement(assetType);
+        if (!ent.allowed) {
+          toast.error(ent.error || "You've reached your monthly limit. Upgrade to continue.");
+          setIsGenerating(false);
+          return;
+        }
+      }
+
       // Spend credits for generation
       await spendCredits.mutateAsync({
         amount: creditCost,

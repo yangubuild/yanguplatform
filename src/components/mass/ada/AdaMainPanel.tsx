@@ -8,6 +8,8 @@ import { toast } from "@/hooks/use-toast";
 import { generateIdeogramImage } from "@/lib/ai/ideogram";
 import { generateQwenImage } from "@/lib/ai/qwen";
 import { generateCreatifyVideo } from "@/lib/ai/creatify";
+import { consumeEntitlement } from "@/lib/entitlements";
+import { useNavigate } from "react-router-dom";
 
 interface ChatMessage {
   id: string;
@@ -30,6 +32,7 @@ function saveAnonChats(chats: { id: string; title: string; messages: ChatMessage
 
 export function AdaMainPanel() {
   const { user, profile, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [mode, setMode] = useState<"chat" | "voice">("chat");
   const [intent, setIntent] = useState<"search" | "discuss" | null>(null);
   const [inputValue, setInputValue] = useState("");
@@ -177,6 +180,31 @@ export function AdaMainPanel() {
   const handleImageGenerate = useCallback(async (prompt: string, cid: string, provider: "ideogram" | "qwen" = "ideogram") => {
     setIsThinking(true);
     try {
+      // Entitlement check
+      const ent = await consumeEntitlement("image");
+      if (!ent.allowed) {
+        toast({
+          title: ent.error || "You've reached your monthly limit. Upgrade to continue.",
+          variant: "destructive",
+          action: (() => {
+            const btn = document.createElement("span");
+            btn.textContent = "Upgrade";
+            return undefined;
+          })(),
+          description: "Go to /subscriptions to upgrade your plan.",
+        });
+        const errMsg: ChatMessage = {
+          id: `msg_${Date.now()}`,
+          role: "assistant",
+          content: `⚠️ ${ent.error || "Monthly image limit reached."} [Upgrade your plan](/subscriptions) to continue generating.`,
+          created_at: new Date().toISOString(),
+        };
+        setMessages(prev => [...prev, errMsg]);
+        await persistMessage(cid, errMsg);
+        setIsThinking(false);
+        return;
+      }
+
       const result = provider === "qwen"
         ? await generateQwenImage(prompt)
         : await generateIdeogramImage(prompt);
@@ -226,6 +254,26 @@ export function AdaMainPanel() {
   const handleVideoGenerate = useCallback(async (prompt: string, cid: string) => {
     setIsThinking(true);
     try {
+      // Entitlement check
+      const ent = await consumeEntitlement("video");
+      if (!ent.allowed) {
+        toast({
+          title: ent.error || "You've reached your monthly limit. Upgrade to continue.",
+          variant: "destructive",
+          description: "Go to /subscriptions to upgrade your plan.",
+        });
+        const errMsg: ChatMessage = {
+          id: `msg_${Date.now()}`,
+          role: "assistant",
+          content: `⚠️ ${ent.error || "Monthly video limit reached."} [Upgrade your plan](/subscriptions) to continue generating.`,
+          created_at: new Date().toISOString(),
+        };
+        setMessages(prev => [...prev, errMsg]);
+        await persistMessage(cid, errMsg);
+        setIsThinking(false);
+        return;
+      }
+
       const result = await generateCreatifyVideo(prompt);
 
       let content: string;
