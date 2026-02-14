@@ -55,6 +55,8 @@ export interface NavSubItem {
   badge?: string;
   /** Account types allowed to see this sub-item. If omitted → all types. */
   rolesAllowed?: AccountType[];
+  /** If true, only org owners see this item (requires isOrgOwner context). */
+  ownerOnly?: boolean;
 }
 
 export interface NavSection {
@@ -150,14 +152,19 @@ export const DASHBOARD_SECTIONS: NavSection[] = [
     items: [
       { icon: UserCircle, label: "Profile", to: "/dashboard/profile" },
       { icon: ShieldCheck, label: "Admin", to: "/manage", rolesAllowed: ["admin"] },
-      { icon: Briefcase, label: "My Agency", to: "/dashboard/agency", rolesAllowed: ["agency"] },
+      { icon: Briefcase, label: "My Agency", to: "/dashboard/agency", rolesAllowed: ["agency"], ownerOnly: true },
     ],
   },
 ];
 
 // ── Helpers ──────────────────────────────────────────────────
-/** Filter a nav item by accountType. */
-export function isNavItemVisible(item: { rolesAllowed?: AccountType[] }, accountType: AccountType): boolean {
-  if (!item.rolesAllowed) return true;
-  return item.rolesAllowed.includes(accountType);
+/** Filter a nav item by accountType and optional owner flag. */
+export function isNavItemVisible(
+  item: { rolesAllowed?: AccountType[]; ownerOnly?: boolean },
+  accountType: AccountType,
+  isOrgOwner?: boolean,
+): boolean {
+  if (item.rolesAllowed && !item.rolesAllowed.includes(accountType)) return false;
+  if (item.ownerOnly && !isOrgOwner) return false;
+  return true;
 }

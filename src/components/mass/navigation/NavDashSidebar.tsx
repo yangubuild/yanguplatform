@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useActiveOrg } from "@/hooks/useActiveOrg";
 import {
   ChevronDown,
   ChevronRight,
@@ -53,7 +54,11 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
   const location = useLocation();
   const dailySales = useDailySalesCounter();
   const { isAdmin } = useRoles();
-  const { profile, signOut } = useAuth();
+  const { user, profile, signOut } = useAuth();
+  const { data: activeOrg } = useActiveOrg();
+
+  // Owner = the org's owner_user_id matches current user
+  const isOrgOwner = !!(activeOrg && user && activeOrg.role === "owner");
 
   const [activeItem, setActiveItem] = useState("Offers");
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
@@ -78,8 +83,8 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
     if (!import.meta.env.DEV) return;
     const allowedRoutes = DASHBOARD_SECTIONS
       .flatMap((s) => s.items)
-      .filter((i) => isNavItemVisible(i, accountType)).length;
-    console.debug("[ACCOUNT_TYPE]", accountType, allowedRoutes);
+      .filter((i) => isNavItemVisible(i, accountType, isOrgOwner)).length;
+    console.debug("[ACCOUNT_TYPE]", accountType, "isOrgOwner:", isOrgOwner, "visibleAccountItems:", allowedRoutes);
   }, [accountType]);
 
   // Check if a path matches current location
@@ -108,7 +113,7 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
     if (sub.to) navigate(sub.to);
   };
 
-  const visibleNavItems = PRIMARY_NAV_ITEMS.filter((item) => isNavItemVisible(item, userType));
+  const visibleNavItems = PRIMARY_NAV_ITEMS.filter((item) => isNavItemVisible(item, userType, isOrgOwner));
 
   return (
     <>
@@ -377,7 +382,7 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
               <nav className="flex-1 overflow-y-auto px-3 pb-4">
                 {panelConfig.sections.map((section) => {
                   const visibleItems = section.items.filter((subItem: any) =>
-                    isNavItemVisible(subItem, userType)
+                    isNavItemVisible(subItem, userType, isOrgOwner)
                   );
                   if (visibleItems.length === 0) return null;
 
