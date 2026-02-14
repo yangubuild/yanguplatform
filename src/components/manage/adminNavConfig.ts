@@ -58,6 +58,7 @@ export const adminNavGroups: AdminNavGroup[] = [
     items: [
       { title: "Users", to: "/manage/users", icon: Users, allowedRoles: ["admin"] },
       { title: "Pricing & Subscriptions", to: "/manage/pricing", icon: CreditCard, allowedRoles: ["admin"] },
+      { title: "Promos & Rewards", to: "/manage/promos", icon: Megaphone, allowedRoles: ["admin"] },
       { title: "Navigation", to: "/manage/navigation", icon: Layers, allowedRoles: ["admin"] },
       { title: "Community", to: "/manage/community", icon: Megaphone, allowedRoles: ["admin", "moderator"] },
       { title: "Messages", to: "/manage/messages", icon: MessageSquare, allowedRoles: ["admin", "content_editor"] },

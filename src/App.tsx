@@ -50,6 +50,7 @@ import ManageNews from "./pages/manage/ManageNews";
 import ManageEvents from "./pages/manage/ManageEvents";
 import ManageContentHome from "./pages/manage/ManageContentHome";
 import ManagePricing from "./pages/manage/ManagePricing";
+import ManagePromos from "./pages/manage/ManagePromos";
 
 console.log("[Supabase]", import.meta.env.VITE_SUPABASE_URL);
 
@@ -187,6 +188,7 @@ const App = () => (
                   {/* Platform */}
                   <Route path="users" element={<ManageUsers />} />
                   <Route path="pricing" element={<ManagePricing />} />
+                  <Route path="promos" element={<ManagePromos />} />
                   <Route path="surfaces" element={<ManageSurfaces />} />
                   <Route path="navigation" element={<ManageNavigation />} />
                   <Route path="community" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManageCommunity /></ManageRoleGate>} />

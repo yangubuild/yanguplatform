@@ -1051,6 +1051,86 @@ export type Database = {
         }
         Relationships: []
       }
+      promo_campaigns: {
+        Row: {
+          created_at: string | null
+          ends_at: string | null
+          id: string
+          is_active: boolean | null
+          key: string
+          message: string
+          reward_payload: Json
+          reward_type: string
+          starts_at: string | null
+          title: string
+          trigger_payload: Json | null
+          trigger_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          key: string
+          message: string
+          reward_payload: Json
+          reward_type: string
+          starts_at?: string | null
+          title: string
+          trigger_payload?: Json | null
+          trigger_type: string
+        }
+        Update: {
+          created_at?: string | null
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          key?: string
+          message?: string
+          reward_payload?: Json
+          reward_type?: string
+          starts_at?: string | null
+          title?: string
+          trigger_payload?: Json | null
+          trigger_type?: string
+        }
+        Relationships: []
+      }
+      promo_redemptions: {
+        Row: {
+          campaign_id: string
+          granted_at: string | null
+          id: string
+          meta: Json | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          campaign_id: string
+          granted_at?: string | null
+          id?: string
+          meta?: Json | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          campaign_id?: string
+          granted_at?: string | null
+          id?: string
+          meta?: Json | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promo_redemptions_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "promo_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       public_surfaces: {
         Row: {
           created_at: string
@@ -1106,6 +1186,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      quota_addons: {
+        Row: {
+          asset_type: string
+          created_at: string | null
+          expires_at: string
+          extra: number
+          id: string
+          user_id: string
+        }
+        Insert: {
+          asset_type: string
+          created_at?: string | null
+          expires_at: string
+          extra?: number
+          id?: string
+          user_id: string
+        }
+        Update: {
+          asset_type?: string
+          created_at?: string | null
+          expires_at?: string
+          extra?: number
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       studio_assets: {
         Row: {
@@ -1642,6 +1749,7 @@ export type Database = {
             Returns: string
           }
       delete_surface: { Args: { p_surface_id: string }; Returns: Json }
+      dismiss_promo: { Args: { p_campaign_key: string }; Returns: undefined }
       evaluate_publish_eligibility: {
         Args: {
           p_domain_id: string
@@ -1690,6 +1798,29 @@ export type Database = {
       get_default_domain_for_creator: {
         Args: { _creator_type: Database["public"]["Enums"]["creator_type"] }
         Returns: string
+      }
+      get_my_active_promos: {
+        Args: never
+        Returns: {
+          created_at: string | null
+          ends_at: string | null
+          id: string
+          is_active: boolean | null
+          key: string
+          message: string
+          reward_payload: Json
+          reward_type: string
+          starts_at: string | null
+          title: string
+          trigger_payload: Json | null
+          trigger_type: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "promo_campaigns"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       get_my_credit_balance: { Args: never; Returns: number }
       get_my_image_generations: {
@@ -1750,6 +1881,10 @@ export type Database = {
       }
       grant_credits: {
         Args: { p_amount: number; p_note?: string; p_user_id: string }
+        Returns: undefined
+      }
+      grant_promo: {
+        Args: { p_campaign_key: string; p_user_id: string }
         Returns: undefined
       }
       has_approved_kyc: { Args: { _user_id: string }; Returns: boolean }

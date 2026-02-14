@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { generateCreatifyVideo } from "@/lib/ai/creatify";
 import { consumeEntitlement } from "@/lib/entitlements";
+import { PromoPopup } from "@/components/promo/PromoPopup";
 
 /**
  * YANGU.STUDIO - Global AI-powered creative engine
@@ -224,6 +225,7 @@ export default function Studio() {
 
   return (
     <AppShell>
+      <PromoPopup />
       <PageContainer size="xl">
         <div className="space-y-6">
           {/* Header - NO Publish button, NO domain selector */}
