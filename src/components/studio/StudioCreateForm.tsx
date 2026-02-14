@@ -68,7 +68,7 @@ export function StudioCreateForm({ onSubmit, isLoading, creditCost = 1 }: Studio
   const [contentTypes, setContentTypes] = useState<string[]>(["video_ad", "image_ad"]);
   const [platforms, setPlatforms] = useState<string[]>(["meta"]);
   const [language, setLanguage] = useState("en");
-  const [templateId, setTemplateId] = useState<string>("");
+  const [templateId, setTemplateId] = useState<string>("__none__");
   const { data: templates, isLoading: templatesLoading } = useCreatifyTemplates();
 
   const handleContentTypeToggle = (typeId: string) => {
@@ -96,7 +96,7 @@ export function StudioCreateForm({ onSubmit, isLoading, creditCost = 1 }: Studio
       contentTypes,
       platforms,
       language,
-      templateId: templateId || undefined,
+      templateId: templateId === "__none__" ? undefined : templateId,
     });
   };
 
@@ -200,8 +200,8 @@ export function StudioCreateForm({ onSubmit, isLoading, creditCost = 1 }: Studio
                 <SelectValue placeholder={templatesLoading ? "Loading…" : "Auto (no template)"} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Auto (no template)</SelectItem>
-                {(templates || []).map((t) => (
+                <SelectItem value="__none__">Auto (no template)</SelectItem>
+                {(templates || []).filter((t) => t.id && t.id.trim() !== "").map((t) => (
                   <SelectItem key={t.id} value={t.id}>
                     {t.name}
                   </SelectItem>
