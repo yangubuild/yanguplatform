@@ -35,6 +35,7 @@ import Subscriptions from "./pages/Subscriptions";
 import { AdminRoute } from "@/components/auth/AdminRoute";
 import { AdminShell } from "@/components/manage/AdminShell";
 import { ManageRoleGate } from "@/components/manage/ManageRoleGate";
+import { RequireRole } from "@/components/auth/RequireRole";
 import ManageDashboard from "./pages/manage/ManageDashboard";
 import ManagePlaceholder from "./pages/manage/ManagePlaceholder";
 import ManageNotFound from "./pages/manage/ManageNotFound";
@@ -162,7 +163,7 @@ const App = () => (
                     <Route path="profile" element={<ProfilePage />} />
                     <Route path="profile/edit" element={<EditProfilePage />} />
                     <Route path="profile/subscription" element={<SubscriptionPage />} />
-                    <Route path="agency" element={<AgencyLayout />}>
+                    <Route path="agency" element={<RequireRole allowed={["org", "admin"]}><AgencyLayout /></RequireRole>}>
                       <Route index element={<AgencyHomePage />} />
                       <Route path="analytics" element={<AgencyAnalyticsPage />} />
                       <Route path="members" element={<AgencyMembersPage />} />

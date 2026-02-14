@@ -1,50 +1,18 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
   ChevronDown,
   ChevronRight,
-  Compass,
-  Tag,
-  MessageCircle,
-  ShoppingBag,
-  Sparkles,
-  Palette,
+  TrendingUp,
+  Users,
   LayoutDashboard,
   BookOpen,
-  Package,
-  Users,
-  TrendingUp,
-  Store,
-  Globe,
-  Link,
-  UtensilsCrossed,
-  Home,
-  Lightbulb,
-  Bookmark,
-  GraduationCap,
-  TrendingUp as TrendIcon,
-  Layers,
-  Image,
-  TagIcon,
-  FileText,
-  Settings,
-  Zap,
-  Sparkle,
-  Grid3X3,
-  Building2,
-  CreditCard,
-  FileBarChart,
-  BarChart3,
-  Tag as TagAlt,
-  UserCircle,
-  ShieldCheck,
-  Briefcase,
-  Mail,
   LogOut,
   HelpCircle,
   Languages,
   Moon,
+  Settings,
   CreditCard as CreditCardIcon,
 } from "lucide-react";
 
@@ -59,113 +27,16 @@ import {
 import adaIcon from "@/assets/ada-icon.png";
 import { useRoles } from "@/hooks/useRoles";
 import { useDailySalesCounter } from "@/hooks/useDailySalesCounter";
-
-// Items that have an extended sidebar panel
-const EXTENDED_SIDEBAR_ITEMS = ["Visionaire", "Dashboard"];
-
-interface NavItem {
-  icon: any;
-  label: string;
-  chevron: boolean;
-  badge?: string;
-  dot?: boolean;
-  customIcon?: string;
-  to?: string;
-  subItems?: { icon: any; label: string; to: string }[];
-  /** "admin" | "agency" — hidden if user lacks the role */
-  gate?: "admin" | "agency";
-}
-
-const navItems: NavItem[] = [
-  { icon: Compass, label: "Explore", chevron: true, to: "/dashboard/explore" },
-  { icon: Tag, label: "Offers", chevron: false, badge: "+120%", dot: true, to: "/dashboard/offers" },
-  { icon: MessageCircle, label: "Messages", chevron: false, to: "/dashboard/messages" },
-  { icon: LayoutDashboard, label: "Dashboard", chevron: true, to: "/dashboard/dashboard" },
-  { icon: null, label: "Ada AI", chevron: true, customIcon: "ada", to: "/dashboard/ada" },
-  {
-    icon: ShoppingBag,
-    label: "Seller",
-    chevron: true,
-    subItems: [
-      { icon: ShoppingBag, label: "Eshop", to: "/dashboard/seller/eshop" },
-      { icon: Store, label: "Estore", to: "/dashboard/seller/estore" },
-      { icon: UtensilsCrossed, label: "Emenu", to: "/dashboard/seller/emenu" },
-      { icon: Globe, label: "Esite", to: "/dashboard/seller/esite" },
-      { icon: Link, label: "Eshop Connect", to: "/dashboard/seller/eshop-connect" },
-    ],
-  },
-  { icon: Sparkles, label: "Influencer", chevron: true, to: "/dashboard/influencer" },
-  { icon: Palette, label: "Yangu Studio", chevron: true, to: "/dashboard/studio" },
-  { icon: BookOpen, label: "Visionaire", chevron: true, to: "/dashboard/visionaire" },
-  { icon: Package, label: "App Store", chevron: false, badge: "+120%", to: "/dashboard/app-store" },
-  { icon: Users, label: "Community", chevron: false, to: "/dashboard/community" },
-];
-
-// Visionaire extended sidebar content
-const visionaireSections = [
-  {
-    title: "MASTER LIBRARY",
-    items: [
-      { icon: Home, label: "Home", active: true },
-      { icon: Lightbulb, label: "Product Requests" },
-      { icon: Bookmark, label: "Saved" },
-    ],
-  },
-  {
-    title: "RESOURCES",
-    items: [
-      { icon: GraduationCap, label: "Digital Product University" },
-      { icon: TrendIcon, label: "Evergreen Problems", badge: "NEW" },
-      { icon: Layers, label: "Product Mockups" },
-      { icon: Image, label: "Book Covers" },
-      { icon: TagIcon, label: "Special Deals" },
-    ],
-  },
-  {
-    title: "TOOLS",
-    items: [
-      { icon: FileText, label: "PDF Rebrander" },
-      { icon: Settings, label: "Product Descriptions" },
-      { icon: Zap, label: "Product Ideas" },
-      { icon: Sparkle, label: "Book Title Generator" },
-    ],
-  },
-];
-
-// Dashboard extended sidebar content
-const dashboardSections = [
-  {
-    title: "GENERAL",
-    items: [
-      { icon: Home, label: "Dashboard", to: "/dashboard/dashboard" },
-      { icon: Grid3X3, label: "My Apps", to: "/dashboard/dashboard/my-apps" },
-      { icon: Building2, label: "My Business", to: "/dashboard/dashboard/my-business" },
-    ],
-  },
-  {
-    title: "USER MANAGEMENT",
-    items: [
-      { icon: CreditCard, label: "Payments", to: "/dashboard/dashboard/payments" },
-      { icon: FileBarChart, label: "Invoices", to: "/dashboard/dashboard/invoices" },
-    ],
-  },
-  {
-    title: "MARKETING",
-    items: [
-      { icon: BarChart3, label: "Ads", to: "/dashboard/dashboard/ads" },
-      { icon: TagAlt, label: "Promo Codes", to: "/dashboard/dashboard/promo-codes" },
-      { icon: Users, label: "Affiliates", to: "/dashboard/dashboard/affiliates" },
-    ],
-  },
-  {
-    title: "ACCOUNT",
-    items: [
-      { icon: UserCircle, label: "Profile", to: "/dashboard/dashboard/profile" },
-      { icon: ShieldCheck, label: "Admin", to: "/manage", gate: "admin" as const },
-      { icon: Briefcase, label: "My Agency", to: "/dashboard/dashboard/agency", gate: "agency" as const },
-    ],
-  },
-];
+import {
+  PRIMARY_NAV_ITEMS,
+  EXTENDED_SIDEBAR_ITEMS,
+  VISIONAIRE_SECTIONS,
+  DASHBOARD_SECTIONS,
+  resolveUserType,
+  isNavItemVisible,
+  type NavItem,
+  type NavSection,
+} from "@/config/dashboardNav";
 
 interface NavDashSidebarProps {
   isOpen?: boolean;
@@ -193,14 +64,20 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
   // Total sidebar width for layout offset
   const totalWidth = hasExtendedPanel ? RAIL_WIDTH + EXTENDED_WIDTH : FULL_WIDTH;
 
-  // Agency gate: show "My Agency" only for organization creator types
-  const isAgencyUser = profile?.creator_type === "organization";
+  // Resolve user type once
+  const userType = useMemo(
+    () => resolveUserType({ isAdmin, creatorType: profile?.creator_type }),
+    [isAdmin, profile?.creator_type]
+  );
 
-  const isItemVisible = (item: NavItem) => {
-    if (item.gate === "admin" && !isAdmin) return false;
-    if (item.gate === "agency" && !isAgencyUser) return false;
-    return true;
-  };
+  // Dev diagnostics (no hooks inside conditionals)
+  useMemo(() => {
+    if (!import.meta.env.DEV) return;
+    const allowedRoutes = DASHBOARD_SECTIONS
+      .flatMap((s) => s.items)
+      .filter((i) => isNavItemVisible(i, userType)).length;
+    console.debug("[NAV]", userType, allowedRoutes);
+  }, [userType]);
 
   // Check if a path matches current location
   const isPathActive = (path?: string) => {
@@ -223,12 +100,12 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
     }
   };
 
-  const handleSubItemClick = (sub: { label: string; to: string }) => {
+  const handleSubItemClick = (sub: { label: string; to?: string }) => {
     setActiveItem(sub.label);
-    navigate(sub.to);
+    if (sub.to) navigate(sub.to);
   };
 
-  const visibleNavItems = navItems.filter(isItemVisible);
+  const visibleNavItems = PRIMARY_NAV_ITEMS.filter((item) => isNavItemVisible(item, userType));
 
   return (
     <>
@@ -473,8 +350,8 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
         {/* === EXTENDED SIDEBAR === */}
         {hasExtendedPanel && (() => {
           const panelConfig = activeItem === "Visionaire"
-            ? { icon: BookOpen, title: "Visionaire Library", sections: visionaireSections, defaultActive: "Home" }
-            : { icon: LayoutDashboard, title: "Dashboard", sections: dashboardSections, defaultActive: "Dashboard" };
+            ? { icon: BookOpen, title: "Visionaire Library", sections: VISIONAIRE_SECTIONS, defaultActive: "Home" }
+            : { icon: LayoutDashboard, title: "Dashboard", sections: DASHBOARD_SECTIONS, defaultActive: "Dashboard" };
           const PanelIcon = panelConfig.icon;
 
           return (
@@ -495,11 +372,9 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
               {/* Panel content */}
               <nav className="flex-1 overflow-y-auto px-3 pb-4">
                 {panelConfig.sections.map((section) => {
-                  const visibleItems = section.items.filter((subItem: any) => {
-                    if (subItem.gate === "admin" && !isAdmin) return false;
-                    if (subItem.gate === "agency" && !isAgencyUser) return false;
-                    return true;
-                  });
+                  const visibleItems = section.items.filter((subItem: any) =>
+                    isNavItemVisible(subItem, userType)
+                  );
                   if (visibleItems.length === 0) return null;
 
                   return (
