@@ -17,6 +17,7 @@ import {
   FlaskConical,
   FileStack,
   ShieldAlert,
+  CreditCard,
   type LucideIcon,
 } from "lucide-react";
 import { ManageRole } from "@/hooks/useRoles";
@@ -56,6 +57,7 @@ export const adminNavGroups: AdminNavGroup[] = [
     label: "Platform",
     items: [
       { title: "Users", to: "/manage/users", icon: Users, allowedRoles: ["admin"] },
+      { title: "Pricing & Subscriptions", to: "/manage/pricing", icon: CreditCard, allowedRoles: ["admin"] },
       { title: "Navigation", to: "/manage/navigation", icon: Layers, allowedRoles: ["admin"] },
       { title: "Community", to: "/manage/community", icon: Megaphone, allowedRoles: ["admin", "moderator"] },
       { title: "Messages", to: "/manage/messages", icon: MessageSquare, allowedRoles: ["admin", "content_editor"] },
@@ -111,6 +113,7 @@ for (const group of adminNavGroups) {
 }
 // Manual overrides for grouped labels
 sectionLabels["community"] = "Community (Promotions)";
+sectionLabels["pricing"] = "Pricing & Subscriptions";
 sectionLabels["research-testing"] = "Research & Testing";
 sectionLabels["alerts-security"] = "Alerts & Security";
 sectionLabels["content/blog"] = "Blog (Layout & Engine)";
