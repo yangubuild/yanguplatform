@@ -143,7 +143,7 @@ const App = () => (
                   <Route path="offers" element={<DashboardPlaceholder />} />
                   <Route path="messages" element={<MessagesPage />} />
                   <Route path="ada" element={<DashboardPlaceholder />} />
-                  <Route path="studio" element={<DashboardPlaceholder />} />
+                  <Route path="studio" element={<Navigate to="/studio" replace />} />
                   <Route path="influencer" element={<DashboardPlaceholder />} />
                   <Route path="visionaire" element={<DashboardPlaceholder />} />
                   <Route path="app-store" element={<DashboardPlaceholder />} />
