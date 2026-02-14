@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Gift } from "lucide-react";
 import { useActivePromos, PromoCampaign } from "@/hooks/useActivePromos";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,36 +13,87 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
+const DISMISSED_PREFIX = "promo_popup_dismissed:";
+const CLAIMED_PREFIX = "promo_popup_claimed:";
+const COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+function readStore(prefix: string): Record<string, number> {
+  const out: Record<string, number> = {};
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key?.startsWith(prefix)) {
+        const raw = localStorage.getItem(key);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          out[key.slice(prefix.length)] = parsed.ts;
+        }
+      }
+    }
+  } catch { /* ignore */ }
+  return out;
+}
+
+function setStore(prefix: string, id: string) {
+  try {
+    localStorage.setItem(`${prefix}${id}`, JSON.stringify({ ts: Date.now() }));
+  } catch { /* ignore */ }
+}
+
+function pruneExpired() {
+  try {
+    const now = Date.now();
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const key = localStorage.key(i);
+      if (key?.startsWith(DISMISSED_PREFIX)) {
+        const raw = localStorage.getItem(key);
+        if (raw) {
+          const { ts } = JSON.parse(raw);
+          if (now - ts >= COOLDOWN_MS) localStorage.removeItem(key);
+        }
+      }
+    }
+  } catch { /* ignore */ }
+}
+
+function isCooledDown(id: string): boolean {
+  const claimed = readStore(CLAIMED_PREFIX);
+  if (claimed[id] != null) return true;
+
+  const dismissed = readStore(DISMISSED_PREFIX);
+  if (dismissed[id] != null && Date.now() - dismissed[id] < COOLDOWN_MS) return true;
+
+  return false;
+}
+
 export function PromoPopup() {
   const { data: promos, isLoading } = useActivePromos();
   const queryClient = useQueryClient();
   const [claiming, setClaiming] = useState(false);
-  // Local cooldown: track dismissed/claimed keys for this page load
-  const cooldownRef = useRef<Set<string>>(new Set());
-  // Force re-render after cooldown update
-  const [, setTick] = useState(0);
+  const [localHidden, setLocalHidden] = useState<Set<string>>(new Set());
 
-  if (isLoading || !promos || promos.length === 0) return null;
+  // Prune on mount (runs once per render cycle, cheap)
+  useMemo(() => pruneExpired(), []);
 
-  // Filter out cooled-down promos, sort by soonest ending then newest
-  const available = promos
-    .filter((p) => !cooldownRef.current.has(p.key))
-    .sort((a, b) => {
-      // Soonest ending first (nulls last)
-      if (a.ends_at && b.ends_at) return new Date(a.ends_at).getTime() - new Date(b.ends_at).getTime();
-      if (a.ends_at && !b.ends_at) return -1;
-      if (!a.ends_at && b.ends_at) return 1;
-      // Then newest first
-      return (b.created_at || "").localeCompare(a.created_at || "");
-    });
+  const available = useMemo(() => {
+    if (!promos) return [];
+    return promos
+      .filter((p) => !localHidden.has(p.id) && !isCooledDown(p.id))
+      .sort((a, b) => {
+        if (a.ends_at && b.ends_at) return new Date(a.ends_at).getTime() - new Date(b.ends_at).getTime();
+        if (a.ends_at && !b.ends_at) return -1;
+        if (!a.ends_at && b.ends_at) return 1;
+        return (b.created_at || "").localeCompare(a.created_at || "");
+      });
+  }, [promos, localHidden]);
+
+  const hide = useCallback((id: string) => {
+    setLocalHidden((prev) => new Set(prev).add(id));
+  }, []);
+
+  if (isLoading || available.length === 0) return null;
 
   const current = available[0];
-  if (!current) return null;
-
-  const addCooldown = (key: string) => {
-    cooldownRef.current.add(key);
-    setTick((t) => t + 1);
-  };
 
   const handleClaim = async (promo: PromoCampaign) => {
     setClaiming(true);
@@ -58,23 +109,23 @@ export function PromoPopup() {
         toast.success(`🎉 ${promo.title} claimed!`);
         queryClient.invalidateQueries({ queryKey: ["user-credits"] });
       }
+      setStore(CLAIMED_PREFIX, promo.id);
       queryClient.invalidateQueries({ queryKey: ["active-promos"] });
     } catch {
       toast.error("Failed to claim reward");
     } finally {
       setClaiming(false);
-      addCooldown(promo.key);
+      hide(promo.id);
     }
   };
 
   const handleDismiss = async (promo: PromoCampaign) => {
-    addCooldown(promo.key);
+    setStore(DISMISSED_PREFIX, promo.id);
+    hide(promo.id);
     try {
       await supabase.rpc("dismiss_promo" as any, { p_campaign_key: promo.key });
       queryClient.invalidateQueries({ queryKey: ["active-promos"] });
-    } catch {
-      // silent
-    }
+    } catch { /* silent */ }
   };
 
   const rewardLabel =
@@ -97,11 +148,7 @@ export function PromoPopup() {
           <p className="text-lg font-semibold">{rewardLabel}</p>
         </div>
         <div className="flex gap-3 justify-end">
-          <Button
-            variant="outline"
-            onClick={() => handleDismiss(current)}
-            disabled={claiming}
-          >
+          <Button variant="outline" onClick={() => handleDismiss(current)} disabled={claiming}>
             Dismiss
           </Button>
           <Button onClick={() => handleClaim(current)} disabled={claiming}>
