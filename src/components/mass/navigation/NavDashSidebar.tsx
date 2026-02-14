@@ -45,6 +45,7 @@ import {
 import adaIcon from "@/assets/ada-icon.png";
 import { useRoles } from "@/hooks/useRoles";
 import { useAuth } from "@/hooks/useAuth";
+import { useDailySalesCounter } from "@/hooks/useDailySalesCounter";
 
 // Items that have an extended sidebar panel
 const EXTENDED_SIDEBAR_ITEMS = ["Visionaire", "Dashboard"];
@@ -167,6 +168,7 @@ const EXTENDED_WIDTH = 260;
 export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDashSidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const dailySales = useDailySalesCounter();
   const { isAdmin } = useRoles();
   const { profile } = useAuth();
 
@@ -252,7 +254,7 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
                 <TrendingUp className="w-5 h-5 shrink-0" style={{ color: "#6dbb8a" }} />
                 <div className="min-w-0">
                   <span className="text-lg font-semibold block leading-tight" style={{ color: "#6dbb8a" }}>
-                    $1,532,492.32
+                    ${dailySales}
                   </span>
                   <span className="text-xs" style={{ color: "#6dbb8a" }}>+ 22.6%</span>
                   <span className="text-[10px] block mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>
