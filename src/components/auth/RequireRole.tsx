@@ -8,7 +8,7 @@ import { Loader2 } from "lucide-react";
 interface RequireRoleProps {
   allowed: UserType[];
   children: ReactNode;
-  /** Where to redirect if role doesn't match. Defaults to /dashboard/dashboard/profile */
+  /** Where to redirect if role doesn't match. Defaults to /dashboard/profile */
   redirectTo?: string;
 }
 
@@ -16,7 +16,7 @@ interface RequireRoleProps {
  * Route guard that redirects silently if the user's resolved role
  * is not in the allowed list.
  */
-export function RequireRole({ allowed, children, redirectTo = "/dashboard/dashboard/profile" }: RequireRoleProps) {
+export function RequireRole({ allowed, children, redirectTo = "/dashboard/profile" }: RequireRoleProps) {
   const { profile, isLoading: authLoading } = useAuth();
   const { isAdmin, isLoading: rolesLoading } = useRoles();
 

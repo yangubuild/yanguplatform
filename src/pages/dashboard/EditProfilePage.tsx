@@ -36,7 +36,7 @@ export default function EditProfilePage() {
 
   const handleSave = () => {
     toast({ title: "Profile saved", description: "Your changes have been applied." });
-    navigate("/dashboard/dashboard/profile");
+    navigate("/dashboard/profile");
   };
 
   return (

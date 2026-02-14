@@ -142,7 +142,7 @@ export const DASHBOARD_SECTIONS: NavSection[] = [
   {
     title: "ACCOUNT",
     items: [
-      { icon: UserCircle, label: "Profile", to: "/dashboard/dashboard/profile" },
+      { icon: UserCircle, label: "Profile", to: "/dashboard/profile" },
       { icon: ShieldCheck, label: "Admin", to: "/manage", rolesAllowed: ["admin"] },
       { icon: Briefcase, label: "My Agency", to: "/dashboard/dashboard/agency", rolesAllowed: ["org"] },
     ],
