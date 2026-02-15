@@ -181,7 +181,7 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
     return (
       <>
         <NotFound />
-        <RouteDebugBar debug={debugInfo} route={null} />
+        {import.meta.env.DEV && <RouteDebugBar debug={debugInfo} route={null} />}
       </>
     );
   }
@@ -239,7 +239,7 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
   return (
     <>
       {content}
-      <RouteDebugBar debug={debugInfo} route={resolvedRoute} />
+      {import.meta.env.DEV && <RouteDebugBar debug={debugInfo} route={resolvedRoute} />}
     </>
   );
 }
