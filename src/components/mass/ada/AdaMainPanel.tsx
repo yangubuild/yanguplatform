@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { X, Mic, Settings, ChevronDown, Smartphone, Plus, ArrowUp, AudioLines, User, Loader2, Paperclip } from "lucide-react";
+import { X, Mic, Settings, ChevronDown, Smartphone, Plus, ArrowUp, AudioLines, User, Loader2, Paperclip, Download } from "lucide-react";
 import adaLogo from "@/assets/ada-logo-full.png";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdaVoice } from "@/hooks/useAdaVoice";
@@ -838,13 +838,24 @@ export function AdaMainPanel() {
                           const imgMatch = part.match(/^!\[(.*?)\]\((.*?)\)$/);
                           if (imgMatch) {
                             return (
-                              <img
-                                key={idx}
-                                src={imgMatch[2]}
-                                alt={imgMatch[1]}
-                                className="rounded-lg max-w-full mt-2 mb-2"
-                                style={{ maxHeight: "400px" }}
-                              />
+                              <div key={idx} className="relative inline-block">
+                                <img
+                                  src={imgMatch[2]}
+                                  alt={imgMatch[1]}
+                                  className="rounded-lg max-w-full mt-2 mb-2"
+                                  style={{ maxHeight: "400px" }}
+                                />
+                                <a
+                                  href={imgMatch[2]}
+                                  download={`ada-image-${Date.now()}.png`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="absolute top-4 right-2 p-2 rounded-lg bg-black/60 hover:bg-black/80 text-white/80 hover:text-white transition-colors"
+                                  title="Download image"
+                                >
+                                  <Download className="w-4 h-4" />
+                                </a>
+                              </div>
                             );
                           }
                           return part ? <span key={idx} style={{ whiteSpace: "pre-wrap" }}>{part}</span> : null;
