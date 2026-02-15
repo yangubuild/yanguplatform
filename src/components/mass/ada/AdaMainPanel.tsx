@@ -321,7 +321,7 @@ export function AdaMainPanel() {
   const handleDiscuss = useCallback(async (text: string, cid: string) => {
     setIsThinking(true);
     try {
-      const convMessages = messages.slice(-10).map(m => ({ role: m.role, content: m.content }));
+      const convMessages = messages.slice(-20).map(m => ({ role: m.role, content: m.content }));
       convMessages.push({ role: "user", content: text });
 
       const { data: fnData, error: fnErr } = await supabase.functions.invoke("ada-chat", {

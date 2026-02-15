@@ -28,7 +28,7 @@ IMPORTANT: You have built-in capabilities to generate images and videos directly
 
     const aiMessages = [
       { role: "system", content: systemPrompt },
-      ...messages.slice(-10), // last 10 messages for context
+      ...messages.slice(-20), // last 20 messages for context
     ];
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
