@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { resolveRoute, isDevEnvironment, normalizeHostname, type ResolvedRoute, type RouteDebugInfo } from "@/lib/routing/resolveRoute";
 import { DomainHome } from "./DomainHome";
 import Index from "@/pages/Index";
+import Community from "@/pages/Community";
 import { IdentityHub } from "./IdentityHub";
 import { SurfaceViewer } from "./SurfaceViewer";
 import NotFound from "@/pages/NotFound";
@@ -13,8 +14,8 @@ interface PublicRouteResolverProps {
 }
 
 // Non-primary platform domains that redirect root "/" to yangu.io
+// yangu.community is excluded — it renders its own Community homepage
 const REDIRECT_DOMAINS = new Set([
-  "yangu.community",
   "yangu.site",
   "yangu.shop",
   "yangu.store",
@@ -212,6 +213,9 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
       // For the primary domain (io), show the public landing page
       if (resolvedRoute.domain_type === "io") {
         content = <Index />;
+      } else if (resolvedRoute.domain_type === "community") {
+        // yangu.community root → show Community homepage
+        content = <Community />;
       } else {
         content = (
           <DomainHome
