@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { X, Mic, Settings, ChevronDown, Smartphone, Plus, ArrowUp, AudioLines, User, Loader2, Paperclip, Download, RefreshCw } from "lucide-react";
+import { X, Mic, Settings, ChevronDown, Smartphone, Plus, ArrowUp, AudioLines, User, Loader2, Paperclip, Download, RefreshCw, Globe, CloudUpload, Palette, Code2, BarChart3 } from "lucide-react";
 import adaLogo from "@/assets/ada-logo-full.png";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdaVoice } from "@/hooks/useAdaVoice";
@@ -45,7 +45,7 @@ function saveAnonChats(chats: { id: string; title: string; messages: ChatMessage
   localStorage.setItem(ANON_CHATS_KEY, JSON.stringify(chats));
 }
 
-// --- SSE stream parser with RAF-based flushing for real progressive rendering ---
+// --- SSE stream parser with typewriter-style token rendering ---
 async function readSSEStream(
   reader: ReadableStreamDefaultReader<Uint8Array>,
   onChunk: (fullText: string) => void,
@@ -54,18 +54,35 @@ async function readSSEStream(
   const decoder = new TextDecoder();
   let buffer = "";
   let accumulated = "";
-  let rafPending = false;
+  // Token queue for typewriter effect
+  const tokenQueue: string[] = [];
+  let draining = false;
 
-  const flush = () => {
-    rafPending = false;
-    onChunk(accumulated);
-  };
-
-  const scheduleFlush = () => {
-    if (!rafPending) {
-      rafPending = true;
-      requestAnimationFrame(flush);
-    }
+  const drainQueue = () => {
+    if (draining || tokenQueue.length === 0) return;
+    draining = true;
+    const processNext = () => {
+      if (tokenQueue.length === 0) { draining = false; return; }
+      const token = tokenQueue.shift()!;
+      // Emit word-by-word within the token
+      const words = token.split(/(\s+)/);
+      let i = 0;
+      const emitWord = () => {
+        if (i >= words.length) {
+          // Small delay between tokens
+          setTimeout(processNext, 10);
+          return;
+        }
+        accumulated += words[i];
+        i++;
+        onChunk(accumulated);
+        // 20-40ms delay between words for typewriter feel
+        const delay = 20 + Math.random() * 20;
+        setTimeout(emitWord, delay);
+      };
+      emitWord();
+    };
+    processNext();
   };
 
   while (true) {
@@ -79,29 +96,39 @@ async function readSSEStream(
       if (!line.startsWith("data: ")) continue;
       const data = line.slice(6).trim();
       if (data === "[DONE]") {
-        if (rafPending) { cancelAnimationFrame(0); flush(); }
-        onDone();
+        // Flush remaining queue then done
+        const waitDrain = () => {
+          if (tokenQueue.length === 0 && !draining) { onDone(); return; }
+          setTimeout(waitDrain, 30);
+        };
+        waitDrain();
         return;
       }
       try {
         const parsed = JSON.parse(data);
         if (parsed.type === "token" && parsed.text) {
-          accumulated += parsed.text;
-          scheduleFlush();
+          tokenQueue.push(parsed.text);
+          drainQueue();
         } else if (parsed.type === "done") {
-          if (rafPending) flush();
-          onDone();
+          const waitDrain = () => {
+            if (tokenQueue.length === 0 && !draining) { onDone(); return; }
+            setTimeout(waitDrain, 30);
+          };
+          waitDrain();
           return;
         } else if (parsed.choices?.[0]?.delta?.content) {
-          accumulated += parsed.choices[0].delta.content;
-          scheduleFlush();
+          tokenQueue.push(parsed.choices[0].delta.content);
+          drainQueue();
         }
       } catch { /* skip non-JSON lines */ }
     }
   }
-  // Final flush for any remaining tokens
-  if (rafPending) flush();
-  onDone();
+  // Final drain
+  const waitFinalDrain = () => {
+    if (tokenQueue.length === 0 && !draining) { onDone(); return; }
+    setTimeout(waitFinalDrain, 30);
+  };
+  waitFinalDrain();
 }
 
 // --- SSE stream parser for generation status events ---
@@ -152,12 +179,12 @@ export function AdaMainPanel() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // Smart auto-scroll: only scroll if user is near bottom
+  // Smart auto-scroll: only scroll if user is within 200px of bottom
   const isNearBottomRef = useRef(true);
   const checkNearBottom = useCallback(() => {
     const el = scrollContainerRef.current;
     if (!el) return;
-    const threshold = 120;
+    const threshold = 200;
     isNearBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
   }, []);
 
@@ -166,6 +193,61 @@ export function AdaMainPanel() {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, []);
+
+  // Command center states
+  const [showAdvancedModal, setShowAdvancedModal] = useState(false);
+  const [showHistoryDrawer, setShowHistoryDrawer] = useState(false);
+  const [showStylesDrawer, setShowStylesDrawer] = useState(false);
+
+  // Listen for command events from sidebar icons
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const cmd = (e as CustomEvent).detail;
+      switch (cmd) {
+        case "preview": {
+          // Find the last media message with a URL and open it
+          const lastMedia = [...messages].reverse().find(m => m.mediaGen?.previewUrl || m.metadata?.storage_path);
+          if (lastMedia?.mediaGen?.previewUrl) {
+            window.open(lastMedia.mediaGen.previewUrl, "_blank");
+          } else {
+            toast({ title: "No asset to preview", variant: "destructive" });
+          }
+          break;
+        }
+        case "save": {
+          // Save last generated media to studio library
+          const media = [...messages].reverse().find(m => m.mediaGen?.previewUrl);
+          if (media?.mediaGen?.previewUrl && user) {
+            supabase.from("ada_media").insert({
+              user_id: user.id,
+              chat_id: activeChatId || undefined,
+              provider: (media.metadata as any)?.provider || "ada",
+              storage_path: (media.metadata as any)?.storage_path || media.mediaGen!.previewUrl,
+              kind: media.mediaGen!.kind,
+              metadata: { prompt: media.mediaGen?.caption },
+            }).then(({ error }) => {
+              if (error) toast({ title: "Failed to save", variant: "destructive" });
+              else toast({ title: "Saved to Studio ✓" });
+            });
+          } else {
+            toast({ title: "No media to save", variant: "destructive" });
+          }
+          break;
+        }
+        case "styles":
+          setShowStylesDrawer(true);
+          break;
+        case "advanced":
+          setShowAdvancedModal(true);
+          break;
+        case "history":
+          setShowHistoryDrawer(true);
+          break;
+      }
+    };
+    window.addEventListener("ada-command", handler);
+    return () => window.removeEventListener("ada-command", handler);
+  }, [messages, user, activeChatId]);
 
   // Scroll when messages change (only if near bottom)
   useEffect(() => {
@@ -1491,6 +1573,110 @@ export function AdaMainPanel() {
           represent views.
         </p>
       </div>
+
+      {/* Advanced Prompt Modal */}
+      {showAdvancedModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setShowAdvancedModal(false)}>
+          <div className="w-full max-w-md rounded-2xl p-6 space-y-4" style={{ background: "#111", border: "1px solid rgba(255,255,255,0.1)" }} onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Code2 className="w-5 h-5 text-[#F4A83D]" />
+                <h3 className="text-white font-semibold">Advanced Mode</h3>
+              </div>
+              <button onClick={() => setShowAdvancedModal(false)} className="text-white/40 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="space-y-3">
+              <label className="block">
+                <span className="text-white/50 text-xs">Provider</span>
+                <select className="w-full mt-1 px-3 py-2 rounded-lg text-sm text-white/80 outline-none" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                  <option value="ideogram">Ideogram</option>
+                  <option value="qwen">Qwen</option>
+                  <option value="creatify">Creatify (Video)</option>
+                </select>
+              </label>
+              <label className="block">
+                <span className="text-white/50 text-xs">Aspect Ratio</span>
+                <select className="w-full mt-1 px-3 py-2 rounded-lg text-sm text-white/80 outline-none" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                  <option value="1:1">1:1</option>
+                  <option value="16:9">16:9</option>
+                  <option value="9:16">9:16</option>
+                  <option value="4:3">4:3</option>
+                </select>
+              </label>
+              <label className="block">
+                <span className="text-white/50 text-xs">Raw Params (JSON)</span>
+                <textarea rows={3} className="w-full mt-1 px-3 py-2 rounded-lg text-sm text-white/60 font-mono outline-none resize-none" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)" }} placeholder='{"style_type": "realistic"}' />
+              </label>
+            </div>
+            <p className="text-white/30 text-xs">Configure generation parameters before sending a /image or /video command.</p>
+          </div>
+        </div>
+      )}
+
+      {/* Styles Drawer */}
+      {showStylesDrawer && (
+        <div className="fixed inset-0 z-50 flex justify-end bg-black/40" onClick={() => setShowStylesDrawer(false)}>
+          <div className="w-80 h-full overflow-y-auto p-6 space-y-4" style={{ background: "#0a0a0a", borderLeft: "1px solid rgba(255,255,255,0.08)" }} onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Palette className="w-5 h-5 text-[#F4A83D]" />
+                <h3 className="text-white font-semibold">Preset Styles</h3>
+              </div>
+              <button onClick={() => setShowStylesDrawer(false)} className="text-white/40 hover:text-white"><X className="w-5 h-5" /></button>
+            </div>
+            {["Photorealistic", "Digital Art", "Watercolor", "3D Render", "Minimalist", "Anime", "Sketch"].map(style => (
+              <button
+                key={style}
+                onClick={() => { setInputValue(prev => prev ? `${prev}, ${style.toLowerCase()} style` : `/image ${style.toLowerCase()} style `); setShowStylesDrawer(false); }}
+                className="w-full text-left px-4 py-3 rounded-xl text-sm text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+                style={{ border: "1px solid rgba(255,255,255,0.06)" }}
+              >
+                {style}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* History Drawer */}
+      {showHistoryDrawer && (
+        <div className="fixed inset-0 z-50 flex justify-end bg-black/40" onClick={() => setShowHistoryDrawer(false)}>
+          <div className="w-96 h-full overflow-y-auto p-6 space-y-4" style={{ background: "#0a0a0a", borderLeft: "1px solid rgba(255,255,255,0.08)" }} onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-[#F4A83D]" />
+                <h3 className="text-white font-semibold">Generation History</h3>
+              </div>
+              <button onClick={() => setShowHistoryDrawer(false)} className="text-white/40 hover:text-white"><X className="w-5 h-5" /></button>
+            </div>
+            {messages.filter(m => m.mediaGen).length === 0 ? (
+              <p className="text-white/30 text-sm">No generations yet in this session.</p>
+            ) : (
+              messages.filter(m => m.mediaGen).map(m => (
+                <div key={m.id} className="rounded-xl p-3 space-y-2" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-white/50 capitalize">{m.mediaGen!.kind} • {m.mediaGen!.status}</span>
+                    <span className="text-xs text-white/30">{new Date(m.created_at).toLocaleTimeString()}</span>
+                  </div>
+                  {m.mediaGen!.caption && <p className="text-sm text-white/60 truncate">{m.mediaGen!.caption}</p>}
+                  {m.mediaGen!.previewUrl && (
+                    <div className="flex items-center gap-2">
+                      <a href={m.mediaGen!.previewUrl} download target="_blank" rel="noopener noreferrer" className="text-xs text-[#F4A83D] hover:underline flex items-center gap-1">
+                        <Download className="w-3 h-3" /> Download
+                      </a>
+                      <button onClick={() => { if (m.mediaGen?.retryPrompt && m.mediaGen?.retryCid) handleRetryMedia(m); }} className="text-xs text-white/40 hover:text-white/70 flex items-center gap-1">
+                        <RefreshCw className="w-3 h-3" /> Retry
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
     </main>
   );
 }
