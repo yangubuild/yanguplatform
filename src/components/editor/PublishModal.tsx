@@ -39,7 +39,8 @@ interface PublishModalProps {
 
 // Map blocked reasons to actionable items
 const REASON_ACTIONS: Record<string, { icon: typeof Shield; route: string; label: string }> = {
-  "Verify your identity to publish on this domain.": { icon: Shield, route: "/kyc", label: "Verify Identity" },
+  "KYC_REQUIRED": { icon: Shield, route: "/kyc", label: "Start KYC" },
+  "Verify your identity to publish on this domain.": { icon: Shield, route: "/kyc", label: "Start KYC" },
   "An active plan is required to publish additional surfaces.": { icon: CreditCard, route: "/billing", label: "Upgrade Plan" },
   "You can publish 1 surface for free. Upgrade to publish more.": { icon: CreditCard, route: "/billing", label: "Upgrade Plan" },
   "This link is already in use on this domain. Try a different name.": { icon: Link2, route: "", label: "" },
@@ -395,16 +396,33 @@ export function PublishModal({
             <Card className="p-4 border-destructive/50 bg-destructive/5">
               <div className="flex items-start gap-3">
                 <XCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
-                <div>
+                <div className="flex-1 min-w-0">
                   <p className="font-medium text-destructive">You can't publish this yet.</p>
                   {publishResult.reasons && publishResult.reasons.length > 0 && (
-                    <ul className="mt-2 space-y-1">
-                      {publishResult.reasons.map((reason, idx) => (
-                        <li key={idx} className="text-sm text-muted-foreground">
-                          • {reason}
-                        </li>
-                      ))}
-                    </ul>
+                    <div className="mt-3 space-y-2">
+                      {publishResult.reasons.map((reason, idx) => {
+                        const action = REASON_ACTIONS[reason];
+                        return (
+                          <div key={idx} className="flex items-center justify-between gap-2 text-sm">
+                            <span className="text-muted-foreground">{reason === "KYC_REQUIRED" ? "Verify your identity to publish on this domain." : reason}</span>
+                            {action && action.route && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="shrink-0 gap-1"
+                                onClick={() => {
+                                  onOpenChange(false);
+                                  navigate(action.route);
+                                }}
+                              >
+                                {action.label}
+                                <ArrowRight className="h-3 w-3" />
+                              </Button>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   )}
                 </div>
               </div>

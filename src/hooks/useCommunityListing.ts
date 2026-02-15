@@ -39,10 +39,27 @@ export function useCommunityListing(surfaceId: string) {
         toast.success("Listed on Community");
         invalidate();
       } else {
-        toast.error(data?.error || "Failed to list on Community");
+        const errMsg = data?.error || "";
+        const isKyc = errMsg.includes("KYC") || errMsg.toLowerCase().includes("verify your identity");
+        if (isKyc) {
+          toast.error("Verify your identity to list on Community.", {
+            action: { label: "Start KYC", onClick: () => window.location.assign("/kyc") },
+          });
+        } else {
+          toast.error(errMsg || "Failed to list on Community");
+        }
       }
     },
-    onError: (err: Error) => toast.error(err.message),
+    onError: (err: Error) => {
+      const isKyc = err.message.includes("KYC") || err.message.toLowerCase().includes("verify your identity");
+      if (isKyc) {
+        toast.error("Verify your identity to list on Community.", {
+          action: { label: "Start KYC", onClick: () => window.location.assign("/kyc") },
+        });
+      } else {
+        toast.error(err.message);
+      }
+    },
   });
 
   const unlistFromCommunity = useMutation({
