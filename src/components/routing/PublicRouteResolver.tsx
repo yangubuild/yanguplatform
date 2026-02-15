@@ -2,6 +2,7 @@ import { useEffect, useState, ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { resolveRoute, isDevEnvironment, normalizeHostname, type ResolvedRoute, type RouteDebugInfo } from "@/lib/routing/resolveRoute";
 import { DomainHome } from "./DomainHome";
+import Index from "@/pages/Index";
 import { IdentityHub } from "./IdentityHub";
 import { SurfaceViewer } from "./SurfaceViewer";
 import NotFound from "@/pages/NotFound";
@@ -204,12 +205,17 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
       break;
 
     case "platform_home":
-      content = (
-        <DomainHome
-          domainType={resolvedRoute.domain_type}
-          host={resolvedRoute.host}
-        />
-      );
+      // For the primary domain (io), show the public landing page
+      if (resolvedRoute.domain_type === "io") {
+        content = <Index />;
+      } else {
+        content = (
+          <DomainHome
+            domainType={resolvedRoute.domain_type}
+            host={resolvedRoute.host}
+          />
+        );
+      }
       break;
 
     case "identity_profile":
