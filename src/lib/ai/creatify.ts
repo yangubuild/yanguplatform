@@ -42,24 +42,30 @@ export async function generateCreatifyVideo(
     return { ok: false, error: rpcErr?.message || "Failed to create generation" };
   }
 
-  // 2. Call edge function to process (this may take several minutes)
-  const { data: fnData, error: fnErr } = await supabase.functions.invoke(
-    "creatify-generate",
-    { body: { generation_id: generationId } }
-  );
+  // 2. Call edge function to process (use fetch to avoid gateway JWT issues)
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  const session = (await supabase.auth.getSession()).data.session;
 
-  if (fnErr) {
-    // Try to extract the JSON body from the FunctionsHttpError
-    let detail: Record<string, unknown> | undefined;
-    try { detail = await (fnErr as any).context?.json?.(); } catch (_) {}
-    const msg = detail?.message || detail?.creatify_body || fnErr.message || "Video generation failed";
-    console.error("[creatify] Edge function error:", { status: (fnErr as any).context?.status, detail });
-    return { ok: false, generation_id: generationId, error: typeof msg === "string" ? msg : JSON.stringify(msg) };
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    apikey: supabaseKey,
+  };
+  if (session?.access_token) {
+    headers["Authorization"] = `Bearer ${session.access_token}`;
   }
 
-  if (!fnData?.ok) {
-    const msg = fnData?.creatify_body || fnData?.message || "Video generation failed";
-    console.error("[creatify] Upstream Creatify error:", fnData);
+  const res = await fetch(`${supabaseUrl}/functions/v1/creatify-generate`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ generation_id: generationId }),
+  });
+
+  const fnData = await res.json().catch(() => null);
+
+  if (!res.ok || !fnData?.ok) {
+    const msg = fnData?.message || fnData?.creatify_body || "Video generation failed";
+    console.error("[creatify] Edge function error:", fnData);
     return {
       ok: false,
       generation_id: generationId,
