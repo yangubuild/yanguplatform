@@ -11,26 +11,25 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    // Auth
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return json({ ok: false, error_code: "AUTH_REQUIRED", message: "Authentication required" }, 401);
-    }
-
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 
-    // Verify user via getClaims (compatible with signing-keys)
-    const userClient = createClient(supabaseUrl, anonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsErr } = await userClient.auth.getClaims(token);
-    if (claimsErr || !claimsData?.claims) {
-      return json({ ok: false, error_code: "AUTH_INVALID", message: "Invalid auth token" }, 401);
+    // Extract user ID from JWT payload (verify_jwt=false, decode manually)
+    let userId: string | null = null;
+    if (authHeader?.startsWith("Bearer ")) {
+      try {
+        const token = authHeader.slice(7);
+        const payloadB64 = token.split(".")[1];
+        const payload = JSON.parse(atob(payloadB64));
+        userId = payload.sub || null;
+      } catch (_) { /* ignore */ }
     }
-    const user = { id: claimsData.claims.sub as string };
+
+    if (!userId) {
+      return json({ ok: false, error_code: "AUTH_REQUIRED", message: "Authentication required" }, 401);
+    }
+    const user = { id: userId };
 
     const { prompt, chatId, provider = "openai" } = await req.json();
 

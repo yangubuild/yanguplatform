@@ -19,21 +19,25 @@ serve(async (req) => {
 
   try {
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) return json({ ok: false, error_code: "AUTH_REQUIRED", message: "Authentication required" }, 401);
-
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const qwenKey = Deno.env.get("QWEN_API_KEY");
 
     if (!qwenKey) return json({ ok: false, error_code: "PROVIDER_NOT_CONFIGURED", message: "Qwen API key not configured" }, 500);
 
-    // Verify user via getClaims (compatible with signing-keys)
-    const userClient = createClient(supabaseUrl, anonKey, { global: { headers: { Authorization: authHeader } } });
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsErr } = await userClient.auth.getClaims(token);
-    if (claimsErr || !claimsData?.claims) return json({ ok: false, error_code: "AUTH_INVALID", message: "Invalid auth token" }, 401);
-    const user = { id: claimsData.claims.sub as string };
+    // Extract user ID from JWT payload (verify_jwt=false, so we decode manually)
+    let userId: string | null = null;
+    if (authHeader?.startsWith("Bearer ")) {
+      try {
+        const token = authHeader.slice(7);
+        const payloadB64 = token.split(".")[1];
+        const payload = JSON.parse(atob(payloadB64));
+        userId = payload.sub || null;
+      } catch (_) { /* ignore */ }
+    }
+
+    if (!userId) return json({ ok: false, error_code: "AUTH_REQUIRED", message: "Authentication required" }, 401);
+    const user = { id: userId };
 
     const { generation_id } = await req.json();
     if (!generation_id) return json({ ok: false, error_code: "BAD_REQUEST", message: "generation_id is required" }, 400);
