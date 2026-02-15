@@ -1760,12 +1760,10 @@ export type Database = {
         Returns: number
       }
       count_published_surfaces: { Args: { _user_id: string }; Returns: number }
-      create_creatify_generation:
-        | { Args: { p_params?: Json; p_prompt: string }; Returns: string }
-        | {
-            Args: { p_cost_credits?: number; p_params?: Json; p_prompt: string }
-            Returns: string
-          }
+      create_creatify_generation: {
+        Args: { p_cost_credits?: number; p_params?: Json; p_prompt: string }
+        Returns: string
+      }
       create_ideogram_generation:
         | { Args: { p_params?: Json; p_prompt: string }; Returns: string }
         | {
