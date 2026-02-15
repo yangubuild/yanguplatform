@@ -55,12 +55,19 @@ serve(async (req) => {
       return json({ ok: false, error_code: "PROVIDER_NOT_CONFIGURED", message: "Creatify API credentials not configured" }, 500);
     }
 
-    // Verify user via getClaims (compatible with signing-keys)
-    const userClient = createClient(supabaseUrl, anonKey, { global: { headers: { Authorization: authHeader } } });
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsErr } = await userClient.auth.getClaims(token);
-    if (claimsErr || !claimsData?.claims) return json({ ok: false, error_code: "AUTH_INVALID", message: "Invalid auth token" }, 401);
-    const user = { id: claimsData.claims.sub as string };
+    // Extract user ID from JWT payload (verify_jwt=false, decode manually)
+    let userId: string | null = null;
+    if (authHeader?.startsWith("Bearer ")) {
+      try {
+        const token = authHeader.slice(7);
+        const payloadB64 = token.split(".")[1];
+        const payload = JSON.parse(atob(payloadB64));
+        userId = payload.sub || null;
+      } catch (_) { /* ignore */ }
+    }
+
+    if (!userId) return json({ ok: false, error_code: "AUTH_REQUIRED", message: "Authentication required" }, 401);
+    const user = { id: userId };
 
     const body = await req.json();
     const action = body.action || "generate";
