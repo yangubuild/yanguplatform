@@ -39,18 +39,29 @@ export async function generateQwenImage(
     return { ok: false, error: rpcErr?.message || "Failed to create generation" };
   }
 
-  // 2. Call edge function to process
-  const { data: fnData, error: fnErr } = await supabase.functions.invoke(
-    "qwen-generate",
-    { body: { generation_id: generationId } }
-  );
+  // 2. Call edge function to process (use fetch to avoid gateway JWT issues)
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  const session = (await supabase.auth.getSession()).data.session;
 
-  if (fnErr) {
-    console.error("[qwen] Edge function error:", fnErr);
-    return { ok: false, generation_id: generationId, error: "Image generation failed" };
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    apikey: supabaseKey,
+  };
+  if (session?.access_token) {
+    headers["Authorization"] = `Bearer ${session.access_token}`;
   }
 
-  if (!fnData?.ok) {
+  const res = await fetch(`${supabaseUrl}/functions/v1/qwen-generate`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ generation_id: generationId }),
+  });
+
+  const fnData = await res.json().catch(() => null);
+
+  if (!res.ok || !fnData?.ok) {
+    console.error("[qwen] Edge function error:", fnData);
     return {
       ok: false,
       generation_id: generationId,
