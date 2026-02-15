@@ -31,7 +31,7 @@ export async function generateQwenImage(
   // 1. Create generation record via RPC
   const { data: generationId, error: rpcErr } = await supabase.rpc(
     "create_qwen_generation",
-    { p_prompt: prompt, p_params: params as unknown as Record<string, string> }
+    { p_prompt: prompt, p_params: params as unknown as Record<string, string>, p_cost_credits: 1 }
   );
 
   if (rpcErr || !generationId) {
