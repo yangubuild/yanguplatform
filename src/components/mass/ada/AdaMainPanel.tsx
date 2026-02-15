@@ -47,6 +47,14 @@ interface ChatMessage {
 const IMAGE_KEYWORDS = ["poster", "banner", "ad", "thumbnail", "product shot", "flyer", "cover", "logo", "carousel", "facebook post", "social media poster", "instagram ad", "instagram post", "social media", "social post", "twitter post", "linkedin post"];
 const VIDEO_KEYWORDS = ["video", "reel", "tiktok", "motion", "clip", "cinematic", "animation"];
 
+// Keywords that indicate Creatify can handle the video (avatar, ad script, template, URL)
+const CREATIFY_KEYWORDS = ["avatar", "template", "ad script", "script", "spokesperson", "presenter", "url-to-video", "product url", "landing page", "http://", "https://"];
+
+function isCreatifyCompatible(text: string): boolean {
+  const lower = text.toLowerCase();
+  return CREATIFY_KEYWORDS.some(k => lower.includes(k));
+}
+
 // Social media prompt patterns for auto-routing to image
 const SOCIAL_MEDIA_RE = /\b(create|make|generate|design)\s+(a\s+)?(facebook|instagram|twitter|linkedin|social\s*media)\s+(post|poster|ad|banner|story|carousel)\b/i;
 
@@ -241,6 +249,7 @@ export function AdaMainPanel() {
   const [pendingAttachments, setPendingAttachments] = useState<{ name: string; type: string; size: number; path: string }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const extensionsRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Smart auto-scroll: only scroll if user is within 200px of bottom
@@ -279,6 +288,43 @@ export function AdaMainPanel() {
   const updateProvider = (p: string) => { setSelectedProvider(p); localStorage.setItem("ada_provider", p); setAdvancedOverride(true); };
   const updateAspectRatio = (r: string) => { setSelectedAspectRatio(r); localStorage.setItem("ada_aspect_ratio", r); };
   const updateAdvancedParams = (v: string) => { setAdvancedParams(v); localStorage.setItem("ada_params", v); };
+
+  // Right-side header icon states (persisted)
+  const [mobilePreviewEnabled, setMobilePreviewEnabled] = useState(() => localStorage.getItem("ada_mobile_preview") === "true");
+  const [showExtensionsDropdown, setShowExtensionsDropdown] = useState(false);
+  const [enabledProviders, setEnabledProviders] = useState<Record<string, boolean>>(() => {
+    try { return JSON.parse(localStorage.getItem("ada_enabled_providers") || "{}"); } catch { return {}; }
+  });
+
+  const toggleProvider = (key: string) => {
+    setEnabledProviders(prev => {
+      const next = { ...prev, [key]: !prev[key] };
+      localStorage.setItem("ada_enabled_providers", JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const toggleMobilePreview = () => {
+    setMobilePreviewEnabled(prev => {
+      const next = !prev;
+      localStorage.setItem("ada_mobile_preview", String(next));
+      return next;
+    });
+  };
+
+  // Role context applied internally based on adaSkill
+  const roleContext = adaSkill === "starter" ? "standard" : adaSkill === "creator" ? "image_priority" : "motion_priority";
+  // Close extensions dropdown on outside click
+  useEffect(() => {
+    if (!showExtensionsDropdown) return;
+    const handler = (e: MouseEvent) => {
+      if (extensionsRef.current && !extensionsRef.current.contains(e.target as Node)) {
+        setShowExtensionsDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showExtensionsDropdown]);
 
   // Listen for command events from sidebar icons
   useEffect(() => {
@@ -817,7 +863,18 @@ export function AdaMainPanel() {
     if (text.startsWith("/video ")) {
       const videoPrompt = text.slice(7).trim();
       if (videoPrompt) {
-        await handleVideoGenerate(videoPrompt, cid);
+        // Route: Creatify only for compatible prompts, otherwise image→motion fallback
+        if (isCreatifyCompatible(videoPrompt)) {
+          await handleVideoGenerate(videoPrompt, cid);
+        } else {
+          // Fallback: generate image then present as motion asset
+          const prov = (enabledProviders.ideogram_image !== false) ? "ideogram" : "qwen";
+          await handleImageGenerate(videoPrompt, cid, prov as "ideogram" | "qwen");
+          // Add routing pill context
+          const motionPill: RoutingPill = { mode: "Motion Pro", tier: "Image→Motion", provider: prov === "ideogram" ? "Ideogram" : "Qwen" };
+          const lastMsg = messages[messages.length - 1];
+          if (lastMsg) addRoutingPill(lastMsg.id, motionPill);
+        }
       } else {
         const errMsg: ChatMessage = { id: `msg_${Date.now()}`, role: "assistant", content: "Please provide a prompt or URL after `/video`.", created_at: new Date().toISOString() };
         setMessages(prev => [...prev, errMsg]);
@@ -868,21 +925,29 @@ export function AdaMainPanel() {
     };
 
     if (routing.kind === "video") {
-      // Credit safety check
-      const ent = await consumeEntitlement("video");
-      if (!ent.allowed) {
-        const errMsg: ChatMessage = {
-          id: `msg_${Date.now()}`, role: "assistant",
-          content: `⚠️ ${ent.error || "Insufficient credits for video."}\n\n💡 Switch to **Standard** mode for a cheaper option.`,
-          routingPill: pill,
-          created_at: new Date().toISOString(),
-        };
-        setMessages(prev => [...prev, errMsg]);
-        await persistMessage(cid, errMsg);
-        return;
+      // Route: only use Creatify for compatible prompts
+      if (isCreatifyCompatible(text)) {
+        // Credit safety check
+        const ent = await consumeEntitlement("video");
+        if (!ent.allowed) {
+          const errMsg: ChatMessage = {
+            id: `msg_${Date.now()}`, role: "assistant",
+            content: `⚠️ ${ent.error || "Insufficient credits for video."}\n\n💡 Switch to **Standard** mode for a cheaper option.`,
+            routingPill: pill,
+            created_at: new Date().toISOString(),
+          };
+          setMessages(prev => [...prev, errMsg]);
+          await persistMessage(cid, errMsg);
+          return;
+        }
+        await handleVideoGenerate(text, cid);
+      } else {
+        // Fallback: generate high-quality image as motion asset (never fail)
+        const motionProv = (enabledProviders.ideogram_image !== false) ? "ideogram" : "qwen";
+        pill.tier = "Image→Motion";
+        pill.provider = motionProv === "ideogram" ? "Ideogram" : "Qwen";
+        await handleImageGenerate(text, cid, motionProv as "ideogram" | "qwen");
       }
-      // For video intent from natural language, strip intent keywords for cleaner prompt
-      await handleVideoGenerate(text, cid);
     } else if (routing.kind === "image" || isExplicitImageIntent) {
       const cleanPrompt = isExplicitImageIntent
         ? text.replace(/^(generate|create|make|draw|design|paint|sketch)\s+(me\s+)?(an?\s+)?(image|picture|photo|illustration|artwork|logo|icon|graphic|poster|banner)\s*(of\s+)?/i, "").replace(/^(an?\s+)?(image|picture)\s+of\s+/i, "").trim() || text
@@ -1385,17 +1450,73 @@ export function AdaMainPanel() {
           <ChevronDown className="w-3.5 h-3.5 text-white/40" />
         </div>
         <div className="flex items-center gap-3">
-          <button className="p-2 text-white/40 hover:text-white/70 rounded-lg border border-white/10" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.08))" }}>
+          {/* Phone: Toggle mobile preview mode */}
+          <button
+            onClick={toggleMobilePreview}
+            className={`p-2 rounded-lg border transition-colors ${mobilePreviewEnabled ? "text-[#F4A83D] border-[#F4A83D]/30 bg-[#F4A83D]/10" : "text-white/40 hover:text-white/70 border-white/10"}`}
+            style={!mobilePreviewEnabled ? { background: "linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.08))" } : undefined}
+            title={mobilePreviewEnabled ? "Mobile preview ON" : "Mobile preview OFF"}
+          >
             <Smartphone className="w-4 h-4" />
           </button>
-          <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 text-white/50 text-sm hover:text-white/70" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.08))" }}>
-            <Settings className="w-3.5 h-3.5" />
-            Extensions
-            <ChevronDown className="w-3 h-3" />
-          </button>
-          <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-            <User className="w-4 h-4 text-white/50" />
+
+          {/* Extensions: Provider toggles dropdown */}
+          <div className="relative" ref={extensionsRef}>
+            <button
+              onClick={() => setShowExtensionsDropdown(prev => !prev)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 text-white/50 text-sm hover:text-white/70"
+              style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.08))" }}
+            >
+              <Settings className="w-3.5 h-3.5" />
+              Extensions
+              <ChevronDown className="w-3 h-3" />
+            </button>
+            {showExtensionsDropdown && (
+              <div
+                className="absolute right-0 top-full mt-2 w-56 rounded-xl py-2 z-50 shadow-xl"
+                style={{ background: "#111", border: "1px solid rgba(255,255,255,0.1)" }}
+              >
+                <p className="px-3 py-1 text-[10px] uppercase tracking-wider text-white/30 font-medium">Provider Toggles</p>
+                {[
+                  { key: "openai_reasoning", label: "OpenAI (Reasoning)", color: "emerald" },
+                  { key: "ideogram_image", label: "Ideogram (Image)", color: "amber" },
+                  { key: "qwen_image", label: "Qwen (Image)", color: "amber" },
+                  { key: "creatify_video", label: "Creatify (Video)", color: "blue" },
+                ].map(p => (
+                  <button
+                    key={p.key}
+                    onClick={() => toggleProvider(p.key)}
+                    className="w-full flex items-center justify-between px-3 py-2 text-sm text-white/70 hover:bg-white/5 transition-colors"
+                  >
+                    <span>{p.label}</span>
+                    <span className={`w-2 h-2 rounded-full ${enabledProviders[p.key] !== false ? "bg-emerald-400" : "bg-white/20"}`} />
+                  </button>
+                ))}
+                <div className="border-t border-white/5 mt-1 pt-1 px-3 py-1">
+                  <p className="text-[10px] text-white/25">Disabled providers are skipped during routing.</p>
+                </div>
+              </div>
+            )}
           </div>
+
+          {/* Profile: Role context indicator */}
+          <button
+            onClick={() => {
+              // Cycle through skill levels
+              const cycle: AdaSkill[] = ["starter", "creator", "agency"];
+              const idx = cycle.indexOf(adaSkill);
+              updateSkill(cycle[(idx + 1) % cycle.length]);
+              toast({ title: `Role: ${cycle[(idx + 1) % cycle.length].charAt(0).toUpperCase() + cycle[(idx + 1) % cycle.length].slice(1)}` });
+            }}
+            className="w-8 h-8 rounded-full flex items-center justify-center transition-colors group relative"
+            style={{ background: adaSkill === "agency" ? "rgba(244,168,61,0.15)" : adaSkill === "creator" ? "rgba(244,168,61,0.08)" : "rgba(255,255,255,0.1)" }}
+            title={`Role: ${adaSkill}`}
+          >
+            <User className={`w-4 h-4 ${adaSkill === "agency" ? "text-[#F4A83D]" : adaSkill === "creator" ? "text-[#F4A83D]/70" : "text-white/50"}`} />
+            <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded text-[9px] text-white/60 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none capitalize"
+              style={{ background: "rgba(0,0,0,0.8)", border: "1px solid rgba(255,255,255,0.1)" }}
+            >{adaSkill}</span>
+          </button>
         </div>
       </div>
 
