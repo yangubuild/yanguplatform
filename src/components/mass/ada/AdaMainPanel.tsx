@@ -217,8 +217,7 @@ export function AdaMainPanel() {
         content = result.error || "Image generation failed. Please try again.";
       } else {
         const img = result.images[0];
-        const providerLabel = provider === "qwen" ? "Qwen" : "Ideogram";
-        content = `![Generated image](${img.url})\n\n*Generated with ${providerLabel}*`;
+        content = `![Generated image](${img.url})`;
         metadata = {
           type: "image",
           provider,
