@@ -74,17 +74,17 @@ function resolveAutoDirector(
 ): { tier: string; provider: string; kind: "image" | "video" | "chat" } {
   // If Advanced Mode explicitly set, that takes priority
   if (advOverride) {
-    if (advProvider === "creatify") return { tier: "Motion Pro", provider: "creatify", kind: "video" };
+    if (advProvider === "creatify") return { tier: "Studio Video Preview (Image)", provider: "ideogram", kind: "video" };
     if (advProvider === "ideogram") return { tier: "Cinema", provider: "ideogram", kind: "image" };
     if (advProvider === "qwen") return { tier: "Standard", provider: "qwen", kind: "image" };
     return { tier: "Standard", provider: "openai", kind: "chat" };
   }
 
   if (mode !== "auto") {
-    // Direct mode selection
-    if (mode === "motion") return { tier: "Motion Pro", provider: "creatify", kind: mediaIntent === "image" ? "image" : "video" };
+    // Direct mode selection — video always routes as "video" kind but will be handled as image + CTA
+    if (mode === "motion") return { tier: "Studio Video Preview (Image)", provider: "ideogram", kind: mediaIntent === "image" ? "image" : "video" };
     if (mode === "cinema") return { tier: "Cinema", provider: "ideogram", kind: mediaIntent === "video" ? "video" : "image" };
-    return { tier: "Standard", provider: mediaIntent === "video" ? "creatify" : mediaIntent === "image" ? "qwen" : "openai", kind: mediaIntent || "chat" };
+    return { tier: "Standard", provider: mediaIntent === "video" ? "ideogram" : mediaIntent === "image" ? "qwen" : "openai", kind: mediaIntent || "chat" };
   }
 
   // Auto mode – route by skill tier + intent
@@ -92,17 +92,17 @@ function resolveAutoDirector(
 
   if (skill === "starter") {
     return mediaIntent === "video"
-      ? { tier: "Standard", provider: "creatify", kind: "video" }
+      ? { tier: "Studio Video Preview (Image)", provider: "qwen", kind: "video" }
       : { tier: "Standard", provider: "qwen", kind: "image" };
   }
   if (skill === "creator") {
     return mediaIntent === "video"
-      ? { tier: "Standard", provider: "creatify", kind: "video" }
+      ? { tier: "Studio Video Preview (Image)", provider: "ideogram", kind: "video" }
       : { tier: "Cinema", provider: "ideogram", kind: "image" };
   }
   // agency
   return mediaIntent === "video"
-    ? { tier: "Motion Pro", provider: "creatify", kind: "video" }
+    ? { tier: "Studio Video Preview (Image)", provider: "ideogram", kind: "video" }
     : { tier: "Cinema", provider: "ideogram", kind: "image" };
 }
 
@@ -863,20 +863,21 @@ export function AdaMainPanel() {
     if (text.startsWith("/video ")) {
       const videoPrompt = text.slice(7).trim();
       if (videoPrompt) {
-        // Route: Creatify only for compatible prompts, otherwise image→motion fallback
-        if (isCreatifyCompatible(videoPrompt)) {
-          await handleVideoGenerate(videoPrompt, cid);
-        } else {
-          // Fallback: generate image then present as motion asset
-          const prov = (enabledProviders.ideogram_image !== false) ? "ideogram" : "qwen";
-          await handleImageGenerate(videoPrompt, cid, prov as "ideogram" | "qwen");
-          // Add routing pill context
-          const motionPill: RoutingPill = { mode: "Motion Pro", tier: "Image→Motion", provider: prov === "ideogram" ? "Ideogram" : "Qwen" };
-          const lastMsg = messages[messages.length - 1];
-          if (lastMsg) addRoutingPill(lastMsg.id, motionPill);
-        }
+        // ADA does not generate video — generate a poster frame + Studio CTA
+        const prov = (enabledProviders.ideogram_image !== false) ? "ideogram" : "qwen";
+        await handleImageGenerate(videoPrompt, cid, prov as "ideogram" | "qwen");
+        // Add Studio CTA message with script suggestions
+        const studioMsg: ChatMessage = {
+          id: `msg_${Date.now() + 1}`,
+          role: "assistant",
+          content: `🎬 **Video is created in YANGU Studio (Creatify).**\n\nI've generated a poster frame above. Here are suggested ad scripts:\n\n**15s script:** "${videoPrompt.slice(0, 80)} — discover more today."\n\n**30s script:** "Introducing ${videoPrompt.slice(0, 60)}. Built for creators who move fast. See what's possible — only on YANGU."\n\n👉 [Open Studio](/studio) to create your video.`,
+          routingPill: { mode: "Auto", tier: "Studio Video Preview (Image)", provider: prov === "ideogram" ? "Ideogram" : "Qwen" },
+          created_at: new Date().toISOString(),
+        };
+        setMessages(prev => [...prev, studioMsg]);
+        await persistMessage(cid, studioMsg);
       } else {
-        const errMsg: ChatMessage = { id: `msg_${Date.now()}`, role: "assistant", content: "Please provide a prompt or URL after `/video`.", created_at: new Date().toISOString() };
+        const errMsg: ChatMessage = { id: `msg_${Date.now()}`, role: "assistant", content: "Please provide a prompt after `/video`.", created_at: new Date().toISOString() };
         setMessages(prev => [...prev, errMsg]);
         await persistMessage(cid, errMsg);
       }
@@ -925,29 +926,21 @@ export function AdaMainPanel() {
     };
 
     if (routing.kind === "video") {
-      // Route: only use Creatify for compatible prompts
-      if (isCreatifyCompatible(text)) {
-        // Credit safety check
-        const ent = await consumeEntitlement("video");
-        if (!ent.allowed) {
-          const errMsg: ChatMessage = {
-            id: `msg_${Date.now()}`, role: "assistant",
-            content: `⚠️ ${ent.error || "Insufficient credits for video."}\n\n💡 Switch to **Standard** mode for a cheaper option.`,
-            routingPill: pill,
-            created_at: new Date().toISOString(),
-          };
-          setMessages(prev => [...prev, errMsg]);
-          await persistMessage(cid, errMsg);
-          return;
-        }
-        await handleVideoGenerate(text, cid);
-      } else {
-        // Fallback: generate high-quality image as motion asset (never fail)
-        const motionProv = (enabledProviders.ideogram_image !== false) ? "ideogram" : "qwen";
-        pill.tier = "Image→Motion";
-        pill.provider = motionProv === "ideogram" ? "Ideogram" : "Qwen";
-        await handleImageGenerate(text, cid, motionProv as "ideogram" | "qwen");
-      }
+      // ADA does not generate video — always generate poster frame + Studio CTA
+      const videoProv = (enabledProviders.ideogram_image !== false) ? "ideogram" : "qwen";
+      pill.tier = "Studio Video Preview (Image)";
+      pill.provider = videoProv === "ideogram" ? "Ideogram" : "Qwen";
+      await handleImageGenerate(text, cid, videoProv as "ideogram" | "qwen");
+      // Studio CTA message
+      const studioMsg: ChatMessage = {
+        id: `msg_${Date.now() + 1}`,
+        role: "assistant",
+        content: `🎬 **Video is created in YANGU Studio (Creatify).**\n\nI've generated a poster frame above. Here are suggested ad scripts:\n\n**15s script:** "${text.slice(0, 80)} — discover more today."\n\n**30s script:** "Introducing ${text.slice(0, 60)}. Built for creators who move fast. See what's possible — only on YANGU."\n\n👉 [Open Studio](/studio) to create your video.`,
+        routingPill: pill,
+        created_at: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, studioMsg]);
+      await persistMessage(cid, studioMsg);
     } else if (routing.kind === "image" || isExplicitImageIntent) {
       const cleanPrompt = isExplicitImageIntent
         ? text.replace(/^(generate|create|make|draw|design|paint|sketch)\s+(me\s+)?(an?\s+)?(image|picture|photo|illustration|artwork|logo|icon|graphic|poster|banner)\s*(of\s+)?/i, "").replace(/^(an?\s+)?(image|picture)\s+of\s+/i, "").trim() || text
@@ -977,8 +970,18 @@ export function AdaMainPanel() {
           const prov = (routing.provider === "qwen" || routing.provider === "ideogram") ? routing.provider : "ideogram";
           await handleImageGenerate(text, cid, prov as "ideogram" | "qwen");
         } else if (actionVideoRe.test(finalContent)) {
+          // ADA does not generate video — generate poster frame + Studio CTA
           setMessages(prev => prev.filter(m => m.id !== streamMsgId));
-          await handleVideoGenerate(text, cid);
+          const vidProv = (routing.provider === "qwen" || routing.provider === "ideogram") ? routing.provider : "ideogram";
+          await handleImageGenerate(text, cid, vidProv as "ideogram" | "qwen");
+          const studioCta: ChatMessage = {
+            id: `msg_${Date.now() + 2}`,
+            role: "assistant",
+            content: `🎬 **Video is created in YANGU Studio (Creatify).**\n\n👉 [Open Studio](/studio) to create your video.`,
+            routingPill: { mode: "Auto", tier: "Studio Video Preview (Image)", provider: vidProv === "ideogram" ? "Ideogram" : "Qwen" },
+            created_at: new Date().toISOString(),
+          };
+          setMessages(prev => [...prev, studioCta]);
         }
       });
     }
