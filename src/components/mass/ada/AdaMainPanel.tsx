@@ -74,7 +74,7 @@ function resolveAutoDirector(
 ): { tier: string; provider: string; kind: "image" | "video" | "chat" } {
   // If Advanced Mode explicitly set, that takes priority
   if (advOverride) {
-    if (advProvider === "creatify") return { tier: "Studio Video Preview (Image)", provider: "ideogram", kind: "video" };
+    if (advProvider === "creatify") return { tier: "Studio Video Preview", provider: "ideogram", kind: "video" };
     if (advProvider === "ideogram") return { tier: "Cinema", provider: "ideogram", kind: "image" };
     if (advProvider === "qwen") return { tier: "Standard", provider: "qwen", kind: "image" };
     return { tier: "Standard", provider: "openai", kind: "chat" };
@@ -82,7 +82,7 @@ function resolveAutoDirector(
 
   if (mode !== "auto") {
     // Direct mode selection — video always routes as "video" kind but will be handled as image + CTA
-    if (mode === "motion") return { tier: "Studio Video Preview (Image)", provider: "ideogram", kind: mediaIntent === "image" ? "image" : "video" };
+    if (mode === "motion") return { tier: "Studio Video Preview", provider: "ideogram", kind: mediaIntent === "image" ? "image" : "video" };
     if (mode === "cinema") return { tier: "Cinema", provider: "ideogram", kind: mediaIntent === "video" ? "video" : "image" };
     return { tier: "Standard", provider: mediaIntent === "video" ? "ideogram" : mediaIntent === "image" ? "qwen" : "openai", kind: mediaIntent || "chat" };
   }
@@ -92,17 +92,17 @@ function resolveAutoDirector(
 
   if (skill === "starter") {
     return mediaIntent === "video"
-      ? { tier: "Studio Video Preview (Image)", provider: "qwen", kind: "video" }
+      ? { tier: "Studio Video Preview", provider: "qwen", kind: "video" }
       : { tier: "Standard", provider: "qwen", kind: "image" };
   }
   if (skill === "creator") {
     return mediaIntent === "video"
-      ? { tier: "Studio Video Preview (Image)", provider: "ideogram", kind: "video" }
+      ? { tier: "Studio Video Preview", provider: "ideogram", kind: "video" }
       : { tier: "Cinema", provider: "ideogram", kind: "image" };
   }
   // agency
   return mediaIntent === "video"
-    ? { tier: "Studio Video Preview (Image)", provider: "ideogram", kind: "video" }
+    ? { tier: "Studio Video Preview", provider: "ideogram", kind: "video" }
     : { tier: "Cinema", provider: "ideogram", kind: "image" };
 }
 
@@ -870,8 +870,8 @@ export function AdaMainPanel() {
         const studioMsg: ChatMessage = {
           id: `msg_${Date.now() + 1}`,
           role: "assistant",
-          content: `🎬 **Video is created in YANGU Studio (Creatify).**\n\nI've generated a poster frame above. Here are suggested ad scripts:\n\n**15s script:** "${videoPrompt.slice(0, 80)} — discover more today."\n\n**30s script:** "Introducing ${videoPrompt.slice(0, 60)}. Built for creators who move fast. See what's possible — only on YANGU."\n\n👉 [Open Studio](/studio) to create your video.`,
-          routingPill: { mode: "Auto", tier: "Studio Video Preview (Image)", provider: prov === "ideogram" ? "Ideogram" : "Qwen" },
+          content: `🎬 **Video is created in YANGU Studio.**\n\nI've generated a poster frame above. Here are suggested ad scripts:\n\n**15s script:** "${videoPrompt.slice(0, 80)} — discover more today."\n\n**30s script:** "Introducing ${videoPrompt.slice(0, 60)}. Built for creators who move fast. See what's possible — only on YANGU."\n\n👉 [Open YANGU Studio](/studio) to create your video.`,
+          routingPill: { mode: "Auto", tier: "Studio Video Preview", provider: prov === "ideogram" ? "Ideogram" : "Qwen" },
           created_at: new Date().toISOString(),
         };
         setMessages(prev => [...prev, studioMsg]);
@@ -928,14 +928,14 @@ export function AdaMainPanel() {
     if (routing.kind === "video") {
       // ADA does not generate video — always generate poster frame + Studio CTA
       const videoProv = (enabledProviders.ideogram_image !== false) ? "ideogram" : "qwen";
-      pill.tier = "Studio Video Preview (Image)";
+      pill.tier = "Studio Video Preview";
       pill.provider = videoProv === "ideogram" ? "Ideogram" : "Qwen";
       await handleImageGenerate(text, cid, videoProv as "ideogram" | "qwen");
       // Studio CTA message
       const studioMsg: ChatMessage = {
         id: `msg_${Date.now() + 1}`,
         role: "assistant",
-        content: `🎬 **Video is created in YANGU Studio (Creatify).**\n\nI've generated a poster frame above. Here are suggested ad scripts:\n\n**15s script:** "${text.slice(0, 80)} — discover more today."\n\n**30s script:** "Introducing ${text.slice(0, 60)}. Built for creators who move fast. See what's possible — only on YANGU."\n\n👉 [Open Studio](/studio) to create your video.`,
+        content: `🎬 **Video is created in YANGU Studio.**\n\nI've generated a poster frame above. Here are suggested ad scripts:\n\n**15s script:** "${text.slice(0, 80)} — discover more today."\n\n**30s script:** "Introducing ${text.slice(0, 60)}. Built for creators who move fast. See what's possible — only on YANGU."\n\n👉 [Open YANGU Studio](/studio) to create your video.`,
         routingPill: pill,
         created_at: new Date().toISOString(),
       };
@@ -977,7 +977,7 @@ export function AdaMainPanel() {
           const studioCta: ChatMessage = {
             id: `msg_${Date.now() + 2}`,
             role: "assistant",
-            content: `🎬 **Video is created in YANGU Studio (Creatify).**\n\n👉 [Open Studio](/studio) to create your video.`,
+            content: `🎬 **Video is created in YANGU Studio.**\n\n👉 [Open YANGU Studio](/studio) to create your video.`,
             routingPill: { mode: "Auto", tier: "Studio Video Preview (Image)", provider: vidProv === "ideogram" ? "Ideogram" : "Qwen" },
             created_at: new Date().toISOString(),
           };
@@ -1597,7 +1597,7 @@ export function AdaMainPanel() {
                   {msg.role === "assistant" && msg.routingPill && (
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 mb-1 rounded-full text-[10px] font-medium text-white/50"
                       style={{ background: "rgba(244,168,61,0.08)", border: "1px solid rgba(244,168,61,0.15)" }}>
-                      {msg.routingPill.mode} → {msg.routingPill.tier} ({msg.routingPill.provider}){msg.routingPill.aspect && msg.routingPill.tier !== "Standard" ? ` • ${msg.routingPill.aspect}` : ""}
+                      {msg.routingPill.tier}
                     </span>
                   )}
                   <div
