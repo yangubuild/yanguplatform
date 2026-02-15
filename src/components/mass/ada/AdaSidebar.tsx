@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  PenLine,
-  Image,
-  FileText,
-  Share2,
+  Globe,
+  CloudUpload,
+  Palette,
+  Code2,
+  BarChart3,
   Search,
   X,
   MessageCircle,
@@ -17,12 +18,14 @@ import adaLogo from "@/assets/ada-logo-full.png";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useDebounce } from "@/hooks/useDebounce";
 
-const sidebarNavItems = [
-  { icon: PenLine, label: "Chat", id: "chat" },
-  { icon: Image, label: "Image", id: "image" },
-  { icon: FileText, label: "Docs", id: "docs" },
-  { icon: Share2, label: "Share", id: "share" },
+const commandIcons = [
+  { icon: Globe, label: "Open Asset Link", id: "preview" },
+  { icon: CloudUpload, label: "Save to Studio", id: "save" },
+  { icon: Palette, label: "Preset Styles", id: "styles" },
+  { icon: Code2, label: "Advanced Mode", id: "advanced" },
+  { icon: BarChart3, label: "View History", id: "history" },
 ];
 
 const ANON_CHATS_KEY = "ada_anon_chats";
@@ -41,12 +44,16 @@ interface AdaSidebarProps {
 export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
-  const [activeNav, setActiveNav] = useState("chat");
   const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([]);
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const debouncedSearch = useDebounce(searchQuery, 200);
 
   // Close menu on outside click
   useEffect(() => {
@@ -89,6 +96,11 @@ export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
     };
   }, [loadHistory]);
 
+  // Filter chats by search
+  const filteredChats = debouncedSearch.trim()
+    ? chatHistory.filter(c => c.title.toLowerCase().includes(debouncedSearch.toLowerCase()))
+    : chatHistory;
+
   const handleNewChat = () => {
     window.dispatchEvent(new CustomEvent("ada-new-chat"));
   };
@@ -101,7 +113,6 @@ export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
   const handleDeleteChat = async (chatId: string) => {
     setMenuOpenId(null);
     if (isAuthenticated) {
-      // Delete messages first, then chat
       await supabase.from("ada_messages").delete().eq("chat_id", chatId);
       await supabase.from("ada_chats").delete().eq("id", chatId);
     } else {
@@ -111,7 +122,6 @@ export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
       } catch {}
     }
     setChatHistory(prev => prev.filter(c => c.id !== chatId));
-    // If the deleted chat was active, start a new one
     window.dispatchEvent(new CustomEvent("ada-new-chat"));
     toast.success("Chat deleted");
   };
@@ -133,6 +143,11 @@ export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
     setRenameValue("");
   };
 
+  // Icon action handlers
+  const handleIconAction = (id: string) => {
+    window.dispatchEvent(new CustomEvent("ada-command", { detail: id }));
+  };
+
   const timeAgo = (dateStr: string) => {
     if (!dateStr) return "";
     const diff = Date.now() - new Date(dateStr).getTime();
@@ -143,6 +158,19 @@ export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
     if (hrs < 24) return `${hrs}h ago`;
     const days = Math.floor(hrs / 24);
     return `${days}d ago`;
+  };
+
+  const highlightMatch = (text: string, query: string) => {
+    if (!query.trim()) return text;
+    const idx = text.toLowerCase().indexOf(query.toLowerCase());
+    if (idx === -1) return text;
+    return (
+      <>
+        {text.slice(0, idx)}
+        <span className="text-[#F4A83D] font-medium">{text.slice(idx, idx + query.length)}</span>
+        {text.slice(idx + query.length)}
+      </>
+    );
   };
 
   return (
@@ -173,27 +201,61 @@ export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
         <div className="flex items-center gap-3 px-5 pt-5 pb-2">
           <img src={adaLogo} alt="Ada AI" className="h-10 w-auto cursor-pointer" onClick={() => navigate("/")} />
           <div className="flex-1" />
-          <button className="text-white/40 hover:text-white/70">
+          <button
+            onClick={() => {
+              setIsSearchOpen(!isSearchOpen);
+              if (!isSearchOpen) setTimeout(() => searchInputRef.current?.focus(), 100);
+              else setSearchQuery("");
+            }}
+            className={`p-1.5 rounded-lg transition-colors ${isSearchOpen ? "text-[#F4A83D] bg-white/5" : "text-white/40 hover:text-white/70"}`}
+          >
             <Search className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Icon nav strip */}
-        <div className="flex items-center gap-1 px-4 py-3 border-b border-white/5">
-          {sidebarNavItems.map((item) => {
+        {/* Search bar */}
+        {isSearchOpen && (
+          <div className="px-4 pt-1 pb-2">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
+              <input
+                ref={searchInputRef}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search chats…"
+                className="w-full pl-8 pr-8 py-2 rounded-lg text-sm text-white/80 placeholder:text-white/30 outline-none border border-white/10 focus:border-[#C4841F]/50"
+                style={{ background: "rgba(255,255,255,0.04)" }}
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Command icon strip */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
+          {commandIcons.map((item) => {
             const Icon = item.icon;
-            const isActive = activeNav === item.id;
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveNav(item.id)}
-                className="p-2 rounded-lg transition-colors"
-                style={{
-                  background: isActive ? "rgba(255,255,255,0.08)" : "transparent",
-                  color: isActive ? "#fff" : "rgba(255,255,255,0.4)",
-                }}
+                onClick={() => handleIconAction(item.id)}
+                className="group relative p-2 rounded-lg text-white/40 hover:text-white/80 hover:bg-white/5 transition-all"
+                title={item.label}
               >
                 <Icon className="w-4 h-4" />
+                {/* Tooltip */}
+                <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded text-[10px] text-white/70 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                  style={{ background: "rgba(0,0,0,0.8)", border: "1px solid rgba(255,255,255,0.1)" }}
+                >
+                  {item.label}
+                </span>
               </button>
             );
           })}
@@ -216,13 +278,15 @@ export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
         {/* Chat history */}
         <div className="px-4 pt-4 flex-1 overflow-y-auto">
           <p className="text-white/50 text-xs font-medium uppercase tracking-wider mb-3">
-            All chat
+            {debouncedSearch.trim() ? `Results (${filteredChats.length})` : "All chat"}
           </p>
           <div className="space-y-1">
-            {chatHistory.length === 0 && (
-              <p className="text-white/30 text-xs px-3 py-2">No chats yet</p>
+            {filteredChats.length === 0 && (
+              <p className="text-white/30 text-xs px-3 py-2">
+                {debouncedSearch.trim() ? "No matching chats" : "No chats yet"}
+              </p>
             )}
-            {chatHistory.map((chat) => (
+            {filteredChats.map((chat) => (
               <div key={chat.id} className="relative group">
                 {renamingId === chat.id ? (
                   <form
@@ -244,14 +308,13 @@ export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
                   >
                     <MessageCircle className="w-4 h-4 text-white/30 flex-shrink-0" />
                     <span className="text-white/70 text-sm truncate flex-1">
-                      {chat.title}
+                      {highlightMatch(chat.title, debouncedSearch)}
                     </span>
                     {chat.updated_at && (
                       <span className="text-white/30 text-xs flex-shrink-0 group-hover:hidden">
                         {timeAgo(chat.updated_at)}
                       </span>
                     )}
-                    {/* 3-dot menu trigger */}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
