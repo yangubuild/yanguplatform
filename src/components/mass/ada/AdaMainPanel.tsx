@@ -44,8 +44,11 @@ interface ChatMessage {
 }
 
 // Image / Video intent keyword detection
-const IMAGE_KEYWORDS = ["poster", "banner", "ad", "thumbnail", "product shot", "flyer", "cover", "logo", "carousel"];
+const IMAGE_KEYWORDS = ["poster", "banner", "ad", "thumbnail", "product shot", "flyer", "cover", "logo", "carousel", "facebook post", "social media poster", "instagram ad", "instagram post", "social media", "social post", "twitter post", "linkedin post"];
 const VIDEO_KEYWORDS = ["video", "reel", "tiktok", "motion", "clip", "cinematic", "animation"];
+
+// Social media prompt patterns for auto-routing to image
+const SOCIAL_MEDIA_RE = /\b(create|make|generate|design)\s+(a\s+)?(facebook|instagram|twitter|linkedin|social\s*media)\s+(post|poster|ad|banner|story|carousel)\b/i;
 
 function detectMediaIntent(text: string): "image" | "video" | null {
   const lower = text.toLowerCase();
@@ -451,6 +454,7 @@ export function AdaMainPanel() {
     msgId: string,
     intentType?: string,
     searchContext?: string,
+    onComplete?: (finalContent: string) => void,
   ) => {
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -496,18 +500,14 @@ export function AdaMainPanel() {
         },
         () => {
           // Mark as done — read final content from the last flush
-          setMessages(prev => prev.map(m => {
-            if (m.id !== msgId) return m;
-            const finalContent = m.content || "I couldn't generate a response. Please try again.";
-            return { ...m, content: finalContent, isStreaming: false };
-          }));
-          // Persist the final message
           setMessages(prev => {
-            const final = prev.find(m => m.id === msgId);
-            if (final) {
-              persistMessage(cid, { id: msgId, role: "assistant", content: final.content, created_at: new Date().toISOString() });
-            }
-            return prev;
+            const msg = prev.find(m => m.id === msgId);
+            const finalContent = msg?.content || "I couldn't generate a response. Please try again.";
+            // Persist
+            persistMessage(cid, { id: msgId, role: "assistant", content: finalContent, created_at: new Date().toISOString() });
+            // Call onComplete callback for post-stream action detection
+            if (onComplete) onComplete(finalContent);
+            return prev.map(m => m.id !== msgId ? m : { ...m, content: finalContent, isStreaming: false });
           });
         },
       );
@@ -856,7 +856,8 @@ export function AdaMainPanel() {
       /\bpicture\s+of\b/,
     ];
     const isExplicitImageIntent = imageIntentPatterns.some(p => p.test(text.toLowerCase()));
-    const effectiveIntent = isExplicitImageIntent ? "image" : mediaIntent;
+    const isSocialMediaIntent = SOCIAL_MEDIA_RE.test(text);
+    const effectiveIntent = isExplicitImageIntent || isSocialMediaIntent ? "image" : mediaIntent;
 
     const routing = resolveAutoDirector(adaMode, adaSkill, effectiveIntent, advancedOverride, selectedProvider);
     const pill: RoutingPill = {
@@ -899,7 +900,22 @@ export function AdaMainPanel() {
       setMessages(prev => [...prev, streamMsg]);
       const convMessages = messages.slice(-20).map(m => ({ role: m.role, content: m.content }));
       convMessages.push({ role: "user", content: text });
-      await streamChatResponse(convMessages, cid, streamMsgId);
+      await streamChatResponse(convMessages, cid, streamMsgId, undefined, undefined, async (finalContent: string) => {
+        // Post-stream action detection: if AI outputs action intents, trigger generation
+        const actionImageRe = /\{\s*"?action"?\s*:\s*"?image"?\s*\}/i;
+        const actionVideoRe = /\{\s*"?action"?\s*:\s*"?video"?\s*\}/i;
+        const pleaseCmdRe = /please\s+use\s+the\s+\/image\s+command/i;
+        
+        if (actionImageRe.test(finalContent) || pleaseCmdRe.test(finalContent)) {
+          // Remove the text response, trigger image generation
+          setMessages(prev => prev.filter(m => m.id !== streamMsgId));
+          const prov = (routing.provider === "qwen" || routing.provider === "ideogram") ? routing.provider : "ideogram";
+          await handleImageGenerate(text, cid, prov as "ideogram" | "qwen");
+        } else if (actionVideoRe.test(finalContent)) {
+          setMessages(prev => prev.filter(m => m.id !== streamMsgId));
+          await handleVideoGenerate(text, cid);
+        }
+      });
     }
   }, [inputValue, activeChatId, isAuthenticated, pendingAttachments, intent, selectedProvider, adaMode, adaSkill, advancedOverride, selectedAspectRatio, createDbChat, createAnonChat, persistMessage, handleSearch, handleDiscuss, handleImageGenerate, handleVideoGenerate, streamChatResponse, messages, addRoutingPill]);
 
@@ -1146,6 +1162,26 @@ export function AdaMainPanel() {
 
     return () => clearTimeout(timeout);
   }, [wordIndex]);
+
+  // --- Welcome message for first-time users ---
+  const WELCOME_SHOWN_KEY = "ada_welcome_shown";
+  useEffect(() => {
+    if (messages.length === 0 && !activeChatId) {
+      const alreadyShown = sessionStorage.getItem(WELCOME_SHOWN_KEY);
+      if (!alreadyShown) {
+        const displayName = profile?.display_name || profile?.username;
+        const greeting = displayName ? `Welcome ${displayName} 👋` : "Welcome 👋";
+        const welcomeMsg: ChatMessage = {
+          id: "welcome_msg",
+          role: "assistant",
+          content: `${greeting} — I'm Ada AI.\n\nI'm your business and creative intelligence assistant inside YANGU.\n\nI help you:\n\n• Generate product images, posters, and videos\n• Create campaigns and social media content\n• Build business ideas, pitches, and product strategies\n• Guide you through YANGU tools and features\n• Find products and opportunities inside the platform\n\nYou can type naturally or use commands like:\n\n\`/image\`\n\`/video\`\n\nLet's build something great together.`,
+          created_at: new Date().toISOString(),
+        };
+        setMessages([welcomeMsg]);
+        sessionStorage.setItem(WELCOME_SHOWN_KEY, "1");
+      }
+    }
+  }, [activeChatId, profile]);
 
   const hasMessages = messages.length > 0;
   const placeholder = intent === "search"
