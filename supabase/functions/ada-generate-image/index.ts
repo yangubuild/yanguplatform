@@ -21,14 +21,16 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 
-    // Get user from token
+    // Verify user via getClaims (compatible with signing-keys)
     const userClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     });
-    const { data: { user }, error: userErr } = await userClient.auth.getUser();
-    if (userErr || !user) {
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsErr } = await userClient.auth.getClaims(token);
+    if (claimsErr || !claimsData?.claims) {
       return json({ ok: false, error_code: "AUTH_INVALID", message: "Invalid auth token" }, 401);
     }
+    const user = { id: claimsData.claims.sub as string };
 
     const { prompt, chatId, provider = "openai" } = await req.json();
 

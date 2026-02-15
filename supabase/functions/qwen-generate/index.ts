@@ -28,10 +28,12 @@ serve(async (req) => {
 
     if (!qwenKey) return json({ ok: false, error_code: "PROVIDER_NOT_CONFIGURED", message: "Qwen API key not configured" }, 500);
 
-    // Verify user
+    // Verify user via getClaims (compatible with signing-keys)
     const userClient = createClient(supabaseUrl, anonKey, { global: { headers: { Authorization: authHeader } } });
-    const { data: { user }, error: userErr } = await userClient.auth.getUser();
-    if (userErr || !user) return json({ ok: false, error_code: "AUTH_INVALID", message: "Invalid auth token" }, 401);
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsErr } = await userClient.auth.getClaims(token);
+    if (claimsErr || !claimsData?.claims) return json({ ok: false, error_code: "AUTH_INVALID", message: "Invalid auth token" }, 401);
+    const user = { id: claimsData.claims.sub as string };
 
     const { generation_id } = await req.json();
     if (!generation_id) return json({ ok: false, error_code: "BAD_REQUEST", message: "generation_id is required" }, 400);
