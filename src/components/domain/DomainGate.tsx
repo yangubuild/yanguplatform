@@ -29,12 +29,14 @@ export function DomainGate({
   const location = useLocation();
   const { isLoading, isActive, domainType } = useDomain();
   
-  // Debug logging (temporary)
-  console.log("[DomainGate] Allowing through:", {
-    pathname: location.pathname,
-    domainType,
-    isActive,
-  });
+  // Debug logging (dev only)
+  if (import.meta.env.DEV) {
+    console.log("[DomainGate] Allowing through:", {
+      pathname: location.pathname,
+      domainType,
+      isActive,
+    });
+  }
 
   // Show loading state while resolving domain
   if (isLoading && showLoading) {

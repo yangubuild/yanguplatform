@@ -142,12 +142,12 @@ const App = () => (
                   <Route path="explore" element={<DashboardPlaceholder />} />
                   <Route path="offers" element={<DashboardPlaceholder />} />
                   <Route path="messages" element={<MessagesPage />} />
-                  <Route path="ada" element={<DashboardPlaceholder />} />
+                  <Route path="ada" element={<Navigate to="/ada-ai" replace />} />
                   <Route path="studio" element={<Navigate to="/studio" replace />} />
                   <Route path="influencer" element={<DashboardPlaceholder />} />
                   <Route path="visionaire" element={<DashboardPlaceholder />} />
                   <Route path="app-store" element={<DashboardPlaceholder />} />
-                  <Route path="community" element={<DashboardPlaceholder />} />
+                  <Route path="community" element={<Navigate to="/community" replace />} />
                   <Route path="profile" element={<ProfilePage />} />
                   <Route path="profile/edit" element={<EditProfilePage />} />
                   <Route path="profile/subscription" element={<SubscriptionPage />} />
