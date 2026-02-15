@@ -939,9 +939,71 @@ export function AdaMainPanel() {
     ? "Discuss with Ada…"
     : "Ask Ada…";
 
+  // --- Media URL / HTML tag detection helpers ---
+  const MEDIA_URL_RE = /https?:\/\/[^\s"'<>]+\.(?:mp4|webm|mov|ogg|mp3|wav|m4a|png|jpg|jpeg|gif|webp|svg)(?:\?[^\s"'<>]*)?/gi;
+  const VIDEO_TAG_RE = /<video[^>]*src=["']([^"']+)["'][^>]*\/?>/gi;
+  const AUDIO_TAG_RE = /<audio[^>]*src=["']([^"']+)["'][^>]*\/?>/gi;
+  const IMG_TAG_RE = /<img[^>]*src=["']([^"']+)["'][^>]*\/?>/gi;
+  const SUPABASE_MEDIA_RE = /https?:\/\/[^\s"'<>]*supabase[^\s"'<>]*\/storage\/v1\/object\/[^\s"'<>]+/gi;
+
+  const isMediaUrl = (url: string): "image" | "video" | "audio" | null => {
+    const lower = url.toLowerCase().split("?")[0];
+    if (/\.(mp4|webm|mov|ogg)$/.test(lower)) return "video";
+    if (/\.(mp3|wav|m4a)$/.test(lower)) return "audio";
+    if (/\.(png|jpg|jpeg|gif|webp|svg)$/.test(lower)) return "image";
+    return null;
+  };
+
+  const renderInlineMedia = (url: string, kind: "image" | "video" | "audio", idx: number) => {
+    if (kind === "video") {
+      return (
+        <div key={idx} className="my-2 rounded-xl overflow-hidden max-w-sm" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <video
+            src={url}
+            controls
+            playsInline
+            className="w-full max-h-[400px] object-contain bg-black"
+          />
+          <div className="px-3 py-2 flex items-center justify-between">
+            <span className="text-xs text-white/40">Video</span>
+            <a href={url} download={`ada-video-${Date.now()}.mp4`} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-md text-white/40 hover:text-white/70 hover:bg-white/5 transition-colors" title="Download">
+              <Download className="w-3.5 h-3.5" />
+            </a>
+          </div>
+        </div>
+      );
+    }
+    if (kind === "audio") {
+      return (
+        <div key={idx} className="my-2 rounded-xl overflow-hidden max-w-sm p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <audio src={url} controls className="w-full" />
+        </div>
+      );
+    }
+    // image
+    return (
+      <div key={idx} className="relative inline-block my-2">
+        <img src={url} alt="Generated" className="rounded-lg max-w-full" style={{ maxHeight: "400px" }} loading="lazy" />
+        <a href={url} download={`ada-image-${Date.now()}.png`} target="_blank" rel="noopener noreferrer" className="absolute top-2 right-2 p-2 rounded-lg bg-black/60 hover:bg-black/80 text-white/80 hover:text-white transition-colors" title="Download">
+          <Download className="w-4 h-4" />
+        </a>
+      </div>
+    );
+  };
+
+  // Strips internal reasoning/thought blocks from content
+  const stripThoughts = (text: string): string => {
+    return text
+      .replace(/<thinking>[\s\S]*?<\/thinking>/gi, "")
+      .replace(/<thought>[\s\S]*?<\/thought>/gi, "")
+      .replace(/<reasoning>[\s\S]*?<\/reasoning>/gi, "")
+      .replace(/<internal>[\s\S]*?<\/internal>/gi, "")
+      .trim();
+  };
+
   // --- Render message content (text with optional streaming cursor) ---
   const renderMessageContent = (msg: ChatMessage) => {
-    // Media generation card
+    // Media generation card (from live generation flow)
     if (msg.mediaGen) {
       return (
         <MediaGenerationCard
@@ -956,44 +1018,90 @@ export function AdaMainPanel() {
       );
     }
 
-    // Check for inline images (from loaded history)
-    if (msg.content.match(/!\[.*?\]\(.*?\)/)) {
+    let content = stripThoughts(msg.content);
+    if (!content && msg.isStreaming) {
+      return <span className="inline-block w-[2px] h-[1em] bg-[#F4A83D] ml-0.5 align-middle animate-pulse" />;
+    }
+
+    // Detect HTML media tags and convert to components
+    const hasHtmlMedia = VIDEO_TAG_RE.test(content) || AUDIO_TAG_RE.test(content) || IMG_TAG_RE.test(content);
+    // Reset lastIndex after test
+    VIDEO_TAG_RE.lastIndex = 0; AUDIO_TAG_RE.lastIndex = 0; IMG_TAG_RE.lastIndex = 0;
+
+    // Detect markdown images
+    const hasMarkdownImg = /!\[.*?\]\(.*?\)/.test(content);
+
+    // Detect bare media URLs (including Supabase signed URLs)
+    const hasBareMediaUrls = MEDIA_URL_RE.test(content) || SUPABASE_MEDIA_RE.test(content);
+    MEDIA_URL_RE.lastIndex = 0; SUPABASE_MEDIA_RE.lastIndex = 0;
+
+    if (hasHtmlMedia || hasMarkdownImg || hasBareMediaUrls) {
+      // Build a unified regex to split content into text and media parts
+      const parts: { type: "text" | "media"; value: string; mediaKind?: "image" | "video" | "audio" }[] = [];
+      
+      // Replace HTML tags with placeholders and extract URLs
+      let processed = content;
+      const mediaUrls: { url: string; kind: "image" | "video" | "audio" }[] = [];
+
+      // Extract <video src="...">
+      processed = processed.replace(/<video[^>]*src=["']([^"']+)["'][^>]*\/?>/gi, (_match, url) => {
+        mediaUrls.push({ url, kind: "video" });
+        return `\n__MEDIA_${mediaUrls.length - 1}__\n`;
+      });
+      // Extract <audio src="...">
+      processed = processed.replace(/<audio[^>]*src=["']([^"']+)["'][^>]*\/?>/gi, (_match, url) => {
+        mediaUrls.push({ url, kind: "audio" });
+        return `\n__MEDIA_${mediaUrls.length - 1}__\n`;
+      });
+      // Extract <img src="...">
+      processed = processed.replace(/<img[^>]*src=["']([^"']+)["'][^>]*\/?>/gi, (_match, url) => {
+        mediaUrls.push({ url, kind: "image" });
+        return `\n__MEDIA_${mediaUrls.length - 1}__\n`;
+      });
+      // Extract markdown images ![alt](url)
+      processed = processed.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_match, _alt, url) => {
+        mediaUrls.push({ url, kind: "image" });
+        return `\n__MEDIA_${mediaUrls.length - 1}__\n`;
+      });
+      // Extract bare media URLs not already captured
+      processed = processed.replace(MEDIA_URL_RE, (url) => {
+        // Skip if already captured
+        if (mediaUrls.some(m => m.url === url)) return url;
+        const kind = isMediaUrl(url);
+        if (kind) {
+          mediaUrls.push({ url, kind });
+          return `\n__MEDIA_${mediaUrls.length - 1}__\n`;
+        }
+        return url;
+      });
+
+      // Split processed text into parts
+      const segments = processed.split(/\n?(__MEDIA_\d+__)\n?/);
+      
       return (
         <div>
-          {msg.content.split(/(!?\[.*?\]\(.*?\))/).map((part, idx) => {
-            const imgMatch = part.match(/^!\[(.*?)\]\((.*?)\)$/);
-            if (imgMatch) {
-              return (
-                <div key={idx} className="relative inline-block">
-                  <img
-                    src={imgMatch[2]}
-                    alt={imgMatch[1]}
-                    className="rounded-lg max-w-full mt-2 mb-2"
-                    style={{ maxHeight: "400px" }}
-                  />
-                  <a
-                    href={imgMatch[2]}
-                    download={`ada-image-${Date.now()}.png`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="absolute top-4 right-2 p-2 rounded-lg bg-black/60 hover:bg-black/80 text-white/80 hover:text-white transition-colors"
-                    title="Download image"
-                  >
-                    <Download className="w-4 h-4" />
-                  </a>
-                </div>
-              );
+          {segments.map((seg, idx) => {
+            const mediaMatch = seg.match(/^__MEDIA_(\d+)__$/);
+            if (mediaMatch) {
+              const mediaIdx = parseInt(mediaMatch[1]);
+              const media = mediaUrls[mediaIdx];
+              if (media) return renderInlineMedia(media.url, media.kind, idx);
             }
-            return part ? <span key={idx} style={{ whiteSpace: "pre-wrap" }}>{part}</span> : null;
+            const trimmed = seg.trim();
+            if (!trimmed) return null;
+            return <span key={idx} style={{ whiteSpace: "pre-wrap" }}>{trimmed}</span>;
           })}
+          {msg.isStreaming && (
+            <span className="inline-block w-[2px] h-[1em] bg-[#F4A83D] ml-0.5 align-middle animate-pulse" />
+          )}
         </div>
       );
     }
 
-    // Text with streaming cursor
+    // Plain text with streaming cursor
     return (
       <span style={{ whiteSpace: "pre-wrap" }}>
-        {msg.content}
+        {content}
         {msg.isStreaming && (
           <span className="inline-block w-[2px] h-[1em] bg-[#F4A83D] ml-0.5 align-middle animate-pulse" />
         )}
