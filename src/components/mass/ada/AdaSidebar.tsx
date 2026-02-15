@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   PenLine,
@@ -8,11 +8,15 @@ import {
   Search,
   X,
   MessageCircle,
+  MoreHorizontal,
+  Trash2,
+  Pencil,
 } from "lucide-react";
 import adaIcon from "@/assets/ada-icon.png";
 import adaLogo from "@/assets/ada-logo-full.png";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const sidebarNavItems = [
   { icon: PenLine, label: "Chat", id: "chat" },
@@ -39,6 +43,21 @@ export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
   const { user, isAuthenticated } = useAuth();
   const [activeNav, setActiveNav] = useState("chat");
   const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([]);
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState("");
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpenId(null);
+      }
+    };
+    if (menuOpenId) document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [menuOpenId]);
 
   // Load chat history
   const loadHistory = useCallback(async () => {
@@ -60,7 +79,6 @@ export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
 
   useEffect(() => { loadHistory(); }, [loadHistory]);
 
-  // Refresh history when a new chat is created
   useEffect(() => {
     const handler = () => { setTimeout(loadHistory, 500); };
     window.addEventListener("ada-new-chat", handler);
@@ -78,6 +96,41 @@ export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
   const handleLoadChat = (chatId: string) => {
     window.dispatchEvent(new CustomEvent("ada-load-chat", { detail: chatId }));
     onClose?.();
+  };
+
+  const handleDeleteChat = async (chatId: string) => {
+    setMenuOpenId(null);
+    if (isAuthenticated) {
+      // Delete messages first, then chat
+      await supabase.from("ada_messages").delete().eq("chat_id", chatId);
+      await supabase.from("ada_chats").delete().eq("id", chatId);
+    } else {
+      try {
+        const chats = JSON.parse(localStorage.getItem(ANON_CHATS_KEY) || "[]");
+        localStorage.setItem(ANON_CHATS_KEY, JSON.stringify(chats.filter((c: any) => c.id !== chatId)));
+      } catch {}
+    }
+    setChatHistory(prev => prev.filter(c => c.id !== chatId));
+    // If the deleted chat was active, start a new one
+    window.dispatchEvent(new CustomEvent("ada-new-chat"));
+    toast.success("Chat deleted");
+  };
+
+  const handleRenameChat = async (chatId: string) => {
+    setMenuOpenId(null);
+    const chat = chatHistory.find(c => c.id === chatId);
+    setRenamingId(chatId);
+    setRenameValue(chat?.title || "");
+  };
+
+  const submitRename = async () => {
+    if (!renamingId || !renameValue.trim()) return;
+    if (isAuthenticated) {
+      await supabase.from("ada_chats").update({ title: renameValue.trim() }).eq("id", renamingId);
+    }
+    setChatHistory(prev => prev.map(c => c.id === renamingId ? { ...c, title: renameValue.trim() } : c));
+    setRenamingId(null);
+    setRenameValue("");
   };
 
   const timeAgo = (dateStr: string) => {
@@ -170,21 +223,70 @@ export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
               <p className="text-white/30 text-xs px-3 py-2">No chats yet</p>
             )}
             {chatHistory.map((chat) => (
-              <button
-                key={chat.id}
-                onClick={() => handleLoadChat(chat.id)}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left hover:bg-white/5 transition-colors"
-              >
-                <MessageCircle className="w-4 h-4 text-white/30 flex-shrink-0" />
-                <span className="text-white/70 text-sm truncate flex-1">
-                  {chat.title}
-                </span>
-                {chat.updated_at && (
-                  <span className="text-white/30 text-xs flex-shrink-0">
-                    {timeAgo(chat.updated_at)}
-                  </span>
+              <div key={chat.id} className="relative group">
+                {renamingId === chat.id ? (
+                  <form
+                    onSubmit={(e) => { e.preventDefault(); submitRename(); }}
+                    className="flex items-center gap-2 px-3 py-2"
+                  >
+                    <input
+                      autoFocus
+                      value={renameValue}
+                      onChange={(e) => setRenameValue(e.target.value)}
+                      onBlur={submitRename}
+                      className="flex-1 bg-white/10 text-white text-sm rounded px-2 py-1 outline-none border border-white/20 focus:border-[#C4841F]"
+                    />
+                  </form>
+                ) : (
+                  <button
+                    onClick={() => handleLoadChat(chat.id)}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left hover:bg-white/5 transition-colors"
+                  >
+                    <MessageCircle className="w-4 h-4 text-white/30 flex-shrink-0" />
+                    <span className="text-white/70 text-sm truncate flex-1">
+                      {chat.title}
+                    </span>
+                    {chat.updated_at && (
+                      <span className="text-white/30 text-xs flex-shrink-0 group-hover:hidden">
+                        {timeAgo(chat.updated_at)}
+                      </span>
+                    )}
+                    {/* 3-dot menu trigger */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setMenuOpenId(menuOpenId === chat.id ? null : chat.id);
+                      }}
+                      className="p-1 rounded text-white/30 hover:text-white hover:bg-white/10 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <MoreHorizontal className="w-4 h-4" />
+                    </button>
+                  </button>
                 )}
-              </button>
+
+                {/* Dropdown menu */}
+                {menuOpenId === chat.id && (
+                  <div
+                    ref={menuRef}
+                    className="absolute right-2 top-10 z-50 w-40 rounded-lg border border-white/10 py-1 shadow-xl"
+                    style={{ background: "#1a1a1a" }}
+                  >
+                    <button
+                      onClick={() => handleRenameChat(chat.id)}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:bg-white/10 transition-colors"
+                    >
+                      <Pencil className="w-3.5 h-3.5" /> Rename
+                    </button>
+                    <div className="border-t border-white/10 my-0.5" />
+                    <button
+                      onClick={() => handleDeleteChat(chat.id)}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-white/10 transition-colors"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" /> Delete
+                    </button>
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         </div>
