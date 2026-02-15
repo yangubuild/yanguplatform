@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.creatify-generate]
 verify_jwt = false
+
+[functions.ada-chat]
+verify_jwt = false
