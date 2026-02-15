@@ -160,6 +160,17 @@ serve(async (req) => {
 
     console.log("[creatify-generate] Starting for generation:", generation_id);
 
+    // Hard validation: prompt (product link) must be non-empty
+    if (!gen.prompt || !gen.prompt.trim()) {
+      await admin.rpc("set_video_generation_status", {
+        p_generation_id: generation_id,
+        p_status: "failed",
+        p_error: "Product link is required",
+      });
+      await refundIfNeeded("Empty product link");
+      return json({ ok: false, error_code: "VALIDATION_ERROR", message: "Product link is required. Please provide a valid URL." }, 400);
+    }
+
     const isUrl = gen.prompt.startsWith("http://") || gen.prompt.startsWith("https://");
 
     let videoOutputUrl: string | null = null;
@@ -194,8 +205,8 @@ serve(async (req) => {
 
       const videoEndpoint = "https://api.creatify.ai/api/link_to_videos/";
       const videoPayload: Record<string, unknown> = {
-        link_id: linkId,
-        aspect_ratio: genParams.aspect_ratio || "9:16",
+        link: gen.prompt,
+        aspect_ratio: genParams.aspect_ratio || "9x16",
         duration: genParams.duration || 30,
       };
       if (genParams.visual_style) videoPayload.visual_style = genParams.visual_style;
@@ -261,7 +272,7 @@ serve(async (req) => {
       const videoEndpoint = "https://api.creatify.ai/api/link_to_videos/";
       const videoPayload: Record<string, unknown> = {
         script_text: gen.prompt,
-        aspect_ratio: genParams.aspect_ratio || "9:16",
+        aspect_ratio: genParams.aspect_ratio || "9x16",
         duration: genParams.duration || 30,
       };
       if (genParams.visual_style) videoPayload.visual_style = genParams.visual_style;
