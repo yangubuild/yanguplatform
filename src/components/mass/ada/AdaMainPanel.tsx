@@ -45,14 +45,29 @@ function saveAnonChats(chats: { id: string; title: string; messages: ChatMessage
   localStorage.setItem(ANON_CHATS_KEY, JSON.stringify(chats));
 }
 
-// --- SSE stream parser (handles both custom {type:"token"} and OpenAI SSE) ---
+// --- SSE stream parser with RAF-based flushing for real progressive rendering ---
 async function readSSEStream(
   reader: ReadableStreamDefaultReader<Uint8Array>,
-  onChunk: (text: string) => void,
+  onChunk: (fullText: string) => void,
   onDone: () => void,
 ) {
   const decoder = new TextDecoder();
   let buffer = "";
+  let accumulated = "";
+  let rafPending = false;
+
+  const flush = () => {
+    rafPending = false;
+    onChunk(accumulated);
+  };
+
+  const scheduleFlush = () => {
+    if (!rafPending) {
+      rafPending = true;
+      requestAnimationFrame(flush);
+    }
+  };
+
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
@@ -63,22 +78,29 @@ async function readSSEStream(
       if (line.startsWith(":") || line.trim() === "") continue;
       if (!line.startsWith("data: ")) continue;
       const data = line.slice(6).trim();
-      if (data === "[DONE]") { onDone(); return; }
+      if (data === "[DONE]") {
+        if (rafPending) { cancelAnimationFrame(0); flush(); }
+        onDone();
+        return;
+      }
       try {
         const parsed = JSON.parse(data);
-        // Custom format: {type:"token", text:"..."}
         if (parsed.type === "token" && parsed.text) {
-          onChunk(parsed.text);
+          accumulated += parsed.text;
+          scheduleFlush();
         } else if (parsed.type === "done") {
-          onDone(); return;
-        }
-        // Fallback: OpenAI SSE format
-        else if (parsed.choices?.[0]?.delta?.content) {
-          onChunk(parsed.choices[0].delta.content);
+          if (rafPending) flush();
+          onDone();
+          return;
+        } else if (parsed.choices?.[0]?.delta?.content) {
+          accumulated += parsed.choices[0].delta.content;
+          scheduleFlush();
         }
       } catch { /* skip non-JSON lines */ }
     }
   }
+  // Final flush for any remaining tokens
+  if (rafPending) flush();
   onDone();
 }
 
@@ -305,21 +327,28 @@ export function AdaMainPanel() {
       }
 
       const reader = res.body.getReader();
-      let fullContent = "";
 
       await readSSEStream(
         reader,
-        (chunk) => {
-          fullContent += chunk;
-          const current = fullContent;
-          setMessages(prev => prev.map(m => m.id === msgId ? { ...m, content: current } : m));
+        (fullText) => {
+          setMessages(prev => prev.map(m => m.id === msgId ? { ...m, content: fullText } : m));
           smartScroll();
         },
         () => {
-          // Mark as done
-          const finalContent = fullContent || "I couldn't generate a response. Please try again.";
-          setMessages(prev => prev.map(m => m.id === msgId ? { ...m, content: finalContent, isStreaming: false } : m));
-          persistMessage(cid, { id: msgId, role: "assistant", content: finalContent, created_at: new Date().toISOString() });
+          // Mark as done — read final content from the last flush
+          setMessages(prev => prev.map(m => {
+            if (m.id !== msgId) return m;
+            const finalContent = m.content || "I couldn't generate a response. Please try again.";
+            return { ...m, content: finalContent, isStreaming: false };
+          }));
+          // Persist the final message
+          setMessages(prev => {
+            const final = prev.find(m => m.id === msgId);
+            if (final) {
+              persistMessage(cid, { id: msgId, role: "assistant", content: final.content, created_at: new Date().toISOString() });
+            }
+            return prev;
+          });
         },
       );
     } catch (err) {
