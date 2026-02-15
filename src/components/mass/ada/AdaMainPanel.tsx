@@ -199,6 +199,15 @@ export function AdaMainPanel() {
   const [showHistoryDrawer, setShowHistoryDrawer] = useState(false);
   const [showStylesDrawer, setShowStylesDrawer] = useState(false);
 
+  // Provider preference (persisted in localStorage)
+  const [selectedProvider, setSelectedProvider] = useState<string>(() => localStorage.getItem("ada_provider") || "openai");
+  const [selectedAspectRatio, setSelectedAspectRatio] = useState<string>(() => localStorage.getItem("ada_aspect_ratio") || "1:1");
+  const [advancedParams, setAdvancedParams] = useState<string>(() => localStorage.getItem("ada_params") || "");
+
+  const updateProvider = (p: string) => { setSelectedProvider(p); localStorage.setItem("ada_provider", p); };
+  const updateAspectRatio = (r: string) => { setSelectedAspectRatio(r); localStorage.setItem("ada_aspect_ratio", r); };
+  const updateAdvancedParams = (v: string) => { setAdvancedParams(v); localStorage.setItem("ada_params", v); };
+
   // Listen for command events from sidebar icons
   useEffect(() => {
     const handler = (e: Event) => {
@@ -762,7 +771,8 @@ export function AdaMainPanel() {
     } else if (text.startsWith("/image ")) {
       const imagePrompt = text.slice(7).trim();
       if (imagePrompt) {
-        await handleImageGenerate(imagePrompt, cid, "ideogram");
+        const imgProvider = (selectedProvider === "qwen" || selectedProvider === "ideogram") ? selectedProvider : "ideogram";
+        await handleImageGenerate(imagePrompt, cid, imgProvider as "ideogram" | "qwen");
       } else {
         const errMsg: ChatMessage = {
           id: `msg_${Date.now()}`,
@@ -792,12 +802,13 @@ export function AdaMainPanel() {
           .replace(/^(generate|create|make|draw|design|paint|sketch)\s+(me\s+)?(an?\s+)?(image|picture|photo|illustration|artwork|logo|icon|graphic|poster|banner)\s*(of\s+)?/i, "")
           .replace(/^(an?\s+)?(image|picture)\s+of\s+/i, "")
           .trim() || text;
-        await handleImageGenerate(cleanPrompt, cid, "ideogram");
+        const imgProvider = (selectedProvider === "qwen" || selectedProvider === "ideogram") ? selectedProvider : "ideogram";
+        await handleImageGenerate(cleanPrompt, cid, imgProvider as "ideogram" | "qwen");
       } else {
         await handleDiscuss(text, cid);
       }
     }
-  }, [inputValue, activeChatId, isAuthenticated, pendingAttachments, intent, createDbChat, createAnonChat, persistMessage, handleSearch, handleDiscuss, handleImageGenerate, handleVideoGenerate]);
+  }, [inputValue, activeChatId, isAuthenticated, pendingAttachments, intent, selectedProvider, createDbChat, createAnonChat, persistMessage, handleSearch, handleDiscuss, handleImageGenerate, handleVideoGenerate]);
 
   // --- Voice ---
   const handleVoiceTranscript = useCallback(async (
@@ -1590,15 +1601,26 @@ export function AdaMainPanel() {
             <div className="space-y-3">
               <label className="block">
                 <span className="text-white/50 text-xs">Provider</span>
-                <select className="w-full mt-1 px-3 py-2 rounded-lg text-sm text-white/80 outline-none" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
-                  <option value="ideogram">Ideogram</option>
-                  <option value="qwen">Qwen</option>
+                <select
+                  value={selectedProvider}
+                  onChange={e => updateProvider(e.target.value)}
+                  className="w-full mt-1 px-3 py-2 rounded-lg text-sm text-white/80 outline-none"
+                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
+                >
+                  <option value="openai">OpenAI (Reasoning / Chat)</option>
+                  <option value="ideogram">Ideogram (Images)</option>
+                  <option value="qwen">Qwen (Images)</option>
                   <option value="creatify">Creatify (Video)</option>
                 </select>
               </label>
               <label className="block">
                 <span className="text-white/50 text-xs">Aspect Ratio</span>
-                <select className="w-full mt-1 px-3 py-2 rounded-lg text-sm text-white/80 outline-none" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                <select
+                  value={selectedAspectRatio}
+                  onChange={e => updateAspectRatio(e.target.value)}
+                  className="w-full mt-1 px-3 py-2 rounded-lg text-sm text-white/80 outline-none"
+                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
+                >
                   <option value="1:1">1:1</option>
                   <option value="16:9">16:9</option>
                   <option value="9:16">9:16</option>
@@ -1607,10 +1629,24 @@ export function AdaMainPanel() {
               </label>
               <label className="block">
                 <span className="text-white/50 text-xs">Raw Params (JSON)</span>
-                <textarea rows={3} className="w-full mt-1 px-3 py-2 rounded-lg text-sm text-white/60 font-mono outline-none resize-none" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)" }} placeholder='{"style_type": "realistic"}' />
+                <textarea
+                  rows={3}
+                  value={advancedParams}
+                  onChange={e => updateAdvancedParams(e.target.value)}
+                  className="w-full mt-1 px-3 py-2 rounded-lg text-sm text-white/60 font-mono outline-none resize-none"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)" }}
+                  placeholder='{"style_type": "realistic"}'
+                />
               </label>
             </div>
-            <p className="text-white/30 text-xs">Configure generation parameters before sending a /image or /video command.</p>
+            <div className="flex items-center gap-2 pt-1">
+              <span className="text-xs text-white/30 flex-1">
+                Chat defaults to OpenAI • /image uses {selectedProvider === "ideogram" || selectedProvider === "qwen" ? selectedProvider : "Ideogram"} • /video uses Creatify
+              </span>
+              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium ${selectedProvider === "openai" ? "text-emerald-400 bg-emerald-400/10" : "text-[#F4A83D] bg-[#F4A83D]/10"}`}>
+                {selectedProvider === "openai" ? "Reasoning" : selectedProvider === "creatify" ? "Video" : "Image"}
+              </span>
+            </div>
           </div>
         </div>
       )}
