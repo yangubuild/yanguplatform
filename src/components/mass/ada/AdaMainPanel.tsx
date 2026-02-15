@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { X, Mic, Settings, ChevronDown, Smartphone, Plus, ArrowUp, AudioLines, User, Loader2, Paperclip, Download } from "lucide-react";
+import { X, Mic, Settings, ChevronDown, Smartphone, Plus, ArrowUp, AudioLines, User, Loader2, Paperclip, Download, RefreshCw } from "lucide-react";
 import adaLogo from "@/assets/ada-logo-full.png";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdaVoice } from "@/hooks/useAdaVoice";
@@ -10,6 +10,7 @@ import { generateQwenImage } from "@/lib/ai/qwen";
 import { generateCreatifyVideo } from "@/lib/ai/creatify";
 import { consumeEntitlement } from "@/lib/entitlements";
 import { useNavigate } from "react-router-dom";
+import { MediaGenerationCard, type MediaGenStatus } from "./MediaGenerationCard";
 
 interface ChatMessage {
   id: string;
@@ -17,6 +18,20 @@ interface ChatMessage {
   content: string;
   metadata?: Record<string, unknown>;
   created_at: string;
+  // Streaming state
+  isStreaming?: boolean;
+  // Media generation state
+  mediaGen?: {
+    kind: "image" | "video";
+    status: MediaGenStatus;
+    progressStep?: string;
+    previewUrl?: string;
+    caption?: string;
+    error?: string;
+    retryPrompt?: string;
+    retryProvider?: string;
+    retryCid?: string;
+  };
 }
 
 // localStorage helpers for anonymous users
@@ -28,6 +43,35 @@ function getAnonChats(): { id: string; title: string; messages: ChatMessage[] }[
 }
 function saveAnonChats(chats: { id: string; title: string; messages: ChatMessage[] }[]) {
   localStorage.setItem(ANON_CHATS_KEY, JSON.stringify(chats));
+}
+
+// --- SSE stream parser ---
+async function readSSEStream(
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+  onChunk: (text: string) => void,
+  onDone: () => void,
+) {
+  const decoder = new TextDecoder();
+  let buffer = "";
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() || "";
+    for (const line of lines) {
+      if (line.startsWith("data: ")) {
+        const data = line.slice(6).trim();
+        if (data === "[DONE]") { onDone(); return; }
+        try {
+          const parsed = JSON.parse(data);
+          const delta = parsed.choices?.[0]?.delta?.content;
+          if (delta) onChunk(delta);
+        } catch { /* skip non-JSON lines */ }
+      }
+    }
+  }
+  onDone();
 }
 
 export function AdaMainPanel() {
@@ -44,11 +88,27 @@ export function AdaMainPanel() {
   const [pendingAttachments, setPendingAttachments] = useState<{ name: string; type: string; size: number; path: string }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to bottom when messages change
+  // Smart auto-scroll: only scroll if user is near bottom
+  const isNearBottomRef = useRef(true);
+  const checkNearBottom = useCallback(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const threshold = 100;
+    isNearBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
+  }, []);
+
+  const smartScroll = useCallback(() => {
+    if (isNearBottomRef.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, []);
+
+  // Scroll when messages change (only if near bottom)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isThinking]);
+    smartScroll();
+  }, [messages, isThinking, smartScroll]);
 
   // --- Chat session helpers ---
   const createDbChat = useCallback(async (firstMsg: string) => {
@@ -59,7 +119,6 @@ export function AdaMainPanel() {
       .select("id")
       .single();
     if (error || !data) { console.error("create chat err", error); return null; }
-    // Notify sidebar
     window.dispatchEvent(new CustomEvent("ada-chat-created"));
     return data.id as string;
   }, [user]);
@@ -88,7 +147,7 @@ export function AdaMainPanel() {
     }
   }, [isAuthenticated, user]);
 
-  // --- Search mode: query knowledge tables + AI summarization ---
+  // --- Search mode ---
   const handleSearch = useCallback(async (query: string, cid: string) => {
     setIsThinking(true);
     try {
@@ -112,7 +171,6 @@ export function AdaMainPanel() {
         .eq("status", "published")
         .limit(5);
 
-      // Build search context for AI
       let searchContext = "";
       let found = false;
 
@@ -135,33 +193,22 @@ export function AdaMainPanel() {
         searchContext = `No results found for "${query}".`;
       }
 
-      // Call AI to summarize/present results
-      const convMessages = messages.slice(-10).map(m => ({ role: m.role, content: m.content }));
+      // Stream search results
+      const convMessages = messages.slice(-20).map(m => ({ role: m.role, content: m.content }));
       convMessages.push({ role: "user", content: query });
 
-      const { data: fnData, error: fnErr } = await supabase.functions.invoke("ada-chat", {
-        body: { messages: convMessages, intent: "search", search_context: searchContext },
-      });
-
-      let content: string;
-      if (fnErr || !fnData?.ok) {
-        console.error("[AdaSearch] AI error:", fnErr, fnData);
-        // Fallback to raw results
-        content = found
-          ? `**Search results for "${query}":**\n\n${searchContext}`
-          : `No results found for "${query}". Try different keywords or switch to Discuss.`;
-      } else {
-        content = fnData.content;
-      }
-
-      const assistantMsg: ChatMessage = {
-        id: `msg_${Date.now()}`,
+      const streamMsgId = `msg_${Date.now()}`;
+      const streamMsg: ChatMessage = {
+        id: streamMsgId,
         role: "assistant",
-        content,
+        content: "",
+        isStreaming: true,
         created_at: new Date().toISOString(),
       };
-      setMessages(prev => [...prev, assistantMsg]);
-      await persistMessage(cid, assistantMsg);
+      setMessages(prev => [...prev, streamMsg]);
+      setIsThinking(false);
+
+      await streamChatResponse(convMessages, cid, streamMsgId, "search", searchContext);
     } catch (err) {
       console.error("[AdaSearch] Error:", err);
       const errMsg: ChatMessage = {
@@ -171,194 +218,281 @@ export function AdaMainPanel() {
         created_at: new Date().toISOString(),
       };
       setMessages(prev => [...prev, errMsg]);
-    } finally {
       setIsThinking(false);
     }
   }, [persistMessage, messages]);
 
-  // --- Image generation via /image command ---
-  const handleImageGenerate = useCallback(async (prompt: string, cid: string, provider: "ideogram" | "qwen" = "ideogram") => {
-    setIsThinking(true);
+  // --- Streaming chat response ---
+  const streamChatResponse = useCallback(async (
+    convMessages: { role: string; content: string }[],
+    cid: string,
+    msgId: string,
+    intentType?: string,
+    searchContext?: string,
+  ) => {
     try {
-      // Entitlement check
-      const ent = await consumeEntitlement("image");
-      if (!ent.allowed) {
-        toast({
-          title: ent.error || "You've reached your monthly limit. Upgrade to continue.",
-          variant: "destructive",
-          action: (() => {
-            const btn = document.createElement("span");
-            btn.textContent = "Upgrade";
-            return undefined;
-          })(),
-          description: "Go to /subscriptions to upgrade your plan.",
-        });
-        const errMsg: ChatMessage = {
-          id: `msg_${Date.now()}`,
-          role: "assistant",
-          content: `⚠️ ${ent.error || "Monthly image limit reached."} [Upgrade your plan](/subscriptions) to continue generating.`,
-          created_at: new Date().toISOString(),
-        };
-        setMessages(prev => [...prev, errMsg]);
-        await persistMessage(cid, errMsg);
-        setIsThinking(false);
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const session = (await supabase.auth.getSession()).data.session;
+      
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        apikey: supabaseKey,
+      };
+      if (session?.access_token) {
+        headers["Authorization"] = `Bearer ${session.access_token}`;
+      }
+
+      const res = await fetch(`${supabaseUrl}/functions/v1/ada-chat`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          messages: convMessages,
+          intent: intentType || "discuss",
+          search_context: searchContext,
+          stream: true,
+        }),
+      });
+
+      if (!res.ok || !res.body) {
+        // Fallback: try non-streaming
+        const errData = await res.json().catch(() => null);
+        const errorText = errData?.error || "I'm having trouble responding right now. Please try again.";
+        if (errData?.error) toast({ title: errData.error, variant: "destructive" });
+        setMessages(prev => prev.map(m => m.id === msgId ? { ...m, content: errorText, isStreaming: false } : m));
+        await persistMessage(cid, { id: msgId, role: "assistant", content: errorText, created_at: new Date().toISOString() });
         return;
       }
+
+      const reader = res.body.getReader();
+      let fullContent = "";
+
+      await readSSEStream(
+        reader,
+        (chunk) => {
+          fullContent += chunk;
+          const current = fullContent;
+          setMessages(prev => prev.map(m => m.id === msgId ? { ...m, content: current } : m));
+          smartScroll();
+        },
+        () => {
+          // Mark as done
+          const finalContent = fullContent || "I couldn't generate a response. Please try again.";
+          setMessages(prev => prev.map(m => m.id === msgId ? { ...m, content: finalContent, isStreaming: false } : m));
+          persistMessage(cid, { id: msgId, role: "assistant", content: finalContent, created_at: new Date().toISOString() });
+        },
+      );
+    } catch (err) {
+      console.error("[AdaStream] Error:", err);
+      setMessages(prev => prev.map(m => m.id === msgId ? { ...m, content: "I'm having trouble responding right now. Please try again.", isStreaming: false } : m));
+    }
+  }, [persistMessage, smartScroll]);
+
+  // --- Image generation with progress card ---
+  const handleImageGenerate = useCallback(async (prompt: string, cid: string, provider: "ideogram" | "qwen" = "ideogram") => {
+    // Entitlement check
+    const ent = await consumeEntitlement("image");
+    if (!ent.allowed) {
+      toast({
+        title: ent.error || "You've reached your monthly limit. Upgrade to continue.",
+        variant: "destructive",
+        description: "Go to /subscriptions to upgrade your plan.",
+      });
+      const errMsg: ChatMessage = {
+        id: `msg_${Date.now()}`,
+        role: "assistant",
+        content: `⚠️ ${ent.error || "Monthly image limit reached."} [Upgrade your plan](/subscriptions) to continue generating.`,
+        created_at: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, errMsg]);
+      await persistMessage(cid, errMsg);
+      return;
+    }
+
+    // Insert media generation card
+    const mediaMsgId = `msg_${Date.now()}`;
+    const mediaMsg: ChatMessage = {
+      id: mediaMsgId,
+      role: "assistant",
+      content: "",
+      mediaGen: {
+        kind: "image",
+        status: "queued",
+        progressStep: "Queued…",
+        retryPrompt: prompt,
+        retryProvider: provider,
+        retryCid: cid,
+      },
+      created_at: new Date().toISOString(),
+    };
+    setMessages(prev => [...prev, mediaMsg]);
+
+    try {
+      // Update to generating
+      setMessages(prev => prev.map(m => m.id === mediaMsgId ? { ...m, mediaGen: { ...m.mediaGen!, status: "generating" as MediaGenStatus, progressStep: "Generating…" } } : m));
 
       const result = provider === "qwen"
         ? await generateQwenImage(prompt)
         : await generateIdeogramImage(prompt);
 
-      let content: string;
-      let metadata: Record<string, unknown> | undefined;
-
       if (!result.ok || !result.images || result.images.length === 0) {
         console.error(`[AdaImage] ${provider} error:`, result.error);
-        content = result.error || "Image generation failed. Please try again.";
-      } else {
-        const img = result.images[0];
-        content = `![Generated image](${img.url})`;
-        metadata = {
-          type: "image",
-          provider,
-          storage_path: img.storage_path,
-          generation_id: result.generation_id,
-        };
-      }
-
-      const assistantMsg: ChatMessage = {
-        id: `msg_${Date.now()}`,
-        role: "assistant",
-        content,
-        metadata,
-        created_at: new Date().toISOString(),
-      };
-      setMessages(prev => [...prev, assistantMsg]);
-      await persistMessage(cid, assistantMsg);
-    } catch (err) {
-      console.error("[AdaImage] Error:", err);
-      const errMsg: ChatMessage = {
-        id: `msg_${Date.now()}`,
-        role: "assistant",
-        content: "Image generation failed. Please try again.",
-        created_at: new Date().toISOString(),
-      };
-      setMessages(prev => [...prev, errMsg]);
-    } finally {
-      setIsThinking(false);
-    }
-  }, [persistMessage]);
-
-  // --- Video generation via /video command ---
-  const handleVideoGenerate = useCallback(async (prompt: string, cid: string) => {
-    setIsThinking(true);
-    try {
-      // Entitlement check
-      const ent = await consumeEntitlement("video");
-      if (!ent.allowed) {
-        toast({
-          title: ent.error || "You've reached your monthly limit. Upgrade to continue.",
-          variant: "destructive",
-          description: "Go to /subscriptions to upgrade your plan.",
-        });
-        const errMsg: ChatMessage = {
-          id: `msg_${Date.now()}`,
-          role: "assistant",
-          content: `⚠️ ${ent.error || "Monthly video limit reached."} [Upgrade your plan](/subscriptions) to continue generating.`,
-          created_at: new Date().toISOString(),
-        };
-        setMessages(prev => [...prev, errMsg]);
-        await persistMessage(cid, errMsg);
-        setIsThinking(false);
+        setMessages(prev => prev.map(m => m.id === mediaMsgId ? {
+          ...m,
+          mediaGen: { ...m.mediaGen!, status: "error" as MediaGenStatus, error: result.error || "Image generation failed" },
+        } : m));
         return;
       }
 
-      const result = await generateCreatifyVideo(prompt);
+      // Update to uploading
+      setMessages(prev => prev.map(m => m.id === mediaMsgId ? { ...m, mediaGen: { ...m.mediaGen!, status: "uploading" as MediaGenStatus, progressStep: "Uploading…" } } : m));
 
-      let content: string;
-      let metadata: Record<string, unknown> | undefined;
+      const img = result.images[0];
+      // Short delay for UX
+      await new Promise(r => setTimeout(r, 500));
 
-      if (!result.ok || !result.videos || result.videos.length === 0) {
-        console.error("[AdaVideo] Creatify error:", result.error);
-        content = result.error || "Video generation failed. Please try again.";
-      } else {
-        const vid = result.videos[0];
-        content = `🎬 **Video generated!**\n\n[▶ Play video](${vid.url})\n\n*Generated with Creatify*`;
-        metadata = {
-          type: "video",
-          provider: "creatify",
-          storage_path: vid.storage_path,
-          generation_id: result.generation_id,
-        };
-      }
+      // Done!
+      const caption = prompt.length > 50 ? prompt.slice(0, 47) + "…" : prompt;
+      setMessages(prev => prev.map(m => m.id === mediaMsgId ? {
+        ...m,
+        content: `![Generated image](${img.url})`,
+        mediaGen: { ...m.mediaGen!, status: "done" as MediaGenStatus, previewUrl: img.url, caption },
+        metadata: { type: "image", provider, storage_path: img.storage_path, generation_id: result.generation_id },
+      } : m));
 
-      const assistantMsg: ChatMessage = {
-        id: `msg_${Date.now()}`,
+      // Persist
+      await persistMessage(cid, {
+        id: mediaMsgId,
         role: "assistant",
-        content,
-        metadata,
+        content: `![Generated image](${img.url})`,
+        metadata: { type: "image", provider, storage_path: img.storage_path, generation_id: result.generation_id },
         created_at: new Date().toISOString(),
-      };
-      setMessages(prev => [...prev, assistantMsg]);
-      await persistMessage(cid, assistantMsg);
+      });
     } catch (err) {
-      console.error("[AdaVideo] Error:", err);
-      const errMsg: ChatMessage = {
-        id: `msg_${Date.now()}`,
-        role: "assistant",
-        content: "Video generation failed. Please try again.",
-        created_at: new Date().toISOString(),
-      };
-      setMessages(prev => [...prev, errMsg]);
-    } finally {
-      setIsThinking(false);
+      console.error("[AdaImage] Error:", err);
+      setMessages(prev => prev.map(m => m.id === mediaMsgId ? {
+        ...m,
+        mediaGen: { ...m.mediaGen!, status: "error" as MediaGenStatus, error: "Image generation failed. Please try again." },
+      } : m));
     }
   }, [persistMessage]);
 
-  // --- Send message (text) ---
-  // --- Discuss mode: call AI ---
-  const handleDiscuss = useCallback(async (text: string, cid: string) => {
-    setIsThinking(true);
-    try {
-      const convMessages = messages.slice(-20).map(m => ({ role: m.role, content: m.content }));
-      convMessages.push({ role: "user", content: text });
-
-      const { data: fnData, error: fnErr } = await supabase.functions.invoke("ada-chat", {
-        body: { messages: convMessages, intent: "discuss" },
+  // --- Video generation with progress card ---
+  const handleVideoGenerate = useCallback(async (prompt: string, cid: string) => {
+    const ent = await consumeEntitlement("video");
+    if (!ent.allowed) {
+      toast({
+        title: ent.error || "You've reached your monthly limit. Upgrade to continue.",
+        variant: "destructive",
+        description: "Go to /subscriptions to upgrade your plan.",
       });
-
-      let content: string;
-      if (fnErr || !fnData?.ok) {
-        console.error("[AdaDiscuss] AI error:", fnErr, fnData);
-        if (fnData?.error) {
-          toast({ title: fnData.error, variant: "destructive" });
-        }
-        content = "I'm having trouble responding right now. Please try again.";
-      } else {
-        content = fnData.content;
-      }
-
-      const assistantMsg: ChatMessage = {
+      const errMsg: ChatMessage = {
         id: `msg_${Date.now()}`,
         role: "assistant",
-        content,
+        content: `⚠️ ${ent.error || "Monthly video limit reached."} [Upgrade your plan](/subscriptions) to continue generating.`,
         created_at: new Date().toISOString(),
       };
-      setMessages(prev => [...prev, assistantMsg]);
-      await persistMessage(cid, assistantMsg);
-    } catch (err) {
-      console.error("[AdaDiscuss] Error:", err);
-    } finally {
-      setIsThinking(false);
+      setMessages(prev => [...prev, errMsg]);
+      await persistMessage(cid, errMsg);
+      return;
     }
-  }, [messages, persistMessage]);
 
-  // --- Send message (text) ---
+    const mediaMsgId = `msg_${Date.now()}`;
+    const mediaMsg: ChatMessage = {
+      id: mediaMsgId,
+      role: "assistant",
+      content: "",
+      mediaGen: {
+        kind: "video",
+        status: "queued",
+        progressStep: "Queued…",
+        retryPrompt: prompt,
+        retryCid: cid,
+      },
+      created_at: new Date().toISOString(),
+    };
+    setMessages(prev => [...prev, mediaMsg]);
+
+    try {
+      setMessages(prev => prev.map(m => m.id === mediaMsgId ? { ...m, mediaGen: { ...m.mediaGen!, status: "generating" as MediaGenStatus, progressStep: "Generating video…" } } : m));
+
+      const result = await generateCreatifyVideo(prompt);
+
+      if (!result.ok || !result.videos || result.videos.length === 0) {
+        console.error("[AdaVideo] Creatify error:", result.error);
+        setMessages(prev => prev.map(m => m.id === mediaMsgId ? {
+          ...m,
+          mediaGen: { ...m.mediaGen!, status: "error" as MediaGenStatus, error: result.error || "Video generation failed" },
+        } : m));
+        return;
+      }
+
+      setMessages(prev => prev.map(m => m.id === mediaMsgId ? { ...m, mediaGen: { ...m.mediaGen!, status: "uploading" as MediaGenStatus, progressStep: "Finalizing…" } } : m));
+
+      const vid = result.videos[0];
+      await new Promise(r => setTimeout(r, 500));
+
+      const caption = prompt.length > 50 ? prompt.slice(0, 47) + "…" : prompt;
+      setMessages(prev => prev.map(m => m.id === mediaMsgId ? {
+        ...m,
+        content: `🎬 Video generated: ${vid.url}`,
+        mediaGen: { ...m.mediaGen!, status: "done" as MediaGenStatus, previewUrl: vid.url, caption },
+        metadata: { type: "video", provider: "creatify", storage_path: vid.storage_path, generation_id: result.generation_id },
+      } : m));
+
+      await persistMessage(cid, {
+        id: mediaMsgId,
+        role: "assistant",
+        content: `🎬 Video generated: ${vid.url}`,
+        metadata: { type: "video", provider: "creatify", storage_path: vid.storage_path, generation_id: result.generation_id },
+        created_at: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.error("[AdaVideo] Error:", err);
+      setMessages(prev => prev.map(m => m.id === mediaMsgId ? {
+        ...m,
+        mediaGen: { ...m.mediaGen!, status: "error" as MediaGenStatus, error: "Video generation failed. Please try again." },
+      } : m));
+    }
+  }, [persistMessage]);
+
+  // --- Retry media generation ---
+  const handleRetryMedia = useCallback((msg: ChatMessage) => {
+    if (!msg.mediaGen) return;
+    const { retryPrompt, retryProvider, retryCid, kind } = msg.mediaGen;
+    if (!retryPrompt || !retryCid) return;
+    // Remove the failed card
+    setMessages(prev => prev.filter(m => m.id !== msg.id));
+    if (kind === "image") {
+      handleImageGenerate(retryPrompt, retryCid, (retryProvider as "ideogram" | "qwen") || "ideogram");
+    } else {
+      handleVideoGenerate(retryPrompt, retryCid);
+    }
+  }, [handleImageGenerate, handleVideoGenerate]);
+
+  // --- Discuss mode: stream AI response ---
+  const handleDiscuss = useCallback(async (text: string, cid: string) => {
+    const convMessages = messages.slice(-20).map(m => ({ role: m.role, content: m.content }));
+    convMessages.push({ role: "user", content: text });
+
+    const streamMsgId = `msg_${Date.now()}`;
+    const streamMsg: ChatMessage = {
+      id: streamMsgId,
+      role: "assistant",
+      content: "",
+      isStreaming: true,
+      created_at: new Date().toISOString(),
+    };
+    setMessages(prev => [...prev, streamMsg]);
+
+    await streamChatResponse(convMessages, cid, streamMsgId);
+  }, [messages, streamChatResponse]);
+
+  // --- Send message ---
   const handleSend = useCallback(async (overrideText?: string) => {
     const text = (overrideText || inputValue).trim();
     if (!text && pendingAttachments.length === 0) return;
 
-    // Capture current intent and reset to neutral
     const currentIntent = intent;
     setIntent(null);
 
@@ -397,7 +531,6 @@ export function AdaMainPanel() {
         setMessages(prev => [...prev, errMsg]);
         await persistMessage(cid, errMsg);
       }
-    // Route: /image command
     } else if (text.startsWith("/image:qwen ")) {
       const imagePrompt = text.slice(12).trim();
       if (imagePrompt) {
@@ -429,7 +562,7 @@ export function AdaMainPanel() {
     } else if (currentIntent === "search" && text) {
       await handleSearch(text, cid);
     } else {
-      // Auto-detect image generation intent from natural language
+      // Auto-detect image intent
       const lowerText = text.toLowerCase();
       const imageIntentPatterns = [
         /^(generate|create|make|draw|design|paint|sketch)\s+(an?\s+)?image\b/,
@@ -441,7 +574,6 @@ export function AdaMainPanel() {
       const isImageIntent = imageIntentPatterns.some(p => p.test(lowerText));
 
       if (isImageIntent) {
-        // Strip the intent prefix to extract the actual prompt
         const cleanPrompt = text
           .replace(/^(generate|create|make|draw|design|paint|sketch)\s+(me\s+)?(an?\s+)?(image|picture|photo|illustration|artwork|logo|icon|graphic|poster|banner)\s*(of\s+)?/i, "")
           .replace(/^(an?\s+)?(image|picture)\s+of\s+/i, "")
@@ -462,7 +594,6 @@ export function AdaMainPanel() {
     setVoiceText("");
     if (!transcript.trim()) return;
 
-    // Ensure chat session
     let cid = activeChatId;
     if (!cid) {
       cid = isAuthenticated ? await createDbChat(transcript.slice(0, 60)) : createAnonChat(transcript.slice(0, 60));
@@ -470,7 +601,6 @@ export function AdaMainPanel() {
       setActiveChatId(cid);
     }
 
-    // Insert transcript as user message with audio metadata
     const userMsg: ChatMessage = {
       id: `msg_${Date.now()}`,
       role: "user",
@@ -488,11 +618,9 @@ export function AdaMainPanel() {
     setMessages(prev => [...prev, userMsg]);
     await persistMessage(cid, userMsg);
 
-    // Capture current intent and reset
     const currentIntent = intent;
     setIntent(null);
 
-    // Route by intent
     if (currentIntent === "search" && transcript) {
       await handleSearch(transcript, cid);
     } else {
@@ -562,7 +690,7 @@ export function AdaMainPanel() {
     setVoiceText("");
   };
 
-  // --- New Chat (called from sidebar via window event) ---
+  // --- New Chat ---
   useEffect(() => {
     const handler = () => {
       setActiveChatId(null);
@@ -608,7 +736,7 @@ export function AdaMainPanel() {
     return () => window.removeEventListener("ada-load-chat", handler);
   }, [isAuthenticated]);
 
-  // --- Rotating words (existing) ---
+  // --- Rotating words ---
   const [boxSize, setBoxSize] = useState({ w: 0, h: 0 });
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
@@ -708,6 +836,68 @@ export function AdaMainPanel() {
     ? "Discuss with Ada…"
     : "Ask Ada…";
 
+  // --- Render message content (text with optional streaming cursor) ---
+  const renderMessageContent = (msg: ChatMessage) => {
+    // Media generation card
+    if (msg.mediaGen) {
+      return (
+        <MediaGenerationCard
+          kind={msg.mediaGen.kind}
+          status={msg.mediaGen.status}
+          progressStep={msg.mediaGen.progressStep}
+          previewUrl={msg.mediaGen.previewUrl}
+          caption={msg.mediaGen.caption}
+          error={msg.mediaGen.error}
+          onRetry={msg.mediaGen.status === "error" ? () => handleRetryMedia(msg) : undefined}
+        />
+      );
+    }
+
+    // Check for inline images (from loaded history)
+    if (msg.content.match(/!\[.*?\]\(.*?\)/)) {
+      return (
+        <div>
+          {msg.content.split(/(!?\[.*?\]\(.*?\))/).map((part, idx) => {
+            const imgMatch = part.match(/^!\[(.*?)\]\((.*?)\)$/);
+            if (imgMatch) {
+              return (
+                <div key={idx} className="relative inline-block">
+                  <img
+                    src={imgMatch[2]}
+                    alt={imgMatch[1]}
+                    className="rounded-lg max-w-full mt-2 mb-2"
+                    style={{ maxHeight: "400px" }}
+                  />
+                  <a
+                    href={imgMatch[2]}
+                    download={`ada-image-${Date.now()}.png`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="absolute top-4 right-2 p-2 rounded-lg bg-black/60 hover:bg-black/80 text-white/80 hover:text-white transition-colors"
+                    title="Download image"
+                  >
+                    <Download className="w-4 h-4" />
+                  </a>
+                </div>
+              );
+            }
+            return part ? <span key={idx} style={{ whiteSpace: "pre-wrap" }}>{part}</span> : null;
+          })}
+        </div>
+      );
+    }
+
+    // Text with streaming cursor
+    return (
+      <span style={{ whiteSpace: "pre-wrap" }}>
+        {msg.content}
+        {msg.isStreaming && (
+          <span className="inline-block w-[2px] h-[1em] bg-[#F4A83D] ml-0.5 align-middle animate-pulse" />
+        )}
+      </span>
+    );
+  };
+
   return (
     <main
       className="lg:ml-[280px] flex-1 min-h-screen flex flex-col"
@@ -726,7 +916,7 @@ export function AdaMainPanel() {
         onChange={handleFileSelect}
       />
 
-      {/* Top bar — NO Upgrade button */}
+      {/* Top bar */}
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-2">
           <img src={adaLogo} alt="Ada AI" className="h-8 w-auto" />
@@ -772,7 +962,6 @@ export function AdaMainPanel() {
               </svg>
             </div>
 
-            {/* Prompt text */}
             <p className="text-white/70 text-center text-base md:text-lg max-w-md mb-2 leading-relaxed">
               {voiceText.split("sunset").map((part, i, arr) =>
                 i < arr.length - 1 ? (
@@ -786,7 +975,6 @@ export function AdaMainPanel() {
               {isTranscribing ? "Transcribing..." : "Listening..."}
             </p>
 
-            {/* Voice controls */}
             <div className="flex items-center gap-4 mb-8">
               <button
                 onClick={cancelVoice}
@@ -810,15 +998,18 @@ export function AdaMainPanel() {
           </>
         ) : hasMessages ? (
           <>
-            {/* Chat thread view — messages render directly on page bg */}
-            <div className="w-full max-w-2xl flex-1 overflow-y-auto mb-4 space-y-4 py-4" style={{ maxHeight: "calc(100vh - 280px)" }}>
+            {/* Chat thread */}
+            <div
+              ref={scrollContainerRef}
+              onScroll={checkNearBottom}
+              className="w-full max-w-2xl flex-1 overflow-y-auto mb-4 space-y-4 py-4"
+              style={{ maxHeight: "calc(100vh - 280px)" }}
+            >
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                   <div
                     className={`max-w-[80%] px-4 py-3 text-sm ${
-                      msg.role === "user"
-                        ? "text-right"
-                        : ""
+                      msg.role === "user" ? "text-right" : ""
                     }`}
                     style={{
                       color: msg.role === "user"
@@ -830,39 +1021,7 @@ export function AdaMainPanel() {
                       borderRadius: "12px",
                     }}
                   >
-                    {/* Render inline images from markdown-style ![alt](url) */}
-                    {msg.content.match(/!\[.*?\]\(.*?\)/) ? (
-                      <div>
-                        {msg.content.split(/(!?\[.*?\]\(.*?\))/).map((part, idx) => {
-                          const imgMatch = part.match(/^!\[(.*?)\]\((.*?)\)$/);
-                          if (imgMatch) {
-                            return (
-                              <div key={idx} className="relative inline-block">
-                                <img
-                                  src={imgMatch[2]}
-                                  alt={imgMatch[1]}
-                                  className="rounded-lg max-w-full mt-2 mb-2"
-                                  style={{ maxHeight: "400px" }}
-                                />
-                                <a
-                                  href={imgMatch[2]}
-                                  download={`ada-image-${Date.now()}.png`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="absolute top-4 right-2 p-2 rounded-lg bg-black/60 hover:bg-black/80 text-white/80 hover:text-white transition-colors"
-                                  title="Download image"
-                                >
-                                  <Download className="w-4 h-4" />
-                                </a>
-                              </div>
-                            );
-                          }
-                          return part ? <span key={idx} style={{ whiteSpace: "pre-wrap" }}>{part}</span> : null;
-                        })}
-                      </div>
-                    ) : (
-                      <span style={{ whiteSpace: "pre-wrap" }}>{msg.content}</span>
-                    )}
+                    {renderMessageContent(msg)}
                     {/* Attachment chips */}
                     {msg.metadata && (msg.metadata as any).attachments && (
                       <div className="flex flex-wrap gap-1 mt-2">
@@ -874,7 +1033,7 @@ export function AdaMainPanel() {
                         ))}
                       </div>
                     )}
-                    {/* Audio metadata indicator */}
+                    {/* Audio metadata */}
                     {msg.metadata && (msg.metadata as any).audio_path && (
                       <span className="inline-flex items-center gap-1 mt-1 text-xs text-white/30">
                         <AudioLines className="w-3 h-3" />
@@ -897,9 +1056,8 @@ export function AdaMainPanel() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input area (same design) */}
+            {/* Input area */}
             <div className="w-full max-w-2xl mb-8">
-              {/* Pending attachment chips */}
               {pendingAttachments.length > 0 && (
                 <div className="flex flex-wrap gap-1 mb-2">
                   {pendingAttachments.map((a, i) => (
@@ -963,7 +1121,7 @@ export function AdaMainPanel() {
           </>
         ) : (
           <>
-            {/* Welcome / hero state (existing design exactly) */}
+            {/* Welcome / hero state */}
             <h1 className="text-white text-4xl md:text-5xl font-bold text-center mb-2 flex items-center justify-center gap-3">
               <span>Build your</span>
               <span className="inline-flex" style={{ minWidth: "4.5em" }}>
@@ -983,7 +1141,6 @@ export function AdaMainPanel() {
 
             {/* Chat input box */}
             <div className="w-full max-w-2xl mb-8">
-              {/* Pending attachment chips */}
               {pendingAttachments.length > 0 && (
                 <div className="flex flex-wrap gap-1 mb-2">
                   {pendingAttachments.map((a, i) => (
@@ -998,7 +1155,6 @@ export function AdaMainPanel() {
                 </div>
               )}
               <div ref={boxRef} className="relative rounded-2xl">
-                {/* SVG border trace animation */}
                 {perim > 0 && (
                   <>
                     <svg
