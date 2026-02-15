@@ -14,7 +14,10 @@ function json(data: unknown, status = 200) {
   });
 }
 
-/** Log outgoing payload (redact API key) and return a rich error object on non-2xx */
+function sseEvent(data: unknown): string {
+  return `data: ${JSON.stringify(data)}\n\n`;
+}
+
 function logPayload(endpoint: string, payload: unknown) {
   console.log(`[creatify-generate] → ${endpoint}`, JSON.stringify(payload));
 }
@@ -52,13 +55,16 @@ serve(async (req) => {
       return json({ ok: false, error_code: "PROVIDER_NOT_CONFIGURED", message: "Creatify API credentials not configured" }, 500);
     }
 
-    // Verify user
+    // Verify user via getClaims (compatible with signing-keys)
     const userClient = createClient(supabaseUrl, anonKey, { global: { headers: { Authorization: authHeader } } });
-    const { data: { user }, error: userErr } = await userClient.auth.getUser();
-    if (userErr || !user) return json({ ok: false, error_code: "AUTH_INVALID", message: "Invalid auth token" }, 401);
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsErr } = await userClient.auth.getClaims(token);
+    if (claimsErr || !claimsData?.claims) return json({ ok: false, error_code: "AUTH_INVALID", message: "Invalid auth token" }, 401);
+    const user = { id: claimsData.claims.sub as string };
 
     const body = await req.json();
-    const action = body.action || "generate"; // default to legacy behavior
+    const action = body.action || "generate";
+    const useSSE = body.stream === true;
 
     const creatifyHeaders = {
       "Content-Type": "application/json",
@@ -69,7 +75,7 @@ serve(async (req) => {
     const admin = createClient(supabaseUrl, serviceKey);
 
     // ──────────────────────────────────────────────
-    // ACTION: list-templates
+    // ACTION: list-templates (no SSE needed)
     // ──────────────────────────────────────────────
     if (action === "list-templates") {
       console.log("[creatify-generate] Fetching templates from Creatify API");
@@ -87,19 +93,10 @@ serve(async (req) => {
         const page = Array.isArray(body) ? body : (body.results || []);
         allTemplates = allTemplates.concat(page);
         nextUrl = (!Array.isArray(body) && body.next) ? String(body.next) : null;
-        console.log("[creatify-generate] Fetched page, running total:", allTemplates.length, "next:", nextUrl);
       }
 
-      console.log("[creatify-generate] Total templates from Creatify:", allTemplates.length);
-
       if (allTemplates.length === 0) {
-        return json({
-          ok: true,
-          templates: [],
-          count: 0,
-          reason: "no_templates_in_account",
-          message: "This Creatify account has no custom templates. Create templates in the Creatify dashboard first.",
-        });
+        return json({ ok: true, templates: [], count: 0, reason: "no_templates_in_account", message: "No custom templates found." });
       }
 
       const rows = allTemplates.map((t) => ({
@@ -111,24 +108,13 @@ serve(async (req) => {
         fetched_at: new Date().toISOString(),
       }));
 
-      const { error: upsertErr, count: upsertCount } = await admin
+      const { error: upsertErr } = await admin
         .from("creatify_templates")
         .upsert(rows, { onConflict: "id", count: "exact" });
 
-      if (upsertErr) {
-        console.warn("[creatify-generate] Template cache upsert error:", upsertErr.message);
-      } else {
-        console.log("[creatify-generate] Upserted", upsertCount, "rows into creatify_templates");
-      }
+      if (upsertErr) console.warn("[creatify-generate] Template cache upsert error:", upsertErr.message);
 
-      const mapped = rows.map((r) => ({
-        id: r.id,
-        name: r.name,
-        preview_url: r.preview_url,
-        aspect_ratio: r.aspect_ratio,
-      }));
-
-      return json({ ok: true, templates: mapped, count: mapped.length });
+      return json({ ok: true, templates: rows.map(r => ({ id: r.id, name: r.name, preview_url: r.preview_url, aspect_ratio: r.aspect_ratio })), count: rows.length });
     }
 
     // ──────────────────────────────────────────────
@@ -158,262 +144,236 @@ serve(async (req) => {
       }
     };
 
-    console.log("[creatify-generate] Starting for generation:", generation_id);
-
-    // Hard validation: prompt (product link) must be non-empty
     if (!gen.prompt || !gen.prompt.trim()) {
-      await admin.rpc("set_video_generation_status", {
-        p_generation_id: generation_id,
-        p_status: "failed",
-        p_error: "Product link is required",
-      });
+      await admin.rpc("set_video_generation_status", { p_generation_id: generation_id, p_status: "failed", p_error: "Product link is required" });
       await refundIfNeeded("Empty product link");
-      return json({ ok: false, error_code: "VALIDATION_ERROR", message: "Product link is required. Please provide a valid URL." }, 400);
+      return json({ ok: false, error_code: "VALIDATION_ERROR", message: "Product link is required." }, 400);
     }
 
-    const isUrl = gen.prompt.startsWith("http://") || gen.prompt.startsWith("https://");
+    // SSE mode: stream progress events
+    if (useSSE) {
+      const stream = new ReadableStream({
+        async start(controller) {
+          const encoder = new TextEncoder();
+          const emit = (data: unknown) => {
+            try { controller.enqueue(encoder.encode(sseEvent(data))); } catch (_) {}
+          };
 
-    let videoOutputUrl: string | null = null;
-    let thumbnailUrl: string | null = null;
+          try {
+            emit({ type: "generation_status", status: "queued", generation_id });
 
-    if (isUrl) {
-      // === FLOW A: URL-to-Video ===
-      const linkEndpoint = "https://api.creatify.ai/api/links/";
-      const linkPayload = { url: gen.prompt };
-      logPayload(linkEndpoint, linkPayload);
+            const result = await runCreatifyGeneration(gen, genParams, user, admin, creatifyHeaders, generation_id, costCredits, refundIfNeeded, emit);
 
-      const linkRes = await fetch(linkEndpoint, {
-        method: "POST",
-        headers: creatifyHeaders,
-        body: JSON.stringify(linkPayload),
+            if (!result.ok) {
+              emit({ type: "generation_status", status: "error", error: result.error || "Video generation failed" });
+            }
+          } catch (err) {
+            console.error("[creatify-generate] SSE error:", err);
+            emit({ type: "generation_status", status: "error", error: err instanceof Error ? err.message : "Unknown error" });
+          } finally {
+            emit({ type: "done" });
+            controller.close();
+          }
+        },
       });
 
-      if (!linkRes.ok) {
-        const errDetail = await creatifyError(linkRes, linkEndpoint);
-        await admin.rpc("set_video_generation_status", {
-          p_generation_id: generation_id,
-          p_status: "failed",
-          p_error: JSON.stringify(errDetail),
-        });
-        await refundIfNeeded("Link creation failed");
-        return json(errDetail, 502);
-      }
-
-      const linkData = await linkRes.json();
-      const linkId = linkData.id;
-      console.log("[creatify-generate] Link created:", linkId);
-
-      const videoEndpoint = "https://api.creatify.ai/api/link_to_videos/";
-      const videoPayload: Record<string, unknown> = {
-        link: gen.prompt,
-        aspect_ratio: genParams.aspect_ratio || "9x16",
-        duration: genParams.duration || 30,
-      };
-      if (genParams.visual_style) videoPayload.visual_style = genParams.visual_style;
-      if (genParams.script_text) videoPayload.script_text = genParams.script_text;
-      if (genParams.template_id) videoPayload.template_id = genParams.template_id;
-
-      logPayload(videoEndpoint, videoPayload);
-
-      const createRes = await fetch(videoEndpoint, {
-        method: "POST",
-        headers: creatifyHeaders,
-        body: JSON.stringify(videoPayload),
+      return new Response(stream, {
+        headers: { ...corsHeaders, "Content-Type": "text/event-stream", "Cache-Control": "no-cache", "Connection": "keep-alive" },
       });
-
-      if (!createRes.ok) {
-        const errDetail = await creatifyError(createRes, videoEndpoint);
-        await admin.rpc("set_video_generation_status", {
-          p_generation_id: generation_id,
-          p_status: "failed",
-          p_error: JSON.stringify(errDetail),
-        });
-        await refundIfNeeded("Video creation failed");
-        return json(errDetail, 502);
-      }
-
-      const createData = await createRes.json();
-      const videoId = createData.id;
-      console.log("[creatify-generate] Video job created:", videoId);
-
-      for (let attempt = 0; attempt < 60; attempt++) {
-        await new Promise(r => setTimeout(r, 5000));
-
-        const pollEndpoint = `https://api.creatify.ai/api/link_to_videos/${videoId}/`;
-        const pollRes = await fetch(pollEndpoint, { headers: creatifyHeaders });
-
-        if (!pollRes.ok) {
-          console.error("[creatify-generate] Poll error:", pollRes.status);
-          continue;
-        }
-
-        const pollData = await pollRes.json();
-        const status = pollData.status;
-
-        if (status === "done" || status === "completed") {
-          videoOutputUrl = pollData.video_output || pollData.output;
-          thumbnailUrl = pollData.thumbnail || null;
-          console.log("[creatify-generate] Video completed:", videoOutputUrl);
-          break;
-        } else if (status === "failed" || status === "error") {
-          const errMsg = pollData.error || pollData.message || "Video generation failed";
-          console.error("[creatify-generate] Video failed:", JSON.stringify(pollData));
-          await admin.rpc("set_video_generation_status", {
-            p_generation_id: generation_id,
-            p_status: "failed",
-            p_error: `Creatify: ${errMsg}`,
-          });
-          await refundIfNeeded("Creatify video failed");
-          return json({ ok: false, error_code: "CREATIFY_FAILED", message: errMsg, creatify_status: "failed", creatify_body: pollData, endpoint: pollEndpoint }, 502);
-        }
-      }
-    } else {
-      // === FLOW B: Text-based video ===
-      const videoEndpoint = "https://api.creatify.ai/api/link_to_videos/";
-      const videoPayload: Record<string, unknown> = {
-        script_text: gen.prompt,
-        aspect_ratio: genParams.aspect_ratio || "9x16",
-        duration: genParams.duration || 30,
-      };
-      if (genParams.visual_style) videoPayload.visual_style = genParams.visual_style;
-      if (genParams.template_id) videoPayload.template_id = genParams.template_id;
-
-      logPayload(videoEndpoint, videoPayload);
-
-      const createRes = await fetch(videoEndpoint, {
-        method: "POST",
-        headers: creatifyHeaders,
-        body: JSON.stringify(videoPayload),
-      });
-
-      if (!createRes.ok) {
-        const errDetail = await creatifyError(createRes, videoEndpoint);
-        await admin.rpc("set_video_generation_status", {
-          p_generation_id: generation_id,
-          p_status: "failed",
-          p_error: JSON.stringify(errDetail),
-        });
-        await refundIfNeeded("Text video creation failed");
-        return json(errDetail, 502);
-      }
-
-      const createData = await createRes.json();
-      const videoId = createData.id;
-      console.log("[creatify-generate] Text video job created:", videoId);
-
-      for (let attempt = 0; attempt < 60; attempt++) {
-        await new Promise(r => setTimeout(r, 5000));
-
-        const pollEndpoint = `https://api.creatify.ai/api/link_to_videos/${videoId}/`;
-        const pollRes = await fetch(pollEndpoint, { headers: creatifyHeaders });
-
-        if (!pollRes.ok) continue;
-
-        const pollData = await pollRes.json();
-        const status = pollData.status;
-
-        if (status === "done" || status === "completed") {
-          videoOutputUrl = pollData.video_output || pollData.output;
-          thumbnailUrl = pollData.thumbnail || null;
-          break;
-        } else if (status === "failed" || status === "error") {
-          const errMsg = pollData.error || pollData.message || "Video generation failed";
-          console.error("[creatify-generate] Text video failed:", JSON.stringify(pollData));
-          await admin.rpc("set_video_generation_status", {
-            p_generation_id: generation_id,
-            p_status: "failed",
-            p_error: `Creatify: ${errMsg}`,
-          });
-          await refundIfNeeded("Creatify text video failed");
-          return json({ ok: false, error_code: "CREATIFY_FAILED", message: errMsg, creatify_status: "failed", creatify_body: pollData, endpoint: pollEndpoint }, 502);
-        }
-      }
     }
 
-    if (!videoOutputUrl) {
-      await admin.rpc("set_video_generation_status", {
-        p_generation_id: generation_id,
-        p_status: "failed",
-        p_error: "Creatify video timed out after 5 minutes",
-      });
-      await refundIfNeeded("Timed out");
-      return json({ ok: false, error_code: "TIMEOUT", message: "Video generation timed out" }, 504);
-    }
+    // Non-SSE fallback: original JSON response
+    const result = await runCreatifyGeneration(gen, genParams, user, admin, creatifyHeaders, generation_id, costCredits, refundIfNeeded);
+    if (!result.ok) return json(result, result.status || 502);
+    return json(result);
 
-    // Download and upload the video to storage
-    const videoRes = await fetch(videoOutputUrl);
-    if (!videoRes.ok) {
-      console.error("[creatify-generate] Failed to download video:", videoRes.status);
-      await admin.rpc("set_video_generation_status", {
-        p_generation_id: generation_id,
-        p_status: "failed",
-        p_error: "Failed to download generated video",
-      });
-      await refundIfNeeded("Download failed");
-      return json({ ok: false, error_code: "DOWNLOAD_FAILED", message: "Failed to download video" }, 502);
-    }
-
-    const videoBytes = new Uint8Array(await videoRes.arrayBuffer());
-    const storagePath = `creatify/${user.id}/${generation_id}/video.mp4`;
-
-    const { error: upErr } = await admin.storage
-      .from("ai-generated-video")
-      .upload(storagePath, videoBytes, { contentType: "video/mp4", upsert: false });
-
-    if (upErr) {
-      console.error("[creatify-generate] Upload error:", upErr);
-      await admin.rpc("set_video_generation_status", {
-        p_generation_id: generation_id,
-        p_status: "failed",
-        p_error: "Failed to store video",
-      });
-      await refundIfNeeded("Upload failed");
-      return json({ ok: false, error_code: "UPLOAD_FAILED", message: "Failed to store video" }, 500);
-    }
-
-    const { data: signedData } = await admin.storage
-      .from("ai-generated-video")
-      .createSignedUrl(storagePath, 3600);
-
-    let thumbnailStoragePath: string | null = null;
-    if (thumbnailUrl) {
-      try {
-        const thumbRes = await fetch(thumbnailUrl);
-        if (thumbRes.ok) {
-          const thumbBytes = new Uint8Array(await thumbRes.arrayBuffer());
-          thumbnailStoragePath = `creatify/${user.id}/${generation_id}/thumbnail.jpg`;
-          await admin.storage
-            .from("ai-generated-video")
-            .upload(thumbnailStoragePath, thumbBytes, { contentType: "image/jpeg", upsert: false });
-        }
-      } catch (e) {
-        console.warn("[creatify-generate] Thumbnail upload failed:", e);
-      }
-    }
-
-    const resultVideos = [{
-      url: signedData?.signedUrl || videoOutputUrl,
-      storage_path: storagePath,
-      thumbnail_url: thumbnailUrl || null,
-      thumbnail_storage_path: thumbnailStoragePath,
-      metadata: { provider: "creatify" },
-    }];
-
-    await admin.rpc("set_video_generation_status", {
-      p_generation_id: generation_id,
-      p_status: "succeeded",
-      p_result_videos: JSON.stringify(resultVideos),
-    });
-
-    if (costCredits > 0) {
-      try { await admin.rpc("charge_reserved", { p_ref_type: "video", p_ref_id: generation_id, p_amount: costCredits }); } catch (e) { console.warn("[creatify-generate] charge_reserved failed:", e); }
-    }
-
-    console.log("[creatify-generate] Success for generation:", generation_id);
-
-    return json({ ok: true, generation_id, videos: resultVideos });
   } catch (e) {
     console.error("[creatify-generate] error:", e);
     return json({ ok: false, error_code: "INTERNAL", message: e instanceof Error ? e.message : "Unknown error" }, 500);
   }
 });
+
+// ──────────────────────────────────────────────
+// Core generation logic, extracted for both SSE and JSON modes
+// ──────────────────────────────────────────────
+async function runCreatifyGeneration(
+  gen: Record<string, unknown>,
+  genParams: Record<string, unknown>,
+  user: { id: string },
+  admin: ReturnType<typeof createClient>,
+  creatifyHeaders: Record<string, string>,
+  generation_id: string,
+  costCredits: number,
+  refundIfNeeded: (note: string) => Promise<void>,
+  emit?: (data: unknown) => void,
+): Promise<Record<string, unknown>> {
+  const isUrl = (gen.prompt as string).startsWith("http://") || (gen.prompt as string).startsWith("https://");
+
+  let videoOutputUrl: string | null = null;
+  let thumbnailUrl: string | null = null;
+
+  emit?.({ type: "generation_status", status: "generating", generation_id });
+
+  if (isUrl) {
+    // === FLOW A: URL-to-Video ===
+    const linkEndpoint = "https://api.creatify.ai/api/links/";
+    const linkPayload = { url: gen.prompt };
+    logPayload(linkEndpoint, linkPayload);
+
+    const linkRes = await fetch(linkEndpoint, { method: "POST", headers: creatifyHeaders, body: JSON.stringify(linkPayload) });
+    if (!linkRes.ok) {
+      const errDetail = await creatifyError(linkRes, linkEndpoint);
+      await admin.rpc("set_video_generation_status", { p_generation_id: generation_id, p_status: "failed", p_error: JSON.stringify(errDetail) });
+      await refundIfNeeded("Link creation failed");
+      return { ...errDetail, status: 502 };
+    }
+
+    const linkData = await linkRes.json();
+    console.log("[creatify-generate] Link created:", linkData.id);
+
+    const videoEndpoint = "https://api.creatify.ai/api/link_to_videos/";
+    const videoPayload: Record<string, unknown> = {
+      link: gen.prompt,
+      aspect_ratio: genParams.aspect_ratio || "9x16",
+      duration: genParams.duration || 30,
+    };
+    if (genParams.visual_style) videoPayload.visual_style = genParams.visual_style;
+    if (genParams.script_text) videoPayload.script_text = genParams.script_text;
+    if (genParams.template_id) videoPayload.template_id = genParams.template_id;
+    logPayload(videoEndpoint, videoPayload);
+
+    const createRes = await fetch(videoEndpoint, { method: "POST", headers: creatifyHeaders, body: JSON.stringify(videoPayload) });
+    if (!createRes.ok) {
+      const errDetail = await creatifyError(createRes, videoEndpoint);
+      await admin.rpc("set_video_generation_status", { p_generation_id: generation_id, p_status: "failed", p_error: JSON.stringify(errDetail) });
+      await refundIfNeeded("Video creation failed");
+      return { ...errDetail, status: 502 };
+    }
+
+    const createData = await createRes.json();
+    const videoId = createData.id;
+    console.log("[creatify-generate] Video job created:", videoId);
+
+    for (let attempt = 0; attempt < 60; attempt++) {
+      await new Promise(r => setTimeout(r, 5000));
+      const pollRes = await fetch(`https://api.creatify.ai/api/link_to_videos/${videoId}/`, { headers: creatifyHeaders });
+      if (!pollRes.ok) continue;
+      const pollData = await pollRes.json();
+      if (pollData.status === "done" || pollData.status === "completed") {
+        videoOutputUrl = pollData.video_output || pollData.output;
+        thumbnailUrl = pollData.thumbnail || null;
+        break;
+      } else if (pollData.status === "failed" || pollData.status === "error") {
+        const errMsg = pollData.error || pollData.message || "Video generation failed";
+        await admin.rpc("set_video_generation_status", { p_generation_id: generation_id, p_status: "failed", p_error: `Creatify: ${errMsg}` });
+        await refundIfNeeded("Creatify video failed");
+        return { ok: false, error_code: "CREATIFY_FAILED", message: errMsg, status: 502 };
+      }
+    }
+  } else {
+    // === FLOW B: Text-based video ===
+    const videoEndpoint = "https://api.creatify.ai/api/link_to_videos/";
+    const videoPayload: Record<string, unknown> = {
+      script_text: gen.prompt,
+      aspect_ratio: genParams.aspect_ratio || "9x16",
+      duration: genParams.duration || 30,
+    };
+    if (genParams.visual_style) videoPayload.visual_style = genParams.visual_style;
+    if (genParams.template_id) videoPayload.template_id = genParams.template_id;
+    logPayload(videoEndpoint, videoPayload);
+
+    const createRes = await fetch(videoEndpoint, { method: "POST", headers: creatifyHeaders, body: JSON.stringify(videoPayload) });
+    if (!createRes.ok) {
+      const errDetail = await creatifyError(createRes, videoEndpoint);
+      await admin.rpc("set_video_generation_status", { p_generation_id: generation_id, p_status: "failed", p_error: JSON.stringify(errDetail) });
+      await refundIfNeeded("Text video creation failed");
+      return { ...errDetail, status: 502 };
+    }
+
+    const createData = await createRes.json();
+    const videoId = createData.id;
+    console.log("[creatify-generate] Text video job created:", videoId);
+
+    for (let attempt = 0; attempt < 60; attempt++) {
+      await new Promise(r => setTimeout(r, 5000));
+      const pollRes = await fetch(`https://api.creatify.ai/api/link_to_videos/${videoId}/`, { headers: creatifyHeaders });
+      if (!pollRes.ok) continue;
+      const pollData = await pollRes.json();
+      if (pollData.status === "done" || pollData.status === "completed") {
+        videoOutputUrl = pollData.video_output || pollData.output;
+        thumbnailUrl = pollData.thumbnail || null;
+        break;
+      } else if (pollData.status === "failed" || pollData.status === "error") {
+        const errMsg = pollData.error || pollData.message || "Video generation failed";
+        await admin.rpc("set_video_generation_status", { p_generation_id: generation_id, p_status: "failed", p_error: `Creatify: ${errMsg}` });
+        await refundIfNeeded("Creatify text video failed");
+        return { ok: false, error_code: "CREATIFY_FAILED", message: errMsg, status: 502 };
+      }
+    }
+  }
+
+  if (!videoOutputUrl) {
+    await admin.rpc("set_video_generation_status", { p_generation_id: generation_id, p_status: "failed", p_error: "Creatify video timed out after 5 minutes" });
+    await refundIfNeeded("Timed out");
+    return { ok: false, error_code: "TIMEOUT", message: "Video generation timed out", status: 504 };
+  }
+
+  // Upload phase
+  emit?.({ type: "generation_status", status: "uploading", generation_id });
+
+  const videoRes = await fetch(videoOutputUrl);
+  if (!videoRes.ok) {
+    await admin.rpc("set_video_generation_status", { p_generation_id: generation_id, p_status: "failed", p_error: "Failed to download generated video" });
+    await refundIfNeeded("Download failed");
+    return { ok: false, error_code: "DOWNLOAD_FAILED", message: "Failed to download video", status: 502 };
+  }
+
+  const videoBytes = new Uint8Array(await videoRes.arrayBuffer());
+  const storagePath = `creatify/${user.id}/${generation_id}/video.mp4`;
+
+  const { error: upErr } = await admin.storage
+    .from("ai-generated-video")
+    .upload(storagePath, videoBytes, { contentType: "video/mp4", upsert: false });
+
+  if (upErr) {
+    await admin.rpc("set_video_generation_status", { p_generation_id: generation_id, p_status: "failed", p_error: "Failed to store video" });
+    await refundIfNeeded("Upload failed");
+    return { ok: false, error_code: "UPLOAD_FAILED", message: "Failed to store video", status: 500 };
+  }
+
+  const { data: signedData } = await admin.storage
+    .from("ai-generated-video")
+    .createSignedUrl(storagePath, 3600);
+
+  let thumbnailStoragePath: string | null = null;
+  if (thumbnailUrl) {
+    try {
+      const thumbRes = await fetch(thumbnailUrl);
+      if (thumbRes.ok) {
+        const thumbBytes = new Uint8Array(await thumbRes.arrayBuffer());
+        thumbnailStoragePath = `creatify/${user.id}/${generation_id}/thumbnail.jpg`;
+        await admin.storage.from("ai-generated-video").upload(thumbnailStoragePath, thumbBytes, { contentType: "image/jpeg", upsert: false });
+      }
+    } catch (e) { console.warn("[creatify-generate] Thumbnail upload failed:", e); }
+  }
+
+  const resultVideos = [{
+    url: signedData?.signedUrl || videoOutputUrl,
+    storage_path: storagePath,
+    thumbnail_url: thumbnailUrl || null,
+    thumbnail_storage_path: thumbnailStoragePath,
+    metadata: { provider: "creatify" },
+  }];
+
+  await admin.rpc("set_video_generation_status", { p_generation_id: generation_id, p_status: "succeeded", p_result_videos: JSON.stringify(resultVideos) });
+
+  if (costCredits > 0) {
+    try { await admin.rpc("charge_reserved", { p_ref_type: "video", p_ref_id: generation_id, p_amount: costCredits }); } catch (e) { console.warn("[creatify-generate] charge_reserved failed:", e); }
+  }
+
+  console.log("[creatify-generate] Success for generation:", generation_id);
+
+  const finalResult = { ok: true, generation_id, videos: resultVideos };
+  emit?.({ type: "generation_status", status: "complete", generation_id, asset_url: resultVideos[0].url });
+  return finalResult;
+}
