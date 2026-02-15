@@ -430,7 +430,27 @@ export function AdaMainPanel() {
     } else if (currentIntent === "search" && text) {
       await handleSearch(text, cid);
     } else {
-      await handleDiscuss(text, cid);
+      // Auto-detect image generation intent from natural language
+      const lowerText = text.toLowerCase();
+      const imageIntentPatterns = [
+        /^(generate|create|make|draw|design|paint|sketch)\s+(an?\s+)?image\b/,
+        /^(generate|create|make|draw|design|paint|sketch)\s+(an?\s+)?(picture|photo|illustration|artwork|logo|icon|graphic|poster|banner)\b/,
+        /\b(generate|create|make|draw)\s+(me\s+)?(an?\s+)?image\b/,
+        /\bimage\s+of\b/,
+        /\bpicture\s+of\b/,
+      ];
+      const isImageIntent = imageIntentPatterns.some(p => p.test(lowerText));
+
+      if (isImageIntent) {
+        // Strip the intent prefix to extract the actual prompt
+        const cleanPrompt = text
+          .replace(/^(generate|create|make|draw|design|paint|sketch)\s+(me\s+)?(an?\s+)?(image|picture|photo|illustration|artwork|logo|icon|graphic|poster|banner)\s*(of\s+)?/i, "")
+          .replace(/^(an?\s+)?(image|picture)\s+of\s+/i, "")
+          .trim() || text;
+        await handleImageGenerate(cleanPrompt, cid, "ideogram");
+      } else {
+        await handleDiscuss(text, cid);
+      }
     }
   }, [inputValue, activeChatId, isAuthenticated, pendingAttachments, intent, createDbChat, createAnonChat, persistMessage, handleSearch, handleDiscuss, handleImageGenerate, handleVideoGenerate]);
 
