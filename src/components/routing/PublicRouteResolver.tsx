@@ -39,6 +39,8 @@ const INTERNAL_ROUTES = [
  * Debug bar component - temporary for debugging route resolution
  */
 function RouteDebugBar({ debug, route }: { debug: RouteDebugInfo | null; route: ResolvedRoute | null }) {
+  // Belt-and-suspenders: never render in production even if caller forgets the gate
+  if (!import.meta.env.DEV) return null;
   if (!debug) return null;
   
   return (
@@ -129,12 +131,14 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
       try {
         const { route, debug } = await resolveRoute();
         
-        // Temporary debug logging (dev + prod)
-        console.log("[PUBLIC ROUTE RESOLVED]", {
-          canonicalHost: debug.canonicalHost,
-          path: debug.path,
-          result: route,
-        });
+        // Debug logging — dev only
+        if (import.meta.env.DEV) {
+          console.log("[PUBLIC ROUTE RESOLVED]", {
+            canonicalHost: debug.canonicalHost,
+            path: debug.path,
+            result: route,
+          });
+        }
         
         setResolvedRoute(route);
         setDebugInfo(debug);
