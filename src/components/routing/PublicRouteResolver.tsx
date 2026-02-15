@@ -1,6 +1,6 @@
 import { useEffect, useState, ReactNode } from "react";
 import { useLocation } from "react-router-dom";
-import { resolveRoute, isDevEnvironment, type ResolvedRoute, type RouteDebugInfo } from "@/lib/routing/resolveRoute";
+import { resolveRoute, isDevEnvironment, normalizeHostname, type ResolvedRoute, type RouteDebugInfo } from "@/lib/routing/resolveRoute";
 import { DomainHome } from "./DomainHome";
 import { IdentityHub } from "./IdentityHub";
 import { SurfaceViewer } from "./SurfaceViewer";
@@ -10,6 +10,16 @@ import { Loader2 } from "lucide-react";
 interface PublicRouteResolverProps {
   children: ReactNode;
 }
+
+// Non-primary platform domains that redirect root "/" to yangu.io
+const REDIRECT_DOMAINS = new Set([
+  "yangu.community",
+  "yangu.site",
+  "yangu.shop",
+  "yangu.store",
+  "yangu.live",
+  "yangu.studio",
+]);
 
 // Routes that should always use internal React Router handling
 const INTERNAL_ROUTES = [
@@ -104,6 +114,13 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
       if (isDev || isInternalRoute) {
         setShouldUseInternalRouting(true);
         setIsLoading(false);
+        return;
+      }
+
+      // Redirect non-primary domain roots to yangu.io
+      const hostname = normalizeHostname(window.location.hostname);
+      if (path === "/" && REDIRECT_DOMAINS.has(hostname)) {
+        window.location.replace("https://yangu.io");
         return;
       }
 
