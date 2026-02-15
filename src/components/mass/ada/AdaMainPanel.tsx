@@ -12,15 +12,24 @@ import { consumeEntitlement } from "@/lib/entitlements";
 import { useNavigate } from "react-router-dom";
 import { MediaGenerationCard, type MediaGenStatus } from "./MediaGenerationCard";
 
+type AdaMode = "auto" | "standard" | "cinema" | "motion";
+type AdaSkill = "starter" | "creator" | "agency";
+
+interface RoutingPill {
+  mode: string;
+  tier: string;
+  provider: string;
+  aspect?: string;
+}
+
 interface ChatMessage {
   id: string;
   role: "user" | "assistant";
   content: string;
   metadata?: Record<string, unknown>;
   created_at: string;
-  // Streaming state
   isStreaming?: boolean;
-  // Media generation state
+  routingPill?: RoutingPill;
   mediaGen?: {
     kind: "image" | "video";
     status: MediaGenStatus;
@@ -32,6 +41,58 @@ interface ChatMessage {
     retryProvider?: string;
     retryCid?: string;
   };
+}
+
+// Image / Video intent keyword detection
+const IMAGE_KEYWORDS = ["poster", "banner", "ad", "thumbnail", "product shot", "flyer", "cover", "logo", "carousel"];
+const VIDEO_KEYWORDS = ["video", "reel", "tiktok", "motion", "clip", "cinematic", "animation"];
+
+function detectMediaIntent(text: string): "image" | "video" | null {
+  const lower = text.toLowerCase();
+  if (VIDEO_KEYWORDS.some(k => lower.includes(k))) return "video";
+  if (IMAGE_KEYWORDS.some(k => lower.includes(k))) return "image";
+  return null;
+}
+
+function resolveAutoDirector(
+  mode: AdaMode,
+  skill: AdaSkill,
+  mediaIntent: "image" | "video" | null,
+  advOverride: boolean,
+  advProvider: string,
+): { tier: string; provider: string; kind: "image" | "video" | "chat" } {
+  // If Advanced Mode explicitly set, that takes priority
+  if (advOverride) {
+    if (advProvider === "creatify") return { tier: "Motion Pro", provider: "creatify", kind: "video" };
+    if (advProvider === "ideogram") return { tier: "Cinema", provider: "ideogram", kind: "image" };
+    if (advProvider === "qwen") return { tier: "Standard", provider: "qwen", kind: "image" };
+    return { tier: "Standard", provider: "openai", kind: "chat" };
+  }
+
+  if (mode !== "auto") {
+    // Direct mode selection
+    if (mode === "motion") return { tier: "Motion Pro", provider: "creatify", kind: mediaIntent === "image" ? "image" : "video" };
+    if (mode === "cinema") return { tier: "Cinema", provider: "ideogram", kind: mediaIntent === "video" ? "video" : "image" };
+    return { tier: "Standard", provider: mediaIntent === "video" ? "creatify" : mediaIntent === "image" ? "qwen" : "openai", kind: mediaIntent || "chat" };
+  }
+
+  // Auto mode – route by skill tier + intent
+  if (!mediaIntent) return { tier: "Standard", provider: "openai", kind: "chat" };
+
+  if (skill === "starter") {
+    return mediaIntent === "video"
+      ? { tier: "Standard", provider: "creatify", kind: "video" }
+      : { tier: "Standard", provider: "qwen", kind: "image" };
+  }
+  if (skill === "creator") {
+    return mediaIntent === "video"
+      ? { tier: "Standard", provider: "creatify", kind: "video" }
+      : { tier: "Cinema", provider: "ideogram", kind: "image" };
+  }
+  // agency
+  return mediaIntent === "video"
+    ? { tier: "Motion Pro", provider: "creatify", kind: "video" }
+    : { tier: "Cinema", provider: "ideogram", kind: "image" };
 }
 
 // localStorage helpers for anonymous users
@@ -203,8 +264,16 @@ export function AdaMainPanel() {
   const [selectedProvider, setSelectedProvider] = useState<string>(() => localStorage.getItem("ada_provider") || "openai");
   const [selectedAspectRatio, setSelectedAspectRatio] = useState<string>(() => localStorage.getItem("ada_aspect_ratio") || "1:1");
   const [advancedParams, setAdvancedParams] = useState<string>(() => localStorage.getItem("ada_params") || "");
+  const [advancedOverride, setAdvancedOverride] = useState(false);
 
-  const updateProvider = (p: string) => { setSelectedProvider(p); localStorage.setItem("ada_provider", p); };
+  // Skill Meter state (persisted in localStorage)
+  const [adaMode, setAdaMode] = useState<AdaMode>(() => (localStorage.getItem("ada_mode") as AdaMode) || "auto");
+  const [adaSkill, setAdaSkill] = useState<AdaSkill>(() => (localStorage.getItem("ada_skill") as AdaSkill) || "starter");
+
+  const updateMode = (m: AdaMode) => { setAdaMode(m); localStorage.setItem("ada_mode", m); };
+  const updateSkill = (s: AdaSkill) => { setAdaSkill(s); localStorage.setItem("ada_skill", s); };
+
+  const updateProvider = (p: string) => { setSelectedProvider(p); localStorage.setItem("ada_provider", p); setAdvancedOverride(true); };
   const updateAspectRatio = (r: string) => { setSelectedAspectRatio(r); localStorage.setItem("ada_aspect_ratio", r); };
   const updateAdvancedParams = (v: string) => { setAdvancedParams(v); localStorage.setItem("ada_params", v); };
 
@@ -711,7 +780,12 @@ export function AdaMainPanel() {
     await streamChatResponse(convMessages, cid, streamMsgId);
   }, [messages, streamChatResponse]);
 
-  // --- Send message ---
+  // --- Helper to add routing pill to a message ---
+  const addRoutingPill = useCallback((msgId: string, pill: RoutingPill) => {
+    setMessages(prev => prev.map(m => m.id === msgId ? { ...m, routingPill: pill } : m));
+  }, []);
+
+  // --- Send message with Auto Director ---
   const handleSend = useCallback(async (overrideText?: string) => {
     const text = (overrideText || inputValue).trim();
     if (!text && pendingAttachments.length === 0) return;
@@ -739,76 +813,95 @@ export function AdaMainPanel() {
     setPendingAttachments([]);
     await persistMessage(cid, userMsg);
 
-    // Route: /video command
+    // --- Explicit command routing (highest priority) ---
     if (text.startsWith("/video ")) {
       const videoPrompt = text.slice(7).trim();
       if (videoPrompt) {
         await handleVideoGenerate(videoPrompt, cid);
       } else {
-        const errMsg: ChatMessage = {
-          id: `msg_${Date.now()}`,
-          role: "assistant",
-          content: "Please provide a prompt or URL after `/video`. Example: `/video https://myshop.com/product`",
-          created_at: new Date().toISOString(),
-        };
+        const errMsg: ChatMessage = { id: `msg_${Date.now()}`, role: "assistant", content: "Please provide a prompt or URL after `/video`.", created_at: new Date().toISOString() };
         setMessages(prev => [...prev, errMsg]);
         await persistMessage(cid, errMsg);
       }
-    } else if (text.startsWith("/image:qwen ")) {
+      return;
+    }
+    if (text.startsWith("/image:qwen ")) {
       const imagePrompt = text.slice(12).trim();
-      if (imagePrompt) {
-        await handleImageGenerate(imagePrompt, cid, "qwen");
-      } else {
-        const errMsg: ChatMessage = {
-          id: `msg_${Date.now()}`,
-          role: "assistant",
-          content: "Please provide a prompt after `/image:qwen`. Example: `/image:qwen a sunset over mountains`",
-          created_at: new Date().toISOString(),
-        };
-        setMessages(prev => [...prev, errMsg]);
-        await persistMessage(cid, errMsg);
-      }
-    } else if (text.startsWith("/image ")) {
+      if (imagePrompt) await handleImageGenerate(imagePrompt, cid, "qwen");
+      return;
+    }
+    if (text.startsWith("/image ")) {
       const imagePrompt = text.slice(7).trim();
       if (imagePrompt) {
-        const imgProvider = (selectedProvider === "qwen" || selectedProvider === "ideogram") ? selectedProvider : "ideogram";
-        await handleImageGenerate(imagePrompt, cid, imgProvider as "ideogram" | "qwen");
-      } else {
+        const routing = resolveAutoDirector(adaMode, adaSkill, "image", advancedOverride, selectedProvider);
+        const prov = (routing.provider === "qwen" || routing.provider === "ideogram") ? routing.provider : "ideogram";
+        await handleImageGenerate(imagePrompt, cid, prov as "ideogram" | "qwen");
+      }
+      return;
+    }
+
+    // --- Search mode ---
+    if (currentIntent === "search" && text) {
+      await handleSearch(text, cid);
+      return;
+    }
+
+    // --- Auto Director: detect media intent ---
+    const mediaIntent = detectMediaIntent(text);
+    const imageIntentPatterns = [
+      /^(generate|create|make|draw|design|paint|sketch)\s+(an?\s+)?image\b/,
+      /^(generate|create|make|draw|design|paint|sketch)\s+(an?\s+)?(picture|photo|illustration|artwork|logo|icon|graphic|poster|banner)\b/,
+      /\b(generate|create|make|draw)\s+(me\s+)?(an?\s+)?image\b/,
+      /\bimage\s+of\b/,
+      /\bpicture\s+of\b/,
+    ];
+    const isExplicitImageIntent = imageIntentPatterns.some(p => p.test(text.toLowerCase()));
+    const effectiveIntent = isExplicitImageIntent ? "image" : mediaIntent;
+
+    const routing = resolveAutoDirector(adaMode, adaSkill, effectiveIntent, advancedOverride, selectedProvider);
+    const pill: RoutingPill = {
+      mode: adaMode === "auto" ? "Auto" : adaMode.charAt(0).toUpperCase() + adaMode.slice(1),
+      tier: routing.tier,
+      provider: routing.provider === "ideogram" ? "Ideogram" : routing.provider === "qwen" ? "Qwen" : routing.provider === "creatify" ? "Creatify" : "OpenAI",
+      aspect: selectedAspectRatio,
+    };
+
+    if (routing.kind === "video") {
+      // Credit safety check
+      const ent = await consumeEntitlement("video");
+      if (!ent.allowed) {
         const errMsg: ChatMessage = {
-          id: `msg_${Date.now()}`,
-          role: "assistant",
-          content: "Please provide a prompt after `/image`. Example: `/image a sunset over mountains`",
+          id: `msg_${Date.now()}`, role: "assistant",
+          content: `⚠️ ${ent.error || "Insufficient credits for video."}\n\n💡 Switch to **Standard** mode for a cheaper option.`,
+          routingPill: pill,
           created_at: new Date().toISOString(),
         };
         setMessages(prev => [...prev, errMsg]);
         await persistMessage(cid, errMsg);
+        return;
       }
-    } else if (currentIntent === "search" && text) {
-      await handleSearch(text, cid);
+      // For video intent from natural language, strip intent keywords for cleaner prompt
+      await handleVideoGenerate(text, cid);
+    } else if (routing.kind === "image" || isExplicitImageIntent) {
+      const cleanPrompt = isExplicitImageIntent
+        ? text.replace(/^(generate|create|make|draw|design|paint|sketch)\s+(me\s+)?(an?\s+)?(image|picture|photo|illustration|artwork|logo|icon|graphic|poster|banner)\s*(of\s+)?/i, "").replace(/^(an?\s+)?(image|picture)\s+of\s+/i, "").trim() || text
+        : text;
+      const prov = (routing.provider === "qwen" || routing.provider === "ideogram") ? routing.provider : "ideogram";
+      await handleImageGenerate(cleanPrompt, cid, prov as "ideogram" | "qwen");
     } else {
-      // Auto-detect image intent
-      const lowerText = text.toLowerCase();
-      const imageIntentPatterns = [
-        /^(generate|create|make|draw|design|paint|sketch)\s+(an?\s+)?image\b/,
-        /^(generate|create|make|draw|design|paint|sketch)\s+(an?\s+)?(picture|photo|illustration|artwork|logo|icon|graphic|poster|banner)\b/,
-        /\b(generate|create|make|draw)\s+(me\s+)?(an?\s+)?image\b/,
-        /\bimage\s+of\b/,
-        /\bpicture\s+of\b/,
-      ];
-      const isImageIntent = imageIntentPatterns.some(p => p.test(lowerText));
-
-      if (isImageIntent) {
-        const cleanPrompt = text
-          .replace(/^(generate|create|make|draw|design|paint|sketch)\s+(me\s+)?(an?\s+)?(image|picture|photo|illustration|artwork|logo|icon|graphic|poster|banner)\s*(of\s+)?/i, "")
-          .replace(/^(an?\s+)?(image|picture)\s+of\s+/i, "")
-          .trim() || text;
-        const imgProvider = (selectedProvider === "qwen" || selectedProvider === "ideogram") ? selectedProvider : "ideogram";
-        await handleImageGenerate(cleanPrompt, cid, imgProvider as "ideogram" | "qwen");
-      } else {
-        await handleDiscuss(text, cid);
-      }
+      // Chat / discuss
+      const streamMsgId = `msg_${Date.now()}`;
+      const streamMsg: ChatMessage = {
+        id: streamMsgId, role: "assistant", content: "",
+        isStreaming: true, routingPill: pill,
+        created_at: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, streamMsg]);
+      const convMessages = messages.slice(-20).map(m => ({ role: m.role, content: m.content }));
+      convMessages.push({ role: "user", content: text });
+      await streamChatResponse(convMessages, cid, streamMsgId);
     }
-  }, [inputValue, activeChatId, isAuthenticated, pendingAttachments, intent, selectedProvider, createDbChat, createAnonChat, persistMessage, handleSearch, handleDiscuss, handleImageGenerate, handleVideoGenerate]);
+  }, [inputValue, activeChatId, isAuthenticated, pendingAttachments, intent, selectedProvider, adaMode, adaSkill, advancedOverride, selectedAspectRatio, createDbChat, createAnonChat, persistMessage, handleSearch, handleDiscuss, handleImageGenerate, handleVideoGenerate, streamChatResponse, messages, addRoutingPill]);
 
   // --- Voice ---
   const handleVoiceTranscript = useCallback(async (
@@ -1339,7 +1432,14 @@ export function AdaMainPanel() {
               style={{ maxHeight: "calc(100vh - 280px)" }}
             >
               {messages.map((msg) => (
-                <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div key={msg.id} className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>
+                  {/* Routing pill */}
+                  {msg.role === "assistant" && msg.routingPill && (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 mb-1 rounded-full text-[10px] font-medium text-white/50"
+                      style={{ background: "rgba(244,168,61,0.08)", border: "1px solid rgba(244,168,61,0.15)" }}>
+                      {msg.routingPill.mode} → {msg.routingPill.tier} ({msg.routingPill.provider}){msg.routingPill.aspect && msg.routingPill.tier !== "Standard" ? ` • ${msg.routingPill.aspect}` : ""}
+                    </span>
+                  )}
                   <div
                     className={`max-w-[80%] px-4 py-3 text-sm ${
                       msg.role === "user" ? "text-right" : ""
@@ -1355,7 +1455,6 @@ export function AdaMainPanel() {
                     }}
                   >
                     {renderMessageContent(msg)}
-                    {/* Attachment chips */}
                     {msg.metadata && (msg.metadata as any).attachments && (
                       <div className="flex flex-wrap gap-1 mt-2">
                         {((msg.metadata as any).attachments as { name: string; type: string }[]).map((a, i) => (
@@ -1366,7 +1465,6 @@ export function AdaMainPanel() {
                         ))}
                       </div>
                     )}
-                    {/* Audio metadata */}
                     {msg.metadata && (msg.metadata as any).audio_path && (
                       <span className="inline-flex items-center gap-1 mt-1 text-xs text-white/30">
                         <AudioLines className="w-3 h-3" />
@@ -1387,6 +1485,29 @@ export function AdaMainPanel() {
                 </div>
               )}
               <div ref={messagesEndRef} />
+            </div>
+
+            {/* Skill Meter */}
+            <div className="w-full max-w-2xl mb-2">
+              <div className="flex flex-wrap items-center gap-2">
+                {/* Mode segmented */}
+                <div className="inline-flex rounded-lg overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
+                  {(["auto", "standard", "cinema", "motion"] as AdaMode[]).map(m => (
+                    <button key={m} onClick={() => updateMode(m)}
+                      className={`px-2.5 py-1 text-[11px] font-medium capitalize transition-colors ${adaMode === m ? "text-[#F4A83D] bg-[#F4A83D]/10" : "text-white/35 hover:text-white/60"}`}
+                    >{m === "motion" ? "Motion Pro" : m}</button>
+                  ))}
+                </div>
+                {/* Skill dropdown */}
+                <select value={adaSkill} onChange={e => updateSkill(e.target.value as AdaSkill)}
+                  className="px-2.5 py-1 rounded-lg text-[11px] font-medium text-white/50 outline-none capitalize cursor-pointer"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
+                >
+                  <option value="starter">Starter</option>
+                  <option value="creator">Creator</option>
+                  <option value="agency">Agency</option>
+                </select>
+              </div>
             </div>
 
             {/* Input area */}
@@ -1471,6 +1592,27 @@ export function AdaMainPanel() {
             {(!isAuthenticated || !profile?.display_name) && (
               <div className="mb-10" />
             )}
+
+            {/* Skill Meter (hero) */}
+            <div className="w-full max-w-2xl mb-3">
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <div className="inline-flex rounded-lg overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
+                  {(["auto", "standard", "cinema", "motion"] as AdaMode[]).map(m => (
+                    <button key={m} onClick={() => updateMode(m)}
+                      className={`px-2.5 py-1 text-[11px] font-medium capitalize transition-colors ${adaMode === m ? "text-[#F4A83D] bg-[#F4A83D]/10" : "text-white/35 hover:text-white/60"}`}
+                    >{m === "motion" ? "Motion Pro" : m}</button>
+                  ))}
+                </div>
+                <select value={adaSkill} onChange={e => updateSkill(e.target.value as AdaSkill)}
+                  className="px-2.5 py-1 rounded-lg text-[11px] font-medium text-white/50 outline-none capitalize cursor-pointer"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
+                >
+                  <option value="starter">Starter</option>
+                  <option value="creator">Creator</option>
+                  <option value="agency">Agency</option>
+                </select>
+              </div>
+            </div>
 
             {/* Chat input box */}
             <div className="w-full max-w-2xl mb-8">
