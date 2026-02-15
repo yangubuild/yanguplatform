@@ -49,15 +49,21 @@ export async function generateCreatifyVideo(
   );
 
   if (fnErr) {
-    console.error("[creatify] Edge function error:", fnErr);
-    return { ok: false, generation_id: generationId, error: "Video generation failed" };
+    // Try to extract the JSON body from the FunctionsHttpError
+    let detail: Record<string, unknown> | undefined;
+    try { detail = await (fnErr as any).context?.json?.(); } catch (_) {}
+    const msg = detail?.message || detail?.creatify_body || fnErr.message || "Video generation failed";
+    console.error("[creatify] Edge function error:", { status: (fnErr as any).context?.status, detail });
+    return { ok: false, generation_id: generationId, error: typeof msg === "string" ? msg : JSON.stringify(msg) };
   }
 
   if (!fnData?.ok) {
+    const msg = fnData?.creatify_body || fnData?.message || "Video generation failed";
+    console.error("[creatify] Upstream Creatify error:", fnData);
     return {
       ok: false,
       generation_id: generationId,
-      error: fnData?.message || "Video generation failed",
+      error: typeof msg === "string" ? msg : JSON.stringify(msg),
     };
   }
 
