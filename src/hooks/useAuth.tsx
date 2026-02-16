@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
+import { createContext, useContext, useEffect, useState, useRef, ReactNode, useCallback } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -35,6 +35,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const inviteCheckedRef = useRef(false);
+
+  const tryAcceptInvite = useCallback((userId: string) => {
+    if (inviteCheckedRef.current) return;
+    inviteCheckedRef.current = true;
+    (supabase.rpc as any)('accept_pending_invite').then?.(() => {}).catch?.((err: any) =>
+      console.error("accept_pending_invite failed:", err)
+    );
+  }, []);
 
   const fetchProfile = useCallback(async (userId: string) => {
     try {
@@ -75,6 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setTimeout(async () => {
             const profileData = await fetchProfile(currentSession.user.id);
             setProfile(profileData);
+            tryAcceptInvite(currentSession.user.id);
             setIsLoading(false);
           }, 0);
         } else {
@@ -92,6 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (initialSession?.user) {
         fetchProfile(initialSession.user.id).then((profileData) => {
           setProfile(profileData);
+          tryAcceptInvite(initialSession.user.id);
           setIsLoading(false);
         });
       } else {
