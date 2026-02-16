@@ -1890,8 +1890,8 @@ export function AdaMainPanel() {
                   ))}
                 </div>
               )}
-              <div ref={boxRef} className="relative rounded-2xl">
-                <div className="relative rounded-2xl p-4 outline-none ring-0" style={{ background: "#050A07", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <div ref={boxRef} className="relative rounded-2xl outline-none ring-0 [&_*]:focus-visible:outline-none">
+                <div className="relative rounded-2xl p-4 outline-none ring-0 focus-within:outline-none" style={{ background: "#050A07", border: "1px solid rgba(255,255,255,0.08)" }}>
                   <textarea
                     ref={textareaRef}
                     value={inputValue}
@@ -1906,7 +1906,7 @@ export function AdaMainPanel() {
                     }}
                     placeholder={placeholder}
                     rows={2}
-                    className="w-full bg-transparent text-white/90 text-sm placeholder:text-white/30 resize-none outline-none mb-3"
+                    className="w-full bg-transparent text-white/90 text-sm placeholder:text-white/30 resize-none outline-none focus:outline-none focus-visible:outline-none focus:ring-0 mb-3"
                   />
                   <div className="flex items-center justify-between">
                     <button onClick={handleAttachClick} className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-white/70 transition-colors">
