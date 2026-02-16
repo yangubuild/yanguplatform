@@ -33,12 +33,12 @@ import { ManageRoleGate } from "@/components/manage/ManageRoleGate";
 import { RequireRole } from "@/components/auth/RequireRole";
 
 // Lazy-loaded route bundles to eliminate navigation lag
-const Studio = lazy(() => import("./pages/Studio"));
-const Community = lazy(() => import("./pages/Community"));
-const AdaAi = lazy(() => import("./pages/AdaAi"));
-const WhyYangu = lazy(() => import("./pages/WhyYangu"));
-const DiscoverYangu = lazy(() => import("./pages/DiscoverYangu"));
-const Blog = lazy(() => import("./pages/Blog"));
+import Studio from "./pages/Studio";
+import Community from "./pages/Community";
+import AdaAi from "./pages/AdaAi";
+import WhyYangu from "./pages/WhyYangu";
+import DiscoverYangu from "./pages/DiscoverYangu";
+import Blog from "./pages/Blog";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 
