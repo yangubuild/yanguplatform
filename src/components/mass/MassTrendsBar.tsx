@@ -21,7 +21,7 @@ export function MassTrendsBar() {
   const duplicatedItems = [...trendItems, ...trendItems];
 
   return (
-    <div className="flex items-center gap-4 mt-4 overflow-hidden lg:ml-6 lg:pr-0 lg:w-[calc(100%+80px)]">
+    <div className="flex items-center gap-4 mt-4 overflow-hidden lg:-ml-[180px] lg:pr-0 lg:w-[calc(100%+240px)]">
       {/* View Trends label */}
       <button 
         className="flex items-center gap-2 shrink-0 group z-10"
