@@ -1,11 +1,14 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { getReturnToFromParams } from "@/lib/routing/identityRedirect";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { Loader2 } from "lucide-react";
 
 export default function AuthCallback() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnTo = getReturnToFromParams(searchParams);
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -28,6 +31,8 @@ export default function AuthCallback() {
 
           if (profile && !profile.onboarding_completed) {
             navigate("/onboarding");
+          } else if (returnTo) {
+            window.location.href = returnTo;
           } else {
             navigate("/dashboard");
           }
