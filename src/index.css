@@ -199,8 +199,8 @@
   }
 
   body {
-    @apply bg-background text-foreground;
-    background: var(--gradient-hero);
+    @apply text-foreground;
+    background: #08120D;
     min-height: 100vh;
   }
 
@@ -497,7 +497,6 @@
 }
 
 /* Prevent white flash during route transitions — base layer matches landing dark bg */
-html,
-body {
+html {
   background-color: #08120D;
 }
