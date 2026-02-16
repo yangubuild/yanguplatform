@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useMemo } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { getReturnToFromParams } from "@/lib/routing/identityRedirect";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,6 +23,8 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function Login() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnTo = useMemo(() => getReturnToFromParams(searchParams), [searchParams]);
   const [isLoading, setIsLoading] = useState(false);
   const [isMagicLinkLoading, setIsMagicLinkLoading] = useState(false);
   const [showMagicLink, setShowMagicLink] = useState(false);
@@ -55,7 +58,11 @@ export default function Login() {
       }
 
       toast.success("Welcome back!");
-      navigate("/dashboard");
+      if (returnTo) {
+        window.location.href = returnTo;
+      } else {
+        navigate("/dashboard");
+      }
     } catch (err) {
       toast.error("An unexpected error occurred");
     } finally {
@@ -73,10 +80,12 @@ export default function Login() {
 
     setIsMagicLinkLoading(true);
     try {
+      const callbackUrl = new URL("/auth/callback", window.location.origin);
+      if (returnTo) callbackUrl.searchParams.set("returnTo", returnTo);
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          emailRedirectTo: callbackUrl.toString(),
         },
       });
 
