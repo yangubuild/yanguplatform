@@ -8,14 +8,15 @@ import { useAuth } from "@/hooks/useAuth";
  * Additional roles (writer, designer, analyst, moderator) are checked
  * via has_role but will return false until the enum is extended.
  */
-export type AppRole = "admin" | "user";
-export type ManageRole = "admin" | "writer" | "designer" | "analyst" | "moderator" | "content_editor";
+export type AppRole = "admin" | "user" | "owner" | "manager" | "designer";
+export type ManageRole = "admin" | "owner" | "manager" | "writer" | "designer" | "analyst" | "moderator" | "content_editor";
 
 interface RolesState {
   roles: AppRole[];
   manageRoles: ManageRole[];
   isAdmin: boolean;
   isOwner: boolean;
+  isManager: boolean;
   isWriter: boolean;
   isDesigner: boolean;
   isAnalyst: boolean;
@@ -26,7 +27,7 @@ interface RolesState {
   refetch: () => Promise<void>;
 }
 
-const MANAGE_ROLES: ManageRole[] = ["admin", "writer", "designer", "analyst", "moderator", "content_editor"];
+const MANAGE_ROLES: ManageRole[] = ["admin", "owner", "manager", "writer", "designer", "analyst", "moderator", "content_editor"];
 
 /**
  * Hook to fetch and manage user roles from the database.
@@ -71,7 +72,7 @@ export function useRoles(): RolesState {
 
       // Check additional manage roles (will return false until enum is extended)
       // We attempt each but swallow errors for roles not yet in the enum
-      const additionalRoles: ManageRole[] = ["writer", "designer", "analyst", "moderator", "content_editor"];
+      const additionalRoles: ManageRole[] = ["owner", "manager", "writer", "designer", "analyst", "moderator", "content_editor"];
       const checks = await Promise.allSettled(
         additionalRoles.map(async (role) => {
           try {
@@ -114,8 +115,9 @@ export function useRoles(): RolesState {
     fetchRoles();
   }, [authLoading, isAuthenticated, fetchRoles]);
 
-  const isAdmin = roles.includes("admin");
-  const isOwner = isAdmin;
+  const isAdmin = roles.includes("admin") || manageRoles.includes("admin");
+  const isOwner = manageRoles.includes("owner") || isAdmin;
+  const isManager = manageRoles.includes("manager");
   const isWriter = manageRoles.includes("writer");
   const isDesigner = manageRoles.includes("designer");
   const isAnalyst = manageRoles.includes("analyst");
@@ -128,6 +130,7 @@ export function useRoles(): RolesState {
     manageRoles,
     isAdmin,
     isOwner,
+    isManager,
     isWriter,
     isDesigner,
     isAnalyst,
