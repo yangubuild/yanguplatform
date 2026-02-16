@@ -6,7 +6,7 @@ interface BlogHeroProps {
 
 export function BlogHero({ onSubscribeClick }: BlogHeroProps) {
   return (
-    <section className="flex flex-col items-center text-center px-6 pt-20 pb-16">
+    <section className="flex flex-col items-center text-center px-6 pt-20 pb-6">
       {/* Logo */}
       <img src={yanguLogo} alt="Yangu" className="h-16 w-auto" />
 
