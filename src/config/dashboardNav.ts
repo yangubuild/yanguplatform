@@ -127,24 +127,24 @@ export const DASHBOARD_SECTIONS: NavSection[] = [
   {
     title: "GENERAL",
     items: [
-      { icon: Home, label: "Dashboard", to: "/dashboard/dashboard" },
-      { icon: Grid3X3, label: "My Apps", to: "/dashboard/dashboard/my-apps" },
-      { icon: Building2, label: "My Business", to: "/dashboard/dashboard/my-business" },
+      { icon: Home, label: "Dashboard", to: "/dashboard" },
+      { icon: Grid3X3, label: "My Apps", to: "/dashboard/my-apps" },
+      { icon: Building2, label: "My Business", to: "/dashboard/my-business" },
     ],
   },
   {
     title: "USER MANAGEMENT",
     items: [
-      { icon: CreditCard, label: "Payments", to: "/dashboard/dashboard/payments" },
-      { icon: FileBarChart, label: "Invoices", to: "/dashboard/dashboard/invoices" },
+      { icon: CreditCard, label: "Payments", to: "/dashboard/payments" },
+      { icon: FileBarChart, label: "Invoices", to: "/dashboard/invoices" },
     ],
   },
   {
     title: "MARKETING",
     items: [
-      { icon: BarChart3, label: "Ads", to: "/dashboard/dashboard/ads" },
-      { icon: Tag, label: "Promo Codes", to: "/dashboard/dashboard/promo-codes" },
-      { icon: Users, label: "Affiliates", to: "/dashboard/dashboard/affiliates" },
+      { icon: BarChart3, label: "Ads", to: "/dashboard/ads" },
+      { icon: Tag, label: "Promo Codes", to: "/dashboard/promo-codes" },
+      { icon: Users, label: "Affiliates", to: "/dashboard/affiliates" },
     ],
   },
   {

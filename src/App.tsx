@@ -60,7 +60,7 @@ const ManagePromos = lazy(() => import("./pages/manage/ManagePromos"));
 import { NavigationDashboardPage } from "@/components/mass/navigation";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import DashboardPlaceholder from "./pages/dashboard/DashboardPlaceholder";
-import DashboardModuleLayout from "./pages/dashboard/DashboardModuleLayout";
+// DashboardModuleLayout removed — routes are flat under /dashboard/*
 import ProfilePage from "./pages/dashboard/ProfilePage";
 import EditProfilePage from "./pages/dashboard/EditProfilePage";
 import SubscriptionPage from "./pages/dashboard/SubscriptionPage";
@@ -158,32 +158,22 @@ const App = () => (
                   <Route path="profile/edit" element={<EditProfilePage />} />
                   <Route path="profile/subscription" element={<SubscriptionPage />} />
 
-                  {/* Dashboard module nested routes */}
-                  <Route path="dashboard" element={<DashboardModuleLayout />}>
-                    <Route index element={<DashboardHome />} />
-                    <Route path="my-apps" element={<DashboardPlaceholder />} />
-                    <Route path="my-business" element={<DashboardPlaceholder />} />
-                    <Route path="payments" element={<DashboardPlaceholder />} />
-                    <Route path="invoices" element={<DashboardPlaceholder />} />
-                    <Route path="ads" element={<DashboardPlaceholder />} />
-                    <Route path="promo-codes" element={<DashboardPlaceholder />} />
-                    <Route path="affiliates" element={<DashboardPlaceholder />} />
-                    {/* Legacy redirects for old /dashboard/dashboard/ paths */}
-                    <Route path="profile" element={<Navigate to="/dashboard/profile" replace />} />
-                    <Route path="profile/*" element={<Navigate to="/dashboard/profile" replace />} />
-                    <Route path="agency" element={<Navigate to="/dashboard/agency" replace />} />
-                    <Route path="agency/*" element={<Navigate to="/dashboard/agency" replace />} />
-                    <Route path="earnings" element={<Navigate to="/dashboard/profile" replace />} />
-                    {/* Admin — redirect to Management Panel */}
-                    <Route
-                      path="admin"
-                      element={
-                        <DashboardRoleGate requiredRole="admin">
-                          <Navigate to="/manage" replace />
-                        </DashboardRoleGate>
-                      }
-                    />
-                  </Route>
+                  {/* Dashboard module pages (flat, no nesting) */}
+                  <Route path="my-apps" element={<DashboardPlaceholder />} />
+                  <Route path="my-business" element={<DashboardPlaceholder />} />
+                  <Route path="payments" element={<DashboardPlaceholder />} />
+                  <Route path="invoices" element={<DashboardPlaceholder />} />
+                  <Route path="ads" element={<DashboardPlaceholder />} />
+                  <Route path="promo-codes" element={<DashboardPlaceholder />} />
+                  <Route path="affiliates" element={<DashboardPlaceholder />} />
+
+                  {/* Legacy /dashboard/dashboard/* redirects */}
+                  <Route path="dashboard" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="dashboard/profile" element={<Navigate to="/dashboard/profile" replace />} />
+                  <Route path="dashboard/profile/*" element={<Navigate to="/dashboard/profile" replace />} />
+                  <Route path="dashboard/agency" element={<Navigate to="/dashboard/agency" replace />} />
+                  <Route path="dashboard/agency/*" element={<Navigate to="/dashboard/agency" replace />} />
+                  <Route path="dashboard/*" element={<Navigate to="/dashboard" replace />} />
 
                   {/* Agency routes — agency only */}
                   <Route path="agency" element={<RequireRole allowed={["agency"]}><AgencyLayout /></RequireRole>}>
