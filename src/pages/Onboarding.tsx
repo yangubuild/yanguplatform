@@ -403,12 +403,42 @@ export default function Onboarding() {
       if (isCreateNewSurface && profile?.onboarding_completed) {
         console.log("[Onboarding] Creating new surface directly (user already onboarded)");
         
-        // Use the resolved active org - NEVER accept from client
         const orgId = selectedOrgId || activeOrg?.id;
         if (!orgId) {
-          toast.error("No organization found. Please complete onboarding first.");
-          return;
+          // Auto-create org if missing
+          console.warn("[Onboarding] No org found for new surface, auto-creating");
+          const { data: newOrg, error: orgErr } = await supabase
+            .from("orgs")
+            .insert({
+              name: `${savedUsername || profile?.username || "My"}'s Organization`,
+              owner_user_id: user.id,
+            })
+            .select("id")
+            .single();
+
+          if (orgErr || !newOrg) {
+            console.error("Org creation error:", orgErr);
+            toast.error("Failed to create organization");
+            return;
+          }
+
+          const { error: memErr } = await supabase
+            .from("org_memberships")
+            .insert({ org_id: newOrg.id, user_id: user.id, role: "owner" });
+
+          if (memErr) {
+            console.error("Membership error:", memErr);
+            toast.error("Failed to set up organization");
+            return;
+          }
+
+          setSelectedOrgId(newOrg.id);
+          queryClient.invalidateQueries({ queryKey: ["active-org"] });
+          queryClient.invalidateQueries({ queryKey: ["user-orgs"] });
+          // Use the newly created org
+          var resolvedNewOrgId = newOrg.id;
         }
+        const finalOrgId = orgId || resolvedNewOrgId!;
 
         // Get domain ID from the `domains` table (same as slug check)
         const { data: domainData, error: domainError } = await supabase
@@ -441,7 +471,7 @@ export default function Onboarding() {
         const { error: surfaceError } = await supabase
           .from("surfaces")
           .insert({
-            org_id: orgId,
+            org_id: finalOrgId,
             surface_type: path.surfaceType,
             title: `${savedUsername}'s ${path.label}`,
             status: "draft",
@@ -497,10 +527,48 @@ export default function Onboarding() {
           .limit(1)
           .maybeSingle();
 
+        let resolvedOrgId: string;
+
         if (membershipError || !membership) {
-          console.error("Org lookup error:", membershipError);
-          toast.error("Organization not found");
-          return;
+          console.warn("[Onboarding] No org found, auto-creating one");
+
+          // Create org
+          const { data: newOrg, error: orgCreateError } = await supabase
+            .from("orgs")
+            .insert({
+              name: `${savedUsername || "My"}'s Organization`,
+              owner_user_id: user.id,
+            })
+            .select("id")
+            .single();
+
+          if (orgCreateError || !newOrg) {
+            console.error("Org creation error:", orgCreateError);
+            toast.error("Failed to create organization");
+            return;
+          }
+
+          // Create membership
+          const { error: memError } = await supabase
+            .from("org_memberships")
+            .insert({
+              org_id: newOrg.id,
+              user_id: user.id,
+              role: "owner",
+            });
+
+          if (memError) {
+            console.error("Membership creation error:", memError);
+            toast.error("Failed to set up organization membership");
+            return;
+          }
+
+          resolvedOrgId = newOrg.id;
+          // Invalidate org cache
+          queryClient.invalidateQueries({ queryKey: ["active-org"] });
+          queryClient.invalidateQueries({ queryKey: ["user-orgs"] });
+        } else {
+          resolvedOrgId = membership.org_id;
         }
 
         // Get domain ID from the `domains` table
@@ -534,7 +602,7 @@ export default function Onboarding() {
         const { error: surfaceError } = await supabase
           .from("surfaces")
           .insert({
-            org_id: membership.org_id,
+            org_id: resolvedOrgId,
             surface_type: path.surfaceType,
             title: `${savedUsername}'s ${path.label}`,
             status: "draft",
