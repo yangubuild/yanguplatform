@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -8,19 +8,28 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveOrg } from "@/hooks/useActiveOrg";
 import { AuthShell } from "@/components/auth/AuthShell";
-import { OrgSelector } from "@/components/OrgSelector";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { 
+import {
   Loader2, Check, X, AtSign, ArrowRight, ArrowLeft, Link2,
-  ShoppingBag, Package, Hotel, Users, Sparkles, Eye, Radio
+  ShoppingBag, Package, Hotel, Users, Sparkles, Eye, Radio,
+  Camera, User, ChevronDown
 } from "lucide-react";
 import { PLATFORM_DOMAIN } from "@/config/platform";
 import { useDebounce } from "@/hooks/useDebounce";
-import { Card } from "@/components/primitives/Card";
 import { cn } from "@/lib/utils";
+
+// Preset avatars
+import avatar1 from "@/assets/avatars/avatar-1.png";
+import avatar2 from "@/assets/avatars/avatar-2.png";
+import avatar3 from "@/assets/avatars/avatar-3.png";
+import avatar4 from "@/assets/avatars/avatar-4.png";
+import avatar5 from "@/assets/avatars/avatar-5.png";
+import avatar6 from "@/assets/avatars/avatar-6.png";
+
+const PRESET_AVATARS = [avatar1, avatar2, avatar3, avatar4, avatar5, avatar6];
 
 // ============================================================
 // LOCKED DOMAIN MAP - DO NOT CHANGE
@@ -36,6 +45,8 @@ const ONBOARDING_PATHS = {
     color: "text-emerald-500",
     bgColor: "bg-emerald-500/10",
     borderColor: "border-emerald-500/50",
+    creatorType: "seller" as const,
+    redirectTo: "/dashboard",
   },
   store: {
     id: "store",
@@ -47,6 +58,8 @@ const ONBOARDING_PATHS = {
     color: "text-blue-500",
     bgColor: "bg-blue-500/10",
     borderColor: "border-blue-500/50",
+    creatorType: "seller" as const,
+    redirectTo: "/dashboard",
   },
   site: {
     id: "site",
@@ -58,6 +71,8 @@ const ONBOARDING_PATHS = {
     color: "text-violet-500",
     bgColor: "bg-violet-500/10",
     borderColor: "border-violet-500/50",
+    creatorType: "builder" as const,
+    redirectTo: "/dashboard",
   },
   community: {
     id: "community",
@@ -69,6 +84,8 @@ const ONBOARDING_PATHS = {
     color: "text-cyan-500",
     bgColor: "bg-cyan-500/10",
     borderColor: "border-cyan-500/50",
+    creatorType: "organization" as const,
+    redirectTo: "/community",
   },
   live: {
     id: "live",
@@ -80,6 +97,8 @@ const ONBOARDING_PATHS = {
     color: "text-rose-500",
     bgColor: "bg-rose-500/10",
     borderColor: "border-rose-500/50",
+    creatorType: "seller" as const,
+    redirectTo: "/dashboard",
   },
   studio: {
     id: "studio",
@@ -87,21 +106,12 @@ const ONBOARDING_PATHS = {
     description: "Generate ads, videos, images from product links",
     icon: Sparkles,
     domain: "yangu.studio",
-    surfaceType: null, // Studio is NOT a surface - it's a global tool
+    surfaceType: null,
     color: "text-amber-500",
     bgColor: "bg-amber-500/10",
     borderColor: "border-amber-500/50",
-  },
-  explore: {
-    id: "explore",
-    label: "Just Explore",
-    description: "Browse, discover, join communities",
-    icon: Eye,
-    domain: "yangu.io",
-    surfaceType: null, // No surface created - just explore
-    color: "text-gray-500",
-    bgColor: "bg-gray-500/10",
-    borderColor: "border-gray-500/50",
+    creatorType: "builder" as const,
+    redirectTo: "/studio",
   },
 } as const;
 
@@ -129,7 +139,50 @@ const slugSchema = z.object({
 type UsernameFormData = z.infer<typeof usernameSchema>;
 type SlugFormData = z.infer<typeof slugSchema>;
 
-type OnboardingStep = "username" | "goal" | "surface" | "select-org";
+type OnboardingStep = "identity" | "category" | "country" | "business" | "surface";
+
+// Countries list (common African + global)
+const COUNTRIES = [
+  "Kenya", "Uganda", "Tanzania", "Rwanda", "Ethiopia", "Nigeria",
+  "Ghana", "South Africa", "Egypt", "Morocco", "Senegal", "Cameroon",
+  "Côte d'Ivoire", "Democratic Republic of Congo", "Mozambique", "Zambia", "Zimbabwe",
+  "United States", "United Kingdom", "Canada", "India", "United Arab Emirates",
+  "Saudi Arabia", "China", "Australia", "Germany", "France", "Brazil",
+  "Japan", "South Korea", "Indonesia", "Philippines", "Malaysia", "Thailand",
+  "Mexico", "Colombia", "Argentina", "Turkey", "Pakistan", "Bangladesh",
+  "Vietnam", "Poland", "Netherlands", "Sweden", "Norway", "Denmark",
+  "Finland", "Switzerland", "Austria", "Belgium", "Italy", "Spain", "Portugal",
+  "Ireland", "New Zealand", "Singapore", "Israel", "Chile", "Peru",
+];
+
+function inferCountryFromLocale(): string {
+  try {
+    const locale = navigator.language || "en-US";
+    const regionMap: Record<string, string> = {
+      KE: "Kenya", UG: "Uganda", TZ: "Tanzania", RW: "Rwanda",
+      NG: "Nigeria", GH: "Ghana", ZA: "South Africa", US: "United States",
+      GB: "United Kingdom", CA: "Canada", IN: "India", AE: "United Arab Emirates",
+      DE: "Germany", FR: "France", AU: "Australia",
+    };
+    const parts = locale.split("-");
+    const region = parts[1]?.toUpperCase();
+    if (region && regionMap[region]) return regionMap[region];
+  } catch { /* fallback */ }
+  return "Kenya";
+}
+
+// Progress bar component
+function StepProgress({ current, total }: { current: number; total: number }) {
+  const pct = (current / total) * 100;
+  return (
+    <div className="w-full h-1.5 rounded-full bg-border/30 mb-8 overflow-hidden">
+      <div
+        className="h-full rounded-full bg-accent transition-all duration-500"
+        style={{ width: `${pct}%` }}
+      />
+    </div>
+  );
+}
 
 export default function Onboarding() {
   const navigate = useNavigate();
@@ -137,29 +190,36 @@ export default function Onboarding() {
   const queryClient = useQueryClient();
   const { user, profile, isLoading: authLoading, refreshProfile } = useAuth();
   const { data: activeOrg, isLoading: orgLoading } = useActiveOrg();
-  
-  // Check if this is a "create new surface" flow (from dashboard)
+
   const isCreateNewSurface = searchParams.get("new") === "1";
-  
-  // Step state
-  const [currentStep, setCurrentStep] = useState<OnboardingStep>("username");
+
+  const [currentStep, setCurrentStep] = useState<OnboardingStep>("identity");
   const [isLoading, setIsLoading] = useState(false);
-  
-  // Username state
+
+  // Identity state
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
   const [savedUsername, setSavedUsername] = useState("");
   const [savedDisplayName, setSavedDisplayName] = useState("");
-  
-  // Goal/Path state - direct domain selection
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  // Category state
   const [selectedPath, setSelectedPath] = useState<OnboardingPathKey | null>(null);
-  
+
+  // Country state
+  const [selectedCountry, setSelectedCountry] = useState(inferCountryFromLocale());
+
+  // Business name state
+  const [businessName, setBusinessName] = useState("");
+  const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+
   // Slug state
   const [isCheckingSlug, setIsCheckingSlug] = useState(false);
   const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
-
-  // Selected org for surface creation (when user has multiple orgs)
-  const [selectedOrgId, setSelectedOrgId] = useState<string | null>(null);
 
   const usernameForm = useForm<UsernameFormData>({
     resolver: zodResolver(usernameSchema),
@@ -180,25 +240,14 @@ export default function Onboarding() {
   useEffect(() => {
     if (!authLoading && !orgLoading) {
       if (!user) {
-        console.log("[Onboarding] No user, redirecting to login");
         navigate("/auth/login");
       } else if (profile?.onboarding_completed && !isCreateNewSurface) {
-        console.log("[Onboarding] Onboarding completed, redirecting to dashboard");
         navigate("/dashboard");
       } else if (isCreateNewSurface && profile?.onboarding_completed) {
-        // For "create new surface", check if user has an active org
-        console.log("[Onboarding] Create new surface mode");
         setSavedUsername(profile.username || "");
         setSavedDisplayName(profile.display_name || "");
-        
         if (activeOrg) {
-          // User has an active org, proceed to goal selection
-          setSelectedOrgId(activeOrg.id);
-          setCurrentStep("goal");
-        } else {
-          // No active org - show org selector
-          console.log("[Onboarding] No active org found, showing selector");
-          setCurrentStep("select-org");
+          setCurrentStep("category");
         }
       }
     }
@@ -210,91 +259,40 @@ export default function Onboarding() {
       setUsernameAvailable(null);
       return;
     }
-
     if (!/^[a-zA-Z0-9_]+$/.test(usernameToCheck)) {
       setUsernameAvailable(null);
       return;
     }
-
     setIsCheckingUsername(true);
     try {
       const { data, error } = await supabase.rpc("is_username_available", {
         _username: usernameToCheck,
       });
-
-      if (error) {
-        console.error("Username check error:", error);
-        setUsernameAvailable(null);
-        return;
-      }
-
+      if (error) { setUsernameAvailable(null); return; }
       setUsernameAvailable(data as boolean);
-    } catch (err) {
-      console.error("Failed to check username:", err);
-      setUsernameAvailable(null);
-    } finally {
-      setIsCheckingUsername(false);
-    }
+    } catch { setUsernameAvailable(null); }
+    finally { setIsCheckingUsername(false); }
   }, []);
 
-  // Check slug availability against the selected domain
+  // Check slug availability
   const checkSlugAvailability = useCallback(async (slugToCheck: string, pathKey: OnboardingPathKey) => {
     const path = ONBOARDING_PATHS[pathKey];
-    if (!path.surfaceType) return; // No slug check needed for non-surface paths
-    
+    if (!path.surfaceType) return;
     const normalizedSlug = slugToCheck.trim().toLowerCase();
-    
-    if (!normalizedSlug || normalizedSlug.length < 3) {
-      setSlugAvailable(null);
-      return;
-    }
-
-    if (!/^[a-zA-Z0-9_-]+$/.test(normalizedSlug)) {
-      setSlugAvailable(null);
-      return;
-    }
-
+    if (!normalizedSlug || normalizedSlug.length < 3) { setSlugAvailable(null); return; }
+    if (!/^[a-zA-Z0-9_-]+$/.test(normalizedSlug)) { setSlugAvailable(null); return; }
     setIsCheckingSlug(true);
     try {
-      // Get domain ID from the `domains` table (NOT surface_domains)
-      // This ensures slug check uses the same domain_id as publish flow
-      const { data: domains, error: domainError } = await supabase
-        .from("domains")
-        .select("id")
-        .eq("host", path.domain)
-        .eq("is_active", true)
-        .limit(1)
-        .maybeSingle();
-
-      if (domainError || !domains) {
-        console.error("Domain lookup error:", domainError);
-        setSlugAvailable(null);
-        return;
-      }
-
-      const { data, error } = await supabase.rpc("is_slug_available", {
-        _domain_id: domains.id,
-        _slug: normalizedSlug,
-      });
-
-      if (error) {
-        console.error("Slug check error:", error);
-        setSlugAvailable(null);
-        return;
-      }
-
+      const { data: domains } = await supabase
+        .from("domains").select("id").eq("host", path.domain).eq("is_active", true).limit(1).maybeSingle();
+      if (!domains) { setSlugAvailable(null); return; }
+      const { data } = await supabase.rpc("is_slug_available", { _domain_id: domains.id, _slug: normalizedSlug });
       setSlugAvailable(data as boolean);
-    } catch (err) {
-      console.error("Failed to check slug:", err);
-      setSlugAvailable(null);
-    } finally {
-      setIsCheckingSlug(false);
-    }
+    } catch { setSlugAvailable(null); }
+    finally { setIsCheckingSlug(false); }
   }, []);
 
-  useEffect(() => {
-    checkUsernameAvailability(debouncedUsername);
-  }, [debouncedUsername, checkUsernameAvailability]);
+  useEffect(() => { checkUsernameAvailability(debouncedUsername); }, [debouncedUsername, checkUsernameAvailability]);
 
   useEffect(() => {
     if (selectedPath && debouncedSlug && ONBOARDING_PATHS[selectedPath].surfaceType) {
@@ -302,118 +300,165 @@ export default function Onboarding() {
     }
   }, [debouncedSlug, selectedPath, checkSlugAvailability]);
 
-  // When path is selected, auto-populate slug with username
+  // Auto-populate slug from username when entering surface step
   useEffect(() => {
-    if (selectedPath && savedUsername && ONBOARDING_PATHS[selectedPath].surfaceType) {
+    if (currentStep === "surface" && selectedPath && savedUsername && ONBOARDING_PATHS[selectedPath].surfaceType) {
       slugForm.setValue("slug", savedUsername);
-      setSlugAvailable(null); // Reset to trigger check
+      setSlugAvailable(null);
     }
-  }, [selectedPath, savedUsername, slugForm]);
+  }, [currentStep, selectedPath, savedUsername, slugForm]);
 
-  const handleUsernameSubmit = (data: UsernameFormData) => {
+  // Avatar upload handler
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    setUploadingAvatar(true);
+    try {
+      const ext = file.name.split(".").pop() || "png";
+      const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
+      setAvatarUrl(urlData.publicUrl);
+      setShowAvatarPicker(false);
+    } catch (err) {
+      console.error("Avatar upload error:", err);
+      toast.error("Failed to upload avatar");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  // AI business name suggestions
+  const generateBusinessNames = async () => {
+    if (!selectedPath) return;
+    setLoadingSuggestions(true);
+    try {
+      const path = ONBOARDING_PATHS[selectedPath];
+      const { data, error } = await supabase.functions.invoke("ada-chat", {
+        body: {
+          messages: [{
+            role: "user",
+            content: `Generate 6 creative, short business names for a ${path.label} business in ${selectedCountry}. Category: ${path.description}. Return ONLY a JSON array of strings, nothing else. Example: ["Name1","Name2"]`
+          }],
+          model: "gemini-2.5-flash-lite",
+        },
+      });
+      if (error) throw error;
+      const content = data?.content || data?.message || "";
+      const match = content.match(/\[.*\]/s);
+      if (match) {
+        const names = JSON.parse(match[0]);
+        setAiSuggestions(names.slice(0, 6));
+      }
+    } catch (err) {
+      console.error("AI suggestions error:", err);
+      toast.error("Could not generate suggestions");
+    } finally {
+      setLoadingSuggestions(false);
+    }
+  };
+
+  // === STEP HANDLERS ===
+
+  const handleIdentitySubmit = (data: UsernameFormData) => {
     if (usernameAvailable !== true) {
       toast.error("Please choose an available username");
       return;
     }
     setSavedUsername(data.username);
     setSavedDisplayName(data.displayName || "");
-    setCurrentStep("goal");
+    setCurrentStep("category");
   };
 
-  const handlePathSelect = async (pathKey: OnboardingPathKey) => {
-    const path = ONBOARDING_PATHS[pathKey];
+  const handleCategorySelect = (pathKey: OnboardingPathKey) => {
     setSelectedPath(pathKey);
-    
-    // If path doesn't create a surface (studio/explore), complete onboarding directly
+    setCurrentStep("country");
+  };
+
+  const handleCountryContinue = () => {
+    if (!selectedCountry) {
+      toast.error("Please select a country");
+      return;
+    }
+    setCurrentStep("business");
+  };
+
+  const handleBusinessContinue = () => {
+    if (!businessName.trim()) {
+      toast.error("Please enter a business name");
+      return;
+    }
+    if (!selectedPath) return;
+    const path = ONBOARDING_PATHS[selectedPath];
     if (!path.surfaceType) {
-      await completeOnboardingWithoutSurface(pathKey);
+      completeOnboardingWithoutSurface();
     } else {
       setCurrentStep("surface");
     }
   };
 
-  const handleOrgSelect = (orgId: string) => {
-    setSelectedOrgId(orgId);
-    setCurrentStep("goal");
+  // Ensure org + membership exist (silent, with retry)
+  const ensureOrg = async (): Promise<string | null> => {
+    if (!user) return null;
+
+    // Check existing
+    const { data: existing } = await supabase
+      .from("org_memberships").select("org_id").eq("user_id", user.id).limit(1).maybeSingle();
+    if (existing) return existing.org_id;
+
+    // Create with retry
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const { data: newOrg, error: orgErr } = await supabase
+          .from("orgs")
+          .insert({ name: `${savedUsername || businessName || "My"}'s Organization`, owner_user_id: user.id })
+          .select("id").single();
+        if (orgErr || !newOrg) {
+          if (attempt === 0) { await new Promise(r => setTimeout(r, 500)); continue; }
+          throw orgErr;
+        }
+        const { error: memErr } = await supabase
+          .from("org_memberships").insert({ org_id: newOrg.id, user_id: user.id, role: "owner" });
+        if (memErr) throw memErr;
+        queryClient.invalidateQueries({ queryKey: ["active-org"] });
+        queryClient.invalidateQueries({ queryKey: ["user-orgs"] });
+        return newOrg.id;
+      } catch (err) {
+        if (attempt === 1) { console.error("Org creation failed:", err); return null; }
+        await new Promise(r => setTimeout(r, 500));
+      }
+    }
+    return null;
   };
 
-  // Complete onboarding for paths that don't create a surface
-  const completeOnboardingWithoutSurface = async (pathKey: OnboardingPathKey) => {
-    if (!user) return;
-    
+  const completeOnboardingWithoutSurface = async () => {
+    if (!user || !selectedPath) return;
     setIsLoading(true);
     try {
-      // For first-time users, we need to set up their profile
-      if (!profile?.onboarding_completed) {
-        // 1) Ensure org + membership exist BEFORE marking onboarding complete
-        const { data: existingMembership } = await supabase
-          .from("org_memberships")
-          .select("org_id")
-          .eq("user_id", user.id)
-          .limit(1)
-          .maybeSingle();
+      const orgId = await ensureOrg();
+      if (!orgId) { toast.error("Failed to set up organization. Please try again."); return; }
 
-        if (!existingMembership) {
-          console.warn("[Onboarding] No org for non-surface path, auto-creating");
-          const { data: newOrg, error: orgErr } = await supabase
-            .from("orgs")
-            .insert({
-              name: `${savedUsername || "My"}'s Organization`,
-              owner_user_id: user.id,
-            })
-            .select("id")
-            .single();
+      const path = ONBOARDING_PATHS[selectedPath];
+      const { error } = await supabase.from("profiles").update({
+        username: savedUsername,
+        display_name: savedDisplayName || null,
+        avatar_url: avatarUrl,
+        creator_type: path.creatorType,
+        country: selectedCountry,
+        business_name: businessName,
+        onboarding_completed: true,
+      }).eq("id", user.id);
 
-          if (orgErr || !newOrg) {
-            console.error("Org creation error:", orgErr);
-            toast.error("Failed to create organization. Please try again.");
-            return;
-          }
-
-          const { error: memErr } = await supabase
-            .from("org_memberships")
-            .insert({ org_id: newOrg.id, user_id: user.id, role: "owner" });
-
-          if (memErr) {
-            console.error("Membership error:", memErr);
-            toast.error("Failed to set up organization. Please try again.");
-            return;
-          }
-
-          queryClient.invalidateQueries({ queryKey: ["active-org"] });
-          queryClient.invalidateQueries({ queryKey: ["user-orgs"] });
-        }
-
-        // 2) Only NOW mark onboarding complete (org + membership guaranteed)
-        const { error } = await supabase
-          .from("profiles")
-          .update({
-            username: savedUsername,
-            display_name: savedDisplayName || null,
-            onboarding_completed: true,
-          })
-          .eq("id", user.id);
-
-        if (error) {
-          if (error.message.includes("username")) {
-            toast.error("Username is no longer available");
-            setCurrentStep("username");
-          } else {
-            toast.error(error.message);
-          }
-          return;
-        }
-
-        await refreshProfile();
+      if (error) {
+        if (error.message.includes("username")) { toast.error("Username is no longer available"); setCurrentStep("identity"); }
+        else toast.error(error.message);
+        return;
       }
-      
-      if (pathKey === "studio") {
-        toast.success("Welcome to YANGU Studio! Create amazing AI content.");
-        navigate("/dashboard");
-      } else {
-        toast.success("Welcome to YANGU! Start exploring.");
-        navigate("/dashboard");
-      }
+
+      await refreshProfile();
+      toast.success("Welcome to YANGU!");
+      navigate(path.redirectTo);
     } catch (err) {
       console.error("Onboarding error:", err);
       toast.error("Failed to complete setup");
@@ -424,255 +469,84 @@ export default function Onboarding() {
 
   const handleFinalSubmit = async (data: SlugFormData) => {
     if (!user || !selectedPath) return;
-    
     const path = ONBOARDING_PATHS[selectedPath];
-    if (!path.surfaceType) return; // Shouldn't happen, but guard
-    
-    if (slugAvailable === false) {
-      toast.error("Please choose an available URL");
-      return;
-    }
+    if (!path.surfaceType) return;
+    if (slugAvailable === false) { toast.error("Please choose an available URL"); return; }
 
-    // Normalize slug to lowercase for storage
     const normalizedSlug = data.slug.trim().toLowerCase();
-    
     setIsLoading(true);
     try {
-      // If user already completed onboarding (creating additional surface)
+      // For additional surface creation (already onboarded)
       if (isCreateNewSurface && profile?.onboarding_completed) {
-        console.log("[Onboarding] Creating new surface directly (user already onboarded)");
-        
-        const orgId = selectedOrgId || activeOrg?.id;
-        if (!orgId) {
-          // Auto-create org if missing
-          console.warn("[Onboarding] No org found for new surface, auto-creating");
-          const { data: newOrg, error: orgErr } = await supabase
-            .from("orgs")
-            .insert({
-              name: `${savedUsername || profile?.username || "My"}'s Organization`,
-              owner_user_id: user.id,
-            })
-            .select("id")
-            .single();
+        const orgId = activeOrg?.id || await ensureOrg();
+        if (!orgId) { toast.error("Failed to find organization"); return; }
 
-          if (orgErr || !newOrg) {
-            console.error("Org creation error:", orgErr);
-            toast.error("Failed to create organization");
-            return;
-          }
+        const { data: domainData } = await supabase.from("domains").select("id").eq("host", path.domain).eq("is_active", true).limit(1).maybeSingle();
+        if (!domainData) { toast.error("Failed to find domain configuration"); return; }
 
-          const { error: memErr } = await supabase
-            .from("org_memberships")
-            .insert({ org_id: newOrg.id, user_id: user.id, role: "owner" });
+        const { data: stillAvailable } = await supabase.rpc("is_slug_available", { _domain_id: domainData.id, _slug: normalizedSlug });
+        if (!stillAvailable) { toast.error("This URL was just taken. Please choose another."); setSlugAvailable(false); return; }
 
-          if (memErr) {
-            console.error("Membership error:", memErr);
-            toast.error("Failed to set up organization");
-            return;
-          }
+        await supabase.from("surfaces").insert({
+          org_id: orgId, surface_type: path.surfaceType,
+          title: `${savedUsername}'s ${path.label}`, status: "draft",
+          draft_slug: normalizedSlug, draft_domain_id: domainData.id,
+        } as any);
 
-          setSelectedOrgId(newOrg.id);
-          queryClient.invalidateQueries({ queryKey: ["active-org"] });
-          queryClient.invalidateQueries({ queryKey: ["user-orgs"] });
-          // Use the newly created org
-          var resolvedNewOrgId = newOrg.id;
-        }
-        const finalOrgId = orgId || resolvedNewOrgId!;
-
-        // Get domain ID from the `domains` table (same as slug check)
-        const { data: domainData, error: domainError } = await supabase
-          .from("domains")
-          .select("id")
-          .eq("host", path.domain)
-          .eq("is_active", true)
-          .limit(1)
-          .maybeSingle();
-
-        if (domainError || !domainData) {
-          console.error("Domain lookup error:", domainError);
-          toast.error("Failed to find domain configuration");
-          return;
-        }
-
-        // Final availability check before creating (race condition guard)
-        const { data: stillAvailable } = await supabase.rpc("is_slug_available", {
-          _domain_id: domainData.id,
-          _slug: normalizedSlug,
-        });
-
-        if (!stillAvailable) {
-          toast.error("This URL was just taken. Please choose another.");
-          setSlugAvailable(false);
-          return;
-        }
-
-        // Create the surface with draft_slug + draft_domain_id
-        const { error: surfaceError } = await supabase
-          .from("surfaces")
-          .insert({
-            org_id: finalOrgId,
-            surface_type: path.surfaceType,
-            title: `${savedUsername}'s ${path.label}`,
-            status: "draft",
-            draft_slug: normalizedSlug,
-            draft_domain_id: domainData.id,
-          } as any);
-
-        if (surfaceError) {
-          console.error("Surface creation error:", surfaceError);
-          if (surfaceError.message.includes("duplicate") || surfaceError.code === "23505") {
-            toast.error("This URL is no longer available");
-            setSlugAvailable(false);
-          } else {
-            toast.error(surfaceError.message || "Failed to create surface");
-          }
-          return;
-        }
-
-        // Invalidate surfaces cache so dashboard shows the new surface
         queryClient.invalidateQueries({ queryKey: ["surfaces"] });
-        toast.success("New surface created! Customize it before going live.");
+        toast.success("New surface created!");
         navigate("/dashboard");
-      } else {
-        // First-time onboarding: update profile + create surface
-        console.log("[Onboarding] First-time onboarding");
-        
-        // First update the profile WITHOUT marking onboarding complete yet
-        const { error: profileError } = await supabase
-          .from("profiles")
-          .update({
-            username: savedUsername,
-            display_name: savedDisplayName || null,
-            // DO NOT set onboarding_completed here — wait until org+membership+surface succeed
-          })
-          .eq("id", user.id);
-
-        if (profileError) {
-          if (profileError.message.includes("username")) {
-            toast.error("Username is no longer available");
-            setCurrentStep("username");
-          } else {
-            toast.error(profileError.message);
-          }
-          return;
-        }
-
-        // Get the user's org (should have been created on signup)
-        const { data: membership, error: membershipError } = await supabase
-          .from("org_memberships")
-          .select("org_id")
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
-        let resolvedOrgId: string;
-
-        if (membershipError || !membership) {
-          console.warn("[Onboarding] No org found, auto-creating one");
-
-          // Create org
-          const { data: newOrg, error: orgCreateError } = await supabase
-            .from("orgs")
-            .insert({
-              name: `${savedUsername || "My"}'s Organization`,
-              owner_user_id: user.id,
-            })
-            .select("id")
-            .single();
-
-          if (orgCreateError || !newOrg) {
-            console.error("Org creation error:", orgCreateError);
-            toast.error("Failed to create organization");
-            return;
-          }
-
-          // Create membership
-          const { error: memError } = await supabase
-            .from("org_memberships")
-            .insert({
-              org_id: newOrg.id,
-              user_id: user.id,
-              role: "owner",
-            });
-
-          if (memError) {
-            console.error("Membership creation error:", memError);
-            toast.error("Failed to set up organization membership");
-            return;
-          }
-
-          resolvedOrgId = newOrg.id;
-          // Invalidate org cache
-          queryClient.invalidateQueries({ queryKey: ["active-org"] });
-          queryClient.invalidateQueries({ queryKey: ["user-orgs"] });
-        } else {
-          resolvedOrgId = membership.org_id;
-        }
-
-        // Get domain ID from the `domains` table
-        const { data: domainData, error: domainError } = await supabase
-          .from("domains")
-          .select("id")
-          .eq("host", path.domain)
-          .eq("is_active", true)
-          .limit(1)
-          .maybeSingle();
-
-        if (domainError || !domainData) {
-          console.error("Domain lookup error:", domainError);
-          toast.error("Failed to find domain configuration");
-          return;
-        }
-
-        // Final availability check before creating (race condition guard)
-        const { data: stillAvailable } = await supabase.rpc("is_slug_available", {
-          _domain_id: domainData.id,
-          _slug: normalizedSlug,
-        });
-
-        if (!stillAvailable) {
-          toast.error("This URL was just taken. Please choose another.");
-          setSlugAvailable(false);
-          return;
-        }
-
-        // Create the surface with draft_slug + draft_domain_id
-        const { error: surfaceError } = await supabase
-          .from("surfaces")
-          .insert({
-            org_id: resolvedOrgId,
-            surface_type: path.surfaceType,
-            title: `${savedUsername}'s ${path.label}`,
-            status: "draft",
-            draft_slug: normalizedSlug,
-            draft_domain_id: domainData.id,
-          } as any);
-
-        if (surfaceError) {
-          console.error("Surface creation error:", surfaceError);
-          toast.error(surfaceError.message || "Failed to create surface");
-          return;
-        }
-
-        // NOW mark onboarding complete — org, membership, and surface all exist
-        const { error: completeError } = await supabase
-          .from("profiles")
-          .update({ onboarding_completed: true })
-          .eq("id", user.id);
-
-        if (completeError) {
-          console.error("Failed to mark onboarding complete:", completeError);
-          toast.error("Setup issue — please try again.");
-          return;
-        }
-
-        await refreshProfile();
-        // Invalidate surfaces cache so dashboard shows the new surface
-        queryClient.invalidateQueries({ queryKey: ["surfaces"] });
-        toast.success("Welcome to YANGU! Your space is ready.");
-        navigate("/dashboard");
+        return;
       }
+
+      // First-time onboarding
+      const orgId = await ensureOrg();
+      if (!orgId) { toast.error("Failed to set up organization. Please try again."); return; }
+
+      // Update profile (without completing yet)
+      const { error: profileError } = await supabase.from("profiles").update({
+        username: savedUsername,
+        display_name: savedDisplayName || null,
+        avatar_url: avatarUrl,
+        creator_type: path.creatorType,
+        country: selectedCountry,
+        business_name: businessName,
+      }).eq("id", user.id);
+
+      if (profileError) {
+        if (profileError.message.includes("username")) { toast.error("Username is no longer available"); setCurrentStep("identity"); }
+        else toast.error(profileError.message);
+        return;
+      }
+
+      // Get domain
+      const { data: domainData } = await supabase.from("domains").select("id").eq("host", path.domain).eq("is_active", true).limit(1).maybeSingle();
+      if (!domainData) { toast.error("Failed to find domain configuration"); return; }
+
+      // Race-condition check
+      const { data: stillAvailable } = await supabase.rpc("is_slug_available", { _domain_id: domainData.id, _slug: normalizedSlug });
+      if (!stillAvailable) { toast.error("This URL was just taken. Please choose another."); setSlugAvailable(false); return; }
+
+      // Create surface
+      const { error: surfaceError } = await supabase.from("surfaces").insert({
+        org_id: orgId, surface_type: path.surfaceType,
+        title: `${savedUsername}'s ${path.label}`, status: "draft",
+        draft_slug: normalizedSlug, draft_domain_id: domainData.id,
+      } as any);
+
+      if (surfaceError) {
+        toast.error(surfaceError.message || "Failed to create surface");
+        return;
+      }
+
+      // NOW mark onboarding complete
+      const { error: completeError } = await supabase.from("profiles").update({ onboarding_completed: true }).eq("id", user.id);
+      if (completeError) { toast.error("Setup issue — please try again."); return; }
+
+      await refreshProfile();
+      queryClient.invalidateQueries({ queryKey: ["surfaces"] });
+      toast.success("Welcome to YANGU! Your space is ready.");
+      navigate(path.redirectTo);
     } catch (err) {
       console.error("Onboarding error:", err);
       toast.error("Failed to complete setup");
@@ -682,23 +556,19 @@ export default function Onboarding() {
   };
 
   const goBack = () => {
-    if (currentStep === "goal") {
-      if (isCreateNewSurface && profile?.onboarding_completed) {
-        if (!activeOrg) {
-          setCurrentStep("select-org");
-        } else {
-          navigate("/dashboard");
-        }
-      } else {
-        setCurrentStep("username");
-      }
-    } else if (currentStep === "surface") {
-      setSelectedPath(null);
-      setCurrentStep("goal");
-    } else if (currentStep === "select-org") {
-      navigate("/dashboard");
+    switch (currentStep) {
+      case "category":
+        if (isCreateNewSurface) navigate("/dashboard");
+        else setCurrentStep("identity");
+        break;
+      case "country": setCurrentStep("category"); break;
+      case "business": setCurrentStep("country"); break;
+      case "surface": setCurrentStep("business"); break;
     }
   };
+
+  const stepIndex = { identity: 1, category: 2, country: 3, business: 4, surface: 5 };
+  const totalSteps = selectedPath && !ONBOARDING_PATHS[selectedPath]?.surfaceType ? 4 : 5;
 
   if (authLoading || orgLoading) {
     return (
@@ -710,37 +580,67 @@ export default function Onboarding() {
     );
   }
 
-  // Step: Org Selection (only shown when no active org and creating new surface)
-  if (currentStep === "select-org") {
+  // === STEP 1: IDENTITY ===
+  if (currentStep === "identity") {
     return (
-      <AuthShell
-        title="Select Organization"
-        subtitle="Choose which organization to create the surface in"
-        showBackLink={false}
-      >
-        <OrgSelector onSelect={handleOrgSelect} />
-        <Button
-          type="button"
-          variant="ghost"
-          className="w-full mt-4"
-          onClick={() => navigate("/dashboard")}
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Dashboard
-        </Button>
-      </AuthShell>
-    );
-  }
+      <AuthShell title="Claim your identity" subtitle="Choose a unique username for your YANGU profile" showBackLink={false}>
+        <StepProgress current={1} total={totalSteps} />
+        <form onSubmit={usernameForm.handleSubmit(handleIdentitySubmit)} className="space-y-6">
+          {/* Avatar picker */}
+          <div className="flex flex-col items-center gap-3 mb-4">
+            <button
+              type="button"
+              onClick={() => setShowAvatarPicker(!showAvatarPicker)}
+              className="relative w-20 h-20 rounded-full bg-muted border-2 border-border hover:border-accent transition-colors overflow-hidden focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background"
+            >
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <User className="w-8 h-8 text-muted-foreground absolute inset-0 m-auto" />
+              )}
+              <div className="absolute bottom-0 right-0 bg-accent rounded-full p-1">
+                <Camera className="w-3 h-3 text-accent-foreground" />
+              </div>
+            </button>
+            <span className="text-xs text-muted-foreground">Tap to choose avatar</span>
+          </div>
 
-  // Step 1: Username
-  if (currentStep === "username") {
-    return (
-      <AuthShell
-        title="Claim your identity"
-        subtitle="Choose a unique username for your YANGU profile"
-        showBackLink={false}
-      >
-        <form onSubmit={usernameForm.handleSubmit(handleUsernameSubmit)} className="space-y-6">
+          {showAvatarPicker && (
+            <div className="rounded-xl border border-border bg-card p-4 space-y-3 animate-fade-in">
+              <p className="text-sm font-medium">Choose an avatar</p>
+              <div className="grid grid-cols-6 gap-2">
+                {PRESET_AVATARS.map((src, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => { setAvatarUrl(src); setShowAvatarPicker(false); }}
+                    className={cn(
+                      "w-12 h-12 rounded-full overflow-hidden border-2 transition-all focus:outline-none",
+                      avatarUrl === src ? "border-accent ring-2 ring-accent/30" : "border-transparent hover:border-accent/50"
+                    )}
+                  >
+                    <img src={src} alt={`Avatar ${i + 1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                  disabled={uploadingAvatar}
+                  onClick={() => avatarInputRef.current?.click()}
+                >
+                  {uploadingAvatar ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Camera className="h-3 w-3 mr-1" />}
+                  Upload photo
+                </Button>
+                <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+              </div>
+            </div>
+          )}
+
+          {/* Username */}
           <div className="space-y-2">
             <Label htmlFor="username">Username</Label>
             <div className="relative">
@@ -748,143 +648,211 @@ export default function Onboarding() {
                 <AtSign className="h-4 w-4" />
               </div>
               <Input
-                id="username"
-                placeholder="yourname"
-                className="pl-9 pr-10"
+                id="username" placeholder="yourname"
+                className="pl-9 pr-10 focus:ring-accent focus:border-accent focus-visible:ring-accent"
                 autoComplete="off"
                 {...usernameForm.register("username")}
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                {isCheckingUsername && (
-                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                )}
-                {!isCheckingUsername && usernameAvailable === true && (
-                  <Check className="h-4 w-4 text-success" />
-                )}
-                {!isCheckingUsername && usernameAvailable === false && (
-                  <X className="h-4 w-4 text-destructive" />
-                )}
+                {isCheckingUsername && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+                {!isCheckingUsername && usernameAvailable === true && <Check className="h-4 w-4 text-success" />}
+                {!isCheckingUsername && usernameAvailable === false && <X className="h-4 w-4 text-destructive" />}
               </div>
             </div>
             {usernameForm.formState.errors.username ? (
               <p className="text-sm text-destructive">{usernameForm.formState.errors.username.message}</p>
             ) : usernameAvailable === true ? (
-              <p className="text-sm text-success">
-                {PLATFORM_DOMAIN}/@{username} is available!
-              </p>
+              <p className="text-sm text-success">{PLATFORM_DOMAIN}/@{username} is available!</p>
             ) : usernameAvailable === false ? (
               <p className="text-sm text-destructive">This username is already taken</p>
             ) : username.length >= 3 ? (
-              <p className="text-sm text-muted-foreground">
-                Your profile: {PLATFORM_DOMAIN}/@{username}
-              </p>
+              <p className="text-sm text-muted-foreground">Your profile: {PLATFORM_DOMAIN}/@{username}</p>
             ) : null}
           </div>
 
+          {/* Display Name */}
           <div className="space-y-2">
             <Label htmlFor="displayName">Display Name (optional)</Label>
             <Input
-              id="displayName"
-              placeholder="Your Name"
+              id="displayName" placeholder="Your Name"
+              className="focus:ring-accent focus:border-accent focus-visible:ring-accent"
               autoComplete="name"
               {...usernameForm.register("displayName")}
             />
-            {usernameForm.formState.errors.displayName && (
-              <p className="text-sm text-destructive">{usernameForm.formState.errors.displayName.message}</p>
-            )}
-            <p className="text-sm text-muted-foreground">
-              This is how your name will appear on your surfaces
-            </p>
+            <p className="text-sm text-muted-foreground">This is how your name will appear on your surfaces</p>
           </div>
 
-          <Button
-            type="submit"
-            variant="accent"
-            className="w-full h-11"
-            disabled={usernameAvailable !== true}
-          >
-            Continue
-            <ArrowRight className="ml-2 h-4 w-4" />
+          <Button type="submit" variant="accent" className="w-full h-11" disabled={usernameAvailable !== true}>
+            Continue <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </form>
       </AuthShell>
     );
   }
 
-  // Step 2: Goal Selection (CTA-based)
-  if (currentStep === "goal") {
+  // === STEP 2: CATEGORY ===
+  if (currentStep === "category") {
     return (
-      <AuthShell
-        title="What do you want to do?"
-        subtitle="Choose your path - this determines where you'll publish"
-        showBackLink={false}
-      >
+      <AuthShell title="What do you want to do?" subtitle="Choose your path - this determines where you'll publish" showBackLink={false}>
+        <StepProgress current={2} total={totalSteps} />
         <div className="space-y-4">
-          <div className="grid grid-cols-1 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {Object.entries(ONBOARDING_PATHS).map(([key, path]) => {
               const Icon = path.icon;
+              const isSelected = selectedPath === key;
               return (
-                <Card
+                <button
                   key={key}
-                  variant="outlined"
-                  interactive
-                  onClick={() => handlePathSelect(key as OnboardingPathKey)}
+                  onClick={() => handleCategorySelect(key as OnboardingPathKey)}
+                  disabled={isLoading}
                   className={cn(
-                    "p-4 flex items-center gap-4 transition-all",
-                    "hover:border-accent",
+                    "p-4 rounded-xl border text-left transition-all",
+                    "bg-card hover:bg-card/80 focus:outline-none",
+                    isSelected
+                      ? "border-accent ring-1 ring-accent/30 shadow-[0_0_20px_hsl(25_85%_45%/0.15)]"
+                      : "border-border hover:border-accent/40",
                     isLoading && "opacity-50 pointer-events-none"
                   )}
                 >
-                  <div className={cn("p-3 rounded-lg", path.bgColor)}>
-                    <Icon className={cn("h-5 w-5", path.color)} />
+                  <div className="flex items-start gap-3">
+                    <div className={cn("p-2.5 rounded-lg shrink-0", path.bgColor)}>
+                      <Icon className={cn("h-5 w-5", path.color)} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-sm leading-tight">{path.label}</h3>
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{path.description}</p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium">{path.label}</h3>
-                    <p className="text-sm text-muted-foreground truncate">{path.description}</p>
-                  </div>
-                  <div className="text-xs text-muted-foreground font-mono shrink-0">
+                  <div className="text-[10px] text-muted-foreground font-mono mt-2 text-right">
                     {path.domain}
                   </div>
-                </Card>
+                </button>
               );
             })}
           </div>
 
-          {isLoading && (
-            <div className="flex justify-center py-4">
-              <Loader2 className="h-6 w-6 animate-spin text-accent" />
-            </div>
-          )}
-
-          <Button
-            type="button"
-            variant="ghost"
-            className="w-full"
-            onClick={goBack}
-            disabled={isLoading}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
+          <Button type="button" variant="ghost" className="w-full" onClick={goBack} disabled={isLoading}>
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back
           </Button>
         </div>
       </AuthShell>
     );
   }
 
-  // Step 3: Surface URL (only for paths that create surfaces)
+  // === STEP 3: COUNTRY ===
+  if (currentStep === "country") {
+    return (
+      <AuthShell title="What country are you in?" subtitle="Select the country where you or your business is located" showBackLink={false}>
+        <StepProgress current={3} total={totalSteps} />
+        <div className="space-y-6">
+          <div className="relative">
+            <select
+              value={selectedCountry}
+              onChange={(e) => setSelectedCountry(e.target.value)}
+              className={cn(
+                "w-full h-12 px-4 pr-10 rounded-xl border border-border bg-card text-foreground",
+                "appearance-none cursor-pointer",
+                "focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
+              )}
+            >
+              {COUNTRIES.sort().map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          </div>
+
+          <Button
+            type="button"
+            variant="accent"
+            className="w-full h-11"
+            onClick={handleCountryContinue}
+            disabled={!selectedCountry}
+          >
+            Continue
+          </Button>
+
+          <Button type="button" variant="ghost" className="w-full" onClick={goBack}>
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back
+          </Button>
+        </div>
+      </AuthShell>
+    );
+  }
+
+  // === STEP 4: BUSINESS NAME ===
+  if (currentStep === "business") {
+    return (
+      <AuthShell title="Name your business" subtitle="This can be changed later" showBackLink={false}>
+        <StepProgress current={4} total={totalSteps} />
+        <div className="space-y-6">
+          <div className="relative">
+            <Input
+              value={businessName}
+              onChange={(e) => setBusinessName(e.target.value)}
+              placeholder="Enter business name"
+              className="pr-12 h-12 focus:ring-accent focus:border-accent focus-visible:ring-accent"
+            />
+            <button
+              type="button"
+              onClick={generateBusinessNames}
+              disabled={loadingSuggestions}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-accent/10 hover:bg-accent/20 transition-colors focus:outline-none"
+              title="Get AI suggestions"
+            >
+              {loadingSuggestions ? (
+                <Loader2 className="h-4 w-4 animate-spin text-accent" />
+              ) : (
+                <Sparkles className="h-4 w-4 text-accent" />
+              )}
+            </button>
+          </div>
+
+          {aiSuggestions.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {aiSuggestions.map((name, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => { setBusinessName(name); setAiSuggestions([]); }}
+                  className="px-3 py-1.5 rounded-lg border border-border bg-card text-sm hover:border-accent/50 hover:bg-accent/5 transition-all focus:outline-none"
+                >
+                  {name}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <Button
+            type="button"
+            variant="accent"
+            className="w-full h-11"
+            onClick={handleBusinessContinue}
+            disabled={!businessName.trim() || isLoading}
+          >
+            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            {selectedPath && !ONBOARDING_PATHS[selectedPath]?.surfaceType ? "Create My Space" : "Next"}
+          </Button>
+
+          <Button type="button" variant="ghost" className="w-full" onClick={goBack} disabled={isLoading}>
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back
+          </Button>
+        </div>
+      </AuthShell>
+    );
+  }
+
+  // === STEP 5: CLAIM URL ===
   if (currentStep === "surface" && selectedPath) {
     const pathConfig = ONBOARDING_PATHS[selectedPath];
     const Icon = pathConfig.icon;
 
     return (
-      <AuthShell
-        title="Claim your URL"
-        subtitle="This will be your public address"
-        showBackLink={false}
-      >
+      <AuthShell title="Claim your URL" subtitle="This will be your public address" showBackLink={false}>
+        <StepProgress current={5} total={5} />
         <form onSubmit={slugForm.handleSubmit(handleFinalSubmit)} className="space-y-6">
           {/* Selected path indicator */}
-          <Card variant="ghost" className={cn("p-3 border", pathConfig.borderColor, pathConfig.bgColor)}>
+          <div className={cn("p-3 rounded-xl border", pathConfig.borderColor, pathConfig.bgColor)}>
             <div className="flex items-center gap-3">
               <Icon className={cn("h-5 w-5", pathConfig.color)} />
               <div>
@@ -892,7 +860,7 @@ export default function Onboarding() {
                 <p className="text-xs text-muted-foreground">{pathConfig.domain}</p>
               </div>
             </div>
-          </Card>
+          </div>
 
           <div className="space-y-2">
             <Label htmlFor="slug">Your URL</Label>
@@ -901,41 +869,29 @@ export default function Onboarding() {
                 <Link2 className="h-4 w-4" />
               </div>
               <Input
-                id="slug"
-                placeholder="your-url"
-                className="pl-9 pr-10"
-                autoComplete="off"
-                disabled={isLoading}
+                id="slug" placeholder="your-url"
+                className="pl-9 pr-10 focus:ring-accent focus:border-accent focus-visible:ring-accent"
+                autoComplete="off" disabled={isLoading}
                 {...slugForm.register("slug")}
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                {isCheckingSlug && (
-                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                )}
-                {!isCheckingSlug && slugAvailable === true && (
-                  <Check className="h-4 w-4 text-success" />
-                )}
-                {!isCheckingSlug && slugAvailable === false && (
-                  <X className="h-4 w-4 text-destructive" />
-                )}
+                {isCheckingSlug && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+                {!isCheckingSlug && slugAvailable === true && <Check className="h-4 w-4 text-success" />}
+                {!isCheckingSlug && slugAvailable === false && <X className="h-4 w-4 text-destructive" />}
               </div>
             </div>
             {slugForm.formState.errors.slug ? (
               <p className="text-sm text-destructive">{slugForm.formState.errors.slug.message}</p>
             ) : slugAvailable === true ? (
-              <p className="text-sm text-success">
-                {pathConfig.domain}/{slug} is available!
-              </p>
+              <p className="text-sm text-success">{pathConfig.domain}/{slug} is available!</p>
             ) : slugAvailable === false ? (
               <p className="text-sm text-destructive">This URL is already taken</p>
             ) : slug.length >= 3 ? (
-              <p className="text-sm text-muted-foreground">
-                {pathConfig.domain}/{slug}
-              </p>
+              <p className="text-sm text-muted-foreground">{pathConfig.domain}/{slug}</p>
             ) : null}
           </div>
 
-          <div className="rounded-lg bg-muted/50 p-4 space-y-2">
+          <div className="rounded-xl bg-muted/50 p-4 space-y-2">
             <p className="text-sm font-medium">What happens next?</p>
             <ul className="text-sm text-muted-foreground space-y-1">
               <li>• Your space will be created as a draft</li>
@@ -945,27 +901,12 @@ export default function Onboarding() {
           </div>
 
           <div className="space-y-3">
-            <Button
-              type="submit"
-              variant="accent"
-              className="w-full h-11"
-              disabled={isLoading || slugAvailable !== true}
-            >
-              {isLoading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : null}
+            <Button type="submit" variant="accent" className="w-full h-11" disabled={isLoading || slugAvailable !== true}>
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Create My Space
             </Button>
-
-            <Button
-              type="button"
-              variant="ghost"
-              className="w-full"
-              onClick={goBack}
-              disabled={isLoading}
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
+            <Button type="button" variant="ghost" className="w-full" onClick={goBack} disabled={isLoading}>
+              <ArrowLeft className="mr-2 h-4 w-4" /> Back
             </Button>
           </div>
         </form>

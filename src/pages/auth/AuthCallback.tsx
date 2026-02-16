@@ -30,12 +30,12 @@ export default function AuthCallback() {
           // Check profile + username + onboarding status
           const { data: profile } = await supabase
             .from("profiles")
-            .select("onboarding_completed, username")
+            .select("onboarding_completed, username, country, business_name")
             .eq("id", session.user.id)
             .single();
 
           // If no profile, no username, or onboarding incomplete → onboarding
-          if (!profile || !profile.onboarding_completed || !profile.username) {
+          if (!profile || !profile.onboarding_completed || !profile.username || !profile.country || !profile.business_name) {
             navigate("/onboarding");
           } else if (returnTo) {
             window.location.href = returnTo;
