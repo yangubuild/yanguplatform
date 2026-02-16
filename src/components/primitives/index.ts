@@ -7,6 +7,7 @@
 export { AppShell, TopBar } from "./AppShell";
 export { MarketingShell } from "./MarketingShell";
 export { PageContainer } from "./PageContainer";
+export { PageShell, PageHeader, PageContent } from "./PageShell";
 
 // Cards and containers
 export {
