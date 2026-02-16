@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Menu, Search, Gift, Bell, ChevronDown, User, MessageCircle, TrendingUp, Globe } from "lucide-react";
 import { useRoles } from "@/hooks/useRoles";
+import { useAuth } from "@/hooks/useAuth";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { GlobalChatPopup } from "@/components/messages/GlobalChatPopup";
 import yanguLogo from "@/assets/yangu-logo-full.png";
@@ -101,6 +102,7 @@ interface NavDashHeaderProps {
 
 export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
   const { isAdmin } = useRoles();
+  const { profile } = useAuth();
   const navigate = useNavigate();
   const [selectedCurrency, setSelectedCurrency] = useState(getStoredCurrency);
   const [selectedLanguage, setSelectedLanguage] = useState(getStoredLanguage);
@@ -463,13 +465,17 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
           <Popover>
             <PopoverTrigger asChild>
               <button
-                className="w-8 h-8 rounded-full flex items-center justify-center"
+                className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden"
                 style={{
                   background: "#2a3038",
                   border: "2px solid rgba(255,255,255,0.1)",
                 }}
               >
-                <User className="w-4 h-4" style={{ color: "rgba(255,255,255,0.6)" }} />
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <User className="w-4 h-4" style={{ color: "rgba(255,255,255,0.6)" }} />
+                )}
               </button>
             </PopoverTrigger>
             <PopoverContent
@@ -482,8 +488,12 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
               }}
             >
               <div className="px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                <p className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.85)" }}>User</p>
-                <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>@username</p>
+                <p className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.85)" }}>
+                  {profile?.display_name || profile?.username || "User"}
+                </p>
+                <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  {profile?.username ? `@${profile.username}` : ""}
+                </p>
               </div>
               <div className="py-1">
                 <button
