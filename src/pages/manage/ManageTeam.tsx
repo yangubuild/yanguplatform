@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { Loader2, Plus, Trash2, UserPlus } from "lucide-react";
 
 type InviteStatus = "pending" | "accepted" | "revoked";
-type InviteRole = "admin" | "manager" | "designer" | "writer" | "content_editor" | "analyst" | "moderator";
+type InviteRole = "admin" | "manager" | "designer" | "user" | "owner";
 
 interface Invite {
   id: string;
@@ -29,10 +29,7 @@ const ROLE_OPTIONS: { value: InviteRole; label: string }[] = [
   { value: "admin", label: "Admin" },
   { value: "manager", label: "Manager" },
   { value: "designer", label: "Designer" },
-  { value: "writer", label: "Writer" },
-  { value: "content_editor", label: "Content Editor" },
-  { value: "analyst", label: "Analyst" },
-  { value: "moderator", label: "Moderator" },
+  { value: "user", label: "User" },
 ];
 
 const statusMap: Record<InviteStatus, "active" | "pending" | "inactive"> = {
@@ -87,12 +84,12 @@ export default function ManageTeam() {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from("admin_invites" as any)
+        .from("admin_invites")
         .select("*")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setInvites((data as any[] ?? []).map((d: any) => ({
+      setInvites((data ?? []).map((d: any) => ({
         id: d.id,
         email: d.email,
         role: d.role,
@@ -119,11 +116,10 @@ export default function ManageTeam() {
 
     setSending(true);
     try {
-      const { error } = await supabase.from("admin_invites" as any).insert({
-        email: trimmed,
-        role,
-        invited_by: user.id,
-      } as any);
+      const { error } = await supabase.rpc("send_admin_invite", {
+        p_email: trimmed,
+        p_role: role,
+      });
 
       if (error) {
         if (error.message?.includes("admin_invites_unique_pending")) {
@@ -146,10 +142,9 @@ export default function ManageTeam() {
 
   const handleRevoke = async (inviteId: string) => {
     try {
-      const { error } = await supabase
-        .from("admin_invites" as any)
-        .update({ status: "revoked" } as any)
-        .eq("id", inviteId);
+      const { error } = await supabase.rpc("revoke_admin_invite", {
+        p_invite_id: inviteId,
+      });
 
       if (error) throw error;
       toast.success("Invite revoked");
