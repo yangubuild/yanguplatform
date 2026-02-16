@@ -310,7 +310,7 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
               <div className="px-3 pb-3">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="w-full flex items-center gap-2.5 px-2 py-2">
+                    <button className="w-full flex items-center gap-2.5 px-2 py-2 outline-none border-none ring-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 active:outline-none">
                       <div
                         className="w-8 h-8 rounded-full shrink-0 overflow-hidden flex items-center justify-center"
                         style={{ background: "#2a3038" }}
