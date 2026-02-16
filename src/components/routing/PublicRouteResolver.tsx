@@ -120,10 +120,19 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
 
       // Enterprise domain mode switch for root path
       const appMode = resolveAppMode(window.location.hostname);
-      if (path === "/" && appMode && appMode !== "platform") {
-        setAppModeResult(appMode);
-        setIsLoading(false);
-        return;
+      if (appMode && appMode !== "platform") {
+        // On community domain, allow /community/* paths to fall through to React Router
+        if (appMode === "community" && path.startsWith("/community")) {
+          setShouldUseInternalRouting(true);
+          setIsLoading(false);
+          return;
+        }
+        // Root path on non-platform domains renders mode-specific landing
+        if (path === "/") {
+          setAppModeResult(appMode);
+          setIsLoading(false);
+          return;
+        }
       }
 
       // Resolve via database for production platform domains
