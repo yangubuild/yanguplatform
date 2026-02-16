@@ -57,6 +57,7 @@ const ManageEvents = lazy(() => import("./pages/manage/ManageEvents"));
 const ManageContentHome = lazy(() => import("./pages/manage/ManageContentHome"));
 const ManagePricing = lazy(() => import("./pages/manage/ManagePricing"));
 const ManagePromos = lazy(() => import("./pages/manage/ManagePromos"));
+const ManageTeam = lazy(() => import("./pages/manage/ManageTeam"));
 
 // App Shell + dashboard pages
 import { NavigationDashboardPage } from "@/components/mass/navigation";
@@ -269,6 +270,7 @@ const App = () => (
                   <Route path="messages" element={<ManageMessages />} />
                   {/* Platform */}
                   <Route path="users" element={<ManageUsers />} />
+                  <Route path="team" element={<ManageTeam />} />
                   <Route path="pricing" element={<ManagePricing />} />
                   <Route path="promos" element={<ManagePromos />} />
                   <Route path="surfaces" element={<ManageSurfaces />} />

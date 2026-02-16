@@ -18,6 +18,7 @@ import {
   FileStack,
   ShieldAlert,
   CreditCard,
+  UserPlus,
   type LucideIcon,
 } from "lucide-react";
 import { ManageRole } from "@/hooks/useRoles";
@@ -57,6 +58,7 @@ export const adminNavGroups: AdminNavGroup[] = [
     label: "Platform",
     items: [
       { title: "Users", to: "/manage/users", icon: Users, allowedRoles: ["admin"] },
+      { title: "Team & Invites", to: "/manage/team", icon: UserPlus, allowedRoles: ["admin", "owner"] },
       { title: "Pricing & Subscriptions", to: "/manage/pricing", icon: CreditCard, allowedRoles: ["admin"] },
       { title: "Promos & Rewards", to: "/manage/promos", icon: Megaphone, allowedRoles: ["admin"] },
       { title: "Navigation", to: "/manage/navigation", icon: Layers, allowedRoles: ["admin"] },
