@@ -111,11 +111,13 @@ export async function resolveRoute(
 export function isDevEnvironment(): boolean {
   const host = window.location.host;
   // Preview and local development patterns
-  const devPatterns = [
+  const devPatterns: RegExp[] = [
     /localhost/,
     /127\.0\.0\.1/,
-    /\.lovable\.app$/,
-    /\.lovableproject\.com$/,
+    // Preview host literals only in dev builds — tree-shaken from prod
+    ...(import.meta.env.DEV
+      ? [/\.lovable\.app$/, /\.lovableproject\.com$/]
+      : []),
   ];
   return devPatterns.some((pattern) => pattern.test(host));
 }

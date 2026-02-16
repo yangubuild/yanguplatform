@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { lovable } from "@/integrations/lovable/index";
+import { cloudAuth } from "@/integrations/cloudAuth";
 
 interface SocialAuthButtonsProps {
   disabled?: boolean;
@@ -14,7 +14,7 @@ export function SocialAuthButtons({ disabled }: SocialAuthButtonsProps) {
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
     try {
-      const { error } = await lovable.auth.signInWithOAuth("google", {
+      const { error } = await cloudAuth.auth.signInWithOAuth("google", {
         redirect_uri: `${window.location.origin}/auth/callback`,
       });
 
@@ -33,7 +33,7 @@ export function SocialAuthButtons({ disabled }: SocialAuthButtonsProps) {
   const handleAppleSignIn = async () => {
     setIsAppleLoading(true);
     try {
-      const { error } = await lovable.auth.signInWithOAuth("apple", {
+      const { error } = await cloudAuth.auth.signInWithOAuth("apple", {
         redirect_uri: `${window.location.origin}/auth/callback`,
       });
 
