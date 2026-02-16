@@ -47,7 +47,7 @@ export function AdaContentSections() {
     <div className="lg:ml-[280px]">
 
       {/* ── Section 1: Four Steps ── */}
-      <section className="px-6 pt-6 pb-16 max-w-5xl mx-auto">
+      <section className="px-6 pt-2 pb-16 max-w-5xl mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative">
           {steps.map((s, i) => (
             <div key={s.num} className="flex flex-col items-center text-center relative">
@@ -71,10 +71,8 @@ export function AdaContentSections() {
         </div>
       </section>
 
-      {/* ── Divider ── */}
-      <div className="max-w-5xl mx-auto px-6">
-        <div className="h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(212,149,43,0.25), transparent)" }} />
-      </div>
+      {/* ── Spacer (no divider) ── */}
+      <div className="h-8" />
 
       {/* ── Section 2: Feature Blocks ── */}
       <section className="px-6 py-20 max-w-5xl mx-auto">
@@ -128,7 +126,7 @@ export function AdaContentSections() {
       <section
         className="px-6 py-20"
         style={{
-          background: "radial-gradient(ellipse at 50% 0%, rgba(212,149,43,0.12) 0%, rgba(5,10,7,0) 60%), #050A07",
+          background: "radial-gradient(ellipse at 50% 0%, rgba(212,149,43,0.12) 0%, transparent 60%)",
         }}
       >
         <div className="max-w-5xl mx-auto">
@@ -160,8 +158,8 @@ export function AdaContentSections() {
 
       {/* ── Section 4: FAQ ── */}
       <section className="px-6 py-20 max-w-4xl mx-auto">
-        {/* Faint orange divider */}
-        <div className="h-px mb-16" style={{ background: "linear-gradient(90deg, transparent, rgba(212,149,43,0.2), transparent)" }} />
+        {/* Spacer */}
+        <div className="mb-16" />
         <h2
           className="text-white text-3xl md:text-4xl font-bold text-center mb-14"
           style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}

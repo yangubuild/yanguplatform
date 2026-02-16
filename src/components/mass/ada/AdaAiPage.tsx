@@ -12,7 +12,7 @@ export function AdaAiPage() {
   return (
     <div
       className="min-h-screen flex flex-col"
-      style={{ background: "#050A07" }}
+      style={{ background: "linear-gradient(180deg, #050A07 0%, #08120D 30%, #050A07 100%)" }}
     >
       <div className="flex flex-1 relative">
         {/* Mobile menu button */}

@@ -2004,11 +2004,11 @@ export function AdaMainPanel() {
           <div className="w-full max-w-2xl mb-4 animate-in fade-in duration-500">
             <div className="flex flex-wrap gap-2 justify-center">
               {[
-                { label: "Generate Image", icon: Image, prompt: "/image " },
-                { label: "Plan Product", icon: Package, prompt: "Help me plan and structure a new digital product" },
-                { label: "Create Campaign", icon: Megaphone, prompt: "Help me create a marketing campaign" },
-                { label: "Build Community", icon: Users, prompt: "Help me build and structure my community" },
-                { label: "Optimize Profile", icon: UserCheck, prompt: "Help me optimize my profile and positioning" },
+                { label: "Generate Image", icon: Image, prompt: "Help me generate visuals for my brand." },
+                { label: "Plan Product", icon: Package, prompt: "Help me structure a digital product inside YANGU." },
+                { label: "Create Campaign", icon: Megaphone, prompt: "Help me create a marketing campaign for my brand." },
+                { label: "Build Community", icon: Users, prompt: "Guide me to create a community." },
+                { label: "Optimize Profile", icon: UserCheck, prompt: "Help me optimize my profile and positioning." },
               ].map((action) => {
                 const Icon = action.icon;
                 return (
