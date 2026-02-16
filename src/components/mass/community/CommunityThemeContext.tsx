@@ -70,7 +70,7 @@ export function getThemeColors(theme: CommunityTheme) {
 }
 
 export function CommunityThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<CommunityTheme>("light");
+  const [theme, setTheme] = useState<CommunityTheme>("dark");
   const toggle = () => setTheme((t) => (t === "light" ? "dark" : "light"));
 
   return <Ctx.Provider value={{ theme, toggle }}>{children}</Ctx.Provider>;

@@ -235,6 +235,9 @@ async function readGenerationSSE(
   onDone();
 }
 
+// Guest usage tracking key
+const GUEST_USED_KEY = "ada_guest_used";
+
 export function AdaMainPanel() {
   const { user, profile, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -242,6 +245,14 @@ export function AdaMainPanel() {
   const [intent, setIntent] = useState<"search" | "discuss" | null>(null);
   const [inputValue, setInputValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+
+  // Guest gate: track if the 1 free message has been used
+  const [guestUsed, setGuestUsed] = useState(() => localStorage.getItem(GUEST_USED_KEY) === "true");
+
+  const requireAuth = useCallback(() => {
+    const returnTo = encodeURIComponent(window.location.href);
+    window.location.href = `https://yangu.io/auth/login?returnTo=${returnTo}`;
+  }, []);
   const [voiceText, setVoiceText] = useState("");
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -527,10 +538,13 @@ export function AdaMainPanel() {
       });
 
       if (!res.ok || !res.body) {
-        // Fallback: try non-streaming
+        // For guests who hit auth errors, show friendly message instead of "Not authenticated"
         const errData = await res.json().catch(() => null);
-        const errorText = errData?.error || "I'm having trouble responding right now. Please try again.";
-        if (errData?.error) toast({ title: errData.error, variant: "destructive" });
+        const isAuthError = res.status === 401 || res.status === 403 || (errData?.error || "").toLowerCase().includes("not authenticated");
+        const errorText = isAuthError
+          ? "Sign up for a free account to continue chatting with Ada."
+          : errData?.error || "I'm having trouble responding right now. Please try again.";
+        if (!isAuthError && errData?.error) toast({ title: errData.error, variant: "destructive" });
         setMessages(prev => prev.map(m => m.id === msgId ? { ...m, content: errorText, isStreaming: false } : m));
         await persistMessage(cid, { id: msgId, role: "assistant", content: errorText, created_at: new Date().toISOString() });
         return;
@@ -565,23 +579,25 @@ export function AdaMainPanel() {
 
   // --- Image generation with progress card ---
   const handleImageGenerate = useCallback(async (prompt: string, cid: string, provider: "ideogram" | "qwen" = "ideogram") => {
-    // Entitlement check
-    const ent = await consumeEntitlement("image");
-    if (!ent.allowed) {
-      toast({
-        title: ent.error || "You've reached your monthly limit. Upgrade to continue.",
-        variant: "destructive",
-        description: "Go to /subscriptions to upgrade your plan.",
-      });
-      const errMsg: ChatMessage = {
-        id: `msg_${Date.now()}`,
-        role: "assistant",
-        content: `⚠️ ${ent.error || "Monthly image limit reached."} [Upgrade your plan](/subscriptions) to continue generating.`,
-        created_at: new Date().toISOString(),
-      };
-      setMessages(prev => [...prev, errMsg]);
-      await persistMessage(cid, errMsg);
-      return;
+    // Skip entitlement for guests (their free message is already gated in handleSend)
+    if (isAuthenticated) {
+      const ent = await consumeEntitlement("image");
+      if (!ent.allowed) {
+        toast({
+          title: ent.error || "You've reached your monthly limit. Upgrade to continue.",
+          variant: "destructive",
+          description: "Go to /subscriptions to upgrade your plan.",
+        });
+        const errMsg: ChatMessage = {
+          id: `msg_${Date.now()}`,
+          role: "assistant",
+          content: `⚠️ ${ent.error || "Monthly image limit reached."} [Upgrade your plan](/subscriptions) to continue generating.`,
+          created_at: new Date().toISOString(),
+        };
+        setMessages(prev => [...prev, errMsg]);
+        await persistMessage(cid, errMsg);
+        return;
+      }
     }
 
     // Insert media generation card
@@ -650,7 +666,7 @@ export function AdaMainPanel() {
         mediaGen: { ...m.mediaGen!, status: "error" as MediaGenStatus, error: "Image generation failed. Please try again." },
       } : m));
     }
-  }, [persistMessage]);
+  }, [persistMessage, isAuthenticated]);
 
   // --- Video generation with progress card ---
   const handleVideoGenerate = useCallback(async (prompt: string, cid: string) => {
@@ -836,6 +852,18 @@ export function AdaMainPanel() {
     const text = (overrideText || inputValue).trim();
     if (!text && pendingAttachments.length === 0) return;
 
+    // --- Guest gate: allow exactly 1 free message ---
+    if (!isAuthenticated) {
+      if (guestUsed) {
+        // Second attempt → redirect to signup
+        requireAuth();
+        return;
+      }
+      // Mark as used after this message
+      setGuestUsed(true);
+      localStorage.setItem(GUEST_USED_KEY, "true");
+    }
+
     const currentIntent = intent;
     setIntent(null);
 
@@ -985,7 +1013,7 @@ export function AdaMainPanel() {
         }
       });
     }
-  }, [inputValue, activeChatId, isAuthenticated, pendingAttachments, intent, selectedProvider, adaMode, adaSkill, advancedOverride, selectedAspectRatio, createDbChat, createAnonChat, persistMessage, handleSearch, handleDiscuss, handleImageGenerate, handleVideoGenerate, streamChatResponse, messages, addRoutingPill]);
+  }, [inputValue, activeChatId, isAuthenticated, guestUsed, pendingAttachments, intent, selectedProvider, adaMode, adaSkill, advancedOverride, selectedAspectRatio, createDbChat, createAnonChat, persistMessage, handleSearch, handleDiscuss, handleImageGenerate, handleVideoGenerate, streamChatResponse, messages, addRoutingPill, requireAuth]);
 
   // --- Voice ---
   const handleVoiceTranscript = useCallback(async (
@@ -1121,13 +1149,28 @@ export function AdaMainPanel() {
           .select("*")
           .eq("chat_id", chatId)
           .order("created_at", { ascending: true });
-        setMessages((data || []).map(m => ({
-          id: m.id,
-          role: m.role as "user" | "assistant",
-          content: m.content,
-          metadata: m.metadata as Record<string, unknown> | undefined,
-          created_at: m.created_at,
-        })));
+        setMessages((data || []).map(m => {
+          const meta = m.metadata as Record<string, unknown> | undefined;
+          const msg: ChatMessage = {
+            id: m.id,
+            role: m.role as "user" | "assistant",
+            content: m.content,
+            metadata: meta,
+            created_at: m.created_at,
+          };
+          // Re-hydrate media generation cards from persisted metadata
+          if (meta?.type === "image" && meta?.storage_path) {
+            const imgUrlMatch = m.content.match(/!\[.*?\]\((.*?)\)/);
+            const previewUrl = imgUrlMatch?.[1] || (meta.storage_path as string);
+            msg.mediaGen = {
+              kind: "image",
+              status: "done",
+              previewUrl,
+              caption: m.content.slice(0, 50),
+            };
+          }
+          return msg;
+        }));
       } else {
         const chats = getAnonChats();
         const chat = chats.find(c => c.id === chatId);

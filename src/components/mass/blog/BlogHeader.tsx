@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search, X } from "lucide-react";
 import yanguLogo from "@/assets/yangu-logo-blog.png";
 
@@ -7,6 +8,7 @@ interface BlogHeaderProps {
 }
 
 export function BlogHeader({ onSubscribeClick }: BlogHeaderProps) {
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -75,7 +77,7 @@ export function BlogHeader({ onSubscribeClick }: BlogHeaderProps) {
           }}
         >
           <div style={{ width: 80, height: 1, background: "rgba(255,255,255,0.2)" }} />
-          <img src={yanguLogo} alt="Yangu" className="h-6 w-auto px-4" />
+          <img src={yanguLogo} alt="Yangu" className="h-6 w-auto px-4 cursor-pointer" onClick={() => navigate("/")} />
           <div style={{ width: 80, height: 1, background: "rgba(255,255,255,0.2)" }} />
         </div>
 

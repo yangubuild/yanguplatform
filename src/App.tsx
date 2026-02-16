@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -25,32 +26,35 @@ import KYC from "./pages/KYC";
 import Billing from "./pages/Billing";
 import DevSeed from "./pages/dev/DevSeed";
 import TestDomainVerification from "./pages/dev/TestDomainVerification";
-import Studio from "./pages/Studio";
-import Community from "./pages/Community";
-import AdaAi from "./pages/AdaAi";
-import WhyYangu from "./pages/WhyYangu";
-import DiscoverYangu from "./pages/DiscoverYangu";
-import Blog from "./pages/Blog";
 import Subscriptions from "./pages/Subscriptions";
 import { AdminRoute } from "@/components/auth/AdminRoute";
 import { AdminShell } from "@/components/manage/AdminShell";
 import { ManageRoleGate } from "@/components/manage/ManageRoleGate";
 import { RequireRole } from "@/components/auth/RequireRole";
-import ManageDashboard from "./pages/manage/ManageDashboard";
-import ManagePlaceholder from "./pages/manage/ManagePlaceholder";
-import ManageNotFound from "./pages/manage/ManageNotFound";
-import ManageUsers from "./pages/manage/ManageUsers";
-import ManageSurfaces from "./pages/manage/ManageSurfaces";
-import ManageNavigation from "./pages/manage/ManageNavigation";
-import ManageCommunity from "./pages/manage/ManageCommunity";
-import ManageBlog from "./pages/manage/ManageBlog";
-import ManageAda from "./pages/manage/ManageAda";
-import ManageMessages from "./pages/manage/ManageMessages";
-import ManageNews from "./pages/manage/ManageNews";
-import ManageEvents from "./pages/manage/ManageEvents";
-import ManageContentHome from "./pages/manage/ManageContentHome";
-import ManagePricing from "./pages/manage/ManagePricing";
-import ManagePromos from "./pages/manage/ManagePromos";
+
+// Lazy-loaded route bundles to eliminate navigation lag
+const Studio = lazy(() => import("./pages/Studio"));
+const Community = lazy(() => import("./pages/Community"));
+const AdaAi = lazy(() => import("./pages/AdaAi"));
+const WhyYangu = lazy(() => import("./pages/WhyYangu"));
+const DiscoverYangu = lazy(() => import("./pages/DiscoverYangu"));
+const Blog = lazy(() => import("./pages/Blog"));
+
+const ManageDashboard = lazy(() => import("./pages/manage/ManageDashboard"));
+const ManagePlaceholder = lazy(() => import("./pages/manage/ManagePlaceholder"));
+const ManageNotFound = lazy(() => import("./pages/manage/ManageNotFound"));
+const ManageUsers = lazy(() => import("./pages/manage/ManageUsers"));
+const ManageSurfaces = lazy(() => import("./pages/manage/ManageSurfaces"));
+const ManageNavigation = lazy(() => import("./pages/manage/ManageNavigation"));
+const ManageCommunity = lazy(() => import("./pages/manage/ManageCommunity"));
+const ManageBlog = lazy(() => import("./pages/manage/ManageBlog"));
+const ManageAda = lazy(() => import("./pages/manage/ManageAda"));
+const ManageMessages = lazy(() => import("./pages/manage/ManageMessages"));
+const ManageNews = lazy(() => import("./pages/manage/ManageNews"));
+const ManageEvents = lazy(() => import("./pages/manage/ManageEvents"));
+const ManageContentHome = lazy(() => import("./pages/manage/ManageContentHome"));
+const ManagePricing = lazy(() => import("./pages/manage/ManagePricing"));
+const ManagePromos = lazy(() => import("./pages/manage/ManagePromos"));
 
 // App Shell + dashboard pages
 import { NavigationDashboardPage } from "@/components/mass/navigation";
@@ -85,6 +89,7 @@ const App = () => (
           <DomainProvider>
             <PublicRouteResolver>
               <DomainGate>
+              <Suspense fallback={null}>
               <Routes>
                 {/* Public routes */}
                 <Route path="/" element={<Index />} />
@@ -304,6 +309,7 @@ const App = () => (
                 {/* Catch-all */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              </Suspense>
               </DomainGate>
             </PublicRouteResolver>
           </DomainProvider>
