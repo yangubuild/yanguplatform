@@ -60,6 +60,8 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
           if (item.id === "explore") navigate("/");
           if (item.id === "discover") navigate("/discover");
           if (item.id === "blog") navigate("/blog");
+          if (item.id === "terms") navigate("/terms");
+          if (item.id === "privacy") navigate("/privacy");
         }}
         onMouseEnter={() => setHoveredItem(item.id)}
         onMouseLeave={() => setHoveredItem(null)}
