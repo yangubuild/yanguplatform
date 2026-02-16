@@ -198,7 +198,7 @@ export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
         </button>
 
         {/* Header */}
-        <div className="flex items-center gap-3 px-5 pt-5 pb-2">
+        <div className="flex items-center gap-3 px-5 pt-7 pb-2">
           <img src={adaLogo} alt="Ada AI" className="h-10 w-auto cursor-pointer" onClick={() => navigate("/")} />
           <div className="flex-1" />
           <button
