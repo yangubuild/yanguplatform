@@ -92,6 +92,7 @@ const App = () => (
                 <Route path="/ada-ai" element={<AdaAi />} />
                 <Route path="/why-yangu" element={<WhyYangu />} />
                 <Route path="/discover" element={<DiscoverYangu />} />
+                <Route path="/discover-yangu" element={<DiscoverYangu />} />
                 <Route path="/blog" element={<Blog />} />
                 
                 {/* Owner preview route - requires auth + ownership */}

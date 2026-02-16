@@ -30,6 +30,11 @@ const INTERNAL_ROUTES = [
   "/surfaces/",
   "/s/",
   "/dev/",
+  "/why-yangu",
+  "/discover",
+  "/discover-yangu",
+  "/blog",
+  "/ada-ai",
 ];
 
 /**
