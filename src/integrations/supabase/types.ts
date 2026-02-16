@@ -2007,7 +2007,7 @@ export type Database = {
     Enums: {
       ad_status: "draft" | "pending_review" | "active" | "paused" | "rejected"
       agent_status: "draft" | "active" | "paused" | "archived"
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "owner" | "manager" | "designer"
       creator_type: "seller" | "builder" | "organization" | "learner"
       kyc_status: "pending" | "submitted" | "approved" | "rejected"
       login_mode: "disabled" | "optional" | "required"
@@ -2148,7 +2148,7 @@ export const Constants = {
     Enums: {
       ad_status: ["draft", "pending_review", "active", "paused", "rejected"],
       agent_status: ["draft", "active", "paused", "archived"],
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "owner", "manager", "designer"],
       creator_type: ["seller", "builder", "organization", "learner"],
       kyc_status: ["pending", "submitted", "approved", "rejected"],
       login_mode: ["disabled", "optional", "required"],
