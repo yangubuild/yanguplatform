@@ -5,7 +5,7 @@ export function MassHeader() {
   const navigate = useNavigate();
 
   return (
-    <header className="mb-8 lg:overflow-visible -mt-1">
+    <header className="mb-8 lg:overflow-visible">
       {/* Top row - Buttons aligned right */}
       <div className="flex items-center justify-end gap-3">
         <button 
