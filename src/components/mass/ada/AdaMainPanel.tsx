@@ -11,6 +11,7 @@ import { generateCreatifyVideo } from "@/lib/ai/creatify";
 import { consumeEntitlement } from "@/lib/entitlements";
 import { useNavigate } from "react-router-dom";
 import { MediaGenerationCard, type MediaGenStatus } from "./MediaGenerationCard";
+import { AdaAuthModal } from "./AdaAuthModal";
 
 type AdaMode = "auto" | "standard" | "cinema" | "motion";
 type AdaSkill = "starter" | "creator" | "agency";
@@ -249,9 +250,10 @@ export function AdaMainPanel() {
   // Guest gate: track if the 1 free message has been used
   const [guestUsed, setGuestUsed] = useState(() => localStorage.getItem(GUEST_USED_KEY) === "true");
 
+  // In-place auth modal instead of redirect
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const requireAuth = useCallback(() => {
-    const returnTo = encodeURIComponent(window.location.href);
-    window.location.href = `https://yangu.io/auth/login?returnTo=${returnTo}`;
+    setShowAuthModal(true);
   }, []);
   const [voiceText, setVoiceText] = useState("");
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
@@ -579,25 +581,36 @@ export function AdaMainPanel() {
 
   // --- Image generation with progress card ---
   const handleImageGenerate = useCallback(async (prompt: string, cid: string, provider: "ideogram" | "qwen" = "ideogram") => {
-    // Skip entitlement for guests (their free message is already gated in handleSend)
-    if (isAuthenticated) {
-      const ent = await consumeEntitlement("image");
-      if (!ent.allowed) {
-        toast({
-          title: ent.error || "You've reached your monthly limit. Upgrade to continue.",
-          variant: "destructive",
-          description: "Go to /subscriptions to upgrade your plan.",
-        });
-        const errMsg: ChatMessage = {
-          id: `msg_${Date.now()}`,
-          role: "assistant",
-          content: `⚠️ ${ent.error || "Monthly image limit reached."} [Upgrade your plan](/subscriptions) to continue generating.`,
-          created_at: new Date().toISOString(),
-        };
-        setMessages(prev => [...prev, errMsg]);
-        await persistMessage(cid, errMsg);
-        return;
-      }
+    // Guests cannot generate images (RPC requires auth) — gate them
+    if (!isAuthenticated) {
+      const gateMsg: ChatMessage = {
+        id: `msg_${Date.now()}`,
+        role: "assistant",
+        content: "✨ To generate images, please sign in or create a free account. It only takes a moment!",
+        created_at: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, gateMsg]);
+      await persistMessage(cid, gateMsg);
+      requireAuth();
+      return;
+    }
+
+    const ent = await consumeEntitlement("image");
+    if (!ent.allowed) {
+      toast({
+        title: ent.error || "You've reached your monthly limit. Upgrade to continue.",
+        variant: "destructive",
+        description: "Go to /subscriptions to upgrade your plan.",
+      });
+      const errMsg: ChatMessage = {
+        id: `msg_${Date.now()}`,
+        role: "assistant",
+        content: `⚠️ ${ent.error || "Monthly image limit reached."} [Upgrade your plan](/subscriptions) to continue generating.`,
+        created_at: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, errMsg]);
+      await persistMessage(cid, errMsg);
+      return;
     }
 
     // Insert media generation card
@@ -666,7 +679,7 @@ export function AdaMainPanel() {
         mediaGen: { ...m.mediaGen!, status: "error" as MediaGenStatus, error: "Image generation failed. Please try again." },
       } : m));
     }
-  }, [persistMessage, isAuthenticated]);
+  }, [persistMessage, isAuthenticated, requireAuth]);
 
   // --- Video generation with progress card ---
   const handleVideoGenerate = useCallback(async (prompt: string, cid: string) => {
@@ -1068,11 +1081,11 @@ export function AdaMainPanel() {
   // --- Attachments ---
   const handleAttachClick = useCallback(() => {
     if (!isAuthenticated) {
-      toast({ title: "Login to use files", variant: "destructive" });
+      requireAuth();
       return;
     }
     fileInputRef.current?.click();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, requireAuth]);
 
   const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -1102,7 +1115,7 @@ export function AdaMainPanel() {
   // --- Voice mode ---
   const startVoice = () => {
     if (!isAuthenticated) {
-      toast({ title: "Login to use voice", variant: "destructive" });
+      requireAuth();
       return;
     }
     setMode("voice");
@@ -2055,6 +2068,17 @@ export function AdaMainPanel() {
           </div>
         </div>
       )}
+
+      {/* In-place auth modal */}
+      <AdaAuthModal
+        open={showAuthModal}
+        onOpenChange={setShowAuthModal}
+        onSuccess={() => {
+          // Clear guest gate so user can continue
+          localStorage.removeItem(GUEST_USED_KEY);
+          setGuestUsed(false);
+        }}
+      />
     </main>
   );
 }
