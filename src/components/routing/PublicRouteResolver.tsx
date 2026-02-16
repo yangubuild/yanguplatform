@@ -1,9 +1,13 @@
 import { useEffect, useState, ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { resolveRoute, isDevEnvironment, normalizeHostname, type ResolvedRoute, type RouteDebugInfo } from "@/lib/routing/resolveRoute";
+import { resolveAppMode } from "@/lib/routing/appMode";
 import { DomainHome } from "./DomainHome";
 import Index from "@/pages/Index";
 import Community from "@/pages/Community";
+import { StudioLanding } from "./StudioLanding";
+import { LiveLanding } from "./LiveLanding";
+import { PublishContainerLanding } from "./PublishContainerLanding";
 import { IdentityHub } from "./IdentityHub";
 import { SurfaceViewer } from "./SurfaceViewer";
 import NotFound from "@/pages/NotFound";
@@ -13,15 +17,7 @@ interface PublicRouteResolverProps {
   children: ReactNode;
 }
 
-// Non-primary platform domains that redirect root "/" to yangu.io
-// yangu.community is excluded — it renders its own Community homepage
-const REDIRECT_DOMAINS = new Set([
-  "yangu.site",
-  "yangu.shop",
-  "yangu.store",
-  "yangu.live",
-  "yangu.studio",
-]);
+// Removed REDIRECT_DOMAINS — root path behavior is now handled by resolveAppMode()
 
 // Routes that should always use internal React Router handling
 const INTERNAL_ROUTES = [
@@ -103,6 +99,7 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
   const [debugInfo, setDebugInfo] = useState<RouteDebugInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [shouldUseInternalRouting, setShouldUseInternalRouting] = useState(false);
+  const [appModeResult, setAppModeResult] = useState<ReturnType<typeof resolveAppMode>>(null);
 
   useEffect(() => {
     async function resolve() {
@@ -121,10 +118,11 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
         return;
       }
 
-      // Redirect non-primary domain roots to yangu.io
-      const hostname = normalizeHostname(window.location.hostname);
-      if (path === "/" && REDIRECT_DOMAINS.has(hostname)) {
-        window.location.replace("https://yangu.io");
+      // Enterprise domain mode switch for root path
+      const appMode = resolveAppMode(window.location.hostname);
+      if (path === "/" && appMode && appMode !== "platform") {
+        setAppModeResult(appMode);
+        setIsLoading(false);
         return;
       }
 
@@ -174,6 +172,22 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
   // 3. Unknown hosts (localhost, preview domains)
   if (shouldUseInternalRouting) {
     return <>{children}</>;
+  }
+
+  // Enterprise domain mode: render root landing based on appMode
+  if (appModeResult) {
+    const modeContent: Record<string, ReactNode> = {
+      community: <Community />,
+      studio: <StudioLanding />,
+      live: <LiveLanding />,
+      publish_container: <PublishContainerLanding />,
+    };
+    return (
+      <>
+        {modeContent[appModeResult] ?? <NotFound />}
+        {import.meta.env.DEV && <RouteDebugBar debug={debugInfo} route={null} />}
+      </>
+    );
   }
 
   // *** CRITICAL: From here on, we are on a PRODUCTION PLATFORM DOMAIN ***
