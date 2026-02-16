@@ -126,12 +126,12 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
         </button>
 
         {/* Logo */}
-        <div className="p-5 pb-6">
+        <div className="p-5 pb-6 pl-7">
           <img src={yanguLogo} alt="Yangu" className="h-12 w-auto" />
         </div>
 
         {/* Navigation */}
-        <nav className="px-3 overflow-y-auto">
+        <nav className="px-5 overflow-y-auto">
           {/* Top nav group */}
           {topNavItems.map(renderNavItem)}
           
