@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const lovableApiKey = Deno.env.get("LOVABLE_API_KEY") || "";
+    const aiKey = Deno.env.get("YANGU_AI_KEY") || Deno.env.get("LOVABLE_API_KEY") || "";
     const supabase = createClient(supabaseUrl, serviceKey);
 
     // Try sitemap first, fallback to research page
@@ -171,8 +171,8 @@ Deno.serve(async (req) => {
       if (!title) continue;
 
       // Generate cover image
-      if (lovableApiKey) {
-        const imageBytes = await generateCoverImage(title, lovableApiKey);
+      if (aiKey) {
+        const imageBytes = await generateCoverImage(title, aiKey);
         if (imageBytes) {
           const slug = entry.url.split("/").pop() || "cover";
           const storagePath = `covers/${slug}-${Date.now()}.png`;
@@ -216,7 +216,7 @@ Deno.serve(async (req) => {
 
     // For existing rows with null image_url, generate images now
     let backfilled = 0;
-    if (lovableApiKey) {
+    if (aiKey) {
       const { data: noImage } = await supabase
         .from("external_publications")
         .select("id, title, url")
@@ -225,7 +225,7 @@ Deno.serve(async (req) => {
         .limit(10);
 
       for (const row of noImage || []) {
-        const imageBytes = await generateCoverImage(row.title, lovableApiKey);
+        const imageBytes = await generateCoverImage(row.title, aiKey);
         if (imageBytes) {
           const slug = row.url.split("/").pop() || "cover";
           const storagePath = `covers/${slug}-${Date.now()}.png`;

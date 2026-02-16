@@ -15,9 +15,9 @@ serve(async (req) => {
 
   try {
     const { messages, intent, search_context, stream: wantStream } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      return new Response(JSON.stringify({ error: "LOVABLE_API_KEY is not configured" }), {
+    const AI_KEY = Deno.env.get("YANGU_AI_KEY") || Deno.env.get("LOVABLE_API_KEY");
+    if (!AI_KEY) {
+      return new Response(JSON.stringify({ error: "AI gateway key is not configured" }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -51,7 +51,7 @@ IMPORTANT: Never output any internal reasoning, thoughts, or system messages. On
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${AI_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({

@@ -110,6 +110,7 @@ export async function resolveRoute(
  */
 export function isDevEnvironment(): boolean {
   const host = window.location.host;
+  // Preview and local development patterns
   const devPatterns = [
     /localhost/,
     /127\.0\.0\.1/,
