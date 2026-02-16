@@ -130,6 +130,26 @@ export default function ManageTeam() {
         return;
       }
 
+      // Send invite email via edge function
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-invite-email`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${session?.access_token}`,
+              apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            },
+            body: JSON.stringify({ email: trimmed, role }),
+          }
+        );
+      } catch (emailErr) {
+        console.error("Failed to send invite email:", emailErr);
+        // Don't block the invite if email fails
+      }
+
       toast.success(`Invite sent to ${trimmed} as ${role}`);
       setEmail("");
       fetchInvites();
