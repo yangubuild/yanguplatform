@@ -39,6 +39,8 @@ const AdaAi = lazy(() => import("./pages/AdaAi"));
 const WhyYangu = lazy(() => import("./pages/WhyYangu"));
 const DiscoverYangu = lazy(() => import("./pages/DiscoverYangu"));
 const Blog = lazy(() => import("./pages/Blog"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Terms = lazy(() => import("./pages/Terms"));
 
 const ManageDashboard = lazy(() => import("./pages/manage/ManageDashboard"));
 const ManagePlaceholder = lazy(() => import("./pages/manage/ManagePlaceholder"));
@@ -99,6 +101,8 @@ const App = () => (
                 <Route path="/discover" element={<DiscoverYangu />} />
                 <Route path="/discover-yangu" element={<DiscoverYangu />} />
                 <Route path="/blog" element={<Blog />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/terms" element={<Terms />} />
                 
                 {/* Owner preview route - requires auth + ownership */}
                 <Route path="/s/:id/preview" element={<SurfacePreview />} />
