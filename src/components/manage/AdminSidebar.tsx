@@ -1,7 +1,9 @@
 import { NavLink } from "@/components/NavLink";
 import { useRoles } from "@/hooks/useRoles";
+import { useAuth } from "@/hooks/useAuth";
 import { adminNavGroups } from "./adminNavConfig";
 import yanguYIcon from "@/assets/yangu-y-icon.png";
+import { Shield, Crown, UserCog, Paintbrush } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -12,8 +14,25 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
+const ROLE_DISPLAY: Record<string, { label: string; icon: typeof Shield }> = {
+  owner:    { label: "Owner",    icon: Crown },
+  admin:    { label: "Admin",    icon: Shield },
+  manager:  { label: "Manager",  icon: UserCog },
+  designer: { label: "Designer", icon: Paintbrush },
+};
+
+/** Returns the highest-priority role for display */
+function primaryRole(manageRoles: string[]): { label: string; icon: typeof Shield } | null {
+  for (const key of ["owner", "admin", "manager", "designer"] as const) {
+    if (manageRoles.includes(key)) return ROLE_DISPLAY[key];
+  }
+  return null;
+}
+
 export function AdminSidebar() {
   const { manageRoles, isAdmin } = useRoles();
+  const { profile } = useAuth();
+  const badge = primaryRole(manageRoles);
 
   return (
     <Sidebar className="admin-glass-sidebar border-r-0">
@@ -30,6 +49,23 @@ export function AdminSidebar() {
             </span>
           </div>
         </div>
+
+        {/* Role badge */}
+        {badge && (
+          <div className="px-4 pb-3 mb-1">
+            <div className="flex items-center gap-2 rounded-md bg-[hsl(var(--admin-accent)/0.12)] px-2.5 py-1.5">
+              <badge.icon className="h-3.5 w-3.5 text-[hsl(var(--admin-accent))]" />
+              <span className="text-xs font-medium text-[hsl(var(--admin-accent))]">
+                {badge.label}
+              </span>
+              {profile?.display_name && (
+                <span className="ml-auto text-[10px] text-[hsl(var(--admin-text)/0.5)] truncate max-w-[80px]">
+                  {profile.display_name}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
 
         {adminNavGroups.map((group) => {
           const visibleItems = group.items.filter((item) => {
