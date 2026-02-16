@@ -109,6 +109,9 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
   const [appModeResult, setAppModeResult] = useState<ReturnType<typeof resolveAppMode>>(null);
 
   useEffect(() => {
+    // Once internal routing is determined, never re-resolve — prevents white flash on navigation
+    if (shouldUseInternalRouting) return;
+
     async function resolve() {
       const path = location.pathname;
 

@@ -497,6 +497,7 @@
 }
 
 /* Prevent white flash during route transitions — base layer matches landing dark bg */
-html {
+html,
+body {
   background-color: #08120D;
 }
