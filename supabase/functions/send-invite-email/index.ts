@@ -65,6 +65,24 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Look up the pending invite to get token (invite ID)
+    const { data: invite, error: inviteErr } = await adminClient
+      .from("admin_invites")
+      .select("id")
+      .eq("email", email.toLowerCase().trim())
+      .eq("status", "pending")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single();
+
+    if (inviteErr || !invite) {
+      console.error("Could not find pending invite for", email, inviteErr);
+      throw new Error("No pending invite found for this email");
+    }
+
+    const inviteToken = invite.id;
+    const inviteLink = `https://yangu.io/auth/login?invite=${inviteToken}`;
+
     // Send email via Resend
     const resendRes = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -96,7 +114,7 @@ Deno.serve(async (req) => {
       <p style="color:#999;font-size:13px;margin:0 0 16px;">
         Sign up or log in with <strong style="color:#fff;">${email}</strong> and your role will be assigned automatically.
       </p>
-      <a href="https://yangu-launchpad.lovable.app/auth/signup" style="display:inline-block;background:#6366f1;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:500;">
+      <a href="${inviteLink}" style="display:inline-block;background:#6366f1;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:500;">
         Get Started
       </a>
     </div>
