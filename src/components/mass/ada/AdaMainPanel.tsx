@@ -1891,41 +1891,7 @@ export function AdaMainPanel() {
                 </div>
               )}
               <div ref={boxRef} className="relative rounded-2xl">
-                {perim > 0 && (
-                  <>
-                    <svg
-                      className="absolute inset-0 w-full h-full pointer-events-none transition-opacity duration-500"
-                      style={{ opacity: isFocused || inputValue ? 0 : 1 }}
-                    >
-                      <rect
-                        ref={traceRef}
-                        x="0.5" y="0.5"
-                        width={boxSize.w - 1} height={boxSize.h - 1}
-                        rx="16" ry="16"
-                        fill="none"
-                        stroke="#F4A83D"
-                        strokeWidth="2"
-                        style={{ strokeDasharray: `${dashLen} ${gapLen}` }}
-                      />
-                    </svg>
-                    <svg
-                      className="absolute inset-0 w-full h-full pointer-events-none blur-md transition-opacity duration-500"
-                      style={{ opacity: isFocused || inputValue ? 0 : 0.6 }}
-                    >
-                      <rect
-                        ref={glowRef}
-                        x="0.5" y="0.5"
-                        width={boxSize.w - 1} height={boxSize.h - 1}
-                        rx="16" ry="16"
-                        fill="none"
-                        stroke="#F4A83D"
-                        strokeWidth="4"
-                        style={{ strokeDasharray: `${dashLen} ${gapLen}` }}
-                      />
-                    </svg>
-                  </>
-                )}
-                <div className="relative rounded-2xl p-4 transition-colors duration-500" style={{ background: "#050A07", border: isFocused || inputValue ? "1px solid rgba(255,255,255,0.1)" : "1px solid transparent" }}>
+                <div className="relative rounded-2xl p-4 outline-none ring-0" style={{ background: "#050A07", border: "1px solid rgba(255,255,255,0.08)" }}>
                   <textarea
                     ref={textareaRef}
                     value={inputValue}
