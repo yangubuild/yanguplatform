@@ -495,3 +495,8 @@
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+/* Prevent white flash during route transitions — base layer matches landing dark bg */
+html {
+  background-color: #08120D;
+}
