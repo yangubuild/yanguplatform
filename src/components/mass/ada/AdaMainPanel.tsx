@@ -1345,21 +1345,7 @@ export function AdaMainPanel() {
     return () => clearTimeout(timeout);
   }, [wordIndex]);
 
-  // --- Welcome message: shown on first interaction, not on load ---
-  const welcomeShownRef = useRef(false);
-  const showWelcomeMessage = useCallback(() => {
-    if (welcomeShownRef.current || messages.length > 0 || activeChatId) return;
-    welcomeShownRef.current = true;
-    const displayName = profile?.display_name || profile?.username;
-    const greeting = displayName ? `Welcome ${displayName} 👋` : "Welcome 👋";
-    const welcomeMsg: ChatMessage = {
-      id: "welcome_msg",
-      role: "assistant",
-      content: `${greeting} — I'm Ada AI.\n\nI'm your business and creative intelligence assistant inside YANGU.\n\nI help you:\n\n• Generate product images, posters, and videos\n• Create campaigns and social media content\n• Build business ideas, pitches, and product strategies\n• Guide you through YANGU tools and features\n• Find products and opportunities inside the platform\n\nYou can type naturally or use commands like:\n\n\`/image\`\n\`/video\`\n\nLet's build something great together.`,
-      created_at: new Date().toISOString(),
-    };
-    setMessages([welcomeMsg]);
-  }, [messages.length, activeChatId, profile]);
+   // Welcome message removed — info now covered by the 1-4 steps section below
 
   const hasMessages = messages.length > 0;
   const placeholder = intent === "search"
@@ -1804,7 +1790,7 @@ export function AdaMainPanel() {
                   ref={textareaRef}
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  onFocus={() => showWelcomeMessage()}
+                  onFocus={() => {}}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
@@ -1944,7 +1930,7 @@ export function AdaMainPanel() {
                     ref={textareaRef}
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
-                    onFocus={() => { setIsFocused(true); showWelcomeMessage(); }}
+                    onFocus={() => { setIsFocused(true); }}
                     onBlur={() => setIsFocused(false)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && !e.shiftKey) {
