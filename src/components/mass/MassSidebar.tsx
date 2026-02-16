@@ -21,7 +21,7 @@ import adaIcon from "@/assets/ada-icon.png";
 const topNavItems = [
   { icon: Home, label: "Explore", id: "explore" },
   { icon: Info, label: "Discover Yangu", id: "discover" },
-  { icon: Sparkles, label: "Why Yangu", id: "why-yangu", isActive: true },
+  { icon: Sparkles, label: "Why Yangu", id: "why-yangu" },
 ];
 
 const bottomNavItems = [
@@ -40,7 +40,7 @@ interface MassSidebarProps {
 
 export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
   const navigate = useNavigate();
-  const [activeItem, setActiveItem] = useState("why-yangu");
+  const [activeItem, setActiveItem] = useState("explore");
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
   const renderNavItem = (item: { icon: typeof Home | null; customIcon?: string; label: string; id: string; isActive?: boolean }) => {
