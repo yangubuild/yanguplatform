@@ -35,7 +35,7 @@ const KNOWN_DOMAINS: Record<string, DomainType> = {
   "yangu.community": "community",
 };
 
-// Development/preview domain patterns
+// Preview and local development domain patterns
 const DEV_PATTERNS = [
   /localhost/,
   /127\.0\.0\.1/,
