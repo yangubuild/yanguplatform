@@ -11,7 +11,7 @@ import { PublishContainerLanding } from "./PublishContainerLanding";
 import { IdentityHub } from "./IdentityHub";
 import { SurfaceViewer } from "./SurfaceViewer";
 import NotFound from "@/pages/NotFound";
-import { Loader2 } from "lucide-react";
+
 
 interface PublicRouteResolverProps {
   children: ReactNode;
@@ -183,9 +183,7 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
   // Show loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
+      <div className="min-h-screen" style={{ backgroundColor: '#08120D' }} />
     );
   }
 

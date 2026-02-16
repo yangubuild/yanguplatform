@@ -75,7 +75,7 @@ import AgencySupportPage from "./pages/dashboard/AgencySupportPage";
 import MessagesPage from "./pages/dashboard/MessagesPage";
 import { DashboardRoleGate } from "@/components/auth/DashboardRoleGate";
 
-console.log("[Supabase]", import.meta.env.VITE_SUPABASE_URL);
+// Supabase client auto-configured via environment
 
 /**
  * App component - contains all providers EXCEPT QueryClientProvider
