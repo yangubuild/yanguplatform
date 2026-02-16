@@ -44,10 +44,10 @@ export function AdaContentSections() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
-    <div className="lg:ml-[280px]" style={{ background: "#050A07" }}>
+    <div className="lg:ml-[280px]">
 
       {/* ── Section 1: Four Steps ── */}
-      <section className="px-6 py-20 max-w-5xl mx-auto">
+      <section className="px-6 pt-6 pb-16 max-w-5xl mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative">
           {steps.map((s, i) => (
             <div key={s.num} className="flex flex-col items-center text-center relative">
