@@ -4,6 +4,7 @@ import { useTheme } from "@/components/ThemeProvider";
 import { PLATFORM_NAME } from "@/config/platform";
 import { Button } from "@/components/ui/button";
 import { Sun, Moon, ArrowLeft } from "lucide-react";
+import authLogo from "@/assets/yangu-logo-auth.png";
 
 interface AuthShellProps {
   children: ReactNode;
@@ -29,10 +30,7 @@ export function AuthShell({
       {/* Header */}
       <header className="flex items-center justify-between p-4 md:p-6">
         <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent">
-            <span className="text-lg font-bold text-accent-foreground">Y</span>
-          </div>
-          <span className="text-xl font-bold tracking-tight">{PLATFORM_NAME}</span>
+          <img src={authLogo} alt="yangu" className="h-8" />
         </Link>
 
         <Button
@@ -77,7 +75,7 @@ export function AuthShell({
       {/* Footer */}
       <footer className="p-4 text-center text-sm text-muted-foreground">
         <p>
-          &copy; {new Date().getFullYear()} {PLATFORM_NAME}. All rights reserved.
+          &copy; {new Date().getFullYear()} yangu. All rights reserved.
         </p>
       </footer>
     </div>
