@@ -104,6 +104,13 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
   useEffect(() => {
     async function resolve() {
       const path = location.pathname;
+
+      // Community routes must always fall through to React Router on ALL hosts
+      if (path.startsWith("/community")) {
+        setShouldUseInternalRouting(true);
+        setIsLoading(false);
+        return;
+      }
       
       // Check if this is an internal route that should use React Router
       const isInternalRoute = INTERNAL_ROUTES.some((route) => path.startsWith(route));
