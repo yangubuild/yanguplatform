@@ -345,7 +345,46 @@ export default function Onboarding() {
     try {
       // For first-time users, we need to set up their profile
       if (!profile?.onboarding_completed) {
-        // Update profile directly - no creator_type needed
+        // 1) Ensure org + membership exist BEFORE marking onboarding complete
+        const { data: existingMembership } = await supabase
+          .from("org_memberships")
+          .select("org_id")
+          .eq("user_id", user.id)
+          .limit(1)
+          .maybeSingle();
+
+        if (!existingMembership) {
+          console.warn("[Onboarding] No org for non-surface path, auto-creating");
+          const { data: newOrg, error: orgErr } = await supabase
+            .from("orgs")
+            .insert({
+              name: `${savedUsername || "My"}'s Organization`,
+              owner_user_id: user.id,
+            })
+            .select("id")
+            .single();
+
+          if (orgErr || !newOrg) {
+            console.error("Org creation error:", orgErr);
+            toast.error("Failed to create organization. Please try again.");
+            return;
+          }
+
+          const { error: memErr } = await supabase
+            .from("org_memberships")
+            .insert({ org_id: newOrg.id, user_id: user.id, role: "owner" });
+
+          if (memErr) {
+            console.error("Membership error:", memErr);
+            toast.error("Failed to set up organization. Please try again.");
+            return;
+          }
+
+          queryClient.invalidateQueries({ queryKey: ["active-org"] });
+          queryClient.invalidateQueries({ queryKey: ["user-orgs"] });
+        }
+
+        // 2) Only NOW mark onboarding complete (org + membership guaranteed)
         const { error } = await supabase
           .from("profiles")
           .update({
@@ -370,7 +409,7 @@ export default function Onboarding() {
       
       if (pathKey === "studio") {
         toast.success("Welcome to YANGU Studio! Create amazing AI content.");
-        navigate("/dashboard"); // Studio is accessed from dashboard sidebar
+        navigate("/dashboard");
       } else {
         toast.success("Welcome to YANGU! Start exploring.");
         navigate("/dashboard");
@@ -498,13 +537,13 @@ export default function Onboarding() {
         // First-time onboarding: update profile + create surface
         console.log("[Onboarding] First-time onboarding");
         
-        // First update the profile (without creator_type)
+        // First update the profile WITHOUT marking onboarding complete yet
         const { error: profileError } = await supabase
           .from("profiles")
           .update({
             username: savedUsername,
             display_name: savedDisplayName || null,
-            onboarding_completed: true,
+            // DO NOT set onboarding_completed here — wait until org+membership+surface succeed
           })
           .eq("id", user.id);
 
@@ -613,6 +652,18 @@ export default function Onboarding() {
         if (surfaceError) {
           console.error("Surface creation error:", surfaceError);
           toast.error(surfaceError.message || "Failed to create surface");
+          return;
+        }
+
+        // NOW mark onboarding complete — org, membership, and surface all exist
+        const { error: completeError } = await supabase
+          .from("profiles")
+          .update({ onboarding_completed: true })
+          .eq("id", user.id);
+
+        if (completeError) {
+          console.error("Failed to mark onboarding complete:", completeError);
+          toast.error("Setup issue — please try again.");
           return;
         }
 

@@ -500,3 +500,27 @@
 html {
   background-color: #08120D;
 }
+
+/* Remove default browser blue focus outline globally — use theme-appropriate focus styles */
+*:focus {
+  outline: none;
+}
+*:focus-visible {
+  outline: 2px solid hsl(var(--accent) / 0.5);
+  outline-offset: 2px;
+}
+/* Suppress blue outline on nav/dashboard interactive elements */
+button:focus,
+a:focus,
+[role="button"]:focus,
+[tabindex]:focus {
+  outline: none;
+  box-shadow: none;
+}
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid hsl(var(--accent) / 0.4);
+  outline-offset: 2px;
+}
