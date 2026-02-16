@@ -310,16 +310,20 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
               <div className="px-3 pb-3">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="w-full flex items-center gap-2.5 px-2 py-2 outline-none border-none ring-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 active:outline-none">
+                     <button className="w-full flex items-center gap-2.5 px-2 py-2 outline-none border-none ring-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 active:outline-none">
                       <div
                         className="w-8 h-8 rounded-full shrink-0 overflow-hidden flex items-center justify-center"
                         style={{ background: "#2a3038" }}
                       >
-                        <Users className="w-4 h-4" style={{ color: "rgba(255,255,255,0.6)" }} />
+                        {profile?.avatar_url ? (
+                          <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                        ) : (
+                          <Users className="w-4 h-4" style={{ color: "rgba(255,255,255,0.6)" }} />
+                        )}
                       </div>
                       <div className="min-w-0 flex-1 text-left">
                         <p className="text-sm font-semibold text-white leading-tight truncate">
-                          {profile?.display_name || "User"}
+                          {profile?.display_name || profile?.username || "User"}
                         </p>
                         <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.45)" }}>View Profile</p>
                       </div>

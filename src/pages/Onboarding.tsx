@@ -113,6 +113,19 @@ const ONBOARDING_PATHS = {
     creatorType: "builder" as const,
     redirectTo: "/studio",
   },
+  explore: {
+    id: "explore",
+    label: "Just Explore",
+    description: "Browse, discover, join communities, and find inspiration",
+    icon: Eye,
+    domain: "yangu.io",
+    surfaceType: null,
+    color: "text-gray-400",
+    bgColor: "bg-gray-500/10",
+    borderColor: "border-gray-500/50",
+    creatorType: "builder" as const,
+    redirectTo: "/dashboard",
+  },
 } as const;
 
 type OnboardingPathKey = keyof typeof ONBOARDING_PATHS;
@@ -696,7 +709,7 @@ export default function Onboarding() {
       <AuthShell title="What do you want to do?" subtitle="Choose your path - this determines where you'll publish" showBackLink={false}>
         <StepProgress current={2} total={totalSteps} />
         <div className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {Object.entries(ONBOARDING_PATHS).map(([key, path]) => {
               const Icon = path.icon;
               const isSelected = selectedPath === key;
