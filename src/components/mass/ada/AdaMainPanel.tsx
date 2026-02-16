@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { X, Mic, Settings, ChevronDown, Smartphone, Plus, ArrowUp, AudioLines, User, Loader2, Paperclip, Download, RefreshCw, Globe, CloudUpload, Palette, Code2, BarChart3 } from "lucide-react";
+import { X, Mic, Settings, ChevronDown, Smartphone, Plus, ArrowUp, AudioLines, User, Loader2, Paperclip, Download, RefreshCw, Globe, CloudUpload, Palette, Code2, BarChart3, Image, Package, Megaphone, Users, UserCheck, Zap, Layout, Activity } from "lucide-react";
 import adaLogo from "@/assets/ada-logo-full.png";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdaVoice } from "@/hooks/useAdaVoice";
@@ -278,6 +278,55 @@ export function AdaMainPanel() {
     if (isNearBottomRef.current) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
+  }, []);
+
+  // ── Session context memory (resets per session) ──
+  const [sessionGoal, setSessionGoal] = useState<string | null>(null);
+  const [activeTaskLabel, setActiveTaskLabel] = useState<string | null>(null);
+  const [suggestedNextAction, setSuggestedNextAction] = useState<string | null>(null);
+
+  // ── Active Tasks (derived from conversation) ──
+  const [activeTasks, setActiveTasks] = useState<string[]>([]);
+
+  // Detect active tasks from ADA responses
+  const detectActiveTasks = useCallback((content: string) => {
+    const taskPatterns = [
+      { re: /structur(e|ing)\s+(your\s+)?communit/i, label: "Structuring Community" },
+      { re: /design(ing)?\s+(a\s+)?(studio|campaign|visual)/i, label: "Designing Studio Campaign" },
+      { re: /generat(e|ing)\s+(brand|visual|image|asset)/i, label: "Generating Brand Assets" },
+      { re: /plan(ning)?\s+(a\s+)?(creator|product)\s+offer/i, label: "Planning Creator Offer" },
+      { re: /build(ing)?\s+(your\s+)?(brand|business)/i, label: "Building Brand Strategy" },
+      { re: /publish(ing)?\s+(your\s+)?(surface|page|content)/i, label: "Publishing Content" },
+      { re: /optimi(ze|zing)\s+(your\s+)?profile/i, label: "Optimizing Profile" },
+      { re: /creat(e|ing)\s+(a\s+)?product/i, label: "Creating Product" },
+    ];
+    const detected: string[] = [];
+    for (const p of taskPatterns) {
+      if (p.re.test(content)) detected.push(p.label);
+    }
+    if (detected.length > 0) {
+      setActiveTasks(prev => {
+        const merged = [...new Set([...prev, ...detected])].slice(0, 4);
+        return merged;
+      });
+    }
+
+    // Detect session goal from user messages
+    const goalPatterns = [
+      { re: /launch\s+(a\s+)?(creator\s+)?brand/i, goal: "Launch Creator Brand" },
+      { re: /build\s+(my\s+)?community/i, goal: "Build Community" },
+      { re: /grow\s+(my\s+)?(audience|following|business)/i, goal: "Grow Business" },
+      { re: /create\s+(a\s+)?product/i, goal: "Create Product" },
+      { re: /start\s+(a\s+)?campaign/i, goal: "Start Campaign" },
+    ];
+    for (const g of goalPatterns) {
+      if (g.re.test(content)) { setSessionGoal(g.goal); break; }
+    }
+
+    // Detect suggested next actions from ADA responses
+    const nextActionMatch = content.match(/suggested next step:\s*(.+?)(?:\.|$)/i)
+      || content.match(/next,?\s+let'?s\s+(.+?)(?:\.|$)/i);
+    if (nextActionMatch) setSuggestedNextAction(nextActionMatch[1].trim().slice(0, 60));
   }, []);
 
   // Command center states
@@ -567,6 +616,8 @@ export function AdaMainPanel() {
             const finalContent = msg?.content || "I couldn't generate a response. Please try again.";
             // Persist
             persistMessage(cid, { id: msgId, role: "assistant", content: finalContent, created_at: new Date().toISOString() });
+            // Detect active tasks and session context from response
+            detectActiveTasks(finalContent);
             // Call onComplete callback for post-stream action detection
             if (onComplete) onComplete(finalContent);
             return prev.map(m => m.id !== msgId ? m : { ...m, content: finalContent, isStreaming: false });
@@ -899,6 +950,8 @@ export function AdaMainPanel() {
     setInputValue("");
     setPendingAttachments([]);
     await persistMessage(cid, userMsg);
+    // Detect session goal from user message
+    detectActiveTasks(text);
 
     // --- Explicit command routing (highest priority) ---
     if (text.startsWith("/video ")) {
@@ -1141,6 +1194,11 @@ export function AdaMainPanel() {
       setIsThinking(false);
       setPendingAttachments([]);
       setInputValue("");
+      // Reset session context
+      setSessionGoal(null);
+      setActiveTaskLabel(null);
+      setSuggestedNextAction(null);
+      setActiveTasks([]);
     };
     window.addEventListener("ada-new-chat", handler);
     return () => window.removeEventListener("ada-new-chat", handler);
@@ -1939,6 +1997,116 @@ export function AdaMainPanel() {
               </div>
             </div>
           </>
+        )}
+
+        {/* ── Quick Actions Panel ── */}
+        {!hasMessages && (
+          <div className="w-full max-w-2xl mb-4 animate-in fade-in duration-500">
+            <div className="flex flex-wrap gap-2 justify-center">
+              {[
+                { label: "Generate Image", icon: Image, prompt: "/image " },
+                { label: "Plan Product", icon: Package, prompt: "Help me plan and structure a new digital product" },
+                { label: "Create Campaign", icon: Megaphone, prompt: "Help me create a marketing campaign" },
+                { label: "Build Community", icon: Users, prompt: "Help me build and structure my community" },
+                { label: "Optimize Profile", icon: UserCheck, prompt: "Help me optimize my profile and positioning" },
+              ].map((action) => {
+                const Icon = action.icon;
+                return (
+                  <button
+                    key={action.label}
+                    onClick={() => {
+                      setInputValue(action.prompt);
+                      textareaRef.current?.focus();
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/50 hover:text-[#F4A83D] transition-all duration-200 hover:scale-[1.03]"
+                    style={{
+                      background: "rgba(255,255,255,0.03)",
+                      border: "1px solid rgba(255,255,255,0.07)",
+                    }}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    {action.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ── Connected Modules Panel ── */}
+        {!hasMessages && (
+          <div className="w-full max-w-2xl mb-4 animate-in fade-in duration-700 delay-150">
+            <div className="flex flex-wrap gap-2 justify-center">
+              {[
+                { label: "Studio", connected: true },
+                { label: "Community", connected: true },
+                { label: "Dashboard", connected: true },
+                { label: "Live", connected: false },
+              ].map((mod) => (
+                <span
+                  key={mod.label}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium"
+                  style={{
+                    color: mod.connected ? "rgba(244,168,61,0.7)" : "rgba(255,255,255,0.25)",
+                    background: mod.connected ? "rgba(244,168,61,0.06)" : "rgba(255,255,255,0.02)",
+                    border: `1px solid ${mod.connected ? "rgba(244,168,61,0.12)" : "rgba(255,255,255,0.05)"}`,
+                  }}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${mod.connected ? "bg-[#F4A83D]/60" : "bg-white/15"}`} />
+                  {mod.connected ? "Connected" : "Coming"} • {mod.label}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Active Tasks Panel (appears during conversation) ── */}
+        {hasMessages && activeTasks.length > 0 && (
+          <div className="w-full max-w-2xl mb-3 animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <div className="flex items-center gap-2 mb-2">
+              <Activity className="w-3.5 h-3.5 text-[#F4A83D]/60" />
+              <span className="text-[10px] uppercase tracking-wider text-white/30 font-medium">Active Tasks</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {activeTasks.map((task, i) => (
+                <span
+                  key={i}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs text-white/60 animate-in fade-in duration-300"
+                  style={{
+                    background: "rgba(244,168,61,0.04)",
+                    border: "1px solid rgba(244,168,61,0.1)",
+                    animationDelay: `${i * 100}ms`,
+                  }}
+                >
+                  <Zap className="w-3 h-3 text-[#F4A83D]/50" />
+                  {task}
+                </span>
+              ))}
+            </div>
+            {sessionGoal && (
+              <p className="text-[10px] text-white/25 mt-2 flex items-center gap-1">
+                <span className="w-1 h-1 rounded-full bg-[#F4A83D]/40" />
+                Session goal: {sessionGoal}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* ── Suggested Next Action (during conversation) ── */}
+        {hasMessages && suggestedNextAction && (
+          <div className="w-full max-w-2xl mb-2 animate-in fade-in duration-300">
+            <button
+              onClick={() => {
+                setInputValue(suggestedNextAction);
+                textareaRef.current?.focus();
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-[#F4A83D]/70 hover:text-[#F4A83D] transition-all"
+              style={{ background: "rgba(244,168,61,0.05)", border: "1px solid rgba(244,168,61,0.1)" }}
+            >
+              <Zap className="w-3 h-3" />
+              💡 {suggestedNextAction}
+            </button>
+          </div>
         )}
 
         {/* Disclaimer */}
