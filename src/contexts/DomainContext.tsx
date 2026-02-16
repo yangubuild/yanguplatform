@@ -36,11 +36,14 @@ const KNOWN_DOMAINS: Record<string, DomainType> = {
 };
 
 // Preview and local development domain patterns
-const DEV_PATTERNS = [
+const DEV_PATTERNS: RegExp[] = [
   /localhost/,
   /127\.0\.0\.1/,
-  /\.lovable\.app$/,
-  /\.lovableproject\.com$/,
+  // Preview host patterns are only included in dev builds
+  // so the literal strings are tree-shaken from production bundles
+  ...(import.meta.env.DEV
+    ? [/\.lovable\.app$/, /\.lovableproject\.com$/]
+    : []),
 ];
 
 const DomainContext = createContext<DomainContextState | null>(null);
