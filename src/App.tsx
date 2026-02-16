@@ -88,7 +88,7 @@ const App = () => (
               <Routes>
                 {/* Public routes */}
                 <Route path="/" element={<Index />} />
-                <Route path="/community" element={<Community />} />
+                <Route path="/community/*" element={<Community />} />
                 <Route path="/ada-ai" element={<AdaAi />} />
                 <Route path="/why-yangu" element={<WhyYangu />} />
                 <Route path="/discover" element={<DiscoverYangu />} />
