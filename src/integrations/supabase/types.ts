@@ -159,6 +159,36 @@ export type Database = {
           },
         ]
       }
+      admin_invites: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          email: string
+          id: string
+          invited_by: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          status: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          invited_by?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          status?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          invited_by?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          status?: string
+        }
+        Relationships: []
+      }
       admin_overrides: {
         Row: {
           created_at: string | null
@@ -1712,6 +1742,7 @@ export type Database = {
           reasons: string[]
         }[]
       }
+      accept_pending_invite: { Args: never; Returns: undefined }
       add_credits: {
         Args: {
           _amount: number
@@ -1969,6 +2000,14 @@ export type Database = {
         Returns: undefined
       }
       resolve_route: { Args: { p_host: string; p_path: string }; Returns: Json }
+      revoke_admin_invite: { Args: { p_invite_id: string }; Returns: undefined }
+      send_admin_invite: {
+        Args: {
+          p_email: string
+          p_role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: string
+      }
       set_generation_status: {
         Args: {
           p_error?: string
