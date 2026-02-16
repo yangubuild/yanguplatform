@@ -39,8 +39,8 @@ const AdaAi = lazy(() => import("./pages/AdaAi"));
 const WhyYangu = lazy(() => import("./pages/WhyYangu"));
 const DiscoverYangu = lazy(() => import("./pages/DiscoverYangu"));
 const Blog = lazy(() => import("./pages/Blog"));
-const Privacy = lazy(() => import("./pages/Privacy"));
-const Terms = lazy(() => import("./pages/Terms"));
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 
 const ManageDashboard = lazy(() => import("./pages/manage/ManageDashboard"));
 const ManagePlaceholder = lazy(() => import("./pages/manage/ManagePlaceholder"));
