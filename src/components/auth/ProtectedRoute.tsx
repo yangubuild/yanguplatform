@@ -42,6 +42,11 @@ export function ProtectedRoute({ children, requireOnboarding = true }: Protected
     if (!activeOrg) {
       return <Navigate to="/onboarding" replace />;
     }
+
+    // Block if missing country or business_name
+    if (!(profile as any)?.country || !(profile as any)?.business_name) {
+      return <Navigate to="/onboarding" replace />;
+    }
   }
 
   return <>{children}</>;
