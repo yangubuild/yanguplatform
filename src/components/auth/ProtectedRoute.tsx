@@ -10,7 +10,7 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children, requireOnboarding = true }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading, needsOnboarding } = useAuth();
+  const { isAuthenticated, isLoading, needsOnboarding, profile } = useAuth();
   const { data: activeOrg, isLoading: orgLoading } = useActiveOrg();
   const location = useLocation();
 
@@ -27,13 +27,21 @@ export function ProtectedRoute({ children, requireOnboarding = true }: Protected
     return <Navigate to={loginUrl} replace />;
   }
 
-  if (requireOnboarding && needsOnboarding) {
-    return <Navigate to="/onboarding" replace />;
-  }
+  if (requireOnboarding) {
+    // Block if onboarding not completed
+    if (needsOnboarding) {
+      return <Navigate to="/onboarding" replace />;
+    }
 
-  // Guard: if dashboard requires org+membership, redirect to onboarding if missing
-  if (requireOnboarding && !activeOrg) {
-    return <Navigate to="/onboarding" replace />;
+    // Block if no username set
+    if (!profile?.username) {
+      return <Navigate to="/onboarding" replace />;
+    }
+
+    // Block if no org/membership exists
+    if (!activeOrg) {
+      return <Navigate to="/onboarding" replace />;
+    }
   }
 
   return <>{children}</>;

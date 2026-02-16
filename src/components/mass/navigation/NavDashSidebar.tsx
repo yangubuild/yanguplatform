@@ -296,7 +296,7 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
                 >
                   <p className="text-sm font-bold mb-0.5 text-white">Upgrade your plan</p>
                   <p className="text-[11px] leading-snug mb-3" style={{ color: "rgba(255,255,255,0.55)" }}>
-                    40% fewer restrictions, better rates! Use code "SECRET" when you upgrade.
+                    40% fewer restrictions, better rates!
                   </p>
                   <button
                     onClick={() => navigate("/dashboard/profile/subscription")}

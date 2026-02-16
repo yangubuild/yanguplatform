@@ -1,35 +1,41 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { getReturnToFromParams } from "@/lib/routing/identityRedirect";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function AuthCallback() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const returnTo = getReturnToFromParams(searchParams);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     const handleCallback = async () => {
       try {
+        // First, exchange the code/hash for a session (handles OAuth + magic link)
         const { data: { session }, error } = await supabase.auth.getSession();
 
         if (error) {
           console.error("Auth callback error:", error);
-          navigate("/auth/login");
+          setErrorMsg(error.message || "Authentication failed");
+          toast.error("Sign in failed. Please try again.");
+          setTimeout(() => navigate("/auth/login"), 2000);
           return;
         }
 
         if (session?.user) {
-          // Check if user needs onboarding
+          // Check profile + username + onboarding status
           const { data: profile } = await supabase
             .from("profiles")
-            .select("onboarding_completed")
+            .select("onboarding_completed, username")
             .eq("id", session.user.id)
             .single();
 
-          if (profile && !profile.onboarding_completed) {
+          // If no profile, no username, or onboarding incomplete → onboarding
+          if (!profile || !profile.onboarding_completed || !profile.username) {
             navigate("/onboarding");
           } else if (returnTo) {
             window.location.href = returnTo;
@@ -37,25 +43,33 @@ export default function AuthCallback() {
             navigate("/dashboard");
           }
         } else {
-          navigate("/auth/login");
+          setErrorMsg("No session found. Please sign in again.");
+          toast.error("No session found. Please sign in again.");
+          setTimeout(() => navigate("/auth/login"), 2000);
         }
       } catch (err) {
         console.error("Auth callback failed:", err);
-        navigate("/auth/login");
+        setErrorMsg("An unexpected error occurred");
+        toast.error("Authentication failed. Redirecting...");
+        setTimeout(() => navigate("/auth/login"), 2000);
       }
     };
 
     handleCallback();
-  }, [navigate]);
+  }, [navigate, returnTo]);
 
   return (
     <AuthShell
-      title="Signing you in..."
-      subtitle="Please wait while we complete your authentication"
+      title={errorMsg ? "Sign in failed" : "Signing you in..."}
+      subtitle={errorMsg || "Please wait while we complete your authentication"}
       showBackLink={false}
     >
       <div className="flex justify-center py-8">
-        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+        {errorMsg ? (
+          <p className="text-sm text-destructive text-center">{errorMsg}</p>
+        ) : (
+          <Loader2 className="h-8 w-8 animate-spin text-accent" />
+        )}
       </div>
     </AuthShell>
   );
