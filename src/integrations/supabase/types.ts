@@ -656,6 +656,42 @@ export type Database = {
           },
         ]
       }
+      connected_accounts: {
+        Row: {
+          access_token: string | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          provider: string
+          provider_user_id: string | null
+          refresh_token: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          provider: string
+          provider_user_id?: string | null
+          refresh_token?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          provider?: string
+          provider_user_id?: string | null
+          refresh_token?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       creatify_templates: {
         Row: {
           aspect_ratio: string | null
@@ -1727,7 +1763,36 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      connected_accounts_safe: {
+        Row: {
+          created_at: string | null
+          expires_at: string | null
+          id: string | null
+          provider: string | null
+          provider_user_id: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string | null
+          provider?: string | null
+          provider_user_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string | null
+          provider?: string | null
+          provider_user_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       _evaluate_publish_eligibility_internal: {
