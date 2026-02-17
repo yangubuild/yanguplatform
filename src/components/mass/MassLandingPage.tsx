@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Menu } from "lucide-react";
-import { PageShell, PageContent } from "@/components/primitives/PageShell";
 import { MassSidebar } from "./MassSidebar";
 import { MassHeader } from "./MassHeader";
 import { MassHero } from "./MassHero";
@@ -21,7 +20,12 @@ export function MassLandingPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen" style={{ background: '#08120D' }}>
+    <div 
+      className="min-h-screen"
+      style={{
+        background: '#08120D',
+      }}
+    >
       {/* Mobile menu button */}
       <button
         onClick={() => setSidebarOpen(true)}
@@ -35,21 +39,19 @@ export function MassLandingPage() {
 
       {/* Main Content */}
       <main className="lg:ml-[240px] min-h-screen">
-        <PageShell>
-          <PageContent>
-            <MassHeader />
-            <MassHero />
-            <MassSearchBar />
-            
-            <MassResourceSection title="Featured" resources={featuredResources} />
-            <MassResourceSection title="Inspiration" resources={inspirationResources} />
-            <MassResourceSection title="No Code" resources={noCodeResources} />
-            <MassResourceSection title="Templates" resources={templatesResources} />
-            <MassResourceSection title="Ai" resources={aiResources} />
-            <MassResourceSection title="Typography" resources={typographyResources} />
-            <MassResourceSection title="Design Tools" resources={designToolsResources} />
-          </PageContent>
-        </PageShell>
+        <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-10 py-6 pt-16 lg:pt-8">
+          <MassHeader />
+          <MassHero />
+          <MassSearchBar />
+          
+          <MassResourceSection title="Featured" resources={featuredResources} />
+          <MassResourceSection title="Inspiration" resources={inspirationResources} />
+          <MassResourceSection title="No Code" resources={noCodeResources} />
+          <MassResourceSection title="Templates" resources={templatesResources} />
+          <MassResourceSection title="Ai" resources={aiResources} />
+          <MassResourceSection title="Typography" resources={typographyResources} />
+          <MassResourceSection title="Design Tools" resources={designToolsResources} />
+        </div>
 
         {/* Copyright Footer */}
         <footer className="py-8 text-center">

@@ -12,7 +12,6 @@ import { useCommunitySection, type CommunitySectionItem } from "@/hooks/useCommu
 import { useCommunityListings } from "@/hooks/useCommunityListings";
 import type { CommunityItem } from "./communityData";
 import { useState } from "react";
-import { PageShell, PageHeader, PageContent } from "@/components/primitives/PageShell";
 
 function mapToItem(l: CommunitySectionItem): CommunityItem {
   return {
@@ -87,79 +86,73 @@ function CommunityPageInner() {
     businessItems.length === 0;
 
   return (
-    <PageShell
+    <div
+      className="min-h-screen transition-colors duration-300"
       style={{
         backgroundColor: colors.bg,
         fontFamily: "'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
       }}
     >
-      <PageHeader>
-        <div className="w-full">
-          <CommunityTopBar />
+      <CommunityTopBar />
+      <CommunityHero />
+      <CommunityFilterBar onFilterChange={setActiveFilter} />
+
+      {isLoading ? (
+        <div className="flex justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin" style={{ color: colors.text }} />
         </div>
-      </PageHeader>
-
-      <PageContent>
-        <CommunityHero />
-        <CommunityFilterBar onFilterChange={setActiveFilter} />
-
-        {isLoading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin" style={{ color: colors.text }} />
+      ) : isExplore ? (
+        allExploreEmpty ? (
+          <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
+            <p className="text-[15px] font-medium" style={{ color: colors.text }}>No listings yet</p>
+            <p className="mt-1 text-[13px]" style={{ color: colors.descText }}>
+              Communities listed on Yangu will appear here.
+            </p>
           </div>
-        ) : isExplore ? (
-          allExploreEmpty ? (
-            <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-              <p className="text-[15px] font-medium" style={{ color: colors.text }}>No listings yet</p>
-              <p className="mt-1 text-[13px]" style={{ color: colors.descText }}>
-                Communities listed on Yangu will appear here.
-              </p>
-            </div>
-          ) : (
-            <>
-              <CommunitySection
-                title="Trending"
-                items={trendingItems}
-                linkMap={trendingLinks}
-                seeAllHref="/community/see-all?section=trending"
-              />
-              <CreatorSpotlight />
-              <CommunitySection
-                title="Popular"
-                items={popularItems}
-                linkMap={popularLinks}
-                seeAllHref="/community/see-all?section=popular"
-              />
-              <SubscribeCta />
-              <CommunitySection
-                title="Be more productive"
-                items={productiveItems}
-                linkMap={productiveLinks}
-                seeAllHref="/community/see-all?section=category&category_key=be_more_productive"
-              />
-              <CommunitySection
-                title="Start and scale my business"
-                items={businessItems}
-                linkMap={businessLinks}
-                seeAllHref="/community/see-all?section=category&category_key=start_scale_business"
-              />
-              <BottomCta />
-              <CommunityFooter />
-            </>
-          )
         ) : (
           <>
-            {filteredItems.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-                <p className="text-[15px] font-medium" style={{ color: colors.text }}>No listings in this category</p>
-              </div>
-            ) : (
-              <CommunitySection title={activeFilter} items={filteredItems} showSeeAll={false} linkMap={filteredLinks} />
-            )}
+            <CommunitySection
+              title="Trending"
+              items={trendingItems}
+              linkMap={trendingLinks}
+              seeAllHref="/community/see-all?section=trending"
+            />
+            <CreatorSpotlight />
+            <CommunitySection
+              title="Popular"
+              items={popularItems}
+              linkMap={popularLinks}
+              seeAllHref="/community/see-all?section=popular"
+            />
+            <SubscribeCta />
+            <CommunitySection
+              title="Be more productive"
+              items={productiveItems}
+              linkMap={productiveLinks}
+              seeAllHref="/community/see-all?section=category&category_key=be_more_productive"
+            />
+            <CommunitySection
+              title="Start and scale my business"
+              items={businessItems}
+              linkMap={businessLinks}
+              seeAllHref="/community/see-all?section=category&category_key=start_scale_business"
+            />
+            <BottomCta />
             <CommunityFooter />
           </>
-        )}
-      </PageContent>
+        )
+      ) : (
+        <>
+          {filteredItems.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
+              <p className="text-[15px] font-medium" style={{ color: colors.text }}>No listings in this category</p>
+            </div>
+          ) : (
+            <CommunitySection title={activeFilter} items={filteredItems} showSeeAll={false} linkMap={filteredLinks} />
+          )}
+          <CommunityFooter />
+        </>
+      )}
 
       <button
         onClick={toggle}
@@ -172,7 +165,7 @@ function CommunityPageInner() {
       >
         {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
       </button>
-    </PageShell>
+    </div>
   );
 }
 

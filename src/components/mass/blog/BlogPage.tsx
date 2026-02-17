@@ -1,5 +1,4 @@
 import { useState, useCallback } from "react";
-import { PageShell, PageContent } from "@/components/primitives/PageShell";
 import { BlogHeader } from "./BlogHeader";
 import { BlogHero } from "./BlogHero";
 import { BlogStampStrip } from "./BlogStampStrip";
@@ -41,91 +40,89 @@ export function BlogPage() {
   const openSubscribe = useCallback(() => setShowModal(true), []);
 
   return (
-    <PageShell style={{ background: "#08120D", color: "#FFFFFF", fontFamily: "'Lufga', sans-serif" }}>
-      <PageContent>
-        <BlogHeader onSubscribeClick={openSubscribe} />
-        <BlogHero onSubscribeClick={openSubscribe} />
-        <BlogStampStrip />
+    <div className="min-h-screen" style={{ background: "#08120D", color: "#FFFFFF", fontFamily: "'Lufga', sans-serif" }}>
+      <BlogHeader onSubscribeClick={openSubscribe} />
+      <BlogHero onSubscribeClick={openSubscribe} />
+      <BlogStampStrip />
 
-        {/* Source label */}
-        <div className="px-6">
-          <div className="mx-auto" style={{ maxWidth: 1100 }}>
-            <p className="text-xs uppercase tracking-widest mt-2 mb-4" style={{ color: "rgba(255,255,255,0.35)", letterSpacing: "0.12em" }}>
-              Anthropic AI Research Publication
-            </p>
-          </div>
+      {/* Source label */}
+      <div className="px-6">
+        <div className="mx-auto" style={{ maxWidth: 1100 }}>
+          <p className="text-xs uppercase tracking-widest mt-2 mb-4" style={{ color: "rgba(255,255,255,0.35)", letterSpacing: "0.12em" }}>
+            Anthropic AI Research Publication
+          </p>
         </div>
+      </div>
 
-        {/* Divider */}
-        <div className="px-6">
-          <div className="mx-auto" style={{ maxWidth: 1100, height: 1, background: "rgba(255,255,255,0.1)" }} />
+      {/* Divider */}
+      <div className="px-6">
+        <div className="mx-auto" style={{ maxWidth: 1100, height: 1, background: "rgba(255,255,255,0.1)" }} />
+      </div>
+
+      <BlogFeaturedGrid />
+
+      {/* Divider above products */}
+      <div className="px-6">
+        <div className="mx-auto" style={{ maxWidth: 1100, height: 1, background: "rgba(255,255,255,0.1)" }} />
+      </div>
+
+      {/* Built by Yangu */}
+      <BlogSectionModule title="Built by Yangu" subtitle="Try out our AI-powered products.">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {products.map((p) => (
+            <BlogProductCard key={p.id} product={p} />
+          ))}
         </div>
+      </BlogSectionModule>
 
-        <BlogFeaturedGrid />
+      {/* Divider below products */}
+      <div className="px-6">
+        <div className="mx-auto" style={{ maxWidth: 1100, height: 1, background: "rgba(255,255,255,0.1)" }} />
+      </div>
 
-        {/* Divider above products */}
-        <div className="px-6">
-          <div className="mx-auto" style={{ maxWidth: 1100, height: 1, background: "rgba(255,255,255,0.1)" }} />
+      {/* Yangu Studio */}
+      <BlogSectionModule title="Yangu Studio" subtitle="Lessons from engineers shipping AI products." dashedBorder>
+        <ArticleGrid articles={studioArticles} />
+      </BlogSectionModule>
+
+      {/* Dispatches */}
+      <BlogSectionModule title="Dispatches From the Frontiers of AI" subtitle="The latest models, capabilities, products, and use cases." dashedBorder>
+        <ArticleGrid articles={dispatchArticles} />
+      </BlogSectionModule>
+
+      {/* Interstitial Banner */}
+      <BlogInterstitialBanner />
+
+      {/* Putting AI to Work */}
+      <BlogSectionModule title="Putting AI to Work" subtitle="Everything you need to know about how to use LLMs.">
+        <ArticleGrid articles={aiWorkArticles} />
+      </BlogSectionModule>
+
+      {/* Future of Programming */}
+      <BlogSectionModule title="The Future of Programming" subtitle="Build more. Code less.">
+        <ArticleGrid articles={programmingArticles} />
+      </BlogSectionModule>
+
+      {/* Yangu Events */}
+      <BlogSectionModule title="Yangu Events" subtitle="Upcoming events and meetups.">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {eventArticles.map((ev) => (
+            <BlogEventCard key={ev.id} event={ev} />
+          ))}
         </div>
+      </BlogSectionModule>
 
-        {/* Built by Yangu */}
-        <BlogSectionModule title="Built by Yangu" subtitle="Try out our AI-powered products.">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {products.map((p) => (
-              <BlogProductCard key={p.id} product={p} />
-            ))}
-          </div>
-        </BlogSectionModule>
+      {/* Podcast */}
+      <BlogPodcastSection />
 
-        {/* Divider below products */}
-        <div className="px-6">
-          <div className="mx-auto" style={{ maxWidth: 1100, height: 1, background: "rgba(255,255,255,0.1)" }} />
-        </div>
+      {/* Consulting */}
+      <BlogConsultingBanner />
 
-        {/* Yangu Studio */}
-        <BlogSectionModule title="Yangu Studio" subtitle="Lessons from engineers shipping AI products." dashedBorder>
-          <ArticleGrid articles={studioArticles} />
-        </BlogSectionModule>
+      <BlogFooter />
 
-        {/* Dispatches */}
-        <BlogSectionModule title="Dispatches From the Frontiers of AI" subtitle="The latest models, capabilities, products, and use cases." dashedBorder>
-          <ArticleGrid articles={dispatchArticles} />
-        </BlogSectionModule>
-
-        {/* Interstitial Banner */}
-        <BlogInterstitialBanner />
-
-        {/* Putting AI to Work */}
-        <BlogSectionModule title="Putting AI to Work" subtitle="Everything you need to know about how to use LLMs.">
-          <ArticleGrid articles={aiWorkArticles} />
-        </BlogSectionModule>
-
-        {/* Future of Programming */}
-        <BlogSectionModule title="The Future of Programming" subtitle="Build more. Code less.">
-          <ArticleGrid articles={programmingArticles} />
-        </BlogSectionModule>
-
-        {/* Yangu Events */}
-        <BlogSectionModule title="Yangu Events" subtitle="Upcoming events and meetups.">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {eventArticles.map((ev) => (
-              <BlogEventCard key={ev.id} event={ev} />
-            ))}
-          </div>
-        </BlogSectionModule>
-
-        {/* Podcast */}
-        <BlogPodcastSection />
-
-        {/* Consulting */}
-        <BlogConsultingBanner />
-
-        <BlogFooter />
-
-        {/* Overlays */}
-        <BlogExplorePanel />
-        <BlogSubscribeModal />
-      </PageContent>
-    </PageShell>
+      {/* Overlays */}
+      <BlogExplorePanel />
+      <BlogSubscribeModal />
+    </div>
   );
 }

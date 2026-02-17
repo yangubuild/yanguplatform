@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { NavDashSidebar } from "./NavDashSidebar";
-import { PageShell, PageContent } from "@/components/primitives/PageShell";
 import { NavDashHeader } from "./NavDashHeader";
 
 const RAIL_WIDTH = 60;
@@ -34,12 +33,8 @@ export function NavigationDashboardPage() {
         className="pt-16 transition-all duration-300"
         style={{ marginLeft: totalWidth }}
       >
-        <PageShell>
-          <PageContent>
-            {/* Routed outlet — all /dashboard/* pages render here */}
-            <Outlet />
-          </PageContent>
-        </PageShell>
+        {/* Routed outlet — all /dashboard/* pages render here */}
+        <Outlet />
       </div>
     </div>
   );
