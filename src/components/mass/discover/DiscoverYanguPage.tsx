@@ -5,6 +5,7 @@ import {
   Store, CreditCard, BarChart3, Smartphone, Clock, Shield,
   Sparkles, Zap, Globe, TrendingUp, Heart, Star
 } from "lucide-react";
+import { PageShell, PageContent } from "@/components/primitives/PageShell";
 import yanguYIcon from "@/assets/yangu-y-icon.png";
 import yanguLogoFull from "@/assets/yangu-logo-full.png";
 
@@ -132,7 +133,8 @@ export function DiscoverYanguPage() {
   const [activeApp, setActiveApp] = useState(0);
 
   return (
-    <div className="min-h-screen" style={{ background: "#08120D", fontFamily: "'Lufga', sans-serif" }}>
+    <PageShell style={{ background: "#08120D", fontFamily: "'Lufga', sans-serif" }}>
+      <PageContent>
       {/* ─── Top Nav ─── */}
       <nav className="flex items-center justify-between px-6 md:px-12 py-5 max-w-[1200px] mx-auto">
         <a href="/"><img src={yanguLogoFull} alt="Yangu" className="h-10" /></a>
@@ -347,6 +349,7 @@ export function DiscoverYanguPage() {
           <span>yangu 2026</span>
         </div>
       </footer>
-    </div>
+      </PageContent>
+    </PageShell>
   );
 }
