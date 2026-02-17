@@ -524,3 +524,21 @@ a:focus-visible,
   outline: 2px solid hsl(var(--accent) / 0.4);
   outline-offset: 2px;
 }
+
+/* Publish celebration spark animation */
+@keyframes spark-burst {
+  0% {
+    transform: translate(-50%, -50%) rotate(var(--spark-angle)) translateX(0) scale(1);
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(var(--spark-angle)) translateX(var(--spark-distance)) scale(0);
+    opacity: 0;
+  }
+}
+.animate-spark {
+  animation: spark-burst 1.2s ease-out forwards;
+}

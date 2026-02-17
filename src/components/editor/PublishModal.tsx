@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { PublishSuccessModal } from "./PublishSuccessModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -161,55 +162,13 @@ export function PublishModal({
   // Success state
   if (publishSuccess) {
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-md">
-          <div className="flex flex-col items-center text-center py-6">
-            <div className="h-16 w-16 rounded-full bg-success/10 flex items-center justify-center mb-4">
-              <CheckCircle2 className="h-8 w-8 text-success" />
-            </div>
-            <DialogTitle className="text-2xl mb-2">Published! 🎉</DialogTitle>
-            <DialogDescription className="mb-6">
-              Your surface is now live and accessible to everyone.
-            </DialogDescription>
-            
-            {publishedUrl && (
-              <Card className="w-full p-4 mb-6">
-                <p className="text-sm text-muted-foreground mb-2">Your surface is live at:</p>
-                <div className="flex items-center justify-center gap-2">
-                  <Globe className="h-4 w-4 text-accent" />
-                  <a 
-                    href={publishedUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-accent font-medium hover:underline"
-                  >
-                    {publishedUrl.replace("https://", "")}
-                  </a>
-                </div>
-              </Card>
-            )}
-            
-            <div className="flex gap-3 w-full">
-              <Button 
-                variant="outline" 
-                className="flex-1"
-                onClick={() => onOpenChange(false)}
-              >
-                Close
-              </Button>
-              {publishedUrl && (
-                <Button 
-                  className="flex-1 gap-2"
-                  onClick={() => window.open(publishedUrl, "_blank")}
-                >
-                  View Live
-                  <ExternalLink className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <PublishSuccessModal
+        open={open}
+        onOpenChange={onOpenChange}
+        surfaceTitle={surfaceTitle}
+        publishedUrl={publishedUrl}
+        surfaceId={surfaceId}
+      />
     );
   }
 
