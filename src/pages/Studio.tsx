@@ -57,37 +57,37 @@ const TOP_ADS = [
     id: "1",
     title: "Best for Services",
     description: "Hook your audience instantly. This collection uses ...",
-    video: "/studio/top-ad-1.mp4",
+    video: "/studio/topw-1.mp4",
   },
   {
     id: "2",
     title: "Show Your App",
     description: "A collection of recipes that showcases your apps, ...",
-    video: "/studio/top-ad-5.mp4",
+    video: "/studio/topw-5.mp4",
   },
   {
     id: "3",
     title: "Show Your Product",
     description: "A collection of recipes featuring your physical prod...",
-    video: "/studio/top-ad-2.mp4",
+    video: "/studio/topw-2.mp4",
   },
   {
     id: "4",
     title: "Billboards",
     description: "A collection of billboard scenes where you can put ...",
-    video: "/studio/top-ad-3.mp4",
+    video: "/studio/topw-3.mp4",
   },
   {
     id: "5",
     title: "Angry People",
     description: "A collection of ...",
-    video: "/studio/top-ad-4.mp4",
+    video: "/studio/topw-4.mp4",
   },
   {
     id: "6",
     title: "Creative Styles",
     description: "A collection of creative ad styles for your brand ...",
-    video: "/studio/top-ad-6.mp4",
+    video: "/studio/topw-6.mp4",
   },
 ] as const;
 
