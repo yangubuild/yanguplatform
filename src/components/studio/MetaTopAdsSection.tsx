@@ -18,6 +18,7 @@ interface MetaAdCard {
   caption: string;
   image: string;
   hasVideo?: boolean;
+  video?: string;
   externalUrl?: string;
   externalCta?: string;
 }
@@ -31,6 +32,7 @@ const META_ADS: MetaAdCard[] = [
     caption: "Follow @getfitwithabe for more high-protein Habesha recipes 😋...",
     image: "",
     hasVideo: true,
+    video: "/studio/meta-ad-1.mp4",
   },
   {
     id: "2",
@@ -40,6 +42,7 @@ const META_ADS: MetaAdCard[] = [
     caption: "Every detail matters. Every morning. We compose the spac...",
     image: "",
     hasVideo: true,
+    video: "/studio/meta-ad-2.mp4",
   },
   {
     id: "3",
@@ -49,6 +52,7 @@ const META_ADS: MetaAdCard[] = [
     caption: "Future dentist. Real treatment. Real results.✨ Watch Steven...",
     image: "",
     hasVideo: true,
+    video: "/studio/meta-ad-3.mp4",
   },
   {
     id: "4",
@@ -57,6 +61,7 @@ const META_ADS: MetaAdCard[] = [
     isNew: true,
     caption: "Try This If Your Skin Is Stressing You Out The products you use...",
     image: "",
+    video: "/studio/meta-ad-4.mp4",
     externalUrl: "skinkraft.com",
     externalCta: "Shop Now",
   },
@@ -67,6 +72,7 @@ const META_ADS: MetaAdCard[] = [
     isNew: true,
     caption: "My husband fell in love with my little sister and wanted her as hi...",
     image: "",
+    video: "/studio/meta-ad-5.mp4",
     externalUrl: "b.rereadapps.com",
     externalCta: "Learn More",
   },
@@ -187,15 +193,24 @@ export function MetaTopAdsSection() {
               {ad.caption}
             </p>
 
-            {/* media – fixed height so first 3 align, 4&5 grow taller via external bar */}
-            <div className="relative aspect-[3/4] bg-muted/30">
-              {ad.hasVideo && (
+            {/* media */}
+            <div className="relative aspect-[3/4] bg-muted/30 overflow-hidden">
+              {ad.video ? (
+                <video
+                  src={ad.video}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  muted
+                  loop
+                  playsInline
+                  autoPlay
+                />
+              ) : ad.hasVideo ? (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="h-10 w-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
                     <div className="w-0 h-0 border-l-[10px] border-l-white border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-1" />
                   </div>
                 </div>
-              )}
+              ) : null}
             </div>
 
             {/* external link bar – only on cards 4&5, making them taller */}
