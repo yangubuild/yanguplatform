@@ -25,7 +25,7 @@ export function ImageAdsBottomBar({
   onGenerate,
 }: Props) {
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border/40 bg-background/95 backdrop-blur-md">
+    <div className="sticky bottom-0 z-40 border-t border-border/40 bg-background/95 backdrop-blur-md">
       <div className="flex items-center justify-between px-6 py-3 max-w-5xl mx-auto gap-3">
         <div className="flex items-center gap-3 flex-wrap">
           {/* Model */}
