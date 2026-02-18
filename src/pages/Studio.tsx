@@ -19,6 +19,7 @@ import { SocialUgcAdsSection } from "@/components/studio/SocialUgcAdsSection";
 import { ImageAdsSection } from "@/components/studio/ImageAdsSection";
 import { TopPerformingAdsSection } from "@/components/studio/TopPerformingAdsSection";
 import { MetaTopAdsSection } from "@/components/studio/MetaTopAdsSection";
+import { AvatarShowcaseSection } from "@/components/studio/AvatarShowcaseSection";
 
 /* ─────────── data ─────────── */
 
@@ -261,6 +262,9 @@ export default function Studio() {
 
           {/* ── Meta Top Ads ── */}
           <MetaTopAdsSection />
+
+          {/* ── Avatar Showcase ── */}
+          <AvatarShowcaseSection />
         </div>
         </div>
       </div>
