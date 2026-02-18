@@ -154,8 +154,9 @@ const App = () => (
                   <Route path="explore" element={<DashboardPlaceholder />} />
                   <Route path="offers" element={<DashboardPlaceholder />} />
                   <Route path="messages" element={<MessagesPage />} />
-                  <Route path="ada" element={<Navigate to="/ada-ai" replace />} />
-                  <Route path="studio" element={<Navigate to="/studio" replace />} />
+                  <Route path="ada" element={<AdaAi />} />
+                  <Route path="studio" element={<Studio />} />
+                  <Route path="studio/image-ads" element={<ImageAdsFlow />} />
                   <Route path="influencer" element={<DashboardPlaceholder />} />
                   <Route path="visionaire" element={<DashboardPlaceholder />} />
                   <Route path="app-store" element={<DashboardPlaceholder />} />
@@ -204,28 +205,10 @@ const App = () => (
                   <Route path="*" element={<Navigate to="/dashboard" replace />} />
                 </Route>
 
-                {/* Studio & Ada inside dashboard shell */}
-                <Route
-                  path="/studio"
-                  element={
-                    <ProtectedRoute>
-                      <NavigationDashboardPage />
-                    </ProtectedRoute>
-                  }
-                >
-                  <Route index element={<Studio />} />
-                  <Route path="image-ads" element={<ImageAdsFlow />} />
-                </Route>
-                <Route
-                  path="/ada-ai"
-                  element={
-                    <ProtectedRoute>
-                      <NavigationDashboardPage />
-                    </ProtectedRoute>
-                  }
-                >
-                  <Route index element={<AdaAi />} />
-                </Route>
+                {/* Legacy redirects — studio & ada now live under /dashboard */}
+                <Route path="/studio" element={<Navigate to="/dashboard/studio" replace />} />
+                <Route path="/studio/image-ads" element={<Navigate to="/dashboard/studio/image-ads" replace />} />
+                <Route path="/ada-ai" element={<Navigate to="/dashboard/ada" replace />} />
 
                 {/* Public ADA landing page */}
                 <Route path="/ada" element={<AdaLanding />} />
