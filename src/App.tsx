@@ -153,7 +153,6 @@ const App = () => (
                   <Route path="offers" element={<DashboardPlaceholder />} />
                   <Route path="messages" element={<MessagesPage />} />
                   <Route path="ada" element={<Navigate to="/ada-ai" replace />} />
-                  <Route path="studio" element={<Navigate to="/studio" replace />} />
                   <Route path="influencer" element={<DashboardPlaceholder />} />
                   <Route path="visionaire" element={<DashboardPlaceholder />} />
                   <Route path="app-store" element={<DashboardPlaceholder />} />
@@ -217,10 +216,12 @@ const App = () => (
                   path="/ada-ai"
                   element={
                     <ProtectedRoute>
-                      <AdaAi />
+                      <NavigationDashboardPage />
                     </ProtectedRoute>
                   }
-                />
+                >
+                  <Route index element={<AdaAi />} />
+                </Route>
                 
                 {/* Admin management panel */}
                 <Route

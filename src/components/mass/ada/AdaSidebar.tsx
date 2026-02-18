@@ -249,7 +249,7 @@ export function AdaSidebar({ isOpen = true, onClose, inline = false }: AdaSideba
 
       {/* Chat history */}
       <div className="px-4 pt-4 flex-1 overflow-y-auto">
-        <p className="text-white/50 text-xs font-medium uppercase tracking-wider mb-3 px-1">
+        <p className="text-white/50 text-xs font-medium uppercase tracking-wider mb-3">
           {debouncedSearch.trim() ? `Results (${filteredChats.length})` : "All chat"}
         </p>
         <div className="space-y-1">
