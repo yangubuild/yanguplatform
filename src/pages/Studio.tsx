@@ -54,31 +54,37 @@ const TOP_ADS = [
     id: "1",
     title: "Best for Services",
     description: "Hook your audience instantly. This collection uses ...",
-    gradient: "from-rose-800 to-rose-950",
+    video: "/studio/top-ad-1.mp4",
   },
   {
     id: "2",
     title: "Show Your App",
     description: "A collection of recipes that showcases your apps, ...",
-    gradient: "from-sky-800 to-sky-950",
+    video: "/studio/top-ad-2.mp4",
   },
   {
     id: "3",
     title: "Show Your Product",
     description: "A collection of recipes featuring your physical prod...",
-    gradient: "from-amber-800 to-amber-950",
+    video: "/studio/top-ad-3.mp4",
   },
   {
     id: "4",
     title: "Billboards",
     description: "A collection of billboard scenes where you can put ...",
-    gradient: "from-emerald-800 to-emerald-950",
+    video: "/studio/top-ad-4.mp4",
   },
   {
     id: "5",
     title: "Angry People",
     description: "A collection of ...",
-    gradient: "from-red-800 to-red-950",
+    video: "/studio/top-ad-5.mp4",
+  },
+  {
+    id: "6",
+    title: "Creative Styles",
+    description: "A collection of creative ad styles for your brand ...",
+    video: "/studio/top-ad-6.mp4",
   },
 ] as const;
 
@@ -211,11 +217,15 @@ export default function Studio() {
                     key={ad.id}
                     className="shrink-0 w-[260px] md:w-[280px] snap-start cursor-pointer group"
                   >
-                    <div
-                      className={`rounded-2xl aspect-[4/3] bg-gradient-to-br ${ad.gradient} mb-3 overflow-hidden`}
-                    >
-                      {/* placeholder for ad image/video */}
-                      <div className="w-full h-full bg-white/5" />
+                    <div className="rounded-2xl aspect-[4/3] bg-black mb-3 overflow-hidden">
+                      <video
+                        src={ad.video}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     <h3 className="text-sm font-semibold text-foreground group-hover:text-accent transition-colors">
                       {ad.title}
