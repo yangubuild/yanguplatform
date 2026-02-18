@@ -1289,6 +1289,36 @@ export type Database = {
           },
         ]
       }
+      publish_attempt_logs: {
+        Row: {
+          created_at: string
+          domain_id: string
+          id: string
+          org_id: string
+          reason: string
+          surface_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          domain_id: string
+          id?: string
+          org_id: string
+          reason: string
+          surface_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          domain_id?: string
+          id?: string
+          org_id?: string
+          reason?: string
+          surface_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       quota_addons: {
         Row: {
           asset_type: string
