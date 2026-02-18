@@ -18,6 +18,7 @@ import { PromoPopup } from "@/components/promo/PromoPopup";
 import { SocialUgcAdsSection } from "@/components/studio/SocialUgcAdsSection";
 import { ImageAdsSection } from "@/components/studio/ImageAdsSection";
 import { TopPerformingAdsSection } from "@/components/studio/TopPerformingAdsSection";
+import { MetaTopAdsSection } from "@/components/studio/MetaTopAdsSection";
 
 /* ─────────── data ─────────── */
 
@@ -257,6 +258,9 @@ export default function Studio() {
 
           {/* ── Product Visual Effects ── */}
           <TopPerformingAdsSection />
+
+          {/* ── Meta Top Ads ── */}
+          <MetaTopAdsSection />
         </div>
         </div>
       </div>
