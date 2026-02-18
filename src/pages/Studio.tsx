@@ -60,13 +60,13 @@ const TOP_ADS = [
     id: "2",
     title: "Show Your App",
     description: "A collection of recipes that showcases your apps, ...",
-    video: "/studio/top-ad-2.mp4",
+    video: "/studio/top-ad-5.mp4",
   },
   {
     id: "3",
     title: "Show Your Product",
     description: "A collection of recipes featuring your physical prod...",
-    video: "/studio/top-ad-5.mp4",
+    video: "/studio/top-ad-2.mp4",
   },
   {
     id: "4",
