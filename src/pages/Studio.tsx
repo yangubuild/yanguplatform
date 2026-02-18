@@ -16,6 +16,7 @@ import { AppShell } from "@/components/primitives";
 import { useCredits } from "@/hooks/useCredits";
 import { PromoPopup } from "@/components/promo/PromoPopup";
 import { SocialUgcAdsSection } from "@/components/studio/SocialUgcAdsSection";
+import { ImageAdsSection } from "@/components/studio/ImageAdsSection";
 
 /* ─────────── data ─────────── */
 
@@ -249,6 +250,9 @@ export default function Studio() {
 
           {/* ── Social & UGC Ads ── */}
           <SocialUgcAdsSection />
+
+          {/* ── Image Ads ── */}
+          <ImageAdsSection />
         </div>
         </div>
       </div>
