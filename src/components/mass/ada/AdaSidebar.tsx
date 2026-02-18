@@ -39,9 +39,10 @@ interface ChatHistoryItem {
 interface AdaSidebarProps {
   isOpen?: boolean;
   onClose?: () => void;
+  inline?: boolean;
 }
 
-export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
+export function AdaSidebar({ isOpen = true, onClose, inline = false }: AdaSidebarProps) {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
   const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([]);
@@ -173,6 +174,180 @@ export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
     );
   };
 
+  const sidebarContent = (
+    <>
+      {/* Header */}
+      <div className="flex items-center gap-3 px-5 pt-7 pb-2">
+        <img src={adaLogo} alt="Ada AI" className="h-10 w-auto cursor-pointer" onClick={() => navigate("/")} />
+        <div className="flex-1" />
+        <button
+          onClick={() => {
+            setIsSearchOpen(!isSearchOpen);
+            if (!isSearchOpen) setTimeout(() => searchInputRef.current?.focus(), 100);
+            else setSearchQuery("");
+          }}
+          className={`p-1.5 rounded-lg transition-colors ${isSearchOpen ? "text-[#F4A83D] bg-white/5" : "text-white/40 hover:text-white/70"}`}
+        >
+          <Search className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Search bar */}
+      {isSearchOpen && (
+        <div className="px-4 pt-1 pb-2">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
+            <input
+              ref={searchInputRef}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search chats…"
+              className="w-full pl-8 pr-8 py-2 rounded-lg text-sm text-white/80 placeholder:text-white/30 outline-none border border-white/10 focus:border-[#C4841F]/50"
+              style={{ background: "rgba(255,255,255,0.04)" }}
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Command icon strip */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
+        {commandIcons.map((item) => {
+          const Icon = item.icon;
+          return (
+            <button
+              key={item.id}
+              onClick={() => handleIconAction(item.id)}
+              className="group relative p-2 rounded-lg text-white/40 hover:text-white/80 hover:bg-white/5 transition-all"
+              title={item.label}
+            >
+              <Icon className="w-4 h-4" />
+              <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded text-[10px] text-white/70 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                style={{ background: "rgba(0,0,0,0.8)", border: "1px solid rgba(255,255,255,0.1)" }}
+              >
+                {item.label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* New Chat button */}
+      <div className="px-4 pt-4 pb-2">
+        <button
+          onClick={handleNewChat}
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-medium text-sm text-white transition-all"
+          style={{
+            background: "linear-gradient(90deg, #C4841F 0%, rgba(212,149,43,0.45) 55%, rgba(26,26,26,0.18) 100%)",
+            boxShadow: "0 0 18px rgba(212,149,43,0.18)",
+          }}
+        >
+          <span>+</span> New Chat
+        </button>
+      </div>
+
+      {/* Chat history */}
+      <div className="px-4 pt-4 flex-1 overflow-y-auto">
+        <p className="text-white/50 text-xs font-medium uppercase tracking-wider mb-3">
+          {debouncedSearch.trim() ? `Results (${filteredChats.length})` : "All chat"}
+        </p>
+        <div className="space-y-1">
+          {filteredChats.length === 0 && (
+            <p className="text-white/30 text-xs px-3 py-2">
+              {debouncedSearch.trim() ? "No matching chats" : "No chats yet"}
+            </p>
+          )}
+          {filteredChats.map((chat) => (
+            <div key={chat.id} className="relative group">
+              {renamingId === chat.id ? (
+                <form
+                  onSubmit={(e) => { e.preventDefault(); submitRename(); }}
+                  className="flex items-center gap-2 px-3 py-2"
+                >
+                  <input
+                    autoFocus
+                    value={renameValue}
+                    onChange={(e) => setRenameValue(e.target.value)}
+                    onBlur={submitRename}
+                    className="flex-1 bg-white/10 text-white text-sm rounded px-2 py-1 outline-none border border-white/20 focus:border-[#C4841F]"
+                  />
+                </form>
+              ) : (
+                <button
+                  onClick={() => handleLoadChat(chat.id)}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left hover:bg-white/5 transition-colors"
+                >
+                  <MessageCircle className="w-4 h-4 text-white/30 flex-shrink-0" />
+                  <span className="text-white/70 text-sm truncate flex-1">
+                    {highlightMatch(chat.title, debouncedSearch)}
+                  </span>
+                  {chat.updated_at && (
+                    <span className="text-white/30 text-xs flex-shrink-0 group-hover:hidden">
+                      {timeAgo(chat.updated_at)}
+                    </span>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setMenuOpenId(menuOpenId === chat.id ? null : chat.id);
+                    }}
+                    className="p-1 rounded text-white/30 hover:text-white hover:bg-white/10 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <MoreHorizontal className="w-4 h-4" />
+                  </button>
+                </button>
+              )}
+
+              {/* Dropdown menu */}
+              {menuOpenId === chat.id && (
+                <div
+                  ref={menuRef}
+                  className="absolute right-2 top-10 z-50 w-40 rounded-lg border border-white/10 py-1 shadow-xl"
+                  style={{ background: "#1a1a1a" }}
+                >
+                  <button
+                    onClick={() => handleRenameChat(chat.id)}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:bg-white/10 transition-colors"
+                  >
+                    <Pencil className="w-3.5 h-3.5" /> Rename
+                  </button>
+                  <div className="border-t border-white/10 my-0.5" />
+                  <button
+                    onClick={() => handleDeleteChat(chat.id)}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-white/10 transition-colors"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" /> Delete
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Bottom spacer */}
+      <div className="p-4" />
+    </>
+  );
+
+  if (inline) {
+    return (
+      <aside
+        className="hidden lg:flex w-[280px] flex-shrink-0 flex-col h-full border-r border-white/5"
+        style={{ background: "rgba(5,10,7,0.6)" }}
+      >
+        {sidebarContent}
+      </aside>
+    );
+  }
+
   return (
     <>
       {/* Mobile overlay */}
@@ -196,166 +371,7 @@ export function AdaSidebar({ isOpen = true, onClose }: AdaSidebarProps) {
         >
           <X className="w-5 h-5" />
         </button>
-
-        {/* Header */}
-        <div className="flex items-center gap-3 px-5 pt-7 pb-2">
-          <img src={adaLogo} alt="Ada AI" className="h-10 w-auto cursor-pointer" onClick={() => navigate("/")} />
-          <div className="flex-1" />
-          <button
-            onClick={() => {
-              setIsSearchOpen(!isSearchOpen);
-              if (!isSearchOpen) setTimeout(() => searchInputRef.current?.focus(), 100);
-              else setSearchQuery("");
-            }}
-            className={`p-1.5 rounded-lg transition-colors ${isSearchOpen ? "text-[#F4A83D] bg-white/5" : "text-white/40 hover:text-white/70"}`}
-          >
-            <Search className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Search bar */}
-        {isSearchOpen && (
-          <div className="px-4 pt-1 pb-2">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
-              <input
-                ref={searchInputRef}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search chats…"
-                className="w-full pl-8 pr-8 py-2 rounded-lg text-sm text-white/80 placeholder:text-white/30 outline-none border border-white/10 focus:border-[#C4841F]/50"
-                style={{ background: "rgba(255,255,255,0.04)" }}
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Command icon strip */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
-          {commandIcons.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.id}
-                onClick={() => handleIconAction(item.id)}
-                className="group relative p-2 rounded-lg text-white/40 hover:text-white/80 hover:bg-white/5 transition-all"
-                title={item.label}
-              >
-                <Icon className="w-4 h-4" />
-                {/* Tooltip */}
-                <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded text-[10px] text-white/70 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-                  style={{ background: "rgba(0,0,0,0.8)", border: "1px solid rgba(255,255,255,0.1)" }}
-                >
-                  {item.label}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* New Chat button */}
-        <div className="px-4 pt-4 pb-2">
-          <button
-            onClick={handleNewChat}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-medium text-sm text-white transition-all"
-            style={{
-              background: "linear-gradient(90deg, #C4841F 0%, rgba(212,149,43,0.45) 55%, rgba(26,26,26,0.18) 100%)",
-              boxShadow: "0 0 18px rgba(212,149,43,0.18)",
-            }}
-          >
-            <span>+</span> New Chat
-          </button>
-        </div>
-
-        {/* Chat history */}
-        <div className="px-4 pt-4 flex-1 overflow-y-auto">
-          <p className="text-white/50 text-xs font-medium uppercase tracking-wider mb-3">
-            {debouncedSearch.trim() ? `Results (${filteredChats.length})` : "All chat"}
-          </p>
-          <div className="space-y-1">
-            {filteredChats.length === 0 && (
-              <p className="text-white/30 text-xs px-3 py-2">
-                {debouncedSearch.trim() ? "No matching chats" : "No chats yet"}
-              </p>
-            )}
-            {filteredChats.map((chat) => (
-              <div key={chat.id} className="relative group">
-                {renamingId === chat.id ? (
-                  <form
-                    onSubmit={(e) => { e.preventDefault(); submitRename(); }}
-                    className="flex items-center gap-2 px-3 py-2"
-                  >
-                    <input
-                      autoFocus
-                      value={renameValue}
-                      onChange={(e) => setRenameValue(e.target.value)}
-                      onBlur={submitRename}
-                      className="flex-1 bg-white/10 text-white text-sm rounded px-2 py-1 outline-none border border-white/20 focus:border-[#C4841F]"
-                    />
-                  </form>
-                ) : (
-                  <button
-                    onClick={() => handleLoadChat(chat.id)}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left hover:bg-white/5 transition-colors"
-                  >
-                    <MessageCircle className="w-4 h-4 text-white/30 flex-shrink-0" />
-                    <span className="text-white/70 text-sm truncate flex-1">
-                      {highlightMatch(chat.title, debouncedSearch)}
-                    </span>
-                    {chat.updated_at && (
-                      <span className="text-white/30 text-xs flex-shrink-0 group-hover:hidden">
-                        {timeAgo(chat.updated_at)}
-                      </span>
-                    )}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setMenuOpenId(menuOpenId === chat.id ? null : chat.id);
-                      }}
-                      className="p-1 rounded text-white/30 hover:text-white hover:bg-white/10 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <MoreHorizontal className="w-4 h-4" />
-                    </button>
-                  </button>
-                )}
-
-                {/* Dropdown menu */}
-                {menuOpenId === chat.id && (
-                  <div
-                    ref={menuRef}
-                    className="absolute right-2 top-10 z-50 w-40 rounded-lg border border-white/10 py-1 shadow-xl"
-                    style={{ background: "#1a1a1a" }}
-                  >
-                    <button
-                      onClick={() => handleRenameChat(chat.id)}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:bg-white/10 transition-colors"
-                    >
-                      <Pencil className="w-3.5 h-3.5" /> Rename
-                    </button>
-                    <div className="border-t border-white/10 my-0.5" />
-                    <button
-                      onClick={() => handleDeleteChat(chat.id)}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-white/10 transition-colors"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" /> Delete
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Bottom spacer */}
-        <div className="p-4" />
+        {sidebarContent}
       </aside>
     </>
   );
