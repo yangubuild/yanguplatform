@@ -119,7 +119,7 @@ export function SocialUgcAdsSection() {
 
             {/* Recreate button – absolute at bottom, slides up on hover */}
             <div className="absolute bottom-0 left-0 right-0 z-20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-accent/20 to-accent/5 px-2 py-1.5">
-              <button className="w-full py-1.5 text-xs font-semibold text-black bg-white border border-border/40 rounded-md hover:bg-muted transition-colors">
+              <button className="w-full py-1.5 text-xs font-semibold text-white bg-accent border border-accent rounded-md hover:bg-accent/80 transition-colors">
                 Recreate
               </button>
             </div>
