@@ -27,7 +27,7 @@ export function LandingAdaPage() {
 
       <div className="lg:ml-[240px]">
         <div className="px-6 pt-6">
-          <MassHeader />
+          <MassHeader hideTrends />
         </div>
 
         {/* ADA main panel (public, no auth required) */}

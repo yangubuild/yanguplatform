@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { MassTrendsBar } from "./MassTrendsBar";
 
-export function MassHeader() {
+export function MassHeader({ hideTrends }: { hideTrends?: boolean } = {}) {
   const navigate = useNavigate();
 
   return (
@@ -29,7 +29,7 @@ export function MassHeader() {
       </div>
 
       {/* Trends bar - directly below buttons */}
-      <MassTrendsBar />
+      {!hideTrends && <MassTrendsBar />}
     </header>
   );
 }
