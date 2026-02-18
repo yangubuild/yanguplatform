@@ -22,7 +22,7 @@ export default function ImageAdsFlow() {
   };
 
   return (
-    <div className="flex flex-col h-full w-full bg-background relative min-h-0 overflow-auto">
+    <div className="flex flex-col h-full w-full bg-background relative min-h-0">
       {/* Top bar */}
       <div className="flex items-center justify-between px-6 pt-4 pb-2">
         <div className="flex items-center gap-3">
@@ -45,7 +45,7 @@ export default function ImageAdsFlow() {
       </div>
 
       {/* Step content */}
-      <div className="flex-1 relative">
+      <div className="flex-1 relative min-h-0 overflow-auto">
         {step === "link" && (
           <ImageAdsLinkStep
             onSelectProduct={() => setStep("select-product")}
@@ -55,15 +55,14 @@ export default function ImageAdsFlow() {
         {step === "manual-setup" && (
           <ImageAdsManualSetup onBack={() => setStep("link")} />
         )}
+        {/* Select product overlay — inside relative container */}
+        {step === "select-product" && (
+          <ImageAdsSelectProduct
+            onCancel={() => setStep("link")}
+            onSelect={() => setStep("link")}
+          />
+        )}
       </div>
-
-      {/* Select product overlay */}
-      {step === "select-product" && (
-        <ImageAdsSelectProduct
-          onCancel={() => setStep("link")}
-          onSelect={() => setStep("link")}
-        />
-      )}
 
       {/* Bottom bar (visible on link and manual-setup steps) */}
       {step !== "select-product" && (
