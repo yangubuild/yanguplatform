@@ -176,8 +176,10 @@ export function AdaSidebar({ isOpen = true, onClose, inline = false }: AdaSideba
 
   const sidebarContent = (
     <>
-      {/* Header — logo removed, search only */}
-      <div className="flex items-center justify-end px-5 pt-5 pb-2">
+      {/* Header */}
+      <div className="flex items-center gap-3 px-5 pt-7 pb-2">
+        <img src={adaLogo} alt="Ada AI" className="h-10 w-auto cursor-pointer" onClick={() => navigate("/")} />
+        <div className="flex-1" />
         <button
           onClick={() => {
             setIsSearchOpen(!isSearchOpen);
@@ -237,13 +239,17 @@ export function AdaSidebar({ isOpen = true, onClose, inline = false }: AdaSideba
         })}
       </div>
 
-      {/* New Chat — plain text link */}
+      {/* New Chat button */}
       <div className="px-4 pt-4 pb-2">
         <button
           onClick={handleNewChat}
-          className="w-full text-left text-sm text-white/80 hover:text-[#F4A83D] transition-colors py-1.5 px-1"
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-medium text-sm text-white transition-all"
+          style={{
+            background: "linear-gradient(90deg, #C4841F 0%, rgba(212,149,43,0.45) 55%, rgba(26,26,26,0.18) 100%)",
+            boxShadow: "0 0 18px rgba(212,149,43,0.18)",
+          }}
         >
-          + New Chat
+          <span>+</span> New Chat
         </button>
       </div>
 
