@@ -55,7 +55,7 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
         onClick={() => {
           setActiveItem(item.id);
           if (item.id === "community") navigate("/community");
-          if (item.id === "ada-ai") navigate("/ada-ai");
+          if (item.id === "ada-ai") navigate("/ada");
           if (item.id === "why-yangu") navigate("/why-yangu");
           if (item.id === "explore") navigate("/");
           if (item.id === "discover") navigate("/discover");

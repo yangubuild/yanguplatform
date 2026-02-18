@@ -44,7 +44,7 @@ export function AdaContentSections() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
-    <div className="lg:ml-[280px]">
+    <div>
 
       {/* ── Section 1: Four Steps ── */}
       <section className="px-6 pt-2 pb-16 max-w-5xl mx-auto">
