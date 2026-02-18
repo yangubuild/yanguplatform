@@ -16,15 +16,15 @@ interface VideoCard {
 
 const VIDEO_CARDS: VideoCard[] = [
   // Row 1: 5 visual slots — card 4 is the wide one (col-span-2)
-  { id: "1", votes: 30, video: "/studio/top-ad-1.mp4", span: "col-span-1 row-span-1" },
-  { id: "2", votes: 27, video: "/studio/top-ad-2.mp4", span: "col-span-1 row-span-1" },
-  { id: "3", votes: 21, video: "/studio/top-ad-3.mp4", span: "col-span-1 row-span-1" },
-  { id: "4", votes: 23, video: "/studio/top-ad-4.mp4", span: "col-span-2 row-span-1" }, // BIG
-  { id: "5", votes: 23, video: "/studio/top-ad-5.mp4", span: "col-span-1 row-span-1" },
-  // Row 2: 3 equal cards spanning full width
-  { id: "6", votes: 21, video: "/studio/top-ad-6.mp4", span: "col-span-1 row-span-1" },
-  { id: "7", votes: 20, video: "/studio/top-ad-7.mp4", span: "col-span-1 row-span-1" },
-  { id: "8", votes: 21, video: "/studio/top-ad-8.mp4", span: "col-span-1 row-span-1" },
+  { id: "1", votes: 30, video: "/studio/pve-1.mp4", span: "col-span-1 row-span-1" },
+  { id: "2", votes: 27, video: "/studio/pve-2.mp4", span: "col-span-1 row-span-1" },
+  { id: "3", votes: 21, video: "/studio/pve-3.mp4", span: "col-span-1 row-span-1" },
+  { id: "4", votes: 23, video: "/studio/pve-4.mp4", span: "col-span-2 row-span-1" }, // BIG
+  { id: "5", votes: 23, video: "/studio/pve-5.mp4", span: "col-span-1 row-span-1" },
+  // Row 2: 3 cards
+  { id: "6", votes: 21, video: "/studio/pve-6.mp4", span: "col-span-1 row-span-1" },
+  { id: "7", votes: 20, video: "/studio/pve-7.mp4", span: "col-span-1 row-span-1" },
+  { id: "8", votes: 21, video: "/studio/pve-8.mp4", span: "col-span-1 row-span-1" },
 ];
 
 export function TopPerformingAdsSection() {
