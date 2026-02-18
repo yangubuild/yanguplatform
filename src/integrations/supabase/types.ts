@@ -1847,6 +1847,24 @@ export type Database = {
         }
         Returns: Json
       }
+      admin_get_publish_attempt_logs: {
+        Args: { p_limit?: number }
+        Returns: {
+          created_at: string
+          domain_id: string
+          id: string
+          org_id: string
+          reason: string
+          surface_id: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "publish_attempt_logs"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       admin_grant_credits_by_email: {
         Args: { p_amount: number; p_email: string; p_note?: string }
         Returns: undefined
