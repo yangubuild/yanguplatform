@@ -1594,8 +1594,8 @@ export function AdaMainPanel() {
         </div>
       </div>
 
-      {/* Center content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6">
+      {/* Center content — centered within the right-side area */}
+      <div className="flex-1 flex flex-col items-center justify-center px-4 mx-auto w-full max-w-3xl">
         {mode === "voice" ? (
           <>
             {/* Animated particle ring */}
