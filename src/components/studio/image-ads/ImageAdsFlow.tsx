@@ -22,7 +22,7 @@ export default function ImageAdsFlow() {
   };
 
   return (
-    <div className="flex flex-col h-full w-full bg-background">
+    <div className="flex flex-col h-full w-full bg-background relative min-h-0 overflow-auto">
       {/* Top bar */}
       <div className="flex items-center justify-between px-6 pt-4 pb-2">
         <div className="flex items-center gap-3">
