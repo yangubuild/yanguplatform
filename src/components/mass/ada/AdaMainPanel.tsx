@@ -240,7 +240,7 @@ async function readGenerationSSE(
 // Guest usage tracking key
 const GUEST_USED_KEY = "ada_guest_used";
 
-export function AdaMainPanel() {
+export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolean } = {}) {
   const { user, profile, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [mode, setMode] = useState<"chat" | "voice">("chat");
@@ -2044,7 +2044,7 @@ export function AdaMainPanel() {
       </div>
 
       {/* ── Bottom Section: ALL CHAT + IMAGES + Icons ── */}
-      <AdaBottomSection />
+      {!hideBottomSection && <AdaBottomSection />}
 
       {/* Advanced Prompt Modal */}
       {showAdvancedModal && (
