@@ -82,34 +82,37 @@ export function SocialUgcAdsSection() {
         {UGC_CARDS.map((card) => (
           <div
             key={card.id}
-            className="relative rounded-xl overflow-hidden aspect-[3/4] bg-muted/30 cursor-pointer group"
+            className="relative rounded-xl overflow-hidden bg-muted/30 cursor-pointer group"
           >
-            {/* placeholder bg */}
-            <div className="absolute inset-0 bg-gradient-to-br from-muted/60 to-muted/20" />
+            {/* image area */}
+            <div className="relative aspect-[3/4]">
+              {/* placeholder bg */}
+              <div className="absolute inset-0 bg-gradient-to-br from-muted/60 to-muted/20" />
 
-            {/* vote badge */}
-            <div className="absolute top-2 left-2 z-10 inline-flex items-center gap-1 rounded-full bg-black/50 backdrop-blur-sm px-2 py-0.5 text-[11px] font-semibold text-white">
-              <ThumbsUp className="h-3 w-3" />
-              {card.votes}
+              {/* vote badge */}
+              <div className="absolute top-2 left-2 z-10 inline-flex items-center gap-1 rounded-full bg-black/50 backdrop-blur-sm px-2 py-0.5 text-[11px] font-semibold text-white">
+                <ThumbsUp className="h-3 w-3" />
+                {card.votes}
+              </div>
+
+              {/* PRO badge */}
+              {card.isPro && (
+                <div className="absolute top-2 right-2 z-10 rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold uppercase text-white">
+                  PRO
+                </div>
+              )}
+
+              {/* caption overlay */}
+              {card.caption && (
+                <div className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-black/70 to-transparent p-3 pt-8">
+                  <p className="text-xs text-white/90 line-clamp-2">{card.caption}</p>
+                </div>
+              )}
             </div>
 
-            {/* PRO badge */}
-            {card.isPro && (
-              <div className="absolute top-2 right-2 z-10 rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold uppercase text-white">
-                PRO
-              </div>
-            )}
-
-            {/* caption overlay */}
-            {card.caption && (
-              <div className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-black/70 to-transparent p-3 pt-8">
-                <p className="text-xs text-white/90 line-clamp-2">{card.caption}</p>
-              </div>
-            )}
-
-            {/* hover overlay + Recreate button */}
-            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-6">
-              <button className="w-[80%] rounded-full bg-white py-2.5 text-sm font-semibold text-black shadow-lg hover:bg-muted transition-colors">
+            {/* Recreate button – slides down on hover */}
+            <div className="max-h-0 group-hover:max-h-16 transition-all duration-300 overflow-hidden bg-gradient-to-b from-accent/20 to-accent/5">
+              <button className="w-full py-3 text-sm font-semibold text-black bg-white border border-border/40 rounded-md mx-auto hover:bg-muted transition-colors">
                 Recreate
               </button>
             </div>
