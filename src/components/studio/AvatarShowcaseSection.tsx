@@ -13,12 +13,12 @@ const AVATAR_SLOTS: AvatarSlot[] = [
   { id: "5", video: "/studio/avatar-5.mp4" },
   { id: "6", video: "/studio/avatar-6.mp4" },
   // row 2 – videos to be added later
-  { id: "7" },
-  { id: "8" },
-  { id: "9" },
-  { id: "10" },
-  { id: "11" },
-  { id: "12" },
+  { id: "7", video: "/studio/avatar-7.mp4" },
+  { id: "8", video: "/studio/avatar-8.mp4" },
+  { id: "9", video: "/studio/avatar-9.mp4" },
+  { id: "10", video: "/studio/avatar-10.mp4" },
+  { id: "11", video: "/studio/avatar-11.mp4" },
+  { id: "12", video: "/studio/avatar-12.mp4" },
 ];
 
 function AvatarCard({ slot }: { slot: AvatarSlot }) {
