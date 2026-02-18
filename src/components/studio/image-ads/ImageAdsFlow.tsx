@@ -45,7 +45,7 @@ export default function ImageAdsFlow() {
       </div>
 
       {/* Step content */}
-      <div className="flex-1 relative min-h-0 overflow-auto">
+      <div className="flex-1 relative overflow-y-auto">
         {step === "link" && (
           <ImageAdsLinkStep
             onSelectProduct={() => setStep("select-product")}
