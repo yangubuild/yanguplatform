@@ -7,7 +7,6 @@ interface AvatarSlot {
 
 const AVATAR_SLOTS: AvatarSlot[] = Array.from({ length: 12 }, (_, i) => ({
   id: String(i + 1),
-  // videos will be added later
 }));
 
 export function AvatarShowcaseSection() {
@@ -29,7 +28,7 @@ export function AvatarShowcaseSection() {
         </p>
       </div>
 
-      {/* top row */}
+      {/* row 1 */}
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-1.5">
         {AVATAR_SLOTS.slice(0, 6).map((slot) => (
           <div
@@ -40,20 +39,23 @@ export function AvatarShowcaseSection() {
               <video
                 src={slot.video}
                 className="absolute inset-0 w-full h-full object-cover"
-                muted
-                loop
-                playsInline
-                autoPlay
+                muted loop playsInline autoPlay
               />
             ) : (
               <div className="absolute inset-0 bg-gradient-to-br from-muted/40 to-muted/10" />
             )}
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+            {/* per-card Create video button */}
+            <div className="absolute bottom-3 inset-x-3 z-10">
+              <button className="w-full py-2 rounded-lg bg-white/90 text-black text-xs font-medium hover:bg-white transition-colors backdrop-blur-sm">
+                Create video
+              </button>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* bottom row */}
+      {/* row 2 */}
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-1.5">
         {AVATAR_SLOTS.slice(6, 12).map((slot) => (
           <div
@@ -64,20 +66,22 @@ export function AvatarShowcaseSection() {
               <video
                 src={slot.video}
                 className="absolute inset-0 w-full h-full object-cover"
-                muted
-                loop
-                playsInline
-                autoPlay
+                muted loop playsInline autoPlay
               />
             ) : (
               <div className="absolute inset-0 bg-gradient-to-br from-muted/40 to-muted/10" />
             )}
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+            <div className="absolute bottom-3 inset-x-3 z-10">
+              <button className="w-full py-2 rounded-lg bg-white/90 text-black text-xs font-medium hover:bg-white transition-colors backdrop-blur-sm">
+                Create video
+              </button>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* CTA button */}
+      {/* bottom CTA */}
       <div className="flex justify-center pt-2">
         <button className="inline-flex items-center gap-2 rounded-full border border-border/50 bg-card px-6 py-2.5 text-sm font-medium text-foreground hover:bg-muted/60 transition-colors">
           Create <span className="font-semibold">Avatar Video</span>
