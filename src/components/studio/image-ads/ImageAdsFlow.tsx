@@ -22,7 +22,7 @@ export default function ImageAdsFlow() {
   };
 
   return (
-    <div className="flex flex-col h-full w-full bg-background relative min-h-0">
+    <div className="flex flex-col min-h-[calc(100vh-4rem)] w-full bg-background relative">
       {/* Top bar */}
       <div className="flex items-center justify-between px-6 pt-4 pb-2">
         <div className="flex items-center gap-3">
