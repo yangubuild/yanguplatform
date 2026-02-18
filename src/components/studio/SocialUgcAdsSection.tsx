@@ -111,8 +111,8 @@ export function SocialUgcAdsSection() {
             </div>
 
             {/* Recreate button – slides down on hover */}
-            <div className="max-h-0 group-hover:max-h-16 transition-all duration-300 overflow-hidden bg-gradient-to-b from-accent/20 to-accent/5">
-              <button className="w-full py-3 text-sm font-semibold text-black bg-white border border-border/40 rounded-md mx-auto hover:bg-muted transition-colors">
+            <div className="max-h-0 group-hover:max-h-10 transition-all duration-300 overflow-hidden bg-gradient-to-b from-accent/20 to-accent/5">
+              <button className="w-full py-1.5 text-xs font-semibold text-black bg-white border border-border/40 rounded-md hover:bg-muted transition-colors">
                 Recreate
               </button>
             </div>
