@@ -108,8 +108,8 @@ export function ImageAdsSection() {
                 </div>
               )}
 
-              {/* Recreate button on hover — first 4 tall cards only */}
-              {card.span?.includes("row-span-3") && parseInt(card.id) <= 4 && (
+              {/* Recreate button on hover — first 5 cards (4 tall + card 5 short) */}
+              {parseInt(card.id) <= 5 && (
                 <div className="absolute bottom-0 left-0 right-0 z-20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-accent/20 to-accent/5 px-2 py-1.5">
                   <button className="w-full py-1.5 text-xs font-semibold text-black bg-white border border-border/40 rounded-md hover:bg-muted transition-colors">
                     Recreate
