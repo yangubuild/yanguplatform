@@ -107,8 +107,12 @@ export function SocialUgcAdsSection() {
               </div>
             )}
 
-            {/* hover */}
-            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+            {/* hover overlay + Recreate button */}
+            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-6">
+              <button className="w-[80%] rounded-full bg-white py-2.5 text-sm font-semibold text-foreground shadow-lg hover:bg-muted transition-colors">
+                Recreate
+              </button>
+            </div>
           </div>
         ))}
       </div>
