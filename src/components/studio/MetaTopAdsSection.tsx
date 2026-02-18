@@ -156,14 +156,60 @@ export function MetaTopAdsSection() {
         ))}
       </div>
 
-      {/* card grid */}
+      {/* top row – full cards with buttons */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-        {META_ADS.map((ad) => (
+        {META_ADS.slice(0, 5).map((ad) => (
           <div
             key={ad.id}
             className="rounded-xl border border-border/40 bg-card overflow-hidden flex flex-col"
           >
-            {/* card header */}
+            {/* caption at top */}
+            <p className="text-xs text-muted-foreground px-3 pt-3 pb-2 line-clamp-2 leading-relaxed">
+              {ad.caption}
+            </p>
+
+            {/* media */}
+            <div className="relative flex-1 min-h-[200px] bg-muted/30">
+              {ad.hasVideo && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="h-10 w-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
+                    <div className="w-0 h-0 border-l-[10px] border-l-white border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-1" />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* external link bar */}
+            {ad.externalUrl && (
+              <div className="flex items-center justify-between px-3 py-2 border-t border-border/30">
+                <span className="text-[10px] text-muted-foreground truncate">{ad.externalUrl}</span>
+                <button className="text-[10px] font-medium text-foreground border border-border/40 rounded px-2 py-0.5 hover:bg-muted transition-colors">
+                  {ad.externalCta}
+                </button>
+              </div>
+            )}
+
+            {/* clone button */}
+            <div className="flex items-center gap-1 px-2 py-2 mt-auto">
+              <button className="flex-1 py-1.5 text-xs font-semibold text-black bg-white border border-border/40 rounded-md hover:bg-accent hover:text-white hover:border-accent transition-colors">
+                Clone this ad
+              </button>
+              <button className="h-7 w-7 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted">
+                <MoreVertical className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* bottom row – brand header + fading image, no buttons */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+        {META_ADS.slice(5, 10).map((ad) => (
+          <div
+            key={ad.id}
+            className="rounded-xl border border-border/40 bg-card overflow-hidden flex flex-col"
+          >
+            {/* brand header */}
             <div className="flex items-center gap-2 px-3 py-2.5">
               <div className="h-7 w-7 rounded-full bg-muted/60 flex items-center justify-center text-sm shrink-0">
                 {ad.avatar}
@@ -187,35 +233,16 @@ export function MetaTopAdsSection() {
               {ad.caption}
             </p>
 
-            {/* media placeholder */}
-            <div className="relative aspect-[3/4] bg-muted/30 mx-0">
+            {/* fading image – no button */}
+            <div className="relative h-[140px] bg-muted/30 overflow-hidden">
+              <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-card to-transparent z-10" />
               {ad.hasVideo && (
-                <div className="absolute inset-0 flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center justify-center z-0">
                   <div className="h-10 w-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
                     <div className="w-0 h-0 border-l-[10px] border-l-white border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-1" />
                   </div>
                 </div>
               )}
-            </div>
-
-            {/* external link bar (for ads with external URLs) */}
-            {ad.externalUrl && (
-              <div className="flex items-center justify-between px-3 py-2 border-t border-border/30">
-                <span className="text-[10px] text-muted-foreground truncate">{ad.externalUrl}</span>
-                <button className="text-[10px] font-medium text-foreground border border-border/40 rounded px-2 py-0.5 hover:bg-muted transition-colors">
-                  {ad.externalCta}
-                </button>
-              </div>
-            )}
-
-            {/* clone button */}
-            <div className="flex items-center gap-1 px-2 py-2 mt-auto">
-              <button className="flex-1 py-1.5 text-xs font-semibold text-black bg-white border border-border/40 rounded-md hover:bg-accent hover:text-white hover:border-accent transition-colors">
-                Clone this ad
-              </button>
-              <button className="h-7 w-7 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted">
-                <MoreVertical className="h-3.5 w-3.5" />
-              </button>
             </div>
           </div>
         ))}
