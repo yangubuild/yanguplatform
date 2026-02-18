@@ -217,12 +217,10 @@ const App = () => (
                   path="/ada-ai"
                   element={
                     <ProtectedRoute>
-                      <NavigationDashboardPage />
+                      <AdaAi />
                     </ProtectedRoute>
                   }
-                >
-                  <Route index element={<AdaAi />} />
-                </Route>
+                />
                 
                 {/* Admin management panel */}
                 <Route
