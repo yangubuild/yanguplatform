@@ -16,15 +16,14 @@ interface ImageCard {
 }
 
 const IMAGE_CARDS: ImageCard[] = [
-  { id: "1", votes: 31, image: "", span: "col-span-1 row-span-2" },
-  { id: "2", votes: 20, image: "", span: "col-span-1 row-span-2" },
-  { id: "3", votes: 23, image: "", span: "col-span-1 row-span-2" },
-  { id: "4", votes: 21, image: "", span: "col-span-1 row-span-2" },
-  { id: "5", votes: 20, image: "", span: "col-span-1 row-span-1" },
-  { id: "6", votes: 22, image: "", span: "col-span-1 row-span-1" },
-  { id: "7", votes: 22, image: "", span: "col-span-1 row-span-1" },
-  { id: "8", votes: 20, image: "", span: "col-span-1 row-span-1" },
-  { id: "9", votes: 24, image: "", span: "col-span-1 row-span-1" },
+  // Row 1: 5 tall cards with recreate buttons
+  { id: "1", votes: 31, image: "/studio/img-ad-1.webp", span: "col-span-1 row-span-2" },
+  { id: "2", votes: 20, image: "/studio/img-ad-2.webp", span: "col-span-1 row-span-2" },
+  { id: "3", votes: 23, image: "/studio/img-ad-3.webp", span: "col-span-1 row-span-2" },
+  { id: "4", votes: 21, image: "/studio/img-ad-4.webp", span: "col-span-1 row-span-2" },
+  { id: "5", votes: 27, image: "/studio/img-ad-5.webp", span: "col-span-1 row-span-1" },
+  // Card 6: tall, NO recreate button, gradient fade
+  { id: "6", votes: 24, image: "/studio/img-ad-6.webp", span: "col-span-1 row-span-2", isPro: false },
 ];
 
 export function ImageAdsSection() {
@@ -73,7 +72,7 @@ export function ImageAdsSection() {
 
       {/* masonry-style grid with gradient fade */}
       <div className="relative">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 auto-rows-[180px] gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 auto-rows-[180px] gap-2">
           {IMAGE_CARDS.map((card) => (
             <div
               key={card.id}
@@ -103,13 +102,18 @@ export function ImageAdsSection() {
                 </div>
               )}
 
-              {/* Recreate button on hover — tall cards only */}
-              {card.span?.includes("row-span-2") && (
+              {/* Recreate button on hover — first 4 tall cards only (not card 6) */}
+              {card.span?.includes("row-span-2") && parseInt(card.id) <= 4 && (
                 <div className="absolute bottom-0 left-0 right-0 z-20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-accent/20 to-accent/5 px-2 py-1.5">
                   <button className="w-full py-1.5 text-xs font-semibold text-black bg-white border border-border/40 rounded-md hover:bg-muted transition-colors">
                     Recreate
                   </button>
                 </div>
+              )}
+
+              {/* Gradient fade on card 6 (tall, no button) */}
+              {card.id === "6" && (
+                <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-background via-background/60 to-transparent pointer-events-none z-20" />
               )}
             </div>
           ))}
