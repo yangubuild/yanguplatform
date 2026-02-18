@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { X, Mic, Settings, ChevronDown, Smartphone, Plus, ArrowUp, AudioLines, User, Loader2, Paperclip, Download, RefreshCw, Globe, CloudUpload, Palette, Code2, BarChart3, Image, Package, Megaphone, Users, UserCheck, Zap, Layout, Activity } from "lucide-react";
-import adaLogo from "@/assets/ada-logo-full.png";
+// ada-logo import removed
 import { useAuth } from "@/hooks/useAuth";
 import { useAdaVoice } from "@/hooks/useAdaVoice";
 import { supabase } from "@/integrations/supabase/client";
@@ -1590,37 +1590,12 @@ export function AdaMainPanel() {
             )}
           </div>
 
-          {/* Profile: Dynamic avatar / initials */}
-          <button
-            onClick={() => {
-              if (isAuthenticated) {
-                navigate("/dashboard/profile");
-              } else {
-                navigate("/auth/login");
-              }
-            }}
-            className="w-9 h-9 rounded-full flex items-center justify-center transition-colors group relative overflow-hidden"
-            style={{ background: isAuthenticated ? "rgba(244,168,61,0.15)" : "rgba(255,255,255,0.1)", border: "1.5px solid rgba(244,168,61,0.4)" }}
-            title={isAuthenticated ? (profile?.display_name || "Profile") : "Sign in"}
-          >
-            {isAuthenticated && profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-            ) : isAuthenticated && profile?.display_name ? (
-              <span className="text-[#F4A83D] text-sm font-semibold">
-                {profile.display_name.charAt(0).toUpperCase()}
-              </span>
-            ) : (
-              <User className="w-4 h-4 text-[#F4A83D]/70" />
-            )}
-            <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded text-[9px] text-white/60 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-              style={{ background: "rgba(0,0,0,0.8)", border: "1px solid rgba(255,255,255,0.1)" }}
-            >{isAuthenticated ? (profile?.display_name || "Profile") : "Sign in"}</span>
-          </button>
+          {/* Profile avatar removed — available in dashboard nav */}
         </div>
       </div>
 
-      {/* Center content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6">
+      {/* Center content — equal gutters so content is visually centered in this container */}
+      <div className="flex-1 flex flex-col items-center justify-center pl-12 pr-4">
         {mode === "voice" ? (
           <>
             {/* Animated particle ring */}
