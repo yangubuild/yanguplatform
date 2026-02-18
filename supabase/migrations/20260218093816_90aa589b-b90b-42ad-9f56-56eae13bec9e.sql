@@ -1,0 +1,1 @@
+CREATE INDEX idx_kyc_verifications_user_created ON public.kyc_verifications (user_id, created_at DESC);
