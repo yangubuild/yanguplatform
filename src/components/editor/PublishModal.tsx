@@ -84,6 +84,19 @@ export function PublishModal({
   const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
   const [publishedSlug, setPublishedSlug] = useState<string | null>(null);
 
+  // Re-check eligibility when modal regains focus (e.g. returning from /kyc)
+  useEffect(() => {
+    if (!open || !selectedDomainId) return;
+
+    const handleFocus = () => {
+      const slugToCheck = customSlug || defaultSlug || "";
+      selectDomain(selectedDomainId); // re-triggers eligibility check
+    };
+
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
+  }, [open, selectedDomainId, customSlug, defaultSlug, selectDomain]);
+
   // Auto-select domain on open
   useEffect(() => {
     if (open && domains.length > 0 && !selectedDomainId) {
