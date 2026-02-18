@@ -212,7 +212,7 @@ export default function Studio() {
                     className="shrink-0 w-[260px] md:w-[280px] snap-start cursor-pointer group"
                   >
                     <div
-                      className={`rounded-2xl aspect-[4/5] bg-gradient-to-br ${ad.gradient} mb-3 overflow-hidden`}
+                      className={`rounded-2xl aspect-[4/3] bg-gradient-to-br ${ad.gradient} mb-3 overflow-hidden`}
                     >
                       {/* placeholder for ad image/video */}
                       <div className="w-full h-full bg-white/5" />
