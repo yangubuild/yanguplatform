@@ -66,19 +66,19 @@ const TOP_ADS = [
     id: "3",
     title: "Show Your Product",
     description: "A collection of recipes featuring your physical prod...",
-    video: "/studio/top-ad-3.mp4",
+    video: "/studio/top-ad-5.mp4",
   },
   {
     id: "4",
     title: "Billboards",
     description: "A collection of billboard scenes where you can put ...",
-    video: "/studio/top-ad-4.mp4",
+    video: "/studio/top-ad-3.mp4",
   },
   {
     id: "5",
     title: "Angry People",
     description: "A collection of ...",
-    video: "/studio/top-ad-5.mp4",
+    video: "/studio/top-ad-4.mp4",
   },
   {
     id: "6",
