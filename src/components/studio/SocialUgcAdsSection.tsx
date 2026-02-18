@@ -25,12 +25,12 @@ const UGC_CARDS: UgcCard[] = [
   { id: "4", votes: 44, thumbnail: "/studio/ugc-4.mp4", caption: "Despite the huge size, it" },
   { id: "5", votes: 41, thumbnail: "/studio/ugc-5.mp4", isPro: true, caption: "Confused by multiple logins?" },
   { id: "6", votes: 46, thumbnail: "/studio/ugc-6.mp4", caption: "Honestly, it is the only" },
-  { id: "7", votes: 30, thumbnail: "" },
-  { id: "8", votes: 40, thumbnail: "" },
-  { id: "9", votes: 33, thumbnail: "" },
-  { id: "10", votes: 33, thumbnail: "" },
-  { id: "11", votes: 30, thumbnail: "" },
-  { id: "12", votes: 32, thumbnail: "" },
+  { id: "7", votes: 30, thumbnail: "/studio/ugc-7.mp4" },
+  { id: "8", votes: 40, thumbnail: "/studio/ugc-8.mp4" },
+  { id: "9", votes: 33, thumbnail: "/studio/ugc-9.mp4" },
+  { id: "10", votes: 33, thumbnail: "/studio/ugc-10.mp4" },
+  { id: "11", votes: 30, thumbnail: "/studio/ugc-11.mp4" },
+  { id: "12", votes: 32, thumbnail: "/studio/ugc-12.mp4" },
 ];
 
 export function SocialUgcAdsSection() {
