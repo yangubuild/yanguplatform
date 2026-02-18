@@ -17,6 +17,7 @@ import { useCredits } from "@/hooks/useCredits";
 import { PromoPopup } from "@/components/promo/PromoPopup";
 import { SocialUgcAdsSection } from "@/components/studio/SocialUgcAdsSection";
 import { ImageAdsSection } from "@/components/studio/ImageAdsSection";
+import { TopPerformingAdsSection } from "@/components/studio/TopPerformingAdsSection";
 
 /* ─────────── data ─────────── */
 
@@ -253,6 +254,9 @@ export default function Studio() {
 
           {/* ── Image Ads ── */}
           <ImageAdsSection />
+
+          {/* ── Product Visual Effects ── */}
+          <TopPerformingAdsSection />
         </div>
         </div>
       </div>
