@@ -97,7 +97,6 @@ const App = () => (
                 {/* Public routes */}
                 <Route path="/" element={<Index />} />
                 <Route path="/community/*" element={<Community />} />
-                <Route path="/ada-ai" element={<AdaAi />} />
                 <Route path="/why-yangu" element={<WhyYangu />} />
                 <Route path="/discover" element={<DiscoverYangu />} />
                 <Route path="/discover-yangu" element={<DiscoverYangu />} />
@@ -154,7 +153,6 @@ const App = () => (
                   <Route path="offers" element={<DashboardPlaceholder />} />
                   <Route path="messages" element={<MessagesPage />} />
                   <Route path="ada" element={<Navigate to="/ada-ai" replace />} />
-                  <Route path="studio" element={<Navigate to="/studio" replace />} />
                   <Route path="influencer" element={<DashboardPlaceholder />} />
                   <Route path="visionaire" element={<DashboardPlaceholder />} />
                   <Route path="app-store" element={<DashboardPlaceholder />} />
@@ -202,59 +200,28 @@ const App = () => (
                   {/* Catch-all inside dashboard */}
                   <Route path="*" element={<Navigate to="/dashboard" replace />} />
                 </Route>
-                
-                {/* Legacy route — redirect old /navigation to /dashboard */}
-                <Route path="/navigation" element={<Navigate to="/dashboard" replace />} />
-                
-                {/* Surface Editor - protected */}
-                <Route
-                  path="/surfaces/:id/edit"
-                  element={
-                    <ProtectedRoute>
-                      <SurfaceEditor />
-                    </ProtectedRoute>
-                  }
-                />
-                
-                {/* KYC - protected */}
-                <Route
-                  path="/kyc"
-                  element={
-                    <ProtectedRoute>
-                      <KYC />
-                    </ProtectedRoute>
-                  }
-                />
-                
-                {/* Billing - protected */}
-                <Route
-                  path="/billing"
-                  element={
-                    <ProtectedRoute>
-                      <Billing />
-                    </ProtectedRoute>
-                  }
-                />
-                
-                {/* Subscriptions - upgrade page */}
-                <Route
-                  path="/subscriptions"
-                  element={
-                    <ProtectedRoute>
-                      <Subscriptions />
-                    </ProtectedRoute>
-                  }
-                />
-                
-                {/* Studio - Global AI creative engine */}
+
+                {/* Studio & Ada inside dashboard shell */}
                 <Route
                   path="/studio"
                   element={
                     <ProtectedRoute>
-                      <Studio />
+                      <NavigationDashboardPage />
                     </ProtectedRoute>
                   }
-                />
+                >
+                  <Route index element={<Studio />} />
+                </Route>
+                <Route
+                  path="/ada-ai"
+                  element={
+                    <ProtectedRoute>
+                      <NavigationDashboardPage />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<AdaAi />} />
+                </Route>
                 
                 {/* Admin management panel */}
                 <Route
