@@ -41,6 +41,7 @@ import DiscoverYangu from "./pages/DiscoverYangu";
 import Blog from "./pages/Blog";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import AdaLanding from "./pages/AdaLanding";
 
 const ManageDashboard = lazy(() => import("./pages/manage/ManageDashboard"));
 const ManagePlaceholder = lazy(() => import("./pages/manage/ManagePlaceholder"));
@@ -217,10 +218,15 @@ const App = () => (
                   path="/ada-ai"
                   element={
                     <ProtectedRoute>
-                      <AdaAi />
+                      <NavigationDashboardPage />
                     </ProtectedRoute>
                   }
-                />
+                >
+                  <Route index element={<AdaAi />} />
+                </Route>
+
+                {/* Public ADA landing page */}
+                <Route path="/ada" element={<AdaLanding />} />
                 
                 {/* Admin management panel */}
                 <Route

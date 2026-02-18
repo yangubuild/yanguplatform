@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { X, Mic, Settings, ChevronDown, Smartphone, Plus, ArrowUp, AudioLines, User, Loader2, Paperclip, Download, RefreshCw, Globe, CloudUpload, Palette, Code2, BarChart3, Image, Package, Megaphone, Users, UserCheck, Zap, Layout, Activity } from "lucide-react";
-// ada-logo import removed
+import adaLogo from "@/assets/ada-logo-full.png";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdaVoice } from "@/hooks/useAdaVoice";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +12,7 @@ import { consumeEntitlement } from "@/lib/entitlements";
 import { useNavigate } from "react-router-dom";
 import { MediaGenerationCard, type MediaGenStatus } from "./MediaGenerationCard";
 import { AdaAuthModal } from "./AdaAuthModal";
+import { AdaBottomSection } from "./AdaBottomSection";
 
 type AdaMode = "auto" | "standard" | "cinema" | "motion";
 type AdaSkill = "starter" | "creator" | "agency";
@@ -1526,7 +1527,7 @@ export function AdaMainPanel() {
 
   return (
     <main
-      className="lg:ml-[280px] flex-1 min-h-screen flex flex-col"
+      className="flex-1 min-h-screen flex flex-col"
     >
       {/* Hidden file input */}
       <input
@@ -1539,7 +1540,13 @@ export function AdaMainPanel() {
       />
 
       {/* Top bar */}
-      <div className="flex items-center justify-end px-6 pt-6 pb-4">
+      <div className="flex items-center justify-between px-6 pt-6 pb-4">
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent("ada-new-chat"))}
+          className="text-sm text-white/80 hover:text-[#F4A83D] transition-colors"
+        >
+          + New Chat
+        </button>
         <div className="flex items-center gap-3">
           {/* Phone: Toggle mobile preview mode */}
           <button
@@ -1808,6 +1815,7 @@ export function AdaMainPanel() {
         ) : (
           <>
             {/* Welcome / hero state */}
+            <img src={adaLogo} alt="Ada AI" className="h-10 mb-4 object-contain" />
             <h1 className="text-white text-4xl md:text-5xl font-bold text-center mb-2 flex items-center justify-center gap-3">
               <span>Build your</span>
               <span className="inline-flex" style={{ minWidth: "4.5em" }}>
@@ -2029,11 +2037,14 @@ export function AdaMainPanel() {
         )}
 
         {/* Disclaimer */}
-        <p className="text-white/25 text-xs text-center max-w-md">
+        <p className="text-white/25 text-xs text-center max-w-md mb-6">
           Don't enter sensitive info. AI responses may be inaccurate and do not
           represent views.
         </p>
       </div>
+
+      {/* ── Bottom Section: ALL CHAT + IMAGES + Icons ── */}
+      <AdaBottomSection />
 
       {/* Advanced Prompt Modal */}
       {showAdvancedModal && (
