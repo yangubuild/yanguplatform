@@ -1,37 +1,34 @@
 
+## Fix Ada AI Layout: Content Centering + Sidebar Text Alignment
 
-## Tablet "View Trends" Overlap Fix
+### Problem 1: Main content not centered in the right panel
+The Ada content (title, mode switcher, chat box, actions) appears shifted to the right. The space between the chat history panel's right edge and the content is much larger than the space between the content and the page's right edge. This happens because the content uses `max-w-2xl` (672px) centered inside a very wide flex container, but the top-bar Extensions button sits at the far right, creating a visual imbalance.
 
-### Problem
-On iPad/tablet (around 1024px width), the `lg:` Tailwind breakpoint activates. This causes:
-- The sidebar to appear (via `lg:translate-x-0`)
-- The main content to shift right (via `lg:ml-[240px]`)  
-- The View Trends bar to pull left by 200px (via `lg:-ml-[200px]`)
+**Fix:** Remove `px-4` and instead use `mx-auto` with a tighter `max-w-3xl` container that accounts for the available width properly. The key change is to make the outer wrapper NOT center with `items-center` but instead use a nested centered container that respects the actual available space. Specifically, reduce the right padding and increase left padding so the content visually sits closer to the history panel.
 
-At 1024px there is not enough space, so "View Trends" overlaps into the Explore button.
+Concretely in `AdaMainPanel.tsx` (line 1598):
+- Change from `px-4` to `pl-4 pr-8` -- NO, the real fix is to shift the `max-w-2xl` content blocks to the LEFT using `mr-auto` + some left margin, rather than centering them.
 
-### Solution
-Add a tablet-only override that reduces or removes the negative left margin on the trends bar. This uses a `md` range (768px-1023px has no sidebar so no issue) -- the real problem is at exactly `lg` (1024px+) on narrower screens like iPad.
+Actually, the simplest correct fix: change the container from `items-center` to `items-start` and add appropriate left padding (~`pl-8` or `pl-12`) so the content sits closer to the history panel, with more space on the right. This matches what the user's red marks show -- they want the content moved LEFT.
 
-The fix: change the negative margin and extra width from `lg:` to `xl:` (1280px+), and at the `lg:` breakpoint use a smaller offset that avoids overlap.
+### Problem 2: "ALL CHAT" not aligned with "+ New Chat"
+In the sidebar, "+ New Chat" has `px-4` on its container plus `px-1` on the button itself (total ~20px left). "ALL CHAT" is inside a `px-4` container with no extra padding. The text should start at the same horizontal position.
 
-### File Change: `src/components/mass/MassTrendsBar.tsx`
+**Fix:** In `AdaSidebar.tsx`, add `px-1` to the "All chat" paragraph to match the "+ New Chat" button's inner padding.
 
-**Line 24** -- Update the container className:
+---
 
-From:
-```
-lg:-ml-[200px] lg:pr-0 lg:w-[calc(100%+260px)]
-```
+### Technical Changes
 
-To:
-```
-lg:-ml-[60px] lg:w-[calc(100%+120px)] xl:-ml-[200px] xl:w-[calc(100%+260px)]
-```
+**File: `src/components/mass/ada/AdaMainPanel.tsx`**
+- Line 1598: Change the center content container from `items-center justify-center px-4` to `items-start justify-center pl-12 pr-4` so the content block shifts left toward the history panel, leaving more space on the right side.
+- All inner `max-w-2xl` blocks remain unchanged -- they'll just be left-aligned within the container instead of centered.
 
-This gives:
-- **Mobile** (below 1024px): No negative margin (unchanged)
-- **Tablet/small desktop** (1024px-1279px): Small 60px overlap -- enough to create the "emerging" effect without covering the Explore button
-- **Desktop** (1280px+): Full 200px overlap as currently designed
+**File: `src/components/mass/ada/AdaSidebar.tsx`**  
+- Line 252: Add `px-1` class to the "All chat" text paragraph so it aligns horizontally with the "+ New Chat" button text above it.
 
-No other files are modified. Desktop and mobile layouts remain identical.
+### No other changes
+- Dashboard sidebar: untouched
+- Landing page: untouched
+- Studio page: untouched
+- No component redesign
