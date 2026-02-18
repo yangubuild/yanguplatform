@@ -30,7 +30,7 @@ const HERO_CARDS = [
     subtitle: "Turn product into video ads",
     badge: null,
     gradient: "from-amber-900/80 via-stone-900/60 to-stone-900/80",
-    video: "/studio/hero-ai-video-ads.mp4",
+    video: "/studio/hero-ai-video-ads.mp4?v=2",
   },
   {
     id: "avatar-video",
@@ -38,7 +38,7 @@ const HERO_CARDS = [
     subtitle: "Create talking videos with AI actors",
     badge: "AURORA MODEL",
     gradient: "from-indigo-900/80 via-purple-900/60 to-violet-900/80",
-    video: "/studio/hero-avatar-video.mp4",
+    video: "/studio/hero-avatar-video.mp4?v=2",
   },
   {
     id: "asset-generator",
@@ -46,7 +46,7 @@ const HERO_CARDS = [
     subtitle: "Generate high-quality ad assets instantly",
     badge: null,
     gradient: "from-emerald-900/80 via-teal-900/60 to-cyan-900/80",
-    video: "/studio/hero-asset-generator.mp4",
+    video: "/studio/hero-asset-generator.mp4?v=2",
   },
 ] as const;
 
