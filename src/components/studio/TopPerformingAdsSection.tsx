@@ -25,6 +25,9 @@ const VIDEO_CARDS: VideoCard[] = [
   { id: "6", votes: 21, video: "/studio/pve-6.mp4", span: "col-span-1 row-span-1" },
   { id: "7", votes: 20, video: "/studio/pve-7.mp4", span: "col-span-1 row-span-1" },
   { id: "8", votes: 21, video: "/studio/pve-8.mp4", span: "col-span-1 row-span-1" },
+  { id: "9", votes: 19, video: "/studio/pve-9.mp4", span: "col-span-1 row-span-1" },
+  { id: "10", votes: 18, video: "/studio/pve-10.mp4", span: "col-span-1 row-span-1" },
+  { id: "11", votes: 22, video: "/studio/pve-11.mp4", span: "col-span-1 row-span-1" },
 ];
 
 export function TopPerformingAdsSection() {
