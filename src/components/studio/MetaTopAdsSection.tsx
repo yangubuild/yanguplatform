@@ -82,7 +82,7 @@ const META_ADS: MetaAdCard[] = [
     avatar: "📖",
     isNew: true,
     caption: "My husband fell in love with my little sister and wanted her as hi...",
-    image: "",
+    image: "/studio/meta-bot-1.jpg",
     hasVideo: true,
   },
   {
@@ -91,7 +91,7 @@ const META_ADS: MetaAdCard[] = [
     avatar: "🚗",
     isNew: true,
     caption: "Don't settle for weak cleaning. The Sogo SG-880 delivers 110 Ba...",
-    image: "",
+    image: "/studio/meta-bot-2.jpg",
     hasVideo: true,
   },
   {
@@ -100,7 +100,7 @@ const META_ADS: MetaAdCard[] = [
     avatar: "🌐",
     isNew: true,
     caption: "Who knew a simple memo draw could spark so much excitement...",
-    image: "",
+    image: "/studio/meta-bot-3.jpg",
     hasVideo: true,
   },
   {
@@ -109,7 +109,7 @@ const META_ADS: MetaAdCard[] = [
     avatar: "🏎️",
     isNew: true,
     caption: "Want to be our 20th winner?! 👑 You could be the owner of this '2...",
-    image: "",
+    image: "/studio/meta-bot-4.jpg",
   },
   {
     id: "10",
@@ -117,7 +117,7 @@ const META_ADS: MetaAdCard[] = [
     avatar: "💄",
     isNew: true,
     caption: "Try This If Your Skin Is Stressing You Out The products you use...",
-    image: "",
+    image: "/studio/meta-bot-5.jpg",
   },
 ];
 
@@ -272,14 +272,10 @@ export function MetaTopAdsSection() {
 
             {/* fading image – no button */}
             <div className="relative h-[140px] bg-muted/30 overflow-hidden">
-              <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-card to-transparent z-10" />
-              {ad.hasVideo && (
-                <div className="absolute inset-0 flex items-center justify-center z-0">
-                  <div className="h-10 w-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
-                    <div className="w-0 h-0 border-l-[10px] border-l-white border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-1" />
-                  </div>
-                </div>
+              {ad.image && (
+                <img src={ad.image} alt={ad.brand} className="absolute inset-0 w-full h-full object-cover" />
               )}
+              <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-card to-transparent z-10" />
             </div>
           </div>
         ))}
