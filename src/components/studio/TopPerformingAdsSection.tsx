@@ -21,11 +21,10 @@ const VIDEO_CARDS: VideoCard[] = [
   { id: "3", votes: 21, video: "/studio/top-ad-3.mp4", span: "col-span-1 row-span-1" },
   { id: "4", votes: 23, video: "/studio/top-ad-4.mp4", span: "col-span-2 row-span-1" }, // BIG
   { id: "5", votes: 23, video: "/studio/top-ad-5.mp4", span: "col-span-1 row-span-1" },
-  // Row 2: 6 equal cards
-  { id: "6", votes: 21, video: "/studio/top-ad-6.mp4", span: "col-span-1 row-span-1" },
-  { id: "7", votes: 20, video: "/studio/top-ad-7.mp4", span: "col-span-1 row-span-1" },
-  { id: "8", votes: 21, video: "/studio/top-ad-8.mp4", span: "col-span-1 row-span-1" },
-  { id: "9", votes: 21, video: "/studio/top-ad-9.mp4", span: "col-span-1 row-span-1" },
+  // Row 2: 3 cards
+  { id: "6", votes: 21, video: "/studio/top-ad-6.mp4", span: "col-span-2 row-span-1" },
+  { id: "7", votes: 20, video: "/studio/top-ad-7.mp4", span: "col-span-2 row-span-1" },
+  { id: "8", votes: 21, video: "/studio/top-ad-8.mp4", span: "col-span-2 row-span-1" },
 ];
 
 export function TopPerformingAdsSection() {
