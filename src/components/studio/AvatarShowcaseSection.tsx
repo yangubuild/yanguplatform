@@ -5,9 +5,44 @@ interface AvatarSlot {
   video?: string;
 }
 
-const AVATAR_SLOTS: AvatarSlot[] = Array.from({ length: 12 }, (_, i) => ({
-  id: String(i + 1),
-}));
+const AVATAR_SLOTS: AvatarSlot[] = [
+  { id: "1", video: "/studio/avatar-1.mp4" },
+  { id: "2", video: "/studio/avatar-2.mp4" },
+  { id: "3", video: "/studio/avatar-3.mp4" },
+  { id: "4", video: "/studio/avatar-4.mp4" },
+  { id: "5", video: "/studio/avatar-5.mp4" },
+  { id: "6", video: "/studio/avatar-6.mp4" },
+  // row 2 – videos to be added later
+  { id: "7" },
+  { id: "8" },
+  { id: "9" },
+  { id: "10" },
+  { id: "11" },
+  { id: "12" },
+];
+
+function AvatarCard({ slot }: { slot: AvatarSlot }) {
+  return (
+    <div className="relative rounded-xl overflow-hidden aspect-[3/4] bg-muted/30 border border-border/20 cursor-pointer group">
+      {slot.video ? (
+        <video
+          src={slot.video}
+          className="absolute inset-0 w-full h-full object-cover"
+          muted loop playsInline autoPlay
+        />
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-br from-muted/40 to-muted/10" />
+      )}
+
+      {/* hover-reveal "Create video" button – same pattern as PVE section */}
+      <div className="absolute bottom-0 left-0 right-0 z-20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-accent/20 to-accent/5 px-2 py-1.5">
+        <button className="w-full py-1.5 text-xs font-semibold text-black bg-white border border-border/40 rounded-md hover:bg-accent hover:text-white hover:border-accent transition-colors">
+          Create video
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export function AvatarShowcaseSection() {
   return (
@@ -31,53 +66,14 @@ export function AvatarShowcaseSection() {
       {/* row 1 */}
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-1.5">
         {AVATAR_SLOTS.slice(0, 6).map((slot) => (
-          <div
-            key={slot.id}
-            className="relative rounded-xl overflow-hidden aspect-[3/4] bg-muted/30 border border-border/20 cursor-pointer group"
-          >
-            {slot.video ? (
-              <video
-                src={slot.video}
-                className="absolute inset-0 w-full h-full object-cover"
-                muted loop playsInline autoPlay
-              />
-            ) : (
-              <div className="absolute inset-0 bg-gradient-to-br from-muted/40 to-muted/10" />
-            )}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
-            {/* per-card Create video button */}
-            <div className="absolute bottom-3 inset-x-3 z-10">
-              <button className="w-full py-2 rounded-lg bg-white/90 text-black text-xs font-medium hover:bg-white transition-colors backdrop-blur-sm">
-                Create video
-              </button>
-            </div>
-          </div>
+          <AvatarCard key={slot.id} slot={slot} />
         ))}
       </div>
 
       {/* row 2 */}
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-1.5">
         {AVATAR_SLOTS.slice(6, 12).map((slot) => (
-          <div
-            key={slot.id}
-            className="relative rounded-xl overflow-hidden aspect-[3/4] bg-muted/30 border border-border/20 cursor-pointer group"
-          >
-            {slot.video ? (
-              <video
-                src={slot.video}
-                className="absolute inset-0 w-full h-full object-cover"
-                muted loop playsInline autoPlay
-              />
-            ) : (
-              <div className="absolute inset-0 bg-gradient-to-br from-muted/40 to-muted/10" />
-            )}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
-            <div className="absolute bottom-3 inset-x-3 z-10">
-              <button className="w-full py-2 rounded-lg bg-white/90 text-black text-xs font-medium hover:bg-white transition-colors backdrop-blur-sm">
-                Create video
-              </button>
-            </div>
-          </div>
+          <AvatarCard key={slot.id} slot={slot} />
         ))}
       </div>
 
