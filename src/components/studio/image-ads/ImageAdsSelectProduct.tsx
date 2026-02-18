@@ -23,7 +23,7 @@ export function ImageAdsSelectProduct({ onCancel, onSelect }: Props) {
   );
 
   return (
-    <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm flex flex-col">
+    <div className="absolute inset-0 z-30 bg-background/95 backdrop-blur-sm flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-8 pt-8 pb-4">
         <h2 className="text-xl font-bold text-foreground">Select a product</h2>
@@ -73,7 +73,7 @@ export function ImageAdsSelectProduct({ onCancel, onSelect }: Props) {
       </div>
 
       {/* Footer */}
-      <div className="absolute bottom-0 left-0 right-0 flex items-center justify-end gap-3 px-8 py-4 border-t border-border/40 bg-background">
+      <div className="sticky bottom-0 flex items-center justify-end gap-3 px-8 py-4 border-t border-border/40 bg-background">
         <Button variant="outline" onClick={onCancel} className="rounded-lg">
           Cancel
         </Button>
