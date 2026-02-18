@@ -30,6 +30,7 @@ const HERO_CARDS = [
     subtitle: "Turn product into video ads",
     badge: null,
     gradient: "from-amber-900/80 via-stone-900/60 to-stone-900/80",
+    video: "/studio/hero-ai-video-ads.mp4",
   },
   {
     id: "avatar-video",
@@ -37,6 +38,7 @@ const HERO_CARDS = [
     subtitle: "Create talking videos with AI actors",
     badge: "AURORA MODEL",
     gradient: "from-indigo-900/80 via-purple-900/60 to-violet-900/80",
+    video: "/studio/hero-avatar-video.mp4",
   },
   {
     id: "asset-generator",
@@ -44,6 +46,7 @@ const HERO_CARDS = [
     subtitle: "Generate high-quality ad assets instantly",
     badge: null,
     gradient: "from-emerald-900/80 via-teal-900/60 to-cyan-900/80",
+    video: "/studio/hero-asset-generator.mp4",
   },
 ] as const;
 
@@ -152,7 +155,15 @@ export default function Studio() {
                   </div>
                 )}
 
-                {/* placeholder for video – user will add later */}
+                {/* background video */}
+                <video
+                  src={card.video}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent pointer-events-none" />
 
                 <div className="relative z-10">
