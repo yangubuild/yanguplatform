@@ -237,17 +237,13 @@ export function AdaSidebar({ isOpen = true, onClose, inline = false }: AdaSideba
         })}
       </div>
 
-      {/* New Chat button */}
+      {/* New Chat — plain text link */}
       <div className="px-4 pt-4 pb-2">
         <button
           onClick={handleNewChat}
-          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-medium text-sm text-white transition-all"
-          style={{
-            background: "linear-gradient(90deg, #C4841F 0%, rgba(212,149,43,0.45) 55%, rgba(26,26,26,0.18) 100%)",
-            boxShadow: "0 0 18px rgba(212,149,43,0.18)",
-          }}
+          className="w-full text-left text-sm text-white/80 hover:text-[#F4A83D] transition-colors py-1.5 px-1"
         >
-          <span>+</span> New Chat
+          + New Chat
         </button>
       </div>
 
