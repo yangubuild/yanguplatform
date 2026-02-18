@@ -19,12 +19,12 @@ interface UgcCard {
 }
 
 const UGC_CARDS: UgcCard[] = [
-  { id: "1", votes: 52, thumbnail: "", caption: "it is the only SPF I actually" },
-  { id: "2", votes: 53, thumbnail: "", caption: "REALLY NEED TO TRY IT." },
-  { id: "3", votes: 42, thumbnail: "" },
-  { id: "4", votes: 44, thumbnail: "", caption: "Despite the huge size, it" },
-  { id: "5", votes: 41, thumbnail: "", isPro: true, caption: "Confused by multiple logins?" },
-  { id: "6", votes: 46, thumbnail: "", caption: "Honestly, it is the only" },
+  { id: "1", votes: 52, thumbnail: "/studio/ugc-1.mp4", caption: "it is the only SPF I actually" },
+  { id: "2", votes: 53, thumbnail: "/studio/ugc-2.mp4", caption: "REALLY NEED TO TRY IT." },
+  { id: "3", votes: 42, thumbnail: "/studio/ugc-3.mp4" },
+  { id: "4", votes: 44, thumbnail: "/studio/ugc-4.mp4", caption: "Despite the huge size, it" },
+  { id: "5", votes: 41, thumbnail: "/studio/ugc-5.mp4", isPro: true, caption: "Confused by multiple logins?" },
+  { id: "6", votes: 46, thumbnail: "/studio/ugc-6.mp4", caption: "Honestly, it is the only" },
   { id: "7", votes: 30, thumbnail: "" },
   { id: "8", votes: 40, thumbnail: "" },
   { id: "9", votes: 33, thumbnail: "" },
@@ -84,8 +84,18 @@ export function SocialUgcAdsSection() {
             key={card.id}
             className="relative rounded-xl overflow-hidden aspect-[3/4] bg-muted/30 cursor-pointer group"
           >
-            {/* placeholder bg */}
-            <div className="absolute inset-0 bg-gradient-to-br from-muted/60 to-muted/20" />
+            {card.thumbnail ? (
+              <video
+                src={card.thumbnail}
+                className="absolute inset-0 w-full h-full object-cover"
+                muted
+                loop
+                playsInline
+                autoPlay
+              />
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-br from-muted/60 to-muted/20" />
+            )}
 
             {/* vote badge */}
             <div className="absolute top-2 left-2 z-10 inline-flex items-center gap-1 rounded-full bg-black/50 backdrop-blur-sm px-2 py-0.5 text-[11px] font-semibold text-white">
