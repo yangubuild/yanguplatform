@@ -34,6 +34,7 @@ import { RequireRole } from "@/components/auth/RequireRole";
 
 // Lazy-loaded route bundles to eliminate navigation lag
 import Studio from "./pages/Studio";
+import ImageAdsFlow from "./components/studio/image-ads/ImageAdsFlow";
 import Community from "./pages/Community";
 import AdaAi from "./pages/AdaAi";
 import WhyYangu from "./pages/WhyYangu";
@@ -213,6 +214,7 @@ const App = () => (
                   }
                 >
                   <Route index element={<Studio />} />
+                  <Route path="image-ads" element={<ImageAdsFlow />} />
                 </Route>
                 <Route
                   path="/ada-ai"
