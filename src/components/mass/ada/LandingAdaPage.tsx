@@ -31,7 +31,7 @@ export function LandingAdaPage() {
         </div>
 
         {/* ADA main panel (public, no auth required) */}
-        <AdaMainPanel />
+        <AdaMainPanel hideBottomSection />
 
         {/* Content sections below */}
         <AdaContentSections />
