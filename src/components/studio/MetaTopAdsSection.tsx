@@ -157,19 +157,38 @@ export function MetaTopAdsSection() {
       </div>
 
       {/* top row – full cards with buttons */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 items-start">
         {META_ADS.slice(0, 5).map((ad) => (
           <div
             key={ad.id}
             className="rounded-xl border border-border/40 bg-card overflow-hidden flex flex-col"
           >
-            {/* caption at top */}
-            <p className="text-xs text-muted-foreground px-3 pt-3 pb-2 line-clamp-2 leading-relaxed">
+            {/* brand header */}
+            <div className="flex items-center gap-2 px-3 py-2.5">
+              <div className="h-7 w-7 rounded-full bg-muted/60 flex items-center justify-center text-sm shrink-0">
+                {ad.avatar}
+              </div>
+              <div className="flex-1 min-w-0 flex items-center gap-1.5">
+                <span className="text-xs font-semibold text-foreground truncate">
+                  {ad.brand}
+                </span>
+                {ad.isNew && (
+                  <span className="inline-flex items-center gap-1 shrink-0">
+                    <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+                    <span className="text-[10px] font-medium text-muted-foreground">NEW</span>
+                  </span>
+                )}
+              </div>
+              <Bookmark className="h-4 w-4 text-muted-foreground shrink-0" />
+            </div>
+
+            {/* caption */}
+            <p className="text-xs text-muted-foreground px-3 pb-2 line-clamp-2 leading-relaxed">
               {ad.caption}
             </p>
 
-            {/* media */}
-            <div className="relative flex-1 min-h-[200px] bg-muted/30">
+            {/* media – fixed height so first 3 align, 4&5 grow taller via external bar */}
+            <div className="relative aspect-[3/4] bg-muted/30">
               {ad.hasVideo && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="h-10 w-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
@@ -179,18 +198,21 @@ export function MetaTopAdsSection() {
               )}
             </div>
 
-            {/* external link bar */}
+            {/* external link bar – only on cards 4&5, making them taller */}
             {ad.externalUrl && (
               <div className="flex items-center justify-between px-3 py-2 border-t border-border/30">
-                <span className="text-[10px] text-muted-foreground truncate">{ad.externalUrl}</span>
-                <button className="text-[10px] font-medium text-foreground border border-border/40 rounded px-2 py-0.5 hover:bg-muted transition-colors">
+                <div className="min-w-0 flex-1 mr-2">
+                  <p className="text-[10px] text-muted-foreground truncate">{ad.externalUrl}</p>
+                  <p className="text-[10px] font-medium text-foreground truncate mt-0.5">{ad.externalCta === "Shop Now" ? "SkinKraft - India's Only Customized..." : "👏 Click to Read 👏"}</p>
+                </div>
+                <button className="text-[10px] font-medium text-foreground border border-border/40 rounded px-2 py-0.5 hover:bg-muted transition-colors shrink-0">
                   {ad.externalCta}
                 </button>
               </div>
             )}
 
             {/* clone button */}
-            <div className="flex items-center gap-1 px-2 py-2 mt-auto">
+            <div className="flex items-center gap-1 px-2 py-2">
               <button className="flex-1 py-1.5 text-xs font-semibold text-black bg-white border border-border/40 rounded-md hover:bg-accent hover:text-white hover:border-accent transition-colors">
                 Clone this ad
               </button>
