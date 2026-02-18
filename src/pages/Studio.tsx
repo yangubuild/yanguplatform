@@ -15,6 +15,7 @@ import {
 import { AppShell } from "@/components/primitives";
 import { useCredits } from "@/hooks/useCredits";
 import { PromoPopup } from "@/components/promo/PromoPopup";
+import { SocialUgcAdsSection } from "@/components/studio/SocialUgcAdsSection";
 
 /* ─────────── data ─────────── */
 
@@ -244,8 +245,11 @@ export default function Studio() {
               >
                 <ChevronRight className="h-5 w-5" />
               </button>
-            </div>
           </div>
+
+          {/* ── Social & UGC Ads ── */}
+          <SocialUgcAdsSection />
+        </div>
         </div>
       </div>
     </AppShell>
