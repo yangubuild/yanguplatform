@@ -339,7 +339,7 @@ export function AdaBottomSection() {
                   className="aspect-square rounded-lg overflow-hidden cursor-pointer hover:ring-1 hover:ring-white/20 transition-all"
                   style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
                 >
-                  <img src={img.signed_url} alt={img.prompt_text || ""} className="w-full h-full object-cover" />
+                  <ImageWithFallback src={img.signed_url} alt={img.prompt_text || ""} />
                 </button>
               ))}
             </div>
@@ -388,5 +388,35 @@ export function AdaBottomSection() {
         </div>
       )}
     </>
+  );
+}
+
+function ImageWithFallback({ src, alt }: { src?: string; alt: string }) {
+  const [error, setError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+
+  if (error) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center gap-1 p-2">
+        <Image className="w-5 h-5 text-white/20" />
+        <span className="text-[10px] text-white/30 text-center">Failed to load</span>
+        <button
+          onClick={(e) => { e.stopPropagation(); setError(false); setRetryCount(c => c + 1); }}
+          className="text-[10px] text-[#F4A83D]/70 hover:text-[#F4A83D] transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <img
+      key={retryCount}
+      src={src}
+      alt={alt}
+      className="w-full h-full object-cover"
+      onError={() => setError(true)}
+    />
   );
 }

@@ -3,7 +3,7 @@ import { AdaMainPanel } from "./AdaMainPanel";
 export function AdaAiPage() {
   return (
     <div
-      className="h-full flex flex-col"
+      className="h-full flex flex-col overflow-hidden"
       style={{ background: "radial-gradient(ellipse at 50% 40%, rgba(212,149,43,0.10) 0%, rgba(5,10,7,0) 50%), #050A07" }}
     >
       <AdaMainPanel />
