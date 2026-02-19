@@ -1218,7 +1218,9 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
 
     for (const file of Array.from(files)) {
       const ts = Date.now();
-      const filePath = `${user.id}/${cid}/${ts}-${file.name}`;
+      // Sanitize filename: replace spaces and special chars to avoid Storage "Invalid key" errors
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const filePath = `${user.id}/${cid}/${ts}-${safeName}`;
       const { error } = await supabase.storage.from("ada-uploads").upload(filePath, file, { upsert: false });
       if (error) {
         console.error("[AdaUpload] Storage error:", error);
