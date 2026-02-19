@@ -61,8 +61,19 @@ function isCreatifyCompatible(text: string): boolean {
 // Social media prompt patterns for auto-routing to image
 const SOCIAL_MEDIA_RE = /\b(create|make|generate|design)\s+(a\s+)?(facebook|instagram|twitter|linkedin|social\s*media)\s+(post|poster|ad|banner|story|carousel)\b/i;
 
+// Require an explicit generative verb before any media keyword to avoid
+// routing normal conversation as image/video generation.
+const GENERATIVE_VERBS_RE = /\b(generate|create|make|draw|design|paint|sketch|build|produce)\b/i;
+
+// Phrases that explicitly ask for TEXT — must always override media detection
+const TEXT_OVERRIDE_RE = /\b(give\s+(it\s+)?(as|in)\s+words|write\s+it|text\s+(form|version|only)|as\s+text|don'?t\s+(generate|create|make)\s+(an?\s+)?image|no\s+image|words\s+not\s+image|in\s+words)\b/i;
+
 function detectMediaIntent(text: string): "image" | "video" | null {
   const lower = text.toLowerCase();
+  // If user explicitly wants text, never route to media
+  if (TEXT_OVERRIDE_RE.test(lower)) return null;
+  // Require a generative verb to be present
+  if (!GENERATIVE_VERBS_RE.test(lower)) return null;
   if (VIDEO_KEYWORDS.some(k => lower.includes(k))) return "video";
   if (IMAGE_KEYWORDS.some(k => lower.includes(k))) return "image";
   return null;
@@ -1018,13 +1029,22 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
     }
 
     // --- Auto Director: detect media intent ---
+    // If user explicitly asks for text, always use text mode
+    if (TEXT_OVERRIDE_RE.test(text.toLowerCase())) {
+      const streamMsgId = `msg_${Date.now()}`;
+      const streamMsg: ChatMessage = { id: streamMsgId, role: "assistant", content: "", isStreaming: true, created_at: new Date().toISOString() };
+      setMessages(prev => [...prev, streamMsg]);
+      const convMessages = messages.slice(-20).map(m => ({ role: m.role, content: m.content }));
+      convMessages.push({ role: "user", content: text });
+      await streamChatResponse(convMessages, cid, streamMsgId);
+      return;
+    }
+
     const mediaIntent = detectMediaIntent(text);
     const imageIntentPatterns = [
       /^(generate|create|make|draw|design|paint|sketch)\s+(an?\s+)?image\b/,
       /^(generate|create|make|draw|design|paint|sketch)\s+(an?\s+)?(picture|photo|illustration|artwork|logo|icon|graphic|poster|banner)\b/,
       /\b(generate|create|make|draw)\s+(me\s+)?(an?\s+)?image\b/,
-      /\bimage\s+of\b/,
-      /\bpicture\s+of\b/,
     ];
     const isExplicitImageIntent = imageIntentPatterns.some(p => p.test(text.toLowerCase()));
     const isSocialMediaIntent = SOCIAL_MEDIA_RE.test(text);
@@ -1072,29 +1092,25 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
       const convMessages = messages.slice(-20).map(m => ({ role: m.role, content: m.content }));
       convMessages.push({ role: "user", content: text });
       await streamChatResponse(convMessages, cid, streamMsgId, undefined, undefined, async (finalContent: string) => {
-        // Post-stream action detection: if AI outputs action intents, trigger generation
-        const actionImageRe = /\{\s*"?action"?\s*:\s*"?image"?\s*\}/i;
-        const actionVideoRe = /\{\s*"?action"?\s*:\s*"?video"?\s*\}/i;
-        const pleaseCmdRe = /please\s+use\s+the\s+\/image\s+command/i;
+        // Post-stream: if the AI tried to trigger image/video actions via JSON,
+        // just strip those tokens and leave the text response.
+        // Image generation only happens through explicit user intent (commands, verbs).
+        const actionImageRe = /\{\s*"?action"?\s*:\s*"?image"?\s*\}/gi;
+        const actionVideoRe = /\{\s*"?action"?\s*:\s*"?video"?\s*\}/gi;
+        const pleaseCmdRe = /please\s+use\s+the\s+\/image\s+command[^.]*/gi;
         
-        if (actionImageRe.test(finalContent) || pleaseCmdRe.test(finalContent)) {
-          // Remove the text response, trigger image generation
-          setMessages(prev => prev.filter(m => m.id !== streamMsgId));
-          const prov = (routing.provider === "qwen" || routing.provider === "ideogram") ? routing.provider : "ideogram";
-          await handleImageGenerate(text, cid, prov as "ideogram" | "qwen");
-        } else if (actionVideoRe.test(finalContent)) {
-          // ADA does not generate video — generate poster frame + Studio CTA
-          setMessages(prev => prev.filter(m => m.id !== streamMsgId));
-          const vidProv = (routing.provider === "qwen" || routing.provider === "ideogram") ? routing.provider : "ideogram";
-          await handleImageGenerate(text, cid, vidProv as "ideogram" | "qwen");
-          const studioCta: ChatMessage = {
-            id: `msg_${Date.now() + 2}`,
-            role: "assistant",
-            content: `🎬 **Video is created in YANGU Studio.**\n\n👉 [Open YANGU Studio](/studio) to create your video.`,
-            routingPill: { mode: "Auto", tier: "Studio Video Preview (Image)", provider: vidProv === "ideogram" ? "Ideogram" : "Qwen" },
-            created_at: new Date().toISOString(),
-          };
-          setMessages(prev => [...prev, studioCta]);
+        const cleaned = finalContent
+          .replace(actionImageRe, "")
+          .replace(actionVideoRe, "")
+          .replace(pleaseCmdRe, "")
+          .trim();
+        
+        if (cleaned !== finalContent) {
+          // Update the message with cleaned content (no auto-generation)
+          setMessages(prev => prev.map(m => m.id === streamMsgId
+            ? { ...m, content: cleaned || "I can help you create images — just say \"generate an image of...\" or use `/image <prompt>`." }
+            : m
+          ));
         }
       });
     }
