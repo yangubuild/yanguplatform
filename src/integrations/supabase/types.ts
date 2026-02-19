@@ -809,6 +809,33 @@ export type Database = {
           },
         ]
       }
+      drive_tokens: {
+        Row: {
+          access_token: string
+          created_at: string
+          expires_at: string
+          refresh_token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          expires_at: string
+          refresh_token: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          expires_at?: string
+          refresh_token?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       external_publications: {
         Row: {
           category: string | null
@@ -2159,6 +2186,7 @@ export type Database = {
         Returns: boolean
       }
       has_used_trial: { Args: { _user_id: string }; Returns: boolean }
+      is_drive_connected: { Args: never; Returns: boolean }
       is_owner: { Args: { _user_id: string }; Returns: boolean }
       is_slug_available: {
         Args: { _domain_id: string; _slug: string }
