@@ -77,7 +77,7 @@ export function AdaBottomSection() {
     if (!isAuthenticated || !user) return;
     const { data } = await supabase
       .from("ada_media")
-      .select("id, storage_path, metadata")
+      .select("id, storage_path, metadata, provider")
       .eq("user_id", user.id)
       .eq("kind", "image")
       .order("created_at", { ascending: false })
@@ -87,18 +87,47 @@ export function AdaBottomSection() {
       return;
     }
 
-    // Generate signed URLs for each image — images are stored in 'ai-generated' bucket
-    const paths = data.map(d => d.storage_path);
-    const { data: signedData } = await supabase.storage
-      .from("ai-generated")
-      .createSignedUrls(paths, 3600);
+    // Split images by bucket: uploads go to 'ada-uploads', generated go to 'ai-generated'
+    const uploadPaths: string[] = [];
+    const generatedPaths: string[] = [];
+    const bucketMap: ("upload" | "generated")[] = [];
+    for (const d of data) {
+      if (d.provider === "upload") {
+        uploadPaths.push(d.storage_path);
+        bucketMap.push("upload");
+      } else {
+        generatedPaths.push(d.storage_path);
+        bucketMap.push("generated");
+      }
+    }
 
-    const items: ImageItem[] = data.map((d, i) => ({
-      id: d.id,
-      storage_path: d.storage_path,
-      signed_url: signedData?.[i]?.signedUrl || d.storage_path,
-      prompt_text: (d.metadata as any)?.prompt_text || (d.metadata as any)?.prompt || "",
-    }));
+    // Fetch signed URLs from both buckets in parallel
+    const [uploadSigned, generatedSigned] = await Promise.all([
+      uploadPaths.length > 0
+        ? supabase.storage.from("ada-uploads").createSignedUrls(uploadPaths, 3600)
+        : Promise.resolve({ data: [] as any[] }),
+      generatedPaths.length > 0
+        ? supabase.storage.from("ai-generated").createSignedUrls(generatedPaths, 3600)
+        : Promise.resolve({ data: [] as any[] }),
+    ]);
+
+    let upIdx = 0, genIdx = 0;
+    const items: ImageItem[] = data.map((d) => {
+      let signedUrl = d.storage_path;
+      if (d.provider === "upload") {
+        signedUrl = uploadSigned.data?.[upIdx]?.signedUrl || d.storage_path;
+        upIdx++;
+      } else {
+        signedUrl = generatedSigned.data?.[genIdx]?.signedUrl || d.storage_path;
+        genIdx++;
+      }
+      return {
+        id: d.id,
+        storage_path: d.storage_path,
+        signed_url: signedUrl,
+        prompt_text: (d.metadata as any)?.prompt_text || (d.metadata as any)?.prompt || "",
+      };
+    });
     setImages(items);
   }, [isAuthenticated, user]);
 
@@ -162,25 +191,25 @@ export function AdaBottomSection() {
       // Search images by prompt_text in metadata
       const { data: imgResults } = await supabase
         .from("ada_media")
-        .select("id, storage_path, metadata")
+        .select("id, storage_path, metadata, provider")
         .eq("user_id", user.id)
         .eq("kind", "image")
         .ilike("metadata->>prompt_text", `%${q}%`)
         .order("created_at", { ascending: false })
         .limit(4);
       if (imgResults && imgResults.length > 0) {
-        const imgPaths = imgResults.map(d => d.storage_path);
-        const { data: signedData } = await supabase.storage
-          .from("ai-generated")
-          .createSignedUrls(imgPaths, 3600);
-        imgResults.forEach((img, i) => {
+        for (const img of imgResults) {
+          const bucket = img.provider === "upload" ? "ada-uploads" : "ai-generated";
+          const { data: signedData } = await supabase.storage
+            .from(bucket)
+            .createSignedUrls([img.storage_path], 3600);
           results.push({
             type: "image",
             id: img.id,
             title: (img.metadata as any)?.prompt_text || "Generated image",
-            image_url: signedData?.[i]?.signedUrl || img.storage_path,
+            image_url: signedData?.[0]?.signedUrl || img.storage_path,
           });
-        });
+        }
       }
 
       setSearchResults(results);

@@ -1221,11 +1221,25 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
       const filePath = `${user.id}/${cid}/${ts}-${file.name}`;
       const { error } = await supabase.storage.from("ada-uploads").upload(filePath, file, { upsert: false });
       if (error) {
-        console.error("Upload err:", error);
+        console.error("[AdaUpload] Storage error:", error);
         toast({ title: `Failed to upload ${file.name}`, variant: "destructive" });
         continue;
       }
       setPendingAttachments(prev => [...prev, { name: file.name, type: file.type, size: file.size, path: filePath }]);
+
+      // If it's an image, also insert ada_media record so Images panel picks it up
+      const isImage = /\.(png|jpe?g|webp|gif|svg)$/i.test(file.name) || file.type.startsWith("image/");
+      if (isImage) {
+        await supabase.from("ada_media").insert({
+          user_id: user.id,
+          chat_id: cid || undefined,
+          provider: "upload",
+          storage_path: filePath,
+          kind: "image",
+          metadata: { prompt_text: file.name, source: "upload", mime_type: file.type, size_bytes: file.size },
+        });
+        window.dispatchEvent(new CustomEvent("ada-media-saved"));
+      }
     }
     if (fileInputRef.current) fileInputRef.current.value = "";
   }, [user, activeChatId, createDbChat]);
