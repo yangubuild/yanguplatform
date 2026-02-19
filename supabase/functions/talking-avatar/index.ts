@@ -14,18 +14,29 @@ function json(data: unknown, status = 200) {
   });
 }
 
-// ── Provider attempt result ──
+// ── Types ──
 interface ProviderResult {
   ok: boolean;
   video_url?: string;
+  model_used?: string;
+  is_watermarked?: boolean;
   error?: string;
 }
 
-// ── Creatify: talking photo / lipsync ──
+interface AvatarRequest {
+  image_url: string;
+  text?: string;
+  audio_url?: string;
+  voice_id?: string;
+  enabled_providers?: string[]; // e.g. ["creatify_video","heygen_avatar","did_avatar"]
+}
+
+// ── Provider: Creatify ──
 async function tryCreatify(
   imageUrl: string,
   text: string | undefined,
   audioUrl: string | undefined,
+  _voiceId: string | undefined,
 ): Promise<ProviderResult> {
   const apiId = Deno.env.get("CREATIFY_API_ID");
   const apiKey = Deno.env.get("CREATIFY_API_KEY");
@@ -37,10 +48,7 @@ async function tryCreatify(
     "X-API-KEY": apiKey,
   };
 
-  // Use the AI Editing / lipsync endpoint
-  const payload: Record<string, unknown> = {
-    image_url: imageUrl,
-  };
+  const payload: Record<string, unknown> = { image_url: imageUrl };
   if (audioUrl) {
     payload.audio_url = audioUrl;
   } else if (text) {
@@ -64,7 +72,6 @@ async function tryCreatify(
   const jobId = createData.id;
   if (!jobId) return { ok: false, error: "Creatify returned no job id" };
 
-  // Poll for completion (max ~3 min)
   for (let i = 0; i < 36; i++) {
     await new Promise((r) => setTimeout(r, 5000));
     const pollRes = await fetch(`https://api.creatify.ai/api/lipsyncs/${jobId}/`, { headers });
@@ -72,7 +79,7 @@ async function tryCreatify(
     const poll = await pollRes.json();
     if (poll.status === "done" || poll.status === "completed") {
       const url = poll.output || poll.video_output;
-      if (url) return { ok: true, video_url: url };
+      if (url) return { ok: true, video_url: url, model_used: "lipsync-v1", is_watermarked: true };
       return { ok: false, error: "Creatify completed but returned no URL" };
     }
     if (poll.status === "failed" || poll.status === "error") {
@@ -82,11 +89,12 @@ async function tryCreatify(
   return { ok: false, error: "Creatify timed out" };
 }
 
-// ── HeyGen: avatar video ──
+// ── Provider: HeyGen ──
 async function tryHeyGen(
   imageUrl: string,
   text: string | undefined,
   audioUrl: string | undefined,
+  voiceId: string | undefined,
 ): Promise<ProviderResult> {
   const apiKey = Deno.env.get("HEYGEN_API_KEY");
   if (!apiKey) return { ok: false, error: "HeyGen not configured" };
@@ -96,7 +104,6 @@ async function tryHeyGen(
     "X-Api-Key": apiKey,
   };
 
-  // Build the voice / audio input
   const inputFace: Record<string, unknown> = {
     type: "talk_photo",
     talk_photo_url: imageUrl,
@@ -105,15 +112,12 @@ async function tryHeyGen(
   if (audioUrl) {
     voice = { type: "audio", audio_url: audioUrl };
   } else {
-    voice = { type: "text", input_text: text || "", voice_id: "en-US-JennyNeural" };
+    voice = { type: "text", input_text: text || "", voice_id: voiceId || "en-US-JennyNeural" };
   }
 
   const payload = {
     video_inputs: [
-      {
-        character: { type: "talk_photo", talk_photo: inputFace },
-        voice,
-      },
+      { character: { type: "talk_photo", talk_photo: inputFace }, voice },
     ],
     dimension: { width: 512, height: 512 },
   };
@@ -135,7 +139,6 @@ async function tryHeyGen(
   const videoId = createData.data?.video_id;
   if (!videoId) return { ok: false, error: "HeyGen returned no video_id" };
 
-  // Poll
   for (let i = 0; i < 36; i++) {
     await new Promise((r) => setTimeout(r, 5000));
     const pollRes = await fetch(`https://api.heygen.com/v1/video_status.get?video_id=${videoId}`, { headers });
@@ -144,7 +147,7 @@ async function tryHeyGen(
     const status = poll.data?.status;
     if (status === "completed") {
       const url = poll.data?.video_url;
-      if (url) return { ok: true, video_url: url };
+      if (url) return { ok: true, video_url: url, model_used: "talk_photo-v2", is_watermarked: true };
       return { ok: false, error: "HeyGen completed but no URL" };
     }
     if (status === "failed") {
@@ -154,11 +157,12 @@ async function tryHeyGen(
   return { ok: false, error: "HeyGen timed out" };
 }
 
-// ── D-ID: talks API ──
+// ── Provider: D-ID ──
 async function tryDID(
   imageUrl: string,
   text: string | undefined,
   audioUrl: string | undefined,
+  voiceId: string | undefined,
 ): Promise<ProviderResult> {
   const apiKey = Deno.env.get("DID_API_KEY");
   if (!apiKey) return { ok: false, error: "D-ID not configured" };
@@ -170,12 +174,9 @@ async function tryDID(
 
   const script: Record<string, unknown> = audioUrl
     ? { type: "audio", audio_url: audioUrl }
-    : { type: "text", input: text || "", provider: { type: "microsoft", voice_id: "en-US-JennyNeural" } };
+    : { type: "text", input: text || "", provider: { type: "microsoft", voice_id: voiceId || "en-US-JennyNeural" } };
 
-  const payload = {
-    source_url: imageUrl,
-    script,
-  };
+  const payload = { source_url: imageUrl, script };
 
   console.log("[talking-avatar] Trying d-id…");
   const createRes = await fetch("https://api.d-id.com/talks", {
@@ -194,7 +195,6 @@ async function tryDID(
   const talkId = createData.id;
   if (!talkId) return { ok: false, error: "D-ID returned no talk id" };
 
-  // Poll
   for (let i = 0; i < 36; i++) {
     await new Promise((r) => setTimeout(r, 5000));
     const pollRes = await fetch(`https://api.d-id.com/talks/${talkId}`, { headers });
@@ -202,7 +202,7 @@ async function tryDID(
     const poll = await pollRes.json();
     if (poll.status === "done") {
       const url = poll.result_url;
-      if (url) return { ok: true, video_url: url };
+      if (url) return { ok: true, video_url: url, model_used: "talks-v1", is_watermarked: false };
       return { ok: false, error: "D-ID completed but no URL" };
     }
     if (poll.status === "error" || poll.status === "rejected") {
@@ -212,54 +212,63 @@ async function tryDID(
   return { ok: false, error: "D-ID timed out" };
 }
 
+// ── Provider registry (isolated adapters) ──
+const PROVIDER_REGISTRY = [
+  { name: "creatify", toggleKey: "creatify_video", fn: tryCreatify },
+  { name: "heygen", toggleKey: "heygen_avatar", fn: tryHeyGen },
+  { name: "did", toggleKey: "did_avatar", fn: tryDID },
+] as const;
+
 // ── Main handler ──
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    // Auth check
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer "))
-      return json({ ok: false, error: "Authentication required" }, 401);
+      return json({ success: false, error: "Authentication required" }, 401);
 
     let userId: string | null = null;
     try {
       const payload = JSON.parse(atob(authHeader.slice(7).split(".")[1]));
       userId = payload.sub || null;
     } catch (_) { /* ignore */ }
-    if (!userId) return json({ ok: false, error: "Authentication required" }, 401);
+    if (!userId) return json({ success: false, error: "Authentication required" }, 401);
 
-    const body = await req.json();
-    const { image_url, text, audio_url } = body as {
-      image_url?: string;
-      text?: string;
-      audio_url?: string;
-    };
+    const body = await req.json() as AvatarRequest;
+    const { image_url, text, audio_url, voice_id, enabled_providers } = body;
 
-    if (!image_url) return json({ ok: false, error: "image_url is required" }, 400);
-    if (!text && !audio_url) return json({ ok: false, error: "text or audio_url is required" }, 400);
+    if (!image_url) return json({ success: false, error: "image_url is required" }, 400);
+    if (!text && !audio_url) return json({ success: false, error: "text or audio_url is required" }, 400);
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const admin = createClient(supabaseUrl, serviceKey);
 
-    // Provider chain: creatify → heygen → d-id
-    const providers = [
-      { name: "creatify", fn: tryCreatify },
-      { name: "heygen", fn: tryHeyGen },
-      { name: "did", fn: tryDID },
-    ] as const;
+    // Build active provider chain respecting toggles
+    const activeProviders = PROVIDER_REGISTRY.filter((p) => {
+      if (!enabled_providers || enabled_providers.length === 0) return true; // all enabled by default
+      return enabled_providers.includes(p.toggleKey);
+    });
+
+    if (activeProviders.length === 0) {
+      return json({ success: false, error: "No avatar providers are enabled" }, 400);
+    }
 
     let providerUsed = "";
+    let modelUsed = "";
+    let isWatermarked: boolean | null = null;
     let fallbackFrom: string | null = null;
     let videoUrl: string | null = null;
     const errors: string[] = [];
     const startMs = Date.now();
 
-    for (const { name, fn } of providers) {
-      const result = await fn(image_url, text, audio_url);
+    for (const { name, fn } of activeProviders) {
+      const result = await fn(image_url, text, audio_url, voice_id);
       if (result.ok && result.video_url) {
         providerUsed = name;
+        modelUsed = result.model_used || "";
+        isWatermarked = result.is_watermarked ?? null;
         videoUrl = result.video_url;
         break;
       }
@@ -272,12 +281,12 @@ serve(async (req) => {
 
     if (!videoUrl) {
       console.error("[talking-avatar] All providers failed:", errors);
-      return json({ ok: false, error: "All avatar providers failed", details: errors }, 502);
+      return json({ success: false, error: "All avatar providers failed", details: errors }, 502);
     }
 
     // Download & upload to storage
     const dlRes = await fetch(videoUrl);
-    if (!dlRes.ok) return json({ ok: false, error: "Failed to download generated video" }, 502);
+    if (!dlRes.ok) return json({ success: false, error: "Failed to download generated video" }, 502);
 
     const videoBytes = new Uint8Array(await dlRes.arrayBuffer());
     const storagePath = `talking-avatar/${userId}/${crypto.randomUUID()}.mp4`;
@@ -288,19 +297,23 @@ serve(async (req) => {
 
     if (upErr) {
       console.error("[talking-avatar] Upload error:", upErr);
-      return json({ ok: false, error: "Failed to store video" }, 500);
+      return json({ success: false, error: "Failed to store video" }, 500);
     }
 
     const { data: signedData } = await admin.storage
       .from("ai-generated-video")
       .createSignedUrl(storagePath, 3600);
 
-    // Store metadata in ada_media
+    // Rich metadata
     const metadata = {
       provider_used: providerUsed,
+      model_used: modelUsed,
       fallback_from: fallbackFrom,
       generation_latency_ms: latencyMs,
       source_image: image_url,
+      is_watermarked: isWatermarked,
+      prompt_text: text || null,
+      input_type: audio_url ? "audio" : "text",
     };
 
     const { data: mediaRow } = await admin.from("ada_media").insert({
@@ -312,18 +325,19 @@ serve(async (req) => {
     }).select("id").single();
 
     console.log(
-      `[talking-avatar] ✓ provider=${providerUsed} fallback=${fallbackFrom || "none"} latency=${latencyMs}ms media_id=${mediaRow?.id}`,
+      `[talking-avatar] ✓ provider=${providerUsed} model=${modelUsed} fallback=${fallbackFrom || "none"} latency=${latencyMs}ms media_id=${mediaRow?.id}`,
     );
 
     return json({
-      ok: true,
+      success: true,
+      provider_used: providerUsed,
+      fallback_from: fallbackFrom,
+      generation_latency_ms: latencyMs,
       video_url: signedData?.signedUrl || videoUrl,
-      storage_path: storagePath,
       media_id: mediaRow?.id || null,
-      metadata,
     });
   } catch (e) {
     console.error("[talking-avatar] error:", e);
-    return json({ ok: false, error: e instanceof Error ? e.message : "Unknown error" }, 500);
+    return json({ success: false, error: e instanceof Error ? e.message : "Unknown error" }, 500);
   }
 });
