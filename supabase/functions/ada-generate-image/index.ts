@@ -98,6 +98,49 @@ serve(async (req) => {
         size: "1024x1024",
         revised_prompt: openaiData.data?.[0]?.revised_prompt || prompt,
       };
+    } else if (provider === "gemini") {
+      const lovableKey = Deno.env.get("LOVABLE_API_KEY");
+      if (!lovableKey) {
+        return json({ ok: false, error_code: "PROVIDER_NOT_CONFIGURED", message: "Lovable API key not configured" }, 500);
+      }
+
+      const geminiRes = await fetch("https://ai.gateway.lovable.dev/v1/images/generations", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${lovableKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash-image",
+          prompt,
+          n: 1,
+          size: "1024x1024",
+          response_format: "b64_json",
+        }),
+      });
+
+      if (!geminiRes.ok) {
+        const errText = await geminiRes.text();
+        console.error("[ada-generate-image] Gemini error:", geminiRes.status, errText);
+        return json({ ok: false, error_code: "GEMINI_ERROR", message: "Gemini image generation failed" }, 502);
+      }
+
+      const geminiData = await geminiRes.json();
+      const b64 = geminiData.data?.[0]?.b64_json;
+      if (!b64) {
+        return json({ ok: false, error_code: "GEMINI_NO_IMAGE", message: "No image returned from Gemini" }, 502);
+      }
+
+      const binaryStr = atob(b64);
+      const bytes = new Uint8Array(binaryStr.length);
+      for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
+      imageBytes = bytes;
+
+      metadata = {
+        model: "google/gemini-2.5-flash-image",
+        size: "1024x1024",
+        revised_prompt: geminiData.data?.[0]?.revised_prompt || prompt,
+      };
     } else if (provider === "qwen") {
       return json({ ok: false, error_code: "PROVIDER_DISABLED", message: "Qwen provider is not yet available" }, 403);
     } else {
