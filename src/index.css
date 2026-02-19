@@ -509,6 +509,13 @@ html {
   outline: 2px solid hsl(var(--accent) / 0.5);
   outline-offset: 2px;
 }
+textarea:focus-visible,
+textarea:focus,
+input[type="text"]:focus-visible,
+input[type="text"]:focus {
+  outline: none;
+  box-shadow: none;
+}
 /* Suppress blue outline on nav/dashboard interactive elements */
 button:focus,
 a:focus,
