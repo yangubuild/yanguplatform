@@ -57,32 +57,9 @@ serve(async (req) => {
 
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
 
-    // --- Quota enforcement (hard stop) ---
-    // Create an auth-context client so the RPC runs as the user
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY") || req.headers.get("apikey") || "";
-    const userClient = createClient(supabaseUrl, anonKey, {
-      global: { headers: { Authorization: authHeader! } },
-    });
-    const { data: quotaResult, error: quotaErr } = await userClient.rpc(
-      "check_and_increment_quota",
-      { p_quota_key: "ada_image" },
-    );
-    if (quotaErr) {
-      console.error("[ada-generate-image] Quota RPC error:", quotaErr);
-      // Fall through on RPC errors so generation isn't blocked by missing tables
-    } else if (quotaResult && typeof quotaResult === "object" && !quotaResult.ok) {
-      console.log("[ada-generate-image] Quota reached:", quotaResult);
-      return json({
-        ok: false,
-        error_code: "QUOTA_REACHED",
-        code: quotaResult.code,
-        tier: quotaResult.tier,
-        used: quotaResult.used,
-        limit: quotaResult.limit,
-        next_reset_at: quotaResult.next_reset_at,
-        message: "Image generation limit reached",
-      }, 429);
-    }
+    // --- Quota enforcement ---
+    // Quota is enforced client-side via RPC before calling this function.
+    // No duplicate check here to avoid double-counting.
 
     // Check feature flag
     const flagKey = `enable_image_provider_${provider}`;
