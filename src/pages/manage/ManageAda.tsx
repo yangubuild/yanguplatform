@@ -10,6 +10,7 @@ import { CreditsBillingPanel } from "@/components/manage/ada/CreditsBillingPanel
 import { ModerationActionsPanel } from "@/components/manage/ada/ModerationActionsPanel";
 import { LiveOpsPanel } from "@/components/manage/ada/LiveOpsPanel";
 import { UserMessagingPanel } from "@/components/manage/ada/UserMessagingPanel";
+import { DevE2ETestPanel } from "@/components/manage/ada/DevE2ETestPanel";
 import { Badge } from "@/components/ui/badge";
 
 export default function ManageAda() {
@@ -43,6 +44,9 @@ export default function ManageAda() {
       <ActionCompletionTracking />
       <QualityFeedback />
       <PerformancePanel isAdmin={isAdmin} />
+
+      {/* Dev-only E2E test panel – admin only */}
+      {isAdmin && <DevE2ETestPanel />}
     </div>
   );
 }

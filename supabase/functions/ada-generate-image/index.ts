@@ -301,11 +301,12 @@ serve(async (req) => {
     };
 
     if (debug) {
-      response.provider_used = provider;
+      response.provider_used = enrichedMetadata.provider_used;
       response.model_used = modelUsed;
       response.generation_latency_ms = generationLatencyMs;
       response.upload_path = `ada-media/${storagePath}`;
-      response.ada_media_id = mediaRow?.id || null;
+      response.media_id = mediaRow?.id || null;
+      response.fallback_from = fallbackFrom;
     }
 
     return json(response);
