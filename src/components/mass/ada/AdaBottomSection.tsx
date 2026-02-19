@@ -214,29 +214,83 @@ export function AdaBottomSection() {
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-6">
           {/* Left: ALL CHAT */}
           <div>
-            <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4">
               <h3 className="text-white/60 text-sm font-semibold uppercase tracking-wider">All Chat</h3>
-              <button onClick={openSearch} className="text-white/30 hover:text-white/70 transition-colors">
-                <Search className="w-4 h-4" />
-              </button>
-            </div>
-            <p className="text-white/30 text-[10px] uppercase tracking-wider mb-2">30 Days</p>
-            <div className="space-y-1">
-              {chats.length === 0 && (
-                <p className="text-white/20 text-xs">No chats yet</p>
-              )}
-              {chats.map((chat) => (
+              <div className="flex items-center gap-1">
+                {showSearch && (
+                  <input
+                    ref={searchInputRef}
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    onKeyDown={e => { if (e.key === "Escape") { setShowSearch(false); setSearchQuery(""); } }}
+                    placeholder="Search…"
+                    className="bg-white/5 text-white/80 text-xs rounded px-2 py-1 w-40 placeholder:text-white/30 outline-none border-none ring-0 focus:outline-none focus:ring-0 focus:border-none"
+                  />
+                )}
                 <button
-                  key={chat.id}
-                  onClick={() => handleLoadChat(chat.id)}
-                  className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left hover:bg-white/5 transition-colors group"
+                  onClick={() => {
+                    if (showSearch && !searchQuery.trim()) {
+                      setShowSearch(false);
+                      setSearchQuery("");
+                      setSearchResults([]);
+                    } else if (!showSearch) {
+                      openSearch();
+                    }
+                  }}
+                  className="text-white/30 hover:text-white/70 transition-colors p-1"
                 >
-                  <MessageCircle className="w-3.5 h-3.5 text-white/25 flex-shrink-0" />
-                  <span className="text-white/60 text-xs truncate flex-1">{chat.title}</span>
-                  <MoreHorizontal className="w-3.5 h-3.5 text-white/20 opacity-0 group-hover:opacity-100 flex-shrink-0" />
+                  {showSearch && !searchQuery.trim() ? <X className="w-4 h-4" /> : <Search className="w-4 h-4" />}
                 </button>
-              ))}
+              </div>
             </div>
+            {showSearch && searchQuery.trim() ? (
+              <div className="space-y-1">
+                {isSearching && <p className="text-white/30 text-xs py-2">Searching…</p>}
+                {!isSearching && searchResults.length === 0 && <p className="text-white/20 text-xs py-2">No results</p>}
+                {searchResults.map((result) => (
+                  <button
+                    key={`${result.type}-${result.id}`}
+                    onClick={() => {
+                      if (result.type === "chat") { handleLoadChat(result.id); }
+                      else if (result.image_url) { setSelectedImage(result.image_url); setShowSearch(false); setSearchQuery(""); }
+                    }}
+                    className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left hover:bg-white/5 transition-colors"
+                  >
+                    {result.type === "chat" ? (
+                      <MessageCircle className="w-3.5 h-3.5 text-white/25 flex-shrink-0" />
+                    ) : result.image_url ? (
+                      <div className="w-6 h-6 rounded overflow-hidden flex-shrink-0">
+                        <img src={result.image_url} alt="" className="w-full h-full object-cover" />
+                      </div>
+                    ) : (
+                      <Image className="w-3.5 h-3.5 text-white/25 flex-shrink-0" />
+                    )}
+                    <span className="text-white/60 text-xs truncate flex-1">{result.title}</span>
+                    <span className="text-white/20 text-[10px] uppercase flex-shrink-0">{result.type}</span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <>
+                <p className="text-white/30 text-[10px] uppercase tracking-wider mb-2">30 Days</p>
+                <div className="space-y-1">
+                  {chats.length === 0 && (
+                    <p className="text-white/20 text-xs">No chats yet</p>
+                  )}
+                  {chats.map((chat) => (
+                    <button
+                      key={chat.id}
+                      onClick={() => handleLoadChat(chat.id)}
+                      className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left hover:bg-white/5 transition-colors group"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5 text-white/25 flex-shrink-0" />
+                      <span className="text-white/60 text-xs truncate flex-1">{chat.title}</span>
+                      <MoreHorizontal className="w-3.5 h-3.5 text-white/20 opacity-0 group-hover:opacity-100 flex-shrink-0" />
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
 
           {/* Center: IMAGES */}
@@ -282,78 +336,7 @@ export function AdaBottomSection() {
         </div>
       </div>
 
-      {/* Search Modal */}
-      {showSearch && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh]" onClick={() => setShowSearch(false)}>
-          <div className="absolute inset-0 bg-black/60" />
-          <div
-            className="relative w-full max-w-lg rounded-xl border border-white/10 shadow-2xl overflow-hidden"
-            style={{ background: "#0d1210" }}
-            onClick={e => e.stopPropagation()}
-          >
-            {/* Search input */}
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-white/10">
-              <Search className="w-4 h-4 text-white/40 flex-shrink-0" />
-              <input
-                ref={searchInputRef}
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                placeholder="Search chats and images…"
-                className="flex-1 bg-transparent text-white/90 text-sm placeholder:text-white/30 outline-none"
-              />
-              <button onClick={() => setShowSearch(false)} className="text-white/40 hover:text-white/70">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Results */}
-            <div className="max-h-[50vh] overflow-y-auto">
-              {!searchQuery.trim() && (
-                <p className="text-white/30 text-xs text-center py-8">Type to search chats and images</p>
-              )}
-              {isSearching && (
-                <p className="text-white/40 text-xs text-center py-4">Searching…</p>
-              )}
-              {searchQuery.trim() && !isSearching && searchResults.length === 0 && (
-                <p className="text-white/30 text-xs text-center py-8">No results found</p>
-              )}
-              {searchResults.map((result) => (
-                <button
-                  key={`${result.type}-${result.id}`}
-                  onClick={() => {
-                    if (result.type === "chat") {
-                      handleLoadChat(result.id);
-                    } else if (result.image_url) {
-                      setSelectedImage(result.image_url);
-                      setShowSearch(false);
-                    }
-                  }}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-white/5 transition-colors border-b border-white/5 last:border-b-0"
-                >
-                  {result.type === "chat" ? (
-                    <MessageCircle className="w-4 h-4 text-white/30 flex-shrink-0" />
-                  ) : result.image_url ? (
-                    <div className="w-8 h-8 rounded overflow-hidden flex-shrink-0">
-                      <img src={result.image_url} alt="" className="w-full h-full object-cover" />
-                    </div>
-                  ) : (
-                    <Image className="w-4 h-4 text-white/30 flex-shrink-0" />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-white/70 text-sm truncate">{result.title}</p>
-                    {result.subtitle && (
-                      <p className="text-white/30 text-xs">{result.subtitle}</p>
-                    )}
-                  </div>
-                  <span className="text-white/20 text-[10px] uppercase tracking-wider flex-shrink-0">
-                    {result.type}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Inline search results dropdown - rendered inside the ALL CHAT column */}
 
       {/* Image lightbox */}
       {selectedImage && (
