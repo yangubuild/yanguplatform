@@ -230,6 +230,17 @@ serve(async (req) => {
 
     const imageUrl = signedData?.signedUrl || "";
 
+    // Enrich metadata with provider trace fields
+    const fallbackFrom = metadata.fallback_from || null;
+    const enrichedMetadata = {
+      ...metadata,
+      provider_used: fallbackFrom ? "openai" : provider,
+      model_used: modelUsed,
+      prompt_text: prompt,
+      fallback_from: fallbackFrom,
+      generation_latency_ms: generationLatencyMs,
+    };
+
     // Insert ada_media record
     const { data: mediaRow, error: mediaErr } = await adminClient
       .from("ada_media")
@@ -237,9 +248,9 @@ serve(async (req) => {
         chat_id: chatId,
         user_id: user.id,
         kind: "image",
-        provider,
+        provider: fallbackFrom ? "openai" : provider,
         storage_path: storagePath,
-        metadata,
+        metadata: enrichedMetadata,
       })
       .select("id")
       .single();
