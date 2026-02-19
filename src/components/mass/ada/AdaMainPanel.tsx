@@ -258,6 +258,8 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
   const [mode, setMode] = useState<"chat" | "voice">("chat");
   const [intent, setIntent] = useState<"search" | "discuss" | null>(null);
   const [inputValue, setInputValue] = useState("");
+  // Forced mode from quick action buttons: "image" forces image gen, "text" forces text chat
+  const [forcedMode, setForcedMode] = useState<"image" | "text" | null>(null);
   const [isFocused, setIsFocused] = useState(false);
 
   // Guest gate: track if the 1 free message has been used
@@ -959,7 +961,9 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
     }
 
     const currentIntent = intent;
+    const currentForcedMode = forcedMode;
     setIntent(null);
+    setForcedMode(null);
 
     let cid = activeChatId;
     if (!cid) {
@@ -1028,9 +1032,33 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
       return;
     }
 
+    // --- Forced mode from quick action buttons ---
+    if (currentForcedMode === "image") {
+      // "Generate Image" button was clicked — route directly to image generation
+      if (import.meta.env.DEV) console.log("[ADA Mode Debug] forcedMode=IMAGE, provider=auto");
+      const routing = resolveAutoDirector(adaMode, adaSkill, "image", advancedOverride, selectedProvider);
+      const prov = (routing.provider === "qwen" || routing.provider === "ideogram") ? routing.provider : "ideogram";
+      const cleanPrompt = text.replace(/^(generate|create|make|draw|design)\s+(me\s+)?(an?\s+)?(image|picture|visual|logo|poster|banner)\s*(of\s+)?/i, "").trim() || text;
+      await handleImageGenerate(cleanPrompt, cid, prov as "ideogram" | "qwen");
+      return;
+    }
+
+    if (currentForcedMode === "text") {
+      // Text-only action button was clicked (Plan Product, Create Campaign, etc.)
+      if (import.meta.env.DEV) console.log("[ADA Mode Debug] forcedMode=TEXT");
+      const streamMsgId = `msg_${Date.now()}`;
+      const streamMsg: ChatMessage = { id: streamMsgId, role: "assistant", content: "", isStreaming: true, created_at: new Date().toISOString() };
+      setMessages(prev => [...prev, streamMsg]);
+      const convMessages = messages.slice(-20).map(m => ({ role: m.role, content: m.content }));
+      convMessages.push({ role: "user", content: text });
+      await streamChatResponse(convMessages, cid, streamMsgId);
+      return;
+    }
+
     // --- Auto Director: detect media intent ---
     // If user explicitly asks for text, always use text mode
     if (TEXT_OVERRIDE_RE.test(text.toLowerCase())) {
+      if (import.meta.env.DEV) console.log("[ADA Mode Debug] TEXT_OVERRIDE detected");
       const streamMsgId = `msg_${Date.now()}`;
       const streamMsg: ChatMessage = { id: streamMsgId, role: "assistant", content: "", isStreaming: true, created_at: new Date().toISOString() };
       setMessages(prev => [...prev, streamMsg]);
@@ -1050,6 +1078,7 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
     const isSocialMediaIntent = SOCIAL_MEDIA_RE.test(text);
     const effectiveIntent = isExplicitImageIntent || isSocialMediaIntent ? "image" : mediaIntent;
 
+    if (import.meta.env.DEV) console.log("[ADA Mode Debug] auto-detect:", { mediaIntent, effectiveIntent, kind: effectiveIntent || "chat" });
     const routing = resolveAutoDirector(adaMode, adaSkill, effectiveIntent, advancedOverride, selectedProvider);
     const pill: RoutingPill = {
       mode: adaMode === "auto" ? "Auto" : adaMode.charAt(0).toUpperCase() + adaMode.slice(1),
@@ -1114,50 +1143,21 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
         }
       });
     }
-  }, [inputValue, activeChatId, isAuthenticated, guestUsed, pendingAttachments, intent, selectedProvider, adaMode, adaSkill, advancedOverride, selectedAspectRatio, createDbChat, createAnonChat, persistMessage, handleSearch, handleDiscuss, handleImageGenerate, handleVideoGenerate, streamChatResponse, messages, addRoutingPill, requireAuth]);
+  }, [inputValue, activeChatId, isAuthenticated, guestUsed, pendingAttachments, intent, forcedMode, selectedProvider, adaMode, adaSkill, advancedOverride, selectedAspectRatio, createDbChat, createAnonChat, persistMessage, handleSearch, handleDiscuss, handleImageGenerate, handleVideoGenerate, streamChatResponse, messages, addRoutingPill, requireAuth]);
 
   // --- Voice ---
   const handleVoiceTranscript = useCallback(async (
     transcript: string,
-    meta: { audio_path: string; language: string; duration_ms: number; mime_type: string; size_bytes: number }
+    _meta: { audio_path: string; language: string; duration_ms: number; mime_type: string; size_bytes: number }
   ) => {
     setMode("chat");
     setVoiceText("");
     if (!transcript.trim()) return;
 
-    let cid = activeChatId;
-    if (!cid) {
-      cid = isAuthenticated ? await createDbChat(transcript.slice(0, 60)) : createAnonChat(transcript.slice(0, 60));
-      if (!cid) return;
-      setActiveChatId(cid);
-    }
-
-    const userMsg: ChatMessage = {
-      id: `msg_${Date.now()}`,
-      role: "user",
-      content: transcript,
-      metadata: {
-        audio_path: meta.audio_path,
-        language: meta.language,
-        duration_ms: meta.duration_ms,
-        mime_type: meta.mime_type,
-        size_bytes: meta.size_bytes,
-      },
-      created_at: new Date().toISOString(),
-    };
-
-    setMessages(prev => [...prev, userMsg]);
-    await persistMessage(cid, userMsg);
-
-    const currentIntent = intent;
-    setIntent(null);
-
-    if (currentIntent === "search" && transcript) {
-      await handleSearch(transcript, cid);
-    } else {
-      await handleDiscuss(transcript, cid);
-    }
-  }, [activeChatId, isAuthenticated, intent, createDbChat, createAnonChat, persistMessage, handleSearch, handleDiscuss]);
+    // Place transcribed text into input — do NOT auto-send, let user review and confirm
+    setInputValue(transcript);
+    textareaRef.current?.focus();
+  }, []);
 
   const { isRecording, isTranscribing, startRecording, stopRecording, cancelRecording } = useAdaVoice({
     chatId: activeChatId,
@@ -1906,6 +1906,15 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
                   ))}
                 </div>
               )}
+              {/* Dev mode indicator */}
+              {import.meta.env.DEV && forcedMode && (
+                <div className="flex items-center gap-1 mb-1">
+                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded text-white/40" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                    MODE: {forcedMode.toUpperCase()}
+                  </span>
+                  <button onClick={() => setForcedMode(null)} className="text-white/20 hover:text-white/50 text-[9px]">✕</button>
+                </div>
+              )}
               <div ref={boxRef} className="relative rounded-2xl outline-none ring-0 [&_*]:focus-visible:outline-none">
                 <div className="relative rounded-2xl p-4 outline-none ring-0 focus-within:outline-none" style={{ background: "#050A07", border: "1px solid rgba(255,255,255,0.08)" }}>
                   <textarea
@@ -1968,17 +1977,18 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
           <div className="w-full max-w-2xl mb-4 animate-in fade-in duration-500">
             <div className="flex flex-wrap gap-2 justify-center">
               {[
-                { label: "Generate Image", icon: Image, prompt: "Help me generate visuals for my brand." },
-                { label: "Plan Product", icon: Package, prompt: "Help me structure a digital product inside YANGU." },
-                { label: "Create Campaign", icon: Megaphone, prompt: "Help me create a marketing campaign for my brand." },
-                { label: "Build Community", icon: Users, prompt: "Guide me to create a community." },
-                { label: "Optimize Profile", icon: UserCheck, prompt: "Help me optimize my profile and positioning." },
+                { label: "Generate Image", icon: Image, mode: "image" as const, prompt: "Generate an image of a modern brand visual — describe your product or concept here" },
+                { label: "Plan Product", icon: Package, mode: "text" as const, prompt: "Help me plan a product. Here's what I'm building:\n\n• Product name: \n• Target audience: \n• Core value proposition: \n• Pricing model: \n• Distribution channels: " },
+                { label: "Create Campaign", icon: Megaphone, mode: "text" as const, prompt: "Help me create an ad campaign plan:\n\n• Campaign goal: \n• Target audience: \n• Key message/hook: \n• Platforms: \n• Budget range: \n\nInclude creative angles, hooks, and a content checklist." },
+                { label: "Build Community", icon: Users, mode: "text" as const, prompt: "Help me build a community strategy:\n\n• Community purpose: \n• Target members: \n• Content posting cadence: \n• Engagement tactics: \n• Offers/incentives: " },
+                { label: "Optimize Profile", icon: UserCheck, mode: "text" as const, prompt: "Help me optimize my profile:\n\n• Current bio: \n• What I offer: \n• Target audience: \n\nSuggest improvements for my headline, bio, offers section, and CTA." },
               ].map((action) => {
                 const Icon = action.icon;
                 return (
                   <button
                     key={action.label}
                     onClick={() => {
+                      setForcedMode(action.mode);
                       setInputValue(action.prompt);
                       textareaRef.current?.focus();
                     }}
