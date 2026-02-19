@@ -87,10 +87,10 @@ export function AdaBottomSection() {
       return;
     }
 
-    // Generate signed URLs for each image
+    // Generate signed URLs for each image — images are stored in 'ai-generated' bucket
     const paths = data.map(d => d.storage_path);
     const { data: signedData } = await supabase.storage
-      .from("ada-media")
+      .from("ai-generated")
       .createSignedUrls(paths, 3600);
 
     const items: ImageItem[] = data.map((d, i) => ({
@@ -171,7 +171,7 @@ export function AdaBottomSection() {
       if (imgResults && imgResults.length > 0) {
         const imgPaths = imgResults.map(d => d.storage_path);
         const { data: signedData } = await supabase.storage
-          .from("ada-media")
+          .from("ai-generated")
           .createSignedUrls(imgPaths, 3600);
         imgResults.forEach((img, i) => {
           results.push({
