@@ -23,3 +23,9 @@ verify_jwt = false
 
 [functions.talking-avatar]
 verify_jwt = false
+
+[functions.ada-export-pdf]
+verify_jwt = false
+
+[functions.ada-export-docx]
+verify_jwt = false
