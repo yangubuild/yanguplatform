@@ -10,17 +10,38 @@ function sseEvent(data: unknown): string {
   return `data: ${JSON.stringify(data)}\n\n`;
 }
 
+function sseErrorEvent(errorCode: string, message: string): string {
+  return `event: error\ndata: ${JSON.stringify({ ok: false, error_code: errorCode, message })}\n\n`;
+}
+
+function jsonError(status: number, error: string, errorCode?: string, details?: unknown) {
+  return new Response(
+    JSON.stringify({ ok: false, error, ...(errorCode ? { error_code: errorCode } : {}), ...(details ? { details } : {}) }),
+    { status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+  );
+}
+
+function truncate(s: string, max = 800): string {
+  return s.length > max ? s.slice(0, max) + "…" : s;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  const reqId = crypto.randomUUID().slice(0, 8);
+
   try {
     const { messages, intent, search_context, stream: wantStream } = await req.json();
+
     const AI_KEY = Deno.env.get("YANGU_AI_KEY") || Deno.env.get("LOVABLE_API_KEY");
     if (!AI_KEY) {
-      return new Response(JSON.stringify({ error: "AI gateway key is not configured" }), {
-        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      console.error(`[ada-chat][${reqId}] Missing env var: YANGU_AI_KEY / LOVABLE_API_KEY`);
+      return jsonError(500, "Missing env var: YANGU_AI_KEY or LOVABLE_API_KEY", "ADA_MISCONFIG");
     }
+
+    const model = "google/gemini-3-flash-preview";
+    const promptLength = messages?.reduce((n: number, m: { content?: string }) => n + (m.content?.length || 0), 0) || 0;
+    console.log(`[ada-chat][${reqId}] model=${model} intent=${intent || "chat"} stream=${!!wantStream} msgs=${messages?.length} promptChars=${promptLength}`);
 
     let systemPrompt = `You are ADA — an Adaptive AI Strategist, Creator Intelligence Engine, Enterprise Decision Assistant, AI Command Center, Platform Navigator, and Workflow Orchestrator for the YANGU platform. You help creators, founders, agencies, and digital builders move faster from idea to execution.
 
@@ -153,69 +174,84 @@ IMPORTANT: Never output any internal reasoning, thoughts, or system messages. On
       ...messages.slice(-20),
     ];
 
-    // Always stream from the gateway and transform into clean events
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${AI_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: aiMessages,
-        stream: true,
-      }),
-    });
+    // ── Call AI gateway ──
+    let response: Response;
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 55_000);
+      response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${AI_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ model, messages: aiMessages, stream: true }),
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+    } catch (fetchErr) {
+      const msg = fetchErr instanceof Error ? fetchErr.message : String(fetchErr);
+      console.error(`[ada-chat][${reqId}] Fetch failed: ${msg}`);
+      if (msg.includes("abort")) {
+        return jsonError(504, "AI gateway timed out", "ADA_UPSTREAM", { timeout: true });
+      }
+      return jsonError(502, "AI gateway unreachable", "ADA_UPSTREAM", { message: msg });
+    }
 
     if (!response.ok) {
-      const t = await response.text();
-      console.error("[ada-chat] AI gateway error:", response.status, t);
+      let bodyPreview = "";
+      try { bodyPreview = truncate(await response.text()); } catch { bodyPreview = "(unreadable)"; }
+      console.error(`[ada-chat][${reqId}] Upstream ${response.status}: ${bodyPreview}`);
+
+      if (response.status === 401 || response.status === 403) {
+        return jsonError(502, "Provider auth failed", "ADA_AUTH", { status: response.status });
+      }
       if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again shortly." }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return jsonError(429, "Rate limited. Please try again shortly.", "ADA_RATE_LIMIT");
       }
       if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted. Please try again later." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return jsonError(402, "AI credits exhausted. Please try again later.", "ADA_CREDITS");
       }
-      return new Response(JSON.stringify({ error: "AI gateway error" }), {
-        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonError(502, "AI gateway error", "ADA_UPSTREAM", { status: response.status, body_preview: bodyPreview });
     }
 
+    // ── Non-streaming path ──
     if (!wantStream) {
-      // Non-streaming: consume the SSE stream and return full JSON
-      const reader = response.body!.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      let fullContent = "";
+      try {
+        const reader = response.body!.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let fullContent = "";
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() || "";
-        for (const line of lines) {
-          if (!line.startsWith("data: ")) continue;
-          const data = line.slice(6).trim();
-          if (data === "[DONE]") break;
-          try {
-            const parsed = JSON.parse(data);
-            const content = parsed.choices?.[0]?.delta?.content;
-            if (content) fullContent += content;
-          } catch { /* skip */ }
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+          for (const line of lines) {
+            if (!line.startsWith("data: ")) continue;
+            const data = line.slice(6).trim();
+            if (data === "[DONE]") break;
+            try {
+              const parsed = JSON.parse(data);
+              const content = parsed.choices?.[0]?.delta?.content;
+              if (content) fullContent += content;
+            } catch { /* skip */ }
+          }
         }
-      }
 
-      return new Response(JSON.stringify({ ok: true, content: fullContent || "I couldn't generate a response. Please try again." }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+        return new Response(
+          JSON.stringify({ ok: true, content: fullContent || "I couldn't generate a response. Please try again." }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      } catch (readErr) {
+        console.error(`[ada-chat][${reqId}] Non-stream read error: ${readErr instanceof Error ? readErr.message : readErr}`);
+        return jsonError(502, "Failed to read AI response", "ADA_STREAM_ERROR");
+      }
     }
 
-    // Streaming: Transform gateway SSE into clean {type:"token"} events
+    // ── Streaming SSE path ──
     const gatewayReader = response.body!.getReader();
     const decoder = new TextDecoder();
 
@@ -234,7 +270,6 @@ IMPORTANT: Never output any internal reasoning, thoughts, or system messages. On
             buffer = lines.pop() || "";
 
             for (const line of lines) {
-              // Skip SSE comments (e.g., ": OPENROUTER PROCESSING")
               if (line.startsWith(":") || line.trim() === "") continue;
               if (!line.startsWith("data: ")) continue;
 
@@ -248,7 +283,6 @@ IMPORTANT: Never output any internal reasoning, thoughts, or system messages. On
               try {
                 const parsed = JSON.parse(data);
                 const content = parsed.choices?.[0]?.delta?.content;
-                // Only emit visible text tokens, skip reasoning/empty
                 if (content) {
                   controller.enqueue(encoder.encode(sseEvent({ type: "token", text: content })));
                 }
@@ -259,10 +293,14 @@ IMPORTANT: Never output any internal reasoning, thoughts, or system messages. On
           // Stream ended without [DONE]
           controller.enqueue(encoder.encode(sseEvent({ type: "done" })));
           controller.close();
-        } catch (err) {
-          console.error("[ada-chat] stream transform error:", err);
-          controller.enqueue(encoder.encode(sseEvent({ type: "done" })));
-          controller.close();
+        } catch (streamErr) {
+          const msg = streamErr instanceof Error ? streamErr.message : String(streamErr);
+          console.error(`[ada-chat][${reqId}] Stream transform error: ${msg}`);
+          try {
+            controller.enqueue(encoder.encode(sseErrorEvent("ADA_STREAM_ERROR", "Stream interrupted")));
+            controller.enqueue(encoder.encode(sseEvent({ type: "done" })));
+            controller.close();
+          } catch { /* controller already closed */ }
         }
       },
     });
@@ -276,9 +314,8 @@ IMPORTANT: Never output any internal reasoning, thoughts, or system messages. On
       },
     });
   } catch (e) {
-    console.error("[ada-chat] error:", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    console.error(`[ada-chat][${reqId}] Top-level error: ${msg}`);
+    return jsonError(500, msg, "ADA_INTERNAL");
   }
 });
