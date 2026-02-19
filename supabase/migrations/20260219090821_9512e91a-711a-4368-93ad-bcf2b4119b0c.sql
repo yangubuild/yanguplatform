@@ -1,0 +1,1 @@
+INSERT INTO public.feature_flags (key, enabled) VALUES ('enable_image_provider_gemini', true) ON CONFLICT (key) DO NOTHING;
