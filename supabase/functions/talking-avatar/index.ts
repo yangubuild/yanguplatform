@@ -101,7 +101,7 @@ async function tryHeyGen(
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    "X-Api-Key": apiKey,
+    Authorization: `Bearer ${apiKey}`,
   };
 
   const inputFace: Record<string, unknown> = {
