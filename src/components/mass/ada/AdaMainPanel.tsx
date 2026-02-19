@@ -453,10 +453,14 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
     return () => window.removeEventListener("ada-command", handler);
   }, [messages, user, activeChatId]);
 
-  // Scroll when messages change (only if near bottom)
+  // Scroll when a NEW message is added or thinking state changes (not on every content update)
+  const messageCountRef = useRef(messages.length);
   useEffect(() => {
-    smartScroll();
-  }, [messages, isThinking, smartScroll]);
+    if (messages.length !== messageCountRef.current || isThinking) {
+      messageCountRef.current = messages.length;
+      smartScroll();
+    }
+  }, [messages.length, isThinking, smartScroll]);
 
   // --- Chat session helpers ---
   const createDbChat = useCallback(async (firstMsg: string) => {
@@ -618,11 +622,21 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
 
       const reader = res.body.getReader();
 
+      // Throttled scroll during streaming: scroll at most every 300ms
+      let lastScrollTime = 0;
+      const throttledScroll = () => {
+        const now = Date.now();
+        if (now - lastScrollTime > 300) {
+          lastScrollTime = now;
+          smartScroll();
+        }
+      };
+
       await readSSEStream(
         reader,
         (fullText) => {
           setMessages(prev => prev.map(m => m.id === msgId ? { ...m, content: fullText } : m));
-          smartScroll();
+          throttledScroll();
         },
         () => {
           // Mark as done — read final content from the last flush
@@ -1639,7 +1653,7 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
       </div>
 
       {/* Center content — equal gutters so content is visually centered in this container */}
-      <div className="flex-1 flex flex-col items-center justify-center pl-12 pr-4">
+      <div className="flex-1 flex flex-col items-center justify-center pl-12 pr-4 min-h-0">
         {mode === "voice" ? (
           <>
             {/* Animated particle ring */}
@@ -1703,8 +1717,7 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
             <div
               ref={scrollContainerRef}
               onScroll={checkNearBottom}
-              className="w-full max-w-2xl flex-1 overflow-y-auto mb-4 space-y-4 py-4"
-              style={{ maxHeight: "calc(100vh - 280px)" }}
+              className="w-full max-w-2xl flex-1 min-h-0 overflow-y-auto mb-4 space-y-4 py-4"
             >
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>
