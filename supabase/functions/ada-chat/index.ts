@@ -33,15 +33,19 @@ serve(async (req) => {
   try {
     const { messages, intent, search_context, stream: wantStream } = await req.json();
 
-    const AI_KEY = Deno.env.get("YANGU_AI_KEY") || Deno.env.get("LOVABLE_API_KEY");
+    const LOVABLE_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const YANGU_KEY = Deno.env.get("YANGU_AI_KEY");
+    const AI_KEY = LOVABLE_KEY || YANGU_KEY;
+    const keySource = LOVABLE_KEY ? "LOVABLE_API_KEY" : YANGU_KEY ? "YANGU_AI_KEY" : "NONE";
+    console.log(`[ada-chat][${reqId}] Key source: ${keySource}, key length: ${AI_KEY?.length || 0}`);
     if (!AI_KEY) {
-      console.error(`[ada-chat][${reqId}] Missing env var: YANGU_AI_KEY / LOVABLE_API_KEY`);
-      return jsonError(500, "Missing env var: YANGU_AI_KEY or LOVABLE_API_KEY", "ADA_MISCONFIG");
+      console.error(`[ada-chat][${reqId}] Missing env var: LOVABLE_API_KEY and YANGU_AI_KEY`);
+      return jsonError(500, "Missing env var: LOVABLE_API_KEY or YANGU_AI_KEY", "ADA_MISCONFIG");
     }
 
-    const model = "google/gemini-3-flash-preview";
+    const models = ["openai/gpt-5-nano", "google/gemini-2.5-flash", "google/gemini-2.5-flash-lite"];
     const promptLength = messages?.reduce((n: number, m: { content?: string }) => n + (m.content?.length || 0), 0) || 0;
-    console.log(`[ada-chat][${reqId}] model=${model} intent=${intent || "chat"} stream=${!!wantStream} msgs=${messages?.length} promptChars=${promptLength}`);
+    console.log(`[ada-chat][${reqId}] intent=${intent || "chat"} stream=${!!wantStream} msgs=${messages?.length} promptChars=${promptLength}`);
 
     let systemPrompt = `You are ADA — an Adaptive AI Strategist, Creator Intelligence Engine, Enterprise Decision Assistant, AI Command Center, Platform Navigator, and Workflow Orchestrator for the YANGU platform. You help creators, founders, agencies, and digital builders move faster from idea to execution.
 
@@ -174,45 +178,69 @@ IMPORTANT: Never output any internal reasoning, thoughts, or system messages. On
       ...messages.slice(-20),
     ];
 
-    // ── Call AI gateway ──
-    let response: Response;
-    try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 55_000);
-      response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${AI_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ model, messages: aiMessages, stream: true }),
-        signal: controller.signal,
-      });
-      clearTimeout(timeout);
-    } catch (fetchErr) {
-      const msg = fetchErr instanceof Error ? fetchErr.message : String(fetchErr);
-      console.error(`[ada-chat][${reqId}] Fetch failed: ${msg}`);
-      if (msg.includes("abort")) {
-        return jsonError(504, "AI gateway timed out", "ADA_UPSTREAM", { timeout: true });
+    // ── Call AI gateway with model fallback ──
+    let response: Response | null = null;
+    let lastError = "";
+
+    for (const model of models) {
+      try {
+        console.log(`[ada-chat][${reqId}] Trying model=${model}`);
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 55_000);
+        response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${AI_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ model, messages: aiMessages, stream: true }),
+          signal: controller.signal,
+        });
+        clearTimeout(timeout);
+
+        if (response.ok) {
+          console.log(`[ada-chat][${reqId}] Success with model=${model}`);
+          break;
+        }
+
+        // Non-ok: read body for diagnostics, try next model on 5xx
+        const errBody = truncate(await response.text());
+        console.error(`[ada-chat][${reqId}] model=${model} returned ${response.status}: ${errBody}`);
+        lastError = errBody;
+
+        if (response.status < 500) {
+          // Client-level errors (401, 402, 429) — don't retry with another model
+          break;
+        }
+        response = null; // mark for fallback
+      } catch (fetchErr) {
+        const msg = fetchErr instanceof Error ? fetchErr.message : String(fetchErr);
+        console.error(`[ada-chat][${reqId}] Fetch failed for model=${model}: ${msg}`);
+        lastError = msg;
+        if (msg.includes("abort")) {
+          return jsonError(504, "AI gateway timed out", "ADA_UPSTREAM", { timeout: true });
+        }
+        response = null;
       }
-      return jsonError(502, "AI gateway unreachable", "ADA_UPSTREAM", { message: msg });
     }
 
-    if (!response.ok) {
-      let bodyPreview = "";
-      try { bodyPreview = truncate(await response.text()); } catch { bodyPreview = "(unreadable)"; }
-      console.error(`[ada-chat][${reqId}] Upstream ${response.status}: ${bodyPreview}`);
-
-      if (response.status === 401 || response.status === 403) {
-        return jsonError(502, "Provider auth failed", "ADA_AUTH", { status: response.status });
+    if (!response || !response.ok) {
+      if (!response) {
+        console.error(`[ada-chat][${reqId}] All models failed. Last error: ${lastError}`);
+        return jsonError(502, "AI gateway unreachable", "ADA_UPSTREAM", { body_preview: lastError });
       }
-      if (response.status === 429) {
+      // response exists but was a non-5xx error (already consumed body above won't work, use lastError)
+      const status = response.status;
+      if (status === 401 || status === 403) {
+        return jsonError(502, "Provider auth failed", "ADA_AUTH", { status });
+      }
+      if (status === 429) {
         return jsonError(429, "Rate limited. Please try again shortly.", "ADA_RATE_LIMIT");
       }
-      if (response.status === 402) {
+      if (status === 402) {
         return jsonError(402, "AI credits exhausted. Please try again later.", "ADA_CREDITS");
       }
-      return jsonError(502, "AI gateway error", "ADA_UPSTREAM", { status: response.status, body_preview: bodyPreview });
+      return jsonError(502, "AI gateway error", "ADA_UPSTREAM", { status, body_preview: lastError });
     }
 
     // ── Non-streaming path ──
