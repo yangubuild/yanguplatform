@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { generateIdeogramImage } from "@/lib/ai/ideogram";
 import { generateQwenImage } from "@/lib/ai/qwen";
+import { generateGeminiImage } from "@/lib/ai/gemini";
 import { generateCreatifyVideo } from "@/lib/ai/creatify";
 import { consumeEntitlement } from "@/lib/entitlements";
 import { useNavigate } from "react-router-dom";
@@ -632,7 +633,7 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
   }, [persistMessage, smartScroll]);
 
   // --- Image generation with progress card ---
-  const handleImageGenerate = useCallback(async (prompt: string, cid: string, provider: "ideogram" | "qwen" = "ideogram") => {
+  const handleImageGenerate = useCallback(async (prompt: string, cid: string, provider: "ideogram" | "qwen" | "gemini" = "ideogram") => {
     // Guests cannot generate images (RPC requires auth) — gate them
     if (!isAuthenticated) {
       const gateMsg: ChatMessage = {
@@ -687,9 +688,11 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
       // Update to generating
       setMessages(prev => prev.map(m => m.id === mediaMsgId ? { ...m, mediaGen: { ...m.mediaGen!, status: "generating" as MediaGenStatus, progressStep: "Generating…" } } : m));
 
-      const result = provider === "qwen"
-        ? await generateQwenImage(prompt)
-        : await generateIdeogramImage(prompt);
+      const result = provider === "gemini"
+        ? await generateGeminiImage(prompt, cid)
+        : provider === "qwen"
+          ? await generateQwenImage(prompt)
+          : await generateIdeogramImage(prompt);
 
       if (!result.ok || !result.images || result.images.length === 0) {
         console.error(`[AdaImage] ${provider} error:`, result.error);
@@ -883,7 +886,7 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
     // Remove the failed card
     setMessages(prev => prev.filter(m => m.id !== msg.id));
     if (kind === "image") {
-      handleImageGenerate(retryPrompt, retryCid, (retryProvider as "ideogram" | "qwen") || "ideogram");
+      handleImageGenerate(retryPrompt, retryCid, (retryProvider as "ideogram" | "qwen" | "gemini") || "ideogram");
     } else {
       handleVideoGenerate(retryPrompt, retryCid);
     }
