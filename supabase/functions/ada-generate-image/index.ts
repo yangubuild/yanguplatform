@@ -102,49 +102,99 @@ serve(async (req) => {
       };
       modelUsed = "dall-e-3";
     } else if (provider === "gemini") {
-      const lovableKey = Deno.env.get("LOVABLE_API_KEY");
-      if (!lovableKey) {
-        return json({ ok: false, error_code: "PROVIDER_NOT_CONFIGURED", message: "Lovable API key not configured" }, 500);
-      }
+      let geminiOk = false;
+      try {
+        const lovableKey = Deno.env.get("LOVABLE_API_KEY");
+        if (!lovableKey) throw new Error("Lovable API key not configured");
 
-      const geminiRes = await fetch("https://ai.gateway.lovable.dev/v1/images/generations", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${lovableKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+        const geminiRes = await fetch("https://ai.gateway.lovable.dev/v1/images/generations", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${lovableKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "google/gemini-2.5-flash-image",
+            prompt,
+            n: 1,
+            size: "1024x1024",
+            response_format: "b64_json",
+          }),
+        });
+
+        if (!geminiRes.ok) {
+          const errText = await geminiRes.text();
+          console.warn("[ada-generate-image] Gemini failed, will fallback to OpenAI:", geminiRes.status, errText);
+          throw new Error("Gemini request failed");
+        }
+
+        const geminiData = await geminiRes.json();
+        const b64 = geminiData.data?.[0]?.b64_json;
+        if (!b64) throw new Error("No image returned from Gemini");
+
+        const binaryStr = atob(b64);
+        const bytes = new Uint8Array(binaryStr.length);
+        for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
+        imageBytes = bytes;
+
+        metadata = {
           model: "google/gemini-2.5-flash-image",
-          prompt,
-          n: 1,
           size: "1024x1024",
-          response_format: "b64_json",
-        }),
-      });
-
-      if (!geminiRes.ok) {
-        const errText = await geminiRes.text();
-        console.error("[ada-generate-image] Gemini error:", geminiRes.status, errText);
-        return json({ ok: false, error_code: "GEMINI_ERROR", message: "Gemini image generation failed" }, 502);
+          revised_prompt: geminiData.data?.[0]?.revised_prompt || prompt,
+        };
+        modelUsed = "google/gemini-2.5-flash-image";
+        geminiOk = true;
+      } catch (geminiErr) {
+        console.warn("[ada-generate-image] Gemini error, falling back to OpenAI:", geminiErr);
       }
 
-      const geminiData = await geminiRes.json();
-      const b64 = geminiData.data?.[0]?.b64_json;
-      if (!b64) {
-        return json({ ok: false, error_code: "GEMINI_NO_IMAGE", message: "No image returned from Gemini" }, 502);
+      // Fallback to OpenAI if Gemini failed
+      if (!geminiOk) {
+        const openaiKey = Deno.env.get("OPENAI_API_KEY");
+        if (!openaiKey) {
+          return json({ ok: false, error_code: "PROVIDER_NOT_CONFIGURED", message: "Fallback provider (OpenAI) not configured" }, 500);
+        }
+
+        const openaiRes = await fetch("https://api.openai.com/v1/images/generations", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${openaiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "dall-e-3",
+            prompt,
+            n: 1,
+            size: "1024x1024",
+            response_format: "b64_json",
+          }),
+        });
+
+        if (!openaiRes.ok) {
+          const errText = await openaiRes.text();
+          console.error("[ada-generate-image] OpenAI fallback also failed:", openaiRes.status, errText);
+          return json({ ok: false, error_code: "ALL_PROVIDERS_FAILED", message: "Image generation failed across all providers" }, 502);
+        }
+
+        const openaiData = await openaiRes.json();
+        const b64 = openaiData.data?.[0]?.b64_json;
+        if (!b64) {
+          return json({ ok: false, error_code: "OPENAI_NO_IMAGE", message: "No image returned from fallback" }, 502);
+        }
+
+        const binaryStr = atob(b64);
+        const bytes = new Uint8Array(binaryStr.length);
+        for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
+        imageBytes = bytes;
+
+        metadata = {
+          model: "dall-e-3",
+          size: "1024x1024",
+          revised_prompt: openaiData.data?.[0]?.revised_prompt || prompt,
+          fallback_from: "gemini",
+        };
+        modelUsed = "dall-e-3 (fallback)";
       }
-
-      const binaryStr = atob(b64);
-      const bytes = new Uint8Array(binaryStr.length);
-      for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
-      imageBytes = bytes;
-
-      metadata = {
-        model: "google/gemini-2.5-flash-image",
-        size: "1024x1024",
-        revised_prompt: geminiData.data?.[0]?.revised_prompt || prompt,
-      };
-      modelUsed = "google/gemini-2.5-flash-image";
     } else if (provider === "qwen") {
       return json({ ok: false, error_code: "PROVIDER_DISABLED", message: "Qwen provider is not yet available" }, 403);
     } else {
