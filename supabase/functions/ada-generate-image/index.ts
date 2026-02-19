@@ -31,7 +31,8 @@ serve(async (req) => {
     }
     const user = { id: userId };
 
-    const { prompt, chatId, provider = "openai" } = await req.json();
+    const { prompt, chatId, provider = "openai", debug = false } = await req.json();
+    const genStart = Date.now();
 
     if (!prompt || !chatId) {
       return json({ ok: false, error_code: "BAD_REQUEST", message: "prompt and chatId are required" }, 400);
@@ -53,6 +54,7 @@ serve(async (req) => {
     // Generate image based on provider
     let imageBytes: Uint8Array;
     let metadata: Record<string, unknown> = {};
+    let modelUsed = "";
 
     if (provider === "openai") {
       const openaiKey = Deno.env.get("OPENAI_API_KEY");
@@ -98,6 +100,7 @@ serve(async (req) => {
         size: "1024x1024",
         revised_prompt: openaiData.data?.[0]?.revised_prompt || prompt,
       };
+      modelUsed = "dall-e-3";
     } else if (provider === "gemini") {
       const lovableKey = Deno.env.get("LOVABLE_API_KEY");
       if (!lovableKey) {
@@ -141,11 +144,14 @@ serve(async (req) => {
         size: "1024x1024",
         revised_prompt: geminiData.data?.[0]?.revised_prompt || prompt,
       };
+      modelUsed = "google/gemini-2.5-flash-image";
     } else if (provider === "qwen") {
       return json({ ok: false, error_code: "PROVIDER_DISABLED", message: "Qwen provider is not yet available" }, 403);
     } else {
       return json({ ok: false, error_code: "UNKNOWN_PROVIDER", message: `Unknown provider: ${provider}` }, 400);
     }
+
+    const generationLatencyMs = Date.now() - genStart;
 
     // Upload to ada-media bucket
     const timestamp = Date.now();
@@ -175,7 +181,7 @@ serve(async (req) => {
     const imageUrl = signedData?.signedUrl || "";
 
     // Insert ada_media record
-    const { error: mediaErr } = await adminClient
+    const { data: mediaRow, error: mediaErr } = await adminClient
       .from("ada_media")
       .insert({
         chat_id: chatId,
@@ -184,14 +190,17 @@ serve(async (req) => {
         provider,
         storage_path: storagePath,
         metadata,
-      });
+      })
+      .select("id")
+      .single();
 
     if (mediaErr) {
       console.error("[ada-generate-image] ada_media insert error:", mediaErr);
     }
 
     // Insert assistant message with image reference
-    const assistantContent = `![Generated image](${imageUrl})\n\n*Generated with ${provider === "openai" ? "DALL·E 3" : provider}*`;
+    const providerLabel = provider === "openai" ? "DALL·E 3" : provider === "gemini" ? "Gemini" : provider;
+    const assistantContent = `![Generated image](${imageUrl})\n\n*Generated with ${providerLabel}*`;
     const { error: msgErr } = await adminClient
       .from("ada_messages")
       .insert({
@@ -205,13 +214,23 @@ serve(async (req) => {
       console.error("[ada-generate-image] message insert error:", msgErr);
     }
 
-    return json({
+    const response: Record<string, unknown> = {
       ok: true,
       image_url: imageUrl,
       provider,
       storage_path: storagePath,
       metadata,
-    });
+    };
+
+    if (debug) {
+      response.provider_used = provider;
+      response.model_used = modelUsed;
+      response.generation_latency_ms = generationLatencyMs;
+      response.upload_path = `ada-media/${storagePath}`;
+      response.ada_media_id = mediaRow?.id || null;
+    }
+
+    return json(response);
   } catch (e) {
     console.error("[ada-generate-image] error:", e);
     return json({ ok: false, error_code: "INTERNAL", message: e instanceof Error ? e.message : "Unknown error" }, 500);
