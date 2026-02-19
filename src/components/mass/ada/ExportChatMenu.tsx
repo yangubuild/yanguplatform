@@ -3,7 +3,7 @@ import { FileDown, FileText, Download, HardDrive, Loader2, ChevronDown } from "l
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
-import { isDriveConnected, uploadToDrive } from "@/lib/integrations/googleDrive";
+import { isConnected, uploadFile } from "@/lib/integrations/googleDrive";
 
 interface ExportChatMenuProps {
   chatId: string | null;
@@ -76,17 +76,19 @@ export function ExportChatMenu({ chatId, onDriveConnect }: ExportChatMenuProps) 
 
   const handleSaveExportToDrive = async () => {
     if (!lastExport) return;
-    if (!isDriveConnected()) {
+    const connected = await isConnected();
+    if (!connected) {
       onDriveConnect();
       return;
     }
-    const result = await uploadToDrive({
+    const result = await uploadFile({
       fileUrl: lastExport.url,
-      fileName: lastExport.filename,
-      folder: "/YANGU/AdaAI/Exports/",
+      filename: lastExport.filename,
+      mimeType: lastExport.format === "pdf" ? "application/pdf" : "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      folder: "Exports",
     });
     if (result.ok) {
-      toast({ title: `Saved to Google Drive: ${result.fileName}` });
+      toast({ title: `Saved to Google Drive` });
     } else {
       toast({ title: result.error || "Failed to save to Drive", variant: "destructive" });
     }

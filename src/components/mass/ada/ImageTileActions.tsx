@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useRoles } from "@/hooks/useRoles";
 import { toast } from "@/hooks/use-toast";
-import { isDriveConnected, uploadToDrive } from "@/lib/integrations/googleDrive";
+import { isConnected, uploadFile } from "@/lib/integrations/googleDrive";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -106,7 +106,8 @@ export function ImageTileActions({
 
   const handleSaveToDrive = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!isDriveConnected()) {
+    const connected = await isConnected();
+    if (!connected) {
       onDriveConnect?.();
       return;
     }
@@ -116,13 +117,14 @@ export function ImageTileActions({
     }
     setIsSavingDrive(true);
     try {
-      const result = await uploadToDrive({
+      const result = await uploadFile({
         fileUrl: signedUrl,
-        fileName: filename,
-        folder: "/YANGU/AdaAI/Images/",
+        filename,
+        mimeType: `image/${ext}`,
+        folder: "Images",
       });
       if (result.ok) {
-        toast({ title: `Saved to Google Drive: ${result.fileName}` });
+        toast({ title: `Saved to Google Drive` });
       } else {
         toast({ title: result.error || "Failed to save to Drive", variant: "destructive" });
       }
