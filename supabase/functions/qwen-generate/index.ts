@@ -14,18 +14,64 @@ function json(data: unknown, status = 200) {
   });
 }
 
+function truncate(s: string, max = 800): string {
+  return s.length > max ? s.slice(0, max) + "…" : s;
+}
+
+async function fetchWithRetry(
+  url: string,
+  init: RequestInit,
+  retries = 2,
+): Promise<Response> {
+  let lastErr: Error | null = null;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(url, init);
+      if (res.ok || (res.status !== 429 && res.status < 500)) return res;
+      // Retryable status
+      if (attempt < retries) {
+        const delay = 1000 * Math.pow(2, attempt); // 1s, 2s
+        console.warn(`[qwen-generate] Retryable ${res.status}, attempt ${attempt + 1}, waiting ${delay}ms`);
+        await new Promise((r) => setTimeout(r, delay));
+        continue;
+      }
+      return res; // last attempt, return as-is
+    } catch (e) {
+      lastErr = e instanceof Error ? e : new Error(String(e));
+      if (attempt < retries) {
+        const delay = 1000 * Math.pow(2, attempt);
+        console.warn(`[qwen-generate] Fetch error, attempt ${attempt + 1}, waiting ${delay}ms:`, lastErr.message);
+        await new Promise((r) => setTimeout(r, delay));
+      }
+    }
+  }
+  throw lastErr ?? new Error("fetchWithRetry exhausted");
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const authHeader = req.headers.get("Authorization");
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    // Health-check ping
+    const url = new URL(req.url);
+    if (url.searchParams.get("ping") === "1") {
+      return json({ ok: true, provider: "qwen" });
+    }
+
+    // --- Validate env vars ---
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     const qwenKey = Deno.env.get("QWEN_API_KEY");
 
-    if (!qwenKey) return json({ ok: false, error_code: "PROVIDER_NOT_CONFIGURED", message: "Qwen API key not configured" }, 500);
+    if (!supabaseUrl || !serviceKey) {
+      return json({ ok: false, error_code: "QWEN_MISCONFIG", message: "Missing env var: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY" }, 500);
+    }
+    if (!qwenKey) {
+      return json({ ok: false, error_code: "QWEN_MISCONFIG", message: "Missing env var: QWEN_API_KEY" }, 500);
+    }
 
-    // Extract user ID from JWT payload (verify_jwt=false, so we decode manually)
+    // --- Auth ---
+    const authHeader = req.headers.get("Authorization");
     let userId: string | null = null;
     if (authHeader?.startsWith("Bearer ")) {
       try {
@@ -35,9 +81,7 @@ serve(async (req) => {
         userId = payload.sub || null;
       } catch (_) { /* ignore */ }
     }
-
     if (!userId) return json({ ok: false, error_code: "AUTH_REQUIRED", message: "Authentication required" }, 401);
-    const user = { id: userId };
 
     const { generation_id } = await req.json();
     if (!generation_id) return json({ ok: false, error_code: "BAD_REQUEST", message: "generation_id is required" }, 400);
@@ -52,79 +96,109 @@ serve(async (req) => {
       .single();
 
     if (genErr || !gen) return json({ ok: false, error_code: "NOT_FOUND", message: "Generation not found" }, 404);
-    if (gen.user_id !== user.id) return json({ ok: false, error_code: "FORBIDDEN", message: "Not your generation" }, 403);
+    if (gen.user_id !== userId) return json({ ok: false, error_code: "FORBIDDEN", message: "Not your generation" }, 403);
     if (gen.status !== "queued") return json({ ok: false, error_code: "ALREADY_PROCESSING", message: `Status is already ${gen.status}` }, 409);
 
     // Set processing
     await admin.rpc("set_generation_status", { p_generation_id: generation_id, p_status: "processing" });
 
-    // Build Qwen request — uses DashScope-compatible API
+    // --- Build Qwen request ---
     const qwenParams = gen.params || {};
+    const model = qwenParams.model || "wanx-v1";
+    const size = qwenParams.size || "1024*1024";
+
     const qwenBody = {
-      model: qwenParams.model || "wanx-v1",
+      model,
       input: {
         prompt: gen.prompt,
         ...(qwenParams.negative_prompt ? { negative_prompt: qwenParams.negative_prompt } : {}),
       },
       parameters: {
         n: 1,
-        size: qwenParams.size || "1024*1024",
+        size,
         ...(qwenParams.style ? { style: qwenParams.style } : {}),
       },
     };
 
-    console.log("[qwen-generate] Calling Qwen/DashScope API for generation:", generation_id);
+    console.log(`[qwen-generate] Submitting: gen=${generation_id} model=${model} size=${size} prompt_len=${gen.prompt?.length ?? 0} user=${userId}`);
 
-    // Step 1: Submit async task
-    const submitRes = await fetch("https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${qwenKey}`,
-        "Content-Type": "application/json",
-        "X-DashScope-Async": "enable",
-      },
-      body: JSON.stringify(qwenBody),
-    });
+    const qwenEndpoint = Deno.env.get("QWEN_BASE_URL") || "https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis";
+
+    // Helper to refund credits on failure
+    const refundIfNeeded = async () => {
+      const cc = (gen.params as Record<string, unknown>)?.cost_credits;
+      if (cc && Number(cc) > 0) {
+        try { await admin.rpc("refund_credits", { p_amount: Number(cc), p_ref_type: "image", p_ref_id: generation_id, p_note: "Qwen generation failed" }); } catch (_) { /* best effort */ }
+      }
+    };
+
+    const failGeneration = async (error: string) => {
+      await admin.rpc("set_generation_status", { p_generation_id: generation_id, p_status: "failed", p_error: error });
+      await refundIfNeeded();
+    };
+
+    // Step 1: Submit async task (with retry)
+    let submitRes: Response;
+    try {
+      submitRes = await fetchWithRetry(qwenEndpoint, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${qwenKey}`,
+          "Content-Type": "application/json",
+          "X-DashScope-Async": "enable",
+        },
+        body: JSON.stringify(qwenBody),
+      });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error(`[qwen-generate] Submit fetch failed after retries: ${msg}`);
+      await failGeneration(`Qwen fetch failed: ${msg}`);
+      return json({ ok: false, error_code: "QWEN_UPSTREAM_ERROR", message: "Failed to reach Qwen API", details: { error: msg } }, 502);
+    }
 
     if (!submitRes.ok) {
       const errText = await submitRes.text();
-      console.error("[qwen-generate] Qwen submit error:", submitRes.status, errText);
-      await admin.rpc("set_generation_status", {
-        p_generation_id: generation_id,
-        p_status: "failed",
-        p_error: `Qwen API error: ${submitRes.status}`,
-      });
-      const cc = (gen.params as Record<string, unknown>)?.cost_credits;
-      if (cc && Number(cc) > 0) { try { await admin.rpc("refund_credits", { p_amount: Number(cc), p_ref_type: "image", p_ref_id: generation_id, p_note: "Qwen submit error" }); } catch (_) {} }
-      return json({ ok: false, error_code: "QWEN_ERROR", message: "Image generation submission failed" }, 502);
+      console.error(`[qwen-generate] Qwen submit error: status=${submitRes.status} body=${truncate(errText)}`);
+      await failGeneration(`Qwen API error: ${submitRes.status}`);
+      return json({
+        ok: false,
+        error_code: "QWEN_UPSTREAM_ERROR",
+        message: `Upstream returned ${submitRes.status}`,
+        details: { status: submitRes.status, body_preview: truncate(errText) },
+      }, 502);
     }
 
     const submitData = await submitRes.json();
     const taskId = submitData.output?.task_id;
 
     if (!taskId) {
-      console.error("[qwen-generate] No task_id in response:", JSON.stringify(submitData));
-      await admin.rpc("set_generation_status", {
-        p_generation_id: generation_id,
-        p_status: "failed",
-        p_error: "No task_id returned from Qwen",
-      });
-      const cc2 = (gen.params as Record<string, unknown>)?.cost_credits;
-      if (cc2 && Number(cc2) > 0) { try { await admin.rpc("refund_credits", { p_amount: Number(cc2), p_ref_type: "image", p_ref_id: generation_id, p_note: "No task_id" }); } catch (_) {} }
-      return json({ ok: false, error_code: "QWEN_ERROR", message: "No task ID returned" }, 502);
+      console.error(`[qwen-generate] No task_id in response: ${truncate(JSON.stringify(submitData))}`);
+      await failGeneration("No task_id returned from Qwen");
+      return json({ ok: false, error_code: "QWEN_UPSTREAM_ERROR", message: "No task ID returned", details: { body_preview: truncate(JSON.stringify(submitData)) } }, 502);
     }
 
-    // Step 2: Poll for completion (max ~60s)
-    let taskResult: Record<string, unknown> | null = null;
-    for (let attempt = 0; attempt < 30; attempt++) {
-      await new Promise(r => setTimeout(r, 2000));
+    console.log(`[qwen-generate] Task submitted: ${taskId}`);
 
-      const pollRes = await fetch(`https://dashscope.aliyuncs.com/api/v1/tasks/${taskId}`, {
-        headers: { "Authorization": `Bearer ${qwenKey}` },
-      });
+    // Step 2: Poll for completion (max ~60s)
+    const pollUrl = `https://dashscope.aliyuncs.com/api/v1/tasks/${taskId}`;
+    let taskResult: Record<string, unknown> | null = null;
+
+    for (let attempt = 0; attempt < 30; attempt++) {
+      await new Promise((r) => setTimeout(r, 2000));
+
+      let pollRes: Response;
+      try {
+        pollRes = await fetch(pollUrl, {
+          headers: { "Authorization": `Bearer ${qwenKey}` },
+        });
+      } catch (e) {
+        console.warn(`[qwen-generate] Poll fetch error attempt ${attempt}:`, e instanceof Error ? e.message : e);
+        continue;
+      }
 
       if (!pollRes.ok) {
-        console.error("[qwen-generate] Poll error:", pollRes.status);
+        const t = await pollRes.text();
+        console.warn(`[qwen-generate] Poll HTTP ${pollRes.status}: ${truncate(t)}`);
         continue;
       }
 
@@ -136,27 +210,15 @@ serve(async (req) => {
         break;
       } else if (status === "FAILED") {
         const errMsg = pollData.output?.message || "Task failed";
-        console.error("[qwen-generate] Task failed:", errMsg);
-        await admin.rpc("set_generation_status", {
-          p_generation_id: generation_id,
-          p_status: "failed",
-          p_error: `Qwen task failed: ${errMsg}`,
-        });
-        const cc3 = (gen.params as Record<string, unknown>)?.cost_credits;
-        if (cc3 && Number(cc3) > 0) { try { await admin.rpc("refund_credits", { p_amount: Number(cc3), p_ref_type: "image", p_ref_id: generation_id, p_note: "Qwen task failed" }); } catch (_) {} }
+        console.error(`[qwen-generate] Task failed: ${errMsg}`);
+        await failGeneration(`Qwen task failed: ${errMsg}`);
         return json({ ok: false, error_code: "QWEN_TASK_FAILED", message: errMsg }, 502);
       }
       // PENDING / RUNNING → keep polling
     }
 
     if (!taskResult) {
-      await admin.rpc("set_generation_status", {
-        p_generation_id: generation_id,
-        p_status: "failed",
-        p_error: "Qwen task timed out after 60s",
-      });
-      const cc4 = (gen.params as Record<string, unknown>)?.cost_credits;
-      if (cc4 && Number(cc4) > 0) { try { await admin.rpc("refund_credits", { p_amount: Number(cc4), p_ref_type: "image", p_ref_id: generation_id, p_note: "Timeout" }); } catch (_) {} }
+      await failGeneration("Qwen task timed out after 60s");
       return json({ ok: false, error_code: "TIMEOUT", message: "Image generation timed out" }, 504);
     }
 
@@ -165,13 +227,7 @@ serve(async (req) => {
     const rawImages = (results.results || []) as { url?: string }[];
 
     if (rawImages.length === 0) {
-      await admin.rpc("set_generation_status", {
-        p_generation_id: generation_id,
-        p_status: "failed",
-        p_error: "No images returned from Qwen",
-      });
-      const cc5 = (gen.params as Record<string, unknown>)?.cost_credits;
-      if (cc5 && Number(cc5) > 0) { try { await admin.rpc("refund_credits", { p_amount: Number(cc5), p_ref_type: "image", p_ref_id: generation_id, p_note: "No images" }); } catch (_) {} }
+      await failGeneration("No images returned from Qwen");
       return json({ ok: false, error_code: "NO_IMAGES", message: "No images returned" }, 502);
     }
 
@@ -184,12 +240,12 @@ serve(async (req) => {
 
       const imgRes = await fetch(imageUrl);
       if (!imgRes.ok) {
-        console.error(`[qwen-generate] Failed to download image ${i}:`, imgRes.status);
+        console.error(`[qwen-generate] Failed to download image ${i}: ${imgRes.status}`);
         continue;
       }
       const imgBytes = new Uint8Array(await imgRes.arrayBuffer());
 
-      const storagePath = `qwen/${user.id}/${generation_id}/${i}.png`;
+      const storagePath = `qwen/${userId}/${generation_id}/${i}.png`;
       const { error: upErr } = await admin.storage
         .from("ai-generated")
         .upload(storagePath, imgBytes, { contentType: "image/png", upsert: false });
@@ -212,13 +268,7 @@ serve(async (req) => {
     }
 
     if (resultImages.length === 0) {
-      await admin.rpc("set_generation_status", {
-        p_generation_id: generation_id,
-        p_status: "failed",
-        p_error: "Failed to store any images",
-      });
-      const cc6 = (gen.params as Record<string, unknown>)?.cost_credits;
-      if (cc6 && Number(cc6) > 0) { try { await admin.rpc("refund_credits", { p_amount: Number(cc6), p_ref_type: "image", p_ref_id: generation_id, p_note: "Upload failed" }); } catch (_) {} }
+      await failGeneration("Failed to store any images");
       return json({ ok: false, error_code: "UPLOAD_FAILED", message: "Failed to store images" }, 500);
     }
 
@@ -235,7 +285,7 @@ serve(async (req) => {
       try { await admin.rpc("charge_reserved", { p_ref_type: "image", p_ref_id: generation_id, p_amount: Number(ccSuccess) }); } catch (e) { console.warn("[qwen-generate] charge_reserved failed:", e); }
     }
 
-    console.log("[qwen-generate] Success:", resultImages.length, "images for generation:", generation_id);
+    console.log(`[qwen-generate] Success: ${resultImages.length} images for gen=${generation_id}`);
 
     return json({
       ok: true,
@@ -243,7 +293,7 @@ serve(async (req) => {
       images: resultImages,
     });
   } catch (e) {
-    console.error("[qwen-generate] error:", e);
+    console.error("[qwen-generate] Unhandled error:", e);
     return json({ ok: false, error_code: "INTERNAL", message: e instanceof Error ? e.message : "Unknown error" }, 500);
   }
 });
