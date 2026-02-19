@@ -1749,6 +1749,36 @@ export type Database = {
           },
         ]
       }
+      usage_quota_config: {
+        Row: {
+          creator_limit: number | null
+          free_limit: number
+          is_enabled: boolean
+          key: string
+          reset_days: number
+          starter_limit: number
+          updated_at: string
+        }
+        Insert: {
+          creator_limit?: number | null
+          free_limit?: number
+          is_enabled?: boolean
+          key: string
+          reset_days?: number
+          starter_limit?: number
+          updated_at?: string
+        }
+        Update: {
+          creator_limit?: number | null
+          free_limit?: number
+          is_enabled?: boolean
+          key?: string
+          reset_days?: number
+          starter_limit?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_credits: {
         Row: {
           balance: number
@@ -1790,6 +1820,38 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_usage_quotas: {
+        Row: {
+          locked_until: string | null
+          period_started_at: string
+          quota_key: string
+          used_count: number
+          user_id: string
+        }
+        Insert: {
+          locked_until?: string | null
+          period_started_at?: string
+          quota_key: string
+          used_count?: number
+          user_id: string
+        }
+        Update: {
+          locked_until?: string | null
+          period_started_at?: string
+          quota_key?: string
+          used_count?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_usage_quotas_quota_key_fkey"
+            columns: ["quota_key"]
+            isOneToOne: false
+            referencedRelation: "usage_quota_config"
+            referencedColumns: ["key"]
+          },
+        ]
       }
     }
     Views: {
@@ -1873,6 +1935,21 @@ export type Database = {
         Args: { p_email: string }
         Returns: undefined
       }
+      admin_reset_user_quota: {
+        Args: { p_quota_key: string; p_user_id: string }
+        Returns: undefined
+      }
+      admin_update_quota_config: {
+        Args: {
+          p_creator_limit: number
+          p_free_limit: number
+          p_is_enabled: boolean
+          p_key: string
+          p_reset_days: number
+          p_starter_limit: number
+        }
+        Returns: undefined
+      }
       archive_surface: { Args: { p_surface_id: string }; Returns: Json }
       can_list_on_community: {
         Args: { p_surface_id: string }
@@ -1885,6 +1962,10 @@ export type Database = {
       charge_reserved: {
         Args: { p_amount: number; p_ref_id: string; p_ref_type: string }
         Returns: undefined
+      }
+      check_and_increment_quota: {
+        Args: { p_quota_key: string }
+        Returns: Json
       }
       complete_onboarding:
         | {

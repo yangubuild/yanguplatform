@@ -11,6 +11,7 @@ import { ModerationActionsPanel } from "@/components/manage/ada/ModerationAction
 import { LiveOpsPanel } from "@/components/manage/ada/LiveOpsPanel";
 import { UserMessagingPanel } from "@/components/manage/ada/UserMessagingPanel";
 import { DevE2ETestPanel } from "@/components/manage/ada/DevE2ETestPanel";
+import { UsageLimitsPanel } from "@/components/manage/ada/UsageLimitsPanel";
 import { Badge } from "@/components/ui/badge";
 
 export default function ManageAda() {
@@ -33,6 +34,7 @@ export default function ManageAda() {
       {/* Admin-only management panels */}
       {isAdmin && (
         <>
+          <UsageLimitsPanel />
           <CreditsBillingPanel />
           <ModerationActionsPanel />
           <LiveOpsPanel />
