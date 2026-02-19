@@ -31,8 +31,25 @@ serve(async (req) => {
     }
     const user = { id: userId };
 
-    const { prompt, chatId, provider = "openai", debug = false } = await req.json();
+    const body = await req.json();
+    const { prompt, chatId, debug = false } = body;
+    let provider: string = body.provider || "";
     const genStart = Date.now();
+
+    // --- Provider hinting: auto-select best provider if none explicitly requested ---
+    if (!provider) {
+      const lowerPrompt = (prompt || "").toLowerCase();
+      if (/\b(logo|brand|typography|text poster|flyer)\b/.test(lowerPrompt)) {
+        provider = "ideogram";
+      } else if (/\b(fashion|realistic person|portrait|product shot)\b/.test(lowerPrompt)) {
+        provider = "gemini";
+      } else if (/\b(anime|stylized|illustration)\b/.test(lowerPrompt)) {
+        provider = "qwen";
+      } else {
+        provider = "openai";
+      }
+      console.log(`[ada-generate-image] Provider hinted to '${provider}' from prompt`);
+    }
 
     if (!prompt || !chatId) {
       return json({ ok: false, error_code: "BAD_REQUEST", message: "prompt and chatId are required" }, 400);
