@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { MediaGenerationCard, type MediaGenStatus } from "./MediaGenerationCard";
 import { AdaAuthModal } from "./AdaAuthModal";
 import { AdaBottomSection } from "./AdaBottomSection";
+import { QuotaReachedModal } from "./QuotaReachedModal";
 
 type AdaMode = "auto" | "standard" | "cinema" | "motion";
 type AdaSkill = "starter" | "creator" | "agency";
@@ -267,6 +268,7 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
 
   // In-place auth modal instead of redirect
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [quotaPopup, setQuotaPopup] = useState<{ used: number; limit: number; nextResetAt: string | null; tier: string } | null>(null);
   const requireAuth = useCallback(() => {
     setShowAuthModal(true);
   }, []);
@@ -675,6 +677,20 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
       return;
     }
 
+    // Quota check via RPC
+    const { data: quotaResult } = await supabase.rpc("check_and_increment_quota" as any, { p_quota_key: "ada_image" });
+    if (quotaResult && typeof quotaResult === "object" && !(quotaResult as any).ok) {
+      const qr = quotaResult as any;
+      setQuotaPopup({
+        used: qr.used ?? 0,
+        limit: qr.limit ?? 0,
+        nextResetAt: qr.next_reset_at ?? null,
+        tier: qr.tier ?? "free",
+      });
+      return;
+    }
+
+    // Legacy entitlement check (fallback)
     const ent = await consumeEntitlement("image");
     if (!ent.allowed) {
       toast({
@@ -2240,10 +2256,18 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
         open={showAuthModal}
         onOpenChange={setShowAuthModal}
         onSuccess={() => {
-          // Clear guest gate so user can continue
           localStorage.removeItem(GUEST_USED_KEY);
           setGuestUsed(false);
         }}
+      />
+      {/* Quota reached modal */}
+      <QuotaReachedModal
+        open={!!quotaPopup}
+        onClose={() => setQuotaPopup(null)}
+        used={quotaPopup?.used ?? 0}
+        limit={quotaPopup?.limit ?? 0}
+        nextResetAt={quotaPopup?.nextResetAt ?? null}
+        tier={quotaPopup?.tier ?? "free"}
       />
     </main>
   );
