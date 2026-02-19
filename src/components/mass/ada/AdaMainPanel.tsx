@@ -15,6 +15,8 @@ import { MediaGenerationCard, type MediaGenStatus } from "./MediaGenerationCard"
 import { AdaAuthModal } from "./AdaAuthModal";
 import { AdaBottomSection } from "./AdaBottomSection";
 import { QuotaReachedModal } from "./QuotaReachedModal";
+import { ExportChatMenu } from "./ExportChatMenu";
+import { DriveConnectModal } from "./DriveConnectModal";
 
 type AdaMode = "auto" | "standard" | "cinema" | "motion";
 type AdaSkill = "starter" | "creator" | "agency";
@@ -387,6 +389,7 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
   const [enabledProviders, setEnabledProviders] = useState<Record<string, boolean>>(() => {
     try { return JSON.parse(localStorage.getItem("ada_enabled_providers") || "{}"); } catch { return {}; }
   });
+  const [showDriveConnect, setShowDriveConnect] = useState(false);
 
   const toggleProvider = (key: string) => {
     setEnabledProviders(prev => {
@@ -1644,6 +1647,9 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
           + New Chat
         </button>
         <div className="flex items-center gap-3">
+          {/* Export chat menu */}
+          <ExportChatMenu chatId={activeChatId} onDriveConnect={() => setShowDriveConnect(true)} />
+
           {/* Phone: Toggle mobile preview mode */}
           <button
             onClick={toggleMobilePreview}
@@ -2303,6 +2309,9 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
           </div>
         </div>
       )}
+
+      {/* Google Drive connect modal */}
+      <DriveConnectModal open={showDriveConnect} onOpenChange={setShowDriveConnect} />
 
       {/* In-place auth modal */}
       <AdaAuthModal

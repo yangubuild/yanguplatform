@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { ImageTileActions } from "./ImageTileActions";
+import { DriveConnectModal } from "./DriveConnectModal";
 
 const ANON_CHATS_KEY = "ada_anon_chats";
 
@@ -27,6 +29,7 @@ interface ImageItem {
   storage_path: string;
   signed_url?: string;
   prompt_text?: string;
+  provider: string;
 }
 
 interface SearchResult {
@@ -54,6 +57,7 @@ export function AdaBottomSection() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [showDriveConnect, setShowDriveConnect] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const loadHistory = useCallback(async () => {
@@ -87,7 +91,6 @@ export function AdaBottomSection() {
       return;
     }
 
-    // Split images by bucket: uploads go to 'ada-uploads', generated go to 'ai-generated'
     const uploadPaths: string[] = [];
     const generatedPaths: string[] = [];
     const bucketMap: ("upload" | "generated")[] = [];
@@ -101,7 +104,6 @@ export function AdaBottomSection() {
       }
     }
 
-    // Fetch signed URLs from both buckets in parallel
     const [uploadSigned, generatedSigned] = await Promise.all([
       uploadPaths.length > 0
         ? supabase.storage.from("ada-uploads").createSignedUrls(uploadPaths, 3600)
@@ -126,6 +128,7 @@ export function AdaBottomSection() {
         storage_path: d.storage_path,
         signed_url: signedUrl,
         prompt_text: (d.metadata as any)?.prompt_text || (d.metadata as any)?.prompt || "",
+        provider: d.provider,
       };
     });
     setImages(items);
@@ -156,7 +159,6 @@ export function AdaBottomSection() {
       const results: SearchResult[] = [];
       const q = searchQuery.trim();
 
-      // Search chats by title
       const { data: chatResults } = await supabase
         .from("ada_chats")
         .select("id, title, updated_at")
@@ -168,7 +170,6 @@ export function AdaBottomSection() {
         chatResults.forEach(c => results.push({ type: "chat", id: c.id, title: c.title || "Untitled" }));
       }
 
-      // Search chat messages by content
       const { data: msgResults } = await supabase
         .from("ada_messages")
         .select("id, chat_id, content, role")
@@ -176,7 +177,6 @@ export function AdaBottomSection() {
         .limit(5);
       if (msgResults) {
         for (const msg of msgResults) {
-          // Avoid duplicating chats already found
           if (!results.find(r => r.type === "chat" && r.id === msg.chat_id)) {
             results.push({
               type: "chat",
@@ -188,7 +188,6 @@ export function AdaBottomSection() {
         }
       }
 
-      // Search images by prompt_text in metadata
       const { data: imgResults } = await supabase
         .from("ada_media")
         .select("id, storage_path, metadata, provider")
@@ -232,6 +231,10 @@ export function AdaBottomSection() {
     setSearchQuery("");
     setSearchResults([]);
     setTimeout(() => searchInputRef.current?.focus(), 100);
+  };
+
+  const handleImageDeleted = () => {
+    loadImages();
   };
 
   return (
@@ -333,14 +336,22 @@ export function AdaBottomSection() {
                 <p className="text-white/20 text-xs col-span-2">No images yet</p>
               )}
               {images.map((img) => (
-                <button
+                <div
                   key={img.id}
-                  onClick={() => setSelectedImage(img.signed_url || null)}
-                  className="aspect-square rounded-lg overflow-hidden cursor-pointer hover:ring-1 hover:ring-white/20 transition-all"
+                  className="relative aspect-square rounded-lg overflow-hidden cursor-pointer hover:ring-1 hover:ring-white/20 transition-all group"
                   style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+                  onClick={() => setSelectedImage(img.signed_url || null)}
                 >
                   <ImageWithFallback src={img.signed_url} alt={img.prompt_text || ""} />
-                </button>
+                  <ImageTileActions
+                    imageId={img.id}
+                    signedUrl={img.signed_url}
+                    storagePath={img.storage_path}
+                    provider={img.provider}
+                    onDeleted={handleImageDeleted}
+                    onDriveConnect={() => setShowDriveConnect(true)}
+                  />
+                </div>
               ))}
             </div>
           </div>
@@ -365,8 +376,6 @@ export function AdaBottomSection() {
         </div>
       </div>
 
-      {/* Inline search results dropdown - rendered inside the ALL CHAT column */}
-
       {/* Image lightbox */}
       {selectedImage && (
         <div
@@ -387,6 +396,12 @@ export function AdaBottomSection() {
           />
         </div>
       )}
+
+      {/* Google Drive connect modal */}
+      <DriveConnectModal
+        open={showDriveConnect}
+        onOpenChange={setShowDriveConnect}
+      />
     </>
   );
 }
