@@ -1581,8 +1581,11 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
                 {[
                   { key: "openai_reasoning", label: "OpenAI (Reasoning)", color: "emerald" },
                   { key: "ideogram_image", label: "Ideogram (Image)", color: "amber" },
+                  { key: "gemini_image", label: "Gemini (Image)", color: "amber" },
                   { key: "qwen_image", label: "Qwen (Image)", color: "amber" },
                   { key: "creatify_video", label: "Creatify (Video)", color: "blue" },
+                  { key: "heygen_avatar", label: "HeyGen (Avatar)", color: "blue" },
+                  { key: "did_avatar", label: "D-ID (Avatar)", color: "blue" },
                 ].map(p => (
                   <button
                     key={p.key}
