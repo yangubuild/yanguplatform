@@ -727,6 +727,21 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
         metadata: { type: "image", provider, storage_path: img.storage_path, generation_id: result.generation_id },
         created_at: new Date().toISOString(),
       });
+
+      // Auto-save to ada_media so IMAGES tab picks it up
+      // Gemini provider (via ada-generate-image edge fn) already inserts server-side, so skip to avoid duplicates
+      if (user && img.storage_path && provider !== "gemini") {
+        await supabase.from("ada_media").insert({
+          user_id: user.id,
+          chat_id: cid || undefined,
+          provider: provider,
+          storage_path: img.storage_path,
+          kind: "image",
+          metadata: { prompt_text: prompt, provider_used: provider, generation_id: result.generation_id },
+        });
+      }
+      // Signal bottom section / sidebar to refresh images
+      window.dispatchEvent(new CustomEvent("ada-media-saved"));
     } catch (err) {
       console.error("[AdaImage] Error:", err);
       setMessages(prev => prev.map(m => m.id === mediaMsgId ? {
