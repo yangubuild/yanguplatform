@@ -96,10 +96,12 @@ function resolveAutoDirector(
   }
 
   if (mode !== "auto") {
-    // Direct mode selection — video always routes as "video" kind but will be handled as image + CTA
+    // Non-auto modes only affect image/video quality when media IS explicitly requested
+    // They should NEVER force image generation on plain text messages
+    if (!mediaIntent) return { tier: "Standard", provider: "openai", kind: "chat" };
     if (mode === "motion") return { tier: "Studio Video Preview", provider: "ideogram", kind: mediaIntent === "image" ? "image" : "video" };
     if (mode === "cinema") return { tier: "Cinema", provider: "ideogram", kind: mediaIntent === "video" ? "video" : "image" };
-    return { tier: "Standard", provider: mediaIntent === "video" ? "ideogram" : mediaIntent === "image" ? "qwen" : "openai", kind: mediaIntent || "chat" };
+    return { tier: "Standard", provider: mediaIntent === "video" ? "ideogram" : "qwen", kind: mediaIntent };
   }
 
   // Auto mode – route by skill tier + intent
@@ -283,18 +285,29 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Smart auto-scroll: only scroll if user is within 200px of bottom
+  // userScrolledUp stays true until user clicks "Jump to latest"
   const isNearBottomRef = useRef(true);
+  const [userScrolledUp, setUserScrolledUp] = useState(false);
   const checkNearBottom = useCallback(() => {
     const el = scrollContainerRef.current;
     if (!el) return;
     const threshold = 200;
-    isNearBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
+    const near = el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
+    isNearBottomRef.current = near;
+    if (near) setUserScrolledUp(false);
   }, []);
 
   const smartScroll = useCallback(() => {
+    if (userScrolledUp) return;
     if (isNearBottomRef.current) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
+  }, [userScrolledUp]);
+
+  const jumpToLatest = useCallback(() => {
+    setUserScrolledUp(false);
+    isNearBottomRef.current = true;
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
   // ── Session context memory (resets per session) ──
@@ -460,9 +473,12 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
   useEffect(() => {
     if (messages.length !== messageCountRef.current || isThinking) {
       messageCountRef.current = messages.length;
-      smartScroll();
+      // Only auto-scroll if user hasn't scrolled up
+      if (!userScrolledUp) {
+        smartScroll();
+      }
     }
-  }, [messages.length, isThinking, smartScroll]);
+  }, [messages.length, isThinking, smartScroll, userScrolledUp]);
 
   // --- Chat session helpers ---
   const createDbChat = useCallback(async (firstMsg: string) => {
@@ -1607,7 +1623,7 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
 
   return (
     <main
-      className="flex-1 min-h-screen flex flex-col"
+      className="flex-1 flex flex-col min-h-0 overflow-hidden"
     >
       {/* Hidden file input */}
       <input
@@ -1685,7 +1701,7 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
       </div>
 
       {/* Center content — equal gutters so content is visually centered in this container */}
-      <div className="flex-1 flex flex-col items-center justify-center pl-12 pr-4 min-h-0">
+      <div className="flex-1 flex flex-col items-center justify-center pl-12 pr-4 min-h-0 overflow-hidden">
         {mode === "voice" ? (
           <>
             {/* Animated particle ring */}
@@ -1748,7 +1764,17 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
             {/* Chat thread */}
             <div
               ref={scrollContainerRef}
-              onScroll={checkNearBottom}
+              onScroll={() => {
+                checkNearBottom();
+                // Detect user scrolling up during streaming
+                const el = scrollContainerRef.current;
+                if (el) {
+                  const isStreaming = messages.some(m => m.isStreaming);
+                  if (isStreaming && !isNearBottomRef.current) {
+                    setUserScrolledUp(true);
+                  }
+                }
+              }}
               className="w-full max-w-2xl flex-1 min-h-0 overflow-y-auto mb-4 space-y-4 py-4"
             >
               {messages.map((msg) => (
@@ -1806,6 +1832,17 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
               )}
               <div ref={messagesEndRef} />
             </div>
+
+            {/* Jump to latest button */}
+            {userScrolledUp && hasMessages && (
+              <button
+                onClick={jumpToLatest}
+                className="mb-2 px-3 py-1 rounded-full text-xs font-medium text-white/70 hover:text-white transition-colors"
+                style={{ background: "rgba(244,168,61,0.15)", border: "1px solid rgba(244,168,61,0.25)" }}
+              >
+                ↓ Jump to latest
+              </button>
+            )}
 
             {/* Skill Meter */}
             <div className="w-full max-w-2xl mb-2">
