@@ -23,22 +23,20 @@ const OPTIONS = [
     icon: ShoppingBag,
     title: "Sync from your yangu business",
     desc: "Automatically import and update all your products from your yangu business",
-    enabled: false,
-    badge: "Coming soon",
+    enabled: true,
   },
   {
     icon: Upload,
     title: "Bulk Upload",
     desc: "Download a template, fill in your product details, and upload it to add multiple products at once.",
-    enabled: false,
-    badge: "Coming soon",
+    enabled: true,
   },
 ];
 
 export function AddProductModal({ open, onClose }: Props) {
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="sm:max-w-lg p-0 bg-card border-border/60 rounded-2xl overflow-hidden gap-0">
+      <DialogContent className="sm:max-w-2xl p-0 bg-card border-border/60 rounded-2xl overflow-hidden gap-0">
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-4">
           <h2 className="text-lg font-bold text-foreground">How do you want to add product?</h2>
@@ -62,13 +60,9 @@ export function AddProductModal({ open, onClose }: Props) {
               <opt.icon className="h-5 w-5 text-muted-foreground shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-foreground">{opt.title}</p>
-                <p className="text-xs text-muted-foreground truncate">{opt.desc}</p>
+                <p className="text-xs text-muted-foreground">{opt.desc}</p>
               </div>
-              {opt.badge ? (
-                <span className="text-xs text-muted-foreground whitespace-nowrap">{opt.badge}</span>
-              ) : (
-                <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-              )}
+              <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
             </button>
           ))}
         </div>
