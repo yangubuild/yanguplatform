@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { CommunityThemeProvider, useCommunityTheme, getThemeColors } from "./CommunityThemeContext";
 import { CommunityTopBar } from "./CommunityTopBar";
@@ -33,6 +34,7 @@ function buildLinkMap(items: CommunitySectionItem[]): Map<string, string> {
 }
 
 function CommunityPageInner() {
+  const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState("Explore");
   const { theme, toggle } = useCommunityTheme();
   const colors = getThemeColors(theme);
@@ -93,7 +95,28 @@ function CommunityPageInner() {
     >
       <main className="min-h-screen">
         <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-10 py-6">
-          <MassHeader hideTrends />
+          <header className="flex items-center justify-between mb-8">
+            <a href="/" className="flex items-center gap-2">
+              <img src="/yangu-y-hero.png" alt="Yangu" className="h-7 w-auto" />
+              <span className="text-white font-bold text-lg" style={{ fontFamily: 'Lufga, sans-serif' }}>yangu</span>
+            </a>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => navigate("/auth/login")}
+                className="px-5 py-2.5 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-90"
+                style={{ background: '#152A20' }}
+              >
+                Sign in
+              </button>
+              <button
+                onClick={() => navigate("/auth/signup")}
+                className="px-5 py-2.5 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-90"
+                style={{ background: 'linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)' }}
+              >
+                Start selling
+              </button>
+            </div>
+          </header>
         </div>
 
         {/* Community content */}
