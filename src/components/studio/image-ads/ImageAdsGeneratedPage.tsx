@@ -4,6 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -11,7 +12,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Sparkles, Square, RectangleHorizontal, RectangleVertical, Lightbulb } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Plus, Sparkles, Square, RectangleHorizontal, RectangleVertical, Lightbulb, ChevronDown, ImagePlus } from "lucide-react";
 
 const MOCK_IMAGES = [
   "/studio/img-ad-1.webp",
@@ -28,6 +34,10 @@ export function ImageAdsGeneratedPage() {
     "Comfortable oversized pullover sweatshirt for women. Fashion blouse with a relaxed fit, perfect for casual everyday wear."
   );
   const [selectedImages, setSelectedImages] = useState<Set<number>>(new Set([0, 1, 2]));
+  const [sellingPoints, setSellingPoints] = useState(["Color block design", "Lightweight knit fabric", "Loose casual fit"]);
+  const [brandColors] = useState(["hsl(40, 20%, 75%)", "hsl(35, 55%, 55%)", "hsl(350, 15%, 60%)"]);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [promoEnabled, setPromoEnabled] = useState(false);
   const [model, setModel] = useState("design-master");
   const [orientation, setOrientation] = useState("portrait");
   const [count, setCount] = useState("4");
@@ -141,8 +151,74 @@ export function ImageAdsGeneratedPage() {
                 <button className="rounded-full border border-destructive/40 bg-destructive/5 px-3 py-1 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors">
                   Delete select
                 </button>
-              </div>
+          </div>
+
+          {/* Advanced settings */}
+          <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
+            <div className="rounded-2xl border border-border/40 bg-card">
+              <CollapsibleTrigger className="flex items-center justify-between w-full p-6 text-left">
+                <span className="text-base font-bold text-foreground">
+                  Advanced settings <span className="text-muted-foreground font-normal">(Optional)</span>
+                </span>
+                <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${advancedOpen ? "rotate-180" : ""}`} />
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="px-6 pb-6 space-y-6">
+                  {/* Selling points */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-semibold">Selling points</Label>
+                    {sellingPoints.map((point, idx) => (
+                      <div key={idx} className="flex items-center gap-3">
+                        <span className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-muted-foreground shrink-0">
+                          {idx + 1}
+                        </span>
+                        <Input
+                          value={point}
+                          onChange={(e) => {
+                            const next = [...sellingPoints];
+                            next[idx] = e.target.value;
+                            setSellingPoints(next);
+                          }}
+                          className="rounded-lg bg-background border-border/60"
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Brand logo & color */}
+                  <div className="flex gap-8">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold">Brand logo</Label>
+                      <button className="h-12 w-12 rounded-lg bg-muted border border-border/40 flex items-center justify-center hover:bg-muted/80 transition-colors">
+                        <ImagePlus className="h-5 w-5 text-muted-foreground" />
+                      </button>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold">Brand color</Label>
+                      <div className="flex items-center gap-2">
+                        {brandColors.map((color, idx) => (
+                          <div
+                            key={idx}
+                            className="h-10 w-10 rounded-lg border border-border/40 cursor-pointer hover:scale-105 transition-transform"
+                            style={{ background: color }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CollapsibleContent>
             </div>
+          </Collapsible>
+
+          {/* Promotional info */}
+          <div className="rounded-2xl border border-border/40 bg-card p-6">
+            <div className="flex items-center justify-between">
+              <span className="text-base font-bold text-foreground">Promotional info</span>
+              <Switch checked={promoEnabled} onCheckedChange={setPromoEnabled} />
+            </div>
+          </div>
+        </div>
           </div>
         </div>
       </div>
