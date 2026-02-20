@@ -40,9 +40,6 @@ export function AddProductModal({ open, onClose }: Props) {
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-4">
           <h2 className="text-lg font-bold text-foreground">How do you want to add product?</h2>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
-            <X className="h-5 w-5" />
-          </button>
         </div>
 
         {/* Options */}
