@@ -7,7 +7,7 @@ import amazonIcon from "@/assets/platforms/amazon.jpg";
 import ebayIcon from "@/assets/platforms/ebay.webp";
 import appstoreIcon from "@/assets/platforms/appstore.png";
 import googlePlayIcon from "@/assets/platforms/google-play.webp";
-import yanguYIcon from "@/assets/platforms/yangu-y.png";
+import yanguYIcon from "@/assets/platforms/yangu-y-orange.png";
 
 const PLATFORMS = [
   { label: "Amazon", icon: amazonIcon },
@@ -34,7 +34,7 @@ export function ImageAdsLinkStep({ onSelectProduct, onManualSetup }: Props) {
 
       {/* Platform icons */}
       <div className="space-y-2">
-        <p className="text-xs text-muted-foreground font-medium">Creatify supports:</p>
+        <p className="text-xs text-muted-foreground font-medium">yangu supports:</p>
         <div className="flex items-center gap-2.5 justify-center">
           {PLATFORMS.map((p) => (
             <div
@@ -74,8 +74,8 @@ export function ImageAdsLinkStep({ onSelectProduct, onManualSetup }: Props) {
           Choose existing product
         </Button>
         <Button
-          variant="accent"
-          className="flex-1 h-12 rounded-xl text-sm font-semibold"
+          className="flex-1 h-12 rounded-xl text-sm font-semibold text-white border-0"
+          style={{ background: "linear-gradient(135deg, #b5651d 0%, #8b4513 100%)" }}
           disabled={!url.trim()}
         >
           <Sparkles className="h-4 w-4 mr-2" />
