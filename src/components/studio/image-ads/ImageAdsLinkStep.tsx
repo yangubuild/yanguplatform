@@ -17,13 +17,21 @@ const PLATFORMS = [
   { label: "Yangu", icon: yanguYIcon },
 ];
 
+const SAMPLE_URL =
+  "https://www.amazon.com/Dokotoo-Pullover-Blouses-Sweatshirt-Fashion/dp/B0CFLQX8SW/ref=sr_1_39?crid=3V73CQLP8UMMM&dib=eyJ2IjoiMSJ9.ra-tvOpzZeHDU4sH-Rjeats60Q9mK0olJdK_Z9D9VoBtoi_7ppZ79pZX8_O3NdsRyDPaSRTHDUWFfy__Ln4SRj0C0O-MGHUhkrSeDzzdmMMj7fp81W6gXDioecupfGdD9QZY42ZnuUMSOv4vgiUz6hznx5HZ_LHI8v4GVwOtBUHNna8KnPu85X1nH7UOeWgCEDstFcuctc2Ply00esiRdS2TFTTmkSS4WdVaHgTcrPCste1wb3t228wHPIJDa_20uhfYHninSv_zyFEZRZ_yOIdkRQSYfxE9FcuNV5BtGixm65cwpBWLtPQ1DML-IWBd1JjgpaAv2tUHVrzCM2lMZaZRynF79c5mwj0wa9B34j3S_Qc6G02JMyS4t82rUBkwFwXctFcbsBxM-WzG5aIPcGXHWrRX84DzS5LNPsZxt4ciqiWWS_NENQEu-t7ApSDS._h_VP3a5Dndz95PzEP8YgRflswwEeMmBvjA5Xk5I6d8&dib_tag=se&keywords=Women%E2%80%99s+Fashion&qid=1734333214&sprefix=women+s+fashion%2Caps%2C575&sr=8-39";
+
 interface Props {
   onSelectProduct: () => void;
   onManualSetup: () => void;
+  onAnalyze: () => void;
 }
 
-export function ImageAdsLinkStep({ onSelectProduct, onManualSetup }: Props) {
+export function ImageAdsLinkStep({ onSelectProduct, onManualSetup, onAnalyze }: Props) {
   const [url, setUrl] = useState("");
+
+  const handleTryLink = () => {
+    setUrl(SAMPLE_URL);
+  };
 
   return (
     <div className="flex flex-col items-center justify-center px-6 pt-24 pb-32 max-w-2xl mx-auto text-center gap-8">
@@ -49,7 +57,7 @@ export function ImageAdsLinkStep({ onSelectProduct, onManualSetup }: Props) {
         </div>
       </div>
 
-      {/* URL input — "Try some link?" inside */}
+      {/* URL input */}
       <div className="w-full space-y-2">
         <div className="relative">
           <Input
@@ -58,7 +66,10 @@ export function ImageAdsLinkStep({ onSelectProduct, onManualSetup }: Props) {
             placeholder="e.g. amazon product link, shopify product link, app store link, etc."
             className="h-14 rounded-xl bg-card border-border/60 text-base px-5 pr-32 outline-none ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
           />
-          <button className="absolute right-4 top-1/2 -translate-y-1/2 text-accent text-sm font-medium hover:underline">
+          <button
+            onClick={handleTryLink}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-accent text-sm font-medium hover:underline"
+          >
             Try some link?
           </button>
         </div>
@@ -80,6 +91,7 @@ export function ImageAdsLinkStep({ onSelectProduct, onManualSetup }: Props) {
           className="flex-1 h-12 rounded-xl text-sm font-semibold text-white border-0 hover:brightness-110 hover:shadow-lg transition-all"
           style={{ background: "linear-gradient(135deg, #b5651d 0%, #8b4513 100%)" }}
           disabled={!url.trim()}
+          onClick={() => url.trim() && onAnalyze()}
         >
           <Sparkles className="h-4 w-4 mr-2" />
           Analyze URL
