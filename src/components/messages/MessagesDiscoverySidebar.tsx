@@ -91,7 +91,7 @@ export function MessagesDiscoverySidebar({ users, onUserClick }: Props) {
             {/* Follow button */}
             <span
               className="px-3 py-1 rounded-md text-xs font-semibold shrink-0"
-              style={{ background: "rgba(96,165,250,1)", color: "#fff" }}
+              style={{ background: "#152A20", color: "#fff" }}
             >
               Follow
             </span>
