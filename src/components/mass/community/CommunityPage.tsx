@@ -40,7 +40,7 @@ function CommunityHeader() {
       <img
         src={yanguLogo}
         alt="yangu"
-        className="h-7 cursor-pointer"
+        className="h-12 w-auto cursor-pointer"
         onClick={() => navigate("/")}
       />
       <div className="flex items-center gap-3">
