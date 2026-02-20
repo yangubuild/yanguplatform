@@ -29,8 +29,8 @@ const bottomNavItems = [
   { icon: PenLine, label: "Blog", id: "blog" },
   { icon: Users, label: "Community", id: "community" },
   { icon: Sparkle, label: "Affiliates", id: "affiliates" },
-  { icon: Info, label: "Terms", id: "terms" },
-  { icon: Shield, label: "Privacy", id: "privacy" },
+  { icon: Info, label: "Terms of Service", id: "terms" },
+  { icon: Shield, label: "Privacy Policy", id: "privacy" },
 ];
 
 interface MassSidebarProps {
