@@ -80,15 +80,15 @@ export function ImageAdsLinkStep({ onSelectProduct, onManualSetup, onAnalyze }: 
         <Button
           variant="outline"
           className="h-12 rounded-xl border-border/60 text-sm font-semibold transition-all hover:border-transparent hover:text-white px-6"
-          onMouseEnter={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, #b5651d 0%, #8b4513 100%)'; }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)'; }}
           onMouseLeave={(e) => { e.currentTarget.style.background = ''; }}
           onClick={onSelectProduct}
         >
           Choose existing product
         </Button>
         <Button
-          className="h-12 rounded-xl text-sm font-semibold text-white border-0 hover:brightness-110 hover:shadow-lg transition-all px-6"
-          style={{ background: "linear-gradient(135deg, #b5651d 0%, #8b4513 100%)" }}
+          variant="accent"
+          className="h-12 rounded-xl text-sm font-semibold px-6"
           disabled={!url.trim()}
           onClick={() => url.trim() && onAnalyze()}
         >
