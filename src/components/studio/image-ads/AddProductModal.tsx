@@ -1,9 +1,10 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { X, Download, Edit, ShoppingBag, Upload, ChevronRight } from "lucide-react";
+import { Download, Edit, ShoppingBag, Upload, ChevronRight } from "lucide-react";
 
 interface Props {
   open: boolean;
   onClose: () => void;
+  onEnterManually?: () => void;
 }
 
 const OPTIONS = [
@@ -11,29 +12,36 @@ const OPTIONS = [
     icon: Download,
     title: "Import from URL",
     desc: "Paste a product page link and we'll pull the details for you",
-    enabled: true,
+    key: "url",
   },
   {
     icon: Edit,
     title: "Enter Manually",
     desc: "Manually enter all the product details",
-    enabled: true,
+    key: "manual",
   },
   {
     icon: ShoppingBag,
     title: "Sync from your yangu business",
     desc: "Automatically import and update all your products from your yangu business",
-    enabled: true,
+    key: "sync",
   },
   {
     icon: Upload,
     title: "Bulk Upload",
     desc: "Download a template, fill in your product details, and upload it to add multiple products at once.",
-    enabled: true,
+    key: "bulk",
   },
 ];
 
-export function AddProductModal({ open, onClose }: Props) {
+export function AddProductModal({ open, onClose, onEnterManually }: Props) {
+  const handleClick = (key: string) => {
+    if (key === "manual" && onEnterManually) {
+      onClose();
+      onEnterManually();
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="sm:max-w-2xl p-0 bg-card border-border/60 rounded-2xl overflow-hidden gap-0">
@@ -46,13 +54,9 @@ export function AddProductModal({ open, onClose }: Props) {
         <div className="px-6 pb-6 flex flex-col gap-2">
           {OPTIONS.map((opt) => (
             <button
-              key={opt.title}
-              disabled={!opt.enabled}
-              className={`flex items-center gap-4 w-full rounded-xl border border-border/40 px-4 py-4 text-left transition-colors ${
-                opt.enabled
-                  ? "hover:border-border bg-card/60 hover:bg-muted/30 cursor-pointer"
-                  : "opacity-50 cursor-not-allowed"
-              }`}
+              key={opt.key}
+              onClick={() => handleClick(opt.key)}
+              className="flex items-center gap-4 w-full rounded-xl border border-border/40 px-4 py-4 text-left transition-colors hover:border-border bg-card/60 hover:bg-muted/30 cursor-pointer"
             >
               <opt.icon className="h-5 w-5 text-muted-foreground shrink-0" />
               <div className="flex-1 min-w-0">

@@ -40,9 +40,10 @@ const MOCK_PRODUCTS = [
 interface Props {
   onCancel: () => void;
   onSelect: (id: string) => void;
+  onManualSetup?: () => void;
 }
 
-export function ImageAdsSelectProduct({ onCancel, onSelect }: Props) {
+export function ImageAdsSelectProduct({ onCancel, onSelect, onManualSetup }: Props) {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -161,7 +162,7 @@ export function ImageAdsSelectProduct({ onCancel, onSelect }: Props) {
       </div>
 
       {/* Add Product Modal */}
-      <AddProductModal open={addModalOpen} onClose={() => setAddModalOpen(false)} />
+      <AddProductModal open={addModalOpen} onClose={() => setAddModalOpen(false)} onEnterManually={onManualSetup} />
     </div>
   );
 }

@@ -63,7 +63,7 @@ export function ImageAdsLinkStep({ onSelectProduct, onManualSetup, onAnalyze }: 
           <Input
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="e.g. amazon product link, shopify product link, app store link, etc."
+            placeholder="e.g. amazon product link, yangu business link, app store link, etc."
             className="h-14 rounded-xl bg-card border-border/60 text-base px-5 pr-32 outline-none ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
           />
           <button
