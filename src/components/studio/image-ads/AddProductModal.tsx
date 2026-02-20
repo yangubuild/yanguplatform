@@ -5,6 +5,8 @@ interface Props {
   open: boolean;
   onClose: () => void;
   onEnterManually?: () => void;
+  onSyncBusiness?: () => void;
+  onBulkUpload?: () => void;
 }
 
 const OPTIONS = [
@@ -34,12 +36,12 @@ const OPTIONS = [
   },
 ];
 
-export function AddProductModal({ open, onClose, onEnterManually }: Props) {
+export function AddProductModal({ open, onClose, onEnterManually, onSyncBusiness, onBulkUpload }: Props) {
   const handleClick = (key: string) => {
-    if (key === "manual" && onEnterManually) {
-      onClose();
-      onEnterManually();
-    }
+    onClose();
+    if (key === "manual" && onEnterManually) onEnterManually();
+    if (key === "sync" && onSyncBusiness) onSyncBusiness();
+    if (key === "bulk" && onBulkUpload) onBulkUpload();
   };
 
   return (
