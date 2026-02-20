@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import yanguY from "@/assets/yangu-y-icon.png";
+import { YanguLoader } from "@/components/primitives/YanguLoader";
 
 interface Props {
   onComplete: () => void;
@@ -31,25 +31,5 @@ export function ImageAdsLoadingScreen({ onComplete }: Props) {
     }
   }, [progress, onComplete]);
 
-  return (
-    <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-background">
-      {/* Rotating/pulsing Y logo */}
-      <div className="relative mb-8">
-        <div className="h-20 w-20 animate-yangu-spin">
-          <img
-            src={yanguY}
-            alt="Loading"
-            className="h-full w-full object-contain animate-yangu-pulse"
-          />
-        </div>
-        {/* Glow ring */}
-        <div className="absolute inset-0 rounded-full bg-success/20 blur-xl animate-yangu-pulse" />
-      </div>
-
-      {/* Status text */}
-      <p className="text-sm text-muted-foreground font-medium">
-        {statusText} ({Math.min(progress, 99)}%)
-      </p>
-    </div>
-  );
+  return <YanguLoader statusText={statusText} progress={progress} />;
 }

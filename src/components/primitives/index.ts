@@ -24,3 +24,6 @@ export { PrimaryButton, SecondaryButton, IconButton } from "./Buttons";
 
 // Data display
 export { TrendBar, TrendBarCompact } from "./TrendBar";
+
+// Loading
+export { YanguLoader } from "./YanguLoader";
