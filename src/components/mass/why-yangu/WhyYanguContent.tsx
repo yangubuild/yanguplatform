@@ -109,19 +109,6 @@ export function WhyYanguContent() {
         ))}
       </div>
 
-      {/* On this page sidebar anchor */}
-      <div className="hidden xl:block fixed right-8 top-32">
-        <div className="text-white/40 text-xs font-medium flex items-center gap-2 mb-3">
-          <span className="text-white/30">≡</span> On this page
-        </div>
-        <a
-          href="#for-merchants"
-          className="text-xs block"
-          style={{ color: "#F46D2A" }}
-        >
-          For merchants
-        </a>
-      </div>
     </div>
   );
 }

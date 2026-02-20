@@ -28,10 +28,10 @@ export function WhyYanguPage() {
       {/* Main Content */}
       <main className="lg:ml-[240px] min-h-screen">
         <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-10 py-6 pt-16 lg:pt-8">
-          <MassHeader />
+          <MassHeader hideTrends />
 
-          {/* Audience toggle */}
-          <div className="flex items-center gap-3 mt-6">
+          {/* Audience toggle — right-aligned */}
+          <div className="flex items-center justify-end mt-6">
             <AudienceToggle value={audience} onChange={setAudience} />
           </div>
 
