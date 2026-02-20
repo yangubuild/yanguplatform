@@ -3,15 +3,18 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
 
+import amazonIcon from "@/assets/platforms/amazon.jpg";
+import ebayIcon from "@/assets/platforms/ebay.webp";
+import appstoreIcon from "@/assets/platforms/appstore.png";
+import googlePlayIcon from "@/assets/platforms/google-play.webp";
+import yanguYIcon from "@/assets/platforms/yangu-y.png";
+
 const PLATFORMS = [
-  { label: "Amazon", initials: "A", bg: "bg-orange-600" },
-  { label: "Shopify", initials: "S", bg: "bg-green-600" },
-  { label: "Etsy", initials: "E", bg: "bg-orange-500" },
-  { label: "eBay", initials: "eB", bg: "bg-blue-600" },
-  { label: "Alibaba", initials: "Al", bg: "bg-orange-700" },
-  { label: "Google Play", initials: "GP", bg: "bg-emerald-600" },
-  { label: "WordPress", initials: "W", bg: "bg-sky-600" },
-  { label: "Webflow", initials: "Wf", bg: "bg-indigo-600" },
+  { label: "Amazon", icon: amazonIcon },
+  { label: "eBay", icon: ebayIcon },
+  { label: "App Store", icon: appstoreIcon },
+  { label: "Google Play", icon: googlePlayIcon },
+  { label: "Yangu", icon: yanguYIcon },
 ];
 
 interface Props {
@@ -23,42 +26,42 @@ export function ImageAdsLinkStep({ onSelectProduct, onManualSetup }: Props) {
   const [url, setUrl] = useState("");
 
   return (
-    <div className="flex flex-col items-center justify-center px-6 pt-12 pb-32 max-w-2xl mx-auto text-center gap-8">
+    <div className="flex flex-col items-center justify-center px-6 pt-24 pb-32 max-w-2xl mx-auto text-center gap-8">
       {/* Hero text */}
-      <div className="space-y-3">
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-          Share your <span className="text-accent">product link</span> to generate Image Ads
-        </h1>
-      </div>
+      <h1 className="text-2xl md:text-3xl font-semibold text-foreground">
+        Share your <span className="text-accent">product link</span> to generate Image Ads
+      </h1>
 
       {/* Platform icons */}
       <div className="space-y-2">
         <p className="text-xs text-muted-foreground font-medium">Creatify supports:</p>
-        <div className="flex items-center gap-2 flex-wrap justify-center">
+        <div className="flex items-center gap-2.5 justify-center">
           {PLATFORMS.map((p) => (
             <div
               key={p.label}
-              className={`${p.bg} h-8 w-8 rounded-lg flex items-center justify-center text-[10px] font-bold text-white shrink-0`}
+              className="h-9 w-9 rounded-full overflow-hidden bg-muted/40 flex items-center justify-center shrink-0"
               title={p.label}
             >
-              {p.initials}
+              <img src={p.icon} alt={p.label} className="h-full w-full object-cover" />
             </div>
           ))}
-          <span className="text-muted-foreground text-lg font-bold">…</span>
+          <span className="text-muted-foreground text-lg font-bold tracking-wider">···</span>
         </div>
       </div>
 
-      {/* URL input */}
+      {/* URL input — "Try some link?" inside */}
       <div className="w-full space-y-2">
-        <Input
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          placeholder="e.g. amazon product link, shopify product link, app store link, etc."
-          className="h-14 rounded-xl bg-card border-border/60 text-base px-5"
-        />
-        <p className="text-xs text-right">
-          <button className="text-accent hover:underline font-medium">Try some link?</button>
-        </p>
+        <div className="relative">
+          <Input
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="e.g. amazon product link, shopify product link, app store link, etc."
+            className="h-14 rounded-xl bg-card border-border/60 text-base px-5 pr-32 outline-none ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+          />
+          <button className="absolute right-4 top-1/2 -translate-y-1/2 text-accent text-sm font-medium hover:underline">
+            Try some link?
+          </button>
+        </div>
       </div>
 
       {/* Action buttons */}
@@ -71,7 +74,8 @@ export function ImageAdsLinkStep({ onSelectProduct, onManualSetup }: Props) {
           Choose existing product
         </Button>
         <Button
-          className="flex-1 h-12 rounded-xl bg-accent text-accent-foreground hover:bg-accent/90 text-sm font-semibold"
+          variant="accent"
+          className="flex-1 h-12 rounded-xl text-sm font-semibold"
           disabled={!url.trim()}
         >
           <Sparkles className="h-4 w-4 mr-2" />
