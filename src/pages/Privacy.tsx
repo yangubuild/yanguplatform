@@ -20,7 +20,7 @@ export default function Privacy() {
 
       <main className="lg:ml-[240px] min-h-screen flex flex-col">
         <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-10 py-6 pt-16 lg:pt-8 flex-1 w-full">
-          <MassHeader />
+          <MassHeader hideTrends />
 
           <div className="max-w-3xl mt-12">
             <h1 className="text-3xl font-bold mb-8" style={{ color: '#FFFFFF', fontFamily: "'Lufga', sans-serif" }}>
