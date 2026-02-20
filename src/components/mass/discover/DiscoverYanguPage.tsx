@@ -6,7 +6,7 @@ import {
   Sparkles, Zap, Globe, TrendingUp, Heart, Star
 } from "lucide-react";
 import yanguYIcon from "@/assets/yangu-y-icon.png";
-import yanguLogoFull from "@/assets/yangu-logo-full.png";
+// yanguLogoFull removed — nav is now in the shell
 
 /* ── Stats Counter ── */
 function StatItem({ value, label }: { value: string; label: string }) {
@@ -132,24 +132,7 @@ export function DiscoverYanguPage() {
   const [activeApp, setActiveApp] = useState(0);
 
   return (
-    <div className="min-h-screen" style={{ background: "#08120D", fontFamily: "'Lufga', sans-serif" }}>
-      {/* ─── Top Nav ─── */}
-      <nav className="flex items-center justify-between px-6 md:px-12 py-5 max-w-[1200px] mx-auto">
-        <a href="/"><img src={yanguLogoFull} alt="Yangu" className="h-10" /></a>
-        <div className="flex items-center gap-3">
-          <a href="/auth/login" className="px-4 py-2 rounded-lg text-sm font-medium text-white hover:bg-white/5 transition-colors">
-            Sign in
-          </a>
-          <a 
-            href="/auth/signup" 
-            className="px-5 py-2.5 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-90"
-            style={{ background: "linear-gradient(90deg, #b5622a, #5c2a12)" }}
-          >
-            Start selling
-          </a>
-        </div>
-      </nav>
-
+    <div style={{ fontFamily: "'Lufga', sans-serif" }}>
       {/* ─── Hero ─── */}
       <section className="text-center px-6 pt-16 pb-20 max-w-[900px] mx-auto">
         <h1 className="text-5xl md:text-7xl font-bold leading-[1.05] tracking-tight mb-6">
@@ -347,6 +330,33 @@ export function DiscoverYanguPage() {
           <span>yangu 2026</span>
         </div>
       </footer>
+    </div>
+  );
+}
+
+/* ── Wrapped version with Explore shell ── */
+import { MassSidebar } from "../MassSidebar";
+import { MassHeader } from "../MassHeader";
+import { Menu } from "lucide-react";
+
+export function DiscoverYanguShell() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  return (
+    <div className="min-h-screen" style={{ background: "#08120D" }}>
+      <button
+        onClick={() => setSidebarOpen(true)}
+        className="fixed top-4 left-4 z-30 p-2 rounded-lg bg-[#1c1c1c] text-white lg:hidden"
+      >
+        <Menu className="w-6 h-6" />
+      </button>
+      <MassSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <main className="lg:ml-[240px] min-h-screen">
+        <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-10 py-6 pt-16 lg:pt-8">
+          <MassHeader hideTrends />
+          <DiscoverYanguPage />
+        </div>
+      </main>
     </div>
   );
 }
