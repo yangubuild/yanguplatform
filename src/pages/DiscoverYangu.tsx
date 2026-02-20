@@ -1,7 +1,7 @@
-import { DiscoverYanguPage } from "@/components/mass/discover/DiscoverYanguPage";
+import { DiscoverYanguShell } from "@/components/mass/discover/DiscoverYanguPage";
 
 const DiscoverYangu = () => {
-  return <DiscoverYanguPage />;
+  return <DiscoverYanguShell />;
 };
 
 export default DiscoverYangu;
