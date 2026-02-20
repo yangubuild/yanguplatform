@@ -68,7 +68,10 @@ export function ImageAdsLinkStep({ onSelectProduct, onManualSetup }: Props) {
       <div className="flex items-center gap-3 w-full">
         <Button
           variant="outline"
-          className="flex-1 h-12 rounded-xl border-border/60 text-sm font-semibold"
+          className="flex-1 h-12 rounded-xl border-border/60 text-sm font-semibold transition-all hover:border-transparent hover:text-white"
+          style={{ '--hover-bg': 'linear-gradient(135deg, #b5651d 0%, #8b4513 100%)' } as React.CSSProperties}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, #b5651d 0%, #8b4513 100%)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = ''; }}
           onClick={onSelectProduct}
         >
           Choose existing product
