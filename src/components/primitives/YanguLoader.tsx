@@ -1,26 +1,37 @@
-import yanguY from "@/assets/yangu-y-loader.png";
+import yanguYGreen from "@/assets/yangu-y-loader.png";
+import yanguYOrange from "@/assets/yangu-y-error.png";
 
 interface YanguLoaderProps {
   /** Status text shown below the logo */
   statusText?: string;
   /** Optional progress percentage (0–100). Omit to show text only. */
   progress?: number;
+  /** "loading" = Green Y (processing), "error" = Orange Y (attention needed) */
+  state?: "loading" | "error";
   /** If true, fills the entire viewport instead of its parent */
   fullScreen?: boolean;
   className?: string;
 }
 
 /**
- * YanguLoader — LOCKED global loading component.
- * All loading / processing / transition states across the YANGU platform
- * must use this component exclusively. Do NOT create alternative loaders.
+ * YanguLoader — LOCKED global loading / status component.
+ *
+ * 🟢 state="loading" → Green Y — AI working, page loading, processing
+ * 🟠 state="error"   → Orange Y — failure, retry, attention required
+ *
+ * Animation style is identical for both states; only the logo image changes.
+ * Do NOT create alternative loaders or status indicators.
  */
 export function YanguLoader({
   statusText = "Loading…",
   progress,
+  state = "loading",
   fullScreen = false,
   className,
 }: YanguLoaderProps) {
+  const logo = state === "error" ? yanguYOrange : yanguYGreen;
+  const glowColor = state === "error" ? "bg-warning/20" : "bg-success/20";
+
   return (
     <div
       className={`${
@@ -31,13 +42,13 @@ export function YanguLoader({
       <div className="relative mb-8">
         <div className="h-20 w-20 animate-yangu-spin">
           <img
-            src={yanguY}
-            alt="Loading"
+            src={logo}
+            alt={state === "error" ? "Attention needed" : "Loading"}
             className="h-full w-full object-contain animate-yangu-pulse"
           />
         </div>
-        {/* Green glow ring */}
-        <div className="absolute inset-0 rounded-full bg-success/20 blur-xl animate-yangu-pulse" />
+        {/* Glow ring — green for loading, orange/amber for error */}
+        <div className={`absolute inset-0 rounded-full ${glowColor} blur-xl animate-yangu-pulse`} />
       </div>
 
       {/* Status text */}
