@@ -4,10 +4,11 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { DocsPage, DocsSection, PlaceholderBlock } from "@/components/developers/DocsPage";
-import { Key, Shield, Webhook, FileText, Loader2, Copy, RotateCcw, Plus, Trash2 } from "lucide-react";
+import { Key, Shield, Webhook, FileText, Loader2, Copy, RotateCcw, Plus, Lock } from "lucide-react";
 import { toast } from "sonner";
+import ConsoleAppPermissions from "./ConsoleAppPermissions";
 
-type Tab = "keys" | "oauth" | "webhooks" | "logs";
+type Tab = "keys" | "oauth" | "webhooks" | "logs" | "permissions";
 
 export default function ConsoleAppDetail() {
   const { appId } = useParams<{ appId: string }>();
@@ -16,9 +17,8 @@ export default function ConsoleAppDetail() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  // Derive active tab from path
   const pathEnd = location.pathname.split("/").pop();
-  const activeTab: Tab = (["keys", "oauth", "webhooks", "logs"].includes(pathEnd || "") ? pathEnd : "keys") as Tab;
+  const activeTab: Tab = (["keys", "oauth", "webhooks", "logs", "permissions"].includes(pathEnd || "") ? pathEnd : "keys") as Tab;
 
   const { data: app } = useQuery({
     queryKey: ["developer-app", appId],
@@ -40,6 +40,7 @@ export default function ConsoleAppDetail() {
 
   const tabs = [
     { id: "keys" as Tab, label: "Keys", icon: Key },
+    { id: "permissions" as Tab, label: "Permissions", icon: Lock },
     { id: "oauth" as Tab, label: "OAuth", icon: Shield },
     { id: "webhooks" as Tab, label: "Webhooks", icon: Webhook },
     { id: "logs" as Tab, label: "Logs", icon: FileText },
@@ -51,7 +52,6 @@ export default function ConsoleAppDetail() {
       title={app?.name ?? "App Detail"}
       subtitle={app ? `Slug: ${app.slug} • Status: ${app.status}` : "Loading..."}
     >
-      {/* Tab bar */}
       <div className="flex gap-1 mb-8 border-b border-white/10 pb-px">
         {tabs.map(({ id, label, icon: Icon }) => (
           <button
@@ -71,6 +71,7 @@ export default function ConsoleAppDetail() {
       </div>
 
       {activeTab === "keys" && <KeysTab appId={appId!} />}
+      {activeTab === "permissions" && <ConsoleAppPermissions appId={appId!} />}
       {activeTab === "oauth" && <OAuthTab appId={appId!} />}
       {activeTab === "webhooks" && <WebhooksTab appId={appId!} />}
       {activeTab === "logs" && <LogsTab appId={appId!} />}
