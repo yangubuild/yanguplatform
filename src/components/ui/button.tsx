@@ -16,7 +16,7 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent/10 hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         // YANGU custom variants
-        accent: "bg-accent text-accent-foreground hover:bg-accent/90 shadow-md hover:shadow-lg hover:shadow-accent/20",
+        accent: "text-white border-0 shadow-md hover:shadow-lg hover:brightness-110 transition-all [background:linear-gradient(135deg,#b5651d_0%,#8b4513_100%)]",
         success: "bg-success text-success-foreground hover:bg-success/90",
       },
       size: {
