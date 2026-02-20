@@ -41,9 +41,11 @@ interface Props {
   onCancel: () => void;
   onSelect: (id: string) => void;
   onManualSetup?: () => void;
+  onSyncBusiness?: () => void;
+  onBulkUpload?: () => void;
 }
 
-export function ImageAdsSelectProduct({ onCancel, onSelect, onManualSetup }: Props) {
+export function ImageAdsSelectProduct({ onCancel, onSelect, onManualSetup, onSyncBusiness, onBulkUpload }: Props) {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -162,7 +164,7 @@ export function ImageAdsSelectProduct({ onCancel, onSelect, onManualSetup }: Pro
       </div>
 
       {/* Add Product Modal */}
-      <AddProductModal open={addModalOpen} onClose={() => setAddModalOpen(false)} onEnterManually={onManualSetup} />
+      <AddProductModal open={addModalOpen} onClose={() => setAddModalOpen(false)} onEnterManually={onManualSetup} onSyncBusiness={onSyncBusiness} onBulkUpload={onBulkUpload} />
     </div>
   );
 }
