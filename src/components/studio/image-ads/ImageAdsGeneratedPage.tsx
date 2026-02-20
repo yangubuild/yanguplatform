@@ -224,7 +224,7 @@ export function ImageAdsGeneratedPage() {
       </div>
 
       {/* Bottom toolbar */}
-      <div className="sticky bottom-0 z-40 border-t border-border/40 bg-background/95 backdrop-blur-md">
+      <div className="z-40 border-t border-border/40 bg-background/95 backdrop-blur-md">
         <div className="flex items-center justify-end px-6 py-4 max-w-2xl mx-auto gap-4">
           <div className="flex items-center gap-4">
             <Select value={model} onValueChange={setModel}>
