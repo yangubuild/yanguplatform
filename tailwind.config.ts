@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
-        display: ["Lufga", "Inter", "system-ui", "sans-serif"],
+        sans: ["Lufga", "system-ui", "sans-serif"],
+        display: ["Lufga", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono", "monospace"],
       },
       colors: {

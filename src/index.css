@@ -1,4 +1,22 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+/* ── Lufga Self-Hosted Font Registration ── */
+@font-face { font-family: "Lufga"; src: url("/fonts/Lufga-Thin.otf") format("opentype"); font-weight: 100; font-style: normal; font-display: swap; }
+@font-face { font-family: "Lufga"; src: url("/fonts/Lufga-ThinItalic.otf") format("opentype"); font-weight: 100; font-style: italic; font-display: swap; }
+@font-face { font-family: "Lufga"; src: url("/fonts/Lufga-ExtraLight.otf") format("opentype"); font-weight: 200; font-style: normal; font-display: swap; }
+@font-face { font-family: "Lufga"; src: url("/fonts/Lufga-ExtraLightItalic.otf") format("opentype"); font-weight: 200; font-style: italic; font-display: swap; }
+@font-face { font-family: "Lufga"; src: url("/fonts/Lufga-Light.otf") format("opentype"); font-weight: 300; font-style: normal; font-display: swap; }
+@font-face { font-family: "Lufga"; src: url("/fonts/Lufga-LightItalic.otf") format("opentype"); font-weight: 300; font-style: italic; font-display: swap; }
+@font-face { font-family: "Lufga"; src: url("/fonts/Lufga-Regular.otf") format("opentype"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Lufga"; src: url("/fonts/Lufga-Italic.otf") format("opentype"); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: "Lufga"; src: url("/fonts/Lufga-Medium.otf") format("opentype"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Lufga"; src: url("/fonts/Lufga-MediumItalic.otf") format("opentype"); font-weight: 500; font-style: italic; font-display: swap; }
+@font-face { font-family: "Lufga"; src: url("/fonts/Lufga-SemiBold.otf") format("opentype"); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "Lufga"; src: url("/fonts/Lufga-SemiBoldItalic.otf") format("opentype"); font-weight: 600; font-style: italic; font-display: swap; }
+@font-face { font-family: "Lufga"; src: url("/fonts/Lufga-Bold.otf") format("opentype"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Lufga"; src: url("/fonts/Lufga-BoldItalic.otf") format("opentype"); font-weight: 700; font-style: italic; font-display: swap; }
+@font-face { font-family: "Lufga"; src: url("/fonts/Lufga-ExtraBold.otf") format("opentype"); font-weight: 800; font-style: normal; font-display: swap; }
+@font-face { font-family: "Lufga"; src: url("/fonts/Lufga-ExtraBoldItalic.otf") format("opentype"); font-weight: 800; font-style: italic; font-display: swap; }
+@font-face { font-family: "Lufga"; src: url("/fonts/Lufga-Black.otf") format("opentype"); font-weight: 900; font-style: normal; font-display: swap; }
+@font-face { font-family: "Lufga"; src: url("/fonts/Lufga-BlackItalic.otf") format("opentype"); font-weight: 900; font-style: italic; font-display: swap; }
 
 @tailwind base;
 @tailwind components;
@@ -200,7 +218,7 @@
   }
 
   html {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Lufga', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -389,7 +407,7 @@
   }
 
   .admin-section-title {
-    font-family: 'Lufga', 'Inter', system-ui, sans-serif;
+    font-family: 'Lufga', system-ui, sans-serif;
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
