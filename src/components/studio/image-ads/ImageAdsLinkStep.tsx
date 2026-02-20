@@ -74,7 +74,7 @@ export function ImageAdsLinkStep({ onSelectProduct, onManualSetup }: Props) {
           Choose existing product
         </Button>
         <Button
-          className="flex-1 h-12 rounded-xl text-sm font-semibold text-white border-0"
+          className="flex-1 h-12 rounded-xl text-sm font-semibold text-white border-0 hover:brightness-110 hover:shadow-lg transition-all"
           style={{ background: "linear-gradient(135deg, #b5651d 0%, #8b4513 100%)" }}
           disabled={!url.trim()}
         >
