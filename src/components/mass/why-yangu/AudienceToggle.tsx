@@ -47,7 +47,7 @@ export function AudienceToggle({ value, onChange }: AudienceToggleProps) {
 
       {open && (
         <div
-          className="absolute left-0 bottom-full mb-2 w-48 rounded-xl py-2 z-50"
+          className="absolute left-0 top-full mt-2 w-48 rounded-xl py-2 z-50"
           style={{
             background: "rgba(10, 23, 16, 0.85)",
             backdropFilter: "blur(12px)",
