@@ -1,4 +1,5 @@
-import { Sun, Moon, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { Sun, Moon, Loader2, Menu } from "lucide-react";
 import { CommunityThemeProvider, useCommunityTheme, getThemeColors } from "./CommunityThemeContext";
 import { CommunityTopBar } from "./CommunityTopBar";
 import { CommunityHero } from "./CommunityHero";
@@ -11,7 +12,8 @@ import { CommunityFooter } from "./CommunityFooter";
 import { useCommunitySection, type CommunitySectionItem } from "@/hooks/useCommunitySection";
 import { useCommunityListings } from "@/hooks/useCommunityListings";
 import type { CommunityItem } from "./communityData";
-import { useState } from "react";
+import { MassSidebar } from "../MassSidebar";
+import { MassHeader } from "../MassHeader";
 
 function mapToItem(l: CommunitySectionItem): CommunityItem {
   return {
@@ -33,6 +35,7 @@ function buildLinkMap(items: CommunitySectionItem[]): Map<string, string> {
 
 function CommunityPageInner() {
   const [activeFilter, setActiveFilter] = useState("Explore");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { theme, toggle } = useCommunityTheme();
   const colors = getThemeColors(theme);
 
@@ -87,84 +90,65 @@ function CommunityPageInner() {
 
   return (
     <div
-      className="min-h-screen transition-colors duration-300"
-      style={{
-        backgroundColor: colors.bg,
-        fontFamily: "'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-      }}
+      className="min-h-screen"
+      style={{ background: '#08120D' }}
     >
-      <CommunityTopBar />
-      <CommunityHero />
-      <CommunityFilterBar onFilterChange={setActiveFilter} />
+      {/* Mobile menu button */}
+      <button
+        onClick={() => setSidebarOpen(true)}
+        className="fixed top-4 left-4 z-30 p-2 rounded-lg text-white/60 hover:text-white lg:hidden"
+      >
+        <Menu className="w-6 h-6" />
+      </button>
 
-      {isLoading ? (
-        <div className="flex justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin" style={{ color: colors.text }} />
+      <MassSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+      <main className="lg:ml-[240px] min-h-screen">
+        <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-10 py-6 pt-16 lg:pt-8">
+          <MassHeader hideTrends />
         </div>
-      ) : isExplore ? (
-        allExploreEmpty ? (
-          <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-            <p className="text-[15px] font-medium" style={{ color: colors.text }}>No listings yet</p>
-            <p className="mt-1 text-[13px]" style={{ color: colors.descText }}>
-              Communities listed on Yangu will appear here.
-            </p>
+
+        {/* Community content */}
+        <CommunityHero />
+        <CommunityFilterBar onFilterChange={setActiveFilter} />
+
+        {isLoading ? (
+          <div className="flex justify-center py-20">
+            <Loader2 className="h-8 w-8 animate-spin text-white/60" />
           </div>
-        ) : (
-          <>
-            <CommunitySection
-              title="Trending"
-              items={trendingItems}
-              linkMap={trendingLinks}
-              seeAllHref="/community/see-all?section=trending"
-            />
-            <CreatorSpotlight />
-            <CommunitySection
-              title="Popular"
-              items={popularItems}
-              linkMap={popularLinks}
-              seeAllHref="/community/see-all?section=popular"
-            />
-            <SubscribeCta />
-            <CommunitySection
-              title="Be more productive"
-              items={productiveItems}
-              linkMap={productiveLinks}
-              seeAllHref="/community/see-all?section=category&category_key=be_more_productive"
-            />
-            <CommunitySection
-              title="Start and scale my business"
-              items={businessItems}
-              linkMap={businessLinks}
-              seeAllHref="/community/see-all?section=category&category_key=start_scale_business"
-            />
-            <BottomCta />
-            <CommunityFooter />
-          </>
-        )
-      ) : (
-        <>
-          {filteredItems.length === 0 ? (
+        ) : isExplore ? (
+          allExploreEmpty ? (
             <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-              <p className="text-[15px] font-medium" style={{ color: colors.text }}>No listings in this category</p>
+              <p className="text-[15px] font-medium text-white">No listings yet</p>
+              <p className="mt-1 text-[13px] text-white/50">
+                Communities listed on Yangu will appear here.
+              </p>
             </div>
           ) : (
-            <CommunitySection title={activeFilter} items={filteredItems} showSeeAll={false} linkMap={filteredLinks} />
-          )}
-          <CommunityFooter />
-        </>
-      )}
-
-      <button
-        onClick={toggle}
-        className="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full shadow-lg transition-all duration-300 hover:scale-110"
-        style={{
-          backgroundColor: theme === "light" ? "#111827" : "#F0F0F0",
-          color: theme === "light" ? "#F0F0F0" : "#111827",
-        }}
-        title={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
-      >
-        {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
-      </button>
+            <>
+              <CommunitySection title="Trending" items={trendingItems} linkMap={trendingLinks} seeAllHref="/community/see-all?section=trending" />
+              <CreatorSpotlight />
+              <CommunitySection title="Popular" items={popularItems} linkMap={popularLinks} seeAllHref="/community/see-all?section=popular" />
+              <SubscribeCta />
+              <CommunitySection title="Be more productive" items={productiveItems} linkMap={productiveLinks} seeAllHref="/community/see-all?section=category&category_key=be_more_productive" />
+              <CommunitySection title="Start and scale my business" items={businessItems} linkMap={businessLinks} seeAllHref="/community/see-all?section=category&category_key=start_scale_business" />
+              <BottomCta />
+              <CommunityFooter />
+            </>
+          )
+        ) : (
+          <>
+            {filteredItems.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
+                <p className="text-[15px] font-medium text-white">No listings in this category</p>
+              </div>
+            ) : (
+              <CommunitySection title={activeFilter} items={filteredItems} showSeeAll={false} linkMap={filteredLinks} />
+            )}
+            <CommunityFooter />
+          </>
+        )}
+      </main>
     </div>
   );
 }
