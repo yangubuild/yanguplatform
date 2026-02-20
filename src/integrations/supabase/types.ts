@@ -485,6 +485,91 @@ export type Database = {
         }
         Relationships: []
       }
+      app_review_appeals: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          evidence_links: string[]
+          id: string
+          listing_id: string
+          message: string
+          status: string
+          submitted_by: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          evidence_links?: string[]
+          id?: string
+          listing_id: string
+          message: string
+          status?: string
+          submitted_by: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          evidence_links?: string[]
+          id?: string
+          listing_id?: string
+          message?: string
+          status?: string
+          submitted_by?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "app_review_appeals_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "app_store_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      app_review_runs: {
+        Row: {
+          created_at: string
+          decision: string
+          id: string
+          listing_id: string
+          mode: string
+          reasons: Json
+          reviewed_by: string | null
+          score: number
+        }
+        Insert: {
+          created_at?: string
+          decision: string
+          id?: string
+          listing_id: string
+          mode: string
+          reasons?: Json
+          reviewed_by?: string | null
+          score?: number
+        }
+        Update: {
+          created_at?: string
+          decision?: string
+          id?: string
+          listing_id?: string
+          mode?: string
+          reasons?: Json
+          reviewed_by?: string | null
+          score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "app_review_runs_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "app_store_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       app_store_listings: {
         Row: {
           app_id: string
@@ -817,6 +902,51 @@ export type Database = {
         }
         Relationships: []
       }
+      developer_app_installs: {
+        Row: {
+          id: string
+          installed_at: string
+          installed_by: string
+          listing_id: string
+          org_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          installed_at?: string
+          installed_by: string
+          listing_id: string
+          org_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          installed_at?: string
+          installed_by?: string
+          listing_id?: string
+          org_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "developer_app_installs_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "app_store_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "developer_app_installs_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       developer_app_keys: {
         Row: {
           app_id: string
@@ -884,6 +1014,48 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "developer_apps"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      developer_app_scopes: {
+        Row: {
+          app_id: string
+          granted_at: string | null
+          granted_by: string | null
+          notes: string | null
+          scope_key: string
+          status: string
+        }
+        Insert: {
+          app_id: string
+          granted_at?: string | null
+          granted_by?: string | null
+          notes?: string | null
+          scope_key: string
+          status?: string
+        }
+        Update: {
+          app_id?: string
+          granted_at?: string | null
+          granted_by?: string | null
+          notes?: string | null
+          scope_key?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "developer_app_scopes_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "developer_apps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "developer_app_scopes_scope_key_fkey"
+            columns: ["scope_key"]
+            isOneToOne: false
+            referencedRelation: "developer_scope_registry"
+            referencedColumns: ["scope_key"]
           },
         ]
       }
@@ -968,6 +1140,77 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      developer_scope_registry: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          is_enabled: boolean
+          requires_review: boolean
+          risk_level: string
+          scope_key: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string
+          is_enabled?: boolean
+          requires_review?: boolean
+          risk_level: string
+          scope_key: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          is_enabled?: boolean
+          requires_review?: boolean
+          risk_level?: string
+          scope_key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      developer_surface_installs: {
+        Row: {
+          config: Json
+          created_at: string
+          id: string
+          install_id: string
+          status: string
+          surface_id: string
+          updated_at: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          id?: string
+          install_id: string
+          status?: string
+          surface_id: string
+          updated_at?: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          id?: string
+          install_id?: string
+          status?: string
+          surface_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "developer_surface_installs_install_id_fkey"
+            columns: ["install_id"]
+            isOneToOne: false
+            referencedRelation: "developer_app_installs"
             referencedColumns: ["id"]
           },
         ]
@@ -2282,6 +2525,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      app_has_scope: {
+        Args: { p_app_id: string; p_scope_key: string }
+        Returns: boolean
+      }
       archive_surface: { Args: { p_surface_id: string }; Returns: Json }
       can_list_on_community: {
         Args: { p_surface_id: string }
@@ -2534,6 +2781,10 @@ export type Database = {
             Args: { p_domain_id: string; p_slug?: string; p_surface_id: string }
             Returns: Json
           }
+      require_app_scope: {
+        Args: { p_app_id: string; p_scope_key: string }
+        Returns: undefined
+      }
       reserve_credits: {
         Args: { p_amount: number; p_ref_id: string; p_ref_type: string }
         Returns: undefined
@@ -2541,6 +2792,7 @@ export type Database = {
       resolve_route: { Args: { p_host: string; p_path: string }; Returns: Json }
       revoke_admin_invite: { Args: { p_invite_id: string }; Returns: undefined }
       rotate_app_key: { Args: { p_key_id: string }; Returns: Json }
+      run_auto_review: { Args: { p_listing_id: string }; Returns: string }
       send_admin_invite: {
         Args: {
           p_email: string
@@ -2555,6 +2807,10 @@ export type Database = {
           p_result_images?: Json
           p_status: string
         }
+        Returns: undefined
+      }
+      set_listing_review_state: {
+        Args: { p_listing_id: string; p_new_state: string; p_notes?: string }
         Returns: undefined
       }
       set_video_generation_status: {
@@ -2577,6 +2833,14 @@ export type Database = {
         Returns: Json
       }
       submit_app_listing: { Args: { p_app_id: string }; Returns: undefined }
+      submit_appeal: {
+        Args: {
+          p_evidence_links?: string[]
+          p_listing_id: string
+          p_message: string
+        }
+        Returns: string
+      }
       unarchive_surface: { Args: { p_surface_id: string }; Returns: Json }
       unlist_from_community: { Args: { p_surface_id: string }; Returns: Json }
       unpublish_surface: {

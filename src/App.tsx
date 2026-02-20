@@ -57,6 +57,7 @@ const ConsoleNewSubmission = lazy(() => import("./pages/developers/console/Conso
 const StoreBrowse = lazy(() => import("./pages/developers/store/StoreBrowse"));
 const StoreListing = lazy(() => import("./pages/developers/store/StoreListing"));
 const StoreInstall = lazy(() => import("./pages/developers/store/StoreInstall"));
+const ManageAppReview = lazy(() => import("./pages/manage/ManageAppReview"));
 
 const ManageDashboard = lazy(() => import("./pages/manage/ManageDashboard"));
 const ManagePlaceholder = lazy(() => import("./pages/manage/ManagePlaceholder"));
@@ -147,6 +148,7 @@ const App = () => (
                   <Route path="console/apps/:appId/oauth" element={<ConsoleAppDetail />} />
                   <Route path="console/apps/:appId/webhooks" element={<ConsoleAppDetail />} />
                   <Route path="console/apps/:appId/logs" element={<ConsoleAppDetail />} />
+                  <Route path="console/apps/:appId/permissions" element={<ConsoleAppDetail />} />
                   <Route path="console/submissions" element={<ConsoleSubmissions />} />
                   <Route path="console/submissions/new" element={<ConsoleNewSubmission />} />
                   {/* App Store */}
@@ -298,6 +300,7 @@ const App = () => (
                   <Route path="integrations" element={<ManagePlaceholder />} />
                   <Route path="research-testing" element={<ManageRoleGate allowedRoles={["admin", "analyst"]}><ManagePlaceholder /></ManageRoleGate>} />
                   <Route path="alerts-security" element={<ManagePlaceholder />} />
+                  <Route path="app-review" element={<ManageAppReview />} />
                   {/* System */}
                   <Route path="settings" element={<ManagePlaceholder />} />
                   <Route path="audit-logs" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManagePlaceholder /></ManageRoleGate>} />
