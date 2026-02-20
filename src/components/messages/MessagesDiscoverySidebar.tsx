@@ -27,7 +27,7 @@ export function MessagesDiscoverySidebar({ users, onUserClick }: Props) {
       <div className="px-4 pt-2 pb-3">
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm font-semibold text-white">Recent chats</span>
-          <button className="text-xs font-medium" style={{ color: "rgba(96,165,250,0.9)" }}>See all</button>
+          <button className="text-xs font-medium text-accent">See all</button>
         </div>
         <div className="flex items-center gap-3 py-2">
           <div
@@ -54,7 +54,7 @@ export function MessagesDiscoverySidebar({ users, onUserClick }: Props) {
       <div className="px-4 pt-3 pb-2">
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm font-semibold text-white">Popular users</span>
-          <button className="text-xs font-medium" style={{ color: "rgba(96,165,250,0.9)" }}>See all</button>
+          <button className="text-xs font-medium text-accent">See all</button>
         </div>
       </div>
 
