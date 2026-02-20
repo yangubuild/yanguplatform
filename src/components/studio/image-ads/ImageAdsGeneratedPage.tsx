@@ -269,7 +269,7 @@ export function ImageAdsGeneratedPage() {
               </Select>
             </div>
 
-            <Button className="h-10 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 text-sm font-semibold gap-1.5 px-6">
+            <Button variant="accent" className="h-10 rounded-lg text-sm font-semibold gap-1.5 px-6">
               <Sparkles className="h-4 w-4" />
               Generate
             </Button>
