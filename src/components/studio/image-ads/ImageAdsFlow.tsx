@@ -71,6 +71,7 @@ export default function ImageAdsFlow() {
           <ImageAdsSelectProduct
             onCancel={() => setStep("link")}
             onSelect={() => setStep("link")}
+            onManualSetup={() => setStep("manual-setup")}
           />
         )}
       </div>
