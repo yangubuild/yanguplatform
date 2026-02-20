@@ -13,11 +13,17 @@ export type ImageAdsStep = "link" | "select-product" | "manual-setup" | "loading
 export default function ImageAdsFlow() {
   const navigate = useNavigate();
   const [step, setStep] = useState<ImageAdsStep>("link");
+  const [submittedUrl, setSubmittedUrl] = useState("");
 
   const handleBack = () => {
     if (step === "link") navigate("/dashboard/studio");
     else if (step === "generated") setStep("link");
     else setStep("link");
+  };
+
+  const handleAnalyze = (url: string) => {
+    setSubmittedUrl(url);
+    setStep("loading");
   };
 
   return (
@@ -51,13 +57,13 @@ export default function ImageAdsFlow() {
           <ImageAdsLinkStep
             onSelectProduct={() => setStep("select-product")}
             onManualSetup={() => setStep("manual-setup")}
-            onAnalyze={() => setStep("loading")}
+            onAnalyze={handleAnalyze}
           />
         )}
         {step === "loading" && (
           <ImageAdsLoadingScreen onComplete={() => setStep("generated")} />
         )}
-        {step === "generated" && <ImageAdsGeneratedPage />}
+        {step === "generated" && <ImageAdsGeneratedPage submittedUrl={submittedUrl} />}
         {step === "manual-setup" && (
           <ImageAdsManualSetup onBack={() => setStep("link")} />
         )}

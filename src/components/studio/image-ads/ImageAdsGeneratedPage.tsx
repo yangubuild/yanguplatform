@@ -18,8 +18,9 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Plus, Sparkles, Square, RectangleHorizontal, RectangleVertical, Lightbulb, ChevronDown, ImagePlus } from "lucide-react";
+import { isDemoUrl, DEMO_IMAGES, DEMO_PRODUCT } from "./demoConfig";
 
-const MOCK_IMAGES = [
+const FALLBACK_IMAGES = [
   "/studio/img-ad-1.webp",
   "/studio/img-ad-2.webp",
   "/studio/img-ad-3.webp",
@@ -28,14 +29,21 @@ const MOCK_IMAGES = [
   "/studio/img-ad-6.webp",
 ];
 
-export function ImageAdsGeneratedPage() {
-  const [brandName, setBrandName] = useState("Dokotoo Women's Pullover");
+interface ImageAdsGeneratedPageProps {
+  submittedUrl?: string;
+}
+
+export function ImageAdsGeneratedPage({ submittedUrl = "" }: ImageAdsGeneratedPageProps) {
+  const isDemo = isDemoUrl(submittedUrl);
+  const images = isDemo ? DEMO_IMAGES : FALLBACK_IMAGES;
+  const product = isDemo ? DEMO_PRODUCT : null;
+  const [brandName, setBrandName] = useState(product?.brandName ?? "My Product");
   const [description, setDescription] = useState(
-    "Comfortable oversized pullover sweatshirt for women. Fashion blouse with a relaxed fit, perfect for casual everyday wear."
+    product?.description ?? "Enter your product description."
   );
   const [selectedImages, setSelectedImages] = useState<Set<number>>(new Set([0, 1, 2]));
-  const [sellingPoints, setSellingPoints] = useState(["Color block design", "Lightweight knit fabric", "Loose casual fit"]);
-  const [brandColors] = useState(["hsl(40, 20%, 75%)", "hsl(35, 55%, 55%)", "hsl(350, 15%, 60%)"]);
+  const [sellingPoints, setSellingPoints] = useState(product?.sellingPoints ?? ["Feature 1", "Feature 2", "Feature 3"]);
+  const [brandColors] = useState(product?.brandColors ?? ["hsl(0, 0%, 70%)", "hsl(0, 0%, 50%)", "hsl(0, 0%, 30%)"]);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [promoEnabled, setPromoEnabled] = useState(false);
   const [model, setModel] = useState("design-master");
@@ -51,7 +59,7 @@ export function ImageAdsGeneratedPage() {
     });
   };
 
-  const selectAll = () => setSelectedImages(new Set(MOCK_IMAGES.map((_, i) => i)));
+  const selectAll = () => setSelectedImages(new Set(images.map((_, i) => i)));
   const unselectAll = () => setSelectedImages(new Set());
 
   return (
@@ -101,7 +109,7 @@ export function ImageAdsGeneratedPage() {
               </p>
 
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                {MOCK_IMAGES.map((src, idx) => (
+                {images.map((src, idx) => (
                   <div
                     key={idx}
                     onClick={() => toggleImage(idx)}

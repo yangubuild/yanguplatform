@@ -23,7 +23,7 @@ const SAMPLE_URL =
 interface Props {
   onSelectProduct: () => void;
   onManualSetup: () => void;
-  onAnalyze: () => void;
+  onAnalyze: (url: string) => void;
 }
 
 export function ImageAdsLinkStep({ onSelectProduct, onManualSetup, onAnalyze }: Props) {
@@ -90,7 +90,7 @@ export function ImageAdsLinkStep({ onSelectProduct, onManualSetup, onAnalyze }: 
           variant="accent"
           className="h-12 rounded-xl text-sm font-semibold px-6"
           disabled={!url.trim()}
-          onClick={() => url.trim() && onAnalyze()}
+          onClick={() => url.trim() && onAnalyze(url)}
         >
           <Sparkles className="h-4 w-4 mr-2" />
           Analyze URL
