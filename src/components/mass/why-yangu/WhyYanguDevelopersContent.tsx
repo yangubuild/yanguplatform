@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import {
   Code,
   Database,
@@ -11,54 +12,20 @@ import {
 } from "lucide-react";
 
 const devCards = [
-  {
-    icon: Code,
-    title: "REST & GraphQL APIs",
-    description: "Access every platform feature through well-documented APIs.",
-  },
-  {
-    icon: Database,
-    title: "Database access",
-    description: "Direct access to your data layer with row-level security built in.",
-  },
-  {
-    icon: Webhook,
-    title: "Webhooks",
-    description: "Real-time event notifications for payments, signups, and more.",
-  },
-  {
-    icon: Terminal,
-    title: "CLI tools",
-    description: "Manage your projects from the command line with our developer toolkit.",
-  },
-  {
-    icon: Layers,
-    title: "SDKs & Libraries",
-    description: "Official client libraries for JavaScript, Python, and more.",
-  },
-  {
-    icon: Shield,
-    title: "Authentication",
-    description: "Integrate OAuth, magic links, and SSO into your application.",
-  },
-  {
-    icon: Cpu,
-    title: "Edge functions",
-    description: "Run serverless functions close to your users with zero cold starts.",
-  },
-  {
-    icon: Globe,
-    title: "Custom domains",
-    description: "Map your own domains and manage DNS programmatically.",
-  },
-  {
-    icon: Puzzle,
-    title: "Plugins & extensions",
-    description: "Extend platform functionality with custom plugins and integrations.",
-  },
+  { icon: Code, title: "REST & GraphQL APIs", description: "Access every platform feature through well-documented APIs.", path: "/developers/apis/rest-graphql" },
+  { icon: Database, title: "Database access", description: "Direct access to your data layer with row-level security built in.", path: "/developers/apis/data" },
+  { icon: Webhook, title: "Webhooks", description: "Real-time event notifications for payments, signups, and more.", path: "/developers/apis/webhooks" },
+  { icon: Terminal, title: "CLI tools", description: "Manage your projects from the command line with our developer toolkit.", path: "/developers/tools/cli" },
+  { icon: Layers, title: "SDKs & Libraries", description: "Official client libraries for JavaScript, Python, and more.", path: "/developers/tools/sdks" },
+  { icon: Shield, title: "Authentication", description: "Integrate OAuth, magic links, and SSO into your application.", path: "/developers/apis/authentication" },
+  { icon: Cpu, title: "Edge functions", description: "Run serverless functions close to your users with zero cold starts.", path: "/developers/tools/edge-functions" },
+  { icon: Globe, title: "Custom domains", description: "Map your own domains and manage DNS programmatically.", path: "/developers/infrastructure/custom-domains" },
+  { icon: Puzzle, title: "Plugins & extensions", description: "Extend platform functionality with custom plugins and integrations.", path: "/developers/extensibility/apps" },
 ];
 
 export function WhyYanguDevelopersContent() {
+  const navigate = useNavigate();
+
   return (
     <div>
       {/* Breadcrumb */}
@@ -74,6 +41,24 @@ export function WhyYanguDevelopersContent() {
         Everything you need to build, integrate, and scale on the Yangu platform.
       </p>
 
+      {/* CTA */}
+      <div className="flex flex-wrap gap-3 mb-10">
+        <button
+          onClick={() => navigate("/developers")}
+          className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white"
+          style={{ background: "linear-gradient(135deg, #F46D2A, #d45a1f)" }}
+        >
+          Open Developer Docs
+        </button>
+        <button
+          onClick={() => navigate("/developers/console")}
+          className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white/80 hover:text-white transition-colors"
+          style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)" }}
+        >
+          Developer Console
+        </button>
+      </div>
+
       {/* Section */}
       <div id="for-developers" className="mb-6">
         <h2 className="text-xl font-semibold text-white mb-2">For developers</h2>
@@ -87,6 +72,7 @@ export function WhyYanguDevelopersContent() {
         {devCards.map((card) => (
           <div
             key={card.title}
+            onClick={() => navigate(card.path)}
             className="rounded-xl p-5 transition-colors cursor-pointer hover:border-white/20"
             style={{
               background: "rgba(255,255,255,0.03)",

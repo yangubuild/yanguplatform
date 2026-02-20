@@ -44,6 +44,20 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import AdaLanding from "./pages/AdaLanding";
 
+// Developer platform (lazy)
+const DevelopersLayout = lazy(() => import("./components/developers/DevelopersLayout").then(m => ({ default: m.DevelopersLayout })));
+const DevelopersHome = lazy(() => import("./pages/developers/DevelopersHome"));
+const DocsQuickstart = lazy(() => import("./pages/developers/DocsQuickstart"));
+const DocsPlaceholder = lazy(() => import("./pages/developers/DocsPlaceholder"));
+const ConsoleHome = lazy(() => import("./pages/developers/console/ConsoleHome"));
+const ConsoleApps = lazy(() => import("./pages/developers/console/ConsoleApps"));
+const ConsoleAppDetail = lazy(() => import("./pages/developers/console/ConsoleAppDetail"));
+const ConsoleSubmissions = lazy(() => import("./pages/developers/console/ConsoleSubmissions"));
+const ConsoleNewSubmission = lazy(() => import("./pages/developers/console/ConsoleNewSubmission"));
+const StoreBrowse = lazy(() => import("./pages/developers/store/StoreBrowse"));
+const StoreListing = lazy(() => import("./pages/developers/store/StoreListing"));
+const StoreInstall = lazy(() => import("./pages/developers/store/StoreInstall"));
+
 const ManageDashboard = lazy(() => import("./pages/manage/ManageDashboard"));
 const ManagePlaceholder = lazy(() => import("./pages/manage/ManagePlaceholder"));
 const ManageNotFound = lazy(() => import("./pages/manage/ManageNotFound"));
@@ -105,6 +119,41 @@ const App = () => (
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
+
+                {/* Developer platform */}
+                <Route path="/developers" element={<DevelopersLayout />}>
+                  <Route index element={<DevelopersHome />} />
+                  <Route path="quickstart" element={<DocsQuickstart />} />
+                  <Route path="apis/rest-graphql" element={<DocsPlaceholder />} />
+                  <Route path="apis/authentication" element={<DocsPlaceholder />} />
+                  <Route path="apis/webhooks" element={<DocsPlaceholder />} />
+                  <Route path="apis/data" element={<DocsPlaceholder />} />
+                  <Route path="tools/cli" element={<DocsPlaceholder />} />
+                  <Route path="tools/sdks" element={<DocsPlaceholder />} />
+                  <Route path="tools/edge-functions" element={<DocsPlaceholder />} />
+                  <Route path="extensibility/apps" element={<DocsPlaceholder />} />
+                  <Route path="extensibility/widgets" element={<DocsPlaceholder />} />
+                  <Route path="extensibility/providers" element={<DocsPlaceholder />} />
+                  <Route path="infrastructure/custom-domains" element={<DocsPlaceholder />} />
+                  <Route path="infrastructure/environments" element={<DocsPlaceholder />} />
+                  <Route path="infrastructure/rate-limits-credits" element={<DocsPlaceholder />} />
+                  <Route path="infrastructure/logs-status" element={<DocsPlaceholder />} />
+                  <Route path="infrastructure/changelog" element={<DocsPlaceholder />} />
+                  {/* Console (protected) */}
+                  <Route path="console" element={<ConsoleHome />} />
+                  <Route path="console/apps" element={<ConsoleApps />} />
+                  <Route path="console/apps/:appId" element={<ConsoleAppDetail />} />
+                  <Route path="console/apps/:appId/keys" element={<ConsoleAppDetail />} />
+                  <Route path="console/apps/:appId/oauth" element={<ConsoleAppDetail />} />
+                  <Route path="console/apps/:appId/webhooks" element={<ConsoleAppDetail />} />
+                  <Route path="console/apps/:appId/logs" element={<ConsoleAppDetail />} />
+                  <Route path="console/submissions" element={<ConsoleSubmissions />} />
+                  <Route path="console/submissions/new" element={<ConsoleNewSubmission />} />
+                  {/* App Store */}
+                  <Route path="store" element={<StoreBrowse />} />
+                  <Route path="store/:appSlug" element={<StoreListing />} />
+                  <Route path="store/:appSlug/install" element={<StoreInstall />} />
+                </Route>
                 
                 {/* Owner preview route - requires auth + ownership */}
                 <Route path="/s/:id/preview" element={<SurfacePreview />} />
