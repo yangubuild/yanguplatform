@@ -22,7 +22,7 @@ export function CommunityFilterBar({ onFilterChange }: CommunityFilterBarProps) 
       className="sticky top-0 z-20 w-full px-6 transition-colors duration-300"
       style={{ backgroundColor: c.bg }}
     >
-      <div className="mx-auto flex max-w-[1200px] items-center gap-3 py-4">
+      <div className="mx-auto flex max-w-[1100px] items-center gap-3 py-4 px-4 sm:px-6 lg:px-10">
         <div className="flex flex-1 gap-3 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
           {categories.map((cat) => {
             const isActive = active === cat;

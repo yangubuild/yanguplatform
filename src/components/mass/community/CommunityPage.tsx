@@ -12,7 +12,8 @@ import { CommunityFooter } from "./CommunityFooter";
 import { useCommunitySection, type CommunitySectionItem } from "@/hooks/useCommunitySection";
 import { useCommunityListings } from "@/hooks/useCommunityListings";
 import type { CommunityItem } from "./communityData";
-import { MassHeader } from "../MassHeader";
+import { useNavigate } from "react-router-dom";
+import yanguLogo from "@/assets/yangu-logo-full.png";
 
 function mapToItem(l: CommunitySectionItem): CommunityItem {
   return {
@@ -30,6 +31,36 @@ function buildLinkMap(items: CommunitySectionItem[]): Map<string, string> {
     m.set(l.surface_id, `https://${l.domain_host}/${l.slug}`);
   }
   return m;
+}
+
+function CommunityHeader() {
+  const navigate = useNavigate();
+  return (
+    <header className="flex items-center justify-between">
+      <img
+        src={yanguLogo}
+        alt="yangu"
+        className="h-7 cursor-pointer"
+        onClick={() => navigate("/")}
+      />
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => navigate("/auth/login")}
+          className="px-5 py-2.5 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-90"
+          style={{ background: '#152A20' }}
+        >
+          Sign in
+        </button>
+        <button
+          onClick={() => navigate("/auth/signup")}
+          className="px-5 py-2.5 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-90"
+          style={{ background: 'linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)' }}
+        >
+          Start selling
+        </button>
+      </div>
+    </header>
+  );
 }
 
 function CommunityPageInner() {
@@ -93,7 +124,7 @@ function CommunityPageInner() {
     >
       <main className="min-h-screen">
         <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-10 py-6">
-          <MassHeader hideTrends />
+          <CommunityHeader />
         </div>
 
         {/* Community content */}
