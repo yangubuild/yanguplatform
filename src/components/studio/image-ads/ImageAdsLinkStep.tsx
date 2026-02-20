@@ -76,11 +76,10 @@ export function ImageAdsLinkStep({ onSelectProduct, onManualSetup, onAnalyze }: 
       </div>
 
       {/* Action buttons */}
-      <div className="flex items-center gap-3 w-full">
+      <div className="flex items-center justify-end gap-3 w-full">
         <Button
           variant="outline"
-          className="flex-1 h-12 rounded-xl border-border/60 text-sm font-semibold transition-all hover:border-transparent hover:text-white"
-          style={{ '--hover-bg': 'linear-gradient(135deg, #b5651d 0%, #8b4513 100%)' } as React.CSSProperties}
+          className="h-12 rounded-xl border-border/60 text-sm font-semibold transition-all hover:border-transparent hover:text-white px-6"
           onMouseEnter={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, #b5651d 0%, #8b4513 100%)'; }}
           onMouseLeave={(e) => { e.currentTarget.style.background = ''; }}
           onClick={onSelectProduct}
@@ -88,7 +87,7 @@ export function ImageAdsLinkStep({ onSelectProduct, onManualSetup, onAnalyze }: 
           Choose existing product
         </Button>
         <Button
-          className="flex-1 h-12 rounded-xl text-sm font-semibold text-white border-0 hover:brightness-110 hover:shadow-lg transition-all"
+          className="h-12 rounded-xl text-sm font-semibold text-white border-0 hover:brightness-110 hover:shadow-lg transition-all px-6"
           style={{ background: "linear-gradient(135deg, #b5651d 0%, #8b4513 100%)" }}
           disabled={!url.trim()}
           onClick={() => url.trim() && onAnalyze()}
@@ -99,7 +98,7 @@ export function ImageAdsLinkStep({ onSelectProduct, onManualSetup, onAnalyze }: 
       </div>
 
       {/* Manual link */}
-      <p className="text-sm text-muted-foreground">
+      <p className="text-sm text-muted-foreground w-full text-right">
         You can also{" "}
         <button onClick={onManualSetup} className="text-accent hover:underline font-semibold">
           add product manually
