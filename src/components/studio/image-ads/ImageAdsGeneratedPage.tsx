@@ -225,10 +225,10 @@ export function ImageAdsGeneratedPage() {
 
       {/* Bottom toolbar */}
       <div className="sticky bottom-0 z-40 border-t border-border/40 bg-background/95 backdrop-blur-md">
-        <div className="flex items-center justify-between px-6 py-3 max-w-5xl mx-auto gap-3">
-          <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center justify-end px-6 py-4 max-w-2xl mx-auto gap-4">
+          <div className="flex items-center gap-4">
             <Select value={model} onValueChange={setModel}>
-              <SelectTrigger className="w-[170px] h-9 rounded-lg bg-card border-border/60 text-xs font-medium">
+              <SelectTrigger className="w-[170px] h-10 rounded-lg bg-card border-border/60 text-xs font-medium">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-popover border-border z-50">
@@ -244,7 +244,7 @@ export function ImageAdsGeneratedPage() {
             </Select>
 
             <Select value={orientation} onValueChange={setOrientation}>
-              <SelectTrigger className="w-[140px] h-9 rounded-lg bg-card border-border/60 text-xs font-medium">
+              <SelectTrigger className="w-[140px] h-10 rounded-lg bg-card border-border/60 text-xs font-medium">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-popover border-border z-50">
@@ -261,7 +261,7 @@ export function ImageAdsGeneratedPage() {
             </Select>
 
             <Select value={count} onValueChange={setCount}>
-              <SelectTrigger className="w-[120px] h-9 rounded-lg bg-card border-border/60 text-xs font-medium">
+              <SelectTrigger className="w-[120px] h-10 rounded-lg bg-card border-border/60 text-xs font-medium">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-popover border-border z-50">
@@ -272,7 +272,7 @@ export function ImageAdsGeneratedPage() {
             </Select>
           </div>
 
-          <Button className="h-9 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 text-sm font-semibold gap-1.5 px-6">
+          <Button className="h-10 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 text-sm font-semibold gap-1.5 px-6">
             <Sparkles className="h-4 w-4" />
             Generate
           </Button>
