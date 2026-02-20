@@ -27,6 +27,10 @@
    and vibrant accent colors. All colors in HSL.
 */
 
+html {
+  font-family: "Lufga", system-ui, sans-serif;
+}
+
 @layer base {
   :root {
     /* Light theme - Clean, professional with subtle warmth */
