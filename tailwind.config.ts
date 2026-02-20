@@ -144,6 +144,14 @@ export default {
           "0%": { transform: "translateX(0)" },
           "100%": { transform: "translateX(-50%)" },
         },
+        "yangu-spin": {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
+        },
+        "yangu-pulse": {
+          "0%, 100%": { opacity: "1", transform: "scale(1)" },
+          "50%": { opacity: "0.7", transform: "scale(1.05)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -155,6 +163,8 @@ export default {
         float: "float 6s ease-in-out infinite",
         shimmer: "shimmer 2s linear infinite",
         "scroll-left": "scroll-left 30s linear infinite",
+        "yangu-spin": "yangu-spin 2s linear infinite",
+        "yangu-pulse": "yangu-pulse 2s ease-in-out infinite",
       },
     },
   },
