@@ -26,7 +26,7 @@ export function LandingAdaPage() {
       <MassSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="lg:ml-[240px]">
-        <div className="px-6 pt-6">
+        <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-10 py-6 pt-16 lg:pt-8">
           <MassHeader hideTrends />
         </div>
 
