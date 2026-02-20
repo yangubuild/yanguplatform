@@ -578,3 +578,19 @@ a:focus-visible,
 .animate-spark {
   animation: spark-burst 1.2s ease-out forwards;
 }
+
+/* YANGU Y loading animations */
+@keyframes yangu-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes yangu-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.12); opacity: 0.85; }
+}
+.animate-yangu-spin {
+  animation: yangu-spin 2.5s linear infinite;
+}
+.animate-yangu-pulse {
+  animation: yangu-pulse 1.6s ease-in-out infinite;
+}
