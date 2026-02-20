@@ -2,24 +2,15 @@ import { useState } from "react";
 import { ImageAdsLinkStep } from "./ImageAdsLinkStep";
 import { ImageAdsSelectProduct } from "./ImageAdsSelectProduct";
 import { ImageAdsManualSetup } from "./ImageAdsManualSetup";
-import { ImageAdsBottomBar } from "./ImageAdsBottomBar";
 import { CreditBadge } from "@/components/studio/CreditBadge";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, MessageSquare } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
 
 export type ImageAdsStep = "link" | "select-product" | "manual-setup";
 
 export default function ImageAdsFlow() {
   const navigate = useNavigate();
   const [step, setStep] = useState<ImageAdsStep>("link");
-  const [model, setModel] = useState("design-pro");
-  const [orientation, setOrientation] = useState("square");
-  const [count, setCount] = useState("4");
-
-  const handleGenerate = () => {
-    toast({ title: "Generation started", description: "Your image ads are being generated…" });
-  };
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-4rem)] w-full bg-background relative">
@@ -55,7 +46,6 @@ export default function ImageAdsFlow() {
         {step === "manual-setup" && (
           <ImageAdsManualSetup onBack={() => setStep("link")} />
         )}
-        {/* Select product overlay — inside relative container */}
         {step === "select-product" && (
           <ImageAdsSelectProduct
             onCancel={() => setStep("link")}
@@ -63,19 +53,6 @@ export default function ImageAdsFlow() {
           />
         )}
       </div>
-
-      {/* Bottom bar (visible on link and manual-setup steps) */}
-      {step !== "select-product" && (
-        <ImageAdsBottomBar
-          model={model}
-          onModelChange={setModel}
-          orientation={orientation}
-          onOrientationChange={setOrientation}
-          count={count}
-          onCountChange={setCount}
-          onGenerate={handleGenerate}
-        />
-      )}
     </div>
   );
 }
