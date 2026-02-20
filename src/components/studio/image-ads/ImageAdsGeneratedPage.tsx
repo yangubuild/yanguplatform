@@ -56,7 +56,7 @@ export function ImageAdsGeneratedPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto pb-24">
+      <div className="flex-1 overflow-y-auto">
         <div className="max-w-2xl mx-auto px-6 pt-4 space-y-6">
           {/* Card */}
           <div className="rounded-2xl border border-border/40 bg-card p-6 space-y-6">
@@ -151,6 +151,8 @@ export function ImageAdsGeneratedPage() {
                 <button className="rounded-full border border-destructive/40 bg-destructive/5 px-3 py-1 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors">
                   Delete select
                 </button>
+              </div>
+            </div>
           </div>
 
           {/* Advanced settings */}
@@ -218,64 +220,60 @@ export function ImageAdsGeneratedPage() {
               <Switch checked={promoEnabled} onCheckedChange={setPromoEnabled} />
             </div>
           </div>
-        </div>
+
+          {/* Bottom toolbar - inside scroll area */}
+          <div className="flex items-center justify-end py-6 gap-4">
+            <div className="flex items-center gap-4">
+              <Select value={model} onValueChange={setModel}>
+                <SelectTrigger className="w-[170px] h-10 rounded-lg bg-card border-border/60 text-xs font-medium">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-border z-50">
+                  <SelectItem value="design-pro">Design Pro</SelectItem>
+                  <SelectItem value="design-master">
+                    <span className="flex items-center gap-1.5">
+                      Design Master
+                      <span className="rounded bg-accent/20 px-1.5 py-0.5 text-[9px] font-bold text-accent leading-none">NEW</span>
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="nano-banana">Nano Banana</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={orientation} onValueChange={setOrientation}>
+                <SelectTrigger className="w-[140px] h-10 rounded-lg bg-card border-border/60 text-xs font-medium">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-border z-50">
+                  <SelectItem value="square">
+                    <span className="flex items-center gap-1.5"><Square className="h-3 w-3" /> Square</span>
+                  </SelectItem>
+                  <SelectItem value="landscape">
+                    <span className="flex items-center gap-1.5"><RectangleHorizontal className="h-3 w-3" /> Landscape</span>
+                  </SelectItem>
+                  <SelectItem value="portrait">
+                    <span className="flex items-center gap-1.5"><RectangleVertical className="h-3 w-3" /> Portrait</span>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={count} onValueChange={setCount}>
+                <SelectTrigger className="w-[120px] h-10 rounded-lg bg-card border-border/60 text-xs font-medium">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-border z-50">
+                  <SelectItem value="4">4 images</SelectItem>
+                  <SelectItem value="10">10 images</SelectItem>
+                  <SelectItem value="20">20 images</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Button className="h-10 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 text-sm font-semibold gap-1.5 px-6">
+              <Sparkles className="h-4 w-4" />
+              Generate
+            </Button>
           </div>
-        </div>
-      </div>
-
-      {/* Bottom toolbar */}
-      <div className="z-40 border-t border-border/40 bg-background/95 backdrop-blur-md">
-        <div className="flex items-center justify-end px-6 py-4 max-w-2xl mx-auto gap-4">
-          <div className="flex items-center gap-4">
-            <Select value={model} onValueChange={setModel}>
-              <SelectTrigger className="w-[170px] h-10 rounded-lg bg-card border-border/60 text-xs font-medium">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-popover border-border z-50">
-                <SelectItem value="design-pro">Design Pro</SelectItem>
-                <SelectItem value="design-master">
-                  <span className="flex items-center gap-1.5">
-                    Design Master
-                    <span className="rounded bg-accent/20 px-1.5 py-0.5 text-[9px] font-bold text-accent leading-none">NEW</span>
-                  </span>
-                </SelectItem>
-                <SelectItem value="nano-banana">Nano Banana</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={orientation} onValueChange={setOrientation}>
-              <SelectTrigger className="w-[140px] h-10 rounded-lg bg-card border-border/60 text-xs font-medium">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-popover border-border z-50">
-                <SelectItem value="square">
-                  <span className="flex items-center gap-1.5"><Square className="h-3 w-3" /> Square</span>
-                </SelectItem>
-                <SelectItem value="landscape">
-                  <span className="flex items-center gap-1.5"><RectangleHorizontal className="h-3 w-3" /> Landscape</span>
-                </SelectItem>
-                <SelectItem value="portrait">
-                  <span className="flex items-center gap-1.5"><RectangleVertical className="h-3 w-3" /> Portrait</span>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={count} onValueChange={setCount}>
-              <SelectTrigger className="w-[120px] h-10 rounded-lg bg-card border-border/60 text-xs font-medium">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-popover border-border z-50">
-                <SelectItem value="4">4 images</SelectItem>
-                <SelectItem value="10">10 images</SelectItem>
-                <SelectItem value="20">20 images</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Button className="h-10 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 text-sm font-semibold gap-1.5 px-6">
-            <Sparkles className="h-4 w-4" />
-            Generate
-          </Button>
         </div>
       </div>
     </div>
