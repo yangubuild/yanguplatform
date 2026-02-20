@@ -4,18 +4,22 @@ import { ImageAdsSelectProduct } from "./ImageAdsSelectProduct";
 import { ImageAdsManualSetup } from "./ImageAdsManualSetup";
 import { ImageAdsLoadingScreen } from "./ImageAdsLoadingScreen";
 import { ImageAdsGeneratedPage } from "./ImageAdsGeneratedPage";
-import { BusinessProductSelector } from "./BusinessProductSelector";
+
 import { BulkUploadContainer } from "./BulkUploadContainer";
 import { CreditBadge } from "@/components/studio/CreditBadge";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, MessageSquare } from "lucide-react";
 
-export type ImageAdsStep = "link" | "select-product" | "manual-setup" | "loading" | "generated" | "sync-business" | "bulk-upload";
+export type ImageAdsStep = "link" | "select-product" | "manual-setup" | "loading" | "generated" | "bulk-upload";
 
 export default function ImageAdsFlow() {
   const navigate = useNavigate();
   const [step, setStep] = useState<ImageAdsStep>("link");
   const [submittedUrl, setSubmittedUrl] = useState("");
+
+  const handleSyncBusiness = () => {
+    navigate("/dashboard/my-business");
+  };
 
   const handleBack = () => {
     if (step === "link") navigate("/dashboard/studio");
@@ -74,14 +78,8 @@ export default function ImageAdsFlow() {
             onCancel={() => setStep("link")}
             onSelect={() => setStep("link")}
             onManualSetup={() => setStep("manual-setup")}
-            onSyncBusiness={() => setStep("sync-business")}
+            onSyncBusiness={handleSyncBusiness}
             onBulkUpload={() => setStep("bulk-upload")}
-          />
-        )}
-        {step === "sync-business" && (
-          <BusinessProductSelector
-            onBack={() => setStep("select-product")}
-            onImport={() => setStep("select-product")}
           />
         )}
         {step === "bulk-upload" && (
