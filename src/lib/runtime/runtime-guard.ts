@@ -114,7 +114,7 @@ export async function resolveRuntimeExecution(
   });
 
   if (ctxErr || !raw) {
-    return { allowed: false, reason: "runtime_context_unavailable" };
+    return { allowed: false, reason: "runtime_not_permitted" };
   }
 
   const ctx = raw as unknown as RuntimeContext;
@@ -122,10 +122,10 @@ export async function resolveRuntimeExecution(
   // 2. Widget exists and is enabled
   const widget = ctx.widgets?.find((w) => w.widget_key === widgetKey);
   if (!widget) {
-    return { allowed: false, reason: "widget_not_registered" };
+    return { allowed: false, reason: "runtime_not_permitted" };
   }
   if (!widget.is_enabled) {
-    return { allowed: false, reason: "widget_disabled" };
+    return { allowed: false, reason: "runtime_not_permitted" };
   }
 
   // 3. Surface install with this widget_key exists
@@ -134,11 +134,11 @@ export async function resolveRuntimeExecution(
     .select("id, install_id")
     .eq("surface_id", surfaceId)
     .eq("widget_key", widgetKey)
-    .eq("status", "active")
+    .in("status", ["active", "enabled"])
     .limit(1);
 
   if (installErr || !installRows || installRows.length === 0) {
-    return { allowed: false, reason: "no_active_surface_install" };
+    return { allowed: false, reason: "widget_not_installed" };
   }
 
   const surfaceInstall = installRows[0];
@@ -158,7 +158,7 @@ export async function resolveRuntimeExecution(
       (s) => s.scope_key === options.requiredScope && s.status === "approved"
     );
     if (!scope) {
-      return { allowed: false, reason: "scope_not_granted" };
+      return { allowed: false, reason: "runtime_not_permitted" };
     }
   }
 
@@ -175,7 +175,7 @@ export async function resolveRuntimeExecution(
   );
 
   if (tokenErr || !token) {
-    return { allowed: false, reason: "token_generation_failed" };
+    return { allowed: false, reason: "runtime_not_permitted" };
   }
 
   return {
