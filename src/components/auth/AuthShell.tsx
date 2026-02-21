@@ -13,6 +13,8 @@ interface AuthShellProps {
   showBackLink?: boolean;
   backLinkHref?: string;
   backLinkLabel?: string;
+  /** Override the default max-w-md container width */
+  maxWidth?: string;
 }
 
 export function AuthShell({
@@ -22,6 +24,7 @@ export function AuthShell({
   showBackLink = true,
   backLinkHref = "/",
   backLinkLabel = "Back to home",
+  maxWidth,
 }: AuthShellProps) {
   const { theme, toggleTheme } = useTheme();
 
@@ -45,7 +48,7 @@ export function AuthShell({
 
       {/* Main content */}
       <main className="flex-1 flex items-center justify-center p-4 md:p-8">
-        <div className="w-full max-w-md space-y-8">
+        <div className={`w-full ${maxWidth || "max-w-md"} space-y-8`}>
           {/* Back link */}
           {showBackLink && (
             <Link
