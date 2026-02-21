@@ -10,6 +10,7 @@ import { generateQwenImage } from "@/lib/ai/qwen";
 import { generateGeminiImage } from "@/lib/ai/gemini";
 import { generateCreatifyVideo } from "@/lib/ai/creatify";
 import { consumeEntitlement } from "@/lib/entitlements";
+import { executeWithRuntime } from "@/lib/runtime";
 import { useNavigate } from "react-router-dom";
 import { MediaGenerationCard, type MediaGenStatus } from "./MediaGenerationCard";
 import { AdaAuthModal } from "./AdaAuthModal";
@@ -747,14 +748,48 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
     setMessages(prev => [...prev, mediaMsg]);
 
     try {
+      // Runtime execution guard — silently blocks if provider not permitted
+      const runtimeCheck = await executeWithRuntime({
+        surfaceId: cid,
+        widgetKey: `ada_image_${provider}`,
+        providerKey: provider,
+        bucketKey: "image",
+        run: async () => {
+          const result = provider === "gemini"
+            ? await generateGeminiImage(prompt, cid)
+            : provider === "qwen"
+              ? await generateQwenImage(prompt)
+              : await generateIdeogramImage(prompt);
+          return result;
+        },
+      });
+
+      // If runtime guard denied, fall through to direct call (graceful degradation)
+      let result: Awaited<ReturnType<typeof generateGeminiImage>> | Awaited<ReturnType<typeof generateQwenImage>> | Awaited<ReturnType<typeof generateIdeogramImage>>;
+      if (runtimeCheck.ok) {
+        result = runtimeCheck.result;
+      } else {
+        const denial = runtimeCheck as { ok: false; reason: string };
+        if (denial.reason === "missing_runtime_context" || denial.reason === "runtime_context_unavailable") {
+          // Runtime not yet configured — allow direct call as fallback
+          result = provider === "gemini"
+            ? await generateGeminiImage(prompt, cid)
+            : provider === "qwen"
+              ? await generateQwenImage(prompt)
+              : await generateIdeogramImage(prompt);
+        } else {
+          // Hard denial from runtime
+          toast({ title: "Action not permitted", description: denial.reason, variant: "destructive" });
+          setMessages(prev => prev.map(m => m.id === mediaMsgId ? {
+            ...m,
+            mediaGen: { ...m.mediaGen!, status: "error" as MediaGenStatus, error: denial.reason },
+          } : m));
+          return;
+        }
+      }
+
       // Update to generating
       setMessages(prev => prev.map(m => m.id === mediaMsgId ? { ...m, mediaGen: { ...m.mediaGen!, status: "generating" as MediaGenStatus, progressStep: "Generating…" } } : m));
-
-      const result = provider === "gemini"
-        ? await generateGeminiImage(prompt, cid)
-        : provider === "qwen"
-          ? await generateQwenImage(prompt)
-          : await generateIdeogramImage(prompt);
 
       if (!result.ok || !result.images || result.images.length === 0) {
         console.error(`[AdaImage] ${provider} error:`, result.error);
@@ -850,6 +885,28 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
     setMessages(prev => [...prev, mediaMsg]);
 
     try {
+      // Runtime execution guard for video provider
+      const runtimeCheck = await executeWithRuntime({
+        surfaceId: cid,
+        widgetKey: "ada_video_creatify",
+        providerKey: "creatify",
+        bucketKey: "video",
+        run: async () => true as const,
+      });
+
+      if (!runtimeCheck.ok) {
+        const denial = runtimeCheck as { ok: false; reason: string };
+        if (denial.reason !== "missing_runtime_context" && denial.reason !== "runtime_context_unavailable") {
+          toast({ title: "Action not permitted", description: denial.reason, variant: "destructive" });
+          setMessages(prev => prev.map(m => m.id === mediaMsgId ? {
+            ...m,
+            mediaGen: { ...m.mediaGen!, status: "error" as MediaGenStatus, error: denial.reason },
+          } : m));
+          return;
+        }
+        // missing_runtime_context / unavailable → graceful fallthrough
+      }
+
       // Create generation record via RPC
       const { data: generationId, error: rpcErr } = await supabase.rpc(
         "create_creatify_generation" as any,
