@@ -8,8 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Code, Loader2, Search } from "lucide-react";
+import { Plus, Code, Loader2, Search, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
+import { DeveloperAuthModal } from "@/components/developers/DeveloperAuthModal";
 
 const SLUG_RE = /^[a-z0-9][a-z0-9-]*[a-z0-9]$|^[a-z0-9]$/;
 
@@ -19,26 +20,60 @@ const statusColors: Record<string, string> = {
   disabled: "bg-white/10 text-white/50 border-white/20",
 };
 
+/** Ensure the current user has an org + membership; returns org_id or null */
+async function ensureDevOrg(userId: string): Promise<string | null> {
+  const { data: existing } = await supabase
+    .from("org_memberships")
+    .select("org_id")
+    .eq("user_id", userId)
+    .limit(1)
+    .maybeSingle();
+  if (existing) return existing.org_id;
+
+  // Create org
+  const { data: newOrg, error: orgErr } = await supabase
+    .from("orgs")
+    .insert({ name: "My Organization", owner_user_id: userId })
+    .select("id")
+    .single();
+  if (orgErr || !newOrg) return null;
+
+  const { error: memErr } = await supabase
+    .from("org_memberships")
+    .insert({ org_id: newOrg.id, user_id: userId, role: "owner" });
+  if (memErr) return null;
+
+  return newOrg.id;
+}
+
 export default function PortalApps() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
 
   const [showCreate, setShowCreate] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
   const [slugError, setSlugError] = useState("");
   const [search, setSearch] = useState("");
+  const [orgBootstrapping, setOrgBootstrapping] = useState(false);
 
-  // Auto-open create on ?new=1
+  // Auto-open create on ?new=1 — but only if authenticated
   useEffect(() => {
-    if (searchParams.get("new") === "1") setShowCreate(true);
-  }, [searchParams]);
+    if (searchParams.get("new") === "1") {
+      if (!isAuthenticated) {
+        setShowAuth(true);
+      } else {
+        setShowCreate(true);
+      }
+    }
+  }, [searchParams, isAuthenticated]);
 
   // Get user's org
-  const { data: membership } = useQuery({
+  const { data: membership, isLoading: orgLoading } = useQuery({
     queryKey: ["my-org-membership"],
     queryFn: async () => {
       if (!user) return null;
@@ -98,6 +133,28 @@ export default function PortalApps() {
     else if (clean && !SLUG_RE.test(clean)) setSlugError("Must be lowercase letters, numbers, and dashes only");
   };
 
+  /** Gate: ensure auth + org before opening create modal */
+  const handleCreateClick = async () => {
+    if (!isAuthenticated) {
+      setShowAuth(true);
+      return;
+    }
+    // If org missing, try bootstrapping
+    if (!membership?.org_id) {
+      setOrgBootstrapping(true);
+      const orgId = await ensureDevOrg(user!.id);
+      setOrgBootstrapping(false);
+      if (orgId) {
+        queryClient.invalidateQueries({ queryKey: ["my-org-membership"] });
+        setShowCreate(true);
+      } else {
+        toast.error("Failed to set up your developer organization. Please try again.");
+      }
+      return;
+    }
+    setShowCreate(true);
+  };
+
   const createApp = useMutation({
     mutationFn: async () => {
       if (!membership?.org_id) throw new Error("No organization found. Please set up your org first.");
@@ -107,7 +164,6 @@ export default function PortalApps() {
         p_slug: slug,
       });
       if (error) throw error;
-      // Update description if provided
       if (description.trim() && data) {
         await supabase.from("developer_apps").update({ description: description.trim() }).eq("id", data);
       }
@@ -136,6 +192,8 @@ export default function PortalApps() {
     !search || a.name.toLowerCase().includes(search.toLowerCase()) || a.slug.toLowerCase().includes(search.toLowerCase())
   );
 
+  const showOrgMissing = isAuthenticated && !orgLoading && !membership?.org_id;
+
   return (
     <div>
       {/* Header */}
@@ -144,10 +202,41 @@ export default function PortalApps() {
           <h2 className="text-lg font-semibold text-white">My Apps</h2>
           <p className="text-sm text-white/40">Create and manage your developer applications.</p>
         </div>
-        <Button variant="accent" onClick={() => setShowCreate(true)}>
-          <Plus className="w-4 h-4" /> Create App
+        <Button variant="accent" onClick={handleCreateClick} disabled={orgBootstrapping}>
+          {orgBootstrapping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} Create App
         </Button>
       </div>
+
+      {/* Org missing banner */}
+      {showOrgMissing && (
+        <div className="rounded-xl p-4 mb-6 bg-yellow-500/10 border border-yellow-500/20 flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-yellow-400 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm text-yellow-200 font-medium">Finish developer setup to create apps</p>
+            <p className="text-xs text-yellow-200/60 mt-1">We need to set up your developer organization first.</p>
+            <Button
+              variant="accent"
+              size="sm"
+              className="mt-3"
+              onClick={async () => {
+                setOrgBootstrapping(true);
+                const orgId = await ensureDevOrg(user!.id);
+                setOrgBootstrapping(false);
+                if (orgId) {
+                  queryClient.invalidateQueries({ queryKey: ["my-org-membership"] });
+                  toast.success("Developer setup complete!");
+                } else {
+                  toast.error("Setup failed. Please try again.");
+                }
+              }}
+              disabled={orgBootstrapping}
+            >
+              {orgBootstrapping ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              Complete Setup
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Search */}
       {apps && apps.length > 0 && (
@@ -209,8 +298,8 @@ export default function PortalApps() {
         <div className="rounded-xl p-12 text-center bg-white/[0.02] border border-white/10">
           <Code className="w-10 h-10 text-white/20 mx-auto mb-3" />
           <p className="text-white/40 text-sm mb-4">No apps yet. Create your first one.</p>
-          <Button variant="accent" onClick={() => setShowCreate(true)}>
-            <Plus className="w-4 h-4" /> Create App
+          <Button variant="accent" onClick={handleCreateClick} disabled={orgBootstrapping}>
+            {orgBootstrapping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} Create App
           </Button>
         </div>
       )}
@@ -271,6 +360,17 @@ export default function PortalApps() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Auth modal for unauthenticated users */}
+      <DeveloperAuthModal
+        open={showAuth}
+        onClose={() => setShowAuth(false)}
+        returnTo="/developers/portal/apps?new=1"
+        onSuccess={() => {
+          setShowAuth(false);
+          navigate("/developers/portal/apps?new=1");
+        }}
+      />
     </div>
   );
 }
