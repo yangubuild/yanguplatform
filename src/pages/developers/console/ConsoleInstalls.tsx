@@ -1,10 +1,13 @@
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrgRole } from "@/hooks/useOrgRole";
 import { DocsPage } from "@/components/developers/DocsPage";
-import { ConsoleDataTable, ColumnDef } from "@/components/developers/console/ConsoleDataTable";
+import { ConsoleDataTable, ColumnDef, RowAction } from "@/components/developers/console/ConsoleDataTable";
+import { ConsoleDeleteDialog } from "@/components/developers/console/ConsoleFormModal";
 import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 interface InstallRow {
   id: string;
@@ -18,18 +21,49 @@ interface InstallRow {
 
 export default function ConsoleInstalls() {
   const { activeOrg, isLoading: orgLoading, canRead, canWrite } = useOrgRole();
+  const qc = useQueryClient();
 
   const { data: installs = [], isLoading } = useQuery({
     queryKey: ["dev-installs", activeOrg?.id],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("developer_surface_installs")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const { data } = await supabase.from("developer_surface_installs").select("*").order("created_at", { ascending: false });
       return (data ?? []) as InstallRow[];
     },
     enabled: canRead,
   });
+
+  const [delRow, setDelRow] = useState<InstallRow | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const toggleStatus = async (row: InstallRow) => {
+    const newStatus = row.status === "active" || row.status === "enabled" ? "disabled" : "active";
+    try {
+      const { error } = await supabase.from("developer_surface_installs")
+        .update({ status: newStatus })
+        .eq("id", row.id);
+      if (error) throw error;
+      toast({ title: `Install ${newStatus}` });
+      qc.invalidateQueries({ queryKey: ["dev-installs"] });
+    } catch (err: unknown) {
+      toast({ title: "Error", description: err instanceof Error ? err.message : "Failed", variant: "destructive" });
+    }
+  };
+
+  const doDelete = async () => {
+    if (!delRow) return;
+    setDeleting(true);
+    try {
+      const { error } = await supabase.from("developer_surface_installs").delete().eq("id", delRow.id);
+      if (error) throw error;
+      toast({ title: "Install deleted" });
+      qc.invalidateQueries({ queryKey: ["dev-installs"] });
+      setDelRow(null);
+    } catch (err: unknown) {
+      toast({ title: "Error", description: err instanceof Error ? err.message : "Failed", variant: "destructive" });
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   if (orgLoading) {
     return (
@@ -66,6 +100,11 @@ export default function ConsoleInstalls() {
     { header: "Created", accessor: (r) => new Date(r.created_at).toLocaleDateString() },
   ];
 
+  const rowActions: RowAction<InstallRow>[] = [
+    { label: "Toggle Status", onClick: toggleStatus },
+    { label: "Delete", onClick: (r) => setDelRow(r), destructive: true },
+  ];
+
   return (
     <DocsPage breadcrumb="Console › Installs" title="Surface Installs" subtitle="Widget installations on surfaces.">
       <ConsoleDataTable
@@ -75,8 +114,17 @@ export default function ConsoleInstalls() {
         searchPlaceholder="Search installs…"
         isLoading={isLoading}
         canWrite={canWrite}
+        rowActions={rowActions}
         statusFilter={{ key: "status", options: ["active", "enabled", "disabled", "revoked"] }}
         emptyMessage="No surface installs found."
+      />
+
+      <ConsoleDeleteDialog
+        open={!!delRow}
+        onClose={() => setDelRow(null)}
+        onConfirm={doDelete}
+        isDeleting={deleting}
+        itemName="surface install"
       />
     </DocsPage>
   );
