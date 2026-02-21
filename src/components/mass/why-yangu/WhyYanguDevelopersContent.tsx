@@ -11,6 +11,7 @@ import {
   Globe,
   Puzzle,
 } from "lucide-react";
+import { DocsTypography } from "./docs-typography";
 
 const devCards = [
   { icon: Code, title: "REST & GraphQL APIs", description: "Access every platform feature through well-documented APIs.", path: "/developers/apis/rest-graphql" },
@@ -29,44 +30,32 @@ export function WhyYanguDevelopersContent() {
 
   return (
     <div>
-      {/* Breadcrumb */}
-      <p className="text-sm mb-2" style={{ color: "rgba(255,255,255,0.4)" }}>
+      <p className={DocsTypography.pageKicker} style={{ color: "rgba(255,255,255,0.4)" }}>
         Overview
       </p>
 
-      {/* Title */}
-      <h1 className="text-3xl font-bold text-white mb-3">Build on Yangu</h1>
+      <h1 className={DocsTypography.h1}>Build on Yangu</h1>
 
-      {/* Subtitle */}
-      <p className="text-base mb-10" style={{ color: "rgba(255,255,255,0.5)" }}>
+      <p className={DocsTypography.subtitle} style={{ color: "rgba(255,255,255,0.5)" }}>
         Everything you need to build, integrate, and scale on the Yangu platform.
       </p>
 
-      {/* CTA */}
       <div className="flex flex-wrap gap-3 mb-10">
-        <Button
-          variant="accent"
-          onClick={() => navigate("/developers")}
-        >
+        <Button variant="accent" onClick={() => navigate("/developers")}>
           Open Developer Docs
         </Button>
-        <Button
-          variant="outline"
-          onClick={() => navigate("/developers/console")}
-        >
+        <Button variant="outline" onClick={() => navigate("/developers/console")}>
           Developer Console
         </Button>
       </div>
 
-      {/* Section */}
       <div id="for-developers" className="mb-6">
-        <h2 className="text-xl font-semibold text-white mb-2">For developers</h2>
-        <p className="text-sm mb-6" style={{ color: "rgba(255,255,255,0.5)" }}>
+        <h2 className={DocsTypography.h2}>For developers</h2>
+        <p className={DocsTypography.sectionDesc} style={{ color: "rgba(255,255,255,0.5)" }}>
           Explore tools and APIs to build on Yangu:
         </p>
       </div>
 
-      {/* Cards grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {devCards.map((card) => (
           <div
@@ -78,32 +67,20 @@ export function WhyYanguDevelopersContent() {
               border: "1px solid rgba(255,255,255,0.10)",
             }}
           >
-            <card.icon
-              className="w-6 h-6 mb-4"
-              strokeWidth={1.5}
-              style={{ color: "#F46D2A" }}
-            />
+            <card.icon className="w-6 h-6 mb-4" strokeWidth={1.5} style={{ color: "#F46D2A" }} />
             <h3 className="text-white font-semibold text-sm mb-2">{card.title}</h3>
-            <p
-              className="text-xs leading-relaxed"
-              style={{ color: "rgba(255,255,255,0.5)" }}
-            >
+            <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}>
               {card.description}
             </p>
           </div>
         ))}
       </div>
 
-      {/* On this page sidebar anchor */}
       <div className="hidden xl:block fixed right-8 top-32">
         <div className="text-white/40 text-xs font-medium flex items-center gap-2 mb-3">
           <span className="text-white/30">≡</span> On this page
         </div>
-        <a
-          href="#for-developers"
-          className="text-xs block"
-          style={{ color: "#F46D2A" }}
-        >
+        <a href="#for-developers" className="text-xs block" style={{ color: "#F46D2A" }}>
           For developers
         </a>
       </div>

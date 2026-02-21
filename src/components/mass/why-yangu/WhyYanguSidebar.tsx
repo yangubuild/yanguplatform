@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import type { Audience } from "./AudienceToggle";
+import { DocsTypography } from "./docs-typography";
 
 const builderSections = [
   {
@@ -86,9 +87,8 @@ export function WhyYanguSidebar({ audience }: WhyYanguSidebarProps) {
 
   return (
     <nav className="sticky top-8">
-      {/* Collapse button */}
       <div className="flex items-center justify-between mb-4">
-        <span className="text-white/90 text-sm font-semibold">Getting Started</span>
+        <span className={DocsTypography.sidebarHeader}>Getting Started</span>
         <button className="text-white/40 hover:text-white/70 transition-colors">
           <ChevronLeft className="w-4 h-4" />
         </button>
@@ -97,16 +97,16 @@ export function WhyYanguSidebar({ audience }: WhyYanguSidebarProps) {
       <div className="border-b border-white/10 mb-4" />
 
       {sections.map((section) => (
-        <div key={section.title} className="mb-5">
-          <h4 className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-2 px-1">
+        <div key={section.title} className={DocsTypography.sidebarSection}>
+          <h4 className={DocsTypography.sidebarSectionLabel}>
             {section.title}
           </h4>
-          <ul className="space-y-0.5">
+          <ul className={DocsTypography.sidebarLinkList}>
             {section.items.map((item) => (
               <li key={item.id}>
                 <button
                   onClick={() => setActiveId(item.id)}
-                  className="w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors"
+                  className={DocsTypography.sidebarLink}
                   style={{
                     color: activeId === item.id ? "#F46D2A" : "rgba(255,255,255,0.55)",
                     background: activeId === item.id ? "rgba(244,109,42,0.08)" : "transparent",
