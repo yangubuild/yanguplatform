@@ -706,10 +706,10 @@ export default function Onboarding() {
   // === STEP 2: CATEGORY ===
   if (currentStep === "category") {
     return (
-      <AuthShell title="What do you want to do?" subtitle="Choose your path - this determines where you'll publish" showBackLink={false}>
+      <AuthShell title="What do you want to do?" subtitle="Choose your path - this determines where you'll publish" showBackLink={false} maxWidth="max-w-[1100px]">
         <StepProgress current={2} total={totalSteps} />
         <div className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
             {Object.entries(ONBOARDING_PATHS).map(([key, path]) => {
               const Icon = path.icon;
               const isSelected = selectedPath === key;
@@ -719,8 +719,8 @@ export default function Onboarding() {
                   onClick={() => handleCategorySelect(key as OnboardingPathKey)}
                   disabled={isLoading}
                   className={cn(
-                    "relative p-6 rounded-xl border text-left transition-all min-h-[140px] flex flex-col justify-between overflow-hidden",
-                    "bg-card/60 backdrop-blur-sm hover:bg-card/80 focus:outline-none",
+                    "relative p-6 rounded-2xl border text-left transition-all min-h-[170px] flex flex-col justify-between overflow-hidden",
+                    "bg-card/60 backdrop-blur-sm hover:bg-card/80 hover:shadow-[0_0_30px_rgba(255,120,0,0.12)] focus:outline-none",
                     isSelected
                       ? "border-accent ring-1 ring-accent/30"
                       : "border-border/60 hover:border-border",
@@ -728,25 +728,19 @@ export default function Onboarding() {
                   )}
                 >
                   {/* Subtle gradient glow behind card */}
-                  <div
-                    className="absolute inset-0 opacity-[0.07] rounded-xl pointer-events-none"
-                    style={{
-                      background: `radial-gradient(ellipse at top left, var(--tw-gradient-from, currentColor) 0%, transparent 70%)`,
-                    }}
-                  />
-                  <div className={cn("absolute inset-0 opacity-[0.06] rounded-xl pointer-events-none", path.bgColor)} />
+                  <div className={cn("absolute inset-0 opacity-[0.07] rounded-2xl pointer-events-none", path.bgColor)} />
 
                   <div className="relative z-10 flex flex-col gap-3">
                     <div className={cn("p-2.5 rounded-lg w-fit", path.bgColor)}>
                       <Icon className={cn("h-5 w-5", path.color)} />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-sm leading-snug">{path.label}</h3>
-                      <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2 leading-relaxed">{path.description}</p>
+                      <h3 className="font-semibold text-lg leading-tight">{path.label}</h3>
+                      <p className="text-sm text-muted-foreground/70 mt-1.5 line-clamp-2 leading-relaxed">{path.description}</p>
                     </div>
                   </div>
 
-                  <div className="relative z-10 text-[11px] text-muted-foreground/70 font-mono mt-4">
+                  <div className="relative z-10 text-[11px] text-muted-foreground/60 font-mono mt-4">
                     {path.domain}
                   </div>
                 </button>
