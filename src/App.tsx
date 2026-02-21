@@ -71,6 +71,7 @@ const PortalApps = lazy(() => import("./pages/developers/portal/PortalApps"));
 const PortalApiKeys = lazy(() => import("./pages/developers/portal/PortalApiKeys"));
 const PortalSettings = lazy(() => import("./pages/developers/portal/PortalSettings"));
 const PortalBilling = lazy(() => import("./pages/developers/portal/PortalBilling"));
+const PortalAppDetail = lazy(() => import("./pages/developers/portal/PortalAppDetail"));
 
 const ManageDashboard = lazy(() => import("./pages/manage/ManageDashboard"));
 const ManagePlaceholder = lazy(() => import("./pages/manage/ManagePlaceholder"));
@@ -188,6 +189,7 @@ const App = () => (
                   <Route index element={<Navigate to="/developers/portal/overview" replace />} />
                   <Route path="overview" element={<PortalOverview />} />
                   <Route path="apps" element={<PortalApps />} />
+                  <Route path="apps/:id" element={<PortalAppDetail />} />
                   <Route path="api-keys" element={<PortalApiKeys />} />
                   <Route path="settings" element={<PortalSettings />} />
                   <Route path="billing" element={<PortalBilling />} />
