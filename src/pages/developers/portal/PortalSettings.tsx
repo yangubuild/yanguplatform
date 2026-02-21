@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { DocsPage } from "@/components/developers/DocsPage";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Settings, Bell, Shield, Loader2, ExternalLink } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Settings, Bell, Shield, Loader2, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 
 export default function PortalSettings() {
@@ -13,6 +14,7 @@ export default function PortalSettings() {
   const [securityEmails, setSecurityEmails] = useState(true);
   const [saving, setSaving] = useState(false);
   const [resetSent, setResetSent] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     if (user?.user_metadata?.dev_updates_opt_in) setDevOptIn(true);
@@ -114,12 +116,56 @@ export default function PortalSettings() {
             <div className="border-t border-white/10 pt-4">
               <p className="text-white/80 text-sm font-medium">Active Sessions</p>
               <p className="text-white/40 text-xs">
-                You are currently signed in. Session management is handled automatically — sessions expire after inactivity.
+                You are currently signed in. Sessions expire after inactivity.
               </p>
             </div>
           </div>
         </div>
+
+        {/* Danger Zone */}
+        <div
+          className="rounded-xl p-6"
+          style={{ background: "rgba(239,68,68,0.03)", border: "1px solid rgba(239,68,68,0.15)" }}
+        >
+          <div className="flex items-center gap-3 mb-5">
+            <AlertTriangle className="w-5 h-5 text-red-400" />
+            <h3 className="text-red-400 font-semibold text-sm">Danger Zone</h3>
+          </div>
+
+          <div className="max-w-md">
+            <p className="text-white/80 text-sm font-medium">Delete Developer Account</p>
+            <p className="text-white/40 text-xs mb-3">
+              This will revoke all API keys, remove all apps, and permanently delete your developer account. This action cannot be undone.
+            </p>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setShowDeleteConfirm(true)}
+            >
+              Delete Developer Account
+            </Button>
+          </div>
+        </div>
       </div>
+
+      {/* Delete confirmation */}
+      <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <DialogContent className="bg-background border-border text-foreground max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-400">
+              <AlertTriangle className="w-5 h-5" /> Delete Developer Account
+            </DialogTitle>
+            <DialogDescription className="text-white/50">
+              This feature is not yet available. Please contact{" "}
+              <a href="mailto:developers@yangu.com" className="text-accent hover:underline">developers@yangu.com</a>{" "}
+              to request account deletion.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setShowDeleteConfirm(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DocsPage>
   );
 }

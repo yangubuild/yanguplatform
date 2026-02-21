@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Menu, LayoutDashboard, Code, Key, CreditCard, Settings, BookOpen, HelpCircle, X, MessageSquare, Mail, User, Webhook, Loader2 } from "lucide-react";
+import { Menu, LayoutDashboard, Code, Key, CreditCard, Settings, BookOpen, HelpCircle, X, MessageSquare, Mail, User, Webhook, Loader2, Activity } from "lucide-react";
 import { MassSidebar } from "@/components/mass/MassSidebar";
 import { MassHeader } from "@/components/mass/MassHeader";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ const portalNav = [
   { label: "Apps", path: "/developers/portal/apps", icon: Code },
   { label: "API Keys", path: "/developers/portal/api-keys", icon: Key },
   { label: "Webhooks", path: "/developers/portal/webhooks", icon: Webhook },
+  { label: "Logs", path: "/developers/portal/logs", icon: Activity },
   { label: "Profile", path: "/developers/portal/profile", icon: User },
   { label: "Settings", path: "/developers/portal/settings", icon: Settings },
   { label: "Billing", path: "/developers/portal/billing", icon: CreditCard },
