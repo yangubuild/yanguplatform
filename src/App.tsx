@@ -54,6 +54,11 @@ const ConsoleApps = lazy(() => import("./pages/developers/console/ConsoleApps"))
 const ConsoleAppDetail = lazy(() => import("./pages/developers/console/ConsoleAppDetail"));
 const ConsoleSubmissions = lazy(() => import("./pages/developers/console/ConsoleSubmissions"));
 const ConsoleNewSubmission = lazy(() => import("./pages/developers/console/ConsoleNewSubmission"));
+const ConsoleOverview = lazy(() => import("./pages/developers/console/ConsoleOverview"));
+const ConsolePermissions = lazy(() => import("./pages/developers/console/ConsolePermissions"));
+const ConsoleRuntime = lazy(() => import("./pages/developers/console/ConsoleRuntime"));
+const ConsoleWidgets = lazy(() => import("./pages/developers/console/ConsoleWidgets"));
+const ConsoleInstalls = lazy(() => import("./pages/developers/console/ConsoleInstalls"));
 const StoreBrowse = lazy(() => import("./pages/developers/store/StoreBrowse"));
 const StoreListing = lazy(() => import("./pages/developers/store/StoreListing"));
 const StoreInstall = lazy(() => import("./pages/developers/store/StoreInstall"));
@@ -151,6 +156,12 @@ const App = () => (
                   <Route path="console/apps/:appId/permissions" element={<ConsoleAppDetail />} />
                   <Route path="console/submissions" element={<ConsoleSubmissions />} />
                   <Route path="console/submissions/new" element={<ConsoleNewSubmission />} />
+                  {/* Developer Console — runtime management */}
+                  <Route path="console/overview" element={<ConsoleOverview />} />
+                  <Route path="console/permissions" element={<ConsolePermissions />} />
+                  <Route path="console/runtime" element={<ConsoleRuntime />} />
+                  <Route path="console/widgets" element={<ConsoleWidgets />} />
+                  <Route path="console/installs" element={<ConsoleInstalls />} />
                   {/* App Store */}
                   <Route path="store" element={<StoreBrowse />} />
                   <Route path="store/:appSlug" element={<StoreListing />} />
