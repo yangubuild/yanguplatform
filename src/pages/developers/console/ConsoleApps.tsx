@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { DocsPage } from "@/components/developers/DocsPage";
 import { Plus, Code, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 export default function ConsoleApps() {
@@ -70,13 +71,9 @@ export default function ConsoleApps() {
   return (
     <DocsPage breadcrumb="Console" title="My Apps" subtitle="Create and manage your developer applications.">
       <div className="flex items-center gap-3 mb-6">
-        <button
-          onClick={() => setShowCreate(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white"
-          style={{ background: "linear-gradient(135deg, #F46D2A, #d45a1f)" }}
-        >
+        <Button variant="accent" onClick={() => setShowCreate(true)}>
           <Plus className="w-4 h-4" /> New App
-        </button>
+        </Button>
       </div>
 
       {showCreate && (
@@ -99,17 +96,16 @@ export default function ConsoleApps() {
             />
           </div>
           <div className="flex gap-2">
-            <button
+            <Button
+              variant="accent"
               onClick={() => createApp.mutate()}
               disabled={!newName || !newSlug || createApp.isPending}
-              className="px-4 py-2 rounded-lg text-sm font-semibold text-white disabled:opacity-50"
-              style={{ background: "linear-gradient(135deg, #F46D2A, #d45a1f)" }}
             >
               {createApp.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create"}
-            </button>
-            <button onClick={() => setShowCreate(false)} className="px-4 py-2 rounded-lg text-sm text-white/50 hover:text-white/70">
+            </Button>
+            <Button variant="ghost" onClick={() => setShowCreate(false)} className="text-white/50">
               Cancel
-            </button>
+            </Button>
           </div>
         </div>
       )}

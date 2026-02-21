@@ -64,6 +64,14 @@ const StoreListing = lazy(() => import("./pages/developers/store/StoreListing"))
 const StoreInstall = lazy(() => import("./pages/developers/store/StoreInstall"));
 const ManageAppReview = lazy(() => import("./pages/manage/ManageAppReview"));
 
+// Developer Portal (lazy)
+const PortalLayoutModule = lazy(() => import("./components/developers/portal/PortalLayout").then(m => ({ default: m.PortalLayout })));
+const PortalOverview = lazy(() => import("./pages/developers/portal/PortalOverview"));
+const PortalApps = lazy(() => import("./pages/developers/portal/PortalApps"));
+const PortalApiKeys = lazy(() => import("./pages/developers/portal/PortalApiKeys"));
+const PortalSettings = lazy(() => import("./pages/developers/portal/PortalSettings"));
+const PortalBilling = lazy(() => import("./pages/developers/portal/PortalBilling"));
+
 const ManageDashboard = lazy(() => import("./pages/manage/ManageDashboard"));
 const ManagePlaceholder = lazy(() => import("./pages/manage/ManagePlaceholder"));
 const ManageNotFound = lazy(() => import("./pages/manage/ManageNotFound"));
@@ -166,6 +174,23 @@ const App = () => (
                   <Route path="store" element={<StoreBrowse />} />
                   <Route path="store/:appSlug" element={<StoreListing />} />
                   <Route path="store/:appSlug/install" element={<StoreInstall />} />
+                </Route>
+
+                {/* Developer Portal (protected) */}
+                <Route
+                  path="/developers/portal"
+                  element={
+                    <ProtectedRoute>
+                      <PortalLayoutModule />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<Navigate to="/developers/portal/overview" replace />} />
+                  <Route path="overview" element={<PortalOverview />} />
+                  <Route path="apps" element={<PortalApps />} />
+                  <Route path="api-keys" element={<PortalApiKeys />} />
+                  <Route path="settings" element={<PortalSettings />} />
+                  <Route path="billing" element={<PortalBilling />} />
                 </Route>
                 
                 {/* Owner preview route - requires auth + ownership */}
