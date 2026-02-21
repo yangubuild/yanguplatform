@@ -7,38 +7,19 @@ const builderSections = [
   {
     title: "Overview",
     items: [
-      { label: "What is Yangu?", id: "what-is-yangu", active: true },
-      { label: "Why choose Yangu", id: "why-choose-yangu" },
+      { label: "Build on YANGU", id: "build-on-yangu", active: true },
     ],
   },
   {
-    title: "Business models",
+    title: "Features",
     items: [
-      { label: "Paid groups", id: "paid-groups" },
-      { label: "Educational programs", id: "educational-programs" },
-      { label: "Coaches", id: "coaches" },
-      { label: "Agencies", id: "agencies" },
-      { label: "SaaS", id: "saas" },
-      { label: "Newsletters", id: "newsletters" },
-      { label: "Events", id: "events" },
-      { label: "DTC Ecommerce", id: "dtc-ecommerce" },
-      { label: "Brick and mortar", id: "brick-and-mortar" },
-    ],
-  },
-  {
-    title: "Affiliates",
-    items: [
-      { label: "Promote your business", id: "promote" },
-      { label: "Set up global affiliates", id: "global-affiliates" },
-      { label: "Set up custom affiliates", id: "custom-affiliates" },
-      { label: "Set up revenue share", id: "revenue-share" },
-    ],
-  },
-  {
-    title: "Products",
-    items: [
-      { label: "Manage products", id: "manage-products" },
-      { label: "Create a waitlist", id: "create-waitlist" },
+      { label: "Community", id: "community" },
+      { label: "Shop", id: "shop" },
+      { label: "Studio", id: "studio" },
+      { label: "Live", id: "live" },
+      { label: "Site", id: "site" },
+      { label: "Custom domains", id: "domains" },
+      { label: "Ads & Trends", id: "ads" },
     ],
   },
 ];

@@ -74,6 +74,7 @@ const PortalBilling = lazy(() => import("./pages/developers/portal/PortalBilling
 const PortalAppDetail = lazy(() => import("./pages/developers/portal/PortalAppDetail"));
 const PortalProfile = lazy(() => import("./pages/developers/portal/PortalProfile"));
 const PortalWebhooks = lazy(() => import("./pages/developers/portal/PortalWebhooks"));
+const BuilderDocsPage = lazy(() => import("./pages/developers/docs/builders/BuilderDocsPage"));
 
 const ManageDashboard = lazy(() => import("./pages/manage/ManageDashboard"));
 const ManagePlaceholder = lazy(() => import("./pages/manage/ManagePlaceholder"));
@@ -156,6 +157,8 @@ const App = () => (
                   <Route path="infrastructure/rate-limits-credits" element={<DocsPlaceholder />} />
                   <Route path="infrastructure/logs-status" element={<DocsPlaceholder />} />
                   <Route path="infrastructure/changelog" element={<DocsPlaceholder />} />
+                  {/* Builder docs */}
+                  <Route path="docs/builders/:feature" element={<BuilderDocsPage />} />
                   {/* Console (protected) */}
                   <Route path="console" element={<ConsoleHome />} />
                   <Route path="console/apps" element={<ConsoleApps />} />
