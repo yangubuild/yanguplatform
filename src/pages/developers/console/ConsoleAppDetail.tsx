@@ -58,12 +58,11 @@ export default function ConsoleAppDetail() {
           <button
             key={id}
             onClick={() => setTab(id)}
-            className="flex items-center gap-2 px-4 py-2.5 text-sm transition-colors rounded-t-lg"
-            style={{
-              color: activeTab === id ? "#F46D2A" : "rgba(255,255,255,0.5)",
-              background: activeTab === id ? "rgba(244,109,42,0.08)" : "transparent",
-              borderBottom: activeTab === id ? "2px solid #F46D2A" : "2px solid transparent",
-            }}
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm transition-colors rounded-t-lg ${
+              activeTab === id
+                ? "text-accent bg-accent/8 border-b-2 border-accent"
+                : "text-white/50 bg-transparent border-b-2 border-transparent"
+            }`}
           >
             <Icon className="w-4 h-4" />
             {label}
@@ -137,7 +136,7 @@ function KeysTab({ appId }: { appId: string }) {
       </div>
 
       {revealedKey && (
-        <div className="rounded-lg p-4 mb-6" style={{ background: "rgba(244,109,42,0.08)", border: "1px solid rgba(244,109,42,0.2)" }}>
+        <div className="rounded-lg p-4 mb-6 bg-accent/8 border border-accent/20">
           <p className="text-xs text-white/60 mb-2">Copy this key now. It will not be shown again.</p>
           <div className="flex items-center gap-2">
             <code className="text-sm text-white/90 font-mono flex-1 break-all">{revealedKey}</code>
@@ -156,7 +155,7 @@ function KeysTab({ appId }: { appId: string }) {
             <div key={k.id} className="flex items-center justify-between rounded-lg p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
               <div>
                 <code className="text-xs text-white/70 font-mono">{k.prefix}</code>
-                <span className={`ml-2 text-xs px-1.5 py-0.5 rounded ${k.environment === "prod" ? "bg-orange-500/10 text-orange-400" : "bg-blue-500/10 text-blue-400"}`}>{k.environment}</span>
+                <span className={`ml-2 text-xs px-1.5 py-0.5 rounded ${k.environment === "prod" ? "bg-accent/10 text-accent" : "bg-blue-500/10 text-blue-400"}`}>{k.environment}</span>
                 {k.revoked_at && <span className="ml-2 text-xs text-red-400/60">revoked</span>}
               </div>
               {!k.revoked_at && (
