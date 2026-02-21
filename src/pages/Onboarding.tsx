@@ -706,7 +706,7 @@ export default function Onboarding() {
   // === STEP 2: CATEGORY ===
   if (currentStep === "category") {
     return (
-      <AuthShell title="What do you want to do?" subtitle="Choose your path - this determines where you'll publish" showBackLink={false} maxWidth="max-w-[1100px]">
+      <AuthShell title="What do you want to do?" subtitle="Choose your path - this determines where you'll publish" showBackLink={false} maxWidth="max-w-[960px]">
         <StepProgress current={2} total={totalSteps} />
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
