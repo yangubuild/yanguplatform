@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { DocsTypography } from "@/components/mass/why-yangu/docs-typography";
+import { useAuth } from "@/hooks/useAuth";
+import { DeveloperAuthModal } from "./DeveloperAuthModal";
 
 const sections = [
   {
@@ -48,7 +51,7 @@ const sections = [
   {
     title: "Console",
     items: [
-      { label: "Developer Console", path: "/developers/console" },
+      { label: "Developer Console", path: "/developers/console", requiresAuth: true },
       { label: "App Store", path: "/developers/store" },
     ],
   },
@@ -57,6 +60,16 @@ const sections = [
 export function DevelopersSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const [showAuth, setShowAuth] = useState(false);
+
+  const handleClick = (item: { path: string; requiresAuth?: boolean }) => {
+    if (item.requiresAuth && !isAuthenticated) {
+      setShowAuth(true);
+      return;
+    }
+    navigate(item.path);
+  };
 
   return (
     <nav className="sticky top-8">
@@ -83,7 +96,7 @@ export function DevelopersSidebar() {
               return (
                 <li key={item.path}>
                   <button
-                    onClick={() => navigate(item.path)}
+                    onClick={() => handleClick(item)}
                     className={DocsTypography.sidebarLink}
                     style={{
                       color: isActive ? "#F46D2A" : "rgba(255,255,255,0.55)",
@@ -98,6 +111,16 @@ export function DevelopersSidebar() {
           </ul>
         </div>
       ))}
+
+      <DeveloperAuthModal
+        open={showAuth}
+        onClose={() => setShowAuth(false)}
+        returnTo="/developers/console"
+        onSuccess={() => {
+          setShowAuth(false);
+          navigate("/developers/console");
+        }}
+      />
     </nav>
   );
 }

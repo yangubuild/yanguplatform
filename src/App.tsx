@@ -9,6 +9,7 @@ import { DomainProvider } from "@/contexts/DomainContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { DomainGate } from "@/components/domain/DomainGate";
 import { PublicRouteResolver } from "@/components/routing";
+import { ConsoleAuthGuard } from "@/components/developers/ConsoleAuthGuard";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/auth/Login";
@@ -159,23 +160,23 @@ const App = () => (
                   <Route path="infrastructure/changelog" element={<DocsPlaceholder />} />
                   {/* Builder docs */}
                   <Route path="docs/builders/:feature" element={<BuilderDocsPage />} />
-                  {/* Console (protected) */}
-                  <Route path="console" element={<ConsoleHome />} />
-                  <Route path="console/apps" element={<ConsoleApps />} />
-                  <Route path="console/apps/:appId" element={<ConsoleAppDetail />} />
-                  <Route path="console/apps/:appId/keys" element={<ConsoleAppDetail />} />
-                  <Route path="console/apps/:appId/oauth" element={<ConsoleAppDetail />} />
-                  <Route path="console/apps/:appId/webhooks" element={<ConsoleAppDetail />} />
-                  <Route path="console/apps/:appId/logs" element={<ConsoleAppDetail />} />
-                  <Route path="console/apps/:appId/permissions" element={<ConsoleAppDetail />} />
-                  <Route path="console/submissions" element={<ConsoleSubmissions />} />
-                  <Route path="console/submissions/new" element={<ConsoleNewSubmission />} />
+                  {/* Console (protected by ConsoleAuthGuard) */}
+                  <Route path="console" element={<ConsoleAuthGuard><ConsoleHome /></ConsoleAuthGuard>} />
+                  <Route path="console/apps" element={<ConsoleAuthGuard><ConsoleApps /></ConsoleAuthGuard>} />
+                  <Route path="console/apps/:appId" element={<ConsoleAuthGuard><ConsoleAppDetail /></ConsoleAuthGuard>} />
+                  <Route path="console/apps/:appId/keys" element={<ConsoleAuthGuard><ConsoleAppDetail /></ConsoleAuthGuard>} />
+                  <Route path="console/apps/:appId/oauth" element={<ConsoleAuthGuard><ConsoleAppDetail /></ConsoleAuthGuard>} />
+                  <Route path="console/apps/:appId/webhooks" element={<ConsoleAuthGuard><ConsoleAppDetail /></ConsoleAuthGuard>} />
+                  <Route path="console/apps/:appId/logs" element={<ConsoleAuthGuard><ConsoleAppDetail /></ConsoleAuthGuard>} />
+                  <Route path="console/apps/:appId/permissions" element={<ConsoleAuthGuard><ConsoleAppDetail /></ConsoleAuthGuard>} />
+                  <Route path="console/submissions" element={<ConsoleAuthGuard><ConsoleSubmissions /></ConsoleAuthGuard>} />
+                  <Route path="console/submissions/new" element={<ConsoleAuthGuard><ConsoleNewSubmission /></ConsoleAuthGuard>} />
                   {/* Developer Console — runtime management */}
-                  <Route path="console/overview" element={<ConsoleOverview />} />
-                  <Route path="console/permissions" element={<ConsolePermissions />} />
-                  <Route path="console/runtime" element={<ConsoleRuntime />} />
-                  <Route path="console/widgets" element={<ConsoleWidgets />} />
-                  <Route path="console/installs" element={<ConsoleInstalls />} />
+                  <Route path="console/overview" element={<ConsoleAuthGuard><ConsoleOverview /></ConsoleAuthGuard>} />
+                  <Route path="console/permissions" element={<ConsoleAuthGuard><ConsolePermissions /></ConsoleAuthGuard>} />
+                  <Route path="console/runtime" element={<ConsoleAuthGuard><ConsoleRuntime /></ConsoleAuthGuard>} />
+                  <Route path="console/widgets" element={<ConsoleAuthGuard><ConsoleWidgets /></ConsoleAuthGuard>} />
+                  <Route path="console/installs" element={<ConsoleAuthGuard><ConsoleInstalls /></ConsoleAuthGuard>} />
                   {/* App Store */}
                   <Route path="store" element={<StoreBrowse />} />
                   <Route path="store/:appSlug" element={<StoreListing />} />
