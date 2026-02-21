@@ -10,6 +10,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { DomainGate } from "@/components/domain/DomainGate";
 import { PublicRouteResolver } from "@/components/routing";
 import { ConsoleAuthGuard } from "@/components/developers/ConsoleAuthGuard";
+import { DeveloperPortalGuard } from "@/components/developers/DeveloperPortalGuard";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/auth/Login";
@@ -187,9 +188,9 @@ const App = () => (
                 <Route
                   path="/developers/portal"
                   element={
-                    <ProtectedRoute>
+                    <DeveloperPortalGuard>
                       <PortalLayoutModule />
-                    </ProtectedRoute>
+                    </DeveloperPortalGuard>
                   }
                 >
                   <Route index element={<Navigate to="/developers/portal/overview" replace />} />

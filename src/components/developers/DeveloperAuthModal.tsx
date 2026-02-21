@@ -18,6 +18,7 @@ export function DeveloperAuthModal({ open, onClose, onSuccess, returnTo }: Devel
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [devUpdates, setDevUpdates] = useState(false);
+  const [signupEmailSent, setSignupEmailSent] = useState(false);
 
   if (!open) return null;
 
@@ -44,7 +45,7 @@ export function DeveloperAuthModal({ open, onClose, onSuccess, returnTo }: Devel
     setLoading(true);
     if (returnTo) storeDevIntent(returnTo);
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -57,22 +58,28 @@ export function DeveloperAuthModal({ open, onClose, onSuccess, returnTo }: Devel
     setLoading(false);
     if (error) {
       toast.error(error.message);
+    } else if (data?.user?.identities?.length === 0) {
+      // User already exists
+      toast.error("An account with this email already exists. Try signing in.");
+    } else if (data?.session) {
+      // Auto-confirmed (no email verification needed) — route immediately
+      if (devUpdates) localStorage.setItem("dev_updates_opt_in", "true");
+      toast.success("Account created!");
+      onSuccess();
     } else {
-      // Save the opt-in preference
-      if (devUpdates) {
-        localStorage.setItem("dev_updates_opt_in", "true");
-      }
-      toast.success("Check your email to confirm your account");
-      onClose();
+      // Email confirmation required — show persistent message, do NOT close modal
+      if (devUpdates) localStorage.setItem("dev_updates_opt_in", "true");
+      setSignupEmailSent(true);
     }
   };
 
   const handleGoogleSignIn = async () => {
-    if (returnTo) storeDevIntent(returnTo);
+    const dest = returnTo || "/developers/portal/overview";
+    storeDevIntent(dest);
     try {
       const { lovable } = await import("@/integrations/lovable/index");
       await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: `${window.location.origin}/auth/callback`,
+        redirect_uri: `${window.location.origin}/auth/callback?devReturn=${encodeURIComponent(dest)}`,
       });
     } catch {
       toast.error("Google sign-in is not available");
@@ -93,6 +100,26 @@ export function DeveloperAuthModal({ open, onClose, onSuccess, returnTo }: Devel
         <h2 className="text-xl font-bold text-foreground mb-1">Developer Portal</h2>
         <p className="text-sm text-muted-foreground mb-5">Sign in to create and manage your apps.</p>
 
+        {/* Email confirmation sent state */}
+        {signupEmailSent ? (
+          <div className="text-center py-6 space-y-3">
+            <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto">
+              <svg className="w-6 h-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+            </div>
+            <h3 className="text-base font-semibold text-foreground">Check your email</h3>
+            <p className="text-sm text-muted-foreground">
+              We sent a confirmation link to <strong className="text-foreground">{email}</strong>.
+              <br />Click the link to activate your developer account.
+            </p>
+            <button
+              onClick={() => { setSignupEmailSent(false); setTab("signin"); }}
+              className="text-xs text-accent hover:underline mt-2"
+            >
+              Back to sign in
+            </button>
+          </div>
+        ) : (
+          <>
         {/* Tabs */}
         <div className="flex gap-1 mb-5 p-1 rounded-lg bg-muted/30">
           <button
@@ -181,6 +208,8 @@ export function DeveloperAuthModal({ open, onClose, onSuccess, returnTo }: Devel
           </svg>
           Continue with Google
         </Button>
+          </>
+        )}
       </div>
     </div>
   );

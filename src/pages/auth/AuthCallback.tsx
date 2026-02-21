@@ -30,6 +30,10 @@ export default function AuthCallback() {
           const devReturn = sessionStorage.getItem("dev_auth_return")
             || searchParams.get("devReturn");
 
+          if (import.meta.env.DEV) {
+            console.log("[DEV_AUTH] AuthCallback", { devReturn, sessionReturn: sessionStorage.getItem("dev_auth_return"), queryReturn: searchParams.get("devReturn") });
+          }
+
           if (devReturn) {
             sessionStorage.removeItem("dev_auth_return");
 
@@ -59,7 +63,9 @@ export default function AuthCallback() {
             }
 
             // Developer auth → skip onboarding, go directly to portal
-            navigate(decodeURIComponent(devReturn), { replace: true });
+            const destination = decodeURIComponent(devReturn);
+            if (import.meta.env.DEV) console.log("[DEV_AUTH] Routing to developer portal:", destination);
+            navigate(destination, { replace: true });
             return;
           }
 
