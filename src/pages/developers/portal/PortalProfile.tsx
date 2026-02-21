@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { User, Loader2, Save } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { User, Loader2, Save, Camera } from "lucide-react";
 import { toast } from "sonner";
 
 export default function PortalProfile() {
@@ -15,8 +16,10 @@ export default function PortalProfile() {
   const [displayName, setDisplayName] = useState("");
   const [devOptIn, setDevOptIn] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
-  // Fetch org name
   const { data: orgName } = useQuery({
     queryKey: ["portal-org-name", user?.id],
     enabled: !!user,
@@ -33,24 +36,62 @@ export default function PortalProfile() {
 
   useEffect(() => {
     if (profile?.display_name) setDisplayName(profile.display_name);
+    if (profile?.avatar_url) setAvatarUrl(profile.avatar_url);
   }, [profile]);
 
   useEffect(() => {
     if (user?.user_metadata?.dev_updates_opt_in) setDevOptIn(true);
   }, [user]);
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Image must be under 2MB");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const path = `${user.id}/avatar.${ext}`;
+      const { error: uploadErr } = await supabase.storage
+        .from("avatars")
+        .upload(path, file, { upsert: true });
+      if (uploadErr) throw uploadErr;
+
+      const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(path);
+      const url = `${publicUrl}?t=${Date.now()}`;
+
+      const { error: profileErr } = await supabase
+        .from("profiles")
+        .update({ avatar_url: url })
+        .eq("id", user.id);
+      if (profileErr) throw profileErr;
+
+      setAvatarUrl(url);
+      toast.success("Avatar updated");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to upload avatar");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!user) return;
     setSaving(true);
     try {
-      // Update profile display name
       const { error: profileErr } = await supabase
         .from("profiles")
         .update({ display_name: displayName.trim() || null })
         .eq("id", user.id);
       if (profileErr) throw profileErr;
 
-      // Update dev opt-in in user_metadata
       const { error: metaErr } = await supabase.auth.updateUser({
         data: { dev_updates_opt_in: devOptIn },
       });
@@ -64,6 +105,8 @@ export default function PortalProfile() {
     }
   };
 
+  const initials = (displayName || user?.email || "D").slice(0, 2).toUpperCase();
+
   return (
     <DocsPage breadcrumb="Portal" title="Profile" subtitle="Manage your developer profile.">
       <div
@@ -73,6 +116,28 @@ export default function PortalProfile() {
         <div className="flex items-center gap-3">
           <User className="w-5 h-5" style={{ color: "#F46D2A" }} />
           <h3 className="text-white font-semibold text-sm">Your Profile</h3>
+        </div>
+
+        {/* Avatar */}
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <Avatar className="w-16 h-16">
+              <AvatarImage src={avatarUrl || undefined} />
+              <AvatarFallback className="bg-white/10 text-white text-lg">{initials}</AvatarFallback>
+            </Avatar>
+            <button
+              onClick={() => fileRef.current?.click()}
+              disabled={uploading}
+              className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-accent flex items-center justify-center hover:brightness-110 transition-all"
+            >
+              {uploading ? <Loader2 className="w-3.5 h-3.5 text-white animate-spin" /> : <Camera className="w-3.5 h-3.5 text-white" />}
+            </button>
+            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+          </div>
+          <div>
+            <p className="text-white text-sm font-medium">{displayName || "Developer"}</p>
+            <p className="text-white/40 text-xs">{user?.email}</p>
+          </div>
         </div>
 
         <div className="grid gap-4 max-w-md">
