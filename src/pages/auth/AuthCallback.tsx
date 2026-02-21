@@ -32,6 +32,32 @@ export default function AuthCallback() {
 
           if (devReturn) {
             sessionStorage.removeItem("dev_auth_return");
+
+            // Ensure developer has an org before entering portal
+            const { data: existingOrg } = await supabase
+              .from("org_memberships")
+              .select("org_id")
+              .eq("user_id", session.user.id)
+              .limit(1)
+              .maybeSingle();
+
+            if (!existingOrg) {
+              try {
+                const { data: newOrg } = await supabase
+                  .from("orgs")
+                  .insert({ name: "My Organization", owner_user_id: session.user.id })
+                  .select("id")
+                  .single();
+                if (newOrg) {
+                  await supabase
+                    .from("org_memberships")
+                    .insert({ org_id: newOrg.id, user_id: session.user.id, role: "owner" });
+                }
+              } catch (e) {
+                console.error("Dev org bootstrap failed:", e);
+              }
+            }
+
             // Developer auth → skip onboarding, go directly to portal
             navigate(decodeURIComponent(devReturn), { replace: true });
             return;

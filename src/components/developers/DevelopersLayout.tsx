@@ -21,11 +21,11 @@ export function DevelopersLayout() {
       <MassSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <main className="lg:ml-[240px] min-h-screen">
-        <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-10 py-6 pt-16 lg:pt-8">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pt-16 lg:pt-8">
           <MassHeader hideTrends />
 
-          <div className="flex gap-8 mt-6">
-            <div className="hidden md:block w-[220px] flex-shrink-0">
+          <div className="flex gap-6 mt-6">
+            <div className="hidden md:block w-[200px] flex-shrink-0">
               <DevelopersSidebar />
             </div>
             <div className="flex-1 min-w-0">
