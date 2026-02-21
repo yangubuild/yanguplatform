@@ -1,9 +1,13 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Code, Database, Webhook, Terminal, Layers, Shield, Cpu, Globe, Puzzle,
   Building2, Server, Store,
 } from "lucide-react";
 import { DocsPage, DocsSection, DocsCard } from "@/components/developers/DocsPage";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { DeveloperAuthModal } from "@/components/developers/DeveloperAuthModal";
 
 const devCards = [
   { icon: Code, title: "REST & GraphQL", description: "Access every platform feature through well-documented APIs.", path: "/developers/apis/rest-graphql" },
@@ -24,6 +28,16 @@ const agencyCards = [
 
 export default function DevelopersHome() {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const [showAuth, setShowAuth] = useState(false);
+
+  const handleAddApp = () => {
+    if (isAuthenticated) {
+      navigate("/developers/portal/apps?new=1");
+    } else {
+      setShowAuth(true);
+    }
+  };
 
   return (
     <DocsPage
@@ -33,32 +47,22 @@ export default function DevelopersHome() {
     >
       {/* CTA Buttons */}
       <div className="flex flex-wrap gap-3 mb-10">
-        <button
-          onClick={() => navigate("/developers/console/apps")}
-          className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white"
-          style={{ background: "linear-gradient(135deg, #F46D2A, #d45a1f)" }}
-        >
+        <Button variant="accent" onClick={handleAddApp}>
           Create Developer App
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="ghost"
+          className="text-white/80 border border-white/12 hover:bg-white/5"
           onClick={() => navigate("/developers/apis/rest-graphql")}
-          className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white/80 hover:text-white transition-colors"
-          style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)" }}
         >
           View API Reference
-        </button>
+        </Button>
       </div>
 
       <DocsSection id="for-developers" title="For developers" description="Explore tools and APIs to build on Yangu:">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {devCards.map((card) => (
-            <DocsCard
-              key={card.title}
-              icon={card.icon}
-              title={card.title}
-              description={card.description}
-              onClick={() => navigate(card.path)}
-            />
+            <DocsCard key={card.title} icon={card.icon} title={card.title} description={card.description} onClick={() => navigate(card.path)} />
           ))}
         </div>
       </DocsSection>
@@ -66,33 +70,26 @@ export default function DevelopersHome() {
       <DocsSection id="for-agencies" title="For agencies & builders" description="Build products and workflows on top of Yangu:">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {agencyCards.map((card) => (
-            <DocsCard
-              key={card.title}
-              icon={card.icon}
-              title={card.title}
-              description={card.description}
-              onClick={() => navigate(card.path)}
-            />
+            <DocsCard key={card.title} icon={card.icon} title={card.title} description={card.description} onClick={() => navigate(card.path)} />
           ))}
         </div>
       </DocsSection>
 
       <DocsSection id="app-store" title="App Store" description="Browse and submit apps to the Yangu marketplace:">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <DocsCard
-            icon={Store}
-            title="Browse App Store"
-            description="Discover apps built by the community and verified by Yangu."
-            onClick={() => navigate("/developers/store")}
-          />
-          <DocsCard
-            icon={Puzzle}
-            title="Submit an App"
-            description="Package your integration and publish it to the Yangu App Store."
-            onClick={() => navigate("/developers/console/submissions/new")}
-          />
+          <DocsCard icon={Store} title="Browse App Store" description="Discover apps built by the community and verified by Yangu." onClick={() => navigate("/developers/store")} />
+          <DocsCard icon={Puzzle} title="Submit an App" description="Package your integration and publish it to the Yangu App Store." onClick={() => navigate("/developers/console/submissions/new")} />
         </div>
       </DocsSection>
+
+      <DeveloperAuthModal
+        open={showAuth}
+        onClose={() => setShowAuth(false)}
+        onSuccess={() => {
+          setShowAuth(false);
+          navigate("/developers/portal/apps?new=1");
+        }}
+      />
     </DocsPage>
   );
 }
