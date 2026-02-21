@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Menu, LayoutDashboard, Code, Key, CreditCard, Settings, BookOpen, HelpCircle, X, MessageSquare, Mail, User, Webhook } from "lucide-react";
+import { Menu, LayoutDashboard, Code, Key, CreditCard, Settings, BookOpen, HelpCircle, X, MessageSquare, Mail, User, Webhook, Loader2 } from "lucide-react";
 import { MassSidebar } from "@/components/mass/MassSidebar";
 import { MassHeader } from "@/components/mass/MassHeader";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { DeveloperAuthModal } from "@/components/developers/DeveloperAuthModal";
 import yanguYIcon from "@/assets/yangu-y-icon.png";
 
 const portalNav = [
@@ -20,8 +22,17 @@ export function PortalLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [supportOpen, setSupportOpen] = useState(false);
   const [supportTab, setSupportTab] = useState<"help" | "contact">("help");
+  const [showAuth, setShowAuth] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  // Auto-open auth modal for unauthenticated users
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      setShowAuth(true);
+    }
+  }, [isLoading, isAuthenticated]);
 
   // Auto-open support FAB on first portal visit
   useEffect(() => {
@@ -31,6 +42,38 @@ export function PortalLayout() {
       localStorage.setItem("portal_support_seen", "1");
     }
   }, []);
+
+  // Block rendering when not authenticated
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#08120D" }}>
+        <Loader2 className="w-8 h-8 text-white/30 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#08120D" }}>
+        <div className="text-center">
+          <h2 className="text-xl font-bold text-white mb-2">Developer Portal</h2>
+          <p className="text-white/50 text-sm mb-6">Sign in to access the developer portal.</p>
+          <Button variant="accent" onClick={() => setShowAuth(true)}>Sign In</Button>
+        </div>
+        <DeveloperAuthModal
+          open={showAuth}
+          onClose={() => {
+            setShowAuth(false);
+            navigate("/developers");
+          }}
+          returnTo={location.pathname}
+          onSuccess={() => {
+            setShowAuth(false);
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen" style={{ background: "#08120D" }}>
