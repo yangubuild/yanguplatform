@@ -118,7 +118,7 @@ export default function ConsoleWidgets() {
         .update({ is_enabled: newVal })
         .eq("id", row.id);
       if (error) throw error;
-      toast({ title: newVal ? "Widget published (enabled)" : "Widget unpublished (disabled)" });
+      toast({ title: newVal ? "Widget enabled" : "Widget disabled" });
       qc.invalidateQueries({ queryKey: ["dev-widgets"] });
     } catch (err: unknown) {
       toast({ title: "Error", description: err instanceof Error ? err.message : "Failed", variant: "destructive" });
@@ -163,7 +163,7 @@ export default function ConsoleWidgets() {
     { header: "Key", accessor: "widget_key" },
     { header: "Title", accessor: "title" },
     {
-      header: "Published",
+      header: "Status",
       accessor: (r) => (
         <div className="flex items-center gap-2">
           {canWrite ? (
@@ -174,10 +174,10 @@ export default function ConsoleWidgets() {
             />
           ) : (
             <Badge className={`text-xs ${r.is_enabled ? "bg-green-500/20 text-green-400 border-green-500/30" : "bg-white/10 text-white/50 border-white/20"}`}>
-              {r.is_enabled ? "Published" : "Draft"}
+              {r.is_enabled ? "Enabled" : "Disabled"}
             </Badge>
           )}
-          <span className="text-xs text-white/40">{r.is_enabled ? "Published" : "Draft"}</span>
+          <span className="text-xs text-white/40">{r.is_enabled ? "Enabled" : "Disabled"}</span>
         </div>
       ),
     },
@@ -217,7 +217,7 @@ export default function ConsoleWidgets() {
           { key: "title", label: "Title", placeholder: "Widget title", required: true },
           { key: "description", label: "Description", placeholder: "Optional description" },
           { key: "iframe_url", label: "iFrame URL", placeholder: "https://...", required: true },
-          { key: "is_enabled", label: "Published", type: "checkbox" },
+          { key: "is_enabled", label: "Enabled", type: "checkbox" },
         ]}
         values={form}
         onChange={(k, v) => setForm((p) => ({ ...p, [k]: v }))}
