@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Menu, LayoutDashboard, Code, Key, CreditCard, Settings, BookOpen, HelpCircle, X, MessageSquare, Mail } from "lucide-react";
+import { Menu, LayoutDashboard, Code, Key, CreditCard, Settings, BookOpen, HelpCircle, X, MessageSquare, Mail, User, Webhook } from "lucide-react";
 import { MassSidebar } from "@/components/mass/MassSidebar";
 import { MassHeader } from "@/components/mass/MassHeader";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,8 @@ const portalNav = [
   { label: "Overview", path: "/developers/portal/overview", icon: LayoutDashboard },
   { label: "Apps", path: "/developers/portal/apps", icon: Code },
   { label: "API Keys", path: "/developers/portal/api-keys", icon: Key },
+  { label: "Webhooks", path: "/developers/portal/webhooks", icon: Webhook },
+  { label: "Profile", path: "/developers/portal/profile", icon: User },
   { label: "Settings", path: "/developers/portal/settings", icon: Settings },
   { label: "Billing", path: "/developers/portal/billing", icon: CreditCard },
 ];
@@ -77,11 +79,11 @@ export function PortalLayout() {
                 <div className="border-b border-white/10 mb-4" />
 
                 <button
-                  onClick={() => navigate("/developers")}
+                  onClick={() => navigate("/developers/docs")}
                   className="w-full text-left px-3 py-1.5 rounded-md text-sm leading-5 transition-colors flex items-center gap-2 text-white/55 hover:text-white/80"
                 >
                   <BookOpen className="w-4 h-4" />
-                  Docs
+                  API Docs
                 </button>
               </nav>
             </div>
