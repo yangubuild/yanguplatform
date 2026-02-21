@@ -90,7 +90,7 @@ export function ConsoleFormModal({
         </div>
         <DialogFooter>
           <Button variant="ghost" onClick={onClose} className="text-white/60" disabled={isSubmitting}>Cancel</Button>
-          <Button onClick={onSubmit} disabled={isSubmitting} className="bg-[#F46D2A] hover:bg-[#F46D2A]/90 text-white gap-1.5">
+          <Button onClick={onSubmit} disabled={isSubmitting} variant="accent" className="gap-1.5">
             {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
             Save
           </Button>

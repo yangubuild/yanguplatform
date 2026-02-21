@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { DocsPage, DocsSection, PlaceholderBlock } from "@/components/developers/DocsPage";
 import { Key, Shield, Webhook, FileText, Loader2, Copy, RotateCcw, Plus, Lock } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import ConsoleAppPermissions from "./ConsoleAppPermissions";
 
@@ -127,12 +128,12 @@ function KeysTab({ appId }: { appId: string }) {
   return (
     <div>
       <div className="flex gap-2 mb-6">
-        <button onClick={() => createKey.mutate("dev")} disabled={createKey.isPending} className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: "rgba(255,255,255,0.08)" }}>
+        <Button variant="secondary" size="sm" onClick={() => createKey.mutate("dev")} disabled={createKey.isPending}>
           <Plus className="w-3 h-3" /> Dev Key
-        </button>
-        <button onClick={() => createKey.mutate("prod")} disabled={createKey.isPending} className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: "linear-gradient(135deg, #F46D2A, #d45a1f)" }}>
+        </Button>
+        <Button variant="accent" size="sm" onClick={() => createKey.mutate("prod")} disabled={createKey.isPending}>
           <Plus className="w-3 h-3" /> Prod Key
-        </button>
+        </Button>
       </div>
 
       {revealedKey && (

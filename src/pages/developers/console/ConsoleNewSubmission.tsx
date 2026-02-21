@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { DocsPage } from "@/components/developers/DocsPage";
 import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 export default function ConsoleNewSubmission() {
@@ -95,15 +96,14 @@ export default function ConsoleNewSubmission() {
         </div>
 
         <div className="flex gap-2 pt-4">
-          <button
+          <Button
+            variant="accent"
             onClick={() => createListing.mutate()}
             disabled={!selectedAppId || !name || !slug || createListing.isPending}
-            className="px-5 py-2 rounded-lg text-sm font-semibold text-white disabled:opacity-50"
-            style={{ background: "linear-gradient(135deg, #F46D2A, #d45a1f)" }}
           >
             {createListing.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Submit for Review"}
-          </button>
-          <button onClick={() => navigate(-1)} className="px-4 py-2 rounded-lg text-sm text-white/50 hover:text-white/70">Cancel</button>
+          </Button>
+          <Button variant="ghost" onClick={() => navigate(-1)} className="text-white/50">Cancel</Button>
         </div>
       </div>
     </DocsPage>

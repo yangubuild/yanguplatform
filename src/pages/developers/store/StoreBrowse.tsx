@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DocsPage } from "@/components/developers/DocsPage";
 import { Store, Loader2, Puzzle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function StoreBrowse() {
   const navigate = useNavigate();
@@ -50,13 +51,9 @@ export default function StoreBrowse() {
         <div className="text-center py-16">
           <Store className="w-10 h-10 text-white/20 mx-auto mb-3" />
           <p className="text-white/40 text-sm">No apps published yet. Be the first to submit one.</p>
-          <button
-            onClick={() => navigate("/developers/console/submissions/new")}
-            className="mt-4 px-4 py-2 rounded-lg text-sm font-semibold text-white"
-            style={{ background: "linear-gradient(135deg, #F46D2A, #d45a1f)" }}
-          >
+          <Button variant="accent" onClick={() => navigate("/developers/console/submissions/new")} className="mt-4">
             Submit an App
-          </button>
+          </Button>
         </div>
       )}
     </DocsPage>
