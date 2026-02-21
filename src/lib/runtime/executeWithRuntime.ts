@@ -35,17 +35,35 @@ export type RuntimeExecResult<T> = RuntimeExecSuccess<T> | RuntimeExecFailure;
 /**
  * Execute a provider call only if runtime allows it.
  *
- * If surfaceId or widgetKey is unavailable the guard is skipped gracefully
- * (returns missing_runtime_context) — this avoids crashes in contexts where
- * runtime metadata has not yet been wired.
+ * Deny-by-default: if surfaceId, widgetKey, or runtime context is missing
+ * the call is blocked — no fallback execution.
+ *
+ * Dev-only bypass: set localStorage "yangu_runtime_bypass" = "1" in a
+ * development build to skip the guard for local testing.
  */
 export async function executeWithRuntime<T>(
   opts: ExecuteWithRuntimeOpts<T>
 ): Promise<RuntimeExecResult<T>> {
   const { surfaceId, widgetKey, providerKey, requiredScope, bucketKey, run } = opts;
 
-  // ── Missing context guard (non-breaking) ───────────────────────────
+  // ── Dev-only bypass (BOTH conditions required) ─────────────────────
+  const devBypass =
+    import.meta.env.DEV === true &&
+    typeof window !== "undefined" &&
+    window.localStorage?.getItem("yangu_runtime_bypass") === "1";
+
+  // ── Missing context guard (deny by default) ───────────────────────
   if (!surfaceId || !widgetKey) {
+    if (devBypass) {
+      console.warn("[Runtime] DEV bypass active — skipping guard (missing context)");
+      try {
+        const result = await run({} as RuntimeContext, "dev_bypass_token");
+        return { ok: true, result };
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "execution_error";
+        return { ok: false, reason: message };
+      }
+    }
     return { ok: false, reason: "missing_runtime_context" };
   }
 
@@ -56,7 +74,18 @@ export async function executeWithRuntime<T>(
   });
 
   if (!resolution.allowed) {
-    return { ok: false, reason: (resolution as { allowed: false; reason: string }).reason };
+    const reason = (resolution as { allowed: false; reason: string }).reason;
+    if (devBypass) {
+      console.warn(`[Runtime] DEV bypass active — skipping denial: ${reason}`);
+      try {
+        const result = await run({} as RuntimeContext, "dev_bypass_token");
+        return { ok: true, result };
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "execution_error";
+        return { ok: false, reason: message };
+      }
+    }
+    return { ok: false, reason };
   }
 
   // ── 2. Extra provider permission gate (belt-and-suspenders) ────────

@@ -764,29 +764,20 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
         },
       });
 
-      // If runtime guard denied, fall through to direct call (graceful degradation)
-      let result: Awaited<ReturnType<typeof generateGeminiImage>> | Awaited<ReturnType<typeof generateQwenImage>> | Awaited<ReturnType<typeof generateIdeogramImage>>;
-      if (runtimeCheck.ok) {
-        result = runtimeCheck.result;
-      } else {
+      // Runtime guard is authoritative — no fallback
+      if (!runtimeCheck.ok) {
         const denial = runtimeCheck as { ok: false; reason: string };
-        if (denial.reason === "missing_runtime_context" || denial.reason === "runtime_context_unavailable") {
-          // Runtime not yet configured — allow direct call as fallback
-          result = provider === "gemini"
-            ? await generateGeminiImage(prompt, cid)
-            : provider === "qwen"
-              ? await generateQwenImage(prompt)
-              : await generateIdeogramImage(prompt);
-        } else {
-          // Hard denial from runtime
-          toast({ title: "Action not permitted", description: denial.reason, variant: "destructive" });
-          setMessages(prev => prev.map(m => m.id === mediaMsgId ? {
-            ...m,
-            mediaGen: { ...m.mediaGen!, status: "error" as MediaGenStatus, error: denial.reason },
-          } : m));
-          return;
-        }
+        const userMsg = denial.reason === "missing_runtime_context"
+          ? "Runtime not configured for this surface."
+          : "This action isn't permitted.";
+        toast({ title: userMsg, variant: "destructive" });
+        setMessages(prev => prev.map(m => m.id === mediaMsgId ? {
+          ...m,
+          mediaGen: { ...m.mediaGen!, status: "error" as MediaGenStatus, error: userMsg },
+        } : m));
+        return;
       }
+      const result = runtimeCheck.result;
 
       // Update to generating
       setMessages(prev => prev.map(m => m.id === mediaMsgId ? { ...m, mediaGen: { ...m.mediaGen!, status: "generating" as MediaGenStatus, progressStep: "Generating…" } } : m));
@@ -896,15 +887,15 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
 
       if (!runtimeCheck.ok) {
         const denial = runtimeCheck as { ok: false; reason: string };
-        if (denial.reason !== "missing_runtime_context" && denial.reason !== "runtime_context_unavailable") {
-          toast({ title: "Action not permitted", description: denial.reason, variant: "destructive" });
-          setMessages(prev => prev.map(m => m.id === mediaMsgId ? {
-            ...m,
-            mediaGen: { ...m.mediaGen!, status: "error" as MediaGenStatus, error: denial.reason },
-          } : m));
-          return;
-        }
-        // missing_runtime_context / unavailable → graceful fallthrough
+        const userMsg = denial.reason === "missing_runtime_context"
+          ? "Runtime not configured for this surface."
+          : "This action isn't permitted.";
+        toast({ title: userMsg, variant: "destructive" });
+        setMessages(prev => prev.map(m => m.id === mediaMsgId ? {
+          ...m,
+          mediaGen: { ...m.mediaGen!, status: "error" as MediaGenStatus, error: userMsg },
+        } : m));
+        return;
       }
 
       // Create generation record via RPC
