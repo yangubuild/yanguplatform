@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useSurfaceContext } from "@/contexts/SurfaceContext";
 import { X, Mic, Settings, ChevronDown, Smartphone, Plus, ArrowUp, AudioLines, User, Loader2, Paperclip, Download, RefreshCw, Globe, CloudUpload, Palette, Code2, BarChart3, Image, Package, Megaphone, Users, UserCheck, Zap, Layout, Activity } from "lucide-react";
 import adaLogo from "@/assets/ada-logo-full.png";
 import { useAuth } from "@/hooks/useAuth";
@@ -260,6 +261,7 @@ const GUEST_USED_KEY = "ada_guest_used";
 
 export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolean } = {}) {
   const { user, profile, isAuthenticated } = useAuth();
+  const { surfaceId: ctxSurfaceId } = useSurfaceContext();
   const navigate = useNavigate();
   const [mode, setMode] = useState<"chat" | "voice">("chat");
   const [intent, setIntent] = useState<"search" | "discuss" | null>(null);
@@ -750,7 +752,7 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
     try {
       // Runtime execution guard — silently blocks if provider not permitted
       const runtimeCheck = await executeWithRuntime({
-        surfaceId: cid,
+        surfaceId: ctxSurfaceId ?? undefined,
         widgetKey: `ada_image_${provider}`,
         providerKey: provider,
         bucketKey: "image",
@@ -882,7 +884,7 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
     try {
       // Runtime execution guard for video provider
       const runtimeCheck = await executeWithRuntime({
-        surfaceId: cid,
+        surfaceId: ctxSurfaceId ?? undefined,
         widgetKey: "ada_video_creatify",
         providerKey: "creatify",
         bucketKey: "video",
