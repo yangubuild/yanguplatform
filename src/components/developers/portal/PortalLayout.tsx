@@ -52,11 +52,9 @@ export function PortalLayout() {
                         <li key={item.path}>
                           <button
                             onClick={() => navigate(item.path)}
-                            className="w-full text-left px-3 py-1.5 rounded-md text-sm leading-5 transition-colors flex items-center gap-2"
-                            style={{
-                              color: isActive ? "#F46D2A" : "rgba(255,255,255,0.55)",
-                              background: isActive ? "rgba(244,109,42,0.08)" : "transparent",
-                            }}
+                            className={`w-full text-left px-3 py-1.5 rounded-md text-sm leading-5 transition-colors flex items-center gap-2 ${
+                              isActive ? "text-accent bg-accent/8" : "text-white/55 bg-transparent"
+                            }`}
                           >
                             <item.icon className="w-4 h-4" />
                             {item.label}
@@ -88,8 +86,7 @@ export function PortalLayout() {
             <div className="hidden lg:block">
               <button
                 onClick={() => setSupportOpen(!supportOpen)}
-                className="fixed right-6 bottom-6 z-40 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-colors"
-                style={{ background: "linear-gradient(135deg, #F46D2A, #d45a1f)" }}
+                className="fixed right-6 bottom-6 z-40 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-colors [background:linear-gradient(90deg,#b5622a_0%,#5c2a12_100%)] hover:brightness-110"
               >
                 {supportOpen ? <X className="w-5 h-5 text-white" /> : <HelpCircle className="w-5 h-5 text-white" />}
               </button>

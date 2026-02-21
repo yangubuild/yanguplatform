@@ -86,7 +86,8 @@ export function ConsoleDataTable<T extends { id?: string }>({
           <Button
             onClick={onCreateClick}
             size="sm"
-            className="ml-auto bg-[#F46D2A] hover:bg-[#F46D2A]/90 text-white gap-1.5"
+            variant="accent"
+            className="ml-auto gap-1.5"
           >
             <Plus className="w-4 h-4" />
             {createLabel}
