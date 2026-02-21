@@ -767,9 +767,13 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
       // Runtime guard is authoritative — no fallback
       if (!runtimeCheck.ok) {
         const denial = runtimeCheck as { ok: false; reason: string };
-        const userMsg = denial.reason === "missing_runtime_context"
-          ? "Runtime not configured for this surface."
-          : "This action isn't permitted.";
+        const reasonMap: Record<string, string> = {
+          missing_runtime_context: "Runtime not configured for this surface.",
+          widget_not_installed: "Widget not installed on this surface.",
+          provider_not_permitted: "Provider not permitted for this app.",
+          rate_limited: "Rate limit reached. Try again later.",
+        };
+        const userMsg = reasonMap[denial.reason] || "This action isn't permitted.";
         toast({ title: userMsg, variant: "destructive" });
         setMessages(prev => prev.map(m => m.id === mediaMsgId ? {
           ...m,
@@ -887,9 +891,13 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
 
       if (!runtimeCheck.ok) {
         const denial = runtimeCheck as { ok: false; reason: string };
-        const userMsg = denial.reason === "missing_runtime_context"
-          ? "Runtime not configured for this surface."
-          : "This action isn't permitted.";
+        const reasonMap: Record<string, string> = {
+          missing_runtime_context: "Runtime not configured for this surface.",
+          widget_not_installed: "Widget not installed on this surface.",
+          provider_not_permitted: "Provider not permitted for this app.",
+          rate_limited: "Rate limit reached. Try again later.",
+        };
+        const userMsg = reasonMap[denial.reason] || "This action isn't permitted.";
         toast({ title: userMsg, variant: "destructive" });
         setMessages(prev => prev.map(m => m.id === mediaMsgId ? {
           ...m,
