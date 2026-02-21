@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { DocsPage } from "@/components/developers/DocsPage";
 import { ArrowLeft, Loader2, Check, AlertTriangle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 export default function StoreInstall() {
@@ -79,18 +80,18 @@ export default function StoreInstall() {
   if (!listing) {
     return (
       <DocsPage breadcrumb="App Store → Install" title="Not Found" subtitle="This app is not available for installation.">
-        <button onClick={() => navigate("/developers/store")} className="text-sm text-white/50 hover:text-white/70 flex items-center gap-1">
+        <Button variant="ghost" size="sm" onClick={() => navigate("/developers/store")} className="text-white/50">
           <ArrowLeft className="w-4 h-4" /> Back to Store
-        </button>
+        </Button>
       </DocsPage>
     );
   }
 
   return (
     <DocsPage breadcrumb="App Store → Install" title={`Install ${listing.name}`} subtitle="Choose an organization to install this app.">
-      <button onClick={() => navigate(`/developers/store/${appSlug}`)} className="text-sm text-white/50 hover:text-white/70 flex items-center gap-1 mb-6">
+      <Button variant="ghost" size="sm" onClick={() => navigate(`/developers/store/${appSlug}`)} className="text-white/50 mb-6">
         <ArrowLeft className="w-4 h-4" /> Back to listing
-      </button>
+      </Button>
 
       {!user ? (
         <div className="rounded-xl p-6 text-center" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
@@ -138,14 +139,13 @@ export default function StoreInstall() {
             )}
           </div>
 
-          <button
+          <Button
+            variant="accent"
             onClick={() => installApp.mutate()}
             disabled={!selectedOrgId || installApp.isPending || installedOrgIds.has(selectedOrgId)}
-            className="px-5 py-2 rounded-lg text-sm font-semibold text-white disabled:opacity-50"
-            style={{ background: "linear-gradient(135deg, #F46D2A, #d45a1f)" }}
           >
             {installApp.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Install App"}
-          </button>
+          </Button>
         </div>
       )}
     </DocsPage>

@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DocsPage, PlaceholderBlock } from "@/components/developers/DocsPage";
 import { Puzzle, Loader2, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function StoreListing() {
   const { appSlug } = useParams<{ appSlug: string }>();
@@ -34,18 +35,18 @@ export default function StoreListing() {
   if (!listing) {
     return (
       <DocsPage breadcrumb="App Store" title="App not found" subtitle="This listing doesn't exist or isn't published.">
-        <button onClick={() => navigate("/developers/store")} className="text-sm text-white/50 hover:text-white/70 flex items-center gap-1">
+        <Button variant="ghost" size="sm" onClick={() => navigate("/developers/store")} className="text-white/50">
           <ArrowLeft className="w-4 h-4" /> Back to Store
-        </button>
+        </Button>
       </DocsPage>
     );
   }
 
   return (
     <DocsPage breadcrumb="App Store" title={listing.name} subtitle={listing.summary || ""}>
-      <button onClick={() => navigate("/developers/store")} className="text-sm text-white/50 hover:text-white/70 flex items-center gap-1 mb-6">
+      <Button variant="ghost" size="sm" onClick={() => navigate("/developers/store")} className="text-white/50 mb-6">
         <ArrowLeft className="w-4 h-4" /> Back to Store
-      </button>
+      </Button>
 
       <div className="flex items-start gap-6 mb-8">
         {listing.icon_url ? (
