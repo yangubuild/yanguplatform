@@ -44,7 +44,7 @@ export function WhyYanguDevelopersContent() {
         <Button variant="accent" onClick={() => navigate("/developers")}>
           Open Developer Docs
         </Button>
-        <Button variant="outline" onClick={() => navigate("/developers/console")}>
+        <Button variant="accent" onClick={() => navigate("/developers/console")}>
           Developer Console
         </Button>
       </div>
