@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { MassSidebar } from "../MassSidebar";
 import { MassHeader } from "../MassHeader";
@@ -8,9 +9,24 @@ import { WhyYanguDevelopersContent } from "./WhyYanguDevelopersContent";
 import { AudienceToggle, type Audience } from "./AudienceToggle";
 import yanguYIcon from "@/assets/yangu-y-icon.png";
 
+const STORAGE_KEY = "yangu-docs-audience";
+
+function getInitialAudience(searchParams: URLSearchParams): Audience {
+  const qp = searchParams.get("audience");
+  if (qp === "builders" || qp === "developers") return qp;
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (stored === "builders" || stored === "developers") return stored as Audience;
+  return "developers";
+}
+
 export function WhyYanguPage() {
+  const [searchParams] = useSearchParams();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [audience, setAudience] = useState<Audience>("builders");
+  const [audience, setAudience] = useState<Audience>(() => getInitialAudience(searchParams));
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, audience);
+  }, [audience]);
 
   return (
     <div className="min-h-screen" style={{ background: "#08120D" }}>
