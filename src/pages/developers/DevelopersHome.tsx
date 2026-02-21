@@ -85,6 +85,7 @@ export default function DevelopersHome() {
       <DeveloperAuthModal
         open={showAuth}
         onClose={() => setShowAuth(false)}
+        returnTo="/developers/portal/apps?new=1"
         onSuccess={() => {
           setShowAuth(false);
           navigate("/developers/portal/apps?new=1");

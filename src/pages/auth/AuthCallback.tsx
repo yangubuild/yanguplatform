@@ -15,7 +15,6 @@ export default function AuthCallback() {
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        // First, exchange the code/hash for a session (handles OAuth + magic link)
         const { data: { session }, error } = await supabase.auth.getSession();
 
         if (error) {
@@ -27,6 +26,17 @@ export default function AuthCallback() {
         }
 
         if (session?.user) {
+          // Check for developer auth intent (stored by DeveloperAuthModal)
+          const devReturn = sessionStorage.getItem("dev_auth_return")
+            || searchParams.get("devReturn");
+
+          if (devReturn) {
+            sessionStorage.removeItem("dev_auth_return");
+            // Developer auth → skip onboarding, go directly to portal
+            navigate(decodeURIComponent(devReturn), { replace: true });
+            return;
+          }
+
           // Check profile + username + onboarding status
           const { data: profile } = await supabase
             .from("profiles")
@@ -34,7 +44,6 @@ export default function AuthCallback() {
             .eq("id", session.user.id)
             .single();
 
-          // If no profile, no username, or onboarding incomplete → onboarding
           if (!profile || !profile.onboarding_completed || !profile.username || !profile.country || !profile.business_name) {
             navigate("/onboarding");
           } else if (returnTo) {
@@ -56,7 +65,7 @@ export default function AuthCallback() {
     };
 
     handleCallback();
-  }, [navigate, returnTo]);
+  }, [navigate, returnTo, searchParams]);
 
   return (
     <AuthShell

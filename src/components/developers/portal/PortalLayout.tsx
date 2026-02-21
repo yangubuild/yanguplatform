@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Menu, LayoutDashboard, Code, Key, CreditCard, Settings, BookOpen, HelpCircle, X, MessageSquare, Mail } from "lucide-react";
 import { MassSidebar } from "@/components/mass/MassSidebar";
@@ -20,6 +20,15 @@ export function PortalLayout() {
   const [supportTab, setSupportTab] = useState<"help" | "contact">("help");
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Auto-open support FAB on first portal visit
+  useEffect(() => {
+    const seen = localStorage.getItem("portal_support_seen");
+    if (!seen) {
+      setSupportOpen(true);
+      localStorage.setItem("portal_support_seen", "1");
+    }
+  }, []);
 
   return (
     <div className="min-h-screen" style={{ background: "#08120D" }}>
