@@ -11,7 +11,7 @@ import { generateQwenImage } from "@/lib/ai/qwen";
 import { generateGeminiImage } from "@/lib/ai/gemini";
 import { generateCreatifyVideo } from "@/lib/ai/creatify";
 import { consumeEntitlement } from "@/lib/entitlements";
-import { executeWithRuntime } from "@/lib/runtime";
+import { executeWithRuntime, getEnabledWidgetsForSurface } from "@/lib/runtime";
 import { useNavigate } from "react-router-dom";
 import { MediaGenerationCard, type MediaGenStatus } from "./MediaGenerationCard";
 import { AdaAuthModal } from "./AdaAuthModal";
@@ -750,10 +750,15 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
     setMessages(prev => [...prev, mediaMsg]);
 
     try {
+      // Resolve widget key from registry — fallback to convention if no registry entry
+      const registryWidgets = ctxSurfaceId ? await getEnabledWidgetsForSurface(ctxSurfaceId) : [];
+      const imageWidgetKey = registryWidgets.find(w => w.widget_key === `ada_image_${provider}`)?.widget_key
+        ?? `ada_image_${provider}`;
+
       // Runtime execution guard — silently blocks if provider not permitted
       const runtimeCheck = await executeWithRuntime({
         surfaceId: ctxSurfaceId ?? undefined,
-        widgetKey: `ada_image_${provider}`,
+        widgetKey: imageWidgetKey,
         providerKey: provider,
         bucketKey: "image",
         run: async () => {
@@ -843,7 +848,7 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
         mediaGen: { ...m.mediaGen!, status: "error" as MediaGenStatus, error: "Image generation failed. Please try again." },
       } : m));
     }
-  }, [persistMessage, isAuthenticated, requireAuth]);
+  }, [persistMessage, isAuthenticated, requireAuth, ctxSurfaceId]);
 
   // --- Video generation with progress card ---
   const handleVideoGenerate = useCallback(async (prompt: string, cid: string) => {
@@ -882,10 +887,15 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
     setMessages(prev => [...prev, mediaMsg]);
 
     try {
+      // Resolve widget key from registry — fallback to convention if no registry entry
+      const registryWidgets = ctxSurfaceId ? await getEnabledWidgetsForSurface(ctxSurfaceId) : [];
+      const videoWidgetKey = registryWidgets.find(w => w.widget_key === "ada_video_creatify")?.widget_key
+        ?? "ada_video_creatify";
+
       // Runtime execution guard for video provider
       const runtimeCheck = await executeWithRuntime({
         surfaceId: ctxSurfaceId ?? undefined,
-        widgetKey: "ada_video_creatify",
+        widgetKey: videoWidgetKey,
         providerKey: "creatify",
         bucketKey: "video",
         run: async () => true as const,
@@ -1011,7 +1021,7 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
         mediaGen: { ...m.mediaGen!, status: "error" as MediaGenStatus, error: "Video generation failed. Please try again." },
       } : m));
     }
-  }, [persistMessage]);
+  }, [persistMessage, ctxSurfaceId]);
 
   // --- Retry media generation ---
   const handleRetryMedia = useCallback((msg: ChatMessage) => {
