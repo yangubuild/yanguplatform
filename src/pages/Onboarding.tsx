@@ -709,7 +709,7 @@ export default function Onboarding() {
       <AuthShell title="What do you want to do?" subtitle="Choose your path - this determines where you'll publish" showBackLink={false} maxWidth="max-w-[960px]">
         <StepProgress current={2} total={totalSteps} />
         <div className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
             {Object.entries(ONBOARDING_PATHS).map(([key, path]) => {
               const Icon = path.icon;
               const isSelected = selectedPath === key;
@@ -719,7 +719,7 @@ export default function Onboarding() {
                   onClick={() => handleCategorySelect(key as OnboardingPathKey)}
                   disabled={isLoading}
                   className={cn(
-                    "relative p-6 rounded-2xl border text-left transition-all min-h-[170px] flex flex-col justify-between overflow-hidden",
+                    "relative p-4 sm:p-6 rounded-2xl border text-left transition-all min-h-[140px] sm:min-h-[170px] flex flex-col justify-between overflow-hidden",
                     "bg-card/60 backdrop-blur-sm hover:bg-card/80 hover:shadow-[0_0_30px_rgba(255,120,0,0.12)] focus:outline-none",
                     isSelected
                       ? "border-accent ring-1 ring-accent/30"
