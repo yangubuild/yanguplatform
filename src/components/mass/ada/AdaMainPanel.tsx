@@ -6,12 +6,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAdaVoice } from "@/hooks/useAdaVoice";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { generateIdeogramImage } from "@/lib/ai/ideogram";
-import { generateQwenImage } from "@/lib/ai/qwen";
-import { generateGeminiImage } from "@/lib/ai/gemini";
-import { generateCreatifyVideo } from "@/lib/ai/creatify";
 import { consumeEntitlement } from "@/lib/entitlements";
-import { executeWithRuntime, getEnabledWidgetsForSurface } from "@/lib/runtime";
+import { executeWithRuntime, getEnabledWidgetsForSurface, runProviderAction } from "@/lib/runtime";
+import type { RuntimeContext } from "@/lib/runtime";
 import { useNavigate } from "react-router-dom";
 import { MediaGenerationCard, type MediaGenStatus } from "./MediaGenerationCard";
 import { AdaAuthModal } from "./AdaAuthModal";
@@ -761,13 +758,19 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
         widgetKey: imageWidgetKey,
         providerKey: provider,
         bucketKey: "image",
-        run: async () => {
-          const result = provider === "gemini"
-            ? await generateGeminiImage(prompt, cid)
-            : provider === "qwen"
-              ? await generateQwenImage(prompt)
-              : await generateIdeogramImage(prompt);
-          return result;
+        run: async (ctx: RuntimeContext, token: string) => {
+          const routerResult = await runProviderAction({
+            ctx,
+            token,
+            providerKey: provider,
+            action: "image.generate",
+            payload: { prompt, chatId: cid, params: {} },
+          });
+          if (!routerResult.ok) {
+            const failure = routerResult as { ok: false; reason: string; detail?: string };
+            throw new Error(failure.detail || failure.reason);
+          }
+          return routerResult.data as any;
         },
       });
 
@@ -892,7 +895,9 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
       const videoWidgetKey = registryWidgets.find(w => w.widget_key === "ada_video_creatify")?.widget_key
         ?? "ada_video_creatify";
 
-      // Runtime execution guard for video provider
+      // Runtime execution guard for video provider (permission check only;
+      // actual video generation uses SSE streaming below, not the router,
+      // because SSE doesn't fit the request/response model)
       const runtimeCheck = await executeWithRuntime({
         surfaceId: ctxSurfaceId ?? undefined,
         widgetKey: videoWidgetKey,

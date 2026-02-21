@@ -6,3 +6,5 @@ export { executeWithRuntime } from "./executeWithRuntime";
 export type { RuntimeExecResult, RuntimeExecSuccess, RuntimeExecFailure, ExecuteWithRuntimeOpts } from "./executeWithRuntime";
 export { getEnabledWidgetsForSurface, isWidgetAvailable } from "./widget-registry";
 export type { ResolvedWidget } from "./widget-registry";
+export { runProviderAction } from "./provider-router";
+export type { ProviderRouterOpts, ProviderRouterResult, ProviderAction, ProviderSuccess, ProviderFailure } from "./provider-router";
