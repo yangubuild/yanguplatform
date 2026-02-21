@@ -18,15 +18,18 @@ export function ConsoleAuthGuard({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
-    // Direct session check — no reliance on context
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!mounted) return;
-      setAuthState(session?.user ? "authed" : "guest");
+      const state = session?.user ? "authed" : "guest";
+      console.log("[ConsoleAuthGuard] Session check:", state, session?.user?.email ?? "no user");
+      setAuthState(state);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!mounted) return;
-      setAuthState(session?.user ? "authed" : "guest");
+      const state = session?.user ? "authed" : "guest";
+      console.log("[ConsoleAuthGuard] Auth state change:", _event, state);
+      setAuthState(state);
       if (session?.user) setShowAuth(false);
     });
 
