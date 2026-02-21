@@ -3,8 +3,8 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { DocsPage, DocsSection, PlaceholderBlock } from "@/components/developers/DocsPage";
-import { Key, Shield, Webhook, FileText, Loader2, Copy, RotateCcw, Plus, Lock } from "lucide-react";
+import { DocsPage, DocsSection } from "@/components/developers/DocsPage";
+import { Key, Shield, Webhook, FileText, Loader2, Copy, RotateCcw, Plus, Lock, Trash2, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import ConsoleAppPermissions from "./ConsoleAppPermissions";
@@ -174,44 +174,128 @@ function KeysTab({ appId }: { appId: string }) {
 }
 
 function OAuthTab({ appId }: { appId: string }) {
-  const { data: oauth } = useQuery({
+  const queryClient = useQueryClient();
+  const [newUri, setNewUri] = useState("");
+  const [showAddUri, setShowAddUri] = useState(false);
+
+  const { data: oauth, isLoading } = useQuery({
     queryKey: ["app-oauth", appId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("developer_app_oauth")
         .select("*")
         .eq("app_id", appId)
-        .single();
+        .maybeSingle();
       if (error) throw error;
       return data;
     },
   });
 
+  const updateUris = useMutation({
+    mutationFn: async (uris: string[]) => {
+      if (oauth) {
+        const { error } = await supabase
+          .from("developer_app_oauth")
+          .update({ redirect_uris: uris })
+          .eq("app_id", appId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("developer_app_oauth")
+          .insert({ app_id: appId, redirect_uris: uris, scopes: [] });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["app-oauth", appId] });
+    },
+  });
+
+  const handleAddUri = () => {
+    if (!newUri.trim()) return;
+    try { new URL(newUri.trim()); } catch { toast.error("Invalid URL"); return; }
+    const current = oauth?.redirect_uris || [];
+    updateUris.mutate([...current, newUri.trim()]);
+    setNewUri("");
+    setShowAddUri(false);
+    toast.success("Redirect URI added");
+  };
+
+  const handleRemoveUri = (uri: string) => {
+    const current = oauth?.redirect_uris || [];
+    updateUris.mutate(current.filter((u) => u !== uri));
+    toast.success("Redirect URI removed");
+  };
+
+  if (isLoading) return <Loader2 className="w-5 h-5 text-white/30 animate-spin" />;
+
+  const uris = oauth?.redirect_uris || [];
+  const scopes = oauth?.scopes || [];
+
   return (
     <div>
-      <DocsSection title="OAuth Configuration">
-        <div className="rounded-lg p-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
-          <div className="mb-4">
-            <label className="text-xs text-white/50 block mb-1">Redirect URIs</label>
-            <div className="text-sm text-white/70 font-mono">
-              {oauth?.redirect_uris?.length ? oauth.redirect_uris.join(", ") : "None configured"}
-            </div>
-          </div>
-          <div>
-            <label className="text-xs text-white/50 block mb-1">Scopes</label>
-            <div className="text-sm text-white/70 font-mono">
-              {oauth?.scopes?.length ? oauth.scopes.join(", ") : "None configured"}
-            </div>
-          </div>
+      <DocsSection title="Redirect URIs">
+        <div className="mb-3 flex items-center justify-between">
+          <p className="text-xs text-white/40">URLs where users will be redirected after OAuth authorization.</p>
+          <button
+            onClick={() => setShowAddUri(true)}
+            className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg text-white/70 hover:text-white"
+            style={{ background: "rgba(255,255,255,0.08)" }}
+          >
+            <Plus className="w-3 h-3" /> Add URI
+          </button>
         </div>
+
+        {showAddUri && (
+          <div className="flex gap-2 mb-3">
+            <input
+              value={newUri}
+              onChange={(e) => setNewUri(e.target.value)}
+              placeholder="https://yourapp.com/callback"
+              className="flex-1 px-3 py-2 rounded-lg text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-accent/50"
+            />
+            <button onClick={handleAddUri} className="px-3 py-2 rounded-lg text-sm text-white bg-accent/20 hover:bg-accent/30">Add</button>
+            <button onClick={() => { setShowAddUri(false); setNewUri(""); }} className="px-3 py-2 rounded-lg text-sm text-white/40 hover:text-white/60">Cancel</button>
+          </div>
+        )}
+
+        {uris.length > 0 ? (
+          <div className="space-y-1">
+            {uris.map((uri) => (
+              <div key={uri} className="flex items-center justify-between rounded-lg p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <code className="text-xs text-white/70 font-mono break-all">{uri}</code>
+                <button onClick={() => handleRemoveUri(uri)} className="text-white/30 hover:text-red-400 ml-2 shrink-0">
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-white/30 text-sm py-4 text-center">No redirect URIs configured.</p>
+        )}
       </DocsSection>
-      <PlaceholderBlock title="OAuth management" items={["Add/remove redirect URIs", "Configure allowed scopes", "Client secret rotation"]} />
+
+      <DocsSection title="Scopes">
+        {scopes.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {scopes.map((s) => (
+              <span key={s} className="text-xs px-2 py-1 rounded bg-white/5 text-white/60 font-mono">{s}</span>
+            ))}
+          </div>
+        ) : (
+          <p className="text-white/30 text-sm">No scopes configured.</p>
+        )}
+      </DocsSection>
     </div>
   );
 }
 
 function WebhooksTab({ appId }: { appId: string }) {
-  const { data: webhooks } = useQuery({
+  const queryClient = useQueryClient();
+  const [showAdd, setShowAdd] = useState(false);
+  const [newUrl, setNewUrl] = useState("");
+
+  const { data: webhooks, isLoading } = useQuery({
     queryKey: ["app-webhooks", appId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -224,29 +308,95 @@ function WebhooksTab({ appId }: { appId: string }) {
     },
   });
 
+  const addWebhook = useMutation({
+    mutationFn: async () => {
+      try { new URL(newUrl.trim()); } catch { throw new Error("Invalid URL"); }
+      const { error } = await supabase
+        .from("developer_app_webhooks")
+        .insert({ app_id: appId, url: newUrl.trim(), is_active: true });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Webhook added");
+      queryClient.invalidateQueries({ queryKey: ["app-webhooks", appId] });
+      setNewUrl("");
+      setShowAdd(false);
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const deleteWebhook = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("developer_app_webhooks")
+        .delete()
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Webhook deleted");
+      queryClient.invalidateQueries({ queryKey: ["app-webhooks", appId] });
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  if (isLoading) return <Loader2 className="w-5 h-5 text-white/30 animate-spin" />;
+
   return (
     <div>
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-xs text-white/40">Receive HTTP callbacks when events occur in your app.</p>
+        <button
+          onClick={() => setShowAdd(true)}
+          className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg text-white/70 hover:text-white"
+          style={{ background: "rgba(255,255,255,0.08)" }}
+        >
+          <Plus className="w-3 h-3" /> Add Webhook
+        </button>
+      </div>
+
+      {showAdd && (
+        <div className="flex gap-2 mb-4">
+          <input
+            value={newUrl}
+            onChange={(e) => setNewUrl(e.target.value)}
+            placeholder="https://yourapp.com/webhook"
+            className="flex-1 px-3 py-2 rounded-lg text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-accent/50"
+          />
+          <button onClick={() => addWebhook.mutate()} disabled={addWebhook.isPending} className="px-3 py-2 rounded-lg text-sm text-white bg-accent/20 hover:bg-accent/30">
+            {addWebhook.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Add"}
+          </button>
+          <button onClick={() => { setShowAdd(false); setNewUrl(""); }} className="px-3 py-2 rounded-lg text-sm text-white/40 hover:text-white/60">Cancel</button>
+        </div>
+      )}
+
       {webhooks && webhooks.length > 0 ? (
-        <div className="space-y-2 mb-6">
+        <div className="space-y-2">
           {webhooks.map((wh) => (
-            <div key={wh.id} className="rounded-lg p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
-              <code className="text-xs text-white/70 font-mono">{wh.url}</code>
-              <span className={`ml-2 text-xs ${wh.is_active ? "text-green-400" : "text-red-400"}`}>
-                {wh.is_active ? "active" : "disabled"}
-              </span>
+            <div key={wh.id} className="flex items-center justify-between rounded-lg p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <div className="flex-1 min-w-0">
+                <code className="text-xs text-white/70 font-mono break-all">{wh.url}</code>
+                <span className={`ml-2 text-xs ${wh.is_active ? "text-green-400" : "text-red-400"}`}>
+                  {wh.is_active ? "active" : "disabled"}
+                </span>
+              </div>
+              <button onClick={() => deleteWebhook.mutate(wh.id)} className="text-white/30 hover:text-red-400 ml-2 shrink-0">
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-white/30 text-sm mb-6">No webhooks configured.</p>
+        <p className="text-white/30 text-sm py-4 text-center">No webhooks configured. Add one to receive event notifications.</p>
       )}
-      <PlaceholderBlock title="Webhook management" items={["Add new webhook endpoint", "Configure event subscriptions", "View delivery history", "Test webhook delivery"]} />
     </div>
   );
 }
 
 function LogsTab({ appId }: { appId: string }) {
-  const { data: deliveries } = useQuery({
+  const [eventFilter, setEventFilter] = useState("");
+
+  const { data: deliveries, isLoading } = useQuery({
     queryKey: ["app-deliveries", appId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -260,11 +410,27 @@ function LogsTab({ appId }: { appId: string }) {
     },
   });
 
+  if (isLoading) return <Loader2 className="w-5 h-5 text-white/30 animate-spin" />;
+
+  const filtered = deliveries?.filter((d) =>
+    !eventFilter || d.event_type.toLowerCase().includes(eventFilter.toLowerCase())
+  ) || [];
+
   return (
     <div>
-      {deliveries && deliveries.length > 0 ? (
+      {/* Filter bar */}
+      <div className="flex gap-2 mb-4">
+        <input
+          value={eventFilter}
+          onChange={(e) => setEventFilter(e.target.value)}
+          placeholder="Filter by event type…"
+          className="flex-1 max-w-xs px-3 py-2 rounded-lg text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-accent/50"
+        />
+      </div>
+
+      {filtered.length > 0 ? (
         <div className="space-y-2">
-          {deliveries.map((d) => (
+          {filtered.map((d) => (
             <div key={d.id} className="rounded-lg p-3 flex items-center gap-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
               <span className="text-xs text-white/50 font-mono">{d.event_type}</span>
               <span className={`text-xs ${d.http_status && d.http_status < 400 ? "text-green-400" : "text-red-400"}`}>{d.http_status ?? d.status}</span>
@@ -272,10 +438,11 @@ function LogsTab({ appId }: { appId: string }) {
             </div>
           ))}
         </div>
+      ) : deliveries && deliveries.length === 0 ? (
+        <p className="text-white/30 text-sm py-8 text-center">Logs will appear here when webhook events fire.</p>
       ) : (
-        <p className="text-white/30 text-sm mb-6">No delivery logs yet.</p>
+        <p className="text-white/30 text-sm py-4 text-center">No logs match the current filter.</p>
       )}
-      <PlaceholderBlock title="Log features" items={["Real-time log streaming", "Filter by event type", "Replay failed deliveries", "Export log data"]} />
     </div>
   );
 }
