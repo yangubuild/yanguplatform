@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import {
   Code,
   Database,
@@ -43,20 +44,18 @@ export function WhyYanguDevelopersContent() {
 
       {/* CTA */}
       <div className="flex flex-wrap gap-3 mb-10">
-        <button
+        <Button
+          variant="accent"
           onClick={() => navigate("/developers")}
-          className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white"
-          style={{ background: "linear-gradient(135deg, #F46D2A, #d45a1f)" }}
         >
           Open Developer Docs
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="outline"
           onClick={() => navigate("/developers/console")}
-          className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white/80 hover:text-white transition-colors"
-          style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)" }}
         >
           Developer Console
-        </button>
+        </Button>
       </div>
 
       {/* Section */}
