@@ -947,6 +947,41 @@ export type Database = {
           },
         ]
       }
+      developer_app_key_verify_log: {
+        Row: {
+          app_id: string | null
+          created_at: string
+          environment: string | null
+          failure_reason: string | null
+          id: string
+          success: boolean
+        }
+        Insert: {
+          app_id?: string | null
+          created_at?: string
+          environment?: string | null
+          failure_reason?: string | null
+          id?: string
+          success?: boolean
+        }
+        Update: {
+          app_id?: string | null
+          created_at?: string
+          environment?: string | null
+          failure_reason?: string | null
+          id?: string
+          success?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "developer_app_key_verify_log_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "developer_apps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       developer_app_keys: {
         Row: {
           app_id: string
@@ -1144,6 +1179,153 @@ export type Database = {
           },
         ]
       }
+      developer_provider_permissions: {
+        Row: {
+          app_id: string
+          granted_at: string | null
+          granted_by: string | null
+          id: string
+          is_active: boolean
+          provider_key: string
+        }
+        Insert: {
+          app_id: string
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          is_active?: boolean
+          provider_key: string
+        }
+        Update: {
+          app_id?: string
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          is_active?: boolean
+          provider_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "developer_provider_permissions_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "developer_apps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "developer_provider_permissions_provider_key_fkey"
+            columns: ["provider_key"]
+            isOneToOne: false
+            referencedRelation: "provider_registry"
+            referencedColumns: ["provider_key"]
+          },
+        ]
+      }
+      developer_rate_limit_config: {
+        Row: {
+          app_id: string
+          bucket_key: string
+          created_at: string
+          id: string
+          max_requests: number
+          updated_at: string
+          window_seconds: number
+        }
+        Insert: {
+          app_id: string
+          bucket_key?: string
+          created_at?: string
+          id?: string
+          max_requests?: number
+          updated_at?: string
+          window_seconds?: number
+        }
+        Update: {
+          app_id?: string
+          bucket_key?: string
+          created_at?: string
+          id?: string
+          max_requests?: number
+          updated_at?: string
+          window_seconds?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "developer_rate_limit_config_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "developer_apps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      developer_rate_limit_counters: {
+        Row: {
+          app_id: string
+          bucket_key: string
+          id: string
+          request_count: number
+          window_start: string
+        }
+        Insert: {
+          app_id: string
+          bucket_key?: string
+          id?: string
+          request_count?: number
+          window_start: string
+        }
+        Update: {
+          app_id?: string
+          bucket_key?: string
+          id?: string
+          request_count?: number
+          window_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "developer_rate_limit_counters_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "developer_apps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      developer_runtime_audit: {
+        Row: {
+          action: string
+          app_id: string
+          created_at: string
+          details: Json | null
+          id: string
+          performed_by: string | null
+        }
+        Insert: {
+          action: string
+          app_id: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          performed_by?: string | null
+        }
+        Update: {
+          action?: string
+          app_id?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          performed_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "developer_runtime_audit_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "developer_apps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       developer_scope_registry: {
         Row: {
           category: string
@@ -1186,6 +1368,7 @@ export type Database = {
           status: string
           surface_id: string
           updated_at: string
+          widget_key: string
         }
         Insert: {
           config?: Json
@@ -1195,6 +1378,7 @@ export type Database = {
           status?: string
           surface_id: string
           updated_at?: string
+          widget_key: string
         }
         Update: {
           config?: Json
@@ -1204,6 +1388,7 @@ export type Database = {
           status?: string
           surface_id?: string
           updated_at?: string
+          widget_key?: string
         }
         Relationships: [
           {
@@ -1218,34 +1403,43 @@ export type Database = {
       developer_webhook_deliveries: {
         Row: {
           app_id: string
+          completed_at: string | null
           created_at: string
           event_type: string
           http_status: number | null
           id: string
+          next_retry_at: string | null
           request_body: Json | null
           response_body: string | null
+          retry_count: number
           status: string
           webhook_id: string | null
         }
         Insert: {
           app_id: string
+          completed_at?: string | null
           created_at?: string
           event_type: string
           http_status?: number | null
           id?: string
+          next_retry_at?: string | null
           request_body?: Json | null
           response_body?: string | null
+          retry_count?: number
           status?: string
           webhook_id?: string | null
         }
         Update: {
           app_id?: string
+          completed_at?: string | null
           created_at?: string
           event_type?: string
           http_status?: number | null
           id?: string
+          next_retry_at?: string | null
           request_body?: Json | null
           response_body?: string | null
+          retry_count?: number
           status?: string
           webhook_id?: string | null
         }
@@ -1262,6 +1456,114 @@ export type Database = {
             columns: ["webhook_id"]
             isOneToOne: false
             referencedRelation: "developer_app_webhooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      developer_widget_registry: {
+        Row: {
+          allowed_events: string[] | null
+          app_id: string
+          created_at: string
+          default_dimensions: Json | null
+          description: string | null
+          id: string
+          iframe_url: string
+          is_enabled: boolean
+          title: string
+          updated_at: string
+          widget_key: string
+        }
+        Insert: {
+          allowed_events?: string[] | null
+          app_id: string
+          created_at?: string
+          default_dimensions?: Json | null
+          description?: string | null
+          id?: string
+          iframe_url: string
+          is_enabled?: boolean
+          title: string
+          updated_at?: string
+          widget_key: string
+        }
+        Update: {
+          allowed_events?: string[] | null
+          app_id?: string
+          created_at?: string
+          default_dimensions?: Json | null
+          description?: string | null
+          id?: string
+          iframe_url?: string
+          is_enabled?: boolean
+          title?: string
+          updated_at?: string
+          widget_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "developer_widget_registry_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "developer_apps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      developer_widget_tokens: {
+        Row: {
+          app_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          install_id: string
+          org_id: string
+          surface_id: string
+          token: string
+          widget_key: string
+        }
+        Insert: {
+          app_id: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          install_id: string
+          org_id: string
+          surface_id: string
+          token: string
+          widget_key: string
+        }
+        Update: {
+          app_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          install_id?: string
+          org_id?: string
+          surface_id?: string
+          token?: string
+          widget_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "developer_widget_tokens_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "developer_apps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "developer_widget_tokens_install_id_fkey"
+            columns: ["install_id"]
+            isOneToOne: false
+            referencedRelation: "developer_app_installs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "developer_widget_tokens_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
             referencedColumns: ["id"]
           },
         ]
@@ -2542,6 +2844,10 @@ export type Database = {
         Args: { p_amount: number; p_ref_id: string; p_ref_type: string }
         Returns: undefined
       }
+      check_and_increment_app_rate_limit: {
+        Args: { p_app_id: string; p_bucket_key?: string }
+        Returns: Json
+      }
       check_and_increment_quota: {
         Args: { p_quota_key: string }
         Returns: Json
@@ -2598,8 +2904,16 @@ export type Database = {
             Args: { p_cost_credits?: number; p_params?: Json; p_prompt: string }
             Returns: string
           }
+      create_widget_install_token: {
+        Args: { p_surface_install_id: string }
+        Returns: string
+      }
       delete_surface: { Args: { p_surface_id: string }; Returns: Json }
       dismiss_promo: { Args: { p_campaign_key: string }; Returns: undefined }
+      enqueue_webhook_event: {
+        Args: { p_app_id: string; p_event_type: string; p_payload?: Json }
+        Returns: string
+      }
       evaluate_publish_eligibility: {
         Args: {
           p_domain_id: string
@@ -2625,6 +2939,7 @@ export type Database = {
           url: string
         }[]
       }
+      get_app_runtime_context: { Args: { p_app_id: string }; Returns: Json }
       get_community_section: {
         Args: {
           p_category_key?: string
@@ -2775,6 +3090,10 @@ export type Database = {
         Args: { p_new_title: string; p_surface_id: string }
         Returns: Json
       }
+      replay_webhook_delivery: {
+        Args: { p_delivery_id: string }
+        Returns: string
+      }
       request_publish_surface:
         | { Args: { p_domain_id: string; p_surface_id: string }; Returns: Json }
         | {
@@ -2790,8 +3109,13 @@ export type Database = {
         Returns: undefined
       }
       resolve_route: { Args: { p_host: string; p_path: string }; Returns: Json }
+      retry_webhook_delivery: {
+        Args: { p_delivery_id: string }
+        Returns: undefined
+      }
       revoke_admin_invite: { Args: { p_invite_id: string }; Returns: undefined }
       rotate_app_key: { Args: { p_key_id: string }; Returns: Json }
+      rotate_webhook_secret: { Args: { p_webhook_id: string }; Returns: string }
       run_auto_review: { Args: { p_listing_id: string }; Returns: string }
       send_admin_invite: {
         Args: {
@@ -2847,6 +3171,8 @@ export type Database = {
         Args: { p_domain_id: string; p_surface_id: string }
         Returns: Json
       }
+      validate_widget_token: { Args: { p_token: string }; Returns: Json }
+      verify_app_key: { Args: { p_plain_key: string }; Returns: Json }
     }
     Enums: {
       ad_status: "draft" | "pending_review" | "active" | "paused" | "rejected"
