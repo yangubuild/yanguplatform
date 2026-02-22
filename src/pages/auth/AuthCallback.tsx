@@ -77,7 +77,13 @@ export default function AuthCallback() {
             .single();
 
           if (!profile || !profile.onboarding_completed || !profile.username || !profile.country || !profile.business_name) {
-            navigate("/onboarding");
+            // If user was in developer context, skip onboarding entirely
+            const activeCtx = sessionStorage.getItem("yangu_active_context");
+            if (activeCtx === "developer") {
+              navigate("/developers/portal/apps", { replace: true });
+            } else {
+              navigate("/onboarding");
+            }
           } else if (returnTo) {
             window.location.href = returnTo;
           } else {

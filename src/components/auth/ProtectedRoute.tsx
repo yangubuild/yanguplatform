@@ -1,8 +1,10 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveOrg } from "@/hooks/useActiveOrg";
 import { Loader2 } from "lucide-react";
+
+const DEV_CONTEXT_KEY = "yangu_active_context";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -13,6 +15,13 @@ export function ProtectedRoute({ children, requireOnboarding = true }: Protected
   const { isAuthenticated, isLoading, needsOnboarding, profile } = useAuth();
   const { data: activeOrg, isLoading: orgLoading } = useActiveOrg();
   const location = useLocation();
+
+  // Mark active context as "platform" — clears any developer context flag
+  useEffect(() => {
+    if (isAuthenticated) {
+      sessionStorage.setItem(DEV_CONTEXT_KEY, "platform");
+    }
+  }, [isAuthenticated]);
 
   if (isLoading || orgLoading) {
     return (
@@ -28,22 +37,15 @@ export function ProtectedRoute({ children, requireOnboarding = true }: Protected
   }
 
   if (requireOnboarding) {
-    // Block if onboarding not completed
     if (needsOnboarding) {
       return <Navigate to="/onboarding" replace />;
     }
-
-    // Block if no username set
     if (!profile?.username) {
       return <Navigate to="/onboarding" replace />;
     }
-
-    // Block if no org/membership exists
     if (!activeOrg) {
       return <Navigate to="/onboarding" replace />;
     }
-
-    // Block if missing country or business_name
     if (!(profile as any)?.country || !(profile as any)?.business_name) {
       return <Navigate to="/onboarding" replace />;
     }
