@@ -8,7 +8,11 @@ import { DeveloperAuthModal } from "./DeveloperAuthModal";
  * Auth guard for /developers/portal/* routes.
  * Unlike ProtectedRoute, this does NOT check onboarding/profile/org —
  * developers skip main platform onboarding entirely.
+ *
+ * Sets a context flag so platform guards know this is a developer session.
  */
+const DEV_CONTEXT_KEY = "yangu_active_context";
+
 export function DeveloperPortalGuard({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const [authState, setAuthState] = useState<"loading" | "authed" | "guest">("loading");
@@ -20,14 +24,12 @@ export function DeveloperPortalGuard({ children }: { children: React.ReactNode }
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!mounted) return;
       const state = session?.user ? "authed" : "guest";
-      if (import.meta.env.DEV) console.log("[DEV_AUTH] Portal guard session:", state);
       setAuthState(state);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!mounted) return;
       const state = session?.user ? "authed" : "guest";
-      if (import.meta.env.DEV) console.log("[DEV_AUTH] Portal guard auth change:", _event, state);
       setAuthState(state);
       if (session?.user) setShowAuth(false);
     });
@@ -37,6 +39,16 @@ export function DeveloperPortalGuard({ children }: { children: React.ReactNode }
       subscription.unsubscribe();
     };
   }, []);
+
+  // Mark active context as "developer" while inside the portal
+  useEffect(() => {
+    if (authState === "authed") {
+      sessionStorage.setItem(DEV_CONTEXT_KEY, "developer");
+    }
+    return () => {
+      // Don't clear on unmount — cleared when entering dashboard context instead
+    };
+  }, [authState]);
 
   if (authState === "loading") {
     return (
@@ -51,11 +63,9 @@ export function DeveloperPortalGuard({ children }: { children: React.ReactNode }
       <div className="min-h-screen flex items-center justify-center bg-background">
         <DeveloperAuthModal
           open={showAuth}
-          onClose={() => setShowAuth(true)} // Keep modal open — no escape for portal
+          onClose={() => setShowAuth(true)}
           returnTo={location.pathname + location.search}
-          onSuccess={() => {
-            // authState will flip via onAuthStateChange
-          }}
+          onSuccess={() => {}}
         />
         {!showAuth && (
           <div className="text-center">
@@ -74,3 +84,5 @@ export function DeveloperPortalGuard({ children }: { children: React.ReactNode }
 
   return <>{children}</>;
 }
+
+export { DEV_CONTEXT_KEY };
