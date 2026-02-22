@@ -114,6 +114,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [fetchProfile]);
 
   const signOut = async () => {
+    // Clear routing context on logout
+    try { sessionStorage.removeItem("yangu_active_context"); } catch {}
     await supabase.auth.signOut();
     setUser(null);
     setProfile(null);

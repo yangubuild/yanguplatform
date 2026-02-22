@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { getReturnToFromParams } from "@/lib/routing/identityRedirect";
+import { getActiveContext, setActiveContext } from "@/lib/routing/activeContext";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -36,6 +37,7 @@ export default function AuthCallback() {
 
           if (devReturn) {
             sessionStorage.removeItem("dev_auth_return");
+            setActiveContext("developer");
 
             // Ensure developer has an org before entering portal
             const { data: existingOrg } = await supabase
@@ -62,9 +64,7 @@ export default function AuthCallback() {
               }
             }
 
-            // Developer auth → skip onboarding, go directly to portal
             const destination = decodeURIComponent(devReturn);
-            if (import.meta.env.DEV) console.log("[DEV_AUTH] Routing to developer portal:", destination);
             navigate(destination, { replace: true });
             return;
           }
@@ -77,17 +77,26 @@ export default function AuthCallback() {
             .single();
 
           if (!profile || !profile.onboarding_completed || !profile.username || !profile.country || !profile.business_name) {
-            // If user was in developer context, skip onboarding entirely
-            const activeCtx = sessionStorage.getItem("yangu_active_context");
-            if (activeCtx === "developer") {
+            // Fail-safe: infer context from returnTo or stored context
+            const ctx = getActiveContext(returnTo ?? undefined);
+            if (ctx === "developer") {
               navigate("/developers/portal/apps", { replace: true });
             } else {
               navigate("/onboarding");
             }
           } else if (returnTo) {
-            window.location.href = returnTo;
+            // Prevent cross-context redirects
+            const ctx = getActiveContext(returnTo);
+            if (ctx === "developer" && !returnTo.startsWith("/developers")) {
+              navigate("/developers/portal/apps", { replace: true });
+            } else if (ctx === "platform" && returnTo.startsWith("/developers/portal")) {
+              navigate("/dashboard", { replace: true });
+            } else {
+              window.location.href = returnTo;
+            }
           } else {
-            navigate("/dashboard");
+            const ctx = getActiveContext();
+            navigate(ctx === "developer" ? "/developers/portal/apps" : "/dashboard", { replace: true });
           }
         } else {
           setErrorMsg("No session found. Please sign in again.");

@@ -3,8 +3,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveOrg } from "@/hooks/useActiveOrg";
 import { Loader2 } from "lucide-react";
-
-const DEV_CONTEXT_KEY = "yangu_active_context";
+import { setActiveContext, getActiveContext } from "@/lib/routing/activeContext";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -16,11 +15,9 @@ export function ProtectedRoute({ children, requireOnboarding = true }: Protected
   const { data: activeOrg, isLoading: orgLoading } = useActiveOrg();
   const location = useLocation();
 
-  // Mark active context as "platform" — clears any developer context flag
+  // Mark context as "platform"
   useEffect(() => {
-    if (isAuthenticated) {
-      sessionStorage.setItem(DEV_CONTEXT_KEY, "platform");
-    }
+    if (isAuthenticated) setActiveContext("platform");
   }, [isAuthenticated]);
 
   if (isLoading || orgLoading) {
@@ -37,15 +34,15 @@ export function ProtectedRoute({ children, requireOnboarding = true }: Protected
   }
 
   if (requireOnboarding) {
-    if (needsOnboarding) {
-      return <Navigate to="/onboarding" replace />;
+    // If the user is actually in developer context, don't force platform onboarding
+    const ctx = getActiveContext(location.pathname);
+    if (ctx === "developer") {
+      return <Navigate to="/developers/portal/apps" replace />;
     }
-    if (!profile?.username) {
-      return <Navigate to="/onboarding" replace />;
-    }
-    if (!activeOrg) {
-      return <Navigate to="/onboarding" replace />;
-    }
+
+    if (needsOnboarding) return <Navigate to="/onboarding" replace />;
+    if (!profile?.username) return <Navigate to="/onboarding" replace />;
+    if (!activeOrg) return <Navigate to="/onboarding" replace />;
     if (!(profile as any)?.country || !(profile as any)?.business_name) {
       return <Navigate to="/onboarding" replace />;
     }
