@@ -3,16 +3,12 @@ import { useLocation } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { DeveloperAuthModal } from "./DeveloperAuthModal";
+import { setActiveContext } from "@/lib/routing/activeContext";
 
 /**
  * Auth guard for /developers/portal/* routes.
- * Unlike ProtectedRoute, this does NOT check onboarding/profile/org —
- * developers skip main platform onboarding entirely.
- *
- * Sets a context flag so platform guards know this is a developer session.
+ * Sets context to "developer" — no onboarding/org checks.
  */
-const DEV_CONTEXT_KEY = "yangu_active_context";
-
 export function DeveloperPortalGuard({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const [authState, setAuthState] = useState<"loading" | "authed" | "guest">("loading");
@@ -23,31 +19,21 @@ export function DeveloperPortalGuard({ children }: { children: React.ReactNode }
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!mounted) return;
-      const state = session?.user ? "authed" : "guest";
-      setAuthState(state);
+      setAuthState(session?.user ? "authed" : "guest");
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!mounted) return;
-      const state = session?.user ? "authed" : "guest";
-      setAuthState(state);
+      setAuthState(session?.user ? "authed" : "guest");
       if (session?.user) setShowAuth(false);
     });
 
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
+    return () => { mounted = false; subscription.unsubscribe(); };
   }, []);
 
-  // Mark active context as "developer" while inside the portal
+  // Mark context as "developer"
   useEffect(() => {
-    if (authState === "authed") {
-      sessionStorage.setItem(DEV_CONTEXT_KEY, "developer");
-    }
-    return () => {
-      // Don't clear on unmount — cleared when entering dashboard context instead
-    };
+    if (authState === "authed") setActiveContext("developer");
   }, [authState]);
 
   if (authState === "loading") {
@@ -70,10 +56,7 @@ export function DeveloperPortalGuard({ children }: { children: React.ReactNode }
         {!showAuth && (
           <div className="text-center">
             <p className="text-muted-foreground text-sm mb-3">Sign in to access the Developer Portal.</p>
-            <button
-              onClick={() => setShowAuth(true)}
-              className="text-sm text-accent hover:underline"
-            >
+            <button onClick={() => setShowAuth(true)} className="text-sm text-accent hover:underline">
               Sign in
             </button>
           </div>
@@ -84,5 +67,3 @@ export function DeveloperPortalGuard({ children }: { children: React.ReactNode }
 
   return <>{children}</>;
 }
-
-export { DEV_CONTEXT_KEY };
