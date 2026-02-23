@@ -3,12 +3,14 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useDeveloperUsage, trackDeveloperAction } from "@/hooks/useDeveloperUsage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Loader2, Code, Shield, Save, Key, Webhook, Activity, Link2, Plus, Trash2, Copy, Check, AlertTriangle, ShieldAlert } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { ArrowLeft, Loader2, Code, Shield, Save, Key, Webhook, Activity, Link2, Plus, Trash2, Copy, Check, AlertTriangle, ShieldAlert, Zap, Clock } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
@@ -135,6 +137,9 @@ function OverviewTab({ app }: { app: any }) {
   const [name, setName] = useState(app.name);
   const [description, setDescription] = useState(app.description || "");
 
+  // App-specific usage (14 days for chart, 30 for quotas)
+  const { data: usage } = useDeveloperUsage(app.id, 30);
+
   const update = useMutation({
     mutationFn: async () => {
       const { error } = await supabase
@@ -168,8 +173,82 @@ function OverviewTab({ app }: { app: any }) {
     onError: (err: Error) => toast.error(err.message),
   });
 
+  // Last 14 days for chart
+  const chartDays = (usage?.daily_breakdown ?? []).slice(-14);
+  const maxVal = Math.max(1, ...chartDays.map(d => d.total));
+
   return (
     <div className="space-y-6">
+      {/* Usage summary cards */}
+      {usage && (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="rounded-xl p-4 bg-white/[0.02] border border-white/10">
+            <Zap className="w-4 h-4 mb-2 text-accent" />
+            <p className="text-lg font-bold text-white">{usage.total_today}</p>
+            <p className="text-[10px] text-white/40">Today</p>
+          </div>
+          <div className="rounded-xl p-4 bg-white/[0.02] border border-white/10">
+            <Activity className="w-4 h-4 mb-2 text-accent" />
+            <p className="text-lg font-bold text-white">{usage.total_period}</p>
+            <p className="text-[10px] text-white/40">Monthly</p>
+          </div>
+          <div className="rounded-xl p-4 bg-white/[0.02] border border-white/10">
+            <AlertTriangle className="w-4 h-4 mb-2" style={{ color: usage.error_rate_24h > 10 ? "#ef4444" : "#F46D2A" }} />
+            <p className="text-lg font-bold text-white">{usage.error_rate_24h.toFixed(1)}%</p>
+            <p className="text-[10px] text-white/40">Error Rate</p>
+          </div>
+          <div className="rounded-xl p-4 bg-white/[0.02] border border-white/10">
+            <Clock className="w-4 h-4 mb-2 text-accent" />
+            <p className="text-lg font-bold text-white">{usage.avg_latency_ms.toFixed(0)}ms</p>
+            <p className="text-[10px] text-white/40">Avg Latency</p>
+          </div>
+        </div>
+      )}
+
+      {/* Usage chart (last 14 days) */}
+      {chartDays.length > 0 && (
+        <div className="rounded-xl p-5 bg-white/[0.02] border border-white/10">
+          <h3 className="text-white font-semibold text-sm mb-4">API Calls (Last 14 Days)</h3>
+          <div className="flex items-end gap-1 h-24">
+            {chartDays.map((day, i) => (
+              <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                <div
+                  className="w-full rounded-sm bg-accent/60 min-h-[2px] transition-all"
+                  style={{ height: `${(day.total / maxVal) * 100}%` }}
+                  title={`${day.date}: ${day.total} calls`}
+                />
+                {i % 2 === 0 && (
+                  <span className="text-[8px] text-white/30">{day.date.slice(5)}</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Quota progress bars */}
+      {usage && (usage.daily_limit > 0 || usage.monthly_limit > 0) && (
+        <div className="rounded-xl p-5 bg-white/[0.02] border border-white/10">
+          <h3 className="text-white font-semibold text-sm mb-4">Quota Usage</h3>
+          <div className="space-y-4">
+            <div>
+              <div className="flex justify-between text-xs mb-1">
+                <span className="text-white/50">Daily</span>
+                <span className="text-white/70">{usage.daily_used} / {usage.daily_limit}</span>
+              </div>
+              <Progress value={usage.daily_limit > 0 ? (usage.daily_used / usage.daily_limit) * 100 : 0} className="h-2" />
+            </div>
+            <div>
+              <div className="flex justify-between text-xs mb-1">
+                <span className="text-white/50">Monthly</span>
+                <span className="text-white/70">{usage.monthly_used} / {usage.monthly_limit}</span>
+              </div>
+              <Progress value={usage.monthly_limit > 0 ? (usage.monthly_used / usage.monthly_limit) * 100 : 0} className="h-2" />
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="rounded-xl p-5 bg-white/[0.02] border border-white/10">
         <h3 className="text-white font-semibold text-sm mb-4">App Information</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -243,6 +322,8 @@ function OAuthTab({ appId }: { appId: string }) {
 
   const updateUris = useMutation({
     mutationFn: async (uris: string[]) => {
+      const quotaCheck = await trackDeveloperAction(appId, "oauth.redirect_uri.create", true, 0);
+      if (!quotaCheck.ok) throw new Error("API quota reached");
       const { error } = await supabase
         .from("developer_app_oauth")
         .update({ redirect_uris: uris })
@@ -349,7 +430,11 @@ function WebhooksTab({ appId }: { appId: string }) {
       return;
     }
     setCreating(true);
+    const start = Date.now();
+    let success = false;
     try {
+      const quotaCheck = await trackDeveloperAction(appId, "webhook.create", true, 0);
+      if (!quotaCheck.ok) { setCreating(false); return; }
       const { error } = await supabase.from("developer_app_webhooks").insert({
         app_id: appId,
         url: newUrl.trim(),
@@ -357,6 +442,7 @@ function WebhooksTab({ appId }: { appId: string }) {
         is_active: true,
       });
       if (error) throw error;
+      success = true;
       toast.success("Webhook created");
       setShowCreate(false);
       setNewUrl("");
@@ -365,6 +451,7 @@ function WebhooksTab({ appId }: { appId: string }) {
     } catch (e: any) {
       toast.error(e.message || "Failed to create webhook");
     } finally {
+      if (!success) trackDeveloperAction(appId, "webhook.create", false, Date.now() - start);
       setCreating(false);
     }
   };
@@ -478,11 +565,17 @@ function KeysTab({ appId }: { appId: string }) {
 
   const createMut = useMutation({
     mutationFn: async () => {
+      const quotaCheck = await trackDeveloperAction(appId, "api_key.create", true, 0);
+      if (!quotaCheck.ok) throw new Error("API quota reached");
+      const start = Date.now();
       const { data, error } = await supabase.rpc("create_app_key", {
         p_app_id: appId,
         p_environment: keyEnv,
       });
-      if (error) throw error;
+      if (error) {
+        trackDeveloperAction(appId, "api_key.create", false, Date.now() - start);
+        throw error;
+      }
       return data as { id: string; prefix: string; key: string };
     },
     onSuccess: (data) => {
@@ -498,8 +591,14 @@ function KeysTab({ appId }: { appId: string }) {
 
   const revokeMut = useMutation({
     mutationFn: async (keyId: string) => {
+      const quotaCheck = await trackDeveloperAction(appId, "api_key.revoke", true, 0);
+      if (!quotaCheck.ok) throw new Error("API quota reached");
+      const start = Date.now();
       const { error } = await supabase.from("developer_app_keys").update({ revoked_at: new Date().toISOString() }).eq("id", keyId);
-      if (error) throw error;
+      if (error) {
+        trackDeveloperAction(appId, "api_key.revoke", false, Date.now() - start);
+        throw error;
+      }
     },
     onSuccess: () => {
       setRevokeTarget(null);

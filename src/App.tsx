@@ -11,6 +11,8 @@ import { DomainGate } from "@/components/domain/DomainGate";
 import { PublicRouteResolver } from "@/components/routing";
 import { ConsoleAuthGuard } from "@/components/developers/ConsoleAuthGuard";
 import { DeveloperPortalGuard } from "@/components/developers/DeveloperPortalGuard";
+import { resolveAppMode } from "@/lib/routing/appMode";
+import { ManagementRoutes } from "@/components/manage/ManagementRoutes";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/auth/Login";
@@ -121,6 +123,12 @@ import { DashboardRoleGate } from "@/components/auth/DashboardRoleGate";
 // Supabase client auto-configured via environment
 
 /**
+ * Check if we're on the management subdomain.
+ * If so, render management-only routes.
+ */
+const isManagementHost = resolveAppMode(window.location.hostname) === "management";
+
+/**
  * App component - contains all providers EXCEPT QueryClientProvider
  * QueryClientProvider is in main.tsx to ensure it wraps the entire app
  */
@@ -131,6 +139,9 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          {isManagementHost ? (
+            <ManagementRoutes />
+          ) : (
           <DomainProvider>
             <PublicRouteResolver>
               <DomainGate>
@@ -375,6 +386,7 @@ const App = () => (
               </DomainGate>
             </PublicRouteResolver>
           </DomainProvider>
+          )}
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

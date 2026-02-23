@@ -2,9 +2,10 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useDeveloperUsage } from "@/hooks/useDeveloperUsage";
 import { DocsPage, DocsCard } from "@/components/developers/DocsPage";
 import { Button } from "@/components/ui/button";
-import { Code, Key, Webhook, Activity, BookOpen, Plus, Loader2 } from "lucide-react";
+import { Code, Key, Webhook, Activity, BookOpen, Plus, Loader2, Zap, AlertTriangle, Clock } from "lucide-react";
 
 export default function PortalOverview() {
   const navigate = useNavigate();
@@ -26,6 +27,9 @@ export default function PortalOverview() {
       };
     },
   });
+
+  // Usage summary (all apps, 30 days)
+  const { data: usage, isLoading: usageLoading } = useDeveloperUsage(null, 30);
 
   const displayName = profile?.display_name || user?.email?.split("@")[0] || "Developer";
 
@@ -54,6 +58,32 @@ export default function PortalOverview() {
               <p className="text-xs text-white/50">{card.label}</p>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Usage stats */}
+      {!usageLoading && usage && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
+            <Zap className="w-5 h-5 mb-3" strokeWidth={1.5} style={{ color: "#F46D2A" }} />
+            <p className="text-2xl font-bold text-white mb-1">{usage.total_today}</p>
+            <p className="text-xs text-white/50">Today API Calls</p>
+          </div>
+          <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
+            <Activity className="w-5 h-5 mb-3" strokeWidth={1.5} style={{ color: "#F46D2A" }} />
+            <p className="text-2xl font-bold text-white mb-1">{usage.total_period}</p>
+            <p className="text-xs text-white/50">Monthly API Calls</p>
+          </div>
+          <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
+            <AlertTriangle className="w-5 h-5 mb-3" strokeWidth={1.5} style={{ color: usage.error_rate_24h > 10 ? "#ef4444" : "#F46D2A" }} />
+            <p className="text-2xl font-bold text-white mb-1">{usage.error_rate_24h.toFixed(1)}%</p>
+            <p className="text-xs text-white/50">Error Rate (24h)</p>
+          </div>
+          <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
+            <Clock className="w-5 h-5 mb-3" strokeWidth={1.5} style={{ color: "#F46D2A" }} />
+            <p className="text-2xl font-bold text-white mb-1">{usage.avg_latency_ms.toFixed(0)}ms</p>
+            <p className="text-xs text-white/50">Avg Latency</p>
+          </div>
         </div>
       )}
 

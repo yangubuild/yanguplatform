@@ -4,12 +4,13 @@ import { normalizeHostname } from "./resolveRoute";
  * Enterprise domain mode resolver.
  * Maps a hostname to one of the platform application modes.
  */
-export type AppMode = "platform" | "community" | "studio" | "live" | "publish_container";
+export type AppMode = "platform" | "community" | "studio" | "live" | "publish_container" | "management";
 
 const HOST_MODE_MAP: Record<string, AppMode> = {
   "yangu.io": "platform",
   "yangu.community": "community",
   "yangu.studio": "studio",
+  "manage.yangu.studio": "management",
   "yangu.live": "live",
   "yangu.shop": "publish_container",
   "yangu.store": "publish_container",
