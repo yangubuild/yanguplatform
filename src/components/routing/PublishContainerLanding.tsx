@@ -10,12 +10,12 @@ export function PublishContainerLanding() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4">
       <div className="text-center space-y-6 max-w-lg">
         <Globe className="h-14 w-14 mx-auto text-muted-foreground" />
-        <h1 className="text-4xl font-bold tracking-tight">YANGU Publishing Domain</h1>
+        <h1 className="text-4xl font-bold tracking-tight">yangu Publishing Domain</h1>
         <p className="text-lg text-muted-foreground">
-          This domain hosts YANGU live pages.
+          This domain hosts yangu live pages.
         </p>
         <Button asChild size="lg">
-          <a href="https://yangu.io/">Go to YANGU</a>
+          <a href="https://yangu.io/">Go to yangu</a>
         </Button>
       </div>
     </div>

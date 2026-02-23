@@ -139,7 +139,7 @@ const MOCK_NAV_ITEMS: NavItem[] = [
   { id: "2", label: "Explore", icon: "Compass", route: "/discover", visibility: "all", badge: "", enabled: true, section: "Explore" },
   { id: "3", label: "Ada AI", icon: "Bot", route: "/ada-ai", visibility: "all", badge: "New", enabled: true, section: "Explore" },
   { id: "4", label: "Seller Hub", icon: "ShoppingBag", route: "/seller", visibility: "seller", badge: "", enabled: true, section: "Seller" },
-  { id: "5", label: "Yangu Studio", icon: "Palette", route: "/studio", visibility: "logged_in", badge: "", enabled: true, section: "Studio" },
+  { id: "5", label: "yangu Studio", icon: "Palette", route: "/studio", visibility: "logged_in", badge: "", enabled: true, section: "Studio" },
   { id: "6", label: "Visionaire", icon: "BookOpen", route: "/visionaire", visibility: "all", badge: "3", enabled: true, section: "Visionaire" },
   { id: "7", label: "App Store", icon: "AppWindow", route: "/apps", visibility: "all", badge: "", enabled: false, section: "App Store" },
   { id: "8", label: "Community", icon: "Store", route: "/community", visibility: "all", badge: "", enabled: true, section: "Community" },

@@ -9,7 +9,7 @@ const sections = [
   {
     title: "Overview",
     items: [
-      { label: "Build on Yangu", path: "/developers" },
+      { label: "Build on yangu", path: "/developers" },
       { label: "Quickstart", path: "/developers/quickstart" },
     ],
   },

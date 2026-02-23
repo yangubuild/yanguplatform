@@ -61,7 +61,7 @@ const LANGUAGES = [
 ];
 
 const MOCK_NOTIFICATIONS = [
-  { id: "1", type: "message" as const, title: "New message from Team Yangu", time: "2m ago", read: false },
+  { id: "1", type: "message" as const, title: "New message from Team yangu", time: "2m ago", read: false },
   { id: "2", type: "offer" as const, title: "Flash sale: 30% off premium", time: "1h ago", read: false },
   { id: "3", type: "order" as const, title: "Order #4821 confirmed", time: "3h ago", read: true },
   { id: "4", type: "message" as const, title: "Ada replied to your thread", time: "5h ago", read: true },
@@ -167,7 +167,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
           >
             <Menu className="w-5 h-5" />
           </button>
-          <img src={yanguLogo} alt="Yangu" className="h-10 w-auto" />
+          <img src={yanguLogo} alt="yangu" className="h-10 w-auto" />
         </div>
 
         {/* Right */}

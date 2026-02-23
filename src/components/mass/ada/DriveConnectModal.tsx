@@ -52,9 +52,9 @@ export function DriveConnectModal({ open, onOpenChange }: DriveConnectModalProps
             {checking ? (
               "Checking connection…"
             ) : connected ? (
-              <>Your Google Drive is connected. Files will be saved to <span className="text-white/70 font-mono text-xs">/YANGU/AdaAI/</span>.</>
+              <>Your Google Drive is connected. Files will be saved to <span className="text-white/70 font-mono text-xs">/yangu/AdaAI/</span>.</>
             ) : (
-              <>Connect your Google Drive to save files directly from ADA AI. Files will be saved to <span className="text-white/70 font-mono text-xs">/YANGU/AdaAI/</span>.</>
+              <>Connect your Google Drive to save files directly from ADA AI. Files will be saved to <span className="text-white/70 font-mono text-xs">/yangu/AdaAI/</span>.</>
             )}
           </DialogDescription>
         </DialogHeader>

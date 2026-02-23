@@ -54,7 +54,7 @@ export default function ConsoleNewSubmission() {
   });
 
   return (
-    <DocsPage breadcrumb="Console → Submissions" title="New Submission" subtitle="Submit an app to the Yangu App Store.">
+    <DocsPage breadcrumb="Console → Submissions" title="New Submission" subtitle="Submit an app to the yangu App Store.">
       <div className="max-w-lg space-y-4">
         <div>
           <label className="text-xs text-white/50 block mb-1">Select App</label>

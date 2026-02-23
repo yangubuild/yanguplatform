@@ -7,7 +7,7 @@ const builderSections = [
   {
     title: "Overview",
     items: [
-      { label: "Build on YANGU", id: "build-on-yangu", active: true },
+      { label: "Build on yangu", id: "build-on-yangu", active: true },
     ],
   },
   {
@@ -28,7 +28,7 @@ const developerSections = [
   {
     title: "Overview",
     items: [
-      { label: "Build on Yangu", id: "build-on-yangu", active: true },
+      { label: "Build on yangu", id: "build-on-yangu", active: true },
       { label: "Getting started", id: "getting-started" },
     ],
   },

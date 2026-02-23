@@ -11,7 +11,7 @@ export function CommunityFooter() {
       <div className="mx-auto flex max-w-[1200px] items-center justify-between">
         <img
           src={theme === "dark" ? yanguLogoFull : yanguLogoDarkText}
-          alt="Yangu"
+          alt="yangu"
           className="h-8 w-auto"
           style={{ opacity: 0.6 }}
         />

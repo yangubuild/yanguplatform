@@ -1120,7 +1120,7 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
         const studioMsg: ChatMessage = {
           id: `msg_${Date.now() + 1}`,
           role: "assistant",
-          content: `🎬 **Video is created in YANGU Studio.**\n\nI've generated a poster frame above. Here are suggested ad scripts:\n\n**15s script:** "${videoPrompt.slice(0, 80)} — discover more today."\n\n**30s script:** "Introducing ${videoPrompt.slice(0, 60)}. Built for creators who move fast. See what's possible — only on YANGU."\n\n👉 [Open YANGU Studio](/studio) to create your video.`,
+          content: `🎬 **Video is created in yangu Studio.**\n\nI've generated a poster frame above. Here are suggested ad scripts:\n\n**15s script:** "${videoPrompt.slice(0, 80)} — discover more today."\n\n**30s script:** "Introducing ${videoPrompt.slice(0, 60)}. Built for creators who move fast. See what's possible — only on yangu."\n\n👉 [Open yangu Studio](/studio) to create your video.`,
           routingPill: { mode: "Auto", tier: "Studio Video Preview", provider: prov === "ideogram" ? "Ideogram" : "Qwen" },
           created_at: new Date().toISOString(),
         };
@@ -1219,7 +1219,7 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
       const studioMsg: ChatMessage = {
         id: `msg_${Date.now() + 1}`,
         role: "assistant",
-        content: `🎬 **Video is created in YANGU Studio.**\n\nI've generated a poster frame above. Here are suggested ad scripts:\n\n**15s script:** "${text.slice(0, 80)} — discover more today."\n\n**30s script:** "Introducing ${text.slice(0, 60)}. Built for creators who move fast. See what's possible — only on YANGU."\n\n👉 [Open YANGU Studio](/studio) to create your video.`,
+        content: `🎬 **Video is created in yangu Studio.**\n\nI've generated a poster frame above. Here are suggested ad scripts:\n\n**15s script:** "${text.slice(0, 80)} — discover more today."\n\n**30s script:** "Introducing ${text.slice(0, 60)}. Built for creators who move fast. See what's possible — only on yangu."\n\n👉 [Open yangu Studio](/studio) to create your video.`,
         routingPill: pill,
         created_at: new Date().toISOString(),
       };
@@ -1522,7 +1522,7 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
 
   const hasMessages = messages.length > 0;
   const placeholder = intent === "search"
-    ? "Search YANGU (products, services, tools)…"
+    ? "Search yangu (products, services, tools)…"
     : intent === "discuss"
     ? "Discuss with Ada…"
     : "Ask Ada…";
@@ -1904,7 +1904,7 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
                   <div className="max-w-[80%] px-4 py-3 text-sm text-white/60">
                     <span className="flex items-center gap-2">
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      {intent === "search" ? "Searching YANGU…" : "Thinking…"}
+                      {intent === "search" ? "Searching yangu…" : "Thinking…"}
                     </span>
                   </div>
                 </div>

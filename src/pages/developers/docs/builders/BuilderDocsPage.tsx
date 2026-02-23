@@ -15,7 +15,7 @@ const DOCS: Record<string, FeatureDoc> = {
     intro: "Create groups, foster discovery, and build a loyal audience around your brand.",
     sections: [
       { heading: "Groups", body: "Launch free or paid groups where members can share ideas, ask questions, and connect. Set visibility rules, invite members, and pin important posts." },
-      { heading: "Discovery", body: "Your community appears in the YANGU directory so new members can find you organically. Feature highlights and trending posts boost visibility." },
+      { heading: "Discovery", body: "Your community appears in the yangu directory so new members can find you organically. Feature highlights and trending posts boost visibility." },
       { heading: "Moderation", body: "Built-in moderation tools let you manage members, flag content, and set posting rules — all without third-party plugins." },
     ],
   },
@@ -59,7 +59,7 @@ const DOCS: Record<string, FeatureDoc> = {
     title: "Custom domains",
     intro: "Use your own domain for a professional, branded online presence.",
     sections: [
-      { heading: "Connect a domain", body: "Point your DNS to YANGU and your surface goes live on your own domain — SSL included." },
+      { heading: "Connect a domain", body: "Point your DNS to yangu and your surface goes live on your own domain — SSL included." },
       { heading: "Subdomains", body: "Map different subdomains to different surfaces (e.g. shop.yourbrand.com, community.yourbrand.com)." },
       { heading: "Email forwarding", body: "Receive email at your custom domain and forward it to any inbox." },
     ],
@@ -69,7 +69,7 @@ const DOCS: Record<string, FeatureDoc> = {
     intro: "Boost visibility with promoted placements and trending features.",
     sections: [
       { heading: "Promoted listings", body: "Put your products and surfaces in front of more people with self-serve promoted placements." },
-      { heading: "Trend boosts", body: "Appear in Trending sections across YANGU to attract new visitors and followers." },
+      { heading: "Trend boosts", body: "Appear in Trending sections across yangu to attract new visitors and followers." },
       { heading: "Analytics", body: "Track impressions, clicks, and conversions for every promotion so you can optimise spend." },
     ],
   },

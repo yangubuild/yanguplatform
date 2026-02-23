@@ -3,10 +3,10 @@ import { useState } from "react";
 
 /* ── 1. Four Steps ── */
 const steps = [
-  { num: 1, title: "Understand & Reason", desc: "ADA interprets goals, prompts, and platform context to guide users intelligently across YANGU." },
+  { num: 1, title: "Understand & Reason", desc: "ADA interprets goals, prompts, and platform context to guide users intelligently across yangu." },
   { num: 2, title: "Create with AI Tools", desc: "Generate images, campaigns, content, and assets using embedded AI engines and workflows." },
   { num: 3, title: "Product Intelligence", desc: "ADA helps structure offers, communities, digital products, and growth strategies." },
-  { num: 4, title: "Publish & Grow", desc: "ADA assists with publishing flows, optimization, and directing users to the right YANGU tools like Studio or Community." },
+  { num: 4, title: "Publish & Grow", desc: "ADA assists with publishing flows, optimization, and directing users to the right yangu tools like Studio or Community." },
 ];
 
 /* ── 2. Feature blocks ── */
@@ -15,7 +15,7 @@ const features = [
   { icon: Wand2, title: "Embedded AI Tools", desc: "Integrated workflows connected to Studio, Community, and future modules." },
   { icon: Search, title: "Product Reasoning Engine", desc: "ADA understands business logic, funnels, and creator workflows." },
   { icon: Target, title: "Creator Optimization", desc: "Guidance for positioning, branding, monetization, and content strategy." },
-  { icon: Link, title: "Platform Intelligence", desc: "ADA understands YANGU routing, surfaces, and ecosystem structure." },
+  { icon: Link, title: "Platform Intelligence", desc: "ADA understands yangu routing, surfaces, and ecosystem structure." },
 ];
 
 /* ── 3. Reviews ── */
@@ -32,12 +32,12 @@ const shortReviews = [
 
 /* ── 4. FAQs ── */
 const faqs = [
-  { q: "Does ADA create videos?", a: "No. ADA guides video creation and workflows but video generation happens through YANGU Studio tools." },
+  { q: "Does ADA create videos?", a: "No. ADA guides video creation and workflows but video generation happens through yangu Studio tools." },
   { q: "Does ADA generate AI avatars?", a: "ADA helps plan and guide avatar creation, but generation happens inside supported AI engines within Studio." },
   { q: "Can ADA build my business strategy?", a: "Yes. ADA helps structure offers, positioning, and platform workflows." },
   { q: "Is ADA only for creators?", a: "No. Agencies, brands, and communities can use ADA." },
   { q: "Does ADA replace designers or developers?", a: "ADA accelerates creation but works best alongside creators and teams." },
-  { q: "Is ADA connected to all YANGU modules?", a: "Yes. ADA understands Studio, Community, and future platform tools." },
+  { q: "Is ADA connected to all yangu modules?", a: "Yes. ADA understands Studio, Community, and future platform tools." },
 ];
 
 export function AdaContentSections() {

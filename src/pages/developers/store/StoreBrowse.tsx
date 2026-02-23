@@ -22,7 +22,7 @@ export default function StoreBrowse() {
   });
 
   return (
-    <DocsPage breadcrumb="Developers" title="App Store" subtitle="Browse apps built by the community and verified by Yangu.">
+    <DocsPage breadcrumb="Developers" title="App Store" subtitle="Browse apps built by the community and verified by yangu.">
       {isLoading ? (
         <div className="flex justify-center py-16"><Loader2 className="w-6 h-6 text-white/30 animate-spin" /></div>
       ) : listings && listings.length > 0 ? (
