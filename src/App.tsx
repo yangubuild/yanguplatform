@@ -44,6 +44,9 @@ import DiscoverYangu from "./pages/DiscoverYangu";
 import Blog from "./pages/Blog";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import AiSafety from "./pages/AiSafety";
 import AdaLanding from "./pages/AdaLanding";
 
 // Developer platform (lazy)
@@ -142,6 +145,9 @@ const App = () => (
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
+                <Route path="/termsofservice" element={<TermsOfService />} />
+                <Route path="/privacypolicy" element={<PrivacyPolicy />} />
+                <Route path="/aisafety" element={<AiSafety />} />
 
                 {/* Developer platform */}
                 <Route path="/developers" element={<DevelopersLayout />}>

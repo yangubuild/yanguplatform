@@ -1,17 +1,14 @@
 import { useState } from "react";
-import { Outlet } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { MassSidebar } from "@/components/mass/MassSidebar";
 import { MassHeader } from "@/components/mass/MassHeader";
-import { DevelopersSidebar } from "./DevelopersSidebar";
-import yanguYIcon from "@/assets/yangu-y-icon.png";
 import { LegalFooter } from "@/components/LegalFooter";
 
-export function DevelopersLayout() {
+export default function AiSafety() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen" style={{ background: "#08120D" }}>
+    <div className="min-h-screen" style={{ background: '#08120D' }}>
       <button
         onClick={() => setSidebarOpen(true)}
         className="fixed top-4 left-4 z-30 p-2 rounded-lg bg-[#1c1c1c] text-white lg:hidden"
@@ -21,17 +18,18 @@ export function DevelopersLayout() {
 
       <MassSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <main className="lg:ml-[240px] min-h-screen">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pt-16 lg:pt-8">
+      <main className="lg:ml-[240px] min-h-screen flex flex-col">
+        <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-10 py-6 pt-16 lg:pt-8 flex-1 w-full">
           <MassHeader hideTrends />
 
-          <div className="flex gap-6 mt-6">
-            <div className="hidden md:block w-[200px] flex-shrink-0">
-              <DevelopersSidebar />
-            </div>
-            <div className="flex-1 min-w-0">
-              <Outlet />
-            </div>
+          <div className="max-w-3xl mt-12">
+            <h1 className="text-3xl font-bold mb-8" style={{ color: '#FFFFFF', fontFamily: "'Lufga', sans-serif" }}>
+              AI Safety — Yangu
+            </h1>
+
+            <p style={{ color: 'rgba(255,255,255,0.5)', lineHeight: 1.7 }}>
+              Content coming soon.
+            </p>
           </div>
         </div>
 
