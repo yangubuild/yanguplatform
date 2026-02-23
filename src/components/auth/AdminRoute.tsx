@@ -4,18 +4,28 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRoles } from "@/hooks/useRoles";
 import { Loader2, ShieldX } from "lucide-react";
 
+/** Emails that are always allowed into the management panel */
+const ALLOWED_ADMIN_EMAILS = [
+  "yanguabuild@gmail.com",
+  "kafeeroaz@gmail.com",
+];
+
 interface AdminRouteProps {
   children: ReactNode;
 }
 
 /**
- * Gate for /manage. Allows any user with at least one manage-level role.
- * Currently "admin" and "content_editor" are supported.
+ * Gate for /manage. Allows any user with at least one manage-level role
+ * OR whose email is in the allowlist.
+ * Redirects unauthenticated users to /auth/login?returnTo=/manage...
  */
 export function AdminRoute({ children }: AdminRouteProps) {
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { hasAnyManageRole, isContentEditor, isAdmin, isLoading: rolesLoading } = useRoles();
   const location = useLocation();
+
+  const emailAllowed = !!user?.email && ALLOWED_ADMIN_EMAILS.includes(user.email.toLowerCase());
+  const hasAccess = emailAllowed || hasAnyManageRole;
 
   if (authLoading || rolesLoading) {
     return (
@@ -26,16 +36,18 @@ export function AdminRoute({ children }: AdminRouteProps) {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/auth/login" state={{ from: location }} replace />;
+    const returnTo = encodeURIComponent(location.pathname + location.search);
+    return <Navigate to={`/auth/login?returnTo=${returnTo}`} replace />;
   }
 
-  if (!hasAnyManageRole) {
+  if (!hasAccess) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4">
         <ShieldX className="h-16 w-16 text-muted-foreground" />
         <h1 className="text-2xl font-semibold text-foreground">Access Denied</h1>
         <p className="text-muted-foreground text-center max-w-md">
           You don't have permission to access the management panel.
+          Contact an administrator if you believe this is an error.
         </p>
       </div>
     );
