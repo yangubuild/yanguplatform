@@ -19,9 +19,9 @@ import {
  */
 export function ExploreLandingContent() {
   return (
-    <div className="space-y-0">
+    <div>
       <MassTrendsBar />
-      <div className="mt-14">
+      <div className="pt-10">
         <MassHero />
       </div>
       <MassSearchBar />
