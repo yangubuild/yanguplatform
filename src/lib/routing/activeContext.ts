@@ -5,7 +5,7 @@
 
 const KEY = "yangu_active_context";
 
-export type ActiveContext = "developer" | "platform";
+export type ActiveContext = "developer" | "platform" | "management";
 
 /** Read the stored context, or infer from the current path as a fail-safe. */
 export function getActiveContext(pathname?: string): ActiveContext {
