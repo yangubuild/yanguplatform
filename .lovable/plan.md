@@ -1,22 +1,26 @@
 
 
-## Fix: Revert Card Images Back to `object-cover`
+## Fix: Restore Card Images to Original Full-Size Display
 
-**Problem**: The change to `object-contain` introduced visible dark background gaps around the images. The original cards filled their containers completely edge-to-edge with `object-cover`, and the new yangu app images should do the same — they already have their own built-in backgrounds (green, orange, yellow, etc.) that naturally fill the frame.
+**Problem**: The current code forces images into a fixed `aspect-[16/10]` container with `object-contain`, which shrinks images and creates background gaps. The original design lets each image dictate its own natural height while filling the full container width, with rounded corners applied by the parent wrapper.
 
-**Solution**: Revert the `<img>` class in `MassResourceCard.tsx` back to `object-cover`, removing `object-contain object-center`.
+**Solution**: Remove the fixed aspect ratio and object-fit constraints. Use `w-full block` on the image so it fills the container width at its natural proportions. The `overflow-hidden rounded-2xl` on the wrapper handles the curved corners.
 
 ---
 
 ### Technical Details
 
-**File**: `src/components/mass/MassResourceCard.tsx` (line 28)
+**File**: `src/components/mass/MassResourceCard.tsx`
 
-**Change**:
-- From: `object-contain object-center`
-- To: `object-cover`
+**Changes**:
 
-This restores:
-- Images filling the entire container with no background gaps
-- Rounded corners from the parent container clipping the image naturally
-- Identical visual behavior to the original Gramerz/Jobhunt/etc. cards
+1. **Container div (line 19)**: Remove `aspect-[16/10]` — keep `relative overflow-hidden rounded-2xl mb-3`
+2. **Image element (line 21-24)**: Change classes from `w-full h-full object-contain` to `w-full block` — no object-fit, no fixed height
+
+**Result**:
+- Images fill the full width of the card with no cropping
+- Each image displays at its natural aspect ratio (all source images are the same ratio, so they align)
+- Rounded corners are applied via the parent's `overflow-hidden rounded-2xl`
+- No background gaps, no stretching, no shrinking
+- Hover scale effect preserved
+
