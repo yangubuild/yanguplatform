@@ -38,7 +38,7 @@ export function BlogPodcastSection() {
             className="text-xs font-semibold uppercase tracking-widest"
             style={{ color: "rgba(255,255,255,0.55)", letterSpacing: "0.15em" }}
           >
-            Yangu Podcast
+            yangu Podcast
           </h2>
           <ArrowRight className="w-4 h-4" style={{ color: "rgba(255,255,255,0.35)" }} />
         </div>

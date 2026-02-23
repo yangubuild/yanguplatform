@@ -24,7 +24,7 @@ export default function Terms() {
 
           <div className="max-w-3xl mt-12">
             <h1 className="text-3xl font-bold mb-8" style={{ color: '#FFFFFF', fontFamily: "'Lufga', sans-serif" }}>
-              Terms of Service — Yangu
+              Terms of Service — yangu
             </h1>
 
             <p className="mb-8" style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
@@ -34,14 +34,14 @@ export default function Terms() {
             <section className="mb-8">
               <h2 className="text-xl font-semibold mb-3" style={{ color: '#FFFFFF' }}>1. Acceptance of Terms</h2>
               <p style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
-                By accessing or using Yangu ("Yangu", "we", "our", or "us"), you agree to be bound by these Terms of Service. If you do not agree, you may not use the platform.
+                By accessing or using yangu ("yangu", "we", "our", or "us"), you agree to be bound by these Terms of Service. If you do not agree, you may not use the platform.
               </p>
             </section>
 
             <section className="mb-8">
               <h2 className="text-xl font-semibold mb-3" style={{ color: '#FFFFFF' }}>2. Platform Overview</h2>
               <p style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
-                Yangu provides AI-powered tools, creator services, digital commerce infrastructure, community features, and integrations designed to help users build and manage digital experiences.
+                yangu provides AI-powered tools, creator services, digital commerce infrastructure, community features, and integrations designed to help users build and manage digital experiences.
               </p>
               <p className="mt-3" style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>Services may include:</p>
               <ul className="list-disc pl-6 mt-2 space-y-1" style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
@@ -69,10 +69,10 @@ export default function Terms() {
             <section className="mb-8">
               <h2 className="text-xl font-semibold mb-3" style={{ color: '#FFFFFF' }}>4. User Content and Ownership</h2>
               <p style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
-                You retain ownership of content you create, upload, or generate through Yangu.
+                You retain ownership of content you create, upload, or generate through yangu.
               </p>
               <p className="mt-3" style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
-                By using the platform, you grant Yangu a limited, non-exclusive license to host, process, display, and distribute your content solely for operating and improving platform services.
+                By using the platform, you grant yangu a limited, non-exclusive license to host, process, display, and distribute your content solely for operating and improving platform services.
               </p>
               <p className="mt-3" style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
                 You are responsible for ensuring that your content complies with applicable laws and does not infringe on third-party rights.
@@ -82,16 +82,16 @@ export default function Terms() {
             <section className="mb-8">
               <h2 className="text-xl font-semibold mb-3" style={{ color: '#FFFFFF' }}>5. AI Features and Generated Content</h2>
               <p style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
-                Yangu integrates AI technologies to assist with content creation and automation.
+                yangu integrates AI technologies to assist with content creation and automation.
               </p>
               <p className="mt-3" style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>By using AI tools:</p>
               <ul className="list-disc pl-6 mt-2 space-y-1" style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
                 <li>you acknowledge that outputs are generated automatically and may contain errors or inaccuracies</li>
                 <li>you are responsible for reviewing and verifying AI-generated results</li>
-                <li>Yangu does not guarantee the accuracy, reliability, or suitability of generated outputs</li>
+                <li>yangu does not guarantee the accuracy, reliability, or suitability of generated outputs</li>
               </ul>
               <p className="mt-3" style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
-                Yangu does not claim ownership over content you create using AI tools.
+                yangu does not claim ownership over content you create using AI tools.
               </p>
             </section>
 
@@ -100,7 +100,7 @@ export default function Terms() {
               <p style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>When you choose to connect Google Drive:</p>
               <ul className="list-disc pl-6 mt-2 space-y-1" style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
                 <li>files are uploaded only when you initiate the action</li>
-                <li>Yangu does not browse or access other files within your Drive</li>
+                <li>yangu does not browse or access other files within your Drive</li>
                 <li>you may revoke access at any time via your Google account settings</li>
               </ul>
               <p className="mt-3" style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
@@ -119,7 +119,7 @@ export default function Terms() {
                 <li>use automated scripts in ways that disrupt service performance</li>
               </ul>
               <p className="mt-3" style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
-                Yangu reserves the right to restrict or remove content that violates these rules.
+                yangu reserves the right to restrict or remove content that violates these rules.
               </p>
             </section>
 
@@ -133,7 +133,7 @@ export default function Terms() {
             <section className="mb-8">
               <h2 className="text-xl font-semibold mb-3" style={{ color: '#FFFFFF' }}>9. Third-Party Services</h2>
               <p style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
-                Yangu may integrate third-party services, including AI infrastructure providers, cloud hosting platforms, analytics tools, and payment processors.
+                yangu may integrate third-party services, including AI infrastructure providers, cloud hosting platforms, analytics tools, and payment processors.
               </p>
               <p className="mt-3" style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
                 Your use of these services may also be subject to their respective terms.
@@ -153,14 +153,14 @@ export default function Terms() {
                 We may suspend or terminate accounts that violate these Terms or pose risks to platform integrity or user safety.
               </p>
               <p className="mt-3" style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
-                You may stop using Yangu at any time.
+                You may stop using yangu at any time.
               </p>
             </section>
 
             <section className="mb-8">
               <h2 className="text-xl font-semibold mb-3" style={{ color: '#FFFFFF' }}>12. Limitation of Liability</h2>
               <p style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
-                To the maximum extent permitted by law, Yangu is provided "as is" without warranties of any kind. We are not liable for indirect, incidental, or consequential damages arising from use of the platform.
+                To the maximum extent permitted by law, yangu is provided "as is" without warranties of any kind. We are not liable for indirect, incidental, or consequential damages arising from use of the platform.
               </p>
             </section>
 
@@ -174,7 +174,7 @@ export default function Terms() {
             <section className="mb-8">
               <h2 className="text-xl font-semibold mb-3" style={{ color: '#FFFFFF' }}>14. Governing Law</h2>
               <p style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
-                These Terms are governed by applicable laws where Yangu operates. Specific jurisdiction details may be updated as the platform expands.
+                These Terms are governed by applicable laws where yangu operates. Specific jurisdiction details may be updated as the platform expands.
               </p>
             </section>
 

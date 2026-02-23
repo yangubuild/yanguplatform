@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const mappedSections = ["Yangu Events"];
+const mappedSections = ["yangu Events"];
 
 interface MockEvent {
   id: string;
@@ -52,7 +52,7 @@ export default function ManageEvents() {
           <div className="space-y-1">
             <p className="text-sm font-medium">Content Feed Mapping</p>
             <p className="text-xs text-muted-foreground">
-              Events feed into the Blog section: <span className="text-foreground font-medium">Yangu Events</span> block
+              Events feed into the Blog section: <span className="text-foreground font-medium">yangu Events</span> block
             </p>
           </div>
         </div>

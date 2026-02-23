@@ -24,7 +24,7 @@ export default function PrivacyPolicy() {
 
           <div className="max-w-3xl mt-12">
             <h1 className="text-3xl font-bold mb-8" style={{ color: '#FFFFFF', fontFamily: "'Lufga', sans-serif" }}>
-              Privacy Policy — Yangu
+              Privacy Policy — yangu
             </h1>
             <p className="mb-8" style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
               <strong style={{ color: '#FFFFFF' }}>Effective Date:</strong> February 20, 2026
@@ -33,10 +33,10 @@ export default function PrivacyPolicy() {
             <section className="mb-8">
               <h2 className="text-xl font-semibold mb-3" style={{ color: '#FFFFFF' }}>1. Introduction</h2>
               <p style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
-                Yangu ("Yangu", "we", "our", or "us") provides AI-powered creator tools, digital commerce infrastructure, community features, and platform services designed to help users build, manage, and grow their digital presence. This Privacy Policy explains how we collect, use, disclose, and protect information when you use our websites, applications, AI tools, or integrations such as Google Login and Google Drive.
+                yangu ("yangu", "we", "our", or "us") provides AI-powered creator tools, digital commerce infrastructure, community features, and platform services designed to help users build, manage, and grow their digital presence. This Privacy Policy explains how we collect, use, disclose, and protect information when you use our websites, applications, AI tools, or integrations such as Google Login and Google Drive.
               </p>
               <p className="mt-3" style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
-                By using Yangu, you agree to the practices described in this policy.
+                By using yangu, you agree to the practices described in this policy.
               </p>
             </section>
 
@@ -64,7 +64,7 @@ export default function PrivacyPolicy() {
 
               <h3 className="text-base font-semibold mb-2 mt-4" style={{ color: 'rgba(255,255,255,0.85)' }}>User Content and Platform Data</h3>
               <p style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
-                We collect content you upload, create, or generate through Yangu, including:
+                We collect content you upload, create, or generate through yangu, including:
               </p>
               <ul className="list-disc pl-6 mt-2" style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
                 <li>AI-generated text, images, or media</li>
@@ -89,7 +89,7 @@ export default function PrivacyPolicy() {
                 If you connect your Google Drive account:
               </p>
               <ul className="list-disc pl-6 mt-2" style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
-                <li>Yangu only accesses files that you explicitly choose to upload or export.</li>
+                <li>yangu only accesses files that you explicitly choose to upload or export.</li>
                 <li>We do not browse, scan, or access any other files within your Drive.</li>
                 <li>Access is limited to functionality necessary to complete your requested action.</li>
               </ul>
@@ -98,12 +98,12 @@ export default function PrivacyPolicy() {
             <section className="mb-8">
               <h2 className="text-xl font-semibold mb-3" style={{ color: '#FFFFFF' }}>3. AI Features and External Processing</h2>
               <p style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
-                Yangu integrates AI technologies to provide content generation and automation features. When you use AI tools:
+                yangu integrates AI technologies to provide content generation and automation features. When you use AI tools:
               </p>
               <ul className="list-disc pl-6 mt-2" style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
                 <li>Your prompts and input data may be processed by third-party AI infrastructure providers solely to deliver the output you requested.</li>
                 <li>Only the minimum information required for processing is transmitted.</li>
-                <li>AI providers are not permitted to use your data for advertising or independent profiling through Yangu services.</li>
+                <li>AI providers are not permitted to use your data for advertising or independent profiling through yangu services.</li>
                 <li>Generated media (images, videos, text) may be temporarily stored during processing and are associated with your account.</li>
               </ul>
               <p className="mt-3" style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
@@ -134,7 +134,7 @@ export default function PrivacyPolicy() {
             <section className="mb-8">
               <h2 className="text-xl font-semibold mb-3" style={{ color: '#FFFFFF' }}>5. Google API Services User Data</h2>
               <p style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
-                Yangu's use of information received from Google APIs complies with the Google API Services User Data Policy, including Limited Use requirements.
+                yangu's use of information received from Google APIs complies with the Google API Services User Data Policy, including Limited Use requirements.
               </p>
               <p className="mt-3" style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
                 Specifically:
@@ -207,14 +207,14 @@ export default function PrivacyPolicy() {
             <section className="mb-8">
               <h2 className="text-xl font-semibold mb-3" style={{ color: '#FFFFFF' }}>10. Platform Ecosystem and Subdomains</h2>
               <p style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
-                Yangu operates multiple platform modules and domains including creator tools, community features, and AI-powered services. Data collected across these services is processed under this unified Privacy Policy.
+                yangu operates multiple platform modules and domains including creator tools, community features, and AI-powered services. Data collected across these services is processed under this unified Privacy Policy.
               </p>
             </section>
 
             <section className="mb-8">
               <h2 className="text-xl font-semibold mb-3" style={{ color: '#FFFFFF' }}>11. Children's Privacy</h2>
               <p style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
-                Yangu is not intended for users under the age of 13. We do not knowingly collect personal information from children under 13. If we become aware that we have collected such information, we will take steps to delete it promptly.
+                yangu is not intended for users under the age of 13. We do not knowingly collect personal information from children under 13. If we become aware that we have collected such information, we will take steps to delete it promptly.
               </p>
             </section>
 

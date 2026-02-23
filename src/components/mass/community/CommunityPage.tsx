@@ -140,7 +140,7 @@ function CommunityPageInner() {
             <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
               <p className="text-[15px] font-medium text-white">No listings yet</p>
               <p className="mt-1 text-[13px] text-white/50">
-                Communities listed on Yangu will appear here.
+                Communities listed on yangu will appear here.
               </p>
             </div>
           ) : (

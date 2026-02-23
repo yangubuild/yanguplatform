@@ -66,8 +66,8 @@ export function BlogPage() {
         <div className="mx-auto" style={{ maxWidth: 1100, height: 1, background: "rgba(255,255,255,0.1)" }} />
       </div>
 
-      {/* Built by Yangu */}
-      <BlogSectionModule title="Built by Yangu" subtitle="Try out our AI-powered products.">
+      {/* Built by yangu */}
+      <BlogSectionModule title="Built by yangu" subtitle="Try out our AI-powered products.">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {products.map((p) => (
             <BlogProductCard key={p.id} product={p} />
@@ -80,8 +80,8 @@ export function BlogPage() {
         <div className="mx-auto" style={{ maxWidth: 1100, height: 1, background: "rgba(255,255,255,0.1)" }} />
       </div>
 
-      {/* Yangu Studio */}
-      <BlogSectionModule title="Yangu Studio" subtitle="Lessons from engineers shipping AI products." dashedBorder>
+      {/* yangu Studio */}
+      <BlogSectionModule title="yangu Studio" subtitle="Lessons from engineers shipping AI products." dashedBorder>
         <ArticleGrid articles={studioArticles} />
       </BlogSectionModule>
 
@@ -103,8 +103,8 @@ export function BlogPage() {
         <ArticleGrid articles={programmingArticles} />
       </BlogSectionModule>
 
-      {/* Yangu Events */}
-      <BlogSectionModule title="Yangu Events" subtitle="Upcoming events and meetups.">
+      {/* yangu Events */}
+      <BlogSectionModule title="yangu Events" subtitle="Upcoming events and meetups.">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {eventArticles.map((ev) => (
             <BlogEventCard key={ev.id} event={ev} />
