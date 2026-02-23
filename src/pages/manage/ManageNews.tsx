@@ -15,7 +15,7 @@ import {
 const mappedSections = [
   "Dispatches From The Frontiers Of AI",
   "Recent Essays",
-  "Yangu Studio",
+  "yangu Studio",
   "Future Of Programming",
   "Putting AI At Work",
 ];
@@ -31,7 +31,7 @@ interface MockArticle {
 const mockArticles: MockArticle[] = [
   { id: "1", title: "The Rise of African AI Startups", author: "Alice Mwangi", status: "published", date: "2026-02-10" },
   { id: "2", title: "Building with No-Code in 2026", author: "Brian Ochieng", status: "draft", date: "2026-02-09" },
-  { id: "3", title: "Yangu Studio: A Deep Dive", author: "Clara Njeri", status: "review", date: "2026-02-08" },
+  { id: "3", title: "yangu Studio: A Deep Dive", author: "Clara Njeri", status: "review", date: "2026-02-08" },
   { id: "4", title: "Future of Programming Languages", author: "David Kamau", status: "published", date: "2026-02-07" },
 ];
 
@@ -59,7 +59,7 @@ export default function ManageNews() {
           <div className="space-y-1">
             <p className="text-sm font-medium">Content Feed Mapping</p>
             <p className="text-xs text-muted-foreground">
-              Articles and news feed into Blog sections: <span className="text-foreground font-medium">Dispatches, Recent Essays, Yangu Studio, Future of Programming</span>
+              Articles and news feed into Blog sections: <span className="text-foreground font-medium">Dispatches, Recent Essays, yangu Studio, Future of Programming</span>
             </p>
           </div>
         </div>

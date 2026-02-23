@@ -27,8 +27,8 @@ interface UserUsage {
 
 const QUOTA_LABELS: Record<string, string> = {
   ada_image: "ADA Image Limits",
-  yangu_image: "YANGU Image Limits",
-  yangu_video: "YANGU Video Limits",
+  yangu_image: "yangu Image Limits",
+  yangu_video: "yangu Video Limits",
 };
 
 export function UsageLimitsPanel() {

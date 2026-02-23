@@ -7,7 +7,7 @@ const plans = [
   {
     name: "Free",
     price: "$0.00",
-    description: "For those who want to give YANGU a try",
+    description: "For those who want to give yangu a try",
     features: ["Basic access to all features", "1 Surface", "Basic Generations"],
     highlights: ["1 Surface /mo", "1 Generation /mo"],
     current: true,

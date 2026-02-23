@@ -40,7 +40,7 @@ export function AdminSidebar() {
         {/* Logo mark */}
         <div className="px-4 pb-4 mb-2 border-b border-[hsl(var(--admin-border)/0.3)]">
           <div className="flex items-center gap-2.5">
-            <img src={yanguYIcon} alt="Yangu" className="h-7 w-7 opacity-80" />
+            <img src={yanguYIcon} alt="yangu" className="h-7 w-7 opacity-80" />
             <span
               className="text-sm font-semibold tracking-wide text-[hsl(var(--admin-text))]"
               style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}

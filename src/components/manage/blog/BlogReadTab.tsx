@@ -18,7 +18,7 @@ interface MockContent {
 const mockContent: MockContent[] = [
   { id: "1", title: "Dispatches: AI Frontier Report", section: "Dispatches", author: "Amara K.", status: "published", views: 1240 },
   { id: "2", title: "The Quiet Revolution of Small LLMs", section: "Recent Essays", author: "David M.", status: "published", views: 890 },
-  { id: "3", title: "Yangu Studio Launch Recap", section: "Yangu Studio", author: "Fatima N.", status: "draft", views: 0 },
+  { id: "3", title: "yangu Studio Launch Recap", section: "yangu Studio", author: "Fatima N.", status: "draft", views: 0 },
   { id: "4", title: "Automating Customer Support", section: "Putting AI At Work", author: "James O.", status: "published", views: 2100 },
   { id: "5", title: "Rust vs Go for AI Infra", section: "Future Of Programming", author: "Lena P.", status: "pending", views: 0 },
 ];

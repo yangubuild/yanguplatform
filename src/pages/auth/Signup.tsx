@@ -74,7 +74,7 @@ export default function Signup() {
   return (
     <AuthShell
       title="Create your account"
-      subtitle="Start building your presence on YANGU"
+      subtitle="Start building your presence on yangu"
     >
       <div className="space-y-6">
         <SocialAuthButtons disabled={isLoading} />

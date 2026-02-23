@@ -52,7 +52,7 @@ export function WhyYanguContent() {
         Overview
       </p>
 
-      <h1 className={DocsTypography.h1}>Build your business on YANGU</h1>
+      <h1 className={DocsTypography.h1}>Build your business on yangu</h1>
       <p className={DocsTypography.subtitle} style={{ color: "rgba(255,255,255,0.5)" }}>
         No code required. Pick the features you need, and we'll set everything up for you.
       </p>

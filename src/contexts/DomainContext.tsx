@@ -23,7 +23,7 @@ interface DomainContextState {
   isFallback: boolean;
 }
 
-// Known YANGU platform domains and their types
+// Known yangu platform domains and their types
 // This is static resolution - no database lookup needed
 const KNOWN_DOMAINS: Record<string, DomainType> = {
   "yangu.io": "io",
@@ -66,7 +66,7 @@ function resolveDomainType(host: string): { domainType: DomainType; isFallback: 
     return { domainType: "io", isFallback: true };
   }
 
-  // Check known YANGU domains (static resolution)
+  // Check known yangu domains (static resolution)
   const knownType = KNOWN_DOMAINS[normalizedHost];
   if (knownType) {
     return { domainType: knownType, isFallback: false };

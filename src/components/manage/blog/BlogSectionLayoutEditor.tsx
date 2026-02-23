@@ -33,7 +33,7 @@ const contentSources = ["Articles", "Podcast", "Events", "Tools", "Mixed"] as co
 
 const categoryMappings = [
   "Dispatches",
-  "Yangu Studio",
+  "yangu Studio",
   "Putting AI At Work",
   "Future Programming",
   "Podcast",

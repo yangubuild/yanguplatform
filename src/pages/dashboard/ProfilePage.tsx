@@ -43,7 +43,7 @@ const mockJoined = [
   {
     id: "3",
     initials: "YG",
-    title: "Yangu Creators Hub",
+    title: "yangu Creators Hub",
     category: "Community",
     members: 24,
     earnings: "$0",

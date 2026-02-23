@@ -113,7 +113,7 @@ export default function AgencyMembersPage() {
         <TabsList>
           <TabsTrigger value="members">Members ({mockMembers.length})</TabsTrigger>
           <TabsTrigger value="managers">Managers (2)</TabsTrigger>
-          <TabsTrigger value="shops">Member Yangu Apps (4)</TabsTrigger>
+          <TabsTrigger value="shops">Member yangu Apps (4)</TabsTrigger>
           <TabsTrigger value="affiliates">Affiliate Applications (0)</TabsTrigger>
           <TabsTrigger value="bounced">Bounced (0)</TabsTrigger>
           <TabsTrigger value="orders">Custom Orders</TabsTrigger>

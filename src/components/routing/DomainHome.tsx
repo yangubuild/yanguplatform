@@ -26,7 +26,7 @@ export function DomainHome({ domainType, host }: DomainHomeProps) {
     <div className="min-h-screen flex flex-col items-center justify-center bg-background">
       <div className="text-center space-y-4">
         <Globe className="h-16 w-16 mx-auto text-muted-foreground" />
-        <h1 className="text-3xl font-bold">YANGU {label}</h1>
+        <h1 className="text-3xl font-bold">yangu {label}</h1>
         {host && (
           <p className="text-muted-foreground">
             Serving from <code className="bg-muted px-2 py-1 rounded">{host}</code>

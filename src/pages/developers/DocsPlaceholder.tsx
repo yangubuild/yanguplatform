@@ -39,7 +39,7 @@ function TableRow({ cells }: { cells: string[] }) {
 /* ─── page content by route ─── */
 const pages: Record<string, () => JSX.Element> = {
   "/developers/apis/rest-graphql": () => (
-    <DocsPage breadcrumb="APIs" title="REST & GraphQL" subtitle="Access the Yangu platform through a unified API layer.">
+    <DocsPage breadcrumb="APIs" title="REST & GraphQL" subtitle="Access the yangu platform through a unified API layer.">
       <DocsSection id="rest" title="REST API" description="The primary interface for platform operations.">
         <Paragraph>Base URL: <code className="text-white/70">https://api.yangu.com/v1</code></Paragraph>
         <Paragraph>All endpoints are versioned. The current stable version is <strong className="text-white/70">v1</strong>. Include your API key in the <code className="text-white/70">Authorization</code> header as a Bearer token.</Paragraph>
@@ -79,7 +79,7 @@ Authorization: Bearer yng_live_xxxx
   "/developers/apis/authentication": () => (
     <DocsPage breadcrumb="APIs" title="Authentication" subtitle="Secure your integrations with OAuth 2.0, API keys, and session tokens.">
       <DocsSection id="oauth" title="OAuth 2.0" description="Redirect-based authentication for user-facing apps.">
-        <Paragraph>Yangu supports the Authorization Code flow with PKCE for single-page apps and the Client Credentials grant for server-to-server integrations.</Paragraph>
+        <Paragraph>yangu supports the Authorization Code flow with PKCE for single-page apps and the Client Credentials grant for server-to-server integrations.</Paragraph>
         <CodeBlock code={`# 1. Redirect user to authorize
 GET https://auth.yangu.com/authorize
   ?client_id=YOUR_APP_ID
@@ -169,7 +169,7 @@ CREATE POLICY "org_surfaces_select" ON surfaces
       </DocsSection>
 
       <DocsSection id="patterns" title="Safe Query Patterns">
-        <Paragraph>Use the Yangu client SDK for type-safe queries. Avoid raw SQL in client-side code.</Paragraph>
+        <Paragraph>Use the yangu client SDK for type-safe queries. Avoid raw SQL in client-side code.</Paragraph>
         <CodeBlock code={`import { supabase } from "@/integrations/supabase/client";
 
 const { data, error } = await supabase
@@ -188,7 +188,7 @@ const { data, error } = await supabase
   ),
 
   "/developers/tools/cli": () => (
-    <DocsPage breadcrumb="Tools" title="CLI" subtitle="Manage Yangu projects from your terminal.">
+    <DocsPage breadcrumb="Tools" title="CLI" subtitle="Manage yangu projects from your terminal.">
       <DocsSection id="install" title="Installation">
         <CodeBlock code={`npm install -g @yangu/cli
 # or
@@ -217,7 +217,7 @@ brew install yangu/tap/yangu`} />
   ),
 
   "/developers/tools/sdks": () => (
-    <DocsPage breadcrumb="Tools" title="SDKs & Libraries" subtitle="Official client libraries for building on Yangu.">
+    <DocsPage breadcrumb="Tools" title="SDKs & Libraries" subtitle="Official client libraries for building on yangu.">
       <DocsSection id="js" title="JavaScript / TypeScript" description="The primary SDK for web and Node.js integrations.">
         <CodeBlock code={`npm install @yangu/sdk`} />
         <CodeBlock code={`import { YanguClient } from "@yangu/sdk";
@@ -259,7 +259,7 @@ serve(async (req) => {
   ),
 
   "/developers/extensibility/apps": () => (
-    <DocsPage breadcrumb="Extensibility" title="Apps & Extensions" subtitle="Build installable apps that extend the Yangu platform.">
+    <DocsPage breadcrumb="Extensibility" title="Apps & Extensions" subtitle="Build installable apps that extend the yangu platform.">
       <DocsSection id="architecture" title="App Architecture" description="Apps are registered in the Developer Console and distributed through the App Store.">
         <Paragraph>Each app defines a manifest with permissions (scopes), webhook subscriptions, and optional UI widgets. Apps are installed per-org and can be configured per-surface.</Paragraph>
         <CodeBlock code={`// App manifest (simplified)
@@ -274,7 +274,7 @@ serve(async (req) => {
 }`} />
       </DocsSection>
       <DocsSection id="lifecycle" title="App Lifecycle">
-        <Paragraph>Install → Configure → Active → Uninstall. On install, Yangu provisions API keys scoped to the granted permissions and delivers an <code className="text-white/70">app.installed</code> webhook.</Paragraph>
+        <Paragraph>Install → Configure → Active → Uninstall. On install, yangu provisions API keys scoped to the granted permissions and delivers an <code className="text-white/70">app.installed</code> webhook.</Paragraph>
       </DocsSection>
       <DocsSection id="review" title="App Store Review">
         <Paragraph>Apps submitted for public distribution go through an automated + manual review process. Reviews check scope justification, security practices, and UI quality.</Paragraph>
@@ -335,7 +335,7 @@ window.addEventListener("message", (event) => {
   "/developers/infrastructure/custom-domains": () => (
     <DocsPage breadcrumb="Infrastructure" title="Custom Domains" subtitle="Map your own domains to surfaces and manage DNS programmatically.">
       <DocsSection id="setup" title="Domain Setup" description="Add a custom domain through the API or surface editor.">
-        <Paragraph>Point a CNAME record to <code className="text-white/70">proxy.yangu.com</code>. Yangu automatically provisions and renews SSL certificates via Let's Encrypt.</Paragraph>
+        <Paragraph>Point a CNAME record to <code className="text-white/70">proxy.yangu.com</code>. yangu automatically provisions and renews SSL certificates via Let's Encrypt.</Paragraph>
         <CodeBlock code={`POST /v1/domains
 {
   "host": "docs.yourcompany.com",

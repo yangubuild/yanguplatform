@@ -45,9 +45,9 @@ export function BuilderSetupDrawer({ open, onOpenChange, selectedKeys }: Builder
         }}
       >
         <SheetHeader className="mb-6">
-          <SheetTitle className="text-white text-xl">Your YANGU setup</SheetTitle>
+          <SheetTitle className="text-white text-xl">Your yangu setup</SheetTitle>
           <SheetDescription style={{ color: "rgba(255,255,255,0.5)" }}>
-            You'll finish setup inside your YANGU account.
+            You'll finish setup inside your yangu account.
           </SheetDescription>
         </SheetHeader>
 

@@ -66,7 +66,7 @@ export function DomainGate({
             </p>
           </div>
           <Button asChild>
-            <a href="https://yangu.io">Go to YANGU</a>
+            <a href="https://yangu.io">Go to yangu</a>
           </Button>
         </div>
       </div>

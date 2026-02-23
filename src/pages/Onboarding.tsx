@@ -470,7 +470,7 @@ export default function Onboarding() {
       }
 
       await refreshProfile();
-      toast.success("Welcome to YANGU!");
+      toast.success("Welcome to yangu!");
       navigate(path.redirectTo);
     } catch (err) {
       console.error("Onboarding error:", err);
@@ -558,7 +558,7 @@ export default function Onboarding() {
 
       await refreshProfile();
       queryClient.invalidateQueries({ queryKey: ["surfaces"] });
-      toast.success("Welcome to YANGU! Your space is ready.");
+      toast.success("Welcome to yangu! Your space is ready.");
       navigate(path.redirectTo);
     } catch (err) {
       console.error("Onboarding error:", err);
@@ -596,7 +596,7 @@ export default function Onboarding() {
   // === STEP 1: IDENTITY ===
   if (currentStep === "identity") {
     return (
-      <AuthShell title="Claim your identity" subtitle="Choose a unique username for your YANGU profile" showBackLink={false}>
+      <AuthShell title="Claim your identity" subtitle="Choose a unique username for your yangu profile" showBackLink={false}>
         <StepProgress current={1} total={totalSteps} />
         <form onSubmit={usernameForm.handleSubmit(handleIdentitySubmit)} className="space-y-6">
           {/* Avatar picker */}

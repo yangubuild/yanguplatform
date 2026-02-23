@@ -18,7 +18,7 @@ export function DomainInactive() {
           or visit the main platform.
         </p>
         <Button asChild>
-          <a href="https://yangu.io">Go to YANGU</a>
+          <a href="https://yangu.io">Go to yangu</a>
         </Button>
       </Card>
     </div>

@@ -55,7 +55,7 @@ export function NotPublished({ canPublish = false }: NotPublishedProps) {
         ) : (
           <Button asChild variant="outline">
             <a href="https://yangu.io">
-              Visit YANGU
+              Visit yangu
             </a>
           </Button>
         )}

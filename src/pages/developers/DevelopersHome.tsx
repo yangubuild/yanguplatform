@@ -22,7 +22,7 @@ const devCards = [
 ];
 
 const agencyCards = [
-  { icon: Building2, title: "Multi-tenant apps", description: "Build white-label products on top of the Yangu platform for your clients.", path: "/developers/extensibility/apps" },
+  { icon: Building2, title: "Multi-tenant apps", description: "Build white-label products on top of the yangu platform for your clients.", path: "/developers/extensibility/apps" },
   { icon: Server, title: "Environments", description: "Dev, staging, and production environments with isolated data.", path: "/developers/infrastructure/environments" },
 ];
 
@@ -42,8 +42,8 @@ export default function DevelopersHome() {
   return (
     <DocsPage
       breadcrumb="Overview"
-      title="Build on Yangu"
-      subtitle="Everything you need to build, integrate, and scale on the Yangu platform."
+      title="Build on yangu"
+      subtitle="Everything you need to build, integrate, and scale on the yangu platform."
     >
       {/* CTA Buttons */}
       <div className="flex flex-wrap gap-3 mb-10">
@@ -59,7 +59,7 @@ export default function DevelopersHome() {
         </Button>
       </div>
 
-      <DocsSection id="for-developers" title="For developers" description="Explore tools and APIs to build on Yangu:">
+      <DocsSection id="for-developers" title="For developers" description="Explore tools and APIs to build on yangu:">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {devCards.map((card) => (
             <DocsCard key={card.title} icon={card.icon} title={card.title} description={card.description} onClick={() => navigate(card.path)} />
@@ -67,7 +67,7 @@ export default function DevelopersHome() {
         </div>
       </DocsSection>
 
-      <DocsSection id="for-agencies" title="For agencies & builders" description="Build products and workflows on top of Yangu:">
+      <DocsSection id="for-agencies" title="For agencies & builders" description="Build products and workflows on top of yangu:">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {agencyCards.map((card) => (
             <DocsCard key={card.title} icon={card.icon} title={card.title} description={card.description} onClick={() => navigate(card.path)} />
@@ -75,10 +75,10 @@ export default function DevelopersHome() {
         </div>
       </DocsSection>
 
-      <DocsSection id="app-store" title="App Store" description="Browse and submit apps to the Yangu marketplace:">
+      <DocsSection id="app-store" title="App Store" description="Browse and submit apps to the yangu marketplace:">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <DocsCard icon={Store} title="Browse App Store" description="Discover apps built by the community and verified by Yangu." onClick={() => navigate("/developers/store")} />
-          <DocsCard icon={Puzzle} title="Submit an App" description="Package your integration and publish it to the Yangu App Store." onClick={() => navigate("/developers/console/submissions/new")} />
+          <DocsCard icon={Store} title="Browse App Store" description="Discover apps built by the community and verified by yangu." onClick={() => navigate("/developers/store")} />
+          <DocsCard icon={Puzzle} title="Submit an App" description="Package your integration and publish it to the yangu App Store." onClick={() => navigate("/developers/console/submissions/new")} />
         </div>
       </DocsSection>
 
