@@ -1,23 +1,22 @@
 
 
-## Fix: Card Images Getting Cut Off in Explore Grid
+## Fix: Revert Card Images Back to `object-cover`
 
-**Problem**: The new yangu app card images (eshop, ada ai, etc.) contain UI screenshots and logos that get visually cropped when displayed with `object-cover`. The previous cards (Gramerz, Jobhunt, etc.) were full-bleed photos that worked fine with cover mode, but these new images need to display their full content.
+**Problem**: The change to `object-contain` introduced visible dark background gaps around the images. The original cards filled their containers completely edge-to-edge with `object-cover`, and the new yangu app images should do the same — they already have their own built-in backgrounds (green, orange, yellow, etc.) that naturally fill the frame.
 
-**Solution**: Change the image fitting for featured/yangu app cards from `object-cover` to `object-contain` with `object-center`, so the entire image is visible within the card frame without cropping.
+**Solution**: Revert the `<img>` class in `MassResourceCard.tsx` back to `object-cover`, removing `object-contain object-center`.
 
 ---
 
 ### Technical Details
 
-**File**: `src/components/mass/MassResourceCard.tsx`
+**File**: `src/components/mass/MassResourceCard.tsx` (line 28)
 
-**Change**: On the `<img>` element (line 28), update the CSS classes:
-- From: `object-cover`
-- To: `object-contain object-center`
+**Change**:
+- From: `object-contain object-center`
+- To: `object-cover`
 
-This single change ensures:
-- The full image is always visible (no cropping of text/logos/UI)
-- Images are centered within the 4:3 aspect ratio container
-- The dark background (`#0A1710`) fills any letterbox/pillarbox space naturally
-- No changes to layout, spacing, hover effects, or any other styling
+This restores:
+- Images filling the entire container with no background gaps
+- Rounded corners from the parent container clipping the image naturally
+- Identical visual behavior to the original Gramerz/Jobhunt/etc. cards
