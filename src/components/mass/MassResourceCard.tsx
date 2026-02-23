@@ -16,11 +16,11 @@ export function MassResourceCard({ image, title, category, featured = false, url
       rel="noopener noreferrer"
       className="group cursor-pointer block"
     >
-      <div className="relative overflow-hidden rounded-2xl mb-3 aspect-[16/10]">
+      <div className="relative overflow-hidden rounded-2xl mb-3">
         <img
           src={image}
           alt={title}
-          className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+          className="w-full block transition-transform duration-300 group-hover:scale-105"
         />
       </div>
       <div className="flex items-center justify-between">
