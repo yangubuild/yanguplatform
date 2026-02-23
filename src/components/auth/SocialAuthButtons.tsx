@@ -15,7 +15,7 @@ export function SocialAuthButtons({ disabled }: SocialAuthButtonsProps) {
     setIsGoogleLoading(true);
     try {
       const { error } = await cloudAuth.auth.signInWithOAuth("google", {
-        redirect_uri: `${window.location.origin}/auth/callback`,
+        redirect_uri: window.location.origin,
       });
 
       if (error) {
@@ -34,7 +34,7 @@ export function SocialAuthButtons({ disabled }: SocialAuthButtonsProps) {
     setIsAppleLoading(true);
     try {
       const { error } = await cloudAuth.auth.signInWithOAuth("apple", {
-        redirect_uri: `${window.location.origin}/auth/callback`,
+        redirect_uri: window.location.origin,
       });
 
       if (error) {
