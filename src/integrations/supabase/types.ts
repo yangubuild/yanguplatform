@@ -902,6 +902,77 @@ export type Database = {
         }
         Relationships: []
       }
+      developer_api_quota_config: {
+        Row: {
+          daily_limit: number
+          is_enabled: boolean
+          monthly_limit: number
+          quota_key: string
+        }
+        Insert: {
+          daily_limit: number
+          is_enabled?: boolean
+          monthly_limit: number
+          quota_key: string
+        }
+        Update: {
+          daily_limit?: number
+          is_enabled?: boolean
+          monthly_limit?: number
+          quota_key?: string
+        }
+        Relationships: []
+      }
+      developer_api_usage_daily: {
+        Row: {
+          app_id: string
+          created_at: string
+          date: string
+          developer_id: string
+          endpoint: string
+          error_count: number
+          id: string
+          success_count: number
+          total_count: number
+          total_latency_ms: number
+          updated_at: string
+        }
+        Insert: {
+          app_id: string
+          created_at?: string
+          date: string
+          developer_id: string
+          endpoint: string
+          error_count?: number
+          id?: string
+          success_count?: number
+          total_count?: number
+          total_latency_ms?: number
+          updated_at?: string
+        }
+        Update: {
+          app_id?: string
+          created_at?: string
+          date?: string
+          developer_id?: string
+          endpoint?: string
+          error_count?: number
+          id?: string
+          success_count?: number
+          total_count?: number
+          total_latency_ms?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "developer_api_usage_daily_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "developer_apps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       developer_app_installs: {
         Row: {
           id: string
@@ -1049,6 +1120,45 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "developer_apps"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      developer_app_quota_overrides: {
+        Row: {
+          app_id: string
+          daily_limit: number | null
+          id: string
+          monthly_limit: number | null
+          quota_key: string
+        }
+        Insert: {
+          app_id: string
+          daily_limit?: number | null
+          id?: string
+          monthly_limit?: number | null
+          quota_key: string
+        }
+        Update: {
+          app_id?: string
+          daily_limit?: number | null
+          id?: string
+          monthly_limit?: number | null
+          quota_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "developer_app_quota_overrides_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "developer_apps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "developer_app_quota_overrides_quota_key_fkey"
+            columns: ["quota_key"]
+            isOneToOne: false
+            referencedRelation: "developer_api_quota_config"
+            referencedColumns: ["quota_key"]
           },
         ]
       }
@@ -2909,6 +3019,19 @@ export type Database = {
         Returns: string
       }
       delete_surface: { Args: { p_surface_id: string }; Returns: Json }
+      developer_check_and_increment_usage: {
+        Args: {
+          p_app_id: string
+          p_endpoint: string
+          p_latency_ms?: number
+          p_success: boolean
+        }
+        Returns: Json
+      }
+      developer_get_usage_summary: {
+        Args: { p_app_id?: string; p_days?: number }
+        Returns: Json
+      }
       dismiss_promo: { Args: { p_campaign_key: string }; Returns: undefined }
       enqueue_webhook_event: {
         Args: { p_app_id: string; p_event_type: string; p_payload?: Json }
