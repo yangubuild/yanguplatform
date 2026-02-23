@@ -21,7 +21,7 @@ export function ExploreLandingContent() {
   return (
     <div className="space-y-0">
       <MassTrendsBar />
-      <div className="mt-8">
+      <div className="mt-14">
         <MassHero />
       </div>
       <MassSearchBar />
