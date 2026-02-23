@@ -34,10 +34,10 @@ export function WhyYanguDevelopersContent() {
         Overview
       </p>
 
-      <h1 className={DocsTypography.h1}>Build on Yangu</h1>
+      <h1 className={DocsTypography.h1}>Build on yangu</h1>
 
       <p className={DocsTypography.subtitle} style={{ color: "rgba(255,255,255,0.5)" }}>
-        Everything you need to build, integrate, and scale on the Yangu platform.
+        Everything you need to build, integrate, and scale on the yangu platform.
       </p>
 
       <div className="flex flex-wrap gap-3 mb-10">
@@ -52,7 +52,7 @@ export function WhyYanguDevelopersContent() {
       <div id="for-developers" className="mb-6">
         <h2 className={DocsTypography.h2}>For developers</h2>
         <p className={DocsTypography.sectionDesc} style={{ color: "rgba(255,255,255,0.5)" }}>
-          Explore tools and APIs to build on Yangu:
+          Explore tools and APIs to build on yangu:
         </p>
       </div>
 
