@@ -16,16 +16,11 @@ export function MassResourceCard({ image, title, category, featured = false, url
       rel="noopener noreferrer"
       className="group cursor-pointer block"
     >
-      <div 
-        className="relative overflow-hidden rounded-xl mb-3"
-        style={{
-          background: '#0A1710',
-        }}
-      >
+      <div className="relative overflow-hidden rounded-xl mb-3">
         <img
           src={image}
           alt={title}
-          className="w-full aspect-[4/3] object-cover transition-transform duration-300 group-hover:scale-105"
+          className="w-full block transition-transform duration-300 group-hover:scale-105"
         />
       </div>
       <div className="flex items-center justify-between">
