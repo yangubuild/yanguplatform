@@ -1,3 +1,12 @@
+import cardEshop from "@/assets/card-eshop.png";
+import cardAdaAi from "@/assets/card-ada-ai.png";
+import cardEshopConnect from "@/assets/card-eshop-connect.png";
+import cardEmenu from "@/assets/card-emenu.png";
+import cardYanguLive from "@/assets/card-yangu-live.png";
+import cardYanguStudio from "@/assets/card-yangu-studio.png";
+import cardVisionboard from "@/assets/card-visionboard.png";
+import cardVisionaire from "@/assets/card-visionaire.png";
+
 export interface Resource {
   image: string;
   title: string;
@@ -8,60 +17,52 @@ export interface Resource {
 
 export const featuredResources: Resource[] = [
   {
-    image: "https://framerusercontent.com/images/LnXUeoRLtFdfqGFphNz2RHNZVk.jpg?width=2400&height=1800",
-    title: "Gramerz",
-    category: "Inspiration",
+    image: cardEshop,
+    title: "eshop",
+    category: "yangu apps",
     featured: true,
-    url: "https://gramerz.framer.website/",
   },
   {
-    image: "https://framerusercontent.com/images/bE2r4D8FDICBHISLhFehg0fZvI.jpg?width=2400&height=1800",
-    title: "Jobhunt",
-    category: "Templates",
+    image: cardAdaAi,
+    title: "ada ai",
+    category: "yangu apps",
     featured: true,
-    url: "https://jobhunt.framer.website/",
   },
   {
-    image: "https://framerusercontent.com/images/kRIOHbPRgtbfe4Z0NlK2qSiO5Q.jpg?width=1200&height=900",
-    title: "Homfort",
-    category: "Templates",
+    image: cardEshopConnect,
+    title: "eshop connect",
+    category: "yangu apps",
     featured: true,
-    url: "https://homfort.framer.website/",
   },
   {
-    image: "https://framerusercontent.com/images/lFB33SIMWsogDBI02316XDG3tfc.jpg?width=1200&height=900",
-    title: "Dwello",
-    category: "Templates",
+    image: cardEmenu,
+    title: "emenu",
+    category: "yangu apps",
     featured: true,
-    url: "https://dwello.framer.website/",
   },
   {
-    image: "https://framerusercontent.com/images/kUNPmKVFYs9FN6p19KwE8pNZdA.png?width=278&height=181",
-    title: "Mobbin",
-    category: "Inspiration",
+    image: cardYanguLive,
+    title: "yangu live",
+    category: "yangu apps",
     featured: true,
-    url: "https://mobbin.com/",
   },
   {
-    image: "https://framerusercontent.com/images/NgkQ2uqwhqhzp1GpuNpksVYeAE.png?width=2920&height=1602",
-    title: "Runway",
-    category: "Ai",
+    image: cardYanguStudio,
+    title: "yangu studio",
+    category: "yangu apps",
     featured: true,
-    url: "https://runwayml.com/",
   },
   {
-    image: "https://framerusercontent.com/images/mEAxnN029jRMMnVb24MVnsrUeHE.jpeg?width=1600&height=1085",
-    title: "Learnfy",
-    category: "Templates",
+    image: cardVisionboard,
+    title: "visionboard",
+    category: "yangu apps",
     featured: true,
-    url: "https://learnfy.framer.website/",
   },
   {
-    image: "https://framerusercontent.com/images/O1XE3m9LcBRskOvexF1hpVFrTxc.jpg?width=1208&height=840",
-    title: "Crate",
-    category: "Templates",
+    image: cardVisionaire,
+    title: "visionaire",
+    category: "yangu apps",
     featured: true,
-    url: "https://crate.framer.website/",
   },
 ];
 
