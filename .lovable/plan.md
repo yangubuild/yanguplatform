@@ -1,64 +1,46 @@
 
 
-## Global Font System: Lufga as Platform Font
+## Fix: Full-Width Background Color and Proper Trends-to-Hero Spacing
 
-### Overview
-Copy all 18 Lufga font files into the project, register them with `@font-face` declarations, and update the design system so every element inherits Lufga automatically.
+### Issue 1: Background color only covers inner content, not the full container
 
-### Steps
+**Root cause**: In `DashboardExplore.tsx`, the `#08120D` background is applied to the same div that has `max-w-[1100px] mx-auto`, so it only paints the centered column. The outer dashboard shell shows its own gradient (`#1f262b`) on either side.
 
-**1. Copy all 18 font files to `public/fonts/`**
+**Fix**: Split into two divs -- an outer full-width div with the background color, and an inner centered div for padding/max-width.
 
-Copy each uploaded `.otf` file into `public/fonts/` so they can be referenced in CSS:
-- Lufga-Thin.otf, Lufga-ThinItalic.otf
-- Lufga-ExtraLight.otf, Lufga-ExtraLightItalic.otf
-- Lufga-Light.otf, Lufga-LightItalic.otf
-- Lufga-Regular.otf, Lufga-Italic.otf
-- Lufga-Medium.otf, Lufga-MediumItalic.otf
-- Lufga-SemiBold.otf, Lufga-SemiBoldItalic.otf
-- Lufga-Bold.otf, Lufga-BoldItalic.otf
-- Lufga-ExtraBold.otf, Lufga-ExtraBoldItalic.otf
-- Lufga-Black.otf, Lufga-BlackItalic.otf
+### Issue 2: Trends bar sitting too close to / overlapping the hero
 
-**2. Update `src/index.css`**
+**Root cause**: `MassTrendsBar` uses negative margins (`lg:-ml-[60px]`, `xl:-ml-[200px]`) and `mt-6` which work on the landing page but cause layout issues inside the constrained dashboard content area. The `mt-10` on the hero wrapper in `ExploreLandingContent` doesn't match the landing page spacing either.
 
-- Remove the Google Fonts import for Inter and JetBrains Mono (line 1).
-- Add 18 `@font-face` blocks mapping each file to the correct weight (100-900) and style (normal/italic).
-- No other CSS changes.
+**Fix**: Change `mt-10` back to `mt-8` on the hero wrapper to match the landing page's visual spacing. The trends bar negative margins will naturally extend into the full-width background now.
 
-**3. Update `tailwind.config.ts`**
+---
 
-- Set `fontFamily.sans` to `["Lufga", "system-ui", "sans-serif"]`.
-- Set `fontFamily.display` to `["Lufga", "system-ui", "sans-serif"]`.
-- Keep `fontFamily.mono` as-is (JetBrains Mono fallback is fine for code blocks).
+### Technical Details
 
-**4. Remove Lufga from Fontshare CDN**
+**File 1: `src/pages/dashboard/DashboardExplore.tsx`**
 
-- Remove the Fontshare `<link>` tag in `index.html` (line 6) since we now self-host the fonts.
+Wrap with a full-width outer div that carries the background, keep the inner div for centering:
 
-### What stays the same
-- All spacing, font sizes, colors, weights, and component structure remain untouched.
-- Only the font-family source changes from Inter/CDN-Lufga to self-hosted Lufga.
-
-### Technical details
-
-Font registration example (repeated for all 18 variants):
-```css
-@font-face {
-  font-family: "Lufga";
-  src: url("/fonts/Lufga-Regular.otf") format("opentype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
+```tsx
+export default function DashboardExplore() {
+  return (
+    <div className="min-h-full" style={{ background: '#08120D' }}>
+      <div className="px-4 sm:px-6 lg:px-10 py-6 max-w-[1100px] mx-auto">
+        <ExploreLandingContent />
+      </div>
+    </div>
+  );
 }
 ```
 
-Tailwind config change:
-```ts
-fontFamily: {
-  sans: ["Lufga", "system-ui", "sans-serif"],
-  display: ["Lufga", "system-ui", "sans-serif"],
-  mono: ["JetBrains Mono", "monospace"],
-},
+**File 2: `src/components/mass/ExploreLandingContent.tsx`**
+
+Change `mt-10` to `mt-8` on the hero wrapper to better match the landing page spacing (the trends bar already has its own `mt-6`):
+
+```tsx
+<div className="mt-8">
+  <MassHero />
+</div>
 ```
 
