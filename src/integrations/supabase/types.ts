@@ -3192,6 +3192,30 @@ export type Database = {
       }
       is_username_available: { Args: { _username: string }; Returns: boolean }
       list_on_community: { Args: { p_surface_id: string }; Returns: Json }
+      manage_invite_user: {
+        Args: {
+          p_email: string
+          p_roles: Database["public"]["Enums"]["app_role"][]
+        }
+        Returns: Json
+      }
+      manage_list_invites: { Args: never; Returns: Json }
+      manage_list_users: {
+        Args: { p_limit?: number; p_offset?: number }
+        Returns: Json
+      }
+      manage_overview_stats: { Args: never; Returns: Json }
+      manage_recent_audit_logs: {
+        Args: { p_limit?: number; p_offset?: number }
+        Returns: Json
+      }
+      manage_set_user_roles: {
+        Args: {
+          p_roles: Database["public"]["Enums"]["app_role"][]
+          p_user_id: string
+        }
+        Returns: Json
+      }
       org_has_active_subscription: {
         Args: { p_org_id: string }
         Returns: boolean
