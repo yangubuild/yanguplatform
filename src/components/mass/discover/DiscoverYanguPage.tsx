@@ -119,13 +119,13 @@ const businessModels = [
 
 /* ── FAQ Data ── */
 const faqs = [
-  { question: "What can I sell on Yangu?", answer: "You can sell almost anything digital — courses, coaching, community access, software, templates, services, and more. Yangu supports a wide range of business models from solo creators to full agencies." },
-  { question: "Why should I use Yangu?", answer: "Yangu provides an all-in-one platform to build, market, and scale your online business. With built-in AI tools, live video, payments, and community features, you don't need to piece together multiple services." },
-  { question: "How is Yangu different from other payment platforms?", answer: "Yangu isn't just a payment processor — it's a complete business platform. We handle payments, community, content delivery, marketing, and AI-powered growth tools all in one place." },
-  { question: "How is Yangu different from other social networks?", answer: "Unlike social networks that monetize your attention, Yangu is designed to monetize your expertise. Every feature is built to help creators earn sustainable income from their knowledge and skills." },
-  { question: "Can software developers use Yangu?", answer: "Absolutely. Yangu offers APIs, webhooks, CLI tools, and SDK access so developers can build custom integrations, distribute software, and create unique experiences on the platform." },
-  { question: "Does Yangu charge a subscription fee?", answer: "No. Yangu is free to start with no monthly subscription. We only take a small percentage per transaction, so you only pay when you earn." },
-  { question: "How does Yangu help with distribution?", answer: "Yangu's marketplace and discovery features help new customers find your products. Combined with built-in affiliate tools and SEO optimization, your reach grows organically." },
+  { question: "What can I sell on yangu?", answer: "You can sell almost anything digital — courses, coaching, community access, software, templates, services, and more. yangu supports a wide range of business models from solo creators to full agencies." },
+  { question: "Why should I use yangu?", answer: "yangu provides an all-in-one platform to build, market, and scale your online business. With built-in AI tools, live video, payments, and community features, you don't need to piece together multiple services." },
+  { question: "How is yangu different from other payment platforms?", answer: "yangu isn't just a payment processor — it's a complete business platform. We handle payments, community, content delivery, marketing, and AI-powered growth tools all in one place." },
+  { question: "How is yangu different from other social networks?", answer: "Unlike social networks that monetize your attention, yangu is designed to monetize your expertise. Every feature is built to help creators earn sustainable income from their knowledge and skills." },
+  { question: "Can software developers use yangu?", answer: "Absolutely. yangu offers APIs, webhooks, CLI tools, and SDK access so developers can build custom integrations, distribute software, and create unique experiences on the platform." },
+  { question: "Does yangu charge a subscription fee?", answer: "No. yangu is free to start with no monthly subscription. We only take a small percentage per transaction, so you only pay when you earn." },
+  { question: "How does yangu help with distribution?", answer: "yangu's marketplace and discovery features help new customers find your products. Combined with built-in affiliate tools and SEO optimization, your reach grows organically." },
 ];
 
 /* ── MAIN PAGE ── */
@@ -143,7 +143,7 @@ export function DiscoverYanguPage() {
           <span className="text-[#F46D2A]">income.</span>
         </h1>
         <p className="text-white/50 text-lg md:text-xl max-w-[600px] mx-auto mb-10 leading-relaxed">
-          Paid groups, software, coaching, courses, services — whatever you sell, Yangu is where the internet does business.
+          Paid groups, software, coaching, courses, services — whatever you sell, yangu is where the internet does business.
         </p>
         <a 
           href="/auth/signup"
@@ -157,9 +157,9 @@ export function DiscoverYanguPage() {
 
       {/* ─── Stats Bar ─── */}
       <section className="flex items-center justify-center gap-8 md:gap-16 py-10 border-y border-white/6 max-w-[800px] mx-auto mb-20">
-        <StatItem value="$2.1B+" label="Made by sellers on Yangu" />
-        <StatItem value="82K+" label="Sellers on Yangu" />
-        <StatItem value="15M+" label="Users on Yangu" />
+        <StatItem value="$2.1B+" label="Made by sellers on yangu" />
+        <StatItem value="82K+" label="Sellers on yangu" />
+        <StatItem value="15M+" label="Users on yangu" />
       </section>
 
       {/* ─── Supported Business Models ─── */}
@@ -168,7 +168,7 @@ export function DiscoverYanguPage() {
           Supported business models
         </h2>
         <p className="text-white/40 text-center mb-12 max-w-[500px] mx-auto">
-          Whatever your business looks like, Yangu has the tools to help you grow.
+          Whatever your business looks like, yangu has the tools to help you grow.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {businessModels.map((model) => (
@@ -180,7 +180,7 @@ export function DiscoverYanguPage() {
       {/* ─── Build with Apps ─── */}
       <section className="px-6 max-w-[1100px] mx-auto mb-24">
         <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-4">
-          Build your product with Yangu apps
+          Build your product with yangu apps
         </h2>
         <p className="text-white/40 text-center mb-10 max-w-[550px] mx-auto">
           Pick from powerful apps like chat, courses, livestreams and more — and instantly give your customers a home base.
@@ -240,16 +240,16 @@ export function DiscoverYanguPage() {
           <ToolCard icon={Store} title="My Store" description="Launch a high-converting store page in seconds. Showcase your products beautifully." highlight />
           <ToolCard icon={CreditCard} title="Payments" description="Accept payments in hundreds of countries with instant payouts and low fees." />
           <ToolCard icon={BarChart3} title="Affiliates" description="Track your sales in real time and access detailed user data and analytics." />
-          <ToolCard icon={Smartphone} title="Mobile App" description="Do it all right from your pocket with the full-featured Yangu mobile app." />
+          <ToolCard icon={Smartphone} title="Mobile App" description="Do it all right from your pocket with the full-featured yangu mobile app." />
           <ToolCard icon={Clock} title="Buy Now, Pay Later" description="Collect cash up front and enable your customers to pay over time." />
-          <ToolCard icon={Shield} title="Dispute Fighter" description="Yangu automatically handles and fights disputes on your behalf." />
+          <ToolCard icon={Shield} title="Dispute Fighter" description="yangu automatically handles and fights disputes on your behalf." />
         </div>
       </section>
 
       {/* ─── Pricing Section ─── */}
       <section className="px-6 max-w-[600px] mx-auto mb-24">
         <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-12">
-          Yangu pricing
+          yangu pricing
         </h2>
         <div 
           className="rounded-2xl p-10 text-center"
@@ -278,7 +278,7 @@ export function DiscoverYanguPage() {
               "Accept payments and offer BNPL",
               "Host courses, chats, livestreams, and more",
               "Design store pages",
-              "Get listed on the Yangu Marketplace",
+              "Get listed on the yangu Marketplace",
               "Manage affiliates",
             ].map((item) => (
               <li key={item} className="flex items-center gap-3 text-white/60 text-sm">
@@ -311,7 +311,7 @@ export function DiscoverYanguPage() {
           }}
         >
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
-            Start selling with Yangu.
+            Start selling with yangu.
           </h2>
           <a 
             href="/auth/signup"

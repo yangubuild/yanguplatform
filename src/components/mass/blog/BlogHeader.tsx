@@ -77,7 +77,7 @@ export function BlogHeader({ onSubscribeClick }: BlogHeaderProps) {
           }}
         >
           <div style={{ width: 80, height: 1, background: "rgba(255,255,255,0.2)" }} />
-          <img src={yanguLogo} alt="Yangu" className="h-6 w-auto px-4 cursor-pointer" onClick={() => navigate("/")} />
+          <img src={yanguLogo} alt="yangu" className="h-6 w-auto px-4 cursor-pointer" onClick={() => navigate("/")} />
           <div style={{ width: 80, height: 1, background: "rgba(255,255,255,0.2)" }} />
         </div>
 

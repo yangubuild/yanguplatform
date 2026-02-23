@@ -14,7 +14,7 @@ export function CommunityTopBar() {
           <a href="/" className="flex items-center">
             <img
               src={theme === "dark" ? yanguLogoFull : yanguLogoDarkText}
-              alt="Yangu"
+              alt="yangu"
               className="h-10 w-auto"
             />
           </a>

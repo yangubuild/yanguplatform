@@ -7,7 +7,7 @@ export function MassSearchBar() {
         <Search className="absolute left-4 w-4 h-4 text-white/40" />
         <input
           type="text"
-          placeholder="Search Yangu to buy, learn, create or sell ..."
+          placeholder="Search yangu to buy, learn, create or sell ..."
           className="w-full pl-11 pr-12 py-3 rounded-full text-white placeholder:text-white/40 focus:outline-none text-sm"
           style={{
             background: '#152A20',
