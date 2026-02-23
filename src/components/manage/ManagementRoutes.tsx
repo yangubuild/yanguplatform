@@ -22,16 +22,25 @@ const ManagePromos = lazy(() => import("@/pages/manage/ManagePromos"));
 const ManageTeam = lazy(() => import("@/pages/manage/ManageTeam"));
 const ManageAppReview = lazy(() => import("@/pages/manage/ManageAppReview"));
 
+// Auth — login only, no signup
+const Login = lazy(() => import("@/pages/auth/Login"));
+const AuthCallback = lazy(() => import("@/pages/auth/AuthCallback"));
+
 /**
  * Routes for the management subdomain (manage.yangu.studio).
- * Renders management panel only — no dashboard, developer, or platform routes.
+ * Completely isolated runtime — no landing page, no domain gate, no platform routes.
+ * Signup is disabled; login only.
  */
 export function ManagementRoutes() {
   return (
     <Suspense fallback={null}>
       <Routes>
-        {/* Auth route passthrough */}
-        <Route path="/auth/*" element={<AuthPassthrough />} />
+        {/* Auth routes — login only */}
+        <Route path="/auth/login" element={<Login />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
+        {/* Block signup — redirect to login */}
+        <Route path="/auth/signup" element={<Navigate to="/auth/login" replace />} />
+        <Route path="/auth/*" element={<Navigate to="/auth/login" replace />} />
 
         {/* Management panel */}
         <Route
@@ -68,28 +77,11 @@ export function ManagementRoutes() {
           <Route path="alerts-security" element={<ManagePlaceholder />} />
           <Route path="app-review" element={<ManageAppReview />} />
           <Route path="audit-logs" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManagePlaceholder /></ManageRoleGate>} />
-          <Route path="*" element={<ManageNotFound />} />
+          <Route path="*" element={<Navigate to="/overview" replace />} />
         </Route>
 
-        {/* Block all non-management routes */}
+        {/* Catch-all — redirect everything else to /overview */}
         <Route path="*" element={<Navigate to="/overview" replace />} />
-      </Routes>
-    </Suspense>
-  );
-}
-
-/** Passthrough for /auth/* routes within management subdomain */
-function AuthPassthrough() {
-  // Import auth pages lazily
-  const Login = lazy(() => import("@/pages/auth/Login"));
-  const AuthCallback = lazy(() => import("@/pages/auth/AuthCallback"));
-
-  return (
-    <Suspense fallback={null}>
-      <Routes>
-        <Route path="login" element={<Login />} />
-        <Route path="callback" element={<AuthCallback />} />
-        <Route path="*" element={<Navigate to="/auth/login" replace />} />
       </Routes>
     </Suspense>
   );
