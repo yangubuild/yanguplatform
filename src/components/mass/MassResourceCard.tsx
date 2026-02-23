@@ -25,7 +25,7 @@ export function MassResourceCard({ image, title, category, featured = false, url
         <img
           src={image}
           alt={title}
-          className="w-full aspect-[4/3] object-contain object-center transition-transform duration-300 group-hover:scale-105"
+          className="w-full aspect-[4/3] object-cover transition-transform duration-300 group-hover:scale-105"
         />
       </div>
       <div className="flex items-center justify-between">
