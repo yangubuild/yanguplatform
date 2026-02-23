@@ -126,7 +126,9 @@ import { DashboardRoleGate } from "@/components/auth/DashboardRoleGate";
  * Check if we're on the management subdomain.
  * If so, render management-only routes.
  */
-const isManagementHost = resolveAppMode(window.location.hostname) === "management";
+const managementHost = window.location.hostname;
+console.log("[App] raw hostname:", managementHost);
+const isManagementHost = resolveAppMode(managementHost) === "management";
 
 /**
  * App component - contains all providers EXCEPT QueryClientProvider
