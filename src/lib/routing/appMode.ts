@@ -24,5 +24,14 @@ const HOST_MODE_MAP: Record<string, AppMode> = {
  */
 export function resolveAppMode(host: string): AppMode | null {
   const normalized = normalizeHostname(host);
-  return HOST_MODE_MAP[normalized] ?? null;
+
+  // Explicit early match for management subdomain — must resolve before anything else
+  if (normalized === "manage.yangu.studio") {
+    console.log("APP MODE:", host, "management");
+    return "management";
+  }
+
+  const mode = HOST_MODE_MAP[normalized] ?? null;
+  console.log("APP MODE:", host, mode);
+  return mode;
 }
