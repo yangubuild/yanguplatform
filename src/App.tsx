@@ -12,7 +12,7 @@ import { PublicRouteResolver } from "@/components/routing";
 import { ConsoleAuthGuard } from "@/components/developers/ConsoleAuthGuard";
 import { DeveloperPortalGuard } from "@/components/developers/DeveloperPortalGuard";
 import { resolveAppMode } from "@/lib/routing/appMode";
-import { ManagementRoutes } from "@/components/manage/ManagementRoutes";
+
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/auth/Login";
@@ -123,12 +123,10 @@ import { DashboardRoleGate } from "@/components/auth/DashboardRoleGate";
 // Supabase client auto-configured via environment
 
 /**
- * Check if we're on the management subdomain.
- * If so, render management-only routes.
+ * Host-based routing: resolveAppMode reads window.location.hostname
+ * and maps it to a platform mode (platform, community, studio, etc.).
+ * All domains render through the same SPA — no subdomain early-returns.
  */
-const managementHost = window.location.hostname;
-console.log("[App] raw hostname:", managementHost);
-const isManagementHost = resolveAppMode(managementHost) === "management";
 
 /**
  * App component - contains all providers EXCEPT QueryClientProvider
@@ -141,9 +139,6 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          {isManagementHost ? (
-            <ManagementRoutes />
-          ) : (
           <DomainProvider>
             <PublicRouteResolver>
               <DomainGate>
@@ -388,7 +383,6 @@ const App = () => (
               </DomainGate>
             </PublicRouteResolver>
           </DomainProvider>
-          )}
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
