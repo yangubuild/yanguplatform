@@ -23,9 +23,15 @@ const HOST_MODE_MAP: Record<string, AppMode> = {
  * Returns null for dev/unknown hosts (caller should fall through to internal routing).
  */
 export function resolveAppMode(host: string): AppMode | null {
+  // Hard check BEFORE any normalization — prevents subdomain stripping
+  if (host === "manage.yangu.studio" || host === "www.manage.yangu.studio") {
+    console.log("APP MODE [raw]:", host, "→ management");
+    return "management";
+  }
+
   const normalized = normalizeHostname(host);
 
-  // Explicit early match for management subdomain — must resolve before anything else
+  // Backup check post-normalization
   if (normalized === "manage.yangu.studio") {
     console.log("APP MODE:", host, "management");
     return "management";
