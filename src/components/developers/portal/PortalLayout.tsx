@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { DeveloperAuthModal } from "@/components/developers/DeveloperAuthModal";
 import yanguYIcon from "@/assets/yangu-y-icon.png";
+import { LegalFooter } from "@/components/LegalFooter";
 
 const portalNav = [
   { label: "Overview", path: "/developers/portal/overview", icon: LayoutDashboard },
@@ -203,13 +204,7 @@ export function PortalLayout() {
           </div>
         )}
 
-        <footer className="py-8 text-center">
-          <div className="flex items-center justify-center gap-2 text-white/50 text-sm">
-            <span>©</span>
-            <img src={yanguYIcon} alt="Yangu" className="w-4 h-4 opacity-50" />
-            <span>yangu 2026</span>
-          </div>
-        </footer>
+        <LegalFooter />
       </main>
     </div>
   );

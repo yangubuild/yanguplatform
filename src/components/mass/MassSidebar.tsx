@@ -29,8 +29,8 @@ const bottomNavItems = [
   { icon: PenLine, label: "Blog", id: "blog" },
   { icon: Users, label: "Community", id: "community" },
   { icon: Sparkle, label: "Affiliates", id: "affiliates" },
-  { icon: Info, label: "Terms of Service", id: "terms" },
-  { icon: Shield, label: "Privacy Policy", id: "privacy" },
+  { icon: Info, label: "Terms of Service", id: "termsofservice" },
+  { icon: Shield, label: "Privacy Policy", id: "privacypolicy" },
 ];
 
 interface MassSidebarProps {
@@ -60,8 +60,8 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
           if (item.id === "explore") navigate("/");
           if (item.id === "discover") navigate("/discover");
           if (item.id === "blog") navigate("/blog");
-          if (item.id === "terms") navigate("/terms");
-          if (item.id === "privacy") navigate("/privacy");
+          if (item.id === "termsofservice") navigate("/termsofservice");
+          if (item.id === "privacypolicy") navigate("/privacypolicy");
         }}
         onMouseEnter={() => setHoveredItem(item.id)}
         onMouseLeave={() => setHoveredItem(null)}

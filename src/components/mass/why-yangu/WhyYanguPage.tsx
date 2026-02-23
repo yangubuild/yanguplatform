@@ -7,7 +7,7 @@ import { WhyYanguSidebar } from "./WhyYanguSidebar";
 import { WhyYanguContent } from "./WhyYanguContent";
 import { WhyYanguDevelopersContent } from "./WhyYanguDevelopersContent";
 import { AudienceToggle, type Audience } from "./AudienceToggle";
-import yanguYIcon from "@/assets/yangu-y-icon.png";
+import { LegalFooter } from "@/components/LegalFooter";
 
 const STORAGE_KEY = "yangu-docs-audience";
 
@@ -65,14 +65,7 @@ export function WhyYanguPage() {
           </div>
         </div>
 
-        {/* Footer */}
-        <footer className="py-8 text-center">
-          <div className="flex items-center justify-center gap-2 text-white/50 text-sm">
-            <span>©</span>
-            <img src={yanguYIcon} alt="Yangu" className="w-4 h-4 opacity-50" />
-            <span>yangu 2026</span>
-          </div>
-        </footer>
+        <LegalFooter />
       </main>
     </div>
   );
