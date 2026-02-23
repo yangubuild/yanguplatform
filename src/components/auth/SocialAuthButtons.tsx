@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { cloudAuth } from "@/integrations/cloudAuth";
@@ -10,42 +11,60 @@ interface SocialAuthButtonsProps {
 export function SocialAuthButtons({ disabled }: SocialAuthButtonsProps) {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isAppleLoading, setIsAppleLoading] = useState(false);
+  const [searchParams] = useSearchParams();
 
-  const handleGoogleSignIn = async () => {
-    setIsGoogleLoading(true);
+  const getPostAuthDestination = () => {
+    const rawReturnTo = searchParams.get("returnTo");
+    if (!rawReturnTo) return "/dashboard";
+
     try {
-      const { error } = await cloudAuth.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
-      });
+      const decoded = decodeURIComponent(rawReturnTo);
+      if (decoded.startsWith("/")) return decoded;
 
-      if (error) {
-        toast.error("Failed to sign in with Google");
-        console.error("Google OAuth error:", error);
+      const parsed = new URL(decoded);
+      if (parsed.origin === window.location.origin) {
+        return `${parsed.pathname}${parsed.search}${parsed.hash}`;
       }
-    } catch (err) {
-      toast.error("An unexpected error occurred");
-      console.error("Google OAuth error:", err);
-    } finally {
-      setIsGoogleLoading(false);
+    } catch {
+      // ignore malformed returnTo and fallback below
+    }
+
+    return "/dashboard";
+  };
+
+  const setProviderLoading = (provider: "google" | "apple", loading: boolean) => {
+    if (provider === "google") {
+      setIsGoogleLoading(loading);
+    } else {
+      setIsAppleLoading(loading);
     }
   };
 
-  const handleAppleSignIn = async () => {
-    setIsAppleLoading(true);
+  const handleSocialSignIn = async (provider: "google" | "apple") => {
+    const providerName = provider === "google" ? "Google" : "Apple";
+    setProviderLoading(provider, true);
+
     try {
-      const { error } = await cloudAuth.auth.signInWithOAuth("apple", {
+      const result = await cloudAuth.auth.signInWithOAuth(provider, {
         redirect_uri: window.location.origin,
       });
 
-      if (error) {
-        toast.error("Failed to sign in with Apple");
-        console.error("Apple OAuth error:", error);
+      if (result.error) {
+        toast.error(`Failed to sign in with ${providerName}`);
+        console.error(`${providerName} OAuth error:`, result.error);
+        return;
       }
+
+      // In non-iframe contexts the SDK redirects the browser and this function won't continue.
+      if (result.redirected) return;
+
+      // In iframe/preview contexts OAuth returns tokens via web_message; route manually.
+      window.location.href = getPostAuthDestination();
     } catch (err) {
       toast.error("An unexpected error occurred");
-      console.error("Apple OAuth error:", err);
+      console.error(`${providerName} OAuth error:`, err);
     } finally {
-      setIsAppleLoading(false);
+      setProviderLoading(provider, false);
     }
   };
 
@@ -55,7 +74,7 @@ export function SocialAuthButtons({ disabled }: SocialAuthButtonsProps) {
         type="button"
         variant="outline"
         className="w-full h-11 gap-3"
-        onClick={handleGoogleSignIn}
+        onClick={() => handleSocialSignIn("google")}
         disabled={disabled || isGoogleLoading || isAppleLoading}
       >
         <svg className="h-5 w-5" viewBox="0 0 24 24">
@@ -83,7 +102,7 @@ export function SocialAuthButtons({ disabled }: SocialAuthButtonsProps) {
         type="button"
         variant="outline"
         className="w-full h-11 gap-3"
-        onClick={handleAppleSignIn}
+        onClick={() => handleSocialSignIn("apple")}
         disabled={disabled || isGoogleLoading || isAppleLoading}
       >
         <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
