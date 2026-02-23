@@ -100,6 +100,7 @@ const ManageTeam = lazy(() => import("./pages/manage/ManageTeam"));
 import { NavigationDashboardPage } from "@/components/mass/navigation";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import DashboardPlaceholder from "./pages/dashboard/DashboardPlaceholder";
+import DashboardOffers from "./pages/dashboard/DashboardOffers";
 import DashboardExplore from "./pages/dashboard/DashboardExplore";
 // DashboardModuleLayout removed — routes are flat under /dashboard/*
 import ProfilePage from "./pages/dashboard/ProfilePage";
@@ -253,7 +254,7 @@ const App = () => (
                 >
                   <Route index element={<DashboardHome />} />
                   <Route path="explore" element={<DashboardExplore />} />
-                  <Route path="offers" element={<DashboardPlaceholder />} />
+                  <Route path="offers" element={<DashboardOffers />} />
                   <Route path="messages" element={<MessagesPage />} />
                   <Route path="ada" element={<AdaAi />} />
                   <Route path="studio" element={<Studio />} />
