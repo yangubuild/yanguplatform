@@ -8,7 +8,7 @@ import yanguYIcon from "@/assets/yangu-y-icon.png";
 export function LegalFooter() {
   return (
     <footer className="py-8 text-center">
-      <div className="flex items-center justify-center gap-1.5 text-white/35 text-xs flex-wrap">
+      <div className="flex items-center justify-center gap-1.5 text-white/35 text-sm flex-wrap">
         <Link to="/termsofservice" className="hover:text-white/60 transition-colors">Terms of Service</Link>
         <span>/</span>
         <Link to="/privacypolicy" className="hover:text-white/60 transition-colors">Privacy Policy</Link>
