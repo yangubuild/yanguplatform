@@ -1,10 +1,4 @@
 import { useState } from "react";
-import sampleProduct1 from "@/assets/sample-product-1.webp";
-import sampleProduct2 from "@/assets/sample-product-2.webp";
-import sampleProduct3 from "@/assets/sample-product-3.webp";
-import sampleProduct4 from "@/assets/sample-product-4.webp";
-
-const SAMPLE_IMAGES = [sampleProduct1, sampleProduct2, sampleProduct3, sampleProduct4];
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, Upload, Lightbulb, Square, ChevronDown, ImagePlus,
@@ -12,6 +6,22 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+
+import sampleProduct1 from "@/assets/sample-product-1.webp";
+import sampleProduct2 from "@/assets/sample-product-2.webp";
+import sampleProduct3 from "@/assets/sample-product-3.webp";
+import sampleProduct4 from "@/assets/sample-product-4.webp";
+
+import styleStudio from "@/assets/styles/style-studio.png";
+import styleOutdoor from "@/assets/styles/style-outdoor.webp";
+import styleLuxury from "@/assets/styles/style-luxury.png";
+import styleCozy from "@/assets/styles/style-cozy.webp";
+import styleBeauty from "@/assets/styles/style-beauty.webp";
+import styleIndustrial from "@/assets/styles/style-industrial.png";
+import styleRomantic from "@/assets/styles/style-romantic.webp";
+import styleModern from "@/assets/styles/style-modern.webp";
+
+const SAMPLE_IMAGES = [sampleProduct1, sampleProduct2, sampleProduct3, sampleProduct4];
 
 /* ─── Types ─── */
 type Tab = "clips" | "templates";
@@ -38,23 +48,40 @@ function SmartAssetsModal({ open, onClose }: { open: boolean; onClose: () => voi
 
 /* ─── Style Selector Modal (Auto match dropdown) ─── */
 function StyleSelectorModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const styles = ["Auto match", "Studio", "Outdoor", "Luxury", "Cozy", "Beauty", "Industrial", "Romantic", "Modern"];
+  const styles: { label: string; image?: string }[] = [
+    { label: "Auto match" },
+    { label: "Studio", image: styleStudio },
+    { label: "Outdoor", image: styleOutdoor },
+    { label: "Luxury", image: styleLuxury },
+    { label: "Cozy", image: styleCozy },
+    { label: "Beauty", image: styleBeauty },
+    { label: "Industrial", image: styleIndustrial },
+    { label: "Romantic", image: styleRomantic },
+    { label: "Modern", image: styleModern },
+  ];
   const [selected, setSelected] = useState("Auto match");
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-3xl bg-card border-border/30 p-6 gap-4">
         <h2 className="text-lg font-semibold text-foreground">Select Style</h2>
-        {/* Grid container — NO images */}
         <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
           {styles.map((s) => (
             <button
-              key={s}
-              onClick={() => setSelected(s)}
-              className={`flex flex-col items-center gap-2 rounded-xl border p-3 transition-colors ${selected === s ? "border-accent bg-accent/10" : "border-border/30 hover:border-border/60"}`}
+              key={s.label}
+              onClick={() => setSelected(s.label)}
+              className={`flex flex-col items-center gap-2 rounded-xl border p-2 transition-colors ${selected === s.label ? "border-accent ring-2 ring-accent" : "border-border/30 hover:border-border/60"}`}
             >
-              {/* Empty thumbnail container */}
-              <div className="w-full aspect-square rounded-lg bg-muted/10" />
-              <span className="text-xs text-foreground">{s}</span>
+              <div className="w-full aspect-square rounded-lg bg-muted/10 overflow-hidden relative">
+                {s.image ? (
+                  <img src={s.image} alt={s.label} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center gap-1">
+                    {selected === s.label && <Check className="h-5 w-5 text-accent" />}
+                    <MessageSquareText className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                )}
+              </div>
+              <span className="text-xs text-foreground">{s.label}</span>
             </button>
           ))}
         </div>
