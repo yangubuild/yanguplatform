@@ -13,6 +13,7 @@ import {
   Loader2,
   Video,
   Film,
+  FolderOpen,
 } from "lucide-react";
 import { AppShell } from "@/components/primitives";
 import { useCredits } from "@/hooks/useCredits";
@@ -59,6 +60,7 @@ const TOOL_CHIPS = [
   { id: "video-editor", label: "Video Editor", icon: Plus, beta: false },
   { id: "product-video", label: "Product Video", icon: Video, beta: false },
   { id: "ai-shorts", label: "AI Shorts", icon: Film, beta: false },
+  { id: "assets", label: "Asset Gallery", icon: FolderOpen, beta: false },
 ] as const;
 
 const TOP_ADS = [
@@ -190,10 +192,16 @@ export default function Studio() {
               <button
                 key={chip.id}
                 onClick={() => {
-                  if (chip.id === "image-ads") navigate("/dashboard/studio/image-ads");
-                  else if (chip.id === "ad-clone") navigate("/dashboard/studio/ad-clone");
-                  else if (chip.id === "create-avatar") navigate("/dashboard/studio/avatars/create");
-                  else if (chip.id === "video-editor") navigate("/dashboard/studio/video-editor");
+                  const routes: Record<string, string> = {
+                    "image-ads": "/dashboard/studio/image-ads",
+                    "ad-clone": "/dashboard/studio/ad-clone",
+                    "create-avatar": "/dashboard/studio/avatars/create",
+                    "video-editor": "/dashboard/studio/video-editor",
+                    "product-video": "/dashboard/studio/product-video",
+                    "ai-shorts": "/dashboard/studio/ai-shorts",
+                    "assets": "/dashboard/studio/assets",
+                  };
+                  if (routes[chip.id]) navigate(routes[chip.id]);
                 }}
                 className="flex items-center gap-3 rounded-xl border border-border/40 bg-card px-5 py-4 text-sm font-medium text-foreground hover:bg-muted/60 transition-colors text-left"
               >
@@ -212,8 +220,12 @@ export default function Studio() {
               <button
                 key={chip.id}
                 onClick={() => {
-                  if (chip.id === "product-video") navigate("/dashboard/studio/product-video");
-                  else if (chip.id === "ai-shorts") navigate("/dashboard/studio/ai-shorts");
+                  const routes: Record<string, string> = {
+                    "product-video": "/dashboard/studio/product-video",
+                    "ai-shorts": "/dashboard/studio/ai-shorts",
+                    "assets": "/dashboard/studio/assets",
+                  };
+                  if (routes[chip.id]) navigate(routes[chip.id]);
                 }}
                 className="flex items-center gap-3 rounded-xl border border-border/40 bg-card px-5 py-4 text-sm font-medium text-foreground hover:bg-muted/60 transition-colors text-left"
               >

@@ -3018,6 +3018,7 @@ export type Database = {
         Args: { p_surface_install_id: string }
         Returns: string
       }
+      deduct_download_credit: { Args: { p_asset_id: string }; Returns: Json }
       delete_surface: { Args: { p_surface_id: string }; Returns: Json }
       developer_check_and_increment_usage: {
         Args: {

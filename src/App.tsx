@@ -44,6 +44,7 @@ const CreateAvatarPage = lazy(() => import("./components/studio/avatars/CreateAv
 const VideoEditorPage = lazy(() => import("./components/studio/video-editor/VideoEditorPage"));
 const ProductVideoPage = lazy(() => import("./components/studio/product-video/ProductVideoPage"));
 const AiShortsPage = lazy(() => import("./components/studio/ai-shorts/AiShortsPage"));
+const StudioAssetGallery = lazy(() => import("./components/studio/assets/StudioAssetGallery"));
 const Community = lazy(() => import("./pages/Community"));
 const AdaAi = lazy(() => import("./pages/AdaAi"));
 const WhyYangu = lazy(() => import("./pages/WhyYangu"));
@@ -282,6 +283,7 @@ const App = () => (
                   <Route path="studio/avatars/create" element={<CreateAvatarPage />} />
                   <Route path="studio/product-video" element={<ProductVideoPage />} />
                   <Route path="studio/ai-shorts" element={<AiShortsPage />} />
+                  <Route path="studio/assets" element={<StudioAssetGallery />} />
                   {/* video-editor is mounted as standalone full-screen route below */}
                   <Route path="influencer" element={<DashboardPlaceholder />} />
                   <Route path="visionaire" element={<DashboardPlaceholder />} />

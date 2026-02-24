@@ -15,6 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { SaveToStudioButton } from "@/components/studio/assets/SaveToStudioButton";
 
 interface ImageTileActionsProps {
   imageId: string;
@@ -149,6 +150,15 @@ export function ImageTileActions({
         >
           <Download className="w-3 h-3" />
         </button>
+
+        {/* Save to Studio */}
+        {signedUrl && (
+          <SaveToStudioButton
+            fileUrl={signedUrl}
+            storagePath={storagePath}
+            provider={provider}
+          />
+        )}
 
         {/* Save to Google Drive */}
         <button
