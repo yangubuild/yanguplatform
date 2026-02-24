@@ -36,6 +36,19 @@ const REALISTIC_AVATARS = [
   { id: "sp-2", name: "Avatar 20", video: "/avatars/sp-2.mp4" },
 ];
 
+const STYLED_AVATARS = [
+  { id: "st1", name: "Styled 1", video: "/avatars/styled/sp_1.mp4" },
+  { id: "st2", name: "Styled 2", video: "/avatars/styled/sp_2.mp4" },
+  { id: "st4", name: "Styled 3", video: "/avatars/styled/sp_4.mp4" },
+  { id: "st5", name: "Styled 4", video: "/avatars/styled/sp_5.mp4" },
+  { id: "st6", name: "Styled 5", video: "/avatars/styled/sp_6.mp4" },
+  { id: "st7", name: "Styled 6", video: "/avatars/styled/sp_7.mp4" },
+  { id: "st8", name: "Styled 7", video: "/avatars/styled/sp_8.mp4" },
+  { id: "st9", name: "Styled 8", video: "/avatars/styled/sp_9.mp4" },
+  { id: "st10", name: "Styled 9", video: "/avatars/styled/sp_10.mp4" },
+  { id: "st20", name: "Styled 10", video: "/avatars/styled/sp_20.mp4" },
+];
+
 type NavItem = "script" | "avatars" | "emotions" | "captions" | "assets" | "elements" | "text" | "audio" | "cta";
 
 const NAV_ITEMS: { key: NavItem; label: string; icon: React.ElementType; badge?: string }[] = [
@@ -91,6 +104,12 @@ function AvatarsPanel({ onSelectAvatar }: { onSelectAvatar: (avatar: typeof REAL
       {avatarTab === "realistic" ? (
         <div className="grid grid-cols-2 gap-3">
           {REALISTIC_AVATARS.map((avatar) => (
+            <AvatarVideoCard key={avatar.id} avatar={avatar} onClick={() => onSelectAvatar(avatar)} />
+          ))}
+        </div>
+      ) : avatarTab === "styled" ? (
+        <div className="grid grid-cols-2 gap-3">
+          {STYLED_AVATARS.map((avatar) => (
             <AvatarVideoCard key={avatar.id} avatar={avatar} onClick={() => onSelectAvatar(avatar)} />
           ))}
         </div>
