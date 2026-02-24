@@ -177,6 +177,11 @@ const TEMPLATE_ITEMS: { src: string; type: "video" | "gif" }[] = [
   { src: "/videos/templates/template-6.mp4", type: "video" },
   { src: "/videos/templates/template-7.gif", type: "gif" },
   { src: "/videos/templates/template-8.gif", type: "gif" },
+  { src: "/videos/templates/template-9.mp4", type: "video" },
+  { src: "/videos/templates/template-10.mp4", type: "video" },
+  { src: "/videos/templates/template-11.mp4", type: "video" },
+  { src: "/videos/templates/template-12.mp4", type: "video" },
+  { src: "/videos/templates/template-13.mp4", type: "video" },
 ];
 
 /* ─── Template Selection Modal ─── */
