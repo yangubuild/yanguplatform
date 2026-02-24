@@ -23,6 +23,10 @@ import styleIndustrial from "@/assets/styles/style-industrial.png";
 import styleRomantic from "@/assets/styles/style-romantic.webp";
 import styleModern from "@/assets/styles/style-modern.webp";
 
+import templateStep1 from "@/assets/video-templates/step1.png";
+import templateStep2 from "@/assets/video-templates/step2.gif";
+import templateStep3 from "@/assets/video-templates/step3.gif";
+
 const SAMPLE_IMAGES = [sampleProduct1, sampleProduct2, sampleProduct3, sampleProduct4];
 
 /* ─── Types ─── */
@@ -679,13 +683,57 @@ export default function ProductVideoPage() {
           </div>
         </div>
 
-        {/* RIGHT PANEL — static video preview */}
+        {/* RIGHT PANEL — dynamic based on tab */}
         <div className="flex-1 flex flex-col items-center p-8 min-w-0 overflow-y-auto">
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-2">Turn Any Product Image into a Stunning Video</h1>
-          <p className="text-sm text-muted-foreground text-center mb-6">Instantly transform product images into cinematic product shots or avatar videos — all with a single click.</p>
-          <div className="w-full flex-1 max-w-[800px] rounded-2xl overflow-hidden border border-border/20">
-            <video src="/videos/ptv_intro_2.mp4" autoPlay loop muted playsInline className="w-full h-full object-cover" />
-          </div>
+          {activeTab === "clips" ? (
+            <>
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-2">Turn Any Product Image into a Stunning Video</h1>
+              <p className="text-sm text-muted-foreground text-center mb-6">Instantly transform product images into cinematic product shots or avatar videos — all with a single click.</p>
+              <div className="w-full flex-1 max-w-[800px] rounded-2xl overflow-hidden border border-border/20">
+                <video src="/videos/ptv_intro_2.mp4" autoPlay loop muted playsInline className="w-full h-full object-cover" />
+              </div>
+            </>
+          ) : (
+            <>
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-2">How It Works</h1>
+              <p className="text-sm text-muted-foreground text-center mb-8">Apply our templates and generate stunning product videos instantly — no editing needed.</p>
+              <div className="w-full max-w-[1000px] grid grid-cols-3 gap-6 items-start">
+                {/* Step 1 */}
+                <div className="flex flex-col items-center">
+                  <div className="w-full aspect-[3/4] rounded-xl overflow-hidden border border-border/20 mb-4 bg-muted/5">
+                    <img src={templateStep1} alt="Upload a product image" className="w-full h-full object-cover" />
+                  </div>
+                  <h3 className="text-sm font-semibold text-foreground mb-1">Upload a product image</h3>
+                  <p className="text-xs text-muted-foreground text-center">Upload a clear image of your product.</p>
+                </div>
+
+                {/* Plus sign */}
+                <div className="flex flex-col items-center relative">
+                  <span className="absolute -left-6 top-1/3 text-2xl text-muted-foreground/40 font-light">+</span>
+                  <div className="w-full aspect-[3/4] rounded-xl overflow-hidden border border-border/20 mb-4 bg-muted/5">
+                    <img src={templateStep2} alt="Select a template" className="w-full h-full object-cover" />
+                  </div>
+                  <h3 className="text-sm font-semibold text-foreground mb-1">Select a template</h3>
+                  <p className="text-xs text-muted-foreground text-center">Click "<span className="font-semibold text-foreground">Change Template</span>" to explore templates that suit your product.</p>
+                </div>
+
+                {/* Equals sign */}
+                <div className="flex flex-col items-center relative">
+                  <span className="absolute -left-6 top-1/3 text-2xl text-muted-foreground/40 font-light">=</span>
+                  <div className="w-full aspect-[3/4] rounded-xl overflow-hidden border border-border/20 mb-4 bg-muted/5">
+                    <img src={templateStep3} alt="Generate your video" className="w-full h-full object-cover" />
+                  </div>
+                  <h3 className="text-sm font-semibold text-foreground mb-1">Generate your video</h3>
+                  <p className="text-xs text-muted-foreground text-center">Click "<span className="font-semibold text-foreground">Generate</span>" and let our AI do the magic.</p>
+                </div>
+              </div>
+
+              {/* Footer link */}
+              <p className="text-xs text-muted-foreground mt-8">
+                You can check the videos in the <button className="text-accent hover:underline">Project page</button>
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>
