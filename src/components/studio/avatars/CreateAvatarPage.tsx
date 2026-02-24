@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, Type, ImageIcon, Video, Upload, Lightbulb, AudioLines, ChevronDown, ChevronRight,
@@ -57,12 +58,9 @@ export default function CreateAvatarPage() {
 
         {/* Generate CTA */}
         <div className="flex justify-center pt-8 pb-6">
-          <button
-            disabled
-            className="px-8 py-3 rounded-xl bg-primary text-primary-foreground font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          >
+          <Button variant="accent" size="lg" disabled>
             Generate Avatar
-          </button>
+          </Button>
         </div>
       </div>
     </div>
