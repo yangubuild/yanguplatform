@@ -25,7 +25,10 @@ export default function AiShortsLayoutShell({ topBar, left, right }: Props) {
         }}
       >
         {/* On sm+ show 2-col layout via media query */}
-        <style>{`@media (min-width: 640px) { .ai-shorts-grid { grid-template-columns: minmax(420px, 480px) 1fr !important; } }`}</style>
+        <style>{`
+          @media (min-width: 640px) and (max-width: 899px) { .ai-shorts-grid { grid-template-columns: minmax(320px, 400px) minmax(0, 1fr) !important; } }
+          @media (min-width: 900px) { .ai-shorts-grid { grid-template-columns: minmax(420px, 480px) 1fr !important; } }
+        `}</style>
 
         {/* LEFT – scrollable */}
         <div className="min-h-0 overflow-y-auto max-w-full">{left}</div>
