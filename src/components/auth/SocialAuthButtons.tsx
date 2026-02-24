@@ -44,6 +44,14 @@ export function SocialAuthButtons({ disabled }: SocialAuthButtonsProps) {
     const providerName = provider === "google" ? "Google" : "Apple";
     setProviderLoading(provider, true);
 
+    // Debug logging for OAuth state tracking (helps diagnose iOS Safari issues)
+    console.log(`[OAuth] Starting ${providerName} sign-in`, {
+      origin: window.location.origin,
+      redirectUri: window.location.origin,
+      userAgent: navigator.userAgent,
+      time: new Date().toISOString(),
+    });
+
     try {
       const result = await cloudAuth.auth.signInWithOAuth(provider, {
         redirect_uri: window.location.origin,
@@ -51,7 +59,7 @@ export function SocialAuthButtons({ disabled }: SocialAuthButtonsProps) {
 
       if (result.error) {
         toast.error(`Failed to sign in with ${providerName}`);
-        console.error(`${providerName} OAuth error:`, result.error);
+        console.error(`[OAuth] ${providerName} error:`, result.error);
         return;
       }
 
@@ -61,8 +69,8 @@ export function SocialAuthButtons({ disabled }: SocialAuthButtonsProps) {
       // In iframe/preview contexts OAuth returns tokens via web_message; route manually.
       window.location.href = getPostAuthDestination();
     } catch (err) {
-      toast.error("An unexpected error occurred");
-      console.error(`${providerName} OAuth error:`, err);
+      toast.error("An unexpected error occurred. Please try again.");
+      console.error(`[OAuth] ${providerName} unexpected error:`, err);
     } finally {
       setProviderLoading(provider, false);
     }
