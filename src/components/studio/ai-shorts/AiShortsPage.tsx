@@ -23,17 +23,17 @@ import { useCredits } from "@/hooks/useCredits";
 type AspectRatio = "9:16" | "16:9" | "1:1";
 type ScriptStyle = "Storytelling" | "Promotional" | "Exploration" | "Motivational";
 
-const STYLES = [
-  "Collage",
-  "Line art",
-  "4K realistic",
-  "Cinematic",
-  "Cartoonish",
-  "3D",
-  "Kawaii",
-  "Steam punk",
-  "Pixel art",
-] as const;
+const STYLES: { name: string; video?: string }[] = [
+  { name: "Collage", video: "/videos/ai-shorts/style-1.mp4" },
+  { name: "Line art", video: "/videos/ai-shorts/style-2.mp4" },
+  { name: "4K realistic", video: "/videos/ai-shorts/style-3.mp4" },
+  { name: "Cinematic", video: "/videos/ai-shorts/style-4.mp4" },
+  { name: "Cartoonish" },
+  { name: "3D" },
+  { name: "Kawaii" },
+  { name: "Steam punk" },
+  { name: "Pixel art" },
+];
 
 const ASPECT_OPTIONS: { value: AspectRatio; label: string; icon: typeof Smartphone }[] = [
   { value: "9:16", label: "9:16", icon: Smartphone },
@@ -218,7 +218,7 @@ export default function AiShortsPage() {
           <div className="grid grid-cols-4 gap-3">
             {STYLES.map((style, idx) => (
               <button
-                key={style}
+                key={style.name}
                 onClick={() => setSelectedStyle(idx)}
                 className="group flex flex-col gap-2"
               >
@@ -229,12 +229,22 @@ export default function AiShortsPage() {
                       : "border-border/20 hover:border-border/40"
                   } bg-muted/10`}
                 >
-                  {/* Empty container — media will be uploaded later */}
-                  <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-xs text-muted-foreground/40 text-center px-2">
-                      {style}
-                    </span>
-                  </div>
+                  {style.video ? (
+                    <video
+                      src={style.video}
+                      muted
+                      loop
+                      autoPlay
+                      playsInline
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <span className="text-xs text-muted-foreground/40 text-center px-2">
+                        {style.name}
+                      </span>
+                    </div>
+                  )}
                   {selectedStyle === idx && (
                     <div className="absolute top-2 left-2 h-5 w-5 rounded-full bg-accent flex items-center justify-center">
                       <svg className="h-3 w-3 text-accent-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
@@ -243,7 +253,7 @@ export default function AiShortsPage() {
                     </div>
                   )}
                 </div>
-                <span className="text-xs font-medium text-foreground">{style}</span>
+                <span className="text-xs font-medium text-foreground">{style.name}</span>
               </button>
             ))}
           </div>
