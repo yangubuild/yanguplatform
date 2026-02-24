@@ -41,3 +41,12 @@ verify_jwt = false
 
 [functions.image-ads-orchestrate]
 verify_jwt = false
+
+[functions.ad-clone-analyze]
+verify_jwt = false
+
+[functions.avatar-train-start]
+verify_jwt = false
+
+[functions.avatar-train-status]
+verify_jwt = false
