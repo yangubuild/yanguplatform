@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { X, Search, Bookmark, ChevronDown, AudioLines, Plus, Mic, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const VOICES = [
   { id: "1", name: "Emily", gender: "Female", age: "Adult", accent: "American English accent" },
@@ -43,13 +44,10 @@ export function VoiceLibraryModal({ open, onClose, onSelect }: VoiceLibraryModal
               Feedback
             </button>
             <div className="relative">
-              <button
-                onClick={() => setNewVoiceOpen(!newVoiceOpen)}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
-              >
+              <Button variant="accent" size="sm" onClick={() => setNewVoiceOpen(!newVoiceOpen)}>
                 <Plus className="h-4 w-4" />
                 New voice
-              </button>
+              </Button>
               {newVoiceOpen && (
                 <div className="absolute right-0 top-full mt-1 w-56 rounded-lg border border-border/40 bg-card shadow-xl py-1 z-10">
                   <button className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-foreground hover:bg-muted/40 transition-colors">
@@ -144,7 +142,8 @@ export function VoiceLibraryModal({ open, onClose, onSelect }: VoiceLibraryModal
           <div className="px-4 py-2 rounded-lg bg-muted/20 border border-border/30 text-sm text-muted-foreground min-w-[250px]">
             {selected ? selected.name : "Please select a new voice"}
           </div>
-          <button
+          <Button
+            variant="accent"
             disabled={!selectedId}
             onClick={() => {
               if (selected) {
@@ -152,10 +151,9 @@ export function VoiceLibraryModal({ open, onClose, onSelect }: VoiceLibraryModal
                 onClose();
               }
             }}
-            className="px-6 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors"
           >
             Use this voice
-          </button>
+          </Button>
         </div>
       </div>
     </div>
