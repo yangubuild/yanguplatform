@@ -623,6 +623,7 @@ export default function VideoEditorPage() {
   const [selectedAvatar, setSelectedAvatar] = useState<typeof REALISTIC_AVATARS[0] | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [showRenderBlocked, setShowRenderBlocked] = useState(false);
   const [tooltipId, setTooltipId] = useState<string | null>(null);
 
   const handleSelectAvatar = (avatar: typeof REALISTIC_AVATARS[0]) => {
@@ -719,7 +720,7 @@ export default function VideoEditorPage() {
             <span className="text-foreground font-medium">9 credits</span>
             <span className="text-muted-foreground">Upgrade</span>
           </div>
-          <Button variant="accent" size="sm" className="ml-2 gap-1.5">
+          <Button variant="accent" size="sm" className="ml-2 gap-1.5" onClick={() => setShowRenderBlocked(true)}>
             <Check className="h-4 w-4" /> Render
           </Button>
         </div>
@@ -886,6 +887,29 @@ export default function VideoEditorPage() {
         onApply={handleApply}
       />
       <UpgradeDialog open={showUpgrade} onClose={() => setShowUpgrade(false)} />
+
+      {/* Render Blocked Dialog */}
+      <Dialog open={showRenderBlocked} onOpenChange={(v) => !v && setShowRenderBlocked(false)}>
+        <DialogContent className="max-w-md bg-card border-border/30 p-6 gap-4">
+          <div className="flex flex-col items-center gap-4 text-center">
+            <div className="h-14 w-14 rounded-full bg-amber-500/10 flex items-center justify-center">
+              <Info className="h-7 w-7 text-amber-400" />
+            </div>
+            <h2 className="text-lg font-semibold text-foreground">Export Not Available Yet</h2>
+            <p className="text-sm text-muted-foreground">
+              Video rendering and export requires a server-side composition pipeline that is not yet enabled. 
+              This feature will be available in a future update when the rendering infrastructure is ready.
+            </p>
+            <p className="text-xs text-muted-foreground">
+              You can still use the editor to prepare your scenes, scripts, and avatars. Your work will be saved 
+              and ready to render when the export feature launches.
+            </p>
+            <Button variant="accent" onClick={() => setShowRenderBlocked(false)} className="mt-2">
+              Got it
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
