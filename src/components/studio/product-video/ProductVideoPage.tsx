@@ -8,7 +8,7 @@ const SAMPLE_IMAGES = [sampleProduct1, sampleProduct2, sampleProduct3, samplePro
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, Upload, Lightbulb, Square, ChevronDown, ImagePlus,
-  X, MessageSquareText, Check,
+  X, MessageSquareText, Check, UserPlus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -174,11 +174,17 @@ function VideoClipsTab() {
   const [showSmartAssets, setShowSmartAssets] = useState(false);
   const [showSmartAssetsPopover, setShowSmartAssetsPopover] = useState(false);
 
-  const videoTypes: { key: VideoType; label: string }[] = [
-    { key: "product-shot", label: "Product shot" },
-    { key: "avatar-showcase", label: "Avatar showcase" },
-    { key: "talking-video", label: "Talking video" },
+  const videoTypes: { key: VideoType; label: string; video: string }[] = [
+    { key: "product-shot", label: "Product shot", video: "/videos/product-shot.mp4" },
+    { key: "avatar-showcase", label: "Avatar showcase", video: "/videos/avatar-showcase.mp4" },
+    { key: "talking-video", label: "Talking video", video: "/videos/talking-video.mp4" },
   ];
+
+  const placeholders: Record<VideoType, string> = {
+    "product-shot": "Tell us where you want to place your product. e.g., 'cosmetics on a marble vanity with morning light'.",
+    "avatar-showcase": "Tell us how the avatar interacts with your product. e.g., 'model holding sunglasses near face'.",
+    "talking-video": "Select an avatar and tell AI if you need any changes. e.g., 'change the background into a cozy living room.'",
+  };
 
   const aspectRatios: { key: AspectRatio; label: string }[] = [
     { key: "portrait", label: "Portrait" },
@@ -197,33 +203,40 @@ function VideoClipsTab() {
       {/* 2. Select a video type */}
       <div>
         <h3 className="text-sm font-semibold text-foreground mb-3">2. Select a video type</h3>
-        <div className="grid grid-cols-3 gap-3">
-          {videoTypes.map((vt) => (
-            <button
-              key={vt.key}
-              onClick={() => setSelectedType(vt.key)}
-              className={`relative rounded-xl border p-3 aspect-[4/3] flex items-end transition-colors ${
-                selectedType === vt.key
-                  ? "border-accent bg-accent/5"
-                  : "border-border/30 hover:border-border/60"
-              }`}
-            >
-              {/* Empty card — NO visuals */}
-              <span className="text-xs font-medium text-foreground">{vt.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
+         <div className="grid grid-cols-3 gap-3">
+           {videoTypes.map((vt) => (
+             <button
+               key={vt.key}
+               onClick={() => setSelectedType(vt.key)}
+               className={`relative rounded-xl border overflow-hidden aspect-[4/3] flex items-start transition-colors ${
+                 selectedType === vt.key
+                   ? "border-accent ring-2 ring-accent"
+                   : "border-border/30 hover:border-border/60"
+               }`}
+             >
+               <video src={vt.video} muted autoPlay loop playsInline className="absolute inset-0 w-full h-full object-cover" />
+               <span className="relative z-10 text-xs font-medium text-white m-2 drop-shadow-lg">{vt.label}</span>
+             </button>
+           ))}
+         </div>
+       </div>
 
-      {/* Placement description */}
-      <textarea
-        placeholder="Tell us where you want to place your product. e.g., 'cosmetics on a marble vanity with morning light'."
-        className="w-full min-h-[120px] rounded-xl bg-muted/10 border border-border/20 p-4 text-sm text-foreground placeholder:text-muted-foreground resize-none outline-none focus:border-accent/40"
-      />
+       {/* Placement description */}
+       <textarea
+         placeholder={placeholders[selectedType]}
+         className="w-full min-h-[120px] rounded-xl bg-muted/10 border border-border/20 p-4 text-sm text-foreground placeholder:text-muted-foreground resize-none outline-none focus:border-accent/40"
+       />
 
-      {/* Options row */}
+      {/* Options row — dynamic based on selected type */}
       <div className="flex items-center gap-3">
-        {/* Aspect Ratio dropdown */}
+        {/* Avatar button (avatar-showcase & talking-video only) */}
+        {(selectedType === "avatar-showcase" || selectedType === "talking-video") && (
+          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-muted/20 border border-border/20 text-sm text-foreground hover:bg-muted/30 transition-colors">
+            <UserPlus className="h-4 w-4" /> Avatar
+          </button>
+        )}
+
+        {/* Aspect Ratio dropdown (always shown) */}
         <div className="relative">
           <button
             onClick={() => setShowAspectDropdown(!showAspectDropdown)}
@@ -250,40 +263,42 @@ function VideoClipsTab() {
           )}
         </div>
 
-        {/* Style dropdown */}
-        <button
-          onClick={() => setShowStyleModal(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-muted/20 border border-border/20 text-sm text-foreground hover:bg-muted/30 transition-colors"
-        >
-          Auto match
-          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-        </button>
-
-        {/* Smart Assets icon button */}
-        <div className="relative">
-          <button
-            onClick={() => setShowSmartAssetsPopover(!showSmartAssetsPopover)}
-            className="p-2.5 rounded-xl bg-muted/20 border border-border/20 hover:bg-muted/30 transition-colors"
-          >
-            <ImagePlus className="h-4 w-4 text-foreground" />
-          </button>
-          {showSmartAssetsPopover && (
-            <div className="absolute top-full right-0 mt-1 w-56 rounded-xl bg-card border border-border/30 shadow-xl z-50 py-1.5">
+        {/* Style dropdown + Smart Assets (product-shot only) */}
+        {selectedType === "product-shot" && (
+          <>
+            <button
+              onClick={() => setShowStyleModal(true)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-muted/20 border border-border/20 text-sm text-foreground hover:bg-muted/30 transition-colors"
+            >
+              Auto match
+              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+            </button>
+            <div className="relative">
               <button
-                onClick={() => { setShowSmartAssetsPopover(false); }}
-                className="flex items-center gap-3 w-full px-4 py-3 text-sm text-foreground hover:bg-muted/20 transition-colors"
+                onClick={() => setShowSmartAssetsPopover(!showSmartAssetsPopover)}
+                className="p-2.5 rounded-xl bg-muted/20 border border-border/20 hover:bg-muted/30 transition-colors"
               >
-                <Upload className="h-4 w-4 text-muted-foreground" /> Upload from local
+                <ImagePlus className="h-4 w-4 text-foreground" />
               </button>
-              <button
-                onClick={() => { setShowSmartAssetsPopover(false); setShowSmartAssets(true); }}
-                className="flex items-center gap-3 w-full px-4 py-3 text-sm text-foreground hover:bg-muted/20 transition-colors"
-              >
-                <ImagePlus className="h-4 w-4 text-muted-foreground" /> Select from Smart Assets
-              </button>
+              {showSmartAssetsPopover && (
+                <div className="absolute top-full right-0 mt-1 w-56 rounded-xl bg-card border border-border/30 shadow-xl z-50 py-1.5">
+                  <button
+                    onClick={() => setShowSmartAssetsPopover(false)}
+                    className="flex items-center gap-3 w-full px-4 py-3 text-sm text-foreground hover:bg-muted/20 transition-colors"
+                  >
+                    <Upload className="h-4 w-4 text-muted-foreground" /> Upload from local
+                  </button>
+                  <button
+                    onClick={() => { setShowSmartAssetsPopover(false); setShowSmartAssets(true); }}
+                    className="flex items-center gap-3 w-full px-4 py-3 text-sm text-foreground hover:bg-muted/20 transition-colors"
+                  >
+                    <ImagePlus className="h-4 w-4 text-muted-foreground" /> Select from Smart Assets
+                  </button>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </>
+        )}
       </div>
 
       {/* Generate button */}
