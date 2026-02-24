@@ -12,6 +12,7 @@ export function MassHeader({ hideTrends }: { hideTrends?: boolean } = {}) {
         <Button
           variant="secondary"
           size="sm"
+          className="[background:#152A20] hover:[background:#1a3327] border-0"
           onClick={() => navigate("/auth/login")}
         >
           Sign in
