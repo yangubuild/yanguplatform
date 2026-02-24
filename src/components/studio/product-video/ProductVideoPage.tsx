@@ -1,5 +1,10 @@
 import { useState } from "react";
+import sampleProduct1 from "@/assets/sample-product-1.webp";
+import sampleProduct2 from "@/assets/sample-product-2.webp";
+import sampleProduct3 from "@/assets/sample-product-3.webp";
+import sampleProduct4 from "@/assets/sample-product-4.webp";
 
+const SAMPLE_IMAGES = [sampleProduct1, sampleProduct2, sampleProduct3, sampleProduct4];
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, Upload, Lightbulb, Square, ChevronDown, ImagePlus,
@@ -109,29 +114,53 @@ function TemplateSelectionModal({ open, onClose }: { open: boolean; onClose: () 
 
 /* ─── Upload Box (shared between tabs) ─── */
 function UploadBox({ onSmartAssets }: { onSmartAssets: () => void }) {
+  const [selectedSample, setSelectedSample] = useState<string | null>(null);
+
   return (
     <div className="rounded-xl border-2 border-dashed border-border/40 p-6 flex flex-col items-center gap-2 relative">
-      <button className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/20 text-xs text-foreground hover:bg-muted/30 transition-colors">
-        <Lightbulb className="h-3.5 w-3.5 text-accent" /> Tips
-      </button>
-      <Upload className="h-6 w-6 text-muted-foreground" />
-      <p className="text-sm font-medium text-foreground">Click or drop an image to upload</p>
-      <p className="text-xs text-muted-foreground">Upload image up to 50 MB</p>
-      <button onClick={onSmartAssets} className="text-xs text-accent hover:underline">
-        Choose from Smart Assets
-      </button>
-      {/* Samples divider */}
-      <div className="w-full flex items-center gap-3 mt-3">
-        <div className="flex-1 h-px bg-border/30" />
-        <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Samples</span>
-        <div className="flex-1 h-px bg-border/30" />
-      </div>
-      {/* Empty samples row — NO images */}
-      <div className="flex gap-2 mt-1">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="w-10 h-10 rounded-full bg-muted/10 border border-border/20" />
-        ))}
-      </div>
+      {selectedSample ? (
+        /* Enlarged sample view */
+        <div className="w-full relative">
+          <button
+            onClick={() => setSelectedSample(null)}
+            className="absolute top-2 right-2 z-10 p-1.5 rounded-lg bg-card/80 hover:bg-destructive/80 transition-colors"
+          >
+            <X className="h-4 w-4 text-foreground" />
+          </button>
+          <img src={selectedSample} alt="Selected sample" className="w-full rounded-lg object-contain max-h-[280px]" />
+        </div>
+      ) : (
+        /* Default upload state */
+        <>
+          <button className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/20 text-xs text-foreground hover:bg-muted/30 transition-colors">
+            <Lightbulb className="h-3.5 w-3.5 text-accent" /> Tips
+          </button>
+          <Upload className="h-6 w-6 text-muted-foreground" />
+          <p className="text-sm font-medium text-foreground">Click or drop an image to upload</p>
+          <p className="text-xs text-muted-foreground">Upload image up to 50 MB</p>
+          <button onClick={onSmartAssets} className="text-xs text-accent hover:underline">
+            Choose from Smart Assets
+          </button>
+          {/* Samples divider */}
+          <div className="w-full flex items-center gap-3 mt-3">
+            <div className="flex-1 h-px bg-border/30" />
+            <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Samples</span>
+            <div className="flex-1 h-px bg-border/30" />
+          </div>
+          {/* Sample thumbnails */}
+          <div className="flex gap-2 mt-1">
+            {SAMPLE_IMAGES.map((src, i) => (
+              <button
+                key={i}
+                onClick={() => setSelectedSample(src)}
+                className="w-10 h-10 rounded-full overflow-hidden border border-border/20 hover:border-accent transition-colors"
+              >
+                <img src={src} alt={`Sample ${i + 1}`} className="w-full h-full object-cover" />
+              </button>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
