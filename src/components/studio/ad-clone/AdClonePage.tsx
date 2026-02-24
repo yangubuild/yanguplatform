@@ -161,6 +161,10 @@ export default function AdClonePage() {
               <SelectContent className="bg-popover border-border z-50">
                 <SelectItem value="original">Original Language</SelectItem>
                 <SelectItem value="en">English</SelectItem>
+                <SelectItem value="fr">French</SelectItem>
+                <SelectItem value="pt">Portuguese</SelectItem>
+                <SelectItem value="ar">Arabic</SelectItem>
+                <SelectItem value="es">Spanish</SelectItem>
                 <SelectItem value="sw">Swahili</SelectItem>
               </SelectContent>
             </Select>
