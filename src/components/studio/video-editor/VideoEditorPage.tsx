@@ -1,11 +1,12 @@
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FileText, User, Smile, Captions, Upload, Shapes, Type, Music, MousePointerClick,
   Search, MoreHorizontal, ChevronRight, Plus, Play, Trash2, Undo2, Redo2,
   Keyboard, MessageSquareText, Clock, MoreVertical, X, Sparkles, Maximize2,
   Scissors, ArrowLeftToLine, ArrowRightToLine, ZoomIn, ZoomOut, Smartphone,
   Square, CloudUpload, RefreshCw, Filter, SlidersHorizontal, Bookmark, Check,
-  Crown, ChevronDown, Info
+  Crown, ChevronDown, Info, ArrowLeft, Copy, FolderOpen, LayoutTemplate
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -460,10 +461,12 @@ export default function VideoEditorPage() {
     <div className="h-screen w-full flex flex-col overflow-hidden" style={{ background: "#08120D" }}>
       {/* ═══ TOP BAR ═══ */}
       <div className="h-12 flex items-center justify-between px-4 border-b border-border/20 shrink-0">
-        <div className="flex items-center gap-2">
-          <RefreshCw className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm text-foreground">Default video</span>
-        </div>
+        <button
+          onClick={() => window.history.length > 1 ? window.history.back() : window.location.assign("/dashboard/studio")}
+          className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-muted/20 transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4 text-muted-foreground" />
+        </button>
         <div className="flex items-center gap-1">
           <button className="p-2 rounded hover:bg-muted/20" title="Undo"><Undo2 className="h-4 w-4 text-muted-foreground" /></button>
           <button className="p-2 rounded hover:bg-muted/20" title="Redo"><Redo2 className="h-4 w-4 text-muted-foreground" /></button>
@@ -488,7 +491,39 @@ export default function VideoEditorPage() {
               )}
             </div>
           ))}
-          <button className="p-2 rounded hover:bg-muted/20"><MoreVertical className="h-4 w-4 text-muted-foreground" /></button>
+          <div className="relative">
+            <button
+              className="p-2 rounded hover:bg-muted/20"
+              onMouseEnter={() => setTooltipId("more")}
+              onMouseLeave={() => setTooltipId(null)}
+              onClick={() => setTooltipId(tooltipId === "more-menu" ? null : "more-menu")}
+            >
+              <MoreVertical className="h-4 w-4 text-muted-foreground" />
+            </button>
+            {tooltipId === "more" && (
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 px-3 py-1.5 rounded-lg bg-muted/80 backdrop-blur text-xs text-foreground whitespace-nowrap z-50 pointer-events-none">
+                More
+              </div>
+            )}
+            {tooltipId === "more-menu" && (
+              <div className="absolute top-full right-0 mt-1 w-48 rounded-xl bg-card border border-border/30 shadow-xl z-50 py-1.5 overflow-hidden">
+                {[
+                  { icon: LayoutTemplate, label: "Save as Template" },
+                  { icon: Copy, label: "Duplicate" },
+                  { icon: FolderOpen, label: "Move" },
+                ].map((item) => (
+                  <button
+                    key={item.label}
+                    className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-foreground hover:bg-muted/20 transition-colors"
+                    onClick={() => setTooltipId(null)}
+                  >
+                    <item.icon className="h-4 w-4 text-muted-foreground" />
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           <div className="flex items-center gap-1.5 ml-2 px-3 py-1.5 rounded-full border border-border/30 bg-muted/10 text-sm">
             <span className="text-amber-400">🟠</span>
             <span className="text-foreground font-medium">9 credits</span>
