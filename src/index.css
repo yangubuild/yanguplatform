@@ -528,6 +528,11 @@ html {
 /* Prevent white flash during route transitions — base layer matches landing dark bg */
 html {
   background-color: #08120D;
+  overflow-x: hidden;
+}
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 /* Remove default browser blue focus outline globally — use theme-appropriate focus styles */

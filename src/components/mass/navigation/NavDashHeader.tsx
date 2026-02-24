@@ -170,10 +170,10 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
           <img src={yanguLogo} alt="yangu" className="h-10 w-auto" />
         </div>
 
-        {/* Right */}
-        <div className="flex items-center gap-2.5">
-          {/* Search */}
-          <div className="relative flex items-center" ref={searchContainerRef}>
+        {/* Right — shrink gaps on mobile, hide non-critical icons */}
+        <div className="flex items-center gap-1 sm:gap-2.5 overflow-hidden max-w-[calc(100vw-120px)] sm:max-w-none">
+          {/* Search — hidden on mobile to save space */}
+          <div className="relative hidden sm:flex items-center" ref={searchContainerRef}>
             <div
               className="flex items-center h-9 rounded-[10px] overflow-hidden transition-all duration-300 ease-in-out"
               style={{
@@ -201,11 +201,11 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
             </div>
           </div>
 
-          {/* Language selector */}
+          {/* Language selector — hidden on mobile */}
           <Popover>
             <PopoverTrigger asChild>
               <button
-                className="w-9 h-9 rounded-[10px] flex items-center justify-center"
+                className="w-9 h-9 rounded-[10px] hidden sm:flex items-center justify-center"
                 style={{ background: "#2a3038", color: "rgba(255,255,255,0.5)" }}
                 title="Language"
               >
@@ -349,11 +349,11 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
             </PopoverContent>
           </Popover>
 
-          {/* Offers icon */}
+          {/* Offers icon — hidden on mobile */}
           <Popover>
             <PopoverTrigger asChild>
               <button
-                className="w-9 h-9 rounded-[10px] flex items-center justify-center"
+                className="w-9 h-9 rounded-[10px] hidden sm:flex items-center justify-center"
                 style={{ background: "#2a3038", color: "rgba(255,255,255,0.5)" }}
                 title="Offers"
               >
@@ -399,10 +399,10 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
             </PopoverContent>
           </Popover>
 
-          {/* Global Chat overlay trigger */}
+          {/* Global Chat overlay trigger — hidden on mobile */}
           <button
             onClick={() => setGlobalChatOpen(!globalChatOpen)}
-            className="w-9 h-9 rounded-[10px] flex items-center justify-center"
+            className="w-9 h-9 rounded-[10px] hidden sm:flex items-center justify-center"
             style={{
               background: globalChatOpen ? "rgba(74,222,128,0.15)" : "#2a3038",
               color: globalChatOpen ? "#4ade80" : "rgba(255,255,255,0.5)",
