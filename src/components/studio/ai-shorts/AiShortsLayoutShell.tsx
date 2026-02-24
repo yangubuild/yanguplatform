@@ -13,22 +13,25 @@ interface Props {
  */
 export default function AiShortsLayoutShell({ topBar, left, right }: Props) {
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div className="h-full flex flex-col overflow-hidden max-w-full">
       {/* Top bar – fixed height */}
-      <div className="shrink-0">{topBar}</div>
+      <div className="shrink-0 max-w-full overflow-hidden">{topBar}</div>
 
-      {/* 2-column body */}
+      {/* 2-column body — stacks on mobile */}
       <div
-        className="flex-1 min-h-0 grid gap-6"
+        className="ai-shorts-grid flex-1 min-h-0 grid gap-4 sm:gap-6 max-w-full overflow-x-hidden"
         style={{
-          gridTemplateColumns: "minmax(420px, 480px) 1fr",
+          gridTemplateColumns: "minmax(0, 1fr)",
         }}
       >
-        {/* LEFT – scrollable */}
-        <div className="min-h-0 overflow-y-auto">{left}</div>
+        {/* On sm+ show 2-col layout via media query */}
+        <style>{`@media (min-width: 640px) { .ai-shorts-grid { grid-template-columns: minmax(420px, 480px) 1fr !important; } }`}</style>
 
-        {/* RIGHT – static preview */}
-        <div className="min-h-0 overflow-hidden sticky top-0">{right}</div>
+        {/* LEFT – scrollable */}
+        <div className="min-h-0 overflow-y-auto max-w-full">{left}</div>
+
+        {/* RIGHT – style grid (visible below on mobile, beside on desktop) */}
+        <div className="min-h-0 overflow-y-auto sm:overflow-hidden sm:sticky sm:top-0 max-w-full">{right}</div>
       </div>
     </div>
   );

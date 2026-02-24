@@ -173,21 +173,21 @@ export default function AiShortsPage() {
     <>
       <AiShortsLayoutShell
         topBar={
-          <div className="flex items-center justify-between px-6 py-3 border-b border-border/20">
-            <div className="flex items-center gap-3">
-              <button onClick={() => navigate("/dashboard/studio")} className="p-1.5 rounded-lg hover:bg-muted/30 transition-colors">
+          <div className="flex flex-wrap items-center justify-between gap-2 px-4 sm:px-6 py-3 border-b border-border/20 min-w-0 max-w-full overflow-hidden">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <button onClick={() => navigate("/dashboard/studio")} className="p-1.5 rounded-lg hover:bg-muted/30 transition-colors shrink-0">
                 <ArrowLeft className="h-5 w-5 text-foreground" />
               </button>
-              <div>
-                <h1 className="text-lg font-black uppercase tracking-tight text-foreground" style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>AI Shorts</h1>
-                <p className="text-xs text-muted-foreground">Create viral shorts in minutes</p>
+              <div className="min-w-0">
+                <h1 className="text-base sm:text-lg font-black uppercase tracking-tight text-foreground" style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>AI Shorts</h1>
+                <p className="text-[10px] sm:text-xs text-muted-foreground truncate">Create viral shorts in minutes</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground transition-colors">Feedback</button>
-              <button className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-4 py-1.5 text-sm font-semibold text-accent hover:bg-accent/20 transition-colors" onClick={() => navigate("/billing")}>
-                {creditsLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <><Coins className="h-3.5 w-3.5" />{credits?.balance ?? 0} credits</>}
-                <span className="border-l border-accent/30 pl-2">Upgrade</span>
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 max-w-full flex-wrap justify-end">
+              <button className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0">Feedback</button>
+              <button className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-accent/40 bg-accent/10 px-2.5 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm font-semibold text-accent hover:bg-accent/20 transition-colors max-w-[calc(100vw-120px)] sm:max-w-none min-w-0" onClick={() => navigate("/billing")}>
+                {creditsLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" /> : <><Coins className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" /><span className="truncate">{credits?.balance ?? 0} credits</span></>}
+                <span className="border-l border-accent/30 pl-1.5 sm:pl-2 shrink-0">Upgrade</span>
               </button>
             </div>
           </div>
