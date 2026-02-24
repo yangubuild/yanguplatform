@@ -27,6 +27,22 @@ import templateStep1 from "@/assets/video-templates/step1.png";
 import templateStep2 from "@/assets/video-templates/step2.gif";
 import templateStep3 from "@/assets/video-templates/step3.gif";
 
+import tips1 from "@/assets/tips/ptv-tips-1.png";
+import tips2 from "@/assets/tips/ptv-tips-2.png";
+import tips3 from "@/assets/tips/ptv-tips-3.png";
+import tips4 from "@/assets/tips/ptv-tips-4.png";
+import tips5 from "@/assets/tips/ptv-tips-5.png";
+import tips6 from "@/assets/tips/ptv-tips-6.png";
+
+const TIPS_GRID: { src: string; label: string; good: boolean }[] = [
+  { src: tips1, label: "Solid BG", good: true },
+  { src: tips2, label: "Sharp focus", good: true },
+  { src: tips3, label: "People/hands", good: false },
+  { src: tips4, label: "Blur", good: false },
+  { src: tips5, label: "Cropped", good: false },
+  { src: tips6, label: "Out-of-focus", good: false },
+];
+
 const SAMPLE_IMAGES = [sampleProduct1, sampleProduct2, sampleProduct3, sampleProduct4];
 
 /* ─── Types ─── */
@@ -374,6 +390,7 @@ function ChooseAvatarModal({ open, onClose }: { open: boolean; onClose: () => vo
 /* ─── Upload Box (shared between tabs) ─── */
 function UploadBox({ onSmartAssets }: { onSmartAssets: () => void }) {
   const [selectedSample, setSelectedSample] = useState<string | null>(null);
+  const [showTips, setShowTips] = useState(false);
 
   return (
     <div className="rounded-xl border-2 border-dashed border-border/40 p-6 flex flex-col items-center gap-2 relative">
@@ -391,9 +408,30 @@ function UploadBox({ onSmartAssets }: { onSmartAssets: () => void }) {
       ) : (
         /* Default upload state */
         <>
-          <button className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/20 text-xs text-foreground hover:bg-muted/30 transition-colors">
-            <Lightbulb className="h-3.5 w-3.5 text-accent" /> Tips
-          </button>
+          <div className="absolute top-3 right-3 z-20">
+            <button
+              onClick={() => setShowTips(!showTips)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/20 text-xs text-foreground hover:bg-muted/30 transition-colors"
+            >
+              <Lightbulb className="h-3.5 w-3.5 text-accent" /> Tips
+            </button>
+            {showTips && (
+              <div className="absolute top-full right-0 mt-2 w-[340px] rounded-xl bg-card border border-border/30 shadow-2xl z-50 p-4">
+                <div className="grid grid-cols-3 gap-3">
+                  {TIPS_GRID.map((tip) => (
+                    <div key={tip.label} className="flex flex-col items-center gap-1.5">
+                      <div className="w-full aspect-square rounded-lg overflow-hidden border border-border/20 bg-muted/5">
+                        <img src={tip.src} alt={tip.label} className="w-full h-full object-cover" />
+                      </div>
+                      <span className="text-[11px] font-medium text-foreground flex items-center gap-1">
+                        {tip.good ? "✅" : "❌"} {tip.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
           <Upload className="h-6 w-6 text-muted-foreground" />
           <p className="text-sm font-medium text-foreground">Click or drop an image to upload</p>
           <p className="text-xs text-muted-foreground">Upload image up to 50 MB</p>
