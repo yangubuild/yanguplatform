@@ -28,11 +28,11 @@ const STYLES: { name: string; video?: string }[] = [
   { name: "Line art", video: "/videos/ai-shorts/style-2.mp4" },
   { name: "4K realistic", video: "/videos/ai-shorts/style-3.mp4" },
   { name: "Cinematic", video: "/videos/ai-shorts/style-4.mp4" },
-  { name: "Cartoonish" },
-  { name: "3D" },
-  { name: "Kawaii" },
-  { name: "Steam punk" },
-  { name: "Pixel art" },
+  { name: "Cartoonish", video: "/videos/ai-shorts/style-5.mp4" },
+  { name: "3D", video: "/videos/ai-shorts/style-6.mp4" },
+  { name: "Kawaii", video: "/videos/ai-shorts/style-7.mp4" },
+  { name: "Steam punk", video: "/videos/ai-shorts/style-8.mp4" },
+  { name: "Pixel art", video: "/videos/ai-shorts/style-9.mp4" },
 ];
 
 const ASPECT_OPTIONS: { value: AspectRatio; label: string; icon: typeof Smartphone }[] = [
