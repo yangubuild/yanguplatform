@@ -10,7 +10,7 @@ export function MassHeader({ hideTrends }: { hideTrends?: boolean } = {}) {
       {/* Top row - Buttons aligned right */}
       <div className="flex items-center justify-end gap-3">
         <Button
-          variant="outline"
+          variant="accent"
           size="sm"
           onClick={() => navigate("/auth/login")}
         >

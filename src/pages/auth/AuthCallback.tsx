@@ -72,11 +72,27 @@ export default function AuthCallback() {
         console.log("[AuthCallback] Processing callback", {
           origin: window.location.origin,
           hash: window.location.hash ? "(present)" : "(empty)",
+          search: window.location.search ? "(present)" : "(empty)",
           userAgent: navigator.userAgent,
           time: new Date().toISOString(),
         });
 
-        const { data: { session }, error } = await supabase.auth.getSession();
+        // If URL contains a hash with access_token, wait for Supabase to process it
+        if (window.location.hash.includes("access_token")) {
+          console.log("[AuthCallback] Hash contains tokens, waiting for Supabase to process...");
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+
+        let { data: { session }, error } = await supabase.auth.getSession();
+
+        // Retry once after a short delay if no session yet (mobile Safari can be slow)
+        if (!session && !error) {
+          console.log("[AuthCallback] No session on first attempt, retrying...");
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+          const retry = await supabase.auth.getSession();
+          session = retry.data.session;
+          error = retry.error;
+        }
 
         if (error) {
           console.error("Auth callback error:", error);

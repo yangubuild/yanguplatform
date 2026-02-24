@@ -54,7 +54,7 @@ export function SocialAuthButtons({ disabled }: SocialAuthButtonsProps) {
 
     try {
       const result = await cloudAuth.auth.signInWithOAuth(provider, {
-        redirect_uri: window.location.origin,
+        redirect_uri: `${window.location.origin}/auth/callback`,
       });
 
       if (result.error) {
