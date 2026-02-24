@@ -9,6 +9,7 @@ import { BulkUploadContainer } from "./BulkUploadContainer";
 import { CreditBadge } from "@/components/studio/CreditBadge";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, MessageSquare } from "lucide-react";
+import { useImageAdsOrchestrate } from "@/hooks/useImageAdsOrchestrate";
 
 export type ImageAdsStep = "link" | "select-product" | "manual-setup" | "loading" | "generated" | "bulk-upload";
 
@@ -16,6 +17,9 @@ export default function ImageAdsFlow() {
   const navigate = useNavigate();
   const [step, setStep] = useState<ImageAdsStep>("link");
   const [submittedUrl, setSubmittedUrl] = useState("");
+  const [generatedAssets, setGeneratedAssets] = useState<unknown[]>([]);
+  const [generatedProjectId, setGeneratedProjectId] = useState<string | undefined>();
+  const { orchestrate, isGenerating } = useImageAdsOrchestrate();
 
   const handleSyncBusiness = () => {
     navigate("/dashboard/my-business");
@@ -27,9 +31,26 @@ export default function ImageAdsFlow() {
     else setStep("link");
   };
 
-  const handleAnalyze = (url: string) => {
+  const handleAnalyze = async (url: string) => {
     setSubmittedUrl(url);
     setStep("loading");
+
+    const result = await orchestrate({
+      productUrls: [url],
+      count: 4,
+      orientation: "portrait",
+    });
+
+    if (result.success && result.assets) {
+      setGeneratedAssets(result.assets);
+      setGeneratedProjectId(result.project_id);
+    }
+    setStep("generated");
+  };
+
+  const handleBulkUploadComplete = async (files: File[]) => {
+    // For bulk, we'd process URLs from files; for now transition back
+    setStep("select-product");
   };
 
   return (
@@ -67,9 +88,15 @@ export default function ImageAdsFlow() {
           />
         )}
         {step === "loading" && (
-          <ImageAdsLoadingScreen onComplete={() => setStep("generated")} />
+          <ImageAdsLoadingScreen onComplete={() => {/* orchestration controls transition */}} />
         )}
-        {step === "generated" && <ImageAdsGeneratedPage submittedUrl={submittedUrl} />}
+        {step === "generated" && (
+          <ImageAdsGeneratedPage
+            submittedUrl={submittedUrl}
+            generatedAssets={generatedAssets}
+            projectId={generatedProjectId}
+          />
+        )}
         {step === "manual-setup" && (
           <ImageAdsManualSetup onBack={() => setStep("link")} />
         )}
@@ -85,7 +112,7 @@ export default function ImageAdsFlow() {
         {step === "bulk-upload" && (
           <BulkUploadContainer
             onBack={() => setStep("select-product")}
-            onUploadComplete={() => setStep("select-product")}
+            onUploadComplete={handleBulkUploadComplete}
           />
         )}
       </div>
