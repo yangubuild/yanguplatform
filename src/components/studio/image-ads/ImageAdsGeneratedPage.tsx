@@ -17,8 +17,11 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { Plus, Sparkles, Square, RectangleHorizontal, RectangleVertical, Lightbulb, ChevronDown, ImagePlus } from "lucide-react";
+import { Plus, Sparkles, Square, RectangleHorizontal, RectangleVertical, Lightbulb, ChevronDown, ImagePlus, Loader2 } from "lucide-react";
 import { isDemoUrl, DEMO_IMAGES, DEMO_PRODUCT } from "./demoConfig";
+import { useImageAdsOrchestrate } from "@/hooks/useImageAdsOrchestrate";
+import { useAlbumPublish } from "@/hooks/useAlbumPublish";
+import { toast } from "sonner";
 
 const FALLBACK_IMAGES = [
   "/studio/img-ad-1.webp",
@@ -31,12 +34,24 @@ const FALLBACK_IMAGES = [
 
 interface ImageAdsGeneratedPageProps {
   submittedUrl?: string;
+  generatedAssets?: unknown[];
+  projectId?: string;
 }
 
-export function ImageAdsGeneratedPage({ submittedUrl = "" }: ImageAdsGeneratedPageProps) {
+export function ImageAdsGeneratedPage({
+  submittedUrl = "",
+  generatedAssets = [],
+  projectId,
+}: ImageAdsGeneratedPageProps) {
   const isDemo = isDemoUrl(submittedUrl);
-  const images = isDemo ? DEMO_IMAGES : FALLBACK_IMAGES;
+
+  // Use real generated assets if available, otherwise fall back to demo/static
+  const realImages = generatedAssets
+    .map((a: any) => a?.file_url || a?.thumbnail_url)
+    .filter(Boolean);
+  const images = realImages.length > 0 ? realImages : isDemo ? DEMO_IMAGES : FALLBACK_IMAGES;
   const product = isDemo ? DEMO_PRODUCT : null;
+
   const [brandName, setBrandName] = useState(product?.brandName ?? "My Product");
   const [description, setDescription] = useState(
     product?.description ?? "Enter your product description."
@@ -50,6 +65,9 @@ export function ImageAdsGeneratedPage({ submittedUrl = "" }: ImageAdsGeneratedPa
   const [orientation, setOrientation] = useState("portrait");
   const [count, setCount] = useState("4");
 
+  const { orchestrate, isGenerating } = useImageAdsOrchestrate();
+  const { toggleAlbum, isToggling } = useAlbumPublish();
+
   const toggleImage = (idx: number) => {
     setSelectedImages((prev) => {
       const next = new Set(prev);
@@ -62,6 +80,25 @@ export function ImageAdsGeneratedPage({ submittedUrl = "" }: ImageAdsGeneratedPa
   const selectAll = () => setSelectedImages(new Set(images.map((_, i) => i)));
   const unselectAll = () => setSelectedImages(new Set());
 
+  const handleRegenerate = async () => {
+    if (!submittedUrl) return;
+    await orchestrate({
+      productUrls: [submittedUrl],
+      studioProjectId: projectId,
+      count: parseInt(count, 10),
+      orientation: orientation as "square" | "landscape" | "portrait",
+      provider: model === "design-master" ? "gemini" : model === "design-pro" ? "ideogram" : "qwen",
+    });
+  };
+
+  const handlePublishAlbum = async () => {
+    if (!projectId) {
+      toast.error("No project to publish");
+      return;
+    }
+    await toggleAlbum(projectId, false, brandName);
+  };
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto">
@@ -71,7 +108,9 @@ export function ImageAdsGeneratedPage({ submittedUrl = "" }: ImageAdsGeneratedPa
             <div>
               <h2 className="text-lg font-bold text-foreground">Set Up Your Image Ads</h2>
               <p className="text-sm text-muted-foreground mt-1">
-                We've pulled product info from your link. Review and adjust before generating.
+                {realImages.length > 0
+                  ? `${realImages.length} ad variations generated. Review and regenerate as needed.`
+                  : "We've pulled product info from your link. Review and adjust before generating."}
               </p>
             </div>
 
@@ -98,14 +137,18 @@ export function ImageAdsGeneratedPage({ submittedUrl = "" }: ImageAdsGeneratedPa
             {/* Image grid */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium">Select product images to start</Label>
+                <Label className="text-sm font-medium">
+                  {realImages.length > 0 ? "Generated Ad Variations" : "Select product images to start"}
+                </Label>
                 <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-semibold text-accent">
                   <Lightbulb className="h-3 w-3" />
                   Tips
                 </span>
               </div>
               <p className="text-xs text-muted-foreground">
-                Choose the best 3-5 product images for the best results.
+                {realImages.length > 0
+                  ? "Select the variations you want to keep."
+                  : "Choose the best 3-5 product images for the best results."}
               </p>
 
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
@@ -229,8 +272,20 @@ export function ImageAdsGeneratedPage({ submittedUrl = "" }: ImageAdsGeneratedPa
             </div>
           </div>
 
-          {/* Bottom toolbar - inside scroll area */}
+          {/* Bottom toolbar */}
           <div className="flex items-center justify-end py-6 gap-4">
+            {projectId && (
+              <Button
+                variant="outline"
+                className="h-10 rounded-lg text-sm font-semibold px-4"
+                disabled={isToggling}
+                onClick={handlePublishAlbum}
+              >
+                {isToggling ? <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> : null}
+                Publish Album
+              </Button>
+            )}
+
             <div className="flex items-center gap-4">
               <Select value={model} onValueChange={setModel}>
                 <SelectTrigger className="w-[170px] h-10 rounded-lg bg-card border-border/60 text-xs font-medium">
@@ -277,9 +332,18 @@ export function ImageAdsGeneratedPage({ submittedUrl = "" }: ImageAdsGeneratedPa
               </Select>
             </div>
 
-            <Button variant="accent" className="h-10 rounded-lg text-sm font-semibold gap-1.5 px-6">
-              <Sparkles className="h-4 w-4" />
-              Generate
+            <Button
+              variant="accent"
+              className="h-10 rounded-lg text-sm font-semibold gap-1.5 px-6"
+              disabled={isGenerating}
+              onClick={handleRegenerate}
+            >
+              {isGenerating ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4" />
+              )}
+              {isGenerating ? "Generating..." : "Generate"}
             </Button>
           </div>
         </div>

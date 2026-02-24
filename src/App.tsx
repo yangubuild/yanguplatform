@@ -45,6 +45,7 @@ const VideoEditorPage = lazy(() => import("./components/studio/video-editor/Vide
 const ProductVideoPage = lazy(() => import("./components/studio/product-video/ProductVideoPage"));
 const AiShortsPage = lazy(() => import("./components/studio/ai-shorts/AiShortsPage"));
 const StudioAssetGallery = lazy(() => import("./components/studio/assets/StudioAssetGallery"));
+const PortfolioPage = lazy(() => import("./pages/PortfolioPage"));
 const Community = lazy(() => import("./pages/Community"));
 const AdaAi = lazy(() => import("./pages/AdaAi"));
 const WhyYangu = lazy(() => import("./pages/WhyYangu"));
@@ -238,6 +239,7 @@ const App = () => (
                 <Route path="/storefront" element={<PublicSurfacePage />} />
                 <Route path="/services" element={<PublicSurfacePage />} />
                 <Route path="/portfolio" element={<PublicSurfacePage />} />
+                <Route path="/portfolio/:slug" element={<PortfolioPage />} />
                 <Route path="/live" element={<PublicSurfacePage />} />
                 <Route path="/feed" element={<PublicSurfacePage />} />
                 <Route path="/groups" element={<PublicSurfacePage />} />
