@@ -19,6 +19,16 @@ const REALISTIC_AVATARS = [
   { id: "sp6", name: "Avatar 3", video: "/avatars/sp_6-2.mp4" },
   { id: "sp9", name: "Avatar 4", video: "/avatars/sp_9-2.mp4" },
   { id: "sp14", name: "Avatar 5", video: "/avatars/sp_14.mp4" },
+  { id: "sp1", name: "Avatar 6", video: "/avatars/sp_1-2.mp4" },
+  { id: "sp3", name: "Avatar 7", video: "/avatars/sp_3-2.mp4" },
+  { id: "sp5", name: "Avatar 8", video: "/avatars/sp_5-2.mp4" },
+  { id: "sp7", name: "Avatar 9", video: "/avatars/sp_7-2.mp4" },
+  { id: "sp8", name: "Avatar 10", video: "/avatars/sp_8-2.mp4" },
+  { id: "sp10", name: "Avatar 11", video: "/avatars/sp_10-2.mp4" },
+  { id: "sp11", name: "Avatar 12", video: "/avatars/sp_11-2.mp4" },
+  { id: "sp12", name: "Avatar 13", video: "/avatars/sp_12-2.mp4" },
+  { id: "sp13", name: "Avatar 14", video: "/avatars/sp_13.mp4" },
+  { id: "sp18", name: "Avatar 15", video: "/avatars/sp_18.mp4" },
 ];
 
 type NavItem = "script" | "avatars" | "emotions" | "captions" | "assets" | "elements" | "text" | "audio" | "cta";
