@@ -246,28 +246,28 @@ export default function AiShortsPage() {
               </div>
             </div>
 
-            {/* Style Selector – lazy-loaded demos */}
-            <div className="space-y-3">
+            {/* Generate / Next */}
+            <Button variant="accent" className="w-full py-3 text-sm font-semibold" onClick={handleGenerate} disabled={!canGenerate}>
+              {isGenerating ? (
+                <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Generating…</span>
+              ) : "Next"}
+            </Button>
+          </div>
+        }
+        right={
+          <div className="h-full flex flex-col p-8 gap-8">
+            {/* ── Style grid (MUST stay on RIGHT, above preview) ── */}
+            <div className="space-y-3 shrink-0">
               <h2 className="text-base font-bold text-foreground" style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>Style</h2>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-4 gap-3">
                 {STYLES.map((style, idx) => (
                   <LazyStyleCard key={style.name} name={style.name} video={style.video} selected={selectedStyle === idx} onSelect={() => setSelectedStyle(idx)} />
                 ))}
               </div>
             </div>
 
-            {/* Generate */}
-            <Button variant="accent" className="w-full py-3 text-sm font-semibold" onClick={handleGenerate} disabled={!canGenerate}>
-              {isGenerating ? (
-                <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Generating…</span>
-              ) : (
-                <span className="flex items-center gap-2"><Sparkles className="h-4 w-4" />Generate</span>
-              )}
-            </Button>
-          </div>
-        }
-        right={
-          <div className="h-full flex flex-col items-center justify-center p-8">
+            {/* ── Preview area ── */}
+            <div className="flex-1 flex items-center justify-center min-h-0">
             {isGenerating ? (
               <div className="flex flex-col items-center gap-4">
                 <div className="relative w-20 h-20">
@@ -301,6 +301,7 @@ export default function AiShortsPage() {
                 <p className="text-xs text-muted-foreground">Write a script, choose a style, and hit Generate to create your AI Short.</p>
               </div>
             )}
+            </div>
           </div>
         }
       />
