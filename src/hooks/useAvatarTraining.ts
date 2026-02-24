@@ -33,6 +33,12 @@ export function useAvatarTraining() {
 
       if (job.status === "not_enabled") {
         toast.info(data.message || "Avatar training is not currently enabled.");
+      } else if (job.status === "failed") {
+        toast.error(job.error || "Training failed");
+      } else if (job.status === "pending") {
+        toast.success("Training started! Polling for status...");
+        // Start polling
+        pollUntilDone(job.id);
       } else {
         toast.success("Training job created!");
       }
@@ -43,6 +49,27 @@ export function useAvatarTraining() {
     } finally {
       setIsStarting(false);
     }
+  };
+
+  const pollUntilDone = async (jobId: string) => {
+    let attempts = 0;
+    const interval = setInterval(async () => {
+      attempts++;
+      const result = await pollJob(jobId);
+      if (result && (result.status === "completed" || result.status === "failed" || result.status === "not_enabled")) {
+        clearInterval(interval);
+        if (result.status === "completed") {
+          toast.success("Avatar training completed!");
+        } else if (result.status === "failed") {
+          toast.error(result.error || "Training failed");
+        }
+        fetchJobs();
+      }
+      if (attempts > 60) {
+        clearInterval(interval);
+        toast.error("Training status polling timed out");
+      }
+    }, 10000);
   };
 
   const fetchJobs = useCallback(async () => {
