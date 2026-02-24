@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, Upload, Lightbulb, Square, ChevronDown, ImagePlus,
   X, MessageSquareText, Check, UserPlus, Search, Image, Tag,
-  RectangleHorizontal, Settings2, Plus, Sparkles,
+  RectangleHorizontal, Settings2, Plus, Sparkles, Bookmark,
+  SlidersHorizontal, ArrowUpDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -208,6 +209,127 @@ function TemplateSelectionModal({ open, onClose }: { open: boolean; onClose: () 
   );
 }
 
+/* ─── Choose Avatar Modal ─── */
+function ChooseAvatarModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const [activeTab, setActiveTab] = useState<"realistic" | "styled" | "custom">("realistic");
+  const tabs = [
+    { key: "realistic" as const, label: "Realistic Avatar" },
+    { key: "styled" as const, label: "Styled Avatar" },
+    { key: "custom" as const, label: "Custom Avatar" },
+  ];
+  const filters = ["Gender", "Age", "Location", "Industry", "Style"];
+  const avatars = [
+    { name: "Breanna", styles: 5 },
+    { name: "Desirae", styles: 6 },
+    { name: "Keisha", styles: 6 },
+    { name: "Stefan", styles: 1 },
+    { name: "Sylvia", styles: 1 },
+    { name: "Logan", styles: 2 },
+    { name: "Diego", styles: 1 },
+    { name: "Belen", styles: 3 },
+    { name: "Anthony", styles: 1, pro: true },
+    { name: "Faye", styles: 12 },
+    { name: "Paige", styles: 2 },
+    { name: "Carlyn", styles: 6 },
+  ];
+  const [selected, setSelected] = useState<string | null>(null);
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-5xl bg-card border-border/30 p-6 gap-4">
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-foreground">Choose avatar</h2>
+            <div className="flex items-center gap-6 mt-2">
+              {tabs.map((t) => (
+                <button
+                  key={t.key}
+                  onClick={() => setActiveTab(t.key)}
+                  className={`text-sm pb-1 border-b-2 transition-colors ${
+                    activeTab === t.key
+                      ? "text-foreground border-accent font-medium"
+                      : "text-muted-foreground border-transparent hover:text-foreground"
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <button className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
+              <SlidersHorizontal className="h-3.5 w-3.5" /> Avatar Style view
+            </button>
+            <button className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
+              <ArrowUpDown className="h-3.5 w-3.5" /> Sort
+            </button>
+          </div>
+        </div>
+
+        {/* Filter chips */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {filters.map((f) => (
+            <button
+              key={f}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border/30 text-xs text-muted-foreground hover:bg-muted/20 transition-colors"
+            >
+              {f} <ChevronDown className="h-3 w-3" />
+            </button>
+          ))}
+          <div className="ml-auto flex items-center gap-3">
+            <button className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
+              <Bookmark className="h-3.5 w-3.5" /> Saved
+            </button>
+            <button className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
+              <Search className="h-3.5 w-3.5" /> Search
+            </button>
+          </div>
+        </div>
+
+        {/* Avatar grid */}
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-4 max-h-[450px] overflow-y-auto">
+          {avatars.map((av) => (
+            <button
+              key={av.name}
+              onClick={() => setSelected(av.name)}
+              className="flex flex-col gap-2 group"
+            >
+              <div
+                className={`aspect-[3/4] rounded-xl border overflow-hidden bg-muted/10 transition-colors relative ${
+                  selected === av.name
+                    ? "border-accent ring-2 ring-accent"
+                    : "border-border/20 hover:border-border/50"
+                }`}
+              >
+                {/* Placeholder gradient for avatar image */}
+                <div className="w-full h-full bg-gradient-to-b from-muted/30 to-muted/10 flex items-center justify-center">
+                  <UserPlus className="h-8 w-8 text-muted-foreground/30" />
+                </div>
+                {/* Styles badge */}
+                <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-black/50 backdrop-blur-sm rounded-full px-2 py-0.5">
+                  <span className="text-[10px] text-white">{av.styles} styles</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5">
+                {av.pro && (
+                  <span className="text-[9px] font-bold bg-accent text-accent-foreground px-1.5 py-0.5 rounded">PRO</span>
+                )}
+                <span className="text-xs text-foreground">{av.name}</span>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {/* Bottom actions */}
+        <div className="flex justify-center gap-4 pt-2">
+          <Button variant="outline" className="px-8" onClick={onClose}>Cancel</Button>
+          <Button variant="accent" className="px-8" onClick={onClose}>Confirm</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 /* ─── Upload Box (shared between tabs) ─── */
 function UploadBox({ onSmartAssets }: { onSmartAssets: () => void }) {
   const [selectedSample, setSelectedSample] = useState<string | null>(null);
@@ -269,6 +391,8 @@ function VideoClipsTab() {
   const [showStyleModal, setShowStyleModal] = useState(false);
   const [showSmartAssets, setShowSmartAssets] = useState(false);
   const [showSmartAssetsPopover, setShowSmartAssetsPopover] = useState(false);
+  const [showAvatarPopover, setShowAvatarPopover] = useState(false);
+  const [showChooseAvatar, setShowChooseAvatar] = useState(false);
 
   const videoTypes: { key: VideoType; label: string; video: string }[] = [
     { key: "product-shot", label: "Product shot", video: "/videos/product-shot.mp4" },
@@ -327,9 +451,36 @@ function VideoClipsTab() {
       <div className="flex items-center gap-3">
         {/* Avatar button (avatar-showcase & talking-video only) */}
         {(selectedType === "avatar-showcase" || selectedType === "talking-video") && (
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-muted/20 border border-border/20 text-sm text-foreground hover:bg-muted/30 transition-colors">
-            <UserPlus className="h-4 w-4" /> Avatar
-          </button>
+          <div className="relative">
+            <button
+              onClick={() => setShowAvatarPopover(!showAvatarPopover)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-muted/20 border border-border/20 text-sm text-foreground hover:bg-muted/30 transition-colors"
+            >
+              <UserPlus className="h-4 w-4" /> Avatar
+            </button>
+            {showAvatarPopover && (
+              <div className="absolute top-full left-0 mt-1 w-60 rounded-xl bg-card border border-border/30 shadow-xl z-50 py-1.5">
+                <button
+                  onClick={() => { setShowAvatarPopover(false); setShowChooseAvatar(true); }}
+                  className="flex items-center gap-3 w-full px-4 py-3 text-sm text-foreground hover:bg-muted/20 transition-colors"
+                >
+                  <UserPlus className="h-4 w-4 text-muted-foreground" /> Choose avatar
+                </button>
+                <button
+                  onClick={() => { setShowAvatarPopover(false); setShowSmartAssets(true); }}
+                  className="flex items-center gap-3 w-full px-4 py-3 text-sm text-foreground hover:bg-muted/20 transition-colors"
+                >
+                  <ImagePlus className="h-4 w-4 text-muted-foreground" /> Select from smart assets
+                </button>
+                <button
+                  onClick={() => setShowAvatarPopover(false)}
+                  className="flex items-center gap-3 w-full px-4 py-3 text-sm text-foreground hover:bg-muted/20 transition-colors"
+                >
+                  <Image className="h-4 w-4 text-muted-foreground" /> Upload an image
+                </button>
+              </div>
+            )}
+          </div>
         )}
 
         {/* Aspect Ratio dropdown (always shown) */}
@@ -404,6 +555,7 @@ function VideoClipsTab() {
 
       <SmartAssetsModal open={showSmartAssets} onClose={() => setShowSmartAssets(false)} />
       <StyleSelectorModal open={showStyleModal} onClose={() => setShowStyleModal(false)} />
+      <ChooseAvatarModal open={showChooseAvatar} onClose={() => setShowChooseAvatar(false)} />
     </div>
   );
 }
