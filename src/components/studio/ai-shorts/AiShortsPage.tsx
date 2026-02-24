@@ -265,43 +265,6 @@ export default function AiShortsPage() {
                 ))}
               </div>
             </div>
-
-            {/* ── Preview area ── */}
-            <div className="flex-1 flex items-center justify-center min-h-0">
-            {isGenerating ? (
-              <div className="flex flex-col items-center gap-4">
-                <div className="relative w-20 h-20">
-                  <div className="absolute inset-0 rounded-full border-2 border-accent/20" />
-                  <div className="absolute inset-0 rounded-full border-2 border-accent border-t-transparent animate-spin" />
-                  <Sparkles className="absolute inset-0 m-auto h-8 w-8 text-accent" />
-                </div>
-                <p className="text-sm text-muted-foreground">Generating your AI Short…</p>
-                <p className="text-xs text-muted-foreground/60">This may take a minute or two</p>
-              </div>
-            ) : generatedResult?.videoUrl ? (
-              <div className="flex flex-col items-center gap-6 w-full max-w-lg">
-                <div className="rounded-xl overflow-hidden border border-border/30 bg-card w-full">
-                  <video src={generatedResult.videoUrl} poster={generatedResult.thumbnailUrl || undefined} controls preload="metadata" className="w-full max-h-[70vh] object-contain bg-black" />
-                </div>
-                <div className="flex items-center gap-3">
-                  <Button variant="accent" className="px-6 py-2.5 text-sm font-semibold" onClick={handleDownload}>
-                    <Download className="h-4 w-4 mr-2" />Download
-                  </Button>
-                  <Button variant="outline" className="px-6 py-2.5 text-sm font-semibold border-border/30 text-foreground hover:bg-muted/20" onClick={() => { setGeneratedResult(null); setScript(""); }}>
-                    <RefreshCw className="h-4 w-4 mr-2" />New Short
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center gap-3 text-center max-w-xs">
-                <div className="w-16 h-16 rounded-2xl bg-muted/20 border border-border/20 flex items-center justify-center">
-                  <Play className="h-7 w-7 text-muted-foreground/40" />
-                </div>
-                <p className="text-sm font-medium text-foreground">Preview</p>
-                <p className="text-xs text-muted-foreground">Write a script, choose a style, and hit Generate to create your AI Short.</p>
-              </div>
-            )}
-            </div>
           </div>
         }
       />
