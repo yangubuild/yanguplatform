@@ -185,7 +185,10 @@ export default function Studio() {
             {TOOL_CHIPS.map((chip) => (
               <button
                 key={chip.id}
-                onClick={() => chip.id === "image-ads" ? navigate("/dashboard/studio/image-ads") : undefined}
+                onClick={() => {
+                  if (chip.id === "image-ads") navigate("/dashboard/studio/image-ads");
+                  else if (chip.id === "ad-clone") navigate("/dashboard/studio/ad-clone");
+                }}
                 className="flex items-center gap-3 rounded-xl border border-border/40 bg-card px-5 py-4 text-sm font-medium text-foreground hover:bg-muted/60 transition-colors text-left"
               >
                 <chip.icon className="h-5 w-5 text-accent shrink-0" />

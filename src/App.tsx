@@ -274,7 +274,7 @@ const App = () => (
                   <Route path="ada" element={<AdaAi />} />
                   <Route path="studio" element={<Studio />} />
                   <Route path="studio/image-ads" element={<ImageAdsFlow />} />
-                  <Route path="studio/project/:id/ad-clone" element={<AdClonePage />} />
+                  <Route path="studio/ad-clone" element={<AdClonePage />} />
                   <Route path="influencer" element={<DashboardPlaceholder />} />
                   <Route path="visionaire" element={<DashboardPlaceholder />} />
                   <Route path="app-store" element={<DashboardPlaceholder />} />
