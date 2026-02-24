@@ -668,6 +668,42 @@ export type Database = {
         }
         Relationships: []
       }
+      avatar_training_jobs: {
+        Row: {
+          avatar_id: string | null
+          created_at: string
+          error: string | null
+          id: string
+          payload: Json | null
+          provider: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_id?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          payload?: Json | null
+          provider?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_id?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          payload?: Json | null
+          provider?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       blog_section_images: {
         Row: {
           id: string
