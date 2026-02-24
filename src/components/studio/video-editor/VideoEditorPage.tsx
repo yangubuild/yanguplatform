@@ -496,14 +496,14 @@ function AssetsPanel() {
       </div>
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium text-foreground">Product Assets</p>
-        <span className="text-xs text-muted-foreground cursor-pointer hover:text-foreground transition-colors">See all</span>
+        <button className="text-xs text-accent hover:text-accent/80 font-medium shrink-0 transition-colors">See all</button>
       </div>
       <div className="min-h-[80px]" />
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium text-foreground">Stock Footage</p>
-        <button onClick={() => setStockExpanded(true)} className="text-xs text-muted-foreground cursor-pointer hover:text-foreground transition-colors">See all</button>
+        <button onClick={() => setStockExpanded(true)} className="text-xs text-accent hover:text-accent/80 font-medium shrink-0 transition-colors">See all</button>
       </div>
-      <div className="flex gap-2 overflow-x-auto pb-1">
+      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {STOCK_FOOTAGE.slice(0, 3).map((item) => (
           <div key={item.id} className="w-[100px] shrink-0">
             <StockFootageCard item={item} onClick={() => { setPreviewItem({ ...item, type: "video" }); setShowStockPreview(true); }} />
@@ -753,9 +753,9 @@ export default function VideoEditorPage() {
 
         {/* ─── LEFT PANEL ─── */}
         <div className="w-[320px] border-r border-border/20 shrink-0 flex flex-col min-h-0">
-          <ScrollArea className="flex-1">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden">
             {panelMap[activeNav]}
-          </ScrollArea>
+          </div>
         </div>
 
         {/* ─── CENTER + RIGHT ─── */}
