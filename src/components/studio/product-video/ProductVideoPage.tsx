@@ -168,8 +168,19 @@ function StyleSelectorModal({ open, onClose }: { open: boolean; onClose: () => v
   );
 }
 
+const TEMPLATE_ITEMS: { src: string; type: "video" | "gif" }[] = [
+  { src: "/videos/templates/template-preview.mp4", type: "video" },
+  { src: "/videos/templates/template-2.mp4", type: "video" },
+  { src: "/videos/templates/template-3.mp4", type: "video" },
+  { src: "/videos/templates/template-4.mp4", type: "video" },
+  { src: "/videos/templates/template-5.mp4", type: "video" },
+  { src: "/videos/templates/template-6.mp4", type: "video" },
+  { src: "/videos/templates/template-7.gif", type: "gif" },
+  { src: "/videos/templates/template-8.gif", type: "gif" },
+];
+
 /* ─── Template Selection Modal ─── */
-function TemplateSelectionModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+function TemplateSelectionModal({ open, onClose, selected, onSelect }: { open: boolean; onClose: () => void; selected: number; onSelect: (i: number) => void }) {
   const categories = ["All", "Beverages", "Beauty & Personal care", "OTC / Medical", "Coming soon"];
   const [activeCategory, setActiveCategory] = useState("All");
   return (
@@ -201,8 +212,29 @@ function TemplateSelectionModal({ open, onClose }: { open: boolean; onClose: () 
             </button>
           ))}
         </div>
-        {/* Grid container — NO template images */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 min-h-[300px] max-h-[450px] overflow-y-auto" />
+        {/* Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-h-[450px] overflow-y-auto">
+          {TEMPLATE_ITEMS.map((item, i) => (
+            <button
+              key={i}
+              onClick={() => onSelect(i)}
+              className={`relative rounded-xl overflow-hidden border-2 aspect-[3/4] transition-colors ${
+                selected === i ? "border-accent ring-2 ring-accent" : "border-transparent hover:border-border/50"
+              }`}
+            >
+              {selected === i && (
+                <div className="absolute top-2 left-2 z-10 w-6 h-6 rounded-full bg-accent flex items-center justify-center">
+                  <Check className="h-3.5 w-3.5 text-accent-foreground" />
+                </div>
+              )}
+              {item.type === "video" ? (
+                <video src={item.src} muted autoPlay loop playsInline className="w-full h-full object-cover" />
+              ) : (
+                <img src={item.src} alt={`Template ${i + 1}`} className="w-full h-full object-cover" />
+              )}
+            </button>
+          ))}
+        </div>
         {/* Bottom actions */}
         <div className="flex justify-center gap-4 pt-2">
           <Button variant="outline" className="px-8" onClick={onClose}>Cancel</Button>
@@ -568,6 +600,10 @@ function VideoClipsTab() {
 function VideoTemplatesTab() {
   const [showSmartAssets, setShowSmartAssets] = useState(false);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState(0);
+  const [hoveringPreview, setHoveringPreview] = useState(false);
+
+  const currentTemplate = TEMPLATE_ITEMS[selectedTemplate];
 
   return (
     <div className="flex flex-col gap-6">
@@ -584,12 +620,24 @@ function VideoTemplatesTab() {
           <p className="text-xs text-muted-foreground">
             Select a template, then customize the text overlay based on your product.
           </p>
-          {/* Template preview card container — NO images */}
+          {/* Template preview with video */}
           <button
             onClick={() => setShowTemplateModal(true)}
-            className="w-full aspect-[4/3] rounded-lg bg-muted/10 border border-dashed border-border/30 flex items-center justify-center text-sm text-muted-foreground hover:bg-muted/20 transition-colors"
+            onMouseEnter={() => setHoveringPreview(true)}
+            onMouseLeave={() => setHoveringPreview(false)}
+            className="relative w-full aspect-[4/3] rounded-lg overflow-hidden group"
           >
-            Click to select a template
+            {currentTemplate.type === "video" ? (
+              <video src={currentTemplate.src} muted autoPlay loop playsInline className="w-full h-full object-cover" />
+            ) : (
+              <img src={currentTemplate.src} alt="Template preview" className="w-full h-full object-cover" />
+            )}
+            {/* Hover overlay */}
+            <div className={`absolute inset-0 bg-black/50 flex items-center justify-center transition-opacity ${hoveringPreview ? "opacity-100" : "opacity-0"}`}>
+              <span className="text-sm font-semibold text-white flex items-center gap-1.5">
+                Change template <ChevronDown className="h-4 w-4 -rotate-90" />
+              </span>
+            </div>
           </button>
 
           {/* Heading input */}
@@ -618,7 +666,12 @@ function VideoTemplatesTab() {
       </Button>
 
       <SmartAssetsModal open={showSmartAssets} onClose={() => setShowSmartAssets(false)} />
-      <TemplateSelectionModal open={showTemplateModal} onClose={() => setShowTemplateModal(false)} />
+      <TemplateSelectionModal
+        open={showTemplateModal}
+        onClose={() => setShowTemplateModal(false)}
+        selected={selectedTemplate}
+        onSelect={setSelectedTemplate}
+      />
     </div>
   );
 }
