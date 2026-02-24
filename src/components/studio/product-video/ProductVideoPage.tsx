@@ -1,11 +1,15 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, Upload, Lightbulb, Square, ChevronDown, ImagePlus,
   X, MessageSquareText, Check, UserPlus, Search, Image, Tag,
   RectangleHorizontal, Settings2, Plus, Sparkles, Bookmark,
-  SlidersHorizontal, ArrowUpDown,
+  SlidersHorizontal, ArrowUpDown, Loader2,
 } from "lucide-react";
+import { toast } from "sonner";
+import { useVideoGenerate } from "@/hooks/useStudioEngine";
+import type { VideoGenerateResult } from "@/lib/studio/StudioAIEngine";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
@@ -388,17 +392,33 @@ function ChooseAvatarModal({ open, onClose }: { open: boolean; onClose: () => vo
 }
 
 /* ─── Upload Box (shared between tabs) ─── */
-function UploadBox({ onSmartAssets }: { onSmartAssets: () => void }) {
+function UploadBox({ onSmartAssets, onFileSelected, onSampleSelected }: { onSmartAssets: () => void; onFileSelected?: (file: File) => void; onSampleSelected?: (url: string) => void }) {
+  const uploadRef = useRef<HTMLInputElement>(null);
   const [selectedSample, setSelectedSample] = useState<string | null>(null);
   const [showTips, setShowTips] = useState(false);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setSelectedSample(URL.createObjectURL(file));
+    onFileSelected?.(file);
+  };
+
+  const handleSampleClick = (src: string) => {
+    setSelectedSample(src);
+    onSampleSelected?.(src);
+  };
+
   return (
-    <div className="rounded-xl border-2 border-dashed border-border/40 p-6 flex flex-col items-center gap-2 relative">
+    <div
+      className="rounded-xl border-2 border-dashed border-border/40 p-6 flex flex-col items-center gap-2 relative cursor-pointer"
+      onClick={() => !selectedSample && uploadRef.current?.click()}
+    >
+      <input ref={uploadRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
       {selectedSample ? (
-        /* Enlarged sample view */
         <div className="w-full relative">
           <button
-            onClick={() => setSelectedSample(null)}
+            onClick={(e) => { e.stopPropagation(); setSelectedSample(null); }}
             className="absolute top-2 right-2 z-10 p-1.5 rounded-lg bg-card/80 hover:bg-destructive/80 transition-colors"
           >
             <X className="h-4 w-4 text-foreground" />
@@ -406,11 +426,10 @@ function UploadBox({ onSmartAssets }: { onSmartAssets: () => void }) {
           <img src={selectedSample} alt="Selected sample" className="w-full rounded-lg object-contain max-h-[280px]" />
         </div>
       ) : (
-        /* Default upload state */
         <>
           <div className="absolute top-3 right-3 z-20">
             <button
-              onClick={() => setShowTips(!showTips)}
+              onClick={(e) => { e.stopPropagation(); setShowTips(!showTips); }}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/20 text-xs text-foreground hover:bg-muted/30 transition-colors"
             >
               <Lightbulb className="h-3.5 w-3.5 text-accent" /> Tips
@@ -435,21 +454,19 @@ function UploadBox({ onSmartAssets }: { onSmartAssets: () => void }) {
           <Upload className="h-6 w-6 text-muted-foreground" />
           <p className="text-sm font-medium text-foreground">Click or drop an image to upload</p>
           <p className="text-xs text-muted-foreground">Upload image up to 50 MB</p>
-          <button onClick={onSmartAssets} className="text-xs text-accent hover:underline">
+          <button onClick={(e) => { e.stopPropagation(); onSmartAssets(); }} className="text-xs text-accent hover:underline">
             Choose from Smart Assets
           </button>
-          {/* Samples divider */}
           <div className="w-full flex items-center gap-3 mt-3">
             <div className="flex-1 h-px bg-border/30" />
             <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Samples</span>
             <div className="flex-1 h-px bg-border/30" />
           </div>
-          {/* Sample thumbnails */}
           <div className="flex gap-2 mt-1">
             {SAMPLE_IMAGES.map((src, i) => (
               <button
                 key={i}
-                onClick={() => setSelectedSample(src)}
+                onClick={(e) => { e.stopPropagation(); handleSampleClick(src); }}
                 className="w-10 h-10 rounded-full overflow-hidden border border-border/20 hover:border-accent transition-colors"
               >
                 <img src={src} alt={`Sample ${i + 1}`} className="w-full h-full object-cover" />
@@ -463,7 +480,7 @@ function UploadBox({ onSmartAssets }: { onSmartAssets: () => void }) {
 }
 
 /* ─── Video Clips Tab ─── */
-function VideoClipsTab() {
+function VideoClipsTab({ onGenerated }: { onGenerated: (result: VideoGenerateResult) => void }) {
   const [selectedType, setSelectedType] = useState<VideoType>("product-shot");
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>("square");
   const [showAspectDropdown, setShowAspectDropdown] = useState(false);
@@ -472,6 +489,11 @@ function VideoClipsTab() {
   const [showSmartAssetsPopover, setShowSmartAssetsPopover] = useState(false);
   const [showAvatarPopover, setShowAvatarPopover] = useState(false);
   const [showChooseAvatar, setShowChooseAvatar] = useState(false);
+  const [placementText, setPlacementText] = useState("");
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoGenerate = useVideoGenerate();
 
   const videoTypes: { key: VideoType; label: string; video: string }[] = [
     { key: "product-shot", label: "Product shot", video: "/videos/product-shot.mp4" },
@@ -496,7 +518,11 @@ function VideoClipsTab() {
       {/* 1. Upload */}
       <div>
         <h3 className="text-sm font-semibold text-foreground mb-3">1. Upload a product image</h3>
-        <UploadBox onSmartAssets={() => setShowSmartAssets(true)} />
+        <UploadBox
+          onSmartAssets={() => setShowSmartAssets(true)}
+          onFileSelected={(file) => { setUploadedFile(file); setUploadedUrl(URL.createObjectURL(file)); }}
+          onSampleSelected={(url) => { setUploadedFile(null); setUploadedUrl(url); }}
+        />
       </div>
 
       {/* 2. Select a video type */}
@@ -520,8 +546,9 @@ function VideoClipsTab() {
          </div>
        </div>
 
-       {/* Placement description */}
        <textarea
+         value={placementText}
+         onChange={(e) => setPlacementText(e.target.value)}
          placeholder={placeholders[selectedType]}
          className="w-full min-h-[120px] rounded-xl bg-muted/10 border border-border/20 p-4 text-sm text-foreground placeholder:text-muted-foreground resize-none outline-none focus:border-accent/40"
        />
@@ -627,9 +654,39 @@ function VideoClipsTab() {
         )}
       </div>
 
-      {/* Generate button */}
-      <Button variant="accent" className="w-full opacity-50 cursor-not-allowed" disabled>
-        Generate preview image
+      <Button
+        variant="accent"
+        className="w-full"
+        disabled={!uploadedUrl || videoGenerate.isPending}
+        onClick={async () => {
+          if (!uploadedUrl) return;
+          const aspectMap: Record<AspectRatio, string> = { portrait: "9x16", landscape: "16x9", square: "1x1" };
+          const prompt = uploadedUrl.startsWith("http") ? uploadedUrl : placementText || "Product video";
+          try {
+            const result = await videoGenerate.mutateAsync({
+              tool: "product-video",
+              type: "video.generate",
+              prompt,
+              params: {
+                aspect_ratio: aspectMap[aspectRatio],
+                visual_style: selectedType,
+                script_text: placementText || undefined,
+              },
+            });
+            onGenerated(result);
+            toast.success("Video generated successfully!");
+          } catch (err) {
+            if ((err as Error).message === "UPGRADE_REQUIRED") {
+              toast.error("Upgrade your plan to generate product videos.");
+            }
+          }
+        }}
+      >
+        {videoGenerate.isPending ? (
+          <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Generating...</span>
+        ) : (
+          "Generate preview video"
+        )}
       </Button>
 
       <SmartAssetsModal open={showSmartAssets} onClose={() => setShowSmartAssets(false)} />
@@ -725,6 +782,7 @@ function VideoTemplatesTab() {
 export default function ProductVideoPage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<Tab>("clips");
+  const [generatedResult, setGeneratedResult] = useState<VideoGenerateResult | null>(null);
 
   return (
     <div className="h-full flex flex-col overflow-hidden" style={{ background: "#08120D" }}>
@@ -775,13 +833,21 @@ export default function ProductVideoPage() {
           </div>
           {/* Scrollable content */}
           <div className="flex-1 overflow-y-auto overflow-x-hidden p-6">
-            {activeTab === "clips" ? <VideoClipsTab /> : <VideoTemplatesTab />}
+            {activeTab === "clips" ? <VideoClipsTab onGenerated={(r) => setGeneratedResult(r)} /> : <VideoTemplatesTab />}
           </div>
         </div>
 
         {/* RIGHT PANEL — dynamic based on tab */}
         <div className="flex-1 flex flex-col items-center p-8 min-w-0 overflow-y-auto">
-          {activeTab === "clips" ? (
+          {generatedResult?.ok && generatedResult.videoUrl ? (
+            <>
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-2">Your Video is Ready</h1>
+              <p className="text-sm text-muted-foreground text-center mb-6">Preview your generated product video below.</p>
+              <div className="w-full flex-1 max-w-[800px] rounded-2xl overflow-hidden border border-accent/30">
+                <video src={generatedResult.videoUrl} controls autoPlay className="w-full h-full object-contain bg-black" />
+              </div>
+            </>
+          ) : activeTab === "clips" ? (
             <>
               <h1 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-2">Turn Any Product Image into a Stunning Video</h1>
               <p className="text-sm text-muted-foreground text-center mb-6">Instantly transform product images into cinematic product shots or avatar videos — all with a single click.</p>
