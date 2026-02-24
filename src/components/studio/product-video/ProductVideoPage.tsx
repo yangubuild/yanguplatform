@@ -1,5 +1,5 @@
 import { useState } from "react";
-import productVideoPreview from "@/assets/product-video-preview.png";
+
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, Upload, Lightbulb, Square, ChevronDown, ImagePlus,
@@ -392,7 +392,7 @@ export default function ProductVideoPage() {
           <h1 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-2">Turn Any Product Image into a Stunning Video</h1>
           <p className="text-sm text-muted-foreground text-center mb-6">Instantly transform product images into cinematic product shots or avatar videos — all with a single click.</p>
           <div className="w-full flex-1 max-w-[800px] rounded-2xl overflow-hidden border border-border/20">
-            <img src={productVideoPreview} alt="Product video preview" className="w-full h-full object-cover" />
+            <video src="/videos/ptv_intro_2.mp4" autoPlay loop muted playsInline className="w-full h-full object-cover" />
           </div>
         </div>
       </div>
