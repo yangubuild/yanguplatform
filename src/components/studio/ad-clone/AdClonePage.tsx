@@ -31,7 +31,7 @@ export default function AdClonePage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen h-full w-full relative" style={{ background: "#08120D" }}>
+    <div className="flex flex-col h-screen w-full relative overflow-hidden" style={{ background: "#08120D" }}>
       {/* Top bar */}
       <div className="flex items-center justify-between px-6 pt-4 pb-2 shrink-0">
         <div className="flex items-center gap-3">
