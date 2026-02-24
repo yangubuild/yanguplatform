@@ -62,6 +62,13 @@ export interface ImageGenerateRequest extends StudioJobBase {
   prompt: string;
   chatId?: string;
   params?: IdeogramParams | QwenParams;
+  /** Brand blueprint JSON from studio_projects to inject into prompts */
+  brandBlueprint?: {
+    brand_name?: string;
+    colors?: string[];
+    tone?: string;
+    [key: string]: unknown;
+  } | null;
 }
 
 export interface ImageGenerateResult {
@@ -79,6 +86,15 @@ export interface ScriptGenerateRequest extends StudioJobBase {
   prompt: string;
   style?: string;
   context?: Record<string, unknown>;
+  /** Brand blueprint JSON from studio_projects to inject into prompts */
+  brandBlueprint?: {
+    brand_name?: string;
+    colors?: string[];
+    tone?: string;
+    target_audience?: string;
+    tagline?: string;
+    [key: string]: unknown;
+  } | null;
 }
 
 export interface ScriptGenerateResult {
@@ -219,25 +235,36 @@ async function handleVideoGenerate(req: VideoGenerateRequest): Promise<VideoGene
 
 // ─── Image Generation ────────────────────────────────────
 
+function buildBrandContext(bp?: { brand_name?: string; colors?: string[]; tone?: string; [key: string]: unknown } | null): string {
+  if (!bp) return "";
+  const parts: string[] = [];
+  if (bp.brand_name) parts.push(`Brand: ${bp.brand_name}`);
+  if (bp.colors?.length) parts.push(`Brand colors: ${bp.colors.join(", ")}`);
+  if (bp.tone) parts.push(`Tone: ${bp.tone}`);
+  if (bp.tagline) parts.push(`Tagline: "${bp.tagline}"`);
+  return parts.length ? `\n\n[Brand context: ${parts.join(". ")}]` : "";
+}
+
 async function handleImageGenerate(req: ImageGenerateRequest): Promise<ImageGenerateResult> {
   const provider = req.provider || "gemini";
+  const prompt = req.prompt + buildBrandContext(req.brandBlueprint);
 
   try {
     switch (provider) {
       case "gemini": {
-        const result: GeminiResult = await generateGeminiImage(req.prompt, req.chatId || "");
+        const result: GeminiResult = await generateGeminiImage(prompt, req.chatId || "");
         if (!result.ok) return { ok: false, error: result.error };
         const img = result.images?.[0];
         return { ok: true, generationId: result.generation_id, imageUrl: img?.url, storagePath: img?.storage_path };
       }
       case "ideogram": {
-        const result: IdeogramResult = await generateIdeogramImage(req.prompt, (req.params as IdeogramParams) || {});
+        const result: IdeogramResult = await generateIdeogramImage(prompt, (req.params as IdeogramParams) || {});
         if (!result.ok) return { ok: false, error: result.error };
         const img = result.images?.[0];
         return { ok: true, generationId: result.generation_id, imageUrl: img?.url, storagePath: img?.storage_path };
       }
       case "qwen": {
-        const result: QwenResult = await generateQwenImage(req.prompt, (req.params as QwenParams) || {});
+        const result: QwenResult = await generateQwenImage(prompt, (req.params as QwenParams) || {});
         if (!result.ok) return { ok: false, error: result.error };
         const img = result.images?.[0];
         return { ok: true, generationId: result.generation_id, imageUrl: img?.url, storagePath: img?.storage_path };
@@ -257,12 +284,15 @@ async function handleScriptGenerate(req: ScriptGenerateRequest): Promise<ScriptG
     const headers = await getAuthHeaders();
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 
+    const brandCtx = buildBrandContext(req.brandBlueprint);
+    const basePrompt = req.style
+      ? `Write a ${req.style.toLowerCase()} video script about: ${req.prompt}. Keep it under 1000 characters, engaging, and ready for a video voiceover.`
+      : `Write a video script about: ${req.prompt}. Keep it under 1000 characters, engaging, and ready for a video voiceover.`;
+
     const messages = [
       {
         role: "user",
-        content: req.style
-          ? `Write a ${req.style.toLowerCase()} video script about: ${req.prompt}. Keep it under 1000 characters, engaging, and ready for a video voiceover.`
-          : `Write a video script about: ${req.prompt}. Keep it under 1000 characters, engaging, and ready for a video voiceover.`,
+        content: basePrompt + brandCtx,
       },
     ];
 
