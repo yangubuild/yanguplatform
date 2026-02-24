@@ -6,12 +6,15 @@ import {
   Keyboard, MessageSquareText, Clock, MoreVertical, X, Sparkles, Maximize2,
   Scissors, ArrowLeftToLine, ArrowRightToLine, ZoomIn, ZoomOut, Smartphone,
   Square, CloudUpload, RefreshCw, Filter, SlidersHorizontal, Bookmark, Check,
-  Crown, ChevronDown, Info, ArrowLeft, Copy, FolderOpen, LayoutTemplate, MicOff, ListOrdered, CopyPlus
+  Crown, ChevronDown, Info, ArrowLeft, Copy, FolderOpen, LayoutTemplate, MicOff, ListOrdered, CopyPlus,
+  Download, Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Progress } from "@/components/ui/progress";
+import { useVideoRender } from "@/hooks/useVideoRender";
 import yanguLogo from "@/assets/yangu-y-icon.png";
 
 const REALISTIC_AVATARS = [
@@ -623,8 +626,9 @@ export default function VideoEditorPage() {
   const [selectedAvatar, setSelectedAvatar] = useState<typeof REALISTIC_AVATARS[0] | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
-  const [showRenderBlocked, setShowRenderBlocked] = useState(false);
+  const [showRenderDialog, setShowRenderDialog] = useState(false);
   const [tooltipId, setTooltipId] = useState<string | null>(null);
+  const { status: renderStatus, videoUrl, error: renderError, progress, startRender, reset: resetRender } = useVideoRender();
 
   const handleSelectAvatar = (avatar: typeof REALISTIC_AVATARS[0]) => {
     setSelectedAvatar(avatar);
@@ -720,8 +724,18 @@ export default function VideoEditorPage() {
             <span className="text-foreground font-medium">9 credits</span>
             <span className="text-muted-foreground">Upgrade</span>
           </div>
-          <Button variant="accent" size="sm" className="ml-2 gap-1.5" onClick={() => setShowRenderBlocked(true)}>
-            <Check className="h-4 w-4" /> Render
+          <Button variant="accent" size="sm" className="ml-2 gap-1.5" onClick={() => {
+            if (renderStatus === "idle" || renderStatus === "failed") {
+              setShowRenderDialog(true);
+            }
+          }} disabled={renderStatus === "starting" || renderStatus === "processing"}>
+            {renderStatus === "processing" ? (
+              <><Loader2 className="h-4 w-4 animate-spin" /> Rendering...</>
+            ) : renderStatus === "completed" ? (
+              <><Download className="h-4 w-4" /> Download</>
+            ) : (
+              <><Check className="h-4 w-4" /> Render</>
+            )}
           </Button>
         </div>
       </div>
@@ -888,25 +902,53 @@ export default function VideoEditorPage() {
       />
       <UpgradeDialog open={showUpgrade} onClose={() => setShowUpgrade(false)} />
 
-      {/* Render Blocked Dialog */}
-      <Dialog open={showRenderBlocked} onOpenChange={(v) => !v && setShowRenderBlocked(false)}>
+      {/* Render Dialog */}
+      <Dialog open={showRenderDialog} onOpenChange={(v) => !v && setShowRenderDialog(false)}>
         <DialogContent className="max-w-md bg-card border-border/30 p-6 gap-4">
           <div className="flex flex-col items-center gap-4 text-center">
-            <div className="h-14 w-14 rounded-full bg-amber-500/10 flex items-center justify-center">
-              <Info className="h-7 w-7 text-amber-400" />
-            </div>
-            <h2 className="text-lg font-semibold text-foreground">Export Not Available Yet</h2>
-            <p className="text-sm text-muted-foreground">
-              Video rendering and export requires a server-side composition pipeline that is not yet enabled. 
-              This feature will be available in a future update when the rendering infrastructure is ready.
-            </p>
-            <p className="text-xs text-muted-foreground">
-              You can still use the editor to prepare your scenes, scripts, and avatars. Your work will be saved 
-              and ready to render when the export feature launches.
-            </p>
-            <Button variant="accent" onClick={() => setShowRenderBlocked(false)} className="mt-2">
-              Got it
-            </Button>
+            {renderStatus === "idle" || renderStatus === "failed" ? (
+              <>
+                <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Play className="h-7 w-7 text-primary" />
+                </div>
+                <h2 className="text-lg font-semibold text-foreground">Render Video</h2>
+                <p className="text-sm text-muted-foreground">
+                  This will send your timeline to the rendering pipeline. The process typically takes 30-120 seconds.
+                </p>
+                {renderError && (
+                  <p className="text-sm text-red-400">{renderError}</p>
+                )}
+                <div className="flex gap-3 mt-2">
+                  <Button variant="outline" onClick={() => { resetRender(); setShowRenderDialog(false); }}>Cancel</Button>
+                  <Button variant="accent" onClick={() => startRender({ title: "Video Editor Export" })}>
+                    Start Render
+                  </Button>
+                </div>
+              </>
+            ) : renderStatus === "starting" || renderStatus === "processing" ? (
+              <>
+                <Loader2 className="h-10 w-10 text-primary animate-spin" />
+                <h2 className="text-lg font-semibold text-foreground">Rendering...</h2>
+                <Progress value={progress} className="w-full" />
+                <p className="text-sm text-muted-foreground">{progress}% — Please wait while your video is being rendered.</p>
+              </>
+            ) : renderStatus === "completed" && videoUrl ? (
+              <>
+                <div className="h-14 w-14 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                  <Check className="h-7 w-7 text-emerald-400" />
+                </div>
+                <h2 className="text-lg font-semibold text-foreground">Render Complete!</h2>
+                <p className="text-sm text-muted-foreground">Your video is ready to download.</p>
+                <div className="flex gap-3 mt-2">
+                  <Button variant="outline" onClick={() => { resetRender(); setShowRenderDialog(false); }}>Close</Button>
+                  <Button variant="accent" asChild>
+                    <a href={videoUrl} target="_blank" rel="noopener noreferrer" download>
+                      <Download className="h-4 w-4 mr-2" /> Download Video
+                    </a>
+                  </Button>
+                </div>
+              </>
+            ) : null}
           </div>
         </DialogContent>
       </Dialog>

@@ -50,3 +50,9 @@ verify_jwt = false
 
 [functions.avatar-train-status]
 verify_jwt = false
+
+[functions.video-render-start]
+verify_jwt = false
+
+[functions.video-render-status]
+verify_jwt = false

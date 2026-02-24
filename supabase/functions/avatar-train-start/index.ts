@@ -24,7 +24,6 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const { provider = "heygen", payload } = body;
 
-    // Check if training endpoint is actually available
     const providerKeys: Record<string, string> = {
       heygen: "HEYGEN_API_KEY",
       did: "DID_API_KEY",
@@ -34,37 +33,150 @@ Deno.serve(async (req) => {
     const apiKeyEnv = providerKeys[provider];
     const apiKey = apiKeyEnv ? Deno.env.get(apiKeyEnv) : null;
 
-    // Create job row regardless — we track the attempt
+    if (!apiKey) {
+      // No API key — insert blocked job
+      const { data: job, error: insertErr } = await supabase
+        .from("avatar_training_jobs")
+        .insert({
+          user_id: user.id,
+          provider,
+          payload: payload || {},
+          status: "not_enabled",
+          error: `Avatar training is not enabled for provider "${provider}". The API key is not configured.`,
+        })
+        .select()
+        .single();
+
+      if (insertErr) {
+        console.error("Insert error:", insertErr);
+        return new Response(JSON.stringify({ error: "Failed to create training job" }), { status: 500, headers: corsHeaders });
+      }
+
+      return new Response(JSON.stringify({
+        job,
+        training_available: false,
+        message: `Avatar training is not enabled. The "${provider}" API key is not configured.`,
+      }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    // ─── HeyGen Training Flow ───
+    if (provider === "heygen") {
+      // Step 1: Create photo avatar group
+      const createGroupRes = await fetch("https://api.heygen.com/v2/photo_avatar/avatar_group/create", {
+        method: "POST",
+        headers: {
+          "accept": "application/json",
+          "content-type": "application/json",
+          "x-api-key": apiKey,
+        },
+        body: JSON.stringify({
+          name: payload?.name || `Avatar-${Date.now()}`,
+        }),
+      });
+
+      const createGroupData = await createGroupRes.json();
+      console.log("HeyGen create group response:", JSON.stringify(createGroupData));
+
+      if (!createGroupRes.ok || createGroupData?.error) {
+        const errMsg = createGroupData?.error?.message || createGroupData?.message || "Failed to create avatar group";
+        const { data: job } = await supabase
+          .from("avatar_training_jobs")
+          .insert({
+            user_id: user.id,
+            provider,
+            payload: { ...payload, heygen_error: createGroupData },
+            status: "failed",
+            error: errMsg,
+          })
+          .select()
+          .single();
+
+        return new Response(JSON.stringify({ job, error: errMsg }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+
+      const groupId = createGroupData?.data?.group_id;
+
+      // Step 2: Add image/video look to the group if we have an upload URL
+      if (payload?.image_url) {
+        const addLookRes = await fetch("https://api.heygen.com/v2/photo_avatar/avatar_group/add", {
+          method: "POST",
+          headers: {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "x-api-key": apiKey,
+          },
+          body: JSON.stringify({
+            group_id: groupId,
+            image_url: payload.image_url,
+          }),
+        });
+        const addLookData = await addLookRes.json();
+        console.log("HeyGen add look response:", JSON.stringify(addLookData));
+      }
+
+      // Step 3: Train the group
+      const trainRes = await fetch("https://api.heygen.com/v2/photo_avatar/train", {
+        method: "POST",
+        headers: {
+          "accept": "application/json",
+          "content-type": "application/json",
+          "x-api-key": apiKey,
+        },
+        body: JSON.stringify({ group_id: groupId }),
+      });
+
+      const trainData = await trainRes.json();
+      console.log("HeyGen train response:", JSON.stringify(trainData));
+
+      const initialStatus = trainRes.ok ? "pending" : "failed";
+      const trainError = trainRes.ok ? null : (trainData?.error?.message || trainData?.message || "Training request failed");
+
+      const { data: job, error: insertErr } = await supabase
+        .from("avatar_training_jobs")
+        .insert({
+          user_id: user.id,
+          provider,
+          payload: { ...payload, group_id: groupId, train_response: trainData },
+          status: initialStatus,
+          error: trainError,
+          avatar_id: groupId,
+        })
+        .select()
+        .single();
+
+      if (insertErr) {
+        console.error("Insert error:", insertErr);
+        return new Response(JSON.stringify({ error: "Failed to create training job" }), { status: 500, headers: corsHeaders });
+      }
+
+      return new Response(JSON.stringify({
+        job,
+        training_available: true,
+        message: trainRes.ok ? "Training started! This may take several minutes." : trainError,
+      }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    // ─── Other providers: not yet implemented ───
     const { data: job, error: insertErr } = await supabase
       .from("avatar_training_jobs")
       .insert({
         user_id: user.id,
         provider,
         payload: payload || {},
-        status: apiKey ? "pending" : "not_enabled",
-        error: apiKey ? null : `Avatar training is not enabled for provider "${provider}". Training API endpoints are not available with current credentials. Contact your administrator to enable this feature.`,
+        status: "not_enabled",
+        error: `Training endpoint for "${provider}" is not yet implemented.`,
       })
       .select()
       .single();
 
     if (insertErr) {
-      console.error("Insert error:", insertErr);
       return new Response(JSON.stringify({ error: "Failed to create training job" }), { status: 500, headers: corsHeaders });
     }
 
-    // If training endpoint IS available, attempt to call it
-    // Currently: none of the providers expose training endpoints via our credentials
-    // So all jobs will land in "not_enabled" status — this is the honest blocked state.
-    //
-    // When a provider training endpoint becomes available, add the call here:
-    // if (provider === "heygen" && apiKey) { ... call HeyGen training API ... }
-
     return new Response(JSON.stringify({
       job,
-      training_available: !!apiKey && false, // API key exists but no training endpoint available
-      message: apiKey
-        ? "API key is configured but avatar training endpoints are not yet available for this provider."
-        : `Avatar training is not enabled. The "${provider}" API key is not configured.`,
+      training_available: false,
+      message: `Training for "${provider}" is not yet implemented.`,
     }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
   } catch (err) {
