@@ -13,6 +13,15 @@ import {
 
 type RightTab = "trending" | "upload";
 
+const TRENDING_VIDEOS = [
+  "/studio/ad-clone/trending-1.mp4",
+  "/studio/ad-clone/trending-2.mp4",
+  "/studio/ad-clone/trending-3.mp4",
+  "/studio/ad-clone/trending-4.mp4",
+  "/studio/ad-clone/trending-5.mp4",
+  "/studio/ad-clone/trending-6.mp4",
+];
+
 export default function AdClonePage() {
   const navigate = useNavigate();
   const [rightTab, setRightTab] = useState<RightTab>("trending");
@@ -203,10 +212,10 @@ function TrendingAdsTab({ search, onSearchChange }: { search: string; onSearchCh
         </button>
       </div>
 
-      {/* Empty grid — 3 columns of card frames */}
+      {/* Grid — 3 columns, 2 rows */}
       <div className="grid grid-cols-3 gap-4">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <TrendingAdCardEmpty key={i} />
+        {TRENDING_VIDEOS.map((video, i) => (
+          <TrendingAdCardEmpty key={i} videoSrc={video} />
         ))}
       </div>
     </div>
@@ -214,7 +223,7 @@ function TrendingAdsTab({ search, onSearchChange }: { search: string; onSearchCh
 }
 
 /* ─── Empty ad card frame (matches screenshot structure) ─── */
-function TrendingAdCardEmpty() {
+function TrendingAdCardEmpty({ videoSrc }: { videoSrc?: string }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -236,7 +245,18 @@ function TrendingAdCardEmpty() {
       </div>
 
       {/* Vertical video container */}
-      <div className="mx-3 mb-2 aspect-[9/16] rounded-lg bg-muted/10 border border-border/20" />
+      <div className="mx-3 mb-2 aspect-[9/16] rounded-lg bg-muted/10 border border-border/20 overflow-hidden">
+        {videoSrc && (
+          <video
+            src={videoSrc}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+          />
+        )}
+      </div>
 
       {/* Clone + 3-dot row */}
       <div className="flex items-center gap-2 px-3 pb-3 relative">
