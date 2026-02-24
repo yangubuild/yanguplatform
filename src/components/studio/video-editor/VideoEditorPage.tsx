@@ -2,11 +2,11 @@ import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FileText, User, Smile, Captions, Upload, Shapes, Type, Music, MousePointerClick,
-  Search, MoreHorizontal, ChevronRight, Plus, Play, Trash2, Undo2, Redo2,
+  Search, MoreHorizontal, ChevronRight, ChevronLeft, Plus, Play, Trash2, Undo2, Redo2,
   Keyboard, MessageSquareText, Clock, MoreVertical, X, Sparkles, Maximize2,
   Scissors, ArrowLeftToLine, ArrowRightToLine, ZoomIn, ZoomOut, Smartphone,
   Square, CloudUpload, RefreshCw, Filter, SlidersHorizontal, Bookmark, Check,
-  Crown, ChevronDown, Info, ArrowLeft, Copy, FolderOpen, LayoutTemplate
+  Crown, ChevronDown, Info, ArrowLeft, Copy, FolderOpen, LayoutTemplate, MicOff, ListOrdered, CopyPlus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -67,18 +67,56 @@ const NAV_ITEMS: { key: NavItem; label: string; icon: React.ElementType; badge?:
 /* ─── LEFT PANEL CONTENT PER NAV ─── */
 
 function ScriptPanel() {
+  const [showScriptMenu, setShowScriptMenu] = useState(false);
   return (
     <div className="p-4 flex flex-col gap-4">
       <h2 className="text-lg font-semibold text-foreground">Script</h2>
       <div className="border-t border-dashed border-border/30" />
       <div className="flex items-center justify-between">
         <span className="px-3 py-1 rounded-full bg-muted/30 text-sm text-foreground">Scene 1</span>
-        <button className="p-1 rounded hover:bg-muted/20"><MoreHorizontal className="h-4 w-4 text-muted-foreground" /></button>
+        <div className="relative">
+          <button className="p-1 rounded hover:bg-muted/20" onClick={() => setShowScriptMenu(!showScriptMenu)}>
+            <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+          </button>
+          {showScriptMenu && (
+            <div className="absolute top-full right-0 mt-1 w-44 rounded-xl bg-card border border-border/30 shadow-xl z-50 py-1.5 overflow-hidden">
+              <button className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-foreground hover:bg-muted/20 transition-colors" onClick={() => setShowScriptMenu(false)}>
+                <CopyPlus className="h-4 w-4 text-muted-foreground" /> Duplicate
+              </button>
+              <button className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-foreground hover:bg-muted/20 transition-colors" onClick={() => setShowScriptMenu(false)}>
+                <Trash2 className="h-4 w-4 text-muted-foreground" /> Delete
+              </button>
+            </div>
+          )}
+        </div>
       </div>
       <textarea
         placeholder="Enter script ..."
-        className="w-full h-32 rounded-lg bg-muted/10 border border-border/20 p-3 text-sm text-foreground placeholder:text-muted-foreground resize-none outline-none focus:border-primary/40"
+        className="w-full h-32 rounded-lg bg-transparent border-l-2 border-accent p-3 text-sm text-foreground placeholder:text-muted-foreground resize-none outline-none"
       />
+      {/* Toolbar row */}
+      <div className="flex items-center gap-2">
+        <button className="p-2 rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors">
+          <Play className="h-4 w-4 text-foreground" />
+        </button>
+        <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/20 hover:bg-muted/30 text-sm text-foreground transition-colors">
+          V3 <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+        </button>
+        <button className="p-2 rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors">
+          <ListOrdered className="h-4 w-4 text-foreground" />
+        </button>
+        <button className="p-2 rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors">
+          <MoreVertical className="h-4 w-4 text-foreground" />
+        </button>
+      </div>
+      {/* Status row */}
+      <div className="flex items-center gap-3">
+        <button className="p-1.5 rounded hover:bg-muted/20"><Clock className="h-4 w-4 text-muted-foreground" /></button>
+        <button className="p-1.5 rounded hover:bg-muted/20"><RefreshCw className="h-4 w-4 text-muted-foreground" /></button>
+        <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-muted/20 text-xs text-muted-foreground">
+          <MicOff className="h-3.5 w-3.5" /> OFF
+        </div>
+      </div>
       <div className="border-t border-dashed border-border/30" />
     </div>
   );
@@ -312,6 +350,13 @@ const STOCK_FOOTAGE = [
   { id: "sf5", video: "/stock-footage/sf_5.mp4", duration: "00:09" },
 ];
 
+const STOCK_IMAGES = [
+  { id: "si1", image: "/stock-footage/si_1.jpeg" },
+  { id: "si2", image: "/stock-footage/si_2.jpeg" },
+  { id: "si3", image: "/stock-footage/si_3.jpeg" },
+  { id: "si4", image: "/stock-footage/si_4.jpeg" },
+];
+
 function StockFootageCard({ item, onClick }: { item: typeof STOCK_FOOTAGE[0]; onClick: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   return (
@@ -327,29 +372,49 @@ function StockFootageCard({ item, onClick }: { item: typeof STOCK_FOOTAGE[0]; on
   );
 }
 
-function StockFootagePreviewDialog({ item, open, onClose, allItems, onNavigate }: {
-  item: typeof STOCK_FOOTAGE[0] | null;
+function StockImageCard({ item, onClick }: { item: typeof STOCK_IMAGES[0]; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="relative rounded-lg overflow-hidden aspect-[3/4] bg-muted/10 border border-border/20 hover:border-primary/40 transition-colors group"
+    >
+      <img src={item.image} alt="" className="w-full h-full object-cover" />
+    </button>
+  );
+}
+
+type PreviewMediaItem = { id: string; type: "video"; video: string; duration: string } | { id: string; type: "image"; image: string };
+
+function MediaPreviewDialog({ item, open, onClose, onNavigate }: {
+  item: PreviewMediaItem | null;
   open: boolean;
   onClose: () => void;
-  allItems: typeof STOCK_FOOTAGE;
   onNavigate: (dir: 1 | -1) => void;
 }) {
   if (!item) return null;
+  const isVideo = item.type === "video";
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-3xl bg-card border-border/30 p-6 gap-4">
         <h2 className="text-lg font-semibold text-foreground">Preview</h2>
         <div className="relative w-full flex items-center justify-center">
+          <button onClick={() => onNavigate(-1)} className="absolute left-2 p-2 rounded-full bg-muted/40 hover:bg-muted/60 transition-colors z-10">
+            <ChevronLeft className="h-5 w-5 text-foreground" />
+          </button>
           <div className="w-full max-w-[360px] aspect-[9/16] bg-black rounded-lg overflow-hidden">
-            <video src={item.video} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+            {isVideo ? (
+              <video src={(item as any).video} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+            ) : (
+              <img src={(item as any).image} alt="" className="w-full h-full object-cover" />
+            )}
           </div>
-          <button onClick={() => onNavigate(1)} className="absolute right-2 p-2 rounded-full bg-muted/40 hover:bg-muted/60 transition-colors">
+          <button onClick={() => onNavigate(1)} className="absolute right-2 p-2 rounded-full bg-muted/40 hover:bg-muted/60 transition-colors z-10">
             <ChevronRight className="h-5 w-5 text-foreground" />
           </button>
         </div>
         <div className="flex items-center justify-center gap-4 pt-2">
           <button onClick={onClose} className="px-5 py-2.5 rounded-lg bg-muted/30 border border-border/20 text-sm font-medium text-foreground hover:bg-muted/40 transition-colors">
-            Crop & Trim video
+            {isVideo ? "Crop & Trim video" : "Crop image"}
           </button>
           <button onClick={onClose} className="px-5 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">
             Add to scene
@@ -363,14 +428,18 @@ function StockFootagePreviewDialog({ item, open, onClose, allItems, onNavigate }
 function AssetsPanel() {
   const [stockExpanded, setStockExpanded] = useState(false);
   const [stockTab, setStockTab] = useState<"videos" | "images">("videos");
-  const [previewItem, setPreviewItem] = useState<typeof STOCK_FOOTAGE[0] | null>(null);
+  const [previewItem, setPreviewItem] = useState<PreviewMediaItem | null>(null);
   const [showStockPreview, setShowStockPreview] = useState(false);
+
+  const allMedia: PreviewMediaItem[] = stockTab === "videos"
+    ? STOCK_FOOTAGE.map(f => ({ ...f, type: "video" as const }))
+    : STOCK_IMAGES.map(i => ({ ...i, type: "image" as const }));
 
   const handleNavigate = (dir: 1 | -1) => {
     if (!previewItem) return;
-    const idx = STOCK_FOOTAGE.findIndex(i => i.id === previewItem.id);
-    const next = (idx + dir + STOCK_FOOTAGE.length) % STOCK_FOOTAGE.length;
-    setPreviewItem(STOCK_FOOTAGE[next]);
+    const idx = allMedia.findIndex(i => i.id === previewItem.id);
+    const next = (idx + dir + allMedia.length) % allMedia.length;
+    setPreviewItem(allMedia[next]);
   };
 
   if (stockExpanded) {
@@ -393,17 +462,20 @@ function AssetsPanel() {
         {stockTab === "videos" ? (
           <div className="grid grid-cols-2 gap-3">
             {STOCK_FOOTAGE.map((item) => (
-              <StockFootageCard key={item.id} item={item} onClick={() => { setPreviewItem(item); setShowStockPreview(true); }} />
+              <StockFootageCard key={item.id} item={item} onClick={() => { setPreviewItem({ ...item, type: "video" }); setShowStockPreview(true); }} />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3 min-h-[200px]" />
+          <div className="grid grid-cols-2 gap-3">
+            {STOCK_IMAGES.map((item) => (
+              <StockImageCard key={item.id} item={item} onClick={() => { setPreviewItem({ ...item, type: "image" }); setShowStockPreview(true); }} />
+            ))}
+          </div>
         )}
-        <StockFootagePreviewDialog
+        <MediaPreviewDialog
           item={previewItem}
           open={showStockPreview}
           onClose={() => setShowStockPreview(false)}
-          allItems={STOCK_FOOTAGE}
           onNavigate={handleNavigate}
         />
       </div>
@@ -434,18 +506,17 @@ function AssetsPanel() {
       <div className="flex gap-2 overflow-x-auto pb-1">
         {STOCK_FOOTAGE.slice(0, 3).map((item) => (
           <div key={item.id} className="w-[100px] shrink-0">
-            <StockFootageCard item={item} onClick={() => { setPreviewItem(item); setShowStockPreview(true); }} />
+            <StockFootageCard item={item} onClick={() => { setPreviewItem({ ...item, type: "video" }); setShowStockPreview(true); }} />
           </div>
         ))}
         <button onClick={() => setStockExpanded(true)} className="w-8 shrink-0 flex items-center justify-center rounded-lg bg-muted/10 hover:bg-muted/20 border border-border/20">
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
         </button>
       </div>
-      <StockFootagePreviewDialog
+      <MediaPreviewDialog
         item={previewItem}
         open={showStockPreview}
         onClose={() => setShowStockPreview(false)}
-        allItems={STOCK_FOOTAGE}
         onNavigate={handleNavigate}
       />
     </div>
