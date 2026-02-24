@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, Upload, Lightbulb, Square, ChevronDown, ImagePlus,
-  X, MessageSquareText, Check, UserPlus,
+  X, MessageSquareText, Check, UserPlus, Search, Image, Tag,
+  RectangleHorizontal, Settings2, Plus, Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -30,16 +31,84 @@ type VideoType = "product-shot" | "avatar-showcase" | "talking-video";
 
 /* ─── Smart Assets Modal ─── */
 function SmartAssetsModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const sampleAssets = [
+    { name: "UCANBE Eyesh...", count: 7, image: sampleProduct1 },
+    { name: "Dokotoo Wome...", count: 10, image: sampleProduct2 },
+    { name: "ada ai", count: 2, image: sampleProduct3 },
+  ];
+
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-3xl bg-card border-border/30 p-6 gap-4">
-        <h2 className="text-lg font-semibold text-foreground">Smart Assets</h2>
-        <p className="text-sm text-muted-foreground">Select assets from your library.</p>
-        {/* Scrollable grid container — NO assets */}
-        <div className="grid grid-cols-3 gap-3 min-h-[300px] max-h-[400px] overflow-y-auto" />
+      <DialogContent className="max-w-4xl bg-card border-border/30 p-8 gap-6">
+        <h2 className="text-xl font-semibold text-foreground text-center">Organize, search, and reuse your clips</h2>
+
+        {/* Search bar */}
+        <div className="rounded-xl bg-muted/10 border border-border/20 px-4 py-3 flex flex-col gap-3">
+          <div className="flex items-center gap-2">
+            <Search className="h-4 w-4 text-muted-foreground" />
+            <input
+              placeholder="Search product assets, ad creatives, video clips, and more"
+              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+            />
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-accent/40 bg-accent/10 text-xs text-accent">
+              Search by: Visual element <ChevronDown className="h-3 w-3" />
+            </button>
+            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-muted-foreground hover:bg-muted/20 transition-colors">
+              <Image className="h-3.5 w-3.5" /> Type
+            </button>
+            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-muted-foreground hover:bg-muted/20 transition-colors">
+              <Tag className="h-3.5 w-3.5" /> Tags
+            </button>
+            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-muted-foreground hover:bg-muted/20 transition-colors">
+              <RectangleHorizontal className="h-3.5 w-3.5" /> Aspect ratio
+            </button>
+            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-muted-foreground hover:bg-muted/20 transition-colors">
+              <Settings2 className="h-3.5 w-3.5" /> All status
+            </button>
+            <div className="ml-auto">
+              <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-accent/40 text-xs text-accent hover:bg-accent/10 transition-colors">
+                <Sparkles className="h-3.5 w-3.5" /> AI Search
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Product assets */}
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-sm font-semibold text-foreground">Product assets</span>
+            <span className="text-xs text-muted-foreground bg-muted/20 px-2 py-0.5 rounded-md">{sampleAssets.length}</span>
+          </div>
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+            {sampleAssets.map((asset) => (
+              <button key={asset.name} className="flex flex-col gap-2 group">
+                <div className="aspect-square rounded-xl border border-border/20 overflow-hidden bg-muted/10 hover:border-accent/40 transition-colors">
+                  <img src={asset.image} alt={asset.name} className="w-full h-full object-cover" />
+                </div>
+                <div>
+                  <p className="text-xs text-foreground truncate">{asset.name}</p>
+                  <p className="text-[10px] text-muted-foreground">{asset.count} assets</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Collections */}
+        <div>
+          <span className="text-sm font-semibold text-foreground mb-3 block">Collections</span>
+          <button className="w-full rounded-xl border-2 border-dashed border-border/30 py-10 flex flex-col items-center gap-2 hover:border-border/50 transition-colors">
+            <Plus className="h-6 w-6 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">New collections</span>
+          </button>
+        </div>
+
+        {/* Bottom actions */}
         <div className="flex justify-end gap-3 pt-2">
           <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button variant="accent" onClick={onClose}>Select</Button>
+          <Button variant="accent" onClick={onClose}>Add assets (0)</Button>
         </div>
       </DialogContent>
     </Dialog>
