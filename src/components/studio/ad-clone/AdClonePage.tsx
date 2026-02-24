@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, MessageSquare, Info, Search, Plus, Bookmark, MoreVertical, Upload as UploadIcon } from "lucide-react";
+import { ArrowLeft, MessageSquare, Info, Search, Plus, Bookmark, MoreVertical, Upload as UploadIcon, Share2, Eye } from "lucide-react";
 import { CreditBadge } from "@/components/studio/CreditBadge";
 import { AddProductModal } from "@/components/studio/image-ads/AddProductModal";
 import {
@@ -215,6 +215,8 @@ function TrendingAdsTab({ search, onSearchChange }: { search: string; onSearchCh
 
 /* ─── Empty ad card frame (matches screenshot structure) ─── */
 function TrendingAdCardEmpty() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
     <div className="flex flex-col rounded-xl border border-border/30 bg-card/30 overflow-hidden">
       {/* Header row: avatar + name + NEW + bookmark */}
@@ -237,16 +239,42 @@ function TrendingAdCardEmpty() {
       <div className="mx-3 mb-2 aspect-[9/16] rounded-lg bg-muted/10 border border-border/20" />
 
       {/* Clone + 3-dot row */}
-      <div className="flex items-center gap-2 px-3 pb-3">
+      <div className="flex items-center gap-2 px-3 pb-3 relative">
         <button
           disabled
           className="flex-1 h-8 rounded-lg border border-border/40 text-xs font-medium text-muted-foreground cursor-not-allowed"
         >
           Clone this ad
         </button>
-        <button disabled className="h-8 w-8 flex items-center justify-center rounded-lg border border-border/40 text-muted-foreground cursor-not-allowed">
+        <button
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="h-8 w-8 flex items-center justify-center rounded-lg border border-border/40 text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors"
+        >
           <MoreVertical className="h-4 w-4" />
         </button>
+
+        {/* Dropdown menu */}
+        {menuOpen && (
+          <>
+            <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
+            <div className="absolute right-0 bottom-12 z-50 w-44 rounded-xl border border-border/40 bg-card shadow-xl py-1.5">
+              <button
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-foreground hover:bg-muted/30 transition-colors"
+              >
+                <Share2 className="h-4 w-4" />
+                Share
+              </button>
+              <button
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-foreground hover:bg-muted/30 transition-colors"
+              >
+                <Eye className="h-4 w-4" />
+                View insights
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
