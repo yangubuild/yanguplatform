@@ -29,6 +29,11 @@ const REALISTIC_AVATARS = [
   { id: "sp12", name: "Avatar 13", video: "/avatars/sp_12-2.mp4" },
   { id: "sp13", name: "Avatar 14", video: "/avatars/sp_13.mp4" },
   { id: "sp18", name: "Avatar 15", video: "/avatars/sp_18.mp4" },
+  { id: "sp15", name: "Avatar 16", video: "/avatars/sp_15.mp4" },
+  { id: "sp16", name: "Avatar 17", video: "/avatars/sp_16.mp4" },
+  { id: "sp17", name: "Avatar 18", video: "/avatars/sp_17.mp4" },
+  { id: "sp19", name: "Avatar 19", video: "/avatars/sp_19.mp4" },
+  { id: "sp-2", name: "Avatar 20", video: "/avatars/sp-2.mp4" },
 ];
 
 type NavItem = "script" | "avatars" | "emotions" | "captions" | "assets" | "elements" | "text" | "audio" | "cta";
