@@ -185,7 +185,7 @@ export default function AiShortsPage() {
             </div>
             <div className="flex items-center gap-2 sm:gap-3 min-w-0 max-w-full flex-wrap justify-end">
               <button className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0">Feedback</button>
-              <button className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-accent/40 bg-accent/10 px-2.5 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm font-semibold text-accent hover:bg-accent/20 transition-colors max-w-[calc(100vw-120px)] sm:max-w-none min-w-0" onClick={() => navigate("/billing")}>
+              <button className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-accent/40 bg-accent/10 px-2.5 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm font-semibold text-accent hover:bg-accent/20 transition-colors max-w-[calc(100vw-120px)] sm:max-w-[280px] md:max-w-none min-w-0" onClick={() => navigate("/billing")}>
                 {creditsLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" /> : <><Coins className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" /><span className="truncate">{credits?.balance ?? 0} credits</span></>}
                 <span className="border-l border-accent/30 pl-1.5 sm:pl-2 shrink-0">Upgrade</span>
               </button>
@@ -193,7 +193,7 @@ export default function AiShortsPage() {
           </div>
         }
         left={
-          <div className="p-6 lg:p-8 space-y-6 border-r border-border/20 h-full">
+          <div className="p-4 sm:p-6 lg:p-8 space-y-5 sm:space-y-6 border-r border-border/20 h-full min-w-0 max-w-full">
             {/* Script */}
             <div className="rounded-xl border border-border/30 bg-card p-5 space-y-4">
               <div className="flex items-center justify-between">
@@ -255,11 +255,11 @@ export default function AiShortsPage() {
           </div>
         }
         right={
-          <div className="h-full flex flex-col p-8 gap-8">
+          <div className="h-full flex flex-col p-4 sm:p-6 lg:p-8 gap-6 lg:gap-8 min-w-0 max-w-full">
             {/* ── Style grid (MUST stay on RIGHT, above preview) ── */}
-            <div className="space-y-3 shrink-0">
+            <div className="space-y-3 shrink-0 min-w-0 max-w-full">
               <h2 className="text-base font-bold text-foreground" style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>Style</h2>
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
                 {STYLES.map((style, idx) => (
                   <LazyStyleCard key={style.name} name={style.name} video={style.video} selected={selectedStyle === idx} onSelect={() => setSelectedStyle(idx)} />
                 ))}
