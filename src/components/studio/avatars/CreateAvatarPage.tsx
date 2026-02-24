@@ -88,7 +88,7 @@ function ImageToAvatarTab() {
             <Upload className="h-10 w-10 text-muted-foreground/60 mb-3" />
             <p className="text-sm font-medium text-foreground">
               Upload a photo
-              <span className="inline-flex items-center gap-1 ml-2 text-amber-400 text-xs">
+              <span className="inline-flex items-center gap-1 ml-2 text-accent text-xs">
                 <Lightbulb className="h-3 w-3" /> Tips
               </span>
             </p>
@@ -241,7 +241,7 @@ function TextToAvatarTab() {
 
         {/* Product & brand settings */}
         <div className="flex items-center gap-2 mt-6">
-          <a href="#" className="text-sm text-amber-400 hover:underline">Product & brand settings</a>
+          <a href="#" className="text-sm text-accent hover:underline">Product & brand settings</a>
           <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary/20 text-primary">PRO</span>
         </div>
       </div>
