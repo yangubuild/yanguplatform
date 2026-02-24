@@ -311,7 +311,7 @@ function AssetsPanel() {
       <div className="flex gap-2">
         <Button variant="accent" size="sm" className="flex-1 gap-1.5">
           <Sparkles className="h-4 w-4" /> AI Generate
-          <span className="ml-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-green-500 text-white">New</span>
+          <span className="ml-1 text-[10px] font-bold text-green-500">New</span>
         </Button>
         <button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-border/20 text-sm text-foreground hover:bg-muted/20 transition-colors">
           <Upload className="h-4 w-4" /> Upload
