@@ -11,6 +11,8 @@ import {
   ChevronRight,
   Coins,
   Loader2,
+  Video,
+  Film,
 } from "lucide-react";
 import { AppShell } from "@/components/primitives";
 import { useCredits } from "@/hooks/useCredits";
@@ -55,6 +57,8 @@ const TOOL_CHIPS = [
   { id: "ad-clone", label: "Ad Clone", icon: Copy, beta: true },
   { id: "create-avatar", label: "Create Your Own Avatar", icon: Users, beta: false },
   { id: "video-editor", label: "Video Editor", icon: Plus, beta: false },
+  { id: "product-video", label: "Product Video", icon: Video, beta: false },
+  { id: "ai-shorts", label: "AI Shorts", icon: Film, beta: false },
 ] as const;
 
 const TOP_ADS = [
@@ -182,7 +186,7 @@ export default function Studio() {
 
           {/* ── Tool chips row ── */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {TOOL_CHIPS.map((chip) => (
+            {TOOL_CHIPS.slice(0, 4).map((chip) => (
               <button
                 key={chip.id}
                 onClick={() => {
@@ -190,6 +194,26 @@ export default function Studio() {
                   else if (chip.id === "ad-clone") navigate("/dashboard/studio/ad-clone");
                   else if (chip.id === "create-avatar") navigate("/dashboard/studio/avatars/create");
                   else if (chip.id === "video-editor") navigate("/dashboard/studio/video-editor");
+                }}
+                className="flex items-center gap-3 rounded-xl border border-border/40 bg-card px-5 py-4 text-sm font-medium text-foreground hover:bg-muted/60 transition-colors text-left"
+              >
+                <chip.icon className="h-5 w-5 text-accent shrink-0" />
+                <span>{chip.label}</span>
+                {chip.beta && (
+                  <span className="ml-auto rounded bg-accent/20 px-2 py-0.5 text-[10px] font-bold uppercase text-accent">
+                    Beta
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {TOOL_CHIPS.slice(4).map((chip) => (
+              <button
+                key={chip.id}
+                onClick={() => {
+                  if (chip.id === "product-video") navigate("/dashboard/studio/product-video");
+                  else if (chip.id === "ai-shorts") navigate("/dashboard/studio/ai-shorts");
                 }}
                 className="flex items-center gap-3 rounded-xl border border-border/40 bg-card px-5 py-4 text-sm font-medium text-foreground hover:bg-muted/60 transition-colors text-left"
               >
