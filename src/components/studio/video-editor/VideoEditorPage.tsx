@@ -304,7 +304,112 @@ function CaptionsPanel() {
   );
 }
 
+const STOCK_FOOTAGE = [
+  { id: "sf1", video: "/stock-footage/sf_1.mp4", duration: "00:06" },
+  { id: "sf2", video: "/stock-footage/sf_2.mp4", duration: "00:20" },
+  { id: "sf3", video: "/stock-footage/sf_3.mp4", duration: "00:10" },
+  { id: "sf4", video: "/stock-footage/sf_4.mp4", duration: "00:14" },
+  { id: "sf5", video: "/stock-footage/sf_5.mp4", duration: "00:09" },
+];
+
+function StockFootageCard({ item, onClick }: { item: typeof STOCK_FOOTAGE[0]; onClick: () => void }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => videoRef.current?.play()}
+      onMouseLeave={() => { if (videoRef.current) { videoRef.current.pause(); videoRef.current.currentTime = 0; } }}
+      className="relative rounded-lg overflow-hidden aspect-[3/4] bg-muted/10 border border-border/20 hover:border-primary/40 transition-colors group"
+    >
+      <video ref={videoRef} src={item.video} muted loop playsInline preload="metadata" className="w-full h-full object-cover" />
+      <div className="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 rounded bg-black/60 text-[10px] text-white font-mono">{item.duration}</div>
+    </button>
+  );
+}
+
+function StockFootagePreviewDialog({ item, open, onClose, allItems, onNavigate }: {
+  item: typeof STOCK_FOOTAGE[0] | null;
+  open: boolean;
+  onClose: () => void;
+  allItems: typeof STOCK_FOOTAGE;
+  onNavigate: (dir: 1 | -1) => void;
+}) {
+  if (!item) return null;
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-3xl bg-card border-border/30 p-6 gap-4">
+        <h2 className="text-lg font-semibold text-foreground">Preview</h2>
+        <div className="relative w-full flex items-center justify-center">
+          <div className="w-full max-w-[360px] aspect-[9/16] bg-black rounded-lg overflow-hidden">
+            <video src={item.video} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+          </div>
+          <button onClick={() => onNavigate(1)} className="absolute right-2 p-2 rounded-full bg-muted/40 hover:bg-muted/60 transition-colors">
+            <ChevronRight className="h-5 w-5 text-foreground" />
+          </button>
+        </div>
+        <div className="flex items-center justify-center gap-4 pt-2">
+          <button onClick={onClose} className="px-5 py-2.5 rounded-lg bg-muted/30 border border-border/20 text-sm font-medium text-foreground hover:bg-muted/40 transition-colors">
+            Crop & Trim video
+          </button>
+          <button onClick={onClose} className="px-5 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">
+            Add to scene
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function AssetsPanel() {
+  const [stockExpanded, setStockExpanded] = useState(false);
+  const [stockTab, setStockTab] = useState<"videos" | "images">("videos");
+  const [previewItem, setPreviewItem] = useState<typeof STOCK_FOOTAGE[0] | null>(null);
+  const [showStockPreview, setShowStockPreview] = useState(false);
+
+  const handleNavigate = (dir: 1 | -1) => {
+    if (!previewItem) return;
+    const idx = STOCK_FOOTAGE.findIndex(i => i.id === previewItem.id);
+    const next = (idx + dir + STOCK_FOOTAGE.length) % STOCK_FOOTAGE.length;
+    setPreviewItem(STOCK_FOOTAGE[next]);
+  };
+
+  if (stockExpanded) {
+    return (
+      <div className="p-4 flex flex-col gap-4">
+        <div className="flex items-center gap-2">
+          <button onClick={() => setStockExpanded(false)} className="p-1 rounded hover:bg-muted/20">
+            <ArrowLeft className="h-4 w-4 text-muted-foreground" />
+          </button>
+          <h2 className="text-lg font-semibold text-foreground">Stock Footage</h2>
+        </div>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <input placeholder="Search" className="w-full h-9 pl-9 pr-3 rounded-lg bg-muted/10 border border-border/20 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/40" />
+        </div>
+        <div className="flex rounded-lg overflow-hidden border border-border/20">
+          <button onClick={() => setStockTab("videos")} className={`flex-1 py-2 text-sm font-medium transition-colors ${stockTab === "videos" ? "bg-muted/30 text-foreground" : "text-muted-foreground hover:text-foreground"}`}>Videos</button>
+          <button onClick={() => setStockTab("images")} className={`flex-1 py-2 text-sm font-medium transition-colors ${stockTab === "images" ? "bg-muted/30 text-foreground" : "text-muted-foreground hover:text-foreground"}`}>Images</button>
+        </div>
+        {stockTab === "videos" ? (
+          <div className="grid grid-cols-2 gap-3">
+            {STOCK_FOOTAGE.map((item) => (
+              <StockFootageCard key={item.id} item={item} onClick={() => { setPreviewItem(item); setShowStockPreview(true); }} />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3 min-h-[200px]" />
+        )}
+        <StockFootagePreviewDialog
+          item={previewItem}
+          open={showStockPreview}
+          onClose={() => setShowStockPreview(false)}
+          allItems={STOCK_FOOTAGE}
+          onNavigate={handleNavigate}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 flex flex-col gap-4">
       <h2 className="text-lg font-semibold text-foreground">Assets</h2>
@@ -319,16 +424,30 @@ function AssetsPanel() {
       </div>
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium text-foreground">Product Assets</p>
-        <span className="text-xs text-muted-foreground">See all</span>
+        <span className="text-xs text-muted-foreground cursor-pointer hover:text-foreground transition-colors">See all</span>
       </div>
-      {/* EMPTY container */}
       <div className="min-h-[80px]" />
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium text-foreground">Stock Footage</p>
-        <span className="text-xs text-muted-foreground">See all</span>
+        <button onClick={() => setStockExpanded(true)} className="text-xs text-muted-foreground cursor-pointer hover:text-foreground transition-colors">See all</button>
       </div>
-      {/* EMPTY container */}
-      <div className="min-h-[80px]" />
+      <div className="flex gap-2 overflow-x-auto pb-1">
+        {STOCK_FOOTAGE.slice(0, 3).map((item) => (
+          <div key={item.id} className="w-[100px] shrink-0">
+            <StockFootageCard item={item} onClick={() => { setPreviewItem(item); setShowStockPreview(true); }} />
+          </div>
+        ))}
+        <button onClick={() => setStockExpanded(true)} className="w-8 shrink-0 flex items-center justify-center rounded-lg bg-muted/10 hover:bg-muted/20 border border-border/20">
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </button>
+      </div>
+      <StockFootagePreviewDialog
+        item={previewItem}
+        open={showStockPreview}
+        onClose={() => setShowStockPreview(false)}
+        allItems={STOCK_FOOTAGE}
+        onNavigate={handleNavigate}
+      />
     </div>
   );
 }
