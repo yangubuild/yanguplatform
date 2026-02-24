@@ -14,12 +14,12 @@ import {
 type RightTab = "trending" | "upload";
 
 const TRENDING_VIDEOS = [
-  "/studio/ad-clone/trending-1.mp4",
-  "/studio/ad-clone/trending-2.mp4",
-  "/studio/ad-clone/trending-3.mp4",
-  "/studio/ad-clone/trending-4.mp4",
-  "/studio/ad-clone/trending-5.mp4",
-  "/studio/ad-clone/trending-6.mp4",
+  { video: "/studio/ad-clone/trending-1.mp4", name: "Vintage White Fa...", desc: "Comment FEBRUARY to shop this beautiful storage cabinet for small..." },
+  { video: "/studio/ad-clone/trending-2.mp4", name: "Drama TV Club", desc: "Connor Reed, the most powerful arms dealer in the world, saves a Charlotte..." },
+  { video: "/studio/ad-clone/trending-3.mp4", name: "Hitwicket Supers...", desc: "Yorker incoming! Block for safety or risk the six? 🎯 Every read matters. Master th..." },
+  { video: "/studio/ad-clone/trending-4.mp4", name: "28 -Day Make Mo...", desc: "" },
+  { video: "/studio/ad-clone/trending-5.mp4", name: "Freedom With AI", desc: "🧧 Urgent Offer: Master AI & Smart Automation in 3 Hours for Just Rs. 99 😲..." },
+  { video: "/studio/ad-clone/trending-6.mp4", name: "Zorkleofficial", desc: "Stand out. Repeat. Designed to look elegant everywhere your day takes you...." },
 ];
 
 export default function AdClonePage() {
@@ -218,8 +218,8 @@ function TrendingAdsTab({ search, onSearchChange }: { search: string; onSearchCh
 
       {/* Grid — 3 columns, 2 rows */}
       <div className="grid grid-cols-3 gap-4">
-        {TRENDING_VIDEOS.map((video, i) => (
-          <TrendingAdCardEmpty key={i} videoSrc={video} />
+        {TRENDING_VIDEOS.map((item, i) => (
+          <TrendingAdCardEmpty key={i} videoSrc={item.video} name={item.name} desc={item.desc} />
         ))}
       </div>
     </div>
@@ -227,26 +227,26 @@ function TrendingAdsTab({ search, onSearchChange }: { search: string; onSearchCh
 }
 
 /* ─── Empty ad card frame (matches screenshot structure) ─── */
-function TrendingAdCardEmpty({ videoSrc }: { videoSrc?: string }) {
+function TrendingAdCardEmpty({ videoSrc, name, desc }: { videoSrc?: string; name?: string; desc?: string }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <div className="flex flex-col rounded-xl border border-border/30 bg-card/30 overflow-hidden">
       {/* Header row: avatar + name + NEW + bookmark */}
       <div className="flex items-center gap-2 px-3 pt-3 pb-1">
-        <div className="h-7 w-7 rounded-full bg-muted/30 shrink-0" />
-        <div className="flex-1 min-w-0">
-          <div className="h-3 w-24 rounded bg-muted/20" />
-        </div>
-        <div className="h-3 w-8 rounded bg-muted/20" />
-        <Bookmark className="h-4 w-4 text-muted-foreground/30 shrink-0" />
+        <div className="h-7 w-7 rounded-full bg-muted/40 shrink-0" />
+        <p className="flex-1 min-w-0 text-sm font-semibold text-foreground truncate">{name || ""}</p>
+        <span className="flex items-center gap-1 text-[11px] text-emerald-400 font-medium shrink-0">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 inline-block" />
+          NEW
+        </span>
+        <Bookmark className="h-4 w-4 text-muted-foreground shrink-0" />
       </div>
 
-      {/* Description lines */}
-      <div className="px-3 py-1.5 space-y-1">
-        <div className="h-2.5 w-full rounded bg-muted/15" />
-        <div className="h-2.5 w-3/4 rounded bg-muted/15" />
-      </div>
+      {/* Description */}
+      {desc && (
+        <p className="px-3 py-1.5 text-xs text-muted-foreground line-clamp-2">{desc}</p>
+      )}
 
       {/* Vertical video container */}
       <div className="mx-3 mb-2 aspect-[9/16] rounded-lg bg-muted/10 border border-border/20 overflow-hidden">
