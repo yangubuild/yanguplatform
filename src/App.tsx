@@ -40,6 +40,7 @@ import { RequireRole } from "@/components/auth/RequireRole";
 import Studio from "./pages/Studio";
 import ImageAdsFlow from "./components/studio/image-ads/ImageAdsFlow";
 import AdClonePage from "./components/studio/ad-clone/AdClonePage";
+import CreateAvatarPage from "./components/studio/avatars/CreateAvatarPage";
 import Community from "./pages/Community";
 import AdaAi from "./pages/AdaAi";
 import WhyYangu from "./pages/WhyYangu";
@@ -275,6 +276,7 @@ const App = () => (
                   <Route path="studio" element={<Studio />} />
                   <Route path="studio/image-ads" element={<ImageAdsFlow />} />
                   <Route path="studio/ad-clone" element={<AdClonePage />} />
+                  <Route path="studio/avatars/create" element={<CreateAvatarPage />} />
                   <Route path="influencer" element={<DashboardPlaceholder />} />
                   <Route path="visionaire" element={<DashboardPlaceholder />} />
                   <Route path="app-store" element={<DashboardPlaceholder />} />
