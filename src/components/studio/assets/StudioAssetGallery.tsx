@@ -42,7 +42,7 @@ export default function StudioAssetGallery() {
   const downloadAsset = useDownloadAsset();
 
   return (
-    <div className="w-full h-full bg-background">
+    <div className="w-full h-full">
       {/* Header */}
       <div className="flex items-center gap-3 px-6 pt-6 pb-4">
         <button
