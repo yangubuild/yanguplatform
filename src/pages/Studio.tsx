@@ -189,6 +189,7 @@ export default function Studio() {
                   if (chip.id === "image-ads") navigate("/dashboard/studio/image-ads");
                   else if (chip.id === "ad-clone") navigate("/dashboard/studio/ad-clone");
                   else if (chip.id === "create-avatar") navigate("/dashboard/studio/avatars/create");
+                  else if (chip.id === "video-editor") navigate("/dashboard/studio/video-editor");
                 }}
                 className="flex items-center gap-3 rounded-xl border border-border/40 bg-card px-5 py-4 text-sm font-medium text-foreground hover:bg-muted/60 transition-colors text-left"
               >
