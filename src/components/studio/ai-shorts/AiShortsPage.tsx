@@ -1,23 +1,21 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  ArrowLeft,
-  Info,
-  Pen,
-  Sparkles,
-  Clock,
-  AudioLines,
-  Smartphone,
-  Monitor,
-  Square,
-  X,
-  RefreshCw,
-  Coins,
-  Loader2,
+  ArrowLeft, Info, Pen, Sparkles, Clock, AudioLines,
+  Smartphone, Monitor, Square, RefreshCw, Coins,
+  Loader2, Download, Play, Pause,
 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useCredits } from "@/hooks/useCredits";
+import { useScriptGenerate, useVideoGenerate } from "@/hooks/useStudioEngine";
+import {
+  checkSubscriptionGate,
+  type VideoGenerateResult,
+  type ScriptGenerateResult,
+} from "@/lib/studio/StudioAIEngine";
+import { supabase } from "@/integrations/supabase/client";
 
 /* ─── Types ─── */
 type AspectRatio = "9:16" | "16:9" | "1:1";
@@ -46,11 +44,61 @@ const SCRIPT_STYLES: ScriptStyle[] = ["Storytelling", "Promotional", "Exploratio
 const EXAMPLE_SCRIPT =
   "Discover a new era of gaming with the QuantumX. Immerse yourself in breathtaking visuals, lightning-fast performance, and unrivaled realism. With cutting-edge technology at your fingertips, every game becomes an epic adventure.";
 
+const ASPECT_MAP: Record<AspectRatio, string> = {
+  "9:16": "9:16",
+  "16:9": "16:9",
+  "1:1": "1:1",
+};
+
+/* ─── Asset helper ─── */
+async function saveShortAsset(
+  result: VideoGenerateResult,
+  meta: { script: string; style: string; aspectRatio: string },
+) {
+  const session = (await supabase.auth.getSession()).data.session;
+  if (!session) return;
+
+  // Find or use a default project
+  const { data: projects } = await supabase
+    .from("studio_projects")
+    .select("id")
+    .eq("user_id", session.user.id)
+    .limit(1);
+
+  let projectId = projects?.[0]?.id;
+  if (!projectId) {
+    const { data: newProject } = await supabase
+      .from("studio_projects")
+      .insert({ user_id: session.user.id, title: "My Studio" })
+      .select("id")
+      .single();
+    projectId = newProject?.id;
+  }
+  if (!projectId) return;
+
+  await supabase.from("studio_assets").insert({
+    user_id: session.user.id,
+    project_id: projectId,
+    asset_type: "ai_short",
+    file_url: result.videoUrl || null,
+    thumbnail_url: result.thumbnailUrl || null,
+    generation_prompt: meta.script.slice(0, 500),
+    metadata: {
+      tool: "ai_shorts",
+      style: meta.style,
+      aspectRatio: meta.aspectRatio,
+      scriptPreview: meta.script.slice(0, 120),
+      generationId: result.generationId,
+    },
+  });
+}
+
 /* ─── Page ─── */
 export default function AiShortsPage() {
   const navigate = useNavigate();
   const { data: credits, isLoading: creditsLoading } = useCredits();
 
+  // Form state
   const [script, setScript] = useState("");
   const [selectedStyle, setSelectedStyle] = useState(0);
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>("9:16");
@@ -63,14 +111,123 @@ export default function AiShortsPage() {
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiScriptStyle, setAiScriptStyle] = useState<ScriptStyle>("Storytelling");
 
-  const handleNext = () => {
-    // For now, always show upgrade modal (free plan gating)
-    setShowUpgradeModal(true);
-  };
+  // Generation state
+  const [generatedResult, setGeneratedResult] = useState<VideoGenerateResult | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isScriptGenerating, setIsScriptGenerating] = useState(false);
 
-  const handleTryExample = () => {
-    setScript(EXAMPLE_SCRIPT);
-  };
+  const scriptMutation = useScriptGenerate();
+  const videoMutation = useVideoGenerate();
+
+  /* ── Subscription gate check ── */
+  const runGateCheck = useCallback(async (): Promise<boolean> => {
+    const gate = await checkSubscriptionGate("ai-shorts");
+    if (!gate.allowed) {
+      setShowUpgradeModal(true);
+      return false;
+    }
+    return true;
+  }, []);
+
+  /* ── AI Script Writer → Generate script ── */
+  const handleAiScriptGenerate = useCallback(async () => {
+    if (!aiPrompt.trim()) {
+      toast.error("Please enter a prompt for the AI script writer.");
+      return;
+    }
+
+    const allowed = await runGateCheck();
+    if (!allowed) {
+      setShowScriptWriter(false);
+      return;
+    }
+
+    setIsScriptGenerating(true);
+    try {
+      const result = await scriptMutation.mutateAsync({
+        tool: "ai-shorts",
+        type: "script.generate",
+        prompt: aiPrompt,
+        style: aiScriptStyle,
+      });
+
+      if (result.script) {
+        setScript(result.script.slice(0, 1000));
+        toast.success("Script generated! You can edit it before generating the short.");
+        setShowScriptWriter(false);
+        setAiPrompt("");
+      }
+    } catch {
+      // Error toast handled by hook
+    } finally {
+      setIsScriptGenerating(false);
+    }
+  }, [aiPrompt, aiScriptStyle, runGateCheck, scriptMutation]);
+
+  /* ── Generate AI Short ── */
+  const handleGenerate = useCallback(async () => {
+    if (!script.trim()) {
+      toast.error("Please write or generate a script first.");
+      return;
+    }
+
+    const allowed = await runGateCheck();
+    if (!allowed) return;
+
+    setIsGenerating(true);
+    setGeneratedResult(null);
+
+    try {
+      const result = await videoMutation.mutateAsync({
+        tool: "ai-shorts",
+        type: "video.generate",
+        prompt: script,
+        params: {
+          aspect_ratio: ASPECT_MAP[aspectRatio],
+          visual_style: STYLES[selectedStyle].name,
+          script_text: script,
+        },
+      });
+
+      setGeneratedResult(result);
+
+      // Save asset in background
+      saveShortAsset(result, {
+        script,
+        style: STYLES[selectedStyle].name,
+        aspectRatio,
+      }).catch(() => {});
+
+      toast.success("AI Short generated!");
+    } catch {
+      // Error toast handled by hook
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [script, aspectRatio, selectedStyle, runGateCheck, videoMutation]);
+
+  /* ── Download handler ── */
+  const handleDownload = useCallback(async () => {
+    if (!generatedResult?.videoUrl) return;
+    try {
+      const res = await fetch(generatedResult.videoUrl);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `ai-short-${STYLES[selectedStyle].name.toLowerCase().replace(/\s/g, "-")}-${Date.now()}.mp4`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error("Download failed. Please try again.");
+    }
+  }, [generatedResult, selectedStyle]);
+
+  const handleTryExample = () => setScript(EXAMPLE_SCRIPT);
+
+  const canGenerate = script.trim().length > 0 && !isGenerating;
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
@@ -118,10 +275,9 @@ export default function AiShortsPage() {
       {/* ── Main 2-col layout ── */}
       <div className="flex-1 min-h-0 flex">
         {/* LEFT — scrollable builder panel */}
-        <div className="flex-1 min-h-0 overflow-y-auto p-6 lg:p-8 space-y-6">
+        <div className="w-[480px] shrink-0 min-h-0 overflow-y-auto p-6 lg:p-8 space-y-6 border-r border-border/20">
           {/* ── Script Section ── */}
           <div className="rounded-xl border border-border/30 bg-card p-5 space-y-4">
-            {/* Script header */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <h2
@@ -151,13 +307,12 @@ export default function AiShortsPage() {
               </div>
             </div>
 
-            {/* Textarea */}
             <div className="relative">
               <textarea
                 value={script}
                 onChange={(e) => setScript(e.target.value.slice(0, 1000))}
-                placeholder="Enter your script here... (e.g. Meet the Tesla Model X, where cutting-edge technology meets unparalleled performance. Designed with luxury and comfort in mind, the Model X offers a driving experience like no other)"
-                className="w-full min-h-[260px] rounded-lg border border-border/30 bg-background p-4 text-sm text-foreground placeholder:text-muted-foreground/60 resize-none focus:outline-none focus:border-accent/50 transition-colors"
+                placeholder="Enter your script here... (e.g. Meet the Tesla Model X, where cutting-edge technology meets unparalleled performance.)"
+                className="w-full min-h-[220px] rounded-lg border border-border/30 bg-background p-4 text-sm text-foreground placeholder:text-muted-foreground/60 resize-none focus:outline-none focus:border-accent/50 transition-colors"
               />
               <div className="flex items-center justify-between px-1 mt-2">
                 <div className="flex items-center gap-2">
@@ -197,66 +352,134 @@ export default function AiShortsPage() {
             </div>
           </div>
 
+          {/* ── Style Selector ── */}
+          <div className="space-y-3">
+            <h2
+              className="text-base font-bold text-foreground"
+              style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}
+            >
+              Style
+            </h2>
+            <div className="grid grid-cols-3 gap-3">
+              {STYLES.map((style, idx) => (
+                <button
+                  key={style.name}
+                  onClick={() => setSelectedStyle(idx)}
+                  className="group flex flex-col gap-1.5"
+                >
+                  <div
+                    className={`relative aspect-square rounded-xl border-2 overflow-hidden transition-all ${
+                      selectedStyle === idx
+                        ? "border-accent shadow-[0_0_12px_hsl(var(--accent)/0.3)]"
+                        : "border-border/20 hover:border-border/40"
+                    } bg-muted/10`}
+                  >
+                    {style.video ? (
+                      <video
+                        src={style.video}
+                        muted
+                        loop
+                        autoPlay
+                        playsInline
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <span className="text-xs text-muted-foreground/40 text-center px-2">
+                          {style.name}
+                        </span>
+                      </div>
+                    )}
+                    {selectedStyle === idx && (
+                      <div className="absolute top-1.5 left-1.5 h-5 w-5 rounded-full bg-accent flex items-center justify-center">
+                        <svg className="h-3 w-3 text-accent-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                  <span className="text-xs font-medium text-foreground text-center">{style.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* ── Generate button ── */}
           <Button
             variant="accent"
             className="w-full py-3 text-sm font-semibold"
-            onClick={handleNext}
+            onClick={handleGenerate}
+            disabled={!canGenerate}
           >
-            Next
+            {isGenerating ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Generating…
+              </span>
+            ) : (
+              <span className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4" />
+                Generate
+              </span>
+            )}
           </Button>
         </div>
 
-        {/* RIGHT — Style grid (static, no scroll) */}
-        <div className="w-[520px] shrink-0 border-l border-border/20 p-6 lg:p-8 overflow-y-auto">
-          <h2
-            className="text-base font-bold text-foreground mb-4"
-            style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}
-          >
-            Style
-          </h2>
-          <div className="grid grid-cols-4 gap-3">
-            {STYLES.map((style, idx) => (
-              <button
-                key={style.name}
-                onClick={() => setSelectedStyle(idx)}
-                className="group flex flex-col gap-2"
-              >
-                <div
-                  className={`relative aspect-square rounded-xl border-2 overflow-hidden transition-all ${
-                    selectedStyle === idx
-                      ? "border-accent shadow-[0_0_12px_hsl(var(--accent)/0.3)]"
-                      : "border-border/20 hover:border-border/40"
-                  } bg-muted/10`}
+        {/* RIGHT — Preview panel (static) */}
+        <div className="flex-1 min-h-0 flex flex-col items-center justify-center p-8">
+          {isGenerating ? (
+            <div className="flex flex-col items-center gap-4">
+              <div className="relative w-20 h-20">
+                <div className="absolute inset-0 rounded-full border-2 border-accent/20" />
+                <div className="absolute inset-0 rounded-full border-2 border-accent border-t-transparent animate-spin" />
+                <Sparkles className="absolute inset-0 m-auto h-8 w-8 text-accent" />
+              </div>
+              <p className="text-sm text-muted-foreground">Generating your AI Short…</p>
+              <p className="text-xs text-muted-foreground/60">This may take a minute or two</p>
+            </div>
+          ) : generatedResult?.videoUrl ? (
+            <div className="flex flex-col items-center gap-6 w-full max-w-lg">
+              <div className="rounded-xl overflow-hidden border border-border/30 bg-card w-full">
+                <video
+                  src={generatedResult.videoUrl}
+                  controls
+                  autoPlay
+                  className="w-full max-h-[70vh] object-contain bg-black"
+                />
+              </div>
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="accent"
+                  className="px-6 py-2.5 text-sm font-semibold"
+                  onClick={handleDownload}
                 >
-                  {style.video ? (
-                    <video
-                      src={style.video}
-                      muted
-                      loop
-                      autoPlay
-                      playsInline
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="text-xs text-muted-foreground/40 text-center px-2">
-                        {style.name}
-                      </span>
-                    </div>
-                  )}
-                  {selectedStyle === idx && (
-                    <div className="absolute top-2 left-2 h-5 w-5 rounded-full bg-accent flex items-center justify-center">
-                      <svg className="h-3 w-3 text-accent-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    </div>
-                  )}
-                </div>
-                <span className="text-xs font-medium text-foreground">{style.name}</span>
-              </button>
-            ))}
-          </div>
+                  <Download className="h-4 w-4 mr-2" />
+                  Download
+                </Button>
+                <Button
+                  variant="outline"
+                  className="px-6 py-2.5 text-sm font-semibold border-border/30 text-foreground hover:bg-muted/20"
+                  onClick={() => {
+                    setGeneratedResult(null);
+                    setScript("");
+                  }}
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  New Short
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-3 text-center max-w-xs">
+              <div className="w-16 h-16 rounded-2xl bg-muted/20 border border-border/20 flex items-center justify-center">
+                <Play className="h-7 w-7 text-muted-foreground/40" />
+              </div>
+              <p className="text-sm font-medium text-foreground">Preview</p>
+              <p className="text-xs text-muted-foreground">
+                Write a script, choose a style, and hit Generate to create your AI Short.
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -320,13 +543,17 @@ export default function AiShortsPage() {
             <Button
               variant="accent"
               className="px-12 py-3 text-sm font-semibold"
-              onClick={() => {
-                // UI-only: show upgrade modal for free users
-                setShowScriptWriter(false);
-                setShowUpgradeModal(true);
-              }}
+              onClick={handleAiScriptGenerate}
+              disabled={isScriptGenerating || !aiPrompt.trim()}
             >
-              Generate
+              {isScriptGenerating ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Generating…
+                </span>
+              ) : (
+                "Generate"
+              )}
             </Button>
           </div>
         </DialogContent>
@@ -336,14 +563,17 @@ export default function AiShortsPage() {
       <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
         <DialogContent className="sm:max-w-[520px] bg-card border-border/30 p-8">
           <div className="space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center mx-auto">
+              <Sparkles className="h-7 w-7 text-accent" />
+            </div>
             <h2
-              className="text-xl font-bold text-foreground"
+              className="text-xl font-bold text-foreground text-center"
               style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}
             >
               Unlock AI Shorts
             </h2>
-            <p className="text-sm text-muted-foreground">
-              Subscribe and turn scripts into artistic, animated video ads in minutes.
+            <p className="text-sm text-muted-foreground text-center">
+              Subscribe and turn scripts into artistic, animated video ads in minutes. Upgrade your plan to access AI-powered short video generation.
             </p>
             <Button
               variant="accent"
