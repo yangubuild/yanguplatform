@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { MassTrendsBar } from "./MassTrendsBar";
 
 export function MassHeader({ hideTrends }: { hideTrends?: boolean } = {}) {
@@ -8,24 +9,20 @@ export function MassHeader({ hideTrends }: { hideTrends?: boolean } = {}) {
     <header className="mb-8 lg:overflow-visible">
       {/* Top row - Buttons aligned right */}
       <div className="flex items-center justify-end gap-3">
-        <button 
+        <Button
+          variant="outline"
+          size="sm"
           onClick={() => navigate("/auth/login")}
-          className="px-5 py-2.5 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-90"
-          style={{
-            background: '#152A20',
-          }}
         >
           Sign in
-        </button>
-        <button 
+        </Button>
+        <Button
+          variant="accent"
+          size="sm"
           onClick={() => navigate("/auth/signup")}
-          className="px-5 py-2.5 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-90"
-          style={{
-            background: 'linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)',
-          }}
         >
           Start selling
-        </button>
+        </Button>
       </div>
 
       {/* Trends bar - directly below buttons */}

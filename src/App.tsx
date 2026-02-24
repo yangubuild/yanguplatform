@@ -36,25 +36,25 @@ import { AdminShell } from "@/components/manage/AdminShell";
 import { ManageRoleGate } from "@/components/manage/ManageRoleGate";
 import { RequireRole } from "@/components/auth/RequireRole";
 
-// Lazy-loaded route bundles to eliminate navigation lag
-import Studio from "./pages/Studio";
-import ImageAdsFlow from "./components/studio/image-ads/ImageAdsFlow";
-import AdClonePage from "./components/studio/ad-clone/AdClonePage";
-import CreateAvatarPage from "./components/studio/avatars/CreateAvatarPage";
-import VideoEditorPage from "./components/studio/video-editor/VideoEditorPage";
-import ProductVideoPage from "./components/studio/product-video/ProductVideoPage";
-import AiShortsPage from "./components/studio/ai-shorts/AiShortsPage";
-import Community from "./pages/Community";
-import AdaAi from "./pages/AdaAi";
-import WhyYangu from "./pages/WhyYangu";
-import DiscoverYangu from "./pages/DiscoverYangu";
-import Blog from "./pages/Blog";
-import Privacy from "./pages/Privacy";
-import Terms from "./pages/Terms";
-import TermsOfService from "./pages/TermsOfService";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import AiSafety from "./pages/AiSafety";
-import AdaLanding from "./pages/AdaLanding";
+// Studio tools — lazy-loaded so they don't bloat the initial bundle
+const Studio = lazy(() => import("./pages/Studio"));
+const ImageAdsFlow = lazy(() => import("./components/studio/image-ads/ImageAdsFlow"));
+const AdClonePage = lazy(() => import("./components/studio/ad-clone/AdClonePage"));
+const CreateAvatarPage = lazy(() => import("./components/studio/avatars/CreateAvatarPage"));
+const VideoEditorPage = lazy(() => import("./components/studio/video-editor/VideoEditorPage"));
+const ProductVideoPage = lazy(() => import("./components/studio/product-video/ProductVideoPage"));
+const AiShortsPage = lazy(() => import("./components/studio/ai-shorts/AiShortsPage"));
+const Community = lazy(() => import("./pages/Community"));
+const AdaAi = lazy(() => import("./pages/AdaAi"));
+const WhyYangu = lazy(() => import("./pages/WhyYangu"));
+const DiscoverYangu = lazy(() => import("./pages/DiscoverYangu"));
+const Blog = lazy(() => import("./pages/Blog"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Terms = lazy(() => import("./pages/Terms"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const AiSafety = lazy(() => import("./pages/AiSafety"));
+const AdaLanding = lazy(() => import("./pages/AdaLanding"));
 
 // Developer platform (lazy)
 const DevelopersLayout = lazy(() => import("./components/developers/DevelopersLayout").then(m => ({ default: m.DevelopersLayout })));
