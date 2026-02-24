@@ -1,15 +1,25 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   FileText, User, Smile, Captions, Upload, Shapes, Type, Music, MousePointerClick,
   Search, MoreHorizontal, ChevronRight, Plus, Play, Trash2, Undo2, Redo2,
   Keyboard, MessageSquareText, Clock, MoreVertical, X, Sparkles, Maximize2,
   Scissors, ArrowLeftToLine, ArrowRightToLine, ZoomIn, ZoomOut, Smartphone,
-  Square, CloudUpload, RefreshCw, Filter, SlidersHorizontal, Bookmark, Check
+  Square, CloudUpload, RefreshCw, Filter, SlidersHorizontal, Bookmark, Check,
+  Crown, ChevronDown, Info
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import yanguLogo from "@/assets/yangu-y-icon.png";
+
+const REALISTIC_AVATARS = [
+  { id: "sp4", name: "Avatar 1", video: "/avatars/sp_4.mp4" },
+  { id: "sp2", name: "Avatar 2", video: "/avatars/sp_2-2.mp4" },
+  { id: "sp6", name: "Avatar 3", video: "/avatars/sp_6-2.mp4" },
+  { id: "sp9", name: "Avatar 4", video: "/avatars/sp_9-2.mp4" },
+  { id: "sp14", name: "Avatar 5", video: "/avatars/sp_14.mp4" },
+];
 
 type NavItem = "script" | "avatars" | "emotions" | "captions" | "assets" | "elements" | "text" | "audio" | "cta";
 
@@ -45,13 +55,14 @@ function ScriptPanel() {
   );
 }
 
-function AvatarsPanel() {
+function AvatarsPanel({ onSelectAvatar }: { onSelectAvatar: (avatar: typeof REALISTIC_AVATARS[0]) => void }) {
+  const [avatarTab, setAvatarTab] = useState<"realistic" | "styled" | "custom">("realistic");
   return (
     <div className="p-4 flex flex-col gap-4">
       <h2 className="text-lg font-semibold text-foreground">Avatar</h2>
       <div className="flex items-center gap-4">
-        {["Realistic", "Styled", "Custom"].map((t, i) => (
-          <button key={t} className={`text-sm font-medium pb-1 border-b-2 transition-colors ${i === 0 ? "text-foreground border-foreground" : "text-muted-foreground border-transparent hover:text-foreground"}`}>{t}</button>
+        {([["realistic","Realistic"],["styled","Styled"],["custom","Custom"]] as const).map(([key, label]) => (
+          <button key={key} onClick={() => setAvatarTab(key)} className={`text-sm font-medium pb-1 border-b-2 transition-colors ${avatarTab === key ? "text-foreground border-foreground" : "text-muted-foreground border-transparent hover:text-foreground"}`}>{label}</button>
         ))}
         <div className="flex-1" />
         <button className="p-1 rounded hover:bg-muted/20"><Filter className="h-4 w-4 text-muted-foreground" /></button>
@@ -62,9 +73,153 @@ function AvatarsPanel() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <input placeholder="Search avatars by keyword ..." className="w-full h-9 pl-9 pr-3 rounded-lg bg-muted/10 border border-border/20 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/40" />
       </div>
-      {/* EMPTY grid container */}
-      <div className="grid grid-cols-2 gap-3 min-h-[200px]" />
+      {avatarTab === "realistic" ? (
+        <div className="grid grid-cols-2 gap-3">
+          {REALISTIC_AVATARS.map((avatar) => (
+            <AvatarVideoCard key={avatar.id} avatar={avatar} onClick={() => onSelectAvatar(avatar)} />
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-3 min-h-[200px]" />
+      )}
     </div>
+  );
+}
+
+function AvatarVideoCard({ avatar, onClick }: { avatar: typeof REALISTIC_AVATARS[0]; onClick: () => void }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => videoRef.current?.play()}
+      onMouseLeave={() => { if (videoRef.current) { videoRef.current.pause(); videoRef.current.currentTime = 0; } }}
+      className="relative rounded-lg overflow-hidden aspect-[3/4] bg-muted/10 border border-border/20 hover:border-primary/40 transition-colors group"
+    >
+      <video
+        ref={videoRef}
+        src={avatar.video}
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        className="w-full h-full object-cover"
+      />
+      <div className="absolute top-1.5 right-1.5">
+        <Crown className="h-4 w-4 text-amber-400" />
+      </div>
+    </button>
+  );
+}
+
+/* ── PREVIEW DIALOG ── */
+function AvatarPreviewDialog({ avatar, open, onClose, onApply }: {
+  avatar: typeof REALISTIC_AVATARS[0] | null;
+  open: boolean;
+  onClose: () => void;
+  onApply: (mode: "scene" | "all") => void;
+}) {
+  if (!avatar) return null;
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-3xl bg-card border-border/30 p-6 gap-4">
+        <h2 className="text-lg font-semibold text-foreground">Preview</h2>
+        <div className="w-full aspect-video bg-black rounded-lg overflow-hidden flex items-center justify-center">
+          <video src={avatar.video} autoPlay loop muted playsInline className="h-full object-contain" />
+        </div>
+        <div className="flex items-center justify-center gap-4 pt-2">
+          <button onClick={() => onApply("scene")} className="px-5 py-2.5 rounded-lg bg-muted/30 border border-border/20 text-sm font-medium text-foreground hover:bg-muted/40 transition-colors">
+            Apply to this scene
+          </button>
+          <button onClick={() => onApply("all")} className="px-5 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">
+            Apply to all scenes
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* ── UPGRADE DIALOG ── */
+function UpgradeDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const [billing, setBilling] = useState<"monthly" | "yearly">("yearly");
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-4xl bg-card border-border/30 p-0 gap-0 overflow-hidden">
+        <div className="flex min-h-[520px]">
+          {/* Left pricing */}
+          <div className="flex-1 p-8 flex flex-col gap-5">
+            <h2 className="text-2xl font-bold text-foreground">Unlock Premium Avatar</h2>
+            <p className="text-sm text-muted-foreground">Upgrade to Pro and access a growing library of 1,500+ premium avatars, optimized and updated regularly to maximize creative results.</p>
+
+            <div className="flex rounded-full overflow-hidden border border-border/20">
+              <button onClick={() => setBilling("monthly")} className={`flex-1 py-2 text-sm font-medium transition-colors ${billing === "monthly" ? "bg-muted/30 text-foreground" : "text-muted-foreground"}`}>Monthly</button>
+              <button onClick={() => setBilling("yearly")} className={`flex-1 py-2 text-sm font-medium transition-colors ${billing === "yearly" ? "bg-muted/30 text-foreground" : "text-muted-foreground"}`}>Yearly (50% OFF)</button>
+            </div>
+
+            <div className="rounded-xl border border-border/20 p-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-foreground">Pro Plan ({billing === "yearly" ? "Yearly" : "Monthly"})</span>
+                <span className="text-sm text-foreground">{billing === "yearly" ? "$588/year" : "$98/mo"}</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">Upgrade now to start using Pro features right away.</p>
+            </div>
+
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border/20">
+              <span className="text-amber-400">🟠</span>
+              <span className="text-sm text-foreground">{billing === "yearly" ? "2,400 Credits (≈ 480 videos) / yr" : "200 Credits (≈ 40 videos) / mo"}</span>
+              <div className="flex-1" />
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-foreground">What's changing in your plan</span>
+                <a href="#" className="text-xs text-primary hover:underline">Plan Benefits</a>
+              </div>
+              <div className="space-y-1.5 text-xs text-muted-foreground">
+                <div className="flex justify-between"><span>Plan:</span><span>Free (Monthly) → Pro ({billing === "yearly" ? "Yearly" : "Monthly"})</span></div>
+                <div className="flex justify-between"><span>Credits:</span><span>10 Credits / mo → {billing === "yearly" ? "200 Credits / mo" : "200 Credits / mo"}</span></div>
+                <div className="flex justify-between"><span>Price:</span><span>$0 USD / mo → {billing === "yearly" ? "$588 USD / year" : "$98 USD / mo"}</span></div>
+              </div>
+              <p className="text-xs text-muted-foreground text-right mt-1">Cancel anytime</p>
+            </div>
+
+            <div className="flex items-center justify-between border-t border-border/20 pt-3">
+              <span className="text-sm font-semibold text-foreground">Amount due</span>
+              <span className="text-sm font-semibold text-foreground flex items-center gap-1">{billing === "yearly" ? "$588" : "$98"} <Info className="h-3.5 w-3.5 text-muted-foreground" /></span>
+            </div>
+
+            <Button variant="accent" className="w-full">Upgrade</Button>
+            <p className="text-[10px] text-muted-foreground text-center">By clicking "Upgrade", you agree to our <a href="#" className="underline">Terms of Service</a>.</p>
+          </div>
+
+          {/* Right visual */}
+          <div className="w-[380px] bg-muted/5 p-6 flex flex-col gap-4 overflow-y-auto">
+            <div className="grid grid-cols-3 gap-2">
+              {REALISTIC_AVATARS.slice(0, 3).map((a) => (
+                <div key={a.id} className="aspect-[3/4] rounded-lg overflow-hidden bg-muted/10">
+                  <video src={a.video} muted playsInline preload="metadata" className="w-full h-full object-cover" />
+                </div>
+              ))}
+            </div>
+            <h3 className="text-xl font-bold text-foreground text-center">Why users love Premium Avatars</h3>
+            <div className="space-y-3 text-sm text-muted-foreground italic">
+              <p>"Data shows that premium avatars deliver up to 1.5X higher ad engagement rates."</p>
+              <p>"Unlock exclusive avatars with diverse voices, languages, and accents."</p>
+              <p>"Create higher-quality visuals that convert better and scale campaigns faster."</p>
+              <p>"Join thousands of marketers who've upgraded for industry-leading ROI."</p>
+            </div>
+            <div className="grid grid-cols-3 gap-2 mt-auto">
+              {REALISTIC_AVATARS.slice(2, 5).map((a) => (
+                <div key={a.id} className="aspect-[3/4] rounded-lg overflow-hidden bg-muted/10">
+                  <video src={a.video} muted playsInline preload="metadata" className="w-full h-full object-cover" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -240,10 +395,24 @@ export default function VideoEditorPage() {
   const [previewMode, setPreviewMode] = useState<"portrait" | "background">("portrait");
   const [showAvatar, setShowAvatar] = useState(true);
   const [showCaptions, setShowCaptions] = useState(true);
+  const [selectedAvatar, setSelectedAvatar] = useState<typeof REALISTIC_AVATARS[0] | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
+  const [tooltipId, setTooltipId] = useState<string | null>(null);
+
+  const handleSelectAvatar = (avatar: typeof REALISTIC_AVATARS[0]) => {
+    setSelectedAvatar(avatar);
+    setShowPreview(true);
+  };
+
+  const handleApply = () => {
+    setShowPreview(false);
+    setShowUpgrade(true);
+  };
 
   const panelMap: Record<NavItem, React.ReactNode> = {
     script: <ScriptPanel />,
-    avatars: <AvatarsPanel />,
+    avatars: <AvatarsPanel onSelectAvatar={handleSelectAvatar} />,
     emotions: <EmotionsPanel />,
     captions: <CaptionsPanel />,
     assets: <AssetsPanel />,
@@ -265,9 +434,26 @@ export default function VideoEditorPage() {
           <button className="p-2 rounded hover:bg-muted/20" title="Undo"><Undo2 className="h-4 w-4 text-muted-foreground" /></button>
           <button className="p-2 rounded hover:bg-muted/20" title="Redo"><Redo2 className="h-4 w-4 text-muted-foreground" /></button>
           <div className="w-px h-5 bg-border/20 mx-1" />
-          <button className="p-2 rounded hover:bg-muted/20" title="Shortcut"><Keyboard className="h-4 w-4 text-muted-foreground" /></button>
-          <button className="p-2 rounded hover:bg-muted/20" title="Feedback"><MessageSquareText className="h-4 w-4 text-muted-foreground" /></button>
-          <button className="p-2 rounded hover:bg-muted/20" title="Version History"><Clock className="h-4 w-4 text-muted-foreground" /></button>
+          {[
+            { id: "shortcut", icon: Keyboard, label: "Shortcut" },
+            { id: "feedback", icon: MessageSquareText, label: "Feedback" },
+            { id: "version", icon: Clock, label: "Version History" },
+          ].map((item) => (
+            <div key={item.id} className="relative">
+              <button
+                className="p-2 rounded hover:bg-muted/20"
+                onMouseEnter={() => setTooltipId(item.id)}
+                onMouseLeave={() => setTooltipId(null)}
+              >
+                <item.icon className="h-4 w-4 text-muted-foreground" />
+              </button>
+              {tooltipId === item.id && (
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 px-3 py-1.5 rounded-lg bg-muted/80 backdrop-blur text-xs text-foreground whitespace-nowrap z-50 pointer-events-none">
+                  {item.label}
+                </div>
+              )}
+            </div>
+          ))}
           <button className="p-2 rounded hover:bg-muted/20"><MoreVertical className="h-4 w-4 text-muted-foreground" /></button>
           <div className="flex items-center gap-1.5 ml-2 px-3 py-1.5 rounded-full border border-border/30 bg-muted/10 text-sm">
             <span className="text-amber-400">🟠</span>
@@ -432,6 +618,15 @@ export default function VideoEditorPage() {
           </div>
         </div>
       </div>
+
+      {/* Dialogs */}
+      <AvatarPreviewDialog
+        avatar={selectedAvatar}
+        open={showPreview}
+        onClose={() => setShowPreview(false)}
+        onApply={handleApply}
+      />
+      <UpgradeDialog open={showUpgrade} onClose={() => setShowUpgrade(false)} />
     </div>
   );
 }
