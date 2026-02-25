@@ -27,6 +27,8 @@ export interface EditorState {
     surface_type: string;
     title: string;
     description: string | null;
+    slug: string;
+    metadata: Record<string, unknown>;
     theme: Record<string, unknown>;
   };
   pages: EditorPage[];
