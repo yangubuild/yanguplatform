@@ -17,9 +17,35 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ArrowLeft, ArrowRight, Loader2, Utensils, Upload } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, Utensils, Upload, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
+
+// ─── Currency list ───
+const CURRENCIES = [
+  { code: "UGX", symbol: "UGX", label: "UGX — Ugandan Shilling" },
+  { code: "USD", symbol: "$", label: "USD — US Dollar" },
+  { code: "EUR", symbol: "€", label: "EUR — Euro" },
+  { code: "GBP", symbol: "£", label: "GBP — British Pound" },
+  { code: "KES", symbol: "KES", label: "KES — Kenyan Shilling" },
+  { code: "TZS", symbol: "TZS", label: "TZS — Tanzanian Shilling" },
+  { code: "RWF", symbol: "RWF", label: "RWF — Rwandan Franc" },
+  { code: "NGN", symbol: "₦", label: "NGN — Nigerian Naira" },
+  { code: "GHS", symbol: "GH₵", label: "GHS — Ghanaian Cedi" },
+  { code: "ZAR", symbol: "R", label: "ZAR — South African Rand" },
+  { code: "AED", symbol: "AED", label: "AED — UAE Dirham" },
+  { code: "INR", symbol: "₹", label: "INR — Indian Rupee" },
+  { code: "CNY", symbol: "¥", label: "CNY — Chinese Yuan" },
+  { code: "JPY", symbol: "¥", label: "JPY — Japanese Yen" },
+  { code: "CAD", symbol: "CA$", label: "CAD — Canadian Dollar" },
+  { code: "AUD", symbol: "A$", label: "AUD — Australian Dollar" },
+  { code: "BRL", symbol: "R$", label: "BRL — Brazilian Real" },
+  { code: "MXN", symbol: "MX$", label: "MXN — Mexican Peso" },
+  { code: "ETB", symbol: "ETB", label: "ETB — Ethiopian Birr" },
+  { code: "XOF", symbol: "CFA", label: "XOF — West African CFA" },
+  { code: "XAF", symbol: "FCFA", label: "XAF — Central African CFA" },
+];
 
 // ─── Types ───
 interface WizardData {
@@ -61,8 +87,8 @@ const INITIAL_DATA: WizardData = {
   contact_email: "",
   contact_phone: "",
   location: "",
-  currency: "USD",
-  currency_symbol: "$",
+  currency: "UGX",
+  currency_symbol: "UGX",
   logo_url: "",
   primary_color: "#b5622a",
   layout_style: "grid",
@@ -92,10 +118,12 @@ interface Props {
 }
 
 export function EmenuWizard({ open, onOpenChange, onComplete }: Props) {
+  const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [data, setData] = useState<WizardData>({ ...INITIAL_DATA });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [logoUploading, setLogoUploading] = useState(false);
+  const [aiLogoLoading, setAiLogoLoading] = useState(false);
 
   const update = (patch: Partial<WizardData>) => setData((d) => ({ ...d, ...patch }));
 
@@ -106,24 +134,56 @@ export function EmenuWizard({ open, onOpenChange, onComplete }: Props) {
     });
   };
 
+  const handleCurrencyChange = (code: string) => {
+    const found = CURRENCIES.find((c) => c.code === code);
+    update({ currency: code, currency_symbol: found?.symbol || code });
+  };
+
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) { toast.error("Max 5MB"); return; }
+    if (!user?.id) { toast.error("Not logged in"); return; }
 
     setLogoUploading(true);
     try {
       const ext = file.name.split(".").pop() || "png";
-      const path = `logos/${crypto.randomUUID()}.${ext}`;
+      const ts = Date.now();
+      const path = `${user.id}/logos/${ts}-logo.${ext}`;
       const { error } = await supabase.storage.from("builder-media").upload(path, file);
       if (error) throw error;
       const { data: urlData } = supabase.storage.from("builder-media").getPublicUrl(path);
       update({ logo_url: urlData.publicUrl });
       toast.success("Logo uploaded");
     } catch (err) {
+      console.error("Logo upload error:", err);
       toast.error("Upload failed");
     } finally {
       setLogoUploading(false);
+    }
+  };
+
+  const handleAiLogo = async () => {
+    if (!data.business_name.trim()) { toast.error("Enter a business name first"); return; }
+    setAiLogoLoading(true);
+    try {
+      const { data: result, error } = await supabase.functions.invoke("ada-generate-image", {
+        body: {
+          prompt: `Minimal restaurant logo for "${data.business_name}", modern, flat icon style, clean background, professional food business branding`,
+        },
+      });
+      if (error) throw error;
+      if (result?.image_url) {
+        update({ logo_url: result.image_url });
+        toast.success("AI logo generated!");
+      } else {
+        throw new Error("No image returned");
+      }
+    } catch (err) {
+      console.error("AI logo error:", err);
+      toast.error("AI logo generation failed");
+    } finally {
+      setAiLogoLoading(false);
     }
   };
 
@@ -174,7 +234,7 @@ export function EmenuWizard({ open, onOpenChange, onComplete }: Props) {
             <div className="space-y-2">
               <Label>Menu URL Slug *</Label>
               <Input value={data.slug} onChange={(e) => update({ slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 40) })} placeholder="mamas-kitchen" />
-              <p className="text-xs text-muted-foreground">Public link: yangu.site/{data.slug || "…"}</p>
+              <p className="text-xs text-muted-foreground">Public link: yangu.shop/{data.slug || "…"}</p>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -193,15 +253,16 @@ export function EmenuWizard({ open, onOpenChange, onComplete }: Props) {
               <Input value={data.location} onChange={(e) => update({ location: e.target.value })} placeholder="123 Main St, Dar es Salaam" />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label>Currency Code</Label>
-                <Input value={data.currency} onChange={(e) => update({ currency: e.target.value.toUpperCase().slice(0, 3) })} placeholder="USD" maxLength={3} />
-              </div>
-              <div className="space-y-2">
-                <Label>Currency Symbol</Label>
-                <Input value={data.currency_symbol} onChange={(e) => update({ currency_symbol: e.target.value.slice(0, 3) })} placeholder="$" maxLength={3} />
-              </div>
+            <div className="space-y-2">
+              <Label>Currency</Label>
+              <Select value={data.currency} onValueChange={handleCurrencyChange}>
+                <SelectTrigger><SelectValue placeholder="Select currency" /></SelectTrigger>
+                <SelectContent>
+                  {CURRENCIES.map((c) => (
+                    <SelectItem key={c.code} value={c.code}>{c.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="flex justify-end pt-2">
@@ -227,12 +288,27 @@ export function EmenuWizard({ open, onOpenChange, onComplete }: Props) {
                     <Upload className="h-5 w-5" />
                   </div>
                 )}
-                <label className="cursor-pointer">
-                  <Button variant="outline" size="sm" asChild disabled={logoUploading}>
-                    <span>{logoUploading ? "Uploading…" : data.logo_url ? "Change" : "Upload Logo"}</span>
+                <div className="flex flex-col gap-1.5">
+                  <label className="cursor-pointer">
+                    <Button variant="outline" size="sm" asChild disabled={logoUploading}>
+                      <span>{logoUploading ? "Uploading…" : data.logo_url ? "Change" : "Upload Logo"}</span>
+                    </Button>
+                    <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+                  </label>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5"
+                    onClick={handleAiLogo}
+                    disabled={aiLogoLoading || !data.business_name.trim()}
+                  >
+                    {aiLogoLoading ? (
+                      <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Generating…</>
+                    ) : (
+                      <><Sparkles className="h-3.5 w-3.5" /> Generate Logo with AI</>
+                    )}
                   </Button>
-                  <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
-                </label>
+                </div>
               </div>
             </div>
 

@@ -200,11 +200,7 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
         type: "menu",
         schema: {
           heading: "Menu",
-          categories: [
-            { name: "Starters", items: [] },
-            { name: "Meals", items: [] },
-            { name: "Drinks", items: [] },
-          ],
+          categories: [],
           layout_style: wd.layout_style,
           currency: wd.currency,
           currency_symbol: wd.currency_symbol,

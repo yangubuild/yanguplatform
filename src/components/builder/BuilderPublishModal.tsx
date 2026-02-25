@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -20,6 +20,10 @@ import {
   ExternalLink,
   Link2,
   Copy,
+  Download,
+  Mail,
+  Share2,
+  QrCode,
 } from "lucide-react";
 import { useBuilderPublish, type ActiveDomain } from "@/hooks/useBuilderPublish";
 import type { BuilderSurfaceType } from "@/types/builder";
@@ -32,6 +36,96 @@ interface BuilderPublishModalProps {
   surfaceType: BuilderSurfaceType;
   surfaceTitle: string;
   defaultSlug?: string;
+}
+
+// Simple QR code generator using a public API
+function QrCodePanel({ url, title }: { url: string; title: string }) {
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(url)}`;
+
+  const handleDownload = async () => {
+    try {
+      const resp = await fetch(qrUrl);
+      const blob = await resp.blob();
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${title.replace(/\s+/g, "-").toLowerCase()}-qr.png`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      toast.success("QR code downloaded");
+    } catch {
+      toast.error("Download failed");
+    }
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(url);
+    toast.success("Link copied");
+  };
+
+  const handleShare = (platform: string) => {
+    const text = `Check out ${title}: ${url}`;
+    const encodedUrl = encodeURIComponent(url);
+    const encodedText = encodeURIComponent(text);
+
+    const shareUrls: Record<string, string> = {
+      whatsapp: `https://wa.me/?text=${encodedText}`,
+      email: `mailto:?subject=${encodeURIComponent(title)}&body=${encodedText}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+      twitter: `https://twitter.com/intent/tweet?text=${encodedText}`,
+      tiktok: `https://www.tiktok.com/share?url=${encodedUrl}`,
+    };
+
+    if (platform === "native" && navigator.share) {
+      navigator.share({ title, url }).catch(() => {});
+      return;
+    }
+
+    const shareUrl = shareUrls[platform];
+    if (shareUrl) window.open(shareUrl, "_blank");
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-center">
+        <div className="p-3 rounded-xl border border-border bg-white">
+          <img src={qrUrl} alt="QR Code" className="w-48 h-48" />
+        </div>
+      </div>
+      <p className="text-xs text-center text-muted-foreground break-all">{url}</p>
+
+      <div className="grid grid-cols-2 gap-2">
+        <Button size="sm" className="gap-1.5" onClick={handleDownload}>
+          <Download className="h-3.5 w-3.5" /> Download
+        </Button>
+        <Button size="sm" variant="outline" className="gap-1.5" onClick={handleCopyLink}>
+          <Copy className="h-3.5 w-3.5" /> Copy Link
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2">
+        <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => handleShare("whatsapp")}>
+          WhatsApp
+        </Button>
+        <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => handleShare("email")}>
+          <Mail className="h-3.5 w-3.5" /> Email
+        </Button>
+        <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => handleShare("facebook")}>
+          Facebook
+        </Button>
+        <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => handleShare("twitter")}>
+          Twitter
+        </Button>
+        <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => handleShare("tiktok")}>
+          TikTok
+        </Button>
+        {typeof navigator !== "undefined" && "share" in navigator && (
+          <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => handleShare("native")}>
+            <Share2 className="h-3.5 w-3.5" /> More
+          </Button>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export function BuilderPublishModal({
@@ -93,8 +187,8 @@ export function BuilderPublishModal({
   if (isSuccess) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-md">
-          <div className="flex flex-col items-center text-center py-6 space-y-4">
+        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+          <div className="flex flex-col items-center text-center py-4 space-y-4">
             <div className="p-3 rounded-full bg-success/10">
               <CheckCircle2 className="h-10 w-10 text-success" />
             </div>
@@ -119,6 +213,17 @@ export function BuilderPublishModal({
                 </Button>
               </div>
             </Card>
+
+            {/* QR Code + Share Panel */}
+            {publishedUrl && (
+              <Card className="w-full p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <QrCode className="h-4 w-4 text-muted-foreground" />
+                  <Label className="text-xs text-muted-foreground">QR Code & Share</Label>
+                </div>
+                <QrCodePanel url={publishedUrl} title={surfaceTitle} />
+              </Card>
+            )}
 
             {/* Publish ID */}
             {publishResult?.publish_id && (
