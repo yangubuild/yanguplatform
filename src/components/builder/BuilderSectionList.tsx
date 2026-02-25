@@ -6,6 +6,8 @@ import type { EditorSection } from "@/hooks/useBuilderEditor";
 interface BuilderSectionListProps {
   sections: EditorSection[];
   onReorder: (orderedIds: string[]) => void;
+  selectedId?: string | null;
+  onSelect?: (id: string) => void;
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -26,7 +28,7 @@ const TYPE_LABELS: Record<string, string> = {
   schedule: "Schedule",
 };
 
-export function BuilderSectionList({ sections, onReorder }: BuilderSectionListProps) {
+export function BuilderSectionList({ sections, onReorder, selectedId, onSelect }: BuilderSectionListProps) {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -86,9 +88,11 @@ export function BuilderSectionList({ sections, onReorder }: BuilderSectionListPr
           onDragOver={(e) => handleDragOver(e, index)}
           onDrop={(e) => handleDrop(e, index)}
           onDragEnd={handleDragEnd}
+          onClick={() => onSelect?.(section.id)}
           className={cn(
             "flex items-center gap-2 px-3 py-2.5 rounded-lg border transition-all cursor-grab active:cursor-grabbing",
             "bg-card border-border hover:border-muted-foreground/30",
+            selectedId === section.id && "ring-2 ring-primary border-primary",
             dragIndex === index && "opacity-40",
             overIndex === index && dragIndex !== index && "border-accent border-dashed"
           )}
