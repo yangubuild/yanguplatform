@@ -48,6 +48,8 @@ export function BuilderAIGenerateModal({ open, onOpenChange, surfaceType, onGene
       if (!data?.ok) {
         const msg = data?.error === "rate_limited" ? "Rate limited — try again shortly"
           : data?.error === "payment_required" ? "AI credits exhausted"
+          : data?.error === "quota_exceeded" ? "Daily AI quota reached — try again tomorrow"
+          : data?.error === "unauthorized" ? "Please log in to use AI generation"
           : data?.error || "Generation failed";
         throw new Error(msg);
       }
