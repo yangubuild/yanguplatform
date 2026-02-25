@@ -17,7 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ArrowLeft, ArrowRight, Loader2, Utensils, Upload, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, Utensils, Upload, Sparkles, ImageIcon, Search, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
@@ -48,7 +48,7 @@ const CURRENCIES = [
 ];
 
 // ─── Types ───
-interface WizardData {
+export interface WizardData {
   // Step 1
   business_name: string;
   slug: string;
@@ -59,6 +59,7 @@ interface WizardData {
   currency_symbol: string;
   // Step 2
   logo_url: string;
+  hero_banner_url: string;
   primary_color: string;
   layout_style: "grid" | "list";
   logo_position: "left" | "center";
@@ -90,6 +91,7 @@ const INITIAL_DATA: WizardData = {
   currency: "UGX",
   currency_symbol: "UGX",
   logo_url: "",
+  hero_banner_url: "",
   primary_color: "#b5622a",
   layout_style: "grid",
   logo_position: "center",
@@ -117,6 +119,13 @@ interface Props {
   onComplete: (data: WizardData) => Promise<void>;
 }
 
+interface StockResult {
+  id: string;
+  thumbUrl: string;
+  fullUrl: string;
+  author: string;
+}
+
 export function EmenuWizard({ open, onOpenChange, onComplete }: Props) {
   const { user } = useAuth();
   const [step, setStep] = useState(1);
@@ -124,6 +133,13 @@ export function EmenuWizard({ open, onOpenChange, onComplete }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [logoUploading, setLogoUploading] = useState(false);
   const [aiLogoLoading, setAiLogoLoading] = useState(false);
+  // Hero banner state
+  const [heroBannerUploading, setHeroBannerUploading] = useState(false);
+  const [heroAiLoading, setHeroAiLoading] = useState(false);
+  const [heroStockQuery, setHeroStockQuery] = useState("");
+  const [heroStockResults, setHeroStockResults] = useState<StockResult[]>([]);
+  const [heroStockSearching, setHeroStockSearching] = useState(false);
+  const [heroTab, setHeroTab] = useState<"upload" | "ai" | "stock">("upload");
 
   const update = (patch: Partial<WizardData>) => setData((d) => ({ ...d, ...patch }));
 
@@ -139,6 +155,7 @@ export function EmenuWizard({ open, onOpenChange, onComplete }: Props) {
     update({ currency: code, currency_symbol: found?.symbol || code });
   };
 
+  // ─── Logo Upload ───
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -163,27 +180,97 @@ export function EmenuWizard({ open, onOpenChange, onComplete }: Props) {
     }
   };
 
+  // ─── AI Logo ───
   const handleAiLogo = async () => {
     if (!data.business_name.trim()) { toast.error("Enter a business name first"); return; }
     setAiLogoLoading(true);
     try {
-      const { data: result, error } = await supabase.functions.invoke("ada-generate-image", {
+      const { data: result, error } = await supabase.functions.invoke("generate-logo", {
         body: {
           prompt: `Minimal restaurant logo for "${data.business_name}", modern, flat icon style, clean background, professional food business branding`,
         },
       });
       if (error) throw error;
-      if (result?.image_url) {
+      if (result?.ok && result?.image_url) {
         update({ logo_url: result.image_url });
         toast.success("AI logo generated!");
       } else {
-        throw new Error("No image returned");
+        throw new Error(result?.error || "No image returned");
       }
     } catch (err) {
       console.error("AI logo error:", err);
-      toast.error("AI logo generation failed");
+      toast.error(err instanceof Error ? err.message : "AI logo generation failed");
     } finally {
       setAiLogoLoading(false);
+    }
+  };
+
+  // ─── Hero Banner Upload ───
+  const handleHeroBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) { toast.error("Max 10MB"); return; }
+    if (!user?.id) { toast.error("Not logged in"); return; }
+
+    setHeroBannerUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "png";
+      const path = `${user.id}/banners/${Date.now()}-banner.${ext}`;
+      const { error } = await supabase.storage.from("builder-media").upload(path, file);
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from("builder-media").getPublicUrl(path);
+      update({ hero_banner_url: urlData.publicUrl });
+      toast.success("Banner uploaded");
+    } catch (err) {
+      console.error("Banner upload error:", err);
+      toast.error("Upload failed");
+    } finally {
+      setHeroBannerUploading(false);
+    }
+  };
+
+  // ─── Hero Banner AI ───
+  const handleHeroAi = async () => {
+    if (!data.business_name.trim()) { toast.error("Enter business name first"); return; }
+    setHeroAiLoading(true);
+    try {
+      const { data: result, error } = await supabase.functions.invoke("generate-logo", {
+        body: {
+          prompt: `Professional hero banner for restaurant "${data.business_name}", beautiful food photography, warm lighting, appetizing, 16:9 wide aspect ratio`,
+        },
+      });
+      if (error) throw error;
+      if (result?.ok && result?.image_url) {
+        update({ hero_banner_url: result.image_url });
+        toast.success("Banner generated!");
+      } else {
+        throw new Error(result?.error || "No image returned");
+      }
+    } catch (err) {
+      console.error("Hero AI error:", err);
+      toast.error(err instanceof Error ? err.message : "Generation failed");
+    } finally {
+      setHeroAiLoading(false);
+    }
+  };
+
+  // ─── Hero Banner Stock Search ───
+  const handleHeroStockSearch = async () => {
+    if (!heroStockQuery.trim()) return;
+    setHeroStockSearching(true);
+    try {
+      const res = await supabase.functions.invoke("builder-stock-search", {
+        body: { query: heroStockQuery.trim(), mediaType: "image" },
+      });
+      if (res.error) throw new Error(res.error.message);
+      const d = res.data as { ok: boolean; results?: StockResult[]; error?: string };
+      if (!d.ok) throw new Error(d.error || "Search failed");
+      setHeroStockResults(d.results || []);
+      if ((d.results || []).length === 0) toast.info("No results found");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Search failed");
+    } finally {
+      setHeroStockSearching(false);
     }
   };
 
@@ -276,22 +363,25 @@ export function EmenuWizard({ open, onOpenChange, onComplete }: Props) {
         {/* STEP 2 — Branding & Social */}
         {step === 2 && (
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Branding</h3>
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Logo</h3>
 
+            {/* Logo section */}
             <div className="space-y-2">
               <Label>Restaurant Logo</Label>
               <div className="flex items-center gap-3">
                 {data.logo_url ? (
-                  <img src={data.logo_url} alt="Logo" className="h-14 w-14 object-contain rounded-lg border border-border" />
+                  <div className="h-20 w-20 rounded-xl border border-border overflow-hidden bg-muted flex-shrink-0">
+                    <img src={data.logo_url} alt="Logo" className="w-full h-full object-cover" />
+                  </div>
                 ) : (
-                  <div className="h-14 w-14 rounded-lg border border-dashed border-border flex items-center justify-center text-muted-foreground">
-                    <Upload className="h-5 w-5" />
+                  <div className="h-20 w-20 rounded-xl border border-dashed border-border flex items-center justify-center text-muted-foreground flex-shrink-0 bg-muted/50">
+                    <Upload className="h-6 w-6" />
                   </div>
                 )}
                 <div className="flex flex-col gap-1.5">
                   <label className="cursor-pointer">
                     <Button variant="outline" size="sm" asChild disabled={logoUploading}>
-                      <span>{logoUploading ? "Uploading…" : data.logo_url ? "Change" : "Upload Logo"}</span>
+                      <span>{logoUploading ? "Uploading…" : data.logo_url ? "Change Logo" : "Upload Logo"}</span>
                     </Button>
                     <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
                   </label>
@@ -310,6 +400,115 @@ export function EmenuWizard({ open, onOpenChange, onComplete }: Props) {
                   </Button>
                 </div>
               </div>
+            </div>
+
+            {/* Hero Banner section (optional) */}
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide pt-2">Hero Banner (Optional)</h3>
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground">Add a banner image for the top of your menu page. This is separate from your logo.</p>
+
+              {data.hero_banner_url && (
+                <div className="relative aspect-video rounded-lg overflow-hidden border border-border bg-muted">
+                  <img src={data.hero_banner_url} alt="Hero banner" className="w-full h-full object-cover" />
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="absolute top-2 right-2 h-7 text-xs"
+                    onClick={() => update({ hero_banner_url: "" })}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              )}
+
+              {/* Tabs for upload/ai/stock */}
+              <div className="flex gap-1 border-b border-border">
+                {(["upload", "ai", "stock"] as const).map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setHeroTab(tab)}
+                    className={`px-3 py-1.5 text-xs font-medium border-b-2 transition-colors ${
+                      heroTab === tab ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {tab === "upload" ? "Upload" : tab === "ai" ? "AI Generate" : "Stock Images"}
+                  </button>
+                ))}
+              </div>
+
+              {heroTab === "upload" && (
+                <div className="border border-dashed border-border rounded-lg p-4 text-center">
+                  {heroBannerUploading ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span className="text-xs text-muted-foreground">Uploading…</span>
+                    </div>
+                  ) : (
+                    <label className="cursor-pointer">
+                      <Upload className="h-5 w-5 mx-auto text-muted-foreground mb-1" />
+                      <span className="text-xs text-primary hover:underline">Choose banner image</span>
+                      <input type="file" accept="image/*" className="hidden" onChange={handleHeroBannerUpload} />
+                      <p className="text-[10px] text-muted-foreground mt-1">Max 10MB</p>
+                    </label>
+                  )}
+                </div>
+              )}
+
+              {heroTab === "ai" && (
+                <div className="space-y-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full gap-1.5 text-xs"
+                    onClick={handleHeroAi}
+                    disabled={heroAiLoading || !data.business_name.trim()}
+                  >
+                    {heroAiLoading ? (
+                      <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Generating…</>
+                    ) : (
+                      <><Sparkles className="h-3.5 w-3.5" /> Generate Hero Banner</>
+                    )}
+                  </Button>
+                </div>
+              )}
+
+              {heroTab === "stock" && (
+                <div className="space-y-2">
+                  <div className="flex gap-1.5">
+                    <Input
+                      value={heroStockQuery}
+                      onChange={(e) => setHeroStockQuery(e.target.value)}
+                      placeholder="Search food images…"
+                      className="text-sm flex-1"
+                      onKeyDown={(e) => e.key === "Enter" && handleHeroStockSearch()}
+                    />
+                    <Button size="sm" variant="outline" onClick={handleHeroStockSearch} disabled={heroStockSearching}>
+                      {heroStockSearching ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Search className="h-3.5 w-3.5" />}
+                    </Button>
+                  </div>
+                  {heroStockResults.length > 0 && (
+                    <div className="grid grid-cols-3 gap-1.5 max-h-36 overflow-y-auto">
+                      {heroStockResults.map((r) => (
+                        <button
+                          key={r.id}
+                          onClick={() => {
+                            update({ hero_banner_url: r.fullUrl });
+                            toast.success(`Photo by ${r.author}`);
+                          }}
+                          className="relative rounded overflow-hidden border border-border hover:ring-2 hover:ring-primary"
+                        >
+                          <img src={r.thumbUrl} alt={r.author} className="w-full h-14 object-cover" />
+                          <span className="absolute bottom-0 inset-x-0 bg-black/60 text-[8px] text-white truncate px-1">{r.author}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                    Photos from <a href="https://www.pexels.com" target="_blank" rel="noopener noreferrer" className="underline">Pexels</a>
+                    <ExternalLink className="h-2.5 w-2.5" />
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -447,9 +646,9 @@ export function EmenuWizard({ open, onOpenChange, onComplete }: Props) {
               </Button>
               <Button onClick={handleSubmit} disabled={isSubmitting} className="gap-2">
                 {isSubmitting ? (
-                  <><Loader2 className="h-4 w-4 animate-spin" /> Creating Menu…</>
+                  <><Loader2 className="h-4 w-4 animate-spin" /> Creating…</>
                 ) : (
-                  <><Utensils className="h-4 w-4" /> Complete Setup & Create Menu</>
+                  <><Sparkles className="h-4 w-4" /> Complete Setup & Create Menu</>
                 )}
               </Button>
             </div>
@@ -459,5 +658,3 @@ export function EmenuWizard({ open, onOpenChange, onComplete }: Props) {
     </Dialog>
   );
 }
-
-export type { WizardData };

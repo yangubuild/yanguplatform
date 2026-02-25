@@ -183,6 +183,7 @@ export default function BuilderEditor() {
         surfaceId={editorState.surface.id}
         surfaceType={surfaceType}
         surfaceTitle={surfaceTitle}
+        defaultSlug={editorState.surface.slug}
       />
 
       {/* Settings Drawer */}
