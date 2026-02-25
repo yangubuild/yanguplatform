@@ -67,7 +67,7 @@ export function AiImportSourcePicker({ onSelect, categoryLabel }: Props) {
             key={source.key}
             onClick={() => onSelect(source.key)}
             className={cn(
-              "group relative flex items-center justify-between rounded-xl border border-border bg-card p-5 text-left transition-all hover:border-primary/40 hover:shadow-md",
+              "group relative flex items-center justify-between rounded-xl border border-border/50 bg-muted/30 p-5 text-left transition-all hover:border-primary/40 hover:shadow-md",
               source.key === "manual" && "col-span-1"
             )}
           >
