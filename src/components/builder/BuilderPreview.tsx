@@ -4,6 +4,8 @@ import { Card } from "@/components/primitives";
 interface BuilderPreviewProps {
   sections: EditorSection[];
   surfaceTitle: string;
+  selectedSectionId?: string | null;
+  onSelectSection?: (id: string) => void;
 }
 
 // ─── Existing live_bio renderers (unchanged) ───
@@ -523,7 +525,7 @@ export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<st
   location: LocationPreview,
 };
 
-export function BuilderPreview({ sections, surfaceTitle }: BuilderPreviewProps) {
+export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSelectSection }: BuilderPreviewProps) {
   if (sections.length === 0) {
     return (
       <Card className="p-12 text-center">
@@ -549,7 +551,11 @@ export function BuilderPreview({ sections, surfaceTitle }: BuilderPreviewProps) 
           .map((section) => {
             const Preview = PREVIEW_MAP[section.section_type];
             return (
-              <div key={section.id}>
+              <div
+                key={section.id}
+                onClick={() => onSelectSection?.(section.id)}
+                className={`cursor-pointer transition-all ${selectedSectionId === section.id ? "ring-2 ring-primary ring-inset" : "hover:bg-accent/5"}`}
+              >
                 {Preview ? (
                   <Preview schema={section.schema} />
                 ) : (

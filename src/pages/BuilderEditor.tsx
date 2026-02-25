@@ -17,12 +17,14 @@ import {
 import { useState } from "react";
 import type { BuilderSurfaceType } from "@/types/builder";
 import { BuilderSettingsDrawer } from "@/components/builder/BuilderSettingsDrawer";
+import { BuilderSectionEditor } from "@/components/builder/BuilderSectionEditor";
 
 export default function BuilderEditor() {
   const { surfaceId } = useParams<{ surfaceId: string }>();
   const navigate = useNavigate();
   const [publishOpen, setPublishOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
 
   const {
     editorState,
@@ -33,6 +35,9 @@ export default function BuilderEditor() {
     addSectionWithSchema,
     isAdding,
     reorderSections,
+    updateSectionSchema,
+    toggleSectionVisibility,
+    isSavingSection,
   } = useBuilderEditor(surfaceId);
 
   // Loading
@@ -116,6 +121,8 @@ export default function BuilderEditor() {
             <BuilderSectionList
               sections={sections}
               onReorder={reorderSections}
+              selectedId={selectedSectionId}
+              onSelect={setSelectedSectionId}
             />
           </div>
           <div className="p-3 border-t border-border">
@@ -125,8 +132,24 @@ export default function BuilderEditor() {
 
         {/* Center: Preview */}
         <main className="flex-1 overflow-y-auto p-6 lg:p-10">
-          <BuilderPreview sections={sections} surfaceTitle={surfaceTitle} />
+          <BuilderPreview
+            sections={sections}
+            surfaceTitle={surfaceTitle}
+            selectedSectionId={selectedSectionId}
+            onSelectSection={setSelectedSectionId}
+          />
         </main>
+
+        {/* Right panel: Section editor */}
+        {selectedSectionId && sections.find((s) => s.id === selectedSectionId) && (
+          <BuilderSectionEditor
+            section={sections.find((s) => s.id === selectedSectionId)!}
+            onClose={() => setSelectedSectionId(null)}
+            onSave={updateSectionSchema}
+            onToggleVisibility={toggleSectionVisibility}
+            isSaving={isSavingSection}
+          />
+        )}
       </div>
 
       {/* Publish Modal */}

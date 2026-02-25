@@ -206,6 +206,90 @@ export function useBuilderEditor(surfaceId: string | undefined) {
     [activePageId, queryClient, queryKey]
   );
 
+  // ─── Update section schema ───
+  const [isSavingSection, setIsSavingSection] = useState(false);
+
+  const updateSectionSchema = useCallback(
+    async (sectionId: string, schema: Record<string, unknown>) => {
+      if (!activePageId) return;
+      setIsSavingSection(true);
+
+      const section = sections.find((s) => s.id === sectionId);
+      if (!section) { setIsSavingSection(false); return; }
+
+      try {
+        const { data, error } = await supabase.rpc("builder_upsert_section", {
+          p_page_id: activePageId,
+          p_section_id: sectionId,
+          p_section_type: section.section_type,
+          p_schema: schema as unknown as Json,
+          p_position: section.position,
+          p_is_visible: section.is_visible,
+        });
+
+        if (error) throw new Error(error.message);
+        const result = data as unknown as { ok: boolean; error?: string };
+        if (!result.ok) throw new Error(result.error || "Failed to save");
+
+        await queryClient.invalidateQueries({ queryKey });
+        toast.success("Section saved");
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Failed to save section");
+      } finally {
+        setIsSavingSection(false);
+      }
+    },
+    [activePageId, sections, queryClient, queryKey]
+  );
+
+  // ─── Toggle section visibility ───
+  const toggleSectionVisibility = useCallback(
+    async (sectionId: string, visible: boolean) => {
+      if (!activePageId) return;
+
+      const section = sections.find((s) => s.id === sectionId);
+      if (!section) return;
+
+      // Optimistic
+      queryClient.setQueryData(queryKey, (old: EditorState | undefined) => {
+        if (!old) return old;
+        return {
+          ...old,
+          pages: old.pages.map((page) => {
+            if (page.id !== activePageId) return page;
+            return {
+              ...page,
+              sections: page.sections.map((s) =>
+                s.id === sectionId ? { ...s, is_visible: visible } : s
+              ),
+            };
+          }),
+        };
+      });
+
+      try {
+        const { data, error } = await supabase.rpc("builder_upsert_section", {
+          p_page_id: activePageId,
+          p_section_id: sectionId,
+          p_section_type: section.section_type,
+          p_schema: section.schema as unknown as Json,
+          p_position: section.position,
+          p_is_visible: visible,
+        });
+
+        if (error) throw new Error(error.message);
+        const result = data as unknown as { ok: boolean; error?: string };
+        if (!result.ok) throw new Error(result.error || "Toggle failed");
+
+        await queryClient.invalidateQueries({ queryKey });
+      } catch (err) {
+        await queryClient.invalidateQueries({ queryKey });
+        toast.error(err instanceof Error ? err.message : "Failed to toggle visibility");
+      }
+    },
+    [activePageId, sections, queryClient, queryKey]
+  );
+
   return {
     editorState,
     isLoading,
@@ -219,5 +303,8 @@ export function useBuilderEditor(surfaceId: string | undefined) {
     isAdding,
     reorderSections,
     isReordering,
+    updateSectionSchema,
+    toggleSectionVisibility,
+    isSavingSection,
   };
 }
