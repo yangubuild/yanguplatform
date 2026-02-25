@@ -104,8 +104,18 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
         }
       );
 
-      if (genErr) throw new Error(genErr.message);
-      if (!genResult?.ok) throw new Error(genResult?.error || "Schema generation failed");
+      if (genErr) {
+        const errMsg = genErr.message || "Edge function error";
+        console.error("builder-generate-schema error:", genErr);
+        toast.error(`builder-generate-schema failed: ${errMsg}`);
+        throw new Error(errMsg);
+      }
+      if (!genResult?.ok) {
+        const detail = genResult?.error || "Schema generation failed";
+        console.error("builder-generate-schema non-ok:", genResult);
+        toast.error(`Schema generation error: ${detail}`);
+        throw new Error(detail);
+      }
 
       const generatedSections: { type: string; schema: Record<string, unknown> }[] = [];
       const pages = genResult.schema?.pages || [];

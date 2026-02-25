@@ -90,7 +90,7 @@ Return ONLY valid JSON, no markdown.`;
 - Description: ${body.description || "Not provided"}
 - Additional inputs: ${JSON.stringify(body.inputs || {})}`;
 
-    const aiResponse = await fetch("https://ai-gateway.lovable.dev/chat/completions", {
+    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

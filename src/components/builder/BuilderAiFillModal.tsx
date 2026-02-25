@@ -56,8 +56,12 @@ export function BuilderAiFillModal({ open, onOpenChange, sectionType, surfaceTyp
         },
       });
 
-      if (res.error) throw new Error(res.error.message || "AI generation failed");
+      if (res.error) {
+        console.error("AI Fill edge error:", res.error);
+        throw new Error(res.error.message || "AI generation failed");
+      }
       const result = res.data as { ok: boolean; schema?: Record<string, unknown>; error?: string };
+      if (import.meta.env.DEV) console.log("AI Fill response:", result);
       if (!result.ok) {
         if (result.error === "unauthorized") {
           toast.error("Session expired. Please sign in again.");
