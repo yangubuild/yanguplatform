@@ -42,6 +42,34 @@ export interface SeedSection {
   schema: Record<string, unknown>;
 }
 
+/** Industry-conditional extra questions and modules */
+export interface ConditionalIndustryConfig {
+  /** Extra question steps appended when this industry is selected */
+  extraSteps?: QuestionStep[];
+  /** Extra editor modules unlocked for this industry */
+  extraModules?: string[];
+}
+
+/** Category-specific section template definition */
+export interface SectionTemplate {
+  key: string;
+  label: string;
+  /** The section_type this maps to in the builder schema */
+  sectionType: string;
+  /** Default schema seed for this template */
+  schema: Record<string, unknown>;
+}
+
+/** AI generation safety rules per category */
+export interface AiGenerationRules {
+  /** Section types AI is allowed to generate */
+  allowedSectionTypes: string[];
+  /** Section types AI must NEVER auto-add */
+  forbiddenSectionTypes: string[];
+  /** Descriptive hints for AI content generation */
+  generationHints: string[];
+}
+
 export interface BuilderEngine {
   /** Unique key: emenu, esite, eshop, estore, influencer, community */
   key: string;
@@ -65,6 +93,12 @@ export interface BuilderEngine {
   editorModules: string[];
   /** Extra modules unlocked per industry */
   industryModules?: Record<string, string[]>;
+  /** Industry-conditional extra questions and modules */
+  conditionalQuestions?: Record<string, ConditionalIndustryConfig>;
+  /** Category-specific section templates */
+  templates?: SectionTemplate[];
+  /** AI generation safety rules */
+  aiGenerationRules?: AiGenerationRules;
   /** Icon name from lucide-react */
   icon: string;
 }

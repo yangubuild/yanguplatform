@@ -31,7 +31,11 @@ export const communityEngine: BuilderEngine = {
       fields: [
         { key: "community_name", label: "Community Name", type: "text", required: true, placeholder: "e.g. Fitness Tribe UG" },
         { key: "slug", label: "Community URL Slug", type: "slug", slugDomain: "yangu.community", slugSource: "community_name", required: true },
-        { key: "community_type", label: "Community Type", type: "select", options: [
+        { key: "organizer_type", label: "Are you an individual or organization?", type: "select", options: [
+          { value: "individual", label: "Individual" },
+          { value: "organization", label: "Organization" },
+        ], required: true },
+        { key: "community_type", label: "Community Access", type: "select", options: [
           { value: "open", label: "Open — Anyone can join" },
           { value: "approval", label: "Approval — Request to join" },
           { value: "invite", label: "Invite Only" },
@@ -42,16 +46,31 @@ export const communityEngine: BuilderEngine = {
       ],
     },
     {
-      title: "Membership & Programs",
-      subtitle: "Configure how members engage",
+      title: "Membership & Roles",
+      subtitle: "Configure how members join and engage",
+      continueLabel: "Continue to Programs →",
+      fields: [
+        { key: "membership_rules", label: "Membership Rules", type: "textarea", placeholder: "e.g. Must be 18+, Must agree to code of conduct", hint: "Define who can join" },
+        { key: "member_roles", label: "Member Roles", type: "text", placeholder: "e.g. Admin, Moderator, Member", hint: "Define role hierarchy" },
+        { key: "content_privacy", label: "Content Privacy", type: "select", options: [
+          { value: "public", label: "Public — Anyone can view" },
+          { value: "members_only", label: "Members Only" },
+          { value: "tiered", label: "Tiered — Some public, some private" },
+        ], defaultValue: "members_only" },
+        { key: "enable_directory", label: "Member Directory", type: "switch", hint: "Let members find each other" },
+        { key: "enable_messaging", label: "Community Messaging", type: "switch", defaultValue: true },
+        { key: "onboarding_questions", label: "Ask new members questions?", type: "switch", hint: "Collect info when members join" },
+      ],
+    },
+    {
+      title: "Programs & Events",
+      subtitle: "Set up activities for your community",
       continueLabel: "Continue to Branding →",
       fields: [
         { key: "enable_events", label: "Events & Calendar", type: "switch", defaultValue: true, hint: "Host events for your community" },
         { key: "enable_programs", label: "Programs / Courses", type: "switch", hint: "Structured learning or mentorship" },
         { key: "enable_resources", label: "Resources / Files", type: "switch", defaultValue: true, hint: "Share documents and resources" },
-        { key: "enable_directory", label: "Member Directory", type: "switch", hint: "Let members find each other" },
-        { key: "enable_messaging", label: "Community Messaging", type: "switch", defaultValue: true },
-        { key: "onboarding_questions", label: "Ask new members questions?", type: "switch", hint: "Collect info when members join" },
+        { key: "enable_private_posts", label: "Private Posts", type: "switch", defaultValue: true, hint: "Members-only content feed" },
       ],
     },
     {
@@ -59,7 +78,7 @@ export const communityEngine: BuilderEngine = {
       subtitle: "Set your community's look",
       continueLabel: "Create Community ✓",
       fields: [
-        { key: "logo_url", label: "Community Logo", type: "file" },
+        { key: "logo_url", label: "Community Logo", type: "file", hint: "Upload or generate with AI" },
         { key: "primary_color", label: "Primary Color", type: "color", defaultValue: "#7c3aed" },
         { key: "cover_image_url", label: "Cover Image", type: "file", hint: "Banner for your community page" },
       ],
@@ -67,14 +86,38 @@ export const communityEngine: BuilderEngine = {
   ],
   aiQuestions: [
     { key: "community_name", label: "Community name", type: "text", required: true },
+    { key: "organizer_type", label: "Individual or organization?", type: "text", placeholder: "e.g. Individual, Organization" },
     { key: "community_purpose", label: "What is this community for?", type: "textarea", placeholder: "e.g. Connecting fitness enthusiasts in Kampala" },
     { key: "community_type", label: "Open, invite-only, or paid?", type: "text", placeholder: "e.g. Open" },
+    { key: "programs_events", label: "Will you have programs or events?", type: "text", placeholder: "e.g. Yes — weekly meetups, courses" },
+    { key: "content_privacy", label: "Content privacy level", type: "text", placeholder: "e.g. Members only, Public" },
   ],
   defaultSections: [
     { type: "hero", schema: { headline: "", subheadline: "Join our community" } },
     { type: "text", schema: { heading: "About", body: "" } },
-    { type: "text", schema: { heading: "Programs", body: "" } },
-    { type: "cta", schema: { label: "Join Now", href: "" } },
+    { type: "member_signup", schema: { heading: "Join", cta_label: "Join Now" } },
+    { type: "events", schema: { heading: "Events", items: [] } },
+    { type: "programs", schema: { heading: "Programs", items: [] } },
   ],
-  editorModules: ["hero", "about", "events", "programs", "resources", "directory", "messaging"],
+  editorModules: ["hero", "about", "member_signup", "events", "programs", "resources", "private_posts", "directory", "messaging"],
+  templates: [
+    { key: "welcome_section", label: "Welcome Section", sectionType: "hero", schema: { headline: "", subheadline: "", cta_label: "Join Now" } },
+    { key: "member_signup", label: "Member Signup", sectionType: "member_signup", schema: { heading: "Become a Member", cta_label: "Sign Up" } },
+    { key: "events_feed", label: "Events Feed", sectionType: "events", schema: { heading: "Upcoming Events", items: [] } },
+    { key: "programs_grid", label: "Programs Grid", sectionType: "programs", schema: { heading: "Our Programs", items: [] } },
+    { key: "resources_list", label: "Resources", sectionType: "resources", schema: { heading: "Resources", items: [] } },
+    { key: "member_directory", label: "Member Directory", sectionType: "directory", schema: { heading: "Members" } },
+  ],
+  aiGenerationRules: {
+    allowedSectionTypes: ["hero", "text", "member_signup", "events", "programs", "resources", "directory", "cta", "gallery"],
+    forbiddenSectionTypes: ["menu", "products", "cart", "checkout", "booking", "listings", "bio", "links", "affiliate", "live_selling", "bulk_pricing", "quotes"],
+    generationHints: [
+      "Generate community landing page with member signup",
+      "Include member onboarding sections",
+      "Focus on engagement: events, programs, resources",
+      "Never add shopping cart, checkout, or product catalog",
+      "Never add influencer bio links or affiliate blocks",
+      "Community builders must include signup flows",
+    ],
+  },
 };
