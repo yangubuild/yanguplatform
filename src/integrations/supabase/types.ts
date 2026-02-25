@@ -3204,6 +3204,10 @@ export type Database = {
         Args: { p_host: string; p_slug?: string }
         Returns: Json
       }
+      builder_is_domain_allowed: {
+        Args: { p_host: string; p_surface_type: string }
+        Returns: boolean
+      }
       builder_publish_surface: {
         Args: { p_domain_id: string; p_slug?: string; p_surface_id: string }
         Returns: Json
