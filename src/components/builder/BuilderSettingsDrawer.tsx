@@ -17,8 +17,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
 import { useBuilderSurfaceSettings } from "@/hooks/useBuilderSurfaceSettings";
+
+export interface BuilderTheme {
+  font_family: string;
+  heading_weight: string;
+  body_weight: string;
+  accent_style: string;
+}
+
+export const DEFAULT_THEME: BuilderTheme = {
+  font_family: "Lufga",
+  heading_weight: "600",
+  body_weight: "400",
+  accent_style: "default",
+};
+
+export function getThemeFromMetadata(metadata: Record<string, unknown> | undefined): BuilderTheme {
+  const raw = (metadata as any)?.theme as Partial<BuilderTheme> | undefined;
+  return { ...DEFAULT_THEME, ...(raw || {}) };
+}
 
 interface BuilderSettingsDrawerProps {
   open: boolean;
@@ -32,6 +52,9 @@ interface BuilderSettingsDrawerProps {
   };
   onSaved?: (updated: Record<string, unknown>) => void;
 }
+
+const FONT_OPTIONS = ["Lufga", "Inter", "DM Sans", "Space Grotesk", "Outfit"];
+const WEIGHT_OPTIONS = ["400", "500", "600", "700"];
 
 export function BuilderSettingsDrawer({
   open,
@@ -52,6 +75,9 @@ export function BuilderSettingsDrawer({
     ((surface.metadata as any)?.featured_tier as string) || "none"
   );
 
+  // Theme state
+  const [theme, setTheme] = useState<BuilderTheme>(() => getThemeFromMetadata(surface.metadata));
+
   // Sync when surface prop changes
   useEffect(() => {
     setTitle(surface.title);
@@ -61,13 +87,19 @@ export function BuilderSettingsDrawer({
     setFeaturedTier(
       ((surface.metadata as any)?.featured_tier as string) || "none"
     );
+    setTheme(getThemeFromMetadata(surface.metadata));
   }, [surface]);
+
+  const updateTheme = (partial: Partial<BuilderTheme>) => {
+    setTheme((prev) => ({ ...prev, ...partial }));
+  };
 
   const handleSave = async () => {
     const metadata = {
       ...(surface.metadata || {}),
       list_on_community: listOnCommunity,
       featured_tier: featuredTier === "none" ? null : featuredTier,
+      theme,
     };
     const result = await save({ title, description, slug, metadata });
     if (result) {
@@ -83,75 +115,153 @@ export function BuilderSettingsDrawer({
           <SheetTitle>Surface Settings</SheetTitle>
         </SheetHeader>
 
-        <div className="mt-6 space-y-5">
-          <div className="space-y-2">
-            <Label htmlFor="settings-title">Title</Label>
-            <Input
-              id="settings-title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="My Surface"
-            />
-          </div>
+        <Tabs defaultValue="general" className="mt-4">
+          <TabsList className="w-full">
+            <TabsTrigger value="general" className="flex-1">General</TabsTrigger>
+            <TabsTrigger value="theme" className="flex-1">Theme</TabsTrigger>
+          </TabsList>
 
-          <div className="space-y-2">
-            <Label htmlFor="settings-description">Description</Label>
-            <Textarea
-              id="settings-description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="A short description…"
-              rows={3}
-            />
-          </div>
+          <TabsContent value="general" className="space-y-5 mt-4">
+            <div className="space-y-2">
+              <Label htmlFor="settings-title">Title</Label>
+              <Input
+                id="settings-title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="My Surface"
+              />
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="settings-slug">Slug</Label>
-            <Input
-              id="settings-slug"
-              value={slug}
-              onChange={(e) =>
-                setSlug(
-                  e.target.value
-                    .toLowerCase()
-                    .replace(/[^a-z0-9-]/g, "-")
-                    .replace(/-+/g, "-")
-                )
-              }
-              placeholder="my-page"
-            />
-            <p className="text-xs text-muted-foreground">
-              URL-safe identifier for this surface
-            </p>
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="settings-description">Description</Label>
+              <Textarea
+                id="settings-description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="A short description…"
+                rows={3}
+              />
+            </div>
 
-          <div className="flex items-center justify-between gap-4">
-            <div className="space-y-0.5">
-              <Label>List on Community</Label>
+            <div className="space-y-2">
+              <Label htmlFor="settings-slug">Slug</Label>
+              <Input
+                id="settings-slug"
+                value={slug}
+                onChange={(e) =>
+                  setSlug(
+                    e.target.value
+                      .toLowerCase()
+                      .replace(/[^a-z0-9-]/g, "-")
+                      .replace(/-+/g, "-")
+                  )
+                }
+                placeholder="my-page"
+              />
               <p className="text-xs text-muted-foreground">
-                Show this surface on the Community explore page
+                URL-safe identifier for this surface
               </p>
             </div>
-            <Switch
-              checked={listOnCommunity}
-              onCheckedChange={setListOnCommunity}
-            />
-          </div>
 
-          <div className="space-y-2">
-            <Label>Featured Tier</Label>
-            <Select value={featuredTier} onValueChange={setFeaturedTier}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">None</SelectItem>
-                <SelectItem value="standard">Standard</SelectItem>
-                <SelectItem value="featured">Featured</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+            <div className="flex items-center justify-between gap-4">
+              <div className="space-y-0.5">
+                <Label>List on Community</Label>
+                <p className="text-xs text-muted-foreground">
+                  Show this surface on the Community explore page
+                </p>
+              </div>
+              <Switch
+                checked={listOnCommunity}
+                onCheckedChange={setListOnCommunity}
+              />
+            </div>
 
+            <div className="space-y-2">
+              <Label>Featured Tier</Label>
+              <Select value={featuredTier} onValueChange={setFeaturedTier}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="standard">Standard</SelectItem>
+                  <SelectItem value="featured">Featured</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="theme" className="space-y-5 mt-4">
+            <div className="space-y-2">
+              <Label>Font Family</Label>
+              <Select value={theme.font_family} onValueChange={(v) => updateTheme({ font_family: v })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {FONT_OPTIONS.map((f) => (
+                    <SelectItem key={f} value={f}>{f}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">Applied to all text on this surface</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Heading Weight</Label>
+              <Select value={theme.heading_weight} onValueChange={(v) => updateTheme({ heading_weight: v })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {WEIGHT_OPTIONS.map((w) => (
+                    <SelectItem key={w} value={w}>{w}{w === "400" ? " (Regular)" : w === "600" ? " (Semi-bold)" : w === "700" ? " (Bold)" : " (Medium)"}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Body Weight</Label>
+              <Select value={theme.body_weight} onValueChange={(v) => updateTheme({ body_weight: v })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {WEIGHT_OPTIONS.map((w) => (
+                    <SelectItem key={w} value={w}>{w}{w === "400" ? " (Regular)" : w === "600" ? " (Semi-bold)" : w === "700" ? " (Bold)" : " (Medium)"}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Accent Style</Label>
+              <Select value={theme.accent_style} onValueChange={(v) => updateTheme({ accent_style: v })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default">Default</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">More styles coming soon</p>
+            </div>
+
+            {/* Live preview hint */}
+            <div className="rounded-lg border border-border p-4 space-y-2">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Preview</p>
+              <h3 style={{ fontFamily: theme.font_family, fontWeight: Number(theme.heading_weight) }} className="text-lg text-foreground">
+                Heading Preview
+              </h3>
+              <p style={{ fontFamily: theme.font_family, fontWeight: Number(theme.body_weight) }} className="text-sm text-muted-foreground">
+                Body text preview with your selected font and weight settings.
+              </p>
+            </div>
+          </TabsContent>
+        </Tabs>
+
+        <div className="mt-6">
           <Button
             onClick={handleSave}
             disabled={isSaving || !title.trim()}
