@@ -728,6 +728,224 @@ export type Database = {
         }
         Relationships: []
       }
+      builder_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json
+          publish_id: string
+          visitor_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json
+          publish_id: string
+          visitor_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json
+          publish_id?: string
+          visitor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "builder_events_publish_id_fkey"
+            columns: ["publish_id"]
+            isOneToOne: false
+            referencedRelation: "builder_publishes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      builder_pages: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json
+          slug: string
+          surface_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json
+          slug?: string
+          surface_id: string
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json
+          slug?: string
+          surface_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "builder_pages_surface_id_fkey"
+            columns: ["surface_id"]
+            isOneToOne: false
+            referencedRelation: "builder_surfaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      builder_publishes: {
+        Row: {
+          created_at: string
+          domain_id: string
+          id: string
+          published_at: string | null
+          published_schema: Json
+          slug: string
+          state: string
+          surface_id: string
+          unpublished_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          domain_id: string
+          id?: string
+          published_at?: string | null
+          published_schema?: Json
+          slug?: string
+          state?: string
+          surface_id: string
+          unpublished_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          domain_id?: string
+          id?: string
+          published_at?: string | null
+          published_schema?: Json
+          slug?: string
+          state?: string
+          surface_id?: string
+          unpublished_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "builder_publishes_domain_id_fkey"
+            columns: ["domain_id"]
+            isOneToOne: false
+            referencedRelation: "domains"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "builder_publishes_surface_id_fkey"
+            columns: ["surface_id"]
+            isOneToOne: false
+            referencedRelation: "builder_surfaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      builder_sections: {
+        Row: {
+          created_at: string
+          id: string
+          is_visible: boolean
+          page_id: string
+          position: number
+          schema: Json
+          section_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_visible?: boolean
+          page_id: string
+          position?: number
+          schema?: Json
+          section_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_visible?: boolean
+          page_id?: string
+          position?: number
+          schema?: Json
+          section_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "builder_sections_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "builder_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      builder_surfaces: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          metadata: Json
+          org_id: string | null
+          slug: string
+          surface_type: Database["public"]["Enums"]["builder_surface_type"]
+          theme: Json
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json
+          org_id?: string | null
+          slug: string
+          surface_type: Database["public"]["Enums"]["builder_surface_type"]
+          theme?: Json
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json
+          org_id?: string | null
+          slug?: string
+          surface_type?: Database["public"]["Enums"]["builder_surface_type"]
+          theme?: Json
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "builder_surfaces_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       community_listings: {
         Row: {
           id: string
@@ -2978,6 +3196,37 @@ export type Database = {
         Returns: boolean
       }
       archive_surface: { Args: { p_surface_id: string }; Returns: Json }
+      builder_get_editor_state: {
+        Args: { p_surface_id: string }
+        Returns: Json
+      }
+      builder_get_public_schema: {
+        Args: { p_host: string; p_slug?: string }
+        Returns: Json
+      }
+      builder_publish_surface: {
+        Args: { p_domain_id: string; p_slug?: string; p_surface_id: string }
+        Returns: Json
+      }
+      builder_reorder_sections: {
+        Args: { p_ordered_ids: string[]; p_page_id: string }
+        Returns: Json
+      }
+      builder_unpublish_surface: {
+        Args: { p_publish_id: string }
+        Returns: Json
+      }
+      builder_upsert_section: {
+        Args: {
+          p_is_visible?: boolean
+          p_page_id: string
+          p_position?: number
+          p_schema?: Json
+          p_section_id?: string
+          p_section_type?: string
+        }
+        Returns: Json
+      }
       can_list_on_community: {
         Args: { p_surface_id: string }
         Returns: boolean
@@ -3362,6 +3611,15 @@ export type Database = {
       ad_status: "draft" | "pending_review" | "active" | "paused" | "rejected"
       agent_status: "draft" | "active" | "paused" | "archived"
       app_role: "admin" | "user" | "owner" | "manager" | "designer"
+      builder_surface_type:
+        | "live_bio"
+        | "live_selling"
+        | "quick_site"
+        | "emenu"
+        | "eshop"
+        | "community_group"
+        | "store_listing"
+        | "studio_showcase"
       creator_type: "seller" | "builder" | "organization" | "learner"
       kyc_status: "pending" | "submitted" | "approved" | "rejected"
       login_mode: "disabled" | "optional" | "required"
@@ -3503,6 +3761,16 @@ export const Constants = {
       ad_status: ["draft", "pending_review", "active", "paused", "rejected"],
       agent_status: ["draft", "active", "paused", "archived"],
       app_role: ["admin", "user", "owner", "manager", "designer"],
+      builder_surface_type: [
+        "live_bio",
+        "live_selling",
+        "quick_site",
+        "emenu",
+        "eshop",
+        "community_group",
+        "store_listing",
+        "studio_showcase",
+      ],
       creator_type: ["seller", "builder", "organization", "learner"],
       kyc_status: ["pending", "submitted", "approved", "rejected"],
       login_mode: ["disabled", "optional", "required"],
