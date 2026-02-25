@@ -108,7 +108,6 @@ export const emenuEngine: BuilderEngine = {
   aiQuestions: [
     { key: "business_name", label: "Restaurant/business name", type: "text", required: true, placeholder: "e.g. Mama's Kitchen" },
     { key: "cuisine_type", label: "Cuisine type", type: "text", placeholder: "e.g. African, Italian, Fusion" },
-    { key: "menu_type", label: "Menu type", type: "text", placeholder: "QR only or ordering enabled?" },
     { key: "delivery_enabled", label: "Delivery available?", type: "text", placeholder: "Yes / No" },
     { key: "location", label: "Location", type: "text", placeholder: "City or area" },
   ],
