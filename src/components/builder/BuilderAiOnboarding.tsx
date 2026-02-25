@@ -1,25 +1,24 @@
+/**
+ * Builder AI Onboarding — Orchestrates the full "Build with AI" flow:
+ * 1. Source picker (logo tiles)
+ * 2. Source-specific import step (Google search, URL input, or manual questions)
+ * 3. Progress screen
+ * 4. Lands in manual editor
+ */
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card } from "@/components/primitives";
-import { ArrowLeft, Sparkles, Globe, Instagram, Facebook } from "lucide-react";
+import { ArrowLeft, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { BuilderEngine } from "@/lib/builder/types";
-import { generateDraftFromAnswers, validateDraft } from "@/lib/builder/aiPipeline";
-import { AiBuildProgress } from "./AiBuildProgress";
-
-type ImportSource = "google_business" | "facebook" | "instagram" | "tiktok" | "manual";
-
-const IMPORT_SOURCES: { key: ImportSource; label: string; icon: typeof Globe; description: string }[] = [
-  { key: "google_business", label: "Google Business Profile", icon: Globe, description: "Import from your Google Business listing" },
-  { key: "facebook", label: "Facebook Page", icon: Facebook, description: "Import from your Facebook page" },
-  { key: "instagram", label: "Instagram Business", icon: Instagram, description: "Import from your Instagram profile" },
-  { key: "tiktok", label: "TikTok Creator", icon: Globe, description: "Import from your TikTok profile" },
-  { key: "manual", label: "Add info manually", icon: Sparkles, description: "AI will ask you a few questions and generate everything" },
-];
+import { validateDraft } from "@/lib/builder/aiPipeline";
+import { AiImportSourcePicker, type ImportSource } from "./AiImportSourcePicker";
+import { AiBuildingProgress } from "./AiBuildingProgress";
+import { GoogleBusinessSearch, type GoogleBusinessResult } from "./importers/GoogleBusinessSearch";
 
 interface Props {
   engine: BuilderEngine;
@@ -28,7 +27,7 @@ interface Props {
 }
 
 export function BuilderAiOnboarding({ engine, onComplete, onBack }: Props) {
-  const [phase, setPhase] = useState<"source" | "url_input" | "questions" | "generating">("source");
+  const [phase, setPhase] = useState<"source" | "google_search" | "url_input" | "questions" | "generating">("source");
   const [selectedSource, setSelectedSource] = useState<ImportSource | null>(null);
   const [profileUrl, setProfileUrl] = useState("");
   const [aiAnswers, setAiAnswers] = useState<Record<string, string>>({});
@@ -37,30 +36,36 @@ export function BuilderAiOnboarding({ engine, onComplete, onBack }: Props) {
 
   const handleSourceSelect = (source: ImportSource) => {
     setSelectedSource(source);
-    setPhase(source === "manual" ? "questions" : "url_input");
+    if (source === "manual") {
+      setPhase("questions");
+    } else if (source === "google_business") {
+      setPhase("google_search");
+    } else {
+      setPhase("url_input");
+    }
   };
 
-  const runAiGeneration = async (prompt: string, source: ImportSource, sourceUrl?: string) => {
+  const runAiGeneration = async (source: ImportSource, importPayload?: Record<string, unknown>) => {
     setPhase("generating");
     setIsAiComplete(false);
 
     try {
       const allowedTypes = engine.aiGenerationRules?.allowedSectionTypes || ["hero", "text", "contact"];
+      const mergedAnswers = { ...aiAnswers, ...(importPayload || {}) };
 
       const { data, error } = await supabase.functions.invoke("builder-ai-generate-draft", {
         body: {
           engineKey: engine.key,
-          answers: aiAnswers,
+          answers: mergedAnswers,
           allowedSectionTypes: allowedTypes,
           source,
-          source_url: sourceUrl,
+          source_url: profileUrl || importPayload?.website || undefined,
         },
       });
 
       if (error) throw new Error(error.message);
       if (!data?.ok) throw new Error(data?.error || "Generation failed");
 
-      // Validate AI sections against boundaries
       const validation = validateDraft(engine.key, (data.sections || []).map((s: any) => ({
         type: s.type,
         schema: s.schema || {},
@@ -69,12 +74,14 @@ export function BuilderAiOnboarding({ engine, onComplete, onBack }: Props) {
       const nameKey = engine.key === "influencer" ? "display_name" :
                       engine.key === "community" ? "community_name" : "business_name";
 
+      const businessName = data.business_name || mergedAnswers[nameKey] || mergedAnswers.business_name || "";
+
       const result: Record<string, unknown> = {
-        ...aiAnswers,
-        business_name: data.business_name || aiAnswers[nameKey] || "",
+        ...mergedAnswers,
+        business_name: businessName,
         business_description: data.description || "",
         primary_color: data.primary_color || "#2563eb",
-        slug: (data.business_name || aiAnswers[nameKey] || "")
+        slug: String(businessName)
           .toLowerCase()
           .replace(/[^a-z0-9]+/g, "-")
           .replace(/(^-|-$)/g, "")
@@ -83,50 +90,65 @@ export function BuilderAiOnboarding({ engine, onComplete, onBack }: Props) {
         _ai_source: source,
         _ai_sections: validation.cleanedSections,
         _ai_repairs: validation.repairs,
+        _ai_answers: mergedAnswers,
+        _ai_profile: {
+          businessName,
+          description: data.description || "",
+          primaryColor: data.primary_color || "#2563eb",
+          source,
+        },
       };
 
       setPendingResult(result);
       setIsAiComplete(true);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "AI generation failed");
-      setPhase(source === "manual" ? "questions" : "url_input");
+      setPhase(selectedSource === "manual" ? "questions" : "source");
     }
   };
 
+  // Google Business callback
+  const handleGoogleSelect = (result: GoogleBusinessResult) => {
+    const payload: Record<string, unknown> = {
+      business_name: result.name,
+      location: result.address,
+      contact_phone: result.phone || "",
+      website: result.website || "",
+      industry: result.category || "",
+    };
+    runAiGeneration("google_business", payload);
+  };
+
+  // Social URL submit
   const handleUrlSubmit = () => {
     if (!profileUrl.trim()) {
       toast.error("Please enter a profile URL or handle");
       return;
     }
-    runAiGeneration(
-      `Import from ${selectedSource}: ${profileUrl}. Category: ${engine.label}`,
-      selectedSource!,
-      profileUrl
-    );
+    runAiGeneration(selectedSource!, { profile_url: profileUrl });
   };
 
-  const handleManualAiSubmit = () => {
-    const filledAnswers = Object.entries(aiAnswers).filter(([, v]) => v.trim());
-    if (filledAnswers.length === 0) {
+  // Manual AI questions submit
+  const handleManualSubmit = () => {
+    const filled = Object.entries(aiAnswers).filter(([, v]) => v.trim());
+    if (filled.length === 0) {
       toast.error("Please answer at least one question");
       return;
     }
-    runAiGeneration(
-      engine.aiQuestions.map((q) => `${q.label}: ${aiAnswers[q.key] || "not provided"}`).join("\n"),
-      "manual"
-    );
+    runAiGeneration("manual");
   };
 
+  // Progress done
   const handleProgressDone = async () => {
     if (pendingResult) {
       await onComplete(pendingResult);
     }
   };
 
-  // ─── Generating phase (progress overlay) ───
+  // ─── Progress phase ───
   if (phase === "generating") {
     return (
-      <AiBuildProgress
+      <AiBuildingProgress
         engineLabel={engine.label}
         isComplete={isAiComplete}
         onAnimationDone={handleProgressDone}
@@ -134,17 +156,29 @@ export function BuilderAiOnboarding({ engine, onComplete, onBack }: Props) {
     );
   }
 
-  // ─── URL input phase ───
-  if (phase === "url_input") {
+  // ─── Google Business search phase ───
+  if (phase === "google_search") {
     return (
-      <div className="max-w-md mx-auto py-12 space-y-6">
+      <GoogleBusinessSearch
+        onSelect={handleGoogleSelect}
+        onBack={() => setPhase("source")}
+      />
+    );
+  }
+
+  // ─── URL input phase (TikTok / Instagram / Facebook) ───
+  if (phase === "url_input") {
+    const sourceLabel = selectedSource === "instagram" ? "Instagram"
+      : selectedSource === "tiktok" ? "TikTok"
+      : selectedSource === "facebook" ? "Facebook" : "Profile";
+
+    return (
+      <div className="max-w-md mx-auto py-8 space-y-6">
         <Button variant="ghost" size="sm" onClick={() => setPhase("source")} className="gap-2">
           <ArrowLeft className="h-4 w-4" /> Back
         </Button>
         <div>
-          <h2 className="text-xl font-semibold text-foreground">
-            Import from {IMPORT_SOURCES.find((s) => s.key === selectedSource)?.label}
-          </h2>
+          <h2 className="text-xl font-bold text-foreground">Import from {sourceLabel}</h2>
           <p className="text-sm text-muted-foreground mt-1">
             Enter your profile URL or public handle. AI will extract your business info.
           </p>
@@ -155,6 +189,7 @@ export function BuilderAiOnboarding({ engine, onComplete, onBack }: Props) {
             value={profileUrl}
             onChange={(e) => setProfileUrl(e.target.value)}
             placeholder={selectedSource === "instagram" ? "@yourhandle or https://instagram.com/…" : "https://…"}
+            autoFocus
           />
           <Button onClick={handleUrlSubmit} disabled={!profileUrl.trim()} className="w-full gap-2">
             <Sparkles className="h-4 w-4" /> Import & Generate
@@ -167,12 +202,12 @@ export function BuilderAiOnboarding({ engine, onComplete, onBack }: Props) {
   // ─── Manual AI questions phase ───
   if (phase === "questions") {
     return (
-      <div className="max-w-md mx-auto py-12 space-y-6">
+      <div className="max-w-md mx-auto py-8 space-y-6">
         <Button variant="ghost" size="sm" onClick={() => setPhase("source")} className="gap-2">
           <ArrowLeft className="h-4 w-4" /> Back
         </Button>
         <div>
-          <h2 className="text-xl font-semibold text-foreground">Quick AI Setup</h2>
+          <h2 className="text-xl font-bold text-foreground">Quick AI Setup</h2>
           <p className="text-sm text-muted-foreground mt-1">
             Answer a few questions and AI will generate your {engine.label} page.
           </p>
@@ -197,7 +232,7 @@ export function BuilderAiOnboarding({ engine, onComplete, onBack }: Props) {
               )}
             </div>
           ))}
-          <Button onClick={handleManualAiSubmit} className="w-full gap-2">
+          <Button onClick={handleManualSubmit} className="w-full gap-2">
             <Sparkles className="h-4 w-4" /> Generate with AI
           </Button>
         </div>
@@ -207,37 +242,14 @@ export function BuilderAiOnboarding({ engine, onComplete, onBack }: Props) {
 
   // ─── Source picker phase ───
   return (
-    <div className="max-w-2xl mx-auto py-12 space-y-6">
+    <div className="max-w-2xl mx-auto py-8 space-y-6">
       <Button variant="ghost" size="sm" onClick={onBack} className="gap-2">
         <ArrowLeft className="h-4 w-4" /> Back
       </Button>
-      <div>
-        <h2 className="text-xl font-semibold text-foreground">How would you like to create?</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Import from a social profile or let AI help you set up.
-        </p>
-      </div>
-      <div className="grid gap-3">
-        {IMPORT_SOURCES.map((source) => {
-          const Icon = source.icon;
-          return (
-            <Card
-              key={source.key}
-              className="p-4 flex items-center gap-4 cursor-pointer hover:border-primary/40 transition-colors"
-              onClick={() => handleSourceSelect(source.key)}
-            >
-              <div className="rounded-lg bg-primary/10 p-2.5">
-                <Icon className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-medium text-sm text-foreground">{source.label}</h3>
-                <p className="text-xs text-muted-foreground">{source.description}</p>
-              </div>
-              <ArrowLeft className="h-4 w-4 text-muted-foreground rotate-180" />
-            </Card>
-          );
-        })}
-      </div>
+      <AiImportSourcePicker
+        onSelect={handleSourceSelect}
+        categoryLabel={engine.label.toLowerCase()}
+      />
     </div>
   );
 }

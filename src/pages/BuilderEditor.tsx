@@ -14,12 +14,16 @@ import {
   AlertTriangle,
   Settings,
   ClipboardList,
+  Sparkles,
+  FileText,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { BuilderSurfaceType } from "@/types/builder";
 import { BuilderSettingsDrawer, getThemeFromMetadata } from "@/components/builder/BuilderSettingsDrawer";
 import { BuilderSectionEditor } from "@/components/builder/BuilderSectionEditor";
 import { BuilderPagesDropdown } from "@/components/builder/BuilderPagesDropdown";
+import { BuilderSetupAnswersPanel } from "@/components/builder/panels/BuilderSetupAnswersPanel";
+import { toast } from "sonner";
 
 export default function BuilderEditor() {
   const { surfaceId } = useParams<{ surfaceId: string }>();
@@ -27,6 +31,8 @@ export default function BuilderEditor() {
   const [publishOpen, setPublishOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
+  const [setupPanelOpen, setSetupPanelOpen] = useState(false);
+  const [showAiBanner, setShowAiBanner] = useState(false);
 
   const {
     editorState,
@@ -45,6 +51,18 @@ export default function BuilderEditor() {
     isSavingSection,
     refreshEditor,
   } = useBuilderEditor(surfaceId);
+
+  // Show AI banner on first load if surface was AI-generated
+  useEffect(() => {
+    if (editorState?.surface?.metadata) {
+      const meta = editorState.surface.metadata as Record<string, unknown>;
+      if (meta.ai_setup) {
+        setShowAiBanner(true);
+        const t = setTimeout(() => setShowAiBanner(false), 8000);
+        return () => clearTimeout(t);
+      }
+    }
+  }, [editorState?.surface?.id]);
 
   // Loading
   if (isLoading) {
@@ -75,12 +93,9 @@ export default function BuilderEditor() {
         <Card className="max-w-md w-full p-8 text-center">
           <AlertTriangle className="h-10 w-10 text-warning mx-auto mb-4" />
           <h1 className="text-xl font-bold mb-2">Could not load editor</h1>
-          <p className="text-sm text-muted-foreground mb-6">
-            {error || "Surface not found"}
-          </p>
+          <p className="text-sm text-muted-foreground mb-6">{error || "Surface not found"}</p>
           <Button variant="outline" onClick={() => navigate("/dashboard")}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
+            <ArrowLeft className="h-4 w-4 mr-2" /> Back to Dashboard
           </Button>
         </Card>
       </div>
@@ -90,17 +105,39 @@ export default function BuilderEditor() {
   const surfaceType = (editorState.surface.surface_type || "live_bio") as BuilderSurfaceType;
   const surfaceTitle = editorState.surface.title || "Untitled";
   const builderTheme = getThemeFromMetadata(editorState.surface.metadata);
+  const surfaceMeta = (editorState.surface.metadata || {}) as Record<string, unknown>;
+  const hasAiSetup = !!surfaceMeta.ai_setup;
+  const aiAnswers = (surfaceMeta.ai_answers || {}) as Record<string, unknown>;
+  const aiSource = surfaceMeta.ai_source as string | undefined;
+
+  const handleUpdateAnswers = (updated: Record<string, unknown>) => {
+    toast.success("Answers updated — content will reflect changes on next save.");
+    // Future: could trigger partial re-generation here
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      {/* AI setup banner */}
+      {showAiBanner && (
+        <div className="bg-primary/10 border-b border-primary/20 px-4 py-2 flex items-center justify-between text-sm">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <span className="text-foreground font-medium">AI Setup Completed</span>
+            <span className="text-muted-foreground">— review & edit anything.</span>
+          </div>
+          <button onClick={() => setShowAiBanner(false)} className="text-muted-foreground hover:text-foreground text-xs">
+            Dismiss
+          </button>
+        </div>
+      )}
+
       {/* Top bar */}
       <header className="sticky top-0 z-40 h-14 border-b border-border bg-background/80 backdrop-blur-sm flex items-center px-4 gap-4">
         <button
           onClick={() => navigate("/dashboard")}
           className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          <ArrowLeft className="h-4 w-4" />
-          Dashboard
+          <ArrowLeft className="h-4 w-4" /> Dashboard
         </button>
         <div className="h-6 w-px bg-border" />
         <h1 className="text-sm font-semibold truncate">{surfaceTitle}</h1>
@@ -112,19 +149,32 @@ export default function BuilderEditor() {
           onRefresh={refreshEditor}
         />
         <div className="flex-1" />
+
+        {/* Edit with AI button */}
+        <Button size="sm" variant="outline" className="gap-2" onClick={() => toast.info("AI chat editor coming soon!")}>
+          <Sparkles className="h-4 w-4" /> Edit with AI
+        </Button>
+
+        {/* Setup / Answers button (only if AI-generated) */}
+        {hasAiSetup && (
+          <Button size="sm" variant="outline" className="gap-2" onClick={() => {
+            setSetupPanelOpen(!setupPanelOpen);
+            if (setupPanelOpen) setSelectedSectionId(null);
+          }}>
+            <FileText className="h-4 w-4" /> Setup
+          </Button>
+        )}
+
         <Button size="sm" variant="outline" onClick={() => setSettingsOpen(true)} className="gap-2">
-          <Settings className="h-4 w-4" />
-          Settings
+          <Settings className="h-4 w-4" /> Settings
         </Button>
         {surfaceType === "emenu" && (
           <Button size="sm" variant="outline" onClick={() => navigate("/dashboard/seller/emenu/orders")} className="gap-2">
-            <ClipboardList className="h-4 w-4" />
-            View Orders
+            <ClipboardList className="h-4 w-4" /> View Orders
           </Button>
         )}
         <Button size="sm" onClick={() => setPublishOpen(true)} className="gap-2">
-          <Rocket className="h-4 w-4" />
-          Publish
+          <Rocket className="h-4 w-4" /> Publish
         </Button>
       </header>
 
@@ -143,7 +193,7 @@ export default function BuilderEditor() {
               sections={sections}
               onReorder={reorderSections}
               selectedId={selectedSectionId}
-              onSelect={setSelectedSectionId}
+              onSelect={(id) => { setSelectedSectionId(id); setSetupPanelOpen(false); }}
             />
           </div>
           <div className="p-3 border-t border-border">
@@ -157,13 +207,20 @@ export default function BuilderEditor() {
             sections={sections}
             surfaceTitle={surfaceTitle}
             selectedSectionId={selectedSectionId}
-            onSelectSection={setSelectedSectionId}
+            onSelectSection={(id) => { setSelectedSectionId(id); setSetupPanelOpen(false); }}
             theme={builderTheme}
           />
         </main>
 
-        {/* Right panel: Section editor */}
-        {selectedSectionId && sections.find((s) => s.id === selectedSectionId) && (
+        {/* Right panel: Section editor OR Setup answers */}
+        {setupPanelOpen && hasAiSetup ? (
+          <BuilderSetupAnswersPanel
+            answers={aiAnswers}
+            source={aiSource}
+            onClose={() => setSetupPanelOpen(false)}
+            onUpdate={handleUpdateAnswers}
+          />
+        ) : selectedSectionId && sections.find((s) => s.id === selectedSectionId) ? (
           <BuilderSectionEditor
             section={sections.find((s) => s.id === selectedSectionId)!}
             onClose={() => setSelectedSectionId(null)}
@@ -173,7 +230,7 @@ export default function BuilderEditor() {
             surfaceType={surfaceType}
             surfaceId={editorState.surface.id}
           />
-        )}
+        ) : null}
       </div>
 
       {/* Publish Modal */}
