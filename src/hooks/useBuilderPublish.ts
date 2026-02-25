@@ -8,6 +8,7 @@ const SURFACE_DOMAIN_MAP: Record<BuilderSurfaceType, string[]> = {
   live_bio: ["yangu.live"],
   live_selling: ["yangu.live"],
   community_group: ["yangu.community"],
+  community_listing: ["yangu.community"],
   eshop: ["yangu.shop"],
   store_listing: ["yangu.store"],
   quick_site: ["yangu.site"],
