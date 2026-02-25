@@ -33,7 +33,9 @@ export const influencerEngine: BuilderEngine = {
         { key: "slug", label: "Profile URL Slug", type: "slug", slugDomain: "yangu.live", slugSource: "display_name", required: true },
         { key: "niche", label: "Your Niche", type: "select", options: [], required: true, hint: "What content do you create?" },
         { key: "bio", label: "Short Bio", type: "textarea", placeholder: "Tell your audience who you are…" },
+        { key: "main_platforms", label: "Main Platforms", type: "text", placeholder: "e.g. TikTok, Instagram, YouTube", hint: "Where are you most active?" },
         { key: "audience_location", label: "Audience Location", type: "text", placeholder: "e.g. East Africa, Global" },
+        { key: "content_types", label: "Content Types", type: "text", placeholder: "e.g. Videos, Reels, Tutorials, Reviews" },
       ],
     },
     {
@@ -57,7 +59,9 @@ export const influencerEngine: BuilderEngine = {
       fields: [
         { key: "primary_color", label: "Accent Color", type: "color", defaultValue: "#8b5cf6" },
         { key: "include_affiliate", label: "Affiliate Links Section", type: "switch", hint: "Add product recommendations" },
+        { key: "affiliate_categories", label: "Affiliate Categories", type: "text", placeholder: "e.g. Fashion, Tech, Beauty", showIf: "include_affiliate" },
         { key: "include_media", label: "Media / Shorts Section", type: "switch", defaultValue: true, hint: "Showcase your latest content" },
+        { key: "include_live_selling", label: "Live Selling", type: "switch", hint: "Pin products during live streams" },
         { key: "include_tips", label: "Tips / Support Section", type: "switch", hint: "Let fans support you" },
         { key: "include_contact", label: "Contact / Booking", type: "switch", defaultValue: true },
       ],
@@ -66,7 +70,10 @@ export const influencerEngine: BuilderEngine = {
   aiQuestions: [
     { key: "display_name", label: "Your name / handle", type: "text", required: true },
     { key: "niche", label: "What content do you create?", type: "text", placeholder: "e.g. Fitness tips, Beauty tutorials" },
-    { key: "main_platform", label: "Main platform", type: "text", placeholder: "e.g. Instagram, TikTok, YouTube" },
+    { key: "main_platforms", label: "Main platforms", type: "text", placeholder: "e.g. Instagram, TikTok, YouTube" },
+    { key: "audience_location", label: "Audience location", type: "text", placeholder: "e.g. East Africa, Global" },
+    { key: "content_types", label: "Content types", type: "text", placeholder: "e.g. Videos, Reels, Reviews" },
+    { key: "affiliate_products", label: "Affiliate products?", type: "text", placeholder: "e.g. Yes — Fashion & Beauty" },
   ],
   defaultSections: [
     { type: "hero", schema: { headline: "", subheadline: "" } },
@@ -74,5 +81,24 @@ export const influencerEngine: BuilderEngine = {
     { type: "links", schema: { items: [] } },
     { type: "media", schema: { heading: "Latest Content", items: [] } },
   ],
-  editorModules: ["bio", "links", "media", "affiliate", "tips", "contact"],
+  editorModules: ["bio", "links", "media", "affiliate", "live_product_pins", "tips", "contact"],
+  templates: [
+    { key: "bio_hero", label: "Bio Hero", sectionType: "hero", schema: { headline: "", subheadline: "", avatar: "" } },
+    { key: "social_links", label: "Social Links", sectionType: "links", schema: { items: [] } },
+    { key: "featured_products", label: "Featured Products", sectionType: "affiliate", schema: { heading: "My Picks", items: [] } },
+    { key: "media_feed", label: "Media Feed", sectionType: "media", schema: { heading: "Latest Content", items: [] } },
+    { key: "live_blocks", label: "Live Blocks", sectionType: "live", schema: { heading: "Live Now", pins: [] } },
+    { key: "tip_jar", label: "Support Me", sectionType: "tips", schema: { heading: "Support", message: "" } },
+  ],
+  aiGenerationRules: {
+    allowedSectionTypes: ["hero", "bio", "links", "media", "affiliate", "live", "tips", "contact", "cta"],
+    forbiddenSectionTypes: ["menu", "products", "cart", "checkout", "booking", "listings", "services", "team", "faq", "blog", "bulk_pricing", "quotes", "member_signup", "programs", "events"],
+    generationHints: [
+      "Generate bio structure and creator-focused blocks",
+      "Focus on social links and media showcase",
+      "Never add business services, booking calendars, or product catalogs",
+      "Never add community member signup or programs",
+      "Keep layout social-first and mobile-optimized",
+    ],
+  },
 };

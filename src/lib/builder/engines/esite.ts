@@ -37,6 +37,7 @@ export const esiteEngine: BuilderEngine = {
         { key: "slug", label: "Website URL Slug", type: "slug", slugDomain: "yangu.site", slugSource: "business_name", required: true },
         { key: "industry", label: "Industry", type: "select", options: [], required: true, hint: "Select your industry to get tailored sections" },
         { key: "business_description", label: "What does your business do?", type: "textarea", placeholder: "Brief description of your services…" },
+        { key: "services_offered", label: "Services Offered", type: "textarea", placeholder: "List your main services, comma separated" },
         { key: "contact_email", label: "Contact Email", type: "email", placeholder: "hello@example.com", required: true, colSpan: 1 },
         { key: "contact_phone", label: "Contact Phone", type: "tel", placeholder: "+255...", colSpan: 1 },
         { key: "location", label: "Location", type: "text", placeholder: "City, Country" },
@@ -70,6 +71,8 @@ export const esiteEngine: BuilderEngine = {
     { key: "business_name", label: "Business name", type: "text", required: true, placeholder: "e.g. Acme Consulting" },
     { key: "industry", label: "Industry", type: "text", placeholder: "e.g. Real Estate, Law, Education" },
     { key: "business_description", label: "What do you do?", type: "textarea", placeholder: "Brief description" },
+    { key: "services_offered", label: "Key services", type: "text", placeholder: "e.g. Web design, Branding, SEO" },
+    { key: "location", label: "Location", type: "text", placeholder: "City or country" },
   ],
   defaultSections: [
     { type: "hero", schema: { headline: "", subheadline: "" } },
@@ -80,9 +83,74 @@ export const esiteEngine: BuilderEngine = {
   editorModules: ["hero", "text", "services", "team", "testimonials", "contact", "faq", "blog"],
   industryModules: {
     real_estate: ["listings", "property_filters"],
-    hospitality: ["booking_calendar", "room_manager", "amenities"],
+    hospitality: ["booking_calendar", "room_manager", "amenities", "date_availability"],
     clinic: ["booking_calendar", "services"],
     salon_spa: ["booking_calendar", "services"],
     gym_fitness: ["booking_calendar", "programs"],
+  },
+  conditionalQuestions: {
+    real_estate: {
+      extraSteps: [
+        {
+          title: "Real Estate Details",
+          subtitle: "Configure your property listings",
+          fields: [
+            { key: "property_type", label: "Property Type", type: "select", options: [
+              { value: "sale", label: "For Sale" },
+              { value: "rent", label: "For Rent" },
+              { value: "both", label: "Sale & Rent" },
+            ], required: true },
+            { key: "areas_served", label: "Areas Served", type: "text", placeholder: "e.g. Kampala, Entebbe, Jinja" },
+            { key: "listings_estimate", label: "How many listings?", type: "select", options: [
+              { value: "1-10", label: "1–10" },
+              { value: "11-50", label: "11–50" },
+              { value: "50+", label: "50+" },
+            ] },
+            { key: "inquiry_cta", label: "Inquiry Button Text", type: "text", placeholder: "e.g. Request Viewing", defaultValue: "Inquire Now" },
+          ],
+        },
+      ],
+      extraModules: ["listings", "property_cards", "property_filters"],
+    },
+    hospitality: {
+      extraSteps: [
+        {
+          title: "Hospitality Details",
+          subtitle: "Set up rooms and booking",
+          fields: [
+            { key: "booking_enabled", label: "Enable Online Booking?", type: "switch", defaultValue: true },
+            { key: "room_types", label: "Room Types", type: "textarea", placeholder: "e.g. Standard, Deluxe, Suite" },
+            { key: "room_sizes", label: "Room Sizes / Capacity", type: "text", placeholder: "e.g. 1-2 guests, 2-4 guests" },
+            { key: "pricing_range", label: "Price Range", type: "text", placeholder: "e.g. $50 – $200 per night" },
+            { key: "amenities", label: "Amenities", type: "textarea", placeholder: "e.g. WiFi, Pool, Gym, Parking" },
+            { key: "availability_model", label: "Availability Model", type: "select", options: [
+              { value: "calendar", label: "Calendar-based" },
+              { value: "request", label: "Request-based" },
+              { value: "always", label: "Always Available" },
+            ], defaultValue: "calendar" },
+          ],
+        },
+      ],
+      extraModules: ["booking_calendar", "room_manager", "date_availability", "amenities"],
+    },
+  },
+  templates: [
+    { key: "hero_service", label: "Hero Service", sectionType: "hero", schema: { headline: "", subheadline: "", cta_label: "Get Started" } },
+    { key: "service_grid", label: "Service Grid", sectionType: "services", schema: { heading: "Our Services", items: [], layout: "grid" } },
+    { key: "testimonials", label: "Testimonials", sectionType: "testimonials", schema: { heading: "What Our Clients Say", items: [] } },
+    { key: "booking_block", label: "Booking Block", sectionType: "booking", schema: { heading: "Book Now", mode: "calendar" } },
+    { key: "listings_grid", label: "Listings Grid", sectionType: "listings", schema: { heading: "Properties", items: [], filters: true } },
+    { key: "team_grid", label: "Team Grid", sectionType: "team", schema: { heading: "Our Team", members: [] } },
+    { key: "faq_accordion", label: "FAQ Accordion", sectionType: "faq", schema: { heading: "FAQ", items: [] } },
+  ],
+  aiGenerationRules: {
+    allowedSectionTypes: ["hero", "text", "services", "team", "testimonials", "contact", "faq", "blog", "cta", "gallery"],
+    forbiddenSectionTypes: ["menu", "products", "cart", "checkout", "bio", "links", "affiliate", "live_selling", "member_signup"],
+    generationHints: [
+      "Generate professional service-oriented content",
+      "If real_estate industry, include listings section with property cards",
+      "If hospitality industry, include booking block and room showcase",
+      "Focus on trust signals: testimonials, team, credentials",
+    ],
   },
 };

@@ -1,5 +1,17 @@
 import type { BuilderEngine } from "../types";
 
+const CURRENCIES = [
+  { value: "UGX", label: "UGX — Ugandan Shilling" },
+  { value: "USD", label: "USD — US Dollar" },
+  { value: "EUR", label: "EUR — Euro" },
+  { value: "GBP", label: "GBP — British Pound" },
+  { value: "KES", label: "KES — Kenyan Shilling" },
+  { value: "NGN", label: "NGN — Nigerian Naira" },
+  { value: "ZAR", label: "ZAR — South African Rand" },
+  { value: "TZS", label: "TZS — Tanzanian Shilling" },
+  { value: "GHS", label: "GHS — Ghanaian Cedi" },
+];
+
 export const eshopEngine: BuilderEngine = {
   key: "eshop",
   surfaceType: "eshop",
@@ -33,17 +45,15 @@ export const eshopEngine: BuilderEngine = {
         { key: "slug", label: "Shop URL Slug", type: "slug", slugDomain: "yangu.shop", slugSource: "business_name", required: true },
         { key: "industry", label: "Product Category", type: "select", options: [], required: true },
         { key: "business_description", label: "What do you sell?", type: "textarea", placeholder: "Brief description…" },
+        { key: "product_types", label: "Product Types", type: "text", placeholder: "e.g. Dresses, Shoes, Bags" },
+        { key: "inventory_size", label: "Inventory Size", type: "select", options: [
+          { value: "1-20", label: "1–20 products" },
+          { value: "21-100", label: "21–100 products" },
+          { value: "100+", label: "100+ products" },
+        ] },
         { key: "contact_email", label: "Contact Email", type: "email", required: true, colSpan: 1 },
         { key: "contact_phone", label: "Contact Phone", type: "tel", colSpan: 1 },
-        { key: "currency", label: "Currency", type: "select", options: [
-          { value: "UGX", label: "UGX — Ugandan Shilling" },
-          { value: "USD", label: "USD — US Dollar" },
-          { value: "EUR", label: "EUR — Euro" },
-          { value: "GBP", label: "GBP — British Pound" },
-          { value: "KES", label: "KES — Kenyan Shilling" },
-          { value: "NGN", label: "NGN — Nigerian Naira" },
-          { value: "ZAR", label: "ZAR — South African Rand" },
-        ], defaultValue: "UGX" },
+        { key: "currency", label: "Currency", type: "select", options: CURRENCIES, defaultValue: "UGX" },
       ],
     },
     {
@@ -51,15 +61,21 @@ export const eshopEngine: BuilderEngine = {
       subtitle: "Set your shop's visual identity",
       continueLabel: "Continue to Settings →",
       fields: [
-        { key: "logo_url", label: "Shop Logo", type: "file" },
+        { key: "logo_url", label: "Shop Logo", type: "file", hint: "Upload or generate with AI" },
         { key: "primary_color", label: "Primary Color", type: "color", defaultValue: "#e11d48" },
       ],
     },
     {
-      title: "Shop Settings",
-      subtitle: "Configure shipping and payments",
-      continueLabel: "Create Shop ✓",
+      title: "Shipping & Payments",
+      subtitle: "Configure shipping and payment options",
+      continueLabel: "Continue to Policies →",
       fields: [
+        { key: "shipping_model", label: "Shipping Model", type: "select", options: [
+          { value: "flat_rate", label: "Flat Rate" },
+          { value: "free", label: "Free Shipping" },
+          { value: "calculated", label: "Calculated at Checkout" },
+          { value: "pickup_only", label: "Pickup Only" },
+        ], defaultValue: "flat_rate" },
         { key: "enable_delivery", label: "Enable Delivery", type: "switch", defaultValue: true },
         { key: "enable_pickup", label: "Enable Pickup", type: "switch" },
         { key: "pay_cash", label: "Cash on Delivery", type: "checkbox", defaultValue: true },
@@ -67,16 +83,51 @@ export const eshopEngine: BuilderEngine = {
         { key: "pay_card", label: "Card / Stripe", type: "checkbox" },
       ],
     },
+    {
+      title: "Policies & Promos",
+      subtitle: "Set return policy and promotions",
+      continueLabel: "Create Shop ✓",
+      fields: [
+        { key: "return_policy", label: "Return Policy", type: "select", options: [
+          { value: "no_returns", label: "No Returns" },
+          { value: "7_days", label: "7-Day Returns" },
+          { value: "14_days", label: "14-Day Returns" },
+          { value: "30_days", label: "30-Day Returns" },
+        ], defaultValue: "no_returns" },
+        { key: "enable_promos", label: "Enable Promo Codes", type: "switch", hint: "Allow discount codes at checkout" },
+        { key: "enable_reviews", label: "Enable Product Reviews", type: "switch", defaultValue: true },
+      ],
+    },
   ],
   aiQuestions: [
     { key: "business_name", label: "Shop name", type: "text", required: true },
     { key: "industry", label: "What do you sell?", type: "text", placeholder: "e.g. Fashion, Electronics, Handmade crafts" },
+    { key: "product_types", label: "Product types", type: "text", placeholder: "e.g. Dresses, Gadgets, Art prints" },
+    { key: "shipping_model", label: "Shipping model", type: "text", placeholder: "e.g. Free shipping, Flat rate, Pickup" },
     { key: "location", label: "Location", type: "text", placeholder: "City or country" },
   ],
   defaultSections: [
     { type: "hero", schema: { headline: "", subheadline: "Shop our collection" } },
     { type: "products", schema: { heading: "Products", items: [], layout: "grid" } },
+    { type: "collections", schema: { heading: "Collections", items: [] } },
     { type: "cta", schema: { label: "Contact Us", href: "" } },
   ],
-  editorModules: ["products", "collections", "cart", "checkout", "promos", "contact"],
+  editorModules: ["products", "collections", "discount_rules", "cart", "checkout", "review_settings", "promos", "contact"],
+  templates: [
+    { key: "hero_shop", label: "Hero Shop", sectionType: "hero", schema: { headline: "", subheadline: "", cta_label: "Shop Now" } },
+    { key: "product_grid", label: "Product Grid", sectionType: "products", schema: { heading: "Products", items: [], layout: "grid" } },
+    { key: "collection_row", label: "Collection Row", sectionType: "collections", schema: { heading: "Collections", items: [] } },
+    { key: "promo_banner", label: "Promo Banner", sectionType: "promo", schema: { heading: "", code: "", discount: "" } },
+    { key: "reviews_section", label: "Customer Reviews", sectionType: "reviews", schema: { heading: "Reviews", items: [] } },
+  ],
+  aiGenerationRules: {
+    allowedSectionTypes: ["hero", "products", "collections", "promo", "reviews", "cta", "text", "gallery", "contact"],
+    forbiddenSectionTypes: ["menu", "booking", "listings", "bio", "links", "affiliate", "live_selling", "member_signup", "programs", "events", "bulk_pricing", "quotes"],
+    generationHints: [
+      "Generate product category layout based on industry",
+      "Suggest collection groupings",
+      "Never add menu categories or food items",
+      "Never add booking or listings modules",
+    ],
+  },
 };

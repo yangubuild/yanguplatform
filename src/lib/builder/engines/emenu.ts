@@ -58,6 +58,11 @@ export const emenuEngine: BuilderEngine = {
       fields: [
         { key: "business_name", label: "Business Name", type: "text", placeholder: "e.g. Mama's Kitchen", required: true },
         { key: "slug", label: "Menu URL Slug", type: "slug", slugDomain: "yangu.shop", slugSource: "business_name", required: true, placeholder: "mamas-kitchen" },
+        { key: "cuisine_type", label: "Cuisine Type", type: "text", placeholder: "e.g. African, Italian, Fusion" },
+        { key: "menu_type", label: "Menu Type", type: "select", options: [
+          { value: "qr_only", label: "QR Menu (view only)" },
+          { value: "ordering", label: "Ordering Enabled" },
+        ], defaultValue: "qr_only", hint: "Choose whether customers can place orders" },
         { key: "contact_email", label: "Contact Email", type: "email", placeholder: "hello@example.com", required: true, colSpan: 1 },
         { key: "contact_phone", label: "Contact Phone", type: "tel", placeholder: "+255...", required: true, colSpan: 1 },
         { key: "location", label: "Location Address", type: "text", placeholder: "123 Main St, Dar es Salaam" },
@@ -103,6 +108,8 @@ export const emenuEngine: BuilderEngine = {
   aiQuestions: [
     { key: "business_name", label: "Restaurant/business name", type: "text", required: true, placeholder: "e.g. Mama's Kitchen" },
     { key: "cuisine_type", label: "Cuisine type", type: "text", placeholder: "e.g. African, Italian, Fusion" },
+    { key: "menu_type", label: "Menu type", type: "text", placeholder: "QR only or ordering enabled?" },
+    { key: "delivery_enabled", label: "Delivery available?", type: "text", placeholder: "Yes / No" },
     { key: "location", label: "Location", type: "text", placeholder: "City or area" },
   ],
   defaultSections: [
@@ -111,5 +118,24 @@ export const emenuEngine: BuilderEngine = {
     { type: "hours", schema: { heading: "Opening Hours", items: [] } },
     { type: "contact", schema: { heading: "Contact", email: "", phone: "", address: "" } },
   ],
-  editorModules: ["menu_categories", "menu_items", "hours", "contact", "social"],
+  editorModules: ["menu_categories", "menu_items", "food_image_ai", "hours", "order_settings", "contact", "social"],
+  templates: [
+    { key: "hero_restaurant", label: "Hero Restaurant", sectionType: "hero", schema: { headline: "", subheadline: "", logo: "", logo_position: "left", banner: "" } },
+    { key: "menu_categories", label: "Menu Categories", sectionType: "menu", schema: { heading: "Menu", categories: [], layout_style: "grid" } },
+    { key: "featured_dishes", label: "Featured Dishes", sectionType: "featured", schema: { heading: "Featured", items: [] } },
+    { key: "qr_menu", label: "QR Menu Card", sectionType: "qr", schema: { heading: "Scan to View Menu" } },
+    { key: "offers_banner", label: "Offers Banner", sectionType: "offers", schema: { heading: "Today's Offers", items: [] } },
+    { key: "reviews", label: "Customer Reviews", sectionType: "reviews", schema: { heading: "Reviews", items: [] } },
+  ],
+  aiGenerationRules: {
+    allowedSectionTypes: ["hero", "menu", "featured", "hours", "contact", "offers", "reviews", "gallery", "qr"],
+    forbiddenSectionTypes: ["booking", "listings", "products", "cart", "checkout", "bio", "links", "affiliate", "member_signup", "programs", "events"],
+    generationHints: [
+      "Generate sample menu structure with categories and items based on cuisine type",
+      "Generate dish descriptions with appetizing language",
+      "Suggest food images using AI food image generator",
+      "Include opening hours section",
+      "Never add booking calendar or property listings",
+    ],
+  },
 };
