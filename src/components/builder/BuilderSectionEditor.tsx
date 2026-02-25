@@ -14,6 +14,7 @@ import {
 import { X, Plus, Trash2, Save, Loader2, Sparkles } from "lucide-react";
 import type { EditorSection } from "@/hooks/useBuilderEditor";
 import { BuilderAiFillModal } from "./BuilderAiFillModal";
+import { BuilderMediaPicker, type MediaValue } from "./BuilderMediaPicker";
 
 interface BuilderSectionEditorProps {
   section: EditorSection;
@@ -22,6 +23,7 @@ interface BuilderSectionEditorProps {
   onToggleVisibility: (sectionId: string, visible: boolean) => Promise<void>;
   isSaving: boolean;
   surfaceType: string;
+  surfaceId?: string;
 }
 
 // ─── Helpers ───
@@ -86,48 +88,26 @@ function ListEditor<T extends Record<string, string>>({
 
 // ─── Section-specific form renderers ───
 
-function HeroForm({ schema, update }: FormProps) {
-  const media = (schema.media as { type?: string; url?: string }) || { type: "none", url: "" };
-  const mediaType = media.type || "none";
-
-  const updateMedia = (partial: Partial<{ type: string; url: string }>) => {
-    update({ media: { ...media, ...partial } });
+function HeroForm({ schema, update, surfaceId }: FormProps & { surfaceId?: string }) {
+  const rawMedia = (schema.media as any) || { type: "none", source: "url", url: "", alt: "" };
+  const mediaValue: MediaValue = {
+    type: rawMedia.type || "none",
+    source: rawMedia.source || "url",
+    url: rawMedia.url || "",
+    provider: rawMedia.provider,
+    assetId: rawMedia.assetId,
+    alt: rawMedia.alt || "",
   };
 
   return (
     <>
       <TextField label="Headline" value={(schema.headline as string) || ""} onChange={(v) => update({ headline: v })} />
       <TextField label="Subheadline" value={(schema.subheadline as string) || ""} onChange={(v) => update({ subheadline: v })} />
-      <div className="space-y-1.5">
-        <Label className="text-xs">Media Type</Label>
-        <Select value={mediaType} onValueChange={(v) => updateMedia({ type: v })}>
-          <SelectTrigger className="text-sm">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">None</SelectItem>
-            <SelectItem value="image">Image</SelectItem>
-            <SelectItem value="video">Video</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      {mediaType !== "none" && (
-        <div className="space-y-1.5">
-          <TextField
-            label={mediaType === "image" ? "Image URL" : "Video URL"}
-            value={media.url || ""}
-            onChange={(v) => updateMedia({ url: v })}
-          />
-          <p className="text-[10px] text-muted-foreground">
-            {mediaType === "image"
-              ? "Paste a direct image URL (e.g. https://...jpg)"
-              : "Paste a YouTube URL or direct video URL"}
-          </p>
-          {media.url && mediaType === "image" && (
-            <img src={media.url} alt="Preview" className="w-full h-24 object-cover rounded border border-border" />
-          )}
-        </div>
-      )}
+      <BuilderMediaPicker
+        value={mediaValue}
+        onChange={(v) => update({ media: v })}
+        surfaceId={surfaceId || ""}
+      />
     </>
   );
 }
@@ -315,7 +295,7 @@ interface FormProps {
   update: (partial: Record<string, unknown>) => void;
 }
 
-const FORM_MAP: Record<string, React.ComponentType<FormProps>> = {
+const FORM_MAP: Record<string, React.ComponentType<FormProps & { surfaceId?: string }>> = {
   hero: HeroForm,
   bio: BioForm,
   text: TextForm,
@@ -346,7 +326,7 @@ const TYPE_LABELS: Record<string, string> = {
 // ─── Main component ───
 
 export function BuilderSectionEditor({
-  section, onClose, onSave, onToggleVisibility, isSaving, surfaceType,
+  section, onClose, onSave, onToggleVisibility, isSaving, surfaceType, surfaceId,
 }: BuilderSectionEditorProps) {
   const [localSchema, setLocalSchema] = useState<Record<string, unknown>>(section.schema);
   const [dirty, setDirty] = useState(false);
@@ -412,7 +392,7 @@ export function BuilderSectionEditor({
       {/* Form */}
       <div className="flex-1 p-4 space-y-4">
         {FormComponent ? (
-          <FormComponent schema={localSchema} update={update} />
+          <FormComponent schema={localSchema} update={update} surfaceId={surfaceId} />
         ) : (
           <p className="text-sm text-muted-foreground italic">
             No editable fields for "{label}" section type.

@@ -164,6 +164,7 @@ export default function BuilderEditor() {
             onToggleVisibility={toggleSectionVisibility}
             isSaving={isSavingSection}
             surfaceType={surfaceType}
+            surfaceId={editorState.surface.id}
           />
         )}
       </div>

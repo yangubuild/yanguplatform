@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { mergeIntoDefault } from "@/lib/builderDefaults";
 import {
   Dialog,
   DialogContent,
@@ -74,9 +75,16 @@ export function BuilderAiFillModal({ open, onOpenChange, sectionType, surfaceTyp
         }
         throw new Error(result.error || "AI generation failed");
       }
-      if (!result.schema) throw new Error("No schema returned");
+      if (!result.schema || typeof result.schema !== "object") {
+        console.error("AI Fill invalid schema:", result);
+        toast.error("AI returned an invalid response. Please try again.");
+        return;
+      }
 
-      onGenerated(result.schema);
+      // Merge AI result into default schema so no required keys are dropped
+      const merged = mergeIntoDefault(sectionType, result.schema);
+
+      onGenerated(merged);
       toast.success("AI content applied!");
       onOpenChange(false);
       setPrompt("");
