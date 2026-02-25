@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { PREVIEW_MAP } from "@/components/builder/BuilderPreview";
+import { DEFAULT_THEME, type BuilderTheme } from "@/components/builder/BuilderSettingsDrawer";
 import type {
   BuilderPublicSchemaResult,
   BuilderPublishedSection,
@@ -59,9 +60,17 @@ export default function PublicSurfacePage() {
     ?.slice()
     .sort((a, b) => a.position - b.position) ?? [];
   const title = schema.surface?.title || "Untitled";
+  
+  // Read theme from published schema
+  const rawTheme = (schema.surface?.theme as Partial<BuilderTheme>) || {};
+  const surfaceTheme: BuilderTheme = { ...DEFAULT_THEME, ...rawTheme };
+  const themeStyle: React.CSSProperties = {
+    fontFamily: surfaceTheme.font_family,
+    fontWeight: Number(surfaceTheme.body_weight),
+  };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" style={themeStyle}>
       {/* Minimal header */}
       <header className="border-b border-border bg-background/80 backdrop-blur-sm">
         <div className="max-w-3xl mx-auto px-4 py-3">

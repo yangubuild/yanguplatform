@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import type { BuilderSurfaceType } from "@/types/builder";
-import { BuilderSettingsDrawer } from "@/components/builder/BuilderSettingsDrawer";
+import { BuilderSettingsDrawer, getThemeFromMetadata } from "@/components/builder/BuilderSettingsDrawer";
 import { BuilderSectionEditor } from "@/components/builder/BuilderSectionEditor";
 import { BuilderPagesDropdown } from "@/components/builder/BuilderPagesDropdown";
 
@@ -88,6 +88,7 @@ export default function BuilderEditor() {
 
   const surfaceType = (editorState.surface.surface_type || "live_bio") as BuilderSurfaceType;
   const surfaceTitle = editorState.surface.title || "Untitled";
+  const builderTheme = getThemeFromMetadata(editorState.surface.metadata);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -150,6 +151,7 @@ export default function BuilderEditor() {
             surfaceTitle={surfaceTitle}
             selectedSectionId={selectedSectionId}
             onSelectSection={setSelectedSectionId}
+            theme={builderTheme}
           />
         </main>
 
@@ -186,6 +188,7 @@ export default function BuilderEditor() {
           slug: editorState.surface.slug || "",
           metadata: (editorState.surface as any).metadata || {},
         }}
+        onSaved={() => refreshEditor()}
       />
     </div>
   );

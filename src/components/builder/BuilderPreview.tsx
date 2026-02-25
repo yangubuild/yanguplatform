@@ -1,11 +1,14 @@
 import type { EditorSection } from "@/hooks/useBuilderEditor";
 import { Card } from "@/components/primitives";
+import type { BuilderTheme } from "./BuilderSettingsDrawer";
+import { DEFAULT_THEME } from "./BuilderSettingsDrawer";
 
 interface BuilderPreviewProps {
   sections: EditorSection[];
   surfaceTitle: string;
   selectedSectionId?: string | null;
   onSelectSection?: (id: string) => void;
+  theme?: BuilderTheme;
 }
 
 // ─── Existing live_bio renderers (unchanged) ───
@@ -553,7 +556,14 @@ export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<st
   location: LocationPreview,
 };
 
-export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSelectSection }: BuilderPreviewProps) {
+export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSelectSection, theme }: BuilderPreviewProps) {
+  const t = theme || DEFAULT_THEME;
+  const themeStyle: React.CSSProperties = {
+    fontFamily: t.font_family,
+    fontWeight: Number(t.body_weight),
+    "--builder-heading-weight": t.heading_weight,
+  } as React.CSSProperties;
+
   if (sections.length === 0) {
     return (
       <Card className="p-12 text-center">
@@ -566,7 +576,7 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
   }
 
   return (
-    <div className="max-w-md mx-auto border border-border rounded-xl overflow-hidden bg-card shadow-sm">
+    <div className="max-w-md mx-auto border border-border rounded-xl overflow-hidden bg-card shadow-sm" style={themeStyle}>
       {/* Phone-like frame header */}
       <div className="bg-muted/50 border-b border-border px-4 py-2">
         <p className="text-xs text-muted-foreground text-center truncate">{surfaceTitle}</p>
