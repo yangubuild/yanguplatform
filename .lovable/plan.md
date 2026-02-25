@@ -1,30 +1,30 @@
 
+# YANGU — PERMANENT GLOBAL GUARDRAILS
 
-## Analysis of the Original "Sign in" Button
+## 🔒 Protected Areas (IMMUTABLE)
 
-Looking at the reference screenshot carefully, the "Sign in" button is:
-- A **dark forest green** with a slight rounded pill shape
-- Distinctly greener and darker than the current `--secondary` token (`hsl(150 12% 15%)` = ~`#212B26`)
-- Matches `#152A20` — the same color already used in `CommunityPage.tsx`
+The following areas are **permanently locked** and must NOT be modified by any future task unless explicitly overridden by the platform owner:
 
-The current `variant="secondary"` resolves to `hsl(150, 12%, 15%)` which is too gray/light compared to the original. The fix is to override the background with the exact original color.
+1. **Landing pages** — all files under `src/components/landing/`, `src/pages/Index.tsx`
+2. **Auth flows** — all files under `src/pages/auth/`, `src/components/auth/`
+3. **Header components** — `src/components/landing/Header.tsx`, `src/components/mass/MassHeader.tsx`, any global nav headers
+4. **Button styles** — primary orange gradient (`--accent`) / secondary neutral green (`--secondary`) / all variant definitions in `src/components/ui/button.tsx`
+5. **Logo usage** — logo assets, logo components, favicon
+6. **Design tokens / theme files** — `src/index.css` (CSS custom properties), `tailwind.config.ts` (theme extensions)
+7. **Global navigation shells** — `src/components/primitives/AppShell.tsx`, `src/components/primitives/MarketingShell.tsx`
+8. **Subdomain landings** — `src/components/routing/LiveLanding.tsx`, `src/components/routing/StudioLanding.tsx`, and equivalents
 
-## Plan
+## 📐 Scope Rule
 
-**File: `src/components/mass/MassHeader.tsx`** (single change)
+All future feature work must default to:
+- Studio tools & pages
+- Builder tools & pages
+- Surfaces
+- Edge functions
+- Backend wiring / database
 
-Add a className override to the "Sign in" button to force `#152A20` background with a slightly lighter hover state:
+**NOT** global UI, landing, auth, header, buttons, or tokens.
 
-```tsx
-<Button
-  variant="secondary"
-  size="sm"
-  className="[background:#152A20] hover:[background:#1a3327] border-0"
-  onClick={() => navigate("/auth/login")}
->
-  Sign in
-</Button>
-```
+## ⛔ Enforcement
 
-This matches the exact dark forest green from the original screenshot and is consistent with how `CommunityPage.tsx` already implements this same color. No other files change. Desktop layout untouched.
-
+If a future task attempts to modify any protected area, it must be **blocked** and flagged as a guardrail violation — unless the platform owner explicitly overrides with a direct instruction referencing this guardrail.
