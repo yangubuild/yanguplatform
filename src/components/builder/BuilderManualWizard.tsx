@@ -17,7 +17,7 @@ import type { BuilderEngine, QuestionField } from "@/lib/builder/types";
 
 interface Props {
   engine: BuilderEngine;
-  onComplete: (answers: Record<string, unknown>) => Promise<void>;
+  onComplete: (answers: Record<string, unknown>) => Promise<unknown>;
   onBack: () => void;
 }
 

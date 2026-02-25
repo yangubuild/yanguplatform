@@ -35,7 +35,7 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
 
   /** Handle wizard/AI completion — build seed sections and navigate to editor */
   const handleComplete = useCallback(async (answers: Record<string, unknown>) => {
-    if (!engine || !user?.id) { toast.error("You must be logged in"); return; }
+    if (!engine || !user?.id) { toast.error("You must be logged in"); return null; }
 
     const businessName = String(answers.business_name || answers.display_name || answers.community_name || "Untitled");
     const slug = String(answers.slug || businessName.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40));
@@ -55,7 +55,7 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
     if (answers.primary_color) metadata.brand = { primary_color: answers.primary_color };
     if (answers._ai_setup) metadata.ai_setup = true;
 
-    await initAndNavigate({
+    return initAndNavigate({
       surfaceType: engine.surfaceType,
       slug,
       title: businessName,

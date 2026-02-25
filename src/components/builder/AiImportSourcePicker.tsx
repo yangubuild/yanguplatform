@@ -66,32 +66,30 @@ export function AiImportSourcePicker({ onSelect, categoryLabel }: Props) {
             key={source.key}
             onClick={() => onSelect(source.key)}
             className={cn(
-              "group relative flex items-center justify-between rounded-xl border border-border/60 p-5 text-left transition-all",
-              "bg-[hsl(var(--muted))] hover:bg-[hsl(var(--muted))]/80 hover:border-primary/40 hover:shadow-md",
+              "group relative flex min-h-[116px] items-center justify-center rounded-xl border border-border/70 bg-[hsl(0_0%_100%)] p-5 text-left transition-all",
+              "hover:border-border hover:shadow-md active:shadow-sm",
               source.key === "manual" && "col-span-1"
             )}
           >
-            <div className="flex flex-col items-center justify-center w-full gap-2 min-h-[64px]">
+            <div className="flex w-full flex-col items-center justify-center gap-2 text-center">
               {source.logo ? (
-                <div className="bg-white/90 dark:bg-white/80 rounded-lg px-4 py-2">
-                  <img
-                    src={source.logo}
-                    alt={source.label}
-                    className="h-8 max-w-[180px] object-contain"
-                  />
-                </div>
+                <img
+                  src={source.logo}
+                  alt={source.label}
+                  className="h-9 max-w-[190px] object-contain contrast-110"
+                />
               ) : (
-                <div className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-primary" />
-                  <span className="font-semibold text-foreground text-sm">{source.label}</span>
+                <div className="flex flex-col items-center gap-1">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-primary" />
+                    <span className="text-sm font-semibold text-[hsl(222_47%_11%)]">{source.label}</span>
+                  </div>
+                  <span className="text-xs text-[hsl(215_16%_47%)]">{source.subtitle}</span>
                 </div>
-              )}
-              {source.key === "manual" && (
-                <span className="text-xs text-muted-foreground">{source.subtitle}</span>
               )}
             </div>
             {source.key === "manual" && (
-              <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary shrink-0 absolute right-4 top-1/2 -translate-y-1/2" />
+              <ArrowRight className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(215_16%_47%)] transition-colors group-hover:text-[hsl(222_47%_11%)]" />
             )}
           </button>
         ))}
