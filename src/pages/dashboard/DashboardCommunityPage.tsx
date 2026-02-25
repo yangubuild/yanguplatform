@@ -1,3 +1,4 @@
+import { useState, useCallback } from "react";
 import { useBuilderSurfaceInit } from "@/hooks/useBuilderSurfaceInit";
 import { Loader2, Users, Store } from "lucide-react";
 import { Card } from "@/components/primitives";
@@ -37,16 +38,26 @@ const COMMUNITY_FLOWS = [
 ];
 
 export default function DashboardCommunityPage() {
-  const { initAndNavigate, isInitializing } = useBuilderSurfaceInit();
+  const { initAndNavigate } = useBuilderSurfaceInit();
+  const [creatingKey, setCreatingKey] = useState<string | null>(null);
 
-  const handleCreate = (flow: (typeof COMMUNITY_FLOWS)[number]) => {
-    initAndNavigate({
-      surfaceType: flow.surfaceType,
-      slug: flow.slug,
-      title: flow.title,
-      seedSections: flow.seedSections as { type: string; schema: Record<string, unknown> }[],
-    });
-  };
+  const handleCreate = useCallback(
+    async (flow: (typeof COMMUNITY_FLOWS)[number]) => {
+      if (creatingKey) return; // in-flight lock
+      setCreatingKey(flow.key);
+      try {
+        await initAndNavigate({
+          surfaceType: flow.surfaceType,
+          slug: flow.slug,
+          title: flow.title,
+          seedSections: flow.seedSections as { type: string; schema: Record<string, unknown> }[],
+        });
+      } finally {
+        setCreatingKey(null);
+      }
+    },
+    [creatingKey, initAndNavigate],
+  );
 
   return (
     <div className="max-w-2xl mx-auto py-12 space-y-8">
@@ -60,6 +71,8 @@ export default function DashboardCommunityPage() {
       <div className="grid gap-6 sm:grid-cols-2">
         {COMMUNITY_FLOWS.map((flow) => {
           const Icon = flow.icon;
+          const isBusy = creatingKey === flow.key;
+          const isDisabled = creatingKey !== null;
           return (
             <Card key={flow.key} className="p-6 flex flex-col gap-4">
               <div className="flex items-center gap-3">
@@ -70,11 +83,14 @@ export default function DashboardCommunityPage() {
               </div>
               <p className="text-sm text-muted-foreground flex-1">{flow.description}</p>
               <Button
-                onClick={() => handleCreate(flow)}
-                disabled={isInitializing}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCreate(flow);
+                }}
+                disabled={isDisabled}
                 className="w-full"
               >
-                {isInitializing ? (
+                {isBusy ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Setting up…
