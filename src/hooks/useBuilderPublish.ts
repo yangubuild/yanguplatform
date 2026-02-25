@@ -12,7 +12,7 @@ const SURFACE_DOMAIN_MAP: Record<BuilderSurfaceType, string[]> = {
   eshop: ["yangu.shop"],
   store_listing: ["yangu.store"],
   quick_site: ["yangu.site"],
-  emenu: ["yangu.site"],
+  emenu: ["yangu.shop"],
   studio_showcase: ["yangu.studio"],
 };
 

@@ -13,6 +13,7 @@ import {
   LayoutGrid,
   AlertTriangle,
   Settings,
+  ClipboardList,
 } from "lucide-react";
 import { useState } from "react";
 import type { BuilderSurfaceType } from "@/types/builder";
@@ -115,6 +116,12 @@ export default function BuilderEditor() {
           <Settings className="h-4 w-4" />
           Settings
         </Button>
+        {surfaceType === "emenu" && (
+          <Button size="sm" variant="outline" onClick={() => navigate("/orders")} className="gap-2">
+            <ClipboardList className="h-4 w-4" />
+            View Orders
+          </Button>
+        )}
         <Button size="sm" onClick={() => setPublishOpen(true)} className="gap-2">
           <Rocket className="h-4 w-4" />
           Publish
