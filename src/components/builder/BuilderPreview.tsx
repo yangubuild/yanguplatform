@@ -10,9 +10,37 @@ interface BuilderPreviewProps {
 
 // ─── Existing live_bio renderers (unchanged) ───
 
+function isYouTubeUrl(url: string): string | null {
+  const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]+)/);
+  return match ? match[1] : null;
+}
+
 function HeroPreview({ schema }: { schema: Record<string, unknown> }) {
+  const media = (schema.media as { type?: string; url?: string }) || {};
+  const mediaType = media.type || "none";
+  const mediaUrl = media.url || "";
+
   return (
     <div className="py-12 px-6 text-center bg-gradient-to-b from-accent/10 to-transparent rounded-lg">
+      {mediaType === "image" && mediaUrl && (
+        <img src={mediaUrl} alt="" className="w-full h-48 object-cover rounded-lg mb-4" />
+      )}
+      {mediaType === "video" && mediaUrl && (() => {
+        const ytId = isYouTubeUrl(mediaUrl);
+        return ytId ? (
+          <div className="aspect-video rounded-lg overflow-hidden mb-4">
+            <iframe
+              src={`https://www.youtube.com/embed/${ytId}`}
+              className="w-full h-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              title="Video"
+            />
+          </div>
+        ) : (
+          <video src={mediaUrl} controls className="w-full rounded-lg mb-4" />
+        );
+      })()}
       <h1 className="text-2xl font-bold text-foreground">
         {(schema.headline as string) || "Your Headline"}
       </h1>
