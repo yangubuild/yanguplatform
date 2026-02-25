@@ -126,9 +126,41 @@ export function useBuilderEditor(surfaceId: string | undefined) {
         const result = data as unknown as { ok: boolean; error?: string };
         if (!result.ok) throw new Error(result.error || "Failed to add section");
 
-        // Refresh editor state
         await queryClient.invalidateQueries({ queryKey });
         toast.success(`${sectionType} section added`);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Failed to add section";
+        toast.error(msg);
+      } finally {
+        setIsAdding(false);
+      }
+    },
+    [activePageId, sections, queryClient, queryKey]
+  );
+
+  // ─── Add section with custom schema (AI-generated) ───
+  const addSectionWithSchema = useCallback(
+    async (sectionType: string, schema: Record<string, unknown>) => {
+      if (!activePageId) return;
+      setIsAdding(true);
+
+      const nextPosition = sections.length > 0 ? Math.max(...sections.map((s) => s.position)) + 1 : 0;
+
+      try {
+        const { data, error } = await supabase.rpc("builder_upsert_section", {
+          p_page_id: activePageId,
+          p_section_type: sectionType,
+          p_schema: schema as unknown as Json,
+          p_position: nextPosition,
+          p_is_visible: true,
+        });
+
+        if (error) throw new Error(error.message);
+
+        const result = data as unknown as { ok: boolean; error?: string };
+        if (!result.ok) throw new Error(result.error || "Failed to add section");
+
+        await queryClient.invalidateQueries({ queryKey });
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Failed to add section";
         toast.error(msg);
@@ -199,6 +231,7 @@ export function useBuilderEditor(surfaceId: string | undefined) {
     setActivePageId,
     sections,
     addSection,
+    addSectionWithSchema,
     isAdding,
     reorderSections,
     isReordering,

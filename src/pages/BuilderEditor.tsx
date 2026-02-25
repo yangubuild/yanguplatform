@@ -27,6 +27,7 @@ export default function BuilderEditor() {
     error,
     sections,
     addSection,
+    addSectionWithSchema,
     isAdding,
     reorderSections,
   } = useBuilderEditor(surfaceId);
@@ -111,7 +112,7 @@ export default function BuilderEditor() {
             />
           </div>
           <div className="p-3 border-t border-border">
-            <BuilderAddSection onAdd={addSection} isAdding={isAdding} />
+            <BuilderAddSection onAdd={addSection} onAddWithSchema={addSectionWithSchema} isAdding={isAdding} surfaceType={surfaceType} />
           </div>
         </aside>
 

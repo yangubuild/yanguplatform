@@ -56,3 +56,9 @@ verify_jwt = false
 
 [functions.video-render-status]
 verify_jwt = false
+
+[functions.builder-ai-generate-section]
+verify_jwt = false
+
+[functions.builder-ai-generate-business-profile]
+verify_jwt = false
