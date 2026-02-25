@@ -6,6 +6,7 @@ import { getEngine } from "@/lib/builder/engineRegistry";
 import { BuilderEntryScreen } from "@/components/builder/BuilderEntryScreen";
 import { EmenuWizard, type WizardData } from "@/components/builder/EmenuWizard";
 import { useState } from "react";
+import { mergeIntoDefault } from "@/lib/builderDefaults";
 
 /** Map legacy seller keys → engine keys */
 const SELLER_KEY_MAP: Record<string, string> = {
@@ -18,6 +19,24 @@ const SELLER_KEY_MAP: Record<string, string> = {
 interface Props {
   sellerKey: string;
 }
+
+const isRecord = (value: unknown): value is Record<string, unknown> => (
+  typeof value === "object" && value !== null && !Array.isArray(value)
+);
+
+const toAiSeedSections = (value: unknown): { type: string; schema: Record<string, unknown> }[] => {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .map((entry) => {
+      if (!isRecord(entry)) return null;
+      const type = typeof entry.type === "string" ? entry.type : null;
+      if (!type) return null;
+      const rawSchema = isRecord(entry.schema) ? entry.schema : {};
+      return { type, schema: mergeIntoDefault(type, rawSchema) };
+    })
+    .filter((entry): entry is { type: string; schema: Record<string, unknown> } => !!entry);
+};
 
 /**
  * Unified seller entry page.
@@ -40,20 +59,52 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
     const businessName = String(answers.business_name || answers.display_name || answers.community_name || "Untitled");
     const slug = String(answers.slug || businessName.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40));
 
-    const seedSections = engine.defaultSections.map((s) => {
-      const schema = { ...s.schema };
-      if (s.type === "hero" && !schema.headline) schema.headline = businessName;
-      if (s.type === "contact") {
-        if (answers.contact_email) schema.email = answers.contact_email;
-        if (answers.contact_phone) schema.phone = answers.contact_phone;
-        if (answers.location) schema.address = answers.location;
-      }
-      return { type: s.type, schema };
+    const aiSeedSections = toAiSeedSections(answers._ai_sections);
+    const seedSections = aiSeedSections.length > 0
+      ? aiSeedSections
+      : engine.defaultSections.map((s) => {
+          const schema = mergeIntoDefault(s.type, s.schema);
+          if (s.type === "hero") {
+            if (!schema.headline) schema.headline = businessName;
+            if (!schema.subheadline && answers.business_description) schema.subheadline = String(answers.business_description);
+          }
+          if (s.type === "contact") {
+            if (answers.contact_email) schema.email = answers.contact_email;
+            if (answers.contact_phone) schema.phone = answers.contact_phone;
+            if (answers.location) schema.address = answers.location;
+          }
+          return { type: s.type, schema };
+        });
+
+    const aiSource = typeof answers._ai_source === "string" ? answers._ai_source : null;
+    const aiAnswers = isRecord(answers._ai_answers) ? answers._ai_answers : {};
+    const aiProfile = isRecord(answers._ai_profile) ? answers._ai_profile : {};
+
+    console.log("AI_BUILD_START", {
+      surfaceId: null,
+      surfaceType: engine.surfaceType,
+      _ai_source: aiSource,
+      _ai_answers: aiAnswers,
+      _ai_profile: aiProfile,
+      sectionCount: seedSections.length,
+      sectionTypes: seedSections.map((section) => section.type),
     });
 
     const metadata: Record<string, unknown> = {};
     if (answers.primary_color) metadata.brand = { primary_color: answers.primary_color };
-    if (answers._ai_setup) metadata.ai_setup = true;
+    if (answers._ai_setup) {
+      metadata.ai_setup = true;
+      metadata.ai_source = aiSource;
+      metadata.ai_answers = aiAnswers;
+      metadata.ai_profile = aiProfile;
+      metadata.ai_repairs = Array.isArray(answers._ai_repairs) ? answers._ai_repairs : [];
+      metadata.generated_draft = {
+        created_at: new Date().toISOString(),
+        title: businessName,
+        slug,
+        sections: seedSections,
+      };
+    }
 
     return initAndNavigate({
       surfaceType: engine.surfaceType,

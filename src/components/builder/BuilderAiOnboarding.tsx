@@ -61,6 +61,15 @@ export function BuilderAiOnboarding({ engine, onComplete, onBack }: Props) {
       const allowedTypes = engine.aiGenerationRules?.allowedSectionTypes || ["hero", "text", "contact"];
       const mergedAnswers = { ...aiAnswers, ...(importPayload || {}) };
 
+      console.log("AI_DRAFT_GENERATION_START", {
+        surfaceId: null,
+        surfaceType: engine.surfaceType,
+        _ai_source: source,
+        _ai_answers: mergedAnswers,
+        _ai_profile: importPayload || null,
+        generationFunction: "builder-ai-generate-draft",
+      });
+
       const { data, error } = await supabase.functions.invoke("builder-ai-generate-draft", {
         body: {
           engineKey: engine.key,
@@ -83,6 +92,14 @@ export function BuilderAiOnboarding({ engine, onComplete, onBack }: Props) {
                       engine.key === "community" ? "community_name" : "business_name";
 
       const businessName = data.business_name || mergedAnswers[nameKey] || mergedAnswers.business_name || "";
+
+      console.log("AI_DRAFT_GENERATION_DONE", {
+        surfaceId: null,
+        surfaceType: engine.surfaceType,
+        sectionCount: validation.cleanedSections.length,
+        sectionTypes: validation.cleanedSections.map((section) => section.type),
+        payload: data,
+      });
 
       const result: Record<string, unknown> = {
         ...mergedAnswers,
@@ -149,20 +166,33 @@ export function BuilderAiOnboarding({ engine, onComplete, onBack }: Props) {
   const handleProgressDone = async () => {
     if (!pendingResult) return;
 
+    console.log("AI_BUILD_START", {
+      surfaceId: null,
+      surfaceType: engine.surfaceType,
+      _ai_source: pendingResult._ai_source ?? null,
+      _ai_answers: pendingResult._ai_answers ?? null,
+      _ai_profile: pendingResult._ai_profile ?? null,
+    });
+
     try {
       const completion = await onComplete(pendingResult);
       if (completion && typeof completion === "object" && "targetUrl" in completion) {
         const route = completion as CompletionNavigation;
         setEditorUrl(route.targetUrl);
         if (!route.navigated) {
-          console.error("[BuilderAiOnboarding] Auto-route failed", {
+          console.error("AI_NAVIGATE_FAILED", {
             surfaceId: route.surfaceId,
             targetUrl: route.targetUrl,
+            error: "navigate() returned non-navigated state",
           });
         }
       }
     } catch (error) {
-      console.error("[BuilderAiOnboarding] Completion flow failed", error);
+      console.error("AI_NAVIGATE_FAILED", {
+        surfaceId: null,
+        targetUrl: editorUrl,
+        error,
+      });
     }
   };
 
