@@ -4,8 +4,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { X, Plus, Trash2, Save, Loader2 } from "lucide-react";
+import { X, Plus, Trash2, Save, Loader2, Sparkles } from "lucide-react";
 import type { EditorSection } from "@/hooks/useBuilderEditor";
+import { BuilderAiFillModal } from "./BuilderAiFillModal";
 
 interface BuilderSectionEditorProps {
   section: EditorSection;
@@ -13,6 +14,7 @@ interface BuilderSectionEditorProps {
   onSave: (sectionId: string, schema: Record<string, unknown>) => Promise<void>;
   onToggleVisibility: (sectionId: string, visible: boolean) => Promise<void>;
   isSaving: boolean;
+  surfaceType: string;
 }
 
 // ─── Helpers ───
@@ -300,10 +302,11 @@ const TYPE_LABELS: Record<string, string> = {
 // ─── Main component ───
 
 export function BuilderSectionEditor({
-  section, onClose, onSave, onToggleVisibility, isSaving,
+  section, onClose, onSave, onToggleVisibility, isSaving, surfaceType,
 }: BuilderSectionEditorProps) {
   const [localSchema, setLocalSchema] = useState<Record<string, unknown>>(section.schema);
   const [dirty, setDirty] = useState(false);
+  const [aiFillOpen, setAiFillOpen] = useState(false);
 
   useEffect(() => {
     setLocalSchema(section.schema);
@@ -317,6 +320,13 @@ export function BuilderSectionEditor({
 
   const handleSave = async () => {
     await onSave(section.id, localSchema);
+    setDirty(false);
+  };
+
+  const handleAiGenerated = async (schema: Record<string, unknown>) => {
+    setLocalSchema(schema);
+    // Save immediately
+    await onSave(section.id, schema);
     setDirty(false);
   };
 
@@ -340,6 +350,19 @@ export function BuilderSectionEditor({
           checked={section.is_visible}
           onCheckedChange={(checked) => onToggleVisibility(section.id, checked)}
         />
+      </div>
+
+      {/* AI Fill button */}
+      <div className="px-4 py-3 border-b border-border">
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full gap-1.5 text-xs"
+          onClick={() => setAiFillOpen(true)}
+        >
+          <Sparkles className="h-3.5 w-3.5" />
+          AI Fill this section
+        </Button>
       </div>
 
       {/* Form */}
@@ -366,6 +389,15 @@ export function BuilderSectionEditor({
           </Button>
         </div>
       )}
+
+      {/* AI Fill modal */}
+      <BuilderAiFillModal
+        open={aiFillOpen}
+        onOpenChange={setAiFillOpen}
+        sectionType={section.section_type}
+        surfaceType={surfaceType}
+        onGenerated={handleAiGenerated}
+      />
     </aside>
   );
 }

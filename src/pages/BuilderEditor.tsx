@@ -18,6 +18,7 @@ import { useState } from "react";
 import type { BuilderSurfaceType } from "@/types/builder";
 import { BuilderSettingsDrawer } from "@/components/builder/BuilderSettingsDrawer";
 import { BuilderSectionEditor } from "@/components/builder/BuilderSectionEditor";
+import { BuilderPagesDropdown } from "@/components/builder/BuilderPagesDropdown";
 
 export default function BuilderEditor() {
   const { surfaceId } = useParams<{ surfaceId: string }>();
@@ -31,6 +32,9 @@ export default function BuilderEditor() {
     isLoading,
     error,
     sections,
+    activePage,
+    activePageId,
+    setActivePageId,
     addSection,
     addSectionWithSchema,
     isAdding,
@@ -38,6 +42,7 @@ export default function BuilderEditor() {
     updateSectionSchema,
     toggleSectionVisibility,
     isSavingSection,
+    refreshEditor,
   } = useBuilderEditor(surfaceId);
 
   // Loading
@@ -96,7 +101,15 @@ export default function BuilderEditor() {
           Dashboard
         </button>
         <div className="h-6 w-px bg-border" />
-        <h1 className="text-sm font-semibold truncate flex-1">{surfaceTitle}</h1>
+        <h1 className="text-sm font-semibold truncate">{surfaceTitle}</h1>
+        <BuilderPagesDropdown
+          pages={editorState.pages}
+          activePageId={activePageId}
+          surfaceId={editorState.surface.id}
+          onSwitch={setActivePageId}
+          onRefresh={refreshEditor}
+        />
+        <div className="flex-1" />
         <Button size="sm" variant="outline" onClick={() => setSettingsOpen(true)} className="gap-2">
           <Settings className="h-4 w-4" />
           Settings
@@ -148,6 +161,7 @@ export default function BuilderEditor() {
             onSave={updateSectionSchema}
             onToggleVisibility={toggleSectionVisibility}
             isSaving={isSavingSection}
+            surfaceType={surfaceType}
           />
         )}
       </div>

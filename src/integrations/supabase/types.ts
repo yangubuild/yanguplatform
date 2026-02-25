@@ -3196,6 +3196,11 @@ export type Database = {
         Returns: boolean
       }
       archive_surface: { Args: { p_surface_id: string }; Returns: Json }
+      builder_create_page: {
+        Args: { p_slug: string; p_surface_id: string; p_title: string }
+        Returns: Json
+      }
+      builder_delete_page: { Args: { p_page_id: string }; Returns: Json }
       builder_get_editor_state: {
         Args: { p_surface_id: string }
         Returns: Json
@@ -3210,6 +3215,10 @@ export type Database = {
       }
       builder_publish_surface: {
         Args: { p_domain_id: string; p_slug?: string; p_surface_id: string }
+        Returns: Json
+      }
+      builder_rename_page: {
+        Args: { p_page_id: string; p_slug: string; p_title: string }
         Returns: Json
       }
       builder_reorder_sections: {
