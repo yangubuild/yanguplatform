@@ -493,7 +493,7 @@ function GenericPreview({ section }: { section: EditorSection }) {
 }
 
 // ─── Preview map ───
-const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<string, unknown> }>> = {
+export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<string, unknown> }>> = {
   // Existing
   hero: HeroPreview,
   bio: BioPreview,

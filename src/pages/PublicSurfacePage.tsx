@@ -1,123 +1,113 @@
-// Public Surface Page
-// Renders published surface based on domain context
-// Always resolves via surface_publishes - never queries surfaces directly
+import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { PREVIEW_MAP } from "@/components/builder/BuilderPreview";
+import type {
+  BuilderPublicSchemaResult,
+  BuilderPublishedSection,
+} from "@/types/builder";
+import { Loader2 } from "lucide-react";
 
-import { usePublicSurfaceResolver, type PublicSurfaceData } from "@/hooks/usePublicSurface";
-import { DomainInactive, NotPublished, DevDomainDebug, DomainBadge } from "@/components/domain";
-import { AppShell, PageContainer, Card } from "@/components/primitives";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, Globe, CheckCircle } from "lucide-react";
-import { format } from "date-fns";
-
+/**
+ * Public published page renderer.
+ * Reads host + slug from the URL, calls builder_get_public_schema,
+ * and renders the published schema using the same BuilderPreview renderers.
+ */
 export default function PublicSurfacePage() {
-  const result = usePublicSurfaceResolver();
+  const location = useLocation();
 
-  // Loading state
-  if (result.status === "loading") {
+  // Derive host and slug
+  const host = window.location.hostname.replace(/^www\./, "");
+  const pathSlug = location.pathname.replace(/^\/+/, "").split("/")[0] || "home";
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["builder_public_schema", host, pathSlug],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("builder_get_public_schema", {
+        p_host: host,
+        p_slug: pathSlug,
+      });
+      if (error) throw error;
+      const result = data as unknown as BuilderPublicSchemaResult | { ok: false; error: string };
+      if (!result?.ok) {
+        throw new Error((result as any)?.error || "not_found");
+      }
+      return result as BuilderPublicSchemaResult;
+    },
+    retry: false,
+    staleTime: 60_000,
+  });
+
+  // Loading
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
-          <p className="text-muted-foreground mt-4">Loading...</p>
-        </div>
-        <DevDomainDebug />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
-  // Domain is inactive
-  if (result.status === "inactive_domain") {
-    return (
-      <>
-        <DomainInactive />
-        <DevDomainDebug />
-      </>
-    );
+  // Not found / error
+  if (error || !data) {
+    return <PublicNotFound host={host} slug={pathSlug} />;
   }
 
-  // No published surface
-  if (result.status === "not_published") {
-    return (
-      <>
-        <NotPublished canPublish={result.canPublish} />
-        <DevDomainDebug />
-      </>
-    );
-  }
+  // Render published schema
+  const schema = data.published_schema;
+  const page = schema.pages?.[0]; // first page (home)
+  const sections = page?.sections
+    ?.slice()
+    .sort((a, b) => a.position - b.position) ?? [];
+  const title = schema.surface?.title || "Untitled";
 
-  // Error state
-  if (result.status === "error") {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="max-w-md w-full p-8 text-center">
-          <h1 className="text-2xl font-bold mb-2">Error</h1>
-          <p className="text-muted-foreground">{result.message}</p>
-        </Card>
-        <DevDomainDebug />
-      </div>
-    );
-  }
-
-  // Published surface - render it
   return (
-    <>
-      <PublishedSurfaceView surface={result.surface} />
-      <DevDomainDebug />
-    </>
+    <div className="min-h-screen bg-background">
+      {/* Minimal header */}
+      <header className="border-b border-border bg-background/80 backdrop-blur-sm">
+        <div className="max-w-3xl mx-auto px-4 py-3">
+          <h1 className="text-sm font-semibold text-foreground truncate">{title}</h1>
+        </div>
+      </header>
+
+      {/* Sections */}
+      <main className="max-w-3xl mx-auto px-4 py-6">
+        {sections.length === 0 ? (
+          <div className="py-20 text-center text-muted-foreground">
+            <p>This page has no content yet.</p>
+          </div>
+        ) : (
+          <div className="space-y-0 divide-y divide-border rounded-xl border border-border overflow-hidden bg-card">
+            {sections.map((section: BuilderPublishedSection, i: number) => {
+              const Preview = PREVIEW_MAP[section.section_type];
+              return (
+                <div key={`${section.section_type}-${i}`}>
+                  {Preview ? (
+                    <Preview schema={section.schema} />
+                  ) : (
+                    <div className="px-6 py-4 text-sm text-muted-foreground italic">
+                      [{section.section_type}]
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </main>
+    </div>
   );
 }
 
-// Renders the actual published surface content
-function PublishedSurfaceView({ surface }: { surface: PublicSurfaceData }) {
-  const fullUrl = `${surface.domainHost}`;
-
+function PublicNotFound({ host, slug }: { host: string; slug: string }) {
   return (
-    <AppShell>
-      <PageContainer size="md">
-        <div className="space-y-6">
-          {/* Surface Content */}
-          <Card className="p-8">
-            <div className="space-y-6">
-              {/* Header */}
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <h1 className="text-2xl font-bold">{surface.title}</h1>
-                  <Badge variant="default" className="gap-1">
-                    <CheckCircle className="h-3 w-3" />
-                    Published
-                  </Badge>
-                </div>
-                
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Globe className="h-4 w-4 flex-shrink-0" />
-                  <span className="text-sm">{fullUrl}</span>
-                </div>
-              </div>
-
-              {/* Surface Type Badge */}
-              <div className="flex items-center gap-2">
-                <DomainBadge />
-              </div>
-
-              {/* Published date */}
-              {surface.publishedAt && (
-                <div>
-                  <span className="text-sm text-muted-foreground">
-                    Published {format(new Date(surface.publishedAt), "PPP")}
-                  </span>
-                </div>
-              )}
-
-              {/* Placeholder for actual surface content */}
-              <div className="pt-6 border-t border-border">
-                <p className="text-center text-muted-foreground">
-                  Surface content will be rendered here once the Content editor is built.
-                </p>
-              </div>
-            </div>
-          </Card>
-        </div>
-      </PageContainer>
-    </AppShell>
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="text-center max-w-md">
+        <h1 className="text-4xl font-bold text-foreground mb-2">404</h1>
+        <p className="text-muted-foreground mb-1">Page not found</p>
+        <p className="text-xs text-muted-foreground/60">
+          {host}/{slug}
+        </p>
+      </div>
+    </div>
   );
 }
