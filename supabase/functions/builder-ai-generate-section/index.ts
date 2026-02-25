@@ -7,8 +7,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const VALID_SURFACE_TYPES = ["live_bio", "emenu", "quick_site", "eshop", "store_listing"];
-const VALID_SECTION_TYPES = ["hero", "bio", "links", "social", "cta", "video", "gallery"];
+const VALID_SURFACE_TYPES = ["live_bio", "emenu", "quick_site", "eshop", "store_listing", "community_listing", "community_group", "live_selling", "studio_showcase"];
+const VALID_SECTION_TYPES = ["hero", "bio", "links", "social", "cta", "video", "gallery", "text", "about", "offer", "plans", "rules", "join", "products", "categories", "listings", "filters", "services", "testimonials", "faq", "contact", "schedule", "menu", "hours", "location"];
 
 const SCHEMA_SPECS: Record<string, string> = {
   hero: '{"headline": "string", "subheadline": "string"}',
@@ -18,6 +18,24 @@ const SCHEMA_SPECS: Record<string, string> = {
   cta: '{"label": "string (button text)", "href": "string (url)"}',
   video: '{"url": "string (youtube or similar url)"}',
   gallery: '{"items": [{"src": "string (placeholder url)", "alt": "string"}]} (3-6 items)',
+  text: '{"heading": "string", "body": "string (1-3 paragraphs)"}',
+  about: '{"heading": "string", "body": "string (1-3 paragraphs)"}',
+  offer: '{"heading": "string", "items": [{"title": "string", "price": "string", "description": "string"}]} (2-5 items)',
+  plans: '{"heading": "string", "items": [{"name": "string", "price": "string", "description": "string"}]} (2-4 items)',
+  rules: '{"heading": "string", "items": [{"title": "string", "description": "string"}]}',
+  join: '{"label": "string", "url": "string", "description": "string"}',
+  products: '{"heading": "string", "items": [{"name": "string", "price": "string", "description": "string"}]} (3-6 items)',
+  categories: '{"heading": "string", "items": [{"name": "string", "description": "string"}]}',
+  listings: '{"heading": "string", "items": [{"name": "string", "price": "string", "description": "string"}]}',
+  filters: '{"heading": "string", "keys": ["string"]}',
+  services: '{"heading": "string", "items": [{"name": "string", "price": "string", "description": "string"}]} (3-5 items)',
+  testimonials: '{"heading": "string", "items": [{"name": "string", "quote": "string"}]} (2-4 items)',
+  faq: '{"heading": "string", "items": [{"question": "string", "answer": "string"}]} (3-5 items)',
+  contact: '{"heading": "string", "email": "string", "phone": "string", "address": "string"}',
+  schedule: '{"heading": "string", "items": [{"day": "string", "time": "string"}]}',
+  menu: '{"heading": "string", "categories": [{"name": "string", "items": [{"name": "string", "price": "string", "description": "string"}]}]}',
+  hours: '{"heading": "string", "items": [{"day": "string", "hours": "string"}]}',
+  location: '{"heading": "string", "address": "string", "mapUrl": "string"}',
 };
 
 serve(async (req) => {
