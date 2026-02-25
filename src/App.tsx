@@ -113,6 +113,8 @@ const ManageTeam = lazy(() => import("./pages/manage/ManageTeam"));
 import { NavigationDashboardPage } from "@/components/mass/navigation";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import DashboardPlaceholder from "./pages/dashboard/DashboardPlaceholder";
+import InfluencerPage from "./pages/dashboard/InfluencerPage";
+import SellerSurfacePage from "./pages/dashboard/SellerSurfacePage";
 import DashboardOffers from "./pages/dashboard/DashboardOffers";
 import DashboardExplore from "./pages/dashboard/DashboardExplore";
 // DashboardModuleLayout removed — routes are flat under /dashboard/*
@@ -288,7 +290,7 @@ const App = () => (
                   <Route path="studio/ai-shorts" element={<AiShortsPage />} />
                   <Route path="studio/assets" element={<StudioAssetGallery />} />
                   {/* video-editor is mounted as standalone full-screen route below */}
-                  <Route path="influencer" element={<DashboardPlaceholder />} />
+                  <Route path="influencer" element={<InfluencerPage />} />
                   <Route path="visionaire" element={<DashboardPlaceholder />} />
                   <Route path="app-store" element={<DashboardPlaceholder />} />
                   <Route path="community" element={<Navigate to="/community" replace />} />
@@ -323,10 +325,10 @@ const App = () => (
                   </Route>
 
                   {/* Seller nested routes */}
-                  <Route path="seller/eshop" element={<DashboardPlaceholder />} />
-                  <Route path="seller/estore" element={<DashboardPlaceholder />} />
-                  <Route path="seller/emenu" element={<DashboardPlaceholder />} />
-                  <Route path="seller/esite" element={<DashboardPlaceholder />} />
+                  <Route path="seller/eshop" element={<SellerSurfacePage sellerKey="eshop" />} />
+                  <Route path="seller/estore" element={<SellerSurfacePage sellerKey="estore" />} />
+                  <Route path="seller/emenu" element={<SellerSurfacePage sellerKey="emenu" />} />
+                  <Route path="seller/esite" element={<SellerSurfacePage sellerKey="esite" />} />
                   <Route path="seller/eshop-connect" element={<DashboardPlaceholder />} />
 
                   {/* Admin redirect */}
