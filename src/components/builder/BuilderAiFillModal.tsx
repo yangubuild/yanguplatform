@@ -19,6 +19,7 @@ import {
 import { Sparkles, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   open: boolean;
@@ -34,13 +35,18 @@ export function BuilderAiFillModal({ open, onOpenChange, sectionType, surfaceTyp
   const [prompt, setPrompt] = useState("");
   const [tone, setTone] = useState("professional");
   const [busy, setBusy] = useState(false);
+  const navigate = useNavigate();
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
     setBusy(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) throw new Error("Please sign in first");
+      if (!session?.access_token) {
+        toast.error("Please sign in to use AI Fill");
+        navigate("/auth");
+        return;
+      }
 
       const res = await supabase.functions.invoke("builder-ai-generate-section", {
         body: {
@@ -52,7 +58,18 @@ export function BuilderAiFillModal({ open, onOpenChange, sectionType, surfaceTyp
 
       if (res.error) throw new Error(res.error.message || "AI generation failed");
       const result = res.data as { ok: boolean; schema?: Record<string, unknown>; error?: string };
-      if (!result.ok) throw new Error(result.error || "AI generation failed");
+      if (!result.ok) {
+        if (result.error === "unauthorized") {
+          toast.error("Session expired. Please sign in again.");
+          navigate("/auth");
+          return;
+        }
+        if (result.error === "quota_exceeded") {
+          toast.error("You've reached your AI generation limit. Please try again later.");
+          return;
+        }
+        throw new Error(result.error || "AI generation failed");
+      }
       if (!result.schema) throw new Error("No schema returned");
 
       onGenerated(result.schema);

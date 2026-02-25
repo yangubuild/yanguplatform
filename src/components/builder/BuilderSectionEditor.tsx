@@ -4,6 +4,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { X, Plus, Trash2, Save, Loader2, Sparkles } from "lucide-react";
 import type { EditorSection } from "@/hooks/useBuilderEditor";
 import { BuilderAiFillModal } from "./BuilderAiFillModal";
@@ -80,10 +87,47 @@ function ListEditor<T extends Record<string, string>>({
 // ─── Section-specific form renderers ───
 
 function HeroForm({ schema, update }: FormProps) {
+  const media = (schema.media as { type?: string; url?: string }) || { type: "none", url: "" };
+  const mediaType = media.type || "none";
+
+  const updateMedia = (partial: Partial<{ type: string; url: string }>) => {
+    update({ media: { ...media, ...partial } });
+  };
+
   return (
     <>
       <TextField label="Headline" value={(schema.headline as string) || ""} onChange={(v) => update({ headline: v })} />
       <TextField label="Subheadline" value={(schema.subheadline as string) || ""} onChange={(v) => update({ subheadline: v })} />
+      <div className="space-y-1.5">
+        <Label className="text-xs">Media Type</Label>
+        <Select value={mediaType} onValueChange={(v) => updateMedia({ type: v })}>
+          <SelectTrigger className="text-sm">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">None</SelectItem>
+            <SelectItem value="image">Image</SelectItem>
+            <SelectItem value="video">Video</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      {mediaType !== "none" && (
+        <div className="space-y-1.5">
+          <TextField
+            label={mediaType === "image" ? "Image URL" : "Video URL"}
+            value={media.url || ""}
+            onChange={(v) => updateMedia({ url: v })}
+          />
+          <p className="text-[10px] text-muted-foreground">
+            {mediaType === "image"
+              ? "Paste a direct image URL (e.g. https://...jpg)"
+              : "Paste a YouTube URL or direct video URL"}
+          </p>
+          {media.url && mediaType === "image" && (
+            <img src={media.url} alt="Preview" className="w-full h-24 object-cover rounded border border-border" />
+          )}
+        </div>
+      )}
     </>
   );
 }
