@@ -46,6 +46,7 @@ const ProductVideoPage = lazy(() => import("./components/studio/product-video/Pr
 const AiShortsPage = lazy(() => import("./components/studio/ai-shorts/AiShortsPage"));
 const StudioAssetGallery = lazy(() => import("./components/studio/assets/StudioAssetGallery"));
 const PortfolioPage = lazy(() => import("./pages/PortfolioPage"));
+const BuilderEditor = lazy(() => import("./pages/BuilderEditor"));
 const Community = lazy(() => import("./pages/Community"));
 const AdaAi = lazy(() => import("./pages/AdaAi"));
 const WhyYangu = lazy(() => import("./pages/WhyYangu"));
@@ -341,6 +342,16 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <VideoEditorPage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Builder Editor (full-screen, outside dashboard shell) */}
+                <Route
+                  path="/builder/:surfaceId"
+                  element={
+                    <ProtectedRoute>
+                      <BuilderEditor />
                     </ProtectedRoute>
                   }
                 />
