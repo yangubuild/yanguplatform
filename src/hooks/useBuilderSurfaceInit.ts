@@ -14,6 +14,12 @@ const DEFAULT_SEED_SECTIONS = [
 /**
  * Find-or-create a builder surface, seed it with a home page + sections, then navigate to the editor.
  */
+export interface BuilderSurfaceInitResult {
+  surfaceId: string;
+  targetUrl: string;
+  navigated: boolean;
+}
+
 export function useBuilderSurfaceInit() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -26,11 +32,22 @@ export function useBuilderSurfaceInit() {
       title: string;
       seedSections?: { type: string; schema: Record<string, unknown> }[];
       metadata?: Record<string, unknown>;
-    }) => {
+    }): Promise<BuilderSurfaceInitResult | null> => {
       if (!user?.id) {
         toast.error("You must be logged in");
-        return;
+        return null;
       }
+
+      const navigateToEditor = (surfaceId: string): BuilderSurfaceInitResult => {
+        const targetUrl = `/builder/${surfaceId}`;
+        try {
+          navigate(targetUrl);
+          return { surfaceId, targetUrl, navigated: true };
+        } catch (error) {
+          console.error("[useBuilderSurfaceInit] Navigation failed", { surfaceId, targetUrl, error });
+          return { surfaceId, targetUrl, navigated: false };
+        }
+      };
 
       setIsInitializing(true);
       try {
@@ -47,17 +64,16 @@ export function useBuilderSurfaceInit() {
         if (findErr) throw new Error(findErr.message);
 
         if (existing) {
-          navigate(`/builder/${existing.id}`);
-          return;
+          return navigateToEditor(existing.id);
         }
 
         // 2) Create surface
         const insertPayload: Record<string, unknown> = {
-            user_id: user.id,
-            surface_type: opts.surfaceType as any,
-            slug: opts.slug,
-            title: opts.title,
-          };
+          user_id: user.id,
+          surface_type: opts.surfaceType as any,
+          slug: opts.slug,
+          title: opts.title,
+        };
         if (opts.metadata) {
           insertPayload.metadata = opts.metadata;
         }
@@ -96,10 +112,11 @@ export function useBuilderSurfaceInit() {
         }
 
         toast.success("Surface created — opening editor");
-        navigate(`/builder/${surface.id}`);
+        return navigateToEditor(surface.id);
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Failed to initialize surface";
         toast.error(msg);
+        return null;
       } finally {
         setIsInitializing(false);
       }

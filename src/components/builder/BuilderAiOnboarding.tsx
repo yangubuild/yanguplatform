@@ -20,9 +20,15 @@ import { AiImportSourcePicker, type ImportSource } from "./AiImportSourcePicker"
 import { AiBuildingProgress } from "./AiBuildingProgress";
 import { GoogleBusinessSearch, type GoogleBusinessResult } from "./importers/GoogleBusinessSearch";
 
+interface CompletionNavigation {
+  surfaceId: string;
+  targetUrl: string;
+  navigated: boolean;
+}
+
 interface Props {
   engine: BuilderEngine;
-  onComplete: (answers: Record<string, unknown>) => Promise<void>;
+  onComplete: (answers: Record<string, unknown>) => Promise<unknown>;
   onBack: () => void;
 }
 
@@ -33,6 +39,7 @@ export function BuilderAiOnboarding({ engine, onComplete, onBack }: Props) {
   const [aiAnswers, setAiAnswers] = useState<Record<string, string>>({});
   const [isAiComplete, setIsAiComplete] = useState(false);
   const [pendingResult, setPendingResult] = useState<Record<string, unknown> | null>(null);
+  const [editorUrl, setEditorUrl] = useState<string | null>(null);
 
   const handleSourceSelect = (source: ImportSource) => {
     setSelectedSource(source);
@@ -48,6 +55,7 @@ export function BuilderAiOnboarding({ engine, onComplete, onBack }: Props) {
   const runAiGeneration = async (source: ImportSource, importPayload?: Record<string, unknown>) => {
     setPhase("generating");
     setIsAiComplete(false);
+    setEditorUrl(null);
 
     try {
       const allowedTypes = engine.aiGenerationRules?.allowedSectionTypes || ["hero", "text", "contact"];
@@ -138,10 +146,23 @@ export function BuilderAiOnboarding({ engine, onComplete, onBack }: Props) {
     runAiGeneration("manual");
   };
 
-  // Progress done
   const handleProgressDone = async () => {
-    if (pendingResult) {
-      await onComplete(pendingResult);
+    if (!pendingResult) return;
+
+    try {
+      const completion = await onComplete(pendingResult);
+      if (completion && typeof completion === "object" && "targetUrl" in completion) {
+        const route = completion as CompletionNavigation;
+        setEditorUrl(route.targetUrl);
+        if (!route.navigated) {
+          console.error("[BuilderAiOnboarding] Auto-route failed", {
+            surfaceId: route.surfaceId,
+            targetUrl: route.targetUrl,
+          });
+        }
+      }
+    } catch (error) {
+      console.error("[BuilderAiOnboarding] Completion flow failed", error);
     }
   };
 
@@ -152,6 +173,7 @@ export function BuilderAiOnboarding({ engine, onComplete, onBack }: Props) {
         engineLabel={engine.label}
         isComplete={isAiComplete}
         onAnimationDone={handleProgressDone}
+        editorUrl={editorUrl}
       />
     );
   }

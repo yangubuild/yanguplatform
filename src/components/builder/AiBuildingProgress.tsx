@@ -7,7 +7,7 @@ import { Loader2, CheckCircle2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import yanguYIcon from "@/assets/yangu-y-icon.png";
+import yanguYLoader from "@/assets/yangu-y-loader.png";
 
 const STEPS = [
   { key: "name", label: "Setting up your name" },
@@ -23,10 +23,11 @@ const STEP_DURATIONS = [1800, 2200, 2400, 3500, 2000, 1500];
 interface Props {
   engineLabel: string;
   isComplete: boolean;
-  onAnimationDone: () => void;
+  onAnimationDone: () => void | Promise<void>;
+  editorUrl?: string | null;
 }
 
-export function AiBuildingProgress({ engineLabel, isComplete, onAnimationDone }: Props) {
+export function AiBuildingProgress({ engineLabel, isComplete, onAnimationDone, editorUrl }: Props) {
   const [currentStep, setCurrentStep] = useState(0);
   const [progress, setProgress] = useState(0);
   const [showCompletion, setShowCompletion] = useState(false);
@@ -38,15 +39,11 @@ export function AiBuildingProgress({ engineLabel, isComplete, onAnimationDone }:
       setProgress(100);
       if (!doneCalledRef.current) {
         doneCalledRef.current = true;
-        // Try auto-routing after a short delay
         const t = setTimeout(() => {
           setShowCompletion(true);
-          // Attempt auto-route
-          try {
-            onAnimationDone();
-          } catch {
-            // If routing fails, user sees the CTA buttons
-          }
+          void Promise.resolve(onAnimationDone()).catch((error) => {
+            console.error("[AiBuildingProgress] Auto-route failed", error);
+          });
         }, 900);
         return () => clearTimeout(t);
       }
@@ -74,34 +71,18 @@ export function AiBuildingProgress({ engineLabel, isComplete, onAnimationDone }:
     };
   }, [currentStep, isComplete, onAnimationDone]);
 
-  const activeDetail = isComplete
-    ? "AI is setting up your page. You'll be able to edit everything."
-    : `AI is setting up your page. You'll be able to edit everything.`;
+  const activeDetail = "AI is setting up your page. You'll be able to edit everything.";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm">
       <div className="max-w-md w-full space-y-8 px-6">
-        {/* YANGU Y icon with rotation */}
         <div className="flex justify-center">
-          <div className="relative">
-            <div className={cn(
-              "p-4 rounded-2xl bg-muted/50",
-              !isComplete && "animate-pulse"
-            )}>
-              <img
-                src={yanguYIcon}
-                alt="yangu"
-                className={cn(
-                  "h-12 w-12 object-contain",
-                  !isComplete && "animate-spin"
-                )}
-                style={{ animationDuration: "3s" }}
-              />
-            </div>
-            {!isComplete && (
-              <Loader2 className="absolute -bottom-1 -right-1 h-5 w-5 text-primary animate-spin" />
-            )}
-          </div>
+          <img
+            src={yanguYLoader}
+            alt="yangu"
+            className={cn("h-12 w-12 object-contain", !isComplete && "animate-spin")}
+            style={{ animationDuration: "3s" }}
+          />
         </div>
 
         <div className="text-center space-y-1">
@@ -109,13 +90,11 @@ export function AiBuildingProgress({ engineLabel, isComplete, onAnimationDone }:
           <p className="text-sm text-muted-foreground">{activeDetail}</p>
         </div>
 
-        {/* Progress bar */}
         <div className="space-y-2">
           <Progress value={progress} className="h-2" />
           <p className="text-xs text-center text-muted-foreground tabular-nums">{Math.round(progress)}%</p>
         </div>
 
-        {/* Step list */}
         <div className="space-y-3">
           {STEPS.map((step, idx) => {
             const isDone = idx < currentStep || isComplete;
@@ -143,7 +122,6 @@ export function AiBuildingProgress({ engineLabel, isComplete, onAnimationDone }:
           })}
         </div>
 
-        {/* Completion CTA — failsafe if routing doesn't happen */}
         {showCompletion && (
           <div className="space-y-3 pt-4">
             <p className="text-center text-sm text-muted-foreground">Done. Your page is ready.</p>
@@ -157,7 +135,15 @@ export function AiBuildingProgress({ engineLabel, isComplete, onAnimationDone }:
               </Button>
               <Button
                 className="flex-1"
-                onClick={onAnimationDone}
+                onClick={() => {
+                  if (editorUrl) {
+                    window.location.assign(editorUrl);
+                    return;
+                  }
+                  void Promise.resolve(onAnimationDone()).catch((error) => {
+                    console.error("[AiBuildingProgress] Open editor fallback failed", error);
+                  });
+                }}
               >
                 Open editor
               </Button>
@@ -168,3 +154,4 @@ export function AiBuildingProgress({ engineLabel, isComplete, onAnimationDone }:
     </div>
   );
 }
+

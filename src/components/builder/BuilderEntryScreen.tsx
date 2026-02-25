@@ -9,7 +9,7 @@ import { BuilderAiOnboarding } from "./BuilderAiOnboarding";
 interface Props {
   engine: BuilderEngine;
   /** Called with collected answers when wizard/AI completes */
-  onComplete: (answers: Record<string, unknown>) => Promise<void>;
+  onComplete: (answers: Record<string, unknown>) => Promise<unknown>;
 }
 
 /**
