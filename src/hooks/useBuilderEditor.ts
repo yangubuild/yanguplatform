@@ -290,6 +290,10 @@ export function useBuilderEditor(surfaceId: string | undefined) {
     [activePageId, sections, queryClient, queryKey]
   );
 
+  const refreshEditor = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey });
+  }, [queryClient, queryKey]);
+
   return {
     editorState,
     isLoading,
@@ -306,5 +310,6 @@ export function useBuilderEditor(surfaceId: string | undefined) {
     updateSectionSchema,
     toggleSectionVisibility,
     isSavingSection,
+    refreshEditor,
   };
 }
