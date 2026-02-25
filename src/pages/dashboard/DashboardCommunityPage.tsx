@@ -1,64 +1,88 @@
 import { useState, useCallback } from "react";
 import { useBuilderSurfaceInit } from "@/hooks/useBuilderSurfaceInit";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
+import { getEngine } from "@/lib/builder/engineRegistry";
+import { BuilderEntryScreen } from "@/components/builder/BuilderEntryScreen";
 import { Loader2, Users, Store } from "lucide-react";
 import { Card } from "@/components/primitives";
 import { Button } from "@/components/ui/button";
 
-const COMMUNITY_FLOWS = [
-  {
-    key: "listing",
-    icon: Store,
-    title: "List on Community",
-    description:
-      "Create a listing surface for your courses, services, or products. Publish it as an independent URL and optionally feature it on the Community explore page.",
-    surfaceType: "community_listing",
-    slug: "my-listing",
-    seedSections: [
-      { type: "hero", schema: { headline: "Welcome", subheadline: "Discover what we offer" } },
-      { type: "text", schema: { heading: "Our Offer", body: "" } },
-      { type: "cta", schema: { label: "Get Started", href: "" } },
-      { type: "faq", schema: { items: [] } },
-    ],
-  },
-  {
-    key: "group",
-    icon: Users,
-    title: "Create a Community",
-    description:
-      "Launch a branded community space for your organisation or audience. Members can join, engage, and grow together.",
-    surfaceType: "community_group",
-    slug: "my-community",
-    seedSections: [
-      { type: "hero", schema: { headline: "Our Community", subheadline: "Join us" } },
-      { type: "text", schema: { heading: "About", body: "" } },
-      { type: "text", schema: { heading: "Plans", body: "" } },
-      { type: "cta", schema: { label: "Join Now", href: "" } },
-    ],
-  },
-];
-
+/**
+ * Community page: lets user choose between creating a listing or a community group,
+ * then shows the engine-driven entry screen for the chosen flow.
+ */
 export default function DashboardCommunityPage() {
+  const { user } = useAuth();
   const { initAndNavigate } = useBuilderSurfaceInit();
-  const [creatingKey, setCreatingKey] = useState<string | null>(null);
+  const [selectedFlow, setSelectedFlow] = useState<"community" | "listing" | null>(null);
 
-  const handleCreate = useCallback(
-    async (flow: (typeof COMMUNITY_FLOWS)[number]) => {
-      if (creatingKey) return; // in-flight lock
-      setCreatingKey(flow.key);
-      try {
-        await initAndNavigate({
-          surfaceType: flow.surfaceType,
-          slug: flow.slug,
-          title: flow.title,
-          seedSections: flow.seedSections as { type: string; schema: Record<string, unknown> }[],
-        });
-      } finally {
-        setCreatingKey(null);
+  const communityEngine = getEngine("community")!;
+
+  // Community group flow
+  const handleCommunityComplete = useCallback(async (answers: Record<string, unknown>) => {
+    if (!user?.id) { toast.error("You must be logged in"); return; }
+
+    const name = String(answers.community_name || "My Community");
+    const slug = String(answers.slug || "my-community");
+
+    const seedSections = communityEngine.defaultSections.map((s) => {
+      const schema = { ...s.schema };
+      if (s.type === "hero") schema.headline = name;
+      if (s.type === "text" && schema.heading === "About" && answers.description) {
+        schema.body = answers.description;
       }
-    },
-    [creatingKey, initAndNavigate],
-  );
+      return { type: s.type, schema };
+    });
 
+    const metadata: Record<string, unknown> = {
+      community_type: answers.community_type || "open",
+    };
+    if (answers.primary_color) metadata.brand = { primary_color: answers.primary_color };
+    if (answers._ai_setup) metadata.ai_setup = true;
+
+    await initAndNavigate({
+      surfaceType: "community_group",
+      slug,
+      title: name,
+      seedSections,
+      metadata,
+    });
+  }, [user, communityEngine, initAndNavigate]);
+
+  // Listing flow (simpler — uses the same esite-like pattern)
+  const handleListingCreate = useCallback(async () => {
+    if (!user?.id) { toast.error("You must be logged in"); return; }
+    await initAndNavigate({
+      surfaceType: "community_listing",
+      slug: "my-listing",
+      title: "My Listing",
+      seedSections: [
+        { type: "hero", schema: { headline: "Welcome", subheadline: "Discover what we offer" } },
+        { type: "text", schema: { heading: "Our Offer", body: "" } },
+        { type: "cta", schema: { label: "Get Started", href: "" } },
+        { type: "faq", schema: { items: [] } },
+      ],
+    });
+  }, [user, initAndNavigate]);
+
+  if (selectedFlow === "community") {
+    return (
+      <div>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="ml-4 mt-4 gap-2"
+          onClick={() => setSelectedFlow(null)}
+        >
+          ← Back
+        </Button>
+        <BuilderEntryScreen engine={communityEngine} onComplete={handleCommunityComplete} />
+      </div>
+    );
+  }
+
+  // Default: show type picker
   return (
     <div className="max-w-2xl mx-auto py-12 space-y-8">
       <div>
@@ -69,39 +93,31 @@ export default function DashboardCommunityPage() {
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2">
-        {COMMUNITY_FLOWS.map((flow) => {
-          const Icon = flow.icon;
-          const isBusy = creatingKey === flow.key;
-          const isDisabled = creatingKey !== null;
-          return (
-            <Card key={flow.key} className="p-6 flex flex-col gap-4">
-              <div className="flex items-center gap-3">
-                <div className="rounded-lg bg-primary/10 p-2.5">
-                  <Icon className="h-5 w-5 text-primary" />
-                </div>
-                <h2 className="text-lg font-semibold text-foreground">{flow.title}</h2>
-              </div>
-              <p className="text-sm text-muted-foreground flex-1">{flow.description}</p>
-              <Button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleCreate(flow);
-                }}
-                disabled={isDisabled}
-                className="w-full"
-              >
-                {isBusy ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Setting up…
-                  </>
-                ) : (
-                  flow.title
-                )}
-              </Button>
-            </Card>
-          );
-        })}
+        <Card className="p-6 flex flex-col gap-4 cursor-pointer hover:border-primary/30 transition-colors" onClick={handleListingCreate}>
+          <div className="flex items-center gap-3">
+            <div className="rounded-lg bg-primary/10 p-2.5">
+              <Store className="h-5 w-5 text-primary" />
+            </div>
+            <h2 className="text-lg font-semibold text-foreground">List on Community</h2>
+          </div>
+          <p className="text-sm text-muted-foreground flex-1">
+            Create a listing surface for your courses, services, or products.
+          </p>
+          <Button className="w-full">Create Listing</Button>
+        </Card>
+
+        <Card className="p-6 flex flex-col gap-4 cursor-pointer hover:border-primary/30 transition-colors" onClick={() => setSelectedFlow("community")}>
+          <div className="flex items-center gap-3">
+            <div className="rounded-lg bg-primary/10 p-2.5">
+              <Users className="h-5 w-5 text-primary" />
+            </div>
+            <h2 className="text-lg font-semibold text-foreground">Create a Community</h2>
+          </div>
+          <p className="text-sm text-muted-foreground flex-1">
+            Launch a branded community space for your organisation or audience.
+          </p>
+          <Button variant="outline" className="w-full">Get Started</Button>
+        </Card>
       </div>
     </div>
   );

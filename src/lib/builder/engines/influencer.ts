@@ -1,0 +1,78 @@
+import type { BuilderEngine } from "../types";
+
+export const influencerEngine: BuilderEngine = {
+  key: "influencer",
+  surfaceType: "live_bio",
+  label: "Influencer",
+  description: "Create your bio link page and connect with your audience.",
+  publishDomain: "yangu.live",
+  icon: "Star",
+  industries: [
+    { value: "fitness", label: "Fitness & Health" },
+    { value: "beauty", label: "Beauty & Skincare" },
+    { value: "sports", label: "Sports" },
+    { value: "tech", label: "Tech & Gadgets" },
+    { value: "lifestyle", label: "Lifestyle" },
+    { value: "gaming", label: "Gaming" },
+    { value: "education", label: "Education" },
+    { value: "fashion", label: "Fashion" },
+    { value: "comedy", label: "Comedy & Entertainment" },
+    { value: "travel", label: "Travel" },
+    { value: "food", label: "Food & Cooking" },
+    { value: "music", label: "Music" },
+    { value: "art", label: "Art & Design" },
+    { value: "other", label: "Other" },
+  ],
+  manualSteps: [
+    {
+      title: "Your Profile",
+      subtitle: "Tell us about yourself",
+      continueLabel: "Continue to Social →",
+      fields: [
+        { key: "display_name", label: "Display Name / Stage Name", type: "text", required: true, placeholder: "e.g. @CreatorName" },
+        { key: "slug", label: "Profile URL Slug", type: "slug", slugDomain: "yangu.live", slugSource: "display_name", required: true },
+        { key: "niche", label: "Your Niche", type: "select", options: [], required: true, hint: "What content do you create?" },
+        { key: "bio", label: "Short Bio", type: "textarea", placeholder: "Tell your audience who you are…" },
+        { key: "audience_location", label: "Audience Location", type: "text", placeholder: "e.g. East Africa, Global" },
+      ],
+    },
+    {
+      title: "Social & Links",
+      subtitle: "Connect your platforms",
+      continueLabel: "Continue to Style →",
+      fields: [
+        { key: "avatar_url", label: "Profile Photo", type: "file" },
+        { key: "link_instagram", label: "Instagram", type: "text", placeholder: "@handle" },
+        { key: "link_tiktok", label: "TikTok", type: "text", placeholder: "@handle" },
+        { key: "link_youtube", label: "YouTube", type: "text", placeholder: "Channel URL" },
+        { key: "link_twitter", label: "Twitter / X", type: "text", placeholder: "@handle" },
+        { key: "link_facebook", label: "Facebook", type: "text", placeholder: "Page URL" },
+        { key: "link_website", label: "Website", type: "text", placeholder: "https://…" },
+      ],
+    },
+    {
+      title: "Style & Features",
+      subtitle: "Customize your page look",
+      continueLabel: "Create Profile ✓",
+      fields: [
+        { key: "primary_color", label: "Accent Color", type: "color", defaultValue: "#8b5cf6" },
+        { key: "include_affiliate", label: "Affiliate Links Section", type: "switch", hint: "Add product recommendations" },
+        { key: "include_media", label: "Media / Shorts Section", type: "switch", defaultValue: true, hint: "Showcase your latest content" },
+        { key: "include_tips", label: "Tips / Support Section", type: "switch", hint: "Let fans support you" },
+        { key: "include_contact", label: "Contact / Booking", type: "switch", defaultValue: true },
+      ],
+    },
+  ],
+  aiQuestions: [
+    { key: "display_name", label: "Your name / handle", type: "text", required: true },
+    { key: "niche", label: "What content do you create?", type: "text", placeholder: "e.g. Fitness tips, Beauty tutorials" },
+    { key: "main_platform", label: "Main platform", type: "text", placeholder: "e.g. Instagram, TikTok, YouTube" },
+  ],
+  defaultSections: [
+    { type: "hero", schema: { headline: "", subheadline: "" } },
+    { type: "bio", schema: { text: "" } },
+    { type: "links", schema: { items: [] } },
+    { type: "media", schema: { heading: "Latest Content", items: [] } },
+  ],
+  editorModules: ["bio", "links", "media", "affiliate", "tips", "contact"],
+};

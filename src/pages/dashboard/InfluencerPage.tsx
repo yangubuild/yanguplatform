@@ -1,30 +1,60 @@
-import { useEffect } from "react";
+import { useCallback } from "react";
 import { useBuilderSurfaceInit } from "@/hooks/useBuilderSurfaceInit";
-import { Loader2 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
+import { getEngine } from "@/lib/builder/engineRegistry";
+import { BuilderEntryScreen } from "@/components/builder/BuilderEntryScreen";
 
 /**
- * When user navigates to /dashboard/influencer, find-or-create their
- * live_bio surface and immediately redirect to /builder/:surfaceId.
+ * Influencer entry page.
+ * Now shows the unified BuilderEntryScreen with "Build with AI" / "Build Manually"
+ * instead of auto-redirecting.
  */
 export default function InfluencerPage() {
-  const { initAndNavigate, isInitializing } = useBuilderSurfaceInit();
+  const { user } = useAuth();
+  const { initAndNavigate } = useBuilderSurfaceInit();
+  const engine = getEngine("influencer")!;
 
-  useEffect(() => {
-    initAndNavigate({
-      surfaceType: "live_bio",
-      slug: "profile",
-      title: "My Influencer Page",
+  const handleComplete = useCallback(async (answers: Record<string, unknown>) => {
+    if (!user?.id) { toast.error("You must be logged in"); return; }
+
+    const displayName = String(answers.display_name || "My Influencer Page");
+    const slug = String(answers.slug || "profile");
+
+    const seedSections = engine.defaultSections.map((s) => {
+      const schema = { ...s.schema };
+      if (s.type === "hero") schema.headline = displayName;
+      if (s.type === "bio" && answers.bio) schema.text = answers.bio;
+      return { type: s.type, schema };
     });
-    // Run once on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
-  return (
-    <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
-      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      <p className="text-sm text-muted-foreground">
-        {isInitializing ? "Setting up your Influencer page…" : "Redirecting to editor…"}
-      </p>
-    </div>
-  );
+    // Build links from answers
+    const linkItems: { label: string; url: string }[] = [];
+    const linkKeys = ["link_instagram", "link_tiktok", "link_youtube", "link_twitter", "link_facebook", "link_website"];
+    const linkLabels = ["Instagram", "TikTok", "YouTube", "Twitter / X", "Facebook", "Website"];
+    linkKeys.forEach((key, i) => {
+      if (answers[key]) linkItems.push({ label: linkLabels[i], url: String(answers[key]) });
+    });
+
+    // Inject links into the links section
+    const linksSection = seedSections.find((s) => s.type === "links");
+    if (linksSection && linkItems.length > 0) {
+      linksSection.schema.items = linkItems;
+    }
+
+    const metadata: Record<string, unknown> = {};
+    if (answers.primary_color) metadata.brand = { primary_color: answers.primary_color };
+    if (answers.niche) metadata.niche = answers.niche;
+    if (answers._ai_setup) metadata.ai_setup = true;
+
+    await initAndNavigate({
+      surfaceType: engine.surfaceType,
+      slug,
+      title: displayName,
+      seedSections,
+      metadata,
+    });
+  }, [user, engine, initAndNavigate]);
+
+  return <BuilderEntryScreen engine={engine} onComplete={handleComplete} />;
 }

@@ -1,0 +1,82 @@
+import type { BuilderEngine } from "../types";
+
+export const eshopEngine: BuilderEngine = {
+  key: "eshop",
+  surfaceType: "eshop",
+  label: "Eshop",
+  description: "Set up an online shop to sell your products.",
+  publishDomain: "yangu.shop",
+  icon: "ShoppingBag",
+  industries: [
+    { value: "fashion", label: "Fashion & Clothing" },
+    { value: "beauty", label: "Beauty & Cosmetics" },
+    { value: "electronics", label: "Electronics" },
+    { value: "home_goods", label: "Home Goods" },
+    { value: "boutique", label: "Boutique" },
+    { value: "accessories", label: "Accessories" },
+    { value: "kids", label: "Kids & Baby" },
+    { value: "handmade", label: "Handmade / Crafts" },
+    { value: "digital", label: "Digital Products" },
+    { value: "jewelry", label: "Jewelry" },
+    { value: "health", label: "Health & Wellness" },
+    { value: "sports", label: "Sports & Outdoors" },
+    { value: "art", label: "Art & Prints" },
+    { value: "other", label: "Other" },
+  ],
+  manualSteps: [
+    {
+      title: "Shop Information",
+      subtitle: "Tell us about your shop",
+      continueLabel: "Continue to Branding →",
+      fields: [
+        { key: "business_name", label: "Shop Name", type: "text", required: true, placeholder: "e.g. Afri Style Boutique" },
+        { key: "slug", label: "Shop URL Slug", type: "slug", slugDomain: "yangu.shop", slugSource: "business_name", required: true },
+        { key: "industry", label: "Product Category", type: "select", options: [], required: true },
+        { key: "business_description", label: "What do you sell?", type: "textarea", placeholder: "Brief description…" },
+        { key: "contact_email", label: "Contact Email", type: "email", required: true, colSpan: 1 },
+        { key: "contact_phone", label: "Contact Phone", type: "tel", colSpan: 1 },
+        { key: "currency", label: "Currency", type: "select", options: [
+          { value: "UGX", label: "UGX — Ugandan Shilling" },
+          { value: "USD", label: "USD — US Dollar" },
+          { value: "EUR", label: "EUR — Euro" },
+          { value: "GBP", label: "GBP — British Pound" },
+          { value: "KES", label: "KES — Kenyan Shilling" },
+          { value: "NGN", label: "NGN — Nigerian Naira" },
+          { value: "ZAR", label: "ZAR — South African Rand" },
+        ], defaultValue: "UGX" },
+      ],
+    },
+    {
+      title: "Branding",
+      subtitle: "Set your shop's visual identity",
+      continueLabel: "Continue to Settings →",
+      fields: [
+        { key: "logo_url", label: "Shop Logo", type: "file" },
+        { key: "primary_color", label: "Primary Color", type: "color", defaultValue: "#e11d48" },
+      ],
+    },
+    {
+      title: "Shop Settings",
+      subtitle: "Configure shipping and payments",
+      continueLabel: "Create Shop ✓",
+      fields: [
+        { key: "enable_delivery", label: "Enable Delivery", type: "switch", defaultValue: true },
+        { key: "enable_pickup", label: "Enable Pickup", type: "switch" },
+        { key: "pay_cash", label: "Cash on Delivery", type: "checkbox", defaultValue: true },
+        { key: "pay_mobile_money", label: "Mobile Money", type: "checkbox" },
+        { key: "pay_card", label: "Card / Stripe", type: "checkbox" },
+      ],
+    },
+  ],
+  aiQuestions: [
+    { key: "business_name", label: "Shop name", type: "text", required: true },
+    { key: "industry", label: "What do you sell?", type: "text", placeholder: "e.g. Fashion, Electronics, Handmade crafts" },
+    { key: "location", label: "Location", type: "text", placeholder: "City or country" },
+  ],
+  defaultSections: [
+    { type: "hero", schema: { headline: "", subheadline: "Shop our collection" } },
+    { type: "products", schema: { heading: "Products", items: [], layout: "grid" } },
+    { type: "cta", schema: { label: "Contact Us", href: "" } },
+  ],
+  editorModules: ["products", "collections", "cart", "checkout", "promos", "contact"],
+};
