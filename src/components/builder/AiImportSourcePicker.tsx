@@ -1,6 +1,5 @@
 /**
  * AI Import Source Picker — Logo tile grid for choosing import source.
- * Matches the Brizy-style screenshot: 4 logo tiles + "Add manually" tile.
  */
 
 import { ArrowRight, Sparkles } from "lucide-react";
@@ -21,10 +20,10 @@ const SOURCES: {
     logo: "/assets/builder/google-business.png",
   },
   {
-    key: "facebook",
-    label: "Facebook",
-    subtitle: "Import from your Facebook page",
-    logo: "/assets/builder/facebook.png",
+    key: "tiktok",
+    label: "TikTok",
+    subtitle: "Import from your TikTok profile",
+    logo: "/assets/builder/tiktok.png",
   },
   {
     key: "instagram",
@@ -33,10 +32,10 @@ const SOURCES: {
     logo: "/assets/builder/instagram.png",
   },
   {
-    key: "tiktok",
-    label: "TikTok",
-    subtitle: "Import from your TikTok profile",
-    logo: "/assets/builder/tiktok.png",
+    key: "facebook",
+    label: "Facebook",
+    subtitle: "Import from your Facebook page",
+    logo: "/assets/builder/facebook.png",
   },
   {
     key: "manual",
@@ -67,17 +66,20 @@ export function AiImportSourcePicker({ onSelect, categoryLabel }: Props) {
             key={source.key}
             onClick={() => onSelect(source.key)}
             className={cn(
-              "group relative flex items-center justify-between rounded-xl border border-border bg-white/90 dark:bg-white/10 p-5 text-left transition-all hover:border-primary/40 hover:shadow-md",
+              "group relative flex items-center justify-between rounded-xl border border-border/60 p-5 text-left transition-all",
+              "bg-[hsl(var(--muted))] hover:bg-[hsl(var(--muted))]/80 hover:border-primary/40 hover:shadow-md",
               source.key === "manual" && "col-span-1"
             )}
           >
             <div className="flex flex-col items-center justify-center w-full gap-2 min-h-[64px]">
               {source.logo ? (
-                <img
-                  src={source.logo}
-                  alt={source.label}
-                  className="h-8 max-w-[180px] object-contain"
-                />
+                <div className="bg-white/90 dark:bg-white/80 rounded-lg px-4 py-2">
+                  <img
+                    src={source.logo}
+                    alt={source.label}
+                    className="h-8 max-w-[180px] object-contain"
+                  />
+                </div>
               ) : (
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-primary" />

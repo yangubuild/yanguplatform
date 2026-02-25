@@ -211,6 +211,11 @@ export function BuilderAiOnboarding({ engine, onComplete, onBack }: Props) {
           <p className="text-sm text-muted-foreground mt-1">
             Answer a few questions and AI will generate your {engine.label} page.
           </p>
+          {engine.key === "emenu" && (
+            <p className="text-xs text-muted-foreground/70 mt-2 italic">
+              Your menu will be created for QR use by default. You can enable ordering later in settings.
+            </p>
+          )}
         </div>
         <div className="space-y-3">
           {engine.aiQuestions.map((q) => (
