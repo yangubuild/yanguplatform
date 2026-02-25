@@ -117,7 +117,7 @@ export default function BuilderEditor() {
           Settings
         </Button>
         {surfaceType === "emenu" && (
-          <Button size="sm" variant="outline" onClick={() => navigate("/orders")} className="gap-2">
+          <Button size="sm" variant="outline" onClick={() => navigate("/dashboard/seller/emenu/orders")} className="gap-2">
             <ClipboardList className="h-4 w-4" />
             View Orders
           </Button>

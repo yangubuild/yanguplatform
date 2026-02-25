@@ -94,7 +94,7 @@ const INITIAL_DATA: WizardData = {
   hero_banner_url: "",
   primary_color: "#b5622a",
   layout_style: "grid",
-  logo_position: "center",
+  logo_position: "left",
   logo_size: "medium",
   show_business_name: true,
   social_website: "",

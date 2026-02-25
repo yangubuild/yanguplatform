@@ -190,10 +190,12 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
         type: "hero",
         schema: {
           headline: wd.business_name,
-          subheadline: `${wd.location || "Welcome to our restaurant"}`,
+          subheadline: "",
           media: wd.hero_banner_url ? {
             type: "image", source: "upload", url: wd.hero_banner_url, alt: `${wd.business_name} banner`, fit: "cover",
           } : { type: "none", source: "url", url: "", alt: "", fit: "contain" },
+          logo: wd.logo_url || "",
+          logo_position: wd.logo_position || "left",
         },
       },
       {

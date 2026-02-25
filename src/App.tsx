@@ -131,6 +131,7 @@ import AgencyMembersPage from "./pages/dashboard/AgencyMembersPage";
 import AgencyPricingPage from "./pages/dashboard/AgencyPricingPage";
 import AgencySupportPage from "./pages/dashboard/AgencySupportPage";
 import MessagesPage from "./pages/dashboard/MessagesPage";
+const EmenuOrdersPage = lazy(() => import("./pages/dashboard/EmenuOrdersPage"));
 import { DashboardRoleGate } from "@/components/auth/DashboardRoleGate";
 
 // Supabase client auto-configured via environment
@@ -334,6 +335,7 @@ const App = () => (
                   <Route path="seller/estore" element={<SellerSurfacePage sellerKey="estore" />} />
                   <Route path="seller/emenu" element={<SellerSurfacePage sellerKey="emenu" />} />
                   <Route path="seller/esite" element={<SellerSurfacePage sellerKey="esite" />} />
+                  <Route path="seller/emenu/orders" element={<EmenuOrdersPage />} />
                   <Route path="seller/eshop-connect" element={<DashboardPlaceholder />} />
 
                   {/* Admin redirect */}
