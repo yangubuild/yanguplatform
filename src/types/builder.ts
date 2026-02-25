@@ -8,6 +8,7 @@ export type BuilderSurfaceType =
   | 'emenu'
   | 'eshop'
   | 'community_group'
+  | 'community_listing'
   | 'store_listing'
   | 'studio_showcase';
 

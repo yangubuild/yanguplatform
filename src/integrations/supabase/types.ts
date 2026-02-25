@@ -3624,6 +3624,7 @@ export type Database = {
         | "community_group"
         | "store_listing"
         | "studio_showcase"
+        | "community_listing"
       creator_type: "seller" | "builder" | "organization" | "learner"
       kyc_status: "pending" | "submitted" | "approved" | "rejected"
       login_mode: "disabled" | "optional" | "required"
@@ -3774,6 +3775,7 @@ export const Constants = {
         "community_group",
         "store_listing",
         "studio_showcase",
+        "community_listing",
       ],
       creator_type: ["seller", "builder", "organization", "learner"],
       kyc_status: ["pending", "submitted", "approved", "rejected"],

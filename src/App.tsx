@@ -58,6 +58,7 @@ const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const AiSafety = lazy(() => import("./pages/AiSafety"));
 const AdaLanding = lazy(() => import("./pages/AdaLanding"));
+const DashboardCommunityPage = lazy(() => import("./pages/dashboard/DashboardCommunityPage"));
 
 // Developer platform (lazy)
 const DevelopersLayout = lazy(() => import("./components/developers/DevelopersLayout").then(m => ({ default: m.DevelopersLayout })));
@@ -293,7 +294,7 @@ const App = () => (
                   <Route path="influencer" element={<InfluencerPage />} />
                   <Route path="visionaire" element={<DashboardPlaceholder />} />
                   <Route path="app-store" element={<DashboardPlaceholder />} />
-                  <Route path="community" element={<Navigate to="/community" replace />} />
+                  <Route path="community" element={<DashboardCommunityPage />} />
                   <Route path="profile" element={<ProfilePage />} />
                   <Route path="profile/edit" element={<EditProfilePage />} />
                   <Route path="profile/subscription" element={<SubscriptionPage />} />
