@@ -3,7 +3,7 @@ import { useBuilderSurfaceInit } from "@/hooks/useBuilderSurfaceInit";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Sparkles } from "lucide-react";
+import { Loader2, Sparkles, Utensils, Wrench } from "lucide-react";
 import { Card, PrimaryButton } from "@/components/primitives";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { EmenuWizard, type WizardData } from "@/components/builder/EmenuWizard";
 
 /** Map menu item → surface_type */
 const SURFACE_TYPE_MAP: Record<string, string> = {
@@ -49,6 +50,10 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
   const [aiOpen, setAiOpen] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
+
+  // Emenu wizard state
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const isEmenu = sellerKey === "emenu";
 
   const handleAIGenerate = async () => {
     if (!aiPrompt.trim()) {
@@ -151,6 +156,115 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
     }
   };
 
+  /** Handle emenu wizard completion — builds seed sections from wizard data */
+  const handleWizardComplete = async (wd: WizardData) => {
+    if (!user?.id) { toast.error("You must be logged in"); return; }
+
+    // Build social links object
+    const socialLinks: Record<string, string> = {};
+    if (wd.social_website) socialLinks.website = wd.social_website;
+    if (wd.social_instagram) socialLinks.instagram = wd.social_instagram;
+    if (wd.social_facebook) socialLinks.facebook = wd.social_facebook;
+    if (wd.social_twitter) socialLinks.twitter = wd.social_twitter;
+    if (wd.social_tiktok) socialLinks.tiktok = wd.social_tiktok;
+
+    // Build payment methods list
+    const paymentMethods: Record<string, unknown>[] = [];
+    if (wd.pay_cash) paymentMethods.push({ method: "cash", label: "Cash" });
+    if (wd.pay_mobile_money) paymentMethods.push({
+      method: "mobile_money", label: "Mobile Money",
+      number: wd.mobile_money_number, name: wd.mobile_money_name,
+    });
+    if (wd.pay_card) paymentMethods.push({ method: "card", label: "Card / Stripe" });
+    if (wd.pay_paypal) paymentMethods.push({ method: "paypal", label: "PayPal" });
+
+    // Build order types
+    const orderTypes: string[] = [];
+    if (wd.order_dine_in) orderTypes.push("dine_in");
+    if (wd.order_takeaway) orderTypes.push("takeaway");
+    if (wd.order_delivery) orderTypes.push("delivery");
+
+    // Build seed sections from wizard data
+    const seedSections: { type: string; schema: Record<string, unknown> }[] = [
+      {
+        type: "hero",
+        schema: {
+          headline: wd.business_name,
+          subheadline: `${wd.location || "Welcome to our restaurant"}`,
+          media: wd.logo_url ? {
+            type: "image", source: "upload", url: wd.logo_url, alt: wd.business_name, fit: "contain",
+          } : { type: "none", source: "url", url: "", alt: "", fit: "contain" },
+        },
+      },
+      {
+        type: "menu",
+        schema: {
+          heading: "Menu",
+          categories: [
+            { name: "Starters", items: [] },
+            { name: "Meals", items: [] },
+            { name: "Drinks", items: [] },
+          ],
+          layout_style: wd.layout_style,
+          currency: wd.currency,
+          currency_symbol: wd.currency_symbol,
+        },
+      },
+      {
+        type: "hours",
+        schema: {
+          heading: "Opening Hours",
+          items: [],
+        },
+      },
+      {
+        type: "contact",
+        schema: {
+          heading: "Contact",
+          email: wd.contact_email,
+          phone: wd.contact_phone,
+          address: wd.location,
+        },
+      },
+    ];
+
+    // Add social section if any links provided
+    if (Object.keys(socialLinks).length > 0) {
+      seedSections.push({
+        type: "social",
+        schema: { handles: socialLinks },
+      });
+    }
+
+    // Store extra metadata on the surface for order/payment settings
+    const surfaceMetadata = {
+      brand: {
+        logo: wd.logo_url,
+        primary_color: wd.primary_color,
+      },
+      header: {
+        logo_position: wd.logo_position,
+        logo_size: wd.logo_size,
+        show_name: wd.show_business_name,
+      },
+      order_types: orderTypes,
+      payment_methods: paymentMethods,
+    };
+
+    try {
+      await initAndNavigate({
+        surfaceType: "emenu",
+        slug: wd.slug,
+        title: wd.business_name,
+        seedSections,
+        metadata: surfaceMetadata,
+      });
+      setWizardOpen(false);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to create menu");
+    }
+  };
+
   const busy = isGenerating || isInitializing;
 
   return (
@@ -159,6 +273,30 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
         <h1 className="text-2xl font-bold">{meta.title}</h1>
         <p className="text-muted-foreground mt-1">{meta.description}</p>
       </div>
+
+      {/* Emenu: show two entry paths */}
+      {isEmenu && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Card className="p-6 space-y-3 border-2 border-primary/30 hover:border-primary/60 transition-colors cursor-pointer" onClick={() => setWizardOpen(true)}>
+            <div className="flex items-center gap-2">
+              <Utensils className="h-5 w-5 text-primary" />
+              <h3 className="font-semibold">Generate with Questions</h3>
+            </div>
+            <p className="text-sm text-muted-foreground">Answer a few questions and we'll auto-generate your menu page with branding, categories, and settings.</p>
+            <Button size="sm" className="w-full gap-2" onClick={(e) => { e.stopPropagation(); setWizardOpen(true); }}>
+              <Sparkles className="h-4 w-4" /> Start Wizard
+            </Button>
+          </Card>
+
+          <Card className="p-6 space-y-3 hover:border-primary/30 transition-colors">
+            <div className="flex items-center gap-2">
+              <Wrench className="h-5 w-5 text-muted-foreground" />
+              <h3 className="font-semibold">Build Manually</h3>
+            </div>
+            <p className="text-sm text-muted-foreground">Start with a blank menu and add sections, categories, and items yourself in the editor.</p>
+          </Card>
+        </div>
+      )}
 
       <Card className="p-6 space-y-4">
         <div className="space-y-2">
@@ -242,6 +380,15 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Emenu Wizard */}
+      {isEmenu && (
+        <EmenuWizard
+          open={wizardOpen}
+          onOpenChange={setWizardOpen}
+          onComplete={handleWizardComplete}
+        />
+      )}
     </div>
   );
 }
