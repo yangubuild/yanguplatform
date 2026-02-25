@@ -31,6 +31,7 @@ import { toast } from "sonner";
 export interface MediaValue {
   type: "none" | "image" | "video";
   source: "url" | "upload" | "stock" | "ai";
+  fit?: "contain" | "cover";
   url?: string;
   provider?: "pexels" | "unsplash";
   assetId?: string;

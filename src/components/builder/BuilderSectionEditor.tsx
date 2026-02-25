@@ -97,6 +97,7 @@ function HeroForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
     provider: rawMedia.provider,
     assetId: rawMedia.assetId,
     alt: rawMedia.alt || "",
+    fit: rawMedia.fit || "contain",
   };
 
   return (
@@ -108,6 +109,18 @@ function HeroForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
         onChange={(v) => update({ media: v })}
         surfaceId={surfaceId || ""}
       />
+      {mediaValue.type === "image" && mediaValue.url && (
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-muted-foreground">Image Fit</label>
+          <Select value={mediaValue.fit || "contain"} onValueChange={(v) => update({ media: { ...mediaValue, fit: v as "contain" | "cover" } })}>
+            <SelectTrigger className="text-sm"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="contain">Contain (show full image)</SelectItem>
+              <SelectItem value="cover">Cover (fill area, may crop)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
     </>
   );
 }
