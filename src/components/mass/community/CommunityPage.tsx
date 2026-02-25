@@ -11,6 +11,7 @@ import { BottomCta } from "./BottomCta";
 import { CommunityFooter } from "./CommunityFooter";
 import { useCommunitySection, type CommunitySectionItem } from "@/hooks/useCommunitySection";
 import { useCommunityListings } from "@/hooks/useCommunityListings";
+import { useBuilderCommunityListings, type BuilderCommunityListing } from "@/hooks/useBuilderCommunityListings";
 import type { CommunityItem } from "./communityData";
 import { useNavigate } from "react-router-dom";
 import yanguLogo from "@/assets/yangu-logo-full.png";
@@ -76,6 +77,20 @@ function CommunityPageInner() {
 
   // Fallback for filtered (non-Explore) view: use the general listings RPC
   const { data: liveListings, isLoading: listingsLoading } = useCommunityListings(24, 0);
+
+  // Builder community listings (surfaces with list_on_community = true)
+  const { data: builderListings } = useBuilderCommunityListings(12, 0);
+  const builderItems: CommunityItem[] = (builderListings ?? []).map((bl) => ({
+    id: bl.surface_id,
+    image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=375&fit=crop",
+    title: bl.title || "Untitled",
+    description: bl.description || bl.title || "",
+    category: "Explore",
+  }));
+  const builderLinks = new Map<string, string>();
+  for (const bl of builderListings ?? []) {
+    builderLinks.set(bl.surface_id, `/s/${bl.surface_id}/preview`);
+  }
 
   const isExplore = activeFilter === "Explore";
   const isLoading = isExplore
@@ -151,6 +166,9 @@ function CommunityPageInner() {
               <SubscribeCta />
               <CommunitySection title="Be more productive" items={productiveItems} linkMap={productiveLinks} seeAllHref="/community/see-all?section=category&category_key=be_more_productive" />
               <CommunitySection title="Start and scale my business" items={businessItems} linkMap={businessLinks} seeAllHref="/community/see-all?section=category&category_key=start_scale_business" />
+              {builderItems.length > 0 && (
+                <CommunitySection title="Community Listings" items={builderItems} linkMap={builderLinks} showSeeAll={false} />
+              )}
               <BottomCta />
               <CommunityFooter />
             </>
