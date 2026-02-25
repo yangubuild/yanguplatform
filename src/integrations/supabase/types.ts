@@ -3363,6 +3363,10 @@ export type Database = {
         }[]
       }
       get_app_runtime_context: { Args: { p_app_id: string }; Returns: Json }
+      get_builder_community_listings: {
+        Args: { p_limit?: number; p_offset?: number }
+        Returns: Json
+      }
       get_community_section: {
         Args: {
           p_category_key?: string
