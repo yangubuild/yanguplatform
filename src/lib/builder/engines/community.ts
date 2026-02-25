@@ -1,0 +1,80 @@
+import type { BuilderEngine } from "../types";
+
+export const communityEngine: BuilderEngine = {
+  key: "community",
+  surfaceType: "community_group",
+  label: "Community",
+  description: "Launch a branded community space for your audience or organisation.",
+  publishDomain: "yangu.community",
+  icon: "Users",
+  industries: [
+    { value: "creators", label: "Creators & Artists" },
+    { value: "freelancers", label: "Freelancers" },
+    { value: "coaches", label: "Coaches & Mentors" },
+    { value: "pastors", label: "Pastors & Religious Leaders" },
+    { value: "leaders", label: "Community Leaders" },
+    { value: "ngo", label: "NGOs & Nonprofits" },
+    { value: "school", label: "Schools & Education" },
+    { value: "church", label: "Churches & Religious Orgs" },
+    { value: "banking", label: "Banks & SACCOs" },
+    { value: "microfinance", label: "Microfinance" },
+    { value: "therapists", label: "Therapists & Counselors" },
+    { value: "institutions", label: "Institutions" },
+    { value: "professional", label: "Professional Network" },
+    { value: "other", label: "Other" },
+  ],
+  manualSteps: [
+    {
+      title: "Community Details",
+      subtitle: "Tell us about your community",
+      continueLabel: "Continue to Membership →",
+      fields: [
+        { key: "community_name", label: "Community Name", type: "text", required: true, placeholder: "e.g. Fitness Tribe UG" },
+        { key: "slug", label: "Community URL Slug", type: "slug", slugDomain: "yangu.community", slugSource: "community_name", required: true },
+        { key: "community_type", label: "Community Type", type: "select", options: [
+          { value: "open", label: "Open — Anyone can join" },
+          { value: "approval", label: "Approval — Request to join" },
+          { value: "invite", label: "Invite Only" },
+          { value: "paid", label: "Paid Membership" },
+        ], required: true, defaultValue: "open" },
+        { key: "description", label: "Community Description", type: "textarea", placeholder: "What is this community about?" },
+        { key: "contact_email", label: "Admin Email", type: "email", required: true },
+      ],
+    },
+    {
+      title: "Membership & Programs",
+      subtitle: "Configure how members engage",
+      continueLabel: "Continue to Branding →",
+      fields: [
+        { key: "enable_events", label: "Events & Calendar", type: "switch", defaultValue: true, hint: "Host events for your community" },
+        { key: "enable_programs", label: "Programs / Courses", type: "switch", hint: "Structured learning or mentorship" },
+        { key: "enable_resources", label: "Resources / Files", type: "switch", defaultValue: true, hint: "Share documents and resources" },
+        { key: "enable_directory", label: "Member Directory", type: "switch", hint: "Let members find each other" },
+        { key: "enable_messaging", label: "Community Messaging", type: "switch", defaultValue: true },
+        { key: "onboarding_questions", label: "Ask new members questions?", type: "switch", hint: "Collect info when members join" },
+      ],
+    },
+    {
+      title: "Branding",
+      subtitle: "Set your community's look",
+      continueLabel: "Create Community ✓",
+      fields: [
+        { key: "logo_url", label: "Community Logo", type: "file" },
+        { key: "primary_color", label: "Primary Color", type: "color", defaultValue: "#7c3aed" },
+        { key: "cover_image_url", label: "Cover Image", type: "file", hint: "Banner for your community page" },
+      ],
+    },
+  ],
+  aiQuestions: [
+    { key: "community_name", label: "Community name", type: "text", required: true },
+    { key: "community_purpose", label: "What is this community for?", type: "textarea", placeholder: "e.g. Connecting fitness enthusiasts in Kampala" },
+    { key: "community_type", label: "Open, invite-only, or paid?", type: "text", placeholder: "e.g. Open" },
+  ],
+  defaultSections: [
+    { type: "hero", schema: { headline: "", subheadline: "Join our community" } },
+    { type: "text", schema: { heading: "About", body: "" } },
+    { type: "text", schema: { heading: "Programs", body: "" } },
+    { type: "cta", schema: { label: "Join Now", href: "" } },
+  ],
+  editorModules: ["hero", "about", "events", "programs", "resources", "directory", "messaging"],
+};
