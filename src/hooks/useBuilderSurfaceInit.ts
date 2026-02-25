@@ -25,6 +25,7 @@ export function useBuilderSurfaceInit() {
       slug: string;
       title: string;
       seedSections?: { type: string; schema: Record<string, unknown> }[];
+      metadata?: Record<string, unknown>;
     }) => {
       if (!user?.id) {
         toast.error("You must be logged in");
@@ -51,14 +52,18 @@ export function useBuilderSurfaceInit() {
         }
 
         // 2) Create surface
-        const { data: surface, error: createErr } = await supabase
-          .from("builder_surfaces")
-          .insert({
+        const insertPayload: Record<string, unknown> = {
             user_id: user.id,
             surface_type: opts.surfaceType as any,
             slug: opts.slug,
             title: opts.title,
-          })
+          };
+        if (opts.metadata) {
+          insertPayload.metadata = opts.metadata;
+        }
+        const { data: surface, error: createErr } = await supabase
+          .from("builder_surfaces")
+          .insert(insertPayload as any)
           .select("id")
           .single();
 
