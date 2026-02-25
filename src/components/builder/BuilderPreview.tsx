@@ -19,14 +19,21 @@ function isYouTubeUrl(url: string): string | null {
 }
 
 function HeroPreview({ schema }: { schema: Record<string, unknown> }) {
-  const media = (schema.media as { type?: string; url?: string }) || {};
+  const media = (schema.media as { type?: string; url?: string; fit?: string }) || {};
   const mediaType = media.type || "none";
   const mediaUrl = media.url || "";
+  const mediaFit = media.fit || "contain";
 
   return (
     <div className="py-12 px-6 text-center bg-gradient-to-b from-accent/10 to-transparent rounded-lg">
       {mediaType === "image" && mediaUrl && (
-        <img src={mediaUrl} alt="" className="w-full h-48 object-cover rounded-lg mb-4" />
+        <div className={`aspect-video rounded-lg mb-4 overflow-hidden ${mediaFit === "contain" ? "bg-muted" : ""}`}>
+          <img
+            src={mediaUrl}
+            alt=""
+            className={`w-full h-full ${mediaFit === "cover" ? "object-cover" : "object-contain"}`}
+          />
+        </div>
       )}
       {mediaType === "video" && mediaUrl && (() => {
         const ytId = isYouTubeUrl(mediaUrl);
