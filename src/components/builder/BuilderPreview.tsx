@@ -6,7 +6,8 @@ interface BuilderPreviewProps {
   surfaceTitle: string;
 }
 
-// Minimal preview renderers per section type
+// ─── Existing live_bio renderers (unchanged) ───
+
 function HeroPreview({ schema }: { schema: Record<string, unknown> }) {
   return (
     <div className="py-12 px-6 text-center bg-gradient-to-b from-accent/10 to-transparent rounded-lg">
@@ -109,6 +110,378 @@ function GalleryPreview({ schema }: { schema: Record<string, unknown> }) {
   );
 }
 
+// ─── New section type renderers ───
+
+function TextPreview({ schema }: { schema: Record<string, unknown> }) {
+  return (
+    <div className="py-4 px-6">
+      <h3 className="text-sm font-semibold text-foreground mb-1">
+        {(schema.heading as string) || "Text Section"}
+      </h3>
+      <p className="text-sm text-muted-foreground">
+        {(schema.body as string) || "Content goes here..."}
+      </p>
+    </div>
+  );
+}
+
+function OfferPreview({ schema }: { schema: Record<string, unknown> }) {
+  const items = (schema.items as Array<{ title?: string }>) || [];
+  return (
+    <div className="py-4 px-6">
+      <h3 className="text-sm font-semibold text-foreground mb-2">
+        {(schema.heading as string) || "What We Offer"}
+      </h3>
+      {items.length === 0 ? (
+        <p className="text-sm text-muted-foreground/60 italic">No offers added</p>
+      ) : (
+        <ul className="space-y-1">
+          {items.map((item, i) => (
+            <li key={i} className="text-sm text-muted-foreground">• {item.title || "Offer"}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function PlansPreview({ schema }: { schema: Record<string, unknown> }) {
+  const items = (schema.items as Array<{ name?: string; price?: string }>) || [];
+  return (
+    <div className="py-4 px-6">
+      <h3 className="text-sm font-semibold text-foreground mb-2">
+        {(schema.heading as string) || "Plans"}
+      </h3>
+      {items.length === 0 ? (
+        <p className="text-sm text-muted-foreground/60 italic">No plans added</p>
+      ) : (
+        <div className="grid grid-cols-2 gap-2">
+          {items.map((item, i) => (
+            <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 text-center">
+              <p className="text-sm font-medium">{item.name || "Plan"}</p>
+              {item.price && <p className="text-xs text-muted-foreground">{item.price}</p>}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function RulesPreview({ schema }: { schema: Record<string, unknown> }) {
+  const items = (schema.items as Array<{ text?: string }>) || [];
+  return (
+    <div className="py-4 px-6">
+      <h3 className="text-sm font-semibold text-foreground mb-2">
+        {(schema.heading as string) || "Rules"}
+      </h3>
+      {items.length === 0 ? (
+        <p className="text-sm text-muted-foreground/60 italic">No rules defined</p>
+      ) : (
+        <ol className="space-y-1 list-decimal list-inside">
+          {items.map((item, i) => (
+            <li key={i} className="text-sm text-muted-foreground">{item.text || `Rule ${i + 1}`}</li>
+          ))}
+        </ol>
+      )}
+    </div>
+  );
+}
+
+function JoinPreview({ schema }: { schema: Record<string, unknown> }) {
+  return (
+    <div className="py-6 px-6 text-center">
+      {schema.description && (
+        <p className="text-sm text-muted-foreground mb-3">{schema.description as string}</p>
+      )}
+      <button className="px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium">
+        {(schema.label as string) || "Join Now"}
+      </button>
+    </div>
+  );
+}
+
+function ProductsPreview({ schema }: { schema: Record<string, unknown> }) {
+  const items = (schema.items as Array<{ name?: string; price?: string }>) || [];
+  return (
+    <div className="py-4 px-6">
+      <h3 className="text-sm font-semibold text-foreground mb-2">
+        {(schema.heading as string) || "Products"}
+      </h3>
+      {items.length === 0 ? (
+        <p className="text-sm text-muted-foreground/60 italic">No products added</p>
+      ) : (
+        <div className="grid grid-cols-2 gap-2">
+          {items.map((item, i) => (
+            <div key={i} className="p-3 rounded-lg border border-border bg-muted/50">
+              <p className="text-sm font-medium">{item.name || "Product"}</p>
+              {item.price && <p className="text-xs text-muted-foreground">{item.price}</p>}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CategoriesPreview({ schema }: { schema: Record<string, unknown> }) {
+  const items = (schema.items as Array<{ name?: string }>) || [];
+  return (
+    <div className="py-4 px-6">
+      <h3 className="text-sm font-semibold text-foreground mb-2">
+        {(schema.heading as string) || "Categories"}
+      </h3>
+      {items.length === 0 ? (
+        <p className="text-sm text-muted-foreground/60 italic">No categories added</p>
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          {items.map((item, i) => (
+            <span key={i} className="px-3 py-1 rounded-full bg-muted text-xs font-medium">
+              {item.name || "Category"}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ListingsPreview({ schema }: { schema: Record<string, unknown> }) {
+  const items = (schema.items as Array<{ title?: string }>) || [];
+  return (
+    <div className="py-4 px-6">
+      <h3 className="text-sm font-semibold text-foreground mb-2">
+        {(schema.heading as string) || "Listings"}
+      </h3>
+      {items.length === 0 ? (
+        <p className="text-sm text-muted-foreground/60 italic">No listings added</p>
+      ) : (
+        <div className="space-y-2">
+          {items.map((item, i) => (
+            <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 text-sm">
+              {item.title || "Listing"}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function FiltersPreview({ schema }: { schema: Record<string, unknown> }) {
+  const keys = (schema.keys as string[]) || [];
+  return (
+    <div className="py-4 px-6">
+      <h3 className="text-sm font-semibold text-foreground mb-2">
+        {(schema.heading as string) || "Filters"}
+      </h3>
+      {keys.length === 0 ? (
+        <p className="text-sm text-muted-foreground/60 italic">No filters configured</p>
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          {keys.map((k, i) => (
+            <span key={i} className="px-3 py-1 rounded-full border border-border text-xs">
+              {k}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ServicesPreview({ schema }: { schema: Record<string, unknown> }) {
+  const items = (schema.items as Array<{ name?: string; description?: string }>) || [];
+  return (
+    <div className="py-4 px-6">
+      <h3 className="text-sm font-semibold text-foreground mb-2">
+        {(schema.heading as string) || "Services"}
+      </h3>
+      {items.length === 0 ? (
+        <p className="text-sm text-muted-foreground/60 italic">No services added</p>
+      ) : (
+        <div className="space-y-2">
+          {items.map((item, i) => (
+            <div key={i} className="p-3 rounded-lg border border-border bg-muted/50">
+              <p className="text-sm font-medium">{item.name || "Service"}</p>
+              {item.description && <p className="text-xs text-muted-foreground">{item.description}</p>}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TestimonialsPreview({ schema }: { schema: Record<string, unknown> }) {
+  const items = (schema.items as Array<{ name?: string; quote?: string }>) || [];
+  return (
+    <div className="py-4 px-6">
+      <h3 className="text-sm font-semibold text-foreground mb-2">
+        {(schema.heading as string) || "Testimonials"}
+      </h3>
+      {items.length === 0 ? (
+        <p className="text-sm text-muted-foreground/60 italic">No testimonials added</p>
+      ) : (
+        <div className="space-y-2">
+          {items.map((item, i) => (
+            <div key={i} className="p-3 rounded-lg border border-border bg-muted/50">
+              <p className="text-sm italic text-muted-foreground">"{item.quote || "..."}"</p>
+              <p className="text-xs font-medium mt-1">— {item.name || "Anonymous"}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function FaqPreview({ schema }: { schema: Record<string, unknown> }) {
+  const items = (schema.items as Array<{ question?: string; answer?: string }>) || [];
+  return (
+    <div className="py-4 px-6">
+      <h3 className="text-sm font-semibold text-foreground mb-2">
+        {(schema.heading as string) || "FAQ"}
+      </h3>
+      {items.length === 0 ? (
+        <p className="text-sm text-muted-foreground/60 italic">No FAQ items added</p>
+      ) : (
+        <div className="space-y-2">
+          {items.map((item, i) => (
+            <div key={i} className="p-3 rounded-lg border border-border bg-muted/50">
+              <p className="text-sm font-medium">{item.question || "Question?"}</p>
+              {item.answer && <p className="text-xs text-muted-foreground mt-1">{item.answer}</p>}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ContactPreview({ schema }: { schema: Record<string, unknown> }) {
+  return (
+    <div className="py-4 px-6">
+      <h3 className="text-sm font-semibold text-foreground mb-2">
+        {(schema.heading as string) || "Contact"}
+      </h3>
+      <div className="space-y-1 text-sm text-muted-foreground">
+        {schema.email && <p>✉️ {schema.email as string}</p>}
+        {schema.phone && <p>📞 {schema.phone as string}</p>}
+        {schema.address && <p>📍 {schema.address as string}</p>}
+        {!schema.email && !schema.phone && !schema.address && (
+          <p className="italic text-muted-foreground/60">No contact info added</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SchedulePreview({ schema }: { schema: Record<string, unknown> }) {
+  const items = (schema.items as Array<{ time?: string; title?: string }>) || [];
+  return (
+    <div className="py-4 px-6">
+      <h3 className="text-sm font-semibold text-foreground mb-2">
+        {(schema.heading as string) || "Schedule"}
+      </h3>
+      {items.length === 0 ? (
+        <p className="text-sm text-muted-foreground/60 italic">No schedule items</p>
+      ) : (
+        <div className="space-y-1">
+          {items.map((item, i) => (
+            <div key={i} className="flex gap-2 text-sm">
+              <span className="font-medium text-muted-foreground">{item.time || "TBD"}</span>
+              <span>{item.title || "Event"}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MenuPreview({ schema }: { schema: Record<string, unknown> }) {
+  const categories = (schema.categories as Array<{ name?: string; items?: Array<{ name?: string; price?: string }> }>) || [];
+  return (
+    <div className="py-4 px-6">
+      <h3 className="text-sm font-semibold text-foreground mb-2">
+        {(schema.heading as string) || "Menu"}
+      </h3>
+      {categories.length === 0 ? (
+        <p className="text-sm text-muted-foreground/60 italic">No menu items added</p>
+      ) : (
+        <div className="space-y-3">
+          {categories.map((cat, i) => (
+            <div key={i}>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{cat.name || "Category"}</p>
+              {(cat.items || []).map((item, j) => (
+                <div key={j} className="flex justify-between text-sm py-0.5">
+                  <span>{item.name || "Item"}</span>
+                  {item.price && <span className="text-muted-foreground">{item.price}</span>}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function HoursPreview({ schema }: { schema: Record<string, unknown> }) {
+  const items = (schema.items as Array<{ day?: string; hours?: string }>) || [];
+  return (
+    <div className="py-4 px-6">
+      <h3 className="text-sm font-semibold text-foreground mb-2">
+        {(schema.heading as string) || "Opening Hours"}
+      </h3>
+      {items.length === 0 ? (
+        <p className="text-sm text-muted-foreground/60 italic">No hours set</p>
+      ) : (
+        <div className="space-y-1">
+          {items.map((item, i) => (
+            <div key={i} className="flex justify-between text-sm">
+              <span className="font-medium">{item.day || "Day"}</span>
+              <span className="text-muted-foreground">{item.hours || "Closed"}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LocationPreview({ schema }: { schema: Record<string, unknown> }) {
+  return (
+    <div className="py-4 px-6">
+      <h3 className="text-sm font-semibold text-foreground mb-2">
+        {(schema.heading as string) || "Location"}
+      </h3>
+      <p className="text-sm text-muted-foreground">
+        {(schema.address as string) || "No address set"}
+      </p>
+      {schema.mapUrl && (
+        <div className="mt-2 aspect-video rounded-lg bg-muted flex items-center justify-center">
+          <p className="text-xs text-muted-foreground">📍 Map</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AboutPreview({ schema }: { schema: Record<string, unknown> }) {
+  return (
+    <div className="py-4 px-6">
+      <h3 className="text-sm font-semibold text-foreground mb-1">
+        {(schema.heading as string) || "About Us"}
+      </h3>
+      <p className="text-sm text-muted-foreground">
+        {(schema.body as string) || "Tell people about your community..."}
+      </p>
+    </div>
+  );
+}
+
 function GenericPreview({ section }: { section: EditorSection }) {
   return (
     <div className="py-4 px-6">
@@ -119,7 +492,9 @@ function GenericPreview({ section }: { section: EditorSection }) {
   );
 }
 
+// ─── Preview map ───
 const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<string, unknown> }>> = {
+  // Existing
   hero: HeroPreview,
   bio: BioPreview,
   links: LinksPreview,
@@ -127,6 +502,25 @@ const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<string, u
   cta: CtaPreview,
   video: VideoPreview,
   gallery: GalleryPreview,
+  // New
+  text: TextPreview,
+  about: AboutPreview,
+  offer: OfferPreview,
+  plans: PlansPreview,
+  rules: RulesPreview,
+  join: JoinPreview,
+  products: ProductsPreview,
+  categories: CategoriesPreview,
+  listings: ListingsPreview,
+  filters: FiltersPreview,
+  services: ServicesPreview,
+  testimonials: TestimonialsPreview,
+  faq: FaqPreview,
+  contact: ContactPreview,
+  schedule: SchedulePreview,
+  menu: MenuPreview,
+  hours: HoursPreview,
+  location: LocationPreview,
 };
 
 export function BuilderPreview({ sections, surfaceTitle }: BuilderPreviewProps) {

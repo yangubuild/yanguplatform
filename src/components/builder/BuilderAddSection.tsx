@@ -6,7 +6,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Plus, Loader2, Sparkles } from "lucide-react";
-import { LIVE_BIO_SECTION_TYPES } from "@/hooks/useBuilderEditor";
+import { getSectionPalette } from "@/config/builderSectionPalettes";
 import { BuilderAIGenerateModal } from "./BuilderAIGenerateModal";
 
 interface BuilderAddSectionProps {
@@ -16,19 +16,11 @@ interface BuilderAddSectionProps {
   surfaceType: string;
 }
 
-const TYPE_ICONS: Record<string, string> = {
-  hero: "🖼",
-  bio: "📝",
-  links: "🔗",
-  social: "📱",
-  cta: "📣",
-  video: "🎬",
-  gallery: "🖼️",
-};
-
 export function BuilderAddSection({ onAdd, onAddWithSchema, isAdding, surfaceType }: BuilderAddSectionProps) {
   const [open, setOpen] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
+
+  const palette = getSectionPalette(surfaceType);
 
   const handleSelect = async (type: string) => {
     setOpen(false);
@@ -47,13 +39,13 @@ export function BuilderAddSection({ onAdd, onAddWithSchema, isAdding, surfaceTyp
           </PopoverTrigger>
           <PopoverContent className="w-56 p-2" align="start">
             <div className="space-y-1">
-              {LIVE_BIO_SECTION_TYPES.map(({ type, label }) => (
+              {palette.map(({ type, label, icon }) => (
                 <button
                   key={type}
                   onClick={() => handleSelect(type)}
                   className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors text-left"
                 >
-                  <span>{TYPE_ICONS[type] || "📄"}</span>
+                  <span>{icon}</span>
                   <span>{label}</span>
                 </button>
               ))}

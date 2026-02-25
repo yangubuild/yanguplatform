@@ -32,30 +32,12 @@ export interface EditorState {
   pages: EditorPage[];
 }
 
-// ─── Default schemas for live_bio section types ───
-export const LIVE_BIO_SECTION_TYPES = [
-  { type: "hero", label: "Hero" },
-  { type: "bio", label: "Bio" },
-  { type: "links", label: "Links" },
-  { type: "social", label: "Socials" },
-  { type: "cta", label: "Call to Action" },
-  { type: "video", label: "Video" },
-  { type: "gallery", label: "Gallery" },
-] as const;
+// Re-export palette helpers from central config
+import { getSectionPalette, getDefaultSchema } from "@/config/builderSectionPalettes";
+export { getSectionPalette, getDefaultSchema };
 
-const DEFAULT_SCHEMAS: Record<string, Record<string, unknown>> = {
-  hero: { headline: "Welcome to my page", subheadline: "" },
-  bio: { text: "" },
-  links: { items: [] },
-  social: { handles: {} },
-  cta: { label: "Contact", href: "" },
-  video: { url: "" },
-  gallery: { items: [] },
-};
-
-export function getDefaultSchema(sectionType: string): Record<string, unknown> {
-  return DEFAULT_SCHEMAS[sectionType] || {};
-}
+// Keep LIVE_BIO_SECTION_TYPES as a convenience alias for backward compat
+export const LIVE_BIO_SECTION_TYPES = getSectionPalette("live_bio");
 
 // ─── Hook ───
 export function useBuilderEditor(surfaceId: string | undefined) {

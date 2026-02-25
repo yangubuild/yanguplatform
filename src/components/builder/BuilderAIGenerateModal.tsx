@@ -18,7 +18,7 @@ import {
 import { Loader2, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { LIVE_BIO_SECTION_TYPES } from "@/hooks/useBuilderEditor";
+import { getSectionPalette } from "@/config/builderSectionPalettes";
 
 interface Props {
   open: boolean;
@@ -31,6 +31,8 @@ export function BuilderAIGenerateModal({ open, onOpenChange, surfaceType, onGene
   const [sectionType, setSectionType] = useState("");
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+
+  const palette = getSectionPalette(surfaceType);
 
   const handleGenerate = async () => {
     if (!sectionType) {
@@ -84,7 +86,7 @@ export function BuilderAIGenerateModal({ open, onOpenChange, surfaceType, onGene
                 <SelectValue placeholder="Choose a section type" />
               </SelectTrigger>
               <SelectContent>
-                {LIVE_BIO_SECTION_TYPES.map(({ type, label }) => (
+                {palette.map(({ type, label }) => (
                   <SelectItem key={type} value={type}>{label}</SelectItem>
                 ))}
               </SelectContent>
