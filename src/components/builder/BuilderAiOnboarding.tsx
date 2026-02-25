@@ -4,10 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/primitives";
-import { ArrowLeft, Loader2, Sparkles, Globe, Instagram, Facebook } from "lucide-react";
+import { ArrowLeft, Sparkles, Globe, Instagram, Facebook } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { BuilderEngine } from "@/lib/builder/types";
+import { generateDraftFromAnswers, validateDraft } from "@/lib/builder/aiPipeline";
+import { AiBuildProgress } from "./AiBuildProgress";
 
 type ImportSource = "google_business" | "facebook" | "instagram" | "tiktok" | "manual";
 
@@ -25,116 +27,110 @@ interface Props {
   onBack: () => void;
 }
 
-/**
- * AI-assisted onboarding: user picks a source (social profile URL or manual),
- * AI extracts/generates business info, then lands user in editor.
- */
 export function BuilderAiOnboarding({ engine, onComplete, onBack }: Props) {
   const [phase, setPhase] = useState<"source" | "url_input" | "questions" | "generating">("source");
   const [selectedSource, setSelectedSource] = useState<ImportSource | null>(null);
   const [profileUrl, setProfileUrl] = useState("");
   const [aiAnswers, setAiAnswers] = useState<Record<string, string>>({});
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [isAiComplete, setIsAiComplete] = useState(false);
+  const [pendingResult, setPendingResult] = useState<Record<string, unknown> | null>(null);
 
   const handleSourceSelect = (source: ImportSource) => {
     setSelectedSource(source);
-    if (source === "manual") {
-      setPhase("questions");
-    } else {
-      setPhase("url_input");
-    }
+    setPhase(source === "manual" ? "questions" : "url_input");
   };
 
-  const handleUrlSubmit = async () => {
-    if (!profileUrl.trim()) {
-      toast.error("Please enter a profile URL or handle");
-      return;
-    }
+  const runAiGeneration = async (prompt: string, source: ImportSource, sourceUrl?: string) => {
     setPhase("generating");
-    setIsGenerating(true);
+    setIsAiComplete(false);
+
     try {
-      const { data, error } = await supabase.functions.invoke("builder-ai-generate-business-profile", {
+      const allowedTypes = engine.aiGenerationRules?.allowedSectionTypes || ["hero", "text", "contact"];
+
+      const { data, error } = await supabase.functions.invoke("builder-ai-generate-draft", {
         body: {
-          sellerKey: engine.key,
-          prompt: `Import from ${selectedSource}: ${profileUrl}. Category: ${engine.label}`,
-          source: selectedSource,
-          source_url: profileUrl,
+          engineKey: engine.key,
+          answers: aiAnswers,
+          allowedSectionTypes: allowedTypes,
+          source,
+          source_url: sourceUrl,
         },
       });
-      if (error) throw new Error(error.message);
-      if (!data?.ok) throw new Error(data?.error || "Import failed");
 
-      const result: Record<string, unknown> = {
-        business_name: data.business_name || "",
-        business_description: data.description || "",
-        slug: (data.business_name || "")
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/(^-|-$)/g, "")
-          .slice(0, 40),
-        _ai_setup: true,
-        _ai_source: selectedSource,
-      };
-      await onComplete(result);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Import failed");
-      setPhase("url_input");
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const handleManualAiSubmit = async () => {
-    const filledAnswers = Object.entries(aiAnswers).filter(([, v]) => v.trim());
-    if (filledAnswers.length === 0) {
-      toast.error("Please answer at least one question");
-      return;
-    }
-    setPhase("generating");
-    setIsGenerating(true);
-    try {
-      const prompt = engine.aiQuestions
-        .map((q) => `${q.label}: ${aiAnswers[q.key] || "not provided"}`)
-        .join("\n");
-
-      const { data, error } = await supabase.functions.invoke("builder-ai-generate-business-profile", {
-        body: { sellerKey: engine.key, prompt },
-      });
       if (error) throw new Error(error.message);
       if (!data?.ok) throw new Error(data?.error || "Generation failed");
 
-      const nameKey = engine.aiQuestions.find((q) => q.key.includes("name"))?.key || "business_name";
+      // Validate AI sections against boundaries
+      const validation = validateDraft(engine.key, (data.sections || []).map((s: any) => ({
+        type: s.type,
+        schema: s.schema || {},
+      })));
+
+      const nameKey = engine.key === "influencer" ? "display_name" :
+                      engine.key === "community" ? "community_name" : "business_name";
+
       const result: Record<string, unknown> = {
         ...aiAnswers,
         business_name: data.business_name || aiAnswers[nameKey] || "",
         business_description: data.description || "",
+        primary_color: data.primary_color || "#2563eb",
         slug: (data.business_name || aiAnswers[nameKey] || "")
           .toLowerCase()
           .replace(/[^a-z0-9]+/g, "-")
           .replace(/(^-|-$)/g, "")
           .slice(0, 40),
         _ai_setup: true,
-        _ai_source: "manual",
+        _ai_source: source,
+        _ai_sections: validation.cleanedSections,
+        _ai_repairs: validation.repairs,
       };
-      await onComplete(result);
+
+      setPendingResult(result);
+      setIsAiComplete(true);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "AI generation failed");
-      setPhase("questions");
-    } finally {
-      setIsGenerating(false);
+      setPhase(source === "manual" ? "questions" : "url_input");
     }
   };
 
-  // ─── Generating phase ───
+  const handleUrlSubmit = () => {
+    if (!profileUrl.trim()) {
+      toast.error("Please enter a profile URL or handle");
+      return;
+    }
+    runAiGeneration(
+      `Import from ${selectedSource}: ${profileUrl}. Category: ${engine.label}`,
+      selectedSource!,
+      profileUrl
+    );
+  };
+
+  const handleManualAiSubmit = () => {
+    const filledAnswers = Object.entries(aiAnswers).filter(([, v]) => v.trim());
+    if (filledAnswers.length === 0) {
+      toast.error("Please answer at least one question");
+      return;
+    }
+    runAiGeneration(
+      engine.aiQuestions.map((q) => `${q.label}: ${aiAnswers[q.key] || "not provided"}`).join("\n"),
+      "manual"
+    );
+  };
+
+  const handleProgressDone = async () => {
+    if (pendingResult) {
+      await onComplete(pendingResult);
+    }
+  };
+
+  // ─── Generating phase (progress overlay) ───
   if (phase === "generating") {
     return (
-      <div className="max-w-md mx-auto py-24 text-center space-y-4">
-        <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto" />
-        <h2 className="text-xl font-semibold text-foreground">Building your {engine.label}…</h2>
-        <p className="text-sm text-muted-foreground">
-          AI is setting up your page. You'll be able to edit everything in the editor.
-        </p>
-      </div>
+      <AiBuildProgress
+        engineLabel={engine.label}
+        isComplete={isAiComplete}
+        onAnimationDone={handleProgressDone}
+      />
     );
   }
 
@@ -160,7 +156,7 @@ export function BuilderAiOnboarding({ engine, onComplete, onBack }: Props) {
             onChange={(e) => setProfileUrl(e.target.value)}
             placeholder={selectedSource === "instagram" ? "@yourhandle or https://instagram.com/…" : "https://…"}
           />
-          <Button onClick={handleUrlSubmit} disabled={!profileUrl.trim() || isGenerating} className="w-full gap-2">
+          <Button onClick={handleUrlSubmit} disabled={!profileUrl.trim()} className="w-full gap-2">
             <Sparkles className="h-4 w-4" /> Import & Generate
           </Button>
         </div>
@@ -201,11 +197,7 @@ export function BuilderAiOnboarding({ engine, onComplete, onBack }: Props) {
               )}
             </div>
           ))}
-          <Button
-            onClick={handleManualAiSubmit}
-            disabled={isGenerating}
-            className="w-full gap-2"
-          >
+          <Button onClick={handleManualAiSubmit} className="w-full gap-2">
             <Sparkles className="h-4 w-4" /> Generate with AI
           </Button>
         </div>
