@@ -256,7 +256,7 @@ async function readGenerationSSE(
 // Guest usage tracking key
 const GUEST_USED_KEY = "ada_guest_used";
 
-export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolean } = {}) {
+export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSection?: boolean; isLanding?: boolean } = {}) {
   const { user, profile, isAuthenticated } = useAuth();
   const { surfaceId: ctxSurfaceId } = useSurfaceContext();
   const navigate = useNavigate();
@@ -274,8 +274,12 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [quotaPopup, setQuotaPopup] = useState<{ used: number; limit: number; nextResetAt: string | null; tier: string } | null>(null);
   const requireAuth = useCallback(() => {
+    if (isLanding) {
+      navigate("/auth/signup?returnTo=/dashboard/ada");
+      return;
+    }
     setShowAuthModal(true);
-  }, []);
+  }, [isLanding, navigate]);
   const [voiceText, setVoiceText] = useState("");
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -1712,6 +1716,7 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
       />
 
       {/* Top bar */}
+      {!isLanding && (
       <div className="flex items-center justify-between px-6 pt-6 pb-4">
         <button
           onClick={() => window.dispatchEvent(new CustomEvent("ada-new-chat"))}
@@ -1778,6 +1783,7 @@ export function AdaMainPanel({ hideBottomSection }: { hideBottomSection?: boolea
           {/* Profile avatar removed — available in dashboard nav */}
         </div>
       </div>
+      )}
 
       {/* Center content — equal gutters so content is visually centered in this container */}
       <div className="flex-1 flex flex-col items-center justify-center pl-12 pr-4 min-h-0 overflow-hidden">
