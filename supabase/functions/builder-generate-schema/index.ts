@@ -28,7 +28,7 @@ serve(async (req) => {
     // Validate
     if (!body.surface_type || !VALID_SURFACE_TYPES.includes(body.surface_type)) {
       return new Response(
-        JSON.stringify({ ok: false, error: `Invalid surface_type. Must be one of: ${VALID_SURFACE_TYPES.join(", ")}` }),
+        JSON.stringify({ ok: false, error: "unsupported_surface_type" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
