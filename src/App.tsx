@@ -118,6 +118,8 @@ import InfluencerPage from "./pages/dashboard/InfluencerPage";
 import SellerSurfacePage from "./pages/dashboard/SellerSurfacePage";
 import DashboardOffers from "./pages/dashboard/DashboardOffers";
 import DashboardExplore from "./pages/dashboard/DashboardExplore";
+import LiveSellingPage from "./pages/dashboard/LiveSellingPage";
+import StudioShowcasePage from "./pages/dashboard/StudioShowcasePage";
 // DashboardModuleLayout removed — routes are flat under /dashboard/*
 import ProfilePage from "./pages/dashboard/ProfilePage";
 import EditProfilePage from "./pages/dashboard/EditProfilePage";
@@ -295,6 +297,8 @@ const App = () => (
                   <Route path="visionaire" element={<DashboardPlaceholder />} />
                   <Route path="app-store" element={<DashboardPlaceholder />} />
                   <Route path="community" element={<DashboardCommunityPage />} />
+                  <Route path="live-selling" element={<LiveSellingPage />} />
+                  <Route path="studio-showcase" element={<StudioShowcasePage />} />
                   <Route path="profile" element={<ProfilePage />} />
                   <Route path="profile/edit" element={<EditProfilePage />} />
                   <Route path="profile/subscription" element={<SubscriptionPage />} />

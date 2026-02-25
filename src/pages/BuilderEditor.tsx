@@ -12,14 +12,17 @@ import {
   Rocket,
   LayoutGrid,
   AlertTriangle,
+  Settings,
 } from "lucide-react";
 import { useState } from "react";
 import type { BuilderSurfaceType } from "@/types/builder";
+import { BuilderSettingsDrawer } from "@/components/builder/BuilderSettingsDrawer";
 
 export default function BuilderEditor() {
   const { surfaceId } = useParams<{ surfaceId: string }>();
   const navigate = useNavigate();
   const [publishOpen, setPublishOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const {
     editorState,
@@ -89,6 +92,10 @@ export default function BuilderEditor() {
         </button>
         <div className="h-6 w-px bg-border" />
         <h1 className="text-sm font-semibold truncate flex-1">{surfaceTitle}</h1>
+        <Button size="sm" variant="outline" onClick={() => setSettingsOpen(true)} className="gap-2">
+          <Settings className="h-4 w-4" />
+          Settings
+        </Button>
         <Button size="sm" onClick={() => setPublishOpen(true)} className="gap-2">
           <Rocket className="h-4 w-4" />
           Publish
@@ -129,6 +136,19 @@ export default function BuilderEditor() {
         surfaceId={editorState.surface.id}
         surfaceType={surfaceType}
         surfaceTitle={surfaceTitle}
+      />
+
+      {/* Settings Drawer */}
+      <BuilderSettingsDrawer
+        open={settingsOpen}
+        onOpenChange={setSettingsOpen}
+        surfaceId={editorState.surface.id}
+        surface={{
+          title: editorState.surface.title || "",
+          description: (editorState.surface as any).description || "",
+          slug: editorState.surface.slug || "",
+          metadata: (editorState.surface as any).metadata || {},
+        }}
       />
     </div>
   );

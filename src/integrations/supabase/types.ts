@@ -3220,6 +3220,16 @@ export type Database = {
         Args: { p_publish_id: string }
         Returns: Json
       }
+      builder_update_surface: {
+        Args: {
+          p_description: string
+          p_metadata: Json
+          p_slug: string
+          p_surface_id: string
+          p_title: string
+        }
+        Returns: Json
+      }
       builder_upsert_section: {
         Args: {
           p_is_visible?: boolean
