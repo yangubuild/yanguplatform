@@ -1,15 +1,16 @@
 /**
  * Google Business Profile search + select UI.
- * Best-effort: if GOOGLE_PLACES_API_KEY exists, uses Places Autocomplete.
- * Fallback: manual entry of business name + location.
+ * Uses Google Places Autocomplete via edge function when available.
+ * Falls back to manual entry.
  */
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, MapPin, Search, X, Sparkles, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface GoogleBusinessResult {
   name: string;
@@ -20,6 +21,13 @@ export interface GoogleBusinessResult {
   placeId?: string;
 }
 
+interface Prediction {
+  placeId: string;
+  name: string;
+  address: string;
+  description: string;
+}
+
 interface Props {
   onSelect: (result: GoogleBusinessResult) => void;
   onBack: () => void;
@@ -27,47 +35,70 @@ interface Props {
 
 export function GoogleBusinessSearch({ onSelect, onBack }: Props) {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<GoogleBusinessResult[]>([]);
+  const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [selected, setSelected] = useState<GoogleBusinessResult | null>(null);
   const [mode, setMode] = useState<"search" | "manual">("search");
+  const [searching, setSearching] = useState(false);
+  const [loadingDetails, setLoadingDetails] = useState(false);
   const [manualName, setManualName] = useState("");
   const [manualLocation, setManualLocation] = useState("");
   const [manualUrl, setManualUrl] = useState("");
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
-  // Simulate search results (no scraping — user-typed data only)
   const handleSearch = useCallback((q: string) => {
     setQuery(q);
+    setSelected(null);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     if (q.trim().length < 2) {
-      setResults([]);
+      setPredictions([]);
       return;
     }
-    debounceRef.current = setTimeout(() => {
-      // In production, this would call Google Places Autocomplete API via edge function.
-      // For now, show the typed name as a suggestion for the user to confirm.
-      setResults([
-        {
-          name: q.trim(),
-          address: "Enter your business location after selecting",
-        },
-      ]);
-    }, 300);
+    debounceRef.current = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const { data, error } = await supabase.functions.invoke("google-places-proxy", {
+          body: { action: "autocomplete", query: q.trim() },
+        });
+        if (data?.ok && data.results) {
+          setPredictions(data.results);
+        } else {
+          // Fallback: show user-typed name as suggestion
+          setPredictions([{ placeId: "", name: q.trim(), address: "Enter location manually", description: q.trim() }]);
+        }
+      } catch {
+        setPredictions([{ placeId: "", name: q.trim(), address: "Enter location manually", description: q.trim() }]);
+      } finally {
+        setSearching(false);
+      }
+    }, 400);
   }, []);
 
-  const handleSelectResult = (result: GoogleBusinessResult) => {
-    setSelected(result);
-    setResults([]);
+  const handleSelectPrediction = async (pred: Prediction) => {
+    setPredictions([]);
+    setQuery(pred.name);
+
+    if (pred.placeId) {
+      setLoadingDetails(true);
+      try {
+        const { data } = await supabase.functions.invoke("google-places-proxy", {
+          body: { action: "details", placeId: pred.placeId },
+        });
+        if (data?.ok && data.place) {
+          setSelected(data.place);
+          setLoadingDetails(false);
+          return;
+        }
+      } catch { /* fall through */ }
+      setLoadingDetails(false);
+    }
+
+    setSelected({ name: pred.name, address: pred.address });
   };
 
   const handleSubmit = () => {
     if (mode === "manual") {
       if (!manualName.trim()) return;
-      onSelect({
-        name: manualName.trim(),
-        address: manualLocation.trim(),
-        website: manualUrl.trim() || undefined,
-      });
+      onSelect({ name: manualName.trim(), address: manualLocation.trim(), website: manualUrl.trim() || undefined });
     } else if (selected) {
       onSelect(selected);
     }
@@ -88,28 +119,17 @@ export function GoogleBusinessSearch({ onSelect, onBack }: Props) {
         </p>
       </div>
 
-      {/* Toggle between search and manual */}
       <div className="flex gap-2">
-        <Button
-          size="sm"
-          variant={mode === "search" ? "default" : "outline"}
-          onClick={() => setMode("search")}
-        >
-          <Search className="h-3.5 w-3.5 mr-1.5" />
-          Search
+        <Button size="sm" variant={mode === "search" ? "default" : "outline"} onClick={() => setMode("search")}>
+          <Search className="h-3.5 w-3.5 mr-1.5" /> Search
         </Button>
-        <Button
-          size="sm"
-          variant={mode === "manual" ? "default" : "outline"}
-          onClick={() => setMode("manual")}
-        >
+        <Button size="sm" variant={mode === "manual" ? "default" : "outline"} onClick={() => setMode("manual")}>
           Paste link / Enter manually
         </Button>
       </div>
 
       {mode === "search" ? (
         <div className="space-y-3">
-          {/* Search input */}
           <div className="relative">
             <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5">
               <MapPin className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -121,26 +141,26 @@ export function GoogleBusinessSearch({ onSelect, onBack }: Props) {
                 className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
                 autoFocus
               />
-              {query && (
-                <button onClick={() => { setQuery(""); setResults([]); setSelected(null); }}>
+              {searching && <Loader2 className="h-4 w-4 text-muted-foreground animate-spin" />}
+              {query && !searching && (
+                <button onClick={() => { setQuery(""); setPredictions([]); setSelected(null); }}>
                   <X className="h-4 w-4 text-muted-foreground hover:text-foreground" />
                 </button>
               )}
             </div>
 
-            {/* Results dropdown */}
-            {results.length > 0 && !selected && (
+            {predictions.length > 0 && !selected && (
               <div className="absolute left-0 right-0 mt-1 z-10 rounded-lg border border-border bg-card shadow-lg overflow-hidden">
-                {results.map((r, i) => (
+                {predictions.map((p, i) => (
                   <button
                     key={i}
-                    onClick={() => handleSelectResult(r)}
+                    onClick={() => handleSelectPrediction(p)}
                     className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-accent/50 transition-colors"
                   >
                     <MapPin className="h-4 w-4 text-muted-foreground shrink-0" />
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{r.name}</p>
-                      <p className="text-xs text-muted-foreground truncate">{r.address}</p>
+                      <p className="text-sm font-medium text-foreground truncate">{p.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{p.address}</p>
                     </div>
                   </button>
                 ))}
@@ -148,28 +168,32 @@ export function GoogleBusinessSearch({ onSelect, onBack }: Props) {
             )}
           </div>
 
-          {/* Selected business card */}
-          {selected && (
-            <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-2">
+          {loadingDetails && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" /> Loading business details…
+            </div>
+          )}
+
+          {selected && !loadingDetails && (
+            <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-1.5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-primary" />
                   <span className="font-medium text-sm text-foreground">{selected.name}</span>
                 </div>
-                <button onClick={() => setSelected(null)} className="text-xs text-muted-foreground hover:text-foreground">
-                  Change
-                </button>
+                <button onClick={() => setSelected(null)} className="text-xs text-muted-foreground hover:text-foreground">Change</button>
               </div>
               <p className="text-xs text-muted-foreground">{selected.address}</p>
+              {selected.phone && <p className="text-xs text-muted-foreground">📞 {selected.phone}</p>}
+              {selected.website && <p className="text-xs text-muted-foreground truncate">🌐 {selected.website}</p>}
             </div>
           )}
 
-          <Button onClick={handleSubmit} disabled={!selected} className="w-full gap-2">
+          <Button onClick={handleSubmit} disabled={!selected || loadingDetails} className="w-full gap-2">
             <Sparkles className="h-4 w-4" /> Next Step <ArrowLeft className="h-4 w-4 rotate-180" />
           </Button>
         </div>
       ) : (
-        /* Manual mode */
         <div className="space-y-3">
           <div className="space-y-1.5">
             <Label className="text-sm">Business Name *</Label>
