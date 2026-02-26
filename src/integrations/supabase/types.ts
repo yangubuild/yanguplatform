@@ -3201,6 +3201,7 @@ export type Database = {
         Returns: Json
       }
       builder_delete_page: { Args: { p_page_id: string }; Returns: Json }
+      builder_delete_section: { Args: { p_section_id: string }; Returns: Json }
       builder_get_editor_state: {
         Args: { p_surface_id: string }
         Returns: Json
