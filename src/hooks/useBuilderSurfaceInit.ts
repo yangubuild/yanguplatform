@@ -43,7 +43,7 @@ export function useBuilderSurfaceInit() {
       }
 
       const navigateToEditor = (surfaceId: string): BuilderSurfaceInitResult => {
-        const targetUrl = `/builder/${surfaceId}/edit`;
+        const targetUrl = `/builder/${surfaceId}`;
         console.log("AI_NAVIGATE_TO_EDITOR", { surfaceId, targetUrl });
 
         try {
