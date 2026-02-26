@@ -116,9 +116,9 @@ export function BuilderPageEditPanel({ settings, onSave, onClose, isSaving }: Bu
           </Select>
         </div>
 
-        {/* Background color — Native color picker */}
+        {/* Primary Color — applied to preview accents */}
         <div className="space-y-2">
-          <Label className="text-xs font-medium">Primary Color</Label>
+          <Label className="text-xs font-medium">Primary / Accent Color</Label>
           <div className="flex items-center gap-3">
             <label className="relative h-10 w-10 rounded-md border border-border cursor-pointer shrink-0 overflow-hidden">
               <input

@@ -19,6 +19,7 @@ import { ProductsEditor } from "./editors/ProductsEditor";
 import { BannersAdsEditor } from "./editors/BannersAdsEditor";
 import { PropertiesEditor } from "./editors/PropertiesEditor";
 import { BookingEditor } from "./editors/BookingEditor";
+import { AiTextField } from "./AiTextField";
 
 interface BuilderSectionEditorProps {
   section: EditorSection;
@@ -111,9 +112,9 @@ function HeroForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
 
   return (
     <>
-      <TextField label="Headline" value={(schema.headline as string) || ""} onChange={(v) => update({ headline: v })} />
-      <TextField label="Subheadline" value={(schema.subheadline as string) || ""} onChange={(v) => update({ subheadline: v })} />
-      <TextField label="CTA Text" value={(schema.cta_text as string) || ""} onChange={(v) => update({ cta_text: v })} />
+      <AiTextField label="Headline" value={(schema.headline as string) || ""} onChange={(v) => update({ headline: v })} context={{ fieldName: "headline", sectionType: "hero_banner" }} />
+      <AiTextField label="Subheadline" value={(schema.subheadline as string) || ""} onChange={(v) => update({ subheadline: v })} context={{ fieldName: "subheadline", sectionType: "hero_banner" }} />
+      <AiTextField label="CTA Text" value={(schema.cta_text as string) || ""} onChange={(v) => update({ cta_text: v })} context={{ fieldName: "cta_text", sectionType: "hero_banner" }} />
       <TextField label="CTA Link" value={(schema.cta_href as string) || ""} onChange={(v) => update({ cta_href: v })} />
       <BuilderMediaPicker
         value={mediaValue}
@@ -896,12 +897,15 @@ function FooterForm({ schema, update }: FormProps) {
 // ─── Form map ───
 const FORM_MAP: Record<string, React.ComponentType<FormProps & { surfaceId?: string }>> = {
   hero: HeroForm,
+  hero_banner: HeroForm,
   header: HeaderForm,
+  header_logo: HeaderForm,
   featured: FeaturedForm,
   bio: BioForm,
   text: TextForm,
   about: AboutForm,
   links: LinksForm,
+  links_grid: LinksForm,
   social: SocialForm,
   cta: CtaForm,
   join: JoinForm,
@@ -915,13 +919,17 @@ const FORM_MAP: Record<string, React.ComponentType<FormProps & { surfaceId?: str
   hours: HoursForm,
   location: LocationForm,
   products: ProductsEditor as React.ComponentType<FormProps & { surfaceId?: string }>,
+  product_grid: ProductsEditor as React.ComponentType<FormProps & { surfaceId?: string }>,
   banners_ads: BannersAdsEditor,
   services: (p) => <ItemListForm {...p} heading="Services" />,
+  services_list: (p) => <ItemListForm {...p} heading="Services" />,
   listings: (p) => <ItemListForm {...p} heading="Listings" />,
+  listing_grid: (p) => <ItemListForm {...p} heading="Listings" />,
   properties: PropertiesEditor as React.ComponentType<FormProps & { surfaceId?: string }>,
   // New content types — reuse ItemListForm until dedicated editors are built
   rooms: (p) => <ItemListForm {...p} heading="Rooms" />,
   booking_calendar: BookingEditor as React.ComponentType<FormProps & { surfaceId?: string }>,
+  booking_inventory: BookingEditor as React.ComponentType<FormProps & { surfaceId?: string }>,
   programs: (p) => <ItemListForm {...p} heading="Programs" />,
   tours: (p) => <ItemListForm {...p} heading="Tours" />,
   team: (p) => <ItemListForm {...p} heading="Team Members" />,
@@ -945,20 +953,31 @@ const FORM_MAP: Record<string, React.ComponentType<FormProps & { surfaceId?: str
   live_selling: (p) => <ItemListForm {...p} heading="Live Selling" />,
   affiliate_products: (p) => <ItemListForm {...p} heading="Affiliate Products" />,
   media_feed: (p) => <ItemListForm {...p} heading="Media Feed" />,
+  media_grid: (p) => <ItemListForm {...p} heading="Media" />,
   merch: (p) => <ItemListForm {...p} heading="Merch" />,
   tips_support: (p) => <ItemListForm {...p} heading="Tips & Support" />,
   collabs: (p) => <ItemListForm {...p} heading="Collabs" />,
+  article_feed: (p) => <ItemListForm {...p} heading="Articles" />,
+  case_studies_grid: (p) => <ItemListForm {...p} heading="Case Studies" />,
+  community_feed: (p) => <ItemListForm {...p} heading="Feed" />,
 };
 
 const TYPE_LABELS: Record<string, string> = {
-  hero: "Hero Banner", header: "Header / Logo", featured: "Featured", bio: "Bio", links: "Links", social: "Socials", cta: "CTA",
-  video: "Video", gallery: "Gallery", text: "Text", products: "Products",
-  services: "Services", testimonials: "Testimonials", contact: "Contact",
+  hero: "Hero Banner", hero_banner: "Hero Banner",
+  header: "Header / Logo", header_logo: "Header / Logo",
+  featured: "Featured", bio: "Bio", links: "Links", links_grid: "Links",
+  social: "Socials", cta: "CTA",
+  video: "Video", gallery: "Gallery", text: "Text",
+  products: "Products", product_grid: "Products",
+  services: "Services", services_list: "Services",
+  testimonials: "Testimonials", contact: "Contact",
   faq: "FAQ", menu: "Menu", schedule: "Schedule", about: "About",
-  offer: "Offers", plans: "Plans", join: "Join", listings: "Listings",
+  offer: "Offers", plans: "Plans", join: "Join",
+  listings: "Listings", listing_grid: "Listings",
   hours: "Opening Hours", location: "Location", footer: "Footer",
   banners_ads: "Banners & Ads",
   properties: "Properties", rooms: "Rooms", booking_calendar: "Booking",
+  booking_inventory: "Booking",
   programs: "Programs", tours: "Tours", team: "Team",
   services_pricing: "Services & Pricing", featured_products: "Featured Products",
   deals: "Deals", flash_sale: "Flash Sale", reviews: "Reviews",
@@ -968,7 +987,9 @@ const TYPE_LABELS: Record<string, string> = {
   workshops: "Workshops", mentorship: "Mentorship", resources: "Resources",
   discussions: "Discussions", live_stream: "Live Stream", live_selling: "Live Selling",
   affiliate_products: "Affiliate Products", media_feed: "Media Feed",
-  merch: "Merch", tips_support: "Tips & Support", collabs: "Collabs",
+  media_grid: "Media", merch: "Merch", tips_support: "Tips & Support", collabs: "Collabs",
+  article_feed: "Articles", case_studies_grid: "Case Studies",
+  community_feed: "Community Feed",
 };
 
 // ─── Main component ───
@@ -1028,25 +1049,43 @@ export function BuilderSectionEditor({
         {FormComponent ? (
           <FormComponent schema={localSchema} update={update} surfaceId={surfaceId} />
         ) : (
-          <p className="text-sm text-muted-foreground italic">
-            No editable fields for "{label}" section type.
-          </p>
+          /* GenericSectionEditor fallback — always show heading + basic schema fields */
+          <>
+            <AiTextField
+              label="Section Heading"
+              value={(localSchema.heading as string) || ""}
+              onChange={(v) => update({ heading: v })}
+              placeholder="Section heading..."
+              context={{ fieldName: "heading", sectionType: section.section_type }}
+            />
+            {typeof localSchema.description === "string" && (
+              <TextField
+                label="Description"
+                value={localSchema.description}
+                onChange={(v) => update({ description: v })}
+                multiline
+              />
+            )}
+            {Array.isArray(localSchema.items) && (
+              <p className="text-xs text-muted-foreground">
+                {(localSchema.items as unknown[]).length} item(s) configured
+              </p>
+            )}
+          </>
         )}
       </div>
 
-      {/* Save button */}
-      {FormComponent && (
-        <div className="p-4 border-t border-border">
-          <Button
-            className="w-full gap-2"
-            disabled={!dirty || isSaving}
-            onClick={handleSave}
-          >
-            {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Save changes
-          </Button>
-        </div>
-      )}
+      {/* Save button — always show since GenericSectionEditor also has editable fields */}
+      <div className="p-4 border-t border-border">
+        <Button
+          className="w-full gap-2"
+          disabled={!dirty || isSaving}
+          onClick={handleSave}
+        >
+          {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          Save changes
+        </Button>
+      </div>
     </aside>
   );
 }

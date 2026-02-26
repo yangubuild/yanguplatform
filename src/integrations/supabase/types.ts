@@ -3251,30 +3251,18 @@ export type Database = {
         }
         Returns: Json
       }
-      builder_upsert_section:
-        | {
-            Args: {
-              p_is_visible?: boolean
-              p_page_id: string
-              p_position?: number
-              p_schema?: Json
-              p_section_id?: string
-              p_section_type?: string
-            }
-            Returns: Json
-          }
-        | {
-            Args: {
-              p_core_slot?: string
-              p_is_visible?: boolean
-              p_page_id: string
-              p_position?: number
-              p_schema?: Json
-              p_section_id?: string
-              p_section_type?: string
-            }
-            Returns: Json
-          }
+      builder_upsert_section: {
+        Args: {
+          p_core_slot?: string
+          p_is_visible?: boolean
+          p_page_id: string
+          p_position?: number
+          p_schema?: Json
+          p_section_id?: string
+          p_section_type?: string
+        }
+        Returns: Json
+      }
       can_list_on_community: {
         Args: { p_surface_id: string }
         Returns: boolean
