@@ -77,10 +77,21 @@ export function enforceCoreSectionOrder(
   core_slot?: string | null;
 }> {
   // Build a lookup by core_slot first, then by section_type
+  // Prefer the currently visible section when duplicate core-slot rows exist.
   const sectionsBySlot = new Map<string, typeof rawSections[0]>();
   const sectionsByType = new Map<string, typeof rawSections[0]>();
   const customSections: typeof rawSections = [];
   const allowMultiple = new Set(["text", "cta", "gallery", "products", "services", "listings"]);
+
+  const pickPreferred = (
+    existing: (typeof rawSections)[number] | undefined,
+    candidate: (typeof rawSections)[number]
+  ) => {
+    if (!existing) return candidate;
+    if (candidate.is_visible && !existing.is_visible) return candidate;
+    if (candidate.is_visible === existing.is_visible) return candidate; // latest wins
+    return existing;
+  };
 
   // Resolve which actual types are core
   const coreActualTypes = new Set(
@@ -90,21 +101,16 @@ export function enforceCoreSectionOrder(
   for (const s of rawSections) {
     // Check core_slot first (explicit tagging from DB)
     if (s.core_slot) {
-      if (!sectionsBySlot.has(s.core_slot)) {
-        sectionsBySlot.set(s.core_slot, s);
-      }
+      sectionsBySlot.set(s.core_slot, pickPreferred(sectionsBySlot.get(s.core_slot), s));
       continue;
     }
+
     // Fallback: detect by type
     if (coreActualTypes.has(s.section_type)) {
-      if (!sectionsByType.has(s.section_type)) {
-        sectionsByType.set(s.section_type, s);
-      }
+      sectionsByType.set(s.section_type, pickPreferred(sectionsByType.get(s.section_type), s));
     } else if (CONTENT_SECTION_TYPES.has(s.section_type)) {
-      // This is a content section type occupying main_content slot
-      if (!sectionsBySlot.has("main_content") && !sectionsByType.has(s.section_type)) {
-        sectionsBySlot.set("main_content", s);
-      }
+      // Content section type occupying main_content slot
+      sectionsBySlot.set("main_content", pickPreferred(sectionsBySlot.get("main_content"), s));
     } else {
       customSections.push(s);
     }

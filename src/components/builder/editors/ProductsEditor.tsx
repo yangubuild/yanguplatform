@@ -12,8 +12,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { X, Plus, Trash2, Pencil, Package, Upload, Sparkles, Link2, Search } from "lucide-react";
+import { X, Plus, Trash2, Pencil, Package, Upload, Sparkles, Link2, Search, Loader2 } from "lucide-react";
 import { BuilderMediaPicker, type MediaValue } from "../BuilderMediaPicker";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface FormProps {
   schema: Record<string, unknown>;
@@ -127,6 +129,8 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
   const [pDimensions, setPDimensions] = useState("");
   const [pSpecs, setPSpecs] = useState("");
   const [pAvailable, setPAvailable] = useState(true);
+  const [pDraftMedia, setPDraftMedia] = useState<MediaValue>({ type: "none", source: "url", url: "", alt: "", fit: "cover" });
+  const [isGeneratingDesc, setIsGeneratingDesc] = useState(false);
 
   // Category form state
   const [catName, setCatName] = useState("");
@@ -189,6 +193,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
     setPSizes([]); setPSizeInput(""); setPColors([]);
     setPMaterial(""); setPWeight(""); setPDimensions("");
     setPSpecs(""); setPAvailable(true);
+    setPDraftMedia({ type: "none", source: "url", url: "", alt: "", fit: "cover" });
     setShowProductDialog(true);
   };
 
@@ -202,6 +207,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
     setPColors(p.colors); setPMaterial(p.material); setPWeight(p.weight);
     setPDimensions(p.dimensions); setPSpecs(p.specifications);
     setPAvailable(p.is_available);
+    setPDraftMedia({ type: "none", source: "url", url: "", alt: "", fit: "cover" });
     setShowProductDialog(true);
   };
 
@@ -242,6 +248,51 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
       setPColors(pColors.filter(c => c.hex !== hex));
     } else {
       setPColors([...pColors, { name, hex, image_url: "" }]);
+    }
+  };
+
+  const addDraftMediaToImages = () => {
+    const url = (pDraftMedia.url || "").trim();
+    if (!url) {
+      toast.info("Pick or upload an image first");
+      return;
+    }
+
+    setPImages((prev) => (prev.includes(url) ? prev : [...prev, url]));
+    setPDraftMedia({ type: "none", source: "url", url: "", alt: "", fit: "cover" });
+  };
+
+  const generateDescription = async () => {
+    setIsGeneratingDesc(true);
+    try {
+      const prompt = `Write a clear ecommerce product description (max 50 words) for:\nName: ${pName || "Product"}\nBrand: ${pBrand || "N/A"}\nCategory: ${pCategory || "General"}. Return only the description text.`;
+
+      const { data, error } = await supabase.functions.invoke("ada-chat", {
+        body: {
+          messages: [{ role: "user", content: prompt }],
+          model: "google/gemini-2.5-flash-lite",
+          max_tokens: 140,
+        },
+      });
+
+      if (error) throw error;
+
+      const generatedText = [
+        data?.reply,
+        data?.content,
+        data?.text,
+        data?.choices?.[0]?.message?.content,
+      ].find((v): v is string => typeof v === "string" && v.trim().length > 0)?.trim();
+
+      if (!generatedText) throw new Error("No description generated");
+
+      setPDesc(generatedText);
+      toast.success("Description generated");
+    } catch (err) {
+      console.error("Generate description failed:", err);
+      toast.error("AI description generation failed");
+    } finally {
+      setIsGeneratingDesc(false);
     }
   };
 
@@ -504,8 +555,8 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
             <div className="space-y-1.5">
               <Label className="text-sm font-bold">Description</Label>
               <Textarea value={pDesc} onChange={(e) => setPDesc(e.target.value)} placeholder="Product description" rows={3} />
-              <Button variant="outline" size="sm" className="gap-1.5 text-xs">
-                <Sparkles className="h-3 w-3" /> AI Generate Description
+              <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={generateDescription} disabled={isGeneratingDesc}>
+                {isGeneratingDesc ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />} AI Generate Description
               </Button>
             </div>
 
@@ -528,15 +579,20 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
                   ))}
                 </div>
               )}
-              <div className="flex gap-2">
+              <div className="space-y-2 w-full">
                 <BuilderMediaPicker
-                  value={{ type: "none", source: "url", url: "", alt: "", fit: "cover" }}
-                  onChange={(v) => { if (v.url) setPImages([...pImages, v.url]); }}
+                  value={pDraftMedia}
+                  onChange={setPDraftMedia}
                   surfaceId={surfaceId || ""}
                 />
-                <Button variant="outline" size="sm" className="gap-1.5 text-xs" disabled>
-                  <Sparkles className="h-3 w-3" /> AI Generate Image
-                </Button>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={addDraftMediaToImages}>
+                    <Plus className="h-3 w-3" /> Add Selected Image
+                  </Button>
+                  <Button variant="outline" size="sm" className="gap-1.5 text-xs" disabled>
+                    <Sparkles className="h-3 w-3" /> AI Generate Image
+                  </Button>
+                </div>
               </div>
             </div>
 
