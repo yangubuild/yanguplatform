@@ -41,6 +41,7 @@ export function BuilderAiFillModal({ open, onOpenChange, sectionType, surfaceTyp
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
     setBusy(true);
+    console.log("[AI_FILL] AI_FILL_START", { sectionType, surfaceType, prompt: prompt.trim(), tone });
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) {
@@ -58,11 +59,11 @@ export function BuilderAiFillModal({ open, onOpenChange, sectionType, surfaceTyp
       });
 
       if (res.error) {
-        console.error("AI Fill edge error:", res.error);
+        console.error("[AI_FILL] Edge error:", res.error);
         throw new Error(res.error.message || "AI generation failed");
       }
       const result = res.data as { ok: boolean; schema?: Record<string, unknown>; error?: string };
-      if (import.meta.env.DEV) console.log("AI Fill response:", result);
+      console.log("[AI_FILL] AI_FILL_RESULT", { ok: result.ok, schemaKeys: result.schema ? Object.keys(result.schema) : null, error: result.error });
       if (!result.ok) {
         if (result.error === "unauthorized") {
           toast.error("Session expired. Please sign in again.");
