@@ -278,17 +278,22 @@ export default function BuilderEditor() {
             onUpdate={handleUpdateAnswers}
           />
         )}
-        {rightPanel === "section" && selectedSectionId && sections.find((s) => s.id === selectedSectionId && !s.isMissing) && (
-          <BuilderSectionEditor
-            section={sections.find((s) => s.id === selectedSectionId)!}
-            onClose={() => { setSelectedSectionId(null); setRightPanel("page_edit"); }}
-            onSave={updateSectionSchema}
-            onToggleVisibility={toggleSectionVisibility}
-            isSaving={isSavingSection}
-            surfaceType={surfaceType}
-            surfaceId={editorState.surface.id}
-          />
-        )}
+        {rightPanel === "section" && selectedSectionId && (() => {
+          const sec = sections.find((s) => s.id === selectedSectionId);
+          if (!sec || sec.isMissing) return null;
+          return (
+            <BuilderSectionEditor
+              key={sec.id}
+              section={sec}
+              onClose={() => { setSelectedSectionId(null); setRightPanel("page_edit"); }}
+              onSave={updateSectionSchema}
+              onToggleVisibility={toggleSectionVisibility}
+              isSaving={isSavingSection}
+              surfaceType={surfaceType}
+              surfaceId={editorState.surface.id}
+            />
+          );
+        })()}
       </div>
 
       {/* Publish Modal */}

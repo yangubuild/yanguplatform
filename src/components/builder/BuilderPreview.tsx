@@ -659,9 +659,12 @@ function FooterPreview({ schema }: { schema: Record<string, unknown> }) {
 
 export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<string, unknown> }>> = {
   hero: HeroPreview,
+  hero_banner: HeroPreview,
   header: HeaderPreview,
+  header_logo: HeaderPreview,
   bio: BioPreview,
   links: LinksPreview,
+  links_grid: LinksPreview,
   social: SocialPreview,
   cta: CtaPreview,
   video: VideoPreview,
@@ -673,10 +676,13 @@ export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<st
   rules: RulesPreview,
   join: JoinPreview,
   products: ProductsPreview,
+  product_grid: ProductsPreview,
   categories: CategoriesPreview,
   listings: ListingsPreview,
+  listing_grid: ListingsPreview,
   filters: FiltersPreview,
   services: ServicesPreview,
+  services_list: ServicesPreview,
   featured: FeaturedPreview,
   testimonials: TestimonialsPreview,
   faq: FaqPreview,
@@ -686,6 +692,12 @@ export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<st
   hours: HoursPreview,
   location: LocationPreview,
   footer: FooterPreview,
+  properties: ListingsPreview,
+  article_feed: TextPreview,
+  case_studies_grid: FeaturedPreview,
+  booking_inventory: ListingsPreview,
+  community_feed: TextPreview,
+  media_grid: GalleryPreview,
 };
 
 export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSelectSection, theme, pageSettings }: BuilderPreviewProps) {
@@ -698,11 +710,16 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
     console.log("BUILDER_LAYOUT_SWITCHED", { layout: isLayoutB ? "B" : "A", wireframeId: ps.layout });
   }, [ps.layout, isLayoutB]);
 
+  // Apply primary color as CSS custom property so buttons/accents pick it up
+  const primaryColor = ps.background_color || "";
+  const isDark = ps.theme_mode === "dark";
+
   const themeStyle: React.CSSProperties = {
     fontFamily: t.font_family,
     fontWeight: Number(t.body_weight),
     "--builder-heading-weight": t.heading_weight,
-    ...(ps.background_color ? { backgroundColor: ps.background_color } : {}),
+    ...(primaryColor ? { "--builder-primary": primaryColor } : {}),
+    ...(isDark ? { backgroundColor: "#1a1a2e", color: "#e0e0e0" } : {}),
   } as React.CSSProperties;
 
   if (sections.length === 0) {
@@ -717,7 +734,7 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
   }
 
   return (
-    <div className="max-w-md mx-auto border border-border rounded-xl overflow-hidden bg-card shadow-sm" style={themeStyle}>
+    <div className={`max-w-md mx-auto border border-border rounded-xl overflow-hidden shadow-sm ${isDark ? "bg-[#1a1a2e] text-gray-200" : "bg-card"}`} style={themeStyle}>
       {/* Phone-like frame header */}
       <div className="bg-muted/50 border-b border-border px-4 py-2">
         <p className="text-xs text-muted-foreground text-center truncate">{surfaceTitle}</p>

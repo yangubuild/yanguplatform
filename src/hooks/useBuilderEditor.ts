@@ -178,6 +178,7 @@ export function useBuilderEditor(surfaceId: string | undefined) {
           p_schema: schema as unknown as Json,
           p_position: nextPosition,
           p_is_visible: true,
+          p_core_slot: null,
         });
 
         if (error) throw new Error(error.message);
@@ -212,6 +213,7 @@ export function useBuilderEditor(surfaceId: string | undefined) {
           p_schema: schema as unknown as Json,
           p_position: nextPosition,
           p_is_visible: true,
+          p_core_slot: null,
         });
 
         if (error) throw new Error(error.message);
@@ -298,6 +300,7 @@ export function useBuilderEditor(surfaceId: string | undefined) {
           p_schema: schema as unknown as Json,
           p_position: section.position,
           p_is_visible: section.is_visible,
+          p_core_slot: section.core_slot || null,
         });
 
         if (error) throw new Error(error.message);
@@ -348,6 +351,7 @@ export function useBuilderEditor(surfaceId: string | undefined) {
           p_schema: section.schema as unknown as Json,
           p_position: section.position,
           p_is_visible: visible,
+          p_core_slot: section.core_slot || null,
         });
 
         if (error) throw new Error(error.message);
