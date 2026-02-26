@@ -260,7 +260,7 @@ function JoinPreview({ schema }: { schema: Record<string, unknown> }) {
 }
 
 function ProductsPreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<{ name?: string; price?: string }>) || [];
+  const items = (schema.items as Array<{ name?: string; price?: string; description?: string; image_url?: string }>) || [];
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">
@@ -271,9 +271,17 @@ function ProductsPreview({ schema }: { schema: Record<string, unknown> }) {
       ) : (
         <div className="grid grid-cols-2 gap-2">
           {items.map((item, i) => (
-            <div key={i} className="p-3 rounded-lg border border-border bg-muted/50">
-              <p className="text-sm font-medium">{item.name || "Product"}</p>
-              {item.price && <p className="text-xs text-muted-foreground">{item.price}</p>}
+            <div key={i} className="rounded-lg border border-border bg-muted/50 overflow-hidden">
+              {item.image_url && (
+                <div className="aspect-video bg-muted">
+                  <img src={item.image_url} alt={item.name || ""} className="w-full h-full object-cover" />
+                </div>
+              )}
+              <div className="p-3">
+                <p className="text-sm font-medium">{item.name || "Product"}</p>
+                {item.price && <p className="text-xs text-primary font-medium">{item.price}</p>}
+                {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
+              </div>
             </div>
           ))}
         </div>
@@ -283,7 +291,7 @@ function ProductsPreview({ schema }: { schema: Record<string, unknown> }) {
 }
 
 function CategoriesPreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<{ name?: string }>) || [];
+  const items = (schema.items as Array<{ name?: string; icon?: string }>) || [];
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">
@@ -295,6 +303,7 @@ function CategoriesPreview({ schema }: { schema: Record<string, unknown> }) {
         <div className="flex flex-wrap gap-2">
           {items.map((item, i) => (
             <span key={i} className="px-3 py-1 rounded-full bg-muted text-xs font-medium">
+              {item.icon && <span className="mr-1">{item.icon}</span>}
               {item.name || "Category"}
             </span>
           ))}
@@ -349,7 +358,7 @@ function FiltersPreview({ schema }: { schema: Record<string, unknown> }) {
 }
 
 function ServicesPreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<{ name?: string; price?: string; description?: string }>) || [];
+  const items = (schema.items as Array<{ name?: string; price?: string; description?: string; icon?: string }>) || [];
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">
@@ -362,7 +371,10 @@ function ServicesPreview({ schema }: { schema: Record<string, unknown> }) {
           {items.map((item, i) => (
             <div key={i} className="p-3 rounded-lg border border-border bg-muted/50">
               <div className="flex justify-between items-start">
-                <p className="text-sm font-medium">{item.name || "Service"}</p>
+                <p className="text-sm font-medium">
+                  {item.icon && <span className="mr-1.5">{item.icon}</span>}
+                  {item.name || "Service"}
+                </p>
                 {item.price && <p className="text-xs font-medium text-primary shrink-0 ml-2">{item.price}</p>}
               </div>
               {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
