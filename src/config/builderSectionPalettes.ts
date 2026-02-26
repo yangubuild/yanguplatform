@@ -126,7 +126,7 @@ const DEFAULT_SCHEMAS: Record<string, Record<string, unknown>> = {
   join: { label: "Join Now", href: "", description: "" },
 
   // Commerce
-  products: { heading: "Products", items: [] },
+  products: { heading: "Products", currency: "UGX", categories: [], products: [] },
   categories: { heading: "Categories", items: [] },
   listings: { heading: "Listings", items: [] },
   filters: { heading: "Filters", keys: [] },

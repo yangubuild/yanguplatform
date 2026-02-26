@@ -1,0 +1,676 @@
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { X, Plus, Trash2, Pencil, Package, Upload, Sparkles, Link2, Search } from "lucide-react";
+import { BuilderMediaPicker, type MediaValue } from "../BuilderMediaPicker";
+
+interface FormProps {
+  schema: Record<string, unknown>;
+  update: (partial: Record<string, unknown>) => void;
+  surfaceId?: string;
+}
+
+// ─── Types ───
+
+interface ProductCategory {
+  name: string;
+  subcategories: Subcategory[];
+}
+
+interface Subcategory {
+  name: string;
+  children: string[];
+}
+
+interface Product {
+  name: string;
+  brand: string;
+  category: string;
+  description: string;
+  images: string[];
+  price: string;
+  stock_quantity: string;
+  discount_percent: string;
+  discount_label: string;
+  sizes: string[];
+  colors: ProductColor[];
+  material: string;
+  weight: string;
+  dimensions: string;
+  specifications: string;
+  is_available: boolean;
+}
+
+interface ProductColor {
+  name: string;
+  hex: string;
+  image_url: string;
+}
+
+const PRESET_COLORS = [
+  { name: "Red", hex: "#DC2626" },
+  { name: "Orange", hex: "#EA580C" },
+  { name: "Yellow", hex: "#EAB308" },
+  { name: "Green", hex: "#16A34A" },
+  { name: "Blue", hex: "#2563EB" },
+  { name: "Purple", hex: "#9333EA" },
+  { name: "Pink", hex: "#EC4899" },
+  { name: "Black", hex: "#000000" },
+  { name: "White", hex: "#FFFFFF" },
+  { name: "Brown", hex: "#92400E" },
+];
+
+// ─── Main Products Editor ───
+
+export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
+  const currency = (schema.currency as string) || "UGX";
+  const categories = ((schema.categories as any[]) || []).map((c: any) => ({
+    name: c.name || "",
+    subcategories: (c.subcategories || []).map((s: any) => ({
+      name: s.name || "",
+      children: s.children || [],
+    })),
+  })) as ProductCategory[];
+
+  const products = ((schema.products as any[]) || []).map((p: any) => ({
+    name: p.name || "",
+    brand: p.brand || "",
+    category: p.category || "",
+    description: p.description || "",
+    images: p.images || [],
+    price: p.price || "",
+    stock_quantity: p.stock_quantity || "",
+    discount_percent: p.discount_percent || "",
+    discount_label: p.discount_label || "",
+    sizes: p.sizes || [],
+    colors: p.colors || [],
+    material: p.material || "",
+    weight: p.weight || "",
+    dimensions: p.dimensions || "",
+    specifications: p.specifications || "",
+    is_available: p.is_available !== false,
+  })) as Product[];
+
+  // Dialog state
+  const [showAddMethodDialog, setShowAddMethodDialog] = useState(false);
+  const [showProductDialog, setShowProductDialog] = useState(false);
+  const [editProductIndex, setEditProductIndex] = useState<number | null>(null);
+  const [showCatDialog, setShowCatDialog] = useState(false);
+  const [editCatIndex, setEditCatIndex] = useState<number | null>(null);
+
+  // Product form state
+  const [pName, setPName] = useState("");
+  const [pBrand, setPBrand] = useState("");
+  const [pCategory, setPCategory] = useState("");
+  const [pDesc, setPDesc] = useState("");
+  const [pImages, setPImages] = useState<string[]>([]);
+  const [pPrice, setPPrice] = useState("");
+  const [pStock, setPStock] = useState("");
+  const [pDiscountPct, setPDiscountPct] = useState("");
+  const [pDiscountLabel, setPDiscountLabel] = useState("");
+  const [pSizes, setPSizes] = useState<string[]>([]);
+  const [pSizeInput, setPSizeInput] = useState("");
+  const [pColors, setPColors] = useState<ProductColor[]>([]);
+  const [pMaterial, setPMaterial] = useState("");
+  const [pWeight, setPWeight] = useState("");
+  const [pDimensions, setPDimensions] = useState("");
+  const [pSpecs, setPSpecs] = useState("");
+  const [pAvailable, setPAvailable] = useState(true);
+
+  // Category form state
+  const [catName, setCatName] = useState("");
+  const [catSubs, setCatSubs] = useState<Subcategory[]>([]);
+  const [subInput, setSubInput] = useState("");
+
+  // ─── Stats ───
+  const totalProducts = products.length;
+  const totalValue = products.reduce((sum, p) => sum + (parseFloat(p.price) || 0), 0);
+
+  // ─── Category helpers ───
+  const openCreateCat = () => {
+    setEditCatIndex(null);
+    setCatName("");
+    setCatSubs([]);
+    setShowCatDialog(true);
+  };
+
+  const openEditCat = (i: number) => {
+    setEditCatIndex(i);
+    setCatName(categories[i].name);
+    setCatSubs([...categories[i].subcategories]);
+    setShowCatDialog(true);
+  };
+
+  const saveCat = () => {
+    const updated = [...categories];
+    const catData: ProductCategory = { name: catName, subcategories: catSubs };
+    if (editCatIndex !== null) {
+      updated[editCatIndex] = catData;
+    } else {
+      updated.push(catData);
+    }
+    update({ categories: updated });
+    setShowCatDialog(false);
+  };
+
+  const deleteCat = (i: number) => {
+    if (!confirm(`Delete "${categories[i].name}" and all subcategories?`)) return;
+    update({ categories: categories.filter((_, j) => j !== i) });
+  };
+
+  const addSubcategory = () => {
+    if (!subInput.trim()) return;
+    setCatSubs([...catSubs, { name: subInput.trim(), children: [] }]);
+    setSubInput("");
+  };
+
+  // ─── Product helpers ───
+  const openAddProduct = () => {
+    setShowAddMethodDialog(true);
+  };
+
+  const openManualAdd = () => {
+    setShowAddMethodDialog(false);
+    setEditProductIndex(null);
+    setPName(""); setPBrand(""); setPCategory(categories[0]?.name || "");
+    setPDesc(""); setPImages([]); setPPrice(""); setPStock("");
+    setPDiscountPct(""); setPDiscountLabel("");
+    setPSizes([]); setPSizeInput(""); setPColors([]);
+    setPMaterial(""); setPWeight(""); setPDimensions("");
+    setPSpecs(""); setPAvailable(true);
+    setShowProductDialog(true);
+  };
+
+  const openEditProduct = (i: number) => {
+    const p = products[i];
+    setEditProductIndex(i);
+    setPName(p.name); setPBrand(p.brand); setPCategory(p.category);
+    setPDesc(p.description); setPImages(p.images); setPPrice(p.price);
+    setPStock(p.stock_quantity); setPDiscountPct(p.discount_percent);
+    setPDiscountLabel(p.discount_label); setPSizes(p.sizes);
+    setPColors(p.colors); setPMaterial(p.material); setPWeight(p.weight);
+    setPDimensions(p.dimensions); setPSpecs(p.specifications);
+    setPAvailable(p.is_available);
+    setShowProductDialog(true);
+  };
+
+  const saveProduct = () => {
+    const product: Product = {
+      name: pName, brand: pBrand, category: pCategory,
+      description: pDesc, images: pImages, price: pPrice,
+      stock_quantity: pStock, discount_percent: pDiscountPct,
+      discount_label: pDiscountLabel, sizes: pSizes,
+      colors: pColors, material: pMaterial, weight: pWeight,
+      dimensions: pDimensions, specifications: pSpecs,
+      is_available: pAvailable,
+    };
+    const updated = [...products];
+    if (editProductIndex !== null) {
+      updated[editProductIndex] = product;
+    } else {
+      updated.push(product);
+    }
+    update({ products: updated });
+    setShowProductDialog(false);
+  };
+
+  const deleteProduct = (i: number) => {
+    if (!confirm(`Delete "${products[i].name}"?`)) return;
+    update({ products: products.filter((_, j) => j !== i) });
+  };
+
+  const addSize = () => {
+    if (!pSizeInput.trim()) return;
+    setPSizes([...pSizes, pSizeInput.trim()]);
+    setPSizeInput("");
+  };
+
+  const toggleColor = (hex: string, name: string) => {
+    const exists = pColors.find(c => c.hex === hex);
+    if (exists) {
+      setPColors(pColors.filter(c => c.hex !== hex));
+    } else {
+      setPColors([...pColors, { name, hex, image_url: "" }]);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Currency selector */}
+      <div className="space-y-1.5">
+        <Label className="text-xs">Currency</Label>
+        <Select value={currency} onValueChange={(v) => update({ currency: v })}>
+          <SelectTrigger className="text-sm"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="UGX">UGX — Ugandan Shilling</SelectItem>
+            <SelectItem value="USD">USD — US Dollar</SelectItem>
+            <SelectItem value="EUR">EUR — Euro</SelectItem>
+            <SelectItem value="GBP">GBP — British Pound</SelectItem>
+            <SelectItem value="KES">KES — Kenyan Shilling</SelectItem>
+            <SelectItem value="NGN">NGN — Nigerian Naira</SelectItem>
+            <SelectItem value="ZAR">ZAR — South African Rand</SelectItem>
+            <SelectItem value="TZS">TZS — Tanzanian Shilling</SelectItem>
+            <SelectItem value="GHS">GHS — Ghanaian Cedi</SelectItem>
+            <SelectItem value="AED">AED — UAE Dirham</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Stats row */}
+      <div className="grid grid-cols-2 gap-2">
+        <div className="border border-border rounded-lg p-3 text-center">
+          <p className="text-xs text-muted-foreground">Total Products</p>
+          <p className="text-lg font-bold">{totalProducts}</p>
+        </div>
+        <div className="border border-border rounded-lg p-3 text-center">
+          <p className="text-xs text-muted-foreground">Total Value</p>
+          <p className="text-lg font-bold">{currency} {totalValue.toLocaleString()}</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="border border-border rounded-lg p-3 text-center">
+          <p className="text-xs text-muted-foreground">Categories</p>
+          <p className="text-lg font-bold">{categories.length}</p>
+        </div>
+        <div className="border border-border rounded-lg p-3 text-center">
+          <p className="text-xs text-muted-foreground">Pending Orders</p>
+          <p className="text-lg font-bold">0</p>
+        </div>
+      </div>
+
+      {/* ═══ Categories Section ═══ */}
+      <div className="border border-border rounded-lg p-3 space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold">Categories</h3>
+          <Button variant="default" size="sm" className="gap-1 text-xs" onClick={openCreateCat}>
+            <Plus className="h-3 w-3" /> Add Category
+          </Button>
+        </div>
+        {categories.length === 0 ? (
+          <p className="text-xs text-muted-foreground text-center py-4">No categories yet. Add your first category.</p>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {categories.map((cat, ci) => (
+              <div key={ci} className="border border-border rounded-lg p-3 min-w-[120px] space-y-1">
+                <div className="flex items-center gap-1">
+                  <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => openEditCat(ci)}>
+                    <Pencil className="h-3 w-3 text-muted-foreground" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => deleteCat(ci)}>
+                    <Trash2 className="h-3 w-3 text-destructive" />
+                  </Button>
+                </div>
+                <p className="text-xs font-semibold uppercase">{cat.name}</p>
+                <p className="text-[10px] text-muted-foreground">
+                  {products.filter(p => p.category === cat.name).length} products
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ═══ Products Section ═══ */}
+      <div className="border border-border rounded-lg p-3 space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold">Products</h3>
+          <Button variant="default" size="sm" className="gap-1 text-xs" onClick={openAddProduct}>
+            <Plus className="h-3 w-3" /> Add Product
+          </Button>
+        </div>
+        {products.length === 0 ? (
+          <div className="text-center py-8 space-y-2">
+            <Package className="h-10 w-10 mx-auto text-muted-foreground/40" />
+            <p className="text-sm text-muted-foreground">No products yet. Add your first product to get started.</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-border">
+            {products.map((product, pi) => (
+              <div key={pi} className="flex items-center gap-3 py-2 cursor-pointer hover:bg-accent/5 rounded px-1" onClick={() => openEditProduct(pi)}>
+                {product.images[0] ? (
+                  <img src={product.images[0]} alt={product.name} className="h-10 w-10 rounded object-cover shrink-0" />
+                ) : (
+                  <div className="h-10 w-10 rounded bg-muted flex items-center justify-center shrink-0">
+                    <Package className="h-5 w-5 text-muted-foreground/50" />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{product.name || "Untitled"}</p>
+                  <p className="text-[10px] text-muted-foreground">{product.category || "No category"}</p>
+                </div>
+                <span className="text-xs font-semibold text-primary shrink-0">{currency} {product.price}</span>
+                {!product.is_available && (
+                  <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">Unavailable</span>
+                )}
+                <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={(e) => { e.stopPropagation(); deleteProduct(pi); }}>
+                  <Trash2 className="h-3 w-3 text-muted-foreground" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ═══ Add Method Dialog ═══ */}
+      {showAddMethodDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowAddMethodDialog(false)}>
+          <div className="bg-background rounded-xl shadow-lg w-full max-w-md mx-4 p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">How would you like to add products?</h3>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowAddMethodDialog(false)}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <div
+              className="border border-border rounded-xl p-4 cursor-pointer hover:border-primary/50 hover:bg-accent/5 space-y-1"
+              onClick={openManualAdd}
+            >
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Upload className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold">Add Manually</p>
+                  <p className="text-xs text-muted-foreground">Upload product photos from your computer or enter URLs manually</p>
+                </div>
+              </div>
+            </div>
+            <div className="border border-secondary bg-secondary/30 rounded-xl p-4 cursor-pointer hover:border-primary/50 space-y-1">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-lg bg-secondary flex items-center justify-center">
+                  <Link2 className="h-5 w-5 text-secondary-foreground" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold">Connect with Eshops Connect</p>
+                  <p className="text-xs text-muted-foreground">Browse catalog, create with AI, or customize from templates</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ Add Category Dialog ═══ */}
+      {showCatDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowCatDialog(false)}>
+          <div className="bg-background rounded-xl shadow-lg w-full max-w-md mx-4 p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">{editCatIndex !== null ? "Edit Category" : "Add Category"}</h3>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowCatDialog(false)}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-sm font-bold">Category Name</Label>
+              <Input
+                value={catName}
+                onChange={(e) => setCatName(e.target.value)}
+                placeholder="e.g., Electronics, Women's Bags"
+                autoFocus
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-sm font-bold">Subcategories</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={subInput}
+                  onChange={(e) => setSubInput(e.target.value)}
+                  placeholder="e.g., Phones, Backpacks"
+                  onKeyDown={(e) => e.key === "Enter" && addSubcategory()}
+                  className="flex-1"
+                />
+                <Button variant="outline" size="icon" className="shrink-0" onClick={addSubcategory}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              <p className="text-xs text-primary">
+                Click on a subcategory to add sub-subcategories (e.g., Electronics → Phones → iPhone).
+              </p>
+              {catSubs.length > 0 && (
+                <div className="space-y-1 mt-2">
+                  {catSubs.map((sub, si) => (
+                    <div key={si} className="flex items-center gap-2 text-sm bg-muted/30 rounded px-2 py-1">
+                      <span className="flex-1">{sub.name}</span>
+                      <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setCatSubs(catSubs.filter((_, j) => j !== si))}>
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <Button
+              onClick={saveCat}
+              disabled={!catName.trim()}
+              className="w-full bg-foreground text-background hover:bg-foreground/90"
+            >
+              {editCatIndex !== null ? "Save Category" : "Create Category"}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ Add/Edit Product Dialog ═══ */}
+      {showProductDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowProductDialog(false)}>
+          <div className="bg-background rounded-xl shadow-lg w-full max-w-lg mx-4 p-6 space-y-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">{editProductIndex !== null ? "Edit Product" : "Add Product Manually"}</h3>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowProductDialog(false)}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Name */}
+            <div className="space-y-1.5">
+              <Label className="text-sm font-bold">Product Name *</Label>
+              <Input value={pName} onChange={(e) => setPName(e.target.value)} placeholder="e.g., iPhone 15 Pro" autoFocus />
+            </div>
+
+            {/* Brand + Category */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-sm font-bold">Brand</Label>
+                <Input value={pBrand} onChange={(e) => setPBrand(e.target.value)} placeholder="e.g., Apple" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-sm font-bold">Category *</Label>
+                <Select value={pCategory} onValueChange={setPCategory}>
+                  <SelectTrigger className="text-sm"><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <SelectContent>
+                    {categories.map((c, i) => (
+                      <SelectItem key={i} value={c.name}>{c.name.toUpperCase()}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Description */}
+            <div className="space-y-1.5">
+              <Label className="text-sm font-bold">Description</Label>
+              <Textarea value={pDesc} onChange={(e) => setPDesc(e.target.value)} placeholder="Product description" rows={3} />
+              <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+                <Sparkles className="h-3 w-3" /> AI Generate Description
+              </Button>
+            </div>
+
+            {/* Product Cover Images */}
+            <div className="space-y-1.5">
+              <Label className="text-sm font-bold">Product Cover Images</Label>
+              <p className="text-xs text-muted-foreground">These images are shown as the main product display on the shop</p>
+              {pImages.length > 0 && (
+                <div className="flex gap-2 flex-wrap mb-2">
+                  {pImages.map((img, idx) => (
+                    <div key={idx} className="relative h-16 w-16 rounded border border-border overflow-hidden group">
+                      <img src={img} alt="" className="h-full w-full object-cover" />
+                      <button
+                        className="absolute top-0 right-0 bg-destructive/80 text-white rounded-bl p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => setPImages(pImages.filter((_, j) => j !== idx))}
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="flex gap-2">
+                <BuilderMediaPicker
+                  value={{ type: "none", source: "url", url: "", alt: "", fit: "cover" }}
+                  onChange={(v) => { if (v.url) setPImages([...pImages, v.url]); }}
+                  surfaceId={surfaceId || ""}
+                />
+                <Button variant="outline" size="sm" className="gap-1.5 text-xs" disabled>
+                  <Sparkles className="h-3 w-3" /> AI Generate Image
+                </Button>
+              </div>
+            </div>
+
+            {/* Price + Stock */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-sm font-bold">Price ({currency}) *</Label>
+                <Input type="number" value={pPrice} onChange={(e) => setPPrice(e.target.value)} placeholder="0" />
+                <p className="text-xs text-muted-foreground">Enter price in {currency}</p>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-sm font-bold">Stock Quantity</Label>
+                <Input type="number" value={pStock} onChange={(e) => setPStock(e.target.value)} placeholder="Optional" />
+              </div>
+            </div>
+
+            {/* Discount section (orange border like wireframe) */}
+            <div className="border-2 border-accent rounded-lg p-3 bg-accent/10 space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-bold text-accent-foreground">Discount Percentage (%)</Label>
+                  <Input
+                    type="number"
+                    value={pDiscountPct}
+                    onChange={(e) => setPDiscountPct(e.target.value)}
+                    placeholder="e.g., 20"
+                    min={0} max={100}
+                  />
+                  <p className="text-xs text-accent-foreground/70">Enter 0-100 for percentage off</p>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-bold text-accent-foreground">Discount Label</Label>
+                  <Input
+                    value={pDiscountLabel}
+                    onChange={(e) => setPDiscountLabel(e.target.value)}
+                    placeholder="e.g., Summer Sale, Black Friday"
+                  />
+                  <p className="text-xs text-accent-foreground/70">Custom label shown on banners</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Sizes */}
+            <div className="space-y-1.5">
+              <Label className="text-sm font-bold">Available Sizes</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={pSizeInput}
+                  onChange={(e) => setPSizeInput(e.target.value)}
+                  placeholder="e.g., S, M, L, XL, 42, 44"
+                  onKeyDown={(e) => e.key === "Enter" && addSize()}
+                  className="flex-1"
+                />
+                <Button variant="outline" size="icon" className="shrink-0" onClick={addSize}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              {pSizes.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-1">
+                  {pSizes.map((s, si) => (
+                    <span key={si} className="text-xs bg-muted px-2 py-1 rounded-full flex items-center gap-1">
+                      {s}
+                      <button onClick={() => setPSizes(pSizes.filter((_, j) => j !== si))}>
+                        <X className="h-2.5 w-2.5" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Color Variations */}
+            <div className="space-y-1.5">
+              <Label className="text-sm font-bold">Color Variations</Label>
+              <p className="text-xs text-muted-foreground">Add colors with visual swatches. You can upload specific images for each color.</p>
+              <div className="border border-border rounded-lg p-3 flex flex-wrap items-center gap-2 justify-center">
+                {PRESET_COLORS.map((c) => {
+                  const isSelected = pColors.some(pc => pc.hex === c.hex);
+                  return (
+                    <button
+                      key={c.hex}
+                      className={`h-7 w-7 rounded-full border-2 transition-all ${isSelected ? "border-primary scale-110 ring-2 ring-primary/30" : "border-border"}`}
+                      style={{ backgroundColor: c.hex }}
+                      onClick={() => toggleColor(c.hex, c.name)}
+                      title={c.name}
+                    />
+                  );
+                })}
+                <span className="text-xs text-muted-foreground ml-1">Select from Color Palette</span>
+              </div>
+            </div>
+
+            {/* Material, Weight, Dimensions */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="space-y-1.5">
+                <Label className="text-sm font-bold">Material</Label>
+                <Input value={pMaterial} onChange={(e) => setPMaterial(e.target.value)} placeholder="e.g., Cotton, Leather" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-sm font-bold">Weight</Label>
+                <Input value={pWeight} onChange={(e) => setPWeight(e.target.value)} placeholder="e.g., 500g" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-sm font-bold">Dimensions</Label>
+                <Input value={pDimensions} onChange={(e) => setPDimensions(e.target.value)} placeholder="e.g., 30x20x10 cm" />
+              </div>
+            </div>
+
+            {/* Specifications */}
+            <div className="space-y-1.5">
+              <Label className="text-sm font-bold">Specifications</Label>
+              <Textarea value={pSpecs} onChange={(e) => setPSpecs(e.target.value)} placeholder="e.g., Storage: 256GB, Battery: 4000mAh" rows={3} />
+            </div>
+
+            {/* Available */}
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="product-available"
+                checked={pAvailable}
+                onCheckedChange={(c) => setPAvailable(!!c)}
+              />
+              <label htmlFor="product-available" className="text-sm font-medium">Product is available</label>
+            </div>
+
+            <Button
+              onClick={saveProduct}
+              disabled={!pName.trim() || !pPrice.trim()}
+              className="w-full bg-foreground text-background hover:bg-foreground/90"
+            >
+              {editProductIndex !== null ? "Save Product" : "Add Product"}
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
