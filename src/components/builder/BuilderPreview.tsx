@@ -13,6 +13,8 @@ interface BuilderPreviewProps {
   onSelectSection?: (id: string) => void;
   theme?: BuilderTheme;
   pageSettings?: PageEditSettings;
+  /** Live override for a single section's schema (before save) */
+  liveSchemaOverride?: { sectionId: string; schema: Record<string, unknown> } | null;
 }
 
 // ─── Existing live_bio renderers (unchanged) ───
@@ -700,7 +702,7 @@ export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<st
   media_grid: GalleryPreview,
 };
 
-export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSelectSection, theme, pageSettings }: BuilderPreviewProps) {
+export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSelectSection, theme, pageSettings, liveSchemaOverride }: BuilderPreviewProps) {
   const t = theme || DEFAULT_THEME;
   const ps = pageSettings || DEFAULT_PAGE_SETTINGS;
   const isLayoutB = ps.layout === "layout_b";
@@ -746,6 +748,10 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
           .filter((s) => s.is_visible)
           .map((section) => {
             const Preview = PREVIEW_MAP[section.section_type];
+            // Use live override schema if this section is being edited
+            const displaySchema = (liveSchemaOverride && liveSchemaOverride.sectionId === section.id)
+              ? liveSchemaOverride.schema
+              : section.schema;
             return (
               <div
                 key={section.id}
@@ -757,7 +763,7 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
                 } ${selectedSectionId === section.id ? "ring-2 ring-primary ring-inset" : "hover:bg-accent/5"}`}
               >
                 {Preview ? (
-                  <Preview schema={section.schema} />
+                  <Preview schema={displaySchema} />
                 ) : (
                   <GenericPreview section={section} />
                 )}

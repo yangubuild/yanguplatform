@@ -37,6 +37,8 @@ export default function BuilderEditor() {
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [rightPanel, setRightPanel] = useState<RightPanel>("page_edit");
   const [showAiBanner, setShowAiBanner] = useState(false);
+  const [liveSchemaOverride, setLiveSchemaOverride] = useState<{ sectionId: string; schema: Record<string, unknown> } | null>(null);
+  const [livePageSettings, setLivePageSettings] = useState<import("@/config/builderCoreSections").PageEditSettings | null>(null);
 
   const {
     editorState,
@@ -257,7 +259,8 @@ export default function BuilderEditor() {
             selectedSectionId={selectedSectionId}
             onSelectSection={handleSelectSection}
             theme={builderTheme}
-            pageSettings={pageSettings}
+            pageSettings={livePageSettings || pageSettings}
+            liveSchemaOverride={liveSchemaOverride}
           />
         </main>
 
@@ -265,9 +268,13 @@ export default function BuilderEditor() {
         {rightPanel === "page_edit" && (
           <BuilderPageEditPanel
             settings={pageSettings}
-            onSave={savePageSettings}
+            onSave={async (s) => {
+              await savePageSettings(s);
+              setLivePageSettings(null); // reset live override after save
+            }}
             onClose={() => setRightPanel("none")}
             isSaving={isSavingPageSettings}
+            onLocalChange={setLivePageSettings}
           />
         )}
         {rightPanel === "setup" && hasAiSetup && (
@@ -285,9 +292,13 @@ export default function BuilderEditor() {
             <BuilderSectionEditor
               key={sec.id}
               section={sec}
-              onClose={() => { setSelectedSectionId(null); setRightPanel("page_edit"); }}
-              onSave={updateSectionSchema}
+              onClose={() => { setSelectedSectionId(null); setRightPanel("page_edit"); setLiveSchemaOverride(null); }}
+              onSave={async (id, schema) => {
+                await updateSectionSchema(id, schema);
+                setLiveSchemaOverride(null);
+              }}
               onToggleVisibility={toggleSectionVisibility}
+              onLocalSchemaChange={(id, schema) => setLiveSchemaOverride({ sectionId: id, schema })}
               isSaving={isSavingSection}
               surfaceType={surfaceType}
               surfaceId={editorState.surface.id}

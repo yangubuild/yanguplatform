@@ -26,6 +26,7 @@ interface BuilderSectionEditorProps {
   onClose: () => void;
   onSave: (sectionId: string, schema: Record<string, unknown>) => Promise<void>;
   onToggleVisibility: (sectionId: string, visible: boolean) => Promise<void>;
+  onLocalSchemaChange?: (sectionId: string, schema: Record<string, unknown>) => void;
   isSaving: boolean;
   surfaceType: string;
   surfaceId?: string;
@@ -148,8 +149,11 @@ function HeaderForm({ schema, update, surfaceId }: FormProps & { surfaceId?: str
   const primaryColor = (schema.primary_color as string) || "";
   const menuLayoutStyle = (schema.menu_layout_style as string) || "list";
 
+  // Use stored media type — don't recompute from URL presence
+  const storedType = logoMedia.type || (logoUrl ? "image" : "none");
+
   const mediaValue: MediaValue = {
-    type: logoUrl || logoMedia.url ? "image" : "none",
+    type: storedType as MediaValue["type"],
     source: logoMedia.source || "url",
     url: logoUrl || logoMedia.url || "",
     provider: logoMedia.provider,
@@ -995,7 +999,7 @@ const TYPE_LABELS: Record<string, string> = {
 // ─── Main component ───
 
 export function BuilderSectionEditor({
-  section, onClose, onSave, onToggleVisibility, isSaving, surfaceType, surfaceId,
+  section, onClose, onSave, onToggleVisibility, onLocalSchemaChange, isSaving, surfaceType, surfaceId,
 }: BuilderSectionEditorProps) {
   const [localSchema, setLocalSchema] = useState<Record<string, unknown>>(section.schema);
   const [dirty, setDirty] = useState(false);
@@ -1013,9 +1017,14 @@ export function BuilderSectionEditor({
   }, [section.id]);
 
   const update = useCallback((partial: Record<string, unknown>) => {
-    setLocalSchema((prev) => ({ ...prev, ...partial }));
+    setLocalSchema((prev) => {
+      const next = { ...prev, ...partial };
+      // Notify parent for live preview
+      onLocalSchemaChange?.(section.id, next);
+      return next;
+    });
     setDirty(true);
-  }, []);
+  }, [section.id, onLocalSchemaChange]);
 
   const handleSave = async () => {
     await onSave(section.id, localSchema);

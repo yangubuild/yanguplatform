@@ -19,9 +19,10 @@ interface BuilderPageEditPanelProps {
   onSave: (settings: PageEditSettings) => Promise<void>;
   onClose: () => void;
   isSaving: boolean;
+  onLocalChange?: (settings: PageEditSettings) => void;
 }
 
-export function BuilderPageEditPanel({ settings, onSave, onClose, isSaving }: BuilderPageEditPanelProps) {
+export function BuilderPageEditPanel({ settings, onSave, onClose, isSaving, onLocalChange }: BuilderPageEditPanelProps) {
   const [local, setLocal] = useState<PageEditSettings>(settings);
   const [dirty, setDirty] = useState(false);
 
@@ -31,7 +32,11 @@ export function BuilderPageEditPanel({ settings, onSave, onClose, isSaving }: Bu
   }, [settings]);
 
   const update = (partial: Partial<PageEditSettings>) => {
-    setLocal((prev) => ({ ...prev, ...partial }));
+    setLocal((prev) => {
+      const next = { ...prev, ...partial };
+      onLocalChange?.(next);
+      return next;
+    });
     setDirty(true);
   };
 
