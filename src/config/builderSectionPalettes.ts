@@ -257,6 +257,17 @@ const DEFAULT_SCHEMAS: Record<string, Record<string, unknown>> = {
     social: {},
   },
 
+  // ─── Blueprint registry content types ───
+  product_grid: { display_mode: "grid", filters_enabled: true, sort_enabled: true, cards: { style: "standard" } },
+  booking_inventory: { display_mode: "list", date_picker: true, guests_picker: true, pricing_mode: "per_night" },
+  services_list: { display_mode: "cards", cta_style: "inquire", heading: "Services", items: [] },
+  article_feed: { display_mode: "magazine", show_author: true, show_date: true, heading: "Articles", items: [] },
+  case_studies_grid: { display_mode: "grid", show_tags: true, heading: "Case Studies", items: [] },
+  community_feed: { display_mode: "posts", heading: "Feed", items: [] },
+  media_grid: { display_mode: "grid", show_captions: false, heading: "Gallery", items: [] },
+  listing_grid: { display_mode: "grid", filters_enabled: true, heading: "Listings", items: [] },
+  links_grid: { heading: "Links", items: [] },
+
   // ─── New content section types ───
   // Esite
   properties: { heading: "Properties", items: [] },
