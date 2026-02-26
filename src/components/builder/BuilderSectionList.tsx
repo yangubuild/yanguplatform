@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from "react";
-import { GripVertical, Eye, EyeOff } from "lucide-react";
+import { GripVertical, Eye, EyeOff, Trash2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import type { EditorSection } from "@/hooks/useBuilderEditor";
 
 interface BuilderSectionListProps {
@@ -8,6 +9,7 @@ interface BuilderSectionListProps {
   onReorder: (orderedIds: string[]) => void;
   selectedId?: string | null;
   onSelect?: (id: string) => void;
+  onDelete?: (id: string) => Promise<boolean>;
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -28,9 +30,10 @@ const TYPE_LABELS: Record<string, string> = {
   schedule: "Schedule",
 };
 
-export function BuilderSectionList({ sections, onReorder, selectedId, onSelect }: BuilderSectionListProps) {
+export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, onDelete }: BuilderSectionListProps) {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
   const handleDragStart = useCallback((e: React.DragEvent, index: number) => {
@@ -109,6 +112,27 @@ export function BuilderSectionList({ sections, onReorder, selectedId, onSelect }
           )}
           {section.is_visible && (
             <Eye className="h-3.5 w-3.5 text-muted-foreground/50" />
+          )}
+          {onDelete && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 shrink-0 text-muted-foreground hover:text-destructive"
+              onClick={async (e) => {
+                e.stopPropagation();
+                if (!confirm(`Delete "${TYPE_LABELS[section.section_type] || section.section_type}" section?`)) return;
+                setDeletingId(section.id);
+                await onDelete(section.id);
+                setDeletingId(null);
+              }}
+              disabled={deletingId === section.id}
+            >
+              {deletingId === section.id ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Trash2 className="h-3.5 w-3.5" />
+              )}
+            </Button>
           )}
         </div>
       ))}
