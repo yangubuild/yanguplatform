@@ -3,6 +3,8 @@
 // Core sections cannot be deleted (only hidden).
 // Custom sections can be added below the footer.
 
+import { CONTENT_SECTIONS } from "@/config/builderSectionPalettes";
+
 export interface CoreSectionDef {
   type: string;
   label: string;
@@ -22,6 +24,11 @@ export const CORE_SECTIONS: CoreSectionDef[] = [
 
 /** Set of core section types (for quick lookup) */
 export const CORE_SECTION_TYPES = new Set(CORE_SECTIONS.map((s) => s.type));
+
+/** All possible content section types across all surfaces (for main_content slot detection) */
+export const CONTENT_SECTION_TYPES: Set<string> = new Set(
+  Object.values(CONTENT_SECTIONS).flatMap((entries) => entries.map((e) => e.type))
+);
 
 /** Maps surface_type → the actual section_type used for "main_content" */
 export const MAIN_CONTENT_MAP: Record<string, string> = {
@@ -56,6 +63,7 @@ export function enforceCoreSectionOrder(
     schema: Record<string, unknown>;
     position: number;
     is_visible: boolean;
+    core_slot?: string | null;
   }>,
   surfaceType: string
 ): Array<{
@@ -66,8 +74,10 @@ export function enforceCoreSectionOrder(
   is_visible: boolean;
   isCore: boolean;
   isMissing?: boolean;
+  core_slot?: string | null;
 }> {
-  // Build a lookup by section_type (first occurrence wins for dedup)
+  // Build a lookup by core_slot first, then by section_type
+  const sectionsBySlot = new Map<string, typeof rawSections[0]>();
   const sectionsByType = new Map<string, typeof rawSections[0]>();
   const customSections: typeof rawSections = [];
   const allowMultiple = new Set(["text", "cta", "gallery", "products", "services", "listings"]);
@@ -78,11 +88,23 @@ export function enforceCoreSectionOrder(
   );
 
   for (const s of rawSections) {
+    // Check core_slot first (explicit tagging from DB)
+    if (s.core_slot) {
+      if (!sectionsBySlot.has(s.core_slot)) {
+        sectionsBySlot.set(s.core_slot, s);
+      }
+      continue;
+    }
+    // Fallback: detect by type
     if (coreActualTypes.has(s.section_type)) {
       if (!sectionsByType.has(s.section_type)) {
         sectionsByType.set(s.section_type, s);
       }
-      // skip duplicates
+    } else if (CONTENT_SECTION_TYPES.has(s.section_type)) {
+      // This is a content section type occupying main_content slot
+      if (!sectionsBySlot.has("main_content") && !sectionsByType.has(s.section_type)) {
+        sectionsBySlot.set("main_content", s);
+      }
     } else {
       customSections.push(s);
     }
@@ -94,7 +116,10 @@ export function enforceCoreSectionOrder(
 
   for (const coreDef of CORE_SECTIONS) {
     const actualType = resolveCoreSectionType(coreDef.type, surfaceType);
-    const existing = sectionsByType.get(actualType);
+
+    // Try core_slot first, then type lookup
+    const existing = sectionsBySlot.get(coreDef.type) || sectionsByType.get(actualType);
+
     if (existing) {
       result.push({ ...existing, position: pos, isCore: true });
     } else {
@@ -114,7 +139,6 @@ export function enforceCoreSectionOrder(
 
   // Append custom sections after footer
   for (const cs of customSections) {
-    // Dedup: if allowMultiple doesn't include it and we've already seen it, skip
     if (!allowMultiple.has(cs.section_type)) {
       const alreadyInResult = result.some((r) => r.section_type === cs.section_type && !r.isMissing);
       if (alreadyInResult) continue;

@@ -3,9 +3,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Json } from "@/integrations/supabase/types";
-import { enforceCoreSectionOrder, CORE_SECTIONS, resolveCoreSectionType } from "@/config/builderCoreSections";
+import { enforceCoreSectionOrder, CORE_SECTIONS, resolveCoreSectionType, CONTENT_SECTION_TYPES } from "@/config/builderCoreSections";
 import type { PageEditSettings } from "@/config/builderCoreSections";
 import { DEFAULT_PAGE_SETTINGS } from "@/config/builderCoreSections";
+import { applyTemplateForMainContent } from "@/hooks/useMainContentTemplate";
 
 // ─── Types ───
 export interface EditorSection {
@@ -385,6 +386,46 @@ export function useBuilderEditor(surfaceId: string | undefined) {
     queryClient.invalidateQueries({ queryKey });
   }, [queryClient, queryKey]);
 
+  // ─── Switch main content (atomic RPC) ───
+  const [isSwitching, setIsSwitching] = useState(false);
+
+  const switchMainContent = useCallback(
+    async (newType: string, defaultSchema?: Record<string, unknown>) => {
+      if (!activePageId) return;
+      setIsSwitching(true);
+
+      const schema = defaultSchema || getDefaultSchema(newType);
+
+      try {
+        const { data, error } = await supabase.rpc("builder_switch_main_content", {
+          p_page_id: activePageId,
+          p_new_section_type: newType,
+          p_default_schema: schema as unknown as Json,
+        });
+
+        if (error) throw new Error(error.message);
+        const result = data as unknown as { ok: boolean; error?: string; section_id?: string };
+        if (!result.ok) throw new Error(result.error || "Failed to switch content");
+
+        // Fire template hook
+        applyTemplateForMainContent(surfaceType, undefined, newType);
+
+        await queryClient.invalidateQueries({ queryKey });
+        toast.success(`Switched to ${newType.replace(/_/g, " ")}`);
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Failed to switch content");
+      } finally {
+        setIsSwitching(false);
+      }
+    },
+    [activePageId, surfaceType, queryClient, queryKey]
+  );
+
+  // Detect current main content type
+  const currentMainContentType = sections.find(
+    (s) => s.isCore && (CONTENT_SECTION_TYPES.has(s.section_type) || s.section_type === resolveCoreSectionType("main_content", surfaceType))
+  )?.section_type || null;
+
   return {
     editorState,
     isLoading,
@@ -406,5 +447,8 @@ export function useBuilderEditor(surfaceId: string | undefined) {
     deleteSection,
     isSavingSection,
     refreshEditor,
+    switchMainContent,
+    isSwitching,
+    currentMainContentType,
   };
 }

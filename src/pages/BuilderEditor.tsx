@@ -58,6 +58,9 @@ export default function BuilderEditor() {
     deleteSection,
     isSavingSection,
     refreshEditor,
+    switchMainContent,
+    isSwitching,
+    currentMainContentType,
   } = useBuilderEditor(surfaceId);
 
   // Show AI banner on first load if surface was AI-generated
@@ -232,7 +235,7 @@ export default function BuilderEditor() {
             />
           </div>
           <div className="p-3 border-t border-border">
-            <BuilderAddSection onAdd={addSection} onAddWithSchema={addSectionWithSchema} isAdding={isAdding} surfaceType={surfaceType} />
+            <BuilderAddSection onAdd={addSection} onAddWithSchema={addSectionWithSchema} onSwitchMainContent={switchMainContent} isAdding={isAdding || isSwitching} surfaceType={surfaceType} currentMainContentType={currentMainContentType} />
           </div>
         </aside>
 
