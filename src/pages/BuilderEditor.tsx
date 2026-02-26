@@ -219,6 +219,7 @@ export default function BuilderEditor() {
               sections={sections}
               onReorder={reorderSections}
               selectedId={selectedSectionId}
+              surfaceType={surfaceType}
               onSelect={handleSelectSection}
               onDelete={async (id) => {
                 const ok = await deleteSection(id);
