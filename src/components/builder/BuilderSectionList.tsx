@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { EditorSection } from "@/hooks/useBuilderEditor";
+import { CORE_SECTIONS, resolveCoreSectionType } from "@/config/builderCoreSections";
 
 interface BuilderSectionListProps {
   sections: EditorSection[];
@@ -11,6 +12,7 @@ interface BuilderSectionListProps {
   selectedId?: string | null;
   onSelect?: (id: string) => void;
   onDelete?: (id: string) => Promise<boolean>;
+  surfaceType?: string;
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -41,7 +43,23 @@ const TYPE_LABELS: Record<string, string> = {
   footer: "Footer",
 };
 
-export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, onDelete }: BuilderSectionListProps) {
+/** Get the wireframe-driven label for a section based on core definitions */
+function getWireframeLabel(sectionType: string, surfaceType: string): string {
+  // Check if this section_type corresponds to a core section
+  for (const coreDef of CORE_SECTIONS) {
+    const resolvedType = resolveCoreSectionType(coreDef.type, surfaceType);
+    if (resolvedType === sectionType) {
+      if (coreDef.type === "main_content") {
+        const specificLabel = TYPE_LABELS[sectionType] || sectionType;
+        return `Main Content (${specificLabel})`;
+      }
+      return coreDef.label;
+    }
+  }
+  return TYPE_LABELS[sectionType] || sectionType;
+}
+
+export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, onDelete, surfaceType = "quick_site" }: BuilderSectionListProps) {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -98,7 +116,7 @@ export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, 
         const isCore = !!section.isCore;
         const isMissing = !!section.isMissing;
         const canDrag = !isCore; // Core sections have fixed position
-        const label = TYPE_LABELS[section.section_type] || section.section_type;
+        const label = getWireframeLabel(section.section_type, surfaceType);
 
         return (
           <div
@@ -127,7 +145,7 @@ export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, 
             )}
             <span className={cn("flex-1 text-sm font-medium truncate", isMissing && "italic text-muted-foreground")}>
               {label}
-              {isMissing && " (not added)"}
+              {isMissing && " (empty placeholder)"}
             </span>
             {isCore && !isMissing && (
               <Tooltip>
