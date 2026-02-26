@@ -91,7 +91,7 @@ const BASE_ENGINES: Record<string, EngineBlueprint> = {
       main_content: {
         core_slot: "main_content",
         default_section_type: "services_list",
-        allowed_switch_targets: ["services_list", "article_feed", "case_studies_grid", "booking_inventory"],
+        allowed_switch_targets: ["services_list", "article_feed", "case_studies_grid", "booking_inventory", "properties"],
         variants: {
           field: "schema.display_mode",
           default: "default",
@@ -276,6 +276,17 @@ const SECTION_TYPE_CONTRACTS: Record<string, SectionTypeContract> = {
     defaultSchema: {
       display_mode: "grid",
       filters_enabled: true,
+    },
+  },
+  properties: {
+    palette: "content",
+    defaultSchema: {
+      display_mode: "grid",
+      heading: "Properties",
+      filters_enabled: true,
+      show_price: true,
+      show_location: true,
+      items: [],
     },
   },
 };
