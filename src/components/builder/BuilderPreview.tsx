@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import type { EditorSection } from "@/hooks/useBuilderEditor";
 import { Card } from "@/components/primitives";
 import type { BuilderTheme } from "./BuilderSettingsDrawer";
@@ -692,6 +693,11 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
   const ps = pageSettings || DEFAULT_PAGE_SETTINGS;
   const isLayoutB = ps.layout === "layout_b";
 
+  // Console proof for layout switching
+  useEffect(() => {
+    console.log("BUILDER_LAYOUT_SWITCHED", { layout: isLayoutB ? "B" : "A", wireframeId: ps.layout });
+  }, [ps.layout, isLayoutB]);
+
   const themeStyle: React.CSSProperties = {
     fontFamily: t.font_family,
     fontWeight: Number(t.body_weight),
@@ -717,8 +723,8 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
         <p className="text-xs text-muted-foreground text-center truncate">{surfaceTitle}</p>
       </div>
 
-      {/* Sections — Layout B uses grid for main content */}
-      <div className={isLayoutB ? "" : "divide-y divide-border"}>
+      {/* Sections — Layout A = stacked with dividers, Layout B = compact cards */}
+      <div className={isLayoutB ? "p-2 space-y-2" : "divide-y divide-border"}>
         {sections
           .filter((s) => s.is_visible)
           .map((section) => {
@@ -728,7 +734,9 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
                 key={section.id}
                 onClick={() => onSelectSection?.(section.id)}
                 className={`cursor-pointer transition-all ${
-                  !isLayoutB ? "border-b border-border last:border-b-0" : ""
+                  isLayoutB
+                    ? "rounded-lg border border-border bg-card shadow-sm"
+                    : "border-b border-border last:border-b-0"
                 } ${selectedSectionId === section.id ? "ring-2 ring-primary ring-inset" : "hover:bg-accent/5"}`}
               >
                 {Preview ? (
