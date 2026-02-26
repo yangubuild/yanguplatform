@@ -228,6 +228,12 @@ export default function BuilderEditor() {
               onSwitchMainContent={switchMainContent}
               currentMainContentType={currentMainContentType}
               industry={industry}
+              onVariantChange={async (sectionId, displayMode) => {
+                const section = sections.find((s) => s.id === sectionId);
+                if (!section) return;
+                const newSchema = { ...section.schema, display_mode: displayMode };
+                await updateSectionSchema(sectionId, newSchema);
+              }}
               onDelete={async (id) => {
                 const ok = await deleteSection(id);
                 if (ok && selectedSectionId === id) {

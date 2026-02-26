@@ -14,6 +14,7 @@ interface BuilderSectionListProps {
   onSelect?: (id: string) => void;
   onDelete?: (id: string) => Promise<boolean>;
   onSwitchMainContent?: (newType: string) => Promise<string | null>;
+  onVariantChange?: (sectionId: string, displayMode: string) => void;
   surfaceType?: string;
   currentMainContentType?: string | null;
   industry?: string | null;
@@ -102,7 +103,7 @@ function getSectionLabel(section: EditorSection, surfaceType: string): { primary
   return { primary: TYPE_LABELS[section.section_type] || section.section_type };
 }
 
-export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, onDelete, onSwitchMainContent, surfaceType = "quick_site", currentMainContentType, industry }: BuilderSectionListProps) {
+export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, onDelete, onSwitchMainContent, onVariantChange, surfaceType = "quick_site", currentMainContentType, industry }: BuilderSectionListProps) {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -226,9 +227,10 @@ export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, 
                   }
                   return newSectionId;
                 }}
+                onVariantChange={onVariantChange ? (mode) => onVariantChange(section.id, mode) : undefined}
                 surfaceType={surfaceType}
                 currentMainContentType={currentMainContentType}
-                industry={industry}
+                currentDisplayMode={(section.schema?.display_mode as string) || null}
               />
             )}
             {/* Visibility icons */}
