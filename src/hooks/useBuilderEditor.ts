@@ -1,9 +1,9 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Json } from "@/integrations/supabase/types";
-import { enforceCoreSectionOrder } from "@/config/builderCoreSections";
+import { enforceCoreSectionOrder, CORE_SECTIONS, resolveCoreSectionType } from "@/config/builderCoreSections";
 import type { PageEditSettings } from "@/config/builderCoreSections";
 import { DEFAULT_PAGE_SETTINGS } from "@/config/builderCoreSections";
 
@@ -93,6 +93,36 @@ export function useBuilderEditor(surfaceId: string | undefined) {
   // Enforce core section order with deduplication
   const rawSections = activePage?.sections?.slice().sort((a, b) => a.position - b.position) || [];
   const sections: EditorSection[] = enforceCoreSectionOrder(rawSections, surfaceType);
+
+  // ─── Auto-create missing core sections ───
+  const autoCreatingRef = useRef(false);
+  useEffect(() => {
+    if (!activePageId || autoCreatingRef.current) return;
+    const missing = sections.filter((s) => s.isMissing);
+    if (missing.length === 0) return;
+
+    autoCreatingRef.current = true;
+    (async () => {
+      try {
+        for (const stub of missing) {
+          const schema = getDefaultSchema(stub.section_type);
+          await supabase.rpc("builder_upsert_section", {
+            p_page_id: activePageId,
+            p_section_type: stub.section_type,
+            p_schema: schema as unknown as Json,
+            p_position: stub.position,
+            p_is_visible: true,
+          });
+        }
+        console.log("BUILDER_CORE_SECTIONS_AUTO_CREATED", missing.map((s) => s.section_type));
+        await queryClient.invalidateQueries({ queryKey });
+      } catch (err) {
+        console.error("Failed to auto-create core sections", err);
+      } finally {
+        autoCreatingRef.current = false;
+      }
+    })();
+  }, [activePageId, sections, queryClient, queryKey]);
 
   // Page settings from surface metadata
   const pageSettings: PageEditSettings = {

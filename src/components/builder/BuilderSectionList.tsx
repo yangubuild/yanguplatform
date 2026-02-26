@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { GripVertical, Eye, EyeOff, Trash2, Loader2, Lock } from "lucide-react";
+import { GripVertical, Eye, EyeOff, Trash2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -115,7 +115,7 @@ export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, 
       {sections.map((section, index) => {
         const isCore = !!section.isCore;
         const isMissing = !!section.isMissing;
-        const canDrag = !isCore; // Core sections have fixed position
+        const canDrag = !isMissing; // All real sections can be dragged for reorder
         const label = getWireframeLabel(section.section_type, surfaceType);
 
         return (
@@ -138,11 +138,7 @@ export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, 
               overIndex === index && dragIndex !== index && "border-accent border-dashed"
             )}
           >
-            {canDrag ? (
-              <GripVertical className="h-4 w-4 text-muted-foreground shrink-0" />
-            ) : (
-              <Lock className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" />
-            )}
+            <GripVertical className="h-4 w-4 text-muted-foreground shrink-0" />
             <span className={cn("flex-1 text-sm font-medium truncate", isMissing && "italic text-muted-foreground")}>
               {label}
               {isMissing && " (empty placeholder)"}
