@@ -16,6 +16,7 @@ import { X, Plus, Trash2, Save, Loader2 } from "lucide-react";
 import type { EditorSection } from "@/hooks/useBuilderEditor";
 import { BuilderMediaPicker, type MediaValue } from "./BuilderMediaPicker";
 import { ProductsEditor } from "./editors/ProductsEditor";
+import { BannersAdsEditor } from "./editors/BannersAdsEditor";
 
 interface BuilderSectionEditorProps {
   section: EditorSection;
@@ -912,6 +913,7 @@ const FORM_MAP: Record<string, React.ComponentType<FormProps & { surfaceId?: str
   hours: HoursForm,
   location: LocationForm,
   products: ProductsEditor as React.ComponentType<FormProps & { surfaceId?: string }>,
+  banners_ads: BannersAdsEditor,
   services: (p) => <ItemListForm {...p} heading="Services" />,
   listings: (p) => <ItemListForm {...p} heading="Listings" />,
 };
@@ -923,6 +925,7 @@ const TYPE_LABELS: Record<string, string> = {
   faq: "FAQ", menu: "Menu", schedule: "Schedule", about: "About",
   offer: "Offers", plans: "Plans", join: "Join", listings: "Listings",
   hours: "Opening Hours", location: "Location", footer: "Footer",
+  banners_ads: "Banners & Ads",
 };
 
 // ─── Main component ───
