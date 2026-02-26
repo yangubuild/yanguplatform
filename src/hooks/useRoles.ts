@@ -1,15 +1,12 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 import { useAuth } from "@/hooks/useAuth";
 
-/**
- * Platform roles for management panel access control.
- * Currently only "admin" and "user" exist in the DB enum.
- * Additional roles (writer, designer, analyst, moderator) are checked
- * via has_role but will return false until the enum is extended.
- */
-export type AppRole = "admin" | "user" | "owner" | "manager" | "designer";
-export type ManageRole = "admin" | "owner" | "manager" | "writer" | "designer" | "analyst" | "moderator" | "content_editor";
+type DbAppRole = Database["public"]["Enums"]["app_role"];
+
+export type AppRole = DbAppRole;
+export type ManageRole = AppRole | "writer" | "analyst" | "moderator" | "content_editor";
 
 interface RolesState {
   roles: AppRole[];
@@ -28,11 +25,9 @@ interface RolesState {
 }
 
 const MANAGE_ROLES: ManageRole[] = ["admin", "owner", "manager", "writer", "designer", "analyst", "moderator", "content_editor"];
+const DB_MANAGE_ROLES: AppRole[] = ["admin", "owner", "manager", "designer"];
+const DB_APP_ROLES: AppRole[] = ["admin", "owner", "manager", "designer", "user"];
 
-/**
- * Hook to fetch and manage user roles from the database.
- * Uses the `has_role` RPC to check each role.
- */
 export function useRoles(): RolesState {
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
   const [roles, setRoles] = useState<AppRole[]>([]);
@@ -47,54 +42,34 @@ export function useRoles(): RolesState {
       return;
     }
 
+    setIsLoading(true);
+
     try {
-      // Check admin role (always valid in current enum)
-      const { data: hasAdmin, error } = await supabase.rpc("has_role", {
-        _user_id: user.id,
-        _role: "admin",
-      });
+      // Read user's assigned roles directly to avoid enum-cast 400 RPC errors
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id);
 
-      if (error) {
-        console.error("Error fetching roles:", error);
-        setRoles(["user"]);
-        setManageRoles([]);
-        setIsLoading(false);
-        return;
+      if (error) throw error;
+
+      const assigned = new Set<AppRole>();
+      for (const row of data || []) {
+        const role = row.role as AppRole;
+        if (DB_APP_ROLES.includes(role)) assigned.add(role);
       }
 
-      const userRoles: AppRole[] = ["user"];
-      const foundManageRoles: ManageRole[] = [];
-
-      if (hasAdmin) {
-        userRoles.push("admin");
-        foundManageRoles.push("admin");
+      const resolvedRoles: AppRole[] = ["user"];
+      for (const role of ["admin", "owner", "manager", "designer"] as const) {
+        if (assigned.has(role)) resolvedRoles.push(role);
       }
 
-      // Check additional manage roles (will return false until enum is extended)
-      // We attempt each but swallow errors for roles not yet in the enum
-      const additionalRoles: ManageRole[] = ["owner", "manager", "writer", "designer", "analyst", "moderator", "content_editor"];
-      const checks = await Promise.allSettled(
-        additionalRoles.map(async (role) => {
-          try {
-            const { data } = await supabase.rpc("has_role", {
-              _user_id: user.id,
-              _role: role as any,
-            });
-            return { role, has: !!data };
-          } catch {
-            return { role, has: false };
-          }
-        })
-      );
+      const resolvedManageRoles = MANAGE_ROLES.filter(
+        (role) => DB_MANAGE_ROLES.includes(role as AppRole) && assigned.has(role as AppRole)
+      ) as ManageRole[];
 
-      for (const result of checks) {
-        if (result.status === "fulfilled" && result.value.has) {
-          foundManageRoles.push(result.value.role);
-        }
-      }
-
-      setRoles(userRoles);
-      setManageRoles(foundManageRoles);
+      setRoles(resolvedRoles);
+      setManageRoles(resolvedManageRoles);
     } catch (err) {
       console.error("Failed to fetch roles:", err);
       setRoles(["user"]);
@@ -112,7 +87,7 @@ export function useRoles(): RolesState {
       setIsLoading(false);
       return;
     }
-    fetchRoles();
+    void fetchRoles();
   }, [authLoading, isAuthenticated, fetchRoles]);
 
   const isAdmin = roles.includes("admin") || manageRoles.includes("admin");
@@ -141,3 +116,4 @@ export function useRoles(): RolesState {
     refetch: fetchRoles,
   };
 }
+
