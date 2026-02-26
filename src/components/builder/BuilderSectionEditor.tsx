@@ -37,6 +37,21 @@ interface BuilderSectionEditorProps {
 function TextField({ label, value, onChange, multiline = false, placeholder }: {
   label: string; value: string; onChange: (v: string) => void; multiline?: boolean; placeholder?: string;
 }) {
+  const aiEligible = multiline || /headline|subheadline|heading|title|description|body|bio|question|answer|text/i.test(label);
+
+  if (aiEligible) {
+    return (
+      <AiTextField
+        label={label}
+        value={value}
+        onChange={onChange}
+        multiline={multiline}
+        placeholder={placeholder}
+        context={{ fieldName: label.toLowerCase().replace(/\s+/g, "_") }}
+      />
+    );
+  }
+
   return (
     <div className="space-y-1.5">
       <Label className="text-xs">{label}</Label>
@@ -1082,6 +1097,44 @@ export function BuilderSectionEditor({
             )}
           </>
         )}
+
+        <div className="space-y-3 border border-border rounded-lg p-3">
+          <Label className="text-xs font-medium">Section Appearance</Label>
+          <div className="space-y-1.5">
+            <Label className="text-xs">Font Family</Label>
+            <Select value={(localSchema.section_font_family as string) || "default"} onValueChange={(v) => update({ section_font_family: v === "default" ? "" : v })}>
+              <SelectTrigger className="text-sm"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default">Default</SelectItem>
+                <SelectItem value="Lufga">Lufga</SelectItem>
+                <SelectItem value="Inter">Inter</SelectItem>
+                <SelectItem value="DM Sans">DM Sans</SelectItem>
+                <SelectItem value="Space Grotesk">Space Grotesk</SelectItem>
+                <SelectItem value="Outfit">Outfit</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Font Color</Label>
+              <input
+                type="color"
+                value={(localSchema.section_font_color as string) || "#111827"}
+                onChange={(e) => update({ section_font_color: e.target.value })}
+                className="h-9 w-full rounded-md border border-input bg-background px-1"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Section Color</Label>
+              <input
+                type="color"
+                value={(localSchema.section_background_color as string) || "#ffffff"}
+                onChange={(e) => update({ section_background_color: e.target.value })}
+                className="h-9 w-full rounded-md border border-input bg-background px-1"
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Save button — always show since GenericSectionEditor also has editable fields */}
