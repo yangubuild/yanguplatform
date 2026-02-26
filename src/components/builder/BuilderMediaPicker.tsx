@@ -59,7 +59,8 @@ interface StockResult {
 }
 
 export function BuilderMediaPicker({ value, onChange, surfaceId }: BuilderMediaPickerProps) {
-  const mediaType = value.type || "none";
+  const safeValue: MediaValue = value ?? { type: "none", source: "url" };
+  const mediaType = safeValue.type || "none";
 
   return (
     <div className="space-y-3">
@@ -68,7 +69,7 @@ export function BuilderMediaPicker({ value, onChange, surfaceId }: BuilderMediaP
         <Label className="text-xs">Media Type</Label>
         <Select
           value={mediaType}
-          onValueChange={(v) => onChange({ ...value, type: v as MediaValue["type"] })}
+          onValueChange={(v) => onChange({ ...safeValue, type: v as MediaValue["type"] })}
         >
           <SelectTrigger className="text-sm">
             <SelectValue />
@@ -84,19 +85,19 @@ export function BuilderMediaPicker({ value, onChange, surfaceId }: BuilderMediaP
       {mediaType !== "none" && (
         <MediaSourceTabs
           mediaType={mediaType as "image" | "video"}
-          value={value}
+          value={safeValue}
           onChange={onChange}
           surfaceId={surfaceId}
         />
       )}
 
       {/* Alt text */}
-      {mediaType === "image" && value.url && (
+      {mediaType === "image" && safeValue.url && (
         <div className="space-y-1.5">
           <Label className="text-xs">Alt text</Label>
           <Input
-            value={value.alt || ""}
-            onChange={(e) => onChange({ ...value, alt: e.target.value })}
+            value={safeValue.alt || ""}
+            onChange={(e) => onChange({ ...safeValue, alt: e.target.value })}
             placeholder="Describe the image..."
             className="text-sm"
           />
@@ -104,13 +105,13 @@ export function BuilderMediaPicker({ value, onChange, surfaceId }: BuilderMediaP
       )}
 
       {/* Preview */}
-      {value.url && mediaType === "image" && (
+      {safeValue.url && mediaType === "image" && (
         <Dialog>
           <DialogTrigger asChild>
             <button type="button" className="relative group w-full cursor-pointer rounded overflow-hidden border border-border">
               <img
-                src={value.url}
-                alt={value.alt || "Preview"}
+                src={safeValue.url}
+                alt={safeValue.alt || "Preview"}
                 className="w-full h-24 object-cover"
               />
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -120,12 +121,12 @@ export function BuilderMediaPicker({ value, onChange, surfaceId }: BuilderMediaP
           </DialogTrigger>
           <DialogContent className="max-w-3xl p-2">
             <img
-              src={value.url}
-              alt={value.alt || "Full preview"}
+              src={safeValue.url}
+              alt={safeValue.alt || "Full preview"}
               className="w-full max-h-[80vh] object-contain rounded"
             />
-            {value.alt && (
-              <p className="text-xs text-muted-foreground text-center mt-1">{value.alt}</p>
+            {safeValue.alt && (
+              <p className="text-xs text-muted-foreground text-center mt-1">{safeValue.alt}</p>
             )}
           </DialogContent>
         </Dialog>
