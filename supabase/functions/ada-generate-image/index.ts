@@ -51,8 +51,8 @@ serve(async (req) => {
       console.log(`[ada-generate-image] Provider hinted to '${provider}' from prompt`);
     }
 
-    if (!prompt || !chatId) {
-      return json({ ok: false, error_code: "BAD_REQUEST", message: "prompt and chatId are required" }, 400);
+    if (!prompt) {
+      return json({ ok: false, error_code: "BAD_REQUEST", message: "prompt is required" }, 400);
     }
 
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
@@ -263,38 +263,42 @@ serve(async (req) => {
       generation_latency_ms: generationLatencyMs,
     };
 
-    // Insert ada_media record
-    const { data: mediaRow, error: mediaErr } = await adminClient
-      .from("ada_media")
-      .insert({
-        chat_id: chatId,
-        user_id: user.id,
-        kind: "image",
-        provider: fallbackFrom ? "openai" : provider,
-        storage_path: storagePath,
-        metadata: enrichedMetadata,
-      })
-      .select("id")
-      .single();
+    // Insert ada_media record (only if chatId provided)
+    let mediaRow: { id: string } | null = null;
+    if (chatId) {
+      const { data: row, error: mediaErr } = await adminClient
+        .from("ada_media")
+        .insert({
+          chat_id: chatId,
+          user_id: user.id,
+          kind: "image",
+          provider: fallbackFrom ? "openai" : provider,
+          storage_path: storagePath,
+          metadata: enrichedMetadata,
+        })
+        .select("id")
+        .single();
 
-    if (mediaErr) {
-      console.error("[ada-generate-image] ada_media insert error:", mediaErr);
-    }
+      if (mediaErr) {
+        console.error("[ada-generate-image] ada_media insert error:", mediaErr);
+      }
+      mediaRow = row;
 
-    // Insert assistant message with image reference
-    const providerLabel = provider === "openai" ? "DALL·E 3" : provider === "gemini" ? "Gemini" : provider;
-    const assistantContent = `![Generated image](${imageUrl})\n\n*Generated with ${providerLabel}*`;
-    const { error: msgErr } = await adminClient
-      .from("ada_messages")
-      .insert({
-        chat_id: chatId,
-        role: "assistant",
-        content: assistantContent,
-        metadata: { type: "image", provider, storage_path: storagePath, ...metadata },
-      });
+      // Insert assistant message with image reference
+      const providerLabel = provider === "openai" ? "DALL·E 3" : provider === "gemini" ? "Gemini" : provider;
+      const assistantContent = `![Generated image](${imageUrl})\n\n*Generated with ${providerLabel}*`;
+      const { error: msgErr } = await adminClient
+        .from("ada_messages")
+        .insert({
+          chat_id: chatId,
+          role: "assistant",
+          content: assistantContent,
+          metadata: { type: "image", provider, storage_path: storagePath, ...metadata },
+        });
 
-    if (msgErr) {
-      console.error("[ada-generate-image] message insert error:", msgErr);
+      if (msgErr) {
+        console.error("[ada-generate-image] message insert error:", msgErr);
+      }
     }
 
     const response: Record<string, unknown> = {
