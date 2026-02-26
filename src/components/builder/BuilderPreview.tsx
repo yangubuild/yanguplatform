@@ -23,6 +23,8 @@ function HeroPreview({ schema }: { schema: Record<string, unknown> }) {
   const mediaType = media.type || "none";
   const mediaUrl = media.url || "";
   const mediaFit = media.fit || "contain";
+  const ctaText = (schema.cta_text as string) || "";
+  const ctaHref = (schema.cta_href as string) || "";
 
   return (
     <div className="py-12 px-6 text-center bg-gradient-to-b from-accent/10 to-transparent rounded-lg">
@@ -56,6 +58,16 @@ function HeroPreview({ schema }: { schema: Record<string, unknown> }) {
       </h1>
       {schema.subheadline && (
         <p className="mt-2 text-muted-foreground">{schema.subheadline as string}</p>
+      )}
+      {ctaText && (
+        <div className="mt-4">
+          <a
+            href={ctaHref || "#"}
+            className="inline-block px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium"
+          >
+            {ctaText}
+          </a>
+        </div>
       )}
     </div>
   );
@@ -166,7 +178,7 @@ function TextPreview({ schema }: { schema: Record<string, unknown> }) {
 }
 
 function OfferPreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<{ title?: string }>) || [];
+  const items = (schema.items as Array<{ title?: string; price?: string; description?: string }>) || [];
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">
@@ -175,11 +187,17 @@ function OfferPreview({ schema }: { schema: Record<string, unknown> }) {
       {items.length === 0 ? (
         <p className="text-sm text-muted-foreground/60 italic">No offers added</p>
       ) : (
-        <ul className="space-y-1">
+        <div className="space-y-2">
           {items.map((item, i) => (
-            <li key={i} className="text-sm text-muted-foreground">• {item.title || "Offer"}</li>
+            <div key={i} className="p-3 rounded-lg border border-border bg-muted/50">
+              <div className="flex justify-between items-start">
+                <p className="text-sm font-medium">{item.title || "Offer"}</p>
+                {item.price && <p className="text-xs font-medium text-primary shrink-0 ml-2">{item.price}</p>}
+              </div>
+              {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
@@ -331,7 +349,7 @@ function FiltersPreview({ schema }: { schema: Record<string, unknown> }) {
 }
 
 function ServicesPreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<{ name?: string; description?: string }>) || [];
+  const items = (schema.items as Array<{ name?: string; price?: string; description?: string }>) || [];
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">
@@ -343,8 +361,40 @@ function ServicesPreview({ schema }: { schema: Record<string, unknown> }) {
         <div className="space-y-2">
           {items.map((item, i) => (
             <div key={i} className="p-3 rounded-lg border border-border bg-muted/50">
-              <p className="text-sm font-medium">{item.name || "Service"}</p>
-              {item.description && <p className="text-xs text-muted-foreground">{item.description}</p>}
+              <div className="flex justify-between items-start">
+                <p className="text-sm font-medium">{item.name || "Service"}</p>
+                {item.price && <p className="text-xs font-medium text-primary shrink-0 ml-2">{item.price}</p>}
+              </div>
+              {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function FeaturedPreview({ schema }: { schema: Record<string, unknown> }) {
+  const items = (schema.items as Array<{ title?: string; description?: string; image_url?: string; href?: string }>) || [];
+  return (
+    <div className="py-4 px-6">
+      <h3 className="text-sm font-semibold text-foreground mb-2">
+        {(schema.title as string) || "Featured"}
+      </h3>
+      {items.length === 0 ? (
+        <p className="text-sm text-muted-foreground/60 italic">No featured items</p>
+      ) : (
+        <div className="space-y-2">
+          {items.map((item, i) => (
+            <div key={i} className="p-3 rounded-lg border border-border bg-muted/50">
+              {item.image_url && (
+                <div className="aspect-video rounded overflow-hidden mb-2 bg-muted">
+                  <img src={item.image_url} alt={item.title || ""} className="w-full h-full object-cover" />
+                </div>
+              )}
+              <p className="text-sm font-medium">{item.title || "Item"}</p>
+              {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
+              {item.href && <p className="text-xs text-primary mt-1 truncate">{item.href}</p>}
             </div>
           ))}
         </div>
@@ -554,6 +604,7 @@ export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<st
   listings: ListingsPreview,
   filters: FiltersPreview,
   services: ServicesPreview,
+  featured: FeaturedPreview,
   testimonials: TestimonialsPreview,
   faq: FaqPreview,
   contact: ContactPreview,
