@@ -44,6 +44,13 @@ export function AiBuildingProgress({ engineLabel, isComplete, onAnimationDone, e
           void Promise.resolve(onAnimationDone()).catch((error) => {
             console.error("[AiBuildingProgress] Auto-route failed", error);
           });
+          // 2s hard-redirect safety net
+          setTimeout(() => {
+            if (editorUrl && !window.location.pathname.startsWith("/builder/")) {
+              console.warn("AI_FALLBACK_REDIRECT", { editorUrl });
+              window.location.href = editorUrl;
+            }
+          }, 2000);
         }, 900);
         return () => clearTimeout(t);
       }
