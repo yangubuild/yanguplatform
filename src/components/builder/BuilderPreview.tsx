@@ -595,9 +595,31 @@ function GenericPreview({ section }: { section: EditorSection }) {
 }
 
 // ─── Preview map ───
+// ─── Header preview ───
+function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
+  const logoUrl = (schema.logo_url as string) || "";
+  const logoPosition = (schema.logo_position as string) || "left";
+  const logoSize = (schema.logo_size as string) || "medium";
+  const showName = schema.show_name !== false;
+  const sizeMap: Record<string, string> = { small: "h-10 w-10", medium: "h-16 w-16", large: "h-24 w-24" };
+  const justifyMap: Record<string, string> = { left: "justify-start", center: "justify-center", right: "justify-end" };
+
+  return (
+    <div className={`py-3 px-6 flex items-center gap-3 ${justifyMap[logoPosition] || "justify-start"}`}>
+      {logoUrl ? (
+        <img src={logoUrl} alt="Logo" className={`${sizeMap[logoSize] || "h-16 w-16"} object-contain rounded`} />
+      ) : (
+        <div className={`${sizeMap[logoSize] || "h-16 w-16"} bg-muted rounded flex items-center justify-center text-xs text-muted-foreground`}>Logo</div>
+      )}
+      {showName && <span className="text-sm font-semibold text-foreground">Business Name</span>}
+    </div>
+  );
+}
+
 export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<string, unknown> }>> = {
   // Existing
   hero: HeroPreview,
+  header: HeaderPreview,
   bio: BioPreview,
   links: LinksPreview,
   social: SocialPreview,

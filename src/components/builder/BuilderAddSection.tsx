@@ -55,7 +55,7 @@ export function BuilderAddSection({ onAdd, onAddWithSchema, isAdding, surfaceTyp
 
         <Button variant="outline" size="sm" className="gap-2" onClick={() => setAiOpen(true)} disabled={isAdding}>
           <Sparkles className="h-4 w-4" />
-          AI
+          Ada AI
         </Button>
       </div>
 

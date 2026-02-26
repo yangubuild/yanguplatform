@@ -90,7 +90,15 @@ export function useBuilderEditor(surfaceId: string | undefined) {
   }, [editorState, activePageId]);
 
   const activePage = editorState?.pages?.find((p) => p.id === activePageId) || null;
-  const sections = activePage?.sections?.slice().sort((a, b) => a.position - b.position) || [];
+
+  // Deduplicate: keep only the first occurrence of each section_type per page
+  const rawSections = activePage?.sections?.slice().sort((a, b) => a.position - b.position) || [];
+  const sections = rawSections.filter((s, i, arr) => {
+    // Allow section types that can legitimately appear multiple times
+    const allowMultiple = new Set(["text", "cta", "gallery", "products", "services", "listings"]);
+    if (allowMultiple.has(s.section_type)) return true;
+    return arr.findIndex((x) => x.section_type === s.section_type) === i;
+  });
 
   // ─── Add section ───
   const [isAdding, setIsAdding] = useState(false);

@@ -4,6 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -11,9 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { X, Plus, Trash2, Save, Loader2, Sparkles } from "lucide-react";
+import { X, Plus, Trash2, Save, Loader2 } from "lucide-react";
 import type { EditorSection } from "@/hooks/useBuilderEditor";
-import { BuilderAiFillModal } from "./BuilderAiFillModal";
 import { BuilderMediaPicker, type MediaValue } from "./BuilderMediaPicker";
 
 interface BuilderSectionEditorProps {
@@ -28,16 +28,16 @@ interface BuilderSectionEditorProps {
 
 // ─── Helpers ───
 
-function TextField({ label, value, onChange, multiline = false }: {
-  label: string; value: string; onChange: (v: string) => void; multiline?: boolean;
+function TextField({ label, value, onChange, multiline = false, placeholder }: {
+  label: string; value: string; onChange: (v: string) => void; multiline?: boolean; placeholder?: string;
 }) {
   return (
     <div className="space-y-1.5">
       <Label className="text-xs">{label}</Label>
       {multiline ? (
-        <Textarea value={value} onChange={(e) => onChange(e.target.value)} rows={3} className="text-sm" />
+        <Textarea value={value} onChange={(e) => onChange(e.target.value)} rows={3} className="text-sm" placeholder={placeholder} />
       ) : (
-        <Input value={value} onChange={(e) => onChange(e.target.value)} className="text-sm" />
+        <Input value={value} onChange={(e) => onChange(e.target.value)} className="text-sm" placeholder={placeholder} />
       )}
     </div>
   );
@@ -88,6 +88,11 @@ function ListEditor<T extends Record<string, string>>({
 
 // ─── Section-specific form renderers ───
 
+interface FormProps {
+  schema: Record<string, unknown>;
+  update: (partial: Record<string, unknown>) => void;
+}
+
 function HeroForm({ schema, update, surfaceId }: FormProps & { surfaceId?: string }) {
   const rawMedia = (schema.media as any) || { type: "none", source: "url", url: "", alt: "" };
   const mediaValue: MediaValue = {
@@ -123,6 +128,78 @@ function HeroForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
           </Select>
         </div>
       )}
+    </>
+  );
+}
+
+// ─── Header / Logo form (replaces QR) ───
+function HeaderForm({ schema, update, surfaceId }: FormProps & { surfaceId?: string }) {
+  const logoUrl = (schema.logo_url as string) || "";
+  const logoPosition = (schema.logo_position as string) || "left";
+  const logoSize = (schema.logo_size as string) || "medium";
+  const showName = schema.show_name !== false;
+  const nameNextToLogo = schema.name_next_to_logo !== false;
+
+  return (
+    <>
+      <div className="space-y-1.5">
+        <Label className="text-xs">Logo URL</Label>
+        <Input
+          value={logoUrl}
+          onChange={(e) => update({ logo_url: e.target.value })}
+          placeholder="Paste image URL or upload in editor"
+          className="text-sm"
+        />
+        <p className="text-xs text-muted-foreground">Upload or generate with AI</p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <Label className="text-xs">Logo Position</Label>
+          <Select value={logoPosition} onValueChange={(v) => update({ logo_position: v })}>
+            <SelectTrigger className="text-sm"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="left">Left</SelectItem>
+              <SelectItem value="center">Center</SelectItem>
+              <SelectItem value="right">Right</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs">Logo Size</Label>
+          <Select value={logoSize} onValueChange={(v) => update({ logo_size: v })}>
+            <SelectTrigger className="text-sm"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="small">Small (40px)</SelectItem>
+              <SelectItem value="medium">Medium (64px)</SelectItem>
+              <SelectItem value="large">Large (96px)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="show-name"
+            checked={showName}
+            onCheckedChange={(checked) => update({ show_name: !!checked })}
+          />
+          <label htmlFor="show-name" className="text-xs font-medium">Show Business Name</label>
+        </div>
+        {showName && (
+          <div className="flex items-center gap-2 ml-5">
+            <Checkbox
+              id="name-next-to-logo"
+              checked={nameNextToLogo}
+              onCheckedChange={(checked) => update({ name_next_to_logo: !!checked })}
+            />
+            <label htmlFor="name-next-to-logo" className="text-xs text-muted-foreground">
+              Display name next to logo
+            </label>
+          </div>
+        )}
+      </div>
     </>
   );
 }
@@ -225,12 +302,33 @@ function JoinForm({ schema, update }: FormProps) {
   );
 }
 
-function OfferForm({ schema, update }: FormProps) {
+// ─── Offers form (full editing) ───
+function OfferForm({ schema, update, surfaceId }: FormProps & { surfaceId?: string }) {
+  const rawMedia = (schema.banner as any) || { type: "none", source: "url", url: "", alt: "" };
+  const bannerValue: MediaValue = {
+    type: rawMedia.type || "none",
+    source: rawMedia.source || "url",
+    url: rawMedia.url || "",
+    provider: rawMedia.provider,
+    assetId: rawMedia.assetId,
+    alt: rawMedia.alt || "",
+    fit: rawMedia.fit || "cover",
+  };
+
   return (
     <>
-      <TextField label="Title" value={(schema.heading as string) || ""} onChange={(v) => update({ heading: v })} />
+      <div className="space-y-1.5">
+        <Label className="text-xs font-medium">Banner Image / Video</Label>
+        <BuilderMediaPicker
+          value={bannerValue}
+          onChange={(v) => update({ banner: v })}
+          surfaceId={surfaceId || ""}
+        />
+      </div>
+      <TextField label="Offer Headline" value={(schema.heading as string) || ""} onChange={(v) => update({ heading: v })} placeholder="e.g. Today's Special Deals" />
+      <TextField label="Offer Description" value={(schema.description as string) || ""} onChange={(v) => update({ description: v })} multiline placeholder="Describe your offer..." />
       <ListEditor
-        label="Items"
+        label="Offer Items"
         items={((schema.items as any[]) || []) as Array<{ title: string; price: string; description: string }>}
         fields={[
           { key: "title", label: "Title" },
@@ -300,6 +398,137 @@ function ItemListForm({ schema, update, heading }: FormProps & { heading?: strin
   );
 }
 
+// ─── Menu form (proper categories + items with currency) ───
+function MenuForm({ schema, update }: FormProps) {
+  const categories = ((schema.categories as any[]) || []) as Array<{ name: string; items: Array<{ name: string; price: string; description: string }> }>;
+  const currency = (schema.currency as string) || "$";
+
+  return (
+    <>
+      <TextField label="Heading" value={(schema.heading as string) || ""} onChange={(v) => update({ heading: v })} />
+      <div className="space-y-1.5">
+        <Label className="text-xs">Currency Symbol</Label>
+        <Select value={currency} onValueChange={(v) => update({ currency: v })}>
+          <SelectTrigger className="text-sm"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="$">$ USD</SelectItem>
+            <SelectItem value="€">€ EUR</SelectItem>
+            <SelectItem value="£">£ GBP</SelectItem>
+            <SelectItem value="AED">AED</SelectItem>
+            <SelectItem value="KES">KES</SelectItem>
+            <SelectItem value="UGX">UGX</SelectItem>
+            <SelectItem value="TZS">TZS</SelectItem>
+            <SelectItem value="₦">₦ NGN</SelectItem>
+            <SelectItem value="R">R ZAR</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {categories.map((cat, ci) => (
+        <div key={ci} className="border border-border rounded-lg p-3 space-y-2">
+          <div className="flex items-center gap-2">
+            <Input
+              value={cat.name}
+              onChange={(e) => {
+                const updated = [...categories];
+                updated[ci] = { ...updated[ci], name: e.target.value };
+                update({ categories: updated });
+              }}
+              placeholder="Category name"
+              className="text-sm font-medium flex-1"
+            />
+            <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => {
+              update({ categories: categories.filter((_, j) => j !== ci) });
+            }}>
+              <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
+            </Button>
+          </div>
+
+          {(cat.items || []).map((item, ii) => (
+            <div key={ii} className="flex gap-2 items-start ml-2">
+              <div className="flex-1 space-y-1">
+                <Input value={item.name} onChange={(e) => {
+                  const updated = [...categories];
+                  const items = [...(updated[ci].items || [])];
+                  items[ii] = { ...items[ii], name: e.target.value };
+                  updated[ci] = { ...updated[ci], items };
+                  update({ categories: updated });
+                }} placeholder="Item name" className="text-sm" />
+                <div className="flex gap-2">
+                  <Input value={item.price} onChange={(e) => {
+                    const updated = [...categories];
+                    const items = [...(updated[ci].items || [])];
+                    items[ii] = { ...items[ii], price: e.target.value };
+                    updated[ci] = { ...updated[ci], items };
+                    update({ categories: updated });
+                  }} placeholder={`${currency}0`} className="text-sm w-24" />
+                  <Input value={item.description || ""} onChange={(e) => {
+                    const updated = [...categories];
+                    const items = [...(updated[ci].items || [])];
+                    items[ii] = { ...items[ii], description: e.target.value };
+                    updated[ci] = { ...updated[ci], items };
+                    update({ categories: updated });
+                  }} placeholder="Description (optional)" className="text-sm flex-1" />
+                </div>
+              </div>
+              <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0 mt-0.5" onClick={() => {
+                const updated = [...categories];
+                updated[ci] = { ...updated[ci], items: (updated[ci].items || []).filter((_, j) => j !== ii) };
+                update({ categories: updated });
+              }}>
+                <Trash2 className="h-3 w-3 text-muted-foreground" />
+              </Button>
+            </div>
+          ))}
+
+          <Button variant="outline" size="sm" className="w-full text-xs gap-1 ml-2" onClick={() => {
+            const updated = [...categories];
+            updated[ci] = { ...updated[ci], items: [...(updated[ci].items || []), { name: "", price: "", description: "" }] };
+            update({ categories: updated });
+          }}>
+            <Plus className="h-3 w-3" /> Add Item
+          </Button>
+        </div>
+      ))}
+
+      <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs" onClick={() => {
+        update({ categories: [...categories, { name: "", items: [] }] });
+      }}>
+        <Plus className="h-3.5 w-3.5" /> Add Category
+      </Button>
+    </>
+  );
+}
+
+function HoursForm({ schema, update }: FormProps) {
+  const items = ((schema.items as any[]) || []) as Array<{ day: string; hours: string }>;
+  return (
+    <>
+      <TextField label="Heading" value={(schema.heading as string) || ""} onChange={(v) => update({ heading: v })} />
+      <ListEditor
+        label="Hours"
+        items={items}
+        fields={[
+          { key: "day", label: "Day", placeholder: "Monday" },
+          { key: "hours", label: "Hours", placeholder: "9:00 AM - 5:00 PM" },
+        ]}
+        onChange={(v) => update({ items: v })}
+        emptyItem={{ day: "", hours: "" }}
+      />
+    </>
+  );
+}
+
+function LocationForm({ schema, update }: FormProps) {
+  return (
+    <>
+      <TextField label="Heading" value={(schema.heading as string) || ""} onChange={(v) => update({ heading: v })} />
+      <TextField label="Address" value={(schema.address as string) || ""} onChange={(v) => update({ address: v })} />
+      <TextField label="Map URL" value={(schema.mapUrl as string) || ""} onChange={(v) => update({ mapUrl: v })} placeholder="Google Maps embed URL" />
+    </>
+  );
+}
+
 function GalleryForm({ schema, update }: FormProps) {
   const items = ((schema.items as any[]) || []) as Array<{ url: string }>;
   return (
@@ -317,21 +546,17 @@ function ContactForm({ schema, update }: FormProps) {
   return (
     <>
       <TextField label="Heading" value={(schema.heading as string) || ""} onChange={(v) => update({ heading: v })} />
-      <TextField label="Email" value={(schema.email as string) || ""} onChange={(v) => update({ email: v })} />
-      <TextField label="Phone" value={(schema.phone as string) || ""} onChange={(v) => update({ phone: v })} />
-      <TextField label="Address" value={(schema.address as string) || ""} onChange={(v) => update({ address: v })} />
+      <TextField label="Email" value={(schema.email as string) || ""} onChange={(v) => update({ email: v })} placeholder="hello@example.com" />
+      <TextField label="Phone" value={(schema.phone as string) || ""} onChange={(v) => update({ phone: v })} placeholder="+1 234 567 890" />
+      <TextField label="Address / Location" value={(schema.address as string) || ""} onChange={(v) => update({ address: v })} placeholder="123 Main St" />
     </>
   );
 }
 
-// ─── Form Props type ───
-interface FormProps {
-  schema: Record<string, unknown>;
-  update: (partial: Record<string, unknown>) => void;
-}
-
+// ─── Form map ───
 const FORM_MAP: Record<string, React.ComponentType<FormProps & { surfaceId?: string }>> = {
   hero: HeroForm,
+  header: HeaderForm,
   featured: FeaturedForm,
   bio: BioForm,
   text: TextForm,
@@ -345,18 +570,21 @@ const FORM_MAP: Record<string, React.ComponentType<FormProps & { surfaceId?: str
   faq: FaqForm,
   contact: ContactForm,
   gallery: GalleryForm,
+  menu: MenuForm,
+  hours: HoursForm,
+  location: LocationForm,
   products: (p) => <ItemListForm {...p} heading="Products" />,
   services: (p) => <ItemListForm {...p} heading="Services" />,
   listings: (p) => <ItemListForm {...p} heading="Listings" />,
-  menu: (p) => <ItemListForm {...p} heading="Menu items" />,
 };
 
 const TYPE_LABELS: Record<string, string> = {
-  hero: "Hero", featured: "Featured", bio: "Bio", links: "Links", social: "Socials", cta: "CTA",
+  hero: "Hero", header: "Header / Logo", featured: "Featured", bio: "Bio", links: "Links", social: "Socials", cta: "CTA",
   video: "Video", gallery: "Gallery", text: "Text", products: "Products",
   services: "Services", testimonials: "Testimonials", contact: "Contact",
   faq: "FAQ", menu: "Menu", schedule: "Schedule", about: "About",
-  offer: "Offer", plans: "Plans", join: "Join", listings: "Listings",
+  offer: "Offers", plans: "Plans", join: "Join", listings: "Listings",
+  hours: "Opening Hours", location: "Location",
 };
 
 // ─── Main component ───
@@ -366,7 +594,6 @@ export function BuilderSectionEditor({
 }: BuilderSectionEditorProps) {
   const [localSchema, setLocalSchema] = useState<Record<string, unknown>>(section.schema);
   const [dirty, setDirty] = useState(false);
-  const [aiFillOpen, setAiFillOpen] = useState(false);
 
   // Sync from server when section changes OR when schema is updated from query invalidation
   useEffect(() => {
@@ -390,16 +617,6 @@ export function BuilderSectionEditor({
     setDirty(false);
   };
 
-  const handleAiGenerated = async (schema: Record<string, unknown>) => {
-    console.log("[AI_FILL] AI_FILL_RESULT schema:", JSON.stringify(schema).slice(0, 500));
-    console.log("[AI_FILL] UPSERT_SECTION_PAYLOAD", { sectionId: section.id, sectionType: section.section_type, schemaKeys: Object.keys(schema) });
-    setLocalSchema(schema);
-    setDirty(false); // Mark not dirty so server sync takes effect
-    // Save immediately
-    await onSave(section.id, schema);
-    console.log("[AI_FILL] UPSERT_SECTION_DONE", { sectionId: section.id });
-  };
-
   const FormComponent = FORM_MAP[section.section_type];
   const label = TYPE_LABELS[section.section_type] || section.section_type;
 
@@ -420,19 +637,6 @@ export function BuilderSectionEditor({
           checked={section.is_visible}
           onCheckedChange={(checked) => onToggleVisibility(section.id, checked)}
         />
-      </div>
-
-      {/* AI Fill button */}
-      <div className="px-4 py-3 border-b border-border">
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full gap-1.5 text-xs"
-          onClick={() => setAiFillOpen(true)}
-        >
-          <Sparkles className="h-3.5 w-3.5" />
-          AI Fill this section
-        </Button>
       </div>
 
       {/* Form */}
@@ -459,15 +663,6 @@ export function BuilderSectionEditor({
           </Button>
         </div>
       )}
-
-      {/* AI Fill modal */}
-      <BuilderAiFillModal
-        open={aiFillOpen}
-        onOpenChange={setAiFillOpen}
-        sectionType={section.section_type}
-        surfaceType={surfaceType}
-        onGenerated={handleAiGenerated}
-      />
     </aside>
   );
 }

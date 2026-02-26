@@ -14,6 +14,7 @@ interface BuilderSectionListProps {
 
 const TYPE_LABELS: Record<string, string> = {
   hero: "Hero",
+  header: "Header / Logo",
   bio: "Bio",
   links: "Links",
   social: "Socials",
@@ -28,6 +29,14 @@ const TYPE_LABELS: Record<string, string> = {
   faq: "FAQ",
   menu: "Menu",
   schedule: "Schedule",
+  offer: "Offers",
+  hours: "Opening Hours",
+  location: "Location",
+  about: "About",
+  plans: "Plans",
+  featured: "Featured",
+  join: "Join",
+  listings: "Listings",
 };
 
 export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, onDelete }: BuilderSectionListProps) {
