@@ -42,6 +42,7 @@ const PALETTES: Record<string, SectionTypeEntry[]> = {
   eshop: [
     { type: "hero", label: "Hero", icon: "🖼" },
     { type: "products", label: "Products", icon: "🛍️" },
+    { type: "banners_ads", label: "Banners & Ads", icon: "📢" },
     { type: "categories", label: "Categories", icon: "📂" },
     { type: "testimonials", label: "Testimonials", icon: "💬" },
     { type: "faq", label: "FAQ", icon: "❓" },
@@ -127,6 +128,12 @@ const DEFAULT_SCHEMAS: Record<string, Record<string, unknown>> = {
 
   // Commerce
   products: { heading: "Products", currency: "UGX", categories: [], products: [] },
+  banners_ads: {
+    announcement_bar: { enabled: false, text: "", link_url: "", link_label: "Shop Now", bg_color: "#e11d48", text_color: "#ffffff" },
+    hero_banner: { enabled: true, layout: "full_width", slides: [], autoplay: true, interval_seconds: 5 },
+    featured_categories: { enabled: true, heading: "Shop by Category", layout: "grid", items: [] },
+    middle_banner: { enabled: false, banners: [] },
+  },
   categories: { heading: "Categories", items: [] },
   listings: { heading: "Listings", items: [] },
   filters: { heading: "Filters", keys: [] },
