@@ -17,6 +17,11 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   Link,
   Upload,
   Image as ImageIcon,
@@ -24,6 +29,7 @@ import {
   Loader2,
   Search,
   ExternalLink,
+  Expand,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -99,11 +105,30 @@ export function BuilderMediaPicker({ value, onChange, surfaceId }: BuilderMediaP
 
       {/* Preview */}
       {value.url && mediaType === "image" && (
-        <img
-          src={value.url}
-          alt={value.alt || "Preview"}
-          className="w-full h-24 object-cover rounded border border-border"
-        />
+        <Dialog>
+          <DialogTrigger asChild>
+            <button type="button" className="relative group w-full cursor-pointer rounded overflow-hidden border border-border">
+              <img
+                src={value.url}
+                alt={value.alt || "Preview"}
+                className="w-full h-24 object-cover"
+              />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <Expand className="h-5 w-5 text-white" />
+              </div>
+            </button>
+          </DialogTrigger>
+          <DialogContent className="max-w-3xl p-2">
+            <img
+              src={value.url}
+              alt={value.alt || "Full preview"}
+              className="w-full max-h-[80vh] object-contain rounded"
+            />
+            {value.alt && (
+              <p className="text-xs text-muted-foreground text-center mt-1">{value.alt}</p>
+            )}
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );
