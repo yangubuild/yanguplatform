@@ -455,10 +455,151 @@ function ItemListForm({ schema, update, heading }: FormProps & { heading?: strin
   );
 }
 
-// ─── Menu form (proper categories + items with currency) ───
-function MenuForm({ schema, update }: FormProps) {
-  const categories = ((schema.categories as any[]) || []) as Array<{ name: string; items: Array<{ name: string; price: string; description: string }> }>;
+// ─── Menu form with dialog-based category & item editing ───
+
+interface MenuCategory {
+  name: string;
+  icon: string;
+  order: number;
+  items: MenuItem[];
+}
+
+interface MenuItem {
+  name: string;
+  description: string;
+  price: string;
+  image_url: string;
+  is_available: boolean;
+  category_index: number;
+}
+
+function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: string }) {
+  const categories = ((schema.categories as any[]) || []).map((c: any, i: number) => ({
+    name: c.name || "",
+    icon: c.icon || "🍽",
+    order: c.order ?? i,
+    items: (c.items || []).map((item: any) => ({
+      name: item.name || "",
+      description: item.description || "",
+      price: item.price || "",
+      image_url: item.image_url || "",
+      is_available: item.is_available !== false,
+      category_index: i,
+    })),
+  })) as MenuCategory[];
+
   const currency = (schema.currency as string) || "$";
+
+  // Dialog state
+  const [showCatDialog, setShowCatDialog] = useState(false);
+  const [editCatIndex, setEditCatIndex] = useState<number | null>(null);
+  const [catName, setCatName] = useState("");
+  const [catIcon, setCatIcon] = useState("🍽");
+  const [catOrder, setCatOrder] = useState(0);
+
+  const [showItemDialog, setShowItemDialog] = useState(false);
+  const [editItemCatIndex, setEditItemCatIndex] = useState<number>(0);
+  const [editItemIndex, setEditItemIndex] = useState<number | null>(null);
+  const [itemName, setItemName] = useState("");
+  const [itemDesc, setItemDesc] = useState("");
+  const [itemPrice, setItemPrice] = useState("");
+  const [itemPhoto, setItemPhoto] = useState("");
+  const [itemAvailable, setItemAvailable] = useState(true);
+  const [itemCatSelect, setItemCatSelect] = useState<number>(0);
+
+  // ─── Category dialog helpers ───
+  const openCreateCat = () => {
+    setEditCatIndex(null);
+    setCatName("");
+    setCatIcon("🍽");
+    setCatOrder(categories.length);
+    setShowCatDialog(true);
+  };
+
+  const openEditCat = (i: number) => {
+    setEditCatIndex(i);
+    setCatName(categories[i].name);
+    setCatIcon(categories[i].icon);
+    setCatOrder(categories[i].order);
+    setShowCatDialog(true);
+  };
+
+  const saveCat = () => {
+    const updated = [...categories];
+    const catData = { name: catName, icon: catIcon, order: catOrder, items: editCatIndex !== null ? updated[editCatIndex].items : [] };
+    if (editCatIndex !== null) {
+      updated[editCatIndex] = catData;
+    } else {
+      updated.push(catData);
+    }
+    update({ categories: updated });
+    setShowCatDialog(false);
+  };
+
+  const deleteCat = (i: number) => {
+    if (!confirm(`Delete "${categories[i].name}" and all its items?`)) return;
+    update({ categories: categories.filter((_, j) => j !== i) });
+  };
+
+  // ─── Item dialog helpers ───
+  const openCreateItem = (catIdx: number) => {
+    setEditItemIndex(null);
+    setEditItemCatIndex(catIdx);
+    setItemName("");
+    setItemDesc("");
+    setItemPrice("");
+    setItemPhoto("");
+    setItemAvailable(true);
+    setItemCatSelect(catIdx);
+    setShowItemDialog(true);
+  };
+
+  const openEditItem = (catIdx: number, itemIdx: number) => {
+    const item = categories[catIdx].items[itemIdx];
+    setEditItemIndex(itemIdx);
+    setEditItemCatIndex(catIdx);
+    setItemName(item.name);
+    setItemDesc(item.description);
+    setItemPrice(item.price);
+    setItemPhoto(item.image_url);
+    setItemAvailable(item.is_available);
+    setItemCatSelect(catIdx);
+    setShowItemDialog(true);
+  };
+
+  const saveItem = () => {
+    const updated = [...categories];
+    const newItem = { name: itemName, description: itemDesc, price: itemPrice, image_url: itemPhoto, is_available: itemAvailable, category_index: itemCatSelect };
+
+    // If category changed during edit, move the item
+    if (editItemIndex !== null) {
+      // Remove from old category
+      updated[editItemCatIndex] = {
+        ...updated[editItemCatIndex],
+        items: updated[editItemCatIndex].items.filter((_, j) => j !== editItemIndex),
+      };
+      // Add to selected category
+      updated[itemCatSelect] = {
+        ...updated[itemCatSelect],
+        items: [...updated[itemCatSelect].items, newItem],
+      };
+    } else {
+      updated[itemCatSelect] = {
+        ...updated[itemCatSelect],
+        items: [...updated[itemCatSelect].items, newItem],
+      };
+    }
+    update({ categories: updated });
+    setShowItemDialog(false);
+  };
+
+  const deleteItem = (catIdx: number, itemIdx: number) => {
+    const updated = [...categories];
+    updated[catIdx] = { ...updated[catIdx], items: updated[catIdx].items.filter((_, j) => j !== itemIdx) };
+    update({ categories: updated });
+  };
+
+  const totalItems = categories.reduce((sum, c) => sum + c.items.length, 0);
 
   return (
     <>
@@ -481,78 +622,175 @@ function MenuForm({ schema, update }: FormProps) {
         </Select>
       </div>
 
+      {/* Summary */}
+      <div className="text-xs text-muted-foreground">
+        {categories.length} {categories.length === 1 ? "category" : "categories"} · {totalItems} {totalItems === 1 ? "item" : "items"}
+      </div>
+
+      {/* Category list */}
       {categories.map((cat, ci) => (
-        <div key={ci} className="border border-border rounded-lg p-3 space-y-2">
-          <div className="flex items-center gap-2">
-            <Input
-              value={cat.name}
-              onChange={(e) => {
-                const updated = [...categories];
-                updated[ci] = { ...updated[ci], name: e.target.value };
-                update({ categories: updated });
-              }}
-              placeholder="Category name"
-              className="text-sm font-medium flex-1"
-            />
-            <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => {
-              update({ categories: categories.filter((_, j) => j !== ci) });
-            }}>
-              <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
+        <div key={ci} className="border border-border rounded-lg overflow-hidden">
+          <div
+            className="flex items-center gap-2 px-3 py-2.5 bg-muted/30 cursor-pointer hover:bg-muted/50"
+            onClick={() => openEditCat(ci)}
+          >
+            <span className="text-base">{cat.icon}</span>
+            <span className="flex-1 text-sm font-medium truncate">{cat.name || "Untitled"}</span>
+            <span className="text-xs text-muted-foreground">{cat.items.length} items</span>
+            <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={(e) => { e.stopPropagation(); deleteCat(ci); }}>
+              <Trash2 className="h-3 w-3 text-muted-foreground" />
             </Button>
           </div>
-
-          {(cat.items || []).map((item, ii) => (
-            <div key={ii} className="flex gap-2 items-start ml-2">
-              <div className="flex-1 space-y-1">
-                <Input value={item.name} onChange={(e) => {
-                  const updated = [...categories];
-                  const items = [...(updated[ci].items || [])];
-                  items[ii] = { ...items[ii], name: e.target.value };
-                  updated[ci] = { ...updated[ci], items };
-                  update({ categories: updated });
-                }} placeholder="Item name" className="text-sm" />
-                <div className="flex gap-2">
-                  <Input value={item.price} onChange={(e) => {
-                    const updated = [...categories];
-                    const items = [...(updated[ci].items || [])];
-                    items[ii] = { ...items[ii], price: e.target.value };
-                    updated[ci] = { ...updated[ci], items };
-                    update({ categories: updated });
-                  }} placeholder={`${currency}0`} className="text-sm w-24" />
-                  <Input value={item.description || ""} onChange={(e) => {
-                    const updated = [...categories];
-                    const items = [...(updated[ci].items || [])];
-                    items[ii] = { ...items[ii], description: e.target.value };
-                    updated[ci] = { ...updated[ci], items };
-                    update({ categories: updated });
-                  }} placeholder="Description (optional)" className="text-sm flex-1" />
+          {cat.items.length > 0 && (
+            <div className="divide-y divide-border">
+              {cat.items.map((item, ii) => (
+                <div
+                  key={ii}
+                  className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent/5"
+                  onClick={() => openEditItem(ci, ii)}
+                >
+                  {item.image_url && (
+                    <img src={item.image_url} alt={item.name} className="h-8 w-8 rounded object-cover shrink-0" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm truncate">{item.name || "Untitled"}</p>
+                  </div>
+                  <span className="text-xs font-medium text-primary shrink-0">{currency}{item.price}</span>
+                  {!item.is_available && <span className="text-[10px] text-muted-foreground bg-muted px-1 rounded">Unavailable</span>}
+                  <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={(e) => { e.stopPropagation(); deleteItem(ci, ii); }}>
+                    <Trash2 className="h-3 w-3 text-muted-foreground" />
+                  </Button>
                 </div>
-              </div>
-              <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0 mt-0.5" onClick={() => {
-                const updated = [...categories];
-                updated[ci] = { ...updated[ci], items: (updated[ci].items || []).filter((_, j) => j !== ii) };
-                update({ categories: updated });
-              }}>
-                <Trash2 className="h-3 w-3 text-muted-foreground" />
-              </Button>
+              ))}
             </div>
-          ))}
-
-          <Button variant="outline" size="sm" className="w-full text-xs gap-1 ml-2" onClick={() => {
-            const updated = [...categories];
-            updated[ci] = { ...updated[ci], items: [...(updated[ci].items || []), { name: "", price: "", description: "" }] };
-            update({ categories: updated });
-          }}>
+          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full text-xs gap-1 rounded-none border-t border-border"
+            onClick={() => openCreateItem(ci)}
+          >
             <Plus className="h-3 w-3" /> Add Item
           </Button>
         </div>
       ))}
 
-      <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs" onClick={() => {
-        update({ categories: [...categories, { name: "", items: [] }] });
-      }}>
+      <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs" onClick={openCreateCat}>
         <Plus className="h-3.5 w-3.5" /> Add Category
       </Button>
+
+      {/* ═══ Create/Edit Category Dialog ═══ */}
+      {showCatDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowCatDialog(false)}>
+          <div className="bg-background rounded-xl shadow-lg w-full max-w-md mx-4 p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">{editCatIndex !== null ? "Edit Category" : "Create Category"}</h3>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowCatDialog(false)}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium">Category Name *</Label>
+              <Input
+                value={catName}
+                onChange={(e) => setCatName(e.target.value)}
+                placeholder="e.g., Starters, Main Course, Desserts"
+                autoFocus
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium">Icon/Emoji</Label>
+              <Input value={catIcon} onChange={(e) => setCatIcon(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium">Display Order</Label>
+              <Input type="number" value={catOrder} onChange={(e) => setCatOrder(Number(e.target.value))} />
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="outline" onClick={() => setShowCatDialog(false)}>Cancel</Button>
+              <Button onClick={saveCat} disabled={!catName.trim()} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                Save Category
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ Create/Edit Menu Item Dialog ═══ */}
+      {showItemDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowItemDialog(false)}>
+          <div className="bg-background rounded-xl shadow-lg w-full max-w-lg mx-4 p-6 space-y-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">{editItemIndex !== null ? "Edit Menu Item" : "Create Menu Item"}</h3>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowItemDialog(false)}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium">Item Name *</Label>
+              <Input value={itemName} onChange={(e) => setItemName(e.target.value)} placeholder="e.g., Margherita Pizza" autoFocus />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium">Description</Label>
+              <Textarea value={itemDesc} onChange={(e) => setItemDesc(e.target.value)} placeholder="Describe your dish..." rows={4} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-sm font-medium">Price *</Label>
+                <Input type="number" value={itemPrice} onChange={(e) => setItemPrice(e.target.value)} placeholder="9.99" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-sm font-medium">Category *</Label>
+                <Select value={String(itemCatSelect)} onValueChange={(v) => setItemCatSelect(Number(v))}>
+                  <SelectTrigger className="text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((c, i) => (
+                      <SelectItem key={i} value={String(i)}>
+                        {c.icon} {c.name || "Untitled"}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium">Item Photo</Label>
+              {itemPhoto && (
+                <div className="rounded-lg overflow-hidden border border-border mb-2">
+                  <img src={itemPhoto} alt={itemName} className="w-full h-40 object-cover" />
+                </div>
+              )}
+              <div className="grid grid-cols-2 gap-2">
+                <Button variant="outline" size="sm" className="gap-1.5" disabled>
+                  <span className="text-sm">✨</span> AI Image
+                </Button>
+                <BuilderMediaPicker
+                  value={{ type: itemPhoto ? "image" : "none", source: "url", url: itemPhoto, alt: itemName, fit: "cover" }}
+                  onChange={(v) => setItemPhoto(v.url || "")}
+                  surfaceId={surfaceId || ""}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">Choose AI generation or upload your own (min 800x600px, max 5MB)</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="item-available"
+                checked={itemAvailable}
+                onCheckedChange={(c) => setItemAvailable(!!c)}
+              />
+              <label htmlFor="item-available" className="text-sm font-medium">Item is available</label>
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="outline" onClick={() => setShowItemDialog(false)}>Cancel</Button>
+              <Button onClick={saveItem} disabled={!itemName.trim() || !itemPrice.trim()} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                Save Item
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
@@ -669,7 +907,7 @@ const FORM_MAP: Record<string, React.ComponentType<FormProps & { surfaceId?: str
   contact: ContactForm,
   footer: FooterForm,
   gallery: GalleryForm,
-  menu: MenuForm,
+  menu: MenuForm as React.ComponentType<FormProps & { surfaceId?: string }>,
   hours: HoursForm,
   location: LocationForm,
   products: (p) => <ItemListForm {...p} heading="Products" />,
