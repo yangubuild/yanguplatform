@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -10,9 +9,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { X, Save, Loader2, Layout, Sun, Moon, Palette } from "lucide-react";
+import { X, Save, Loader2, Layout, Sun, Moon, Palette, MessageCircle } from "lucide-react";
 import type { PageEditSettings, LayoutPreset } from "@/config/builderCoreSections";
 import { DEFAULT_PAGE_SETTINGS } from "@/config/builderCoreSections";
+
+// ─── Color palette grid ───
+const COLOR_PALETTE = [
+  "#ffffff", "#f8fafc", "#f1f5f9", "#e2e8f0", "#cbd5e1",
+  "#0f172a", "#1e293b", "#334155", "#475569", "#64748b",
+  "#ef4444", "#f97316", "#f59e0b", "#eab308", "#84cc16",
+  "#22c55e", "#14b8a6", "#06b6d4", "#3b82f6", "#6366f1",
+  "#8b5cf6", "#a855f7", "#d946ef", "#ec4899", "#f43f5e",
+];
 
 interface BuilderPageEditPanelProps {
   settings: PageEditSettings;
@@ -116,36 +124,87 @@ export function BuilderPageEditPanel({ settings, onSave, onClose, isSaving }: Bu
           </Select>
         </div>
 
-        {/* Background color */}
+        {/* Background color — Grid picker */}
         <div className="space-y-2">
           <Label className="text-xs font-medium">Background Color</Label>
-          <div className="flex gap-2">
-            <Input
-              value={local.background_color}
-              onChange={(e) => update({ background_color: e.target.value })}
-              placeholder="e.g. #f5f5f5 or leave empty"
-              className="text-sm flex-1"
-            />
-            {local.background_color && (
-              <div
-                className="h-9 w-9 rounded border border-border shrink-0"
-                style={{ backgroundColor: local.background_color }}
+          <div className="grid grid-cols-5 gap-1.5">
+            {COLOR_PALETTE.map((color) => (
+              <button
+                key={color}
+                onClick={() => update({ background_color: color })}
+                className={`h-8 w-full rounded-md border-2 transition-all ${
+                  local.background_color === color
+                    ? "border-primary ring-2 ring-primary/30 scale-110"
+                    : "border-border hover:border-muted-foreground/40"
+                }`}
+                style={{ backgroundColor: color }}
+                title={color}
               />
-            )}
+            ))}
           </div>
-          <p className="text-xs text-muted-foreground">Leave empty for default theme background</p>
+          {local.background_color && (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div
+                  className="h-6 w-6 rounded border border-border shrink-0"
+                  style={{ backgroundColor: local.background_color }}
+                />
+                <span className="text-xs text-muted-foreground">{local.background_color}</span>
+              </div>
+              <button
+                onClick={() => update({ background_color: "" })}
+                className="text-xs text-muted-foreground hover:text-foreground underline"
+              >
+                Clear
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Floating CTA toggle */}
-        <div className="flex items-center justify-between">
-          <div>
-            <Label className="text-xs font-medium">Floating Chat / CTA</Label>
-            <p className="text-xs text-muted-foreground">Show sticky bottom button</p>
+        {/* Floating Chat / CTA */}
+        <div className="space-y-3 border border-border rounded-lg p-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <Label className="text-xs font-medium">Floating Chat / CTA</Label>
+              <p className="text-xs text-muted-foreground">Show sticky bottom button</p>
+            </div>
+            <Switch
+              checked={local.floating_cta}
+              onCheckedChange={(checked) => update({ floating_cta: checked })}
+            />
           </div>
-          <Switch
-            checked={local.floating_cta}
-            onCheckedChange={(checked) => update({ floating_cta: checked })}
-          />
+          {local.floating_cta && (
+            <div className="space-y-2 pt-1">
+              <Label className="text-xs font-medium">Chat Channel</Label>
+              <Select
+                value={local.floating_cta_channel || "whatsapp"}
+                onValueChange={(v) => update({ floating_cta_channel: v as any })}
+              >
+                <SelectTrigger className="text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="whatsapp">
+                    <span className="flex items-center gap-2"><MessageCircle className="h-3 w-3" /> WhatsApp</span>
+                  </SelectItem>
+                  <SelectItem value="yangu">
+                    <span className="flex items-center gap-2"><MessageCircle className="h-3 w-3" /> Yangu Messages</span>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              {(local.floating_cta_channel || "whatsapp") === "whatsapp" && (
+                <div className="space-y-1">
+                  <Label className="text-xs">WhatsApp Number</Label>
+                  <input
+                    value={local.floating_cta_whatsapp || ""}
+                    onChange={(e) => update({ floating_cta_whatsapp: e.target.value })}
+                    placeholder="+1234567890"
+                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  />
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
