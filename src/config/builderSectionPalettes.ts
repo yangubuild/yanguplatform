@@ -57,9 +57,11 @@ const PALETTES: Record<string, SectionTypeEntry[]> = {
     { type: "contact", label: "Contact", icon: "✉️" },
   ],
   emenu: [
+    { type: "header", label: "Header / Logo", icon: "🏷️" },
     { type: "hero", label: "Hero", icon: "🖼" },
     { type: "menu", label: "Menu", icon: "🍽️" },
-    { type: "categories", label: "Categories", icon: "📂" },
+    { type: "featured", label: "Featured", icon: "⭐" },
+    { type: "offer", label: "Offers", icon: "🏷️" },
     { type: "hours", label: "Hours", icon: "🕐" },
     { type: "location", label: "Location", icon: "📍" },
     { type: "contact", label: "Contact", icon: "✉️" },
@@ -115,7 +117,8 @@ const DEFAULT_SCHEMAS: Record<string, Record<string, unknown>> = {
   // Text / content
   text: { heading: "", body: "" },
   about: { heading: "About Us", body: "" },
-  offer: { heading: "What We Offer", items: [] },
+  offer: { heading: "What We Offer", description: "", banner: { type: "none", source: "url", url: "" }, items: [] },
+  header: { logo_url: "", logo_position: "left", logo_size: "medium", show_name: true, name_next_to_logo: true },
 
   // Community
   plans: { heading: "Plans", items: [] },

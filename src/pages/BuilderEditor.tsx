@@ -151,9 +151,9 @@ export default function BuilderEditor() {
         />
         <div className="flex-1" />
 
-        {/* Edit with AI button */}
+        {/* Edit with Ada AI button */}
         <Button size="sm" variant="outline" className="gap-2" onClick={() => toast.info("AI chat editor coming soon!")}>
-          <Sparkles className="h-4 w-4" /> Edit with AI
+          <Sparkles className="h-4 w-4" /> Edit with Ada AI
         </Button>
 
         {/* Setup / Answers button (only if AI-generated) */}
