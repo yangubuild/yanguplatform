@@ -195,6 +195,11 @@ export default function BuilderEditor() {
               onReorder={reorderSections}
               selectedId={selectedSectionId}
               onSelect={(id) => { setSelectedSectionId(id); setSetupPanelOpen(false); }}
+              onDelete={async (id) => {
+                const ok = await deleteSection(id);
+                if (ok && selectedSectionId === id) setSelectedSectionId(null);
+                return ok;
+              }}
             />
           </div>
           <div className="p-3 border-t border-border">
@@ -227,7 +232,6 @@ export default function BuilderEditor() {
             onClose={() => setSelectedSectionId(null)}
             onSave={updateSectionSchema}
             onToggleVisibility={toggleSectionVisibility}
-            onDelete={deleteSection}
             isSaving={isSavingSection}
             surfaceType={surfaceType}
             surfaceId={editorState.surface.id}
