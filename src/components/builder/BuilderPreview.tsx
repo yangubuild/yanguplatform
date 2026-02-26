@@ -302,7 +302,27 @@ function JoinPreview({ schema }: { schema: Record<string, unknown> }) {
 }
 
 function ProductsPreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<{ name?: string; price?: string; description?: string; image_url?: string }>) || [];
+  const products = ((schema.products as Array<{
+    name?: string;
+    price?: string;
+    description?: string;
+    images?: string[];
+  }>) || []).map((p) => ({
+    name: p.name || "",
+    price: p.price || "",
+    description: p.description || "",
+    image_url: p.images?.[0] || "",
+  }));
+
+  const legacyItems = ((schema.items as Array<{ name?: string; price?: string; description?: string; image_url?: string }>) || []).map((item) => ({
+    name: item.name || "",
+    price: item.price || "",
+    description: item.description || "",
+    image_url: item.image_url || "",
+  }));
+
+  const items = products.length > 0 ? products : legacyItems;
+
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">
