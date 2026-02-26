@@ -176,9 +176,28 @@ export function getSectionPalette(surfaceType: string): SectionTypeEntry[] {
   return PALETTES[surfaceType] || FALLBACK_PALETTE;
 }
 
-/** Get content section alternatives for the main_content slot */
-export function getContentSections(surfaceType: string): SectionTypeEntry[] {
-  return CONTENT_SECTIONS[surfaceType] || [];
+// ─── Industry-to-content mapping for quick_site ───
+const INDUSTRY_CONTENT_MAP: Record<string, string[]> = {
+  real_estate: ["properties", "services", "team"],
+  hospitality: ["rooms", "booking_calendar", "services"],
+  clinic: ["booking_calendar", "services", "services_pricing"],
+  salon: ["booking_calendar", "services", "services_pricing"],
+  spa: ["booking_calendar", "services", "services_pricing"],
+  school: ["programs", "services", "team"],
+  education: ["programs", "services", "team"],
+  tourism: ["tours", "booking_calendar", "services"],
+};
+
+/** Get content section alternatives for the main_content slot, optionally filtered by industry */
+export function getContentSections(surfaceType: string, industry?: string | null): SectionTypeEntry[] {
+  const all = CONTENT_SECTIONS[surfaceType] || [];
+  if (surfaceType !== "quick_site" || !industry) return all;
+
+  const key = industry.toLowerCase().replace(/[\s\/]+/g, "_");
+  const allowed = INDUSTRY_CONTENT_MAP[key];
+  if (!allowed) return all; // unknown industry → show all
+
+  return all.filter((s) => allowed.includes(s.type));
 }
 
 /** Get general (non-content) sections available for adding */

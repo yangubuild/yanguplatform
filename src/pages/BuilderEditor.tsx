@@ -120,6 +120,7 @@ export default function BuilderEditor() {
   const hasAiSetup = !!surfaceMeta.ai_setup;
   const aiAnswers = (surfaceMeta.ai_answers || {}) as Record<string, unknown>;
   const aiSource = surfaceMeta.ai_source as string | undefined;
+  const industry = (surfaceMeta.industry as string) || null;
 
   const handleSelectSection = (id: string) => {
     setSelectedSectionId(id);
@@ -226,6 +227,7 @@ export default function BuilderEditor() {
               onSelect={handleSelectSection}
               onSwitchMainContent={switchMainContent}
               currentMainContentType={currentMainContentType}
+              industry={industry}
               onDelete={async (id) => {
                 const ok = await deleteSection(id);
                 if (ok && selectedSectionId === id) {

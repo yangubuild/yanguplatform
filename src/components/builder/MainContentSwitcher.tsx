@@ -14,6 +14,7 @@ interface MainContentSwitcherProps {
   onSwitch: (newType: string) => Promise<string | null | void>;
   surfaceType: string;
   currentMainContentType?: string | null;
+  industry?: string | null;
   className?: string;
 }
 
@@ -23,10 +24,11 @@ export function MainContentSwitcher({
   onSwitch,
   surfaceType,
   currentMainContentType,
+  industry,
   className,
 }: MainContentSwitcherProps) {
   const [switchingType, setSwitchingType] = useState<string | null>(null);
-  const contentSections = getContentSections(surfaceType);
+  const contentSections = getContentSections(surfaceType, industry);
 
   const handleSelect = async (type: string) => {
     if (type === currentMainContentType || switchingType) return;
