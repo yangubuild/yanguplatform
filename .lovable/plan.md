@@ -1,30 +1,39 @@
 
-# YANGU — PERMANENT GLOBAL GUARDRAILS
 
-## 🔒 Protected Areas (IMMUTABLE)
+## Plan: Add Image Lightbox Preview to Builder Media Picker
 
-The following areas are **permanently locked** and must NOT be modified by any future task unless explicitly overridden by the platform owner:
+### What
+Add a click-to-expand lightbox on the image thumbnail in `BuilderMediaPicker.tsx` so users can view the full image in a dialog before saving.
 
-1. **Landing pages** — all files under `src/components/landing/`, `src/pages/Index.tsx`
-2. **Auth flows** — all files under `src/pages/auth/`, `src/components/auth/`
-3. **Header components** — `src/components/landing/Header.tsx`, `src/components/mass/MassHeader.tsx`, any global nav headers
-4. **Button styles** — primary orange gradient (`--accent`) / secondary neutral green (`--secondary`) / all variant definitions in `src/components/ui/button.tsx`
-5. **Logo usage** — logo assets, logo components, favicon
-6. **Design tokens / theme files** — `src/index.css` (CSS custom properties), `tailwind.config.ts` (theme extensions)
-7. **Global navigation shells** — `src/components/primitives/AppShell.tsx`, `src/components/primitives/MarketingShell.tsx`
-8. **Subdomain landings** — `src/components/routing/LiveLanding.tsx`, `src/components/routing/StudioLanding.tsx`, and equivalents
+### Implementation
 
-## 📐 Scope Rule
+**File: `src/components/builder/BuilderMediaPicker.tsx`**
 
-All future feature work must default to:
-- Studio tools & pages
-- Builder tools & pages
-- Surfaces
-- Edge functions
-- Backend wiring / database
+1. Import `Dialog`, `DialogContent`, `DialogTrigger` from `@/components/ui/dialog`
+2. Import `Expand` icon from `lucide-react`
+3. Replace the static `<img>` preview (lines 101-107) with a clickable thumbnail that opens a `Dialog` containing the full-size image:
+   - Thumbnail gets a hover overlay with an expand icon and `cursor-pointer`
+   - Dialog shows the image at full resolution with `object-contain` styling
+   - Dialog includes the alt text below the image if present
 
-**NOT** global UI, landing, auth, header, buttons, or tokens.
+```text
+Before (line 101-107):
+  <img src={value.url} alt="Preview" class="w-full h-24 object-cover rounded" />
 
-## ⛔ Enforcement
+After:
+  <Dialog>
+    <DialogTrigger asChild>
+      <button class="relative group w-full cursor-pointer">
+        <img ... class="w-full h-24 object-cover rounded" />
+        <overlay with Expand icon on hover>
+      </button>
+    </DialogTrigger>
+    <DialogContent class="max-w-3xl p-2">
+      <img ... class="w-full max-h-[80vh] object-contain" />
+    </DialogContent>
+  </Dialog>
+```
 
-If a future task attempts to modify any protected area, it must be **blocked** and flagged as a guardrail violation — unless the platform owner explicitly overrides with a direct instruction referencing this guardrail.
+### Files Changed
+- `src/components/builder/BuilderMediaPicker.tsx` — wrap preview image in Dialog lightbox
+
