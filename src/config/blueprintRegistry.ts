@@ -289,6 +289,14 @@ const SECTION_TYPE_CONTRACTS: Record<string, SectionTypeContract> = {
       items: [],
     },
   },
+  links_grid: {
+    palette: "content",
+    defaultSchema: {
+      display_mode: "grid",
+      heading: "Links",
+      items: [],
+    },
+  },
 };
 
 // ─── Assembled registry ───
@@ -343,5 +351,9 @@ export function surfaceTypeToEngineKey(surfaceType: string): string {
     studio_showcase: "influencer",
     live_selling: "eshop",
   };
-  return MAP[surfaceType] ?? "esite";
+  const key = MAP[surfaceType];
+  if (!key) {
+    console.warn(`[BlueprintRegistry] Unknown surface_type "${surfaceType}", falling back to "esite"`);
+  }
+  return key ?? "esite";
 }

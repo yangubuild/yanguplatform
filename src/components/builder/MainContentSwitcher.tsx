@@ -23,6 +23,7 @@ const SECTION_TYPE_LABELS: Record<string, { label: string; icon: string }> = {
   media_grid: { label: "Media Grid", icon: "🖼️" },
   links_grid: { label: "Links", icon: "🔗" },
   listing_grid: { label: "Listings", icon: "📋" },
+  properties: { label: "Properties", icon: "🏠" },
 };
 
 const VARIANT_LABELS: Record<string, string> = {
@@ -67,16 +68,26 @@ export function MainContentSwitcher({
   const [switchingType, setSwitchingType] = useState<string | null>(null);
 
   const engineKey = surfaceTypeToEngineKey(surfaceType);
-  const targets = getAllowedSwitchTargets(engineKey);
+  const registryTargets = getAllowedSwitchTargets(engineKey);
   const bp = getEngineBlueprint(engineKey);
   const variantConfig = bp?.slots.main_content?.variants;
 
-  // Only show variants if the current type matches the slot's default (variants apply to the slot, not per-type)
+  // Guardrail: if current type isn't in registry targets, prepend it as a legacy item
+  const currentIsLegacy =
+    currentMainContentType != null &&
+    currentMainContentType !== "" &&
+    !registryTargets.includes(currentMainContentType);
+
+  const targets = currentIsLegacy
+    ? [currentMainContentType!, ...registryTargets]
+    : registryTargets;
+
+  // Only show variants if the current type matches a registered target
   const showVariants =
     variantConfig &&
     variantConfig.allowed.length > 1 &&
     currentMainContentType &&
-    targets.includes(currentMainContentType);
+    registryTargets.includes(currentMainContentType);
 
   const handleSelect = async (type: string) => {
     if (type === currentMainContentType || switchingType) return;
@@ -89,8 +100,8 @@ export function MainContentSwitcher({
     }
   };
 
-  // If only 1 target and no variants, hide entirely
-  if (targets.length <= 1 && !showVariants) return null;
+  // If only 1 registered target (no legacy) and no variants, hide entirely
+  if (registryTargets.length <= 1 && !currentIsLegacy && !showVariants) return null;
 
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
@@ -124,22 +135,27 @@ export function MainContentSwitcher({
                 const meta = SECTION_TYPE_LABELS[type] || { label: type.replace(/_/g, " "), icon: "📄" };
                 const isCurrent = type === currentMainContentType;
                 const isSwitching = switchingType === type;
+                const isLegacy = currentIsLegacy && type === currentMainContentType;
                 return (
                   <button
                     key={type}
-                    onClick={() => !isCurrent && handleSelect(type)}
+                    onClick={() => !isCurrent && !isLegacy && handleSelect(type)}
                     disabled={isCurrent || !!switchingType}
                     className={cn(
                       "flex items-center gap-2 w-full px-3 py-2 text-sm rounded-md transition-colors text-left",
                       isCurrent
                         ? "bg-primary/10 text-primary font-medium cursor-default"
-                        : "hover:bg-muted"
+                        : "hover:bg-muted",
+                      isLegacy && "opacity-70"
                     )}
                   >
                     <span>{meta.icon}</span>
                     <span className="flex-1">{meta.label}</span>
-                    {isCurrent && (
+                    {isCurrent && !isLegacy && (
                       <span className="text-[10px] text-primary/70">Current</span>
+                    )}
+                    {isLegacy && (
+                      <span className="text-[10px] text-muted-foreground">Current · Legacy</span>
                     )}
                     {isSwitching && <Loader2 className="h-3 w-3 animate-spin" />}
                   </button>
