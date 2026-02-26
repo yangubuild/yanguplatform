@@ -75,7 +75,7 @@ export function AiTextField({ label, value, onChange, multiline = false, placeho
           type="button"
           onClick={handleAiGenerate}
           disabled={generating}
-          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-accent/50 text-muted-foreground hover:text-primary transition-colors disabled:opacity-50"
+          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-warning/10 text-warning hover:text-warning transition-colors disabled:opacity-50"
           title="Generate with AI"
         >
           {generating ? (

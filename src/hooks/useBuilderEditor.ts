@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -130,10 +130,13 @@ export function useBuilderEditor(surfaceId: string | undefined) {
   }, [activePageId, sections, queryClient, queryKey]);
 
   // Page settings from surface metadata
-  const pageSettings: PageEditSettings = {
-    ...DEFAULT_PAGE_SETTINGS,
-    ...((editorState?.surface?.metadata as any)?.page_settings || {}),
-  };
+  const pageSettings: PageEditSettings = useMemo(
+    () => ({
+      ...DEFAULT_PAGE_SETTINGS,
+      ...((editorState?.surface?.metadata as any)?.page_settings || {}),
+    }),
+    [editorState?.surface?.metadata]
+  );
 
   // ─── Save page settings ───
   const [isSavingPageSettings, setIsSavingPageSettings] = useState(false);

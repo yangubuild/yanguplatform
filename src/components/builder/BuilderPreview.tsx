@@ -748,36 +748,32 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
     console.log("BUILDER_LAYOUT_SWITCHED", { layout: isLayoutB ? "B" : "A", wireframeId: ps.layout });
   }, [ps.layout, isLayoutB]);
 
-  // Apply page color and accent tokens for instant live preview
   const selectedColor = (ps.background_color || "").trim();
   const parsedColor = hexToHslParts(selectedColor);
   const primaryToken = parsedColor ? toHslToken(parsedColor) : null;
-  const primaryForegroundToken = parsedColor ? (parsedColor.l > 60 ? "222 47% 11%" : "210 40% 98%") : null;
+  const baseForegroundToken = parsedColor ? (parsedColor.l > 60 ? "222 47% 11%" : "210 40% 98%") : null;
+  const pageFontToken = ps.font_color ? toHslToken(hexToHslParts(ps.font_color) || { h: 222, s: 47, l: 11 }) : null;
+  const resolvedForegroundToken = pageFontToken || baseForegroundToken;
   const cardToken = parsedColor
-    ? `${parsedColor.h} ${Math.max(10, Math.min(parsedColor.s, 30))}% ${Math.max(94, Math.min(parsedColor.l + 35, 98))}%`
+    ? `${parsedColor.h} ${Math.max(12, Math.min(parsedColor.s, 45))}% ${Math.max(16, Math.min(parsedColor.l + (parsedColor.l > 50 ? -8 : 10), 94))}%`
     : null;
-  const isDark = ps.theme_mode === "dark";
+
+  const prefersDark = typeof window !== "undefined" && window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+  const isDark = ps.theme_mode === "dark" || (ps.theme_mode === "both" && prefersDark);
 
   const themeStyle: React.CSSProperties = {
-    fontFamily: t.font_family,
+    fontFamily: ps.font_family || t.font_family,
     fontWeight: Number(t.body_weight),
     "--builder-heading-weight": t.heading_weight,
-    ...(primaryToken
-      ? {
-          "--primary": primaryToken,
-          "--accent": primaryToken,
-          "--ring": primaryToken,
-        }
-      : {}),
-    ...(primaryForegroundToken ? { "--primary-foreground": primaryForegroundToken } : {}),
-    ...(cardToken ? { "--card": cardToken } : {}),
+    ...(primaryToken ? { "--primary": primaryToken, "--accent": primaryToken, "--ring": primaryToken } : {}),
+    ...(resolvedForegroundToken ? { "--foreground": resolvedForegroundToken, "--muted-foreground": resolvedForegroundToken } : {}),
+    ...(primaryToken && !isDark ? { "--background": primaryToken, "--card": cardToken || primaryToken } : {}),
     ...(isDark
       ? {
           "--background": "240 17% 12%",
-          "--foreground": "210 40% 98%",
+          "--foreground": resolvedForegroundToken || "210 40% 98%",
           "--card": cardToken || "240 17% 14%",
           "--muted": "240 10% 20%",
-          "--muted-foreground": "215 20% 78%",
           "--border": "240 10% 30%",
         }
       : {}),
@@ -795,7 +791,7 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
   }
 
   return (
-    <div className="max-w-md mx-auto border border-border rounded-xl overflow-hidden shadow-sm bg-card text-foreground" style={themeStyle}>
+    <div className="max-w-md mx-auto border border-border rounded-xl overflow-hidden shadow-sm bg-background text-foreground" style={themeStyle}>
       {/* Phone-like frame header */}
       <div className="bg-muted/50 border-b border-border px-4 py-2">
         <p className="text-xs text-muted-foreground text-center truncate">{surfaceTitle}</p>
@@ -807,25 +803,31 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
           .filter((s) => s.is_visible)
           .map((section) => {
             const Preview = PREVIEW_MAP[section.section_type];
-            // Use live override schema if this section is being edited
             const displaySchema = (liveSchemaOverride && liveSchemaOverride.sectionId === section.id)
               ? liveSchemaOverride.schema
               : section.schema;
+
+            const sectionFontParts = hexToHslParts((displaySchema.section_font_color as string) || "");
+            const sectionBgParts = hexToHslParts((displaySchema.section_background_color as string) || "");
+            const sectionFontFamily = (displaySchema.section_font_family as string) || "";
+            const sectionStyle: React.CSSProperties = {
+              ...(sectionBgParts ? { "--card": toHslToken(sectionBgParts), "--muted": toHslToken(sectionBgParts) } : {}),
+              ...(sectionFontParts ? { "--foreground": toHslToken(sectionFontParts), "--muted-foreground": toHslToken(sectionFontParts) } : {}),
+              ...(sectionFontFamily ? { fontFamily: sectionFontFamily } : {}),
+            } as React.CSSProperties;
+
             return (
               <div
                 key={section.id}
                 onClick={() => onSelectSection?.(section.id)}
+                style={sectionStyle}
                 className={`cursor-pointer transition-all ${
                   isLayoutB
                     ? "rounded-lg border border-border bg-card shadow-sm"
                     : "border-b border-border last:border-b-0"
                 } ${selectedSectionId === section.id ? "ring-2 ring-primary ring-inset" : "hover:bg-accent/5"}`}
               >
-                {Preview ? (
-                  <Preview schema={displaySchema} />
-                ) : (
-                  <GenericPreview section={section} />
-                )}
+                {Preview ? <Preview schema={displaySchema} /> : <GenericPreview section={section} />}
               </div>
             );
           })}

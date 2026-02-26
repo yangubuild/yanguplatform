@@ -12,8 +12,7 @@ import {
 import { X, Save, Loader2, Layout, Sun, Moon, Palette, MessageCircle } from "lucide-react";
 import type { PageEditSettings, LayoutPreset } from "@/config/builderCoreSections";
 import { DEFAULT_PAGE_SETTINGS } from "@/config/builderCoreSections";
-
-
+const FONT_OPTIONS = ["Lufga", "Inter", "DM Sans", "Space Grotesk", "Outfit"];
 interface BuilderPageEditPanelProps {
   settings: PageEditSettings;
   onSave: (settings: PageEditSettings) => Promise<void>;
@@ -121,9 +120,9 @@ export function BuilderPageEditPanel({ settings, onSave, onClose, isSaving, onLo
           </Select>
         </div>
 
-        {/* Primary Color — applied to preview accents */}
+        {/* Page Color */}
         <div className="space-y-2">
-          <Label className="text-xs font-medium">Primary / Accent Color</Label>
+          <Label className="text-xs font-medium">Page Color</Label>
           <div className="flex items-center gap-3">
             <label className="relative h-10 w-10 rounded-md border border-border cursor-pointer shrink-0 overflow-hidden">
               <input
@@ -132,10 +131,7 @@ export function BuilderPageEditPanel({ settings, onSave, onClose, isSaving, onLo
                 onChange={(e) => update({ background_color: e.target.value })}
                 className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
               />
-              <div
-                className="h-full w-full"
-                style={{ backgroundColor: local.background_color || "#ffffff" }}
-              />
+              <div className="h-full w-full" style={{ backgroundColor: local.background_color || "#ffffff" }} />
             </label>
             <input
               value={local.background_color || ""}
@@ -143,14 +139,43 @@ export function BuilderPageEditPanel({ settings, onSave, onClose, isSaving, onLo
               placeholder="#ffffff"
               className="flex h-9 flex-1 rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
-            {local.background_color && (
-              <button
-                onClick={() => update({ background_color: "" })}
-                className="text-xs text-muted-foreground hover:text-foreground underline shrink-0"
-              >
-                Clear
-              </button>
-            )}
+          </div>
+        </div>
+
+        {/* Page Typography */}
+        <div className="space-y-2">
+          <Label className="text-xs font-medium">Page Font Family</Label>
+          <Select value={local.font_family || "default"} onValueChange={(v) => update({ font_family: v === "default" ? "" : v })}>
+            <SelectTrigger className="text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="default">Default</SelectItem>
+              {FONT_OPTIONS.map((f) => (
+                <SelectItem key={f} value={f}>{f}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-xs font-medium">Page Font Color</Label>
+          <div className="flex items-center gap-3">
+            <label className="relative h-10 w-10 rounded-md border border-border cursor-pointer shrink-0 overflow-hidden">
+              <input
+                type="color"
+                value={local.font_color || "#111827"}
+                onChange={(e) => update({ font_color: e.target.value })}
+                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+              />
+              <div className="h-full w-full" style={{ backgroundColor: local.font_color || "#111827" }} />
+            </label>
+            <input
+              value={local.font_color || ""}
+              onChange={(e) => update({ font_color: e.target.value })}
+              placeholder="#111827"
+              className="flex h-9 flex-1 rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            />
           </div>
         </div>
 

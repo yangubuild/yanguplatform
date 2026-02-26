@@ -158,6 +158,8 @@ export interface PageEditSettings {
   layout: LayoutPreset;
   theme_mode: "light" | "dark" | "both";
   background_color: string;
+  font_family: string;
+  font_color: string;
   floating_cta: boolean;
   floating_cta_channel?: "whatsapp" | "yangu";
   floating_cta_whatsapp?: string;
@@ -167,6 +169,8 @@ export const DEFAULT_PAGE_SETTINGS: PageEditSettings = {
   layout: "layout_a",
   theme_mode: "light",
   background_color: "",
+  font_family: "",
+  font_color: "",
   floating_cta: false,
   floating_cta_channel: "whatsapp",
   floating_cta_whatsapp: "",
