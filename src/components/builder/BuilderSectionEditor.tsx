@@ -553,6 +553,47 @@ function ContactForm({ schema, update }: FormProps) {
   );
 }
 
+// ─── Footer form (unified: contacts + social + hours) ───
+function FooterForm({ schema, update }: FormProps) {
+  const social = (schema.social as Record<string, string>) || {};
+  const hours = ((schema.hours as any[]) || []) as Array<{ day: string; hours: string }>;
+  const platforms = ["instagram", "tiktok", "youtube", "x", "facebook", "whatsapp"];
+
+  return (
+    <>
+      <TextField label="Email" value={(schema.email as string) || ""} onChange={(v) => update({ email: v })} placeholder="hello@example.com" />
+      <TextField label="Phone" value={(schema.phone as string) || ""} onChange={(v) => update({ phone: v })} placeholder="+1 234 567 890" />
+      <TextField label="Address" value={(schema.address as string) || ""} onChange={(v) => update({ address: v })} placeholder="123 Main St" />
+
+      <div className="space-y-2">
+        <Label className="text-xs font-medium">Social Links</Label>
+        {platforms.map((p) => (
+          <div key={p} className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground w-16 capitalize">{p}</span>
+            <Input
+              value={social[p] || ""}
+              placeholder={`@handle or URL`}
+              onChange={(e) => update({ social: { ...social, [p]: e.target.value } })}
+              className="text-sm flex-1"
+            />
+          </div>
+        ))}
+      </div>
+
+      <ListEditor
+        label="Working Hours"
+        items={hours}
+        fields={[
+          { key: "day", label: "Day", placeholder: "Monday" },
+          { key: "hours", label: "Hours", placeholder: "9:00 AM - 5:00 PM" },
+        ]}
+        onChange={(v) => update({ hours: v })}
+        emptyItem={{ day: "", hours: "" }}
+      />
+    </>
+  );
+}
+
 // ─── Form map ───
 const FORM_MAP: Record<string, React.ComponentType<FormProps & { surfaceId?: string }>> = {
   hero: HeroForm,
@@ -569,6 +610,7 @@ const FORM_MAP: Record<string, React.ComponentType<FormProps & { surfaceId?: str
   plans: PlansForm,
   faq: FaqForm,
   contact: ContactForm,
+  footer: FooterForm,
   gallery: GalleryForm,
   menu: MenuForm,
   hours: HoursForm,
@@ -579,12 +621,12 @@ const FORM_MAP: Record<string, React.ComponentType<FormProps & { surfaceId?: str
 };
 
 const TYPE_LABELS: Record<string, string> = {
-  hero: "Hero", header: "Header / Logo", featured: "Featured", bio: "Bio", links: "Links", social: "Socials", cta: "CTA",
+  hero: "Hero Banner", header: "Header / Logo", featured: "Featured", bio: "Bio", links: "Links", social: "Socials", cta: "CTA",
   video: "Video", gallery: "Gallery", text: "Text", products: "Products",
   services: "Services", testimonials: "Testimonials", contact: "Contact",
   faq: "FAQ", menu: "Menu", schedule: "Schedule", about: "About",
   offer: "Offers", plans: "Plans", join: "Join", listings: "Listings",
-  hours: "Opening Hours", location: "Location",
+  hours: "Opening Hours", location: "Location", footer: "Footer",
 };
 
 // ─── Main component ───

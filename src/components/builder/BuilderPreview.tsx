@@ -616,8 +616,44 @@ function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
   );
 }
 
+// ─── Footer preview ───
+function FooterPreview({ schema }: { schema: Record<string, unknown> }) {
+  const social = (schema.social as Record<string, string>) || {};
+  const hours = (schema.hours as Array<{ day?: string; hours?: string }>) || [];
+  const socialEntries = Object.entries(social).filter(([, v]) => v);
+
+  return (
+    <div className="py-4 px-6 bg-muted/30">
+      <h3 className="text-sm font-semibold text-foreground mb-2">Footer</h3>
+      <div className="space-y-1 text-sm text-muted-foreground">
+        {schema.email && <p>✉️ {schema.email as string}</p>}
+        {schema.phone && <p>📞 {schema.phone as string}</p>}
+        {schema.address && <p>📍 {schema.address as string}</p>}
+      </div>
+      {socialEntries.length > 0 && (
+        <div className="flex gap-2 flex-wrap mt-2">
+          {socialEntries.map(([platform, handle]) => (
+            <span key={platform} className="px-2 py-0.5 rounded bg-muted text-xs">
+              {platform}: {handle}
+            </span>
+          ))}
+        </div>
+      )}
+      {hours.length > 0 && (
+        <div className="mt-2 space-y-0.5">
+          {hours.map((h, i) => (
+            <div key={i} className="flex justify-between text-xs text-muted-foreground">
+              <span>{h.day || "Day"}</span>
+              <span>{h.hours || "Closed"}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<string, unknown> }>> = {
-  // Existing
   hero: HeroPreview,
   header: HeaderPreview,
   bio: BioPreview,
@@ -626,7 +662,6 @@ export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<st
   cta: CtaPreview,
   video: VideoPreview,
   gallery: GalleryPreview,
-  // New
   text: TextPreview,
   about: AboutPreview,
   offer: OfferPreview,
@@ -646,6 +681,7 @@ export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<st
   menu: MenuPreview,
   hours: HoursPreview,
   location: LocationPreview,
+  footer: FooterPreview,
 };
 
 export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSelectSection, theme }: BuilderPreviewProps) {
