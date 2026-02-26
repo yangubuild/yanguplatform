@@ -13,14 +13,6 @@ import { X, Save, Loader2, Layout, Sun, Moon, Palette, MessageCircle } from "luc
 import type { PageEditSettings, LayoutPreset } from "@/config/builderCoreSections";
 import { DEFAULT_PAGE_SETTINGS } from "@/config/builderCoreSections";
 
-// ─── Color palette grid ───
-const COLOR_PALETTE = [
-  "#ffffff", "#f8fafc", "#f1f5f9", "#e2e8f0", "#cbd5e1",
-  "#0f172a", "#1e293b", "#334155", "#475569", "#64748b",
-  "#ef4444", "#f97316", "#f59e0b", "#eab308", "#84cc16",
-  "#22c55e", "#14b8a6", "#06b6d4", "#3b82f6", "#6366f1",
-  "#8b5cf6", "#a855f7", "#d946ef", "#ec4899", "#f43f5e",
-];
 
 interface BuilderPageEditPanelProps {
   settings: PageEditSettings;
@@ -124,41 +116,37 @@ export function BuilderPageEditPanel({ settings, onSave, onClose, isSaving }: Bu
           </Select>
         </div>
 
-        {/* Background color — Grid picker */}
+        {/* Background color — Native color picker */}
         <div className="space-y-2">
-          <Label className="text-xs font-medium">Background Color</Label>
-          <div className="grid grid-cols-5 gap-1.5">
-            {COLOR_PALETTE.map((color) => (
-              <button
-                key={color}
-                onClick={() => update({ background_color: color })}
-                className={`h-8 w-full rounded-md border-2 transition-all ${
-                  local.background_color === color
-                    ? "border-primary ring-2 ring-primary/30 scale-110"
-                    : "border-border hover:border-muted-foreground/40"
-                }`}
-                style={{ backgroundColor: color }}
-                title={color}
+          <Label className="text-xs font-medium">Primary Color</Label>
+          <div className="flex items-center gap-3">
+            <label className="relative h-10 w-10 rounded-md border border-border cursor-pointer shrink-0 overflow-hidden">
+              <input
+                type="color"
+                value={local.background_color || "#ffffff"}
+                onChange={(e) => update({ background_color: e.target.value })}
+                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
               />
-            ))}
-          </div>
-          {local.background_color && (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div
-                  className="h-6 w-6 rounded border border-border shrink-0"
-                  style={{ backgroundColor: local.background_color }}
-                />
-                <span className="text-xs text-muted-foreground">{local.background_color}</span>
-              </div>
+              <div
+                className="h-full w-full"
+                style={{ backgroundColor: local.background_color || "#ffffff" }}
+              />
+            </label>
+            <input
+              value={local.background_color || ""}
+              onChange={(e) => update({ background_color: e.target.value })}
+              placeholder="#ffffff"
+              className="flex h-9 flex-1 rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            />
+            {local.background_color && (
               <button
                 onClick={() => update({ background_color: "" })}
-                className="text-xs text-muted-foreground hover:text-foreground underline"
+                className="text-xs text-muted-foreground hover:text-foreground underline shrink-0"
               >
                 Clear
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Floating Chat / CTA */}
