@@ -6,7 +6,7 @@
  * 4. Lands in manual editor
  */
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -163,8 +163,11 @@ export function BuilderAiOnboarding({ engine, onComplete, onBack }: Props) {
     runAiGeneration("manual");
   };
 
-  const handleProgressDone = async () => {
-    if (!pendingResult) return;
+  const handleProgressDone = useCallback(async () => {
+    if (!pendingResult) {
+      console.error("AI_PROGRESS_DONE_NO_PENDING_RESULT");
+      return;
+    }
 
     console.log("AI_BUILD_START", {
       surfaceId: null,
@@ -194,7 +197,7 @@ export function BuilderAiOnboarding({ engine, onComplete, onBack }: Props) {
         error,
       });
     }
-  };
+  }, [pendingResult, engine.surfaceType, onComplete, editorUrl]);
 
   // ─── Progress phase ───
   if (phase === "generating") {

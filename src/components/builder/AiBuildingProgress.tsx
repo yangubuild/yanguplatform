@@ -2,7 +2,7 @@
  * AI Building Progress — stepper with live progress + completion CTA.
  */
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Loader2, CheckCircle2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -32,35 +32,47 @@ export function AiBuildingProgress({ engineLabel, isComplete, onAnimationDone, e
   const [progress, setProgress] = useState(0);
   const [showCompletion, setShowCompletion] = useState(false);
   const doneCalledRef = useRef(false);
+  // Store callback in a ref so the effect doesn't depend on its identity
+  const onDoneRef = useRef(onAnimationDone);
+  onDoneRef.current = onAnimationDone;
+  const editorUrlRef = useRef(editorUrl);
+  editorUrlRef.current = editorUrl;
 
+  // Completion effect — fires once when isComplete flips to true
   useEffect(() => {
-    if (isComplete) {
-      setCurrentStep(STEPS.length);
-      setProgress(100);
-      if (!doneCalledRef.current) {
-        doneCalledRef.current = true;
-        const t = setTimeout(() => {
-          setShowCompletion(true);
-          void Promise.resolve(onAnimationDone()).catch((error) => {
-            console.error("[AiBuildingProgress] Auto-route failed", error);
-          });
-          // 2s hard-redirect safety net
-          setTimeout(() => {
-            if (editorUrl && !window.location.pathname.startsWith("/builder/")) {
-              console.warn("AI_FALLBACK_REDIRECT", { editorUrl });
-              window.location.href = editorUrl;
-            }
-          }, 2000);
-        }, 900);
-        return () => clearTimeout(t);
-      }
-      return;
-    }
+    if (!isComplete || doneCalledRef.current) return;
+    doneCalledRef.current = true;
 
-    if (currentStep >= STEPS.length) return;
+    setCurrentStep(STEPS.length);
+    setProgress(100);
+
+    const t = setTimeout(() => {
+      setShowCompletion(true);
+      console.log("AI_PROGRESS_COMPLETE_FIRING_CALLBACK");
+      void Promise.resolve(onDoneRef.current()).catch((error) => {
+        console.error("[AiBuildingProgress] Auto-route failed", error);
+      });
+      // 2s hard-redirect safety net
+      setTimeout(() => {
+        const url = editorUrlRef.current;
+        if (url && !window.location.pathname.startsWith("/builder/")) {
+          console.warn("AI_FALLBACK_REDIRECT", { editorUrl: url });
+          window.location.href = url;
+        }
+      }, 2000);
+    }, 900);
+
+    return () => clearTimeout(t);
+  }, [isComplete]);
+
+  // Step animation — only runs while NOT complete
+  useEffect(() => {
+    if (isComplete || currentStep >= STEPS.length) return;
 
     const targetPercent = ((currentStep + 1) / STEPS.length) * 85;
     const startPercent = (currentStep / STEPS.length) * 85;
+
+    setProgress(startPercent);
 
     const interval = setInterval(() => {
       setProgress((prev) => (prev >= targetPercent ? prev : prev + 0.4));
@@ -70,13 +82,11 @@ export function AiBuildingProgress({ engineLabel, isComplete, onAnimationDone, e
       setCurrentStep((s) => Math.min(s + 1, STEPS.length - 1));
     }, STEP_DURATIONS[currentStep]);
 
-    setProgress(startPercent);
-
     return () => {
       clearInterval(interval);
       clearTimeout(timer);
     };
-  }, [currentStep, isComplete, onAnimationDone]);
+  }, [currentStep, isComplete]);
 
   const activeDetail = "AI is setting up your page. You'll be able to edit everything.";
 
