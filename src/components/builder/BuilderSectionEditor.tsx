@@ -18,6 +18,7 @@ import { BuilderMediaPicker, type MediaValue } from "./BuilderMediaPicker";
 import { ProductsEditor } from "./editors/ProductsEditor";
 import { BannersAdsEditor } from "./editors/BannersAdsEditor";
 import { PropertiesEditor } from "./editors/PropertiesEditor";
+import { BookingEditor } from "./editors/BookingEditor";
 
 interface BuilderSectionEditorProps {
   section: EditorSection;
@@ -920,7 +921,7 @@ const FORM_MAP: Record<string, React.ComponentType<FormProps & { surfaceId?: str
   properties: PropertiesEditor as React.ComponentType<FormProps & { surfaceId?: string }>,
   // New content types — reuse ItemListForm until dedicated editors are built
   rooms: (p) => <ItemListForm {...p} heading="Rooms" />,
-  booking_calendar: (p) => <ItemListForm {...p} heading="Appointments" />,
+  booking_calendar: BookingEditor as React.ComponentType<FormProps & { surfaceId?: string }>,
   programs: (p) => <ItemListForm {...p} heading="Programs" />,
   tours: (p) => <ItemListForm {...p} heading="Tours" />,
   team: (p) => <ItemListForm {...p} heading="Team Members" />,

@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { GripVertical, Eye, EyeOff, Trash2, Loader2, ArrowLeftRight } from "lucide-react";
+import { GripVertical, Eye, EyeOff, Trash2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -13,7 +13,7 @@ interface BuilderSectionListProps {
   selectedId?: string | null;
   onSelect?: (id: string) => void;
   onDelete?: (id: string) => Promise<boolean>;
-  onSwitchMainContent?: (newType: string) => Promise<void>;
+  onSwitchMainContent?: (newType: string) => Promise<string | null>;
   surfaceType?: string;
   currentMainContentType?: string | null;
 }
@@ -105,7 +105,7 @@ export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, 
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [switcherOpen, setSwitcherOpen] = useState(false);
+  const [switcherOpenForId, setSwitcherOpenForId] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
   // ... keep existing code (drag handlers)
@@ -174,10 +174,6 @@ export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, 
             onDragEnd={handleDragEnd}
             onClick={() => {
               if (isMissing) return;
-              if (isMainContent && onSwitchMainContent) {
-                setSwitcherOpen(true);
-                return;
-              }
               onSelect?.(section.id);
             }}
             className={cn(
@@ -216,9 +212,22 @@ export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, 
                 </TooltipContent>
               </Tooltip>
             )}
-            {/* Switch hint icon — only for main_content */}
+            {/* Switch control — only for main_content */}
             {isMainContent && !isMissing && onSwitchMainContent && (
-              <ArrowLeftRight className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
+              <MainContentSwitcher
+                open={switcherOpenForId === section.id}
+                onOpenChange={(open) => setSwitcherOpenForId(open ? section.id : null)}
+                onSwitch={async (newType) => {
+                  const newSectionId = await onSwitchMainContent(newType);
+                  setSwitcherOpenForId(null);
+                  if (newSectionId) {
+                    onSelect?.(newSectionId);
+                  }
+                  return newSectionId;
+                }}
+                surfaceType={surfaceType}
+                currentMainContentType={currentMainContentType}
+              />
             )}
             {/* Visibility icons */}
             {!isMissing && !section.is_visible && (
@@ -253,22 +262,6 @@ export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, 
             )}
           </div>
         );
-
-        // Wrap the main content row with the switcher popover
-        if (isMainContent && !isMissing && onSwitchMainContent) {
-          return (
-            <MainContentSwitcher
-              key={section.id}
-              open={switcherOpen}
-              onOpenChange={setSwitcherOpen}
-              onSwitch={onSwitchMainContent}
-              surfaceType={surfaceType}
-              currentMainContentType={currentMainContentType}
-            >
-              {rowContent}
-            </MainContentSwitcher>
-          );
-        }
 
         return rowContent;
       })}

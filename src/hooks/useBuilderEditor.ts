@@ -394,8 +394,8 @@ export function useBuilderEditor(surfaceId: string | undefined) {
   const [isSwitching, setIsSwitching] = useState(false);
 
   const switchMainContent = useCallback(
-    async (newType: string, defaultSchema?: Record<string, unknown>) => {
-      if (!activePageId) return;
+    async (newType: string, defaultSchema?: Record<string, unknown>): Promise<string | null> => {
+      if (!activePageId) return null;
       setIsSwitching(true);
 
       const schema = defaultSchema || getDefaultSchema(newType);
@@ -416,8 +416,10 @@ export function useBuilderEditor(surfaceId: string | undefined) {
 
         await queryClient.invalidateQueries({ queryKey });
         toast.success(`Switched to ${newType.replace(/_/g, " ")}`);
+        return result.section_id || null;
       } catch (err) {
         toast.error(err instanceof Error ? err.message : "Failed to switch content");
+        return null;
       } finally {
         setIsSwitching(false);
       }
