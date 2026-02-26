@@ -75,11 +75,11 @@ export const estoreEngine: BuilderEngine = {
     { key: "location", label: "Location", type: "text" },
   ],
   defaultSections: [
-    { type: "hero", schema: { headline: "", subheadline: "Your trusted supplier" } },
-    { type: "products", schema: { heading: "Our Products", items: [], layout: "grid" } },
-    { type: "bulk_pricing", schema: { heading: "Bulk Pricing", tiers: [] } },
-    { type: "text", schema: { heading: "Why Choose Us", body: "" } },
-    { type: "contact", schema: { heading: "Get a Quote", email: "", phone: "" } },
+    { type: "header", schema: { logo_url: "", logo_position: "left", logo_size: "medium", show_name: true, name_next_to_logo: true }, core_slot: "header" },
+    { type: "hero", schema: { headline: "", subheadline: "Your trusted supplier" }, core_slot: "hero" },
+    { type: "listings", schema: { heading: "Listings", items: [] }, core_slot: "main_content" },
+    { type: "offer", schema: { heading: "What We Offer", description: "", items: [] }, core_slot: "offer" },
+    { type: "footer", schema: { heading: "Footer", email: "", phone: "", address: "", hours: [], social: {} }, core_slot: "footer" },
   ],
   editorModules: ["products", "catalog", "bulk_pricing", "quote_request", "large_inventory", "supplier_info", "contact"],
   templates: [

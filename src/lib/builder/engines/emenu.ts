@@ -112,10 +112,11 @@ export const emenuEngine: BuilderEngine = {
     { key: "location", label: "Location", type: "text", placeholder: "City or area" },
   ],
   defaultSections: [
-    { type: "hero", schema: { headline: "", subheadline: "", logo: "", logo_position: "left" } },
-    { type: "menu", schema: { heading: "Menu", categories: [], layout_style: "grid", currency: "UGX", currency_symbol: "UGX" } },
-    { type: "hours", schema: { heading: "Opening Hours", items: [] } },
-    { type: "contact", schema: { heading: "Contact", email: "", phone: "", address: "" } },
+    { type: "header", schema: { logo_url: "", logo_position: "left", logo_size: "medium", show_name: true, name_next_to_logo: true }, core_slot: "header" },
+    { type: "hero", schema: { headline: "", subheadline: "", logo: "", logo_position: "left" }, core_slot: "hero" },
+    { type: "menu", schema: { heading: "Menu", categories: [], layout_style: "grid", currency: "UGX", currency_symbol: "UGX" }, core_slot: "main_content" },
+    { type: "offer", schema: { heading: "Offers", description: "", items: [] }, core_slot: "offer" },
+    { type: "footer", schema: { heading: "Footer", email: "", phone: "", address: "", hours: [], social: {} }, core_slot: "footer" },
   ],
   editorModules: ["menu_categories", "menu_items", "food_image_ai", "hours", "order_settings", "contact", "social"],
   templates: [

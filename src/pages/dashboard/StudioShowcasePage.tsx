@@ -11,9 +11,11 @@ export default function StudioShowcasePage() {
       slug: "my-showcase",
       title: "My Studio Showcase",
       seedSections: [
-        { type: "hero", schema: { headline: "Studio Showcase", subheadline: "Our best work" } },
-        { type: "gallery", schema: { heading: "Gallery", items: [] } },
-        { type: "contact", schema: { heading: "Get in Touch", email: "", phone: "", address: "" } },
+        { type: "header", schema: { logo_url: "", logo_position: "left", logo_size: "medium", show_name: true, name_next_to_logo: true }, core_slot: "header" },
+        { type: "hero", schema: { headline: "Studio Showcase", subheadline: "Our best work" }, core_slot: "hero" },
+        { type: "gallery", schema: { heading: "Gallery", items: [] }, core_slot: "main_content" },
+        { type: "offer", schema: { heading: "What We Offer", description: "", items: [] }, core_slot: "offer" },
+        { type: "footer", schema: { heading: "Footer", email: "", phone: "", address: "", hours: [], social: {} }, core_slot: "footer" },
       ],
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps

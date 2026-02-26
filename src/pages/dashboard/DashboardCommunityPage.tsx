@@ -29,10 +29,10 @@ export default function DashboardCommunityPage() {
     const seedSections = communityEngine.defaultSections.map((s) => {
       const schema = { ...s.schema };
       if (s.type === "hero") schema.headline = name;
-      if (s.type === "text" && schema.heading === "About" && answers.description) {
+      if (s.type === "about" && schema.heading === "About Us" && answers.description) {
         schema.body = answers.description;
       }
-      return { type: s.type, schema };
+      return { type: s.type, schema, core_slot: s.core_slot };
     });
 
     const metadata: Record<string, unknown> = {
@@ -58,10 +58,11 @@ export default function DashboardCommunityPage() {
       slug: "my-listing",
       title: "My Listing",
       seedSections: [
-        { type: "hero", schema: { headline: "Welcome", subheadline: "Discover what we offer" } },
-        { type: "text", schema: { heading: "Our Offer", body: "" } },
-        { type: "cta", schema: { label: "Get Started", href: "" } },
-        { type: "faq", schema: { items: [] } },
+        { type: "header", schema: { logo_url: "", logo_position: "left", logo_size: "medium", show_name: true, name_next_to_logo: true }, core_slot: "header" },
+        { type: "hero", schema: { headline: "Welcome", subheadline: "Discover what we offer" }, core_slot: "hero" },
+        { type: "text", schema: { heading: "Our Offer", body: "" }, core_slot: "main_content" },
+        { type: "offer", schema: { heading: "What We Offer", description: "", items: [] }, core_slot: "offer" },
+        { type: "footer", schema: { heading: "Footer", email: "", phone: "", address: "", hours: [], social: {} }, core_slot: "footer" },
       ],
     });
   }, [user, initAndNavigate]);

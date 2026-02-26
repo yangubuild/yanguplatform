@@ -12,6 +12,7 @@ interface BuilderSectionListProps {
   selectedId?: string | null;
   onSelect?: (id: string) => void;
   onDelete?: (id: string) => Promise<boolean>;
+  onSwitchMainContent?: () => void;
   surfaceType?: string;
 }
 
@@ -41,7 +42,6 @@ const TYPE_LABELS: Record<string, string> = {
   join: "Join",
   listings: "Listings",
   footer: "Footer",
-  // New content section types
   properties: "Properties",
   rooms: "Rooms",
   booking_calendar: "Booking",
@@ -73,23 +73,33 @@ const TYPE_LABELS: Record<string, string> = {
   collabs: "Collabs",
 };
 
-/** Get the wireframe-driven label for a section based on core definitions.
- *  Main content sections use their category-specific name directly (e.g. "Menu", "Products"). */
-function getWireframeLabel(sectionType: string, surfaceType: string): string {
-  for (const coreDef of CORE_SECTIONS) {
-    const resolvedType = resolveCoreSectionType(coreDef.type, surfaceType);
-    if (resolvedType === sectionType) {
-      if (coreDef.type === "main_content") {
-        // Use the specific label directly — "Menu", "Products", "Services", etc.
-        return TYPE_LABELS[sectionType] || sectionType;
-      }
-      return coreDef.label;
-    }
-  }
-  return TYPE_LABELS[sectionType] || sectionType;
+/** Detect if a section is the main_content slot */
+function isMainContentSlot(section: EditorSection, surfaceType: string): boolean {
+  if (section.core_slot === "main_content") return true;
+  // Fallback: check if it's a core section whose type is in CONTENT_SECTION_TYPES
+  if (section.isCore && CONTENT_SECTION_TYPES.has(section.section_type)) return true;
+  return false;
 }
 
-export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, onDelete, surfaceType = "quick_site" }: BuilderSectionListProps) {
+/** Get display label for a section */
+function getSectionLabel(section: EditorSection, surfaceType: string): { primary: string; secondary?: string } {
+  if (isMainContentSlot(section, surfaceType)) {
+    const typeLabel = TYPE_LABELS[section.section_type] || section.section_type;
+    return { primary: "Main Content", secondary: `Currently: ${typeLabel}` };
+  }
+
+  // Other core sections use their wireframe label
+  for (const coreDef of CORE_SECTIONS) {
+    const resolvedType = resolveCoreSectionType(coreDef.type, surfaceType);
+    if (resolvedType === section.section_type && coreDef.type !== "main_content") {
+      return { primary: coreDef.label };
+    }
+  }
+
+  return { primary: TYPE_LABELS[section.section_type] || section.section_type };
+}
+
+export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, onDelete, onSwitchMainContent, surfaceType = "quick_site" }: BuilderSectionListProps) {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -145,8 +155,9 @@ export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, 
       {sections.map((section, index) => {
         const isCore = !!section.isCore;
         const isMissing = !!section.isMissing;
-        const canDrag = !isMissing; // All real sections can be dragged for reorder
-        const label = getWireframeLabel(section.section_type, surfaceType);
+        const canDrag = !isMissing;
+        const isMainContent = isMainContentSlot(section, surfaceType);
+        const { primary, secondary } = getSectionLabel(section, surfaceType);
 
         return (
           <div
@@ -169,24 +180,52 @@ export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, 
             )}
           >
             <GripVertical className="h-4 w-4 text-muted-foreground shrink-0" />
-            <span className={cn("flex-1 text-sm font-medium truncate", isMissing && "italic text-muted-foreground")}>
-              {label}
-              {isMissing && " (empty placeholder)"}
-            </span>
+            <div className={cn("flex-1 min-w-0", isMissing && "italic text-muted-foreground")}>
+              <span className="text-sm font-medium truncate block">
+                {primary}
+                {isMissing && " (empty placeholder)"}
+              </span>
+              {secondary && !isMissing && (
+                <span className="text-[11px] text-muted-foreground truncate block">{secondary}</span>
+              )}
+            </div>
+            {/* Core badge */}
             {isCore && !isMissing && (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                    {CONTENT_SECTION_TYPES.has(section.section_type) ? "Core: Content" : "Core"}
+                  <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded shrink-0">
+                    {isMainContent ? "Core: Content" : "Core"}
                   </span>
                 </TooltipTrigger>
                 <TooltipContent side="left" className="text-xs">
-                  {CONTENT_SECTION_TYPES.has(section.section_type)
+                  {isMainContent
                     ? "Switch the main content layout for your business"
                     : "Core sections can be hidden but not deleted"}
                 </TooltipContent>
               </Tooltip>
             )}
+            {/* Switch icon — only for main_content */}
+            {isMainContent && !isMissing && onSwitchMainContent && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 shrink-0 text-muted-foreground hover:text-primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSwitchMainContent();
+                    }}
+                  >
+                    <ArrowLeftRight className="h-3.5 w-3.5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="left" className="text-xs">
+                  Switch content type
+                </TooltipContent>
+              </Tooltip>
+            )}
+            {/* Visibility icons */}
             {!isMissing && !section.is_visible && (
               <span className="flex items-center gap-1 text-xs text-muted-foreground">
                 <EyeOff className="h-3 w-3" />
@@ -203,7 +242,7 @@ export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, 
                 className="h-6 w-6 shrink-0 text-muted-foreground hover:text-destructive"
                 onClick={async (e) => {
                   e.stopPropagation();
-                  if (!confirm(`Delete "${label}" section?`)) return;
+                  if (!confirm(`Delete "${primary}" section?`)) return;
                   setDeletingId(section.id);
                   await onDelete(section.id);
                   setDeletingId(null);

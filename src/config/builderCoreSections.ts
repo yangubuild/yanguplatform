@@ -121,7 +121,7 @@ export function enforceCoreSectionOrder(
     const existing = sectionsBySlot.get(coreDef.type) || sectionsByType.get(actualType);
 
     if (existing) {
-      result.push({ ...existing, position: pos, isCore: true });
+      result.push({ ...existing, position: pos, isCore: true, core_slot: existing.core_slot || coreDef.type });
     } else {
       // Stub for missing core section
       result.push({
@@ -132,6 +132,7 @@ export function enforceCoreSectionOrder(
         is_visible: false,
         isCore: true,
         isMissing: true,
+        core_slot: coreDef.type,
       });
     }
     pos++;

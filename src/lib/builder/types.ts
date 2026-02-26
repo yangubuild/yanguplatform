@@ -40,6 +40,7 @@ export interface QuestionStep {
 export interface SeedSection {
   type: string;
   schema: Record<string, unknown>;
+  core_slot?: string;
 }
 
 /** Industry-conditional extra questions and modules */

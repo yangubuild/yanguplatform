@@ -224,6 +224,11 @@ export default function BuilderEditor() {
               selectedId={selectedSectionId}
               surfaceType={surfaceType}
               onSelect={handleSelectSection}
+              onSwitchMainContent={() => {
+                // Open the Add Section popover (which contains the switch UI)
+                const addBtn = document.querySelector('[data-add-section-trigger]') as HTMLButtonElement;
+                if (addBtn) addBtn.click();
+              }}
               onDelete={async (id) => {
                 const ok = await deleteSection(id);
                 if (ok && selectedSectionId === id) {

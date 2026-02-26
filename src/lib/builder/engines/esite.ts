@@ -75,10 +75,11 @@ export const esiteEngine: BuilderEngine = {
     { key: "location", label: "Location", type: "text", placeholder: "City or country" },
   ],
   defaultSections: [
-    { type: "hero", schema: { headline: "", subheadline: "" } },
-    { type: "text", schema: { heading: "About Us", body: "" } },
-    { type: "text", schema: { heading: "Our Services", body: "" } },
-    { type: "contact", schema: { heading: "Contact", email: "", phone: "" } },
+    { type: "header", schema: { logo_url: "", logo_position: "left", logo_size: "medium", show_name: true, name_next_to_logo: true }, core_slot: "header" },
+    { type: "hero", schema: { headline: "", subheadline: "" }, core_slot: "hero" },
+    { type: "services", schema: { heading: "Services", items: [] }, core_slot: "main_content" },
+    { type: "offer", schema: { heading: "What We Offer", description: "", items: [] }, core_slot: "offer" },
+    { type: "footer", schema: { heading: "Footer", email: "", phone: "", address: "", hours: [], social: {} }, core_slot: "footer" },
   ],
   editorModules: ["hero", "text", "services", "team", "testimonials", "contact", "faq", "blog"],
   industryModules: {

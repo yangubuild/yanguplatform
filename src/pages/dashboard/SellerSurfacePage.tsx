@@ -68,12 +68,7 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
             if (!schema.headline) schema.headline = businessName;
             if (!schema.subheadline && answers.business_description) schema.subheadline = String(answers.business_description);
           }
-          if (s.type === "contact") {
-            if (answers.contact_email) schema.email = answers.contact_email;
-            if (answers.contact_phone) schema.phone = answers.contact_phone;
-            if (answers.location) schema.address = answers.location;
-          }
-          return { type: s.type, schema };
+          return { type: s.type, schema, core_slot: s.core_slot };
         });
 
     const aiSource = typeof answers._ai_source === "string" ? answers._ai_source : null;
@@ -140,7 +135,12 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
     if (wd.order_takeaway) orderTypes.push("takeaway");
     if (wd.order_delivery) orderTypes.push("delivery");
 
-    const seedSections: { type: string; schema: Record<string, unknown> }[] = [
+    const seedSections: { type: string; schema: Record<string, unknown>; core_slot?: string }[] = [
+      {
+        type: "header",
+        schema: { logo_url: wd.logo_url || "", logo_position: wd.logo_position || "left", logo_size: wd.logo_size || "medium", show_name: wd.show_business_name !== false, name_next_to_logo: true },
+        core_slot: "header",
+      },
       {
         type: "hero",
         schema: {
@@ -150,10 +150,11 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
           } : { type: "none", source: "url", url: "", alt: "", fit: "contain" },
           logo: wd.logo_url || "", logo_position: wd.logo_position || "left",
         },
+        core_slot: "hero",
       },
-      { type: "menu", schema: { heading: "Menu", categories: [], layout_style: wd.layout_style, currency: wd.currency, currency_symbol: wd.currency_symbol } },
-      { type: "hours", schema: { heading: "Opening Hours", items: [] } },
-      { type: "contact", schema: { heading: "Contact", email: wd.contact_email, phone: wd.contact_phone, address: wd.location } },
+      { type: "menu", schema: { heading: "Menu", categories: [], layout_style: wd.layout_style, currency: wd.currency, currency_symbol: wd.currency_symbol }, core_slot: "main_content" },
+      { type: "offer", schema: { heading: "Offers", description: "", items: [] }, core_slot: "offer" },
+      { type: "footer", schema: { heading: "Footer", email: wd.contact_email || "", phone: wd.contact_phone || "", address: wd.location || "", hours: [], social: {} }, core_slot: "footer" },
     ];
 
     if (Object.keys(socialLinks).length > 0) {

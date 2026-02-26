@@ -107,10 +107,11 @@ export const eshopEngine: BuilderEngine = {
     { key: "location", label: "Location", type: "text", placeholder: "City or country" },
   ],
   defaultSections: [
-    { type: "hero", schema: { headline: "", subheadline: "Shop our collection" } },
-    { type: "products", schema: { heading: "Products", items: [], layout: "grid" } },
-    { type: "collections", schema: { heading: "Collections", items: [] } },
-    { type: "cta", schema: { label: "Contact Us", href: "" } },
+    { type: "header", schema: { logo_url: "", logo_position: "left", logo_size: "medium", show_name: true, name_next_to_logo: true }, core_slot: "header" },
+    { type: "hero", schema: { headline: "", subheadline: "Shop our collection" }, core_slot: "hero" },
+    { type: "products", schema: { heading: "Products", items: [], layout: "grid" }, core_slot: "main_content" },
+    { type: "offer", schema: { heading: "What We Offer", description: "", items: [] }, core_slot: "offer" },
+    { type: "footer", schema: { heading: "Footer", email: "", phone: "", address: "", hours: [], social: {} }, core_slot: "footer" },
   ],
   editorModules: ["products", "collections", "discount_rules", "cart", "checkout", "review_settings", "promos", "contact"],
   templates: [

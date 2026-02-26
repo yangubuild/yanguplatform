@@ -17,6 +17,7 @@ export interface EditorSection {
   is_visible: boolean;
   isCore?: boolean;
   isMissing?: boolean;
+  core_slot?: string | null;
 }
 
 export interface EditorPage {
@@ -107,12 +108,15 @@ export function useBuilderEditor(surfaceId: string | undefined) {
       try {
         for (const stub of missing) {
           const schema = getDefaultSchema(stub.section_type);
+          // Determine core_slot from the stub's id pattern (_missing_TYPE)
+          const coreSlotValue = stub.id.startsWith("_missing_") ? (stub.core_slot || null) : null;
           await supabase.rpc("builder_upsert_section", {
             p_page_id: activePageId,
             p_section_type: stub.section_type,
             p_schema: schema as unknown as Json,
             p_position: stub.position,
             p_is_visible: true,
+            p_core_slot: coreSlotValue,
           });
         }
         console.log("BUILDER_CORE_SECTIONS_AUTO_CREATED", missing.map((s) => s.section_type));
@@ -421,9 +425,9 @@ export function useBuilderEditor(surfaceId: string | undefined) {
     [activePageId, surfaceType, queryClient, queryKey]
   );
 
-  // Detect current main content type
+  // Detect current main content type — prefer core_slot from DB
   const currentMainContentType = sections.find(
-    (s) => s.isCore && (CONTENT_SECTION_TYPES.has(s.section_type) || s.section_type === resolveCoreSectionType("main_content", surfaceType))
+    (s) => s.core_slot === "main_content" || (s.isCore && (CONTENT_SECTION_TYPES.has(s.section_type) || s.section_type === resolveCoreSectionType("main_content", surfaceType)))
   )?.section_type || null;
 
   return {
