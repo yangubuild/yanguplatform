@@ -8,10 +8,11 @@ const corsHeaders = {
 };
 
 const VALID_SURFACE_TYPES = ["live_bio", "emenu", "quick_site", "eshop", "store_listing", "community_listing", "community_group", "live_selling", "studio_showcase"];
-const VALID_SECTION_TYPES = ["hero", "bio", "links", "social", "cta", "video", "gallery", "text", "about", "offer", "plans", "rules", "join", "products", "categories", "listings", "filters", "services", "testimonials", "faq", "contact", "schedule", "menu", "hours", "location"];
+const VALID_SECTION_TYPES = ["hero", "featured", "bio", "links", "social", "cta", "video", "gallery", "text", "about", "offer", "plans", "rules", "join", "products", "categories", "listings", "filters", "services", "testimonials", "faq", "contact", "schedule", "menu", "hours", "location"];
 
 const SCHEMA_SPECS: Record<string, string> = {
-  hero: '{"headline": "string", "subheadline": "string"}',
+  hero: '{"headline": "string", "subheadline": "string", "cta_text": "string (button text)", "cta_href": "string (url)"}',
+  featured: '{"title": "string", "items": [{"title": "string", "description": "string", "image_url": "string (placeholder url)", "href": "string"}]} (3-6 items)',
   bio: '{"text": "string (1-3 paragraphs)"}',
   links: '{"items": [{"label": "string", "url": "string"}]} (2-5 items)',
   social: '{"handles": {"instagram": "string", "twitter": "string", "tiktok": "string", ...}} (include relevant ones)',
@@ -96,9 +97,12 @@ serve(async (req) => {
 
     const systemPrompt = `You are a content generator for a website builder. Generate content for a "${section_type}" section on a "${surface_type}" page.
 
-Return ONLY valid JSON matching this schema: ${SCHEMA_SPECS[section_type]}
+Return ONLY valid JSON matching this exact schema: ${SCHEMA_SPECS[section_type]}
 
-No markdown, no explanation, just the JSON object.`;
+Rules:
+- Output ONLY the raw JSON object, no markdown fences, no explanation, no extra text.
+- Fill in realistic, compelling placeholder content based on the user's prompt.
+- All string values must be non-empty.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -107,27 +111,12 @@ No markdown, no explanation, just the JSON object.`;
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: prompt || `Generate compelling content for a ${section_type} section.` },
         ],
-        tools: [{
-          type: "function",
-          function: {
-            name: "return_section_schema",
-            description: "Return the generated section schema",
-            parameters: {
-              type: "object",
-              properties: {
-                schema: { type: "object", description: "The section schema matching the required format" },
-              },
-              required: ["schema"],
-              additionalProperties: false,
-            },
-          },
-        }],
-        tool_choice: { type: "function", function: { name: "return_section_schema" } },
+        temperature: 0.7,
       }),
     });
 
@@ -139,14 +128,29 @@ No markdown, no explanation, just the JSON object.`;
     }
 
     const result = await response.json();
-    const toolCall = result.choices?.[0]?.message?.tool_calls?.[0];
-    if (!toolCall) throw new Error("No tool call in response");
+    const content = result.choices?.[0]?.message?.content || "";
+    console.log("[builder-ai-generate-section] Raw content:", content.slice(0, 1500));
 
-    const args = typeof toolCall.function.arguments === "string"
-      ? JSON.parse(toolCall.function.arguments)
-      : toolCall.function.arguments;
+    let schema: Record<string, unknown> = {};
+    try {
+      const cleaned = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+      schema = JSON.parse(cleaned);
+    } catch (parseErr) {
+      console.error("[builder-ai-generate-section] JSON parse failed:", parseErr, "content:", content.slice(0, 500));
+      return new Response(JSON.stringify({ ok: false, error: "AI returned invalid JSON. Please try again." }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
-    return new Response(JSON.stringify({ ok: true, schema: args.schema }), {
+    if (Object.keys(schema).length === 0) {
+      console.error("[builder-ai-generate-section] Empty schema");
+      return new Response(JSON.stringify({ ok: false, error: "AI returned empty content. Please try again." }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    console.log("[builder-ai-generate-section] Final schema keys:", Object.keys(schema));
+    return new Response(JSON.stringify({ ok: true, schema }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
