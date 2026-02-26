@@ -104,6 +104,8 @@ function HeroForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
     <>
       <TextField label="Headline" value={(schema.headline as string) || ""} onChange={(v) => update({ headline: v })} />
       <TextField label="Subheadline" value={(schema.subheadline as string) || ""} onChange={(v) => update({ subheadline: v })} />
+      <TextField label="CTA Text" value={(schema.cta_text as string) || ""} onChange={(v) => update({ cta_text: v })} />
+      <TextField label="CTA Link" value={(schema.cta_href as string) || ""} onChange={(v) => update({ cta_href: v })} />
       <BuilderMediaPicker
         value={mediaValue}
         onChange={(v) => update({ media: v })}
@@ -121,6 +123,26 @@ function HeroForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
           </Select>
         </div>
       )}
+    </>
+  );
+}
+
+function FeaturedForm({ schema, update }: FormProps) {
+  return (
+    <>
+      <TextField label="Title" value={(schema.title as string) || ""} onChange={(v) => update({ title: v })} />
+      <ListEditor
+        label="Featured Items"
+        items={((schema.items as any[]) || []) as Array<{ title: string; description: string; image_url: string; href: string }>}
+        fields={[
+          { key: "title", label: "Title" },
+          { key: "description", label: "Description" },
+          { key: "image_url", label: "Image URL", placeholder: "https://..." },
+          { key: "href", label: "Link URL", placeholder: "https://..." },
+        ]}
+        onChange={(v) => update({ items: v })}
+        emptyItem={{ title: "", description: "", image_url: "", href: "" }}
+      />
     </>
   );
 }
@@ -310,6 +332,7 @@ interface FormProps {
 
 const FORM_MAP: Record<string, React.ComponentType<FormProps & { surfaceId?: string }>> = {
   hero: HeroForm,
+  featured: FeaturedForm,
   bio: BioForm,
   text: TextForm,
   about: AboutForm,
@@ -329,7 +352,7 @@ const FORM_MAP: Record<string, React.ComponentType<FormProps & { surfaceId?: str
 };
 
 const TYPE_LABELS: Record<string, string> = {
-  hero: "Hero", bio: "Bio", links: "Links", social: "Socials", cta: "CTA",
+  hero: "Hero", featured: "Featured", bio: "Bio", links: "Links", social: "Socials", cta: "CTA",
   video: "Video", gallery: "Gallery", text: "Text", products: "Products",
   services: "Services", testimonials: "Testimonials", contact: "Contact",
   faq: "FAQ", menu: "Menu", schedule: "Schedule", about: "About",
@@ -345,8 +368,15 @@ export function BuilderSectionEditor({
   const [dirty, setDirty] = useState(false);
   const [aiFillOpen, setAiFillOpen] = useState(false);
 
+  // Sync from server when section changes OR when schema is updated from query invalidation
   useEffect(() => {
-    setLocalSchema(section.schema);
+    if (!dirty) {
+      setLocalSchema(section.schema);
+    }
+  }, [section.id, section.schema, dirty]);
+
+  // Reset dirty when switching sections
+  useEffect(() => {
     setDirty(false);
   }, [section.id]);
 
@@ -361,10 +391,13 @@ export function BuilderSectionEditor({
   };
 
   const handleAiGenerated = async (schema: Record<string, unknown>) => {
+    console.log("[AI_FILL] AI_FILL_RESULT schema:", JSON.stringify(schema).slice(0, 500));
+    console.log("[AI_FILL] UPSERT_SECTION_PAYLOAD", { sectionId: section.id, sectionType: section.section_type, schemaKeys: Object.keys(schema) });
     setLocalSchema(schema);
+    setDirty(false); // Mark not dirty so server sync takes effect
     // Save immediately
     await onSave(section.id, schema);
-    setDirty(false);
+    console.log("[AI_FILL] UPSERT_SECTION_DONE", { sectionId: section.id });
   };
 
   const FormComponent = FORM_MAP[section.section_type];

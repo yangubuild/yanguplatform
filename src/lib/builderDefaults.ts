@@ -4,7 +4,8 @@
  */
 
 const DEFAULTS: Record<string, Record<string, unknown>> = {
-  hero: { headline: "", subheadline: "", media: { type: "none", source: "url", url: "", alt: "", fit: "contain" } },
+  hero: { headline: "", subheadline: "", cta_text: "", cta_href: "", media: { type: "none", source: "url", url: "", alt: "", fit: "contain" } },
+  featured: { title: "", items: [] },
   bio: { text: "" },
   text: { heading: "", body: "" },
   about: { heading: "", body: "" },
