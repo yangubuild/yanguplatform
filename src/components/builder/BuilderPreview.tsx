@@ -2,6 +2,8 @@ import type { EditorSection } from "@/hooks/useBuilderEditor";
 import { Card } from "@/components/primitives";
 import type { BuilderTheme } from "./BuilderSettingsDrawer";
 import { DEFAULT_THEME } from "./BuilderSettingsDrawer";
+import type { PageEditSettings } from "@/config/builderCoreSections";
+import { DEFAULT_PAGE_SETTINGS } from "@/config/builderCoreSections";
 
 interface BuilderPreviewProps {
   sections: EditorSection[];
@@ -9,6 +11,7 @@ interface BuilderPreviewProps {
   selectedSectionId?: string | null;
   onSelectSection?: (id: string) => void;
   theme?: BuilderTheme;
+  pageSettings?: PageEditSettings;
 }
 
 // ─── Existing live_bio renderers (unchanged) ───
@@ -684,12 +687,16 @@ export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<st
   footer: FooterPreview,
 };
 
-export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSelectSection, theme }: BuilderPreviewProps) {
+export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSelectSection, theme, pageSettings }: BuilderPreviewProps) {
   const t = theme || DEFAULT_THEME;
+  const ps = pageSettings || DEFAULT_PAGE_SETTINGS;
+  const isLayoutB = ps.layout === "layout_b";
+
   const themeStyle: React.CSSProperties = {
     fontFamily: t.font_family,
     fontWeight: Number(t.body_weight),
     "--builder-heading-weight": t.heading_weight,
+    ...(ps.background_color ? { backgroundColor: ps.background_color } : {}),
   } as React.CSSProperties;
 
   if (sections.length === 0) {
@@ -710,8 +717,8 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
         <p className="text-xs text-muted-foreground text-center truncate">{surfaceTitle}</p>
       </div>
 
-      {/* Sections */}
-      <div className="divide-y divide-border">
+      {/* Sections — Layout B uses grid for main content */}
+      <div className={isLayoutB ? "" : "divide-y divide-border"}>
         {sections
           .filter((s) => s.is_visible)
           .map((section) => {
@@ -720,7 +727,9 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
               <div
                 key={section.id}
                 onClick={() => onSelectSection?.(section.id)}
-                className={`cursor-pointer transition-all ${selectedSectionId === section.id ? "ring-2 ring-primary ring-inset" : "hover:bg-accent/5"}`}
+                className={`cursor-pointer transition-all ${
+                  !isLayoutB ? "border-b border-border last:border-b-0" : ""
+                } ${selectedSectionId === section.id ? "ring-2 ring-primary ring-inset" : "hover:bg-accent/5"}`}
               >
                 {Preview ? (
                   <Preview schema={section.schema} />
@@ -731,6 +740,17 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
             );
           })}
       </div>
+
+      {/* Floating CTA preview */}
+      {ps.floating_cta && (
+        <div className="sticky bottom-0 p-3 flex justify-end">
+          <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center shadow-lg">
+            <span className="text-primary-foreground text-lg">
+              {(ps.floating_cta_channel || "whatsapp") === "whatsapp" ? "💬" : "✉️"}
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

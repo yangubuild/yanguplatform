@@ -245,6 +245,7 @@ export default function BuilderEditor() {
             selectedSectionId={selectedSectionId}
             onSelectSection={handleSelectSection}
             theme={builderTheme}
+            pageSettings={pageSettings}
           />
         </main>
 

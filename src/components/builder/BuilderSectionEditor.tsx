@@ -132,30 +132,49 @@ function HeroForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
   );
 }
 
-// ─── Header / Logo form (replaces QR) ───
+// ─── Header / Logo form ───
 function HeaderForm({ schema, update, surfaceId }: FormProps & { surfaceId?: string }) {
-  const logoUrl = (schema.logo_url as string) || "";
+  const logoMedia = (schema.logo_media as any) || { type: "none", source: "url", url: "", alt: "" };
+  const logoUrl = (schema.logo_url as string) || logoMedia.url || "";
   const logoPosition = (schema.logo_position as string) || "left";
   const logoSize = (schema.logo_size as string) || "medium";
   const showName = schema.show_name !== false;
   const nameNextToLogo = schema.name_next_to_logo !== false;
 
+  const mediaValue: MediaValue = {
+    type: logoUrl || logoMedia.url ? "image" : "none",
+    source: logoMedia.source || "url",
+    url: logoUrl || logoMedia.url || "",
+    provider: logoMedia.provider,
+    assetId: logoMedia.assetId,
+    alt: logoMedia.alt || "Logo",
+    fit: "contain",
+  };
+
   return (
     <>
+      {/* Logo upload / pick */}
       <div className="space-y-1.5">
-        <Label className="text-xs">Logo URL</Label>
-        <Input
-          value={logoUrl}
-          onChange={(e) => update({ logo_url: e.target.value })}
-          placeholder="Paste image URL or upload in editor"
-          className="text-sm"
+        <Label className="text-xs font-medium">Logo</Label>
+        {mediaValue.url && (
+          <div className="mb-2 border border-border rounded-lg p-2 bg-muted/30 inline-block">
+            <img src={mediaValue.url} alt="Logo preview" className="h-20 w-20 object-contain rounded" />
+          </div>
+        )}
+        <BuilderMediaPicker
+          value={mediaValue}
+          onChange={(v) => {
+            update({ logo_url: v.url, logo_media: v });
+          }}
+          surfaceId={surfaceId || ""}
         />
-        <p className="text-xs text-muted-foreground">Upload or generate with AI</p>
+        <p className="text-xs text-muted-foreground">Recommended: Square image, max 5MB</p>
       </div>
 
+      {/* Logo Position + Size */}
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">
-          <Label className="text-xs">Logo Position</Label>
+          <Label className="text-xs font-medium">Logo Position</Label>
           <Select value={logoPosition} onValueChange={(v) => update({ logo_position: v })}>
             <SelectTrigger className="text-sm"><SelectValue /></SelectTrigger>
             <SelectContent>
@@ -166,7 +185,7 @@ function HeaderForm({ schema, update, surfaceId }: FormProps & { surfaceId?: str
           </Select>
         </div>
         <div className="space-y-1.5">
-          <Label className="text-xs">Logo Size</Label>
+          <Label className="text-xs font-medium">Logo Size</Label>
           <Select value={logoSize} onValueChange={(v) => update({ logo_size: v })}>
             <SelectTrigger className="text-sm"><SelectValue /></SelectTrigger>
             <SelectContent>
@@ -178,6 +197,7 @@ function HeaderForm({ schema, update, surfaceId }: FormProps & { surfaceId?: str
         </div>
       </div>
 
+      {/* Show Business Name */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Checkbox
@@ -197,6 +217,7 @@ function HeaderForm({ schema, update, surfaceId }: FormProps & { surfaceId?: str
             <label htmlFor="name-next-to-logo" className="text-xs text-muted-foreground">
               Display name next to logo
             </label>
+            <p className="text-xs text-muted-foreground ml-1">Uncheck if your logo already includes the name</p>
           </div>
         )}
       </div>
