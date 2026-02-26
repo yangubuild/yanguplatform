@@ -21,7 +21,7 @@ interface InitOptions {
   surfaceType: string;
   slug: string;
   title: string;
-  seedSections?: { type: string; schema: Record<string, unknown> }[];
+  seedSections?: { type: string; schema: Record<string, unknown>; core_slot?: string }[];
   metadata?: Record<string, unknown>;
 }
 
@@ -141,12 +141,14 @@ export function useBuilderSurfaceInit() {
 
         for (let i = 0; i < sections.length; i++) {
           const section = sections[i];
+          const coreSlot = ('core_slot' in section) ? (section as any).core_slot : null;
           const { data: upsertData, error: upsertError } = await supabase.rpc("builder_upsert_section", {
             p_page_id: pageId,
             p_section_type: section.type,
             p_schema: section.schema as unknown as Json,
             p_position: i,
             p_is_visible: true,
+            p_core_slot: coreSlot || null,
           });
 
           if (upsertError) throw new Error(upsertError.message);

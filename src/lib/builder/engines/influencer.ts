@@ -76,10 +76,11 @@ export const influencerEngine: BuilderEngine = {
     { key: "affiliate_products", label: "Affiliate products?", type: "text", placeholder: "e.g. Yes — Fashion & Beauty" },
   ],
   defaultSections: [
-    { type: "hero", schema: { headline: "", subheadline: "" } },
-    { type: "bio", schema: { text: "" } },
-    { type: "links", schema: { items: [] } },
-    { type: "media", schema: { heading: "Latest Content", items: [] } },
+    { type: "header", schema: { logo_url: "", logo_position: "left", logo_size: "medium", show_name: true, name_next_to_logo: true }, core_slot: "header" },
+    { type: "hero", schema: { headline: "", subheadline: "" }, core_slot: "hero" },
+    { type: "links", schema: { items: [] }, core_slot: "main_content" },
+    { type: "offer", schema: { heading: "What We Offer", description: "", items: [] }, core_slot: "offer" },
+    { type: "footer", schema: { heading: "Footer", email: "", phone: "", address: "", hours: [], social: {} }, core_slot: "footer" },
   ],
   editorModules: ["bio", "links", "media", "affiliate", "live_product_pins", "tips", "contact"],
   templates: [

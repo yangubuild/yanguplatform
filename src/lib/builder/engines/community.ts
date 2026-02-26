@@ -93,11 +93,11 @@ export const communityEngine: BuilderEngine = {
     { key: "content_privacy", label: "Content privacy level", type: "text", placeholder: "e.g. Members only, Public" },
   ],
   defaultSections: [
-    { type: "hero", schema: { headline: "", subheadline: "Join our community" } },
-    { type: "text", schema: { heading: "About", body: "" } },
-    { type: "member_signup", schema: { heading: "Join", cta_label: "Join Now" } },
-    { type: "events", schema: { heading: "Events", items: [] } },
-    { type: "programs", schema: { heading: "Programs", items: [] } },
+    { type: "header", schema: { logo_url: "", logo_position: "left", logo_size: "medium", show_name: true, name_next_to_logo: true }, core_slot: "header" },
+    { type: "hero", schema: { headline: "", subheadline: "Join our community" }, core_slot: "hero" },
+    { type: "about", schema: { heading: "About Us", body: "" }, core_slot: "main_content" },
+    { type: "offer", schema: { heading: "What We Offer", description: "", items: [] }, core_slot: "offer" },
+    { type: "footer", schema: { heading: "Footer", email: "", phone: "", address: "", hours: [], social: {} }, core_slot: "footer" },
   ],
   editorModules: ["hero", "about", "member_signup", "events", "programs", "resources", "private_posts", "directory", "messaging"],
   templates: [

@@ -24,8 +24,7 @@ export default function InfluencerPage() {
     const seedSections = engine.defaultSections.map((s) => {
       const schema = { ...s.schema };
       if (s.type === "hero") schema.headline = displayName;
-      if (s.type === "bio" && answers.bio) schema.text = answers.bio;
-      return { type: s.type, schema };
+      return { type: s.type, schema, core_slot: s.core_slot };
     });
 
     // Build links from answers

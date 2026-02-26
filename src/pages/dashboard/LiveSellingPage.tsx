@@ -11,9 +11,11 @@ export default function LiveSellingPage() {
       slug: "live-shop",
       title: "My Live Shop",
       seedSections: [
-        { type: "hero", schema: { headline: "Live Shopping", subheadline: "Watch, shop, enjoy" } },
-        { type: "products", schema: { heading: "Products", items: [] } },
-        { type: "cta", schema: { label: "Shop Now", href: "" } },
+        { type: "header", schema: { logo_url: "", logo_position: "left", logo_size: "medium", show_name: true, name_next_to_logo: true }, core_slot: "header" },
+        { type: "hero", schema: { headline: "Live Shopping", subheadline: "Watch, shop, enjoy" }, core_slot: "hero" },
+        { type: "products", schema: { heading: "Products", items: [] }, core_slot: "main_content" },
+        { type: "offer", schema: { heading: "Offers", description: "", items: [] }, core_slot: "offer" },
+        { type: "footer", schema: { heading: "Footer", email: "", phone: "", address: "", hours: [], social: {} }, core_slot: "footer" },
       ],
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps

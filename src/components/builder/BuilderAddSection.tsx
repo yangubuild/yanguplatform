@@ -49,7 +49,7 @@ export function BuilderAddSection({
       <div className="flex gap-2">
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="flex-1 gap-2" disabled={isAdding}>
+            <Button variant="outline" size="sm" className="flex-1 gap-2" disabled={isAdding} data-add-section-trigger>
               {isAdding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
               Add Section
             </Button>
