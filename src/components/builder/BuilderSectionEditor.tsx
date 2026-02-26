@@ -140,6 +140,8 @@ function HeaderForm({ schema, update, surfaceId }: FormProps & { surfaceId?: str
   const logoSize = (schema.logo_size as string) || "medium";
   const showName = schema.show_name !== false;
   const nameNextToLogo = schema.name_next_to_logo !== false;
+  const primaryColor = (schema.primary_color as string) || "";
+  const menuLayoutStyle = (schema.menu_layout_style as string) || "list";
 
   const mediaValue: MediaValue = {
     type: logoUrl || logoMedia.url ? "image" : "none",
@@ -171,6 +173,49 @@ function HeaderForm({ schema, update, surfaceId }: FormProps & { surfaceId?: str
         <p className="text-xs text-muted-foreground">Recommended: Square image, max 5MB</p>
       </div>
 
+      {/* Primary Color + Menu Layout Style */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <Label className="text-xs font-medium">Primary Color</Label>
+          <div className="flex items-center gap-2">
+            <label className="relative h-9 w-9 rounded-md border border-border cursor-pointer shrink-0 overflow-hidden">
+              <input
+                type="color"
+                value={primaryColor || "#ffffff"}
+                onChange={(e) => update({ primary_color: e.target.value })}
+                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+              />
+              <div
+                className="h-full w-full"
+                style={{ backgroundColor: primaryColor || "#ffffff" }}
+              />
+            </label>
+            <input
+              value={primaryColor}
+              onChange={(e) => update({ primary_color: e.target.value })}
+              placeholder="#bd1f09"
+              className="flex h-9 flex-1 rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            />
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs font-medium">Menu Layout Style</Label>
+          <Select value={menuLayoutStyle} onValueChange={(v) => update({ menu_layout_style: v })}>
+            <SelectTrigger className="text-sm"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="list">List View</SelectItem>
+              <SelectItem value="grid">Grid View</SelectItem>
+              <SelectItem value="compact">Compact View</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Header Layout heading */}
+      <div className="border-t border-border pt-3">
+        <Label className="text-sm font-semibold">Header Layout</Label>
+      </div>
+
       {/* Logo Position + Size */}
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">
@@ -199,27 +244,18 @@ function HeaderForm({ schema, update, surfaceId }: FormProps & { surfaceId?: str
 
       {/* Show Business Name */}
       <div className="space-y-3">
+        <Label className="text-xs font-medium">Show Business Name</Label>
         <div className="flex items-center gap-2">
           <Checkbox
             id="show-name"
-            checked={showName}
-            onCheckedChange={(checked) => update({ show_name: !!checked })}
+            checked={nameNextToLogo}
+            onCheckedChange={(checked) => update({ name_next_to_logo: !!checked })}
           />
-          <label htmlFor="show-name" className="text-xs font-medium">Show Business Name</label>
+          <label htmlFor="show-name" className="text-xs text-muted-foreground">
+            Display name next to logo
+          </label>
         </div>
-        {showName && (
-          <div className="flex items-center gap-2 ml-5">
-            <Checkbox
-              id="name-next-to-logo"
-              checked={nameNextToLogo}
-              onCheckedChange={(checked) => update({ name_next_to_logo: !!checked })}
-            />
-            <label htmlFor="name-next-to-logo" className="text-xs text-muted-foreground">
-              Display name next to logo
-            </label>
-            <p className="text-xs text-muted-foreground ml-1">Uncheck if your logo already includes the name</p>
-          </div>
-        )}
+        <p className="text-xs text-muted-foreground">Uncheck if your logo already includes the name</p>
       </div>
     </>
   );
