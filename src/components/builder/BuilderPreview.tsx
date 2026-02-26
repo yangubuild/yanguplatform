@@ -24,6 +24,42 @@ function isYouTubeUrl(url: string): string | null {
   return match ? match[1] : null;
 }
 
+function hexToHslParts(hex: string): { h: number; s: number; l: number } | null {
+  const normalized = hex.trim();
+  const match = normalized.match(/^#([A-Fa-f0-9]{6})$/);
+  if (!match) return null;
+
+  const raw = match[1];
+  const r = parseInt(raw.slice(0, 2), 16) / 255;
+  const g = parseInt(raw.slice(2, 4), 16) / 255;
+  const b = parseInt(raw.slice(4, 6), 16) / 255;
+
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const delta = max - min;
+
+  let h = 0;
+  if (delta !== 0) {
+    if (max === r) h = ((g - b) / delta) % 6;
+    else if (max === g) h = (b - r) / delta + 2;
+    else h = (r - g) / delta + 4;
+  }
+
+  h = Math.round((h * 60 + 360) % 360);
+  const l = (max + min) / 2;
+  const s = delta === 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
+
+  return {
+    h,
+    s: Math.round(s * 100),
+    l: Math.round(l * 100),
+  };
+}
+
+function toHslToken({ h, s, l }: { h: number; s: number; l: number }): string {
+  return `${h} ${s}% ${l}%`;
+}
+
 function HeroPreview({ schema }: { schema: Record<string, unknown> }) {
   const media = (schema.media as { type?: string; url?: string; fit?: string }) || {};
   const mediaType = media.type || "none";
@@ -712,16 +748,39 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
     console.log("BUILDER_LAYOUT_SWITCHED", { layout: isLayoutB ? "B" : "A", wireframeId: ps.layout });
   }, [ps.layout, isLayoutB]);
 
-  // Apply primary color as CSS custom property so buttons/accents pick it up
-  const primaryColor = ps.background_color || "";
+  // Apply page color and accent tokens for instant live preview
+  const selectedColor = (ps.background_color || "").trim();
+  const parsedColor = hexToHslParts(selectedColor);
+  const primaryToken = parsedColor ? toHslToken(parsedColor) : null;
+  const primaryForegroundToken = parsedColor ? (parsedColor.l > 60 ? "222 47% 11%" : "210 40% 98%") : null;
+  const cardToken = parsedColor
+    ? `${parsedColor.h} ${Math.max(10, Math.min(parsedColor.s, 30))}% ${Math.max(94, Math.min(parsedColor.l + 35, 98))}%`
+    : null;
   const isDark = ps.theme_mode === "dark";
 
   const themeStyle: React.CSSProperties = {
     fontFamily: t.font_family,
     fontWeight: Number(t.body_weight),
     "--builder-heading-weight": t.heading_weight,
-    ...(primaryColor ? { "--builder-primary": primaryColor } : {}),
-    ...(isDark ? { backgroundColor: "#1a1a2e", color: "#e0e0e0" } : {}),
+    ...(primaryToken
+      ? {
+          "--primary": primaryToken,
+          "--accent": primaryToken,
+          "--ring": primaryToken,
+        }
+      : {}),
+    ...(primaryForegroundToken ? { "--primary-foreground": primaryForegroundToken } : {}),
+    ...(cardToken ? { "--card": cardToken } : {}),
+    ...(isDark
+      ? {
+          "--background": "240 17% 12%",
+          "--foreground": "210 40% 98%",
+          "--card": cardToken || "240 17% 14%",
+          "--muted": "240 10% 20%",
+          "--muted-foreground": "215 20% 78%",
+          "--border": "240 10% 30%",
+        }
+      : {}),
   } as React.CSSProperties;
 
   if (sections.length === 0) {
@@ -736,7 +795,7 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
   }
 
   return (
-    <div className={`max-w-md mx-auto border border-border rounded-xl overflow-hidden shadow-sm ${isDark ? "bg-[#1a1a2e] text-gray-200" : "bg-card"}`} style={themeStyle}>
+    <div className="max-w-md mx-auto border border-border rounded-xl overflow-hidden shadow-sm bg-card text-foreground" style={themeStyle}>
       {/* Phone-like frame header */}
       <div className="bg-muted/50 border-b border-border px-4 py-2">
         <p className="text-xs text-muted-foreground text-center truncate">{surfaceTitle}</p>
