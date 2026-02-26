@@ -66,6 +66,13 @@ export function useBuilderEditor(surfaceId: string | undefined) {
       if (!result?.ok) {
         throw new Error((data as any)?.error || "Failed to load editor state");
       }
+      const totalSections = result.pages?.reduce((sum, p) => sum + (p.sections?.length || 0), 0) || 0;
+      console.log("EDITOR_STATE_LOADED", {
+        surfaceId,
+        pagesCount: result.pages?.length || 0,
+        sectionsCount: totalSections,
+        sectionTypes: result.pages?.flatMap((p) => p.sections?.map((s) => s.section_type) || []) || [],
+      });
       return result;
     },
     enabled: !!surfaceId,
