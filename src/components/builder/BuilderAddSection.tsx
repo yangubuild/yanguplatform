@@ -5,26 +5,43 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Plus, Loader2, Sparkles } from "lucide-react";
-import { getSectionPalette } from "@/config/builderSectionPalettes";
+import { Plus, Loader2, Sparkles, ArrowLeftRight } from "lucide-react";
+import { getContentSections, getGeneralSections } from "@/config/builderSectionPalettes";
 import { BuilderAIGenerateModal } from "./BuilderAIGenerateModal";
 
 interface BuilderAddSectionProps {
   onAdd: (sectionType: string) => Promise<void>;
   onAddWithSchema: (sectionType: string, schema: Record<string, unknown>) => Promise<void>;
+  onSwitchMainContent?: (newType: string) => Promise<void>;
   isAdding: boolean;
   surfaceType: string;
+  currentMainContentType?: string | null;
 }
 
-export function BuilderAddSection({ onAdd, onAddWithSchema, isAdding, surfaceType }: BuilderAddSectionProps) {
+export function BuilderAddSection({
+  onAdd,
+  onAddWithSchema,
+  onSwitchMainContent,
+  isAdding,
+  surfaceType,
+  currentMainContentType,
+}: BuilderAddSectionProps) {
   const [open, setOpen] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
 
-  const palette = getSectionPalette(surfaceType);
+  const contentSections = getContentSections(surfaceType);
+  const generalSections = getGeneralSections();
 
-  const handleSelect = async (type: string) => {
+  const handleSelectGeneral = async (type: string) => {
     setOpen(false);
     await onAdd(type);
+  };
+
+  const handleSwitchContent = async (type: string) => {
+    setOpen(false);
+    if (onSwitchMainContent) {
+      await onSwitchMainContent(type);
+    }
   };
 
   return (
@@ -37,12 +54,53 @@ export function BuilderAddSection({ onAdd, onAddWithSchema, isAdding, surfaceTyp
               Add Section
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-56 p-2" align="start">
+          <PopoverContent className="w-64 p-2" align="start">
             <div className="space-y-1">
-              {palette.map(({ type, label, icon }) => (
+              {/* Switch Content Type group */}
+              {contentSections.length > 1 && onSwitchMainContent && (
+                <>
+                  <div className="px-3 py-1.5">
+                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                      <ArrowLeftRight className="h-3 w-3" />
+                      Switch Content Type
+                    </p>
+                  </div>
+                  {contentSections.map(({ type, label, icon }) => {
+                    const isCurrent = type === currentMainContentType;
+                    return (
+                      <button
+                        key={type}
+                        onClick={() => !isCurrent && handleSwitchContent(type)}
+                        disabled={isCurrent}
+                        className={`flex items-center gap-2 w-full px-3 py-2 text-sm rounded-md transition-colors text-left ${
+                          isCurrent
+                            ? "bg-primary/10 text-primary font-medium cursor-default"
+                            : "hover:bg-muted"
+                        }`}
+                      >
+                        <span>{icon}</span>
+                        <span className="flex-1">{label}</span>
+                        {isCurrent && (
+                          <span className="text-[10px] text-primary/70">Current</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                  <div className="border-t border-border my-1.5" />
+                </>
+              )}
+
+              {/* Add Section group */}
+              <div className="px-3 py-1.5">
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                  <Plus className="h-3 w-3" />
+                  Add Section
+                </p>
+              </div>
+              {generalSections.map(({ type, label, icon }) => (
                 <button
                   key={type}
-                  onClick={() => handleSelect(type)}
+                  onClick={() => handleSelectGeneral(type)}
                   className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors text-left"
                 >
                   <span>{icon}</span>

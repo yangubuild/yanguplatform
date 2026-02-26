@@ -17,6 +17,7 @@ import type { EditorSection } from "@/hooks/useBuilderEditor";
 import { BuilderMediaPicker, type MediaValue } from "./BuilderMediaPicker";
 import { ProductsEditor } from "./editors/ProductsEditor";
 import { BannersAdsEditor } from "./editors/BannersAdsEditor";
+import { PropertiesEditor } from "./editors/PropertiesEditor";
 
 interface BuilderSectionEditorProps {
   section: EditorSection;
@@ -916,6 +917,36 @@ const FORM_MAP: Record<string, React.ComponentType<FormProps & { surfaceId?: str
   banners_ads: BannersAdsEditor,
   services: (p) => <ItemListForm {...p} heading="Services" />,
   listings: (p) => <ItemListForm {...p} heading="Listings" />,
+  properties: PropertiesEditor as React.ComponentType<FormProps & { surfaceId?: string }>,
+  // New content types — reuse ItemListForm until dedicated editors are built
+  rooms: (p) => <ItemListForm {...p} heading="Rooms" />,
+  booking_calendar: (p) => <ItemListForm {...p} heading="Appointments" />,
+  programs: (p) => <ItemListForm {...p} heading="Programs" />,
+  tours: (p) => <ItemListForm {...p} heading="Tours" />,
+  team: (p) => <ItemListForm {...p} heading="Team Members" />,
+  services_pricing: (p) => <ItemListForm {...p} heading="Services & Pricing" />,
+  featured_products: (p) => <ItemListForm {...p} heading="Featured Products" />,
+  deals: (p) => <ItemListForm {...p} heading="Deals" />,
+  flash_sale: (p) => <ItemListForm {...p} heading="Flash Sale Items" />,
+  reviews: (p) => <ItemListForm {...p} heading="Reviews" />,
+  supplier_catalog: (p) => <ItemListForm {...p} heading="Supplier Catalog" />,
+  bulk_products: (p) => <ItemListForm {...p} heading="Bulk Products" />,
+  agriculture_produce: (p) => <ItemListForm {...p} heading="Agriculture Produce" />,
+  manufacturer_products: (p) => <ItemListForm {...p} heading="Manufacturer Products" />,
+  coaching: (p) => <ItemListForm {...p} heading="Coaching" />,
+  courses: (p) => <ItemListForm {...p} heading="Courses" />,
+  live_webinars: (p) => <ItemListForm {...p} heading="Live Webinars" />,
+  workshops: (p) => <ItemListForm {...p} heading="Workshops" />,
+  mentorship: (p) => <ItemListForm {...p} heading="Mentorship" />,
+  resources: (p) => <ItemListForm {...p} heading="Resources" />,
+  discussions: (p) => <ItemListForm {...p} heading="Discussions" />,
+  live_stream: (p) => <ItemListForm {...p} heading="Live Stream" />,
+  live_selling: (p) => <ItemListForm {...p} heading="Live Selling" />,
+  affiliate_products: (p) => <ItemListForm {...p} heading="Affiliate Products" />,
+  media_feed: (p) => <ItemListForm {...p} heading="Media Feed" />,
+  merch: (p) => <ItemListForm {...p} heading="Merch" />,
+  tips_support: (p) => <ItemListForm {...p} heading="Tips & Support" />,
+  collabs: (p) => <ItemListForm {...p} heading="Collabs" />,
 };
 
 const TYPE_LABELS: Record<string, string> = {
@@ -926,6 +957,17 @@ const TYPE_LABELS: Record<string, string> = {
   offer: "Offers", plans: "Plans", join: "Join", listings: "Listings",
   hours: "Opening Hours", location: "Location", footer: "Footer",
   banners_ads: "Banners & Ads",
+  properties: "Properties", rooms: "Rooms", booking_calendar: "Booking",
+  programs: "Programs", tours: "Tours", team: "Team",
+  services_pricing: "Services & Pricing", featured_products: "Featured Products",
+  deals: "Deals", flash_sale: "Flash Sale", reviews: "Reviews",
+  supplier_catalog: "Supplier Catalog", bulk_products: "Bulk Products",
+  agriculture_produce: "Agriculture", manufacturer_products: "Manufacturer",
+  coaching: "Coaching", courses: "Courses", live_webinars: "Live Webinars",
+  workshops: "Workshops", mentorship: "Mentorship", resources: "Resources",
+  discussions: "Discussions", live_stream: "Live Stream", live_selling: "Live Selling",
+  affiliate_products: "Affiliate Products", media_feed: "Media Feed",
+  merch: "Merch", tips_support: "Tips & Support", collabs: "Collabs",
 };
 
 // ─── Main component ───

@@ -857,6 +857,7 @@ export type Database = {
       }
       builder_sections: {
         Row: {
+          core_slot: string | null
           created_at: string
           id: string
           is_visible: boolean
@@ -867,6 +868,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          core_slot?: string | null
           created_at?: string
           id?: string
           is_visible?: boolean
@@ -877,6 +879,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          core_slot?: string | null
           created_at?: string
           id?: string
           is_visible?: boolean
@@ -3224,6 +3227,14 @@ export type Database = {
       }
       builder_reorder_sections: {
         Args: { p_ordered_ids: string[]; p_page_id: string }
+        Returns: Json
+      }
+      builder_switch_main_content: {
+        Args: {
+          p_default_schema?: Json
+          p_new_section_type: string
+          p_page_id: string
+        }
         Returns: Json
       }
       builder_unpublish_surface: {
