@@ -16,6 +16,7 @@ interface BuilderSectionListProps {
   onSwitchMainContent?: (newType: string) => Promise<string | null>;
   surfaceType?: string;
   currentMainContentType?: string | null;
+  industry?: string | null;
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -101,7 +102,7 @@ function getSectionLabel(section: EditorSection, surfaceType: string): { primary
   return { primary: TYPE_LABELS[section.section_type] || section.section_type };
 }
 
-export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, onDelete, onSwitchMainContent, surfaceType = "quick_site", currentMainContentType }: BuilderSectionListProps) {
+export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, onDelete, onSwitchMainContent, surfaceType = "quick_site", currentMainContentType, industry }: BuilderSectionListProps) {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -227,6 +228,7 @@ export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, 
                 }}
                 surfaceType={surfaceType}
                 currentMainContentType={currentMainContentType}
+                industry={industry}
               />
             )}
             {/* Visibility icons */}
