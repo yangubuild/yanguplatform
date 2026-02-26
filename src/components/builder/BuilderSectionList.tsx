@@ -43,15 +43,15 @@ const TYPE_LABELS: Record<string, string> = {
   footer: "Footer",
 };
 
-/** Get the wireframe-driven label for a section based on core definitions */
+/** Get the wireframe-driven label for a section based on core definitions.
+ *  Main content sections use their category-specific name directly (e.g. "Menu", "Products"). */
 function getWireframeLabel(sectionType: string, surfaceType: string): string {
-  // Check if this section_type corresponds to a core section
   for (const coreDef of CORE_SECTIONS) {
     const resolvedType = resolveCoreSectionType(coreDef.type, surfaceType);
     if (resolvedType === sectionType) {
       if (coreDef.type === "main_content") {
-        const specificLabel = TYPE_LABELS[sectionType] || sectionType;
-        return `Main Content (${specificLabel})`;
+        // Use the specific label directly — "Menu", "Products", "Services", etc.
+        return TYPE_LABELS[sectionType] || sectionType;
       }
       return coreDef.label;
     }
