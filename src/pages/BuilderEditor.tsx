@@ -4,6 +4,7 @@ import { BuilderSectionList } from "@/components/builder/BuilderSectionList";
 import { BuilderAddSection } from "@/components/builder/BuilderAddSection";
 import { BuilderPreview } from "@/components/builder/BuilderPreview";
 import { BuilderPublishModal } from "@/components/builder/BuilderPublishModal";
+import { BuilderPageEditPanel } from "@/components/builder/BuilderPageEditPanel";
 import { Card } from "@/components/primitives";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,6 +17,7 @@ import {
   ClipboardList,
   Sparkles,
   FileText,
+  Layout,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import type { BuilderSurfaceType } from "@/types/builder";
@@ -25,13 +27,15 @@ import { BuilderPagesDropdown } from "@/components/builder/BuilderPagesDropdown"
 import { BuilderSetupAnswersPanel } from "@/components/builder/panels/BuilderSetupAnswersPanel";
 import { toast } from "sonner";
 
+type RightPanel = "none" | "page_edit" | "section" | "setup";
+
 export default function BuilderEditor() {
   const { surfaceId } = useParams<{ surfaceId: string }>();
   const navigate = useNavigate();
   const [publishOpen, setPublishOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
-  const [setupPanelOpen, setSetupPanelOpen] = useState(false);
+  const [rightPanel, setRightPanel] = useState<RightPanel>("page_edit");
   const [showAiBanner, setShowAiBanner] = useState(false);
 
   const {
@@ -42,6 +46,9 @@ export default function BuilderEditor() {
     activePage,
     activePageId,
     setActivePageId,
+    pageSettings,
+    savePageSettings,
+    isSavingPageSettings,
     addSection,
     addSectionWithSchema,
     isAdding,
@@ -111,9 +118,13 @@ export default function BuilderEditor() {
   const aiAnswers = (surfaceMeta.ai_answers || {}) as Record<string, unknown>;
   const aiSource = surfaceMeta.ai_source as string | undefined;
 
+  const handleSelectSection = (id: string) => {
+    setSelectedSectionId(id);
+    setRightPanel("section");
+  };
+
   const handleUpdateAnswers = (updated: Record<string, unknown>) => {
     toast.success("Answers updated — content will reflect changes on next save.");
-    // Future: could trigger partial re-generation here
   };
 
   return (
@@ -159,8 +170,8 @@ export default function BuilderEditor() {
         {/* Setup / Answers button (only if AI-generated) */}
         {hasAiSetup && (
           <Button size="sm" variant="outline" className="gap-2" onClick={() => {
-            setSetupPanelOpen(!setupPanelOpen);
-            if (setupPanelOpen) setSelectedSectionId(null);
+            setRightPanel(rightPanel === "setup" ? "none" : "setup");
+            setSelectedSectionId(null);
           }}>
             <FileText className="h-4 w-4" /> Setup
           </Button>
@@ -182,22 +193,41 @@ export default function BuilderEditor() {
       <div className="flex flex-1 overflow-hidden">
         {/* Left panel: Sections */}
         <aside className="w-72 border-r border-border flex flex-col bg-sidebar overflow-y-auto">
-          <div className="p-4 border-b border-border">
+          {/* Page Edit trigger */}
+          <button
+            onClick={() => {
+              setSelectedSectionId(null);
+              setRightPanel("page_edit");
+            }}
+            className={`m-3 mb-0 flex items-center gap-2 px-3 py-2.5 rounded-lg border transition-all ${
+              rightPanel === "page_edit"
+                ? "ring-2 ring-primary border-primary bg-primary/5"
+                : "border-border hover:border-muted-foreground/30 bg-card"
+            }`}
+          >
+            <Layout className="h-4 w-4 text-primary" />
+            <span className="text-sm font-semibold">Page Edit</span>
+          </button>
+
+          <div className="p-4 pb-1 border-b border-border mt-3">
             <div className="flex items-center gap-2 mb-1">
               <LayoutGrid className="h-4 w-4 text-muted-foreground" />
               <h2 className="text-sm font-semibold">Sections</h2>
             </div>
-            <p className="text-xs text-muted-foreground">Drag to reorder</p>
+            <p className="text-xs text-muted-foreground">Core sections are fixed • Custom sections below</p>
           </div>
           <div className="flex-1 p-3">
             <BuilderSectionList
               sections={sections}
               onReorder={reorderSections}
               selectedId={selectedSectionId}
-              onSelect={(id) => { setSelectedSectionId(id); setSetupPanelOpen(false); }}
+              onSelect={handleSelectSection}
               onDelete={async (id) => {
                 const ok = await deleteSection(id);
-                if (ok && selectedSectionId === id) setSelectedSectionId(null);
+                if (ok && selectedSectionId === id) {
+                  setSelectedSectionId(null);
+                  setRightPanel("page_edit");
+                }
                 return ok;
               }}
             />
@@ -213,30 +243,39 @@ export default function BuilderEditor() {
             sections={sections}
             surfaceTitle={surfaceTitle}
             selectedSectionId={selectedSectionId}
-            onSelectSection={(id) => { setSelectedSectionId(id); setSetupPanelOpen(false); }}
+            onSelectSection={handleSelectSection}
             theme={builderTheme}
           />
         </main>
 
-        {/* Right panel: Section editor OR Setup answers */}
-        {setupPanelOpen && hasAiSetup ? (
+        {/* Right panel */}
+        {rightPanel === "page_edit" && (
+          <BuilderPageEditPanel
+            settings={pageSettings}
+            onSave={savePageSettings}
+            onClose={() => setRightPanel("none")}
+            isSaving={isSavingPageSettings}
+          />
+        )}
+        {rightPanel === "setup" && hasAiSetup && (
           <BuilderSetupAnswersPanel
             answers={aiAnswers}
             source={aiSource}
-            onClose={() => setSetupPanelOpen(false)}
+            onClose={() => setRightPanel("none")}
             onUpdate={handleUpdateAnswers}
           />
-        ) : selectedSectionId && sections.find((s) => s.id === selectedSectionId) ? (
+        )}
+        {rightPanel === "section" && selectedSectionId && sections.find((s) => s.id === selectedSectionId && !s.isMissing) && (
           <BuilderSectionEditor
             section={sections.find((s) => s.id === selectedSectionId)!}
-            onClose={() => setSelectedSectionId(null)}
+            onClose={() => { setSelectedSectionId(null); setRightPanel("page_edit"); }}
             onSave={updateSectionSchema}
             onToggleVisibility={toggleSectionVisibility}
             isSaving={isSavingSection}
             surfaceType={surfaceType}
             surfaceId={editorState.surface.id}
           />
-        ) : null}
+        )}
       </div>
 
       {/* Publish Modal */}

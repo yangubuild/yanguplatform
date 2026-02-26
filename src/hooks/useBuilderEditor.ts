@@ -3,6 +3,9 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Json } from "@/integrations/supabase/types";
+import { enforceCoreSectionOrder } from "@/config/builderCoreSections";
+import type { PageEditSettings } from "@/config/builderCoreSections";
+import { DEFAULT_PAGE_SETTINGS } from "@/config/builderCoreSections";
 
 // ─── Types ───
 export interface EditorSection {
@@ -11,6 +14,8 @@ export interface EditorSection {
   schema: Record<string, unknown>;
   position: number;
   is_visible: boolean;
+  isCore?: boolean;
+  isMissing?: boolean;
 }
 
 export interface EditorPage {
@@ -66,13 +71,6 @@ export function useBuilderEditor(surfaceId: string | undefined) {
       if (!result?.ok) {
         throw new Error((data as any)?.error || "Failed to load editor state");
       }
-      const totalSections = result.pages?.reduce((sum, p) => sum + (p.sections?.length || 0), 0) || 0;
-      console.log("EDITOR_STATE_LOADED", {
-        surfaceId,
-        pagesCount: result.pages?.length || 0,
-        sectionsCount: totalSections,
-        sectionTypes: result.pages?.flatMap((p) => p.sections?.map((s) => s.section_type) || []) || [],
-      });
       return result;
     },
     enabled: !!surfaceId,
@@ -90,15 +88,42 @@ export function useBuilderEditor(surfaceId: string | undefined) {
   }, [editorState, activePageId]);
 
   const activePage = editorState?.pages?.find((p) => p.id === activePageId) || null;
+  const surfaceType = editorState?.surface?.surface_type || "quick_site";
 
-  // Deduplicate: keep only the first occurrence of each section_type per page
+  // Enforce core section order with deduplication
   const rawSections = activePage?.sections?.slice().sort((a, b) => a.position - b.position) || [];
-  const sections = rawSections.filter((s, i, arr) => {
-    // Allow section types that can legitimately appear multiple times
-    const allowMultiple = new Set(["text", "cta", "gallery", "products", "services", "listings"]);
-    if (allowMultiple.has(s.section_type)) return true;
-    return arr.findIndex((x) => x.section_type === s.section_type) === i;
-  });
+  const sections: EditorSection[] = enforceCoreSectionOrder(rawSections, surfaceType);
+
+  // Page settings from surface metadata
+  const pageSettings: PageEditSettings = {
+    ...DEFAULT_PAGE_SETTINGS,
+    ...((editorState?.surface?.metadata as any)?.page_settings || {}),
+  };
+
+  // ─── Save page settings ───
+  const [isSavingPageSettings, setIsSavingPageSettings] = useState(false);
+  const savePageSettings = useCallback(
+    async (settings: PageEditSettings) => {
+      if (!surfaceId) return;
+      setIsSavingPageSettings(true);
+      try {
+        const currentMeta = (editorState?.surface?.metadata || {}) as Record<string, unknown>;
+        const newMeta = { ...currentMeta, page_settings: settings };
+        const { error } = await supabase
+          .from("builder_surfaces")
+          .update({ metadata: newMeta as unknown as Json })
+          .eq("id", surfaceId);
+        if (error) throw new Error(error.message);
+        await queryClient.invalidateQueries({ queryKey });
+        toast.success("Page settings saved");
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Failed to save page settings");
+      } finally {
+        setIsSavingPageSettings(false);
+      }
+    },
+    [surfaceId, editorState, queryClient, queryKey]
+  );
 
   // ─── Add section ───
   const [isAdding, setIsAdding] = useState(false);
@@ -207,10 +232,8 @@ export function useBuilderEditor(surfaceId: string | undefined) {
         const result = data as unknown as { ok: boolean; error?: string };
         if (!result.ok) throw new Error(result.error || "Reorder failed");
 
-        // Revalidate to confirm
         await queryClient.invalidateQueries({ queryKey });
       } catch (err) {
-        // Rollback
         await queryClient.invalidateQueries({ queryKey });
         const msg = err instanceof Error ? err.message : "Reorder failed";
         toast.error(msg);
@@ -340,6 +363,9 @@ export function useBuilderEditor(surfaceId: string | undefined) {
     activePageId,
     setActivePageId,
     sections,
+    pageSettings,
+    savePageSettings,
+    isSavingPageSettings,
     addSection,
     addSectionWithSchema,
     isAdding,

@@ -140,6 +140,14 @@ const DEFAULT_SCHEMAS: Record<string, Record<string, unknown>> = {
   menu: { heading: "Menu", categories: [] },
   hours: { heading: "Opening Hours", items: [] },
   location: { heading: "Location", address: "", mapUrl: "" },
+  footer: {
+    heading: "Footer",
+    email: "",
+    phone: "",
+    address: "",
+    hours: [],
+    social: {},
+  },
 };
 
 export function getDefaultSchema(sectionType: string): Record<string, unknown> {
