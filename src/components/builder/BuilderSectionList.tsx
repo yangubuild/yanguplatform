@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { EditorSection } from "@/hooks/useBuilderEditor";
 import { CORE_SECTIONS, resolveCoreSectionType, CONTENT_SECTION_TYPES } from "@/config/builderCoreSections";
+import { MainContentSwitcher } from "./MainContentSwitcher";
 
 interface BuilderSectionListProps {
   sections: EditorSection[];
@@ -12,8 +13,9 @@ interface BuilderSectionListProps {
   selectedId?: string | null;
   onSelect?: (id: string) => void;
   onDelete?: (id: string) => Promise<boolean>;
-  onSwitchMainContent?: () => void;
+  onSwitchMainContent?: (newType: string) => Promise<void>;
   surfaceType?: string;
+  currentMainContentType?: string | null;
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -99,11 +101,14 @@ function getSectionLabel(section: EditorSection, surfaceType: string): { primary
   return { primary: TYPE_LABELS[section.section_type] || section.section_type };
 }
 
-export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, onDelete, onSwitchMainContent, surfaceType = "quick_site" }: BuilderSectionListProps) {
+export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, onDelete, onSwitchMainContent, surfaceType = "quick_site", currentMainContentType }: BuilderSectionListProps) {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [switcherOpen, setSwitcherOpen] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
+
+  // ... keep existing code (drag handlers)
 
   const handleDragStart = useCallback((e: React.DragEvent, index: number) => {
     setDragIndex(index);
@@ -159,7 +164,7 @@ export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, 
         const isMainContent = isMainContentSlot(section, surfaceType);
         const { primary, secondary } = getSectionLabel(section, surfaceType);
 
-        return (
+        const rowContent = (
           <div
             key={section.id}
             draggable={canDrag}
@@ -167,7 +172,14 @@ export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, 
             onDragOver={(e) => handleDragOver(e, index)}
             onDrop={(e) => handleDrop(e, index)}
             onDragEnd={handleDragEnd}
-            onClick={() => !isMissing && onSelect?.(section.id)}
+            onClick={() => {
+              if (isMissing) return;
+              if (isMainContent && onSwitchMainContent) {
+                setSwitcherOpen(true);
+                return;
+              }
+              onSelect?.(section.id);
+            }}
             className={cn(
               "flex items-center gap-2 px-3 py-2.5 rounded-lg border transition-all",
               isMissing
@@ -194,36 +206,19 @@ export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, 
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded shrink-0">
-                    {isMainContent ? "Core: Content" : "Core"}
+                    Core
                   </span>
                 </TooltipTrigger>
                 <TooltipContent side="left" className="text-xs">
                   {isMainContent
-                    ? "Switch the main content layout for your business"
+                    ? "Click to switch the main content type"
                     : "Core sections can be hidden but not deleted"}
                 </TooltipContent>
               </Tooltip>
             )}
-            {/* Switch icon — only for main_content */}
+            {/* Switch hint icon — only for main_content */}
             {isMainContent && !isMissing && onSwitchMainContent && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 shrink-0 text-muted-foreground hover:text-primary"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onSwitchMainContent();
-                    }}
-                  >
-                    <ArrowLeftRight className="h-3.5 w-3.5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="left" className="text-xs">
-                  Switch content type
-                </TooltipContent>
-              </Tooltip>
+              <ArrowLeftRight className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
             )}
             {/* Visibility icons */}
             {!isMissing && !section.is_visible && (
@@ -258,6 +253,24 @@ export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, 
             )}
           </div>
         );
+
+        // Wrap the main content row with the switcher popover
+        if (isMainContent && !isMissing && onSwitchMainContent) {
+          return (
+            <MainContentSwitcher
+              key={section.id}
+              open={switcherOpen}
+              onOpenChange={setSwitcherOpen}
+              onSwitch={onSwitchMainContent}
+              surfaceType={surfaceType}
+              currentMainContentType={currentMainContentType}
+            >
+              {rowContent}
+            </MainContentSwitcher>
+          );
+        }
+
+        return rowContent;
       })}
     </div>
   );
