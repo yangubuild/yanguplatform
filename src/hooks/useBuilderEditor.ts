@@ -297,6 +297,29 @@ export function useBuilderEditor(surfaceId: string | undefined) {
     [activePageId, sections, queryClient, queryKey]
   );
 
+  // ─── Delete section ───
+  const deleteSection = useCallback(
+    async (sectionId: string) => {
+      try {
+        const { data, error } = await supabase.rpc("builder_delete_section", {
+          p_section_id: sectionId,
+        });
+
+        if (error) throw new Error(error.message);
+        const result = data as unknown as { success: boolean; error?: string };
+        if (!result.success) throw new Error(result.error || "Failed to delete section");
+
+        await queryClient.invalidateQueries({ queryKey });
+        toast.success("Section deleted");
+        return true;
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Failed to delete section");
+        return false;
+      }
+    },
+    [queryClient, queryKey]
+  );
+
   const refreshEditor = useCallback(() => {
     queryClient.invalidateQueries({ queryKey });
   }, [queryClient, queryKey]);
@@ -316,6 +339,7 @@ export function useBuilderEditor(surfaceId: string | undefined) {
     isReordering,
     updateSectionSchema,
     toggleSectionVisibility,
+    deleteSection,
     isSavingSection,
     refreshEditor,
   };

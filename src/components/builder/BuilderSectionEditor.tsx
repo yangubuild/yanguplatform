@@ -21,6 +21,7 @@ interface BuilderSectionEditorProps {
   onClose: () => void;
   onSave: (sectionId: string, schema: Record<string, unknown>) => Promise<void>;
   onToggleVisibility: (sectionId: string, visible: boolean) => Promise<void>;
+  onDelete: (sectionId: string) => Promise<boolean>;
   isSaving: boolean;
   surfaceType: string;
   surfaceId?: string;
@@ -362,11 +363,12 @@ const TYPE_LABELS: Record<string, string> = {
 // ─── Main component ───
 
 export function BuilderSectionEditor({
-  section, onClose, onSave, onToggleVisibility, isSaving, surfaceType, surfaceId,
+  section, onClose, onSave, onToggleVisibility, onDelete, isSaving, surfaceType, surfaceId,
 }: BuilderSectionEditorProps) {
   const [localSchema, setLocalSchema] = useState<Record<string, unknown>>(section.schema);
   const [dirty, setDirty] = useState(false);
   const [aiFillOpen, setAiFillOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Sync from server when section changes OR when schema is updated from query invalidation
   useEffect(() => {
@@ -446,9 +448,9 @@ export function BuilderSectionEditor({
         )}
       </div>
 
-      {/* Save button */}
-      {FormComponent && (
-        <div className="p-4 border-t border-border">
+      {/* Save + Delete buttons */}
+      <div className="p-4 border-t border-border space-y-2">
+        {FormComponent && (
           <Button
             className="w-full gap-2"
             disabled={!dirty || isSaving}
@@ -457,8 +459,24 @@ export function BuilderSectionEditor({
             {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Save changes
           </Button>
-        </div>
-      )}
+        )}
+        <Button
+          variant="destructive"
+          size="sm"
+          className="w-full gap-2"
+          disabled={isDeleting}
+          onClick={async () => {
+            if (!confirm(`Delete "${label}" section? This cannot be undone.`)) return;
+            setIsDeleting(true);
+            const ok = await onDelete(section.id);
+            if (ok) onClose();
+            setIsDeleting(false);
+          }}
+        >
+          {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+          Delete section
+        </Button>
+      </div>
 
       {/* AI Fill modal */}
       <BuilderAiFillModal
