@@ -394,11 +394,13 @@ export function useBuilderEditor(surfaceId: string | undefined) {
   const [isSwitching, setIsSwitching] = useState(false);
 
   const switchMainContent = useCallback(
-    async (newType: string, defaultSchema?: Record<string, unknown>): Promise<string | null> => {
+    async (newType: string): Promise<string | null> => {
       if (!activePageId) return null;
       setIsSwitching(true);
 
-      const schema = defaultSchema || getDefaultSchema(newType);
+      // Compute registry-driven schema with correct variant defaults
+      const templateResult = applyTemplateForMainContent(surfaceType, undefined, newType);
+      const schema = templateResult.schema;
 
       try {
         const { data, error } = await supabase.rpc("builder_switch_main_content", {
@@ -410,9 +412,6 @@ export function useBuilderEditor(surfaceId: string | undefined) {
         if (error) throw new Error(error.message);
         const result = data as unknown as { ok: boolean; error?: string; section_id?: string };
         if (!result.ok) throw new Error(result.error || "Failed to switch content");
-
-        // Fire template hook
-        applyTemplateForMainContent(surfaceType, undefined, newType);
 
         await queryClient.invalidateQueries({ queryKey });
         toast.success(`Switched to ${newType.replace(/_/g, " ")}`);

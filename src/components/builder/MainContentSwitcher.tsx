@@ -4,17 +4,53 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ArrowLeftRight, Loader2 } from "lucide-react";
-import { getContentSections } from "@/config/builderSectionPalettes";
+import { ArrowLeftRight, Loader2, ChevronDown } from "lucide-react";
+import {
+  getAllowedSwitchTargets,
+  getEngineBlueprint,
+  surfaceTypeToEngineKey,
+} from "@/config/blueprintRegistry";
 import { cn } from "@/lib/utils";
+
+// ─── Human-readable labels for registry section types ───
+const SECTION_TYPE_LABELS: Record<string, { label: string; icon: string }> = {
+  product_grid: { label: "Products", icon: "🛍️" },
+  services_list: { label: "Services", icon: "⚙️" },
+  article_feed: { label: "Articles", icon: "📰" },
+  case_studies_grid: { label: "Case Studies", icon: "📁" },
+  booking_inventory: { label: "Booking", icon: "📅" },
+  community_feed: { label: "Community Feed", icon: "💬" },
+  media_grid: { label: "Media Grid", icon: "🖼️" },
+  links_grid: { label: "Links", icon: "🔗" },
+  listing_grid: { label: "Listings", icon: "📋" },
+};
+
+const VARIANT_LABELS: Record<string, string> = {
+  grid: "Grid",
+  list: "List",
+  featured_only: "Featured Only",
+  bundle_view: "Bundle View",
+  compact_menu: "Compact Menu",
+  default: "Default",
+  mobile_compact: "Mobile Compact",
+  magazine: "Magazine",
+  cards: "Cards",
+  posts: "Posts",
+  events: "Events",
+  media: "Media",
+  discussions: "Discussions",
+  masonry: "Masonry",
+  reels_first: "Reels First",
+};
 
 interface MainContentSwitcherProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSwitch: (newType: string) => Promise<string | null | void>;
+  onVariantChange?: (displayMode: string) => void;
   surfaceType: string;
   currentMainContentType?: string | null;
-  industry?: string | null;
+  currentDisplayMode?: string | null;
   className?: string;
 }
 
@@ -22,13 +58,25 @@ export function MainContentSwitcher({
   open,
   onOpenChange,
   onSwitch,
+  onVariantChange,
   surfaceType,
   currentMainContentType,
-  industry,
+  currentDisplayMode,
   className,
 }: MainContentSwitcherProps) {
   const [switchingType, setSwitchingType] = useState<string | null>(null);
-  const contentSections = getContentSections(surfaceType, industry);
+
+  const engineKey = surfaceTypeToEngineKey(surfaceType);
+  const targets = getAllowedSwitchTargets(engineKey);
+  const bp = getEngineBlueprint(engineKey);
+  const variantConfig = bp?.slots.main_content?.variants;
+
+  // Only show variants if the current type matches the slot's default (variants apply to the slot, not per-type)
+  const showVariants =
+    variantConfig &&
+    variantConfig.allowed.length > 1 &&
+    currentMainContentType &&
+    targets.includes(currentMainContentType);
 
   const handleSelect = async (type: string) => {
     if (type === currentMainContentType || switchingType) return;
@@ -41,7 +89,8 @@ export function MainContentSwitcher({
     }
   };
 
-  if (contentSections.length <= 1) return null;
+  // If only 1 target and no variants, hide entirely
+  if (targets.length <= 1 && !showVariants) return null;
 
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
@@ -60,38 +109,82 @@ export function MainContentSwitcher({
           <ArrowLeftRight className="h-3.5 w-3.5" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-56 p-2" align="start" side="right">
-        <div className="px-3 py-1.5">
-          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <ArrowLeftRight className="h-3 w-3" />
-            Switch Content Type
-          </p>
-        </div>
-        <div className="space-y-0.5">
-          {contentSections.map(({ type, label, icon }) => {
-            const isCurrent = type === currentMainContentType;
-            const isSwitching = switchingType === type;
-            return (
-              <button
-                key={type}
-                onClick={() => !isCurrent && handleSelect(type)}
-                disabled={isCurrent || !!switchingType}
-                className={`flex items-center gap-2 w-full px-3 py-2 text-sm rounded-md transition-colors text-left ${
-                  isCurrent
-                    ? "bg-primary/10 text-primary font-medium cursor-default"
-                    : "hover:bg-muted"
-                }`}
-              >
-                <span>{icon}</span>
-                <span className="flex-1">{label}</span>
-                {isCurrent && (
-                  <span className="text-[10px] text-primary/70">Current</span>
-                )}
-                {isSwitching && <Loader2 className="h-3 w-3 animate-spin" />}
-              </button>
-            );
-          })}
-        </div>
+      <PopoverContent className="w-60 p-2" align="start" side="right">
+        {/* Section type switcher — only if >1 target */}
+        {targets.length > 1 && (
+          <>
+            <div className="px-3 py-1.5">
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                <ArrowLeftRight className="h-3 w-3" />
+                Content Type
+              </p>
+            </div>
+            <div className="space-y-0.5">
+              {targets.map((type) => {
+                const meta = SECTION_TYPE_LABELS[type] || { label: type.replace(/_/g, " "), icon: "📄" };
+                const isCurrent = type === currentMainContentType;
+                const isSwitching = switchingType === type;
+                return (
+                  <button
+                    key={type}
+                    onClick={() => !isCurrent && handleSelect(type)}
+                    disabled={isCurrent || !!switchingType}
+                    className={cn(
+                      "flex items-center gap-2 w-full px-3 py-2 text-sm rounded-md transition-colors text-left",
+                      isCurrent
+                        ? "bg-primary/10 text-primary font-medium cursor-default"
+                        : "hover:bg-muted"
+                    )}
+                  >
+                    <span>{meta.icon}</span>
+                    <span className="flex-1">{meta.label}</span>
+                    {isCurrent && (
+                      <span className="text-[10px] text-primary/70">Current</span>
+                    )}
+                    {isSwitching && <Loader2 className="h-3 w-3 animate-spin" />}
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {/* Variant / display mode selector */}
+        {showVariants && variantConfig && onVariantChange && (
+          <>
+            <div className="px-3 py-1.5 mt-1 border-t border-border pt-2">
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                <ChevronDown className="h-3 w-3" />
+                Display Mode
+              </p>
+            </div>
+            <div className="space-y-0.5">
+              {variantConfig.allowed.map((mode) => {
+                const isCurrent = mode === (currentDisplayMode || variantConfig.default);
+                return (
+                  <button
+                    key={mode}
+                    onClick={() => {
+                      if (!isCurrent) onVariantChange(mode);
+                    }}
+                    disabled={isCurrent}
+                    className={cn(
+                      "flex items-center gap-2 w-full px-3 py-1.5 text-sm rounded-md transition-colors text-left",
+                      isCurrent
+                        ? "bg-accent/10 text-accent-foreground font-medium cursor-default"
+                        : "hover:bg-muted"
+                    )}
+                  >
+                    <span className="flex-1">{VARIANT_LABELS[mode] || mode}</span>
+                    {isCurrent && (
+                      <span className="text-[10px] text-muted-foreground">Active</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
       </PopoverContent>
     </Popover>
   );
