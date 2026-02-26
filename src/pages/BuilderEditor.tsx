@@ -48,6 +48,7 @@ export default function BuilderEditor() {
     reorderSections,
     updateSectionSchema,
     toggleSectionVisibility,
+    deleteSection,
     isSavingSection,
     refreshEditor,
   } = useBuilderEditor(surfaceId);
@@ -226,6 +227,7 @@ export default function BuilderEditor() {
             onClose={() => setSelectedSectionId(null)}
             onSave={updateSectionSchema}
             onToggleVisibility={toggleSectionVisibility}
+            onDelete={deleteSection}
             isSaving={isSavingSection}
             surfaceType={surfaceType}
             surfaceId={editorState.surface.id}
