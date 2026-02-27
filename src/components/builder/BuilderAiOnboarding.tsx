@@ -132,7 +132,7 @@ export function BuilderAiOnboarding({ engine, onComplete, onBack }: Props) {
     }
   };
 
-  // Google Business callback
+  // Google Business callback — pass ALL extracted data including photos
   const handleGoogleSelect = (result: GoogleBusinessResult) => {
     const payload: Record<string, unknown> = {
       business_name: result.name,
@@ -140,6 +140,9 @@ export function BuilderAiOnboarding({ engine, onComplete, onBack }: Props) {
       contact_phone: result.phone || "",
       website: result.website || "",
       industry: result.category || "",
+      business_description: result.description || "",
+      photos: result.photos || [],
+      google_maps_url: result.googleMapsUrl || "",
     };
     runAiGeneration("google_business", payload);
   };

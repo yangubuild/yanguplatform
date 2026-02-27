@@ -37,11 +37,50 @@ serve(async (req) => {
     }
 
     if (action === "details" && placeId) {
-      const fields = "name,formatted_address,formatted_phone_number,website,types,photos,opening_hours";
+      const fields = "name,formatted_address,formatted_phone_number,website,types,photos,opening_hours,editorial_summary,url";
       const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=${fields}&key=${apiKey}`;
       const res = await fetch(url);
       const data = await res.json();
       const r = data.result || {};
+
+      // Build photo URLs from photo references (up to 10 photos)
+      const photos: string[] = [];
+      if (r.photos && Array.isArray(r.photos)) {
+        for (const photo of r.photos.slice(0, 10)) {
+          if (photo.photo_reference) {
+            photos.push(
+              `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photo_reference=${photo.photo_reference}&key=${apiKey}`
+            );
+          }
+        }
+      }
+
+      // Map Google place types to readable category
+      const typeMap: Record<string, string> = {
+        restaurant: "Restaurant",
+        cafe: "Café",
+        bar: "Bar",
+        store: "Store",
+        clothing_store: "Clothing Store",
+        electronics_store: "Electronics Store",
+        hair_care: "Hair & Beauty",
+        beauty_salon: "Beauty Salon",
+        gym: "Gym & Fitness",
+        lodging: "Hotel & Lodging",
+        real_estate_agency: "Real Estate",
+        car_dealer: "Auto Dealer",
+        food: "Food & Drink",
+        bakery: "Bakery",
+        supermarket: "Supermarket",
+        pharmacy: "Pharmacy",
+        hospital: "Hospital",
+        school: "School",
+      };
+      const rawTypes = r.types || [];
+      const category = rawTypes.map((t: string) => typeMap[t]).find(Boolean) || rawTypes[0] || "";
+
+      // Editorial summary / description
+      const description = r.editorial_summary?.overview || "";
 
       return new Response(JSON.stringify({
         ok: true,
@@ -50,7 +89,10 @@ serve(async (req) => {
           address: r.formatted_address || "",
           phone: r.formatted_phone_number || "",
           website: r.website || "",
-          category: (r.types || [])[0] || "",
+          category,
+          description,
+          photos,
+          googleMapsUrl: r.url || "",
           placeId,
         },
       }), {
