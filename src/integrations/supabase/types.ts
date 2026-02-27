@@ -2177,6 +2177,97 @@ export type Database = {
         }
         Relationships: []
       }
+      order_items: {
+        Row: {
+          created_at: string
+          id: string
+          order_id: string
+          product_name: string
+          quantity: number
+          unit_price_cents: number
+          variant: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_id: string
+          product_name: string
+          quantity?: number
+          unit_price_cents?: number
+          variant?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_id?: string
+          product_name?: string
+          quantity?: number
+          unit_price_cents?: number
+          variant?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          buyer_email: string | null
+          buyer_name: string | null
+          buyer_phone: string | null
+          created_at: string
+          currency: string
+          id: string
+          notes: string | null
+          status: string
+          surface_id: string
+          total_cents: number
+          tracking_code: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_email?: string | null
+          buyer_name?: string | null
+          buyer_phone?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          surface_id: string
+          total_cents?: number
+          tracking_code?: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_email?: string | null
+          buyer_name?: string | null
+          buyer_phone?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          surface_id?: string
+          total_cents?: number
+          tracking_code?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_surface_id_fkey"
+            columns: ["surface_id"]
+            isOneToOne: false
+            referencedRelation: "builder_surfaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_billing: {
         Row: {
           kyc_status: string
@@ -3637,6 +3728,10 @@ export type Database = {
           p_message: string
         }
         Returns: string
+      }
+      track_order: {
+        Args: { p_buyer_email: string; p_tracking_code: string }
+        Returns: Json
       }
       unarchive_surface: { Args: { p_surface_id: string }; Returns: Json }
       unlist_from_community: { Args: { p_surface_id: string }; Returns: Json }
