@@ -270,11 +270,16 @@ export default function BuilderEditor() {
             settings={pageSettings}
             onSave={async (s) => {
               await savePageSettings(s);
-              setLivePageSettings(null); // reset live override after save
+              setLivePageSettings(null);
             }}
             onClose={() => setRightPanel("none")}
             isSaving={isSavingPageSettings}
             onLocalChange={setLivePageSettings}
+            surfaceType={surfaceType}
+            sections={sections}
+            onApplyTemplate={async (sectionId, schema) => {
+              await updateSectionSchema(sectionId, schema);
+            }}
           />
         )}
         {rightPanel === "setup" && hasAiSetup && (

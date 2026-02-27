@@ -12,16 +12,29 @@ import {
 import { X, Save, Loader2, Layout, Sun, Moon, Palette, MessageCircle } from "lucide-react";
 import type { PageEditSettings, LayoutPreset } from "@/config/builderCoreSections";
 import { DEFAULT_PAGE_SETTINGS } from "@/config/builderCoreSections";
+import { BuilderTemplatePicker } from "./BuilderTemplatePicker";
+
 const FONT_OPTIONS = ["Lufga", "Inter", "DM Sans", "Space Grotesk", "Outfit"];
+
 interface BuilderPageEditPanelProps {
   settings: PageEditSettings;
   onSave: (settings: PageEditSettings) => Promise<void>;
   onClose: () => void;
   isSaving: boolean;
   onLocalChange?: (settings: PageEditSettings) => void;
+  /** For template picker */
+  surfaceType?: string;
+  sections?: Array<{
+    id: string;
+    section_type: string;
+    schema: Record<string, unknown>;
+    core_slot?: string | null;
+    isMissing?: boolean;
+  }>;
+  onApplyTemplate?: (sectionId: string, schema: Record<string, unknown>) => Promise<void>;
 }
 
-export function BuilderPageEditPanel({ settings, onSave, onClose, isSaving, onLocalChange }: BuilderPageEditPanelProps) {
+export function BuilderPageEditPanel({ settings, onSave, onClose, isSaving, onLocalChange, surfaceType, sections, onApplyTemplate }: BuilderPageEditPanelProps) {
   const [local, setLocal] = useState<PageEditSettings>(settings);
   const [dirty, setDirty] = useState(false);
 
@@ -178,6 +191,17 @@ export function BuilderPageEditPanel({ settings, onSave, onClose, isSaving, onLo
             />
           </div>
         </div>
+
+        {/* Templates */}
+        {surfaceType && sections && onApplyTemplate && (
+          <div className="border border-border rounded-lg p-3">
+            <BuilderTemplatePicker
+              surfaceType={surfaceType}
+              sections={sections}
+              onApply={onApplyTemplate}
+            />
+          </div>
+        )}
 
         {/* Floating Chat / CTA */}
         <div className="space-y-3 border border-border rounded-lg p-3">
