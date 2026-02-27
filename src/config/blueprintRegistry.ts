@@ -353,7 +353,12 @@ export function surfaceTypeToEngineKey(surfaceType: string): string {
   };
   const key = MAP[surfaceType];
   if (!key) {
-    console.warn(`[BlueprintRegistry] Unknown surface_type "${surfaceType}", falling back to "esite"`);
+    console.warn(`[BlueprintRegistry] Unknown surface_type "${surfaceType}" — no engine match`);
   }
-  return key ?? "esite";
+  return key ?? "";
+}
+
+/** Same mapping but with esite fallback (for non-template uses like blueprints) */
+export function surfaceTypeToEngineKeyWithFallback(surfaceType: string): string {
+  return surfaceTypeToEngineKey(surfaceType) || "esite";
 }

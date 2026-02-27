@@ -8,7 +8,7 @@ import { ArrowLeftRight, Loader2, ChevronDown } from "lucide-react";
 import {
   getAllowedSwitchTargets,
   getEngineBlueprint,
-  surfaceTypeToEngineKey,
+  surfaceTypeToEngineKeyWithFallback,
 } from "@/config/blueprintRegistry";
 import { cn } from "@/lib/utils";
 
@@ -67,7 +67,7 @@ export function MainContentSwitcher({
 }: MainContentSwitcherProps) {
   const [switchingType, setSwitchingType] = useState<string | null>(null);
 
-  const engineKey = surfaceTypeToEngineKey(surfaceType);
+  const engineKey = surfaceTypeToEngineKeyWithFallback(surfaceType);
   const registryTargets = getAllowedSwitchTargets(engineKey);
   const bp = getEngineBlueprint(engineKey);
   const variantConfig = bp?.slots.main_content?.variants;
