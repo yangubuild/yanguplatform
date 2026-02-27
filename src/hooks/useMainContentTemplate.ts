@@ -4,7 +4,7 @@
 import {
   getEngineBlueprint,
   getContentSectionSchema,
-  surfaceTypeToEngineKey,
+  surfaceTypeToEngineKeyWithFallback,
 } from "@/config/blueprintRegistry";
 
 export interface TemplateResult {
@@ -23,7 +23,7 @@ export function applyTemplateForMainContent(
   mainContentType: string,
   variant?: string
 ): TemplateResult {
-  const engineKey = surfaceTypeToEngineKey(surfaceType);
+  const engineKey = surfaceTypeToEngineKeyWithFallback(surfaceType);
   const bp = getEngineBlueprint(engineKey);
   const slot = bp?.slots.main_content;
 

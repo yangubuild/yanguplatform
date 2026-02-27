@@ -256,6 +256,69 @@ const TEMPLATE_REGISTRY: Record<string, EngineTemplates> = {
   estore: { engineKey: "estore", templates: ESTORE_TEMPLATES },
 };
 
+// ─── Safe Merge Logic ───
+
+/** Keys that templates are allowed to overwrite (presentation/style only) */
+const STYLE_KEYS = new Set([
+  "layout_variant", "display_mode", "logo_position", "logo_size",
+  "show_name", "name_next_to_logo", "menu_layout_style", "primary_color",
+  "spacing", "padding", "gap", "card_style", "cards",
+  "typography_style", "alignment", "background_style", "background_color",
+  "filters_enabled", "sort_enabled", "show_author", "show_date",
+  "show_captions", "show_tags", "date_picker", "guests_picker",
+  "pricing_mode", "cta_style", "show_price", "show_location",
+]);
+
+/** Content keys that must never be overwritten if user has data */
+const CONTENT_KEYS = new Set([
+  "headline", "subheadline", "title", "description", "heading",
+  "items", "links", "images", "media", "gallery", "cover",
+  "email", "phone", "address", "hours", "social",
+  "cta_text", "cta_url",
+]);
+
+/**
+ * Safely merge a template patch into an existing section schema.
+ * - Style/presentation keys: always applied from patch
+ * - Content keys: only applied if the existing value is empty/missing
+ * - Unknown keys from patch: applied only if not already present
+ */
+export function mergeTemplateSchema(
+  existing: Record<string, unknown>,
+  patch: Record<string, unknown>
+): Record<string, unknown> {
+  const result = { ...existing };
+
+  for (const [key, patchValue] of Object.entries(patch)) {
+    if (STYLE_KEYS.has(key)) {
+      // Always apply style keys
+      result[key] = patchValue;
+      continue;
+    }
+
+    if (CONTENT_KEYS.has(key)) {
+      const existingValue = existing[key];
+      // Only apply if existing is empty/missing
+      if (existingValue === undefined || existingValue === null || existingValue === "") {
+        result[key] = patchValue;
+      } else if (Array.isArray(existingValue) && existingValue.length === 0) {
+        result[key] = patchValue;
+      } else if (typeof existingValue === "object" && !Array.isArray(existingValue) && Object.keys(existingValue as object).length === 0) {
+        result[key] = patchValue;
+      }
+      // Otherwise preserve user data
+      continue;
+    }
+
+    // Unknown keys: apply only if not already present
+    if (!(key in existing)) {
+      result[key] = patchValue;
+    }
+  }
+
+  return result;
+}
+
 // ─── Public API ───
 
 /** Get all templates for a given engine key */

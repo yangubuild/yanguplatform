@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, LayoutTemplate, Loader2 } from "lucide-react";
-import { getTemplatesForEngine, type TemplatePreset } from "@/config/templateRegistry";
+import { getTemplatesForEngine, mergeTemplateSchema, type TemplatePreset } from "@/config/templateRegistry";
 import { surfaceTypeToEngineKey } from "@/config/blueprintRegistry";
 import { toast } from "sonner";
 
@@ -30,26 +30,20 @@ export function BuilderTemplatePicker({ surfaceType, sections, onApply }: Builde
     setApplying(template.key);
     try {
       const patches = template.patches;
-      const slotMap: Record<string, string> = {
-        header: "header",
-        hero: "hero",
-        main_content: "main_content",
-        offer: "offer",
-        footer: "footer",
-      };
 
       for (const [slotKey, patch] of Object.entries(patches)) {
         if (!patch) continue;
-        const coreSlot = slotMap[slotKey];
-        if (!coreSlot) continue;
 
-        // Find matching section by core_slot or section_type
+        // Find matching section strictly by core_slot only
         const section = sections.find(
-          (s) => !s.isMissing && (s.core_slot === coreSlot || s.section_type === coreSlot || s.section_type === slotKey)
+          (s) => !s.isMissing && s.core_slot === slotKey
         );
 
         if (section) {
-          const mergedSchema = { ...section.schema, ...patch.schema };
+          const mergedSchema = mergeTemplateSchema(
+            section.schema as Record<string, unknown>,
+            patch.schema
+          );
           await onApply(section.id, mergedSchema);
         }
       }
