@@ -16,6 +16,165 @@ const ENGINE_CONTEXTS: Record<string, string> = {
   community: "a community landing page with member signup and events",
 };
 
+/* ─── Image Completion Helpers ─── */
+
+/** Build search queries based on business context */
+function buildSearchQueries(businessName: string, category: string, location: string, description: string): string[] {
+  const queries: string[] = [];
+  const cat = category?.toLowerCase() || "";
+  const loc = location || "";
+
+  // Category-specific queries
+  if (cat.includes("restaurant") || cat.includes("cafe") || cat.includes("food") || cat.includes("coffee")) {
+    queries.push(
+      `${cat} interior design`,
+      "food plating restaurant",
+      "coffee shop atmosphere",
+      "dining experience people",
+      "chef cooking kitchen",
+      "restaurant table setting",
+      "cafe latte art",
+      "fresh food ingredients",
+      "bakery pastries display",
+      "cozy restaurant ambiance",
+    );
+  } else if (cat.includes("salon") || cat.includes("beauty") || cat.includes("spa")) {
+    queries.push("beauty salon interior", "spa treatment", "hair styling", "manicure nails", "beauty products display", "relaxation spa", "salon chairs mirrors", "skincare routine");
+  } else if (cat.includes("gym") || cat.includes("fitness")) {
+    queries.push("modern gym interior", "fitness training", "workout equipment", "personal training", "yoga class", "sports motivation", "gym weights", "fitness lifestyle");
+  } else if (cat.includes("hotel") || cat.includes("lodge") || cat.includes("accommodation")) {
+    queries.push("luxury hotel room", "hotel lobby", "hotel pool", "resort amenities", "comfortable bedroom", "hotel restaurant", "spa wellness hotel", "travel accommodation");
+  } else if (cat.includes("shop") || cat.includes("store") || cat.includes("retail")) {
+    queries.push("retail store interior", "shopping products display", "modern store design", "boutique shop", "product showcase", "retail customer experience", "store shelves organized", "shopping bags");
+  } else {
+    // Generic business
+    queries.push(
+      `${category || "business"} professional`,
+      "modern office workspace",
+      "team collaboration",
+      "professional services",
+      "business meeting",
+      "customer service",
+      "quality craftsmanship",
+      "brand identity design",
+    );
+  }
+
+  // Add location-specific if available
+  if (loc) {
+    queries.push(`${loc} business`, `${loc} city`);
+  }
+
+  return queries;
+}
+
+/** Fetch stock photos from Pexels API */
+async function fetchPexelsPhotos(query: string, count: number, apiKey: string): Promise<string[]> {
+  try {
+    const res = await fetch(
+      `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=${count}&size=large`,
+      { headers: { Authorization: apiKey } }
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.photos || []).map((p: any) => p.src?.large2x || p.src?.large || p.src?.original).filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+/** Gather enough stock photos for all sections */
+async function gatherStockPhotos(
+  needed: number,
+  businessName: string,
+  category: string,
+  location: string,
+  description: string,
+): Promise<string[]> {
+  const apiKey = Deno.env.get("PEXELS_API_KEY");
+  if (!apiKey || needed <= 0) return [];
+
+  const queries = buildSearchQueries(businessName, category, location, description);
+  const collected: string[] = [];
+  const seen = new Set<string>();
+
+  // Fetch from multiple queries to get diverse images
+  for (const query of queries) {
+    if (collected.length >= needed) break;
+    const perQuery = Math.min(5, needed - collected.length + 2); // fetch a few extra for diversity
+    const photos = await fetchPexelsPhotos(query, perQuery, apiKey);
+    for (const url of photos) {
+      if (!seen.has(url) && collected.length < needed) {
+        seen.add(url);
+        collected.push(url);
+      }
+    }
+  }
+
+  return collected;
+}
+
+/* ─── Section image counting ─── */
+
+interface ImageSlot {
+  sectionIdx: number;
+  field: string; // e.g. "media.url", "items.0.src", "items.0.image_url"
+  current: string | null;
+  isPlaceholder: boolean;
+}
+
+function isPlaceholderUrl(url: unknown): boolean {
+  if (!url || typeof url !== "string") return true;
+  if (!url.startsWith("http")) return true;
+  const lower = url.toLowerCase();
+  return lower.includes("picsum") || lower.includes("placeholder") || lower.includes("example.com") || lower.includes("via.placeholder");
+}
+
+function countImageSlots(sections: any[]): { filled: ImageSlot[]; empty: ImageSlot[] } {
+  const filled: ImageSlot[] = [];
+  const empty: ImageSlot[] = [];
+
+  for (let i = 0; i < sections.length; i++) {
+    const s = sections[i];
+    const schema = s.schema || {};
+
+    if (s.type === "hero") {
+      const url = schema.media?.url || schema.media_url;
+      const slot: ImageSlot = { sectionIdx: i, field: "media.url", current: url || null, isPlaceholder: isPlaceholderUrl(url) };
+      (slot.isPlaceholder ? empty : filled).push(slot);
+    }
+
+    if (s.type === "gallery" && Array.isArray(schema.items)) {
+      for (let j = 0; j < schema.items.length; j++) {
+        const item = schema.items[j];
+        const url = item?.src || item?.url || item?.image_url;
+        const slot: ImageSlot = { sectionIdx: i, field: `items.${j}.src`, current: url || null, isPlaceholder: isPlaceholderUrl(url) };
+        (slot.isPlaceholder ? empty : filled).push(slot);
+      }
+    }
+
+    if ((s.type === "products" || s.type === "categories" || s.type === "collections") && Array.isArray(schema.items)) {
+      for (let j = 0; j < schema.items.length; j++) {
+        const item = schema.items[j];
+        const url = item?.image_url || item?.src;
+        const slot: ImageSlot = { sectionIdx: i, field: `items.${j}.image_url`, current: url || null, isPlaceholder: isPlaceholderUrl(url) };
+        (slot.isPlaceholder ? empty : filled).push(slot);
+      }
+    }
+  }
+
+  return { filled, empty };
+}
+
+/** Minimum image requirements */
+const MIN_IMAGES: Record<string, number> = {
+  hero: 1,
+  gallery: 6,
+  products: 4,
+  categories: 4,
+  collections: 4,
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -58,14 +217,12 @@ serve(async (req) => {
     const { engineKey, answers, allowedSectionTypes, source, source_url } = await req.json();
     const context = ENGINE_CONTEXTS[engineKey] || "a business";
 
-    // Extract photos array if provided (from Google Places)
     const businessPhotos: string[] = answers?.photos || [];
     const businessDescription: string = answers?.business_description || "";
     const businessName: string = answers?.business_name || "";
     const industry: string = answers?.industry || "";
     const location: string = answers?.location || "";
 
-    // Build prompt from answers (exclude photos array from text prompt)
     const answerLines = Object.entries(answers || {})
       .filter(([k, v]) => k !== "photos" && v && String(v).trim())
       .map(([k, v]) => `${k}: ${v}`)
@@ -75,13 +232,12 @@ serve(async (req) => {
       ? `\nImport source: ${source}${source_url ? ` (${source_url})` : ""}`
       : "";
 
-    // Build image instruction
     const hasPhotos = businessPhotos.length > 0;
     const photoInstruction = hasPhotos
       ? `\n\nIMPORTANT: The business has ${businessPhotos.length} real photos. You MUST use these exact URLs in the sections:
 ${businessPhotos.map((url: string, i: number) => `Photo ${i + 1}: ${url}`).join("\n")}
 
-Use Photo 1 as the hero image in the media object: { "type": "image", "url": "<Photo 1 URL>", "fit": "cover" }.
+Use Photo 1 as the hero image in the media object: { "type": "image", "url": "<Photo 1 URL>", "fit": "cover", "source": "google" }.
 Use remaining photos in gallery (as "src" fields), products (as "image_url" fields), or collections/categories sections.
 Do NOT use placeholder images — only use the provided photo URLs.`
       : "";
@@ -107,8 +263,8 @@ ${location ? `6. Reference the location: "${location}"` : ""}
 SECTION SCHEMA REQUIREMENTS (use EXACTLY these field names):
 - hero section: "headline" (string), "subheadline" (string), "cta_text" (string), "media" object with { "type": "image", "url": "<image URL>", "fit": "cover" }
 - text/about section: "heading" (string), "body" (string)  
-- gallery section: "heading" (string), "items" array of {"name": string, "src": "<image URL>"}
-- products section: "heading" (string), "items" array of {"name": string, "price": string, "image_url": "<image URL>", "description": string}
+- gallery section: "heading" (string), "items" array of {"name": string, "src": "<image URL>"}. MUST have at least 6 items.
+- products section: "heading" (string), "items" array of {"name": string, "price": string, "image_url": "<image URL>", "description": string}. MUST have at least 4 items.
 - collections/categories section: "heading" (string), "items" array of {"name": string, "image_url": "<image URL>"}
 - contact section: "heading" (string), "phone" (string), "address" (string), "email" (string)
 - offer section: "heading" (string), "description" (string), "items" array of {"title": string, "description": string, "price": string}
@@ -118,7 +274,7 @@ ${photoInstruction}
 
 ALLOWED section types: ${allowedTypes.join(", ")}
 You MUST only use section types from the allowed list above.
-Generate 5-7 sections minimum.`;
+Generate 5-7 sections minimum. Always include a gallery section with at least 6 items.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -185,7 +341,9 @@ Generate 5-7 sections minimum.`;
       (s: { type: string }) => allowedTypes.includes(s.type)
     );
 
-    // Post-process: merge standalone contact into footer to prevent duplicates
+    // ────────────────────────────────────────────────
+    // PHASE 1: Merge standalone contact into footer
+    // ────────────────────────────────────────────────
     const contactIdx = filteredSections.findIndex((s: { type: string }) => s.type === "contact");
     const footerIdx = filteredSections.findIndex((s: { type: string }) => s.type === "footer");
     if (contactIdx >= 0 && footerIdx >= 0) {
@@ -197,119 +355,257 @@ Generate 5-7 sections minimum.`;
       filteredSections = filteredSections.filter((_: unknown, i: number) => i !== contactIdx);
     }
 
-    // Post-process: inject real photos into sections if AI didn't use them
-    if (hasPhotos) {
-      let photoIdx = 0;
-      for (const section of filteredSections) {
-        const schema = section.schema || {};
-        section.schema = schema;
+    // ────────────────────────────────────────────────
+    // PHASE 2: Inject Google photos into sections
+    // ────────────────────────────────────────────────
+    let googlePhotoIdx = 0;
+    const usedGoogleUrls = new Set<string>();
 
-        // Hero — ensure media.url has a real photo
-        if (section.type === "hero") {
-          const media = (schema.media as Record<string, unknown>) || {};
-          const mediaUrl = media.url || (schema as any).media_url;
-          if (!mediaUrl || !String(mediaUrl).startsWith("http") || String(mediaUrl).includes("placeholder") || String(mediaUrl).includes("picsum")) {
-            schema.media = { type: "image", url: businessPhotos[0], fit: "cover" };
-            photoIdx = 1;
-          } else if (!schema.media || typeof schema.media !== "object") {
-            schema.media = { type: "image", url: mediaUrl, fit: "cover" };
-            delete (schema as any).media_url;
-            photoIdx = 1;
+    for (const section of filteredSections) {
+      const schema = section.schema || {};
+      section.schema = schema;
+
+      // Hero — ensure media.url has a real photo
+      if (section.type === "hero") {
+        const media = (schema.media as Record<string, unknown>) || {};
+        const mediaUrl = media.url || (schema as any).media_url;
+        if (isPlaceholderUrl(mediaUrl) && googlePhotoIdx < businessPhotos.length) {
+          schema.media = { type: "image", url: businessPhotos[googlePhotoIdx], fit: "cover", source: "google" };
+          usedGoogleUrls.add(businessPhotos[googlePhotoIdx]);
+          googlePhotoIdx++;
+        } else if (mediaUrl && !isPlaceholderUrl(mediaUrl)) {
+          schema.media = { type: "image", url: mediaUrl, fit: "cover", source: "google" };
+          if (!schema.media.url.includes("pexels")) usedGoogleUrls.add(mediaUrl);
+          googlePhotoIdx = Math.max(googlePhotoIdx, 1);
+        } else if (!schema.media || typeof schema.media !== "object") {
+          if (googlePhotoIdx < businessPhotos.length) {
+            schema.media = { type: "image", url: businessPhotos[googlePhotoIdx], fit: "cover", source: "google" };
+            usedGoogleUrls.add(businessPhotos[googlePhotoIdx]);
+            googlePhotoIdx++;
           } else {
-            photoIdx = 1;
-          }
-          // Populate empty hero fields
-          if (!schema.headline) schema.headline = businessName || "Welcome";
-          if (!schema.subheadline) schema.subheadline = args.description || `Welcome to ${businessName}`;
-          if (!schema.cta_text) schema.cta_text = "Explore";
-          if (schema.cta_label && !schema.cta_text) {
-            schema.cta_text = schema.cta_label;
-            delete schema.cta_label;
+            schema.media = { type: "image", url: "", fit: "cover", source: "pending" };
           }
         }
+        if (!schema.headline) schema.headline = businessName || "Welcome";
+        if (!schema.subheadline) schema.subheadline = args.description || `Welcome to ${businessName}`;
+        if (!schema.cta_text) schema.cta_text = schema.cta_label || "Explore";
+        delete schema.cta_label;
+      }
 
-        // Text/about — populate empty
-        if (section.type === "text") {
-          if (!schema.heading) schema.heading = `About ${businessName}`;
-          if (!schema.body) schema.body = businessDescription || args.description || `${businessName} is located at ${location}. We're proud to serve our community with quality ${industry || "products and services"}.`;
-        }
+      // Text/about
+      if (section.type === "text") {
+        if (!schema.heading) schema.heading = `About ${businessName}`;
+        if (!schema.body) schema.body = businessDescription || args.description || `${businessName} is located at ${location}. We're proud to serve our community with quality ${industry || "products and services"}.`;
+      }
 
-        // Gallery — ensure items have "src" field with real photos
-        if (section.type === "gallery") {
-          if (!schema.heading) schema.heading = "Gallery";
-          if (!schema.items || !Array.isArray(schema.items) || schema.items.length === 0) {
-            // Create gallery items from available photos
-            const galleryPhotos = businessPhotos.slice(photoIdx);
-            schema.items = galleryPhotos.map((url: string, i: number) => ({
-              name: `Photo ${i + 1}`,
-              src: url,
-            }));
-            photoIdx = businessPhotos.length;
-          } else {
-            for (const item of schema.items) {
-              if (item.image_url && !item.src) item.src = item.image_url;
-              if (photoIdx < businessPhotos.length && (!item.src || !String(item.src).startsWith("http") || String(item.src).includes("picsum") || String(item.src).includes("placeholder"))) {
-                item.src = businessPhotos[photoIdx];
-                photoIdx++;
-              }
-            }
-            while (photoIdx < businessPhotos.length && schema.items.length < 10) {
-              schema.items.push({ name: `Photo ${schema.items.length + 1}`, src: businessPhotos[photoIdx] });
-              photoIdx++;
-            }
-          }
-        }
-
-        // Products/categories/collections — inject photos into items or create them
-        if ((section.type === "products" || section.type === "categories" || section.type === "collections") && photoIdx < businessPhotos.length) {
-          if (!schema.heading) schema.heading = section.type === "products" ? "Our Products" : "Collections";
-          if (!schema.items || !Array.isArray(schema.items) || schema.items.length === 0) {
-            const count = Math.min(4, businessPhotos.length - photoIdx);
-            schema.items = [];
-            for (let i = 0; i < count; i++) {
-              schema.items.push({
-                name: `Item ${i + 1}`,
-                description: `Quality ${industry || "product"} from ${businessName}`,
-                image_url: businessPhotos[photoIdx],
-                ...(section.type === "products" ? { price: "" } : {}),
-              });
-              photoIdx++;
-            }
-          } else {
-            for (const item of schema.items) {
-              if (photoIdx < businessPhotos.length) {
-                if (!item.image_url || !String(item.image_url).startsWith("http") || String(item.image_url).includes("placeholder") || String(item.image_url).includes("picsum")) {
-                  item.image_url = businessPhotos[photoIdx];
-                  photoIdx++;
-                }
-              }
+      // Gallery — inject Google photos
+      if (section.type === "gallery") {
+        if (!schema.heading) schema.heading = "Gallery";
+        if (!schema.items || !Array.isArray(schema.items) || schema.items.length === 0) {
+          const galleryPhotos = businessPhotos.slice(googlePhotoIdx);
+          schema.items = galleryPhotos.map((url: string, i: number) => ({
+            name: `Photo ${i + 1}`, src: url, source: "google",
+          }));
+          galleryPhotos.forEach((u: string) => usedGoogleUrls.add(u));
+          googlePhotoIdx = businessPhotos.length;
+        } else {
+          for (const item of schema.items) {
+            if (item.image_url && !item.src) item.src = item.image_url;
+            if (googlePhotoIdx < businessPhotos.length && isPlaceholderUrl(item.src)) {
+              item.src = businessPhotos[googlePhotoIdx];
+              item.source = "google";
+              usedGoogleUrls.add(businessPhotos[googlePhotoIdx]);
+              googlePhotoIdx++;
             }
           }
-        }
-
-        // Contact — populate from answers
-        if (section.type === "contact") {
-          if (!schema.heading) schema.heading = "Contact Us";
-          if (!schema.phone && answers?.contact_phone) schema.phone = answers.contact_phone;
-          if (!schema.address && location) schema.address = location;
-          if (!schema.email) schema.email = "";
+          // Add remaining Google photos
+          while (googlePhotoIdx < businessPhotos.length && schema.items.length < 12) {
+            const url = businessPhotos[googlePhotoIdx];
+            schema.items.push({ name: `Photo ${schema.items.length + 1}`, src: url, source: "google" });
+            usedGoogleUrls.add(url);
+            googlePhotoIdx++;
+          }
         }
       }
 
-      // If we still have unused photos and there's no gallery section, add one
-      if (photoIdx < businessPhotos.length && !filteredSections.some((s: { type: string }) => s.type === "gallery") && allowedTypes.includes("gallery")) {
-        const remainingPhotos = businessPhotos.slice(photoIdx);
-        const galleryItems = remainingPhotos.map((url: string, i: number) => ({
-          name: `Photo ${i + 1}`,
-          src: url,
-        }));
-        const insertIdx = filteredSections.findIndex((s: { type: string }) => s.type === "footer" || s.type === "contact");
-        const gallerySection = { type: "gallery", schema: { heading: "Gallery", items: galleryItems } };
-        if (insertIdx >= 0) {
-          filteredSections.splice(insertIdx, 0, gallerySection);
+      // Products/categories/collections
+      if ((section.type === "products" || section.type === "categories" || section.type === "collections") && googlePhotoIdx < businessPhotos.length) {
+        if (!schema.heading) schema.heading = section.type === "products" ? "Our Products" : "Collections";
+        if (!schema.items || !Array.isArray(schema.items) || schema.items.length === 0) {
+          const count = Math.min(4, businessPhotos.length - googlePhotoIdx);
+          schema.items = [];
+          for (let i = 0; i < count; i++) {
+            const url = businessPhotos[googlePhotoIdx];
+            schema.items.push({
+              name: `Item ${i + 1}`,
+              description: `Quality ${industry || "product"} from ${businessName}`,
+              image_url: url,
+              source: "google",
+              ...(section.type === "products" ? { price: "" } : {}),
+            });
+            usedGoogleUrls.add(url);
+            googlePhotoIdx++;
+          }
         } else {
-          filteredSections.push(gallerySection);
+          for (const item of schema.items) {
+            if (googlePhotoIdx < businessPhotos.length && isPlaceholderUrl(item.image_url)) {
+              item.image_url = businessPhotos[googlePhotoIdx];
+              item.source = "google";
+              usedGoogleUrls.add(businessPhotos[googlePhotoIdx]);
+              googlePhotoIdx++;
+            }
+          }
         }
+      }
+
+      // Contact
+      if (section.type === "contact") {
+        if (!schema.heading) schema.heading = "Contact Us";
+        if (!schema.phone && answers?.contact_phone) schema.phone = answers.contact_phone;
+        if (!schema.address && location) schema.address = location;
+        if (!schema.email) schema.email = "";
+      }
+    }
+
+    // If unused Google photos remain and no gallery, add one
+    if (googlePhotoIdx < businessPhotos.length && !filteredSections.some((s: { type: string }) => s.type === "gallery") && allowedTypes.includes("gallery")) {
+      const remainingPhotos = businessPhotos.slice(googlePhotoIdx);
+      const galleryItems = remainingPhotos.map((url: string, i: number) => ({
+        name: `Photo ${i + 1}`, src: url, source: "google",
+      }));
+      const insertIdx = filteredSections.findIndex((s: { type: string }) => s.type === "footer" || s.type === "contact");
+      const gallerySection = { type: "gallery", schema: { heading: "Gallery", items: galleryItems } };
+      if (insertIdx >= 0) {
+        filteredSections.splice(insertIdx, 0, gallerySection);
+      } else {
+        filteredSections.push(gallerySection);
+      }
+    }
+
+    // ────────────────────────────────────────────────
+    // PHASE 3: IMAGE COMPLETION — fill gaps with stock
+    // ────────────────────────────────────────────────
+    // Count how many empty/placeholder image slots remain
+    const { empty: emptySlots } = countImageSlots(filteredSections);
+    
+    // Also check minimums — gallery should have at least 6 items, products at least 4
+    let additionalNeeded = 0;
+    for (const section of filteredSections) {
+      const schema = section.schema || {};
+      const min = MIN_IMAGES[section.type] || 0;
+      if (section.type === "gallery" && Array.isArray(schema.items)) {
+        const deficit = Math.max(0, min - schema.items.length);
+        additionalNeeded += deficit;
+      }
+      if ((section.type === "products" || section.type === "categories" || section.type === "collections") && Array.isArray(schema.items)) {
+        const deficit = Math.max(0, min - schema.items.length);
+        additionalNeeded += deficit;
+      }
+    }
+
+    const totalStockNeeded = emptySlots.length + additionalNeeded;
+
+    if (totalStockNeeded > 0) {
+      console.log(`[builder-ai] Image completion: ${emptySlots.length} placeholder slots + ${additionalNeeded} additional needed = ${totalStockNeeded} stock photos required`);
+      
+      const stockPhotos = await gatherStockPhotos(
+        totalStockNeeded + 4, // fetch extras for diversity
+        businessName,
+        industry,
+        location,
+        businessDescription,
+      );
+
+      let stockIdx = 0;
+
+      // Fill placeholder slots first
+      for (const slot of emptySlots) {
+        if (stockIdx >= stockPhotos.length) break;
+        const section = filteredSections[slot.sectionIdx];
+        const schema = section.schema || {};
+
+        if (slot.field === "media.url") {
+          if (!schema.media || typeof schema.media !== "object") schema.media = {};
+          (schema.media as any).url = stockPhotos[stockIdx];
+          (schema.media as any).type = "image";
+          (schema.media as any).fit = "cover";
+          (schema.media as any).source = "stock";
+          stockIdx++;
+        } else if (slot.field.startsWith("items.")) {
+          const parts = slot.field.split(".");
+          const idx = parseInt(parts[1], 10);
+          const key = parts[2]; // "src" or "image_url"
+          if (Array.isArray(schema.items) && idx < schema.items.length) {
+            schema.items[idx][key] = stockPhotos[stockIdx];
+            schema.items[idx].source = "stock";
+            stockIdx++;
+          }
+        }
+      }
+
+      // Pad gallery to minimum 6
+      for (const section of filteredSections) {
+        if (section.type !== "gallery") continue;
+        const schema = section.schema || {};
+        if (!Array.isArray(schema.items)) schema.items = [];
+        while (schema.items.length < MIN_IMAGES.gallery && stockIdx < stockPhotos.length) {
+          schema.items.push({
+            name: `Photo ${schema.items.length + 1}`,
+            src: stockPhotos[stockIdx],
+            source: "stock",
+          });
+          stockIdx++;
+        }
+      }
+
+      // Pad products/categories to minimum 4
+      for (const section of filteredSections) {
+        if (section.type !== "products" && section.type !== "categories" && section.type !== "collections") continue;
+        const schema = section.schema || {};
+        if (!Array.isArray(schema.items)) schema.items = [];
+        const min = MIN_IMAGES[section.type] || 4;
+        while (schema.items.length < min && stockIdx < stockPhotos.length) {
+          schema.items.push({
+            name: `Item ${schema.items.length + 1}`,
+            description: `Quality ${industry || "offering"} from ${businessName}`,
+            image_url: stockPhotos[stockIdx],
+            source: "stock",
+            ...(section.type === "products" ? { price: "" } : {}),
+          });
+          stockIdx++;
+        }
+      }
+
+      // If there's STILL no gallery and we have spare stock photos, create one
+      if (!filteredSections.some((s: { type: string }) => s.type === "gallery") && allowedTypes.includes("gallery") && stockIdx < stockPhotos.length) {
+        const items = [];
+        while (items.length < 6 && stockIdx < stockPhotos.length) {
+          items.push({ name: `Photo ${items.length + 1}`, src: stockPhotos[stockIdx], source: "stock" });
+          stockIdx++;
+        }
+        if (items.length > 0) {
+          const insertIdx = filteredSections.findIndex((s: { type: string }) => s.type === "footer" || s.type === "cta");
+          const gallerySection = { type: "gallery", schema: { heading: "Gallery", items } };
+          if (insertIdx >= 0) filteredSections.splice(insertIdx, 0, gallerySection);
+          else filteredSections.push(gallerySection);
+        }
+      }
+
+      console.log(`[builder-ai] Image completion done: used ${stockIdx} stock photos`);
+    }
+
+    // ────────────────────────────────────────────────
+    // PHASE 4: Final validation — no empty images
+    // ────────────────────────────────────────────────
+    for (const section of filteredSections) {
+      const schema = section.schema || {};
+      // Remove items with completely empty images
+      if (Array.isArray(schema.items)) {
+        schema.items = schema.items.filter((item: any) => {
+          if (section.type === "gallery") return !isPlaceholderUrl(item.src);
+          if (section.type === "products" || section.type === "categories" || section.type === "collections") return !isPlaceholderUrl(item.image_url);
+          return true; // keep non-image items (offers, etc.)
+        });
       }
     }
 
