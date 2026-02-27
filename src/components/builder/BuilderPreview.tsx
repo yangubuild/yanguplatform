@@ -28,6 +28,7 @@ interface BuilderPreviewProps {
   onHideSection?: (sectionId: string) => void;
   onDeleteSection?: (sectionId: string) => void;
   onImageReplace?: (sectionId: string, fieldPath: string, url: string, source: string) => void;
+  previewViewport?: "desktop" | "mobile";
 }
 
 // ─── Helpers ───
@@ -992,7 +993,7 @@ export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<st
   community_feed: TextPreview,
 };
 
-export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSelectSection, theme, pageSettings, liveSchemaOverride, onUpdateSectionField, onHideSection, onDeleteSection, onImageReplace }: BuilderPreviewProps) {
+export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSelectSection, theme, pageSettings, liveSchemaOverride, onUpdateSectionField, onHideSection, onDeleteSection, onImageReplace, previewViewport }: BuilderPreviewProps) {
   const t = theme || DEFAULT_THEME;
   const ps = pageSettings || DEFAULT_PAGE_SETTINGS;
   const isLayoutB = ps.layout === "layout_b";
@@ -1043,7 +1044,7 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
 
   return (
     <>
-      <div className="max-w-md mx-auto border border-border rounded-xl overflow-hidden shadow-sm bg-background text-foreground" style={themeStyle}>
+      <div className={`mx-auto border border-border rounded-xl overflow-hidden shadow-sm bg-background text-foreground transition-all ${previewViewport === "desktop" ? "max-w-2xl" : "max-w-md"}`} style={themeStyle}>
         <div className="bg-muted/50 border-b border-border px-4 py-2">
           <p className="text-xs text-muted-foreground text-center truncate">{surfaceTitle}</p>
         </div>

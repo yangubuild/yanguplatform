@@ -58,35 +58,40 @@ interface StockResult {
   sourceUrl: string;
 }
 
-export function BuilderMediaPicker({ value, onChange, surfaceId }: BuilderMediaPickerProps) {
+export function BuilderMediaPicker({ value, onChange, surfaceId, hideTypeSelector = false }: BuilderMediaPickerProps & { hideTypeSelector?: boolean }) {
   const safeValue: MediaValue = value ?? { type: "none", source: "url" };
   const mediaType = safeValue.type || "none";
 
+  // Determine effective media type: if hideTypeSelector, treat as "image" always
+  const effectiveType = hideTypeSelector ? "image" : mediaType;
+
   return (
     <div className="space-y-3">
-      {/* Media Type */}
-      <div className="space-y-1.5">
-        <Label className="text-xs">Media Type</Label>
-        <Select
-          value={mediaType}
-          onValueChange={(v) => onChange({ ...safeValue, type: v as MediaValue["type"] })}
-        >
-          <SelectTrigger className="text-sm">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">None</SelectItem>
-            <SelectItem value="image">Image</SelectItem>
-            <SelectItem value="video">Video</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Media Type — hidden when hideTypeSelector is true */}
+      {!hideTypeSelector && (
+        <div className="space-y-1.5">
+          <Label className="text-xs">Media Type</Label>
+          <Select
+            value={mediaType}
+            onValueChange={(v) => onChange({ ...safeValue, type: v as MediaValue["type"] })}
+          >
+            <SelectTrigger className="text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">None</SelectItem>
+              <SelectItem value="image">Image</SelectItem>
+              <SelectItem value="video">Video</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
-      {mediaType !== "none" && (
+      {(hideTypeSelector || effectiveType !== "none") && (
         <MediaSourceTabs
-          mediaType={mediaType as "image" | "video"}
-          value={safeValue}
-          onChange={onChange}
+          mediaType={(effectiveType === "none" ? "image" : effectiveType) as "image" | "video"}
+          value={{ ...safeValue, type: effectiveType === "none" ? "image" : effectiveType as any }}
+          onChange={(v) => onChange({ ...v, type: v.type === "none" ? "image" : v.type })}
           surfaceId={surfaceId}
         />
       )}

@@ -18,8 +18,10 @@ import {
   Sparkles,
   FileText,
   Layout,
+  Monitor,
+  Smartphone,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import type { BuilderSurfaceType } from "@/types/builder";
 import { BuilderSettingsDrawer, getThemeFromMetadata } from "@/components/builder/BuilderSettingsDrawer";
 import { BuilderSectionEditor } from "@/components/builder/BuilderSectionEditor";
@@ -28,6 +30,7 @@ import { BuilderSetupAnswersPanel } from "@/components/builder/panels/BuilderSet
 import { toast } from "sonner";
 
 type RightPanel = "none" | "page_edit" | "section" | "setup";
+type PreviewViewport = "desktop" | "mobile";
 
 export default function BuilderEditor() {
   const { surfaceId } = useParams<{ surfaceId: string }>();
@@ -39,6 +42,14 @@ export default function BuilderEditor() {
   const [showAiBanner, setShowAiBanner] = useState(false);
   const [liveSchemaOverride, setLiveSchemaOverride] = useState<{ sectionId: string; schema: Record<string, unknown> } | null>(null);
   const [livePageSettings, setLivePageSettings] = useState<import("@/config/builderCoreSections").PageEditSettings | null>(null);
+  const [previewViewport, setPreviewViewport] = useState<PreviewViewport>("desktop");
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showLeaveWarning, setShowLeaveWarning] = useState(false);
+  const pendingNavRef = useRef<string | null>(null);
+
+  // Track unsaved changes
+  const markDirty = useCallback(() => setHasUnsavedChanges(true), []);
+  const markClean = useCallback(() => setHasUnsavedChanges(false), []);
 
   const {
     editorState,
@@ -76,6 +87,36 @@ export default function BuilderEditor() {
       }
     }
   }, [editorState?.surface?.id]);
+
+  // Warn before leaving with unsaved changes
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [hasUnsavedChanges]);
+
+  const safeNavigate = useCallback((path: string) => {
+    if (hasUnsavedChanges) {
+      pendingNavRef.current = path;
+      setShowLeaveWarning(true);
+    } else {
+      navigate(path);
+    }
+  }, [hasUnsavedChanges, navigate]);
+
+  const confirmLeave = useCallback(() => {
+    setShowLeaveWarning(false);
+    setHasUnsavedChanges(false);
+    if (pendingNavRef.current) {
+      navigate(pendingNavRef.current);
+      pendingNavRef.current = null;
+    }
+  }, [navigate]);
 
   // Loading
   if (isLoading) {
@@ -152,7 +193,7 @@ export default function BuilderEditor() {
       {/* Top bar */}
       <header className="sticky top-0 z-40 h-14 border-b border-border bg-background/80 backdrop-blur-sm flex items-center px-4 gap-4">
         <button
-          onClick={() => navigate("/dashboard")}
+          onClick={() => safeNavigate("/dashboard")}
           className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" /> Dashboard
@@ -168,28 +209,38 @@ export default function BuilderEditor() {
         />
         <div className="flex-1" />
 
+        {/* Viewport toggle */}
+        <div className="flex items-center border border-border rounded-md overflow-hidden">
+          <button
+            onClick={() => setPreviewViewport("desktop")}
+            className={`flex items-center gap-1 px-2.5 py-1.5 text-xs transition-colors ${
+              previewViewport === "desktop" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Monitor className="h-3.5 w-3.5" /> Desktop
+          </button>
+          <button
+            onClick={() => setPreviewViewport("mobile")}
+            className={`flex items-center gap-1 px-2.5 py-1.5 text-xs transition-colors ${
+              previewViewport === "mobile" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Smartphone className="h-3.5 w-3.5" /> Mobile
+          </button>
+        </div>
+
         {/* Edit with Ada AI button */}
         <Button size="sm" variant="outline" className="gap-2" onClick={() => toast.info("AI chat editor coming soon!")}>
           <Sparkles className="h-4 w-4" /> Edit with Ada AI
         </Button>
 
-        {/* Setup / Answers button (only if AI-generated) */}
-        {hasAiSetup && (
-          <Button size="sm" variant="outline" className="gap-2" onClick={() => {
-            setRightPanel(rightPanel === "setup" ? "none" : "setup");
-            setSelectedSectionId(null);
-          }}>
-            <FileText className="h-4 w-4" /> Setup
-          </Button>
-        )}
-
         <Button size="sm" variant="outline" onClick={() => setSettingsOpen(true)} className="gap-2">
           <Settings className="h-4 w-4" /> Settings
         </Button>
-        <Button size="sm" variant="outline" onClick={() => navigate("/dashboard/dashboard")} className="gap-2">
+        <Button size="sm" variant="outline" onClick={() => navigate("/dashboard/seller/emenu/orders")} className="gap-2">
           <ClipboardList className="h-4 w-4" /> View Orders
         </Button>
-        <Button size="sm" onClick={() => setPublishOpen(true)} className="gap-2">
+        <Button size="sm" onClick={() => { setPublishOpen(true); markClean(); }} className="gap-2">
           <Rocket className="h-4 w-4" /> Publish
         </Button>
       </header>
@@ -253,6 +304,7 @@ export default function BuilderEditor() {
 
         {/* Center: Preview */}
         <main className="flex-1 overflow-y-auto p-6 lg:p-10">
+          <div className={`mx-auto transition-all ${previewViewport === "mobile" ? "max-w-sm" : "max-w-2xl"}`}>
           <BuilderPreview
             sections={sections}
             surfaceTitle={surfaceTitle}
@@ -261,11 +313,13 @@ export default function BuilderEditor() {
             theme={builderTheme}
             pageSettings={livePageSettings || pageSettings}
             liveSchemaOverride={liveSchemaOverride}
+            previewViewport={previewViewport}
             onUpdateSectionField={async (sectionId, fieldPath, value) => {
               const section = sections.find((s) => s.id === sectionId);
               if (!section) return;
               const newSchema = { ...section.schema, [fieldPath]: value };
               await updateSectionSchema(sectionId, newSchema);
+              markDirty();
             }}
             onHideSection={async (sectionId) => {
               await toggleSectionVisibility(sectionId, true);
@@ -281,12 +335,10 @@ export default function BuilderEditor() {
               const section = sections.find((s) => s.id === sectionId);
               if (!section) return;
               const newSchema = { ...section.schema };
-              // Handle nested media object (hero)
               if (fieldPath === "media.url") {
                 const media = (newSchema.media as Record<string, unknown>) || {};
                 newSchema.media = { ...media, url, type: "image" };
               } else if (fieldPath.startsWith("items.")) {
-                // Handle gallery/collection items: "items.0" → update items[0].src
                 const idx = parseInt(fieldPath.split(".")[1], 10);
                 const items = [...((newSchema.items as any[]) || [])];
                 if (idx < items.length) {
@@ -297,7 +349,6 @@ export default function BuilderEditor() {
                 }
                 newSchema.items = items;
               } else if (fieldPath.startsWith("products.") && fieldPath.endsWith(".image")) {
-                // Handle product images: "products.0.image" → update products[0].image_url
                 const idx = parseInt(fieldPath.split(".")[1], 10);
                 const key = newSchema.products ? "products" : "items";
                 const items = [...((newSchema[key] as any[]) || [])];
@@ -309,8 +360,10 @@ export default function BuilderEditor() {
                 (newSchema as any)[fieldPath] = url;
               }
               await updateSectionSchema(sectionId, newSchema);
+              markDirty();
             }}
           />
+          </div>
         </main>
 
         {/* Right panel */}
@@ -390,6 +443,26 @@ export default function BuilderEditor() {
         }}
         onSaved={() => refreshEditor()}
       />
+
+      {/* Leave Warning Dialog */}
+      {showLeaveWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="bg-background border border-border rounded-xl p-6 max-w-sm w-full mx-4 shadow-2xl space-y-4">
+            <h3 className="text-lg font-semibold">Unpublished Changes</h3>
+            <p className="text-sm text-muted-foreground">
+              You have unpublished changes. If you leave now you may lose them. Publish or stay to continue editing.
+            </p>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" size="sm" onClick={() => setShowLeaveWarning(false)}>
+                Stay
+              </Button>
+              <Button variant="destructive" size="sm" onClick={confirmLeave}>
+                Leave Anyway
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
