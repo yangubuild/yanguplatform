@@ -202,7 +202,8 @@ Generate 5-7 sections minimum.`;
       let photoIdx = 0;
       for (const section of filteredSections) {
         const schema = section.schema || {};
-        
+        section.schema = schema;
+
         // Hero — ensure media.url has a real photo
         if (section.type === "hero") {
           const media = (schema.media as Record<string, unknown>) || {};
@@ -214,43 +215,84 @@ Generate 5-7 sections minimum.`;
             schema.media = { type: "image", url: mediaUrl, fit: "cover" };
             delete (schema as any).media_url;
             photoIdx = 1;
+          } else {
+            photoIdx = 1;
+          }
+          // Populate empty hero fields
+          if (!schema.headline) schema.headline = businessName || "Welcome";
+          if (!schema.subheadline) schema.subheadline = args.description || `Welcome to ${businessName}`;
+          if (!schema.cta_text) schema.cta_text = "Explore";
+          if (schema.cta_label && !schema.cta_text) {
+            schema.cta_text = schema.cta_label;
+            delete schema.cta_label;
           }
         }
 
-        // Fix hero field names: cta_label → cta_text
-        if (section.type === "hero" && schema.cta_label && !schema.cta_text) {
-          schema.cta_text = schema.cta_label;
-          delete schema.cta_label;
+        // Text/about — populate empty
+        if (section.type === "text") {
+          if (!schema.heading) schema.heading = `About ${businessName}`;
+          if (!schema.body) schema.body = businessDescription || args.description || `${businessName} is located at ${location}. We're proud to serve our community with quality ${industry || "products and services"}.`;
         }
 
         // Gallery — ensure items have "src" field with real photos
-        if (section.type === "gallery" && schema.items && Array.isArray(schema.items)) {
-          for (const item of schema.items) {
-            if (item.image_url && !item.src) {
-              item.src = item.image_url;
-            }
-            if (photoIdx < businessPhotos.length && (!item.src || !String(item.src).startsWith("http") || String(item.src).includes("picsum") || String(item.src).includes("placeholder"))) {
-              item.src = businessPhotos[photoIdx];
-              photoIdx++;
-            }
-          }
-          // If gallery has fewer items than available photos, add more
-          while (photoIdx < businessPhotos.length && schema.items.length < 10) {
-            schema.items.push({ name: `Photo ${schema.items.length + 1}`, src: businessPhotos[photoIdx] });
-            photoIdx++;
-          }
-        }
-
-        // Products/categories — inject photos into items
-        if ((section.type === "products" || section.type === "categories" || section.type === "collections") && schema.items && Array.isArray(schema.items)) {
-          for (const item of schema.items) {
-            if (photoIdx < businessPhotos.length) {
-              if (!item.image_url || !String(item.image_url).startsWith("http") || String(item.image_url).includes("placeholder") || String(item.image_url).includes("picsum")) {
-                item.image_url = businessPhotos[photoIdx];
+        if (section.type === "gallery") {
+          if (!schema.heading) schema.heading = "Gallery";
+          if (!schema.items || !Array.isArray(schema.items) || schema.items.length === 0) {
+            // Create gallery items from available photos
+            const galleryPhotos = businessPhotos.slice(photoIdx);
+            schema.items = galleryPhotos.map((url: string, i: number) => ({
+              name: `Photo ${i + 1}`,
+              src: url,
+            }));
+            photoIdx = businessPhotos.length;
+          } else {
+            for (const item of schema.items) {
+              if (item.image_url && !item.src) item.src = item.image_url;
+              if (photoIdx < businessPhotos.length && (!item.src || !String(item.src).startsWith("http") || String(item.src).includes("picsum") || String(item.src).includes("placeholder"))) {
+                item.src = businessPhotos[photoIdx];
                 photoIdx++;
               }
             }
+            while (photoIdx < businessPhotos.length && schema.items.length < 10) {
+              schema.items.push({ name: `Photo ${schema.items.length + 1}`, src: businessPhotos[photoIdx] });
+              photoIdx++;
+            }
           }
+        }
+
+        // Products/categories/collections — inject photos into items or create them
+        if ((section.type === "products" || section.type === "categories" || section.type === "collections") && photoIdx < businessPhotos.length) {
+          if (!schema.heading) schema.heading = section.type === "products" ? "Our Products" : "Collections";
+          if (!schema.items || !Array.isArray(schema.items) || schema.items.length === 0) {
+            const count = Math.min(4, businessPhotos.length - photoIdx);
+            schema.items = [];
+            for (let i = 0; i < count; i++) {
+              schema.items.push({
+                name: `Item ${i + 1}`,
+                description: `Quality ${industry || "product"} from ${businessName}`,
+                image_url: businessPhotos[photoIdx],
+                ...(section.type === "products" ? { price: "" } : {}),
+              });
+              photoIdx++;
+            }
+          } else {
+            for (const item of schema.items) {
+              if (photoIdx < businessPhotos.length) {
+                if (!item.image_url || !String(item.image_url).startsWith("http") || String(item.image_url).includes("placeholder") || String(item.image_url).includes("picsum")) {
+                  item.image_url = businessPhotos[photoIdx];
+                  photoIdx++;
+                }
+              }
+            }
+          }
+        }
+
+        // Contact — populate from answers
+        if (section.type === "contact") {
+          if (!schema.heading) schema.heading = "Contact Us";
+          if (!schema.phone && answers?.contact_phone) schema.phone = answers.contact_phone;
+          if (!schema.address && location) schema.address = location;
+          if (!schema.email) schema.email = "";
         }
       }
 
@@ -261,7 +303,6 @@ Generate 5-7 sections minimum.`;
           name: `Photo ${i + 1}`,
           src: url,
         }));
-        // Insert gallery before footer/contact
         const insertIdx = filteredSections.findIndex((s: { type: string }) => s.type === "footer" || s.type === "contact");
         const gallerySection = { type: "gallery", schema: { heading: "Gallery", items: galleryItems } };
         if (insertIdx >= 0) {
