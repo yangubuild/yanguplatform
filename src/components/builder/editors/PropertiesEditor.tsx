@@ -11,7 +11,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { X, Plus, Trash2, Home, DollarSign, MapPin } from "lucide-react";
+import { X, Plus, Trash2, Home, DollarSign, MapPin, Star } from "lucide-react";
+import { MediaPickerList } from "../media/MediaPickerList";
+import type { MediaAsset } from "../media/MediaPicker";
 import { BuilderMediaPicker, type MediaValue } from "../BuilderMediaPicker";
 
 interface Property {
@@ -25,6 +27,7 @@ interface Property {
   size_sqft: string;
   description: string;
   photos: MediaValue[];
+  media: MediaAsset[];
   amenities: string[];
   status: "active" | "draft";
 }
@@ -46,6 +49,7 @@ const EMPTY_PROPERTY: Property = {
   size_sqft: "",
   description: "",
   photos: [],
+  media: [],
   amenities: [],
   status: "active",
 };
@@ -53,7 +57,15 @@ const EMPTY_PROPERTY: Property = {
 const CURRENCIES = ["USD", "EUR", "GBP", "KES", "UGX", "TZS", "NGN", "ZAR", "AED"];
 
 export function PropertiesEditor({ schema, update, surfaceId }: PropertiesFormProps) {
-  const items = ((schema.items as any[]) || []) as Property[];
+  const items = ((schema.items as any[]) || []).map((p: any) => {
+    // Migrate legacy photos[] to media[]
+    const legacyPhotos: MediaValue[] = p.photos || [];
+    const existingMedia: MediaAsset[] = p.media || [];
+    const media: MediaAsset[] = existingMedia.length > 0
+      ? existingMedia
+      : legacyPhotos.filter((ph: any) => ph?.url).map((ph: any) => ({ type: "image" as const, src: ph.url, provider: "url" as const }));
+    return { ...EMPTY_PROPERTY, ...p, media } as Property;
+  });
   const [showDialog, setShowDialog] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [form, setForm] = useState<Property>({ ...EMPTY_PROPERTY });
@@ -247,13 +259,24 @@ export function PropertiesEditor({ schema, update, surfaceId }: PropertiesFormPr
               <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Describe the property..." rows={3} />
             </div>
 
-            {/* Photo */}
+            {/* Photos — MediaPickerList */}
             <div className="space-y-1.5">
-              <Label className="text-sm font-medium">Cover Photo</Label>
-              <BuilderMediaPicker
-                value={form.photos?.[0] || { type: "none", source: "url", url: "", alt: "" }}
-                onChange={(v) => setForm({ ...form, photos: [v] })}
+              <Label className="text-sm font-medium">Property Photos (max 15)</Label>
+              <p className="text-xs text-muted-foreground">First image is the cover photo</p>
+              {form.media.length > 0 && form.media[0]?.src && (
+                <div className="flex items-center gap-1.5 text-xs text-primary mb-1">
+                  <Star className="h-3 w-3 fill-primary" /> Primary
+                </div>
+              )}
+              <MediaPickerList
+                items={form.media}
+                onChange={(next) => {
+                  if (next.length > 15) return;
+                  setForm({ ...form, media: next });
+                }}
                 surfaceId={surfaceId || ""}
+                label="Property Photos"
+                max={15}
               />
             </div>
 

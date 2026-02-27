@@ -491,14 +491,13 @@ function ItemListForm({ schema, update, heading, surfaceId }: FormProps & { head
   );
 }
 
-/** Items list that detects image/media fields and renders MediaPicker for them */
+/** Items list that detects image/media fields and renders MediaPickerList for them */
 function ItemListWithMedia({ items, onChange, heading, surfaceId }: {
-  items: Array<Record<string, string>>;
-  onChange: (items: Array<Record<string, string>>) => void;
+  items: Array<Record<string, any>>;
+  onChange: (items: Array<Record<string, any>>) => void;
   heading: string;
   surfaceId: string;
 }) {
-  const MEDIA_KEYS = /^(image_url|image|cover|cover_url|thumbnail|thumb|media|logo|icon_url|photo|banner)$/i;
   const fields = [
     { key: "name", label: "Name" },
     { key: "price", label: "Price (optional)", placeholder: "$0" },
@@ -508,42 +507,52 @@ function ItemListWithMedia({ items, onChange, heading, surfaceId }: {
   return (
     <div className="space-y-2">
       <Label className="text-xs">{heading}</Label>
-      {items.map((item, i) => (
-        <div key={i} className="border border-border rounded-lg p-3 space-y-2">
-          <div className="flex items-start gap-2">
-            <div className="flex-1 space-y-1.5">
-              {fields.map((f) => (
-                <Input
-                  key={f.key}
-                  placeholder={f.placeholder || f.label}
-                  value={item[f.key] || ""}
-                  onChange={(e) => {
-                    const updated = [...items];
-                    updated[i] = { ...updated[i], [f.key]: e.target.value };
-                    onChange(updated);
-                  }}
-                  className="text-sm"
-                />
-              ))}
+      {items.map((item, i) => {
+        // Migrate legacy image_url to media[]
+        const legacyUrl = item.image_url as string | undefined;
+        const existingMedia: MediaAsset[] = (item.media as MediaAsset[]) || [];
+        const media: MediaAsset[] = existingMedia.length > 0
+          ? existingMedia
+          : legacyUrl ? [{ type: "image" as const, src: legacyUrl, provider: "url" as const }] : [];
+
+        return (
+          <div key={i} className="border border-border rounded-lg p-3 space-y-2">
+            <div className="flex items-start gap-2">
+              <div className="flex-1 space-y-1.5">
+                {fields.map((f) => (
+                  <Input
+                    key={f.key}
+                    placeholder={f.placeholder || f.label}
+                    value={item[f.key] || ""}
+                    onChange={(e) => {
+                      const updated = [...items];
+                      updated[i] = { ...updated[i], [f.key]: e.target.value };
+                      onChange(updated);
+                    }}
+                    className="text-sm"
+                  />
+                ))}
+              </div>
+              <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8 mt-0.5" onClick={() => onChange(items.filter((_, j) => j !== i))}>
+                <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
+              </Button>
             </div>
-            <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8 mt-0.5" onClick={() => onChange(items.filter((_, j) => j !== i))}>
-              <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
-            </Button>
+            {/* Multi-image picker per item */}
+            <MediaPickerList
+              items={media}
+              onChange={(next) => {
+                const updated = [...items];
+                updated[i] = { ...updated[i], media: next, image_url: next[0]?.src || "" };
+                onChange(updated);
+              }}
+              surfaceId={surfaceId}
+              label="Images"
+              max={10}
+            />
           </div>
-          {/* Media picker for image field */}
-          <MediaPicker
-            label="Image"
-            value={item.image_url ? { type: "image", src: item.image_url, provider: "url" } : null}
-            onChange={(asset) => {
-              const updated = [...items];
-              updated[i] = { ...updated[i], image_url: asset?.src || "" };
-              onChange(updated);
-            }}
-            surfaceId={surfaceId}
-          />
-        </div>
-      ))}
-      <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs" onClick={() => onChange([...items, { name: "", price: "", description: "", image_url: "" }])}>
+        );
+      })}
+      <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs" onClick={() => onChange([...items, { name: "", price: "", description: "", image_url: "", media: [] }])}>
         <Plus className="h-3.5 w-3.5" /> Add
       </Button>
     </div>
