@@ -7,6 +7,14 @@ import type { PageEditSettings } from "@/config/builderCoreSections";
 import { DEFAULT_PAGE_SETTINGS } from "@/config/builderCoreSections";
 import { CanvasSectionControls } from "./canvas/CanvasSectionControls";
 import { CanvasHints } from "./canvas/CanvasHints";
+import { CanvasEditableText } from "./canvas/CanvasEditableText";
+import { CanvasImagePopover } from "./canvas/CanvasImagePopover";
+
+interface CanvasCallbacks {
+  sectionId: string;
+  onUpdateField?: (sectionId: string, fieldPath: string, value: unknown) => void;
+  onImageReplace?: (sectionId: string, fieldPath: string, url: string, source: string) => void;
+}
 
 interface BuilderPreviewProps {
   sections: EditorSection[];
@@ -15,16 +23,14 @@ interface BuilderPreviewProps {
   onSelectSection?: (id: string) => void;
   theme?: BuilderTheme;
   pageSettings?: PageEditSettings;
-  /** Live override for a single section's schema (before save) */
   liveSchemaOverride?: { sectionId: string; schema: Record<string, unknown> } | null;
-  /** Canvas editing callbacks */
   onUpdateSectionField?: (sectionId: string, fieldPath: string, value: unknown) => void;
   onHideSection?: (sectionId: string) => void;
   onDeleteSection?: (sectionId: string) => void;
   onImageReplace?: (sectionId: string, fieldPath: string, url: string, source: string) => void;
 }
 
-// ─── Existing live_bio renderers (unchanged) ───
+// ─── Helpers ───
 
 function isYouTubeUrl(url: string): string | null {
   const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]+)/);
@@ -35,32 +41,23 @@ function hexToHslParts(hex: string): { h: number; s: number; l: number } | null 
   const normalized = hex.trim();
   const match = normalized.match(/^#([A-Fa-f0-9]{6})$/);
   if (!match) return null;
-
   const raw = match[1];
   const r = parseInt(raw.slice(0, 2), 16) / 255;
   const g = parseInt(raw.slice(2, 4), 16) / 255;
   const b = parseInt(raw.slice(4, 6), 16) / 255;
-
   const max = Math.max(r, g, b);
   const min = Math.min(r, g, b);
   const delta = max - min;
-
   let h = 0;
   if (delta !== 0) {
     if (max === r) h = ((g - b) / delta) % 6;
     else if (max === g) h = (b - r) / delta + 2;
     else h = (r - g) / delta + 4;
   }
-
   h = Math.round((h * 60 + 360) % 360);
   const l = (max + min) / 2;
   const s = delta === 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
-
-  return {
-    h,
-    s: Math.round(s * 100),
-    l: Math.round(l * 100),
-  };
+  return { h, s: Math.round(s * 100), l: Math.round(l * 100) };
 }
 
 function toHslToken({ h, s, l }: { h: number; s: number; l: number }): string {
@@ -77,10 +74,52 @@ const DEMO_IMAGES = [
   "https://picsum.photos/seed/yangu-store-7/1200/900",
   "https://picsum.photos/seed/yangu-store-8/1200/900",
 ];
-
 const demoImage = (index: number) => DEMO_IMAGES[index % DEMO_IMAGES.length];
 
-function HeroPreview({ schema }: { schema: Record<string, unknown> }) {
+// ─── Inline-editable text helper ───
+function EditableText({
+  value, field, placeholder, className, tag, canvas,
+}: {
+  value: string; field: string; placeholder?: string; className?: string;
+  tag?: "h1" | "h3" | "p" | "span"; canvas?: CanvasCallbacks;
+}) {
+  if (canvas?.onUpdateField) {
+    return (
+      <CanvasEditableText
+        value={value}
+        placeholder={placeholder}
+        className={className}
+        tag={tag}
+        onSave={(v) => canvas.onUpdateField!(canvas.sectionId, field, v)}
+      />
+    );
+  }
+  const Tag = tag || "p";
+  return <Tag className={className}>{value || placeholder}</Tag>;
+}
+
+// ─── Inline-editable image helper ───
+function EditableImage({
+  src, alt, className, field, canvas,
+}: {
+  src: string; alt?: string; className?: string; field: string; canvas?: CanvasCallbacks;
+}) {
+  if (canvas?.onImageReplace) {
+    return (
+      <CanvasImagePopover
+        src={src}
+        alt={alt}
+        className={className}
+        onReplace={(url, source) => canvas.onImageReplace!(canvas.sectionId, field, url, source)}
+      />
+    );
+  }
+  return <img src={src} alt={alt || "Image"} className={`${className || ""} w-full h-full object-cover`} />;
+}
+
+// ─── Section Renderers ───
+
+function HeroPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
   const media = (schema.media as { type?: string; url?: string; fit?: string }) || {};
   const mediaType = media.type || "none";
   const mediaUrl = media.url || "";
@@ -94,75 +133,50 @@ function HeroPreview({ schema }: { schema: Record<string, unknown> }) {
   const description = (schema.description as string) || "";
   const textColor = (schema.text_color as string) || "";
   const typographyStyle = (schema.typography_style as string) || "";
-
   const isSplit = layoutVariant === "split";
   const isDark = bgStyle === "solid_dark" || textColor === "light";
   const isBoldUppercase = typographyStyle === "bold_uppercase";
   const isEditorialLarge = typographyStyle === "editorial_large";
 
-  // Split layout: text left, image right
   if (isSplit) {
     return (
-      <div
-        className="flex items-stretch overflow-hidden rounded-lg"
-        style={{ backgroundColor: bgColor || "hsl(var(--accent) / 0.1)" }}
-      >
+      <div className="flex items-stretch overflow-hidden rounded-lg" style={{ backgroundColor: bgColor || "hsl(var(--accent) / 0.1)" }}>
         <div className="flex-1 py-8 px-6 flex flex-col justify-center">
           {schema.subheadline && !isEditorialLarge && (
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">
-              {schema.subheadline as string}
-            </p>
+            <EditableText value={schema.subheadline as string} field="subheadline" className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1" tag="p" canvas={canvas} />
           )}
-          <h1 className={`font-bold text-foreground ${isEditorialLarge ? "text-xl leading-tight" : "text-lg"}`}>
-            {(schema.headline as string) || "Your Headline"}
-          </h1>
+          <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className={`font-bold text-foreground ${isEditorialLarge ? "text-xl leading-tight" : "text-lg"}`} tag="h1" canvas={canvas} />
           {isEditorialLarge && schema.subheadline && (
-            <p className="text-xs text-muted-foreground mt-1">{schema.subheadline as string}</p>
+            <EditableText value={schema.subheadline as string} field="subheadline" className="text-xs text-muted-foreground mt-1" tag="p" canvas={canvas} />
           )}
-          {description && (
-            <p className="text-[11px] text-muted-foreground mt-2 leading-relaxed">{description}</p>
-          )}
+          {description && <EditableText value={description} field="description" className="text-[11px] text-muted-foreground mt-2 leading-relaxed" tag="p" canvas={canvas} />}
           {ctaText && (
             <div className="mt-3">
-              <span className="inline-block px-4 py-1.5 rounded-full bg-foreground text-background text-xs font-medium">
-                {ctaText}
-              </span>
+              <EditableText value={ctaText} field="cta_text" className="inline-block px-4 py-1.5 rounded-full bg-foreground text-background text-xs font-medium" tag="span" canvas={canvas} />
             </div>
           )}
         </div>
         <div className="w-2/5 bg-muted overflow-hidden">
-          {mediaType === "video" && mediaUrl ? (
-            <video src={mediaUrl} controls className="w-full h-full object-cover" />
-          ) : (
-            <img src={resolvedMediaUrl} alt="Hero visual" className="w-full h-full object-cover" />
-          )}
+          <EditableImage src={resolvedMediaUrl} alt="Hero visual" className="w-full h-full object-cover" field="media.url" canvas={canvas} />
         </div>
       </div>
     );
   }
 
-  // Fullwidth center (dark hero)
   if (isDark || layoutVariant === "fullwidth_center") {
     return (
-      <div
-        className="py-12 px-6 text-center rounded-lg relative overflow-hidden"
-        style={{ backgroundColor: bgColor || "hsl(0 0% 8%)" }}
-      >
+      <div className="py-12 px-6 text-center rounded-lg relative overflow-hidden" style={{ backgroundColor: bgColor || "hsl(0 0% 8%)" }}>
         {mediaType !== "video" && resolvedMediaUrl && (
           <img src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-40" />
         )}
         <div className="relative z-10">
-          <h1 className={`font-bold text-white ${isBoldUppercase ? "text-2xl tracking-[0.15em] uppercase" : "text-2xl"}`}>
-            {(schema.headline as string) || "Your Headline"}
-          </h1>
+          <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className={`font-bold text-white ${isBoldUppercase ? "text-2xl tracking-[0.15em] uppercase" : "text-2xl"}`} tag="h1" canvas={canvas} />
           {schema.subheadline && (
-            <p className="mt-3 text-white/70 text-[10px] leading-relaxed max-w-[280px] mx-auto">
-              {schema.subheadline as string}
-            </p>
+            <EditableText value={schema.subheadline as string} field="subheadline" className="mt-3 text-white/70 text-[10px] leading-relaxed max-w-[280px] mx-auto" tag="p" canvas={canvas} />
           )}
           {ctaText && (
             <div className="mt-4">
-              <span className="inline-block px-5 py-2 rounded-full bg-white text-black text-xs font-medium">{ctaText}</span>
+              <EditableText value={ctaText} field="cta_text" className="inline-block px-5 py-2 rounded-full bg-white text-black text-xs font-medium" tag="span" canvas={canvas} />
             </div>
           )}
         </div>
@@ -175,7 +189,7 @@ function HeroPreview({ schema }: { schema: Record<string, unknown> }) {
     <div className="py-12 px-6 text-center bg-gradient-to-b from-accent/10 to-transparent rounded-lg">
       {mediaType !== "video" && resolvedMediaUrl && (
         <div className={`aspect-video rounded-lg mb-4 overflow-hidden ${mediaFit === "contain" ? "bg-muted" : ""}`}>
-          <img src={resolvedMediaUrl} alt="Hero visual" className={`w-full h-full ${mediaFit === "cover" ? "object-cover" : "object-contain"}`} />
+          <EditableImage src={resolvedMediaUrl} alt="Hero visual" className={`w-full h-full ${mediaFit === "cover" ? "object-cover" : "object-contain"}`} field="media.url" canvas={canvas} />
         </div>
       )}
       {mediaType === "video" && mediaUrl && (() => {
@@ -188,9 +202,9 @@ function HeroPreview({ schema }: { schema: Record<string, unknown> }) {
           <video src={mediaUrl} controls className="w-full rounded-lg mb-4" />
         );
       })()}
-      <h1 className="text-2xl font-bold text-foreground">{(schema.headline as string) || "Your Headline"}</h1>
-      {schema.subheadline && <p className="mt-2 text-muted-foreground">{schema.subheadline as string}</p>}
-      {description && <p className="mt-2 text-xs text-muted-foreground">{description}</p>}
+      <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className="text-2xl font-bold text-foreground" tag="h1" canvas={canvas} />
+      {schema.subheadline && <EditableText value={schema.subheadline as string} field="subheadline" className="mt-2 text-muted-foreground" tag="p" canvas={canvas} />}
+      {description && <EditableText value={description} field="description" className="mt-2 text-xs text-muted-foreground" tag="p" canvas={canvas} />}
       {ctaText && (
         <div className="mt-4">
           <a href={ctaHref || "#"} className="inline-block px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium">{ctaText}</a>
@@ -200,12 +214,10 @@ function HeroPreview({ schema }: { schema: Record<string, unknown> }) {
   );
 }
 
-function BioPreview({ schema }: { schema: Record<string, unknown> }) {
+function BioPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
   return (
     <div className="py-6 px-6">
-      <p className="text-sm text-muted-foreground">
-        {(schema.text as string) || "Your bio goes here..."}
-      </p>
+      <EditableText value={(schema.text as string) || ""} field="text" placeholder="Your bio goes here..." className="text-sm text-muted-foreground" tag="p" canvas={canvas} />
     </div>
   );
 }
@@ -249,12 +261,10 @@ function SocialPreview({ schema }: { schema: Record<string, unknown> }) {
   );
 }
 
-function CtaPreview({ schema }: { schema: Record<string, unknown> }) {
+function CtaPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
   return (
     <div className="py-6 px-6 text-center">
-      <button className="px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium">
-        {(schema.label as string) || "Contact"}
-      </button>
+      <EditableText value={(schema.label as string) || ""} field="label" placeholder="Contact" className="inline-block px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium" tag="span" canvas={canvas} />
     </div>
   );
 }
@@ -271,7 +281,7 @@ function VideoPreview({ schema }: { schema: Record<string, unknown> }) {
   );
 }
 
-function GalleryPreview({ schema }: { schema: Record<string, unknown> }) {
+function GalleryPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
   const items = (schema.items as Array<{ src?: string; image_url?: string } | string>) || [];
   const galleryItems = items.length > 0
     ? items.slice(0, 6).map((item, i) => {
@@ -286,7 +296,7 @@ function GalleryPreview({ schema }: { schema: Record<string, unknown> }) {
       <div className="grid grid-cols-3 gap-2">
         {galleryItems.map((src, i) => (
           <div key={i} className="aspect-square rounded bg-muted overflow-hidden">
-            <img src={src} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" />
+            <EditableImage src={src} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" field={`items.${i}`} canvas={canvas} />
           </div>
         ))}
       </div>
@@ -294,45 +304,32 @@ function GalleryPreview({ schema }: { schema: Record<string, unknown> }) {
   );
 }
 
-// ─── New section type renderers ───
-
-function TextPreview({ schema }: { schema: Record<string, unknown> }) {
+function TextPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
   return (
     <div className="py-4 px-6">
-      <h3 className="text-sm font-semibold text-foreground mb-1">
-        {(schema.heading as string) || "Text Section"}
-      </h3>
-      <p className="text-sm text-muted-foreground">
-        {(schema.body as string) || "Content goes here..."}
-      </p>
+      <EditableText value={(schema.heading as string) || ""} field="heading" placeholder="Text Section" className="text-sm font-semibold text-foreground mb-1" tag="h3" canvas={canvas} />
+      <EditableText value={(schema.body as string) || ""} field="body" placeholder="Content goes here..." className="text-sm text-muted-foreground" tag="p" canvas={canvas} />
     </div>
   );
 }
 
-function OfferPreview({ schema }: { schema: Record<string, unknown> }) {
+function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
   const items = (schema.items as Array<{ title?: string; price?: string; description?: string; icon?: string }>) || [];
   const displayMode = (schema.display_mode as string) || (schema.layout_variant as string) || "";
   const storyBlock = schema.story_block as { enabled?: boolean; eyebrow?: string; heading?: string; description?: string; cta_text?: string } | undefined;
   const socialGallery = schema.social_gallery as { enabled?: boolean; platform?: string; heading?: string; subheading?: string; hashtag?: string; columns?: number } | undefined;
   const newsletter = schema.newsletter as { enabled?: boolean; heading?: string; description?: string; cta_text?: string } | undefined;
   const testimonials = schema.testimonials as { enabled?: boolean; heading?: string; subheading?: string; items?: Array<{ name?: string; quote?: string; location?: string; label?: string }> } | undefined;
-
   const isTrustBadges = displayMode === "trust_badges";
   const isStoryBlock = displayMode === "story_block";
 
   return (
     <div className="py-4 px-6 space-y-5">
-      {/* Main heading */}
       <div>
-        <h3 className="text-sm font-semibold text-foreground mb-1">
-          {(schema.heading as string) || "What We Offer"}
-        </h3>
-        {schema.description && (
-          <p className="text-xs text-muted-foreground leading-relaxed">{schema.description as string}</p>
-        )}
+        <EditableText value={(schema.heading as string) || ""} field="heading" placeholder="What We Offer" className="text-sm font-semibold text-foreground mb-1" tag="h3" canvas={canvas} />
+        {schema.description && <EditableText value={schema.description as string} field="description" className="text-xs text-muted-foreground leading-relaxed" tag="p" canvas={canvas} />}
       </div>
 
-      {/* Trust badges layout */}
       {isTrustBadges && items.length > 0 && (
         <div className="grid grid-cols-2 gap-2">
           {items.map((item, i) => (
@@ -347,7 +344,6 @@ function OfferPreview({ schema }: { schema: Record<string, unknown> }) {
         </div>
       )}
 
-      {/* Story block sub-section */}
       {isStoryBlock && items.length > 0 && (
         <div className="space-y-3">
           {items.map((item, i) => (
@@ -365,7 +361,6 @@ function OfferPreview({ schema }: { schema: Record<string, unknown> }) {
         </div>
       )}
 
-      {/* Regular items (fallback) */}
       {!isTrustBadges && !isStoryBlock && items.length > 0 && (
         <div className="space-y-2">
           {items.map((item, i) => (
@@ -384,19 +379,15 @@ function OfferPreview({ schema }: { schema: Record<string, unknown> }) {
         <p className="text-sm text-muted-foreground/60 italic">No offers added</p>
       )}
 
-      {/* Story block (embedded in trust_badges mode) */}
       {storyBlock?.enabled && (
         <div className="border-t border-border pt-4">
           {storyBlock.eyebrow && <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">{storyBlock.eyebrow}</p>}
           <p className="text-xs font-medium leading-relaxed">{storyBlock.heading || ""}</p>
           {storyBlock.description && <p className="text-[10px] text-muted-foreground mt-2 leading-relaxed">{storyBlock.description}</p>}
-          {storyBlock.cta_text && (
-            <span className="inline-block mt-2 px-4 py-1.5 rounded-full border border-border text-[10px] font-medium">{storyBlock.cta_text}</span>
-          )}
+          {storyBlock.cta_text && <span className="inline-block mt-2 px-4 py-1.5 rounded-full border border-border text-[10px] font-medium">{storyBlock.cta_text}</span>}
         </div>
       )}
 
-      {/* Testimonials sub-section */}
       {testimonials?.enabled && (testimonials.items || []).length > 0 && (
         <div className="border-t border-border pt-4">
           {testimonials.subheading && <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{testimonials.subheading}</p>}
@@ -413,12 +404,11 @@ function OfferPreview({ schema }: { schema: Record<string, unknown> }) {
         </div>
       )}
 
-      {/* Social gallery sub-section */}
       {socialGallery?.enabled && (
         <div className="border-t border-border pt-4">
           {socialGallery.subheading && <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{socialGallery.subheading}</p>}
           {socialGallery.heading && <h4 className="text-xs font-semibold mb-2">{socialGallery.heading}</h4>}
-          <div className={`grid gap-1.5`} style={{ gridTemplateColumns: `repeat(${Math.min(socialGallery.columns || 4, 5)}, 1fr)` }}>
+          <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${Math.min(socialGallery.columns || 4, 5)}, 1fr)` }}>
             {Array.from({ length: socialGallery.columns || 4 }).map((_, i) => (
               <div key={i} className="aspect-square rounded bg-muted flex items-center justify-center">
                 <span className="text-muted-foreground/40 text-sm">📷</span>
@@ -429,7 +419,6 @@ function OfferPreview({ schema }: { schema: Record<string, unknown> }) {
         </div>
       )}
 
-      {/* Newsletter sub-section */}
       {newsletter?.enabled && (
         <div className="border-t border-border pt-4">
           <h4 className="text-xs font-semibold">{newsletter.heading || "Subscribe"}</h4>
@@ -450,9 +439,7 @@ function PlansPreview({ schema }: { schema: Record<string, unknown> }) {
   const items = (schema.items as Array<{ name?: string; price?: string }>) || [];
   return (
     <div className="py-4 px-6">
-      <h3 className="text-sm font-semibold text-foreground mb-2">
-        {(schema.heading as string) || "Plans"}
-      </h3>
+      <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Plans"}</h3>
       {items.length === 0 ? (
         <p className="text-sm text-muted-foreground/60 italic">No plans added</p>
       ) : (
@@ -473,9 +460,7 @@ function RulesPreview({ schema }: { schema: Record<string, unknown> }) {
   const items = (schema.items as Array<{ text?: string }>) || [];
   return (
     <div className="py-4 px-6">
-      <h3 className="text-sm font-semibold text-foreground mb-2">
-        {(schema.heading as string) || "Rules"}
-      </h3>
+      <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Rules"}</h3>
       {items.length === 0 ? (
         <p className="text-sm text-muted-foreground/60 italic">No rules defined</p>
       ) : (
@@ -492,9 +477,7 @@ function RulesPreview({ schema }: { schema: Record<string, unknown> }) {
 function JoinPreview({ schema }: { schema: Record<string, unknown> }) {
   return (
     <div className="py-6 px-6 text-center">
-      {schema.description && (
-        <p className="text-sm text-muted-foreground mb-3">{schema.description as string}</p>
-      )}
+      {schema.description && <p className="text-sm text-muted-foreground mb-3">{schema.description as string}</p>}
       <button className="px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium">
         {(schema.label as string) || "Join Now"}
       </button>
@@ -502,7 +485,7 @@ function JoinPreview({ schema }: { schema: Record<string, unknown> }) {
   );
 }
 
-function ProductsPreview({ schema }: { schema: Record<string, unknown> }) {
+function ProductsPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
   const products = ((schema.products as Array<{
     name?: string; title?: string; price?: string; description?: string; images?: string[]; badge?: string; media?: Array<{ src?: string }>;
   }>) || []).map((p) => ({
@@ -522,16 +505,14 @@ function ProductsPreview({ schema }: { schema: Record<string, unknown> }) {
   }));
 
   const items = products.length > 0 ? products : legacyItems;
-  const seededItems = items.length > 0
-    ? items
-    : [
-        { name: "Modern Chair", price: "$89", image_url: demoImage(0), badge: "New" },
-        { name: "Stone Mug", price: "$24", image_url: demoImage(1), badge: "Hot" },
-        { name: "Table Lamp", price: "$56", image_url: demoImage(2), badge: "" },
-        { name: "Wall Mirror", price: "$112", image_url: demoImage(3), badge: "" },
-        { name: "Linen Set", price: "$78", image_url: demoImage(4), badge: "" },
-        { name: "Shelf Decor", price: "$34", image_url: demoImage(5), badge: "" },
-      ];
+  const seededItems = items.length > 0 ? items : [
+    { name: "Modern Chair", price: "$89", image_url: demoImage(0), badge: "New", description: "" },
+    { name: "Stone Mug", price: "$24", image_url: demoImage(1), badge: "Hot", description: "" },
+    { name: "Table Lamp", price: "$56", image_url: demoImage(2), badge: "", description: "" },
+    { name: "Wall Mirror", price: "$112", image_url: demoImage(3), badge: "", description: "" },
+    { name: "Linen Set", price: "$78", image_url: demoImage(4), badge: "", description: "" },
+    { name: "Shelf Decor", price: "$34", image_url: demoImage(5), badge: "", description: "" },
+  ];
   const gridSettings = (schema.grid as { columns_desktop?: number; columns_mobile?: number; gap?: string }) || {};
   const cols = Math.min(gridSettings.columns_desktop || 2, 4);
   const cardSettings = (schema.cards as { style?: string; image_ratio?: string; show_price?: boolean; show_title?: boolean; show_cta?: boolean; card_style?: string; hover_effect?: string; badge_enabled?: boolean }) || {};
@@ -542,18 +523,16 @@ function ProductsPreview({ schema }: { schema: Record<string, unknown> }) {
   return (
     <div className="py-4 px-6">
       {schema.heading && (
-        <h3 className="text-sm font-semibold text-foreground mb-1">
-          {schema.heading as string}
-        </h3>
+        <EditableText value={schema.heading as string} field="heading" className="text-sm font-semibold text-foreground mb-1" tag="h3" canvas={canvas} />
       )}
       {schema.description && (
-        <p className="text-[10px] text-muted-foreground mb-3 leading-relaxed">{schema.description as string}</p>
+        <EditableText value={schema.description as string} field="description" className="text-[10px] text-muted-foreground mb-3 leading-relaxed" tag="p" canvas={canvas} />
       )}
       <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
         {seededItems.map((item, i) => (
           <div key={i} className="rounded-lg border border-border bg-card overflow-hidden group">
             <div className={`bg-muted relative ${isPortrait ? "aspect-[3/4]" : isSquare ? "aspect-square" : "aspect-video"}`}>
-              <img src={item.image_url || demoImage(i)} alt={item.name || "Product"} className="w-full h-full object-cover" />
+              <EditableImage src={item.image_url || demoImage(i)} alt={item.name || "Product"} className="w-full h-full object-cover" field={`products.${i}.image`} canvas={canvas} />
               {item.badge && cardSettings.badge_enabled !== false && (
                 <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded text-[9px] font-medium bg-primary text-primary-foreground">{item.badge}</span>
               )}
@@ -561,9 +540,7 @@ function ProductsPreview({ schema }: { schema: Record<string, unknown> }) {
             <div className="p-2">
               <p className="text-[11px] font-medium truncate">{item.name || "Product"}</p>
               {item.price && <p className="text-[10px] text-primary font-semibold">{item.price}</p>}
-              {showCta && (
-                <span className="mt-1.5 block text-center text-[9px] font-medium py-1 rounded border border-border text-muted-foreground">Add to Cart</span>
-              )}
+              {showCta && <span className="mt-1.5 block text-center text-[9px] font-medium py-1 rounded border border-border text-muted-foreground">Add to Cart</span>}
             </div>
           </div>
         ))}
@@ -572,7 +549,7 @@ function ProductsPreview({ schema }: { schema: Record<string, unknown> }) {
   );
 }
 
-function CategoriesPreview({ schema }: { schema: Record<string, unknown> }) {
+function CategoriesPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
   const items = (schema.items as Array<{ name?: string; icon?: string; image_url?: string; media?: Array<{ src?: string }> }>) || [];
   const seeded = items.length > 0
     ? items
@@ -580,16 +557,14 @@ function CategoriesPreview({ schema }: { schema: Record<string, unknown> }) {
 
   return (
     <div className="py-4 px-6">
-      <h3 className="text-sm font-semibold text-foreground mb-2">
-        {(schema.heading as string) || "Categories"}
-      </h3>
+      <EditableText value={(schema.heading as string) || ""} field="heading" placeholder="Categories" className="text-sm font-semibold text-foreground mb-2" tag="h3" canvas={canvas} />
       <div className="grid grid-cols-3 gap-2">
         {seeded.slice(0, 9).map((item, i) => {
           const src = item.image_url || item.media?.[0]?.src || demoImage(i + 2);
           return (
             <div key={i} className="rounded-lg overflow-hidden border border-border bg-card">
               <div className="aspect-square bg-muted">
-                <img src={src} alt={item.name || "Category"} className="w-full h-full object-cover" />
+                <EditableImage src={src} alt={item.name || "Category"} className="w-full h-full object-cover" field={`items.${i}.image_url`} canvas={canvas} />
               </div>
               <p className="text-[10px] font-medium p-1.5 text-center truncate">{item.name || "Category"}</p>
             </div>
@@ -604,17 +579,13 @@ function ListingsPreview({ schema }: { schema: Record<string, unknown> }) {
   const items = (schema.items as Array<{ title?: string }>) || [];
   return (
     <div className="py-4 px-6">
-      <h3 className="text-sm font-semibold text-foreground mb-2">
-        {(schema.heading as string) || "Listings"}
-      </h3>
+      <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Listings"}</h3>
       {items.length === 0 ? (
         <p className="text-sm text-muted-foreground/60 italic">No listings added</p>
       ) : (
         <div className="space-y-2">
           {items.map((item, i) => (
-            <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 text-sm">
-              {item.title || "Listing"}
-            </div>
+            <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 text-sm">{item.title || "Listing"}</div>
           ))}
         </div>
       )}
@@ -626,18 +597,12 @@ function FiltersPreview({ schema }: { schema: Record<string, unknown> }) {
   const keys = (schema.keys as string[]) || [];
   return (
     <div className="py-4 px-6">
-      <h3 className="text-sm font-semibold text-foreground mb-2">
-        {(schema.heading as string) || "Filters"}
-      </h3>
+      <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Filters"}</h3>
       {keys.length === 0 ? (
         <p className="text-sm text-muted-foreground/60 italic">No filters configured</p>
       ) : (
         <div className="flex flex-wrap gap-2">
-          {keys.map((k, i) => (
-            <span key={i} className="px-3 py-1 rounded-full border border-border text-xs">
-              {k}
-            </span>
-          ))}
+          {keys.map((k, i) => <span key={i} className="px-3 py-1 rounded-full border border-border text-xs">{k}</span>)}
         </div>
       )}
     </div>
@@ -648,9 +613,7 @@ function ServicesPreview({ schema }: { schema: Record<string, unknown> }) {
   const items = (schema.items as Array<{ name?: string; price?: string; description?: string; icon?: string }>) || [];
   return (
     <div className="py-4 px-6">
-      <h3 className="text-sm font-semibold text-foreground mb-2">
-        {(schema.heading as string) || "Services"}
-      </h3>
+      <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Services"}</h3>
       {items.length === 0 ? (
         <p className="text-sm text-muted-foreground/60 italic">No services added</p>
       ) : (
@@ -658,10 +621,7 @@ function ServicesPreview({ schema }: { schema: Record<string, unknown> }) {
           {items.map((item, i) => (
             <div key={i} className="p-3 rounded-lg border border-border bg-muted/50">
               <div className="flex justify-between items-start">
-                <p className="text-sm font-medium">
-                  {item.icon && <span className="mr-1.5">{item.icon}</span>}
-                  {item.name || "Service"}
-                </p>
+                <p className="text-sm font-medium">{item.icon && <span className="mr-1.5">{item.icon}</span>}{item.name || "Service"}</p>
                 {item.price && <p className="text-xs font-medium text-primary shrink-0 ml-2">{item.price}</p>}
               </div>
               {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
@@ -677,9 +637,7 @@ function FeaturedPreview({ schema }: { schema: Record<string, unknown> }) {
   const items = (schema.items as Array<{ title?: string; description?: string; image_url?: string; href?: string }>) || [];
   return (
     <div className="py-4 px-6">
-      <h3 className="text-sm font-semibold text-foreground mb-2">
-        {(schema.title as string) || "Featured"}
-      </h3>
+      <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.title as string) || "Featured"}</h3>
       {items.length === 0 ? (
         <p className="text-sm text-muted-foreground/60 italic">No featured items</p>
       ) : (
@@ -706,9 +664,7 @@ function TestimonialsPreview({ schema }: { schema: Record<string, unknown> }) {
   const items = (schema.items as Array<{ name?: string; quote?: string }>) || [];
   return (
     <div className="py-4 px-6">
-      <h3 className="text-sm font-semibold text-foreground mb-2">
-        {(schema.heading as string) || "Testimonials"}
-      </h3>
+      <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Testimonials"}</h3>
       {items.length === 0 ? (
         <p className="text-sm text-muted-foreground/60 italic">No testimonials added</p>
       ) : (
@@ -729,9 +685,7 @@ function FaqPreview({ schema }: { schema: Record<string, unknown> }) {
   const items = (schema.items as Array<{ question?: string; answer?: string }>) || [];
   return (
     <div className="py-4 px-6">
-      <h3 className="text-sm font-semibold text-foreground mb-2">
-        {(schema.heading as string) || "FAQ"}
-      </h3>
+      <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "FAQ"}</h3>
       {items.length === 0 ? (
         <p className="text-sm text-muted-foreground/60 italic">No FAQ items added</p>
       ) : (
@@ -748,20 +702,14 @@ function FaqPreview({ schema }: { schema: Record<string, unknown> }) {
   );
 }
 
-function ContactPreview({ schema }: { schema: Record<string, unknown> }) {
-  const email = (schema.email as string) || "hello@yourstore.com";
-  const phone = (schema.phone as string) || "+1 (000) 000-0000";
-  const address = (schema.address as string) || "123 Your Street, City";
-
+function ContactPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
   return (
     <div className="py-4 px-6">
-      <h3 className="text-sm font-semibold text-foreground mb-2">
-        {(schema.heading as string) || "Contact"}
-      </h3>
+      <EditableText value={(schema.heading as string) || ""} field="heading" placeholder="Contact" className="text-sm font-semibold text-foreground mb-2" tag="h3" canvas={canvas} />
       <div className="space-y-1 text-sm text-muted-foreground">
-        <p>✉️ {email}</p>
-        <p>📞 {phone}</p>
-        <p>📍 {address}</p>
+        <p>✉️ {(schema.email as string) || "hello@yourstore.com"}</p>
+        <p>📞 {(schema.phone as string) || "+1 (000) 000-0000"}</p>
+        <p>📍 {(schema.address as string) || "123 Your Street, City"}</p>
       </div>
     </div>
   );
@@ -771,9 +719,7 @@ function SchedulePreview({ schema }: { schema: Record<string, unknown> }) {
   const items = (schema.items as Array<{ time?: string; title?: string }>) || [];
   return (
     <div className="py-4 px-6">
-      <h3 className="text-sm font-semibold text-foreground mb-2">
-        {(schema.heading as string) || "Schedule"}
-      </h3>
+      <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Schedule"}</h3>
       {items.length === 0 ? (
         <p className="text-sm text-muted-foreground/60 italic">No schedule items</p>
       ) : (
@@ -794,9 +740,7 @@ function MenuPreview({ schema }: { schema: Record<string, unknown> }) {
   const categories = (schema.categories as Array<{ name?: string; items?: Array<{ name?: string; price?: string }> }>) || [];
   return (
     <div className="py-4 px-6">
-      <h3 className="text-sm font-semibold text-foreground mb-2">
-        {(schema.heading as string) || "Menu"}
-      </h3>
+      <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Menu"}</h3>
       {categories.length === 0 ? (
         <p className="text-sm text-muted-foreground/60 italic">No menu items added</p>
       ) : (
@@ -822,9 +766,7 @@ function HoursPreview({ schema }: { schema: Record<string, unknown> }) {
   const items = (schema.items as Array<{ day?: string; hours?: string }>) || [];
   return (
     <div className="py-4 px-6">
-      <h3 className="text-sm font-semibold text-foreground mb-2">
-        {(schema.heading as string) || "Opening Hours"}
-      </h3>
+      <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Opening Hours"}</h3>
       {items.length === 0 ? (
         <p className="text-sm text-muted-foreground/60 italic">No hours set</p>
       ) : (
@@ -844,12 +786,8 @@ function HoursPreview({ schema }: { schema: Record<string, unknown> }) {
 function LocationPreview({ schema }: { schema: Record<string, unknown> }) {
   return (
     <div className="py-4 px-6">
-      <h3 className="text-sm font-semibold text-foreground mb-2">
-        {(schema.heading as string) || "Location"}
-      </h3>
-      <p className="text-sm text-muted-foreground">
-        {(schema.address as string) || "No address set"}
-      </p>
+      <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Location"}</h3>
+      <p className="text-sm text-muted-foreground">{(schema.address as string) || "No address set"}</p>
       {schema.mapUrl && (
         <div className="mt-2 aspect-video rounded-lg bg-muted flex items-center justify-center">
           <p className="text-xs text-muted-foreground">📍 Map</p>
@@ -859,15 +797,11 @@ function LocationPreview({ schema }: { schema: Record<string, unknown> }) {
   );
 }
 
-function AboutPreview({ schema }: { schema: Record<string, unknown> }) {
+function AboutPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
   return (
     <div className="py-4 px-6">
-      <h3 className="text-sm font-semibold text-foreground mb-1">
-        {(schema.heading as string) || "About Us"}
-      </h3>
-      <p className="text-sm text-muted-foreground">
-        {(schema.body as string) || "Tell people about your community..."}
-      </p>
+      <EditableText value={(schema.heading as string) || ""} field="heading" placeholder="About Us" className="text-sm font-semibold text-foreground mb-1" tag="h3" canvas={canvas} />
+      <EditableText value={(schema.body as string) || ""} field="body" placeholder="Tell people about your community..." className="text-sm text-muted-foreground" tag="p" canvas={canvas} />
     </div>
   );
 }
@@ -875,14 +809,11 @@ function AboutPreview({ schema }: { schema: Record<string, unknown> }) {
 function GenericPreview({ section }: { section: EditorSection }) {
   return (
     <div className="py-4 px-6">
-      <p className="text-sm text-muted-foreground italic">
-        {section.section_type} section
-      </p>
+      <p className="text-sm text-muted-foreground italic">{section.section_type} section</p>
     </div>
   );
 }
 
-// ─── Preview map ───
 // ─── Header preview ───
 function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
   const logoUrl = (schema.logo_url as string) || "";
@@ -896,12 +827,10 @@ function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
   const bgStyle = (schema.background_style as string) || "";
   const isDark = bgStyle === "dark";
   const sizeMap: Record<string, string> = { small: "h-8 w-8", medium: "h-10 w-10", large: "h-14 w-14" };
-
   const isCenterLogo = logoPosition === "center" || layoutVariant === "nav_split";
 
   return (
     <div className={`py-2.5 px-4 flex items-center gap-2 ${isDark ? "bg-foreground/90" : ""}`}>
-      {/* Left nav items (for split layout) */}
       {isCenterLogo && navItems.length > 0 && (
         <div className="flex gap-2 flex-1">
           {navItems.slice(0, 3).map((item, i) => (
@@ -909,8 +838,6 @@ function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
           ))}
         </div>
       )}
-
-      {/* Logo */}
       <div className={`flex items-center gap-2 ${isCenterLogo ? "" : "flex-1"}`}>
         {logoUrl ? (
           <img src={logoUrl} alt="Logo" className={`${sizeMap[logoSize] || "h-10 w-10"} object-contain rounded`} />
@@ -919,8 +846,6 @@ function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
         )}
         {showName && <span className={`text-xs font-semibold ${isDark ? "text-background" : "text-foreground"}`}>Store</span>}
       </div>
-
-      {/* Right side */}
       <div className="flex items-center gap-2">
         {!isCenterLogo && navItems.length > 0 && navItems.slice(0, 3).map((item, i) => (
           <span key={i} className={`text-[10px] ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
@@ -936,7 +861,7 @@ function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
 }
 
 // ─── Footer preview ───
-function FooterPreview({ schema }: { schema: Record<string, unknown> }) {
+function FooterPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
   const social = (schema.social as Record<string, string>) || {};
   const hours = (schema.hours as Array<{ day?: string; hours?: string }>) || [];
   const socialEntries = Object.entries(social).filter(([, v]) => v);
@@ -949,7 +874,6 @@ function FooterPreview({ schema }: { schema: Record<string, unknown> }) {
 
   return (
     <div className="py-4 px-6 bg-muted/30 space-y-3">
-      {/* Newsletter in footer */}
       {newsletterEnabled && (
         <div className="pb-3 border-b border-border">
           <h4 className="text-xs font-semibold">{newsletterHeading || "Subscribe"}</h4>
@@ -962,8 +886,6 @@ function FooterPreview({ schema }: { schema: Record<string, unknown> }) {
           </div>
         </div>
       )}
-
-      {/* Multi-column links */}
       {isMultiColumn && columns.length > 0 && (
         <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${Math.min(columns.length, 3)}, 1fr)` }}>
           {columns.map((col, i) => (
@@ -976,8 +898,6 @@ function FooterPreview({ schema }: { schema: Record<string, unknown> }) {
           ))}
         </div>
       )}
-
-      {/* Traditional footer info */}
       {!isMultiColumn && (
         <>
           <h3 className="text-sm font-semibold text-foreground mb-2">Footer</h3>
@@ -988,7 +908,6 @@ function FooterPreview({ schema }: { schema: Record<string, unknown> }) {
           </div>
         </>
       )}
-
       {socialEntries.length > 0 && (
         <div className="flex gap-2 flex-wrap">
           {socialEntries.map(([platform, handle]) => (
@@ -1011,7 +930,15 @@ function FooterPreview({ schema }: { schema: Record<string, unknown> }) {
   );
 }
 
-export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<string, unknown> }>> = {
+// ─── Preview map (canvas-aware renderers get canvas prop passed separately) ───
+const CANVAS_AWARE_TYPES = new Set([
+  "hero", "hero_banner", "bio", "text", "about", "offer", "offers", "promo", "promo_banner",
+  "trust_badges", "cta", "cta_block", "newsletter", "products", "product_grid",
+  "categories", "category_grid", "collections", "gallery", "instagram_gallery", "media_grid",
+  "contact", "contact_section", "footer",
+]);
+
+export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<string, unknown>; canvas?: CanvasCallbacks }>> = {
   hero: HeroPreview,
   hero_banner: HeroPreview,
   header: HeaderPreview,
@@ -1070,7 +997,6 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
   const ps = pageSettings || DEFAULT_PAGE_SETTINGS;
   const isLayoutB = ps.layout === "layout_b";
 
-  // Console proof for layout switching
   useEffect(() => {
     console.log("BUILDER_LAYOUT_SWITCHED", { layout: isLayoutB ? "B" : "A", wireframeId: ps.layout });
   }, [ps.layout, isLayoutB]);
@@ -1095,24 +1021,20 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
     ...(primaryToken ? { "--primary": primaryToken, "--accent": primaryToken, "--ring": primaryToken } : {}),
     ...(resolvedForegroundToken ? { "--foreground": resolvedForegroundToken, "--muted-foreground": resolvedForegroundToken } : {}),
     ...(primaryToken && !isDark ? { "--background": primaryToken, "--card": cardToken || primaryToken } : {}),
-    ...(isDark
-      ? {
-          "--background": "240 17% 12%",
-          "--foreground": resolvedForegroundToken || "210 40% 98%",
-          "--card": cardToken || "240 17% 14%",
-          "--muted": "240 10% 20%",
-          "--border": "240 10% 30%",
-        }
-      : {}),
+    ...(isDark ? {
+      "--background": "240 17% 12%",
+      "--foreground": resolvedForegroundToken || "210 40% 98%",
+      "--card": cardToken || "240 17% 14%",
+      "--muted": "240 10% 20%",
+      "--border": "240 10% 30%",
+    } : {}),
   } as React.CSSProperties;
 
   if (sections.length === 0) {
     return (
       <Card className="p-12 text-center">
         <p className="text-lg font-semibold text-muted-foreground">No sections yet</p>
-        <p className="text-sm text-muted-foreground/70 mt-1">
-          Add sections from the left panel to start building your page.
-        </p>
+        <p className="text-sm text-muted-foreground/70 mt-1">Add sections from the left panel to start building your page.</p>
       </Card>
     );
   }
@@ -1122,12 +1044,10 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
   return (
     <>
       <div className="max-w-md mx-auto border border-border rounded-xl overflow-hidden shadow-sm bg-background text-foreground" style={themeStyle}>
-        {/* Phone-like frame header */}
         <div className="bg-muted/50 border-b border-border px-4 py-2">
           <p className="text-xs text-muted-foreground text-center truncate">{surfaceTitle}</p>
         </div>
 
-        {/* Sections — Layout A = stacked with dividers, Layout B = compact cards */}
         <div className={isLayoutB ? "p-2 space-y-2" : "divide-y divide-border"}>
           {sections
             .filter((s) => s.is_visible)
@@ -1146,6 +1066,15 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
                 ...(sectionFontFamily ? { fontFamily: sectionFontFamily } : {}),
               } as React.CSSProperties;
 
+              // Build canvas callbacks for inline editing
+              const canvas: CanvasCallbacks | undefined = canvasEditEnabled
+                ? {
+                    sectionId: section.id,
+                    onUpdateField: onUpdateSectionField,
+                    onImageReplace: onImageReplace,
+                  }
+                : undefined;
+
               return (
                 <div
                   key={section.id}
@@ -1157,7 +1086,6 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
                       : "border-b border-border last:border-b-0"
                   } ${selectedSectionId === section.id ? "ring-2 ring-primary ring-inset" : "hover:bg-accent/5"}`}
                 >
-                  {/* Section hover controls */}
                   {canvasEditEnabled && onHideSection && onDeleteSection && (
                     <CanvasSectionControls
                       sectionId={section.id}
@@ -1166,13 +1094,18 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
                       onDelete={onDeleteSection}
                     />
                   )}
-                  {Preview ? <Preview schema={displaySchema} /> : <GenericPreview section={section} />}
+                  {Preview ? (
+                    CANVAS_AWARE_TYPES.has(section.section_type)
+                      ? <Preview schema={displaySchema} canvas={canvas} />
+                      : <Preview schema={displaySchema} />
+                  ) : (
+                    <GenericPreview section={section} />
+                  )}
                 </div>
               );
             })}
         </div>
 
-        {/* Floating CTA preview */}
         {ps.floating_cta && (
           <div className="sticky bottom-0 p-3 flex justify-end">
             <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center shadow-lg">
@@ -1184,7 +1117,6 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
         )}
       </div>
 
-      {/* First-time canvas editing hints */}
       {canvasEditEnabled && <CanvasHints />}
     </>
   );
