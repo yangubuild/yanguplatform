@@ -181,7 +181,7 @@ function HeaderForm({ schema, update, surfaceId }: FormProps & { surfaceId?: str
 
   return (
     <>
-      {/* Logo upload / pick */}
+      {/* Logo upload / pick — no Media Type selector for logo */}
       <div className="space-y-1.5">
         <Label className="text-xs font-medium">Logo</Label>
         {mediaValue.url && (
@@ -195,6 +195,7 @@ function HeaderForm({ schema, update, surfaceId }: FormProps & { surfaceId?: str
             update({ logo_url: v.url, logo_media: v });
           }}
           surfaceId={surfaceId || ""}
+          hideTypeSelector
         />
         <p className="text-xs text-muted-foreground">Recommended: Square image, max 5MB</p>
       </div>

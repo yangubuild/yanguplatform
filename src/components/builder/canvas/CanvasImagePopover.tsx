@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Upload, Image, Sparkles, Link2, Trash2 } from "lucide-react";
+import { Upload, Image, Sparkles, Link2, Trash2, ExternalLink } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -12,6 +12,8 @@ interface CanvasImagePopoverProps {
   className?: string;
   onReplace: (newUrl: string, source: "upload" | "stock" | "ai" | "url") => void;
   onRemove?: () => void;
+  linkUrl?: string;
+  onLinkChange?: (url: string) => void;
 }
 
 export function CanvasImagePopover({
@@ -20,10 +22,14 @@ export function CanvasImagePopover({
   className = "",
   onReplace,
   onRemove,
+  linkUrl,
+  onLinkChange,
 }: CanvasImagePopoverProps) {
   const [open, setOpen] = useState(false);
   const [urlInput, setUrlInput] = useState("");
   const [showUrl, setShowUrl] = useState(false);
+  const [showLink, setShowLink] = useState(false);
+  const [linkInput, setLinkInput] = useState(linkUrl || "");
 
   const handleUpload = () => {
     const input = document.createElement("input");
@@ -52,11 +58,17 @@ export function CanvasImagePopover({
     }
   };
 
+  const handleLinkSubmit = () => {
+    onLinkChange?.(linkInput.trim());
+    setShowLink(false);
+  };
+
   const actions = [
     { icon: Upload, label: "Upload image", onClick: handleUpload },
     { icon: Image, label: "Choose stock image", onClick: () => { onReplace("", "stock"); setOpen(false); } },
     { icon: Sparkles, label: "Generate with AI", onClick: () => { onReplace("", "ai"); setOpen(false); } },
-    { icon: Link2, label: "Paste image URL", onClick: () => setShowUrl(!showUrl) },
+    { icon: Link2, label: "Paste image URL", onClick: () => { setShowUrl(!showUrl); setShowLink(false); } },
+    ...(onLinkChange ? [{ icon: ExternalLink, label: linkUrl ? "Edit link" : "Add link", onClick: () => { setShowLink(!showLink); setShowUrl(false); } }] : []),
     ...(onRemove ? [{ icon: Trash2, label: "Remove image", onClick: () => { onRemove(); setOpen(false); } }] : []),
   ];
 
@@ -73,6 +85,11 @@ export function CanvasImagePopover({
               Click to edit
             </span>
           </div>
+          {linkUrl && (
+            <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+              <ExternalLink className="h-2.5 w-2.5" />
+            </div>
+          )}
         </div>
       </PopoverTrigger>
       <PopoverContent
@@ -112,6 +129,36 @@ export function CanvasImagePopover({
             >
               Go
             </button>
+          </div>
+        )}
+        {showLink && onLinkChange && (
+          <div className="mt-1.5 pt-1.5 border-t border-border space-y-1">
+            <p className="text-[10px] text-muted-foreground">Link URL (opens in new tab)</p>
+            <div className="flex gap-1">
+              <input
+                type="url"
+                value={linkInput}
+                onChange={(e) => setLinkInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleLinkSubmit()}
+                placeholder="https://..."
+                className="flex-1 text-xs px-2 py-1 rounded border border-border bg-background outline-none focus:ring-1 focus:ring-primary/50"
+                autoFocus
+              />
+              <button
+                onClick={handleLinkSubmit}
+                className="px-2 py-1 text-xs rounded bg-primary text-primary-foreground"
+              >
+                Set
+              </button>
+            </div>
+            {linkUrl && (
+              <button
+                onClick={() => { onLinkChange(""); setLinkInput(""); setShowLink(false); }}
+                className="text-[10px] text-destructive hover:underline"
+              >
+                Remove link
+              </button>
+            )}
           </div>
         )}
       </PopoverContent>
