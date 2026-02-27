@@ -281,10 +281,30 @@ export default function BuilderEditor() {
               const section = sections.find((s) => s.id === sectionId);
               if (!section) return;
               const newSchema = { ...section.schema };
-              // Handle nested media object
+              // Handle nested media object (hero)
               if (fieldPath === "media.url") {
                 const media = (newSchema.media as Record<string, unknown>) || {};
                 newSchema.media = { ...media, url, type: "image" };
+              } else if (fieldPath.startsWith("items.")) {
+                // Handle gallery/collection items: "items.0" → update items[0].src
+                const idx = parseInt(fieldPath.split(".")[1], 10);
+                const items = [...((newSchema.items as any[]) || [])];
+                if (idx < items.length) {
+                  const item = typeof items[idx] === "string" ? { src: url } : { ...items[idx], src: url };
+                  items[idx] = item;
+                } else {
+                  items.push({ src: url });
+                }
+                newSchema.items = items;
+              } else if (fieldPath.startsWith("products.") && fieldPath.endsWith(".image")) {
+                // Handle product images: "products.0.image" → update products[0].image_url
+                const idx = parseInt(fieldPath.split(".")[1], 10);
+                const key = newSchema.products ? "products" : "items";
+                const items = [...((newSchema[key] as any[]) || [])];
+                if (idx < items.length) {
+                  items[idx] = { ...items[idx], image_url: url };
+                }
+                newSchema[key] = items;
               } else {
                 (newSchema as any)[fieldPath] = url;
               }

@@ -34,7 +34,9 @@ const CORE_SLOT_MAP: Record<string, string> = {
   categories: "main_content",
   collections: "main_content",
   listings: "main_content",
+  services: "main_content",
   offer: "offer",
+  contact: "contact",
   footer: "footer",
 };
 
@@ -54,7 +56,7 @@ const toAiSeedSections = (value: unknown): { type: string; schema: Record<string
     .filter((entry): entry is { type: string; schema: Record<string, unknown>; core_slot?: string } => !!entry);
 };
 
-/** Ensure AI-generated sections include all core slots (header, hero, offer, footer) */
+/** Ensure AI-generated sections include all core slots and merge contact→footer to prevent duplicates */
 function ensureCoreSections(
   aiSections: { type: string; schema: Record<string, unknown>; core_slot?: string }[],
   businessName: string,
@@ -81,8 +83,35 @@ function ensureCoreSections(
     });
   }
 
-  // Ensure footer
-  if (!types.has("footer")) {
+  // Merge contact data into footer to prevent duplicate contact blocks
+  const contactIdx = sections.findIndex((s) => s.type === "contact");
+  const footerIdx = sections.findIndex((s) => s.type === "footer");
+  
+  if (contactIdx >= 0 && footerIdx >= 0) {
+    // Merge contact fields into footer and remove standalone contact
+    const contactSchema = sections[contactIdx].schema;
+    const footerSchema = sections[footerIdx].schema;
+    if (!footerSchema.email && contactSchema.email) footerSchema.email = contactSchema.email;
+    if (!footerSchema.phone && contactSchema.phone) footerSchema.phone = contactSchema.phone;
+    if (!footerSchema.address && contactSchema.address) footerSchema.address = contactSchema.address;
+    sections.splice(contactIdx, 1);
+  } else if (contactIdx >= 0 && footerIdx < 0) {
+    // No footer but contact exists — convert contact to footer
+    const contact = sections[contactIdx];
+    sections[contactIdx] = {
+      type: "footer",
+      schema: mergeIntoDefault("footer", {
+        heading: "Footer",
+        email: String(contact.schema.email || ""),
+        phone: String(contact.schema.phone || ""),
+        address: String(contact.schema.address || ""),
+      }),
+      core_slot: "footer",
+    };
+  }
+
+  // Ensure footer exists
+  if (!sections.some((s) => s.type === "footer")) {
     sections.push({
       type: "footer",
       schema: mergeIntoDefault("footer", {
@@ -93,6 +122,17 @@ function ensureCoreSections(
       }),
       core_slot: "footer",
     });
+  }
+
+  // Store business metadata in hero if available from Google
+  const heroSection = sections.find((s) => s.type === "hero");
+  if (heroSection) {
+    if (!heroSection.schema.headline || heroSection.schema.headline === "Your Headline") {
+      heroSection.schema.headline = businessName;
+    }
+    if (!heroSection.schema.subheadline && answers.business_description) {
+      heroSection.schema.subheadline = String(answers.business_description);
+    }
   }
 
   return sections;
@@ -152,6 +192,19 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
     metadata.brand = { primary_color: primaryColor };
     if (photos.length > 0) metadata.photos = photos;
     metadata.industry = String(answers.industry || "");
+    
+    // Store structured business data for future use (no secrets, just public info)
+    metadata.business = {
+      name: businessName,
+      phone: String(answers.contact_phone || ""),
+      address: String(answers.location || ""),
+      website: String(answers.website || ""),
+      category: String(answers.industry || ""),
+      description: String(answers.business_description || ""),
+      google_maps_url: String(answers.google_maps_url || ""),
+      photos: photos,
+    };
+
     if (answers._ai_setup) {
       metadata.ai_setup = true;
       metadata.ai_source = aiSource;

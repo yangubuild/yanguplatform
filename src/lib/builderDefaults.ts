@@ -4,6 +4,7 @@
  */
 
 const DEFAULTS: Record<string, Record<string, unknown>> = {
+  header: { logo_url: "", show_name: true, name_next_to_logo: true },
   hero: { headline: "", subheadline: "", cta_text: "", cta_href: "", media: { type: "none", source: "url", url: "", alt: "", fit: "contain" } },
   featured: { title: "", items: [] },
   bio: { text: "" },
@@ -14,7 +15,7 @@ const DEFAULTS: Record<string, Record<string, unknown>> = {
   cta: { label: "", url: "" },
   join: { label: "", url: "", description: "" },
   video: { url: "" },
-  gallery: { items: [] },
+  gallery: { heading: "", items: [] },
   offer: { heading: "", items: [] },
   plans: { heading: "", items: [] },
   faq: { heading: "", items: [] },
@@ -30,6 +31,7 @@ const DEFAULTS: Record<string, Record<string, unknown>> = {
   rules: { heading: "", items: [] },
   categories: { heading: "", items: [] },
   filters: { heading: "", keys: [] },
+  footer: { heading: "Footer", email: "", phone: "", address: "" },
 };
 
 /**

@@ -181,9 +181,21 @@ Generate 5-7 sections minimum.`;
       : toolCall.function.arguments;
 
     // Filter sections to only allowed types
-    const filteredSections = (args.sections || []).filter(
+    let filteredSections = (args.sections || []).filter(
       (s: { type: string }) => allowedTypes.includes(s.type)
     );
+
+    // Post-process: merge standalone contact into footer to prevent duplicates
+    const contactIdx = filteredSections.findIndex((s: { type: string }) => s.type === "contact");
+    const footerIdx = filteredSections.findIndex((s: { type: string }) => s.type === "footer");
+    if (contactIdx >= 0 && footerIdx >= 0) {
+      const contactSchema = filteredSections[contactIdx].schema || {};
+      const footerSchema = filteredSections[footerIdx].schema || {};
+      if (!footerSchema.email && contactSchema.email) footerSchema.email = contactSchema.email;
+      if (!footerSchema.phone && contactSchema.phone) footerSchema.phone = contactSchema.phone;
+      if (!footerSchema.address && contactSchema.address) footerSchema.address = contactSchema.address;
+      filteredSections = filteredSections.filter((_: unknown, i: number) => i !== contactIdx);
+    }
 
     // Post-process: inject real photos into sections if AI didn't use them
     if (hasPhotos) {
@@ -195,11 +207,10 @@ Generate 5-7 sections minimum.`;
         if (section.type === "hero") {
           const media = (schema.media as Record<string, unknown>) || {};
           const mediaUrl = media.url || (schema as any).media_url;
-          if (!mediaUrl || !String(mediaUrl).startsWith("http")) {
+          if (!mediaUrl || !String(mediaUrl).startsWith("http") || String(mediaUrl).includes("placeholder") || String(mediaUrl).includes("picsum")) {
             schema.media = { type: "image", url: businessPhotos[0], fit: "cover" };
             photoIdx = 1;
           } else if (!schema.media || typeof schema.media !== "object") {
-            // AI returned media_url instead of media object — convert
             schema.media = { type: "image", url: mediaUrl, fit: "cover" };
             delete (schema as any).media_url;
             photoIdx = 1;
@@ -212,16 +223,21 @@ Generate 5-7 sections minimum.`;
           delete schema.cta_label;
         }
 
-        // Gallery — ensure items have "src" field
+        // Gallery — ensure items have "src" field with real photos
         if (section.type === "gallery" && schema.items && Array.isArray(schema.items)) {
           for (const item of schema.items) {
             if (item.image_url && !item.src) {
               item.src = item.image_url;
             }
-            if (photoIdx < businessPhotos.length && (!item.src || !String(item.src).startsWith("http"))) {
+            if (photoIdx < businessPhotos.length && (!item.src || !String(item.src).startsWith("http") || String(item.src).includes("picsum") || String(item.src).includes("placeholder"))) {
               item.src = businessPhotos[photoIdx];
               photoIdx++;
             }
+          }
+          // If gallery has fewer items than available photos, add more
+          while (photoIdx < businessPhotos.length && schema.items.length < 10) {
+            schema.items.push({ name: `Photo ${schema.items.length + 1}`, src: businessPhotos[photoIdx] });
+            photoIdx++;
           }
         }
 
@@ -229,12 +245,29 @@ Generate 5-7 sections minimum.`;
         if ((section.type === "products" || section.type === "categories" || section.type === "collections") && schema.items && Array.isArray(schema.items)) {
           for (const item of schema.items) {
             if (photoIdx < businessPhotos.length) {
-              if (!item.image_url || !String(item.image_url).startsWith("http") || String(item.image_url).includes("placeholder")) {
+              if (!item.image_url || !String(item.image_url).startsWith("http") || String(item.image_url).includes("placeholder") || String(item.image_url).includes("picsum")) {
                 item.image_url = businessPhotos[photoIdx];
                 photoIdx++;
               }
             }
           }
+        }
+      }
+
+      // If we still have unused photos and there's no gallery section, add one
+      if (photoIdx < businessPhotos.length && !filteredSections.some((s: { type: string }) => s.type === "gallery") && allowedTypes.includes("gallery")) {
+        const remainingPhotos = businessPhotos.slice(photoIdx);
+        const galleryItems = remainingPhotos.map((url: string, i: number) => ({
+          name: `Photo ${i + 1}`,
+          src: url,
+        }));
+        // Insert gallery before footer/contact
+        const insertIdx = filteredSections.findIndex((s: { type: string }) => s.type === "footer" || s.type === "contact");
+        const gallerySection = { type: "gallery", schema: { heading: "Gallery", items: galleryItems } };
+        if (insertIdx >= 0) {
+          filteredSections.splice(insertIdx, 0, gallerySection);
+        } else {
+          filteredSections.push(gallerySection);
         }
       }
     }
