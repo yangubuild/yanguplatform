@@ -5,6 +5,8 @@ import type { BuilderTheme } from "./BuilderSettingsDrawer";
 import { DEFAULT_THEME } from "./BuilderSettingsDrawer";
 import type { PageEditSettings } from "@/config/builderCoreSections";
 import { DEFAULT_PAGE_SETTINGS } from "@/config/builderCoreSections";
+import { CanvasSectionControls } from "./canvas/CanvasSectionControls";
+import { CanvasHints } from "./canvas/CanvasHints";
 
 interface BuilderPreviewProps {
   sections: EditorSection[];
@@ -15,6 +17,11 @@ interface BuilderPreviewProps {
   pageSettings?: PageEditSettings;
   /** Live override for a single section's schema (before save) */
   liveSchemaOverride?: { sectionId: string; schema: Record<string, unknown> } | null;
+  /** Canvas editing callbacks */
+  onUpdateSectionField?: (sectionId: string, fieldPath: string, value: unknown) => void;
+  onHideSection?: (sectionId: string) => void;
+  onDeleteSection?: (sectionId: string) => void;
+  onImageReplace?: (sectionId: string, fieldPath: string, url: string, source: string) => void;
 }
 
 // ─── Existing live_bio renderers (unchanged) ───
@@ -1058,7 +1065,7 @@ export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<st
   community_feed: TextPreview,
 };
 
-export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSelectSection, theme, pageSettings, liveSchemaOverride }: BuilderPreviewProps) {
+export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSelectSection, theme, pageSettings, liveSchemaOverride, onUpdateSectionField, onHideSection, onDeleteSection, onImageReplace }: BuilderPreviewProps) {
   const t = theme || DEFAULT_THEME;
   const ps = pageSettings || DEFAULT_PAGE_SETTINGS;
   const isLayoutB = ps.layout === "layout_b";
@@ -1110,59 +1117,75 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
     );
   }
 
+  const canvasEditEnabled = !!(onUpdateSectionField || onHideSection || onDeleteSection);
+
   return (
-    <div className="max-w-md mx-auto border border-border rounded-xl overflow-hidden shadow-sm bg-background text-foreground" style={themeStyle}>
-      {/* Phone-like frame header */}
-      <div className="bg-muted/50 border-b border-border px-4 py-2">
-        <p className="text-xs text-muted-foreground text-center truncate">{surfaceTitle}</p>
-      </div>
-
-      {/* Sections — Layout A = stacked with dividers, Layout B = compact cards */}
-      <div className={isLayoutB ? "p-2 space-y-2" : "divide-y divide-border"}>
-        {sections
-          .filter((s) => s.is_visible)
-          .map((section) => {
-            const Preview = PREVIEW_MAP[section.section_type];
-            const displaySchema = (liveSchemaOverride && liveSchemaOverride.sectionId === section.id)
-              ? liveSchemaOverride.schema
-              : section.schema;
-
-            const sectionFontParts = hexToHslParts((displaySchema.section_font_color as string) || "");
-            const sectionBgParts = hexToHslParts((displaySchema.section_background_color as string) || "");
-            const sectionFontFamily = (displaySchema.section_font_family as string) || "";
-            const sectionStyle: React.CSSProperties = {
-              ...(sectionBgParts ? { "--card": toHslToken(sectionBgParts), "--muted": toHslToken(sectionBgParts) } : {}),
-              ...(sectionFontParts ? { "--foreground": toHslToken(sectionFontParts), "--muted-foreground": toHslToken(sectionFontParts) } : {}),
-              ...(sectionFontFamily ? { fontFamily: sectionFontFamily } : {}),
-            } as React.CSSProperties;
-
-            return (
-              <div
-                key={section.id}
-                onClick={() => onSelectSection?.(section.id)}
-                style={sectionStyle}
-                className={`cursor-pointer transition-all ${
-                  isLayoutB
-                    ? "rounded-lg border border-border bg-card shadow-sm"
-                    : "border-b border-border last:border-b-0"
-                } ${selectedSectionId === section.id ? "ring-2 ring-primary ring-inset" : "hover:bg-accent/5"}`}
-              >
-                {Preview ? <Preview schema={displaySchema} /> : <GenericPreview section={section} />}
-              </div>
-            );
-          })}
-      </div>
-
-      {/* Floating CTA preview */}
-      {ps.floating_cta && (
-        <div className="sticky bottom-0 p-3 flex justify-end">
-          <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center shadow-lg">
-            <span className="text-primary-foreground text-lg">
-              {(ps.floating_cta_channel || "whatsapp") === "whatsapp" ? "💬" : "✉️"}
-            </span>
-          </div>
+    <>
+      <div className="max-w-md mx-auto border border-border rounded-xl overflow-hidden shadow-sm bg-background text-foreground" style={themeStyle}>
+        {/* Phone-like frame header */}
+        <div className="bg-muted/50 border-b border-border px-4 py-2">
+          <p className="text-xs text-muted-foreground text-center truncate">{surfaceTitle}</p>
         </div>
-      )}
-    </div>
+
+        {/* Sections — Layout A = stacked with dividers, Layout B = compact cards */}
+        <div className={isLayoutB ? "p-2 space-y-2" : "divide-y divide-border"}>
+          {sections
+            .filter((s) => s.is_visible)
+            .map((section) => {
+              const Preview = PREVIEW_MAP[section.section_type];
+              const displaySchema = (liveSchemaOverride && liveSchemaOverride.sectionId === section.id)
+                ? liveSchemaOverride.schema
+                : section.schema;
+
+              const sectionFontParts = hexToHslParts((displaySchema.section_font_color as string) || "");
+              const sectionBgParts = hexToHslParts((displaySchema.section_background_color as string) || "");
+              const sectionFontFamily = (displaySchema.section_font_family as string) || "";
+              const sectionStyle: React.CSSProperties = {
+                ...(sectionBgParts ? { "--card": toHslToken(sectionBgParts), "--muted": toHslToken(sectionBgParts) } : {}),
+                ...(sectionFontParts ? { "--foreground": toHslToken(sectionFontParts), "--muted-foreground": toHslToken(sectionFontParts) } : {}),
+                ...(sectionFontFamily ? { fontFamily: sectionFontFamily } : {}),
+              } as React.CSSProperties;
+
+              return (
+                <div
+                  key={section.id}
+                  onClick={() => onSelectSection?.(section.id)}
+                  style={sectionStyle}
+                  className={`relative group/section cursor-pointer transition-all ${
+                    isLayoutB
+                      ? "rounded-lg border border-border bg-card shadow-sm"
+                      : "border-b border-border last:border-b-0"
+                  } ${selectedSectionId === section.id ? "ring-2 ring-primary ring-inset" : "hover:bg-accent/5"}`}
+                >
+                  {/* Section hover controls */}
+                  {canvasEditEnabled && onHideSection && onDeleteSection && (
+                    <CanvasSectionControls
+                      sectionId={section.id}
+                      sectionType={section.section_type}
+                      onHide={onHideSection}
+                      onDelete={onDeleteSection}
+                    />
+                  )}
+                  {Preview ? <Preview schema={displaySchema} /> : <GenericPreview section={section} />}
+                </div>
+              );
+            })}
+        </div>
+
+        {/* Floating CTA preview */}
+        {ps.floating_cta && (
+          <div className="sticky bottom-0 p-3 flex justify-end">
+            <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center shadow-lg">
+              <span className="text-primary-foreground text-lg">
+                {(ps.floating_cta_channel || "whatsapp") === "whatsapp" ? "💬" : "✉️"}
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* First-time canvas editing hints */}
+      {canvasEditEnabled && <CanvasHints />}
+    </>
   );
 }
