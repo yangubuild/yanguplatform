@@ -114,6 +114,7 @@ const ManageTeam = lazy(() => import("./pages/manage/ManageTeam"));
 import { NavigationDashboardPage } from "@/components/mass/navigation";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import DashboardPlaceholder from "./pages/dashboard/DashboardPlaceholder";
+import MyBusinessPage from "./pages/dashboard/MyBusinessPage";
 import InfluencerPage from "./pages/dashboard/InfluencerPage";
 import SellerSurfacePage from "./pages/dashboard/SellerSurfacePage";
 import DashboardOffers from "./pages/dashboard/DashboardOffers";
@@ -306,7 +307,7 @@ const App = () => (
 
                   {/* Dashboard module pages (flat, no nesting) */}
                   <Route path="my-apps" element={<DashboardPlaceholder />} />
-                  <Route path="my-business" element={<DashboardPlaceholder />} />
+                  <Route path="my-business" element={<MyBusinessPage />} />
                   <Route path="payments" element={<DashboardPlaceholder />} />
                   <Route path="invoices" element={<DashboardPlaceholder />} />
                   <Route path="ads" element={<DashboardPlaceholder />} />
