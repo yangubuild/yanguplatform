@@ -29,14 +29,48 @@ const ESHOP_TEMPLATES: TemplatePreset[] = [
   {
     key: "catalog_store",
     label: "Catalog Store",
-    description: "Grid-first product catalog with category navigation",
+    description: "Justinmind-style homepage: hero + banners + categories + featured products + trust info",
     icon: "🏪",
     patches: {
-      header: { schema: { logo_position: "left", show_name: true, name_next_to_logo: true, menu_layout_style: "grid" } },
-      hero: { schema: { headline: "Welcome to Our Store", subheadline: "Discover amazing products at great prices", cta_text: "Shop Now", media: { type: "none", source: "url" } } },
-      main_content: { schema: { display_mode: "grid", filters_enabled: true, sort_enabled: true } },
-      offer: { schema: { heading: "Today's Deals", description: "Don't miss out on these special offers", items: [] } },
-      footer: { schema: { email: "", phone: "", address: "", social: {} } },
+      header: { schema: {
+        logo_position: "left", show_name: true, name_next_to_logo: true,
+        menu_layout_style: "grid",
+        show_cart_icon: true, show_search: true,
+        layout_variant: "nav_right",
+      } },
+      hero: { schema: {
+        layout_variant: "split",
+        cta_text: "Shop Now",
+        media: { type: "image", source: "url", url: "", fit: "cover" },
+        alignment: "left",
+        background_style: "gradient",
+      } },
+      main_content: { schema: {
+        display_mode: "grid",
+        filters_enabled: true,
+        sort_enabled: true,
+        cards: {
+          style: "image_top",
+          image_ratio: "square",
+          show_price: true,
+          show_title: true,
+          show_cta: true,
+        },
+        grid: {
+          columns_desktop: 3,
+          columns_mobile: 2,
+        },
+        spacing: "comfortable",
+      } },
+      offer: { schema: {
+        layout_variant: "banner_strip",
+        display_mode: "banner_strip",
+        spacing: "compact",
+      } },
+      footer: { schema: {
+        layout_variant: "multi_column",
+        display_mode: "multi_column",
+      } },
     },
   },
   {
@@ -262,11 +296,12 @@ const TEMPLATE_REGISTRY: Record<string, EngineTemplates> = {
 const STYLE_KEYS = new Set([
   "layout_variant", "display_mode", "logo_position", "logo_size",
   "show_name", "name_next_to_logo", "menu_layout_style", "primary_color",
-  "spacing", "padding", "gap", "card_style", "cards",
+  "spacing", "padding", "gap", "card_style", "cards", "grid",
   "typography_style", "alignment", "background_style", "background_color",
   "filters_enabled", "sort_enabled", "show_author", "show_date",
   "show_captions", "show_tags", "date_picker", "guests_picker",
   "pricing_mode", "cta_style", "show_price", "show_location",
+  "show_cart_icon", "show_search",
 ]);
 
 /** Content keys that must never be overwritten if user has data */

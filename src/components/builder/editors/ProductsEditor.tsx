@@ -12,8 +12,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { X, Plus, Trash2, Pencil, Package, Upload, Sparkles, Link2, Search, Loader2 } from "lucide-react";
+import { X, Plus, Trash2, Pencil, Package, Upload, Sparkles, Link2, Search, Loader2, Star } from "lucide-react";
 import { BuilderMediaPicker, type MediaValue } from "../BuilderMediaPicker";
+import { MediaPickerList } from "../media/MediaPickerList";
+import type { MediaAsset } from "../media/MediaPicker";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -41,6 +43,7 @@ interface Product {
   category: string;
   description: string;
   images: string[];
+  media: MediaAsset[];
   price: string;
   stock_quantity: string;
   discount_percent: string;
@@ -85,12 +88,20 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
     })),
   })) as ProductCategory[];
 
-  const products = ((schema.products as any[]) || []).map((p: any) => ({
+  const products = ((schema.products as any[]) || []).map((p: any) => {
+    // Migrate legacy images[] to media[]
+    const legacyImages: string[] = p.images || [];
+    const existingMedia: MediaAsset[] = p.media || [];
+    const media: MediaAsset[] = existingMedia.length > 0
+      ? existingMedia
+      : legacyImages.filter(Boolean).map((url: string) => ({ type: "image" as const, src: url, provider: "url" as const }));
+    return {
     name: p.name || "",
     brand: p.brand || "",
     category: p.category || "",
     description: p.description || "",
-    images: p.images || [],
+    images: legacyImages,
+    media,
     price: p.price || "",
     stock_quantity: p.stock_quantity || "",
     discount_percent: p.discount_percent || "",
@@ -102,7 +113,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
     dimensions: p.dimensions || "",
     specifications: p.specifications || "",
     is_available: p.is_available !== false,
-  })) as Product[];
+  }}) as Product[];
 
   // Dialog state
   const [showAddMethodDialog, setShowAddMethodDialog] = useState(false);
@@ -117,6 +128,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
   const [pCategory, setPCategory] = useState("");
   const [pDesc, setPDesc] = useState("");
   const [pImages, setPImages] = useState<string[]>([]);
+  const [pMedia, setPMedia] = useState<MediaAsset[]>([]);
   const [pPrice, setPPrice] = useState("");
   const [pStock, setPStock] = useState("");
   const [pDiscountPct, setPDiscountPct] = useState("");
@@ -188,7 +200,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
     setShowAddMethodDialog(false);
     setEditProductIndex(null);
     setPName(""); setPBrand(""); setPCategory(categories[0]?.name || "");
-    setPDesc(""); setPImages([]); setPPrice(""); setPStock("");
+    setPDesc(""); setPImages([]); setPMedia([]); setPPrice(""); setPStock("");
     setPDiscountPct(""); setPDiscountLabel("");
     setPSizes([]); setPSizeInput(""); setPColors([]);
     setPMaterial(""); setPWeight(""); setPDimensions("");
@@ -201,7 +213,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
     const p = products[i];
     setEditProductIndex(i);
     setPName(p.name); setPBrand(p.brand); setPCategory(p.category);
-    setPDesc(p.description); setPImages(p.images); setPPrice(p.price);
+    setPDesc(p.description); setPImages(p.images); setPMedia(p.media); setPPrice(p.price);
     setPStock(p.stock_quantity); setPDiscountPct(p.discount_percent);
     setPDiscountLabel(p.discount_label); setPSizes(p.sizes);
     setPColors(p.colors); setPMaterial(p.material); setPWeight(p.weight);
@@ -214,7 +226,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
   const saveProduct = () => {
     const product: Product = {
       name: pName, brand: pBrand, category: pCategory,
-      description: pDesc, images: pImages, price: pPrice,
+      description: pDesc, images: pMedia.map(m => m.src).filter(Boolean), media: pMedia, price: pPrice,
       stock_quantity: pStock, discount_percent: pDiscountPct,
       discount_label: pDiscountLabel, sizes: pSizes,
       colors: pColors, material: pMaterial, weight: pWeight,
@@ -560,40 +572,25 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
               </Button>
             </div>
 
-            {/* Product Cover Images */}
+            {/* Product Cover Images — MediaPickerList */}
             <div className="space-y-1.5">
-              <Label className="text-sm font-bold">Product Cover Images</Label>
-              <p className="text-xs text-muted-foreground">These images are shown as the main product display on the shop</p>
-              {pImages.length > 0 && (
-                <div className="flex gap-2 flex-wrap mb-2">
-                  {pImages.map((img, idx) => (
-                    <div key={idx} className="relative h-16 w-16 rounded border border-border overflow-hidden group">
-                      <img src={img} alt="" className="h-full w-full object-cover" />
-                      <button
-                        className="absolute top-0 right-0 bg-destructive/80 text-white rounded-bl p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => setPImages(pImages.filter((_, j) => j !== idx))}
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </div>
-                  ))}
+              <Label className="text-sm font-bold">Product Images (max 10)</Label>
+              <p className="text-xs text-muted-foreground">First image is the primary cover photo</p>
+              {pMedia.length > 0 && pMedia[0]?.src && (
+                <div className="flex items-center gap-1.5 text-xs text-primary mb-1">
+                  <Star className="h-3 w-3 fill-primary" /> Primary
                 </div>
               )}
-              <div className="space-y-2 w-full">
-                <BuilderMediaPicker
-                  value={pDraftMedia}
-                  onChange={setPDraftMedia}
-                  surfaceId={surfaceId || ""}
-                />
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={addDraftMediaToImages}>
-                    <Plus className="h-3 w-3" /> Add Selected Image
-                  </Button>
-                  <Button variant="outline" size="sm" className="gap-1.5 text-xs" disabled>
-                    <Sparkles className="h-3 w-3" /> AI Generate Image
-                  </Button>
-                </div>
-              </div>
+              <MediaPickerList
+                items={pMedia}
+                onChange={(next) => {
+                  if (next.length > 10) return;
+                  setPMedia(next);
+                }}
+                surfaceId={surfaceId || ""}
+                label="Product Images"
+                max={10}
+              />
             </div>
 
             {/* Price + Stock */}
