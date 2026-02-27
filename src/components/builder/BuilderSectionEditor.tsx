@@ -15,6 +15,8 @@ import {
 import { X, Plus, Trash2, Save, Loader2 } from "lucide-react";
 import type { EditorSection } from "@/hooks/useBuilderEditor";
 import { BuilderMediaPicker, type MediaValue } from "./BuilderMediaPicker";
+import { MediaPicker, type MediaAsset, legacyUrlsToMediaAssets } from "./media/MediaPicker";
+import { MediaPickerList } from "./media/MediaPickerList";
 import { ProductsEditor } from "./editors/ProductsEditor";
 import { BannersAdsEditor } from "./editors/BannersAdsEditor";
 import { PropertiesEditor } from "./editors/PropertiesEditor";
@@ -285,22 +287,37 @@ function HeaderForm({ schema, update, surfaceId }: FormProps & { surfaceId?: str
   );
 }
 
-function FeaturedForm({ schema, update }: FormProps) {
+function FeaturedForm({ schema, update, surfaceId }: FormProps & { surfaceId?: string }) {
+  const items = ((schema.items as any[]) || []) as Array<{ title: string; description: string; image_url: string; href: string }>;
   return (
     <>
       <TextField label="Title" value={(schema.title as string) || ""} onChange={(v) => update({ title: v })} />
-      <ListEditor
-        label="Featured Items"
-        items={((schema.items as any[]) || []) as Array<{ title: string; description: string; image_url: string; href: string }>}
-        fields={[
-          { key: "title", label: "Title" },
-          { key: "description", label: "Description" },
-          { key: "image_url", label: "Image URL", placeholder: "https://..." },
-          { key: "href", label: "Link URL", placeholder: "https://..." },
-        ]}
-        onChange={(v) => update({ items: v })}
-        emptyItem={{ title: "", description: "", image_url: "", href: "" }}
-      />
+      <div className="space-y-2">
+        <Label className="text-xs">Featured Items</Label>
+        {items.map((item, i) => (
+          <div key={i} className="border border-border rounded-lg p-3 space-y-2">
+            <div className="flex gap-2">
+              <div className="flex-1 space-y-1.5">
+                <Input placeholder="Title" value={item.title || ""} onChange={(e) => { const u = [...items]; u[i] = { ...u[i], title: e.target.value }; update({ items: u }); }} className="text-sm" />
+                <Input placeholder="Description" value={item.description || ""} onChange={(e) => { const u = [...items]; u[i] = { ...u[i], description: e.target.value }; update({ items: u }); }} className="text-sm" />
+                <Input placeholder="Link URL" value={item.href || ""} onChange={(e) => { const u = [...items]; u[i] = { ...u[i], href: e.target.value }; update({ items: u }); }} className="text-sm" />
+              </div>
+              <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8" onClick={() => update({ items: items.filter((_, j) => j !== i) })}>
+                <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
+              </Button>
+            </div>
+            <MediaPicker
+              label="Image"
+              value={item.image_url ? { type: "image", src: item.image_url, provider: "url" } : null}
+              onChange={(asset) => { const u = [...items]; u[i] = { ...u[i], image_url: asset?.src || "" }; update({ items: u }); }}
+              surfaceId={surfaceId || ""}
+            />
+          </div>
+        ))}
+        <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs" onClick={() => update({ items: [...items, { title: "", description: "", image_url: "", href: "" }] })}>
+          <Plus className="h-3.5 w-3.5" /> Add
+        </Button>
+      </div>
     </>
   );
 }
@@ -460,22 +477,76 @@ function FaqForm({ schema, update }: FormProps) {
   );
 }
 
-function ItemListForm({ schema, update, heading }: FormProps & { heading?: string }) {
+function ItemListForm({ schema, update, heading, surfaceId }: FormProps & { heading?: string; surfaceId?: string }) {
   return (
     <>
       <TextField label="Heading" value={(schema.heading as string) || ""} onChange={(v) => update({ heading: v })} />
-      <ListEditor
-        label={heading || "Items"}
-        items={((schema.items as any[]) || []) as Array<{ name: string; price: string; description: string }>}
-        fields={[
-          { key: "name", label: "Name" },
-          { key: "price", label: "Price (optional)", placeholder: "$0" },
-          { key: "description", label: "Description (optional)" },
-        ]}
+      <ItemListWithMedia
+        items={((schema.items as any[]) || []) as Array<Record<string, string>>}
         onChange={(v) => update({ items: v })}
-        emptyItem={{ name: "", price: "", description: "" }}
+        heading={heading || "Items"}
+        surfaceId={surfaceId || ""}
       />
     </>
+  );
+}
+
+/** Items list that detects image/media fields and renders MediaPicker for them */
+function ItemListWithMedia({ items, onChange, heading, surfaceId }: {
+  items: Array<Record<string, string>>;
+  onChange: (items: Array<Record<string, string>>) => void;
+  heading: string;
+  surfaceId: string;
+}) {
+  const MEDIA_KEYS = /^(image_url|image|cover|cover_url|thumbnail|thumb|media|logo|icon_url|photo|banner)$/i;
+  const fields = [
+    { key: "name", label: "Name" },
+    { key: "price", label: "Price (optional)", placeholder: "$0" },
+    { key: "description", label: "Description (optional)" },
+  ];
+
+  return (
+    <div className="space-y-2">
+      <Label className="text-xs">{heading}</Label>
+      {items.map((item, i) => (
+        <div key={i} className="border border-border rounded-lg p-3 space-y-2">
+          <div className="flex items-start gap-2">
+            <div className="flex-1 space-y-1.5">
+              {fields.map((f) => (
+                <Input
+                  key={f.key}
+                  placeholder={f.placeholder || f.label}
+                  value={item[f.key] || ""}
+                  onChange={(e) => {
+                    const updated = [...items];
+                    updated[i] = { ...updated[i], [f.key]: e.target.value };
+                    onChange(updated);
+                  }}
+                  className="text-sm"
+                />
+              ))}
+            </div>
+            <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8 mt-0.5" onClick={() => onChange(items.filter((_, j) => j !== i))}>
+              <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
+            </Button>
+          </div>
+          {/* Media picker for image field */}
+          <MediaPicker
+            label="Image"
+            value={item.image_url ? { type: "image", src: item.image_url, provider: "url" } : null}
+            onChange={(asset) => {
+              const updated = [...items];
+              updated[i] = { ...updated[i], image_url: asset?.src || "" };
+              onChange(updated);
+            }}
+            surfaceId={surfaceId}
+          />
+        </div>
+      ))}
+      <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs" onClick={() => onChange([...items, { name: "", price: "", description: "", image_url: "" }])}>
+        <Plus className="h-3.5 w-3.5" /> Add
+      </Button>
+    </div>
   );
 }
 
@@ -848,16 +919,38 @@ function LocationForm({ schema, update }: FormProps) {
   );
 }
 
-function GalleryForm({ schema, update }: FormProps) {
-  const items = ((schema.items as any[]) || []) as Array<{ url: string }>;
+function GalleryForm({ schema, update, surfaceId }: FormProps & { surfaceId?: string }) {
+  // Legacy migration: string[] or {url:string}[] → MediaAsset[]
+  const raw = schema.items as any[] | undefined;
+  const items: MediaAsset[] = (raw || []).map((item: any) => {
+    if (typeof item === "string") return { type: "image" as const, src: item, provider: "url" as const };
+    if (item.src) return item as MediaAsset;
+    if (item.url) return { type: "image" as const, src: item.url, provider: "url" as const };
+    return { type: "image" as const, src: "", provider: "url" as const };
+  });
+
+  const displayMode = (schema.display_mode as string) || "grid";
+
   return (
-    <ListEditor
-      label="Image URLs"
-      items={items}
-      fields={[{ key: "url", label: "Image URL", placeholder: "https://..." }]}
-      onChange={(v) => update({ items: v })}
-      emptyItem={{ url: "" }}
-    />
+    <div className="space-y-3">
+      <div className="space-y-1.5">
+        <Label className="text-xs">Display Mode</Label>
+        <Select value={displayMode} onValueChange={(v) => update({ display_mode: v })}>
+          <SelectTrigger className="text-sm"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="grid">Grid</SelectItem>
+            <SelectItem value="carousel">Carousel</SelectItem>
+            <SelectItem value="masonry">Masonry</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <MediaPickerList
+        items={items}
+        onChange={(next) => update({ items: next, display_mode: displayMode })}
+        surfaceId={surfaceId || ""}
+        label="Gallery Images"
+      />
+    </div>
   );
 }
 
@@ -919,7 +1012,7 @@ const FORM_MAP: Record<string, React.ComponentType<FormProps & { surfaceId?: str
   hero_banner: HeroForm,
   header: HeaderForm,
   header_logo: HeaderForm,
-  featured: FeaturedForm,
+  featured: FeaturedForm as React.ComponentType<FormProps & { surfaceId?: string }>,
   bio: BioForm,
   text: TextForm,
   about: AboutForm,
@@ -933,52 +1026,51 @@ const FORM_MAP: Record<string, React.ComponentType<FormProps & { surfaceId?: str
   faq: FaqForm,
   contact: ContactForm,
   footer: FooterForm,
-  gallery: GalleryForm,
+  gallery: GalleryForm as React.ComponentType<FormProps & { surfaceId?: string }>,
   menu: MenuForm as React.ComponentType<FormProps & { surfaceId?: string }>,
   hours: HoursForm,
   location: LocationForm,
   products: ProductsEditor as React.ComponentType<FormProps & { surfaceId?: string }>,
   product_grid: ProductsEditor as React.ComponentType<FormProps & { surfaceId?: string }>,
   banners_ads: BannersAdsEditor,
-  services: (p) => <ItemListForm {...p} heading="Services" />,
-  services_list: (p) => <ItemListForm {...p} heading="Services" />,
-  listings: (p) => <ItemListForm {...p} heading="Listings" />,
-  listing_grid: (p) => <ItemListForm {...p} heading="Listings" />,
+  services: (p) => <ItemListForm {...p} heading="Services" surfaceId={p.surfaceId} />,
+  services_list: (p) => <ItemListForm {...p} heading="Services" surfaceId={p.surfaceId} />,
+  listings: (p) => <ItemListForm {...p} heading="Listings" surfaceId={p.surfaceId} />,
+  listing_grid: (p) => <ItemListForm {...p} heading="Listings" surfaceId={p.surfaceId} />,
   properties: PropertiesEditor as React.ComponentType<FormProps & { surfaceId?: string }>,
-  // New content types — reuse ItemListForm until dedicated editors are built
-  rooms: (p) => <ItemListForm {...p} heading="Rooms" />,
+  rooms: (p) => <ItemListForm {...p} heading="Rooms" surfaceId={p.surfaceId} />,
   booking_calendar: BookingEditor as React.ComponentType<FormProps & { surfaceId?: string }>,
   booking_inventory: BookingEditor as React.ComponentType<FormProps & { surfaceId?: string }>,
-  programs: (p) => <ItemListForm {...p} heading="Programs" />,
-  tours: (p) => <ItemListForm {...p} heading="Tours" />,
-  team: (p) => <ItemListForm {...p} heading="Team Members" />,
-  services_pricing: (p) => <ItemListForm {...p} heading="Services & Pricing" />,
-  featured_products: (p) => <ItemListForm {...p} heading="Featured Products" />,
-  deals: (p) => <ItemListForm {...p} heading="Deals" />,
-  flash_sale: (p) => <ItemListForm {...p} heading="Flash Sale Items" />,
-  reviews: (p) => <ItemListForm {...p} heading="Reviews" />,
-  supplier_catalog: (p) => <ItemListForm {...p} heading="Supplier Catalog" />,
-  bulk_products: (p) => <ItemListForm {...p} heading="Bulk Products" />,
-  agriculture_produce: (p) => <ItemListForm {...p} heading="Agriculture Produce" />,
-  manufacturer_products: (p) => <ItemListForm {...p} heading="Manufacturer Products" />,
-  coaching: (p) => <ItemListForm {...p} heading="Coaching" />,
-  courses: (p) => <ItemListForm {...p} heading="Courses" />,
-  live_webinars: (p) => <ItemListForm {...p} heading="Live Webinars" />,
-  workshops: (p) => <ItemListForm {...p} heading="Workshops" />,
-  mentorship: (p) => <ItemListForm {...p} heading="Mentorship" />,
-  resources: (p) => <ItemListForm {...p} heading="Resources" />,
-  discussions: (p) => <ItemListForm {...p} heading="Discussions" />,
-  live_stream: (p) => <ItemListForm {...p} heading="Live Stream" />,
-  live_selling: (p) => <ItemListForm {...p} heading="Live Selling" />,
-  affiliate_products: (p) => <ItemListForm {...p} heading="Affiliate Products" />,
-  media_feed: (p) => <ItemListForm {...p} heading="Media Feed" />,
-  media_grid: (p) => <ItemListForm {...p} heading="Media" />,
-  merch: (p) => <ItemListForm {...p} heading="Merch" />,
-  tips_support: (p) => <ItemListForm {...p} heading="Tips & Support" />,
-  collabs: (p) => <ItemListForm {...p} heading="Collabs" />,
-  article_feed: (p) => <ItemListForm {...p} heading="Articles" />,
-  case_studies_grid: (p) => <ItemListForm {...p} heading="Case Studies" />,
-  community_feed: (p) => <ItemListForm {...p} heading="Feed" />,
+  programs: (p) => <ItemListForm {...p} heading="Programs" surfaceId={p.surfaceId} />,
+  tours: (p) => <ItemListForm {...p} heading="Tours" surfaceId={p.surfaceId} />,
+  team: (p) => <ItemListForm {...p} heading="Team Members" surfaceId={p.surfaceId} />,
+  services_pricing: (p) => <ItemListForm {...p} heading="Services & Pricing" surfaceId={p.surfaceId} />,
+  featured_products: (p) => <ItemListForm {...p} heading="Featured Products" surfaceId={p.surfaceId} />,
+  deals: (p) => <ItemListForm {...p} heading="Deals" surfaceId={p.surfaceId} />,
+  flash_sale: (p) => <ItemListForm {...p} heading="Flash Sale Items" surfaceId={p.surfaceId} />,
+  reviews: (p) => <ItemListForm {...p} heading="Reviews" surfaceId={p.surfaceId} />,
+  supplier_catalog: (p) => <ItemListForm {...p} heading="Supplier Catalog" surfaceId={p.surfaceId} />,
+  bulk_products: (p) => <ItemListForm {...p} heading="Bulk Products" surfaceId={p.surfaceId} />,
+  agriculture_produce: (p) => <ItemListForm {...p} heading="Agriculture Produce" surfaceId={p.surfaceId} />,
+  manufacturer_products: (p) => <ItemListForm {...p} heading="Manufacturer Products" surfaceId={p.surfaceId} />,
+  coaching: (p) => <ItemListForm {...p} heading="Coaching" surfaceId={p.surfaceId} />,
+  courses: (p) => <ItemListForm {...p} heading="Courses" surfaceId={p.surfaceId} />,
+  live_webinars: (p) => <ItemListForm {...p} heading="Live Webinars" surfaceId={p.surfaceId} />,
+  workshops: (p) => <ItemListForm {...p} heading="Workshops" surfaceId={p.surfaceId} />,
+  mentorship: (p) => <ItemListForm {...p} heading="Mentorship" surfaceId={p.surfaceId} />,
+  resources: (p) => <ItemListForm {...p} heading="Resources" surfaceId={p.surfaceId} />,
+  discussions: (p) => <ItemListForm {...p} heading="Discussions" surfaceId={p.surfaceId} />,
+  live_stream: (p) => <ItemListForm {...p} heading="Live Stream" surfaceId={p.surfaceId} />,
+  live_selling: (p) => <ItemListForm {...p} heading="Live Selling" surfaceId={p.surfaceId} />,
+  affiliate_products: (p) => <ItemListForm {...p} heading="Affiliate Products" surfaceId={p.surfaceId} />,
+  media_feed: (p) => <ItemListForm {...p} heading="Media Feed" surfaceId={p.surfaceId} />,
+  media_grid: (p) => <ItemListForm {...p} heading="Media" surfaceId={p.surfaceId} />,
+  merch: (p) => <ItemListForm {...p} heading="Merch" surfaceId={p.surfaceId} />,
+  tips_support: (p) => <ItemListForm {...p} heading="Tips & Support" surfaceId={p.surfaceId} />,
+  collabs: (p) => <ItemListForm {...p} heading="Collabs" surfaceId={p.surfaceId} />,
+  article_feed: (p) => <ItemListForm {...p} heading="Articles" surfaceId={p.surfaceId} />,
+  case_studies_grid: (p) => <ItemListForm {...p} heading="Case Studies" surfaceId={p.surfaceId} />,
+  community_feed: (p) => <ItemListForm {...p} heading="Feed" surfaceId={p.surfaceId} />,
 };
 
 const TYPE_LABELS: Record<string, string> = {
@@ -1073,7 +1165,7 @@ export function BuilderSectionEditor({
         {FormComponent ? (
           <FormComponent schema={localSchema} update={update} surfaceId={surfaceId} />
         ) : (
-          /* GenericSectionEditor fallback — always show heading + basic schema fields */
+          /* GenericSectionEditor fallback — detect media fields automatically */
           <>
             <AiTextField
               label="Section Heading"
@@ -1090,6 +1182,46 @@ export function BuilderSectionEditor({
                 multiline
               />
             )}
+            {/* Auto-detect media fields in schema */}
+            {Object.keys(localSchema).filter(k =>
+              /^(image|images|cover|media|gallery|logo|banner|photo|thumbnail|icon_url|cover_url|image_url)$/i.test(k)
+            ).map((key) => {
+              const val = localSchema[key];
+              // Array of media
+              if (Array.isArray(val)) {
+                const assets: MediaAsset[] = val.map((item: any) => {
+                  if (typeof item === "string") return { type: "image" as const, src: item, provider: "url" as const };
+                  if (item?.src) return item as MediaAsset;
+                  if (item?.url) return { type: "image" as const, src: item.url, provider: "url" as const };
+                  return { type: "image" as const, src: "", provider: "url" as const };
+                });
+                return (
+                  <MediaPickerList
+                    key={key}
+                    items={assets}
+                    onChange={(next) => update({ [key]: next })}
+                    surfaceId={surfaceId || ""}
+                    label={key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
+                  />
+                );
+              }
+              // Single media (string URL or MediaAsset object)
+              if (typeof val === "string" || (val && typeof val === "object" && !Array.isArray(val))) {
+                const asset: MediaAsset | null = typeof val === "string" && val
+                  ? { type: "image", src: val, provider: "url" }
+                  : (val as any)?.src ? val as MediaAsset : null;
+                return (
+                  <MediaPicker
+                    key={key}
+                    label={key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
+                    value={asset}
+                    onChange={(next) => update({ [key]: next || "" })}
+                    surfaceId={surfaceId || ""}
+                  />
+                );
+              }
+              return null;
+            })}
             {Array.isArray(localSchema.items) && (
               <p className="text-xs text-muted-foreground">
                 {(localSchema.items as unknown[]).length} item(s) configured
