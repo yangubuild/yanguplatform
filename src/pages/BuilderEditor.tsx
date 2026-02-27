@@ -261,6 +261,35 @@ export default function BuilderEditor() {
             theme={builderTheme}
             pageSettings={livePageSettings || pageSettings}
             liveSchemaOverride={liveSchemaOverride}
+            onUpdateSectionField={async (sectionId, fieldPath, value) => {
+              const section = sections.find((s) => s.id === sectionId);
+              if (!section) return;
+              const newSchema = { ...section.schema, [fieldPath]: value };
+              await updateSectionSchema(sectionId, newSchema);
+            }}
+            onHideSection={async (sectionId) => {
+              await toggleSectionVisibility(sectionId, true);
+            }}
+            onDeleteSection={async (sectionId) => {
+              const ok = await deleteSection(sectionId);
+              if (ok && selectedSectionId === sectionId) {
+                setSelectedSectionId(null);
+                setRightPanel("page_edit");
+              }
+            }}
+            onImageReplace={async (sectionId, fieldPath, url) => {
+              const section = sections.find((s) => s.id === sectionId);
+              if (!section) return;
+              const newSchema = { ...section.schema };
+              // Handle nested media object
+              if (fieldPath === "media.url") {
+                const media = (newSchema.media as Record<string, unknown>) || {};
+                newSchema.media = { ...media, url, type: "image" };
+              } else {
+                (newSchema as any)[fieldPath] = url;
+              }
+              await updateSectionSchema(sectionId, newSchema);
+            }}
           />
         </main>
 
