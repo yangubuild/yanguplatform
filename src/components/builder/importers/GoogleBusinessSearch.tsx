@@ -19,6 +19,9 @@ export interface GoogleBusinessResult {
   website?: string;
   category?: string;
   placeId?: string;
+  description?: string;
+  photos?: string[];
+  googleMapsUrl?: string;
 }
 
 interface Prediction {
@@ -175,7 +178,7 @@ export function GoogleBusinessSearch({ onSelect, onBack }: Props) {
           )}
 
           {selected && !loadingDetails && (
-            <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-1.5">
+            <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-primary" />
@@ -186,6 +189,20 @@ export function GoogleBusinessSearch({ onSelect, onBack }: Props) {
               <p className="text-xs text-muted-foreground">{selected.address}</p>
               {selected.phone && <p className="text-xs text-muted-foreground">📞 {selected.phone}</p>}
               {selected.website && <p className="text-xs text-muted-foreground truncate">🌐 {selected.website}</p>}
+              {selected.category && <p className="text-xs text-muted-foreground">🏷️ {selected.category}</p>}
+              {selected.description && <p className="text-xs text-muted-foreground italic">{selected.description}</p>}
+              {selected.photos && selected.photos.length > 0 && (
+                <div className="flex gap-1.5 overflow-x-auto pt-1">
+                  {selected.photos.slice(0, 4).map((url, i) => (
+                    <img key={i} src={url} alt={`${selected.name} photo ${i + 1}`} className="h-14 w-14 rounded object-cover shrink-0" />
+                  ))}
+                  {selected.photos.length > 4 && (
+                    <div className="h-14 w-14 rounded bg-muted flex items-center justify-center text-xs text-muted-foreground shrink-0">
+                      +{selected.photos.length - 4}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 

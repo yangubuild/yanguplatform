@@ -7,12 +7,6 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-/**
- * Generates a full draft surface with sections using AI.
- * Accepts engine key + answers, returns sections + theme + metadata.
- * Uses tool calling for structured output.
- */
-
 const ENGINE_CONTEXTS: Record<string, string> = {
   emenu: "a digital restaurant/food menu with menu categories and food items",
   esite: "a professional business website with services and contact info",
@@ -64,14 +58,32 @@ serve(async (req) => {
     const { engineKey, answers, allowedSectionTypes, source, source_url } = await req.json();
     const context = ENGINE_CONTEXTS[engineKey] || "a business";
 
-    // Build prompt from answers
+    // Extract photos array if provided (from Google Places)
+    const businessPhotos: string[] = answers?.photos || [];
+    const businessDescription: string = answers?.business_description || "";
+    const businessName: string = answers?.business_name || "";
+    const industry: string = answers?.industry || "";
+    const location: string = answers?.location || "";
+
+    // Build prompt from answers (exclude photos array from text prompt)
     const answerLines = Object.entries(answers || {})
-      .filter(([, v]) => v && String(v).trim())
+      .filter(([k, v]) => k !== "photos" && v && String(v).trim())
       .map(([k, v]) => `${k}: ${v}`)
       .join("\n");
 
     const sourceContext = source && source !== "manual"
       ? `\nImport source: ${source}${source_url ? ` (${source_url})` : ""}`
+      : "";
+
+    // Build image instruction
+    const hasPhotos = businessPhotos.length > 0;
+    const photoInstruction = hasPhotos
+      ? `\n\nIMPORTANT: The business has ${businessPhotos.length} real photos. You MUST use these exact URLs in the sections:
+${businessPhotos.map((url: string, i: number) => `Photo ${i + 1}: ${url}`).join("\n")}
+
+Use Photo 1 as the hero image (media_url field).
+Use remaining photos in gallery, products, or collections sections (as image_url fields in items arrays).
+Do NOT use placeholder images — only use the provided photo URLs.`
       : "";
 
     // ── AI call ──
@@ -82,16 +94,31 @@ serve(async (req) => {
 
     const systemPrompt = `You are a website builder AI. Generate content for ${context}.
 
-Based on the user's answers, create:
-1. A catchy business/page name
-2. A compelling description (1-2 sentences)
-3. A primary brand color (hex)
-4. Section schemas for the page
+Based on the user's business information, create a REAL branded page that looks like it belongs to this specific business.
+
+CRITICAL RULES:
+1. The business name must be "${businessName || "the provided name"}"
+2. Write compelling, specific copy that mentions what THIS business does — not generic placeholder text
+3. The primary_color must be a bold, appropriate color for a ${industry || "business"} brand
+4. Every section schema must have populated, specific content
+${businessDescription ? `5. Use this description as inspiration: "${businessDescription}"` : ""}
+${location ? `6. Reference the location: "${location}"` : ""}
+
+SECTION SCHEMA REQUIREMENTS:
+- hero section: must include "headline" (string), "subheadline" (string), "cta_label" (string), "media_url" (string with image URL)
+- text/about section: must include "heading" (string), "body" (string)  
+- gallery section: must include "heading" (string), "items" array of {name, image_url}
+- products section: must include "heading" (string), "items" array of {name, price, image_url, description}
+- collections/categories section: must include "heading" (string), "items" array of {name, image_url}
+- contact section: must include "heading" (string), "phone" (string), "address" (string)
+- offer section: must include "heading" (string), "body" (string), "cta_label" (string)
+- cta section: must include "heading" (string), "body" (string), "cta_label" (string)
+- footer section: must include "text" (string)
+${photoInstruction}
 
 ALLOWED section types: ${allowedTypes.join(", ")}
 You MUST only use section types from the allowed list above.
-
-Each section needs a "type" (from allowed list) and a "schema" object with relevant content.`;
+Generate 5-7 sections minimum.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -103,7 +130,7 @@ Each section needs a "type" (from allowed list) and a "schema" object with relev
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: `${answerLines}${sourceContext}\n\nGenerate the complete page content.` },
+          { role: "user", content: `${answerLines}${sourceContext}\n\nGenerate a complete, branded page for this business. Make it feel real and specific to this brand.` },
         ],
         tools: [{
           type: "function",
@@ -114,19 +141,19 @@ Each section needs a "type" (from allowed list) and a "schema" object with relev
               type: "object",
               properties: {
                 business_name: { type: "string", description: "Page/business name" },
-                description: { type: "string", description: "1-2 sentence description" },
-                primary_color: { type: "string", description: "Hex color code" },
+                description: { type: "string", description: "1-2 sentence brand description" },
+                primary_color: { type: "string", description: "Hex color code matching the brand" },
                 sections: {
                   type: "array",
                   items: {
                     type: "object",
                     properties: {
                       type: { type: "string", description: "Section type from allowed list" },
-                      schema: { type: "object", description: "Section content schema" },
+                      schema: { type: "object", description: "Section content schema with all required fields populated" },
                     },
                     required: ["type", "schema"],
                   },
-                  description: "Page sections (3-8 sections)",
+                  description: "Page sections (5-7 sections)",
                 },
               },
               required: ["business_name", "description", "primary_color", "sections"],
@@ -153,10 +180,36 @@ Each section needs a "type" (from allowed list) and a "schema" object with relev
       ? JSON.parse(toolCall.function.arguments)
       : toolCall.function.arguments;
 
-    // Filter sections to only allowed types (server-side boundary enforcement)
+    // Filter sections to only allowed types
     const filteredSections = (args.sections || []).filter(
       (s: { type: string }) => allowedTypes.includes(s.type)
     );
+
+    // Post-process: inject real photos into sections if AI didn't use them
+    if (hasPhotos) {
+      let photoIdx = 0;
+      for (const section of filteredSections) {
+        const schema = section.schema || {};
+        
+        // Hero — ensure media_url has a real photo
+        if (section.type === "hero" && (!schema.media_url || !schema.media_url.startsWith("http"))) {
+          schema.media_url = businessPhotos[0];
+          photoIdx = 1;
+        }
+
+        // Gallery/products/collections — inject photos into items
+        if (schema.items && Array.isArray(schema.items)) {
+          for (const item of schema.items) {
+            if (photoIdx < businessPhotos.length) {
+              if (!item.image_url || !item.image_url.startsWith("http") || item.image_url.includes("placeholder")) {
+                item.image_url = businessPhotos[photoIdx];
+                photoIdx++;
+              }
+            }
+          }
+        }
+      }
+    }
 
     return new Response(JSON.stringify({
       ok: true,
@@ -164,6 +217,7 @@ Each section needs a "type" (from allowed list) and a "schema" object with relev
       description: args.description,
       primary_color: args.primary_color,
       sections: filteredSections,
+      photos: businessPhotos,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
