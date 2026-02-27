@@ -97,18 +97,38 @@ export function useBuilderEditor(surfaceId: string | undefined) {
   const sections: EditorSection[] = enforceCoreSectionOrder(rawSections, surfaceType);
 
   // ─── Auto-create missing core sections ───
+  // IMPORTANT: Only auto-create when rawSections is non-empty (data has loaded)
+  // and the missing section's core_slot doesn't already exist in raw DB data.
+  // This prevents overwriting AI-populated sections with empty defaults.
   const autoCreatingRef = useRef(false);
   useEffect(() => {
     if (!activePageId || autoCreatingRef.current) return;
+    // Don't auto-create if data hasn't loaded yet (rawSections empty)
+    if (rawSections.length === 0) return;
+    
     const missing = sections.filter((s) => s.isMissing);
     if (missing.length === 0) return;
+
+    // Double-check: only create sections whose core_slot truly doesn't exist in raw DB data
+    const existingCoreSlots = new Set(
+      rawSections.filter((s) => s.core_slot).map((s) => s.core_slot!)
+    );
+    const existingSectionTypes = new Set(rawSections.map((s) => s.section_type));
+    const trulyMissing = missing.filter((stub) => {
+      // If a section with this core_slot already exists, don't create a duplicate
+      if (stub.core_slot && existingCoreSlots.has(stub.core_slot)) return false;
+      // If a section with this type already exists, don't create a duplicate
+      if (existingSectionTypes.has(stub.section_type)) return false;
+      return true;
+    });
+
+    if (trulyMissing.length === 0) return;
 
     autoCreatingRef.current = true;
     (async () => {
       try {
-        for (const stub of missing) {
+        for (const stub of trulyMissing) {
           const schema = getDefaultSchema(stub.section_type);
-          // Determine core_slot from the stub's id pattern (_missing_TYPE)
           const coreSlotValue = stub.id.startsWith("_missing_") ? (stub.core_slot || null) : null;
           await supabase.rpc("builder_upsert_section", {
             p_page_id: activePageId,
@@ -119,7 +139,7 @@ export function useBuilderEditor(surfaceId: string | undefined) {
             p_core_slot: coreSlotValue,
           });
         }
-        console.log("BUILDER_CORE_SECTIONS_AUTO_CREATED", missing.map((s) => s.section_type));
+        console.log("BUILDER_CORE_SECTIONS_AUTO_CREATED", trulyMissing.map((s) => s.section_type));
         await queryClient.invalidateQueries({ queryKey });
       } catch (err) {
         console.error("Failed to auto-create core sections", err);
@@ -127,7 +147,7 @@ export function useBuilderEditor(surfaceId: string | undefined) {
         autoCreatingRef.current = false;
       }
     })();
-  }, [activePageId, sections, queryClient, queryKey]);
+  }, [activePageId, sections, rawSections, queryClient, queryKey]);
 
   // Page settings from surface metadata
   const pageSettings: PageEditSettings = useMemo(
