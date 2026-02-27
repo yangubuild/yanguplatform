@@ -19,8 +19,8 @@ export function CanvasHints() {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="bg-foreground text-background rounded-xl px-5 py-3 shadow-2xl flex items-center gap-4 text-xs">
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-4 duration-500 pointer-events-none">
+      <div className="bg-foreground text-background rounded-xl px-5 py-3 shadow-2xl flex items-center gap-4 text-xs pointer-events-auto">
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1.5">
             <span className="text-sm">✏️</span> Click text to edit
