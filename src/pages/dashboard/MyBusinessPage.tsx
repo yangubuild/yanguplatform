@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Building2, ExternalLink, Pencil, ShoppingBag, Store, UtensilsCrossed, Globe, Users, Sparkles, Loader2 } from "lucide-react";
+import { Building2, ExternalLink, Pencil, ShoppingBag, Store, UtensilsCrossed, Globe, Users, Sparkles, Loader2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 import { Card } from "@/components/primitives";
 
 const SURFACE_TYPE_META: Record<string, { label: string; icon: typeof ShoppingBag }> = {
@@ -109,6 +111,28 @@ export default function MyBusinessPage() {
                     <Button size="sm" variant="ghost" className="gap-1.5" onClick={() => window.open(`/s/${s.id}/preview`, "_blank")}>
                       <ExternalLink className="h-3.5 w-3.5" />
                     </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button size="sm" variant="ghost" className="gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10">
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete "{s.title}"?</AlertDialogTitle>
+                          <AlertDialogDescription>This will permanently delete this business page and all its data. This action cannot be undone.</AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={async () => {
+                            const { error } = await supabase.from("builder_surfaces").delete().eq("id", s.id);
+                            if (error) { toast.error("Failed to delete"); return; }
+                            setSurfaces(prev => prev.filter(x => x.id !== s.id));
+                            toast.success("Deleted successfully");
+                          }}>Delete</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </Card>
               ))}
