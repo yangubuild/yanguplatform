@@ -24,7 +24,21 @@ const isRecord = (value: unknown): value is Record<string, unknown> => (
   typeof value === "object" && value !== null && !Array.isArray(value)
 );
 
-const toAiSeedSections = (value: unknown): { type: string; schema: Record<string, unknown> }[] => {
+// Map AI section types to core_slot values
+
+const CORE_SLOT_MAP: Record<string, string> = {
+  header: "header",
+  hero: "hero",
+  products: "main_content",
+  menu: "main_content",
+  categories: "main_content",
+  collections: "main_content",
+  listings: "main_content",
+  offer: "offer",
+  footer: "footer",
+};
+
+const toAiSeedSections = (value: unknown): { type: string; schema: Record<string, unknown>; core_slot?: string }[] => {
   if (!Array.isArray(value)) return [];
 
   return value
@@ -33,10 +47,57 @@ const toAiSeedSections = (value: unknown): { type: string; schema: Record<string
       const type = typeof entry.type === "string" ? entry.type : null;
       if (!type) return null;
       const rawSchema = isRecord(entry.schema) ? entry.schema : {};
-      return { type, schema: mergeIntoDefault(type, rawSchema) };
+      const schema = mergeIntoDefault(type, rawSchema);
+      const core_slot = CORE_SLOT_MAP[type];
+      return { type, schema, ...(core_slot ? { core_slot } : {}) };
     })
-    .filter((entry): entry is { type: string; schema: Record<string, unknown> } => !!entry);
+    .filter((entry): entry is { type: string; schema: Record<string, unknown>; core_slot?: string } => !!entry);
 };
+
+/** Ensure AI-generated sections include all core slots (header, hero, offer, footer) */
+function ensureCoreSections(
+  aiSections: { type: string; schema: Record<string, unknown>; core_slot?: string }[],
+  businessName: string,
+  answers: Record<string, unknown>,
+): { type: string; schema: Record<string, unknown>; core_slot?: string }[] {
+  const sections = [...aiSections];
+  const types = new Set(sections.map((s) => s.type));
+
+  // Always ensure header
+  if (!types.has("header")) {
+    sections.unshift({
+      type: "header",
+      schema: mergeIntoDefault("header", { logo_url: "", show_name: true, name_next_to_logo: true }),
+      core_slot: "header",
+    });
+  }
+
+  // Ensure hero
+  if (!types.has("hero")) {
+    sections.splice(types.has("header") ? 1 : 0, 0, {
+      type: "hero",
+      schema: mergeIntoDefault("hero", { headline: businessName, subheadline: String(answers.business_description || "") }),
+      core_slot: "hero",
+    });
+  }
+
+  // Ensure footer
+  if (!types.has("footer")) {
+    sections.push({
+      type: "footer",
+      schema: mergeIntoDefault("footer", {
+        heading: "Footer",
+        email: String(answers.contact_email || ""),
+        phone: String(answers.contact_phone || ""),
+        address: String(answers.location || ""),
+      }),
+      core_slot: "footer",
+    });
+  }
+
+  return sections;
+}
+
 
 /**
  * Unified seller entry page.
@@ -61,7 +122,7 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
 
     const aiSeedSections = toAiSeedSections(answers._ai_sections);
     const seedSections = aiSeedSections.length > 0
-      ? aiSeedSections
+      ? ensureCoreSections(aiSeedSections, businessName, answers)
       : engine.defaultSections.map((s) => {
           const schema = mergeIntoDefault(s.type, s.schema);
           if (s.type === "hero") {
@@ -74,6 +135,7 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
     const aiSource = typeof answers._ai_source === "string" ? answers._ai_source : null;
     const aiAnswers = isRecord(answers._ai_answers) ? answers._ai_answers : {};
     const aiProfile = isRecord(answers._ai_profile) ? answers._ai_profile : {};
+    const photos = Array.isArray(answers.photos) ? answers.photos : [];
 
     console.log("AI_BUILD_START", {
       surfaceId: null,
@@ -86,7 +148,10 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
     });
 
     const metadata: Record<string, unknown> = {};
-    if (answers.primary_color) metadata.brand = { primary_color: answers.primary_color };
+    const primaryColor = String(answers.primary_color || "#2563eb");
+    metadata.brand = { primary_color: primaryColor };
+    if (photos.length > 0) metadata.photos = photos;
+    metadata.industry = String(answers.industry || "");
     if (answers._ai_setup) {
       metadata.ai_setup = true;
       metadata.ai_source = aiSource;
