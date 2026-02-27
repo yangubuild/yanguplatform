@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Check, LayoutTemplate, Loader2 } from "lucide-react";
 import { getTemplatesForEngine, mergeTemplateSchema, type TemplatePreset } from "@/config/templateRegistry";
 import { surfaceTypeToEngineKey } from "@/config/blueprintRegistry";
@@ -13,11 +12,16 @@ interface BuilderTemplatePickerProps {
     schema: Record<string, unknown>;
     core_slot?: string | null;
     isMissing?: boolean;
+    is_visible?: boolean;
   }>;
   onApply: (sectionId: string, schema: Record<string, unknown>) => Promise<void>;
+  /** Called to make a hidden core section visible + update its schema */
+  onToggleVisible?: (sectionId: string) => Promise<void>;
+  /** Called to create a truly missing section (stub) */
+  onCreateSection?: (sectionType: string, schema: Record<string, unknown>, coreSlot: string) => Promise<void>;
 }
 
-export function BuilderTemplatePicker({ surfaceType, sections, onApply }: BuilderTemplatePickerProps) {
+export function BuilderTemplatePicker({ surfaceType, sections, onApply, onToggleVisible, onCreateSection }: BuilderTemplatePickerProps) {
   const [applying, setApplying] = useState<string | null>(null);
   const [applied, setApplied] = useState<string | null>(null);
 
@@ -34,18 +38,25 @@ export function BuilderTemplatePicker({ surfaceType, sections, onApply }: Builde
       for (const [slotKey, patch] of Object.entries(patches)) {
         if (!patch) continue;
 
-        // Find matching section strictly by core_slot only
-        const section = sections.find(
-          (s) => !s.isMissing && s.core_slot === slotKey
-        );
+        const section = sections.find((s) => s.core_slot === slotKey);
 
-        if (section) {
+        if (section && !section.isMissing) {
+          // Existing section — merge schema
           const mergedSchema = mergeTemplateSchema(
             section.schema as Record<string, unknown>,
             patch.schema
           );
           await onApply(section.id, mergedSchema);
+
+          // If section is hidden, make it visible
+          if (section.is_visible === false && onToggleVisible) {
+            await onToggleVisible(section.id);
+          }
+        } else if (section?.isMissing && onCreateSection) {
+          // Missing stub — create it with template schema
+          await onCreateSection(section.section_type, patch.schema, slotKey);
         }
+        // If no section found and no create handler, skip safely
       }
 
       setApplied(template.key);

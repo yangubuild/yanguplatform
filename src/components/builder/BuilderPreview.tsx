@@ -67,48 +67,115 @@ function HeroPreview({ schema }: { schema: Record<string, unknown> }) {
   const mediaFit = media.fit || "contain";
   const ctaText = (schema.cta_text as string) || "";
   const ctaHref = (schema.cta_href as string) || "";
+  const layoutVariant = (schema.layout_variant as string) || "";
+  const bgStyle = (schema.background_style as string) || "";
+  const bgColor = (schema.background_color as string) || "";
+  const description = (schema.description as string) || "";
+  const textColor = (schema.text_color as string) || "";
+  const typographyStyle = (schema.typography_style as string) || "";
 
+  const isSplit = layoutVariant === "split";
+  const isDark = bgStyle === "solid_dark" || textColor === "light";
+  const isBoldUppercase = typographyStyle === "bold_uppercase";
+  const isEditorialLarge = typographyStyle === "editorial_large";
+
+  // Split layout: text left, image right
+  if (isSplit) {
+    return (
+      <div
+        className="flex items-stretch overflow-hidden rounded-lg"
+        style={{ backgroundColor: bgColor || "hsl(var(--accent) / 0.1)" }}
+      >
+        <div className="flex-1 py-8 px-6 flex flex-col justify-center">
+          {schema.subheadline && !isEditorialLarge && (
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">
+              {schema.subheadline as string}
+            </p>
+          )}
+          <h1 className={`font-bold text-foreground ${isEditorialLarge ? "text-xl leading-tight" : "text-lg"}`}>
+            {(schema.headline as string) || "Your Headline"}
+          </h1>
+          {isEditorialLarge && schema.subheadline && (
+            <p className="text-xs text-muted-foreground mt-1">{schema.subheadline as string}</p>
+          )}
+          {description && (
+            <p className="text-[11px] text-muted-foreground mt-2 leading-relaxed">{description}</p>
+          )}
+          {ctaText && (
+            <div className="mt-3">
+              <span className="inline-block px-4 py-1.5 rounded-full bg-foreground text-background text-xs font-medium">
+                {ctaText}
+              </span>
+            </div>
+          )}
+        </div>
+        <div className="w-2/5 bg-muted flex items-center justify-center">
+          {mediaType === "image" && mediaUrl ? (
+            <img src={mediaUrl} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <div className="text-center p-4">
+              <div className="w-16 h-16 mx-auto rounded-lg bg-muted-foreground/10 flex items-center justify-center text-2xl">🖼</div>
+              <p className="text-[10px] text-muted-foreground mt-2">Hero Image</p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Fullwidth center (dark hero)
+  if (isDark || layoutVariant === "fullwidth_center") {
+    return (
+      <div
+        className="py-12 px-6 text-center rounded-lg relative overflow-hidden"
+        style={{ backgroundColor: bgColor || "hsl(0 0% 8%)" }}
+      >
+        {mediaType === "image" && mediaUrl && (
+          <img src={mediaUrl} alt="" className="absolute inset-0 w-full h-full object-cover opacity-40" />
+        )}
+        <div className="relative z-10">
+          <h1 className={`font-bold text-white ${isBoldUppercase ? "text-2xl tracking-[0.15em] uppercase" : "text-2xl"}`}>
+            {(schema.headline as string) || "Your Headline"}
+          </h1>
+          {schema.subheadline && (
+            <p className="mt-3 text-white/70 text-[10px] leading-relaxed max-w-[280px] mx-auto">
+              {schema.subheadline as string}
+            </p>
+          )}
+          {ctaText && (
+            <div className="mt-4">
+              <span className="inline-block px-5 py-2 rounded-full bg-white text-black text-xs font-medium">{ctaText}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Default hero
   return (
     <div className="py-12 px-6 text-center bg-gradient-to-b from-accent/10 to-transparent rounded-lg">
       {mediaType === "image" && mediaUrl && (
         <div className={`aspect-video rounded-lg mb-4 overflow-hidden ${mediaFit === "contain" ? "bg-muted" : ""}`}>
-          <img
-            src={mediaUrl}
-            alt=""
-            className={`w-full h-full ${mediaFit === "cover" ? "object-cover" : "object-contain"}`}
-          />
+          <img src={mediaUrl} alt="" className={`w-full h-full ${mediaFit === "cover" ? "object-cover" : "object-contain"}`} />
         </div>
       )}
       {mediaType === "video" && mediaUrl && (() => {
         const ytId = isYouTubeUrl(mediaUrl);
         return ytId ? (
           <div className="aspect-video rounded-lg overflow-hidden mb-4">
-            <iframe
-              src={`https://www.youtube.com/embed/${ytId}`}
-              className="w-full h-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              title="Video"
-            />
+            <iframe src={`https://www.youtube.com/embed/${ytId}`} className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title="Video" />
           </div>
         ) : (
           <video src={mediaUrl} controls className="w-full rounded-lg mb-4" />
         );
       })()}
-      <h1 className="text-2xl font-bold text-foreground">
-        {(schema.headline as string) || "Your Headline"}
-      </h1>
-      {schema.subheadline && (
-        <p className="mt-2 text-muted-foreground">{schema.subheadline as string}</p>
-      )}
+      <h1 className="text-2xl font-bold text-foreground">{(schema.headline as string) || "Your Headline"}</h1>
+      {schema.subheadline && <p className="mt-2 text-muted-foreground">{schema.subheadline as string}</p>}
+      {description && <p className="mt-2 text-xs text-muted-foreground">{description}</p>}
       {ctaText && (
         <div className="mt-4">
-          <a
-            href={ctaHref || "#"}
-            className="inline-block px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium"
-          >
-            {ctaText}
-          </a>
+          <a href={ctaHref || "#"} className="inline-block px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium">{ctaText}</a>
         </div>
       )}
     </div>
@@ -220,15 +287,63 @@ function TextPreview({ schema }: { schema: Record<string, unknown> }) {
 }
 
 function OfferPreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<{ title?: string; price?: string; description?: string }>) || [];
+  const items = (schema.items as Array<{ title?: string; price?: string; description?: string; icon?: string }>) || [];
+  const displayMode = (schema.display_mode as string) || (schema.layout_variant as string) || "";
+  const storyBlock = schema.story_block as { enabled?: boolean; eyebrow?: string; heading?: string; description?: string; cta_text?: string } | undefined;
+  const socialGallery = schema.social_gallery as { enabled?: boolean; platform?: string; heading?: string; subheading?: string; hashtag?: string; columns?: number } | undefined;
+  const newsletter = schema.newsletter as { enabled?: boolean; heading?: string; description?: string; cta_text?: string } | undefined;
+  const testimonials = schema.testimonials as { enabled?: boolean; heading?: string; subheading?: string; items?: Array<{ name?: string; quote?: string; location?: string; label?: string }> } | undefined;
+
+  const isTrustBadges = displayMode === "trust_badges";
+  const isStoryBlock = displayMode === "story_block";
+
   return (
-    <div className="py-4 px-6">
-      <h3 className="text-sm font-semibold text-foreground mb-2">
-        {(schema.heading as string) || "What We Offer"}
-      </h3>
-      {items.length === 0 ? (
-        <p className="text-sm text-muted-foreground/60 italic">No offers added</p>
-      ) : (
+    <div className="py-4 px-6 space-y-5">
+      {/* Main heading */}
+      <div>
+        <h3 className="text-sm font-semibold text-foreground mb-1">
+          {(schema.heading as string) || "What We Offer"}
+        </h3>
+        {schema.description && (
+          <p className="text-xs text-muted-foreground leading-relaxed">{schema.description as string}</p>
+        )}
+      </div>
+
+      {/* Trust badges layout */}
+      {isTrustBadges && items.length > 0 && (
+        <div className="grid grid-cols-2 gap-2">
+          {items.map((item, i) => (
+            <div key={i} className="p-3 rounded-lg border border-border bg-muted/30 text-center">
+              <div className="text-lg mb-1">
+                {item.icon === "truck" ? "🚚" : item.icon === "headphones" ? "🎧" : item.icon === "credit-card" ? "💳" : item.icon === "map-pin" ? "📍" : "✨"}
+              </div>
+              <p className="text-[11px] font-medium">{item.title || "Feature"}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">{item.description || ""}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Story block sub-section */}
+      {isStoryBlock && items.length > 0 && (
+        <div className="space-y-3">
+          {items.map((item, i) => (
+            <div key={i} className="flex gap-3 items-start">
+              <div className="w-1/3 aspect-square rounded-lg bg-muted flex items-center justify-center text-xl">🖼</div>
+              <div className="flex-1">
+                <p className="text-xs font-semibold">{item.title || "Story"}</p>
+                <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">{item.description || ""}</p>
+              </div>
+            </div>
+          ))}
+          {schema.cta_text && (
+            <span className="inline-block px-4 py-1.5 rounded-full border border-border text-xs font-medium">{schema.cta_text as string}</span>
+          )}
+        </div>
+      )}
+
+      {/* Regular items (fallback) */}
+      {!isTrustBadges && !isStoryBlock && items.length > 0 && (
         <div className="space-y-2">
           {items.map((item, i) => (
             <div key={i} className="p-3 rounded-lg border border-border bg-muted/50">
@@ -239,6 +354,69 @@ function OfferPreview({ schema }: { schema: Record<string, unknown> }) {
               {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
             </div>
           ))}
+        </div>
+      )}
+
+      {items.length === 0 && !storyBlock?.enabled && !socialGallery?.enabled && !newsletter?.enabled && !testimonials?.enabled && (
+        <p className="text-sm text-muted-foreground/60 italic">No offers added</p>
+      )}
+
+      {/* Story block (embedded in trust_badges mode) */}
+      {storyBlock?.enabled && (
+        <div className="border-t border-border pt-4">
+          {storyBlock.eyebrow && <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">{storyBlock.eyebrow}</p>}
+          <p className="text-xs font-medium leading-relaxed">{storyBlock.heading || ""}</p>
+          {storyBlock.description && <p className="text-[10px] text-muted-foreground mt-2 leading-relaxed">{storyBlock.description}</p>}
+          {storyBlock.cta_text && (
+            <span className="inline-block mt-2 px-4 py-1.5 rounded-full border border-border text-[10px] font-medium">{storyBlock.cta_text}</span>
+          )}
+        </div>
+      )}
+
+      {/* Testimonials sub-section */}
+      {testimonials?.enabled && (testimonials.items || []).length > 0 && (
+        <div className="border-t border-border pt-4">
+          {testimonials.subheading && <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{testimonials.subheading}</p>}
+          <h4 className="text-xs font-semibold mb-2">{testimonials.heading || "Reviews"}</h4>
+          <div className="space-y-2">
+            {(testimonials.items || []).map((t, i) => (
+              <div key={i} className="p-3 rounded-lg border border-border bg-muted/30">
+                {t.label && <span className="text-[10px] font-medium text-primary">{t.label}</span>}
+                <p className="text-[11px] italic text-muted-foreground mt-1">"{t.quote || "..."}"</p>
+                <p className="text-[10px] font-medium mt-1">— {t.name || "Customer"}{t.location ? `, ${t.location}` : ""}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Social gallery sub-section */}
+      {socialGallery?.enabled && (
+        <div className="border-t border-border pt-4">
+          {socialGallery.subheading && <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{socialGallery.subheading}</p>}
+          {socialGallery.heading && <h4 className="text-xs font-semibold mb-2">{socialGallery.heading}</h4>}
+          <div className={`grid gap-1.5`} style={{ gridTemplateColumns: `repeat(${Math.min(socialGallery.columns || 4, 5)}, 1fr)` }}>
+            {Array.from({ length: socialGallery.columns || 4 }).map((_, i) => (
+              <div key={i} className="aspect-square rounded bg-muted flex items-center justify-center">
+                <span className="text-muted-foreground/40 text-sm">📷</span>
+              </div>
+            ))}
+          </div>
+          {socialGallery.hashtag && <p className="text-[10px] text-muted-foreground mt-1 text-center">{socialGallery.hashtag}</p>}
+        </div>
+      )}
+
+      {/* Newsletter sub-section */}
+      {newsletter?.enabled && (
+        <div className="border-t border-border pt-4">
+          <h4 className="text-xs font-semibold">{newsletter.heading || "Subscribe"}</h4>
+          {newsletter.description && <p className="text-[10px] text-muted-foreground mt-1">{newsletter.description}</p>}
+          <div className="flex gap-1.5 mt-2">
+            <div className="flex-1 h-8 rounded border border-border bg-background px-2 flex items-center">
+              <span className="text-[10px] text-muted-foreground">your@email.com</span>
+            </div>
+            <span className="px-3 h-8 rounded bg-primary text-primary-foreground text-[10px] font-medium flex items-center">{newsletter.cta_text || "Subscribe"}</span>
+          </div>
         </div>
       )}
     </div>
@@ -303,46 +481,65 @@ function JoinPreview({ schema }: { schema: Record<string, unknown> }) {
 
 function ProductsPreview({ schema }: { schema: Record<string, unknown> }) {
   const products = ((schema.products as Array<{
-    name?: string;
-    price?: string;
-    description?: string;
-    images?: string[];
+    name?: string; title?: string; price?: string; description?: string; images?: string[]; badge?: string; media?: Array<{ src?: string }>;
   }>) || []).map((p) => ({
-    name: p.name || "",
+    name: p.name || p.title || "",
     price: p.price || "",
     description: p.description || "",
-    image_url: p.images?.[0] || "",
+    badge: p.badge || "",
+    image_url: p.images?.[0] || (p.media as Array<{ src?: string }>)?.[0]?.src || "",
   }));
 
-  const legacyItems = ((schema.items as Array<{ name?: string; price?: string; description?: string; image_url?: string }>) || []).map((item) => ({
-    name: item.name || "",
+  const legacyItems = ((schema.items as Array<{ name?: string; title?: string; price?: string; description?: string; image_url?: string; badge?: string; media?: Array<{ src?: string }> }>) || []).map((item) => ({
+    name: item.name || item.title || "",
     price: item.price || "",
     description: item.description || "",
-    image_url: item.image_url || "",
+    badge: item.badge || "",
+    image_url: item.image_url || (item.media as Array<{ src?: string }>)?.[0]?.src || "",
   }));
 
   const items = products.length > 0 ? products : legacyItems;
+  const gridSettings = (schema.grid as { columns_desktop?: number; columns_mobile?: number; gap?: string }) || {};
+  const cols = Math.min(gridSettings.columns_desktop || 2, 4);
+  const cardSettings = (schema.cards as { style?: string; image_ratio?: string; show_price?: boolean; show_title?: boolean; show_cta?: boolean; card_style?: string; hover_effect?: string; badge_enabled?: boolean }) || {};
+  const isSquare = cardSettings.image_ratio === "square";
+  const isPortrait = cardSettings.image_ratio === "portrait";
+  const showCta = cardSettings.show_cta !== false;
 
   return (
     <div className="py-4 px-6">
-      <h3 className="text-sm font-semibold text-foreground mb-2">
-        {(schema.heading as string) || "Products"}
-      </h3>
+      {schema.heading && (
+        <h3 className="text-sm font-semibold text-foreground mb-1">
+          {schema.heading as string}
+        </h3>
+      )}
+      {schema.description && (
+        <p className="text-[10px] text-muted-foreground mb-3 leading-relaxed">{schema.description as string}</p>
+      )}
       {items.length === 0 ? (
         <p className="text-sm text-muted-foreground/60 italic">No products added</p>
       ) : (
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
           {items.map((item, i) => (
-            <div key={i} className="rounded-lg border border-border bg-muted/50 overflow-hidden">
-              {item.image_url && (
-                <div className="aspect-video bg-muted">
+            <div key={i} className="rounded-lg border border-border bg-card overflow-hidden group">
+              <div className={`bg-muted relative ${isPortrait ? "aspect-[3/4]" : isSquare ? "aspect-square" : "aspect-video"}`}>
+                {item.image_url ? (
                   <img src={item.image_url} alt={item.name || ""} className="w-full h-full object-cover" />
-                </div>
-              )}
-              <div className="p-3">
-                <p className="text-sm font-medium">{item.name || "Product"}</p>
-                {item.price && <p className="text-xs text-primary font-medium">{item.price}</p>}
-                {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <span className="text-muted-foreground/30 text-2xl">🛍️</span>
+                  </div>
+                )}
+                {item.badge && cardSettings.badge_enabled !== false && (
+                  <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded text-[9px] font-medium bg-primary text-primary-foreground">{item.badge}</span>
+                )}
+              </div>
+              <div className="p-2">
+                <p className="text-[11px] font-medium truncate">{item.name || "Product"}</p>
+                {item.price && <p className="text-[10px] text-primary font-semibold">{item.price}</p>}
+                {showCta && (
+                  <span className="mt-1.5 block text-center text-[9px] font-medium py-1 rounded border border-border text-muted-foreground">Add to Cart</span>
+                )}
               </div>
             </div>
           ))}
@@ -663,17 +860,48 @@ function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
   const logoPosition = (schema.logo_position as string) || "left";
   const logoSize = (schema.logo_size as string) || "medium";
   const showName = schema.show_name !== false;
-  const sizeMap: Record<string, string> = { small: "h-10 w-10", medium: "h-16 w-16", large: "h-24 w-24" };
-  const justifyMap: Record<string, string> = { left: "justify-start", center: "justify-center", right: "justify-end" };
+  const showCart = schema.show_cart_icon as boolean;
+  const showSearch = schema.show_search as boolean;
+  const navItems = (schema.nav_items as string[]) || (schema.nav_items_left as string[]) || [];
+  const layoutVariant = (schema.layout_variant as string) || "";
+  const bgStyle = (schema.background_style as string) || "";
+  const isDark = bgStyle === "dark";
+  const sizeMap: Record<string, string> = { small: "h-8 w-8", medium: "h-10 w-10", large: "h-14 w-14" };
+
+  const isCenterLogo = logoPosition === "center" || layoutVariant === "nav_split";
 
   return (
-    <div className={`py-3 px-6 flex items-center gap-3 ${justifyMap[logoPosition] || "justify-start"}`}>
-      {logoUrl ? (
-        <img src={logoUrl} alt="Logo" className={`${sizeMap[logoSize] || "h-16 w-16"} object-contain rounded`} />
-      ) : (
-        <div className={`${sizeMap[logoSize] || "h-16 w-16"} bg-muted rounded flex items-center justify-center text-xs text-muted-foreground`}>Logo</div>
+    <div className={`py-2.5 px-4 flex items-center gap-2 ${isDark ? "bg-foreground/90" : ""}`}>
+      {/* Left nav items (for split layout) */}
+      {isCenterLogo && navItems.length > 0 && (
+        <div className="flex gap-2 flex-1">
+          {navItems.slice(0, 3).map((item, i) => (
+            <span key={i} className={`text-[10px] ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
+          ))}
+        </div>
       )}
-      {showName && <span className="text-sm font-semibold text-foreground">Business Name</span>}
+
+      {/* Logo */}
+      <div className={`flex items-center gap-2 ${isCenterLogo ? "" : "flex-1"}`}>
+        {logoUrl ? (
+          <img src={logoUrl} alt="Logo" className={`${sizeMap[logoSize] || "h-10 w-10"} object-contain rounded`} />
+        ) : (
+          <div className={`${sizeMap[logoSize] || "h-10 w-10"} bg-muted rounded flex items-center justify-center text-[10px] text-muted-foreground`}>Logo</div>
+        )}
+        {showName && <span className={`text-xs font-semibold ${isDark ? "text-background" : "text-foreground"}`}>Store</span>}
+      </div>
+
+      {/* Right side */}
+      <div className="flex items-center gap-2">
+        {!isCenterLogo && navItems.length > 0 && navItems.slice(0, 3).map((item, i) => (
+          <span key={i} className={`text-[10px] ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
+        ))}
+        {isCenterLogo && (schema.nav_items_right as string[] || []).slice(0, 2).map((item, i) => (
+          <span key={i} className={`text-[10px] ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
+        ))}
+        {showSearch && <span className="text-sm">🔍</span>}
+        {showCart && <span className="text-sm">🛒</span>}
+      </div>
     </div>
   );
 }
@@ -683,34 +911,73 @@ function FooterPreview({ schema }: { schema: Record<string, unknown> }) {
   const social = (schema.social as Record<string, string>) || {};
   const hours = (schema.hours as Array<{ day?: string; hours?: string }>) || [];
   const socialEntries = Object.entries(social).filter(([, v]) => v);
+  const columns = (schema.columns as Array<{ title?: string; links?: string[] }>) || [];
+  const isMultiColumn = (schema.layout_variant as string) === "multi_column" || columns.length > 0;
+  const copyright = (schema.copyright as string) || "";
+  const newsletterEnabled = schema.newsletter_enabled as boolean;
+  const newsletterHeading = (schema.newsletter_heading as string) || "";
+  const newsletterDesc = (schema.newsletter_description as string) || "";
 
   return (
-    <div className="py-4 px-6 bg-muted/30">
-      <h3 className="text-sm font-semibold text-foreground mb-2">Footer</h3>
-      <div className="space-y-1 text-sm text-muted-foreground">
-        {schema.email && <p>✉️ {schema.email as string}</p>}
-        {schema.phone && <p>📞 {schema.phone as string}</p>}
-        {schema.address && <p>📍 {schema.address as string}</p>}
-      </div>
+    <div className="py-4 px-6 bg-muted/30 space-y-3">
+      {/* Newsletter in footer */}
+      {newsletterEnabled && (
+        <div className="pb-3 border-b border-border">
+          <h4 className="text-xs font-semibold">{newsletterHeading || "Subscribe"}</h4>
+          {newsletterDesc && <p className="text-[10px] text-muted-foreground mt-1">{newsletterDesc}</p>}
+          <div className="flex gap-1.5 mt-2">
+            <div className="flex-1 h-7 rounded border border-border bg-background px-2 flex items-center">
+              <span className="text-[10px] text-muted-foreground">your@email.com</span>
+            </div>
+            <span className="px-3 h-7 rounded bg-primary text-primary-foreground text-[10px] font-medium flex items-center">Subscribe</span>
+          </div>
+        </div>
+      )}
+
+      {/* Multi-column links */}
+      {isMultiColumn && columns.length > 0 && (
+        <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${Math.min(columns.length, 3)}, 1fr)` }}>
+          {columns.map((col, i) => (
+            <div key={i}>
+              <p className="text-[10px] font-semibold mb-1">{col.title || "Links"}</p>
+              {(col.links || []).map((link, j) => (
+                <p key={j} className="text-[10px] text-muted-foreground leading-relaxed">{link}</p>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Traditional footer info */}
+      {!isMultiColumn && (
+        <>
+          <h3 className="text-sm font-semibold text-foreground mb-2">Footer</h3>
+          <div className="space-y-1 text-sm text-muted-foreground">
+            {schema.email && <p>✉️ {schema.email as string}</p>}
+            {schema.phone && <p>📞 {schema.phone as string}</p>}
+            {schema.address && <p>📍 {schema.address as string}</p>}
+          </div>
+        </>
+      )}
+
       {socialEntries.length > 0 && (
-        <div className="flex gap-2 flex-wrap mt-2">
+        <div className="flex gap-2 flex-wrap">
           {socialEntries.map(([platform, handle]) => (
-            <span key={platform} className="px-2 py-0.5 rounded bg-muted text-xs">
-              {platform}: {handle}
-            </span>
+            <span key={platform} className="px-2 py-0.5 rounded bg-muted text-[10px]">{platform}: {handle}</span>
           ))}
         </div>
       )}
       {hours.length > 0 && (
-        <div className="mt-2 space-y-0.5">
+        <div className="space-y-0.5">
           {hours.map((h, i) => (
-            <div key={i} className="flex justify-between text-xs text-muted-foreground">
+            <div key={i} className="flex justify-between text-[10px] text-muted-foreground">
               <span>{h.day || "Day"}</span>
               <span>{h.hours || "Closed"}</span>
             </div>
           ))}
         </div>
       )}
+      {copyright && <p className="text-[9px] text-muted-foreground/60 text-center pt-2 border-t border-border">{copyright}</p>}
     </div>
   );
 }
