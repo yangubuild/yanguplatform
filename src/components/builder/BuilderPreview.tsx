@@ -60,10 +60,24 @@ function toHslToken({ h, s, l }: { h: number; s: number; l: number }): string {
   return `${h} ${s}% ${l}%`;
 }
 
+const DEMO_IMAGES = [
+  "https://picsum.photos/seed/yangu-store-1/1200/900",
+  "https://picsum.photos/seed/yangu-store-2/1200/900",
+  "https://picsum.photos/seed/yangu-store-3/1200/900",
+  "https://picsum.photos/seed/yangu-store-4/1200/900",
+  "https://picsum.photos/seed/yangu-store-5/1200/900",
+  "https://picsum.photos/seed/yangu-store-6/1200/900",
+  "https://picsum.photos/seed/yangu-store-7/1200/900",
+  "https://picsum.photos/seed/yangu-store-8/1200/900",
+];
+
+const demoImage = (index: number) => DEMO_IMAGES[index % DEMO_IMAGES.length];
+
 function HeroPreview({ schema }: { schema: Record<string, unknown> }) {
   const media = (schema.media as { type?: string; url?: string; fit?: string }) || {};
   const mediaType = media.type || "none";
   const mediaUrl = media.url || "";
+  const resolvedMediaUrl = mediaUrl || demoImage(0);
   const mediaFit = media.fit || "contain";
   const ctaText = (schema.cta_text as string) || "";
   const ctaHref = (schema.cta_href as string) || "";
@@ -109,14 +123,11 @@ function HeroPreview({ schema }: { schema: Record<string, unknown> }) {
             </div>
           )}
         </div>
-        <div className="w-2/5 bg-muted flex items-center justify-center">
-          {mediaType === "image" && mediaUrl ? (
-            <img src={mediaUrl} alt="" className="w-full h-full object-cover" />
+        <div className="w-2/5 bg-muted overflow-hidden">
+          {mediaType === "video" && mediaUrl ? (
+            <video src={mediaUrl} controls className="w-full h-full object-cover" />
           ) : (
-            <div className="text-center p-4">
-              <div className="w-16 h-16 mx-auto rounded-lg bg-muted-foreground/10 flex items-center justify-center text-2xl">🖼</div>
-              <p className="text-[10px] text-muted-foreground mt-2">Hero Image</p>
-            </div>
+            <img src={resolvedMediaUrl} alt="Hero visual" className="w-full h-full object-cover" />
           )}
         </div>
       </div>
@@ -130,8 +141,8 @@ function HeroPreview({ schema }: { schema: Record<string, unknown> }) {
         className="py-12 px-6 text-center rounded-lg relative overflow-hidden"
         style={{ backgroundColor: bgColor || "hsl(0 0% 8%)" }}
       >
-        {mediaType === "image" && mediaUrl && (
-          <img src={mediaUrl} alt="" className="absolute inset-0 w-full h-full object-cover opacity-40" />
+        {mediaType !== "video" && resolvedMediaUrl && (
+          <img src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-40" />
         )}
         <div className="relative z-10">
           <h1 className={`font-bold text-white ${isBoldUppercase ? "text-2xl tracking-[0.15em] uppercase" : "text-2xl"}`}>
@@ -155,9 +166,9 @@ function HeroPreview({ schema }: { schema: Record<string, unknown> }) {
   // Default hero
   return (
     <div className="py-12 px-6 text-center bg-gradient-to-b from-accent/10 to-transparent rounded-lg">
-      {mediaType === "image" && mediaUrl && (
+      {mediaType !== "video" && resolvedMediaUrl && (
         <div className={`aspect-video rounded-lg mb-4 overflow-hidden ${mediaFit === "contain" ? "bg-muted" : ""}`}>
-          <img src={mediaUrl} alt="" className={`w-full h-full ${mediaFit === "cover" ? "object-cover" : "object-contain"}`} />
+          <img src={resolvedMediaUrl} alt="Hero visual" className={`w-full h-full ${mediaFit === "cover" ? "object-cover" : "object-contain"}`} />
         </div>
       )}
       {mediaType === "video" && mediaUrl && (() => {
@@ -254,19 +265,24 @@ function VideoPreview({ schema }: { schema: Record<string, unknown> }) {
 }
 
 function GalleryPreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<unknown>) || [];
+  const items = (schema.items as Array<{ src?: string; image_url?: string } | string>) || [];
+  const galleryItems = items.length > 0
+    ? items.slice(0, 6).map((item, i) => {
+        if (typeof item === "string") return item;
+        return item.src || item.image_url || demoImage(i + 1);
+      })
+    : Array.from({ length: 6 }, (_, i) => demoImage(i + 1));
+
   return (
     <div className="py-4 px-6">
       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Gallery</p>
-      {items.length === 0 ? (
-        <p className="text-sm text-muted-foreground/60 italic">No images added</p>
-      ) : (
-        <div className="grid grid-cols-3 gap-2">
-          {items.slice(0, 6).map((_, i) => (
-            <div key={i} className="aspect-square rounded bg-muted" />
-          ))}
-        </div>
-      )}
+      <div className="grid grid-cols-3 gap-2">
+        {galleryItems.map((src, i) => (
+          <div key={i} className="aspect-square rounded bg-muted overflow-hidden">
+            <img src={src} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -499,6 +515,16 @@ function ProductsPreview({ schema }: { schema: Record<string, unknown> }) {
   }));
 
   const items = products.length > 0 ? products : legacyItems;
+  const seededItems = items.length > 0
+    ? items
+    : [
+        { name: "Modern Chair", price: "$89", image_url: demoImage(0), badge: "New" },
+        { name: "Stone Mug", price: "$24", image_url: demoImage(1), badge: "Hot" },
+        { name: "Table Lamp", price: "$56", image_url: demoImage(2), badge: "" },
+        { name: "Wall Mirror", price: "$112", image_url: demoImage(3), badge: "" },
+        { name: "Linen Set", price: "$78", image_url: demoImage(4), badge: "" },
+        { name: "Shelf Decor", price: "$34", image_url: demoImage(5), badge: "" },
+      ];
   const gridSettings = (schema.grid as { columns_desktop?: number; columns_mobile?: number; gap?: string }) || {};
   const cols = Math.min(gridSettings.columns_desktop || 2, 4);
   const cardSettings = (schema.cards as { style?: string; image_ratio?: string; show_price?: boolean; show_title?: boolean; show_cta?: boolean; card_style?: string; hover_effect?: string; badge_enabled?: boolean }) || {};
@@ -516,58 +542,53 @@ function ProductsPreview({ schema }: { schema: Record<string, unknown> }) {
       {schema.description && (
         <p className="text-[10px] text-muted-foreground mb-3 leading-relaxed">{schema.description as string}</p>
       )}
-      {items.length === 0 ? (
-        <p className="text-sm text-muted-foreground/60 italic">No products added</p>
-      ) : (
-        <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
-          {items.map((item, i) => (
-            <div key={i} className="rounded-lg border border-border bg-card overflow-hidden group">
-              <div className={`bg-muted relative ${isPortrait ? "aspect-[3/4]" : isSquare ? "aspect-square" : "aspect-video"}`}>
-                {item.image_url ? (
-                  <img src={item.image_url} alt={item.name || ""} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-muted-foreground/30 text-2xl">🛍️</span>
-                  </div>
-                )}
-                {item.badge && cardSettings.badge_enabled !== false && (
-                  <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded text-[9px] font-medium bg-primary text-primary-foreground">{item.badge}</span>
-                )}
-              </div>
-              <div className="p-2">
-                <p className="text-[11px] font-medium truncate">{item.name || "Product"}</p>
-                {item.price && <p className="text-[10px] text-primary font-semibold">{item.price}</p>}
-                {showCta && (
-                  <span className="mt-1.5 block text-center text-[9px] font-medium py-1 rounded border border-border text-muted-foreground">Add to Cart</span>
-                )}
-              </div>
+      <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+        {seededItems.map((item, i) => (
+          <div key={i} className="rounded-lg border border-border bg-card overflow-hidden group">
+            <div className={`bg-muted relative ${isPortrait ? "aspect-[3/4]" : isSquare ? "aspect-square" : "aspect-video"}`}>
+              <img src={item.image_url || demoImage(i)} alt={item.name || "Product"} className="w-full h-full object-cover" />
+              {item.badge && cardSettings.badge_enabled !== false && (
+                <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded text-[9px] font-medium bg-primary text-primary-foreground">{item.badge}</span>
+              )}
             </div>
-          ))}
-        </div>
-      )}
+            <div className="p-2">
+              <p className="text-[11px] font-medium truncate">{item.name || "Product"}</p>
+              {item.price && <p className="text-[10px] text-primary font-semibold">{item.price}</p>}
+              {showCta && (
+                <span className="mt-1.5 block text-center text-[9px] font-medium py-1 rounded border border-border text-muted-foreground">Add to Cart</span>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
 function CategoriesPreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<{ name?: string; icon?: string }>) || [];
+  const items = (schema.items as Array<{ name?: string; icon?: string; image_url?: string; media?: Array<{ src?: string }> }>) || [];
+  const seeded = items.length > 0
+    ? items
+    : ["Living", "Kitchen", "Office", "Wellness", "Outdoor", "Decor"].map((name, i) => ({ name, image_url: demoImage(i + 2) }));
+
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">
         {(schema.heading as string) || "Categories"}
       </h3>
-      {items.length === 0 ? (
-        <p className="text-sm text-muted-foreground/60 italic">No categories added</p>
-      ) : (
-        <div className="flex flex-wrap gap-2">
-          {items.map((item, i) => (
-            <span key={i} className="px-3 py-1 rounded-full bg-muted text-xs font-medium">
-              {item.icon && <span className="mr-1">{item.icon}</span>}
-              {item.name || "Category"}
-            </span>
-          ))}
-        </div>
-      )}
+      <div className="grid grid-cols-3 gap-2">
+        {seeded.slice(0, 9).map((item, i) => {
+          const src = item.image_url || item.media?.[0]?.src || demoImage(i + 2);
+          return (
+            <div key={i} className="rounded-lg overflow-hidden border border-border bg-card">
+              <div className="aspect-square bg-muted">
+                <img src={src} alt={item.name || "Category"} className="w-full h-full object-cover" />
+              </div>
+              <p className="text-[10px] font-medium p-1.5 text-center truncate">{item.name || "Category"}</p>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -721,18 +742,19 @@ function FaqPreview({ schema }: { schema: Record<string, unknown> }) {
 }
 
 function ContactPreview({ schema }: { schema: Record<string, unknown> }) {
+  const email = (schema.email as string) || "hello@yourstore.com";
+  const phone = (schema.phone as string) || "+1 (000) 000-0000";
+  const address = (schema.address as string) || "123 Your Street, City";
+
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">
         {(schema.heading as string) || "Contact"}
       </h3>
       <div className="space-y-1 text-sm text-muted-foreground">
-        {schema.email && <p>✉️ {schema.email as string}</p>}
-        {schema.phone && <p>📞 {schema.phone as string}</p>}
-        {schema.address && <p>📍 {schema.address as string}</p>}
-        {!schema.email && !schema.phone && !schema.address && (
-          <p className="italic text-muted-foreground/60">No contact info added</p>
-        )}
+        <p>✉️ {email}</p>
+        <p>📞 {phone}</p>
+        <p>📍 {address}</p>
       </div>
     </div>
   );
@@ -992,17 +1014,28 @@ export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<st
   links_grid: LinksPreview,
   social: SocialPreview,
   cta: CtaPreview,
+  cta_block: CtaPreview,
+  newsletter: CtaPreview,
   video: VideoPreview,
   gallery: GalleryPreview,
+  instagram_gallery: GalleryPreview,
+  media_grid: GalleryPreview,
   text: TextPreview,
   about: AboutPreview,
   offer: OfferPreview,
+  offers: OfferPreview,
+  promo: OfferPreview,
+  promo_banner: OfferPreview,
+  trust_badges: OfferPreview,
   plans: PlansPreview,
   rules: RulesPreview,
   join: JoinPreview,
   products: ProductsPreview,
   product_grid: ProductsPreview,
+  reviews: ProductsPreview,
   categories: CategoriesPreview,
+  category_grid: CategoriesPreview,
+  collections: CategoriesPreview,
   listings: ListingsPreview,
   listing_grid: ListingsPreview,
   filters: FiltersPreview,
@@ -1012,6 +1045,7 @@ export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<st
   testimonials: TestimonialsPreview,
   faq: FaqPreview,
   contact: ContactPreview,
+  contact_section: ContactPreview,
   schedule: SchedulePreview,
   menu: MenuPreview,
   hours: HoursPreview,
@@ -1022,7 +1056,6 @@ export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<st
   case_studies_grid: FeaturedPreview,
   booking_inventory: ListingsPreview,
   community_feed: TextPreview,
-  media_grid: GalleryPreview,
 };
 
 export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSelectSection, theme, pageSettings, liveSchemaOverride }: BuilderPreviewProps) {
