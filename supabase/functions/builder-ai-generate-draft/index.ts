@@ -81,8 +81,8 @@ serve(async (req) => {
       ? `\n\nIMPORTANT: The business has ${businessPhotos.length} real photos. You MUST use these exact URLs in the sections:
 ${businessPhotos.map((url: string, i: number) => `Photo ${i + 1}: ${url}`).join("\n")}
 
-Use Photo 1 as the hero image (media_url field).
-Use remaining photos in gallery, products, or collections sections (as image_url fields in items arrays).
+Use Photo 1 as the hero image in the media object: { "type": "image", "url": "<Photo 1 URL>", "fit": "cover" }.
+Use remaining photos in gallery (as "src" fields), products (as "image_url" fields), or collections/categories sections.
 Do NOT use placeholder images — only use the provided photo URLs.`
       : "";
 
@@ -104,16 +104,16 @@ CRITICAL RULES:
 ${businessDescription ? `5. Use this description as inspiration: "${businessDescription}"` : ""}
 ${location ? `6. Reference the location: "${location}"` : ""}
 
-SECTION SCHEMA REQUIREMENTS:
-- hero section: must include "headline" (string), "subheadline" (string), "cta_label" (string), "media_url" (string with image URL)
-- text/about section: must include "heading" (string), "body" (string)  
-- gallery section: must include "heading" (string), "items" array of {name, image_url}
-- products section: must include "heading" (string), "items" array of {name, price, image_url, description}
-- collections/categories section: must include "heading" (string), "items" array of {name, image_url}
-- contact section: must include "heading" (string), "phone" (string), "address" (string)
-- offer section: must include "heading" (string), "body" (string), "cta_label" (string)
-- cta section: must include "heading" (string), "body" (string), "cta_label" (string)
-- footer section: must include "text" (string)
+SECTION SCHEMA REQUIREMENTS (use EXACTLY these field names):
+- hero section: "headline" (string), "subheadline" (string), "cta_text" (string), "media" object with { "type": "image", "url": "<image URL>", "fit": "cover" }
+- text/about section: "heading" (string), "body" (string)  
+- gallery section: "heading" (string), "items" array of {"name": string, "src": "<image URL>"}
+- products section: "heading" (string), "items" array of {"name": string, "price": string, "image_url": "<image URL>", "description": string}
+- collections/categories section: "heading" (string), "items" array of {"name": string, "image_url": "<image URL>"}
+- contact section: "heading" (string), "phone" (string), "address" (string), "email" (string)
+- offer section: "heading" (string), "description" (string), "items" array of {"title": string, "description": string, "price": string}
+- cta section: "label" (string), "url" (string)
+- footer section: "heading" (string), "email" (string), "phone" (string), "address" (string)
 ${photoInstruction}
 
 ALLOWED section types: ${allowedTypes.join(", ")}
@@ -191,17 +191,45 @@ Generate 5-7 sections minimum.`;
       for (const section of filteredSections) {
         const schema = section.schema || {};
         
-        // Hero — ensure media_url has a real photo
-        if (section.type === "hero" && (!schema.media_url || !schema.media_url.startsWith("http"))) {
-          schema.media_url = businessPhotos[0];
-          photoIdx = 1;
+        // Hero — ensure media.url has a real photo
+        if (section.type === "hero") {
+          const media = (schema.media as Record<string, unknown>) || {};
+          const mediaUrl = media.url || (schema as any).media_url;
+          if (!mediaUrl || !String(mediaUrl).startsWith("http")) {
+            schema.media = { type: "image", url: businessPhotos[0], fit: "cover" };
+            photoIdx = 1;
+          } else if (!schema.media || typeof schema.media !== "object") {
+            // AI returned media_url instead of media object — convert
+            schema.media = { type: "image", url: mediaUrl, fit: "cover" };
+            delete (schema as any).media_url;
+            photoIdx = 1;
+          }
         }
 
-        // Gallery/products/collections — inject photos into items
-        if (schema.items && Array.isArray(schema.items)) {
+        // Fix hero field names: cta_label → cta_text
+        if (section.type === "hero" && schema.cta_label && !schema.cta_text) {
+          schema.cta_text = schema.cta_label;
+          delete schema.cta_label;
+        }
+
+        // Gallery — ensure items have "src" field
+        if (section.type === "gallery" && schema.items && Array.isArray(schema.items)) {
+          for (const item of schema.items) {
+            if (item.image_url && !item.src) {
+              item.src = item.image_url;
+            }
+            if (photoIdx < businessPhotos.length && (!item.src || !String(item.src).startsWith("http"))) {
+              item.src = businessPhotos[photoIdx];
+              photoIdx++;
+            }
+          }
+        }
+
+        // Products/categories — inject photos into items
+        if ((section.type === "products" || section.type === "categories" || section.type === "collections") && schema.items && Array.isArray(schema.items)) {
           for (const item of schema.items) {
             if (photoIdx < businessPhotos.length) {
-              if (!item.image_url || !item.image_url.startsWith("http") || item.image_url.includes("placeholder")) {
+              if (!item.image_url || !String(item.image_url).startsWith("http") || String(item.image_url).includes("placeholder")) {
                 item.image_url = businessPhotos[photoIdx];
                 photoIdx++;
               }

@@ -11,6 +11,29 @@ export function CanvasHints() {
     if (!dismissed) setVisible(true);
   }, []);
 
+  // Auto-dismiss after first click/edit interaction anywhere on the page
+  useEffect(() => {
+    if (!visible) return;
+    const handler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      // Dismiss on any contentEditable interaction or image click
+      if (target.isContentEditable || target.closest("[contenteditable]") || target.tagName === "IMG") {
+        setVisible(false);
+        localStorage.setItem(HINTS_KEY, "true");
+      }
+    };
+    // Also auto-dismiss after 10 seconds
+    const timer = setTimeout(() => {
+      setVisible(false);
+      localStorage.setItem(HINTS_KEY, "true");
+    }, 10000);
+    document.addEventListener("click", handler, true);
+    return () => {
+      document.removeEventListener("click", handler, true);
+      clearTimeout(timer);
+    };
+  }, [visible]);
+
   const dismiss = () => {
     setVisible(false);
     localStorage.setItem(HINTS_KEY, "true");
