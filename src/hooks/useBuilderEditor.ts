@@ -203,11 +203,15 @@ export function useBuilderEditor(surfaceId: string | undefined) {
 
   // ─── Add section with custom schema (AI-generated) ───
   const addSectionWithSchema = useCallback(
-    async (sectionType: string, schema: Record<string, unknown>) => {
+    async (
+      sectionType: string,
+      schema: Record<string, unknown>,
+      options?: { coreSlot?: string | null; position?: number }
+    ) => {
       if (!activePageId) return;
       setIsAdding(true);
 
-      const nextPosition = sections.length > 0 ? Math.max(...sections.map((s) => s.position)) + 1 : 0;
+      const nextPosition = options?.position ?? (sections.length > 0 ? Math.max(...sections.map((s) => s.position)) + 1 : 0);
 
       try {
         const { data, error } = await supabase.rpc("builder_upsert_section", {
@@ -216,7 +220,7 @@ export function useBuilderEditor(surfaceId: string | undefined) {
           p_schema: schema as unknown as Json,
           p_position: nextPosition,
           p_is_visible: true,
-          p_core_slot: null,
+          p_core_slot: options?.coreSlot ?? null,
         });
 
         if (error) throw new Error(error.message);

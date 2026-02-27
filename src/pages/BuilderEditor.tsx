@@ -284,7 +284,7 @@ export default function BuilderEditor() {
               await toggleSectionVisibility(sectionId, true);
             }}
             onCreateSection={async (sectionType, schema, coreSlot) => {
-              await addSectionWithSchema(sectionType, schema);
+              await addSectionWithSchema(sectionType, schema, { coreSlot });
             }}
           />
         )}
