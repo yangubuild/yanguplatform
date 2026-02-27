@@ -30,11 +30,14 @@ interface BuilderPageEditPanelProps {
     schema: Record<string, unknown>;
     core_slot?: string | null;
     isMissing?: boolean;
+    is_visible?: boolean;
   }>;
   onApplyTemplate?: (sectionId: string, schema: Record<string, unknown>) => Promise<void>;
+  onToggleVisible?: (sectionId: string) => Promise<void>;
+  onCreateSection?: (sectionType: string, schema: Record<string, unknown>, coreSlot: string) => Promise<void>;
 }
 
-export function BuilderPageEditPanel({ settings, onSave, onClose, isSaving, onLocalChange, surfaceType, sections, onApplyTemplate }: BuilderPageEditPanelProps) {
+export function BuilderPageEditPanel({ settings, onSave, onClose, isSaving, onLocalChange, surfaceType, sections, onApplyTemplate, onToggleVisible, onCreateSection }: BuilderPageEditPanelProps) {
   const [local, setLocal] = useState<PageEditSettings>(settings);
   const [dirty, setDirty] = useState(false);
 
@@ -199,6 +202,8 @@ export function BuilderPageEditPanel({ settings, onSave, onClose, isSaving, onLo
               surfaceType={surfaceType}
               sections={sections}
               onApply={onApplyTemplate}
+              onToggleVisible={onToggleVisible}
+              onCreateSection={onCreateSection}
             />
           </div>
         )}

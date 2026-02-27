@@ -280,6 +280,12 @@ export default function BuilderEditor() {
             onApplyTemplate={async (sectionId, schema) => {
               await updateSectionSchema(sectionId, schema);
             }}
+            onToggleVisible={async (sectionId) => {
+              await toggleSectionVisibility(sectionId, true);
+            }}
+            onCreateSection={async (sectionType, schema, coreSlot) => {
+              await addSectionWithSchema(sectionType, schema);
+            }}
           />
         )}
         {rightPanel === "setup" && hasAiSetup && (
