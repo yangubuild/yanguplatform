@@ -12,7 +12,7 @@ export default function DashboardHome() {
 
   if (isMobile) {
     return (
-      <div className="h-[calc(100vh-64px)] flex flex-col overflow-hidden">
+      <div className="h-[calc(100vh-var(--dashboard-shell-header-height,64px))] flex flex-col overflow-hidden">
         <ProfileWorkspace />
       </div>
     );
@@ -20,7 +20,7 @@ export default function DashboardHome() {
 
   return (
     <div
-      className="h-[calc(100vh-64px)] overflow-hidden"
+      className="h-[calc(100vh-var(--dashboard-shell-header-height,64px))] overflow-hidden"
       style={{
         display: "grid",
         gridTemplateColumns: "220px 1fr 320px",
