@@ -3,8 +3,8 @@ import { X, Plus, Zap, Mic, Send } from "lucide-react";
 
 const SUGGESTIONS = [
   "Make a landing page",
-  "Who are my top 5 spenders?",
-  "Write a new forum post",
+  "I want to buy something sick",
+  "Go live to the public",
   "Forecast the next 30 days of revenue",
 ];
 
