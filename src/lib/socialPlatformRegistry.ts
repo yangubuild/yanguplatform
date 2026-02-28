@@ -19,6 +19,7 @@ import pinterestIcon from "@/assets/icons/pinterest.png";
 import websiteIcon from "@/assets/icons/website.png";
 import emailIcon from "@/assets/icons/email.png";
 import phoneIcon from "@/assets/icons/phone.png";
+import zillowIcon from "@/assets/icons/zillow.png";
 
 export interface SocialPlatform {
   id: string;
@@ -57,6 +58,7 @@ export const PLATFORM_REGISTRY: SocialPlatform[] = [
   { id: "website",   name: "Website",     aliases: ["site", "web", "url"],      icon: websiteIcon,   placeholder: "www.my-website.com",         group: "contact" },
   { id: "email",     name: "Email",       aliases: ["mail", "e-mail"],          icon: emailIcon,     placeholder: "you@example.com",            group: "contact" },
   { id: "phone",     name: "Phone",       aliases: ["call", "tel"],             icon: phoneIcon,     placeholder: "+00000000000",               group: "contact" },
+  { id: "zillow",    name: "Zillow",      aliases: ["real estate"],              icon: zillowIcon,    placeholder: "zillow.com/profile/username", group: "professional" },
 ];
 
 /** Default 6 platform IDs for new influencer pages */
