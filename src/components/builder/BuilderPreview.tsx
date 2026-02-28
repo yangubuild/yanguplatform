@@ -153,7 +153,7 @@ function HeroPreview({ schema, canvas }: { schema: Record<string, unknown>; canv
           {description && <EditableText value={description} field="description" className="text-[11px] text-muted-foreground mt-2 leading-relaxed" tag="p" canvas={canvas} />}
           {ctaText && (
             <div className="mt-3">
-              <EditableText value={ctaText} field="cta_text" className="inline-block px-4 py-1.5 rounded-full bg-foreground text-background text-xs font-medium" tag="span" canvas={canvas} />
+              <EditableText value={ctaText} field="cta_text" className="inline-block px-4 py-1.5 rounded-full bg-foreground text-background text-xs font-medium yangu-cta" tag="span" canvas={canvas} />
             </div>
           )}
         </div>
@@ -177,7 +177,7 @@ function HeroPreview({ schema, canvas }: { schema: Record<string, unknown>; canv
           )}
           {ctaText && (
             <div className="mt-4">
-              <EditableText value={ctaText} field="cta_text" className="inline-block px-5 py-2 rounded-full bg-white text-black text-xs font-medium" tag="span" canvas={canvas} />
+              <EditableText value={ctaText} field="cta_text" className="inline-block px-5 py-2 rounded-full bg-white text-black text-xs font-medium yangu-cta" tag="span" canvas={canvas} />
             </div>
           )}
         </div>
@@ -208,7 +208,7 @@ function HeroPreview({ schema, canvas }: { schema: Record<string, unknown>; canv
       {description && <EditableText value={description} field="description" className="mt-2 text-xs text-muted-foreground" tag="p" canvas={canvas} />}
       {ctaText && (
         <div className="mt-4">
-          <a href={ctaHref || "#"} className="inline-block px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium">{ctaText}</a>
+          <a href={ctaHref || "#"} className="inline-block px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium yangu-cta">{ctaText}</a>
         </div>
       )}
     </div>
@@ -232,7 +232,7 @@ function LinksPreview({ schema }: { schema: Record<string, unknown> }) {
         <p className="text-sm text-muted-foreground/60 italic">No links added yet</p>
       ) : (
         items.map((item, i) => (
-          <div key={i} className="block p-3 rounded-lg border border-border bg-muted/50 text-sm text-center">
+          <div key={i} className="block p-3 rounded-lg border border-border bg-muted/50 text-sm text-center yangu-interactive" tabIndex={0}>
             {item.label || item.url || "Link"}
           </div>
         ))
@@ -334,7 +334,7 @@ function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; can
       {isTrustBadges && items.length > 0 && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
           {items.map((item, i) => (
-            <div key={i} className="p-3 sm:p-4 rounded-lg border border-border bg-muted/30 text-center">
+            <div key={i} className="p-3 sm:p-4 rounded-lg border border-border bg-muted/30 text-center yangu-card" tabIndex={0}>
               <div className="text-lg mb-1">
                 {item.icon === "truck" ? "🚚" : item.icon === "headphones" ? "🎧" : item.icon === "credit-card" ? "💳" : item.icon === "map-pin" ? "📍" : "✨"}
               </div>
@@ -365,7 +365,7 @@ function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; can
       {!isTrustBadges && !isStoryBlock && items.length > 0 && (
         <div className="space-y-2">
           {items.map((item, i) => (
-            <div key={i} className="p-3 rounded-lg border border-border bg-muted/50">
+             <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
               <div className="flex justify-between items-start">
                 <p className="text-sm font-medium">{item.title || "Offer"}</p>
                 {item.price && <p className="text-xs font-medium text-primary shrink-0 ml-2">{item.price}</p>}
@@ -395,7 +395,7 @@ function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; can
           <h4 className="text-xs font-semibold mb-2">{testimonials.heading || "Reviews"}</h4>
           <div className="space-y-2">
             {(testimonials.items || []).map((t, i) => (
-              <div key={i} className="p-3 rounded-lg border border-border bg-muted/30">
+              <div key={i} className="p-3 rounded-lg border border-border bg-muted/30 yangu-card" tabIndex={0}>
                 {t.label && <span className="text-[10px] font-medium text-primary">{t.label}</span>}
                 <p className="text-[11px] italic text-muted-foreground mt-1">"{t.quote || "..."}"</p>
                 <p className="text-[10px] font-medium mt-1">— {t.name || "Customer"}{t.location ? `, ${t.location}` : ""}</p>
@@ -446,7 +446,7 @@ function PlansPreview({ schema }: { schema: Record<string, unknown> }) {
       ) : (
         <div className="grid grid-cols-2 gap-2">
           {items.map((item, i) => (
-            <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 text-center">
+            <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 text-center yangu-card" tabIndex={0}>
               <p className="text-sm font-medium">{item.name || "Plan"}</p>
               {item.price && <p className="text-xs text-muted-foreground">{item.price}</p>}
             </div>
@@ -479,7 +479,7 @@ function JoinPreview({ schema }: { schema: Record<string, unknown> }) {
   return (
     <div className="py-6 px-6 text-center">
       {schema.description && <p className="text-sm text-muted-foreground mb-3">{schema.description as string}</p>}
-      <button className="px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium">
+      <button className="px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium yangu-cta">
         {(schema.label as string) || "Join Now"}
       </button>
     </div>
@@ -531,7 +531,7 @@ function ProductsPreview({ schema, canvas }: { schema: Record<string, unknown>; 
       )}
       <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3 xl:grid-cols-4" style={cols !== 2 && cols !== 3 && cols !== 4 ? { gridTemplateColumns: `repeat(${cols}, 1fr)` } : undefined}>
         {seededItems.map((item, i) => (
-          <div key={i} className="rounded-lg border border-border bg-card overflow-hidden group max-w-sm">
+          <div key={i} className="rounded-lg border border-border bg-card overflow-hidden group max-w-sm yangu-card" tabIndex={0}>
             <div className={`bg-muted relative ${isPortrait ? "aspect-[3/4]" : isSquare ? "aspect-square" : "aspect-[4/3]"}`}>
               <EditableImage src={item.image_url || demoImage(i)} alt={item.name || "Product"} className="w-full h-full object-cover" field={`products.${i}.image`} canvas={canvas} />
               {item.badge && cardSettings.badge_enabled !== false && (
@@ -541,7 +541,7 @@ function ProductsPreview({ schema, canvas }: { schema: Record<string, unknown>; 
             <div className="p-3 lg:p-4">
               <p className="text-[11px] font-medium truncate">{item.name || "Product"}</p>
               {item.price && <p className="text-[10px] text-primary font-semibold mt-0.5">{item.price}</p>}
-              {showCta && <span className="mt-2 inline-block text-center text-[9px] font-medium py-1.5 px-4 rounded border border-border text-muted-foreground w-fit">Add to Cart</span>}
+              {showCta && <span className="mt-2 inline-block text-center text-[9px] font-medium py-1.5 px-4 rounded border border-border text-muted-foreground w-fit yangu-cta">Add to Cart</span>}
             </div>
           </div>
         ))}
@@ -563,7 +563,7 @@ function CategoriesPreview({ schema, canvas }: { schema: Record<string, unknown>
         {seeded.slice(0, 9).map((item, i) => {
           const src = item.image_url || item.media?.[0]?.src || demoImage(i + 2);
           return (
-            <div key={i} className="rounded-lg overflow-hidden border border-border bg-card max-w-xs">
+            <div key={i} className="rounded-lg overflow-hidden border border-border bg-card max-w-xs yangu-card" tabIndex={0}>
               <div className="aspect-square bg-muted">
                 <EditableImage src={src} alt={item.name || "Category"} className="w-full h-full object-cover" field={`items.${i}.image_url`} canvas={canvas} />
               </div>
@@ -620,7 +620,7 @@ function ServicesPreview({ schema }: { schema: Record<string, unknown> }) {
       ) : (
         <div className="space-y-2">
           {items.map((item, i) => (
-            <div key={i} className="p-3 rounded-lg border border-border bg-muted/50">
+             <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
               <div className="flex justify-between items-start">
                 <p className="text-sm font-medium">{item.icon && <span className="mr-1.5">{item.icon}</span>}{item.name || "Service"}</p>
                 {item.price && <p className="text-xs font-medium text-primary shrink-0 ml-2">{item.price}</p>}
@@ -644,7 +644,7 @@ function FeaturedPreview({ schema }: { schema: Record<string, unknown> }) {
       ) : (
         <div className="space-y-2">
           {items.map((item, i) => (
-            <div key={i} className="p-3 rounded-lg border border-border bg-muted/50">
+            <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
               {item.image_url && (
                 <div className="aspect-video rounded overflow-hidden mb-2 bg-muted">
                   <img src={item.image_url} alt={item.title || ""} className="w-full h-full object-cover" />
@@ -671,7 +671,7 @@ function TestimonialsPreview({ schema }: { schema: Record<string, unknown> }) {
       ) : (
         <div className="space-y-2">
           {items.map((item, i) => (
-            <div key={i} className="p-3 rounded-lg border border-border bg-muted/50">
+             <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
               <p className="text-sm italic text-muted-foreground">"{item.quote || "..."}"</p>
               <p className="text-xs font-medium mt-1">— {item.name || "Anonymous"}</p>
             </div>
@@ -692,7 +692,7 @@ function FaqPreview({ schema }: { schema: Record<string, unknown> }) {
       ) : (
         <div className="space-y-2">
           {items.map((item, i) => (
-            <div key={i} className="p-3 rounded-lg border border-border bg-muted/50">
+             <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
               <p className="text-sm font-medium">{item.question || "Question?"}</p>
               {item.answer && <p className="text-xs text-muted-foreground mt-1">{item.answer}</p>}
             </div>
@@ -835,7 +835,7 @@ function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
       {isCenterLogo && navItems.length > 0 && (
         <div className="flex gap-2 flex-1">
           {navItems.slice(0, 3).map((item, i) => (
-            <span key={i} className={`text-[10px] ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
+             <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
           ))}
         </div>
       )}
@@ -849,10 +849,10 @@ function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
       </div>
       <div className="flex items-center gap-2">
         {!isCenterLogo && navItems.length > 0 && navItems.slice(0, 3).map((item, i) => (
-          <span key={i} className={`text-[10px] ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
+           <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
         ))}
         {isCenterLogo && (schema.nav_items_right as string[] || []).slice(0, 2).map((item, i) => (
-          <span key={i} className={`text-[10px] ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
+          <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
         ))}
         {showSearch && <span className="text-sm">🔍</span>}
         {showCart && <span className="text-sm">🛒</span>}

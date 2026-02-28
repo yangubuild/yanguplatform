@@ -607,3 +607,108 @@ a:focus-visible,
 .animate-yangu-pulse {
   animation: yangu-pulse 1.6s ease-in-out infinite;
 }
+
+/* ══════════════════════════════════════════════════════════
+   YANGU Live Pages — Global interactivity + typography
+   Applied via .yangu-live wrapper on all published surfaces
+   ══════════════════════════════════════════════════════════ */
+
+/* A) Typography baseline for live pages */
+.yangu-live {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.yangu-live h1 {
+  font-size: 2rem;
+  line-height: 1.2;
+}
+.yangu-live h2 {
+  font-size: 1.5rem;
+  line-height: 1.25;
+}
+.yangu-live h3 {
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+.yangu-live p,
+.yangu-live span,
+.yangu-live li {
+  font-size: max(0.875rem, inherit);
+}
+
+@media (min-width: 768px) {
+  .yangu-live h1 {
+    font-size: 2.5rem;
+  }
+  .yangu-live h2 {
+    font-size: 1.75rem;
+  }
+  .yangu-live h3 {
+    font-size: 1.375rem;
+  }
+}
+
+/* B) Global interactive affordances for live pages */
+
+/* Cards: hover elevation + border highlight */
+.yangu-live .yangu-card {
+  transition: box-shadow 200ms ease, transform 200ms ease, border-color 200ms ease;
+  cursor: pointer;
+}
+.yangu-live .yangu-card:hover {
+  box-shadow: 0 8px 24px -4px hsl(0 0% 0% / 0.12);
+  transform: translateY(-2px);
+  border-color: hsl(var(--accent) / 0.4);
+}
+.yangu-live .yangu-card:active {
+  transform: translateY(0) scale(0.99);
+  transition-duration: 80ms;
+}
+.yangu-live .yangu-card:focus-visible {
+  outline: 2px solid hsl(var(--accent) / 0.5);
+  outline-offset: 2px;
+}
+
+/* Interactive elements: buttons, links, nav items, chips */
+.yangu-live .yangu-interactive {
+  cursor: pointer;
+  transition: opacity 200ms ease, transform 150ms ease, box-shadow 200ms ease;
+}
+.yangu-live .yangu-interactive:hover {
+  opacity: 0.85;
+}
+.yangu-live .yangu-interactive:active {
+  transform: scale(0.97);
+  transition-duration: 80ms;
+}
+.yangu-live .yangu-interactive:focus-visible {
+  outline: 2px solid hsl(var(--accent) / 0.5);
+  outline-offset: 2px;
+}
+
+/* Nav items specific hover */
+.yangu-live .yangu-nav-item {
+  cursor: pointer;
+  transition: color 200ms ease, background 200ms ease;
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.5rem;
+}
+.yangu-live .yangu-nav-item:hover {
+  background: hsl(var(--foreground) / 0.08);
+}
+
+/* CTA buttons: subtle hover glow */
+.yangu-live .yangu-cta {
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+.yangu-live .yangu-cta:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 4px 16px -2px hsl(var(--accent) / 0.25);
+  transform: translateY(-1px);
+}
+.yangu-live .yangu-cta:active {
+  transform: translateY(0) scale(0.98);
+  transition-duration: 80ms;
+}
