@@ -20,22 +20,19 @@ export default function DashboardHome() {
   }
 
   return (
-    <div className="h-[calc(100vh-64px)] flex overflow-hidden">
-      {/* Inner page sidebar */}
-      <div className="w-[240px] shrink-0">
+    <div className="h-[calc(100vh-64px)] flex gap-[1px] overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
+      {/* Inner page sidebar — narrowest */}
+      <div className="w-[220px] shrink-0" style={{ background: "#1a2025" }}>
         <InnerPageSidebar />
       </div>
 
-      {/* Center — Profile workspace */}
-      <div
-        className="flex-1 min-w-0"
-        style={{ borderLeft: "1px solid rgba(255,255,255,0.06)" }}
-      >
+      {/* Center — Profile workspace — widest */}
+      <div className="flex-1 min-w-0" style={{ background: "#0f171c" }}>
         <ProfileWorkspace />
       </div>
 
-      {/* Right — Client chat */}
-      <div className="w-[340px] shrink-0">
+      {/* Right — Client chat — medium */}
+      <div className="w-[320px] shrink-0" style={{ background: "#1a2025" }}>
         <ClientChatPanel />
       </div>
     </div>
