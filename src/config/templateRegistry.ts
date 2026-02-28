@@ -15,7 +15,7 @@ export interface TemplatePreset {
   /** Emoji or icon hint for UI card */
   icon: string;
   /** Schema patches keyed by core_slot name */
-  patches: Partial<Record<"header" | "hero" | "main_content" | "offer" | "footer", TemplateSlotPatch>>;
+  patches: Partial<Record<"header" | "hero" | "main_content" | "offer" | "footer" | "showcase", TemplateSlotPatch>>;
 }
 
 export interface EngineTemplates {
@@ -736,6 +736,16 @@ const INFLUENCER_TEMPLATES: TemplatePreset[] = [
         spacing: "comfortable",
         items: [],
       } },
+      showcase: { schema: {
+        showcase_display: "carousel",
+        heading: "My Picks",
+        showcase_items: [
+          { title: "Creator Kit", description: "Everything you need to start", image_url: "", link_url: "", price: "$29" },
+          { title: "Ring Light Pro", description: "Studio-quality lighting", image_url: "", link_url: "", price: "$45" },
+          { title: "Wireless Mic", description: "Crystal clear audio", image_url: "", link_url: "", price: "$65" },
+          { title: "Tripod Stand", description: "Stable shots every time", image_url: "", link_url: "", price: "$35" },
+        ],
+      } },
       offer: { schema: {
         layout_variant: "link_bio_gallery",
         display_mode: "link_bio_gallery",
@@ -812,6 +822,16 @@ const INFLUENCER_TEMPLATES: TemplatePreset[] = [
         },
         spacing: "comfortable",
         items: [],
+      } },
+      showcase: { schema: {
+        showcase_display: "carousel",
+        heading: "Featured",
+        showcase_items: [
+          { title: "New Collection", description: "Just dropped — limited edition", image_url: "", link_url: "", price: "$49" },
+          { title: "Merch Drop", description: "Exclusive creator merch", image_url: "", link_url: "", price: "$25" },
+          { title: "Digital Pack", description: "Presets, templates & more", image_url: "", link_url: "", price: "$19" },
+          { title: "Collab Item", description: "Special collaboration piece", image_url: "", link_url: "", price: "$55" },
+        ],
       } },
       offer: { schema: {
         layout_variant: "link_bio_featured",
@@ -890,6 +910,17 @@ const INFLUENCER_TEMPLATES: TemplatePreset[] = [
         },
         spacing: "comfortable",
         items: [],
+      } },
+      showcase: { schema: {
+        showcase_display: "carousel",
+        heading: "My Travel Gear",
+        showcase_items: [
+          { title: "Hiking Boots", description: "Trail-tested & waterproof", image_url: "", link_url: "", price: "$120" },
+          { title: "Backpack 45L", description: "Ultralight for long treks", image_url: "", link_url: "", price: "$89" },
+          { title: "Camp Stove", description: "Compact & reliable", image_url: "", link_url: "", price: "$40" },
+          { title: "Water Filter", description: "Drink from any stream", image_url: "", link_url: "", price: "$35" },
+          { title: "Headlamp", description: "1000 lumens, rechargeable", image_url: "", link_url: "", price: "$28" },
+        ],
       } },
       offer: { schema: {
         layout_variant: "link_bio_featured",
