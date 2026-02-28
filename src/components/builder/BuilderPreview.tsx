@@ -1,10 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import facebookIcon from "@/assets/icons/facebook.png";
-import tiktokIcon from "@/assets/icons/tiktok.png";
-import instagramIcon from "@/assets/icons/instagram.png";
-import snapchatIcon from "@/assets/icons/snapchat.png";
-import whatsappIcon from "@/assets/icons/whatsapp.png";
-import youtubeIcon from "@/assets/icons/youtube.png";
+import { DEFAULT_PRIMARY_IDS, getPlatform, type SocialSlot } from "@/lib/socialPlatformRegistry";
 import type { EditorSection } from "@/hooks/useBuilderEditor";
 import { Card } from "@/components/primitives";
 import type { BuilderTheme } from "./BuilderSettingsDrawer";
@@ -156,20 +151,32 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
   const socialRowEnabled = schema.social_row_enabled !== false;
   const searchEnabled = schema.search_enabled !== false;
 
-  const socialIconImages: { key: string; src: string }[] = [
-    { key: "facebook", src: facebookIcon },
-    { key: "tiktok", src: tiktokIcon },
-    { key: "instagram", src: instagramIcon },
-    { key: "snapchat", src: snapchatIcon },
-    { key: "whatsapp", src: whatsappIcon },
-    { key: "youtube", src: youtubeIcon },
-  ];
+  // Resolve social icon images from the social section's active_social_links
+  const socialSection = sections?.find(s => s.section_type === "social");
+  const socialSchema = socialSection?.schema as Record<string, unknown> | undefined;
+  const activeSlots = (socialSchema?.active_social_links as SocialSlot[]) || [];
+  const iconStyleMode = (socialSchema?.icon_style as string) || "original";
+
+  const socialIconImages: { key: string; src: string }[] = (() => {
+    if (activeSlots.length === 6) {
+      return activeSlots.map(s => {
+        const p = getPlatform(s.platform);
+        return { key: s.platform, src: p?.icon || "" };
+      }).filter(x => x.src);
+    }
+    // Fallback to defaults
+    return DEFAULT_PRIMARY_IDS.map(id => {
+      const p = getPlatform(id);
+      return { key: id, src: p?.icon || "" };
+    }).filter(x => x.src);
+  })();
+
+  const iconStyleClass = iconStyleMode === "white" ? "brightness-0 invert" : iconStyleMode === "black" ? "brightness-0" : "";
 
   const handleSocialIconClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (sections && onSelectSection) {
-      const socialSection = sections.find(s => s.section_type === "social");
-      if (socialSection) onSelectSection(socialSection.id);
+    if (sections && onSelectSection && socialSection) {
+      onSelectSection(socialSection.id);
     }
   };
 
@@ -191,7 +198,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
                 <div className="flex gap-3 mt-3">
                   {socialIconImages.map(({ key, src }) => (
                     <span key={key} onClick={handleSocialIconClick} className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center yangu-interactive hover:scale-110 transition-transform cursor-pointer">
-                      <img src={src} alt={key} className="w-full h-full object-cover" />
+                      <img src={src} alt={key} className={`w-full h-full object-cover ${iconStyleClass}`} />
                     </span>
                   ))}
                 </div>
@@ -223,7 +230,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
             <div className="flex justify-center gap-3 mt-4">
               {socialIconImages.map(({ key, src }) => (
                 <span key={key} onClick={handleSocialIconClick} className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center yangu-interactive hover:scale-110 hover:shadow-md transition-all cursor-pointer">
-                  <img src={src} alt={key} className="w-full h-full object-cover" />
+                  <img src={src} alt={key} className={`w-full h-full object-cover ${iconStyleClass}`} />
                 </span>
               ))}
             </div>
@@ -265,7 +272,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
               <div className="flex gap-2 mt-3">
                 {socialIconImages.slice(0, 4).map(({ key, src }) => (
                   <span key={key} onClick={handleSocialIconClick} className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center yangu-interactive hover:scale-110 transition-transform cursor-pointer">
-                    <img src={src} alt={key} className="w-full h-full object-cover" />
+                    <img src={src} alt={key} className={`w-full h-full object-cover ${iconStyleClass}`} />
                   </span>
                 ))}
               </div>
@@ -390,39 +397,45 @@ function LinksPreview({ schema }: { schema: Record<string, unknown> }) {
 }
 
 function SocialPreview({ schema }: { schema: Record<string, unknown> }) {
-  const handles = (schema.handles as Record<string, string>) || {};
-  const socialLinks = (schema.social_links as Record<string, string>) || {};
+  const activeSlots = (schema.active_social_links as SocialSlot[]) || [];
+  const iconStyle = (schema.icon_style as string) || "original";
+  const iconStyleClass = iconStyle === "white" ? "brightness-0 invert" : iconStyle === "black" ? "brightness-0" : "";
+
+  // Fallback: if no active_social_links, use legacy social_links
+  const legacySocialLinks = (schema.social_links as Record<string, string>) || {};
   const disabledLinks = (schema.disabled_links as string[]) || [];
 
-  // Merge legacy handles + new social_links
-  const merged = { ...handles, ...socialLinks };
-  const activeEntries = Object.entries(merged).filter(([key, val]) => val && !disabledLinks.includes(key));
-
-  const iconMap: Record<string, string> = {
-    instagram: "📷", tiktok: "♪", x: "𝕏", twitter: "𝕏", threads: "@",
-    facebook: "f", youtube: "▶", snapchat: "👻", twitch: "📺", discord: "💬",
-    pinterest: "P", reddit: "🔴", telegram: "✈️", linkedin: "in", github: "⌨",
-    behance: "Bē", dribbble: "🏀", substack: "📝", spotify: "🎵",
-    apple_music: "🎶", tidal: "🌊", deezer: "🎧", email: "✉️",
-    whatsapp: "💬", phone: "📞", website: "🌐", zillow: "Z", clubhouse: "🏠",
-  };
+  const displaySlots: { platform: string; url: string; icon: string }[] = (() => {
+    if (activeSlots.length > 0) {
+      return activeSlots.map(s => {
+        const p = getPlatform(s.platform);
+        return { platform: s.platform, url: s.url, icon: p?.icon || "" };
+      }).filter(x => x.icon);
+    }
+    // Legacy fallback
+    const entries = Object.entries(legacySocialLinks).filter(([k, v]) => v && !disabledLinks.includes(k));
+    return entries.map(([platform, url]) => {
+      const p = getPlatform(platform);
+      return { platform, url, icon: p?.icon || "" };
+    }).filter(x => x.icon);
+  })();
 
   return (
     <div className="py-4 px-6">
-      {activeEntries.length === 0 ? (
+      {displaySlots.length === 0 ? (
         <p className="text-sm text-muted-foreground/60 italic text-center">No social links added</p>
       ) : (
         <div className="flex justify-center gap-3 flex-wrap">
-          {activeEntries.map(([platform, handle]) => (
+          {displaySlots.map(({ platform, url, icon }) => (
             <a
               key={platform}
-              href={handle.startsWith("http") ? handle : `https://${handle}`}
+              href={url && url.startsWith("http") ? url : url ? `https://${url}` : "#"}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-10 h-10 rounded-full border border-border bg-card flex items-center justify-center text-sm yangu-interactive hover:bg-accent/10 hover:scale-110 transition-all"
+              className="w-10 h-10 rounded-full overflow-hidden border border-border bg-card flex items-center justify-center yangu-interactive hover:bg-accent/10 hover:scale-110 transition-all"
               title={platform}
             >
-              {iconMap[platform] || platform[0].toUpperCase()}
+              <img src={icon} alt={platform} className={`w-full h-full object-cover ${iconStyleClass}`} />
             </a>
           ))}
         </div>
