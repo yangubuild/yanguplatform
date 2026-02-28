@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { X, Search, ArrowLeftRight } from "lucide-react";
+import { X, Search, ArrowLeftRight, Plus } from "lucide-react";
 import {
   PLATFORM_REGISTRY,
   DEFAULT_PRIMARY_IDS,
@@ -20,7 +20,6 @@ interface InfluencerLinksEditorProps {
 function getSlots(schema: Record<string, unknown>): SocialSlot[] {
   const stored = schema.active_social_links as SocialSlot[] | undefined;
   if (stored && Array.isArray(stored) && stored.length === 6) return stored;
-  // Migrate from legacy social_links or use defaults
   const legacy = schema.social_links as Record<string, string> | undefined;
   if (legacy && Object.keys(legacy).length > 0) {
     const entries = Object.entries(legacy).slice(0, 6);
@@ -42,9 +41,10 @@ export function InfluencerLinksEditor({ schema, update }: InfluencerLinksEditorP
   const [searchQuery, setSearchQuery] = useState("");
   const [replaceTarget, setReplaceTarget] = useState<number | null>(null);
   const [pendingPlatform, setPendingPlatform] = useState<string | null>(null);
+  // Track URLs typed into search result cards before adding
+  const [searchUrls, setSearchUrls] = useState<Record<string, string>>({});
 
   const save = (newSlots: SocialSlot[], extra?: Record<string, unknown>) => {
-    // Also sync legacy social_links for preview backward compat
     const socialLinks: Record<string, string> = {};
     newSlots.forEach(s => { if (s.url) socialLinks[s.platform] = s.url; });
     update({ active_social_links: newSlots, social_links: socialLinks, ...extra });
@@ -61,18 +61,25 @@ export function InfluencerLinksEditor({ schema, update }: InfluencerLinksEditorP
   };
 
   const handleAddPlatform = (platformId: string) => {
+    const enteredUrl = searchUrls[platformId] || "";
     // Already in slots? Just focus it
     const existing = slots.findIndex(s => s.platform === platformId);
     if (existing >= 0) {
+      if (enteredUrl) {
+        const next = slots.map((s, i) => i === existing ? { ...s, url: enteredUrl } : s);
+        save(next);
+      }
       setSearchQuery("");
+      setSearchUrls({});
       return;
     }
-    // Check if there's an empty slot
+    // Check if there's an empty slot (no url)
     const emptyIdx = slots.findIndex(s => !s.url);
     if (emptyIdx >= 0) {
-      const next = slots.map((s, i) => i === emptyIdx ? { platform: platformId, url: "", slotIndex: i } : s);
+      const next = slots.map((s, i) => i === emptyIdx ? { platform: platformId, url: enteredUrl, slotIndex: i } : s);
       save(next);
       setSearchQuery("");
+      setSearchUrls({});
       return;
     }
     // All 6 occupied — trigger replace flow
@@ -83,12 +90,14 @@ export function InfluencerLinksEditor({ schema, update }: InfluencerLinksEditorP
 
   const confirmReplace = () => {
     if (replaceTarget === null || !pendingPlatform) return;
+    const enteredUrl = searchUrls[pendingPlatform] || "";
     const next = slots.map((s, i) =>
-      i === replaceTarget ? { platform: pendingPlatform, url: "", slotIndex: i } : s
+      i === replaceTarget ? { platform: pendingPlatform, url: enteredUrl, slotIndex: i } : s
     );
     save(next);
     setPendingPlatform(null);
     setReplaceTarget(null);
+    setSearchUrls({});
   };
 
   const cancelReplace = () => {
@@ -100,7 +109,9 @@ export function InfluencerLinksEditor({ schema, update }: InfluencerLinksEditorP
     update({ icon_style: style });
   };
 
-  const searchResults = searchQuery.length > 0 ? searchPlatforms(searchQuery) : [];
+  const searchResults = searchQuery.length > 0
+    ? searchPlatforms(searchQuery).filter(p => !slots.some(s => s.platform === p.id))
+    : [];
 
   return (
     <div className="space-y-5">
@@ -226,24 +237,34 @@ export function InfluencerLinksEditor({ schema, update }: InfluencerLinksEditorP
           />
         </div>
         {searchResults.length > 0 && (
-          <div className="rounded-md border border-border bg-popover max-h-[200px] overflow-y-auto">
-            {searchResults.map(p => {
-              const alreadyActive = slots.some(s => s.platform === p.id);
-              return (
+          <div className="rounded-md border border-border bg-popover max-h-[280px] overflow-y-auto space-y-1 p-1.5">
+            {searchResults.map(p => (
+              <div
+                key={p.id}
+                className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-accent/10 transition-colors"
+              >
+                <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center shrink-0 bg-muted/50 border border-border">
+                  <img src={p.icon} alt={p.name} className="w-full h-full object-cover" title={p.name} />
+                </div>
+                <Input
+                  value={searchUrls[p.id] || ""}
+                  onChange={(e) => setSearchUrls(prev => ({ ...prev, [p.id]: e.target.value }))}
+                  placeholder={p.placeholder}
+                  className="text-sm flex-1 h-8"
+                />
                 <button
-                  key={p.id}
                   onClick={() => handleAddPlatform(p.id)}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 text-xs hover:bg-accent/10 transition-colors text-left"
+                  className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center bg-primary text-primary-foreground hover:bg-primary/80 transition-colors"
+                  title={`Add ${p.name}`}
                 >
-                  <img src={p.icon} alt={p.name} className="w-6 h-6 rounded-full object-cover" />
-                  <span className="flex-1 font-medium">{p.name}</span>
-                  {alreadyActive && (
-                    <span className="text-[10px] text-primary font-medium">Active</span>
-                  )}
+                  <Plus className="h-3.5 w-3.5" />
                 </button>
-              );
-            })}
+              </div>
+            ))}
           </div>
+        )}
+        {searchQuery.length > 0 && searchResults.length === 0 && (
+          <p className="text-[11px] text-muted-foreground px-1">No platforms found.</p>
         )}
       </div>
 
