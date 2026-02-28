@@ -81,28 +81,74 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
     fontWeight: Number(surfaceTheme.body_weight),
   };
 
+  // Determine if a section type should break out of the container (full-bleed)
+  const isFullBleedSection = (type: string) => {
+    // Header and footer span full width; hero with background goes full-bleed
+    return type === "header" || type === "header_logo";
+  };
+
   return (
     <div className="min-h-screen bg-background" style={themeStyle}>
-      {/* Sections */}
       {sections.length === 0 ? (
         <div className="py-20 text-center text-muted-foreground">
           <p>This page has no content yet.</p>
         </div>
       ) : (
-        sections.map((section: BuilderPublishedSection, i: number) => {
-          const Preview = PREVIEW_MAP[section.section_type];
-          return (
-            <div key={`${section.section_type}-${i}`}>
-              {Preview ? (
-                <Preview schema={section.schema} />
-              ) : (
-                <div className="px-6 py-4 text-sm text-muted-foreground italic">
-                  [{section.section_type}]
+        <div className="w-full">
+          {sections.map((section: BuilderPublishedSection, i: number) => {
+            const Preview = PREVIEW_MAP[section.section_type];
+            const fullBleed = isFullBleedSection(section.section_type);
+
+            // Full-bleed sections get their own container treatment
+            if (fullBleed) {
+              return (
+                <div key={`${section.section_type}-${i}`} className="w-full">
+                  <div className="max-w-[1200px] mx-auto px-4 sm:px-5 lg:px-6 xl:px-8">
+                    {Preview ? (
+                      <Preview schema={section.schema} />
+                    ) : (
+                      <div className="py-4 text-sm text-muted-foreground italic">
+                        [{section.section_type}]
+                      </div>
+                    )}
+                  </div>
                 </div>
-              )}
-            </div>
-          );
-        })
+              );
+            }
+
+            // Hero sections: background can span full width, but content is contained
+            if (section.section_type === "hero" || section.section_type === "hero_banner") {
+              return (
+                <div key={`${section.section_type}-${i}`} className="w-full">
+                  <div className="max-w-[1200px] mx-auto px-4 sm:px-5 lg:px-6 xl:px-8">
+                    {Preview ? (
+                      <Preview schema={section.schema} />
+                    ) : (
+                      <div className="py-4 text-sm text-muted-foreground italic">
+                        [{section.section_type}]
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            }
+
+            // All other sections: contained within max-width
+            return (
+              <div key={`${section.section_type}-${i}`} className="w-full">
+                <div className="max-w-[1200px] mx-auto px-4 sm:px-5 lg:px-6 xl:px-8 py-8 lg:py-12">
+                  {Preview ? (
+                    <Preview schema={section.schema} />
+                  ) : (
+                    <div className="py-4 text-sm text-muted-foreground italic">
+                      [{section.section_type}]
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       )}
     </div>
   );

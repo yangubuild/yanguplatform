@@ -73,34 +73,34 @@ export default function PublicSurfacePage() {
     <div className="min-h-screen bg-background" style={themeStyle}>
       {/* Minimal header */}
       <header className="border-b border-border bg-background/80 backdrop-blur-sm">
-        <div className="max-w-3xl mx-auto px-4 py-3">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-5 lg:px-6 xl:px-8 py-3">
           <h1 className="text-sm font-semibold text-foreground truncate">{title}</h1>
         </div>
       </header>
 
       {/* Sections */}
-      <main className="max-w-3xl mx-auto px-4 py-6">
+      <main>
         {sections.length === 0 ? (
-          <div className="py-20 text-center text-muted-foreground">
+          <div className="py-20 text-center text-muted-foreground max-w-[1200px] mx-auto">
             <p>This page has no content yet.</p>
           </div>
         ) : (
-          <div className="space-y-0 divide-y divide-border rounded-xl border border-border overflow-hidden bg-card">
-            {sections.map((section: BuilderPublishedSection, i: number) => {
-              const Preview = PREVIEW_MAP[section.section_type];
-              return (
-                <div key={`${section.section_type}-${i}`}>
+          sections.map((section: BuilderPublishedSection, i: number) => {
+            const Preview = PREVIEW_MAP[section.section_type];
+            return (
+              <div key={`${section.section_type}-${i}`} className="w-full">
+                <div className="max-w-[1200px] mx-auto px-4 sm:px-5 lg:px-6 xl:px-8 py-8 lg:py-12">
                   {Preview ? (
                     <Preview schema={section.schema} />
                   ) : (
-                    <div className="px-6 py-4 text-sm text-muted-foreground italic">
+                    <div className="py-4 text-sm text-muted-foreground italic">
                       [{section.section_type}]
                     </div>
                   )}
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })
         )}
       </main>
     </div>

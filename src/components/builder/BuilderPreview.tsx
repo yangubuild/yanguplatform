@@ -170,10 +170,10 @@ function HeroPreview({ schema, canvas }: { schema: Record<string, unknown>; canv
         {mediaType !== "video" && resolvedMediaUrl && (
           <img src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-40" />
         )}
-        <div className="relative z-10">
+        <div className="relative z-10 max-w-2xl mx-auto">
           <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className={`font-bold text-white ${isBoldUppercase ? "text-2xl tracking-[0.15em] uppercase" : "text-2xl"}`} tag="h1" canvas={canvas} />
           {schema.subheadline && (
-            <EditableText value={schema.subheadline as string} field="subheadline" className="mt-3 text-white/70 text-[10px] leading-relaxed max-w-[280px] mx-auto" tag="p" canvas={canvas} />
+            <EditableText value={schema.subheadline as string} field="subheadline" className="mt-3 text-white/70 text-[10px] leading-relaxed max-w-[480px] mx-auto" tag="p" canvas={canvas} />
           )}
           {ctaText && (
             <div className="mt-4">
@@ -294,7 +294,7 @@ function GalleryPreview({ schema, canvas }: { schema: Record<string, unknown>; c
   return (
     <div className="py-4 px-6">
       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Gallery</p>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
         {galleryItems.map((src, i) => (
           <div key={i} className="aspect-square rounded bg-muted overflow-hidden">
             <EditableImage src={src} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" field={`items.${i}`} canvas={canvas} />
@@ -332,9 +332,9 @@ function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; can
       </div>
 
       {isTrustBadges && items.length > 0 && (
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
           {items.map((item, i) => (
-            <div key={i} className="p-3 rounded-lg border border-border bg-muted/30 text-center">
+            <div key={i} className="p-3 sm:p-4 rounded-lg border border-border bg-muted/30 text-center">
               <div className="text-lg mb-1">
                 {item.icon === "truck" ? "🚚" : item.icon === "headphones" ? "🎧" : item.icon === "credit-card" ? "💳" : item.icon === "map-pin" ? "📍" : "✨"}
               </div>
@@ -529,19 +529,19 @@ function ProductsPreview({ schema, canvas }: { schema: Record<string, unknown>; 
       {schema.description && (
         <EditableText value={schema.description as string} field="description" className="text-[10px] text-muted-foreground mb-3 leading-relaxed" tag="p" canvas={canvas} />
       )}
-      <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3 xl:grid-cols-4" style={cols !== 2 && cols !== 3 && cols !== 4 ? { gridTemplateColumns: `repeat(${cols}, 1fr)` } : undefined}>
         {seededItems.map((item, i) => (
-          <div key={i} className="rounded-lg border border-border bg-card overflow-hidden group">
-            <div className={`bg-muted relative ${isPortrait ? "aspect-[3/4]" : isSquare ? "aspect-square" : "aspect-video"}`}>
+          <div key={i} className="rounded-lg border border-border bg-card overflow-hidden group max-w-sm">
+            <div className={`bg-muted relative ${isPortrait ? "aspect-[3/4]" : isSquare ? "aspect-square" : "aspect-[4/3]"}`}>
               <EditableImage src={item.image_url || demoImage(i)} alt={item.name || "Product"} className="w-full h-full object-cover" field={`products.${i}.image`} canvas={canvas} />
               {item.badge && cardSettings.badge_enabled !== false && (
                 <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded text-[9px] font-medium bg-primary text-primary-foreground">{item.badge}</span>
               )}
             </div>
-            <div className="p-2">
+            <div className="p-3 lg:p-4">
               <p className="text-[11px] font-medium truncate">{item.name || "Product"}</p>
-              {item.price && <p className="text-[10px] text-primary font-semibold">{item.price}</p>}
-              {showCta && <span className="mt-1.5 block text-center text-[9px] font-medium py-1 rounded border border-border text-muted-foreground">Add to Cart</span>}
+              {item.price && <p className="text-[10px] text-primary font-semibold mt-0.5">{item.price}</p>}
+              {showCta && <span className="mt-2 inline-block text-center text-[9px] font-medium py-1.5 px-4 rounded border border-border text-muted-foreground w-fit">Add to Cart</span>}
             </div>
           </div>
         ))}
@@ -559,11 +559,11 @@ function CategoriesPreview({ schema, canvas }: { schema: Record<string, unknown>
   return (
     <div className="py-4 px-6">
       <EditableText value={(schema.heading as string) || ""} field="heading" placeholder="Categories" className="text-sm font-semibold text-foreground mb-2" tag="h3" canvas={canvas} />
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
         {seeded.slice(0, 9).map((item, i) => {
           const src = item.image_url || item.media?.[0]?.src || demoImage(i + 2);
           return (
-            <div key={i} className="rounded-lg overflow-hidden border border-border bg-card">
+            <div key={i} className="rounded-lg overflow-hidden border border-border bg-card max-w-xs">
               <div className="aspect-square bg-muted">
                 <EditableImage src={src} alt={item.name || "Category"} className="w-full h-full object-cover" field={`items.${i}.image_url`} canvas={canvas} />
               </div>
