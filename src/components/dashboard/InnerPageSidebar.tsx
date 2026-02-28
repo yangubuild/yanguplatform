@@ -44,7 +44,7 @@ export function InnerPageSidebar({ className = "" }: InnerPageSidebarProps) {
       </div>
 
       {/* Main nav */}
-      <nav className="px-2">
+      <nav className="px-2 flex-1">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive = active === item.id;
@@ -69,7 +69,7 @@ export function InnerPageSidebar({ className = "" }: InnerPageSidebarProps) {
       </nav>
 
       {/* Chat section */}
-      <div className="px-2 mt-2 pb-3">
+      <div className="px-2 pb-3">
         <div className="flex items-center justify-between px-3 mb-2">
           <div className="flex items-center gap-1">
             <p className="text-[10px] font-semibold tracking-wider uppercase" style={{ color: "rgba(255,255,255,0.3)" }}>

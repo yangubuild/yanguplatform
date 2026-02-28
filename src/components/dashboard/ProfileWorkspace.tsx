@@ -1,6 +1,8 @@
-import { ChangeEvent, useRef, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import {
+  Search,
+  MoreHorizontal,
   UserPlus,
   Bell,
   Plus,
@@ -16,101 +18,55 @@ const TABS = ["Home", "Chats", "Apps", "Products", "About"] as const;
 export function ProfileWorkspace() {
   const { profile } = useAuth();
   const [activeTab, setActiveTab] = useState<string>("Home");
-  const [coverImage, setCoverImage] = useState<string | null>(null);
-  const [avatarImage, setAvatarImage] = useState<string | null>(null);
-  const coverInputRef = useRef<HTMLInputElement>(null);
-  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const displayName = profile?.display_name || profile?.business_name || "Your Business";
   const initials = displayName.slice(0, 2).toUpperCase();
-  const avatarSrc = avatarImage || profile?.avatar_url || null;
-
-  const handleImagePick = (event: ChangeEvent<HTMLInputElement>, target: "cover" | "avatar") => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const nextImage = typeof reader.result === "string" ? reader.result : null;
-      if (!nextImage) return;
-      if (target === "cover") setCoverImage(nextImage);
-      if (target === "avatar") setAvatarImage(nextImage);
-    };
-    reader.readAsDataURL(file);
-    event.target.value = "";
-  };
 
   return (
     <div className="flex flex-col h-full">
+      {/* Top bar */}
+      <div
+        className="flex items-center justify-between px-6 py-3 shrink-0"
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
+      >
+        <span className="text-sm font-semibold text-white">Home</span>
+        <div className="flex items-center gap-2">
+          <button className="p-1.5 rounded-lg" style={{ color: "rgba(255,255,255,0.5)" }}>
+            <Search className="w-4 h-4" />
+          </button>
+          <button className="p-1.5 rounded-lg" style={{ color: "rgba(255,255,255,0.5)" }}>
+            <MoreHorizontal className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
       {/* Scrollable content */}
       <div className="flex-1 min-h-0 overflow-y-auto">
         {/* Cover banner */}
         <div
-          className="w-full h-[180px] relative overflow-hidden"
-          style={
-            coverImage
-              ? {
-                  backgroundImage: `url(${coverImage})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }
-              : {
-                  background: "linear-gradient(135deg, #0a1a12 0%, #0d2818 40%, #1a3d2a 70%, #0a1a12 100%)",
-                }
-          }
+          className="w-full h-[180px] relative"
+          style={{
+            background: "linear-gradient(135deg, #0a1a12 0%, #0d2818 40%, #1a3d2a 70%, #0a1a12 100%)",
+          }}
         >
-          {!coverImage && (
-            <div className="absolute inset-0 flex items-center justify-center gap-3">
-              <img src={adaIcon} alt="Ada AI" className="w-14 h-14" />
-              <span className="text-3xl font-bold text-white tracking-wide">Ada AI</span>
-            </div>
-          )}
-
-          <button
-            className="absolute top-3 right-3 px-2.5 py-1 rounded-md text-[11px] font-medium"
-            style={{ background: "rgba(15,23,28,0.7)", color: "rgba(255,255,255,0.9)", border: "1px solid rgba(255,255,255,0.16)" }}
-            onClick={() => coverInputRef.current?.click()}
-          >
-            Change cover
-          </button>
-          <input
-            ref={coverInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(event) => handleImagePick(event, "cover")}
-          />
+          <div className="absolute inset-0 flex items-center justify-center gap-3">
+            <img src={adaIcon} alt="Ada AI" className="w-14 h-14" />
+            <span className="text-3xl font-bold text-white tracking-wide">Ada AI</span>
+          </div>
         </div>
 
         {/* Profile card */}
         <div className="px-6 -mt-8 relative z-10">
           {/* Avatar */}
-          <div className="relative w-fit">
-            <div
-              className="w-16 h-16 rounded-2xl flex items-center justify-center text-xl font-bold text-white"
-              style={{ background: "#1e293b", border: "3px solid #0f171c" }}
-            >
-              {avatarSrc ? (
-                <img src={avatarSrc} alt="Profile" className="w-full h-full rounded-2xl object-cover" />
-              ) : (
-                initials
-              )}
-            </div>
-            <button
-              className="absolute -right-1 -bottom-1 w-6 h-6 rounded-full flex items-center justify-center"
-              style={{ background: "#0f171c", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.75)" }}
-              onClick={() => avatarInputRef.current?.click()}
-              aria-label="Change profile image"
-            >
-              <Pencil className="w-3 h-3" />
-            </button>
-            <input
-              ref={avatarInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(event) => handleImagePick(event, "avatar")}
-            />
+          <div
+            className="w-16 h-16 rounded-2xl flex items-center justify-center text-xl font-bold text-white"
+            style={{ background: "#1e293b", border: "3px solid #0f171c" }}
+          >
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="Avatar" className="w-full h-full rounded-2xl object-cover" />
+            ) : (
+              initials
+            )}
           </div>
 
           {/* Name row */}
