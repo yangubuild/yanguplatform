@@ -126,7 +126,7 @@ function EditableImage({
 
 // ─── Section Renderers ───
 
-function HeroPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
+function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks; sections?: EditorSection[]; onSelectSection?: (id: string) => void }) {
   const media = (schema.media as { type?: string; url?: string; fit?: string }) || {};
   const mediaType = media.type || "none";
   const mediaUrl = media.url || "";
@@ -165,6 +165,14 @@ function HeroPreview({ schema, canvas }: { schema: Record<string, unknown>; canv
     { key: "youtube", src: youtubeIcon },
   ];
 
+  const handleSocialIconClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (sections && onSelectSection) {
+      const socialSection = sections.find(s => s.section_type === "social");
+      if (socialSection) onSelectSection(socialSection.id);
+    }
+  };
+
   if (isLinkBio) {
     const headline = (schema.headline as string) || "";
     const subheadline = (schema.subheadline as string) || "";
@@ -182,7 +190,7 @@ function HeroPreview({ schema, canvas }: { schema: Record<string, unknown>; canv
               {socialRowEnabled && (
                 <div className="flex gap-3 mt-3">
                   {socialIconImages.map(({ key, src }) => (
-                    <span key={key} className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center yangu-interactive hover:scale-110 transition-transform">
+                    <span key={key} onClick={handleSocialIconClick} className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center yangu-interactive hover:scale-110 transition-transform cursor-pointer">
                       <img src={src} alt={key} className="w-full h-full object-cover" />
                     </span>
                   ))}
@@ -214,7 +222,7 @@ function HeroPreview({ schema, canvas }: { schema: Record<string, unknown>; canv
           {socialRowEnabled && (
             <div className="flex justify-center gap-3 mt-4">
               {socialIconImages.map(({ key, src }) => (
-                <span key={key} className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center yangu-interactive hover:scale-110 hover:shadow-md transition-all">
+                <span key={key} onClick={handleSocialIconClick} className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center yangu-interactive hover:scale-110 hover:shadow-md transition-all cursor-pointer">
                   <img src={src} alt={key} className="w-full h-full object-cover" />
                 </span>
               ))}
@@ -256,7 +264,7 @@ function HeroPreview({ schema, canvas }: { schema: Record<string, unknown>; canv
             {socialRowEnabled && (
               <div className="flex gap-2 mt-3">
                 {socialIconImages.slice(0, 4).map(({ key, src }) => (
-                  <span key={key} className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center yangu-interactive hover:scale-110 transition-transform">
+                  <span key={key} onClick={handleSocialIconClick} className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center yangu-interactive hover:scale-110 transition-transform cursor-pointer">
                     <img src={src} alt={key} className="w-full h-full object-cover" />
                   </span>
                 ))}
@@ -1380,9 +1388,11 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
                     />
                   )}
                   {Preview ? (
-                    CANVAS_AWARE_TYPES.has(section.section_type)
-                      ? <Preview schema={displaySchema} canvas={canvas} />
-                      : <Preview schema={displaySchema} />
+                    (section.section_type === "hero" || section.section_type === "hero_banner")
+                      ? <HeroPreview schema={displaySchema} canvas={canvas} sections={sections} onSelectSection={onSelectSection} />
+                      : CANVAS_AWARE_TYPES.has(section.section_type)
+                        ? <Preview schema={displaySchema} canvas={canvas} />
+                        : <Preview schema={displaySchema} />
                   ) : (
                     <GenericPreview section={section} />
                   )}
