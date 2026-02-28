@@ -171,7 +171,12 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
     }).filter(x => x.src);
   })();
 
-  const iconStyleClass = iconStyleMode === "white" ? "brightness-0 invert" : iconStyleMode === "black" ? "brightness-0" : "";
+  // White/Black: apply filter to glyph but ensure container bg keeps icon recognizable
+  const iconStyleClass = iconStyleMode === "white"
+    ? "brightness-0 invert drop-shadow-[0_0_1px_rgba(0,0,0,0.3)]"
+    : iconStyleMode === "black"
+      ? "brightness-0 drop-shadow-[0_0_1px_rgba(255,255,255,0.3)]"
+      : "";
 
   const handleSocialIconClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -399,7 +404,11 @@ function LinksPreview({ schema }: { schema: Record<string, unknown> }) {
 function SocialPreview({ schema }: { schema: Record<string, unknown> }) {
   const activeSlots = (schema.active_social_links as SocialSlot[]) || [];
   const iconStyle = (schema.icon_style as string) || "original";
-  const iconStyleClass = iconStyle === "white" ? "brightness-0 invert" : iconStyle === "black" ? "brightness-0" : "";
+  const iconStyleClass = iconStyle === "white"
+    ? "brightness-0 invert drop-shadow-[0_0_1px_rgba(0,0,0,0.3)]"
+    : iconStyle === "black"
+      ? "brightness-0 drop-shadow-[0_0_1px_rgba(255,255,255,0.3)]"
+      : "";
 
   // Fallback: if no active_social_links, use legacy social_links
   const legacySocialLinks = (schema.social_links as Record<string, string>) || {};
