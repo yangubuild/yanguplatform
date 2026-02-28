@@ -1,4 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import facebookIcon from "@/assets/icons/facebook.png";
+import tiktokIcon from "@/assets/icons/tiktok.png";
+import instagramIcon from "@/assets/icons/instagram.png";
+import snapchatIcon from "@/assets/icons/snapchat.png";
+import websiteIcon from "@/assets/icons/website.png";
+import youtubeIcon from "@/assets/icons/youtube.png";
 import type { EditorSection } from "@/hooks/useBuilderEditor";
 import { Card } from "@/components/primitives";
 import type { BuilderTheme } from "./BuilderSettingsDrawer";
@@ -150,7 +156,14 @@ function HeroPreview({ schema, canvas }: { schema: Record<string, unknown>; canv
   const socialRowEnabled = schema.social_row_enabled !== false;
   const searchEnabled = schema.search_enabled !== false;
 
-  const socialIcons = ["facebook", "tiktok", "pinterest", "instagram", "youtube"];
+  const socialIconImages: { key: string; src: string }[] = [
+    { key: "facebook", src: facebookIcon },
+    { key: "tiktok", src: tiktokIcon },
+    { key: "instagram", src: instagramIcon },
+    { key: "snapchat", src: snapchatIcon },
+    { key: "website", src: websiteIcon },
+    { key: "youtube", src: youtubeIcon },
+  ];
 
   if (isLinkBio) {
     const headline = (schema.headline as string) || "";
@@ -168,9 +181,9 @@ function HeroPreview({ schema, canvas }: { schema: Record<string, unknown>; canv
               {subheadline && <EditableText value={subheadline} field="subheadline" className="text-sm opacity-80 mt-1" tag="p" canvas={canvas} />}
               {socialRowEnabled && (
                 <div className="flex gap-3 mt-3">
-                  {socialIcons.map(icon => (
-                    <span key={icon} className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-xs yangu-interactive">
-                      {icon === "facebook" ? "f" : icon === "tiktok" ? "♪" : icon === "pinterest" ? "P" : icon === "instagram" ? "📷" : "▶"}
+                  {socialIconImages.map(({ key, src }) => (
+                    <span key={key} className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center yangu-interactive hover:scale-110 transition-transform">
+                      <img src={src} alt={key} className="w-full h-full object-cover" />
                     </span>
                   ))}
                 </div>
@@ -200,9 +213,9 @@ function HeroPreview({ schema, canvas }: { schema: Record<string, unknown>; canv
           {description && <EditableText value={description} field="description" className="text-xs text-muted-foreground mt-2 max-w-sm mx-auto leading-relaxed" tag="p" canvas={canvas} />}
           {socialRowEnabled && (
             <div className="flex justify-center gap-3 mt-4">
-              {socialIcons.map(icon => (
-                <span key={icon} className="w-8 h-8 rounded-full border border-border flex items-center justify-center text-sm yangu-interactive hover:bg-accent/10 transition-colors">
-                  {icon === "facebook" ? "f" : icon === "tiktok" ? "♪" : icon === "pinterest" ? "P" : icon === "instagram" ? "📷" : "▶"}
+              {socialIconImages.map(({ key, src }) => (
+                <span key={key} className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center yangu-interactive hover:scale-110 hover:shadow-md transition-all">
+                  <img src={src} alt={key} className="w-full h-full object-cover" />
                 </span>
               ))}
             </div>
@@ -242,9 +255,9 @@ function HeroPreview({ schema, canvas }: { schema: Record<string, unknown>; canv
             {subheadline && <EditableText value={subheadline} field="subheadline" className="text-xs text-muted-foreground mt-1" tag="p" canvas={canvas} />}
             {socialRowEnabled && (
               <div className="flex gap-2 mt-3">
-                {socialIcons.slice(0, 4).map(icon => (
-                  <span key={icon} className="w-6 h-6 rounded-full border border-border flex items-center justify-center text-[10px] yangu-interactive">
-                    {icon[0].toUpperCase()}
+                {socialIconImages.slice(0, 4).map(({ key, src }) => (
+                  <span key={key} className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center yangu-interactive hover:scale-110 transition-transform">
+                    <img src={src} alt={key} className="w-full h-full object-cover" />
                   </span>
                 ))}
               </div>
@@ -411,9 +424,10 @@ function SocialPreview({ schema }: { schema: Record<string, unknown> }) {
 }
 
 function ShowcasePreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.showcase_items as Array<{ title?: string; description?: string; image_url?: string; link_url?: string }>) || [];
+  const items = (schema.showcase_items as Array<{ title?: string; description?: string; image_url?: string; link_url?: string; price?: string }>) || [];
   const displayMode = (schema.showcase_display as string) || "carousel";
   const heading = (schema.heading as string) || "";
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   if (items.length === 0) {
     return (
@@ -437,34 +451,67 @@ function ShowcasePreview({ schema }: { schema: Record<string, unknown> }) {
     );
   }
 
-  // Carousel mode (default)
+  // Carousel mode — 2 visible, scrolls horizontally
+  const scrollLeft = () => scrollRef.current?.scrollBy({ left: -200, behavior: "smooth" });
+  const scrollRight = () => scrollRef.current?.scrollBy({ left: 200, behavior: "smooth" });
+
   return (
     <div className="py-4">
       {heading && <h3 className="text-base font-semibold text-foreground mb-3 text-center px-6">{heading}</h3>}
-      <div className="flex gap-3 overflow-x-auto px-4 pb-2 snap-x snap-mandatory scrollbar-hide" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
-        {items.map((item, i) => (
-          <div
-            key={i}
-            className="min-w-[180px] max-w-[200px] shrink-0 snap-start rounded-xl border border-border bg-card overflow-hidden yangu-interactive hover:shadow-md transition-all group"
-            tabIndex={0}
-          >
-            {item.image_url && (
-              <div className="aspect-square bg-muted overflow-hidden">
-                <img src={item.image_url} alt={item.title || ""} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+      <div className="relative group/carousel">
+        {/* Left scroll arrow */}
+        <button onClick={scrollLeft} className="absolute left-1 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-background/80 border border-border shadow flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity yangu-interactive">
+          ‹
+        </button>
+        <div
+          ref={scrollRef}
+          className="flex gap-3 overflow-x-auto px-4 pb-2 snap-x snap-mandatory"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
+        >
+          {items.map((item, i) => (
+            <div
+              key={i}
+              className="snap-start rounded-xl border border-border bg-card overflow-hidden yangu-interactive hover:shadow-lg transition-all group shrink-0"
+              style={{ width: "calc(50% - 6px)", minWidth: "160px" }}
+              tabIndex={0}
+            >
+              {item.image_url ? (
+                <div className="aspect-square bg-muted overflow-hidden relative">
+                  <img src={item.image_url} alt={item.title || ""} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  {item.price && (
+                    <span className="absolute bottom-2 left-2 bg-black/70 text-white text-xs font-semibold px-2 py-0.5 rounded-md">{item.price}</span>
+                  )}
+                </div>
+              ) : (
+                <div className="aspect-square bg-muted flex items-center justify-center text-muted-foreground/40 text-2xl">📷</div>
+              )}
+              <div className="p-3">
+                {item.title && <p className="text-sm font-medium truncate">{item.title}</p>}
+                {item.description && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{item.description}</p>}
+                {item.link_url && (
+                  <a href={item.link_url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block w-full text-center py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium yangu-interactive hover:opacity-90 transition-opacity">
+                    Buy Now
+                  </a>
+                )}
               </div>
-            )}
-            <div className="p-3">
-              {item.title && <p className="text-sm font-medium truncate">{item.title}</p>}
-              {item.description && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{item.description}</p>}
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+        {/* Right scroll arrow */}
+        <button onClick={scrollRight} className="absolute right-1 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-background/80 border border-border shadow flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity yangu-interactive">
+          ›
+        </button>
+        {/* Dot indicators */}
+        <div className="flex justify-center gap-1.5 mt-2">
+          {items.map((_, i) => (
+            <span key={i} className={`w-1.5 h-1.5 rounded-full ${i === 0 ? "bg-foreground" : "bg-foreground/30"}`} />
+          ))}
+        </div>
       </div>
     </div>
   );
 }
-
-function ShowcaseAccordionItem({ item }: { item: { title?: string; description?: string; image_url?: string; link_url?: string } }) {
+function ShowcaseAccordionItem({ item }: { item: { title?: string; description?: string; image_url?: string; link_url?: string; price?: string } }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="yangu-interactive">
