@@ -22,6 +22,8 @@ import { BannersAdsEditor } from "./editors/BannersAdsEditor";
 import { PropertiesEditor } from "./editors/PropertiesEditor";
 import { BookingEditor } from "./editors/BookingEditor";
 import { AiTextField } from "./AiTextField";
+import { InfluencerLinksEditor } from "./editors/InfluencerLinksEditor";
+import { InfluencerShowcaseEditor } from "./editors/InfluencerShowcaseEditor";
 
 interface BuilderSectionEditorProps {
   section: EditorSection;
@@ -1028,7 +1030,7 @@ const FORM_MAP: Record<string, React.ComponentType<FormProps & { surfaceId?: str
   about: AboutForm,
   links: LinksForm,
   links_grid: LinksForm,
-  social: SocialForm,
+  social: (p) => <InfluencerLinksEditor schema={p.schema} update={p.update} />,
   cta: CtaForm,
   join: JoinForm,
   offer: OfferForm,
@@ -1081,6 +1083,8 @@ const FORM_MAP: Record<string, React.ComponentType<FormProps & { surfaceId?: str
   article_feed: (p) => <ItemListForm {...p} heading="Articles" surfaceId={p.surfaceId} />,
   case_studies_grid: (p) => <ItemListForm {...p} heading="Case Studies" surfaceId={p.surfaceId} />,
   community_feed: (p) => <ItemListForm {...p} heading="Feed" surfaceId={p.surfaceId} />,
+  showcase: (p) => <InfluencerShowcaseEditor schema={p.schema} update={p.update} surfaceId={p.surfaceId} />,
+  creator_showcase: (p) => <InfluencerShowcaseEditor schema={p.schema} update={p.update} surfaceId={p.surfaceId} />,
 };
 
 const TYPE_LABELS: Record<string, string> = {
@@ -1111,6 +1115,7 @@ const TYPE_LABELS: Record<string, string> = {
   media_grid: "Media", merch: "Merch", tips_support: "Tips & Support", collabs: "Collabs",
   article_feed: "Articles", case_studies_grid: "Case Studies",
   community_feed: "Community Feed",
+  showcase: "Creator Showcase", creator_showcase: "Creator Showcase",
 };
 
 // ─── Main component ───
