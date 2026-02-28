@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import type { EditorSection } from "@/hooks/useBuilderEditor";
 import { Card } from "@/components/primitives";
 import type { BuilderTheme } from "./BuilderSettingsDrawer";
@@ -370,19 +370,127 @@ function LinksPreview({ schema }: { schema: Record<string, unknown> }) {
 
 function SocialPreview({ schema }: { schema: Record<string, unknown> }) {
   const handles = (schema.handles as Record<string, string>) || {};
-  const entries = Object.entries(handles);
+  const socialLinks = (schema.social_links as Record<string, string>) || {};
+  const disabledLinks = (schema.disabled_links as string[]) || [];
+
+  // Merge legacy handles + new social_links
+  const merged = { ...handles, ...socialLinks };
+  const activeEntries = Object.entries(merged).filter(([key, val]) => val && !disabledLinks.includes(key));
+
+  const iconMap: Record<string, string> = {
+    instagram: "📷", tiktok: "♪", x: "𝕏", twitter: "𝕏", threads: "@",
+    facebook: "f", youtube: "▶", snapchat: "👻", twitch: "📺", discord: "💬",
+    pinterest: "P", reddit: "🔴", telegram: "✈️", linkedin: "in", github: "⌨",
+    behance: "Bē", dribbble: "🏀", substack: "📝", spotify: "🎵",
+    apple_music: "🎶", tidal: "🌊", deezer: "🎧", email: "✉️",
+    whatsapp: "💬", phone: "📞", website: "🌐", zillow: "Z", clubhouse: "🏠",
+  };
+
   return (
     <div className="py-4 px-6">
-      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Socials</p>
-      {entries.length === 0 ? (
-        <p className="text-sm text-muted-foreground/60 italic">No socials added</p>
+      {activeEntries.length === 0 ? (
+        <p className="text-sm text-muted-foreground/60 italic text-center">No social links added</p>
       ) : (
-        <div className="flex gap-2 flex-wrap">
-          {entries.map(([platform, handle]) => (
-            <span key={platform} className="px-2 py-1 rounded bg-muted text-xs">
-              {platform}: {handle}
-            </span>
+        <div className="flex justify-center gap-3 flex-wrap">
+          {activeEntries.map(([platform, handle]) => (
+            <a
+              key={platform}
+              href={handle.startsWith("http") ? handle : `https://${handle}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-10 h-10 rounded-full border border-border bg-card flex items-center justify-center text-sm yangu-interactive hover:bg-accent/10 hover:scale-110 transition-all"
+              title={platform}
+            >
+              {iconMap[platform] || platform[0].toUpperCase()}
+            </a>
           ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ShowcasePreview({ schema }: { schema: Record<string, unknown> }) {
+  const items = (schema.showcase_items as Array<{ title?: string; description?: string; image_url?: string; link_url?: string }>) || [];
+  const displayMode = (schema.showcase_display as string) || "carousel";
+  const heading = (schema.heading as string) || "";
+
+  if (items.length === 0) {
+    return (
+      <div className="py-6 px-6 text-center">
+        <p className="text-sm text-muted-foreground/60 italic">No showcase items added yet</p>
+      </div>
+    );
+  }
+
+  // Accordion / Product List mode
+  if (displayMode === "list") {
+    return (
+      <div className="py-4 px-4">
+        {heading && <h3 className="text-base font-semibold text-foreground mb-3 text-center">{heading}</h3>}
+        <div className="rounded-xl border border-border bg-card/80 overflow-hidden divide-y divide-border">
+          {items.map((item, i) => (
+            <ShowcaseAccordionItem key={i} item={item} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Carousel mode (default)
+  return (
+    <div className="py-4">
+      {heading && <h3 className="text-base font-semibold text-foreground mb-3 text-center px-6">{heading}</h3>}
+      <div className="flex gap-3 overflow-x-auto px-4 pb-2 snap-x snap-mandatory scrollbar-hide" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+        {items.map((item, i) => (
+          <div
+            key={i}
+            className="min-w-[180px] max-w-[200px] shrink-0 snap-start rounded-xl border border-border bg-card overflow-hidden yangu-interactive hover:shadow-md transition-all group"
+            tabIndex={0}
+          >
+            {item.image_url && (
+              <div className="aspect-square bg-muted overflow-hidden">
+                <img src={item.image_url} alt={item.title || ""} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              </div>
+            )}
+            <div className="p-3">
+              {item.title && <p className="text-sm font-medium truncate">{item.title}</p>}
+              {item.description && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{item.description}</p>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ShowcaseAccordionItem({ item }: { item: { title?: string; description?: string; image_url?: string; link_url?: string } }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="yangu-interactive">
+      <button
+        className="w-full flex items-center gap-3 p-3 text-left hover:bg-accent/5 transition-colors"
+        onClick={() => setOpen(!open)}
+      >
+        {item.image_url && (
+          <div className="w-16 h-16 rounded-lg bg-muted overflow-hidden shrink-0">
+            <img src={item.image_url} alt={item.title || ""} className="w-full h-full object-cover" />
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          {item.title && <p className="text-sm font-semibold truncate">{item.title}</p>}
+          {item.description && !open && <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{item.description}</p>}
+        </div>
+        <span className={`text-muted-foreground transition-transform duration-200 shrink-0 ${open ? "rotate-180" : ""}`}>▾</span>
+      </button>
+      {open && (
+        <div className="px-3 pb-3 animate-in slide-in-from-top-1 duration-200">
+          {item.description && <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>}
+          {item.link_url && (
+            <a href={item.link_url} target="_blank" rel="noopener noreferrer" className="inline-block mt-2 px-4 py-1.5 rounded-full border border-border text-xs font-medium yangu-interactive hover:bg-accent/10">
+              View →
+            </a>
+          )}
         </div>
       )}
     </div>
@@ -1063,7 +1171,7 @@ const CANVAS_AWARE_TYPES = new Set([
   "hero", "hero_banner", "bio", "text", "about", "offer", "offers", "promo", "promo_banner",
   "trust_badges", "cta", "cta_block", "newsletter", "products", "product_grid",
   "categories", "category_grid", "collections", "gallery", "instagram_gallery", "media_grid",
-  "contact", "contact_section", "footer",
+  "contact", "contact_section", "footer", "showcase", "creator_showcase",
 ]);
 
 export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<string, unknown>; canvas?: CanvasCallbacks }>> = {
@@ -1117,6 +1225,8 @@ export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<st
   article_feed: TextPreview,
   case_studies_grid: FeaturedPreview,
   booking_inventory: ListingsPreview,
+  showcase: ShowcasePreview,
+  creator_showcase: ShowcasePreview,
   community_feed: TextPreview,
 };
 

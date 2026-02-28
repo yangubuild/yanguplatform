@@ -78,7 +78,9 @@ export const influencerEngine: BuilderEngine = {
   defaultSections: [
     { type: "header", schema: { logo_url: "", logo_position: "center", logo_size: "large", show_name: true, name_next_to_logo: false, bio_mode: true, avatar_style: "circle_large", social_icons_position: "below_name", layout_variant: "link_bio_header" }, core_slot: "header" },
     { type: "hero", schema: { headline: "", subheadline: "", layout_variant: "link_bio_profile", avatar_enabled: true, social_row_enabled: true, search_enabled: true, typography_style: "creator_centered", media: { type: "image", source: "url", url: "", fit: "cover" } }, core_slot: "hero" },
+    { type: "social", schema: { social_links: {}, disabled_links: [] }, core_slot: "social_icons" },
     { type: "links", schema: { items: [], display_mode: "link_buttons" }, core_slot: "main_content" },
+    { type: "showcase", schema: { showcase_items: [], showcase_display: "carousel", heading: "My Picks" }, core_slot: "showcase" },
     { type: "offer", schema: { heading: "", description: "", items: [], layout_variant: "link_bio_gallery", display_mode: "link_bio_gallery", newsletter: { enabled: true, heading: "Let's stay in touch", cta_text: "Submit" } }, core_slot: "offer" },
     { type: "footer", schema: { heading: "", email: "", phone: "", address: "", hours: [], social: {}, layout_variant: "link_bio_footer", display_mode: "link_bio_footer" }, core_slot: "footer" },
   ],
