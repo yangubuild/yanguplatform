@@ -98,9 +98,12 @@ export function enforceCoreSectionOrder(
     CORE_SECTIONS.map((cs) => resolveCoreSectionType(cs.type, surfaceType))
   );
 
+  // Build a set of valid core slot names for quick lookup
+  const validCoreSlots = new Set(CORE_SECTIONS.map((cs) => cs.type));
+
   for (const s of rawSections) {
     // Check core_slot first (explicit tagging from DB)
-    if (s.core_slot) {
+    if (s.core_slot && validCoreSlots.has(s.core_slot)) {
       sectionsBySlot.set(s.core_slot, pickPreferred(sectionsBySlot.get(s.core_slot), s));
       continue;
     }
