@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import adaIcon from "@/assets/ada-icon.png";
 
-const TABS = ["Home", "KYC", "Apps", "Products", "About"] as const;
+const TABS = ["Home", "Chats", "Apps", "Products", "About"] as const;
 
 export function ProfileWorkspace() {
   const { profile } = useAuth();
@@ -184,32 +184,29 @@ export function ProfileWorkspace() {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Composer bar — pinned bottom */}
-      <div
-        className="px-6 py-3 shrink-0 flex items-center gap-3"
-        style={{ borderTop: "1px solid rgba(255,255,255,0.06)", background: "#1a2025" }}
-      >
-        <span className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center" style={{ background: "#f97316" }}>
-          🐉
-        </span>
-        <div
-          className="flex-1 flex items-center rounded-xl px-3 h-10"
-          style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.06)" }}
-        >
-          <span className="text-sm" style={{ color: "rgba(255,255,255,0.3)" }}>
-            Say something they'll screenshot...
+        {/* Composer bar — scrollable content */}
+        <div className="px-6 py-4 flex items-center gap-3">
+          <span className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center" style={{ background: "#f97316" }}>
+            🐉
           </span>
+          <div
+            className="flex-1 flex items-center rounded-xl px-3 h-10"
+            style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.06)" }}
+          >
+            <span className="text-sm" style={{ color: "rgba(255,255,255,0.3)" }}>
+              Say something they'll screenshot...
+            </span>
+          </div>
+          <button
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold shrink-0"
+            style={{ background: "#ef4444", color: "#fff" }}
+            onClick={() => console.log("[GoLive] placeholder")}
+          >
+            <Video className="w-3.5 h-3.5" />
+            Go live
+          </button>
         </div>
-        <button
-          className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold shrink-0"
-          style={{ background: "#ef4444", color: "#fff" }}
-          onClick={() => console.log("[GoLive] placeholder")}
-        >
-          <Video className="w-3.5 h-3.5" />
-          Go live
-        </button>
       </div>
     </div>
   );

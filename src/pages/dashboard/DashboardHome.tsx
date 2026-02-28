@@ -23,23 +23,23 @@ export default function DashboardHome() {
       className="h-[calc(100vh-64px)] overflow-hidden"
       style={{
         display: "grid",
-        gridTemplateColumns: "280px 1fr 360px",
+        gridTemplateColumns: "220px 1fr 320px",
         background: "rgba(255,255,255,0.06)",
         gap: "1px",
       }}
     >
       {/* Inner page sidebar */}
-      <div className="h-full overflow-y-auto" style={{ background: "#1a2025" }}>
+      <div className="h-full" style={{ background: "#1a2025", borderLeft: "1px solid rgba(255,255,255,0.08)" }}>
         <InnerPageSidebar />
       </div>
 
       {/* Center — Profile workspace — scalable */}
-      <div className="h-full overflow-y-auto" style={{ background: "#0f171c" }}>
+      <div className="h-full" style={{ background: "#0f171c" }}>
         <ProfileWorkspace />
       </div>
 
       {/* Right — Client chat panel */}
-      <div className="h-full overflow-y-auto" style={{ background: "#1a2025" }}>
+      <div className="h-full" style={{ background: "#1a2025" }}>
         <ClientChatPanel />
       </div>
     </div>
