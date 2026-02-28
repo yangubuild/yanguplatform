@@ -139,6 +139,122 @@ function HeroPreview({ schema, canvas }: { schema: Record<string, unknown>; canv
   const isBoldUppercase = typographyStyle === "bold_uppercase";
   const isEditorialLarge = typographyStyle === "editorial_large";
 
+  // ─── Link-Bio Hero Variants ───
+  const isLinkBioProfile = layoutVariant === "link_bio_profile";
+  const isLinkBioMediaHero = layoutVariant === "link_bio_media_hero";
+  const isLinkBioSplit = layoutVariant === "link_bio_split";
+  const isLinkBioMinimal = layoutVariant === "link_bio_minimal";
+  const isLinkBio = isLinkBioProfile || isLinkBioMediaHero || isLinkBioSplit || isLinkBioMinimal;
+
+  const avatarEnabled = schema.avatar_enabled !== false;
+  const socialRowEnabled = schema.social_row_enabled !== false;
+  const searchEnabled = schema.search_enabled !== false;
+
+  const socialIcons = ["facebook", "tiktok", "pinterest", "instagram", "youtube"];
+
+  if (isLinkBio) {
+    const headline = (schema.headline as string) || "";
+    const subheadline = (schema.subheadline as string) || "";
+
+    // Media hero: full-bleed image with name overlaid at bottom
+    if (isLinkBioMediaHero) {
+      return (
+        <div className="relative overflow-hidden" style={{ backgroundColor: bgColor || "hsl(220 15% 12%)" }}>
+          <div className="aspect-[4/5] relative overflow-hidden">
+            <EditableImage src={resolvedMediaUrl} alt="Creator" className="w-full h-full object-cover" field="media.url" canvas={canvas} />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+              {headline && <EditableText value={headline} field="headline" className="text-2xl font-bold" tag="h1" canvas={canvas} />}
+              {subheadline && <EditableText value={subheadline} field="subheadline" className="text-sm opacity-80 mt-1" tag="p" canvas={canvas} />}
+              {socialRowEnabled && (
+                <div className="flex gap-3 mt-3">
+                  {socialIcons.map(icon => (
+                    <span key={icon} className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-xs yangu-interactive">
+                      {icon === "facebook" ? "f" : icon === "tiktok" ? "♪" : icon === "pinterest" ? "P" : icon === "instagram" ? "📷" : "▶"}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+          {searchEnabled && (
+            <div className="px-5 py-4">
+              <div className="flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3 py-2.5 yangu-search-row">
+                <span className="text-white/50 text-sm">🔍</span>
+                <span className="flex-1 text-sm text-white/40">Search or type a keyword</span>
+                <span className="w-8 h-8 rounded-lg bg-foreground/80 text-background flex items-center justify-center text-sm yangu-interactive">→</span>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Profile centered: avatar + name + bio + social icons
+    if (isLinkBioProfile || isLinkBioMinimal) {
+      const isThemed = bgStyle === "themed";
+      return (
+        <div className={`py-8 px-6 text-center ${isThemed ? "bg-gradient-to-b from-accent/15 to-transparent" : ""}`} style={bgColor ? { backgroundColor: bgColor } : undefined}>
+          {headline && <EditableText value={headline} field="headline" className="text-xl font-bold text-foreground" tag="h1" canvas={canvas} />}
+          {subheadline && <EditableText value={subheadline} field="subheadline" className="text-sm text-muted-foreground mt-1 max-w-xs mx-auto" tag="p" canvas={canvas} />}
+          {description && <EditableText value={description} field="description" className="text-xs text-muted-foreground mt-2 max-w-sm mx-auto leading-relaxed" tag="p" canvas={canvas} />}
+          {socialRowEnabled && (
+            <div className="flex justify-center gap-3 mt-4">
+              {socialIcons.map(icon => (
+                <span key={icon} className="w-8 h-8 rounded-full border border-border flex items-center justify-center text-sm yangu-interactive hover:bg-accent/10 transition-colors">
+                  {icon === "facebook" ? "f" : icon === "tiktok" ? "♪" : icon === "pinterest" ? "P" : icon === "instagram" ? "📷" : "▶"}
+                </span>
+              ))}
+            </div>
+          )}
+          {avatarEnabled && resolvedMediaUrl && (
+            <div className="mt-5 mx-auto w-full max-w-sm rounded-xl overflow-hidden border border-border shadow-sm">
+              <EditableImage src={resolvedMediaUrl} alt="Creator" className="w-full aspect-[4/5] object-cover" field="media.url" canvas={canvas} />
+            </div>
+          )}
+          {searchEnabled && (
+            <div className="mt-5 mx-auto max-w-sm">
+              <div className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2.5 yangu-search-row">
+                <span className="text-muted-foreground text-sm">🔍</span>
+                <span className="flex-1 text-sm text-muted-foreground/60 text-left">Search or type a keyword</span>
+                <span className="w-8 h-8 rounded-lg bg-foreground text-background flex items-center justify-center text-sm yangu-interactive">→</span>
+              </div>
+            </div>
+          )}
+          {ctaText && (
+            <div className="mt-4">
+              <EditableText value={ctaText} field="cta_text" className="inline-block px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium yangu-cta" tag="span" canvas={canvas} />
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Split layout
+    if (isLinkBioSplit) {
+      return (
+        <div className="flex items-stretch overflow-hidden" style={bgColor ? { backgroundColor: bgColor } : undefined}>
+          <div className="w-2/5 bg-muted overflow-hidden">
+            <EditableImage src={resolvedMediaUrl} alt="Creator" className="w-full h-full object-cover" field="media.url" canvas={canvas} />
+          </div>
+          <div className="flex-1 py-6 px-5 flex flex-col justify-center">
+            {headline && <EditableText value={headline} field="headline" className="text-lg font-bold text-foreground" tag="h1" canvas={canvas} />}
+            {subheadline && <EditableText value={subheadline} field="subheadline" className="text-xs text-muted-foreground mt-1" tag="p" canvas={canvas} />}
+            {socialRowEnabled && (
+              <div className="flex gap-2 mt-3">
+                {socialIcons.slice(0, 4).map(icon => (
+                  <span key={icon} className="w-6 h-6 rounded-full border border-border flex items-center justify-center text-[10px] yangu-interactive">
+                    {icon[0].toUpperCase()}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+  }
+
   if (isSplit) {
     return (
       <div className="flex items-stretch overflow-hidden rounded-lg" style={{ backgroundColor: bgColor || "hsl(var(--accent) / 0.1)" }}>
@@ -225,14 +341,25 @@ function BioPreview({ schema, canvas }: { schema: Record<string, unknown>; canva
 
 function LinksPreview({ schema }: { schema: Record<string, unknown> }) {
   const items = (schema.items as Array<{ label?: string; url?: string }>) || [];
+  const displayMode = (schema.display_mode as string) || "";
+  const isLinkBio = displayMode === "link_buttons";
+
   return (
     <div className="py-4 px-6 space-y-2">
-      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Links</p>
+      {!isLinkBio && <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Links</p>}
       {items.length === 0 ? (
         <p className="text-sm text-muted-foreground/60 italic">No links added yet</p>
       ) : (
         items.map((item, i) => (
-          <div key={i} className="block p-3 rounded-lg border border-border bg-muted/50 text-sm text-center yangu-interactive" tabIndex={0}>
+          <div
+            key={i}
+            className={`block p-3 border text-sm text-center yangu-interactive font-medium transition-all ${
+              isLinkBio
+                ? "rounded-xl border-foreground/20 bg-card hover:bg-accent/10 hover:scale-[1.02] shadow-sm"
+                : "rounded-lg border-border bg-muted/50"
+            }`}
+            tabIndex={0}
+          >
             {item.label || item.url || "Link"}
           </div>
         ))
