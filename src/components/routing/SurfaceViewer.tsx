@@ -88,7 +88,7 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
   };
 
   return (
-    <div className="min-h-screen bg-background" style={themeStyle}>
+    <div className="min-h-screen bg-background yangu-live" style={themeStyle}>
       {sections.length === 0 ? (
         <div className="py-20 text-center text-muted-foreground">
           <p>This page has no content yet.</p>
