@@ -70,7 +70,7 @@ export default function PublicSurfacePage() {
   };
 
   return (
-    <div className="min-h-screen bg-background" style={themeStyle}>
+    <div className="min-h-screen bg-background yangu-live" style={themeStyle}>
       {/* Minimal header */}
       <header className="border-b border-border bg-background/80 backdrop-blur-sm">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-5 lg:px-6 xl:px-8 py-3">
