@@ -3,7 +3,7 @@ import facebookIcon from "@/assets/icons/facebook.png";
 import tiktokIcon from "@/assets/icons/tiktok.png";
 import instagramIcon from "@/assets/icons/instagram.png";
 import snapchatIcon from "@/assets/icons/snapchat.png";
-import websiteIcon from "@/assets/icons/website.png";
+import whatsappIcon from "@/assets/icons/whatsapp.png";
 import youtubeIcon from "@/assets/icons/youtube.png";
 import type { EditorSection } from "@/hooks/useBuilderEditor";
 import { Card } from "@/components/primitives";
@@ -161,7 +161,7 @@ function HeroPreview({ schema, canvas }: { schema: Record<string, unknown>; canv
     { key: "tiktok", src: tiktokIcon },
     { key: "instagram", src: instagramIcon },
     { key: "snapchat", src: snapchatIcon },
-    { key: "website", src: websiteIcon },
+    { key: "whatsapp", src: whatsappIcon },
     { key: "youtube", src: youtubeIcon },
   ];
 
