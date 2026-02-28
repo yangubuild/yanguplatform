@@ -11,6 +11,7 @@ interface ShowcaseItem {
   description: string;
   image_url: string;
   link_url: string;
+  price: string;
 }
 
 interface InfluencerShowcaseEditorProps {
@@ -35,7 +36,7 @@ export function InfluencerShowcaseEditor({ schema, update, surfaceId }: Influenc
 
   const addItem = () => {
     update({
-      showcase_items: [...items, { title: "", description: "", image_url: "", link_url: "" }],
+      showcase_items: [...items, { title: "", description: "", image_url: "", link_url: "", price: "" }],
     });
   };
 
@@ -77,6 +78,7 @@ export function InfluencerShowcaseEditor({ schema, update, surfaceId }: Influenc
             />
             <Input placeholder="Title" value={item.title} onChange={(e) => updateItem(i, { title: e.target.value })} className="text-sm" />
             <Textarea placeholder="Short description (2 lines max)" value={item.description} onChange={(e) => updateItem(i, { description: e.target.value })} rows={2} className="text-sm" />
+            <Input placeholder="Price (optional, e.g. $29.99)" value={item.price || ""} onChange={(e) => updateItem(i, { price: e.target.value })} className="text-sm" />
             <Input placeholder="Link URL (optional)" value={item.link_url} onChange={(e) => updateItem(i, { link_url: e.target.value })} className="text-sm" />
           </div>
         ))}
