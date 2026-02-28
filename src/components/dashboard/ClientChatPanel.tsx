@@ -14,7 +14,7 @@ export function ClientChatPanel() {
   return (
     <div
       className="flex flex-col h-full"
-      style={{ background: "#1a2025", borderLeft: "1px solid rgba(255,255,255,0.06)" }}
+      style={{ background: "#1a2025" }}
     >
       {/* Header */}
       <div

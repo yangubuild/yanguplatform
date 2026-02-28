@@ -35,7 +35,7 @@ export function InnerPageSidebar({ className = "" }: InnerPageSidebarProps) {
   return (
     <div
       className={`flex flex-col h-full overflow-y-auto ${className}`}
-      style={{ background: "#1a2025", borderRight: "1px solid rgba(255,255,255,0.06)" }}
+      style={{ background: "#1a2025" }}
     >
       {/* Preview role */}
       <div className="px-3 pt-3 pb-2 flex items-center gap-2">
