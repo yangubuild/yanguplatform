@@ -424,11 +424,11 @@ function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; can
         <div className="border-t border-border pt-4">
           <h4 className="text-xs font-semibold">{newsletter.heading || "Subscribe"}</h4>
           {newsletter.description && <p className="text-[10px] text-muted-foreground mt-1">{newsletter.description}</p>}
-          <div className="flex gap-1.5 mt-2">
-            <div className="flex-1 h-8 rounded border border-border bg-background px-2 flex items-center">
+          <div className="flex gap-1.5 mt-2 yangu-search-row">
+            <div className="flex-1 h-8 rounded border border-border bg-background px-2 flex items-center yangu-search-input">
               <span className="text-[10px] text-muted-foreground">your@email.com</span>
             </div>
-            <span className="px-3 h-8 rounded bg-primary text-primary-foreground text-[10px] font-medium flex items-center">{newsletter.cta_text || "Subscribe"}</span>
+            <span className="px-3 h-8 rounded bg-primary text-primary-foreground text-[10px] font-medium flex items-center yangu-interactive">{newsletter.cta_text || "Subscribe"}</span>
           </div>
         </div>
       )}
@@ -879,11 +879,11 @@ function FooterPreview({ schema, canvas }: { schema: Record<string, unknown>; ca
         <div className="pb-3 border-b border-border">
           <h4 className="text-xs font-semibold">{newsletterHeading || "Subscribe"}</h4>
           {newsletterDesc && <p className="text-[10px] text-muted-foreground mt-1">{newsletterDesc}</p>}
-          <div className="flex gap-1.5 mt-2">
-            <div className="flex-1 h-7 rounded border border-border bg-background px-2 flex items-center">
+          <div className="flex gap-1.5 mt-2 yangu-search-row">
+            <div className="flex-1 h-7 rounded border border-border bg-background px-2 flex items-center yangu-search-input">
               <span className="text-[10px] text-muted-foreground">your@email.com</span>
             </div>
-            <span className="px-3 h-7 rounded bg-primary text-primary-foreground text-[10px] font-medium flex items-center">Subscribe</span>
+            <span className="px-3 h-7 rounded bg-primary text-primary-foreground text-[10px] font-medium flex items-center yangu-interactive">Subscribe</span>
           </div>
         </div>
       )}
@@ -1044,7 +1044,7 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
 
   return (
     <>
-      <div className={`mx-auto border border-border rounded-xl overflow-hidden shadow-sm bg-background text-foreground transition-all ${previewViewport === "desktop" ? "max-w-2xl" : "max-w-md"}`} style={themeStyle}>
+      <div className={`yangu-live mx-auto border border-border rounded-xl overflow-hidden shadow-sm bg-background text-foreground transition-all ${previewViewport === "desktop" ? "max-w-2xl" : "max-w-md"}`} style={themeStyle}>
         <div className="bg-muted/50 border-b border-border px-4 py-2">
           <p className="text-xs text-muted-foreground text-center truncate">{surfaceTitle}</p>
         </div>

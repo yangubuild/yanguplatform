@@ -634,7 +634,7 @@ a:focus-visible,
 .yangu-live p,
 .yangu-live span,
 .yangu-live li {
-  font-size: max(0.9375rem, inherit);
+  font-size: max(1rem, inherit);
 }
 
 @media (min-width: 768px) {
@@ -653,13 +653,11 @@ a:focus-visible,
 /* text-[9px] / text-[10px] / text-[11px] overrides */
 .yangu-live .text-\[9px\],
 .yangu-live .text-\[10px\] {
-  font-size: 0.8125rem !important; /* 13px */
-}
-.yangu-live .text-\[11px\] {
   font-size: 0.875rem !important; /* 14px */
 }
+.yangu-live .text-\[11px\],
 .yangu-live .text-xs {
-  font-size: 0.875rem !important; /* 14px */
+  font-size: 0.9375rem !important; /* 15px */
 }
 .yangu-live .text-sm {
   font-size: 1rem !important; /* 16px */
@@ -690,15 +688,15 @@ a:focus-visible,
   padding: 0.625rem !important;
 }
 
-/* Newsletter / search bar containment — do NOT stretch full width */
-.yangu-live .flex-1.h-7,
-.yangu-live .flex-1.h-8 {
-  max-width: 480px;
+/* Search / newsletter controls — keep normal field widths */
+.yangu-live .yangu-search-row {
+  width: 100%;
+  max-width: 34rem;
 }
 
-/* Footer newsletter row containment */
-.yangu-live .flex.gap-1\.5 {
-  max-width: 640px;
+.yangu-live .yangu-search-input {
+  width: 100%;
+  max-width: 28rem;
 }
 
 /* Make all interactive items feel alive */
