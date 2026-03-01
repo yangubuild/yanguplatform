@@ -181,7 +181,7 @@ export function ProfileWorkspace() {
           className="px-5 mt-4"
           style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
         >
-          <div className="flex gap-8">
+        <div className="flex justify-between">
             {TABS.map((tab) => (
               <button
                 key={tab}
