@@ -5,7 +5,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 /**
  * Dashboard Home — 3-column creator operating hub.
- * Uses CSS grid with hard partitions between columns.
+ * Pixel-matched to the target screenshot.
  */
 export default function DashboardHome() {
   const isMobile = useIsMobile();
@@ -23,23 +23,37 @@ export default function DashboardHome() {
       className="h-[calc(100vh-64px)] overflow-hidden"
       style={{
         display: "grid",
-        gridTemplateColumns: "220px 1fr 320px",
-        background: "rgba(255,255,255,0.06)",
-        gap: "1px",
+        gridTemplateColumns: "200px 1fr 340px",
+        gap: "0px",
       }}
     >
       {/* Inner page sidebar */}
-      <div className="h-full" style={{ background: "#1a2025", borderLeft: "1px solid rgba(255,255,255,0.08)" }}>
+      <div
+        className="h-full overflow-hidden"
+        style={{
+          background: "#141a1f",
+          borderRight: "1px solid rgba(255,255,255,0.06)",
+        }}
+      >
         <InnerPageSidebar />
       </div>
 
-      {/* Center — Profile workspace — scalable */}
-      <div className="h-full" style={{ background: "#0f171c" }}>
+      {/* Center — Profile workspace — only this scrolls */}
+      <div
+        className="h-full overflow-hidden"
+        style={{
+          background: "#0f141a",
+          borderRight: "1px solid rgba(255,255,255,0.06)",
+        }}
+      >
         <ProfileWorkspace />
       </div>
 
       {/* Right — Client chat panel */}
-      <div className="h-full" style={{ background: "#1a2025" }}>
+      <div
+        className="h-full overflow-hidden"
+        style={{ background: "#111820" }}
+      >
         <ClientChatPanel />
       </div>
     </div>
