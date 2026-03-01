@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import {
   Search,
   MoreHorizontal,
@@ -10,14 +12,73 @@ import {
   Pencil,
   MapPin,
   Video,
+  Camera,
+  ImagePlus,
+  Loader2,
 } from "lucide-react";
 import adaIcon from "@/assets/ada-icon.png";
 
 const TABS = ["Home", "Chats", "Apps", "Products", "About"] as const;
 
 export function ProfileWorkspace() {
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
   const [activeTab, setActiveTab] = useState<string>("Home");
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  // Use local state if just uploaded, otherwise fall back to profile
+  const displayCover = coverUrl || (profile as any)?.cover_url || null;
+  const displayAvatar = avatarUrl || profile?.avatar_url || null;
+  const handleImageUpload = async (
+    file: File,
+    type: "cover" | "avatar"
+  ) => {
+    if (!user) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
+      return;
+    }
+    const maxSize = type === "cover" ? 5 * 1024 * 1024 : 2 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast.error(`Image must be under ${type === "cover" ? "5MB" : "2MB"}`);
+      return;
+    }
+
+    const setUploading = type === "cover" ? setUploadingCover : setUploadingAvatar;
+    setUploading(true);
+
+    try {
+      const ext = file.name.split(".").pop();
+      const path = `${user.id}/${type}.${ext}`;
+      const { error: uploadErr } = await supabase.storage
+        .from("profile-media")
+        .upload(path, file, { upsert: true });
+      if (uploadErr) throw uploadErr;
+
+      const { data: { publicUrl } } = supabase.storage.from("profile-media").getPublicUrl(path);
+      const url = `${publicUrl}?t=${Date.now()}`;
+
+      const updateCol = type === "cover" ? "cover_url" : "avatar_url";
+      const { error: profileErr } = await supabase
+        .from("profiles")
+        .update({ [updateCol]: url })
+        .eq("id", user.id);
+      if (profileErr) throw profileErr;
+
+      if (type === "cover") setCoverUrl(url);
+      else setAvatarUrl(url);
+
+      toast.success(`${type === "cover" ? "Cover" : "Profile"} image updated`);
+    } catch (err: any) {
+      toast.error(err.message || "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const displayName = "Fresh & Wholesome Foods Co.";
   const initials = displayName.slice(0, 2).toUpperCase();
@@ -48,50 +109,93 @@ export function ProfileWorkspace() {
 
       {/* Scrollable content — ONLY this area scrolls */}
       <div className="flex-1 min-h-0 overflow-y-auto">
-        {/* Cover banner — bright green vibrant gradient */}
+        {/* Cover banner */}
         <div
-          className="w-full h-[200px] relative overflow-hidden"
+          className="w-full h-[200px] relative overflow-hidden group cursor-pointer"
+          onClick={() => coverInputRef.current?.click()}
           style={{
-            background:
-              "radial-gradient(ellipse 80% 140% at 65% 30%, rgba(34,197,94,0.45) 0%, rgba(16,185,129,0.2) 35%, rgba(6,78,59,0.15) 60%, transparent 80%), linear-gradient(135deg, #061a12 0%, #0a2e1e 30%, #0d3a27 55%, #072217 80%, #051510 100%)",
+            background: displayCover
+              ? `url(${displayCover}) center/cover no-repeat`
+              : "radial-gradient(ellipse 80% 140% at 65% 30%, rgba(34,197,94,0.45) 0%, rgba(16,185,129,0.2) 35%, rgba(6,78,59,0.15) 60%, transparent 80%), linear-gradient(135deg, #061a12 0%, #0a2e1e 30%, #0d3a27 55%, #072217 80%, #051510 100%)",
           }}
         >
-          {/* Decorative arc */}
-          <div
-            className="absolute -right-16 -top-10 w-[480px] h-[200px] rounded-full"
-            style={{
-              border: "1.5px solid rgba(134,239,172,0.2)",
-              transform: "rotate(-15deg)",
+          {!displayCover && (
+            <>
+              <div
+                className="absolute -right-16 -top-10 w-[480px] h-[200px] rounded-full"
+                style={{ border: "1.5px solid rgba(134,239,172,0.2)", transform: "rotate(-15deg)" }}
+              />
+              <div className="absolute inset-0 flex items-center justify-center gap-3">
+                <img src={adaIcon} alt="Ada AI" className="w-14 h-14" />
+                <span className="text-5xl font-bold text-white tracking-tight">Ada AI</span>
+              </div>
+            </>
+          )}
+          {/* Hover overlay */}
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+            {uploadingCover ? (
+              <Loader2 className="w-8 h-8 text-white animate-spin" />
+            ) : (
+              <div className="flex flex-col items-center gap-1">
+                <ImagePlus className="w-6 h-6 text-white" />
+                <span className="text-xs text-white/80 font-medium">Change cover</span>
+              </div>
+            )}
+          </div>
+          <input
+            ref={coverInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/gif"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) handleImageUpload(f, "cover");
+              e.target.value = "";
             }}
           />
-          {/* Ada AI centered */}
-          <div className="absolute inset-0 flex items-center justify-center gap-3">
-            <img src={adaIcon} alt="Ada AI" className="w-14 h-14" />
-            <span className="text-5xl font-bold text-white tracking-tight">
-              Ada AI
-            </span>
-          </div>
         </div>
 
         {/* Profile section */}
         <div className="px-5 -mt-10 relative z-10">
           {/* Avatar */}
-          <div
-            className="w-[88px] h-[88px] rounded-[20px] flex items-center justify-center text-2xl font-bold text-white"
-            style={{
-              background: "#1e293b",
-              border: "4px solid #0f141a",
-            }}
-          >
-            {profile?.avatar_url ? (
-              <img
-                src={profile.avatar_url}
-                alt="Avatar"
-                className="w-full h-full rounded-[18px] object-cover"
-              />
-            ) : (
-              initials
-            )}
+          <div className="relative w-[88px] h-[88px] group">
+            <div
+              className="w-full h-full rounded-[20px] flex items-center justify-center text-2xl font-bold text-white cursor-pointer overflow-hidden"
+              onClick={() => avatarInputRef.current?.click()}
+              style={{
+                background: "#1e293b",
+                border: "4px solid #0f141a",
+              }}
+            >
+              {displayAvatar ? (
+                <img
+                  src={displayAvatar}
+                  alt="Avatar"
+                  className="w-full h-full rounded-[18px] object-cover"
+                />
+              ) : (
+                initials
+              )}
+              {/* Hover overlay */}
+              <div className="absolute inset-1 rounded-[16px] bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                {uploadingAvatar ? (
+                  <Loader2 className="w-5 h-5 text-white animate-spin" />
+                ) : (
+                  <Camera className="w-5 h-5 text-white" />
+                )}
+              </div>
+            </div>
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/gif"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) handleImageUpload(f, "avatar");
+                e.target.value = "";
+              }}
+            />
           </div>
 
           {/* Name row */}
