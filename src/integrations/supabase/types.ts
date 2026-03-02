@@ -2414,6 +2414,7 @@ export type Database = {
           avatar_url: string | null
           business_name: string | null
           country: string | null
+          cover_url: string | null
           created_at: string
           creator_type: Database["public"]["Enums"]["creator_type"] | null
           display_name: string | null
@@ -2426,6 +2427,7 @@ export type Database = {
           avatar_url?: string | null
           business_name?: string | null
           country?: string | null
+          cover_url?: string | null
           created_at?: string
           creator_type?: Database["public"]["Enums"]["creator_type"] | null
           display_name?: string | null
@@ -2438,6 +2440,7 @@ export type Database = {
           avatar_url?: string | null
           business_name?: string | null
           country?: string | null
+          cover_url?: string | null
           created_at?: string
           creator_type?: Database["public"]["Enums"]["creator_type"] | null
           display_name?: string | null
