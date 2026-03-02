@@ -42,7 +42,7 @@ export function ProfileWorkspace() {
 
   // Fetch published surfaces
   const { data: allSurfaces, isLoading: surfacesLoading } = useSurfaces();
-  const publishedSurfaces = (allSurfaces || []).filter(s => s.activePublishes.length > 0);
+  const publishedSurfaces = (allSurfaces || []).filter(s => s.activePublishes.length > 0 && s.status === "published");
 
   // Fetch KYC status
   useEffect(() => {
