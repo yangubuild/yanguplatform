@@ -704,6 +704,84 @@ export type Database = {
         }
         Relationships: []
       }
+      billing_customers: {
+        Row: {
+          created_at: string
+          paypal_payer_id: string | null
+          stripe_customer_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          paypal_payer_id?: string | null
+          stripe_customer_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          paypal_payer_id?: string | null
+          stripe_customer_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      billing_events: {
+        Row: {
+          event_id: string | null
+          id: string
+          payload: Json
+          provider: string
+          received_at: string
+        }
+        Insert: {
+          event_id?: string | null
+          id?: string
+          payload?: Json
+          provider: string
+          received_at?: string
+        }
+        Update: {
+          event_id?: string | null
+          id?: string
+          payload?: Json
+          provider?: string
+          received_at?: string
+        }
+        Relationships: []
+      }
+      billing_subscriptions: {
+        Row: {
+          created_at: string
+          current_period_end: string | null
+          id: string
+          plan_id: string
+          provider: string
+          provider_sub_id: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_period_end?: string | null
+          id?: string
+          plan_id?: string
+          provider: string
+          provider_sub_id?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_period_end?: string | null
+          id?: string
+          plan_id?: string
+          provider?: string
+          provider_sub_id?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       blog_section_images: {
         Row: {
           id: string
@@ -3217,6 +3295,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_entitlements: {
+        Row: {
+          plan_id: string
+          published_surfaces_limit: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          plan_id?: string
+          published_surfaces_limit?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          plan_id?: string
+          published_surfaces_limit?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -3468,6 +3567,7 @@ export type Database = {
         Args: { p_surface_id: string }
         Returns: boolean
       }
+      can_publish_more_surfaces: { Args: never; Returns: Json }
       can_publish_surface: {
         Args: { _surface_id: string; _user_id: string }
         Returns: boolean
@@ -3563,6 +3663,7 @@ export type Database = {
         Args: { p_app_id: string; p_event_type: string; p_payload?: Json }
         Returns: string
       }
+      ensure_my_entitlements: { Args: never; Returns: Json }
       evaluate_publish_eligibility: {
         Args: {
           p_domain_id: string
@@ -3645,6 +3746,7 @@ export type Database = {
         }
       }
       get_my_credit_balance: { Args: never; Returns: number }
+      get_my_entitlements: { Args: never; Returns: Json }
       get_my_image_generations: {
         Args: { p_limit?: number; p_offset?: number }
         Returns: {
