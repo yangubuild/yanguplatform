@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -25,10 +26,16 @@ import {
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import adaIcon from "@/assets/ada-icon.png";
-import { useSurfaces } from "@/hooks/useSurfaces";
 import { useNavigate } from "react-router-dom";
 
 const TABS = ["Home", "KYC", "Apps", "Business", "About"] as const;
+
+interface DashboardBusinessSurface {
+  id: string;
+  title: string | null;
+  surface_type: string;
+  cover_image: string | null;
+}
 
 export function ProfileWorkspace() {
   const { user, profile, refreshProfile } = useAuth();
@@ -49,9 +56,78 @@ export function ProfileWorkspace() {
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
-  // Fetch published surfaces
-  const { data: allSurfaces, isLoading: surfacesLoading } = useSurfaces();
-  const publishedSurfaces = (allSurfaces || []).filter(s => s.activePublishes.length > 0);
+  // Fetch dashboard businesses from the same source as My Business
+  const { data: publishedSurfaces = [], isLoading: surfacesLoading } = useQuery({
+    queryKey: ["dashboard-published-businesses", user?.id],
+    enabled: !!user,
+    queryFn: async (): Promise<DashboardBusinessSurface[]> => {
+      if (!user) return [];
+
+      const { data: surfaces, error: surfacesError } = await supabase
+        .from("builder_surfaces")
+        .select("id, title, surface_type, metadata, updated_at")
+        .eq("user_id", user.id)
+        .order("updated_at", { ascending: false });
+
+      if (surfacesError) throw surfacesError;
+      if (!surfaces || surfaces.length === 0) return [];
+
+      const surfaceIds = surfaces.map((surface) => surface.id);
+
+      const [publishesResult, homePagesResult] = await Promise.all([
+        supabase
+          .from("builder_publishes")
+          .select("surface_id")
+          .in("surface_id", surfaceIds)
+          .eq("state", "published"),
+        supabase
+          .from("builder_pages")
+          .select("surface_id, metadata")
+          .in("surface_id", surfaceIds)
+          .eq("slug", "home"),
+      ]);
+
+      if (publishesResult.error) throw publishesResult.error;
+      if (homePagesResult.error) throw homePagesResult.error;
+
+      const publishedIds = new Set((publishesResult.data ?? []).map((publish) => publish.surface_id));
+      const homeCoverBySurfaceId: Record<string, string | null> = {};
+
+      for (const page of homePagesResult.data ?? []) {
+        const pageMetadata = (page.metadata ?? {}) as Record<string, unknown>;
+        const pagePhotos = Array.isArray(pageMetadata["photos"]) ? pageMetadata["photos"] : [];
+        const firstPagePhoto = pagePhotos.find(
+          (photo): photo is string => typeof photo === "string" && photo.length > 0
+        ) ?? null;
+
+        homeCoverBySurfaceId[page.surface_id] =
+          firstPagePhoto ||
+          (typeof pageMetadata["cover_image"] === "string" ? pageMetadata["cover_image"] : null) ||
+          (typeof pageMetadata["hero_image"] === "string" ? pageMetadata["hero_image"] : null);
+      }
+
+      return surfaces
+        .filter((surface) => publishedIds.has(surface.id))
+        .map((surface) => {
+          const metadata = (surface.metadata ?? {}) as Record<string, unknown>;
+          const photos = Array.isArray(metadata["photos"]) ? metadata["photos"] : [];
+          const firstPhoto = photos.find(
+            (photo): photo is string => typeof photo === "string" && photo.length > 0
+          ) ?? null;
+
+          return {
+            id: surface.id,
+            title: surface.title,
+            surface_type: surface.surface_type,
+            cover_image:
+              homeCoverBySurfaceId[surface.id] ||
+              firstPhoto ||
+              (typeof metadata["cover_image"] === "string" ? metadata["cover_image"] : null) ||
+              (typeof metadata["hero_image"] === "string" ? metadata["hero_image"] : null),
+          };
+        });
+    },
+  });
 
   // Fetch KYC status
   useEffect(() => {
@@ -388,7 +464,7 @@ export function ProfileWorkspace() {
               >
                 🐉
               </span>
-              Kafeero Aziizi
+              {displayName}
             </span>
           </div>
 
@@ -479,10 +555,7 @@ export function ProfileWorkspace() {
                 <div className="grid grid-cols-3 gap-3">
                   {publishedSurfaces.map((surface) => {
                     const initials = (surface.title || "B").slice(0, 1).toUpperCase();
-                    const publishDomain = surface.activePublishes[0];
-                    const liveUrl = publishDomain
-                      ? `https://${publishDomain.domain_host}${publishDomain.slug ? `/${publishDomain.slug}` : ""}`
-                      : null;
+                    const liveUrl = `/s/${surface.id}/preview`;
                     return (
                       <div
                         key={surface.id}
@@ -659,10 +732,7 @@ export function ProfileWorkspace() {
                 <div className="grid grid-cols-3 gap-3">
                   {publishedSurfaces.map((surface) => {
                     const initials = (surface.title || "B").slice(0, 1).toUpperCase();
-                    const publishDomain = surface.activePublishes[0];
-                    const liveUrl = publishDomain
-                      ? `https://${publishDomain.domain_host}${publishDomain.slug ? `/${publishDomain.slug}` : ""}`
-                      : null;
+                    const liveUrl = `/s/${surface.id}/preview`;
                     return (
                       <div
                         key={surface.id}
