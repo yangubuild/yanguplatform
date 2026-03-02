@@ -1123,6 +1123,27 @@ export type Database = {
         }
         Relationships: []
       }
+      creator_payment_profiles: {
+        Row: {
+          creator_id: string
+          id: string
+          methods: Json
+          updated_at: string
+        }
+        Insert: {
+          creator_id: string
+          id?: string
+          methods?: Json
+          updated_at?: string
+        }
+        Update: {
+          creator_id?: string
+          id?: string
+          methods?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       credit_transactions: {
         Row: {
           amount: number
@@ -2217,6 +2238,7 @@ export type Database = {
       }
       orders: {
         Row: {
+          buyer_address: string | null
           buyer_email: string | null
           buyer_name: string | null
           buyer_phone: string | null
@@ -2224,6 +2246,7 @@ export type Database = {
           currency: string
           id: string
           notes: string | null
+          payment_method: string | null
           status: string
           surface_id: string
           total_cents: number
@@ -2231,6 +2254,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          buyer_address?: string | null
           buyer_email?: string | null
           buyer_name?: string | null
           buyer_phone?: string | null
@@ -2238,6 +2262,7 @@ export type Database = {
           currency?: string
           id?: string
           notes?: string | null
+          payment_method?: string | null
           status?: string
           surface_id: string
           total_cents?: number
@@ -2245,6 +2270,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          buyer_address?: string | null
           buyer_email?: string | null
           buyer_name?: string | null
           buyer_phone?: string | null
@@ -2252,6 +2278,7 @@ export type Database = {
           currency?: string
           id?: string
           notes?: string | null
+          payment_method?: string | null
           status?: string
           surface_id?: string
           total_cents?: number
@@ -2355,6 +2382,50 @@ export type Database = {
           owner_user_id?: string
         }
         Relationships: []
+      }
+      payment_attempts: {
+        Row: {
+          amount: number | null
+          created_at: string
+          currency: string | null
+          id: string
+          meta: Json | null
+          order_id: string
+          provider: string
+          provider_ref: string | null
+          status: string
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          meta?: Json | null
+          order_id: string
+          provider: string
+          provider_ref?: string | null
+          status?: string
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          meta?: Json | null
+          order_id?: string
+          provider?: string
+          provider_ref?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_attempts_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       payments: {
         Row: {
@@ -3199,6 +3270,30 @@ export type Database = {
           },
         ]
       }
+      webhook_events: {
+        Row: {
+          event_id: string | null
+          id: string
+          payload: Json
+          provider: string
+          received_at: string
+        }
+        Insert: {
+          event_id?: string | null
+          id?: string
+          payload: Json
+          provider: string
+          received_at?: string
+        }
+        Update: {
+          event_id?: string | null
+          id?: string
+          payload?: Json
+          provider?: string
+          received_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       connected_accounts_safe: {
@@ -3518,6 +3613,10 @@ export type Database = {
           title: string
         }[]
       }
+      get_creator_payment_methods: {
+        Args: { p_creator_id: string }
+        Returns: Json
+      }
       get_default_domain_for_creator: {
         Args: { _creator_type: Database["public"]["Enums"]["creator_type"] }
         Returns: string
@@ -3756,6 +3855,10 @@ export type Database = {
       unpublish_surface: {
         Args: { p_domain_id: string; p_surface_id: string }
         Returns: Json
+      }
+      upsert_creator_payment_profile: {
+        Args: { p_methods: Json }
+        Returns: undefined
       }
       validate_widget_token: { Args: { p_token: string }; Returns: Json }
       verify_app_key: { Args: { p_plain_key: string }; Returns: Json }
