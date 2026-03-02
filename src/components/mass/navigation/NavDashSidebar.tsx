@@ -139,6 +139,7 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
           style={{
             width: hasExtendedPanel ? RAIL_WIDTH : FULL_WIDTH,
             background: "#1a2025",
+            borderRight: "1px solid rgba(255,255,255,0.06)",
           }}
         >
           {/* Sales metric - only in full mode */}
