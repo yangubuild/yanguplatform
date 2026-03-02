@@ -1399,7 +1399,7 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
                     isLayoutB
                       ? "rounded-lg border border-border bg-card shadow-sm"
                       : "border-b border-border last:border-b-0"
-                  } ${selectedSectionId === section.id ? "ring-2 ring-primary ring-inset" : "hover:bg-accent/5"}`}
+                  } ${selectedSectionId === section.id ? "ring-2 ring-primary ring-inset" : "hover:ring-1 hover:ring-primary/30 hover:ring-inset"}`}
                 >
                   {canvasEditEnabled && onHideSection && onDeleteSection && (
                     <CanvasSectionControls

@@ -14,6 +14,20 @@ interface SurfaceViewerProps {
   domainType?: string;
 }
 
+/**
+ * Deduplicate sections that share the same section_type + position.
+ * Keeps the first occurrence (by array order, which is already sorted by position).
+ */
+function deduplicateSections(sections: BuilderPublishedSection[]): BuilderPublishedSection[] {
+  const seen = new Set<string>();
+  return sections.filter((s) => {
+    const key = `${s.section_type}::${s.position}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProps) {
   const [data, setData] = useState<BuilderPublicSchemaResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +37,6 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
     async function load() {
       setLoading(true);
 
-      // Derive host and slug from the current URL
       const currentHost = host ?? window.location.hostname.replace(/^www\./, "");
       const pathSlug = window.location.pathname.replace(/^\/+/, "").split("/")[0] || "home";
 
@@ -68,10 +81,14 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
   // Render published schema
   const schema = data.published_schema;
   const page = schema.pages?.[0];
-  const sections = page?.sections
+  const rawSections = page?.sections
     ?.slice()
     .sort((a: BuilderPublishedSection, b: BuilderPublishedSection) => a.position - b.position) ?? [];
+  
+  // Deduplicate sections (fixes double-render from duplicate DB rows)
+  const sections = deduplicateSections(rawSections);
   const title = schema.surface?.title || "Untitled";
+  const surfaceType = schema.surface?.surface_type;
 
   // Read theme
   const rawTheme = (schema.surface?.theme as Partial<BuilderTheme>) || {};
@@ -81,62 +98,28 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
     fontWeight: Number(surfaceTheme.body_weight),
   };
 
-  // Determine if a section type should break out of the container (full-bleed)
+  // Influencer / live_bio: always render as mobile-width centered on desktop
+  const isInfluencer = surfaceType === "live_bio";
+
   const isFullBleedSection = (type: string) => {
-    // Header and footer span full width; hero with background goes full-bleed
     return type === "header" || type === "header_logo";
   };
 
-  return (
-    <div className="min-h-screen bg-background yangu-live" style={themeStyle}>
+  const pageContent = (
+    <div className="w-full">
       {sections.length === 0 ? (
         <div className="py-20 text-center text-muted-foreground">
           <p>This page has no content yet.</p>
         </div>
       ) : (
-        <div className="w-full">
-          {sections.map((section: BuilderPublishedSection, i: number) => {
-            const Preview = PREVIEW_MAP[section.section_type];
-            const fullBleed = isFullBleedSection(section.section_type);
+        sections.map((section: BuilderPublishedSection, i: number) => {
+          const Preview = PREVIEW_MAP[section.section_type];
+          const fullBleed = isFullBleedSection(section.section_type);
 
-            // Full-bleed sections get their own container treatment
-            if (fullBleed) {
-              return (
-                <div key={`${section.section_type}-${i}`} className="w-full">
-                  <div className="max-w-[1200px] mx-auto px-4 sm:px-5 lg:px-6 xl:px-8">
-                    {Preview ? (
-                      <Preview schema={section.schema} />
-                    ) : (
-                      <div className="py-4 text-sm text-muted-foreground italic">
-                        [{section.section_type}]
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            }
-
-            // Hero sections: background can span full width, but content is contained
-            if (section.section_type === "hero" || section.section_type === "hero_banner") {
-              return (
-                <div key={`${section.section_type}-${i}`} className="w-full">
-                  <div className="max-w-[1200px] mx-auto px-4 sm:px-5 lg:px-6 xl:px-8">
-                    {Preview ? (
-                      <Preview schema={section.schema} />
-                    ) : (
-                      <div className="py-4 text-sm text-muted-foreground italic">
-                        [{section.section_type}]
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            }
-
-            // All other sections: contained within max-width
+          if (fullBleed || section.section_type === "hero" || section.section_type === "hero_banner") {
             return (
               <div key={`${section.section_type}-${i}`} className="w-full">
-                <div className="max-w-[1200px] mx-auto px-4 sm:px-5 lg:px-6 xl:px-8 py-8 lg:py-12">
+                <div className={isInfluencer ? "px-4" : "max-w-[1200px] mx-auto px-4 sm:px-5 lg:px-6 xl:px-8"}>
                   {Preview ? (
                     <Preview schema={section.schema} />
                   ) : (
@@ -147,9 +130,43 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
                 </div>
               </div>
             );
-          })}
-        </div>
+          }
+
+          return (
+            <div key={`${section.section_type}-${i}`} className="w-full">
+              <div className={isInfluencer ? "px-4 py-4" : "max-w-[1200px] mx-auto px-4 sm:px-5 lg:px-6 xl:px-8 py-8 lg:py-12"}>
+                {Preview ? (
+                  <Preview schema={section.schema} />
+                ) : (
+                  <div className="py-4 text-sm text-muted-foreground italic">
+                    [{section.section_type}]
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })
       )}
+    </div>
+  );
+
+  // Influencer: wrap in mobile frame on desktop
+  if (isInfluencer) {
+    return (
+      <div className="min-h-screen bg-muted/30 flex justify-center">
+        <div
+          className="w-full max-w-[420px] min-h-screen bg-background yangu-live shadow-xl"
+          style={themeStyle}
+        >
+          {pageContent}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background yangu-live" style={themeStyle}>
+      {pageContent}
     </div>
   );
 }

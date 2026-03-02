@@ -1282,6 +1282,57 @@ export function BuilderSectionEditor({
             </div>
           </div>
         </div>
+
+        {/* Button Style Controls */}
+        <div className="space-y-3 border border-border rounded-lg p-3">
+          <Label className="text-xs font-medium">Button Style</Label>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Button BG</Label>
+              <input
+                type="color"
+                value={((localSchema.button_style as any)?.bg as string) || "#000000"}
+                onChange={(e) => update({ button_style: { ...((localSchema.button_style as any) || {}), bg: e.target.value } })}
+                className="h-9 w-full rounded-md border border-input bg-background px-1"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Button Text</Label>
+              <input
+                type="color"
+                value={((localSchema.button_style as any)?.text as string) || "#ffffff"}
+                onChange={(e) => update({ button_style: { ...((localSchema.button_style as any) || {}), text: e.target.value } })}
+                className="h-9 w-full rounded-md border border-input bg-background px-1"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Border</Label>
+              <input
+                type="color"
+                value={((localSchema.button_style as any)?.border as string) || "#000000"}
+                onChange={(e) => update({ button_style: { ...((localSchema.button_style as any) || {}), border: e.target.value } })}
+                className="h-9 w-full rounded-md border border-input bg-background px-1"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Radius</Label>
+              <Select
+                value={String(((localSchema.button_style as any)?.radius as string) || "8")}
+                onValueChange={(v) => update({ button_style: { ...((localSchema.button_style as any) || {}), radius: v } })}
+              >
+                <SelectTrigger className="text-sm"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="0">Square</SelectItem>
+                  <SelectItem value="4">Slight</SelectItem>
+                  <SelectItem value="8">Rounded</SelectItem>
+                  <SelectItem value="9999">Pill</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Save button — always show since GenericSectionEditor also has editable fields */}
