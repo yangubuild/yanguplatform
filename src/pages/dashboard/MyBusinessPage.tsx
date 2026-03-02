@@ -7,6 +7,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Card } from "@/components/primitives";
+import { forceDeleteSurface } from "@/lib/forceDeleteSurface";
 
 const SURFACE_TYPE_META: Record<string, { label: string; icon: typeof ShoppingBag }> = {
   eshop: { label: "Eshop", icon: ShoppingBag },
@@ -149,8 +150,11 @@ export default function MyBusinessPage() {
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                             <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={async () => {
+                              // Delete from builder_surfaces
                               const { error } = await supabase.from("builder_surfaces").delete().eq("id", s.id);
                               if (error) { toast.error("Failed to delete"); return; }
+                              // Also delete from surfaces table (syncs with dashboard)
+                              await forceDeleteSurface(s.id);
                               setSurfaces(prev => prev.filter(x => x.id !== s.id));
                               toast.success("Deleted successfully");
                             }}>
