@@ -2423,6 +2423,7 @@ export type Database = {
           free_videos_used: number
           id: string
           onboarding_completed: boolean
+          social_links: Json | null
           updated_at: string
           username: string | null
         }
@@ -2439,6 +2440,7 @@ export type Database = {
           free_videos_used?: number
           id: string
           onboarding_completed?: boolean
+          social_links?: Json | null
           updated_at?: string
           username?: string | null
         }
@@ -2455,6 +2457,7 @@ export type Database = {
           free_videos_used?: number
           id?: string
           onboarding_completed?: boolean
+          social_links?: Json | null
           updated_at?: string
           username?: string | null
         }

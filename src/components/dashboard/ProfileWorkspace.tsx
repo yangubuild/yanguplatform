@@ -31,6 +31,7 @@ import { AddTeamModal } from "./AddTeamModal";
 import { NotificationPrefsModal } from "./NotificationPrefsModal";
 import { ShareBusinessPopover } from "./ShareBusinessPopover";
 import { DashboardMoreMenu } from "./DashboardMoreMenu";
+import { SocialLinksModal, SOCIAL_PLATFORMS, type SocialLinksData } from "./SocialLinksModal";
 
 const TABS = ["Home", "KYC", "Apps", "Business", "About"] as const;
 
@@ -61,6 +62,39 @@ export function ProfileWorkspace() {
   const navigate = useNavigate();
   const [teamModalOpen, setTeamModalOpen] = useState(false);
   const [notifModalOpen, setNotifModalOpen] = useState(false);
+  const [socialModalOpen, setSocialModalOpen] = useState(false);
+  const [socialLinks, setSocialLinks] = useState<SocialLinksData>({});
+  const [savingSocial, setSavingSocial] = useState(false);
+
+  // Fetch social links from profile
+  useEffect(() => {
+    if (profile) {
+      const stored = (profile as any)?.social_links as SocialLinksData | null;
+      if (stored && typeof stored === "object") setSocialLinks(stored);
+    }
+  }, [profile]);
+
+  const handleSaveSocialLinks = async (data: SocialLinksData) => {
+    if (!user) return;
+    setSavingSocial(true);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ social_links: data as any })
+        .eq("id", user.id);
+      if (error) throw error;
+      setSocialLinks(data);
+      setSocialModalOpen(false);
+      toast.success("Social links saved");
+      refreshProfile?.();
+    } catch (err) {
+      toast.error("Failed to save social links");
+    } finally {
+      setSavingSocial(false);
+    }
+  };
+
+  const activeSocialLinks = SOCIAL_PLATFORMS.filter(p => socialLinks[p.id]);
 
   // Fetch dashboard businesses from the same source as My Business
   const { data: publishedSurfaces = [], isLoading: surfacesLoading } = useQuery({
@@ -463,10 +497,29 @@ export function ProfileWorkspace() {
               Dubai, AE
             </span>
             <span style={{ color: "rgba(255,255,255,0.2)" }}>•</span>
-            <button className="flex items-center gap-1 hover:text-white/70 transition-colors">
+            <button
+              className="flex items-center gap-1 hover:text-white/70 transition-colors"
+              onClick={() => setSocialModalOpen(true)}
+            >
               <Plus className="w-3 h-3" />
-              Add social links
+              {activeSocialLinks.length > 0 ? "Edit social links" : "Add social links"}
             </button>
+            {activeSocialLinks.length > 0 && (
+              <span className="flex items-center gap-1.5 ml-1">
+                {activeSocialLinks.map(p => (
+                  <a
+                    key={p.id}
+                    href={socialLinks[p.id] ?? "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:opacity-80 transition-opacity"
+                    onClick={e => e.stopPropagation()}
+                  >
+                    <img src={p.icon} alt={p.name} className="w-4 h-4 rounded-sm object-contain" />
+                  </a>
+                ))}
+              </span>
+            )}
             <span style={{ color: "rgba(255,255,255,0.2)" }}>•</span>
             <span className="flex items-center gap-1">
               Created by
@@ -865,6 +918,13 @@ export function ProfileWorkspace() {
       </div>
       <AddTeamModal open={teamModalOpen} onOpenChange={setTeamModalOpen} />
       <NotificationPrefsModal open={notifModalOpen} onOpenChange={setNotifModalOpen} />
+      <SocialLinksModal
+        open={socialModalOpen}
+        onOpenChange={setSocialModalOpen}
+        initialData={socialLinks}
+        onSave={handleSaveSocialLinks}
+        saving={savingSocial}
+      />
     </div>
   );
 }
