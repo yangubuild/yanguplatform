@@ -157,17 +157,17 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
   const activeSlots = (socialSchema?.active_social_links as SocialSlot[]) || [];
   const iconStyleMode = (socialSchema?.icon_style as string) || "original";
 
-  const socialIconImages: { key: string; src: string }[] = (() => {
+  const socialIconImages: { key: string; src: string; url: string }[] = (() => {
     if (activeSlots.length === 6) {
       return activeSlots.map(s => {
         const p = getPlatform(s.platform);
-        return { key: s.platform, src: p?.icon || "" };
+        return { key: s.platform, src: p?.icon || "", url: s.url || "" };
       }).filter(x => x.src);
     }
     // Fallback to defaults
     return DEFAULT_PRIMARY_IDS.map(id => {
       const p = getPlatform(id);
-      return { key: id, src: p?.icon || "" };
+      return { key: id, src: p?.icon || "", url: "" };
     }).filter(x => x.src);
   })();
 
@@ -201,10 +201,10 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
               {subheadline && <EditableText value={subheadline} field="subheadline" className="text-sm opacity-80 mt-1" tag="p" canvas={canvas} />}
               {socialRowEnabled && (
                 <div className="flex gap-3 mt-3">
-                  {socialIconImages.map(({ key, src }) => (
-                    <span key={key} onClick={handleSocialIconClick} className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center yangu-interactive hover:scale-110 transition-transform cursor-pointer">
+                  {socialIconImages.map(({ key, src, url }) => (
+                    <a key={key} href={url && url.startsWith("http") ? url : url ? `https://${url}` : "#"} target="_blank" rel="noopener noreferrer" onClick={(e) => { if (!url) { e.preventDefault(); handleSocialIconClick(e); } }} className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center yangu-interactive hover:scale-110 transition-transform cursor-pointer">
                       <img src={src} alt={key} className={`w-full h-full object-cover ${iconStyleClass}`} />
-                    </span>
+                    </a>
                   ))}
                 </div>
               )}
@@ -233,10 +233,10 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
           {description && <EditableText value={description} field="description" className="text-xs text-muted-foreground mt-2 max-w-sm mx-auto leading-relaxed" tag="p" canvas={canvas} />}
           {socialRowEnabled && (
             <div className="flex justify-center gap-3 mt-4">
-              {socialIconImages.map(({ key, src }) => (
-                <span key={key} onClick={handleSocialIconClick} className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center yangu-interactive hover:scale-110 hover:shadow-md transition-all cursor-pointer">
+              {socialIconImages.map(({ key, src, url }) => (
+                <a key={key} href={url && url.startsWith("http") ? url : url ? `https://${url}` : "#"} target="_blank" rel="noopener noreferrer" onClick={(e) => { if (!url) { e.preventDefault(); handleSocialIconClick(e); } }} className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center yangu-interactive hover:scale-110 hover:shadow-md transition-all cursor-pointer">
                   <img src={src} alt={key} className={`w-full h-full object-cover ${iconStyleClass}`} />
-                </span>
+                </a>
               ))}
             </div>
           )}
@@ -275,10 +275,10 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
             {subheadline && <EditableText value={subheadline} field="subheadline" className="text-xs text-muted-foreground mt-1" tag="p" canvas={canvas} />}
             {socialRowEnabled && (
               <div className="flex gap-2 mt-3">
-                {socialIconImages.slice(0, 4).map(({ key, src }) => (
-                  <span key={key} onClick={handleSocialIconClick} className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center yangu-interactive hover:scale-110 transition-transform cursor-pointer">
+                {socialIconImages.slice(0, 4).map(({ key, src, url }) => (
+                  <a key={key} href={url && url.startsWith("http") ? url : url ? `https://${url}` : "#"} target="_blank" rel="noopener noreferrer" onClick={(e) => { if (!url) { e.preventDefault(); handleSocialIconClick(e); } }} className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center yangu-interactive hover:scale-110 transition-transform cursor-pointer">
                     <img src={src} alt={key} className={`w-full h-full object-cover ${iconStyleClass}`} />
-                  </span>
+                  </a>
                 ))}
               </div>
             )}
