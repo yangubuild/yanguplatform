@@ -20,7 +20,10 @@ import {
   Clock,
   XCircle,
   ExternalLink,
+  Check,
+  X,
 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import adaIcon from "@/assets/ada-icon.png";
 import { useSurfaces } from "@/hooks/useSurfaces";
 import { useNavigate } from "react-router-dom";
@@ -28,7 +31,7 @@ import { useNavigate } from "react-router-dom";
 const TABS = ["Home", "KYC", "Apps", "Business", "About"] as const;
 
 export function ProfileWorkspace() {
-  const { user, profile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const [activeTab, setActiveTab] = useState<string>("Home");
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -36,13 +39,19 @@ export function ProfileWorkspace() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [kycStatus, setKycStatus] = useState<string | null>(null);
   const [kycLoading, setKycLoading] = useState(true);
+  const [editingName, setEditingName] = useState(false);
+  const [editingDesc, setEditingDesc] = useState(false);
+  const [nameValue, setNameValue] = useState("");
+  const [descValue, setDescValue] = useState("");
+  const [savingName, setSavingName] = useState(false);
+  const [savingDesc, setSavingDesc] = useState(false);
   const coverInputRef = useRef<HTMLInputElement>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
   // Fetch published surfaces
   const { data: allSurfaces, isLoading: surfacesLoading } = useSurfaces();
-  const publishedSurfaces = (allSurfaces || []).filter(s => s.activePublishes.length > 0 && s.status === "published");
+  const publishedSurfaces = (allSurfaces || []).filter(s => s.activePublishes.length > 0);
 
   // Fetch KYC status
   useEffect(() => {
@@ -114,8 +123,41 @@ export function ProfileWorkspace() {
     }
   };
 
-  const displayName = "Fresh & Wholesome Foods Co.";
+  const displayName = profile?.display_name || profile?.business_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Unnamed";
+  const displayDescription = profile?.business_name && profile?.business_name !== displayName ? profile.business_name : "";
   const initials = displayName.slice(0, 2).toUpperCase();
+
+  const handleSaveName = async () => {
+    if (!user || !nameValue.trim()) return;
+    setSavingName(true);
+    try {
+      const { error } = await supabase.from("profiles").update({ display_name: nameValue.trim() }).eq("id", user.id);
+      if (error) throw error;
+      await refreshProfile();
+      setEditingName(false);
+      toast.success("Name updated");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update name");
+    } finally {
+      setSavingName(false);
+    }
+  };
+
+  const handleSaveDesc = async () => {
+    if (!user) return;
+    setSavingDesc(true);
+    try {
+      const { error } = await supabase.from("profiles").update({ business_name: descValue.trim() || null }).eq("id", user.id);
+      if (error) throw error;
+      await refreshProfile();
+      setEditingDesc(false);
+      toast.success("Description updated");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update description");
+    } finally {
+      setSavingDesc(false);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full" style={{ background: "#0f141a" }}>
@@ -234,12 +276,34 @@ export function ProfileWorkspace() {
 
           {/* Name row */}
           <div className="flex items-start justify-between mt-3 gap-4">
-            <h2
-              className="text-[28px] leading-[1.15] font-bold text-white"
-              style={{ maxWidth: "420px" }}
-            >
-              {displayName}
-            </h2>
+            {editingName ? (
+              <div className="flex items-center gap-2 flex-1" style={{ maxWidth: "420px" }}>
+                <input
+                  autoFocus
+                  value={nameValue}
+                  onChange={(e) => setNameValue(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") handleSaveName(); if (e.key === "Escape") setEditingName(false); }}
+                  className="text-[22px] leading-[1.15] font-bold text-white bg-transparent border-b-2 outline-none flex-1"
+                  style={{ borderColor: "#b5622a" }}
+                />
+                <button onClick={handleSaveName} disabled={savingName} className="p-1 rounded" style={{ color: "#22c55e" }}>
+                  {savingName ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                </button>
+                <button onClick={() => setEditingName(false)} className="p-1 rounded" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 group/name cursor-pointer" onClick={() => { setNameValue(displayName); setEditingName(true); }}>
+                <h2
+                  className="text-[28px] leading-[1.15] font-bold text-white"
+                  style={{ maxWidth: "420px" }}
+                >
+                  {displayName}
+                </h2>
+                <Pencil className="w-3.5 h-3.5 opacity-0 group-hover/name:opacity-100 transition-opacity" style={{ color: "rgba(255,255,255,0.4)" }} />
+              </div>
+            )}
             <div className="flex items-center gap-2 shrink-0 mt-1">
               <button
                 className="p-2 rounded-lg"
@@ -272,12 +336,34 @@ export function ProfileWorkspace() {
           </div>
 
           {/* Description */}
-          <p
-            className="text-sm mt-1.5"
-            style={{ color: "rgba(255,255,255,0.35)", fontStyle: "italic" }}
-          >
-            Set a description...
-          </p>
+          {editingDesc ? (
+            <div className="mt-1.5 flex items-start gap-2" style={{ maxWidth: "420px" }}>
+              <Textarea
+                autoFocus
+                value={descValue}
+                onChange={(e) => setDescValue(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSaveDesc(); } if (e.key === "Escape") setEditingDesc(false); }}
+                className="text-sm bg-transparent border-0 border-b-2 rounded-none p-0 min-h-[32px] resize-none text-white focus-visible:ring-0"
+                style={{ borderColor: "#b5622a" }}
+                placeholder="Write a description..."
+              />
+              <button onClick={handleSaveDesc} disabled={savingDesc} className="p-1 rounded shrink-0" style={{ color: "#22c55e" }}>
+                {savingDesc ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+              </button>
+              <button onClick={() => setEditingDesc(false)} className="p-1 rounded shrink-0" style={{ color: "rgba(255,255,255,0.4)" }}>
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            <p
+              className="text-sm mt-1.5 cursor-pointer group/desc inline-flex items-center gap-1.5 hover:text-white/50 transition-colors"
+              style={{ color: "rgba(255,255,255,0.35)", fontStyle: displayDescription ? "normal" : "italic" }}
+              onClick={() => { setDescValue(displayDescription); setEditingDesc(true); }}
+            >
+              {displayDescription || "Set a description..."}
+              <Pencil className="w-3 h-3 opacity-0 group-hover/desc:opacity-100 transition-opacity" />
+            </p>
+          )}
 
           {/* Meta row */}
           <div
