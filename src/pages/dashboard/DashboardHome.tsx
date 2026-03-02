@@ -1,6 +1,7 @@
 import { InnerPageSidebar } from "@/components/dashboard/InnerPageSidebar";
 import { ProfileWorkspace } from "@/components/dashboard/ProfileWorkspace";
 import { ClientChatPanel } from "@/components/dashboard/ClientChatPanel";
+import { DashboardCreditPromo } from "@/components/dashboard/DashboardCreditPromo";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 /**
@@ -19,6 +20,8 @@ export default function DashboardHome() {
   }
 
   return (
+    <>
+    <DashboardCreditPromo />
     <div
       className="h-[calc(100vh-64px)] overflow-hidden"
       style={{
@@ -85,5 +88,6 @@ export default function DashboardHome() {
         </div>
       </div>
     </div>
+    </>
   );
 }

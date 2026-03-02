@@ -2417,7 +2417,10 @@ export type Database = {
           cover_url: string | null
           created_at: string
           creator_type: Database["public"]["Enums"]["creator_type"] | null
+          dashboard_credit_claimed: boolean
           display_name: string | null
+          free_images_used: number
+          free_videos_used: number
           id: string
           onboarding_completed: boolean
           updated_at: string
@@ -2430,7 +2433,10 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           creator_type?: Database["public"]["Enums"]["creator_type"] | null
+          dashboard_credit_claimed?: boolean
           display_name?: string | null
+          free_images_used?: number
+          free_videos_used?: number
           id: string
           onboarding_completed?: boolean
           updated_at?: string
@@ -2443,7 +2449,10 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           creator_type?: Database["public"]["Enums"]["creator_type"] | null
+          dashboard_credit_claimed?: boolean
           display_name?: string | null
+          free_images_used?: number
+          free_videos_used?: number
           id?: string
           onboarding_completed?: boolean
           updated_at?: string
@@ -3377,6 +3386,7 @@ export type Database = {
         Args: { p_quota_key: string }
         Returns: Json
       }
+      claim_dashboard_credits: { Args: never; Returns: Json }
       complete_onboarding:
         | {
             Args: {
