@@ -30,14 +30,13 @@ export default function DashboardHome() {
     >
       {/* Inner page sidebar — floating card surface */}
       <div
-        className="h-full overflow-hidden flex flex-col"
+        className="h-full overflow-hidden flex flex-col p-2 pr-0"
         style={{
           background: "#0B0F14",
-          borderRight: "1px solid rgba(255,255,255,0.06)",
         }}
       >
         <div
-          className="flex-1 overflow-hidden m-2 mr-0"
+          className="flex-1 overflow-hidden"
           style={{
             background: "#0F141A",
             borderRadius: "14px",
@@ -48,27 +47,42 @@ export default function DashboardHome() {
         </div>
       </div>
 
-      {/* Center — Profile workspace — distinct canvas */}
+      {/* Center — Profile workspace — distinct canvas with top gap */}
       <div
-        className="h-full overflow-hidden"
-        style={{
-          background: "#0F141A",
-          borderLeft: "1px solid rgba(255,255,255,0.06)",
-          borderRight: "1px solid rgba(255,255,255,0.06)",
-        }}
-      >
-        <ProfileWorkspace />
-      </div>
-
-      {/* Right — Client chat panel — independent surface */}
-      <div
-        className="h-full overflow-hidden"
+        className="h-full overflow-hidden p-2"
         style={{
           background: "#0B0F14",
-          borderLeft: "1px solid rgba(255,255,255,0.06)",
         }}
       >
-        <ClientChatPanel />
+        <div
+          className="h-full overflow-hidden"
+          style={{
+            background: "#0F141A",
+            borderRadius: "14px",
+            border: "1px solid rgba(255,255,255,0.06)",
+          }}
+        >
+          <ProfileWorkspace />
+        </div>
+      </div>
+
+      {/* Right — Client chat panel — independent surface with top gap */}
+      <div
+        className="h-full overflow-hidden p-2 pl-0"
+        style={{
+          background: "#0B0F14",
+        }}
+      >
+        <div
+          className="h-full overflow-hidden"
+          style={{
+            background: "#0F141A",
+            borderRadius: "14px",
+            border: "1px solid rgba(255,255,255,0.06)",
+          }}
+        >
+          <ClientChatPanel />
+        </div>
       </div>
     </div>
   );
