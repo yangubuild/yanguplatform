@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, Component, type ErrorInfo, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -147,6 +147,42 @@ import { DashboardRoleGate } from "@/components/auth/DashboardRoleGate";
  * App component - contains all providers EXCEPT QueryClientProvider
  * QueryClientProvider is in main.tsx to ensure it wraps the entire app
  */
+class AppErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error("[APP_ERROR_BOUNDARY]", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-background text-foreground px-6 text-center">
+          <div className="space-y-3">
+            <p className="text-sm font-semibold">Something went wrong while loading the preview.</p>
+            <button
+              className="px-4 py-2 rounded-md border border-border bg-card text-foreground text-sm"
+              onClick={() => window.location.reload()}
+            >
+              Reload preview
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+function AppBootFallback() {
+  return <div className="min-h-screen bg-background" />;
+}
+
 const App = () => (
   <ThemeProvider>
     <AuthProvider>
@@ -157,8 +193,9 @@ const App = () => (
           <DomainProvider>
             <PublicRouteResolver>
               <DomainGate>
-              <Suspense fallback={null}>
-              <Routes>
+                <AppErrorBoundary>
+                  <Suspense fallback={<AppBootFallback />}>
+                    <Routes>
                 {/* Public routes */}
                 <Route path="/" element={<Index />} />
                 <Route path="/community/*" element={<Community />} />
@@ -423,8 +460,9 @@ const App = () => (
                 
                 {/* Catch-all */}
                 <Route path="*" element={<NotFound />} />
-              </Routes>
-              </Suspense>
+                    </Routes>
+                  </Suspense>
+                </AppErrorBoundary>
               </DomainGate>
             </PublicRouteResolver>
           </DomainProvider>
