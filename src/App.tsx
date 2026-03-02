@@ -133,6 +133,8 @@ import AgencyPricingPage from "./pages/dashboard/AgencyPricingPage";
 import AgencySupportPage from "./pages/dashboard/AgencySupportPage";
 import MessagesPage from "./pages/dashboard/MessagesPage";
 const EmenuOrdersPage = lazy(() => import("./pages/dashboard/EmenuOrdersPage"));
+const PaymentsSettingsPage = lazy(() => import("./pages/dashboard/PaymentsSettingsPage"));
+const EshopCheckoutPage = lazy(() => import("./pages/EshopCheckoutPage"));
 import { DashboardRoleGate } from "@/components/auth/DashboardRoleGate";
 
 // Supabase client auto-configured via environment
@@ -308,7 +310,7 @@ const App = () => (
                   {/* Dashboard module pages (flat, no nesting) */}
                   <Route path="my-apps" element={<DashboardPlaceholder />} />
                   <Route path="my-business" element={<MyBusinessPage />} />
-                  <Route path="payments" element={<DashboardPlaceholder />} />
+                  <Route path="payments" element={<PaymentsSettingsPage />} />
                   <Route path="invoices" element={<DashboardPlaceholder />} />
                   <Route path="ads" element={<DashboardPlaceholder />} />
                   <Route path="promo-codes" element={<DashboardPlaceholder />} />
@@ -365,6 +367,9 @@ const App = () => (
                     </ProtectedRoute>
                   }
                 />
+
+                {/* Public checkout */}
+                <Route path="/checkout" element={<EshopCheckoutPage />} />
 
                 {/* Legacy redirects — studio & ada now live under /dashboard */}
                 <Route path="/studio" element={<Navigate to="/dashboard/studio" replace />} />
