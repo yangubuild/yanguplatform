@@ -135,7 +135,7 @@ export const DASHBOARD_SECTIONS: NavSection[] = [
   {
     title: "USER MANAGEMENT",
     items: [
-      { icon: CreditCard, label: "Payments", to: "/dashboard/payments" },
+      { icon: CreditCard, label: "Payment settings", to: "/dashboard/payment-settings" },
       { icon: FileBarChart, label: "Invoices", to: "/dashboard/invoices" },
     ],
   },

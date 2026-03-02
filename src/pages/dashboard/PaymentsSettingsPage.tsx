@@ -77,8 +77,8 @@ export default function PaymentsSettingsPage() {
     <div className="max-w-2xl mx-auto py-6 px-4 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Payment Methods</h1>
-          <p className="text-sm text-muted-foreground mt-1">Configure how buyers can pay you</p>
+          <h1 className="text-2xl font-bold text-foreground">Payment settings</h1>
+          <p className="text-sm text-muted-foreground mt-1">Choose how customers pay you directly.</p>
         </div>
         <Button variant="accent" onClick={handleSave} disabled={saving} className="gap-2">
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
