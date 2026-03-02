@@ -877,7 +877,7 @@ export function ProfileWorkspace() {
             />
             <button
               className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold shrink-0"
-              style={{ background: "#ef4444", color: "#fff" }}
+              style={{ background: "rgba(180, 60, 60, 0.65)", color: "#f5bcbc" }}
             >
               <Video className="w-4 h-4" />
               Go live
