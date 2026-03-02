@@ -11,12 +11,12 @@ import {
 } from "lucide-react";
 
 const NAV_ITEMS = [
-  { id: "home", label: "Home", icon: Home, color: "#3b82f6" },
+  { id: "home", label: "Home", icon: Home },
   { id: "add-app", label: "Add app", icon: PlusCircle },
-  { id: "forum", label: "Public forum", icon: MessageSquare, color: "#6366f1" },
-  { id: "content", label: "Content", icon: BookOpen, color: "#22c55e" },
-  { id: "livestreaming", label: "Livestreaming", icon: Radio, color: "#ef4444" },
-  { id: "courses", label: "Courses", icon: GraduationCap, color: "#22c55e" },
+  { id: "forum", label: "Public forum", icon: MessageSquare },
+  { id: "content", label: "Content", icon: BookOpen },
+  { id: "livestreaming", label: "Livestreaming", icon: Radio },
+  { id: "courses", label: "Courses", icon: GraduationCap },
   { id: "chat", label: "Chat", customIcon: true, color: "#f97316" },
 ];
 
@@ -66,8 +66,8 @@ export function InnerPageSidebar({ className = "" }: InnerPageSidebarProps) {
               onClick={() => setActive(item.id)}
               className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-150 mb-0.5"
               style={{
-                background: isActive ? "rgba(59,130,246,0.15)" : "transparent",
-                color: isActive ? "#60a5fa" : "rgba(255,255,255,0.6)",
+                background: isActive ? "rgba(255,255,255,0.08)" : "transparent",
+                color: isActive ? "#fff" : "rgba(255,255,255,0.6)",
               }}
             >
               {item.customIcon ? (
@@ -80,8 +80,8 @@ export function InnerPageSidebar({ className = "" }: InnerPageSidebarProps) {
                   className="w-4 h-4 shrink-0"
                   style={{
                     color: isActive
-                      ? "#60a5fa"
-                      : item.color || "rgba(255,255,255,0.45)",
+                      ? "#fff"
+                      : "rgba(255,255,255,0.45)",
                   }}
                 />
               )}
