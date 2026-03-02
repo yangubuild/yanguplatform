@@ -27,6 +27,10 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import adaIcon from "@/assets/ada-icon.png";
 import { useNavigate } from "react-router-dom";
+import { AddTeamModal } from "./AddTeamModal";
+import { NotificationPrefsModal } from "./NotificationPrefsModal";
+import { ShareBusinessPopover } from "./ShareBusinessPopover";
+import { DashboardMoreMenu } from "./DashboardMoreMenu";
 
 const TABS = ["Home", "KYC", "Apps", "Business", "About"] as const;
 
@@ -55,6 +59,8 @@ export function ProfileWorkspace() {
   const coverInputRef = useRef<HTMLInputElement>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const [teamModalOpen, setTeamModalOpen] = useState(false);
+  const [notifModalOpen, setNotifModalOpen] = useState(false);
 
   // Fetch dashboard businesses from the same source as My Business
   const { data: publishedSurfaces = [], isLoading: surfacesLoading } = useQuery({
@@ -250,12 +256,14 @@ export function ProfileWorkspace() {
           >
             <Search className="w-4 h-4" />
           </button>
-          <button
-            className="p-1.5 rounded-md"
-            style={{ color: "rgba(255,255,255,0.45)" }}
-          >
-            <MoreHorizontal className="w-4 h-4" />
-          </button>
+          <DashboardMoreMenu userId={user?.id}>
+            <button
+              className="p-1.5 rounded-md"
+              style={{ color: "rgba(255,255,255,0.45)" }}
+            >
+              <MoreHorizontal className="w-4 h-4" />
+            </button>
+          </DashboardMoreMenu>
         </div>
       </div>
 
@@ -381,16 +389,19 @@ export function ProfileWorkspace() {
               </div>
             )}
             <div className="flex items-center gap-2 shrink-0 mt-1">
+              <ShareBusinessPopover avatarUrl={displayAvatar} initials={initials}>
+                <button
+                  className="p-2 rounded-lg"
+                  style={{
+                    background: "rgba(255,255,255,0.05)",
+                    color: "rgba(255,255,255,0.5)",
+                  }}
+                >
+                  <UserPlus className="w-4 h-4" />
+                </button>
+              </ShareBusinessPopover>
               <button
-                className="p-2 rounded-lg"
-                style={{
-                  background: "rgba(255,255,255,0.05)",
-                  color: "rgba(255,255,255,0.5)",
-                }}
-              >
-                <UserPlus className="w-4 h-4" />
-              </button>
-              <button
+                onClick={() => setNotifModalOpen(true)}
                 className="p-2 rounded-lg"
                 style={{
                   background: "rgba(255,255,255,0.05)",
@@ -400,6 +411,7 @@ export function ProfileWorkspace() {
                 <Bell className="w-4 h-4" />
               </button>
               <button
+                onClick={() => setTeamModalOpen(true)}
                 className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-semibold"
                 style={{
                   background: "rgba(181,98,42,0.12)",
@@ -408,7 +420,7 @@ export function ProfileWorkspace() {
               >
                 Add team <Plus className="w-3.5 h-3.5" />
               </button>
-            </div>
+          </div>
           </div>
 
           {/* Description */}
@@ -851,6 +863,8 @@ export function ProfileWorkspace() {
 
         <div className="h-8" />
       </div>
+      <AddTeamModal open={teamModalOpen} onOpenChange={setTeamModalOpen} />
+      <NotificationPrefsModal open={notifModalOpen} onOpenChange={setNotifModalOpen} />
     </div>
   );
 }
