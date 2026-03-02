@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -34,6 +34,7 @@ export function useBuilderSurfaceInit() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [isInitializing, setIsInitializing] = useState(false);
+  const initLockRef = useRef(false);
 
   const initAndNavigate = useCallback(
     async (opts: InitOptions): Promise<BuilderSurfaceInitResult | null> => {
@@ -165,6 +166,12 @@ export function useBuilderSurfaceInit() {
         });
       };
 
+      // Prevent concurrent init calls (React StrictMode double-effect, rapid re-renders)
+      if (initLockRef.current) {
+        console.warn("useBuilderSurfaceInit: skipping duplicate concurrent call");
+        return null;
+      }
+      initLockRef.current = true;
       setIsInitializing(true);
       try {
         const { data: existing, error: findErr } = await supabase
@@ -214,6 +221,7 @@ export function useBuilderSurfaceInit() {
         return null;
       } finally {
         setIsInitializing(false);
+        initLockRef.current = false;
       }
     },
     [user, navigate]

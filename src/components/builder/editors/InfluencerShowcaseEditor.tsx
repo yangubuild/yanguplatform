@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Trash2, GripVertical } from "lucide-react";
 import { MediaPicker, type MediaAsset } from "../media/MediaPicker";
+import { PaymentMethodsEditor } from "./PaymentMethodsEditor";
 
 interface ShowcaseItem {
   title: string;
@@ -87,6 +88,11 @@ export function InfluencerShowcaseEditor({ schema, update, surfaceId }: Influenc
       <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs" onClick={addItem}>
         <Plus className="h-3.5 w-3.5" /> Add Showcase Item
       </Button>
+
+      {/* Payment Methods */}
+      <div className="border-t border-border pt-4 mt-4">
+        <PaymentMethodsEditor schema={schema} update={update} />
+      </div>
     </div>
   );
 }
