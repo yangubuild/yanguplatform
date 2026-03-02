@@ -25,7 +25,7 @@ import adaIcon from "@/assets/ada-icon.png";
 import { useSurfaces } from "@/hooks/useSurfaces";
 import { useNavigate } from "react-router-dom";
 
-const TABS = ["Home", "KYC", "Apps", "Businesses", "About"] as const;
+const TABS = ["Home", "KYC", "Apps", "Business", "About"] as const;
 
 export function ProfileWorkspace() {
   const { user, profile } = useAuth();
@@ -349,7 +349,7 @@ export function ProfileWorkspace() {
               {/* Businesses header */}
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-white">Businesses</span>
+                  <span className="text-sm font-semibold text-white">Business</span>
                   <button
                     className="w-6 h-6 rounded-md flex items-center justify-center"
                     style={{ background: "#3b82f6" }}
@@ -377,7 +377,7 @@ export function ProfileWorkspace() {
                   className="rounded-xl p-8 text-center"
                   style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
                 >
-                  <p className="text-sm font-medium text-white mb-1">No published businesses yet</p>
+                  <p className="text-sm font-medium text-white mb-1">No published business yet</p>
                   <p className="text-xs mb-4" style={{ color: "rgba(255,255,255,0.4)" }}>
                     Publish your first business to see it here.
                   </p>
@@ -538,7 +538,7 @@ export function ProfileWorkspace() {
             </div>
           )}
 
-          {activeTab === "Businesses" && (
+          {activeTab === "Business" && (
             <>
               {surfacesLoading ? (
                 <div className="flex items-center justify-center py-10">
@@ -549,7 +549,7 @@ export function ProfileWorkspace() {
                   className="rounded-xl p-8 text-center"
                   style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
                 >
-                  <p className="text-sm font-medium text-white mb-1">No published businesses</p>
+                  <p className="text-sm font-medium text-white mb-1">No published business</p>
                   <p className="text-xs mb-4" style={{ color: "rgba(255,255,255,0.4)" }}>
                     Go to My Business to publish your first surface.
                   </p>
