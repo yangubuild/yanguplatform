@@ -390,7 +390,7 @@ export function ProfileWorkspace() {
                   </button>
                 </div>
               ) : (
-                <div className="flex gap-4 flex-wrap">
+                <div className="grid grid-cols-3 gap-3">
                   {publishedSurfaces.map((surface) => {
                     const initials = (surface.title || "B").slice(0, 1).toUpperCase();
                     const publishDomain = surface.activePublishes[0];
@@ -400,18 +400,18 @@ export function ProfileWorkspace() {
                     return (
                       <div
                         key={surface.id}
-                        className="w-[280px] rounded-xl overflow-hidden"
+                        className="rounded-xl overflow-hidden"
                         style={{ background: "#1a2129", border: "1px solid rgba(255,255,255,0.06)" }}
                       >
                         {surface.cover_image ? (
                           <img
                             src={surface.cover_image}
                             alt={surface.title || "Business"}
-                            className="w-full h-36 object-cover"
+                            className="w-full h-24 object-cover"
                           />
                         ) : (
                           <div
-                            className="h-36 flex items-center justify-center text-4xl font-bold"
+                            className="h-24 flex items-center justify-center text-3xl font-bold"
                             style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)", color: "rgba(255,255,255,0.3)" }}
                           >
                             {initials}
@@ -570,7 +570,7 @@ export function ProfileWorkspace() {
                   </button>
                 </div>
               ) : (
-                <div className="flex gap-4 flex-wrap">
+                <div className="grid grid-cols-3 gap-3">
                   {publishedSurfaces.map((surface) => {
                     const initials = (surface.title || "B").slice(0, 1).toUpperCase();
                     const publishDomain = surface.activePublishes[0];
@@ -580,18 +580,18 @@ export function ProfileWorkspace() {
                     return (
                       <div
                         key={surface.id}
-                        className="w-[280px] rounded-xl overflow-hidden"
+                        className="rounded-xl overflow-hidden"
                         style={{ background: "#1a2129", border: "1px solid rgba(255,255,255,0.06)" }}
                       >
                         {surface.cover_image ? (
                           <img
                             src={surface.cover_image}
                             alt={surface.title || "Business"}
-                            className="w-full h-36 object-cover"
+                            className="w-full h-24 object-cover"
                           />
                         ) : (
                           <div
-                            className="h-36 flex items-center justify-center text-4xl font-bold"
+                            className="h-24 flex items-center justify-center text-3xl font-bold"
                             style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)", color: "rgba(255,255,255,0.3)" }}
                           >
                             {initials}
