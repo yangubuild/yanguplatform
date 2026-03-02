@@ -262,8 +262,8 @@ export function ProfileWorkspace() {
               <button
                 className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-semibold"
                 style={{
-                  background: "rgba(59,130,246,0.12)",
-                  color: "#60a5fa",
+                  background: "rgba(181,98,42,0.12)",
+                  color: "#E67E22",
                 }}
               >
                 Add team <Plus className="w-3.5 h-3.5" />
@@ -327,14 +327,14 @@ export function ProfileWorkspace() {
                 className="relative pb-2.5 text-sm font-medium transition-colors"
                 style={{
                   color:
-                    activeTab === tab ? "#60a5fa" : "rgba(255,255,255,0.45)",
+                    activeTab === tab ? "#E67E22" : "rgba(255,255,255,0.45)",
                 }}
               >
                 {tab}
                 {activeTab === tab && (
                   <span
                     className="absolute bottom-0 left-0 right-0 h-[2px] rounded-full"
-                    style={{ background: "#3b82f6" }}
+                    style={{ background: "#b5622a" }}
                   />
                 )}
               </button>
@@ -352,7 +352,7 @@ export function ProfileWorkspace() {
                   <span className="text-sm font-semibold text-white">Business</span>
                   <button
                     className="w-6 h-6 rounded-md flex items-center justify-center"
-                    style={{ background: "#3b82f6" }}
+                    style={{ background: "#b5622a" }}
                     onClick={() => navigate("/my-business")}
                   >
                     <Plus className="w-3.5 h-3.5 text-white" />
@@ -360,7 +360,7 @@ export function ProfileWorkspace() {
                 </div>
                 <button
                   className="text-sm font-medium"
-                  style={{ color: "#60a5fa" }}
+                  style={{ color: "#E67E22" }}
                   onClick={() => navigate("/my-business")}
                 >
                   See all
@@ -384,7 +384,7 @@ export function ProfileWorkspace() {
                   <button
                     onClick={() => navigate("/my-business")}
                     className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold"
-                    style={{ background: "#3b82f6", color: "#fff" }}
+                    style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)", color: "#fff" }}
                   >
                     Publish your business
                   </button>
@@ -403,12 +403,20 @@ export function ProfileWorkspace() {
                         className="w-[280px] rounded-xl overflow-hidden"
                         style={{ background: "#1a2129", border: "1px solid rgba(255,255,255,0.06)" }}
                       >
-                        <div
-                          className="h-36 flex items-center justify-center text-4xl font-bold"
-                          style={{ background: "#2563eb", color: "rgba(255,255,255,0.3)" }}
-                        >
-                          {initials}
-                        </div>
+                        {surface.cover_image ? (
+                          <img
+                            src={surface.cover_image}
+                            alt={surface.title || "Business"}
+                            className="w-full h-36 object-cover"
+                          />
+                        ) : (
+                          <div
+                            className="h-36 flex items-center justify-center text-4xl font-bold"
+                            style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)", color: "rgba(255,255,255,0.3)" }}
+                          >
+                            {initials}
+                          </div>
+                        )}
                         <div className="p-3">
                           <p className="text-sm font-medium text-white">{surface.title || "Untitled"}</p>
                           <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.45)" }}>
@@ -445,9 +453,9 @@ export function ProfileWorkspace() {
               <div className="flex items-center gap-3 mb-4">
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center"
-                  style={{ background: "rgba(59,130,246,0.15)" }}
+                  style={{ background: "rgba(181,98,42,0.15)" }}
                 >
-                  <Shield className="w-5 h-5" style={{ color: "#60a5fa" }} />
+                  <Shield className="w-5 h-5" style={{ color: "#E67E22" }} />
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold text-white">Identity Verification</h3>
@@ -517,7 +525,7 @@ export function ProfileWorkspace() {
                     onClick={() => navigate("/kyc")}
                     className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors"
                     style={{
-                      background: kycStatus === "approved" ? "rgba(34,197,94,0.12)" : "#3b82f6",
+                      background: kycStatus === "approved" ? "rgba(34,197,94,0.12)" : "linear-gradient(135deg, #b5622a, #5c2a12)",
                       color: kycStatus === "approved" ? "#22c55e" : "#fff",
                     }}
                     disabled={kycStatus === "approved"}
@@ -556,7 +564,7 @@ export function ProfileWorkspace() {
                   <button
                     onClick={() => navigate("/my-business")}
                     className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold"
-                    style={{ background: "#3b82f6", color: "#fff" }}
+                    style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)", color: "#fff" }}
                   >
                     Go to My Business
                   </button>
@@ -575,12 +583,20 @@ export function ProfileWorkspace() {
                         className="w-[280px] rounded-xl overflow-hidden"
                         style={{ background: "#1a2129", border: "1px solid rgba(255,255,255,0.06)" }}
                       >
-                        <div
-                          className="h-36 flex items-center justify-center text-4xl font-bold"
-                          style={{ background: "#2563eb", color: "rgba(255,255,255,0.3)" }}
-                        >
-                          {initials}
-                        </div>
+                        {surface.cover_image ? (
+                          <img
+                            src={surface.cover_image}
+                            alt={surface.title || "Business"}
+                            className="w-full h-36 object-cover"
+                          />
+                        ) : (
+                          <div
+                            className="h-36 flex items-center justify-center text-4xl font-bold"
+                            style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)", color: "rgba(255,255,255,0.3)" }}
+                          >
+                            {initials}
+                          </div>
+                        )}
                         <div className="p-3">
                           <p className="text-sm font-medium text-white">{surface.title || "Untitled"}</p>
                           <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.45)" }}>
