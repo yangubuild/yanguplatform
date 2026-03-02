@@ -3410,6 +3410,8 @@ export type Database = {
         Args: { p_amount?: number; p_asset_type: string }
         Returns: undefined
       }
+      consume_free_image: { Args: never; Returns: Json }
+      consume_free_video: { Args: never; Returns: Json }
       count_org_active_publishes: {
         Args: { p_org_id: string }
         Returns: number
