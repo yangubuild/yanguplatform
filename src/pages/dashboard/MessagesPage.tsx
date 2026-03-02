@@ -48,29 +48,67 @@ export default function MessagesPage() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-64px)] overflow-hidden">
-      {/* LEFT — DM List */}
+    <div
+      className="h-[calc(100vh-64px)] overflow-hidden"
+      style={{
+        display: "grid",
+        gridTemplateColumns: "300px 1fr 340px",
+        gap: "0px",
+        background: "#0B0F14",
+      }}
+    >
+      {/* LEFT — DM List — floating card surface */}
       <div
-        className="w-[300px] min-w-[300px] flex flex-col border-r"
-        style={{ borderColor: "rgba(255,255,255,0.07)" }}
+        className="h-full overflow-hidden p-2 pr-0"
+        style={{ background: "#0B0F14" }}
       >
-        <MessagesDmList selectedId={selectedDm} onSelect={setSelectedDm} />
+        <div
+          className="h-full overflow-hidden flex flex-col"
+          style={{
+            background: "#0F141A",
+            borderRadius: "14px",
+            border: "1px solid rgba(255,255,255,0.06)",
+          }}
+        >
+          <MessagesDmList selectedId={selectedDm} onSelect={setSelectedDm} />
+        </div>
       </div>
 
-      {/* CENTER — Tabs + content */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <MessagesCenterPanel activeTab={activeTab} onTabChange={handleTabChange} />
+      {/* CENTER — Tabs + content — distinct canvas */}
+      <div
+        className="h-full overflow-hidden p-2"
+        style={{ background: "#0B0F14" }}
+      >
+        <div
+          className="h-full overflow-hidden flex flex-col"
+          style={{
+            background: "#0F141A",
+            borderRadius: "14px",
+            border: "1px solid rgba(255,255,255,0.06)",
+          }}
+        >
+          <MessagesCenterPanel activeTab={activeTab} onTabChange={handleTabChange} />
+        </div>
       </div>
 
-      {/* RIGHT — Discovery sidebar */}
+      {/* RIGHT — Discovery sidebar — independent surface */}
       <div
-        className="w-[340px] min-w-[340px] flex flex-col border-l overflow-y-auto"
-        style={{ borderColor: "rgba(255,255,255,0.07)" }}
+        className="h-full overflow-hidden p-2 pl-0"
+        style={{ background: "#0B0F14" }}
       >
-        <MessagesDiscoverySidebar
-          users={POPULAR_USERS}
-          onUserClick={setSelectedUser}
-        />
+        <div
+          className="h-full overflow-hidden flex flex-col overflow-y-auto"
+          style={{
+            background: "#0F141A",
+            borderRadius: "14px",
+            border: "1px solid rgba(255,255,255,0.06)",
+          }}
+        >
+          <MessagesDiscoverySidebar
+            users={POPULAR_USERS}
+            onUserClick={setSelectedUser}
+          />
+        </div>
       </div>
 
       {/* Influencer popup overlay */}
