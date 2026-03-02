@@ -30,7 +30,7 @@ export function InnerPageSidebar({ className = "" }: InnerPageSidebarProps) {
   return (
     <div
       className={`flex flex-col h-full ${className}`}
-      style={{ background: "#141a1f" }}
+      style={{ background: "transparent" }}
     >
       {/* Preview role */}
       <div className="px-3 pt-3 pb-2 flex items-center gap-2">

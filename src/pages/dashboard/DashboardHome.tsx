@@ -25,34 +25,48 @@ export default function DashboardHome() {
         display: "grid",
         gridTemplateColumns: "200px 1fr 340px",
         gap: "0px",
+        background: "#0B0F14",
       }}
     >
-      {/* Inner page sidebar */}
+      {/* Inner page sidebar — floating card surface */}
       <div
-        className="h-full overflow-hidden"
+        className="h-full overflow-hidden flex flex-col"
         style={{
-          background: "#141a1f",
+          background: "#0B0F14",
           borderRight: "1px solid rgba(255,255,255,0.06)",
         }}
       >
-        <InnerPageSidebar />
+        <div
+          className="flex-1 overflow-hidden m-2 mr-0"
+          style={{
+            background: "#0F141A",
+            borderRadius: "14px",
+            border: "1px solid rgba(255,255,255,0.06)",
+          }}
+        >
+          <InnerPageSidebar />
+        </div>
       </div>
 
-      {/* Center — Profile workspace — only this scrolls */}
+      {/* Center — Profile workspace — distinct canvas */}
       <div
         className="h-full overflow-hidden"
         style={{
-          background: "#0f141a",
+          background: "#0F141A",
+          borderLeft: "1px solid rgba(255,255,255,0.06)",
           borderRight: "1px solid rgba(255,255,255,0.06)",
         }}
       >
         <ProfileWorkspace />
       </div>
 
-      {/* Right — Client chat panel */}
+      {/* Right — Client chat panel — independent surface */}
       <div
         className="h-full overflow-hidden"
-        style={{ background: "#111820" }}
+        style={{
+          background: "#0B0F14",
+          borderLeft: "1px solid rgba(255,255,255,0.06)",
+        }}
       >
         <ClientChatPanel />
       </div>
