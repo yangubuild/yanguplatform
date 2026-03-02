@@ -27,7 +27,7 @@ export function useStudioJob<T extends StudioResult = StudioResult>() {
         throw new Error(gate.reason === "quota_reached" ? "QUOTA_REACHED" : "UPGRADE_REQUIRED");
       }
 
-      // 2. Execute
+      // 2. Execute (free usage enforcement happens inside executeStudioJob)
       const result = await executeStudioJob(request);
       if (!result.ok) {
         throw new Error((result as any).error || "Generation failed");
@@ -38,14 +38,26 @@ export function useStudioJob<T extends StudioResult = StudioResult>() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-credits"] });
       queryClient.invalidateQueries({ queryKey: ["studio-assets"] });
+      queryClient.invalidateQueries({ queryKey: ["free-usage-state"] });
     },
     onError: (err: Error) => {
       if (err.message === "UPGRADE_REQUIRED") {
-        // Don't toast — let the component show the upgrade modal
         return;
       }
       if (err.message === "QUOTA_REACHED") {
         toast.error("You've reached your usage limit. Please try again later or upgrade.");
+        return;
+      }
+      if (err.message === "FREE_NOT_CLAIMED") {
+        toast.error("Claim your free credits to start generating.");
+        return;
+      }
+      if (err.message === "FREE_IMAGE_LIMIT_REACHED") {
+        toast.error("Free image limit reached (5/5). Upgrade or buy credits to continue.");
+        return;
+      }
+      if (err.message === "FREE_VIDEO_LIMIT_REACHED") {
+        toast.error("Free video limit reached (2/2). Upgrade or buy credits to continue.");
         return;
       }
       toast.error(err.message || "Generation failed. Please try again.");

@@ -16,6 +16,7 @@ import { generateCreatifyVideo, type CreatifyParams, type CreatifyResult } from 
 import { generateIdeogramImage, type IdeogramParams, type IdeogramResult } from "@/lib/ai/ideogram";
 import { generateQwenImage, type QwenParams, type QwenResult } from "@/lib/ai/qwen";
 import { generateGeminiImage, type GeminiResult } from "@/lib/ai/gemini";
+import { getFreeUsageState, canUseFreeImage, canUseFreeVideo, consumeFreeImage, consumeFreeVideo } from "@/lib/credits/freeUsage";
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -214,11 +215,23 @@ export async function executeStudioJob(request: StudioRequest): Promise<StudioRe
 
 async function handleVideoGenerate(req: VideoGenerateRequest): Promise<VideoGenerateResult> {
   try {
+    // Free usage enforcement
+    const usage = await getFreeUsageState();
+    if (!usage.claimed) {
+      return { ok: false, error: "FREE_NOT_CLAIMED" };
+    }
+    if (!canUseFreeVideo(usage)) {
+      return { ok: false, error: "FREE_VIDEO_LIMIT_REACHED" };
+    }
+
     const result: CreatifyResult = await generateCreatifyVideo(req.prompt, req.params || {});
 
     if (!result.ok) {
       return { ok: false, error: result.error || "Video generation failed" };
     }
+
+    // Consume free video slot only on success
+    await consumeFreeVideo();
 
     const firstVideo = result.videos?.[0];
     return {
@@ -249,29 +262,42 @@ async function handleImageGenerate(req: ImageGenerateRequest): Promise<ImageGene
   const provider = req.provider || "gemini";
   const prompt = req.prompt + buildBrandContext(req.brandBlueprint);
 
+  // Free usage enforcement
+  const usage = await getFreeUsageState();
+  if (!usage.claimed) {
+    return { ok: false, error: "FREE_NOT_CLAIMED" };
+  }
+  if (!canUseFreeImage(usage)) {
+    return { ok: false, error: "FREE_IMAGE_LIMIT_REACHED" };
+  }
+
   try {
+    let result: { ok: boolean; error?: string; generation_id?: string; images?: Array<{ url?: string; storage_path?: string }> };
+
     switch (provider) {
       case "gemini": {
-        const result: GeminiResult = await generateGeminiImage(prompt, req.chatId || "");
-        if (!result.ok) return { ok: false, error: result.error };
-        const img = result.images?.[0];
-        return { ok: true, generationId: result.generation_id, imageUrl: img?.url, storagePath: img?.storage_path };
+        result = await generateGeminiImage(prompt, req.chatId || "");
+        break;
       }
       case "ideogram": {
-        const result: IdeogramResult = await generateIdeogramImage(prompt, (req.params as IdeogramParams) || {});
-        if (!result.ok) return { ok: false, error: result.error };
-        const img = result.images?.[0];
-        return { ok: true, generationId: result.generation_id, imageUrl: img?.url, storagePath: img?.storage_path };
+        result = await generateIdeogramImage(prompt, (req.params as IdeogramParams) || {});
+        break;
       }
       case "qwen": {
-        const result: QwenResult = await generateQwenImage(prompt, (req.params as QwenParams) || {});
-        if (!result.ok) return { ok: false, error: result.error };
-        const img = result.images?.[0];
-        return { ok: true, generationId: result.generation_id, imageUrl: img?.url, storagePath: img?.storage_path };
+        result = await generateQwenImage(prompt, (req.params as QwenParams) || {});
+        break;
       }
       default:
         return { ok: false, error: `Unknown image provider: ${provider}` };
     }
+
+    if (!result.ok) return { ok: false, error: result.error };
+
+    // Consume free image slot only on success
+    await consumeFreeImage();
+
+    const img = result.images?.[0];
+    return { ok: true, generationId: result.generation_id, imageUrl: img?.url, storagePath: img?.storage_path };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : "Image generation error" };
   }
