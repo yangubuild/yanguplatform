@@ -22,6 +22,7 @@ export interface SurfaceWithPublishes {
   draft_slug: string | null;
   draft_domain_id: string | null;
   activePublishes: ActivePublish[];
+  cover_image: string | null;
 }
 
 interface UseSurfacesOptions {
@@ -98,7 +99,29 @@ export function useSurfaces(options: UseSurfacesOptions = {}) {
 
       if (publishesError) {
         console.error("Error fetching publishes:", publishesError);
-        // Continue without publish info rather than failing
+      }
+
+      // Fetch cover images from builder_surfaces
+      const { data: builderSurfaces } = await supabase
+        .from("builder_surfaces")
+        .select("slug, metadata")
+        .in("slug", surfaces.map(s => (s as any).draft_slug).filter(Boolean));
+
+      const coverBySurfaceSlug: Record<string, string | null> = {};
+      if (builderSurfaces) {
+        for (const bs of builderSurfaces) {
+          const meta = bs.metadata as any;
+          let cover: string | null = null;
+          // Try photos array first
+          if (meta?.photos && Array.isArray(meta.photos) && meta.photos.length > 0) {
+            cover = meta.photos[0];
+          }
+          // Try ai_profile avatar or generated hero
+          if (!cover && meta?.ai_profile?.avatar_url) {
+            cover = meta.ai_profile.avatar_url;
+          }
+          if (bs.slug) coverBySurfaceSlug[bs.slug] = cover;
+        }
       }
 
       // Map publishes to surfaces
@@ -131,6 +154,7 @@ export function useSurfaces(options: UseSurfacesOptions = {}) {
         draft_slug: (surface as any).draft_slug || null,
         draft_domain_id: (surface as any).draft_domain_id || null,
         activePublishes: publishesBySurface[surface.id] || [],
+        cover_image: coverBySurfaceSlug[(surface as any).draft_slug] || null,
       }));
     },
     enabled: isAuthenticated && !!user,
