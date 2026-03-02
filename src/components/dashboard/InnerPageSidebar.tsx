@@ -33,7 +33,10 @@ export function InnerPageSidebar({ className = "" }: InnerPageSidebarProps) {
       style={{ background: "transparent" }}
     >
       {/* Preview role */}
-      <div className="px-3 pt-3 pb-2 flex items-center gap-2">
+      <div
+        className="px-3 pt-3 pb-2 flex items-center gap-2 rounded-t-lg"
+        style={{ background: "linear-gradient(135deg, rgba(74,222,128,0.15) 0%, rgba(74,222,128,0.06) 100%)" }}
+      >
         <span className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
           Preview as
         </span>
