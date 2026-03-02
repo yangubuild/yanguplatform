@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -15,10 +15,17 @@ import {
   Camera,
   ImagePlus,
   Loader2,
+  Shield,
+  CheckCircle2,
+  Clock,
+  XCircle,
+  ExternalLink,
 } from "lucide-react";
 import adaIcon from "@/assets/ada-icon.png";
+import { useSurfaces } from "@/hooks/useSurfaces";
+import { useNavigate } from "react-router-dom";
 
-const TABS = ["Home", "Chats", "Apps", "Products", "About"] as const;
+const TABS = ["Home", "KYC", "Apps", "Businesses", "About"] as const;
 
 export function ProfileWorkspace() {
   const { user, profile } = useAuth();
@@ -27,8 +34,35 @@ export function ProfileWorkspace() {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [kycStatus, setKycStatus] = useState<string | null>(null);
+  const [kycLoading, setKycLoading] = useState(true);
   const coverInputRef = useRef<HTMLInputElement>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
+
+  // Fetch published surfaces
+  const { data: allSurfaces, isLoading: surfacesLoading } = useSurfaces();
+  const publishedSurfaces = (allSurfaces || []).filter(s => s.activePublishes.length > 0);
+
+  // Fetch KYC status
+  useEffect(() => {
+    async function fetchKyc() {
+      if (!user) { setKycLoading(false); return; }
+      try {
+        const { data } = await supabase
+          .from("kyc_verifications")
+          .select("status")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        setKycStatus(data?.status ?? null);
+      } catch (err) {
+        console.error("KYC fetch error:", err);
+      } finally {
+        setKycLoading(false);
+      }
+    }
+    fetchKyc();
+  }, [user]);
 
   // Use local state if just uploaded, otherwise fall back to profile
   const displayCover = coverUrl || (profile as any)?.cover_url || null;
@@ -308,66 +342,275 @@ export function ProfileWorkspace() {
           </div>
         </div>
 
-        {/* Content — Products */}
+        {/* Tab Content */}
         <div className="px-5 py-4">
-          {/* Products header */}
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-white">Products</span>
-              <button
-                className="w-6 h-6 rounded-md flex items-center justify-center"
-                style={{ background: "#3b82f6" }}
-              >
-                <Plus className="w-3.5 h-3.5 text-white" />
-              </button>
-            </div>
-            <button
-              className="text-sm font-medium"
-              style={{ color: "#60a5fa" }}
-            >
-              See all
-            </button>
-          </div>
+          {activeTab === "Home" && (
+            <>
+              {/* Businesses header */}
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-white">Businesses</span>
+                  <button
+                    className="w-6 h-6 rounded-md flex items-center justify-center"
+                    style={{ background: "#3b82f6" }}
+                    onClick={() => navigate("/my-business")}
+                  >
+                    <Plus className="w-3.5 h-3.5 text-white" />
+                  </button>
+                </div>
+                <button
+                  className="text-sm font-medium"
+                  style={{ color: "#60a5fa" }}
+                  onClick={() => navigate("/my-business")}
+                >
+                  See all
+                </button>
+              </div>
 
-          {/* Product card — wider to match screenshot */}
-          <div
-            className="w-[280px] rounded-xl overflow-hidden"
-            style={{
-              background: "#1a2129",
-              border: "1px solid rgba(255,255,255,0.06)",
-            }}
-          >
-            <div
-              className="h-36 flex items-center justify-center text-4xl font-bold"
-              style={{
-                background: "#2563eb",
-                color: "rgba(255,255,255,0.3)",
-              }}
-            >
-              B
+              {/* Published surfaces list */}
+              {surfacesLoading ? (
+                <div className="flex items-center justify-center py-10">
+                  <Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
+                </div>
+              ) : publishedSurfaces.length === 0 ? (
+                <div
+                  className="rounded-xl p-8 text-center"
+                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
+                >
+                  <p className="text-sm font-medium text-white mb-1">No published businesses yet</p>
+                  <p className="text-xs mb-4" style={{ color: "rgba(255,255,255,0.4)" }}>
+                    Publish your first business to see it here.
+                  </p>
+                  <button
+                    onClick={() => navigate("/my-business")}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold"
+                    style={{ background: "#3b82f6", color: "#fff" }}
+                  >
+                    Publish your business
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-4 flex-wrap">
+                  {publishedSurfaces.map((surface) => {
+                    const initials = (surface.title || "B").slice(0, 1).toUpperCase();
+                    const publishDomain = surface.activePublishes[0];
+                    const liveUrl = publishDomain
+                      ? `https://${publishDomain.domain_host}${publishDomain.slug ? `/${publishDomain.slug}` : ""}`
+                      : null;
+                    return (
+                      <div
+                        key={surface.id}
+                        className="w-[280px] rounded-xl overflow-hidden"
+                        style={{ background: "#1a2129", border: "1px solid rgba(255,255,255,0.06)" }}
+                      >
+                        <div
+                          className="h-36 flex items-center justify-center text-4xl font-bold"
+                          style={{ background: "#2563eb", color: "rgba(255,255,255,0.3)" }}
+                        >
+                          {initials}
+                        </div>
+                        <div className="p-3">
+                          <p className="text-sm font-medium text-white">{surface.title || "Untitled"}</p>
+                          <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.45)" }}>
+                            {surface.surface_type}
+                          </p>
+                        </div>
+                        <div
+                          className="flex items-center justify-between px-3 py-2"
+                          style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
+                        >
+                          {liveUrl ? (
+                            <a href={liveUrl} target="_blank" rel="noopener noreferrer">
+                              <ExternalLink className="w-4 h-4" style={{ color: "#22c55e" }} />
+                            </a>
+                          ) : (
+                            <Eye className="w-4 h-4" style={{ color: "#22c55e" }} />
+                          )}
+                          <Pencil
+                            className="w-4 h-4 cursor-pointer"
+                            style={{ color: "rgba(255,255,255,0.35)" }}
+                            onClick={() => navigate("/my-business")}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </>
+          )}
+
+          {activeTab === "KYC" && (
+            <div className="max-w-md">
+              <div className="flex items-center gap-3 mb-4">
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center"
+                  style={{ background: "rgba(59,130,246,0.15)" }}
+                >
+                  <Shield className="w-5 h-5" style={{ color: "#60a5fa" }} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-white">Identity Verification</h3>
+                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+                    Complete KYC to unlock full publishing
+                  </p>
+                </div>
+              </div>
+
+              {kycLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
+                </div>
+              ) : (
+                <>
+                  {/* Status badge */}
+                  <div
+                    className="rounded-lg p-4 mb-4"
+                    style={{
+                      background: kycStatus === "approved"
+                        ? "rgba(34,197,94,0.08)"
+                        : kycStatus === "rejected"
+                        ? "rgba(239,68,68,0.08)"
+                        : "rgba(255,255,255,0.03)",
+                      border: `1px solid ${
+                        kycStatus === "approved"
+                          ? "rgba(34,197,94,0.2)"
+                          : kycStatus === "rejected"
+                          ? "rgba(239,68,68,0.2)"
+                          : "rgba(255,255,255,0.08)"
+                      }`,
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      {kycStatus === "approved" ? (
+                        <CheckCircle2 className="w-4 h-4" style={{ color: "#22c55e" }} />
+                      ) : kycStatus === "rejected" ? (
+                        <XCircle className="w-4 h-4" style={{ color: "#ef4444" }} />
+                      ) : kycStatus === "pending" || kycStatus === "submitted" ? (
+                        <Clock className="w-4 h-4" style={{ color: "#f59e0b" }} />
+                      ) : (
+                        <Shield className="w-4 h-4" style={{ color: "rgba(255,255,255,0.4)" }} />
+                      )}
+                      <span className="text-sm font-medium text-white">
+                        Status: {kycStatus
+                          ? kycStatus.charAt(0).toUpperCase() + kycStatus.slice(1)
+                          : "Not started"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Requirements */}
+                  <div
+                    className="rounded-lg p-4 mb-4"
+                    style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
+                  >
+                    <p className="text-xs font-medium text-white mb-2">What you'll need:</p>
+                    <ul className="text-xs space-y-1" style={{ color: "rgba(255,255,255,0.45)" }}>
+                      <li>• Government-issued ID</li>
+                      <li>• Proof of address</li>
+                      <li>• A few minutes to complete</li>
+                    </ul>
+                  </div>
+
+                  {/* CTA */}
+                  <button
+                    onClick={() => navigate("/kyc")}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors"
+                    style={{
+                      background: kycStatus === "approved" ? "rgba(34,197,94,0.12)" : "#3b82f6",
+                      color: kycStatus === "approved" ? "#22c55e" : "#fff",
+                    }}
+                    disabled={kycStatus === "approved"}
+                  >
+                    {kycStatus === "approved" ? (
+                      <>
+                        <CheckCircle2 className="w-4 h-4" />
+                        Verified
+                      </>
+                    ) : kycStatus === "pending" || kycStatus === "submitted" ? (
+                      "Continue Verification"
+                    ) : (
+                      "Start KYC"
+                    )}
+                  </button>
+                </>
+              )}
             </div>
-            <div className="p-3">
-              <p className="text-sm font-medium text-white">
-                Budget-Friendly Meal Prep Kits
-              </p>
-              <p
-                className="text-xs mt-1"
-                style={{ color: "rgba(255,255,255,0.45)" }}
-              >
-                $29.99 / month
-              </p>
-            </div>
-            <div
-              className="flex items-center justify-between px-3 py-2"
-              style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
-            >
-              <Eye className="w-4 h-4" style={{ color: "#22c55e" }} />
-              <Pencil
-                className="w-4 h-4"
-                style={{ color: "rgba(255,255,255,0.35)" }}
-              />
-            </div>
-          </div>
+          )}
+
+          {activeTab === "Businesses" && (
+            <>
+              {surfacesLoading ? (
+                <div className="flex items-center justify-center py-10">
+                  <Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
+                </div>
+              ) : publishedSurfaces.length === 0 ? (
+                <div
+                  className="rounded-xl p-8 text-center"
+                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
+                >
+                  <p className="text-sm font-medium text-white mb-1">No published businesses</p>
+                  <p className="text-xs mb-4" style={{ color: "rgba(255,255,255,0.4)" }}>
+                    Go to My Business to publish your first surface.
+                  </p>
+                  <button
+                    onClick={() => navigate("/my-business")}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold"
+                    style={{ background: "#3b82f6", color: "#fff" }}
+                  >
+                    Go to My Business
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-4 flex-wrap">
+                  {publishedSurfaces.map((surface) => {
+                    const initials = (surface.title || "B").slice(0, 1).toUpperCase();
+                    const publishDomain = surface.activePublishes[0];
+                    const liveUrl = publishDomain
+                      ? `https://${publishDomain.domain_host}${publishDomain.slug ? `/${publishDomain.slug}` : ""}`
+                      : null;
+                    return (
+                      <div
+                        key={surface.id}
+                        className="w-[280px] rounded-xl overflow-hidden"
+                        style={{ background: "#1a2129", border: "1px solid rgba(255,255,255,0.06)" }}
+                      >
+                        <div
+                          className="h-36 flex items-center justify-center text-4xl font-bold"
+                          style={{ background: "#2563eb", color: "rgba(255,255,255,0.3)" }}
+                        >
+                          {initials}
+                        </div>
+                        <div className="p-3">
+                          <p className="text-sm font-medium text-white">{surface.title || "Untitled"}</p>
+                          <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.45)" }}>
+                            {surface.surface_type}
+                          </p>
+                        </div>
+                        <div
+                          className="flex items-center justify-between px-3 py-2"
+                          style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
+                        >
+                          {liveUrl ? (
+                            <a href={liveUrl} target="_blank" rel="noopener noreferrer">
+                              <ExternalLink className="w-4 h-4" style={{ color: "#22c55e" }} />
+                            </a>
+                          ) : (
+                            <Eye className="w-4 h-4" style={{ color: "#22c55e" }} />
+                          )}
+                          <Pencil
+                            className="w-4 h-4 cursor-pointer"
+                            style={{ color: "rgba(255,255,255,0.35)" }}
+                            onClick={() => navigate("/my-business")}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </>
+          )}
         </div>
 
         {/* Composer bar — inside scroll flow, NOT sticky */}
