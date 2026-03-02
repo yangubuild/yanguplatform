@@ -3297,18 +3297,42 @@ export type Database = {
       }
       user_entitlements: {
         Row: {
+          ai_avatars_monthly_limit: number
+          ai_avatars_used: number
+          ai_images_monthly_limit: number
+          ai_images_used: number
+          ai_videos_monthly_limit: number
+          ai_videos_used: number
+          billing_period_end: string | null
+          billing_period_start: string | null
           plan_id: string
           published_surfaces_limit: number
           updated_at: string
           user_id: string
         }
         Insert: {
+          ai_avatars_monthly_limit?: number
+          ai_avatars_used?: number
+          ai_images_monthly_limit?: number
+          ai_images_used?: number
+          ai_videos_monthly_limit?: number
+          ai_videos_used?: number
+          billing_period_end?: string | null
+          billing_period_start?: string | null
           plan_id?: string
           published_surfaces_limit?: number
           updated_at?: string
           user_id: string
         }
         Update: {
+          ai_avatars_monthly_limit?: number
+          ai_avatars_used?: number
+          ai_images_monthly_limit?: number
+          ai_images_used?: number
+          ai_videos_monthly_limit?: number
+          ai_videos_used?: number
+          billing_period_end?: string | null
+          billing_period_start?: string | null
           plan_id?: string
           published_surfaces_limit?: number
           updated_at?: string
@@ -3604,6 +3628,9 @@ export type Database = {
             }
             Returns: string
           }
+      consume_ai_avatar_credit: { Args: never; Returns: Json }
+      consume_ai_image_credit: { Args: never; Returns: Json }
+      consume_ai_video_credit: { Args: never; Returns: Json }
       consume_entitlement: {
         Args: { p_amount?: number; p_asset_type: string }
         Returns: undefined
