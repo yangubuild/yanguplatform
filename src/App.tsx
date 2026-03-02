@@ -310,7 +310,8 @@ const App = () => (
                   {/* Dashboard module pages (flat, no nesting) */}
                   <Route path="my-apps" element={<DashboardPlaceholder />} />
                   <Route path="my-business" element={<MyBusinessPage />} />
-                  <Route path="payments" element={<PaymentsSettingsPage />} />
+                  <Route path="payment-settings" element={<PaymentsSettingsPage />} />
+                  <Route path="payments" element={<Navigate to="/dashboard/payment-settings" replace />} />
                   <Route path="invoices" element={<DashboardPlaceholder />} />
                   <Route path="ads" element={<DashboardPlaceholder />} />
                   <Route path="promo-codes" element={<DashboardPlaceholder />} />
