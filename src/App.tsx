@@ -161,11 +161,12 @@ class AppErrorBoundary extends Component<{ children: ReactNode }, { hasError: bo
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-background text-foreground px-6 text-center">
+        <div className="min-h-screen flex items-center justify-center text-white px-6 text-center" style={{ backgroundColor: '#08120D' }}>
           <div className="space-y-3">
             <p className="text-sm font-semibold">Something went wrong while loading the preview.</p>
             <button
-              className="px-4 py-2 rounded-md border border-border bg-card text-foreground text-sm"
+              className="px-4 py-2 rounded-md border border-white/10 text-white text-sm"
+              style={{ backgroundColor: '#0F141A' }}
               onClick={() => window.location.reload()}
             >
               Reload preview
@@ -180,7 +181,15 @@ class AppErrorBoundary extends Component<{ children: ReactNode }, { hasError: bo
 }
 
 function AppBootFallback() {
-  return <div className="min-h-screen bg-background" />;
+  return <div className="min-h-screen" style={{ backgroundColor: '#08120D' }} />;
+}
+
+// Catch unhandled promise rejections globally to prevent silent white screens
+if (typeof window !== "undefined") {
+  window.addEventListener("unhandledrejection", (event) => {
+    console.error("[UNHANDLED_REJECTION]", event.reason);
+    event.preventDefault();
+  });
 }
 
 const App = () => (
