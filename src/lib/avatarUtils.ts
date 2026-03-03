@@ -20,6 +20,7 @@ export const YANGU_EMOJIS = [
   { key: "tiger", label: "Tiger" },
   { key: "unicorn", label: "Unicorn" },
   { key: "wolf", label: "Wolf" },
+  { key: "chicken", label: "Chicken" },
 ] as const;
 
 export type EmojiKey = (typeof YANGU_EMOJIS)[number]["key"];
