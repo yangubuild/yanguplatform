@@ -60,6 +60,7 @@ export default function ProfilePage() {
   const [avatarModalOpen, setAvatarModalOpen] = useState(false);
 
   const avatarSrc = profile ? resolveAvatarUrl(profile) : null;
+  const coverUrl = (profile as any)?.cover_url || null;
   const displayName = profile?.display_name || "User";
   const username = profile?.username || "user";
   const joinDate = profile?.created_at
@@ -76,7 +77,15 @@ export default function ProfilePage() {
   return (
     <div className="max-w-2xl mx-auto py-6 px-4">
       {/* Banner */}
-      <div className="relative rounded-2xl overflow-hidden" style={{ background: "#2a3038", height: 160 }}>
+      <div
+        className="relative rounded-2xl overflow-hidden"
+        style={{
+          height: 160,
+          background: coverUrl
+            ? `url(${coverUrl}) center/cover no-repeat`
+            : "#2a3038",
+        }}
+      >
         {/* Three-dot menu */}
         <div className="absolute top-3 right-3 z-10">
           <DropdownMenu>
@@ -176,7 +185,7 @@ export default function ProfilePage() {
             >
               {tab}
               {activeTab === tab && (
-                <div className="absolute bottom-0 left-1/4 right-1/4 h-0.5 rounded-full" style={{ background: "#3b82f6" }} />
+                <div className="absolute bottom-0 left-1/4 right-1/4 h-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.3)" }} />
               )}
             </button>
           ))}
