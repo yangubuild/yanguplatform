@@ -1,10 +1,14 @@
 import { Search } from "lucide-react";
+import chatIcon2 from "@/assets/chat_icon_2.png";
 
 export function CommunityHero() {
   return (
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-10 pt-2 pb-6">
       {/* Title & Subtitle */}
       <div className="text-center mb-6">
+        <div className="flex justify-center mb-4">
+          <img src={chatIcon2} alt="Community" className="w-8 h-8 object-contain" />
+        </div>
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
           Build and run your community
         </h1>

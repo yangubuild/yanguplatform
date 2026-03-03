@@ -1,3 +1,5 @@
+import chatIcon8 from "@/assets/chat_icon_8.png";
+
 export function MessagesChatsTab() {
   return (
     <div className="flex flex-col h-full">
@@ -33,11 +35,11 @@ export function MessagesChatsTab() {
           className="rounded-2xl p-8 text-center max-w-xs"
           style={{ background: "rgba(255,255,255,0.03)" }}
         >
+          <img src={chatIcon8} alt="No messages" className="w-20 h-20 mx-auto mb-3 object-contain" style={{ opacity: 0.9 }} />
           <p className="text-sm font-medium text-white">Select a message</p>
           <p className="text-xs mt-1.5" style={{ color: "rgba(255,255,255,0.4)" }}>
             Choose from your existing conversations, start a new one, or just keep swimming.
           </p>
-          <div className="mt-4 text-3xl">👀</div>
         </div>
       </div>
     </div>

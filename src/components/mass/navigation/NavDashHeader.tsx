@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Menu, Search, Gift, Bell, ChevronDown, User, MessageCircle, TrendingUp, Globe } from "lucide-react";
+import { Menu, Search, Gift, Bell, ChevronDown, User, TrendingUp, Globe } from "lucide-react";
+import chatIcon1 from "@/assets/chat_icon_1.png";
 import { useRoles } from "@/hooks/useRoles";
 import { useAuth } from "@/hooks/useAuth";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -409,7 +410,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
             }}
             title="Global Chat"
           >
-            <MessageCircle className="w-4 h-4" />
+            <img src={chatIcon1} alt="Chat" className="w-6 h-6 object-contain transition-transform hover:scale-105" style={{ filter: globalChatOpen ? 'drop-shadow(0 0 6px rgba(249,115,22,0.4))' : 'none' }} />
           </button>
 
           {/* Notifications */}
