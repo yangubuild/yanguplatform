@@ -358,22 +358,22 @@ export function ProfileWorkspace() {
             <div
               className="w-full h-full rounded-[20px] flex items-center justify-center text-2xl font-bold text-white cursor-pointer overflow-hidden"
               onClick={() => setAvatarPickerOpen(true)}
-              style={{
-                background: "#1e293b",
-                border: "4px solid #0f141a",
-              }}
+              style={displayAvatar
+                ? { background: "transparent" }
+                : { background: "#1e293b", border: "4px solid #0f141a" }
+              }
             >
               {displayAvatar ? (
                 <img
                   src={displayAvatar}
                   alt="Avatar"
-                  className="w-full h-full rounded-[18px] object-cover"
+                  className="w-[88px] h-[88px] rounded-[20px] object-cover"
                 />
               ) : (
                 initials
               )}
               {/* Hover overlay */}
-              <div className="absolute inset-1 rounded-[16px] bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <div className="absolute inset-0 rounded-[20px] bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 {uploadingAvatar ? (
                   <Loader2 className="w-5 h-5 text-white animate-spin" />
                 ) : (
@@ -516,10 +516,10 @@ export function ProfileWorkspace() {
               Created by
               <span
                 className="w-4 h-4 rounded-full inline-flex items-center justify-center overflow-hidden shrink-0"
-                style={{ background: "#f97316" }}
+                style={displayAvatar ? { background: "transparent" } : { background: "#f97316" }}
               >
                 {displayAvatar ? (
-                  <img src={displayAvatar} alt="" className="w-full h-full object-cover" />
+                  <img src={displayAvatar} alt="" className="w-4 h-4 rounded-full object-cover" />
                 ) : (
                   <span className="text-[8px] font-bold">{initials.charAt(0)}</span>
                 )}
@@ -856,10 +856,10 @@ export function ProfileWorkspace() {
           >
             <span
               className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center overflow-hidden"
-              style={{ background: "#f97316" }}
+              style={displayAvatar ? { background: "transparent" } : { background: "#f97316" }}
             >
               {displayAvatar ? (
-                <img src={displayAvatar} alt="" className="w-full h-full object-cover" />
+                <img src={displayAvatar} alt="" className="w-8 h-8 rounded-full object-cover" />
               ) : (
                 <span className="text-xs font-bold text-white">{initials.charAt(0)}</span>
               )}
