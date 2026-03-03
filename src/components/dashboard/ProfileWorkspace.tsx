@@ -27,6 +27,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import adaIcon from "@/assets/ada-icon.png";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
+import { triggerEmojiPreload } from "@/hooks/useEmojiPreloader";
 import AvatarPickerModal from "@/components/profile/AvatarPickerModal";
 import { useNavigate } from "react-router-dom";
 import { AddTeamModal } from "./AddTeamModal";
@@ -359,6 +360,7 @@ export function ProfileWorkspace() {
             <div
               className="w-full h-full rounded-full flex items-center justify-center text-2xl font-bold text-white cursor-pointer overflow-hidden"
               onClick={() => setAvatarPickerOpen(true)}
+              onMouseEnter={triggerEmojiPreload}
               style={displayAvatar
                 ? { background: "transparent" }
                 : { background: "#1e293b", border: "4px solid #0f141a", borderRadius: "50%" }

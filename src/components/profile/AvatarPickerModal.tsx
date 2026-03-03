@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { Upload, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useEmojiPreloader } from "@/hooks/useEmojiPreloader";
 
 interface AvatarPickerModalProps {
   open: boolean;
@@ -23,6 +24,7 @@ export default function AvatarPickerModal({ open, onOpenChange }: AvatarPickerMo
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { loadedKeys } = useEmojiPreloader();
 
   const currentEmojiKey = profile?.avatar_mode === "emoji" ? (profile as any).avatar_emoji_key : null;
 
@@ -58,7 +60,6 @@ export default function AvatarPickerModal({ open, onOpenChange }: AvatarPickerMo
       return;
     }
 
-    // Recommend ideal size for large images
     const img = new Image();
     img.onload = () => {
       if (img.width > 512 || img.height > 512) {
@@ -132,26 +133,38 @@ export default function AvatarPickerModal({ open, onOpenChange }: AvatarPickerMo
             )}
             {!saving && (
               <div className="grid grid-cols-5 gap-3 max-h-[320px] overflow-y-auto pr-1">
-                {YANGU_EMOJIS.map((emoji) => (
-                  <button
-                    key={emoji.key}
-                    onClick={() => handleSelectEmoji(emoji.key)}
-                    className={cn(
-                      "relative aspect-square rounded-xl overflow-hidden transition-all hover:scale-105 focus:outline-none",
-                      currentEmojiKey === emoji.key
-                        ? "ring-2 ring-primary ring-offset-2 ring-offset-card"
-                        : "hover:ring-1 hover:ring-muted-foreground/30"
-                    )}
-                    title={emoji.label}
-                  >
-                    <img
-                      src={getEmojiAvatarUrl(emoji.key)}
-                      alt={emoji.label}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                  </button>
-                ))}
+                {YANGU_EMOJIS.map((emoji) => {
+                  const isLoaded = loadedKeys.has(emoji.key);
+                  return (
+                    <button
+                      key={emoji.key}
+                      onClick={() => handleSelectEmoji(emoji.key)}
+                      className={cn(
+                        "relative rounded-xl overflow-hidden transition-all hover:scale-105 focus:outline-none",
+                        "w-full aspect-square",
+                        currentEmojiKey === emoji.key
+                          ? "ring-2 ring-primary ring-offset-2 ring-offset-card"
+                          : "hover:ring-1 hover:ring-muted-foreground/30"
+                      )}
+                      title={emoji.label}
+                    >
+                      {/* Skeleton placeholder */}
+                      {!isLoaded && (
+                        <div className="absolute inset-0 animate-pulse rounded-xl bg-muted" />
+                      )}
+                      <img
+                        src={getEmojiAvatarUrl(emoji.key)}
+                        alt={emoji.label}
+                        width={64}
+                        height={64}
+                        className={cn(
+                          "w-full h-full object-cover transition-opacity duration-200",
+                          isLoaded ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                    </button>
+                  );
+                })}
               </div>
             )}
           </TabsContent>
