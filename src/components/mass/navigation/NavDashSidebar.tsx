@@ -315,10 +315,13 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
                      <button className="w-full flex items-center gap-2.5 px-2 py-2 outline-none border-none ring-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 active:outline-none">
                       <div
                         className="w-8 h-8 rounded-full shrink-0 overflow-hidden flex items-center justify-center"
-                        style={{ background: "#2a3038" }}
+                        style={profile && resolveAvatarUrl(profile)
+                          ? { background: "transparent" }
+                          : { background: "#2a3038" }
+                        }
                       >
                         {profile && resolveAvatarUrl(profile) ? (
-                          <img src={resolveAvatarUrl(profile)!} alt="Avatar" className="w-full h-full object-cover" />
+                          <img src={resolveAvatarUrl(profile)!} alt="Avatar" className="w-8 h-8 rounded-full object-cover" />
                         ) : (
                           <Users className="w-4 h-4" style={{ color: "rgba(255,255,255,0.6)" }} />
                         )}

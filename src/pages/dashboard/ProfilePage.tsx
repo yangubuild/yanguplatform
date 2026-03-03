@@ -107,16 +107,19 @@ export default function ProfilePage() {
       <div className="-mt-12 ml-4 mb-2">
         <button
           onClick={() => setAvatarModalOpen(true)}
-          className="w-24 h-24 rounded-full border-4 flex items-center justify-center text-2xl font-bold overflow-hidden group relative"
-          style={{ borderColor: "#1a2025", background: "#2a3038", color: "rgba(255,255,255,0.6)" }}
+          className="w-24 h-24 rounded-full flex items-center justify-center text-2xl font-bold overflow-hidden group relative"
+          style={avatarSrc
+            ? { background: "transparent", color: "rgba(255,255,255,0.6)" }
+            : { borderWidth: 4, borderStyle: "solid", borderColor: "#1a2025", background: "#2a3038", color: "rgba(255,255,255,0.6)" }
+          }
           title="Change avatar"
         >
           {avatarSrc ? (
-            <img src={avatarSrc} alt="Avatar" className="w-full h-full object-cover" />
+            <img src={avatarSrc} alt="Avatar" className="w-24 h-24 rounded-full object-cover" />
           ) : (
             displayName.charAt(0).toUpperCase()
           )}
-          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-full">
             <Pencil className="w-5 h-5 text-white" />
           </div>
         </button>

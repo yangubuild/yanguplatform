@@ -467,13 +467,13 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
             <PopoverTrigger asChild>
               <button
                 className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden"
-                style={{
-                  background: "#2a3038",
-                  border: "2px solid rgba(255,255,255,0.1)",
-                }}
+                style={profile && resolveAvatarUrl(profile)
+                  ? { background: "transparent" }
+                  : { background: "#2a3038", border: "2px solid rgba(255,255,255,0.1)" }
+                }
               >
                 {profile && resolveAvatarUrl(profile) ? (
-                  <img src={resolveAvatarUrl(profile)!} alt="Avatar" className="w-full h-full object-cover" />
+                  <img src={resolveAvatarUrl(profile)!} alt="Avatar" className="w-8 h-8 rounded-full object-cover" />
                 ) : (
                   <User className="w-4 h-4" style={{ color: "rgba(255,255,255,0.6)" }} />
                 )}
