@@ -473,7 +473,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
                 }
               >
                 {profile && resolveAvatarUrl(profile) ? (
-                  <img src={resolveAvatarUrl(profile)!} alt="Avatar" className="w-8 h-8 rounded-full object-cover" />
+                  <img src={resolveAvatarUrl(profile)!} alt="Avatar" className="w-8 h-8 rounded-full object-cover" style={{ clipPath: "circle(50%)" }} />
                 ) : (
                   <User className="w-4 h-4" style={{ color: "rgba(255,255,255,0.6)" }} />
                 )}

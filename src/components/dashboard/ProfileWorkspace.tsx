@@ -356,24 +356,25 @@ export function ProfileWorkspace() {
           {/* Avatar */}
           <div className="relative w-[88px] h-[88px] group">
             <div
-              className="w-full h-full rounded-[20px] flex items-center justify-center text-2xl font-bold text-white cursor-pointer overflow-hidden"
+              className="w-full h-full rounded-full flex items-center justify-center text-2xl font-bold text-white cursor-pointer overflow-hidden"
               onClick={() => setAvatarPickerOpen(true)}
               style={displayAvatar
                 ? { background: "transparent" }
-                : { background: "#1e293b", border: "4px solid #0f141a" }
+                : { background: "#1e293b", border: "4px solid #0f141a", borderRadius: "50%" }
               }
             >
               {displayAvatar ? (
                 <img
                   src={displayAvatar}
                   alt="Avatar"
-                  className="w-[88px] h-[88px] rounded-[20px] object-cover"
+                  className="w-[88px] h-[88px] rounded-full object-cover"
+                  style={{ clipPath: "circle(50%)" }}
                 />
               ) : (
                 initials
               )}
               {/* Hover overlay */}
-              <div className="absolute inset-0 rounded-[20px] bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <div className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 {uploadingAvatar ? (
                   <Loader2 className="w-5 h-5 text-white animate-spin" />
                 ) : (
@@ -519,7 +520,7 @@ export function ProfileWorkspace() {
                 style={displayAvatar ? { background: "transparent" } : { background: "#f97316" }}
               >
                 {displayAvatar ? (
-                  <img src={displayAvatar} alt="" className="w-4 h-4 rounded-full object-cover" />
+                  <img src={displayAvatar} alt="" className="w-4 h-4 rounded-full object-cover" style={{ clipPath: "circle(50%)" }} />
                 ) : (
                   <span className="text-[8px] font-bold">{initials.charAt(0)}</span>
                 )}
@@ -859,7 +860,7 @@ export function ProfileWorkspace() {
               style={displayAvatar ? { background: "transparent" } : { background: "#f97316" }}
             >
               {displayAvatar ? (
-                <img src={displayAvatar} alt="" className="w-8 h-8 rounded-full object-cover" />
+                <img src={displayAvatar} alt="" className="w-8 h-8 rounded-full object-cover" style={{ clipPath: "circle(50%)" }} />
               ) : (
                 <span className="text-xs font-bold text-white">{initials.charAt(0)}</span>
               )}

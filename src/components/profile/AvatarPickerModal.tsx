@@ -58,6 +58,18 @@ export default function AvatarPickerModal({ open, onOpenChange }: AvatarPickerMo
       return;
     }
 
+    // Recommend ideal size for large images
+    const img = new Image();
+    img.onload = () => {
+      if (img.width > 512 || img.height > 512) {
+        toast({
+          title: "Tip: Recommended size",
+          description: "For best results, use a 512×512px image. Yours will be cropped to a circle.",
+        });
+      }
+    };
+    img.src = URL.createObjectURL(file);
+
     if (!["image/png", "image/jpeg", "image/webp", "image/gif"].includes(file.type)) {
       toast({ title: "Invalid file type", description: "PNG, JPEG, WEBP, or GIF only.", variant: "destructive" });
       return;
