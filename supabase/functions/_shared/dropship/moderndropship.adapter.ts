@@ -1,50 +1,55 @@
 import type { DropshipAdapter, DropshipSearchItem, DropshipProductDetail, SearchFilters } from "./types.ts";
 
-async function mdFetch(path: string, method = "GET", body?: unknown): Promise<unknown> {
-  const baseUrl = Deno.env.get("MODERNDROPSHIP_BASE_URL") || "https://app.moderndropship.com/api/v1";
+async function mdFetch(path: string): Promise<unknown> {
+  const baseUrl = Deno.env.get("MODERNDROPSHIP_BASE_URL") || "https://api.moderndropship.com";
   const apiKey = Deno.env.get("MODERNDROPSHIP_API_KEY");
 
   if (!apiKey) throw new Error("MODERNDROPSHIP_API_KEY not configured");
 
-  const headers: Record<string, string> = {
-    "Authorization": `Bearer ${apiKey}`,
-    "Content-Type": "application/json",
-    "Accept": "application/json",
-  };
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15_000);
 
-  const res = await fetch(`${baseUrl}${path}`, {
-    method,
-    headers,
-    ...(body ? { body: JSON.stringify(body) } : {}),
-  });
+  try {
+    const res = await fetch(`${baseUrl}${path}`, {
+      method: "GET",
+      headers: {
+        "Authorization": apiKey,
+        "Accept": "application/json",
+      },
+      signal: controller.signal,
+    });
 
-  if (!res.ok) {
-    const errBody = await res.text();
-    console.error("ModernDropship API error:", res.status, errBody);
-    throw new Error(`ModernDropship upstream error: ${res.status}`);
+    if (!res.ok) {
+      const errBody = await res.text();
+      console.error("ModernDropship API error:", res.status, errBody);
+      throw new Error(`ModernDropship upstream error: ${res.status}`);
+    }
+
+    return await res.json();
+  } finally {
+    clearTimeout(timeout);
   }
-
-  return await res.json();
 }
 
 export const modernDropshipAdapter: DropshipAdapter = {
-  async searchProducts(query: string, filters: SearchFilters): Promise<DropshipSearchItem[]> {
-    const params = new URLSearchParams({ q: query, limit: "20" });
-    if (filters.category) params.set("category", filters.category);
-    if (filters.minPrice != null) params.set("min_price", String(filters.minPrice));
-    if (filters.maxPrice != null) params.set("max_price", String(filters.maxPrice));
+  async searchProducts(query: string, _filters: SearchFilters): Promise<DropshipSearchItem[]> {
+    const params = new URLSearchParams({
+      title: query,
+      limit: "20",
+      page: "0",
+    });
 
     const data = (await mdFetch(`/products?${params.toString()}`)) as any;
-    const products = data?.products || data?.data || [];
+    const products = Array.isArray(data) ? data : (data?.products || data?.data || []);
 
     return products.map((p: any) => ({
       external_product_id: String(p.id || ""),
       title: p.title || p.name || "",
-      thumbnail_url: p.image_url || p.thumbnail || null,
-      currency: p.currency || "USD",
-      min_price: Number(p.min_price || p.price || 0),
-      max_price: Number(p.max_price || p.price || 0),
-      stock_hint: p.in_stock === true ? "in_stock" as const : p.in_stock === false ? "out_of_stock" as const : "unknown" as const,
+      thumbnail_url: p.image?.src || p.images?.[0]?.src || null,
+      currency: "USD",
+      min_price: Number(p.variants?.[0]?.price || 0),
+      max_price: Number(p.variants?.[p.variants?.length - 1]?.price || p.variants?.[0]?.price || 0),
+      stock_hint: "unknown" as const,
       raw: p,
     }));
   },
@@ -60,16 +65,16 @@ export const modernDropshipAdapter: DropshipAdapter = {
       name: v.title || v.name || "Default",
       sku: v.sku || null,
       price: Number(v.price || 0),
-      stock: Number(v.inventory_quantity ?? v.stock ?? 0),
+      stock: Number(v.inventoryQuantity ?? v.inventory_quantity ?? 0),
     }));
 
     return {
       external_product_id: String(p.id),
       title: p.title || p.name || "",
-      description: p.body_html || p.description || null,
+      description: p.bodyHtml || p.body_html || p.description || null,
       images: (p.images || []).map((img: any) => typeof img === "string" ? img : img.src || img.url || ""),
-      currency: p.currency || "USD",
-      base_price: Number(p.price || p.min_price || 0),
+      currency: "USD",
+      base_price: Number(p.variants?.[0]?.price || 0),
       variants,
       raw: p,
     };
