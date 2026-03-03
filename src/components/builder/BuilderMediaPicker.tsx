@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { consumeAiImageCredit } from "@/lib/aiCredits";
 
 export interface MediaValue {
   type: "none" | "image" | "video";
@@ -428,6 +429,13 @@ function AiImageTab({
     setGenerating(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
+      // AI credit check
+      const credit = await consumeAiImageCredit();
+      if (!credit.allowed) {
+        toast.error(credit.reason || "Monthly image limit reached. Upgrade your plan.");
+        return;
+      }
+
       if (!session) {
         toast.error("Please sign in to generate images");
         return;

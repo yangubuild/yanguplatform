@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-
+import { consumeAiImageCredit } from "@/lib/aiCredits";
 export interface OrchestrationParams {
   productUrls: string[];
   studioProjectId?: string;
@@ -27,6 +27,16 @@ export function useImageAdsOrchestrate() {
     setResult(null);
 
     try {
+      // AI credit check before orchestration
+      const credit = await consumeAiImageCredit();
+      if (!credit.allowed) {
+        const errMsg = credit.reason || "Monthly image limit reached. Upgrade your plan.";
+        toast.error(errMsg);
+        const res = { success: false, error: errMsg };
+        setResult(res);
+        return res;
+      }
+
       const { data, error } = await supabase.functions.invoke("image-ads-orchestrate", {
         body: {
           product_urls: params.productUrls,

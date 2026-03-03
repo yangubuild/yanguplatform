@@ -125,6 +125,7 @@ import StudioShowcasePage from "./pages/dashboard/StudioShowcasePage";
 import ProfilePage from "./pages/dashboard/ProfilePage";
 import EditProfilePage from "./pages/dashboard/EditProfilePage";
 import SubscriptionPage from "./pages/dashboard/SubscriptionPage";
+const DashboardBilling = lazy(() => import("./pages/dashboard/DashboardBilling"));
 import AgencyLayout from "./pages/dashboard/AgencyLayout";
 import AgencyHomePage from "./pages/dashboard/AgencyHomePage";
 import AgencyAnalyticsPage from "./pages/dashboard/AgencyAnalyticsPage";
@@ -316,6 +317,7 @@ const App = () => (
                   <Route path="ads" element={<DashboardPlaceholder />} />
                   <Route path="promo-codes" element={<DashboardPlaceholder />} />
                   <Route path="affiliates" element={<DashboardPlaceholder />} />
+                  <Route path="billing" element={<DashboardBilling />} />
 
                   {/* Legacy /dashboard/dashboard/* redirects */}
                   <Route path="dashboard" element={<Navigate to="/dashboard" replace />} />
