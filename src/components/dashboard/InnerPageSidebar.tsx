@@ -9,6 +9,7 @@ import {
   ChevronDown,
   Plus,
 } from "lucide-react";
+import chatIcon9 from "@/assets/chat_icon_9.png";
 
 const NAV_ITEMS = [
   { id: "home", label: "Home", icon: Home },
@@ -74,9 +75,10 @@ export function InnerPageSidebar({ className = "" }: InnerPageSidebarProps) {
               }}
             >
               {item.customIcon ? (
-                <span
-                  className="w-4 h-4 rounded-full shrink-0"
-                  style={{ background: item.color || "#f97316" }}
+                <img
+                  src={chatIcon9}
+                  alt="Chat"
+                  className="w-5 h-5 object-contain shrink-0"
                 />
               ) : (
                 <item.icon
