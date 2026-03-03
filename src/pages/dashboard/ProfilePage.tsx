@@ -53,6 +53,11 @@ import behanceIcon from "@/assets/icons/behance-2.png";
 import dribbbleIcon from "@/assets/icons/dribbble-2.png";
 import messengerIcon from "@/assets/icons/messenger-2.png";
 import emailIcon from "@/assets/icons/email-2.png";
+import githubIcon from "@/assets/icons/github-2.png";
+import deezerIcon from "@/assets/icons/deezer-2.png";
+import redditIcon from "@/assets/icons/reddit-2.png";
+import websiteIcon from "@/assets/icons/website-3.png";
+import zillowIcon from "@/assets/icons/zillow-2.png";
 
 /** Primary 6 — always visible in edit mode */
 const PRIMARY_SOCIALS = [
@@ -80,6 +85,11 @@ const EXTRA_SOCIALS = [
   { id: "dribbble", name: "Dribbble", icon: dribbbleIcon, placeholder: "dribbble.com/username" },
   { id: "messenger", name: "Messenger", icon: messengerIcon, placeholder: "m.me/username" },
   { id: "email", name: "Email", icon: emailIcon, placeholder: "you@example.com" },
+  { id: "github", name: "GitHub", icon: githubIcon, placeholder: "github.com/username" },
+  { id: "deezer", name: "Deezer", icon: deezerIcon, placeholder: "deezer.com/..." },
+  { id: "reddit", name: "Reddit", icon: redditIcon, placeholder: "reddit.com/u/username" },
+  { id: "website", name: "Website", icon: websiteIcon, placeholder: "www.my-website.com" },
+  { id: "zillow", name: "Zillow", icon: zillowIcon, placeholder: "zillow.com/profile/username" },
 ] as const;
 
 const ALL_SOCIALS = [...PRIMARY_SOCIALS, ...EXTRA_SOCIALS];
