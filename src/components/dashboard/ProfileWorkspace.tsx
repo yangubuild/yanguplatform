@@ -26,6 +26,8 @@ import {
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import adaIcon from "@/assets/ada-icon.png";
+import { resolveAvatarUrl } from "@/lib/avatarUtils";
+import AvatarPickerModal from "@/components/profile/AvatarPickerModal";
 import { useNavigate } from "react-router-dom";
 import { AddTeamModal } from "./AddTeamModal";
 import { NotificationPrefsModal } from "./NotificationPrefsModal";
@@ -58,14 +60,13 @@ export function ProfileWorkspace() {
   const [savingName, setSavingName] = useState(false);
   const [savingDesc, setSavingDesc] = useState(false);
   const coverInputRef = useRef<HTMLInputElement>(null);
-  const avatarInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const [teamModalOpen, setTeamModalOpen] = useState(false);
   const [notifModalOpen, setNotifModalOpen] = useState(false);
   const [socialModalOpen, setSocialModalOpen] = useState(false);
   const [socialLinks, setSocialLinks] = useState<SocialLinksData>({});
   const [savingSocial, setSavingSocial] = useState(false);
-
+  const [avatarPickerOpen, setAvatarPickerOpen] = useState(false);
   // Fetch social links from profile
   useEffect(() => {
     if (profile) {
@@ -190,8 +191,9 @@ export function ProfileWorkspace() {
   }, [user]);
 
   // Use local state if just uploaded, otherwise fall back to profile
+  const resolvedAvatar = profile ? resolveAvatarUrl(profile) : null;
   const displayCover = coverUrl || (profile as any)?.cover_url || null;
-  const displayAvatar = avatarUrl || profile?.avatar_url || null;
+  const displayAvatar = avatarUrl || resolvedAvatar || null;
   const handleImageUpload = async (
     file: File,
     type: "cover" | "avatar"
@@ -355,7 +357,7 @@ export function ProfileWorkspace() {
           <div className="relative w-[88px] h-[88px] group">
             <div
               className="w-full h-full rounded-[20px] flex items-center justify-center text-2xl font-bold text-white cursor-pointer overflow-hidden"
-              onClick={() => avatarInputRef.current?.click()}
+              onClick={() => setAvatarPickerOpen(true)}
               style={{
                 background: "#1e293b",
                 border: "4px solid #0f141a",
@@ -379,17 +381,6 @@ export function ProfileWorkspace() {
                 )}
               </div>
             </div>
-            <input
-              ref={avatarInputRef}
-              type="file"
-              accept="image/png,image/jpeg,image/webp,image/gif"
-              className="hidden"
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) handleImageUpload(f, "avatar");
-                e.target.value = "";
-              }}
-            />
           </div>
 
           {/* Name row */}
@@ -524,10 +515,14 @@ export function ProfileWorkspace() {
             <span className="flex items-center gap-1">
               Created by
               <span
-                className="w-4 h-4 rounded-full inline-flex items-center justify-center text-[8px] font-bold"
+                className="w-4 h-4 rounded-full inline-flex items-center justify-center overflow-hidden shrink-0"
                 style={{ background: "#f97316" }}
               >
-                🐉
+                {displayAvatar ? (
+                  <img src={displayAvatar} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-[8px] font-bold">{initials.charAt(0)}</span>
+                )}
               </span>
               {displayName}
             </span>
@@ -860,10 +855,14 @@ export function ProfileWorkspace() {
             }}
           >
             <span
-              className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center"
+              className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center overflow-hidden"
               style={{ background: "#f97316" }}
             >
-              🐉
+              {displayAvatar ? (
+                <img src={displayAvatar} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-xs font-bold text-white">{initials.charAt(0)}</span>
+              )}
             </span>
             <span
               className="flex-1 text-sm"
@@ -925,6 +924,7 @@ export function ProfileWorkspace() {
         onSave={handleSaveSocialLinks}
         saving={savingSocial}
       />
+      <AvatarPickerModal open={avatarPickerOpen} onOpenChange={setAvatarPickerOpen} />
     </div>
   );
 }

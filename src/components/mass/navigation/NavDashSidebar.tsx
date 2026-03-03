@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import { useActiveOrg } from "@/hooks/useActiveOrg";
 import {
   ChevronDown,
@@ -316,8 +317,8 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
                         className="w-8 h-8 rounded-full shrink-0 overflow-hidden flex items-center justify-center"
                         style={{ background: "#2a3038" }}
                       >
-                        {profile?.avatar_url ? (
-                          <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                        {profile && resolveAvatarUrl(profile) ? (
+                          <img src={resolveAvatarUrl(profile)!} alt="Avatar" className="w-full h-full object-cover" />
                         ) : (
                           <Users className="w-4 h-4" style={{ color: "rgba(255,255,255,0.6)" }} />
                         )}
