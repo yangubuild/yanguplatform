@@ -43,6 +43,16 @@ import snapchatIcon from "@/assets/icons/snapchat-2.png";
 import whatsappIcon from "@/assets/icons/whatsapp-3.png";
 import threadsIcon from "@/assets/icons/threads-2.png";
 import telegramIcon from "@/assets/icons/telegram-2.png";
+import discordIcon from "@/assets/icons/discord-2.png";
+import twitchIcon from "@/assets/icons/twitch-2.png";
+import pinterestIcon from "@/assets/icons/pinterest-2.png";
+import spotifyIcon from "@/assets/icons/spotify-2.png";
+import appleMusicIcon from "@/assets/icons/apple-music.png";
+import tidalIcon from "@/assets/icons/tidal-2.png";
+import behanceIcon from "@/assets/icons/behance-2.png";
+import dribbbleIcon from "@/assets/icons/dribbble-2.png";
+import messengerIcon from "@/assets/icons/messenger-2.png";
+import emailIcon from "@/assets/icons/email-2.png";
 
 /** Primary 6 — always visible in edit mode */
 const PRIMARY_SOCIALS = [
@@ -60,6 +70,16 @@ const EXTRA_SOCIALS = [
   { id: "whatsapp", name: "WhatsApp", icon: whatsappIcon, placeholder: "+00000000000" },
   { id: "threads", name: "Threads", icon: threadsIcon, placeholder: "threads.net/@username" },
   { id: "telegram", name: "Telegram", icon: telegramIcon, placeholder: "t.me/username" },
+  { id: "discord", name: "Discord", icon: discordIcon, placeholder: "discord.gg/invite" },
+  { id: "twitch", name: "Twitch", icon: twitchIcon, placeholder: "twitch.tv/username" },
+  { id: "pinterest", name: "Pinterest", icon: pinterestIcon, placeholder: "pinterest.com/username" },
+  { id: "spotify", name: "Spotify", icon: spotifyIcon, placeholder: "open.spotify.com/artist/..." },
+  { id: "apple_music", name: "Apple Music", icon: appleMusicIcon, placeholder: "music.apple.com/..." },
+  { id: "tidal", name: "Tidal", icon: tidalIcon, placeholder: "tidal.com/browse/..." },
+  { id: "behance", name: "Behance", icon: behanceIcon, placeholder: "behance.net/username" },
+  { id: "dribbble", name: "Dribbble", icon: dribbbleIcon, placeholder: "dribbble.com/username" },
+  { id: "messenger", name: "Messenger", icon: messengerIcon, placeholder: "m.me/username" },
+  { id: "email", name: "Email", icon: emailIcon, placeholder: "you@example.com" },
 ] as const;
 
 const ALL_SOCIALS = [...PRIMARY_SOCIALS, ...EXTRA_SOCIALS];
