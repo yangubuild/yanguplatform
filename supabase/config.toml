@@ -62,3 +62,9 @@ verify_jwt = false
 
 [functions.builder-ai-generate-business-profile]
 verify_jwt = false
+
+[functions.dropship-search]
+verify_jwt = false
+
+[functions.dropship-product]
+verify_jwt = false
