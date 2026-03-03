@@ -233,6 +233,7 @@ export function ProfileWorkspace() {
       if (type === "cover") setCoverUrl(url);
       else setAvatarUrl(url);
 
+      await refreshProfile();
       toast.success(`${type === "cover" ? "Cover" : "Profile"} image updated`);
     } catch (err: any) {
       toast.error(err.message || "Upload failed");

@@ -32,6 +32,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
+import { useRef } from "react";
+import { Camera } from "lucide-react";
 
 import xIcon from "@/assets/icons/x-3.png";
 import instagramIcon from "@/assets/icons/instagram-3.png";
@@ -111,6 +113,8 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<"created" | "joined" | "reviews">("created");
   const [avatarModalOpen, setAvatarModalOpen] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const coverInputRef = useRef<HTMLInputElement>(null);
 
   // Edit form state
   const [name, setName] = useState(profile?.display_name || "");
@@ -146,6 +150,42 @@ export default function ProfilePage() {
   const joinDate = profile?.created_at
     ? new Date(profile.created_at).toLocaleDateString("en-US", { month: "short", year: "numeric" })
     : "Dec 2025";
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (!file.type.startsWith("image/")) {
+      toast({ title: "Please select an image file", variant: "destructive" });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "Cover image must be under 5MB", variant: "destructive" });
+      return;
+    }
+    setUploadingCover(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const path = `${user.id}/cover.${ext}`;
+      const { error: uploadErr } = await supabase.storage
+        .from("profile-media")
+        .upload(path, file, { upsert: true });
+      if (uploadErr) throw uploadErr;
+      const { data: { publicUrl } } = supabase.storage.from("profile-media").getPublicUrl(path);
+      const url = `${publicUrl}?t=${Date.now()}`;
+      const { error: profileErr } = await supabase
+        .from("profiles")
+        .update({ cover_url: url } as any)
+        .eq("id", user.id);
+      if (profileErr) throw profileErr;
+      await refreshProfile();
+      toast({ title: "Cover image updated" });
+    } catch (err: any) {
+      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } finally {
+      setUploadingCover(false);
+      if (coverInputRef.current) coverInputRef.current.value = "";
+    }
+  };
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(`https://yangu.io/@${usernameDisplay}`);
@@ -226,6 +266,30 @@ export default function ProfilePage() {
             : "#2a3038",
         }}
       >
+        {/* Hidden cover file input */}
+        <input
+          ref={coverInputRef}
+          type="file"
+          accept="image/png,image/jpeg,image/webp,image/gif"
+          className="hidden"
+          onChange={handleCoverUpload}
+        />
+
+        {/* Cover upload button */}
+        <button
+          onClick={() => coverInputRef.current?.click()}
+          disabled={uploadingCover}
+          className="absolute bottom-3 right-3 z-10 w-9 h-9 rounded-full flex items-center justify-center transition-opacity hover:opacity-90"
+          style={{ background: "rgba(0,0,0,0.55)" }}
+          title="Change cover image"
+        >
+          {uploadingCover ? (
+            <div className="w-4 h-4 border-2 border-white/60 border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <Camera className="w-4.5 h-4.5 text-white" />
+          )}
+        </button>
+
         <div className="absolute top-3 right-3 z-10">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -237,6 +301,9 @@ export default function ProfilePage() {
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-44">
+              <DropdownMenuItem onClick={() => coverInputRef.current?.click()}>
+                <Camera className="w-4 h-4 mr-2" /> Change cover
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => toast({ title: "Share dialog coming soon" })}>
                 <ExternalLink className="w-4 h-4 mr-2" /> Share
               </DropdownMenuItem>
