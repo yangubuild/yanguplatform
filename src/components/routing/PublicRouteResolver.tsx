@@ -1,16 +1,17 @@
-import { useEffect, useState, ReactNode } from "react";
+import { useEffect, useState, ReactNode, lazy, Suspense } from "react";
 import { useLocation } from "react-router-dom";
 import { resolveRoute, isDevEnvironment, normalizeHostname, type ResolvedRoute, type RouteDebugInfo } from "@/lib/routing/resolveRoute";
 import { resolveAppMode } from "@/lib/routing/appMode";
-import { DomainHome } from "./DomainHome";
-import Index from "@/pages/Index";
-import Community from "@/pages/Community";
-import { StudioLanding } from "./StudioLanding";
-import { LiveLanding } from "./LiveLanding";
-import { PublishContainerLanding } from "./PublishContainerLanding";
-import { IdentityHub } from "./IdentityHub";
-import { SurfaceViewer } from "./SurfaceViewer";
-import NotFound from "@/pages/NotFound";
+
+const DomainHome = lazy(() => import("./DomainHome").then((m) => ({ default: m.DomainHome })));
+const Index = lazy(() => import("@/pages/Index"));
+const Community = lazy(() => import("@/pages/Community"));
+const StudioLanding = lazy(() => import("./StudioLanding").then((m) => ({ default: m.StudioLanding })));
+const LiveLanding = lazy(() => import("./LiveLanding").then((m) => ({ default: m.LiveLanding })));
+const PublishContainerLanding = lazy(() => import("./PublishContainerLanding").then((m) => ({ default: m.PublishContainerLanding })));
+const IdentityHub = lazy(() => import("./IdentityHub").then((m) => ({ default: m.IdentityHub })));
+const SurfaceViewer = lazy(() => import("./SurfaceViewer").then((m) => ({ default: m.SurfaceViewer })));
+const NotFound = lazy(() => import("@/pages/NotFound"));
 
 
 interface PublicRouteResolverProps {
@@ -38,6 +39,8 @@ const INTERNAL_ROUTES = [
   "/privacy",
   "/terms",
 ];
+
+const resolverFallback = <div className="min-h-screen" style={{ backgroundColor: "#08120D" }} />;
 
 /**
  * Debug bar component - temporary for debugging route resolution
@@ -185,9 +188,7 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
 
   // Show loading state
   if (isLoading) {
-    return (
-      <div className="min-h-screen" style={{ backgroundColor: '#08120D' }} />
-    );
+    return resolverFallback;
   }
 
   // Use internal React Router routing ONLY for:
@@ -207,10 +208,10 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
       publish_container: <PublishContainerLanding />,
     };
     return (
-      <>
+      <Suspense fallback={resolverFallback}>
         {modeContent[appModeResult] ?? <NotFound />}
         {import.meta.env.DEV && <RouteDebugBar debug={debugInfo} route={null} />}
-      </>
+      </Suspense>
     );
   }
 
@@ -222,10 +223,10 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
   if (!resolvedRoute) {
     console.error("[PublicRouteResolver] No route resolved on production domain, showing NotFound");
     return (
-      <>
+      <Suspense fallback={resolverFallback}>
         <NotFound />
         {import.meta.env.DEV && <RouteDebugBar debug={debugInfo} route={null} />}
-      </>
+      </Suspense>
     );
   }
 
@@ -283,9 +284,9 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
   }
 
   return (
-    <>
+    <Suspense fallback={resolverFallback}>
       {content}
       {import.meta.env.DEV && <RouteDebugBar debug={debugInfo} route={resolvedRoute} />}
-    </>
+    </Suspense>
   );
 }
