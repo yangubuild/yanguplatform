@@ -3507,6 +3507,10 @@ export type Database = {
         Args: { p_decision: string; p_listing_id: string; p_notes?: string }
         Returns: undefined
       }
+      admin_set_user_entitlements: {
+        Args: { p_plan_id: string; p_user_id: string }
+        Returns: undefined
+      }
       admin_update_quota_config: {
         Args: {
           p_creator_limit: number

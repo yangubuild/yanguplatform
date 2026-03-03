@@ -7,6 +7,8 @@ import {
 } from "lucide-react";
 import { VoiceLibraryModal } from "./VoiceLibraryModal";
 import { useAvatarTraining } from "@/hooks/useAvatarTraining";
+import { consumeAiAvatarCredit } from "@/lib/aiCredits";
+import { toast } from "@/hooks/use-toast";
 
 type ModeTab = "text" | "image" | "video";
 type VoiceMode = "select" | "upload";
@@ -22,6 +24,11 @@ export default function CreateAvatarPage() {
   useEffect(() => { fetchJobs(); }, [fetchJobs]);
 
   const handleGenerate = async () => {
+    const credit = await consumeAiAvatarCredit();
+    if (!credit.allowed) {
+      toast({ title: credit.reason || "Monthly avatar limit reached.", variant: "destructive", description: "Upgrade your plan for more AI avatar credits." });
+      return;
+    }
     await startTraining("heygen", { mode, timestamp: Date.now() });
   };
 

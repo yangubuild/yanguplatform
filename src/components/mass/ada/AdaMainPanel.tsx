@@ -7,6 +7,7 @@ import { useAdaVoice } from "@/hooks/useAdaVoice";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { consumeEntitlement } from "@/lib/entitlements";
+import { consumeAiImageCredit, consumeAiVideoCredit } from "@/lib/aiCredits";
 import { executeWithRuntime, getEnabledWidgetsForSurface, runProviderAction } from "@/lib/runtime";
 import type { RuntimeContext } from "@/lib/runtime";
 import { useNavigate } from "react-router-dom";
@@ -700,31 +701,18 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
       return;
     }
 
-    // Quota check via RPC
-    const { data: quotaResult } = await supabase.rpc("check_and_increment_quota" as any, { p_quota_key: "ada_image" });
-    if (quotaResult && typeof quotaResult === "object" && !(quotaResult as any).ok) {
-      const qr = quotaResult as any;
-      setQuotaPopup({
-        used: qr.used ?? 0,
-        limit: qr.limit ?? 0,
-        nextResetAt: qr.next_reset_at ?? null,
-        tier: qr.tier ?? "free",
-      });
-      return;
-    }
-
-    // Legacy entitlement check (fallback)
-    const ent = await consumeEntitlement("image");
-    if (!ent.allowed) {
+    // AI credit check (billing v1)
+    const creditCheck = await consumeAiImageCredit();
+    if (!creditCheck.allowed) {
       toast({
-        title: ent.error || "You've reached your monthly limit. Upgrade to continue.",
+        title: creditCheck.reason || "You've reached your monthly image limit.",
         variant: "destructive",
-        description: "Go to /subscriptions to upgrade your plan.",
+        description: "Upgrade your plan for more AI image credits.",
       });
       const errMsg: ChatMessage = {
         id: `msg_${Date.now()}`,
         role: "assistant",
-        content: `⚠️ ${ent.error || "Monthly image limit reached."} [Upgrade your plan](/subscriptions) to continue generating.`,
+        content: `⚠️ ${creditCheck.reason || "Monthly image limit reached."} [Upgrade your plan](/dashboard/billing) to continue generating.`,
         created_at: new Date().toISOString(),
       };
       setMessages(prev => [...prev, errMsg]);
@@ -859,17 +847,18 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
 
   // --- Video generation with progress card ---
   const handleVideoGenerate = useCallback(async (prompt: string, cid: string) => {
-    const ent = await consumeEntitlement("video");
-    if (!ent.allowed) {
+    // AI video credit check (billing v1)
+    const vidCredit = await consumeAiVideoCredit();
+    if (!vidCredit.allowed) {
       toast({
-        title: ent.error || "You've reached your monthly limit. Upgrade to continue.",
+        title: vidCredit.reason || "You've reached your monthly video limit.",
         variant: "destructive",
-        description: "Go to /subscriptions to upgrade your plan.",
+        description: "Upgrade your plan for more AI video credits.",
       });
       const errMsg: ChatMessage = {
         id: `msg_${Date.now()}`,
         role: "assistant",
-        content: `⚠️ ${ent.error || "Monthly video limit reached."} [Upgrade your plan](/subscriptions) to continue generating.`,
+        content: `⚠️ ${vidCredit.reason || "Monthly video limit reached."} [Upgrade your plan](/dashboard/billing) to continue generating.`,
         created_at: new Date().toISOString(),
       };
       setMessages(prev => [...prev, errMsg]);
