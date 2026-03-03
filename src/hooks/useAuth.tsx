@@ -9,6 +9,8 @@ export interface Profile {
   username: string | null;
   display_name: string | null;
   avatar_url: string | null;
+  avatar_mode: string | null;
+  avatar_emoji_key: string | null;
   creator_type: CreatorType | null;
   country: string | null;
   business_name: string | null;
