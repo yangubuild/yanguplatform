@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
+import { triggerEmojiPreload } from "@/hooks/useEmojiPreloader";
 import AvatarPickerModal from "@/components/profile/AvatarPickerModal";
 import { supabase } from "@/integrations/supabase/client";
 import { Switch } from "@/components/ui/switch";
@@ -320,6 +321,7 @@ export default function ProfilePage() {
       <div className="-mt-12 ml-4 mb-2">
         <button
           onClick={() => setAvatarModalOpen(true)}
+          onMouseEnter={triggerEmojiPreload}
           className="w-24 h-24 rounded-full flex items-center justify-center text-2xl font-bold overflow-hidden group relative"
           style={avatarSrc
             ? { background: "transparent" }
