@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
@@ -16,6 +16,8 @@ import {
   DollarSign,
   Grid3X3,
   ArrowLeft,
+  Plus,
+  X,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -23,7 +25,46 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
+
+import xIcon from "@/assets/icons/x-3.png";
+import instagramIcon from "@/assets/icons/instagram-3.png";
+import linkedinIcon from "@/assets/icons/linkedin-2.png";
+import facebookIcon from "@/assets/icons/facebook-3.png";
+import tiktokIcon from "@/assets/icons/tiktok-3.png";
+import youtubeIcon from "@/assets/icons/youtube-3.png";
+import snapchatIcon from "@/assets/icons/snapchat-2.png";
+import whatsappIcon from "@/assets/icons/whatsapp-3.png";
+import threadsIcon from "@/assets/icons/threads-2.png";
+import telegramIcon from "@/assets/icons/telegram-2.png";
+
+/** Primary 6 — always visible in edit mode */
+const PRIMARY_SOCIALS = [
+  { id: "x", name: "X", icon: xIcon, placeholder: "x.com/username" },
+  { id: "instagram", name: "Instagram", icon: instagramIcon, placeholder: "instagram.com/username" },
+  { id: "linkedin", name: "LinkedIn", icon: linkedinIcon, placeholder: "linkedin.com/in/username" },
+  { id: "facebook", name: "Facebook", icon: facebookIcon, placeholder: "facebook.com/page" },
+  { id: "tiktok", name: "TikTok", icon: tiktokIcon, placeholder: "tiktok.com/@username" },
+  { id: "youtube", name: "YouTube", icon: youtubeIcon, placeholder: "youtube.com/@channel" },
+] as const;
+
+/** Extra socials shown in "+ More" modal */
+const EXTRA_SOCIALS = [
+  { id: "snapchat", name: "Snapchat", icon: snapchatIcon, placeholder: "snapchat.com/add/username" },
+  { id: "whatsapp", name: "WhatsApp", icon: whatsappIcon, placeholder: "+00000000000" },
+  { id: "threads", name: "Threads", icon: threadsIcon, placeholder: "threads.net/@username" },
+  { id: "telegram", name: "Telegram", icon: telegramIcon, placeholder: "t.me/username" },
+] as const;
+
+const ALL_SOCIALS = [...PRIMARY_SOCIALS, ...EXTRA_SOCIALS];
+
+type SocialLinks = Record<string, string>;
 
 const mockCreated = [
   { id: "1", initials: "F&", title: "Fresh & Wholesome Foods Co.", category: "Food And Beverages", members: 1, earnings: "$0", age: "13d" },
@@ -32,15 +73,6 @@ const mockCreated = [
 
 const mockJoined = [
   { id: "3", initials: "YG", title: "yangu Creators Hub", category: "Community", members: 24, earnings: "$0", age: "1mo" },
-];
-
-const socialIcons = [
-  { name: "X", color: "#fff" },
-  { name: "IG", color: "#E4405F" },
-  { name: "DC", color: "#5865F2" },
-  { name: "TG", color: "#26A5E4" },
-  { name: "YT", color: "#FF0000" },
-  { name: "TK", color: "#fff" },
 ];
 
 export default function ProfilePage() {
@@ -60,6 +92,23 @@ export default function ProfilePage() {
   const [showJoinedApps, setShowJoinedApps] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  // Social links state
+  const [socialLinks, setSocialLinks] = useState<SocialLinks>({});
+  const [expandedSocial, setExpandedSocial] = useState<string | null>(null);
+  const [moreSocialsOpen, setMoreSocialsOpen] = useState(false);
+
+  // Load social links from profile
+  useEffect(() => {
+    const sl = (profile as any)?.social_links;
+    if (sl && typeof sl === "object") {
+      const links: SocialLinks = {};
+      for (const [k, v] of Object.entries(sl)) {
+        if (v && typeof v === "string") links[k] = v;
+      }
+      setSocialLinks(links);
+    }
+  }, [profile]);
+
   const avatarSrc = profile ? resolveAvatarUrl(profile) : null;
   const coverUrl = (profile as any)?.cover_url || null;
   const displayName = profile?.display_name || "User";
@@ -77,7 +126,29 @@ export default function ProfilePage() {
     setName(profile?.display_name || "");
     setUsername(profile?.username || "");
     setBio((profile as any)?.bio || "");
+    setExpandedSocial(null);
     setEditing(true);
+  };
+
+  const handleSaveSocialLink = async (platformId: string, url: string) => {
+    const trimmed = url.trim();
+    const updated = { ...socialLinks };
+    if (trimmed) {
+      updated[platformId] = trimmed;
+    } else {
+      delete updated[platformId];
+    }
+    setSocialLinks(updated);
+
+    // Persist
+    if (!user) return;
+    try {
+      await supabase
+        .from("profiles")
+        .update({ social_links: updated } as any)
+        .eq("id", user.id);
+      await refreshProfile();
+    } catch {}
   };
 
   const handleSave = async () => {
@@ -89,6 +160,7 @@ export default function ProfilePage() {
         .update({
           display_name: name,
           username: username,
+          social_links: socialLinks,
         } as any)
         .eq("id", user.id);
       if (error) throw error;
@@ -101,6 +173,14 @@ export default function ProfilePage() {
       setSaving(false);
     }
   };
+
+  const toggleSocialExpand = (id: string) => {
+    setExpandedSocial(prev => (prev === id ? null : id));
+  };
+
+  // Public profile: show only socials that have a link, max 6
+  const filledSocials = ALL_SOCIALS.filter(s => socialLinks[s.id]);
+  const publicSocials = filledSocials.slice(0, 6);
 
   const tabData = activeTab === "created" ? mockCreated : activeTab === "joined" ? mockJoined : [];
 
@@ -116,7 +196,6 @@ export default function ProfilePage() {
             : "#2a3038",
         }}
       >
-        {/* Three-dot menu */}
         <div className="absolute top-3 right-3 z-10">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -169,7 +248,6 @@ export default function ProfilePage() {
       {/* === EDIT MODE === */}
       {editing ? (
         <div className="px-1 mt-2">
-          {/* Edit header */}
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={() => setEditing(false)}
@@ -182,10 +260,7 @@ export default function ProfilePage() {
               onClick={handleSave}
               disabled={saving}
               className="px-5 py-2 rounded-xl text-sm font-semibold transition-opacity"
-              style={{
-                background: "rgba(255,255,255,0.12)",
-                color: "#fff",
-              }}
+              style={{ background: "rgba(255,255,255,0.12)", color: "#fff" }}
             >
               {saving ? "Saving..." : "Save changes"}
             </button>
@@ -235,6 +310,94 @@ export default function ProfilePage() {
 
           <div className="h-px my-8" style={{ background: "rgba(255,255,255,0.08)" }} />
 
+          {/* Social links section */}
+          <div className="mb-8">
+            <h2 className="text-base font-bold text-white mb-1">Social links</h2>
+            <p className="text-sm mb-5" style={{ color: "rgba(255,255,255,0.45)" }}>
+              Tap an icon to add your link. Only linked socials appear on your profile.
+            </p>
+
+            {/* Primary 6 icons */}
+            <div className="flex items-center gap-3 flex-wrap">
+              {PRIMARY_SOCIALS.map((s) => {
+                const hasLink = !!socialLinks[s.id];
+                const isExpanded = expandedSocial === s.id;
+                return (
+                  <button
+                    key={s.id}
+                    onClick={() => toggleSocialExpand(s.id)}
+                    className="w-11 h-11 rounded-full flex items-center justify-center transition-all relative"
+                    style={{
+                      border: isExpanded
+                        ? "2px solid #b5622a"
+                        : hasLink
+                        ? "2px solid rgba(255,255,255,0.3)"
+                        : "1px solid rgba(255,255,255,0.12)",
+                      opacity: hasLink || isExpanded ? 1 : 0.5,
+                    }}
+                    title={s.name}
+                  >
+                    <img src={s.icon} alt={s.name} className="w-6 h-6 object-contain" />
+                    {hasLink && (
+                      <div className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-green-500 border border-[#1a2025]" />
+                    )}
+                  </button>
+                );
+              })}
+
+              {/* + More button */}
+              <button
+                onClick={() => setMoreSocialsOpen(true)}
+                className="w-11 h-11 rounded-full flex items-center justify-center transition-all"
+                style={{ border: "1px dashed rgba(255,255,255,0.2)" }}
+                title="More socials"
+              >
+                <Plus className="w-5 h-5" style={{ color: "rgba(255,255,255,0.5)" }} />
+              </button>
+            </div>
+
+            {/* Expanded input for selected social */}
+            {expandedSocial && (() => {
+              const platform = ALL_SOCIALS.find(s => s.id === expandedSocial);
+              if (!platform) return null;
+              return (
+                <div
+                  className="mt-4 flex items-center gap-3 rounded-xl px-4 py-3"
+                  style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.1)" }}
+                >
+                  <img src={platform.icon} alt={platform.name} className="w-6 h-6 object-contain shrink-0" />
+                  <input
+                    autoFocus
+                    value={socialLinks[platform.id] || ""}
+                    onChange={(e) => setSocialLinks(prev => ({ ...prev, [platform.id]: e.target.value }))}
+                    onBlur={() => handleSaveSocialLink(platform.id, socialLinks[platform.id] || "")}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleSaveSocialLink(platform.id, socialLinks[platform.id] || "");
+                        setExpandedSocial(null);
+                      }
+                    }}
+                    placeholder={platform.placeholder}
+                    className="flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/30"
+                  />
+                  {socialLinks[platform.id] && (
+                    <button
+                      onClick={() => {
+                        handleSaveSocialLink(platform.id, "");
+                        setExpandedSocial(null);
+                      }}
+                      className="shrink-0"
+                    >
+                      <X className="w-4 h-4" style={{ color: "rgba(255,255,255,0.4)" }} />
+                    </button>
+                  )}
+                </div>
+              );
+            })()}
+          </div>
+
+          <div className="h-px my-8" style={{ background: "rgba(255,255,255,0.08)" }} />
+
           {/* More details */}
           <div className="mb-8">
             <h2 className="text-base font-bold text-white mb-1">More details</h2>
@@ -249,51 +412,86 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="h-px mb-8" style={{ background: "rgba(255,255,255,0.08)" }} />
-
-          {/* Social links */}
-          <div>
-            <h2 className="text-base font-bold text-white mb-1">Social links</h2>
-            <p className="text-sm mb-5" style={{ color: "rgba(255,255,255,0.45)" }}>
-              Connect your other accounts to let people know where to find you.
-            </p>
-            <div className="flex items-center gap-2">
-              <span className="text-sm mr-1" style={{ color: "rgba(255,255,255,0.5)" }}>Add:</span>
-              {socialIcons.map((s) => (
-                <button
-                  key={s.name}
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold transition-colors"
-                  style={{ border: "1px solid rgba(255,255,255,0.15)", color: s.color }}
-                  onClick={() => toast({ title: `${s.name} link — coming soon` })}
-                >
-                  {s.name}
-                </button>
-              ))}
-            </div>
-          </div>
+          {/* More Socials Modal */}
+          <Dialog open={moreSocialsOpen} onOpenChange={setMoreSocialsOpen}>
+            <DialogContent
+              className="sm:max-w-sm"
+              style={{ background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)" }}
+            >
+              <DialogHeader>
+                <DialogTitle className="text-white">More socials</DialogTitle>
+              </DialogHeader>
+              <div className="flex flex-col gap-3 py-2">
+                {EXTRA_SOCIALS.map((s) => {
+                  const hasLink = !!socialLinks[s.id];
+                  return (
+                    <div key={s.id}>
+                      <div
+                        className="flex items-center gap-3 cursor-pointer rounded-xl px-3 py-2.5 transition-colors"
+                        style={{ background: hasLink ? "rgba(181,98,42,0.1)" : "transparent" }}
+                        onClick={() => {
+                          setMoreSocialsOpen(false);
+                          setExpandedSocial(s.id);
+                        }}
+                      >
+                        <img src={s.icon} alt={s.name} className="w-8 h-8 object-contain shrink-0" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-white">{s.name}</p>
+                          {hasLink && (
+                            <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.4)" }}>
+                              {socialLinks[s.id]}
+                            </p>
+                          )}
+                        </div>
+                        {hasLink ? (
+                          <div className="w-3 h-3 rounded-full bg-green-500" />
+                        ) : (
+                          <Plus className="w-4 h-4" style={{ color: "rgba(255,255,255,0.35)" }} />
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       ) : (
         <>
           {/* === VIEW MODE === */}
-          {/* Name / username */}
           <div className="px-1">
             <h1 className="text-xl font-bold text-white">{displayName}</h1>
             <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>@{usernameDisplay}</p>
 
-            {/* Location + joined */}
             <div className="flex items-center gap-3 mt-2 text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
               <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> Dubai, AE</span>
               <span>•</span>
               <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> Joined {joinDate}</span>
             </div>
 
-            {/* Followers */}
+            {/* Public social icons — only those with links, max 6 */}
+            {publicSocials.length > 0 && (
+              <div className="flex items-center gap-2 mt-3">
+                {publicSocials.map((s) => (
+                  <a
+                    key={s.id}
+                    href={socialLinks[s.id].startsWith("http") ? socialLinks[s.id] : `https://${socialLinks[s.id]}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-8 h-8 rounded-full flex items-center justify-center transition-opacity hover:opacity-80"
+                    title={s.name}
+                  >
+                    <img src={s.icon} alt={s.name} className="w-6 h-6 object-contain" />
+                  </a>
+                ))}
+              </div>
+            )}
+
             <div className="flex items-center gap-4 mt-3">
               <span className="text-sm text-white"><strong>0</strong> <span style={{ color: "rgba(255,255,255,0.5)" }}>Followers</span></span>
               <span className="text-sm text-white"><strong>0</strong> <span style={{ color: "rgba(255,255,255,0.5)" }}>Following</span></span>
             </div>
 
-            {/* Action buttons */}
             <div className="flex gap-3 mt-5">
               <button
                 onClick={handleStartEditing}
