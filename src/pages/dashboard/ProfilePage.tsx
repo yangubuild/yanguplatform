@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { resolveAvatarUrl } from "@/lib/avatarUtils";
+import AvatarPickerModal from "@/components/profile/AvatarPickerModal";
 import {
   MoreHorizontal,
   MapPin,
@@ -55,7 +57,9 @@ export default function ProfilePage() {
   const navigate = useNavigate();
   const { profile } = useAuth();
   const [activeTab, setActiveTab] = useState<"created" | "joined" | "reviews">("created");
+  const [avatarModalOpen, setAvatarModalOpen] = useState(false);
 
+  const avatarSrc = profile ? resolveAvatarUrl(profile) : null;
   const displayName = profile?.display_name || "User";
   const username = profile?.username || "user";
   const joinDate = profile?.created_at
@@ -101,13 +105,24 @@ export default function ProfilePage() {
 
       {/* Avatar */}
       <div className="-mt-12 ml-4 mb-2">
-        <div
-          className="w-24 h-24 rounded-full border-4 flex items-center justify-center text-2xl font-bold"
+        <button
+          onClick={() => setAvatarModalOpen(true)}
+          className="w-24 h-24 rounded-full border-4 flex items-center justify-center text-2xl font-bold overflow-hidden group relative"
           style={{ borderColor: "#1a2025", background: "#2a3038", color: "rgba(255,255,255,0.6)" }}
+          title="Change avatar"
         >
-          {displayName.charAt(0).toUpperCase()}
-        </div>
+          {avatarSrc ? (
+            <img src={avatarSrc} alt="Avatar" className="w-full h-full object-cover" />
+          ) : (
+            displayName.charAt(0).toUpperCase()
+          )}
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+            <Pencil className="w-5 h-5 text-white" />
+          </div>
+        </button>
       </div>
+
+      <AvatarPickerModal open={avatarModalOpen} onOpenChange={setAvatarModalOpen} />
 
       {/* Name / username */}
       <div className="px-1">

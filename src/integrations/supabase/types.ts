@@ -2560,6 +2560,8 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_emoji_key: string | null
+          avatar_mode: string
           avatar_url: string | null
           business_name: string | null
           country: string | null
@@ -2577,6 +2579,8 @@ export type Database = {
           username: string | null
         }
         Insert: {
+          avatar_emoji_key?: string | null
+          avatar_mode?: string
           avatar_url?: string | null
           business_name?: string | null
           country?: string | null
@@ -2594,6 +2598,8 @@ export type Database = {
           username?: string | null
         }
         Update: {
+          avatar_emoji_key?: string | null
+          avatar_mode?: string
           avatar_url?: string | null
           business_name?: string | null
           country?: string | null
