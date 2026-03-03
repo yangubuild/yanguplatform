@@ -122,8 +122,8 @@ import DashboardExplore from "./pages/dashboard/DashboardExplore";
 import LiveSellingPage from "./pages/dashboard/LiveSellingPage";
 import StudioShowcasePage from "./pages/dashboard/StudioShowcasePage";
 // DashboardModuleLayout removed — routes are flat under /dashboard/*
-import ProfilePage from "./pages/dashboard/ProfilePage";
-import EditProfilePage from "./pages/dashboard/EditProfilePage";
+const ProfilePage = lazy(() => import("./pages/dashboard/ProfilePage"));
+const EditProfilePage = lazy(() => import("./pages/dashboard/EditProfilePage"));
 import SubscriptionPage from "./pages/dashboard/SubscriptionPage";
 const DashboardBilling = lazy(() => import("./pages/dashboard/DashboardBilling"));
 import AgencyLayout from "./pages/dashboard/AgencyLayout";
