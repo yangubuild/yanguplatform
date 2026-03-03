@@ -185,7 +185,7 @@ export default function ProfilePage() {
             >
               {tab}
               {activeTab === tab && (
-                <div className="absolute bottom-0 left-1/4 right-1/4 h-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.3)" }} />
+                <div className="absolute bottom-0 left-1/4 right-1/4 h-0.5 rounded-full" style={{ background: "#b5622a" }} />
               )}
             </button>
           ))}
