@@ -33,7 +33,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { useRef } from "react";
-import { Camera } from "lucide-react";
+import { ImagePlus, Loader2 } from "lucide-react";
 
 import xIcon from "@/assets/icons/x-3.png";
 import instagramIcon from "@/assets/icons/instagram-3.png";
@@ -258,13 +258,14 @@ export default function ProfilePage() {
     <div className="max-w-2xl mx-auto py-6 px-4">
       {/* Banner */}
       <div
-        className="relative rounded-2xl overflow-hidden"
+        className="relative rounded-2xl overflow-hidden group cursor-pointer"
         style={{
           height: 160,
           background: coverUrl
             ? `url(${coverUrl}) center/cover no-repeat`
             : "#2a3038",
         }}
+        onClick={() => coverInputRef.current?.click()}
       >
         {/* Hidden cover file input */}
         <input
@@ -275,22 +276,19 @@ export default function ProfilePage() {
           onChange={handleCoverUpload}
         />
 
-        {/* Cover upload button */}
-        <button
-          onClick={() => coverInputRef.current?.click()}
-          disabled={uploadingCover}
-          className="absolute bottom-3 right-3 z-10 w-9 h-9 rounded-full flex items-center justify-center transition-opacity hover:opacity-90"
-          style={{ background: "rgba(0,0,0,0.55)" }}
-          title="Change cover image"
-        >
+        {/* Hover overlay — same as dashboard */}
+        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-[5]">
           {uploadingCover ? (
-            <div className="w-4 h-4 border-2 border-white/60 border-t-transparent rounded-full animate-spin" />
+            <Loader2 className="w-8 h-8 text-white animate-spin" />
           ) : (
-            <Camera className="w-4.5 h-4.5 text-white" />
+            <div className="flex flex-col items-center gap-1">
+              <ImagePlus className="w-6 h-6 text-white" />
+              <span className="text-xs text-white/80 font-medium">Change cover</span>
+            </div>
           )}
-        </button>
+        </div>
 
-        <div className="absolute top-3 right-3 z-10">
+        <div className="absolute top-3 right-3 z-10" onClick={(e) => e.stopPropagation()}>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
@@ -302,7 +300,7 @@ export default function ProfilePage() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-44">
               <DropdownMenuItem onClick={() => coverInputRef.current?.click()}>
-                <Camera className="w-4 h-4 mr-2" /> Change cover
+                <ImagePlus className="w-4 h-4 mr-2" /> Change cover
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => toast({ title: "Share dialog coming soon" })}>
                 <ExternalLink className="w-4 h-4 mr-2" /> Share
