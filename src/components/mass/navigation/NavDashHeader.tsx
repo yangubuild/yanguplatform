@@ -4,6 +4,7 @@ import { Menu, Search, Gift, Bell, ChevronDown, User, TrendingUp, Globe } from "
 import chatIcon1 from "@/assets/chat_icon_1.png";
 import { useRoles } from "@/hooks/useRoles";
 import { useAuth } from "@/hooks/useAuth";
+import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { GlobalChatPopup } from "@/components/messages/GlobalChatPopup";
 import yanguLogo from "@/assets/yangu-logo-full.png";
@@ -472,8 +473,8 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
                   border: "2px solid rgba(255,255,255,0.1)",
                 }}
               >
-                {profile?.avatar_url ? (
-                  <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                {profile && resolveAvatarUrl(profile) ? (
+                  <img src={resolveAvatarUrl(profile)!} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
                   <User className="w-4 h-4" style={{ color: "rgba(255,255,255,0.6)" }} />
                 )}
