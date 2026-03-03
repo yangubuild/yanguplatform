@@ -2112,6 +2112,30 @@ export type Database = {
         }
         Relationships: []
       }
+      dropship_providers: {
+        Row: {
+          created_at: string
+          id: string
+          is_enabled: boolean
+          name: string
+          provider_key: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          name: string
+          provider_key: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          name?: string
+          provider_key?: string
+        }
+        Relationships: []
+      }
       external_publications: {
         Row: {
           category: string | null
