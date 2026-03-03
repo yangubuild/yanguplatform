@@ -339,7 +339,7 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
                     <DropdownMenuItem onClick={() => navigate("/dashboard/profile/subscription")}>
                       <CreditCardIcon className="w-4 h-4 mr-2" /> Manage subscription
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/dashboard/profile/edit")}>
+                    <DropdownMenuItem onClick={() => navigate("/dashboard/profile")}>
                       <Settings className="w-4 h-4 mr-2" /> Account settings
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
