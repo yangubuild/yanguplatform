@@ -16,12 +16,73 @@ function errResponse(code: string, message: string, status = 400) {
   });
 }
 
+function normalizeProviderKey(providerKey: string) {
+  const key = providerKey.trim().toLowerCase();
+  return key === "yangu_estores" ? "estores" : key;
+}
+
 function getProviderDebugCounts(providerKey: string, count: number) {
   const debug = { cj: 0, modern: 0, yangu: 0 };
   if (providerKey === "cj") debug.cj = count;
   if (providerKey === "moderndropship") debug.modern = count;
-  if (providerKey === "estores" || providerKey === "yangu_estores") debug.yangu = count;
+  if (providerKey === "estores") debug.yangu = count;
   return debug;
+}
+
+async function searchEstoresProducts(supabase: any, userId: string, query: string) {
+  const { data: memberships } = await supabase
+    .from("org_memberships")
+    .select("org_id")
+    .eq("user_id", userId);
+
+  const orgIds = (memberships || []).map((m: any) => m.org_id).filter(Boolean);
+  if (orgIds.length === 0) return [];
+
+  const { data: surfaces } = await supabase
+    .from("surfaces")
+    .select("id")
+    .in("org_id", orgIds)
+    .eq("surface_type", "shop")
+    .is("archived_at", null);
+
+  const surfaceIds = (surfaces || []).map((s: any) => s.id).filter(Boolean);
+  if (surfaceIds.length === 0) return [];
+
+  let dbQuery = supabase
+    .from("dropship_imports")
+    .select("external_product_id,title,images,provider_currency,provider_price_cents,display_currency,display_price_cents,raw")
+    .in("shop_surface_id", surfaceIds)
+    .order("created_at", { ascending: false })
+    .limit(20);
+
+  const q = query.trim();
+  if (q && q.toLowerCase() !== "trending best sellers") {
+    dbQuery = dbQuery.ilike("title", `%${q}%`);
+  }
+
+  const { data: rows, error } = await dbQuery;
+  if (error) throw error;
+
+  return (rows || []).map((row: any) => {
+    const raw = row.raw || {};
+    const images = Array.isArray(row.images) ? row.images.filter((i: unknown) => typeof i === "string") : [];
+    const providerPriceCents = Number(row.provider_price_cents || 0);
+    const price = providerPriceCents > 0 ? providerPriceCents / 100 : 0;
+
+    return {
+      external_product_id: String(row.external_product_id || ""),
+      title: String(row.title || "Untitled product"),
+      thumbnail_url: images[0] || null,
+      image_urls: images,
+      currency: String(row.provider_currency || "USD"),
+      min_price: price,
+      max_price: price,
+      stock_hint: "unknown",
+      category_name: raw?.category_name || raw?.categoryName || null,
+      ship_from_country: raw?.ship_from_country || raw?.shipFromCountry || null,
+      raw,
+    };
+  });
 }
 
 Deno.serve(async (req) => {
@@ -42,90 +103,86 @@ Deno.serve(async (req) => {
     if (authErr || !user) return errResponse("BAD_REQUEST", "Unauthorized", 401);
 
     const body = await req.json();
-    const provider_key = typeof body?.provider_key === "string" ? body.provider_key.trim().toLowerCase() : "";
-    const query = body?.query;
+    const rawProviderKey = typeof body?.provider_key === "string" ? normalizeProviderKey(body.provider_key) : "";
+    const providerKeys = Array.isArray(body?.provider_keys)
+      ? Array.from(new Set(body.provider_keys.filter((p: unknown) => typeof p === "string").map((p: string) => normalizeProviderKey(p))))
+      : [];
+    const enableMultiProvider = body?.enable_multi_provider === true;
+
+    let provider_key = rawProviderKey;
+    if (!provider_key && providerKeys.length === 1) provider_key = providerKeys[0];
+
+    if (!provider_key && providerKeys.length > 1) {
+      if (!enableMultiProvider) {
+        return errResponse("BAD_REQUEST", "provider_keys requires enable_multi_provider=true");
+      }
+      return errResponse("BAD_REQUEST", "Multi-provider mode is disabled for this view; use provider_key", 400);
+    }
+
+    if (!provider_key) {
+      return errResponse("BAD_REQUEST", "provider_key or provider_keys is required");
+    }
+
+    const query = typeof body?.query === "string" ? body.query : "";
     const filters = body?.filters ?? {};
     const shop_surface_id = body?.shop_surface_id;
 
-    if (!provider_key) {
-      return errResponse("BAD_REQUEST", "provider_key is required");
-    }
-    if (!query || typeof query !== "string") {
-      return errResponse("BAD_REQUEST", "query is required");
-    }
-
-    const { data: provider, error: provErr } = await supabase
-      .from("dropship_providers")
-      .select("provider_key, is_enabled")
-      .eq("provider_key", provider_key)
-      .single();
-
-    if (provErr || !provider) {
-      return errResponse("PROVIDER_NOT_FOUND", `Provider '${provider_key}' not found`);
-    }
-    if (!provider.is_enabled) {
-      return errResponse("PROVIDER_DISABLED", `Provider '${provider_key}' is disabled`);
-    }
-
-    const adapter = getAdapter(provider_key);
-    if (!adapter) {
-      return errResponse("PROVIDER_NOT_FOUND", `No adapter for '${provider_key}'`);
-    }
-
     let items: any[] = [];
-    let warnings: string[] = [];
+    const warnings: string[] = [];
 
-    try {
-      items = await adapter.searchProducts(query, filters);
-    } catch (providerErr: any) {
-      const err = providerErr instanceof Error ? providerErr : new Error(String(providerErr));
-      const isModernConfigMissing =
-        provider_key === "moderndropship" &&
-        (providerErr?.code === "MODERNDROPSHIP_CONFIG_MISSING" || String(err.message).toLowerCase().includes("missing api key"));
+    if (provider_key === "estores") {
+      items = await searchEstoresProducts(supabase, user.id, query || "trending best sellers");
+    } else {
+      const { data: provider, error: provErr } = await supabase
+        .from("dropship_providers")
+        .select("provider_key, is_enabled")
+        .eq("provider_key", provider_key)
+        .single();
 
-      if (isModernConfigMissing) {
-        warnings = ["ModernDropship not configured (missing API key)"];
-        return new Response(
-          JSON.stringify({
-            provider_key,
-            items: [],
-            warnings,
-            debug: getProviderDebugCounts(provider_key, 0),
-          }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+      if (provErr || !provider) return errResponse("PROVIDER_NOT_FOUND", `Provider '${provider_key}' not found`);
+      if (!provider.is_enabled) return errResponse("PROVIDER_DISABLED", `Provider '${provider_key}' is disabled`);
+
+      const adapter = getAdapter(provider_key);
+      if (!adapter) return errResponse("PROVIDER_NOT_FOUND", `No adapter for '${provider_key}'`);
+
+      try {
+        items = await adapter.searchProducts(query || "trending best sellers", filters);
+      } catch (providerErr: any) {
+        const err = providerErr instanceof Error ? providerErr : new Error(String(providerErr));
+        const isModernConfigMissing =
+          provider_key === "moderndropship" &&
+          (providerErr?.code === "MODERNDROPSHIP_CONFIG_MISSING" || String(err.message).toLowerCase().includes("missing api key"));
+
+        if (isModernConfigMissing) {
+          warnings.push("ModernDropship not configured (missing API key)");
+          return new Response(
+            JSON.stringify({ provider_key, items: [], warnings, debug: getProviderDebugCounts(provider_key, 0) }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        console.error("dropship-search provider error", { provider_key, query, message: err.message, stack: err.stack || "no stack" });
+        return errResponse("UPSTREAM_ERROR", err.message || "Unknown upstream error", 502);
       }
-
-      console.error("dropship-search provider error", {
-        provider_key,
-        query,
-        message: err.message,
-        stack: err.stack || "no stack",
-      });
-      return errResponse("UPSTREAM_ERROR", err.message || "Unknown upstream error", 502);
     }
 
     if (provider_key === "moderndropship" && items.length === 0) {
-      warnings.push("ModernDropship returned 0 products for this account");
+      warnings.push("No ModernDropship products available for this account.");
     }
 
     let displayCurrency: string | null = null;
     let fxRate: number | null = null;
     let fxAsOf: string | null = null;
 
-    if (shop_surface_id) {
+    if (shop_surface_id && items.length > 0) {
       try {
         displayCurrency = await getDisplayCurrencyForShop(shop_surface_id);
         const providerCurrency = items[0]?.currency || "USD";
         const fx = await getFxRate(providerCurrency, displayCurrency);
         fxRate = fx.rate;
         fxAsOf = fx.as_of;
-      } catch (e: any) {
-        if (e.code === "FX_RATE_MISSING") {
-          displayCurrency = null;
-        } else {
-          throw e;
-        }
+      } catch {
+        displayCurrency = null;
       }
     }
 
@@ -162,14 +219,8 @@ Deno.serve(async (req) => {
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (e) {
-    const err = e instanceof Error ? e : new Error(String(e));
-    console.error("dropship-search error:", {
-      message: err.message,
-      stack: err.stack || "no stack",
-      provider_key: (() => { try { return "see body"; } catch { return "unknown"; } })(),
-    });
-    const msg = err.message || "Unknown error";
-    return errResponse("UPSTREAM_ERROR", msg, 502);
+  } catch (e: any) {
+    console.error(e?.stack || e);
+    return errResponse("UPSTREAM_ERROR", e?.message || "Unknown error", 500);
   }
 });

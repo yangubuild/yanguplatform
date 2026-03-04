@@ -14,6 +14,8 @@ interface Props {
   hasConnectedProvider?: boolean;
   onGoToManufacturers?: () => void;
   providerWarnings?: string[];
+  selectedProviderKey?: string;
+  hasAttemptedProviderLoad?: boolean;
 }
 
 const SUGGESTIONS = [
@@ -35,6 +37,8 @@ export default function ProductsTab({
   hasConnectedProvider = true,
   onGoToManufacturers,
   providerWarnings = [],
+  selectedProviderKey,
+  hasAttemptedProviderLoad = false,
 }: Props) {
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -243,6 +247,26 @@ export default function ProductsTab({
           <div className="text-center py-12">
             <p className="text-sm text-muted-foreground">No products matching current filters</p>
             <button onClick={() => { setSelectedCategory(null); setSelectedCountry(null); }} className="text-sm text-accent hover:underline mt-2">Clear all filters</button>
+          </div>
+        ) : hasAttemptedProviderLoad && selectedProviderKey ? (
+          <div className="max-w-xl mx-auto py-14 text-center space-y-4">
+            <Search className="w-10 h-10 text-muted-foreground/40 mx-auto" />
+            <div>
+              <p className="text-sm text-foreground font-medium">
+                {selectedProviderKey === "moderndropship"
+                  ? "No ModernDropship products available for this account."
+                  : selectedProviderKey === "estores"
+                    ? "No YANGU Estores products available right now."
+                    : "No CJ products found for this query."}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">Try another query or provider.</p>
+            </div>
+            {(selectedProviderKey === "moderndropship" || selectedProviderKey === "estores") && (
+              <Button onClick={onGoToManufacturers} variant="outline" className="gap-1.5">
+                <Plug className="w-4 h-4" />
+                Check connection / API key
+              </Button>
+            )}
           </div>
         ) : (
           <div className="max-w-xl mx-auto py-12">

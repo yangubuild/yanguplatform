@@ -10,9 +10,10 @@ const FEATURES = [
 
 interface Props {
   onClose: () => void;
+  onTryAiMode?: () => void;
 }
 
-export default function AiModePopup({ onClose }: Props) {
+export default function AiModePopup({ onClose, onTryAiMode }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
@@ -41,7 +42,13 @@ export default function AiModePopup({ onClose }: Props) {
         </div>
 
         <Button
-          onClick={onClose}
+          onClick={() => {
+            if (onTryAiMode) {
+              onTryAiMode();
+              return;
+            }
+            onClose();
+          }}
           className="w-full bg-accent text-accent-foreground hover:bg-accent/90 rounded-full font-semibold"
         >
           Try it now
