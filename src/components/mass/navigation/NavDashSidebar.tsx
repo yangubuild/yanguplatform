@@ -91,7 +91,7 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
   // Check if a path matches current location
   const isPathActive = (path?: string) => {
     if (!path) return false;
-    if (path === "/dashboard") return location.pathname === "/dashboard";
+    if (path === "/dashboard/home") return location.pathname === "/dashboard/home" || location.pathname === "/dashboard";
     if (path === "/dashboard/dashboard") return location.pathname === "/dashboard/dashboard" || location.pathname.startsWith("/dashboard/dashboard/");
     return location.pathname.startsWith(path);
   };

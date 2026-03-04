@@ -33,7 +33,7 @@ const AuthCallback = lazy(() => import("@/pages/auth/AuthCallback"));
  */
 export function ManagementRoutes() {
   return (
-    <Suspense fallback={<div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#08120D", color: "#94a3b8", fontFamily: "system-ui, sans-serif", fontSize: "0.95rem" }}>Loading…</div>}>
+    <Suspense fallback={<div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#08120D" }}><img src="/yangu-y-loader.png" alt="Loading" width={40} height={40} style={{ animation: "spin 1.4s linear infinite" }} /></div>}>
       <Routes>
         {/* Auth routes — login only */}
         <Route path="/auth/login" element={<Login />} />

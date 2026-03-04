@@ -127,7 +127,7 @@ export const DASHBOARD_SECTIONS: NavSection[] = [
   {
     title: "GENERAL",
     items: [
-      { icon: Home, label: "Dashboard", to: "/dashboard" },
+      { icon: Home, label: "Dashboard", to: "/dashboard/home" },
       { icon: Grid3X3, label: "My Apps", to: "/dashboard/my-apps" },
       { icon: Building2, label: "My Business", to: "/dashboard/my-business" },
     ],
