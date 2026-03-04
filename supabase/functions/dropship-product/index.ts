@@ -1,5 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getAdapter } from "../_shared/dropship/providerRegistry.ts";
+import { getDisplayCurrencyForShop, getFxRate, decimalToDisplayCents } from "../_shared/dropship/fx.ts";
+import { toCents } from "../_shared/dropship/normalize.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -32,7 +34,7 @@ Deno.serve(async (req) => {
     if (authErr || !user) return errResponse("BAD_REQUEST", "Unauthorized", 401);
 
     const body = await req.json();
-    const { provider_key, external_product_id } = body;
+    const { provider_key, external_product_id, shop_surface_id } = body;
 
     if (!provider_key || typeof provider_key !== "string") {
       return errResponse("BAD_REQUEST", "provider_key is required");
@@ -61,7 +63,57 @@ Deno.serve(async (req) => {
 
     const product = await adapter.getProduct(external_product_id);
 
-    return new Response(JSON.stringify({ provider_key, product }), {
+    // --- Currency conversion ---
+    let displayCurrency: string | null = null;
+    let fxRate: number | null = null;
+    let fxAsOf: string | null = null;
+
+    if (shop_surface_id) {
+      try {
+        displayCurrency = await getDisplayCurrencyForShop(shop_surface_id);
+        const fx = await getFxRate(product.currency, displayCurrency);
+        fxRate = fx.rate;
+        fxAsOf = fx.as_of;
+      } catch (e: any) {
+        if (e.code === "FX_RATE_MISSING") {
+          displayCurrency = null;
+        } else {
+          throw e;
+        }
+      }
+    }
+
+    const providerCurrency = product.currency || "USD";
+
+    const enrichedVariants = product.variants.map((v) => {
+      const provPriceCents = toCents(v.price);
+      const variant: Record<string, unknown> = {
+        ...v,
+        provider_currency: providerCurrency,
+        provider_price_cents: provPriceCents,
+      };
+      if (displayCurrency && fxRate != null) {
+        variant.display_currency = displayCurrency;
+        variant.display_price_cents = decimalToDisplayCents(v.price, fxRate);
+      }
+      return variant;
+    });
+
+    const result: Record<string, unknown> = {
+      ...product,
+      provider_currency: providerCurrency,
+      provider_base_price_cents: toCents(product.base_price),
+      variants: enrichedVariants,
+    };
+
+    if (displayCurrency && fxRate != null) {
+      result.display_currency = displayCurrency;
+      result.display_base_price_cents = decimalToDisplayCents(product.base_price, fxRate);
+      result.fx_rate_used = fxRate;
+      result.fx_as_of = fxAsOf;
+    }
+
+    return new Response(JSON.stringify({ provider_key, product: result }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {

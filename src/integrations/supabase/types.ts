@@ -2142,12 +2142,18 @@ export type Database = {
       dropship_imports: {
         Row: {
           created_at: string
+          display_currency: string | null
+          display_price_cents: number | null
           external_product_id: string
+          fx_rate: number | null
+          fx_rate_timestamp: string | null
           id: string
           images: Json | null
           last_error: string | null
           last_synced_at: string | null
+          provider_currency: string | null
           provider_key: string
+          provider_price_cents: number | null
           raw: Json | null
           shop_surface_id: string
           sync_attempts: number
@@ -2157,12 +2163,18 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          display_currency?: string | null
+          display_price_cents?: number | null
           external_product_id: string
+          fx_rate?: number | null
+          fx_rate_timestamp?: string | null
           id?: string
           images?: Json | null
           last_error?: string | null
           last_synced_at?: string | null
+          provider_currency?: string | null
           provider_key: string
+          provider_price_cents?: number | null
           raw?: Json | null
           shop_surface_id: string
           sync_attempts?: number
@@ -2172,12 +2184,18 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          display_currency?: string | null
+          display_price_cents?: number | null
           external_product_id?: string
+          fx_rate?: number | null
+          fx_rate_timestamp?: string | null
           id?: string
           images?: Json | null
           last_error?: string | null
           last_synced_at?: string | null
+          provider_currency?: string | null
           provider_key?: string
+          provider_price_cents?: number | null
           raw?: Json | null
           shop_surface_id?: string
           sync_attempts?: number
@@ -2562,6 +2580,30 @@ export type Database = {
         }
         Relationships: []
       }
+      fx_rates: {
+        Row: {
+          as_of: string
+          base_currency: string
+          id: string
+          quote_currency: string
+          rate: number
+        }
+        Insert: {
+          as_of?: string
+          base_currency: string
+          id?: string
+          quote_currency: string
+          rate: number
+        }
+        Update: {
+          as_of?: string
+          base_currency?: string
+          id?: string
+          quote_currency?: string
+          rate?: number
+        }
+        Relationships: []
+      }
       knowledge_chunks: {
         Row: {
           content: string
@@ -2833,18 +2875,21 @@ export type Database = {
       orgs: {
         Row: {
           created_at: string | null
+          currency: string
           id: string
           name: string
           owner_user_id: string
         }
         Insert: {
           created_at?: string | null
+          currency?: string
           id?: string
           name: string
           owner_user_id: string
         }
         Update: {
           created_at?: string | null
+          currency?: string
           id?: string
           name?: string
           owner_user_id?: string
@@ -4293,18 +4338,37 @@ export type Database = {
         Returns: boolean
       }
       has_used_trial: { Args: { _user_id: string }; Returns: boolean }
-      import_external_product_to_shop: {
-        Args: {
-          p_external_product_id: string
-          p_images?: Json
-          p_provider_key: string
-          p_raw?: Json
-          p_shop_surface_id: string
-          p_title: string
-          p_variants?: Json
-        }
-        Returns: Json
-      }
+      import_external_product_to_shop:
+        | {
+            Args: {
+              p_external_product_id: string
+              p_images?: Json
+              p_provider_key: string
+              p_raw?: Json
+              p_shop_surface_id: string
+              p_title: string
+              p_variants?: Json
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_display_currency?: string
+              p_display_price_cents?: number
+              p_external_product_id: string
+              p_fx_rate?: number
+              p_fx_rate_timestamp?: string
+              p_images: Json
+              p_provider_currency?: string
+              p_provider_key: string
+              p_provider_price_cents?: number
+              p_raw: Json
+              p_shop_surface_id: string
+              p_title: string
+              p_variants: Json
+            }
+            Returns: Json
+          }
       is_drive_connected: { Args: never; Returns: boolean }
       is_dropship_provider_cooled_down: {
         Args: { p_provider_key: string }
@@ -4477,6 +4541,15 @@ export type Database = {
       }
       upsert_creator_payment_profile: {
         Args: { p_methods: Json }
+        Returns: undefined
+      }
+      upsert_fx_rate: {
+        Args: {
+          p_as_of?: string
+          p_base_currency: string
+          p_quote_currency: string
+          p_rate: number
+        }
         Returns: undefined
       }
       validate_widget_token: { Args: { p_token: string }; Returns: Json }
