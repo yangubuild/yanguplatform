@@ -266,7 +266,7 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
                     <Button
                       onClick={handleImport}
                       disabled={importing || imported || !localShopId}
-                      className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-full px-6 gap-1.5"
+                      className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-xl px-6 gap-1.5"
                     >
                       {imported ? "✓ Imported" : importing ? (
                         <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Importing…</>
