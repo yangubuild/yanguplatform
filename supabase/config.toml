@@ -68,3 +68,9 @@ verify_jwt = false
 
 [functions.dropship-product]
 verify_jwt = false
+
+[functions.dropship-import]
+verify_jwt = false
+
+[functions.dropship-sync-inventory]
+verify_jwt = false
