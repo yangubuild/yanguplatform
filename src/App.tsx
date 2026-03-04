@@ -10,6 +10,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { DomainGate } from "@/components/domain/DomainGate";
 import { PublicRouteResolver } from "@/components/routing";
 import { ConsoleAuthGuard } from "@/components/developers/ConsoleAuthGuard";
+import { RouteErrorBoundary } from "@/components/RouteErrorBoundary";
 import { DeveloperPortalGuard } from "@/components/developers/DeveloperPortalGuard";
 import { resolveAppMode } from "@/lib/routing/appMode";
 
@@ -159,7 +160,8 @@ const App = () => (
           <DomainProvider>
             <PublicRouteResolver>
               <DomainGate>
-              <Suspense fallback={null}>
+              <RouteErrorBoundary>
+              <Suspense fallback={<div style={{ minHeight: "100vh", background: "#08120D" }} />}>
               <Routes>
                 {/* Public routes */}
                 <Route path="/" element={<Index />} />
@@ -432,6 +434,7 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
               </Suspense>
+              </RouteErrorBoundary>
               </DomainGate>
             </PublicRouteResolver>
           </DomainProvider>
