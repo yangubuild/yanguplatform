@@ -9,8 +9,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-function errResponse(code: string, message: string, status = 400) {
-  return new Response(JSON.stringify({ error: { code, message } }), {
+function jsonResponse(body: Record<string, unknown>, status = 200) {
+  return new Response(JSON.stringify(body), {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
@@ -19,10 +19,34 @@ function errResponse(code: string, message: string, status = 400) {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  const request_id = crypto.randomUUID();
+
+  // Safe body parse
+  let body: Record<string, unknown>;
+  try {
+    body = await req.json();
+  } catch {
+    return jsonResponse({ request_id, error: { code: "BAD_REQUEST", message: "Invalid JSON body" } }, 400);
+  }
+
+  const { provider_key, external_product_id, shop_surface_id } = body as {
+    provider_key?: string;
+    external_product_id?: string;
+    shop_surface_id?: string;
+  };
+
+  // Validate required fields
+  if (!provider_key || typeof provider_key !== "string") {
+    return jsonResponse({ request_id, error: { code: "BAD_REQUEST", message: "provider_key is required (cj | modern | yangu_estores)" } }, 400);
+  }
+  if (!external_product_id || typeof external_product_id !== "string") {
+    return jsonResponse({ request_id, error: { code: "BAD_REQUEST", message: "external_product_id is required" } }, 400);
+  }
+
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
-      return errResponse("BAD_REQUEST", "Unauthorized", 401);
+      return jsonResponse({ request_id, error: { code: "UNAUTHORIZED", message: "Missing or invalid Authorization header" } }, 401);
     }
 
     const supabase = createClient(
@@ -31,18 +55,11 @@ Deno.serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     );
     const { data: { user }, error: authErr } = await supabase.auth.getUser();
-    if (authErr || !user) return errResponse("BAD_REQUEST", "Unauthorized", 401);
-
-    const body = await req.json();
-    const { provider_key, external_product_id, shop_surface_id } = body;
-
-    if (!provider_key || typeof provider_key !== "string") {
-      return errResponse("BAD_REQUEST", "provider_key is required");
-    }
-    if (!external_product_id || typeof external_product_id !== "string") {
-      return errResponse("BAD_REQUEST", "external_product_id is required");
+    if (authErr || !user) {
+      return jsonResponse({ request_id, error: { code: "UNAUTHORIZED", message: "Auth failed" } }, 401);
     }
 
+    // Check provider exists and is enabled
     const { data: provider, error: provErr } = await supabase
       .from("dropship_providers")
       .select("provider_key, is_enabled")
@@ -50,18 +67,41 @@ Deno.serve(async (req) => {
       .single();
 
     if (provErr || !provider) {
-      return errResponse("PROVIDER_NOT_FOUND", `Provider '${provider_key}' not found`);
+      return jsonResponse({ request_id, error: { code: "PROVIDER_NOT_FOUND", message: `Provider '${provider_key}' not found` } }, 404);
     }
     if (!provider.is_enabled) {
-      return errResponse("PROVIDER_DISABLED", `Provider '${provider_key}' is disabled`);
+      return jsonResponse({ request_id, error: { code: "PROVIDER_DISABLED", message: `Provider '${provider_key}' is disabled` } }, 400);
     }
 
     const adapter = getAdapter(provider_key);
     if (!adapter) {
-      return errResponse("PROVIDER_NOT_FOUND", `No adapter for '${provider_key}'`);
+      return jsonResponse({ request_id, error: { code: "PROVIDER_NOT_FOUND", message: `No adapter for '${provider_key}'` } }, 400);
     }
 
-    const product = await adapter.getProduct(external_product_id);
+    // Fetch product from provider
+    let product: Awaited<ReturnType<typeof adapter.getProduct>>;
+    try {
+      product = await adapter.getProduct(external_product_id);
+    } catch (upstreamErr: any) {
+      const msg = upstreamErr?.message ?? "Unknown upstream error";
+      const stack = upstreamErr?.stack ?? "no stack";
+      console.error("dropship-product UPSTREAM_ERROR", {
+        request_id,
+        provider_key,
+        external_product_id,
+        message: msg,
+        stack,
+      });
+      return jsonResponse({
+        request_id,
+        error: {
+          code: "UPSTREAM_PROVIDER_ERROR",
+          provider_key,
+          message: msg,
+          details: String(stack).slice(0, 2000),
+        },
+      }, 502);
+    }
 
     // --- Currency conversion ---
     let displayCurrency: string | null = null;
@@ -78,14 +118,16 @@ Deno.serve(async (req) => {
         if (e.code === "FX_RATE_MISSING") {
           displayCurrency = null;
         } else {
-          throw e;
+          console.error("dropship-product FX_ERROR", { request_id, message: e?.message, stack: e?.stack });
+          // Non-fatal: continue without FX
+          displayCurrency = null;
         }
       }
     }
 
     const providerCurrency = product.currency || "USD";
 
-    const enrichedVariants = product.variants.map((v) => {
+    const enrichedVariants = (product.variants || []).map((v) => {
       const provPriceCents = toCents(v.price);
       const variant: Record<string, unknown> = {
         ...v,
@@ -113,12 +155,24 @@ Deno.serve(async (req) => {
       result.fx_as_of = fxAsOf;
     }
 
-    return new Response(JSON.stringify({ provider_key, product: result }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    return jsonResponse({ request_id, provider_key, product: result });
+  } catch (err: any) {
+    const msg = err?.message ?? "Unknown error";
+    const stack = err?.stack ?? "no stack";
+    console.error("dropship-product UNHANDLED", {
+      request_id,
+      provider_key,
+      external_product_id,
+      message: msg,
+      stack,
     });
-  } catch (e) {
-    console.error("dropship-product error:", e);
-    const msg = e instanceof Error ? e.message : "Unknown error";
-    return errResponse("UPSTREAM_ERROR", msg, 502);
+    return jsonResponse({
+      request_id,
+      error: {
+        code: "UPSTREAM_ERROR",
+        message: msg,
+        details: String(stack).slice(0, 2000),
+      },
+    }, 502);
   }
 });

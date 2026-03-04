@@ -26,29 +26,35 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
   const [mainImage, setMainImage] = useState(product.thumbnail);
   const [localShopId, setLocalShopId] = useState(shopSurfaceId || (shopSurfaces[0]?.id ?? ""));
   const [markupPercent, setMarkupPercent] = useState(30);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+
+  const fetchDetail = async () => {
+    setLoading(true);
+    setFetchError(null);
+    try {
+      const res = await supabase.functions.invoke("dropship-product", {
+        body: {
+          provider_key: providerKey,
+          external_product_id: product.external_product_id,
+          shop_surface_id: localShopId || undefined,
+        },
+      });
+      if (res.error) throw new Error(res.error.message);
+      if (res.data?.error) throw new Error(res.data.error.message || "Provider error");
+      const d = res.data?.product;
+      setDetail(d);
+      if (d?.images?.[0]) setMainImage(d.images[0]);
+    } catch (err: any) {
+      console.error("dropship-product fetch error", err);
+      setFetchError(err.message || "Failed to load product details");
+      toast.error("Couldn't load product details. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    (async () => {
-      setLoading(true);
-      try {
-        const res = await supabase.functions.invoke("dropship-product", {
-          body: {
-            provider_key: providerKey,
-            external_product_id: product.external_product_id,
-            shop_surface_id: localShopId || undefined,
-          },
-        });
-        if (res.error) throw new Error(res.error.message);
-        const d = res.data?.product;
-        setDetail(d);
-        if (d?.images?.[0]) setMainImage(d.images[0]);
-      } catch (err: any) {
-        console.error(err);
-        toast.error("Failed to load product details");
-      } finally {
-        setLoading(false);
-      }
-    })();
+    fetchDetail();
   }, [product.external_product_id, providerKey]);
 
   // Pricing calculations
@@ -108,6 +114,13 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
       {loading ? (
         <div className="flex-1 flex items-center justify-center">
           <Loader2 className="w-6 h-6 animate-spin text-accent" />
+        </div>
+      ) : fetchError ? (
+        <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8">
+          <p className="text-sm text-destructive">{fetchError}</p>
+          <Button variant="outline" size="sm" onClick={fetchDetail} className="gap-1.5">
+            Retry
+          </Button>
         </div>
       ) : (
         <div className="flex-1 overflow-y-auto">
