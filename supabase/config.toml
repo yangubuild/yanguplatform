@@ -74,3 +74,6 @@ verify_jwt = false
 
 [functions.dropship-sync-inventory]
 verify_jwt = false
+
+[functions.dropship-create-order]
+verify_jwt = false

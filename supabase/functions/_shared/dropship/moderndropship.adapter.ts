@@ -1,6 +1,6 @@
-import type { DropshipAdapter, DropshipSearchItem, DropshipProductDetail, SearchFilters } from "./types.ts";
+import type { DropshipAdapter, DropshipSearchItem, DropshipProductDetail, SearchFilters, CreateOrderResult } from "./types.ts";
 
-async function mdFetch(path: string): Promise<unknown> {
+async function mdFetch(method: string, path: string, body?: Record<string, unknown>): Promise<unknown> {
   const baseUrl = Deno.env.get("MODERNDROPSHIP_BASE_URL") || "https://api.moderndropship.com";
   const apiKey = Deno.env.get("MODERNDROPSHIP_API_KEY");
 
@@ -11,11 +11,13 @@ async function mdFetch(path: string): Promise<unknown> {
 
   try {
     const res = await fetch(`${baseUrl}${path}`, {
-      method: "GET",
+      method,
       headers: {
         "Authorization": apiKey,
         "Accept": "application/json",
+        ...(body ? { "Content-Type": "application/json" } : {}),
       },
+      ...(body ? { body: JSON.stringify(body) } : {}),
       signal: controller.signal,
     });
 
@@ -39,7 +41,7 @@ export const modernDropshipAdapter: DropshipAdapter = {
       page: "0",
     });
 
-    const data = (await mdFetch(`/products?${params.toString()}`)) as any;
+    const data = (await mdFetch("GET", `/products?${params.toString()}`)) as any;
     const products = Array.isArray(data) ? data : (data?.products || data?.data || []);
 
     return products.map((p: any) => ({
@@ -55,7 +57,7 @@ export const modernDropshipAdapter: DropshipAdapter = {
   },
 
   async getProduct(external_product_id: string): Promise<DropshipProductDetail> {
-    const data = (await mdFetch(`/products/${external_product_id}`)) as any;
+    const data = (await mdFetch("GET", `/products/${external_product_id}`)) as any;
     const p = data?.product || data;
 
     if (!p || !p.id) throw new Error("Product not found");
@@ -81,7 +83,55 @@ export const modernDropshipAdapter: DropshipAdapter = {
   },
 
   async importProduct() { throw new Error("Not implemented — Phase 2"); },
-  async createOrder() { throw new Error("Not implemented — Phase 2"); },
+
+  async createOrder(order_payload: Record<string, unknown>): Promise<CreateOrderResult> {
+    const items = order_payload.items as any[];
+    const shipping = order_payload.shipping_address as any;
+    const customer = order_payload.customer as any;
+
+    const missing: string[] = [];
+    if (!shipping?.address) missing.push("shipping_address.address");
+    if (!shipping?.city) missing.push("shipping_address.city");
+    if (!shipping?.country) missing.push("shipping_address.country");
+    if (!customer?.name) missing.push("customer.name");
+
+    if (missing.length > 0) {
+      const err = new Error(`Missing required fields for ModernDropship order: ${missing.join(", ")}`) as any;
+      err.code = "BAD_REQUEST";
+      throw err;
+    }
+
+    const lineItems = items.map((item: any) => ({
+      variant_id: item.external_variant_id,
+      quantity: item.quantity || 1,
+    }));
+
+    const body = {
+      line_items: lineItems,
+      shipping_address: {
+        first_name: (customer.name || "").split(" ")[0] || customer.name,
+        last_name: (customer.name || "").split(" ").slice(1).join(" ") || "",
+        address1: shipping.address,
+        address2: shipping.address2 || "",
+        city: shipping.city,
+        province: shipping.province || shipping.state || "",
+        country: shipping.country,
+        zip: shipping.zip || shipping.postal_code || "",
+        phone: customer.phone || "",
+      },
+      note: (order_payload.notes as string) || "",
+    };
+
+    const data = (await mdFetch("POST", "/orders", body)) as any;
+    const orderId = data?.order?.id || data?.id || null;
+
+    return {
+      status: "submitted",
+      provider_order_id: orderId ? String(orderId) : undefined,
+      raw: data?.order || data,
+    };
+  },
+
   async syncInventory() { throw new Error("Not implemented — Phase 2"); },
   async syncPrice() { throw new Error("Not implemented — Phase 2"); },
 };

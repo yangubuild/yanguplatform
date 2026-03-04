@@ -36,11 +36,17 @@ export interface SearchFilters {
   maxPrice?: number;
 }
 
+export interface CreateOrderResult {
+  status: string;
+  provider_order_id?: string;
+  raw?: Record<string, unknown>;
+}
+
 export interface DropshipAdapter {
   searchProducts(query: string, filters: SearchFilters): Promise<DropshipSearchItem[]>;
   getProduct(external_product_id: string): Promise<DropshipProductDetail>;
   importProduct(external_product_id: string, shop_surface_id: string): Promise<{ status: string }>;
-  createOrder(order_payload: Record<string, unknown>): Promise<{ status: string }>;
+  createOrder(order_payload: Record<string, unknown>): Promise<CreateOrderResult>;
   syncInventory(external_product_id: string): Promise<{ status: string }>;
   syncPrice(external_product_id: string): Promise<{ status: string }>;
 }

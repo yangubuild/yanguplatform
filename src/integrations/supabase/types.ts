@@ -2187,6 +2187,107 @@ export type Database = {
         }
         Relationships: []
       }
+      dropship_order_items: {
+        Row: {
+          created_at: string
+          currency: string
+          dropship_order_id: string
+          external_product_id: string
+          external_variant_id: string
+          id: string
+          product_title: string
+          quantity: number
+          sku: string | null
+          unit_price_cents: number
+          variant_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          dropship_order_id: string
+          external_product_id: string
+          external_variant_id: string
+          id?: string
+          product_title?: string
+          quantity?: number
+          sku?: string | null
+          unit_price_cents?: number
+          variant_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          dropship_order_id?: string
+          external_product_id?: string
+          external_variant_id?: string
+          id?: string
+          product_title?: string
+          quantity?: number
+          sku?: string | null
+          unit_price_cents?: number
+          variant_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dropship_order_items_dropship_order_id_fkey"
+            columns: ["dropship_order_id"]
+            isOneToOne: false
+            referencedRelation: "dropship_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dropship_orders: {
+        Row: {
+          created_at: string
+          currency: string
+          customer: Json
+          id: string
+          last_error: string | null
+          notes: string | null
+          provider_key: string
+          provider_order_id: string | null
+          provider_payload: Json | null
+          shipping_address: Json
+          shop_surface_id: string
+          status: string
+          total_cost_cents: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          customer?: Json
+          id?: string
+          last_error?: string | null
+          notes?: string | null
+          provider_key: string
+          provider_order_id?: string | null
+          provider_payload?: Json | null
+          shipping_address?: Json
+          shop_surface_id: string
+          status?: string
+          total_cost_cents?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          customer?: Json
+          id?: string
+          last_error?: string | null
+          notes?: string | null
+          provider_key?: string
+          provider_order_id?: string | null
+          provider_payload?: Json | null
+          shipping_address?: Json
+          shop_surface_id?: string
+          status?: string
+          total_cost_cents?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       dropship_provider_cooldowns: {
         Row: {
           cooldown_until: string
@@ -2228,6 +2329,56 @@ export type Database = {
           provider_key?: string
         }
         Relationships: []
+      }
+      dropship_shipments: {
+        Row: {
+          carrier: string | null
+          created_at: string
+          delivered_at: string | null
+          dropship_order_id: string
+          id: string
+          provider_shipment_id: string | null
+          raw: Json | null
+          shipped_at: string | null
+          status: string
+          tracking_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          carrier?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          dropship_order_id: string
+          id?: string
+          provider_shipment_id?: string | null
+          raw?: Json | null
+          shipped_at?: string | null
+          status?: string
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          carrier?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          dropship_order_id?: string
+          id?: string
+          provider_shipment_id?: string | null
+          raw?: Json | null
+          shipped_at?: string | null
+          status?: string
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dropship_shipments_dropship_order_id_fkey"
+            columns: ["dropship_order_id"]
+            isOneToOne: false
+            referencedRelation: "dropship_orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       dropship_sync_jobs: {
         Row: {
@@ -3829,6 +3980,17 @@ export type Database = {
         Args: { p_name: string; p_org_id: string; p_slug: string }
         Returns: string
       }
+      create_dropship_order_intent: {
+        Args: {
+          p_customer: Json
+          p_items: Json
+          p_notes?: string
+          p_provider_key: string
+          p_shipping_address: Json
+          p_shop_surface_id: string
+        }
+        Returns: string
+      }
       create_ideogram_generation:
         | { Args: { p_params?: Json; p_prompt: string }; Returns: string }
         | {
@@ -4185,6 +4347,16 @@ export type Database = {
       unpublish_surface: {
         Args: { p_domain_id: string; p_surface_id: string }
         Returns: Json
+      }
+      update_dropship_order_result: {
+        Args: {
+          p_dropship_order_id: string
+          p_last_error?: string
+          p_provider_order_id?: string
+          p_provider_payload?: Json
+          p_status: string
+        }
+        Returns: undefined
       }
       upsert_creator_payment_profile: {
         Args: { p_methods: Json }
