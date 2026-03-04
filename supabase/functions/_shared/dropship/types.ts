@@ -9,6 +9,7 @@ export interface DropshipSearchItem {
   min_price: number;
   max_price: number;
   stock_hint: "in_stock" | "out_of_stock" | "unknown";
+  category_name?: string | null;
   raw: Record<string, unknown>;
 }
 
