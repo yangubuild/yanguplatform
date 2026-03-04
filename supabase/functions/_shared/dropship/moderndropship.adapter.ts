@@ -142,23 +142,41 @@ function mapModernProduct(p: any): DropshipSearchItem {
 
 export const modernDropshipAdapter: DropshipAdapter = {
   async searchProducts(query: string, _filters: SearchFilters): Promise<DropshipSearchItem[]> {
+    const normalizedQuery = query.trim();
     const fallbackQuery = "best sellers";
-    const attempts: Array<{ label: string; params: Record<string, string> }> = [
-      { label: "query", params: { query, limit: "20", page: "0" } },
-      { label: "title", params: { title: query, limit: "20", page: "0" } },
-      ...(query.toLowerCase() !== fallbackQuery
+
+    const attempts: Array<{ label: string; endpoint: string; params: Record<string, string> }> = [
+      { label: "products_query", endpoint: "/products", params: { query: normalizedQuery, limit: "20", page: "0" } },
+      { label: "products_title", endpoint: "/products", params: { title: normalizedQuery, limit: "20", page: "0" } },
+      { label: "products_code", endpoint: "/products", params: { productCode: normalizedQuery, limit: "20", page: "0" } },
+      ...(normalizedQuery.toLowerCase() !== fallbackQuery
         ? [
-            { label: "fallback_query", params: { query: fallbackQuery, limit: "20", page: "0" } },
-            { label: "fallback_title", params: { title: fallbackQuery, limit: "20", page: "0" } },
+            { label: "products_fallback_query", endpoint: "/products", params: { query: fallbackQuery, limit: "20", page: "0" } },
+            { label: "products_fallback_title", endpoint: "/products", params: { title: fallbackQuery, limit: "20", page: "0" } },
+            { label: "products_fallback_code", endpoint: "/products", params: { productCode: fallbackQuery, limit: "20", page: "0" } },
           ]
         : []),
-      { label: "catalog", params: { limit: "20", page: "0" } },
-      { label: "catalog_page_1", params: { limit: "20", page: "1" } },
+      { label: "products_catalog_0", endpoint: "/products", params: { limit: "20", page: "0" } },
+      { label: "products_catalog_1", endpoint: "/products", params: { limit: "20", page: "1" } },
+
+      // Buyer accounts often expose products via /buyer/products.
+      { label: "buyer_products_code", endpoint: "/buyer/products", params: { productCode: normalizedQuery, limit: "20", page: "0" } },
+      { label: "buyer_products_buyer_code", endpoint: "/buyer/products", params: { buyerProductCode: normalizedQuery, limit: "20", page: "0" } },
+      ...(normalizedQuery.toLowerCase() !== fallbackQuery
+        ? [
+            { label: "buyer_products_fallback_code", endpoint: "/buyer/products", params: { productCode: fallbackQuery, limit: "20", page: "0" } },
+            { label: "buyer_products_fallback_buyer_code", endpoint: "/buyer/products", params: { buyerProductCode: fallbackQuery, limit: "20", page: "0" } },
+          ]
+        : []),
+      { label: "buyer_products_catalog_0", endpoint: "/buyer/products", params: { limit: "20", page: "0" } },
+      { label: "buyer_products_catalog_1", endpoint: "/buyer/products", params: { limit: "20", page: "1" } },
     ];
+
+    let lastUpstreamError: any = null;
 
     for (const attempt of attempts) {
       const params = new URLSearchParams(attempt.params);
-      const path = `/products?${params.toString()}`;
+      const path = `${attempt.endpoint}?${params.toString()}`;
 
       try {
         const data = (await mdFetch("GET", path)) as any;
@@ -166,6 +184,7 @@ export const modernDropshipAdapter: DropshipAdapter = {
 
         console.log("moderndropship parsed", {
           attempt: attempt.label,
+          endpoint: attempt.endpoint,
           parsed_items: products.length,
           first_item_keys: products[0] ? Object.keys(products[0]).slice(0, 20) : [],
         });
@@ -176,14 +195,20 @@ export const modernDropshipAdapter: DropshipAdapter = {
       } catch (err: any) {
         if (err?.code === "MODERNDROPSHIP_CONFIG_MISSING") throw err;
 
+        lastUpstreamError = err;
         console.error("moderndropship search attempt failed", {
           attempt: attempt.label,
+          endpoint: attempt.endpoint,
           message: err?.message,
           status: err?.status,
           body_preview: String(err?.body_preview || "").slice(0, 200),
           stack: err?.stack,
         });
       }
+    }
+
+    if (lastUpstreamError) {
+      throw lastUpstreamError;
     }
 
     return [];

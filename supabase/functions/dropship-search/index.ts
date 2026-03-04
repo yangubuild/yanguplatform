@@ -105,6 +105,10 @@ Deno.serve(async (req) => {
       return errResponse("UPSTREAM_ERROR", err.message || "Unknown upstream error", 502);
     }
 
+    if (provider_key === "moderndropship" && items.length === 0) {
+      warnings.push("ModernDropship returned 0 products for this account");
+    }
+
     let displayCurrency: string | null = null;
     let fxRate: number | null = null;
     let fxAsOf: string | null = null;
