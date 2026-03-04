@@ -157,7 +157,7 @@ export default function EshopConnectPage() {
                 <button type="button" className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
                   <Search className="w-3.5 h-3.5" /> Image Search
                 </button>
-                <Button type="submit" size="sm" disabled={searching} className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-full px-5 gap-1.5">
+                <Button type="submit" size="sm" disabled={searching} className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-xl px-5 gap-1.5">
                   <Sparkles className="w-3.5 h-3.5" />
                   {searching ? "Searching…" : "Search"}
                 </Button>

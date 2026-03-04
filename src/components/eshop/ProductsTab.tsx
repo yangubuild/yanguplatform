@@ -108,7 +108,7 @@ export default function ProductsTab({ results, searching, query, formatPrice, on
                 <button
                   key={s}
                   onClick={() => onSearch(s)}
-                  className="px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-accent/40 hover:bg-accent/5 transition-colors"
+                  className="px-4 py-2 rounded-xl border border-border bg-card text-sm text-foreground hover:border-accent/40 hover:bg-accent/5 transition-colors"
                 >
                   {s}
                 </button>
