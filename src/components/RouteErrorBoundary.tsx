@@ -75,9 +75,28 @@ export class RouteErrorBoundary extends Component<Props, State> {
               fontWeight: 600,
               cursor: "pointer",
               fontSize: "0.95rem",
+              marginBottom: "0.5rem",
             }}
           >
             Reload Page
+          </button>
+          <button
+            onClick={() => {
+              this.setState({ hasError: false, error: null });
+              window.location.href = window.location.href;
+            }}
+            style={{
+              padding: "0.5rem 1.25rem",
+              borderRadius: 8,
+              border: "1px solid #334155",
+              background: "transparent",
+              color: "#94a3b8",
+              fontWeight: 500,
+              cursor: "pointer",
+              fontSize: "0.85rem",
+            }}
+          >
+            Try again without full reload
           </button>
         </div>
       );
