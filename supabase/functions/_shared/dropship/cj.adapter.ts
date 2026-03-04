@@ -239,6 +239,38 @@ export const cjAdapter: DropshipAdapter = {
     };
   },
 
+  async getOrderStatus(provider_order_id: string) {
+    const data = (await cjGet("/shopping/order/getOrderDetail", { orderId: provider_order_id })) as any;
+    const o = data?.data;
+    if (!o) throw new Error("Order not found in CJ");
+
+    const statusMap: Record<string, string> = {
+      CREATED: "submitted",
+      IN_CART: "submitted",
+      UNPAID: "submitted",
+      UNSHIPPED: "accepted",
+      SHIPPED: "shipped",
+      DELIVERED: "delivered",
+      CANCELLED: "cancelled",
+    };
+    const normalized = (statusMap[o.orderStatus] || "submitted") as any;
+
+    const logistic = o.logisticList?.[0] || {};
+
+    return {
+      status: normalized,
+      tracking: {
+        tracking_number: logistic.trackingNumber || null,
+        tracking_url: logistic.trackingUrl || null,
+        carrier: logistic.logisticName || null,
+        shipment_status: normalized === "delivered" ? "delivered" as const
+          : normalized === "shipped" ? "shipped" as const
+          : "pending" as const,
+      },
+      raw: o,
+    };
+  },
+
   async syncInventory() { throw new Error("Not implemented — Phase 2"); },
   async syncPrice() { throw new Error("Not implemented — Phase 2"); },
 };
