@@ -85,13 +85,7 @@ Deno.serve(async (req) => {
     } catch (upstreamErr: any) {
       const msg = upstreamErr?.message ?? "Unknown upstream error";
       const stack = upstreamErr?.stack ?? "no stack";
-      console.error("dropship-product UPSTREAM_ERROR", {
-        request_id,
-        provider_key,
-        external_product_id,
-        message: msg,
-        stack,
-      });
+      console.error(upstreamErr?.stack || upstreamErr);
       return jsonResponse({
         request_id,
         error: {
@@ -100,7 +94,7 @@ Deno.serve(async (req) => {
           message: msg,
           details: String(stack).slice(0, 2000),
         },
-      }, 502);
+      }, 500);
     }
 
     // --- Currency conversion ---
@@ -159,13 +153,7 @@ Deno.serve(async (req) => {
   } catch (err: any) {
     const msg = err?.message ?? "Unknown error";
     const stack = err?.stack ?? "no stack";
-    console.error("dropship-product UNHANDLED", {
-      request_id,
-      provider_key,
-      external_product_id,
-      message: msg,
-      stack,
-    });
+    console.error(err?.stack || err);
     return jsonResponse({
       request_id,
       error: {
@@ -173,6 +161,6 @@ Deno.serve(async (req) => {
         message: msg,
         details: String(stack).slice(0, 2000),
       },
-    }, 502);
+    }, 500);
   }
 });

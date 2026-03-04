@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
-import { Search, Sparkles, Package, Plug } from "lucide-react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { Search, Sparkles, Plug } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -53,17 +53,18 @@ const ALL_SOURCES = [
 
 export default function EshopConnectPage() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const shopSurfaceIdParam = searchParams.get("shop_surface_id") || "";
 
   const [query, setQuery] = useState("");
   const [searching, setSearching] = useState(false);
   const [results, setResults] = useState<SearchItem[]>([]);
   const [activeTab, setActiveTab] = useState<TabKey>("products");
-  const [providerKey, setProviderKey] = useState("");
+  const [providerKey, setProviderKey] = useState("cj");
   const [selectedProduct, setSelectedProduct] = useState<SearchItem | null>(null);
   const [showPopup, setShowPopup] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState("all");
-  const [autoFeedLoaded, setAutoFeedLoaded] = useState(false);
+  const [hasAttemptedProviderLoad, setHasAttemptedProviderLoad] = useState(false);
   const [selectedShopSurfaceId, setSelectedShopSurfaceId] = useState(shopSurfaceIdParam);
   const [providerWarnings, setProviderWarnings] = useState<string[]>([]);
 
@@ -83,29 +84,42 @@ export default function EshopConnectPage() {
     localStorage.setItem("eshop_ai_popup_dismissed", Date.now().toString());
   };
 
-  const doSearch = useCallback(async (q: string, provider?: string) => {
-    const fallbackProvider = connectedProviders().find((p) => p !== "estores") || "";
-    const pk = provider || providerKey || fallbackProvider;
-    if (!q.trim()) return;
+  const normalizeProviderKey = (value?: string) => {
+    const normalized = String(value || "").trim().toLowerCase();
+    if (normalized === "yangu_estores") return "estores";
+    return normalized;
+  };
+
+  const doSearch = useCallback(async (rawQuery: string, provider?: string) => {
+    const pk = normalizeProviderKey(provider || providerKey);
+    const effectiveQuery = rawQuery.trim() || "trending best sellers";
+
     if (!pk) {
-      toast.error("Connect a supplier first to search.");
+      toast.info("Select a provider first.");
       return;
     }
-    if (!isConnected(pk)) {
-      toast.error(`Connect ${pk === "cj" ? "CJ Dropshipping" : pk === "moderndropship" ? "ModernDropship" : pk} first to search.`);
+
+    if (pk !== "estores" && !isConnected(pk)) {
+      toast.info(`Connect ${pk === "cj" ? "CJ Dropshipping" : "ModernDropship"} in the Manufacturers tab first.`);
+      setActiveTab("manufacturers");
       return;
     }
+
     setSearching(true);
     setResults([]);
     setProviderWarnings([]);
+    setHasAttemptedProviderLoad(true);
+    setSelectedCountry("all");
+
     try {
       const res = await supabase.functions.invoke("dropship-search", {
         body: {
           provider_key: pk,
-          query: q.trim(),
+          query: effectiveQuery,
           shop_surface_id: selectedShopSurfaceId || undefined,
         },
       });
+
       if (res.error) throw new Error(res.error.message);
 
       const responseWarnings = Array.isArray(res.data?.warnings)
@@ -113,99 +127,42 @@ export default function EshopConnectPage() {
         : [];
       setProviderWarnings(responseWarnings as string[]);
 
+      const responseProvider = normalizeProviderKey(res.data?.provider_key || pk);
       const items = (res.data?.items || []).map((i: any) => ({
         ...i,
-        provider_key: pk,
+        provider_key: responseProvider,
         thumbnail: i.thumbnail_url || i.thumbnail || "",
         image_urls: i.image_urls || [],
         category_name: i.category_name || i.raw?.categoryName || undefined,
         ship_from_country: i.ship_from_country || undefined,
       }));
+
+      if (import.meta.env.DEV && res.data?.debug) {
+        console.log("dropship-search debug", { provider: responseProvider, debug: res.data.debug });
+      }
+
       setResults(items);
-      if (items.length === 0) toast.info("No products found for that query.");
     } catch (err: any) {
       console.error(err);
       toast.error("Search failed — " + (err.message || "unknown error"));
     } finally {
       setSearching(false);
     }
-  }, [providerKey, connectedProviders, isConnected, selectedShopSurfaceId]);
+  }, [providerKey, isConnected, selectedShopSurfaceId]);
 
-  // Multi-provider feed: query all connected providers in parallel
-  const loadMultiProviderFeed = useCallback(async () => {
-    const connected = connectedProviders().filter((p) => p !== "estores");
-    if (connected.length === 0) return;
-    setSearching(true);
-    setResults([]);
-    setProviderWarnings([]);
-
-    try {
-      const responses = await Promise.all(
-        connected.map(async (pk) => {
-          try {
-            const res = await supabase.functions.invoke("dropship-search", {
-              body: {
-                provider_key: pk,
-                query: "trending best sellers",
-                shop_surface_id: selectedShopSurfaceId || undefined,
-              },
-            });
-
-            if (res.error) {
-              const fallbackWarning =
-                pk === "moderndropship" && /missing api key|not configured/i.test(res.error.message || "")
-                  ? ["ModernDropship not configured (missing API key)"]
-                  : [];
-              console.warn(`Feed load failed for ${pk}:`, res.error.message);
-              return { items: [], warnings: fallbackWarning };
-            }
-
-            const responseWarnings = Array.isArray(res.data?.warnings)
-              ? res.data.warnings.filter((w: unknown) => typeof w === "string")
-              : [];
-
-            const items = (res.data?.items || []).map((i: any) => ({
-              ...i,
-              provider_key: pk,
-              thumbnail: i.thumbnail_url || i.thumbnail || "",
-              image_urls: i.image_urls || [],
-              category_name: i.category_name || i.raw?.categoryName || undefined,
-              ship_from_country: i.ship_from_country || undefined,
-            }));
-
-            return { items, warnings: responseWarnings as string[] };
-          } catch (err: any) {
-            console.warn(`Feed load error for ${pk}:`, err.message);
-            const fallbackWarning =
-              pk === "moderndropship" && /missing api key|not configured/i.test(err.message || "")
-                ? ["ModernDropship not configured (missing API key)"]
-                : [];
-            return { items: [], warnings: fallbackWarning };
-          }
-        })
-      );
-
-      const merged = responses.flatMap((r) => r.items);
-      const warningMessages = Array.from(new Set(responses.flatMap((r) => r.warnings)));
-
-      setProviderWarnings(warningMessages);
-      setResults(merged);
-
-      if (merged.length === 0) toast.info("No products found from connected providers.");
-    } finally {
-      setSearching(false);
-    }
-  }, [connectedProviders, selectedShopSurfaceId]);
-
-  // Auto-load multi-provider feed when providers are connected and no results yet
   useEffect(() => {
-    if (autoFeedLoaded || connectionsLoading || results.length > 0 || searching) return;
-    const connected = connectedProviders().filter((p) => p !== "estores");
-    if (connected.length > 0 && !autoFeedLoaded) {
-      setAutoFeedLoaded(true);
-      loadMultiProviderFeed();
-    }
-  }, [connectionsLoading, autoFeedLoaded, results.length, searching, connectedProviders, loadMultiProviderFeed]);
+    if (connectionsLoading || hasAttemptedProviderLoad) return;
+
+    const connected = connectedProviders();
+    const defaultProvider = connected.includes("cj")
+      ? "cj"
+      : connected.includes("moderndropship")
+        ? "moderndropship"
+        : "estores";
+
+    setProviderKey(defaultProvider);
+    void doSearch("", defaultProvider);
+  }, [connectionsLoading, connectedProviders, doSearch, hasAttemptedProviderLoad]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -221,14 +178,18 @@ export default function EshopConnectPage() {
     }).format(cents / 100);
   };
 
-  const handleSourceClick = (key: string) => {
+  const handleSourceClick = async (key: string) => {
     if (key === "dsers") return;
-    if (!isConnected(key)) {
-      toast.info(`Connect ${key === "cj" ? "CJ Dropshipping" : key === "moderndropship" ? "ModernDropship" : key} in the Manufacturers tab first.`);
+
+    const normalizedKey = normalizeProviderKey(key);
+    if (normalizedKey !== "estores" && !isConnected(normalizedKey)) {
+      toast.info(`Connect ${normalizedKey === "cj" ? "CJ Dropshipping" : "ModernDropship"} in the Manufacturers tab first.`);
       setActiveTab("manufacturers");
       return;
     }
-    setProviderKey(key);
+
+    setProviderKey(normalizedKey);
+    await doSearch(query, normalizedKey);
   };
 
   if (selectedProduct) {
@@ -250,7 +211,15 @@ export default function EshopConnectPage() {
   return (
     <div className="flex flex-col h-full min-h-0 overflow-hidden">
       {/* AI Mode Popup */}
-      {showPopup && <AiModePopup onClose={dismissPopup} />}
+      {showPopup && (
+        <AiModePopup
+          onClose={dismissPopup}
+          onTryAiMode={() => {
+            dismissPopup();
+            navigate("/dashboard/ada");
+          }}
+        />
+      )}
 
       {/* Top Tab Navigation — Alibaba style */}
       <div className="border-b border-border/60 bg-card/50">
@@ -258,7 +227,13 @@ export default function EshopConnectPage() {
           {TABS.map((tab) => (
             <button
               key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
+              onClick={() => {
+                if (tab.key === "ai-mode") {
+                  navigate("/dashboard/ada");
+                  return;
+                }
+                setActiveTab(tab.key);
+              }}
               className={`text-sm font-semibold px-1 pb-1 transition-colors relative ${
                 activeTab === tab.key
                   ? "text-accent border-b-2 border-accent"
@@ -272,14 +247,14 @@ export default function EshopConnectPage() {
         </div>
 
         {/* Search Bar — large, Alibaba-style */}
-        {(activeTab === "products" || activeTab === "ai-mode" || activeTab === "worldwide") && (
+        {(activeTab === "products" || activeTab === "worldwide") && (
           <div className="px-6 pb-4">
             <form onSubmit={handleSearch} className="relative max-w-4xl mx-auto rounded-xl border-2 border-accent/40 bg-card overflow-hidden">
               <div className="px-4 pt-3 pb-1">
                 <input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder={activeTab === "ai-mode" ? "Describe your needs..." : "Search products, suppliers, or niches..."}
+                  placeholder="Search products, suppliers, or niches..."
                   className="w-full text-sm text-foreground placeholder:text-muted-foreground bg-transparent focus:outline-none"
                 />
               </div>
@@ -332,17 +307,19 @@ export default function EshopConnectPage() {
 
       {/* Tab Content */}
       <div className="flex-1 overflow-y-auto">
-        {(activeTab === "products" || activeTab === "ai-mode") && (
+        {activeTab === "products" && (
           <ProductsTab
             results={results}
             searching={searching}
             query={query}
             formatPrice={formatPrice}
             onProductClick={setSelectedProduct}
-            onSearch={(q) => { setQuery(q); doSearch(q); }}
+            onSearch={(q) => { setQuery(q); void doSearch(q, providerKey); }}
             hasConnectedProvider={hasAnyProvider}
             onGoToManufacturers={() => setActiveTab("manufacturers")}
             providerWarnings={providerWarnings}
+            selectedProviderKey={providerKey}
+            hasAttemptedProviderLoad={hasAttemptedProviderLoad}
           />
         )}
         {activeTab === "manufacturers" && (
