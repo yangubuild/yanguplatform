@@ -1,5 +1,6 @@
-import { Search, Package, SlidersHorizontal, ChevronDown } from "lucide-react";
+import { Search, Package, SlidersHorizontal, ChevronDown, Plug } from "lucide-react";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import type { SearchItem } from "@/pages/seller/eshop-connect/EshopConnectPage";
 import ProductCard from "./ProductCard";
 
@@ -10,6 +11,8 @@ interface Props {
   formatPrice: (cents: number | undefined, currency: string | undefined) => string;
   onProductClick: (item: SearchItem) => void;
   onSearch: (q: string) => void;
+  hasConnectedProvider?: boolean;
+  onGoToManufacturers?: () => void;
 }
 
 const CATEGORIES = ["All categories", "Electronics", "Fashion", "Home & Garden", "Beauty", "Sports", "Toys"];
@@ -22,7 +25,7 @@ const SUGGESTIONS = [
   "Phone accessories best sellers",
 ];
 
-export default function ProductsTab({ results, searching, query, formatPrice, onProductClick, onSearch }: Props) {
+export default function ProductsTab({ results, searching, query, formatPrice, onProductClick, onSearch, hasConnectedProvider = true, onGoToManufacturers }: Props) {
   const [verifiedOnly, setVerifiedOnly] = useState(false);
 
   return (
@@ -71,7 +74,29 @@ export default function ProductsTab({ results, searching, query, formatPrice, on
 
       {/* Main content */}
       <div className="flex-1 p-5">
-        {searching ? (
+        {!hasConnectedProvider && results.length === 0 && !searching ? (
+          /* Empty state — no providers connected */
+          <div className="max-w-lg mx-auto py-16 text-center space-y-6">
+            <div className="w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto">
+              <Plug className="w-8 h-8 text-accent" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-foreground mb-1">Connect a supplier to get started</h3>
+              <p className="text-sm text-muted-foreground">
+                Connect CJ Dropshipping or ModernDropship to browse and import products into your store.
+              </p>
+            </div>
+            <div className="flex justify-center gap-3">
+              <Button
+                onClick={onGoToManufacturers}
+                className="bg-accent text-accent-foreground hover:bg-accent/90 gap-1.5"
+              >
+                <Plug className="w-4 h-4" />
+                Connect a Supplier
+              </Button>
+            </div>
+          </div>
+        ) : searching ? (
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="rounded-lg border border-border bg-card animate-pulse">

@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { Search, Sparkles, Package, X } from "lucide-react";
+import { Search, Sparkles, Package, Plug } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -9,6 +9,7 @@ import ManufacturersTab from "@/components/eshop/ManufacturersTab";
 import WorldwideTab from "@/components/eshop/WorldwideTab";
 import MyImportsTab from "@/components/eshop/MyImportsTab";
 import ProductDetailView from "@/components/eshop/ProductDetailView";
+import { useDropshipConnections } from "@/hooks/useDropshipConnections";
 
 export interface SearchItem {
   external_product_id: string;
@@ -37,11 +38,11 @@ const TABS = [
 
 type TabKey = typeof TABS[number]["key"];
 
-const SOURCES = [
-  { key: "cj", label: "CJ Dropshipping", enabled: true },
-  { key: "moderndropship", label: "ModernDropship", enabled: true },
-  { key: "estores", label: "YANGU Estores", enabled: true },
-  { key: "dsers", label: "DSers", enabled: false },
+const ALL_SOURCES = [
+  { key: "cj", label: "CJ Dropshipping" },
+  { key: "moderndropship", label: "ModernDropship" },
+  { key: "estores", label: "YANGU Estores" },
+  { key: "dsers", label: "DSers" },
 ];
 
 export default function EshopConnectPage() {
@@ -53,6 +54,9 @@ export default function EshopConnectPage() {
   const [selectedProduct, setSelectedProduct] = useState<SearchItem | null>(null);
   const [showPopup, setShowPopup] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState("all");
+  const [autoFeedLoaded, setAutoFeedLoaded] = useState(false);
+
+  const { isConnected, connectedProviders, isLoading: connectionsLoading } = useDropshipConnections();
 
   useEffect(() => {
     const dismissed = localStorage.getItem("eshop_ai_popup_dismissed");
@@ -64,14 +68,19 @@ export default function EshopConnectPage() {
     localStorage.setItem("eshop_ai_popup_dismissed", Date.now().toString());
   };
 
-  const doSearch = useCallback(async (q: string) => {
+  const doSearch = useCallback(async (q: string, provider?: string) => {
+    const pk = provider || providerKey;
     if (!q.trim()) return;
+    if (!isConnected(pk)) {
+      toast.error(`Connect ${pk === "cj" ? "CJ Dropshipping" : pk === "moderndropship" ? "ModernDropship" : pk} first to search.`);
+      return;
+    }
     setSearching(true);
     setResults([]);
     try {
       const res = await supabase.functions.invoke("dropship-search", {
         body: {
-          provider_key: providerKey,
+          provider_key: pk,
           query: q.trim(),
           shop_surface_id: SHOP_SURFACE_ID || undefined,
         },
@@ -79,7 +88,7 @@ export default function EshopConnectPage() {
       if (res.error) throw new Error(res.error.message);
       const items = (res.data?.items || []).map((i: any) => ({
         ...i,
-        provider_key: providerKey,
+        provider_key: pk,
       }));
       setResults(items);
       if (items.length === 0) toast.info("No products found for that query.");
@@ -89,7 +98,19 @@ export default function EshopConnectPage() {
     } finally {
       setSearching(false);
     }
-  }, [providerKey]);
+  }, [providerKey, isConnected]);
+
+  // Auto-load default feed when providers are connected and no results yet
+  useEffect(() => {
+    if (autoFeedLoaded || connectionsLoading || results.length > 0 || searching) return;
+    const connected = connectedProviders().filter((p) => p !== "estores");
+    if (connected.length > 0 && !autoFeedLoaded) {
+      setAutoFeedLoaded(true);
+      const firstProvider = connected[0];
+      setProviderKey(firstProvider);
+      doSearch("trending best sellers", firstProvider);
+    }
+  }, [connectionsLoading, autoFeedLoaded, results.length, searching, connectedProviders, doSearch]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,6 +126,16 @@ export default function EshopConnectPage() {
     }).format(cents / 100);
   };
 
+  const handleSourceClick = (key: string) => {
+    if (key === "dsers") return;
+    if (!isConnected(key)) {
+      toast.info(`Connect ${key === "cj" ? "CJ Dropshipping" : key === "moderndropship" ? "ModernDropship" : key} in the Manufacturers tab first.`);
+      setActiveTab("manufacturers");
+      return;
+    }
+    setProviderKey(key);
+  };
+
   if (selectedProduct) {
     return (
       <ProductDetailView
@@ -116,6 +147,8 @@ export default function EshopConnectPage() {
       />
     );
   }
+
+  const hasAnyProvider = connectedProviders().filter((p) => p !== "estores").length > 0;
 
   return (
     <div className="flex flex-col h-full min-h-0 overflow-hidden">
@@ -166,22 +199,35 @@ export default function EshopConnectPage() {
 
             {/* Source selector row */}
             <div className="flex items-center justify-center gap-2 mt-3">
-              {SOURCES.map((s) => (
-                <button
-                  key={s.key}
-                  disabled={!s.enabled}
-                  onClick={() => s.enabled && setProviderKey(s.key)}
-                  className={`text-xs px-3 py-1.5 rounded-md border transition-colors ${
-                    providerKey === s.key
-                      ? "border-accent bg-accent/10 text-accent font-medium"
-                      : s.enabled
-                        ? "border-border text-muted-foreground hover:border-accent/40 hover:text-foreground"
-                        : "border-border/40 text-muted-foreground/40 cursor-not-allowed"
-                  }`}
-                >
-                  {s.label}{!s.enabled && " (soon)"}
-                </button>
-              ))}
+              {ALL_SOURCES.map((s) => {
+                const connected = isConnected(s.key);
+                const isComingSoon = s.key === "dsers";
+                const active = providerKey === s.key;
+
+                return (
+                  <button
+                    key={s.key}
+                    disabled={isComingSoon}
+                    onClick={() => handleSourceClick(s.key)}
+                    className={`text-xs px-3 py-1.5 rounded-md border transition-colors flex items-center gap-1.5 ${
+                      active
+                        ? "border-accent bg-accent/10 text-accent font-medium"
+                        : connected
+                          ? "border-border text-muted-foreground hover:border-accent/40 hover:text-foreground"
+                          : isComingSoon
+                            ? "border-border/40 text-muted-foreground/40 cursor-not-allowed"
+                            : "border-border/60 text-muted-foreground/60 hover:border-accent/40"
+                    }`}
+                  >
+                    {!connected && !isComingSoon && s.key !== "estores" && <Plug className="w-3 h-3" />}
+                    {s.label}
+                    {isComingSoon && " (soon)"}
+                    {!connected && !isComingSoon && s.key !== "estores" && (
+                      <span className="text-[10px] text-muted-foreground/50">• not connected</span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
@@ -197,6 +243,8 @@ export default function EshopConnectPage() {
             formatPrice={formatPrice}
             onProductClick={setSelectedProduct}
             onSearch={(q) => { setQuery(q); doSearch(q); }}
+            hasConnectedProvider={hasAnyProvider}
+            onGoToManufacturers={() => setActiveTab("manufacturers")}
           />
         )}
         {activeTab === "manufacturers" && (
