@@ -149,20 +149,19 @@ Deno.serve(async (req) => {
         items = await adapter.searchProducts(query || "trending best sellers", filters);
       } catch (providerErr: any) {
         const err = providerErr instanceof Error ? providerErr : new Error(String(providerErr));
-        const isModernConfigMissing =
+        const isConfigMissing =
           provider_key === "moderndropship" &&
           (providerErr?.code === "MODERNDROPSHIP_CONFIG_MISSING" || String(err.message).toLowerCase().includes("missing api key"));
 
-        if (isModernConfigMissing) {
+        if (isConfigMissing) {
           warnings.push("ModernDropship not configured (missing API key)");
-          return new Response(
-            JSON.stringify({ provider_key, items: [], warnings, debug: getProviderDebugCounts(provider_key, 0) }),
-            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
+        } else {
+          // Return safe response instead of 502 — never crash the UI
+          const msg = err.message || "Unknown upstream error";
+          console.error("dropship-search provider error", { provider_key, query, message: msg, stack: err.stack || "no stack" });
+          warnings.push(`${provider_key} temporarily unavailable: ${msg}`);
         }
-
-        console.error("dropship-search provider error", { provider_key, query, message: err.message, stack: err.stack || "no stack" });
-        return errResponse("UPSTREAM_ERROR", err.message || "Unknown upstream error", 502);
+        // Fall through with items = [] and warnings
       }
     }
 

@@ -3,19 +3,20 @@ import type { SearchItem } from "@/pages/seller/eshop-connect/EshopConnectPage";
 import ProductCard from "./ProductCard";
 import { Globe } from "lucide-react";
 
-const COUNTRY_FLAGS: Record<string, string> = {
-  "United States": "🇺🇸",
-  China: "🇨🇳",
-  UAE: "🇦🇪",
-  India: "🇮🇳",
-  Vietnam: "🇻🇳",
-  Indonesia: "🇮🇩",
-  Malaysia: "🇲🇾",
-  Türkiye: "🇹🇷",
-  Pakistan: "🇵🇰",
-  Thailand: "🇹🇭",
-  "United Kingdom": "🇬🇧",
-};
+const STATIC_COUNTRIES = [
+  { key: "all", label: "All", flag: null },
+  { key: "China", label: "China", flag: "🇨🇳" },
+  { key: "United States", label: "United States", flag: "🇺🇸" },
+  { key: "United Kingdom", label: "United Kingdom", flag: "🇬🇧" },
+  { key: "UAE", label: "UAE", flag: "🇦🇪" },
+  { key: "India", label: "India", flag: "🇮🇳" },
+  { key: "Vietnam", label: "Vietnam", flag: "🇻🇳" },
+  { key: "Indonesia", label: "Indonesia", flag: "🇮🇩" },
+  { key: "Malaysia", label: "Malaysia", flag: "🇲🇾" },
+  { key: "Türkiye", label: "Türkiye", flag: "🇹🇷" },
+  { key: "Pakistan", label: "Pakistan", flag: "🇵🇰" },
+  { key: "Thailand", label: "Thailand", flag: "🇹🇭" },
+];
 
 interface Props {
   selectedCountry: string;
@@ -37,10 +38,10 @@ export default function WorldwideTab({ selectedCountry, onCountryChange, results
   }, [results]);
 
   const countries = useMemo(() => {
-    const dynamic = Object.entries(countryCounts)
-      .sort((a, b) => b[1] - a[1])
-      .map(([label, count]) => ({ key: label, label, count, flag: COUNTRY_FLAGS[label] || null }));
-    return [{ key: "all", label: "All", count: results.length, flag: null }, ...dynamic];
+    return STATIC_COUNTRIES.map((c) => ({
+      ...c,
+      count: c.key === "all" ? results.length : (countryCounts[c.key] || 0),
+    }));
   }, [countryCounts, results.length]);
 
   const filteredResults = useMemo(() => {
@@ -93,15 +94,15 @@ export default function WorldwideTab({ selectedCountry, onCountryChange, results
             />
           ))}
         </div>
-      ) : results.length > 0 && selectedCountry !== "all" ? (
-        <div className="text-center py-16">
-          <Globe className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground">No products found for {selectedCountry}</p>
-          <button onClick={() => onCountryChange("all")} className="text-xs text-accent hover:underline mt-2">Clear filters</button>
-        </div>
       ) : searching ? (
         <div className="text-center py-16">
           <p className="text-sm text-muted-foreground">Loading products…</p>
+        </div>
+      ) : selectedCountry !== "all" ? (
+        <div className="text-center py-16">
+          <Globe className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
+          <p className="text-sm text-muted-foreground">No products shipping from {selectedCountry}</p>
+          <button onClick={() => onCountryChange("all")} className="text-xs text-accent hover:underline mt-2">Clear filters</button>
         </div>
       ) : (
         <div className="text-center py-16">

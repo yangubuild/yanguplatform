@@ -120,7 +120,17 @@ export default function EshopConnectPage() {
         },
       });
 
-      if (res.error) throw new Error(res.error.message);
+      // Handle edge function transport errors gracefully (502, 429, etc.)
+      if (res.error) {
+        const errorMsg = res.error.message || "Unknown error";
+        console.warn("dropship-search returned error:", errorMsg);
+        // Check if response data still has items (graceful degradation)
+        if (!res.data?.items) {
+          setProviderWarnings([`Provider temporarily unavailable: ${errorMsg}`]);
+          setResults([]);
+          return;
+        }
+      }
 
       const responseWarnings = Array.isArray(res.data?.warnings)
         ? res.data.warnings.filter((w: unknown) => typeof w === "string")
@@ -143,8 +153,9 @@ export default function EshopConnectPage() {
 
       setResults(items);
     } catch (err: any) {
-      console.error(err);
-      toast.error("Search failed — " + (err.message || "unknown error"));
+      console.warn("Search error (non-fatal):", err);
+      setProviderWarnings([`Provider temporarily unavailable. Try again.`]);
+      setResults([]);
     } finally {
       setSearching(false);
     }
@@ -216,7 +227,7 @@ export default function EshopConnectPage() {
           onClose={dismissPopup}
           onTryAiMode={() => {
             dismissPopup();
-            navigate("/dashboard/ada");
+            setActiveTab("ai-mode");
           }}
         />
       )}
@@ -227,13 +238,7 @@ export default function EshopConnectPage() {
           {TABS.map((tab) => (
             <button
               key={tab.key}
-              onClick={() => {
-                if (tab.key === "ai-mode") {
-                  navigate("/dashboard/ada");
-                  return;
-                }
-                setActiveTab(tab.key);
-              }}
+              onClick={() => setActiveTab(tab.key)}
               className={`text-sm font-semibold px-1 pb-1 transition-colors relative ${
                 activeTab === tab.key
                   ? "text-accent border-b-2 border-accent"
@@ -307,6 +312,38 @@ export default function EshopConnectPage() {
 
       {/* Tab Content */}
       <div className="flex-1 overflow-y-auto">
+        {activeTab === "ai-mode" && (
+          <div className="max-w-2xl mx-auto py-12 px-6 space-y-6">
+            <div className="text-center space-y-2">
+              <Sparkles className="w-10 h-10 text-accent mx-auto" />
+              <h2 className="text-lg font-bold text-foreground">AI Sourcing Mode</h2>
+              <p className="text-sm text-muted-foreground">Describe what you're looking for and AI will help you find the best products.</p>
+            </div>
+            <form onSubmit={(e) => { e.preventDefault(); setActiveTab("products"); doSearch(query); }} className="space-y-3">
+              <textarea
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="e.g. Find trending wireless earbuds under $15 with fast shipping from China..."
+                className="w-full h-28 p-4 rounded-xl border-2 border-accent/30 bg-card text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent resize-none"
+              />
+              <div className="flex flex-wrap gap-2">
+                {["Trending on TikTok", "High margin products", "US warehouse items", "Best sellers under $10"].map((chip) => (
+                  <button
+                    key={chip}
+                    type="button"
+                    onClick={() => { setQuery(chip); setActiveTab("products"); doSearch(chip); }}
+                    className="px-3 py-1.5 rounded-xl border border-border/60 bg-card/60 text-xs text-muted-foreground hover:border-accent/40 hover:text-foreground transition-colors"
+                  >
+                    {chip}
+                  </button>
+                ))}
+              </div>
+              <Button type="submit" className="w-full bg-accent text-accent-foreground hover:bg-accent/90 gap-1.5">
+                <Sparkles className="w-4 h-4" /> Search with AI
+              </Button>
+            </form>
+          </div>
+        )}
         {activeTab === "products" && (
           <ProductsTab
             results={results}
