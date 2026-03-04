@@ -85,9 +85,13 @@ Deno.serve(async (req) => {
         });
         failCount++;
 
-        // If rate limited, stop processing remaining jobs to avoid more 429s
+        // If rate limited, set provider cooldown and stop batch
         if (is429) {
-          console.warn("Rate limited by provider, stopping batch early");
+          console.warn(`Rate limited by ${job.provider_key}, setting 15min cooldown`);
+          await supabase.rpc("set_dropship_provider_cooldown", {
+            p_provider_key: job.provider_key,
+            p_minutes: 15,
+          });
           break;
         }
       }

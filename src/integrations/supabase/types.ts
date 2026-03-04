@@ -2187,6 +2187,24 @@ export type Database = {
         }
         Relationships: []
       }
+      dropship_provider_cooldowns: {
+        Row: {
+          cooldown_until: string
+          provider_key: string
+          updated_at: string
+        }
+        Insert: {
+          cooldown_until: string
+          provider_key: string
+          updated_at?: string
+        }
+        Update: {
+          cooldown_until?: string
+          provider_key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       dropship_providers: {
         Row: {
           created_at: string
@@ -4021,6 +4039,10 @@ export type Database = {
         Returns: Json
       }
       is_drive_connected: { Args: never; Returns: boolean }
+      is_dropship_provider_cooled_down: {
+        Args: { p_provider_key: string }
+        Returns: boolean
+      }
       is_owner: { Args: { _user_id: string }; Returns: boolean }
       is_slug_available: {
         Args: { _domain_id: string; _slug: string }
@@ -4061,6 +4083,7 @@ export type Database = {
         Args: { p_listing_id: string }
         Returns: undefined
       }
+      reap_stale_dropship_sync_jobs: { Args: never; Returns: number }
       refund_credits: {
         Args: {
           p_amount: number
@@ -4107,6 +4130,10 @@ export type Database = {
           p_role: Database["public"]["Enums"]["app_role"]
         }
         Returns: string
+      }
+      set_dropship_provider_cooldown: {
+        Args: { p_minutes?: number; p_provider_key: string }
+        Returns: undefined
       }
       set_generation_status: {
         Args: {
