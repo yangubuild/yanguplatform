@@ -1,5 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getAdapter } from "../_shared/dropship/providerRegistry.ts";
+import { getDisplayCurrencyForShop, getFxRate, decimalToDisplayCents } from "../_shared/dropship/fx.ts";
+import { toCents } from "../_shared/dropship/normalize.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -18,7 +20,6 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    // Auth
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return errResponse("BAD_REQUEST", "Unauthorized", 401);
@@ -32,9 +33,8 @@ Deno.serve(async (req) => {
     const { data: { user }, error: authErr } = await supabase.auth.getUser();
     if (authErr || !user) return errResponse("BAD_REQUEST", "Unauthorized", 401);
 
-    // Parse body
     const body = await req.json();
-    const { provider_key, query, filters = {} } = body;
+    const { provider_key, query, filters = {}, shop_surface_id } = body;
 
     if (!provider_key || typeof provider_key !== "string") {
       return errResponse("BAD_REQUEST", "provider_key is required");
@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
       return errResponse("BAD_REQUEST", "query is required");
     }
 
-    // Validate provider is enabled
+    // Validate provider
     const { data: provider, error: provErr } = await supabase
       .from("dropship_providers")
       .select("provider_key, is_enabled")
@@ -57,7 +57,6 @@ Deno.serve(async (req) => {
       return errResponse("PROVIDER_DISABLED", `Provider '${provider_key}' is disabled`);
     }
 
-    // Get adapter
     const adapter = getAdapter(provider_key);
     if (!adapter) {
       return errResponse("PROVIDER_NOT_FOUND", `No adapter for '${provider_key}'`);
@@ -65,7 +64,56 @@ Deno.serve(async (req) => {
 
     const items = await adapter.searchProducts(query, filters);
 
-    return new Response(JSON.stringify({ provider_key, items }), {
+    // --- Currency conversion ---
+    let displayCurrency: string | null = null;
+    let fxRate: number | null = null;
+    let fxAsOf: string | null = null;
+
+    if (shop_surface_id) {
+      try {
+        displayCurrency = await getDisplayCurrencyForShop(shop_surface_id);
+        // Items declare their provider currency (default USD)
+        const providerCurrency = items[0]?.currency || "USD";
+        const fx = await getFxRate(providerCurrency, displayCurrency);
+        fxRate = fx.rate;
+        fxAsOf = fx.as_of;
+      } catch (e: any) {
+        if (e.code === "FX_RATE_MISSING") {
+          // Return items without display pricing; include warning
+          displayCurrency = null;
+        } else {
+          throw e;
+        }
+      }
+    }
+
+    const enrichedItems = items.map((item) => {
+      const providerCurrency = item.currency || "USD";
+      const providerMinCents = toCents(item.min_price);
+      const providerMaxCents = toCents(item.max_price);
+
+      const result: Record<string, unknown> = {
+        ...item,
+        provider_currency: providerCurrency,
+        provider_min_price_cents: providerMinCents,
+        provider_max_price_cents: providerMaxCents,
+      };
+
+      if (displayCurrency && fxRate != null) {
+        result.display_currency = displayCurrency;
+        result.display_min_price_cents = decimalToDisplayCents(item.min_price, fxRate);
+        result.display_max_price_cents = decimalToDisplayCents(item.max_price, fxRate);
+        result.fx_rate_used = fxRate;
+      }
+
+      return result;
+    });
+
+    return new Response(JSON.stringify({
+      provider_key,
+      items: enrichedItems,
+      ...(displayCurrency ? { display_currency: displayCurrency, fx_rate: fxRate, fx_as_of: fxAsOf } : {}),
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {

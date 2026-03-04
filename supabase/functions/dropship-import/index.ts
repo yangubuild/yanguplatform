@@ -1,5 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getAdapter } from "../_shared/dropship/providerRegistry.ts";
+import { getDisplayCurrencyForShop, getFxRate, decimalToDisplayCents } from "../_shared/dropship/fx.ts";
+import { toCents } from "../_shared/dropship/normalize.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -44,7 +46,7 @@ Deno.serve(async (req) => {
       return errResponse("BAD_REQUEST", "shop_surface_id is required");
     }
 
-    // Verify provider is enabled
+    // Verify provider
     const { data: provider, error: provErr } = await supabase
       .from("dropship_providers")
       .select("provider_key, is_enabled")
@@ -66,6 +68,36 @@ Deno.serve(async (req) => {
     // Fetch product from upstream
     const product = await adapter.getProduct(external_product_id);
 
+    // Resolve display currency + FX rate
+    const providerCurrency = product.currency || "USD";
+    const providerPriceCents = toCents(product.base_price);
+    let displayCurrency = providerCurrency;
+    let displayPriceCents = providerPriceCents;
+    let fxRate = 1;
+    let fxTimestamp = new Date().toISOString();
+
+    try {
+      displayCurrency = await getDisplayCurrencyForShop(shop_surface_id);
+      const fx = await getFxRate(providerCurrency, displayCurrency);
+      fxRate = fx.rate;
+      fxTimestamp = fx.as_of;
+      displayPriceCents = decimalToDisplayCents(product.base_price, fxRate);
+    } catch (e: any) {
+      if (e.code !== "FX_RATE_MISSING") throw e;
+      // Fallback: store provider currency as display currency
+      displayCurrency = providerCurrency;
+      displayPriceCents = providerPriceCents;
+    }
+
+    // Enrich variants with currency data
+    const enrichedVariants = (product.variants || []).map((v: any) => ({
+      ...v,
+      provider_currency: providerCurrency,
+      provider_price_cents: toCents(v.price),
+      display_currency: displayCurrency,
+      display_price_cents: decimalToDisplayCents(v.price, fxRate),
+    }));
+
     // Import via RPC
     const { data: importResult, error: rpcErr } = await supabase.rpc(
       "import_external_product_to_shop",
@@ -75,8 +107,14 @@ Deno.serve(async (req) => {
         p_shop_surface_id: shop_surface_id,
         p_title: product.title,
         p_images: JSON.stringify(product.images || []),
-        p_variants: JSON.stringify(product.variants || []),
+        p_variants: JSON.stringify(enrichedVariants),
         p_raw: JSON.stringify(product.raw || {}),
+        p_provider_currency: providerCurrency,
+        p_provider_price_cents: providerPriceCents,
+        p_display_currency: displayCurrency,
+        p_display_price_cents: displayPriceCents,
+        p_fx_rate: fxRate,
+        p_fx_rate_timestamp: fxTimestamp,
       }
     );
 
