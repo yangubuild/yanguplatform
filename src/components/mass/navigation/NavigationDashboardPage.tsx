@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { Outlet } from "react-router-dom";
 import { NavDashSidebar } from "./NavDashSidebar";
 import { NavDashHeader } from "./NavDashHeader";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { YanguLoader } from "@/components/YanguLoader";
 
 const RAIL_WIDTH = 60;
 const FULL_WIDTH = 260;
@@ -35,8 +36,10 @@ export function NavigationDashboardPage() {
         className="pt-16 transition-all duration-300 min-h-[calc(100vh-64px)] overflow-y-auto"
         style={{ marginLeft: isMobile ? 0 : totalWidth }}
       >
-        {/* Routed outlet — all /dashboard/* pages render here */}
-        <Outlet />
+        {/* Routed outlet — wrapped in Suspense so sidebars stay visible during lazy loads */}
+        <Suspense fallback={<YanguLoader size={36} />}>
+          <Outlet />
+        </Suspense>
       </div>
     </div>
   );
