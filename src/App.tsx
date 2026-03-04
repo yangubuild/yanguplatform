@@ -117,6 +117,7 @@ const DashboardPlaceholder = lazy(() => import("./pages/dashboard/DashboardPlace
 const MyBusinessPage = lazy(() => import("./pages/dashboard/MyBusinessPage"));
 const InfluencerPage = lazy(() => import("./pages/dashboard/InfluencerPage"));
 const SellerSurfacePage = lazy(() => import("./pages/dashboard/SellerSurfacePage"));
+const EshopConnectPage = lazy(() => import("./pages/seller/eshop-connect/EshopConnectPage"));
 const DashboardOffers = lazy(() => import("./pages/dashboard/DashboardOffers"));
 const DashboardExplore = lazy(() => import("./pages/dashboard/DashboardExplore"));
 const LiveSellingPage = lazy(() => import("./pages/dashboard/LiveSellingPage"));
@@ -343,7 +344,7 @@ const App = () => (
                   <Route path="seller/emenu" element={<SellerSurfacePage sellerKey="emenu" />} />
                   <Route path="seller/esite" element={<SellerSurfacePage sellerKey="esite" />} />
                   <Route path="seller/emenu/orders" element={<EmenuOrdersPage />} />
-                  <Route path="seller/eshop-connect" element={<DashboardPlaceholder />} />
+                  <Route path="seller/eshop-connect" element={<EshopConnectPage />} />
 
                   {/* Admin redirect */}
                   <Route path="admin" element={<Navigate to="/manage" replace />} />
