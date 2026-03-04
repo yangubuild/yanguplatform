@@ -172,6 +172,8 @@ export const cjAdapter: DropshipAdapter = {
         min_price: Number(p.sellPrice || 0),
         max_price: Number(p.sellPrice || 0),
         stock_hint: "unknown" as const,
+        category_name: p.categoryName || null,
+        ship_from_country: p.sourceFrom === 10 ? "China" : p.sourceFrom === 20 ? "United States" : p.sourceFrom === 30 ? "Thailand" : "China",
         raw: p,
       };
     });

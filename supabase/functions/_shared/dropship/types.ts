@@ -10,6 +10,7 @@ export interface DropshipSearchItem {
   max_price: number;
   stock_hint: "in_stock" | "out_of_stock" | "unknown";
   category_name?: string | null;
+  ship_from_country?: string | null;
   raw: Record<string, unknown>;
 }
 

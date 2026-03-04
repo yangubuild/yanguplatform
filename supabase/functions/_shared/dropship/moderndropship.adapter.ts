@@ -53,6 +53,7 @@ export const modernDropshipAdapter: DropshipAdapter = {
 
       // Extract category from tags or product_type
       const categoryName = p.product_type || (Array.isArray(p.tags) ? p.tags[0] : null) || null;
+      const shipFrom = p.warehouse_location || p.origin_country || (p.vendor ? null : "United States") || "United States";
 
       return {
         external_product_id: String(p.id || ""),
@@ -64,6 +65,7 @@ export const modernDropshipAdapter: DropshipAdapter = {
         max_price: Number(p.variants?.[p.variants?.length - 1]?.price || p.variants?.[0]?.price || 0),
         stock_hint: "unknown" as const,
         category_name: categoryName,
+        ship_from_country: shipFrom,
         raw: p,
       };
     });
