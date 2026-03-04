@@ -1,4 +1,5 @@
 import type { DropshipAdapter, DropshipSearchItem, DropshipProductDetail, SearchFilters, CreateOrderResult } from "./types.ts";
+import { normalizeAddressForModern } from "./normalize.ts";
 
 async function mdFetch(method: string, path: string, body?: Record<string, unknown>): Promise<unknown> {
   const baseUrl = Deno.env.get("MODERNDROPSHIP_BASE_URL") || "https://api.moderndropship.com";
@@ -106,19 +107,11 @@ export const modernDropshipAdapter: DropshipAdapter = {
       quantity: item.quantity || 1,
     }));
 
+    const normalizedAddr = normalizeAddressForModern(shipping, customer);
+
     const body = {
       line_items: lineItems,
-      shipping_address: {
-        first_name: (customer.name || "").split(" ")[0] || customer.name,
-        last_name: (customer.name || "").split(" ").slice(1).join(" ") || "",
-        address1: shipping.address,
-        address2: shipping.address2 || "",
-        city: shipping.city,
-        province: shipping.province || shipping.state || "",
-        country: shipping.country,
-        zip: shipping.zip || shipping.postal_code || "",
-        phone: customer.phone || "",
-      },
+      shipping_address: normalizedAddr,
       note: (order_payload.notes as string) || "",
     };
 

@@ -2306,6 +2306,27 @@ export type Database = {
         }
         Relationships: []
       }
+      dropship_provider_tokens: {
+        Row: {
+          access_token: string
+          expires_at: string
+          provider_key: string
+          updated_at: string
+        }
+        Insert: {
+          access_token: string
+          expires_at: string
+          provider_key: string
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string
+          expires_at?: string
+          provider_key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       dropship_providers: {
         Row: {
           created_at: string
@@ -4090,6 +4111,13 @@ export type Database = {
         Args: { _creator_type: Database["public"]["Enums"]["creator_type"] }
         Returns: string
       }
+      get_dropship_provider_token: {
+        Args: { p_provider_key: string }
+        Returns: {
+          access_token: string
+          expires_at: string
+        }[]
+      }
       get_my_active_promos: {
         Args: never
         Returns: {
@@ -4295,6 +4323,14 @@ export type Database = {
       }
       set_dropship_provider_cooldown: {
         Args: { p_minutes?: number; p_provider_key: string }
+        Returns: undefined
+      }
+      set_dropship_provider_token: {
+        Args: {
+          p_access_token: string
+          p_expires_at: string
+          p_provider_key: string
+        }
         Returns: undefined
       }
       set_generation_status: {
