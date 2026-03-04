@@ -33,7 +33,7 @@ const AuthCallback = lazy(() => import("@/pages/auth/AuthCallback"));
  */
 export function ManagementRoutes() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#08120D", color: "#94a3b8", fontFamily: "system-ui, sans-serif", fontSize: "0.95rem" }}>Loading…</div>}>
       <Routes>
         {/* Auth routes — login only */}
         <Route path="/auth/login" element={<Login />} />

@@ -161,7 +161,7 @@ const App = () => (
             <PublicRouteResolver>
               <DomainGate>
               <RouteErrorBoundary>
-              <Suspense fallback={<div style={{ minHeight: "100vh", background: "#08120D" }} />}>
+              <Suspense fallback={<div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#08120D", color: "#94a3b8", fontFamily: "system-ui, sans-serif", fontSize: "0.95rem" }}>Loading…</div>}>
               <Routes>
                 {/* Public routes */}
                 <Route path="/" element={<Index />} />
