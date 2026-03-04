@@ -171,7 +171,7 @@ export default function EshopConnectPage() {
                   key={s.key}
                   disabled={!s.enabled}
                   onClick={() => s.enabled && setProviderKey(s.key)}
-                  className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                  className={`text-xs px-3 py-1.5 rounded-md border transition-colors ${
                     providerKey === s.key
                       ? "border-accent bg-accent/10 text-accent font-medium"
                       : s.enabled
