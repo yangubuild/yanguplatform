@@ -1,15 +1,41 @@
 import type { DropshipAdapter, DropshipSearchItem, DropshipProductDetail, SearchFilters, CreateOrderResult } from "./types.ts";
+import { normalizeAddressForCJ } from "./normalize.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // In-memory CJ token cache (per edge function cold start)
 let cachedToken: string | null = null;
 let tokenExpiresAt = 0;
 
+function getSupabaseAdmin() {
+  return createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  );
+}
+
 async function getCjAccessToken(): Promise<string> {
   const now = Date.now();
+
+  // 1. Check in-memory cache first
   if (cachedToken && now < tokenExpiresAt - 60_000) {
     return cachedToken;
   }
 
+  // 2. Check DB cache
+  const supabase = getSupabaseAdmin();
+  const { data: dbToken } = await supabase.rpc("get_dropship_provider_token", {
+    p_provider_key: "cj",
+  });
+
+  if (dbToken && dbToken.length > 0) {
+    cachedToken = dbToken[0].access_token;
+    tokenExpiresAt = new Date(dbToken[0].expires_at).getTime();
+    if (now < tokenExpiresAt - 60_000) {
+      return cachedToken!;
+    }
+  }
+
+  // 3. Fetch new token from CJ API
   const apiKey = Deno.env.get("CJ_API_KEY");
   const baseUrl = Deno.env.get("CJ_BASE_URL") || "https://developers.cjdropshipping.com/api2.0/v1";
 
@@ -36,9 +62,18 @@ async function getCjAccessToken(): Promise<string> {
     const token = data?.data?.accessToken;
     if (!token) throw new Error("CJ auth returned no accessToken");
 
-    cachedToken = token;
     // CJ tokens last 15 days; cache for 14 days
-    tokenExpiresAt = now + 14 * 24 * 60 * 60 * 1000;
+    const expiresAt = new Date(now + 14 * 24 * 60 * 60 * 1000);
+    cachedToken = token;
+    tokenExpiresAt = expiresAt.getTime();
+
+    // 4. Persist to DB for cross-invocation reuse
+    await supabase.rpc("set_dropship_provider_token", {
+      p_provider_key: "cj",
+      p_access_token: token,
+      p_expires_at: expiresAt.toISOString(),
+    });
+
     return token;
   } finally {
     clearTimeout(timeout);
@@ -183,15 +218,13 @@ export const cjAdapter: DropshipAdapter = {
       quantity: item.quantity || 1,
     }));
 
+    const normalizedAddr = normalizeAddressForCJ(shipping);
+
     const body = {
       orderNumber: `YANGU-${Date.now()}`,
-      shippingCountryCode: shipping.country_code || shipping.country,
-      shippingProvince: shipping.province || shipping.state,
-      shippingCity: shipping.city,
-      shippingAddress: shipping.address,
+      ...normalizedAddr,
       shippingCustomerName: customer.name,
       shippingPhone: customer.phone,
-      shippingZip: shipping.zip || shipping.postal_code || "",
       remark: (order_payload.notes as string) || "",
       products: cjProducts,
     };
