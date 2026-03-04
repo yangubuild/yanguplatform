@@ -117,8 +117,13 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
-    console.error("dropship-search error:", e);
-    const msg = e instanceof Error ? e.message : "Unknown error";
+    const err = e instanceof Error ? e : new Error(String(e));
+    console.error("dropship-search error:", {
+      message: err.message,
+      stack: err.stack || "no stack",
+      provider_key: (() => { try { return "see body" } catch { return "unknown" } })(),
+    });
+    const msg = err.message || "Unknown error";
     return errResponse("UPSTREAM_ERROR", msg, 502);
   }
 });

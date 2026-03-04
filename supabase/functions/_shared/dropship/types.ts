@@ -4,6 +4,7 @@ export interface DropshipSearchItem {
   external_product_id: string;
   title: string;
   thumbnail_url: string | null;
+  image_urls: string[];
   currency: string;
   min_price: number;
   max_price: number;
