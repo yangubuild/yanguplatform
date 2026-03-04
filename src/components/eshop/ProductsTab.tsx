@@ -1,5 +1,5 @@
 import { Search, Package, SlidersHorizontal, ChevronDown, Plug } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import type { SearchItem } from "@/pages/seller/eshop-connect/EshopConnectPage";
 import ProductCard from "./ProductCard";
@@ -15,7 +15,6 @@ interface Props {
   onGoToManufacturers?: () => void;
 }
 
-const CATEGORIES = ["All categories", "Electronics", "Fashion", "Home & Garden", "Beauty", "Sports", "Toys"];
 const SUGGESTIONS = [
   "Trending products this month",
   "Find viral TikTok items",
@@ -27,6 +26,25 @@ const SUGGESTIONS = [
 
 export default function ProductsTab({ results, searching, query, formatPrice, onProductClick, onSearch, hasConnectedProvider = true, onGoToManufacturers }: Props) {
   const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  // Build dynamic categories from results
+  const categories = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const item of results) {
+      const cat = item.category_name || "Other";
+      counts[cat] = (counts[cat] || 0) + 1;
+    }
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, count]) => ({ name, count }));
+  }, [results]);
+
+  // Filter results by selected category
+  const filteredResults = useMemo(() => {
+    if (!selectedCategory) return results;
+    return results.filter((item) => (item.category_name || "Other") === selectedCategory);
+  }, [results, selectedCategory]);
 
   return (
     <div className="flex min-h-0">
@@ -35,10 +53,25 @@ export default function ProductsTab({ results, searching, query, formatPrice, on
         <div>
           <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Category</h4>
           <div className="space-y-1">
-            {CATEGORIES.map((c) => (
-              <button key={c} className="block w-full text-left text-sm text-foreground hover:text-accent py-1 px-2 rounded hover:bg-accent/5 transition-colors">
-                {c}
-                <ChevronDown className="w-3 h-3 inline ml-1 text-muted-foreground" />
+            <button
+              onClick={() => setSelectedCategory(null)}
+              className={`block w-full text-left text-sm py-1 px-2 rounded transition-colors ${
+                !selectedCategory ? "text-accent bg-accent/5 font-medium" : "text-foreground hover:text-accent hover:bg-accent/5"
+              }`}
+            >
+              All categories
+              {results.length > 0 && <span className="text-xs text-muted-foreground ml-1">({results.length})</span>}
+            </button>
+            {categories.map((c) => (
+              <button
+                key={c.name}
+                onClick={() => setSelectedCategory(c.name === selectedCategory ? null : c.name)}
+                className={`block w-full text-left text-sm py-1 px-2 rounded transition-colors ${
+                  selectedCategory === c.name ? "text-accent bg-accent/5 font-medium" : "text-foreground hover:text-accent hover:bg-accent/5"
+                }`}
+              >
+                {c.name}
+                <span className="text-xs text-muted-foreground ml-1">({c.count})</span>
               </button>
             ))}
           </div>
@@ -109,16 +142,30 @@ export default function ProductsTab({ results, searching, query, formatPrice, on
               </div>
             ))}
           </div>
-        ) : results.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-            {results.map((item) => (
-              <ProductCard
-                key={item.external_product_id}
-                item={item}
-                formatPrice={formatPrice}
-                onClick={() => onProductClick(item)}
-              />
-            ))}
+        ) : filteredResults.length > 0 ? (
+          <>
+            {selectedCategory && (
+              <div className="mb-3 flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">Showing:</span>
+                <span className="text-xs px-2 py-0.5 rounded-md bg-accent/10 text-accent font-medium">{selectedCategory}</span>
+                <button onClick={() => setSelectedCategory(null)} className="text-xs text-muted-foreground hover:text-foreground">✕ Clear</button>
+              </div>
+            )}
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+              {filteredResults.map((item) => (
+                <ProductCard
+                  key={item.external_product_id}
+                  item={item}
+                  formatPrice={formatPrice}
+                  onClick={() => onProductClick(item)}
+                />
+              ))}
+            </div>
+          </>
+        ) : results.length > 0 && selectedCategory ? (
+          <div className="text-center py-12">
+            <p className="text-sm text-muted-foreground">No products in "{selectedCategory}"</p>
+            <button onClick={() => setSelectedCategory(null)} className="text-sm text-accent hover:underline mt-2">Show all results</button>
           </div>
         ) : (
           <div className="max-w-xl mx-auto py-12">

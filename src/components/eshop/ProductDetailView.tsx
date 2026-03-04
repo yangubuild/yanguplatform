@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Download, Loader2, Truck, ShieldCheck, ChevronRight } from "lucide-react";
+import { ArrowLeft, Download, Loader2, Truck, ShieldCheck, ChevronRight, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { SearchItem } from "@/pages/seller/eshop-connect/EshopConnectPage";
+import type { SurfaceWithPublishes } from "@/hooks/useSurfaces";
 
 interface Props {
   product: SearchItem;
@@ -11,14 +12,17 @@ interface Props {
   shopSurfaceId: string;
   formatPrice: (cents: number | undefined, currency: string | undefined) => string;
   onBack: () => void;
+  shopSurfaces?: SurfaceWithPublishes[];
+  onShopSurfaceChange?: (id: string) => void;
 }
 
-export default function ProductDetailView({ product, providerKey, shopSurfaceId, formatPrice, onBack }: Props) {
+export default function ProductDetailView({ product, providerKey, shopSurfaceId, formatPrice, onBack, shopSurfaces = [], onShopSurfaceChange }: Props) {
   const [detail, setDetail] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
   const [imported, setImported] = useState(false);
   const [mainImage, setMainImage] = useState(product.thumbnail);
+  const [localShopId, setLocalShopId] = useState(shopSurfaceId || (shopSurfaces[0]?.id ?? ""));
 
   useEffect(() => {
     (async () => {
@@ -28,7 +32,7 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
           body: {
             provider_key: providerKey,
             external_product_id: product.external_product_id,
-            shop_surface_id: shopSurfaceId || undefined,
+            shop_surface_id: localShopId || undefined,
           },
         });
         if (res.error) throw new Error(res.error.message);
@@ -45,8 +49,8 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
   }, [product.external_product_id, providerKey]);
 
   const handleImport = async () => {
-    if (!shopSurfaceId) {
-      toast.error("Connect your store first to import products.");
+    if (!localShopId) {
+      toast.error("Select a shop to import this product into.");
       return;
     }
     setImporting(true);
@@ -55,12 +59,13 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
         body: {
           provider_key: providerKey,
           external_product_id: product.external_product_id,
-          shop_surface_id: shopSurfaceId,
+          shop_surface_id: localShopId,
         },
       });
       if (res.error) throw new Error(res.error.message);
       setImported(true);
-      toast.success("✓ Product Imported");
+      const shopName = shopSurfaces.find(s => s.id === localShopId)?.title || "your shop";
+      toast.success(`✓ Imported to ${shopName}`);
     } catch (err: any) {
       toast.error("Import failed — " + (err.message || "unknown error"));
     } finally {
@@ -169,18 +174,44 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
                 </div>
 
                 {/* Dropship to store block */}
-                <div className="rounded-xl border border-border bg-card p-4">
-                  <h4 className="text-sm font-semibold text-foreground mb-3">Dropship this product to your store</h4>
+                <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+                  <h4 className="text-sm font-semibold text-foreground">Import to your shop</h4>
+
+                  {/* Shop surface picker */}
+                  {shopSurfaces.length > 0 ? (
+                    <div className="space-y-2">
+                      <label className="text-xs text-muted-foreground">Destination shop</label>
+                      <div className="relative">
+                        <select
+                          value={localShopId}
+                          onChange={(e) => {
+                            setLocalShopId(e.target.value);
+                            onShopSurfaceChange?.(e.target.value);
+                          }}
+                          className="w-full appearance-none px-3 py-2 pr-8 text-sm rounded-lg border border-border bg-card text-foreground focus:outline-none focus:border-accent/60"
+                        >
+                          <option value="">Select a shop…</option>
+                          {shopSurfaces.map((s) => (
+                            <option key={s.id} value={s.id}>{s.title || "Untitled Shop"}</option>
+                          ))}
+                        </select>
+                        <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">Create a .shop surface first to import products.</p>
+                  )}
+
                   <div className="flex items-center gap-3">
                     <Button
                       onClick={handleImport}
-                      disabled={importing || imported}
+                      disabled={importing || imported || !localShopId}
                       className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-full px-6 gap-1.5"
                     >
                       {imported ? "✓ Imported" : importing ? (
                         <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Importing…</>
                       ) : (
-                        <><Download className="w-3.5 h-3.5" /> Import to my store</>
+                        <><Download className="w-3.5 h-3.5" /> Import to my shop</>
                       )}
                     </Button>
                   </div>

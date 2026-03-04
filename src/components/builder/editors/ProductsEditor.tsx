@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -55,6 +56,7 @@ interface Product {
   dimensions: string;
   specifications: string;
   is_available: boolean;
+  listed_on_eshop_connect?: boolean;
 }
 
 interface ProductColor {
@@ -79,6 +81,7 @@ const PRESET_COLORS = [
 // ─── Main Products Editor ───
 
 export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
+  const navigate = useNavigate();
   const currency = (schema.currency as string) || "UGX";
   const categories = ((schema.categories as any[]) || []).map((c: any) => ({
     name: c.name || "",
@@ -113,6 +116,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
     dimensions: p.dimensions || "",
     specifications: p.specifications || "",
     is_available: p.is_available !== false,
+    listed_on_eshop_connect: p.listed_on_eshop_connect || false,
   }}) as Product[];
 
   // Dialog state
@@ -141,6 +145,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
   const [pDimensions, setPDimensions] = useState("");
   const [pSpecs, setPSpecs] = useState("");
   const [pAvailable, setPAvailable] = useState(true);
+  const [pListedOnEshop, setPListedOnEshop] = useState(false);
   const [pDraftMedia, setPDraftMedia] = useState<MediaValue>({ type: "none", source: "url", url: "", alt: "", fit: "cover" });
   const [isGeneratingDesc, setIsGeneratingDesc] = useState(false);
 
@@ -204,7 +209,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
     setPDiscountPct(""); setPDiscountLabel("");
     setPSizes([]); setPSizeInput(""); setPColors([]);
     setPMaterial(""); setPWeight(""); setPDimensions("");
-    setPSpecs(""); setPAvailable(true);
+    setPSpecs(""); setPAvailable(true); setPListedOnEshop(false);
     setPDraftMedia({ type: "none", source: "url", url: "", alt: "", fit: "cover" });
     setShowProductDialog(true);
   };
@@ -219,6 +224,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
     setPColors(p.colors); setPMaterial(p.material); setPWeight(p.weight);
     setPDimensions(p.dimensions); setPSpecs(p.specifications);
     setPAvailable(p.is_available);
+    setPListedOnEshop(p.listed_on_eshop_connect || false);
     setPDraftMedia({ type: "none", source: "url", url: "", alt: "", fit: "cover" });
     setShowProductDialog(true);
   };
@@ -232,6 +238,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
       colors: pColors, material: pMaterial, weight: pWeight,
       dimensions: pDimensions, specifications: pSpecs,
       is_available: pAvailable,
+      listed_on_eshop_connect: pListedOnEshop,
     };
     const updated = [...products];
     if (editProductIndex !== null) {
@@ -449,14 +456,20 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
                 </div>
               </div>
             </div>
-            <div className="border border-secondary bg-secondary/30 rounded-xl p-4 cursor-pointer hover:border-primary/50 space-y-1">
+            <div
+              className="border border-secondary bg-secondary/30 rounded-xl p-4 cursor-pointer hover:border-primary/50 space-y-1"
+              onClick={() => {
+                setShowAddMethodDialog(false);
+                navigate(`/dashboard/seller/eshop-connect${surfaceId ? `?shop_surface_id=${surfaceId}` : ""}`);
+              }}
+            >
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-lg bg-secondary flex items-center justify-center">
                   <Link2 className="h-5 w-5 text-secondary-foreground" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold">Connect with Eshops Connect</p>
-                  <p className="text-xs text-muted-foreground">Browse catalog, create with AI, or customize from templates</p>
+                  <p className="text-sm font-semibold">Add from Eshop Connect</p>
+                  <p className="text-xs text-muted-foreground">Browse & import products from CJ, ModernDropship, or YANGU Estores</p>
                 </div>
               </div>
             </div>
@@ -712,6 +725,17 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
                 onCheckedChange={(c) => setPAvailable(!!c)}
               />
               <label htmlFor="product-available" className="text-sm font-medium">Product is available</label>
+            </div>
+
+            {/* List on Eshop Connect — for estore suppliers */}
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="product-eshop-connect"
+                checked={pListedOnEshop}
+                onCheckedChange={(c) => setPListedOnEshop(!!c)}
+              />
+              <label htmlFor="product-eshop-connect" className="text-sm font-medium">List on Eshop Connect</label>
+              <span className="text-xs text-muted-foreground ml-1">(visible to other sellers)</span>
             </div>
 
             <Button

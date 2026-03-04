@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Search, Sparkles, Package, Plug } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +11,7 @@ import WorldwideTab from "@/components/eshop/WorldwideTab";
 import MyImportsTab from "@/components/eshop/MyImportsTab";
 import ProductDetailView from "@/components/eshop/ProductDetailView";
 import { useDropshipConnections } from "@/hooks/useDropshipConnections";
+import { useSurfaces } from "@/hooks/useSurfaces";
 
 export interface SearchItem {
   external_product_id: string;
@@ -23,10 +25,11 @@ export interface SearchItem {
   display_min_price_cents?: number;
   display_max_price_cents?: number;
   provider_key?: string;
+  category_name?: string;
   [key: string]: unknown;
 }
 
-const SHOP_SURFACE_ID = "";
+const SHOP_SURFACE_ID = ""; // legacy fallback — now uses picker
 
 const TABS = [
   { key: "ai-mode", label: "AI Mode" },
@@ -46,6 +49,9 @@ const ALL_SOURCES = [
 ];
 
 export default function EshopConnectPage() {
+  const [searchParams] = useSearchParams();
+  const shopSurfaceIdParam = searchParams.get("shop_surface_id") || "";
+
   const [query, setQuery] = useState("");
   const [searching, setSearching] = useState(false);
   const [results, setResults] = useState<SearchItem[]>([]);
@@ -55,8 +61,13 @@ export default function EshopConnectPage() {
   const [showPopup, setShowPopup] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState("all");
   const [autoFeedLoaded, setAutoFeedLoaded] = useState(false);
+  const [selectedShopSurfaceId, setSelectedShopSurfaceId] = useState(shopSurfaceIdParam);
 
   const { isConnected, connectedProviders, isLoading: connectionsLoading } = useDropshipConnections();
+  const { data: surfaces } = useSurfaces();
+
+  // Get user's .shop surfaces for import destination picker
+  const shopSurfaces = (surfaces || []).filter((s) => s.surface_type === "shop" && !s.archived_at);
 
   useEffect(() => {
     const dismissed = localStorage.getItem("eshop_ai_popup_dismissed");
@@ -82,13 +93,14 @@ export default function EshopConnectPage() {
         body: {
           provider_key: pk,
           query: q.trim(),
-          shop_surface_id: SHOP_SURFACE_ID || undefined,
+          shop_surface_id: selectedShopSurfaceId || undefined,
         },
       });
       if (res.error) throw new Error(res.error.message);
       const items = (res.data?.items || []).map((i: any) => ({
         ...i,
         provider_key: pk,
+        category_name: i.category_name || i.raw?.categoryName || undefined,
       }));
       setResults(items);
       if (items.length === 0) toast.info("No products found for that query.");
@@ -141,9 +153,11 @@ export default function EshopConnectPage() {
       <ProductDetailView
         product={selectedProduct}
         providerKey={selectedProduct.provider_key || providerKey}
-        shopSurfaceId={SHOP_SURFACE_ID}
+        shopSurfaceId={selectedShopSurfaceId}
         formatPrice={formatPrice}
         onBack={() => setSelectedProduct(null)}
+        shopSurfaces={shopSurfaces}
+        onShopSurfaceChange={setSelectedShopSurfaceId}
       />
     );
   }
