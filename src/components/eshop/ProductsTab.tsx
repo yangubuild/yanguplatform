@@ -1,4 +1,4 @@
-import { Search, Package, SlidersHorizontal, ChevronDown, Plug } from "lucide-react";
+import { Search, Plug } from "lucide-react";
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import type { SearchItem } from "@/pages/seller/eshop-connect/EshopConnectPage";
@@ -13,6 +13,7 @@ interface Props {
   onSearch: (q: string) => void;
   hasConnectedProvider?: boolean;
   onGoToManufacturers?: () => void;
+  providerWarnings?: string[];
 }
 
 const SUGGESTIONS = [
@@ -24,12 +25,34 @@ const SUGGESTIONS = [
   "Phone accessories best sellers",
 ];
 
-export default function ProductsTab({ results, searching, query, formatPrice, onProductClick, onSearch, hasConnectedProvider = true, onGoToManufacturers }: Props) {
+export default function ProductsTab({
+  results,
+  searching,
+  query,
+  formatPrice,
+  onProductClick,
+  onSearch,
+  hasConnectedProvider = true,
+  onGoToManufacturers,
+  providerWarnings = [],
+}: Props) {
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
 
-  // Build dynamic categories from results
+  const providerCounts = useMemo(() => {
+    const counts = { cj: 0, moderndropship: 0, estores: 0 };
+
+    for (const item of results) {
+      const key = String(item.provider_key || "").toLowerCase();
+      if (key === "cj") counts.cj += 1;
+      if (key === "moderndropship") counts.moderndropship += 1;
+      if (key === "estores" || key === "yangu_estores") counts.estores += 1;
+    }
+
+    return counts;
+  }, [results]);
+
   const categories = useMemo(() => {
     const counts: Record<string, number> = {};
     for (const item of results) {
@@ -41,7 +64,6 @@ export default function ProductsTab({ results, searching, query, formatPrice, on
       .map(([name, count]) => ({ name, count }));
   }, [results]);
 
-  // Build dynamic countries from results
   const countries = useMemo(() => {
     const counts: Record<string, number> = {};
     for (const item of results) {
@@ -53,7 +75,6 @@ export default function ProductsTab({ results, searching, query, formatPrice, on
       .map(([name, count]) => ({ name, count }));
   }, [results]);
 
-  // Filter results by selected category and country
   const filteredResults = useMemo(() => {
     let filtered = results;
     if (selectedCategory) {
@@ -67,7 +88,6 @@ export default function ProductsTab({ results, searching, query, formatPrice, on
 
   return (
     <div className="flex min-h-0">
-      {/* Left sidebar filters */}
       <aside className="w-52 shrink-0 border-r border-border/40 p-4 space-y-5 hidden lg:block">
         <div>
           <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Category</h4>
@@ -138,10 +158,20 @@ export default function ProductsTab({ results, searching, query, formatPrice, on
         </div>
       </aside>
 
-      {/* Main content */}
       <div className="flex-1 p-5">
+        {import.meta.env.DEV && (
+          <div className="mb-2 text-[11px] text-muted-foreground">
+            CJ: {providerCounts.cj} · ModernDropship: {providerCounts.moderndropship} · YANGU Estores: {providerCounts.estores}
+          </div>
+        )}
+
+        {providerWarnings.length > 0 && (
+          <div className="mb-3 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive">
+            {Array.from(new Set(providerWarnings)).join(" · ")}
+          </div>
+        )}
+
         {!hasConnectedProvider && results.length === 0 && !searching ? (
-          /* Empty state — no providers connected */
           <div className="max-w-lg mx-auto py-16 text-center space-y-6">
             <div className="w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto">
               <Plug className="w-8 h-8 text-accent" />
@@ -190,12 +220,18 @@ export default function ProductsTab({ results, searching, query, formatPrice, on
                     <button onClick={() => setSelectedCountry(null)} className="ml-1 text-muted-foreground hover:text-foreground">✕</button>
                   </span>
                 )}
+                <button
+                  onClick={() => { setSelectedCategory(null); setSelectedCountry(null); }}
+                  className="text-xs text-accent hover:underline"
+                >
+                  Clear all
+                </button>
               </div>
             )}
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
               {filteredResults.map((item) => (
                 <ProductCard
-                  key={item.external_product_id}
+                  key={`${item.provider_key || "unknown"}:${item.external_product_id}`}
                   item={item}
                   formatPrice={formatPrice}
                   onClick={() => onProductClick(item)}
@@ -210,7 +246,6 @@ export default function ProductsTab({ results, searching, query, formatPrice, on
           </div>
         ) : (
           <div className="max-w-xl mx-auto py-12">
-            {/* Welcome / suggestion chips when no results */}
             <div className="text-center mb-8">
               <Search className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
               <p className="text-sm text-muted-foreground">Search for products to get started</p>
@@ -233,3 +268,4 @@ export default function ProductsTab({ results, searching, query, formatPrice, on
     </div>
   );
 }
+

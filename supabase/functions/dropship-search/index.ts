@@ -16,6 +16,14 @@ function errResponse(code: string, message: string, status = 400) {
   });
 }
 
+function getProviderDebugCounts(providerKey: string, count: number) {
+  const debug = { cj: 0, modern: 0, yangu: 0 };
+  if (providerKey === "cj") debug.cj = count;
+  if (providerKey === "moderndropship") debug.modern = count;
+  if (providerKey === "estores" || providerKey === "yangu_estores") debug.yangu = count;
+  return debug;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -34,16 +42,18 @@ Deno.serve(async (req) => {
     if (authErr || !user) return errResponse("BAD_REQUEST", "Unauthorized", 401);
 
     const body = await req.json();
-    const { provider_key, query, filters = {}, shop_surface_id } = body;
+    const provider_key = typeof body?.provider_key === "string" ? body.provider_key.trim().toLowerCase() : "";
+    const query = body?.query;
+    const filters = body?.filters ?? {};
+    const shop_surface_id = body?.shop_surface_id;
 
-    if (!provider_key || typeof provider_key !== "string") {
+    if (!provider_key) {
       return errResponse("BAD_REQUEST", "provider_key is required");
     }
     if (!query || typeof query !== "string") {
       return errResponse("BAD_REQUEST", "query is required");
     }
 
-    // Validate provider
     const { data: provider, error: provErr } = await supabase
       .from("dropship_providers")
       .select("provider_key, is_enabled")
@@ -62,9 +72,39 @@ Deno.serve(async (req) => {
       return errResponse("PROVIDER_NOT_FOUND", `No adapter for '${provider_key}'`);
     }
 
-    const items = await adapter.searchProducts(query, filters);
+    let items: any[] = [];
+    let warnings: string[] = [];
 
-    // --- Currency conversion ---
+    try {
+      items = await adapter.searchProducts(query, filters);
+    } catch (providerErr: any) {
+      const err = providerErr instanceof Error ? providerErr : new Error(String(providerErr));
+      const isModernConfigMissing =
+        provider_key === "moderndropship" &&
+        (providerErr?.code === "MODERNDROPSHIP_CONFIG_MISSING" || String(err.message).toLowerCase().includes("missing api key"));
+
+      if (isModernConfigMissing) {
+        warnings = ["ModernDropship not configured (missing API key)"];
+        return new Response(
+          JSON.stringify({
+            provider_key,
+            items: [],
+            warnings,
+            debug: getProviderDebugCounts(provider_key, 0),
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      console.error("dropship-search provider error", {
+        provider_key,
+        query,
+        message: err.message,
+        stack: err.stack || "no stack",
+      });
+      return errResponse("UPSTREAM_ERROR", err.message || "Unknown upstream error", 502);
+    }
+
     let displayCurrency: string | null = null;
     let fxRate: number | null = null;
     let fxAsOf: string | null = null;
@@ -72,14 +112,12 @@ Deno.serve(async (req) => {
     if (shop_surface_id) {
       try {
         displayCurrency = await getDisplayCurrencyForShop(shop_surface_id);
-        // Items declare their provider currency (default USD)
         const providerCurrency = items[0]?.currency || "USD";
         const fx = await getFxRate(providerCurrency, displayCurrency);
         fxRate = fx.rate;
         fxAsOf = fx.as_of;
       } catch (e: any) {
         if (e.code === "FX_RATE_MISSING") {
-          // Return items without display pricing; include warning
           displayCurrency = null;
         } else {
           throw e;
@@ -114,6 +152,8 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({
       provider_key,
       items: enrichedItems,
+      debug: getProviderDebugCounts(provider_key, enrichedItems.length),
+      ...(warnings.length > 0 ? { warnings } : {}),
       ...(displayCurrency ? { display_currency: displayCurrency, fx_rate: fxRate, fx_as_of: fxAsOf } : {}),
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -123,7 +163,7 @@ Deno.serve(async (req) => {
     console.error("dropship-search error:", {
       message: err.message,
       stack: err.stack || "no stack",
-      provider_key: (() => { try { return "see body" } catch { return "unknown" } })(),
+      provider_key: (() => { try { return "see body"; } catch { return "unknown"; } })(),
     });
     const msg = err.message || "Unknown error";
     return errResponse("UPSTREAM_ERROR", msg, 502);
