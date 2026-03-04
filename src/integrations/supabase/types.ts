@@ -2145,9 +2145,13 @@ export type Database = {
           external_product_id: string
           id: string
           images: Json | null
+          last_error: string | null
+          last_synced_at: string | null
           provider_key: string
           raw: Json | null
           shop_surface_id: string
+          sync_attempts: number
+          sync_status: string
           title: string
           variants: Json | null
         }
@@ -2156,9 +2160,13 @@ export type Database = {
           external_product_id: string
           id?: string
           images?: Json | null
+          last_error?: string | null
+          last_synced_at?: string | null
           provider_key: string
           raw?: Json | null
           shop_surface_id: string
+          sync_attempts?: number
+          sync_status?: string
           title: string
           variants?: Json | null
         }
@@ -2167,9 +2175,13 @@ export type Database = {
           external_product_id?: string
           id?: string
           images?: Json | null
+          last_error?: string | null
+          last_synced_at?: string | null
           provider_key?: string
           raw?: Json | null
           shop_surface_id?: string
+          sync_attempts?: number
+          sync_status?: string
           title?: string
           variants?: Json | null
         }
@@ -2196,6 +2208,45 @@ export type Database = {
           is_enabled?: boolean
           name?: string
           provider_key?: string
+        }
+        Relationships: []
+      }
+      dropship_sync_jobs: {
+        Row: {
+          attempts: number
+          created_at: string
+          external_product_id: string
+          id: string
+          job_type: string
+          provider_key: string
+          run_after: string
+          shop_surface_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          external_product_id: string
+          id?: string
+          job_type?: string
+          provider_key: string
+          run_after?: string
+          shop_surface_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          external_product_id?: string
+          id?: string
+          job_type?: string
+          provider_key?: string
+          run_after?: string
+          shop_surface_id?: string
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -3706,6 +3757,15 @@ export type Database = {
         Returns: Json
       }
       claim_dashboard_credits: { Args: never; Returns: Json }
+      complete_dropship_sync_job: {
+        Args: {
+          p_error?: string
+          p_job_id: string
+          p_new_snapshot?: Json
+          p_success: boolean
+        }
+        Returns: undefined
+      }
       complete_onboarding:
         | {
             Args: {
@@ -3783,6 +3843,10 @@ export type Database = {
         Returns: Json
       }
       dismiss_promo: { Args: { p_campaign_key: string }; Returns: undefined }
+      enqueue_dropship_sync_jobs: {
+        Args: { p_limit?: number }
+        Returns: number
+      }
       enqueue_webhook_event: {
         Args: { p_app_id: string; p_event_type: string; p_payload?: Json }
         Returns: string
@@ -3992,6 +4056,7 @@ export type Database = {
         Args: { p_org_id: string }
         Returns: boolean
       }
+      process_dropship_sync_batch: { Args: { p_limit?: number }; Returns: Json }
       publish_app_listing: {
         Args: { p_listing_id: string }
         Returns: undefined
