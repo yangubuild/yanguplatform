@@ -259,9 +259,13 @@ export default function ProductsTab({
                     ? "No YANGU Estores products available right now."
                     : "No CJ products found for this query."}
               </p>
-              <p className="text-xs text-muted-foreground mt-1">Try another query or provider.</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {selectedProviderKey === "estores"
+                  ? "Products will appear here once stores list items on Eshop Connect."
+                  : "Try another query or provider."}
+              </p>
             </div>
-            {(selectedProviderKey === "moderndropship" || selectedProviderKey === "estores") && (
+            {selectedProviderKey === "moderndropship" && (
               <Button onClick={onGoToManufacturers} variant="outline" className="gap-1.5">
                 <Plug className="w-4 h-4" />
                 Check connection / API key
