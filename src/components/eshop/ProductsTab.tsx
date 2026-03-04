@@ -27,6 +27,7 @@ const SUGGESTIONS = [
 export default function ProductsTab({ results, searching, query, formatPrice, onProductClick, onSearch, hasConnectedProvider = true, onGoToManufacturers }: Props) {
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
 
   // Build dynamic categories from results
   const categories = useMemo(() => {
@@ -40,11 +41,29 @@ export default function ProductsTab({ results, searching, query, formatPrice, on
       .map(([name, count]) => ({ name, count }));
   }, [results]);
 
-  // Filter results by selected category
+  // Build dynamic countries from results
+  const countries = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const item of results) {
+      const country = item.ship_from_country || "Unknown";
+      counts[country] = (counts[country] || 0) + 1;
+    }
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, count]) => ({ name, count }));
+  }, [results]);
+
+  // Filter results by selected category and country
   const filteredResults = useMemo(() => {
-    if (!selectedCategory) return results;
-    return results.filter((item) => (item.category_name || "Other") === selectedCategory);
-  }, [results, selectedCategory]);
+    let filtered = results;
+    if (selectedCategory) {
+      filtered = filtered.filter((item) => (item.category_name || "Other") === selectedCategory);
+    }
+    if (selectedCountry) {
+      filtered = filtered.filter((item) => (item.ship_from_country || "Unknown") === selectedCountry);
+    }
+    return filtered;
+  }, [results, selectedCategory, selectedCountry]);
 
   return (
     <div className="flex min-h-0">
@@ -88,11 +107,25 @@ export default function ProductsTab({ results, searching, query, formatPrice, on
         <div>
           <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Ship From</h4>
           <div className="space-y-1">
-            {["China", "US", "EU", "UAE"].map((r) => (
-              <label key={r} className="flex items-center gap-2 text-sm text-foreground cursor-pointer py-0.5">
-                <input type="checkbox" className="rounded border-border" />
-                {r}
-              </label>
+            <button
+              onClick={() => setSelectedCountry(null)}
+              className={`block w-full text-left text-sm py-1 px-2 rounded transition-colors ${
+                !selectedCountry ? "text-accent bg-accent/5 font-medium" : "text-foreground hover:text-accent hover:bg-accent/5"
+              }`}
+            >
+              All countries
+            </button>
+            {countries.map((c) => (
+              <button
+                key={c.name}
+                onClick={() => setSelectedCountry(c.name === selectedCountry ? null : c.name)}
+                className={`block w-full text-left text-sm py-1 px-2 rounded transition-colors ${
+                  selectedCountry === c.name ? "text-accent bg-accent/5 font-medium" : "text-foreground hover:text-accent hover:bg-accent/5"
+                }`}
+              >
+                {c.name}
+                <span className="text-xs text-muted-foreground ml-1">({c.count})</span>
+              </button>
             ))}
           </div>
         </div>
@@ -144,11 +177,19 @@ export default function ProductsTab({ results, searching, query, formatPrice, on
           </div>
         ) : filteredResults.length > 0 ? (
           <>
-            {selectedCategory && (
-              <div className="mb-3 flex items-center gap-2">
+            {(selectedCategory || selectedCountry) && (
+              <div className="mb-3 flex items-center gap-2 flex-wrap">
                 <span className="text-xs text-muted-foreground">Showing:</span>
-                <span className="text-xs px-2 py-0.5 rounded-md bg-accent/10 text-accent font-medium">{selectedCategory}</span>
-                <button onClick={() => setSelectedCategory(null)} className="text-xs text-muted-foreground hover:text-foreground">✕ Clear</button>
+                {selectedCategory && (
+                  <span className="text-xs px-2 py-0.5 rounded-md bg-accent/10 text-accent font-medium">{selectedCategory}
+                    <button onClick={() => setSelectedCategory(null)} className="ml-1 text-muted-foreground hover:text-foreground">✕</button>
+                  </span>
+                )}
+                {selectedCountry && (
+                  <span className="text-xs px-2 py-0.5 rounded-md bg-accent/10 text-accent font-medium">{selectedCountry}
+                    <button onClick={() => setSelectedCountry(null)} className="ml-1 text-muted-foreground hover:text-foreground">✕</button>
+                  </span>
+                )}
               </div>
             )}
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -162,10 +203,10 @@ export default function ProductsTab({ results, searching, query, formatPrice, on
               ))}
             </div>
           </>
-        ) : results.length > 0 && selectedCategory ? (
+        ) : results.length > 0 && (selectedCategory || selectedCountry) ? (
           <div className="text-center py-12">
-            <p className="text-sm text-muted-foreground">No products in "{selectedCategory}"</p>
-            <button onClick={() => setSelectedCategory(null)} className="text-sm text-accent hover:underline mt-2">Show all results</button>
+            <p className="text-sm text-muted-foreground">No products matching current filters</p>
+            <button onClick={() => { setSelectedCategory(null); setSelectedCountry(null); }} className="text-sm text-accent hover:underline mt-2">Clear all filters</button>
           </div>
         ) : (
           <div className="max-w-xl mx-auto py-12">

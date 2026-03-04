@@ -97,6 +97,8 @@ Deno.serve(async (req) => {
         provider_currency: providerCurrency,
         provider_min_price_cents: providerMinCents,
         provider_max_price_cents: providerMaxCents,
+        category_name: item.category_name || null,
+        ship_from_country: item.ship_from_country || null,
       };
 
       if (displayCurrency && fxRate != null) {

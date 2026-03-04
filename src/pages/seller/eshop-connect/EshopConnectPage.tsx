@@ -28,6 +28,7 @@ export interface SearchItem {
   display_max_price_cents?: number;
   provider_key?: string;
   category_name?: string;
+  ship_from_country?: string;
   [key: string]: unknown;
 }
 
@@ -102,10 +103,10 @@ export default function EshopConnectPage() {
       const items = (res.data?.items || []).map((i: any) => ({
         ...i,
         provider_key: pk,
-        // Normalize thumbnail field for UI: API returns thumbnail_url, UI uses thumbnail
         thumbnail: i.thumbnail_url || i.thumbnail || "",
         image_urls: i.image_urls || [],
         category_name: i.category_name || i.raw?.categoryName || undefined,
+        ship_from_country: i.ship_from_country || undefined,
       }));
       setResults(items);
       if (items.length === 0) toast.info("No products found for that query.");
@@ -115,19 +116,60 @@ export default function EshopConnectPage() {
     } finally {
       setSearching(false);
     }
-  }, [providerKey, isConnected]);
+  }, [providerKey, isConnected, selectedShopSurfaceId]);
 
-  // Auto-load default feed when providers are connected and no results yet
+  // Multi-provider feed: query all connected providers in parallel
+  const loadMultiProviderFeed = useCallback(async () => {
+    const connected = connectedProviders().filter((p) => p !== "estores");
+    if (connected.length === 0) return;
+    setSearching(true);
+    setResults([]);
+    try {
+      const promises = connected.map(async (pk) => {
+        try {
+          const res = await supabase.functions.invoke("dropship-search", {
+            body: {
+              provider_key: pk,
+              query: "trending best sellers",
+              shop_surface_id: selectedShopSurfaceId || undefined,
+            },
+          });
+          if (res.error) {
+            console.warn(`Feed load failed for ${pk}:`, res.error.message);
+            return [];
+          }
+          return (res.data?.items || []).map((i: any) => ({
+            ...i,
+            provider_key: pk,
+            thumbnail: i.thumbnail_url || i.thumbnail || "",
+            image_urls: i.image_urls || [],
+            category_name: i.category_name || i.raw?.categoryName || undefined,
+            ship_from_country: i.ship_from_country || undefined,
+          }));
+        } catch (err: any) {
+          console.warn(`Feed load error for ${pk}:`, err.message);
+          return [];
+        }
+      });
+      const allResults = await Promise.all(promises);
+      const merged = allResults.flat();
+      setResults(merged);
+      if (merged.length === 0) toast.info("No products found from connected providers.");
+    } finally {
+      setSearching(false);
+    }
+  }, [connectedProviders, selectedShopSurfaceId]);
+
+  // Auto-load multi-provider feed when providers are connected and no results yet
   useEffect(() => {
     if (autoFeedLoaded || connectionsLoading || results.length > 0 || searching) return;
     const connected = connectedProviders().filter((p) => p !== "estores");
     if (connected.length > 0 && !autoFeedLoaded) {
       setAutoFeedLoaded(true);
-      const firstProvider = connected[0];
-      setProviderKey(firstProvider);
-      doSearch("trending best sellers", firstProvider);
+      setProviderKey(connected[0]);
+      loadMultiProviderFeed();
     }
-  }, [connectionsLoading, autoFeedLoaded, results.length, searching, connectedProviders, doSearch]);
+  }, [connectionsLoading, autoFeedLoaded, results.length, searching, connectedProviders, loadMultiProviderFeed]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
