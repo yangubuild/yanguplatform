@@ -17,6 +17,8 @@ export interface SearchItem {
   external_product_id: string;
   title: string;
   thumbnail: string;
+  thumbnail_url?: string | null;
+  image_urls?: string[];
   images?: string[];
   provider_currency: string;
   provider_min_price_cents: number;
@@ -100,6 +102,9 @@ export default function EshopConnectPage() {
       const items = (res.data?.items || []).map((i: any) => ({
         ...i,
         provider_key: pk,
+        // Normalize thumbnail field for UI: API returns thumbnail_url, UI uses thumbnail
+        thumbnail: i.thumbnail_url || i.thumbnail || "",
+        image_urls: i.image_urls || [],
         category_name: i.category_name || i.raw?.categoryName || undefined,
       }));
       setResults(items);

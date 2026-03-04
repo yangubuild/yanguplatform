@@ -1,5 +1,6 @@
 import type { DropshipAdapter, DropshipSearchItem, DropshipProductDetail, SearchFilters, CreateOrderResult } from "./types.ts";
 import { normalizeAddressForCJ } from "./normalize.ts";
+import { normalizeUrl, extractImageUrls } from "./normalizeUrl.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // In-memory CJ token cache (per edge function cold start)
@@ -156,16 +157,24 @@ export const cjAdapter: DropshipAdapter = {
     const data = (await cjGet("/product/list", params)) as any;
     const list = data?.data?.list || [];
 
-    return list.map((p: any) => ({
-      external_product_id: String(p.pid || ""),
-      title: p.productNameEn || p.productName || "",
-      thumbnail_url: p.productImage || null,
-      currency: "USD",
-      min_price: Number(p.sellPrice || 0),
-      max_price: Number(p.sellPrice || 0),
-      stock_hint: "unknown" as const,
-      raw: p,
-    }));
+    return list.map((p: any) => {
+      const thumbRaw = p.productImage || p.image || p.img || p.mainImage || null;
+      const imageSetRaw = p.productImageSet || p.productImageList || [];
+      const imageUrls = extractImageUrls(imageSetRaw);
+      const thumbnail = normalizeUrl(thumbRaw) || imageUrls[0] || null;
+
+      return {
+        external_product_id: String(p.pid || ""),
+        title: p.productNameEn || p.productName || "",
+        thumbnail_url: thumbnail,
+        image_urls: imageUrls.length > 0 ? imageUrls : (thumbnail ? [thumbnail] : []),
+        currency: "USD",
+        min_price: Number(p.sellPrice || 0),
+        max_price: Number(p.sellPrice || 0),
+        stock_hint: "unknown" as const,
+        raw: p,
+      };
+    });
   },
 
   async getProduct(external_product_id: string): Promise<DropshipProductDetail> {

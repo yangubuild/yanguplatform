@@ -1,5 +1,6 @@
 import type { DropshipAdapter, DropshipSearchItem, DropshipProductDetail, SearchFilters, CreateOrderResult } from "./types.ts";
 import { normalizeAddressForModern } from "./normalize.ts";
+import { normalizeUrl, extractImageUrls } from "./normalizeUrl.ts";
 
 async function mdFetch(method: string, path: string, body?: Record<string, unknown>): Promise<unknown> {
   const baseUrl = Deno.env.get("MODERNDROPSHIP_BASE_URL") || "https://api.moderndropship.com";
@@ -45,16 +46,23 @@ export const modernDropshipAdapter: DropshipAdapter = {
     const data = (await mdFetch("GET", `/products?${params.toString()}`)) as any;
     const products = Array.isArray(data) ? data : (data?.products || data?.data || []);
 
-    return products.map((p: any) => ({
-      external_product_id: String(p.id || ""),
-      title: p.title || p.name || "",
-      thumbnail_url: p.image?.src || p.images?.[0]?.src || null,
-      currency: "USD",
-      min_price: Number(p.variants?.[0]?.price || 0),
-      max_price: Number(p.variants?.[p.variants?.length - 1]?.price || p.variants?.[0]?.price || 0),
-      stock_hint: "unknown" as const,
-      raw: p,
-    }));
+    return products.map((p: any) => {
+      const thumbRaw = p.image?.src || p.images?.[0]?.src || null;
+      const imageUrls = extractImageUrls(p.images);
+      const thumbnail = normalizeUrl(thumbRaw) || imageUrls[0] || null;
+
+      return {
+        external_product_id: String(p.id || ""),
+        title: p.title || p.name || "",
+        thumbnail_url: thumbnail,
+        image_urls: imageUrls.length > 0 ? imageUrls : (thumbnail ? [thumbnail] : []),
+        currency: "USD",
+        min_price: Number(p.variants?.[0]?.price || 0),
+        max_price: Number(p.variants?.[p.variants?.length - 1]?.price || p.variants?.[0]?.price || 0),
+        stock_hint: "unknown" as const,
+        raw: p,
+      };
+    });
   },
 
   async getProduct(external_product_id: string): Promise<DropshipProductDetail> {

@@ -4,6 +4,8 @@ interface SearchItem {
   external_product_id: string;
   title: string;
   thumbnail: string;
+  thumbnail_url?: string | null;
+  image_urls?: string[];
   provider_currency: string;
   provider_min_price_cents: number;
   display_currency?: string;
@@ -36,9 +38,9 @@ export default function ProductCard({ item, formatPrice, onClick }: Props) {
       className="text-left rounded-lg border border-border bg-card hover:border-accent/40 hover:shadow-md transition-all group overflow-hidden"
     >
       <div className="aspect-square bg-muted overflow-hidden relative">
-        {item.thumbnail ? (
+        {(item.thumbnail || item.thumbnail_url) ? (
           <img
-            src={item.thumbnail}
+            src={item.thumbnail || item.thumbnail_url || ""}
             alt={item.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             loading="lazy"
