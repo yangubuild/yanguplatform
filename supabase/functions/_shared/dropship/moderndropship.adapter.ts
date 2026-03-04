@@ -2,11 +2,23 @@ import type { DropshipAdapter, DropshipSearchItem, DropshipProductDetail, Search
 import { normalizeAddressForModern } from "./normalize.ts";
 import { normalizeUrl, extractImageUrls } from "./normalizeUrl.ts";
 
+const MODERN_FALLBACK_WARNING = "ModernDropship not configured (missing API key)";
+
+function makeModernConfigError() {
+  const err = new Error(MODERN_FALLBACK_WARNING) as Error & {
+    code?: string;
+    provider_key?: string;
+  };
+  err.code = "MODERNDROPSHIP_CONFIG_MISSING";
+  err.provider_key = "moderndropship";
+  return err;
+}
+
 async function mdFetch(method: string, path: string, body?: Record<string, unknown>): Promise<unknown> {
   const baseUrl = Deno.env.get("MODERNDROPSHIP_BASE_URL") || "https://api.moderndropship.com";
   const apiKey = Deno.env.get("MODERNDROPSHIP_API_KEY");
 
-  if (!apiKey) throw new Error("MODERNDROPSHIP_API_KEY not configured");
+  if (!apiKey) throw makeModernConfigError();
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 15_000);
@@ -23,52 +35,158 @@ async function mdFetch(method: string, path: string, body?: Record<string, unkno
       signal: controller.signal,
     });
 
-    if (!res.ok) {
-      const errBody = await res.text();
-      console.error("ModernDropship API error:", res.status, errBody);
-      throw new Error(`ModernDropship upstream error: ${res.status}`);
+    const rawBody = await res.text();
+    const bodyPreview = rawBody.slice(0, 200);
+
+    console.log("moderndropship response", {
+      path,
+      status: res.status,
+      body_preview: bodyPreview,
+    });
+
+    let data: unknown = null;
+    try {
+      data = rawBody ? JSON.parse(rawBody) : null;
+    } catch {
+      data = null;
     }
 
-    return await res.json();
+    if (!res.ok) {
+      const err = new Error(`ModernDropship upstream error: ${res.status}`) as Error & {
+        code?: string;
+        status?: number;
+        body_preview?: string;
+      };
+      err.code = "UPSTREAM_PROVIDER_ERROR";
+      err.status = res.status;
+      err.body_preview = rawBody.slice(0, 2000);
+      throw err;
+    }
+
+    return data;
   } finally {
     clearTimeout(timeout);
   }
 }
 
+function extractProducts(payload: any): any[] {
+  if (Array.isArray(payload)) return payload;
+
+  const candidates = [
+    payload?.products,
+    payload?.items,
+    payload?.results,
+    payload?.data,
+    payload?.data?.products,
+    payload?.data?.items,
+    payload?.data?.results,
+  ];
+
+  for (const c of candidates) {
+    if (Array.isArray(c)) return c;
+  }
+
+  return [];
+}
+
+function toPositiveNumber(value: unknown): number {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+}
+
+function mapModernProduct(p: any): DropshipSearchItem {
+  const imageUrls = extractImageUrls(p?.images || p?.image_urls || p?.imageUrls || []);
+  const thumbRaw = p?.featured_image || p?.featuredImage || p?.image?.src || p?.image || imageUrls[0] || null;
+  const thumbnail = normalizeUrl(thumbRaw) || imageUrls[0] || null;
+
+  const uniqueImages = Array.from(new Set([thumbnail, ...imageUrls].filter((img): img is string => typeof img === "string" && img.length > 0)));
+
+  const variantPrices = Array.isArray(p?.variants)
+    ? p.variants.map((v: any) => toPositiveNumber(v?.price)).filter((v: number) => v > 0)
+    : [];
+  const directPrice = toPositiveNumber(p?.price ?? p?.min_price ?? p?.retail_price ?? p?.sale_price);
+
+  const minPrice = variantPrices.length > 0 ? Math.min(...variantPrices) : directPrice;
+  const maxPrice = variantPrices.length > 0 ? Math.max(...variantPrices) : directPrice;
+
+  const categoryName =
+    (typeof p?.product_type === "string" && p.product_type.trim())
+      ? p.product_type
+      : (Array.isArray(p?.tags) && p.tags.length > 0)
+        ? String(p.tags[0])
+        : null;
+
+  const shipFrom =
+    p?.warehouse_location ||
+    p?.warehouseLocation ||
+    p?.origin_country ||
+    p?.originCountry ||
+    p?.ship_from_country ||
+    p?.shipping_from ||
+    "United States";
+
+  return {
+    external_product_id: String(p?.id || p?.product_id || p?.external_id || ""),
+    title: p?.title || p?.name || "",
+    thumbnail_url: thumbnail,
+    image_urls: uniqueImages,
+    currency: "USD",
+    min_price: minPrice,
+    max_price: maxPrice,
+    stock_hint: "unknown" as const,
+    category_name: categoryName,
+    ship_from_country: String(shipFrom),
+    raw: p,
+  };
+}
+
 export const modernDropshipAdapter: DropshipAdapter = {
   async searchProducts(query: string, _filters: SearchFilters): Promise<DropshipSearchItem[]> {
-    const params = new URLSearchParams({
-      title: query,
-      limit: "20",
-      page: "0",
-    });
+    const fallbackQuery = "best sellers";
+    const attempts: Array<{ label: string; params: Record<string, string> }> = [
+      { label: "query", params: { query, limit: "20", page: "0" } },
+      { label: "title", params: { title: query, limit: "20", page: "0" } },
+      ...(query.toLowerCase() !== fallbackQuery
+        ? [
+            { label: "fallback_query", params: { query: fallbackQuery, limit: "20", page: "0" } },
+            { label: "fallback_title", params: { title: fallbackQuery, limit: "20", page: "0" } },
+          ]
+        : []),
+      { label: "catalog", params: { limit: "20", page: "0" } },
+      { label: "catalog_page_1", params: { limit: "20", page: "1" } },
+    ];
 
-    const data = (await mdFetch("GET", `/products?${params.toString()}`)) as any;
-    const products = Array.isArray(data) ? data : (data?.products || data?.data || []);
+    for (const attempt of attempts) {
+      const params = new URLSearchParams(attempt.params);
+      const path = `/products?${params.toString()}`;
 
-    return products.map((p: any) => {
-      const thumbRaw = p.image?.src || p.images?.[0]?.src || p.featured_image || null;
-      const imageUrls = extractImageUrls(p.images);
-      const thumbnail = normalizeUrl(thumbRaw) || imageUrls[0] || null;
+      try {
+        const data = (await mdFetch("GET", path)) as any;
+        const products = extractProducts(data);
 
-      // Extract category from tags or product_type
-      const categoryName = p.product_type || (Array.isArray(p.tags) ? p.tags[0] : null) || null;
-      const shipFrom = p.warehouse_location || p.origin_country || (p.vendor ? null : "United States") || "United States";
+        console.log("moderndropship parsed", {
+          attempt: attempt.label,
+          parsed_items: products.length,
+          first_item_keys: products[0] ? Object.keys(products[0]).slice(0, 20) : [],
+        });
 
-      return {
-        external_product_id: String(p.id || ""),
-        title: p.title || p.name || "",
-        thumbnail_url: thumbnail,
-        image_urls: imageUrls.length > 0 ? imageUrls : (thumbnail ? [thumbnail] : []),
-        currency: "USD",
-        min_price: Number(p.variants?.[0]?.price || 0),
-        max_price: Number(p.variants?.[p.variants?.length - 1]?.price || p.variants?.[0]?.price || 0),
-        stock_hint: "unknown" as const,
-        category_name: categoryName,
-        ship_from_country: shipFrom,
-        raw: p,
-      };
-    });
+        if (products.length > 0) {
+          return products.slice(0, 20).map(mapModernProduct);
+        }
+      } catch (err: any) {
+        if (err?.code === "MODERNDROPSHIP_CONFIG_MISSING") throw err;
+
+        console.error("moderndropship search attempt failed", {
+          attempt: attempt.label,
+          message: err?.message,
+          status: err?.status,
+          body_preview: String(err?.body_preview || "").slice(0, 200),
+          stack: err?.stack,
+        });
+      }
+    }
+
+    return [];
   },
 
   async getProduct(external_product_id: string): Promise<DropshipProductDetail> {

@@ -59,12 +59,13 @@ export default function EshopConnectPage() {
   const [searching, setSearching] = useState(false);
   const [results, setResults] = useState<SearchItem[]>([]);
   const [activeTab, setActiveTab] = useState<TabKey>("products");
-  const [providerKey, setProviderKey] = useState("cj");
+  const [providerKey, setProviderKey] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<SearchItem | null>(null);
   const [showPopup, setShowPopup] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState("all");
   const [autoFeedLoaded, setAutoFeedLoaded] = useState(false);
   const [selectedShopSurfaceId, setSelectedShopSurfaceId] = useState(shopSurfaceIdParam);
+  const [providerWarnings, setProviderWarnings] = useState<string[]>([]);
 
   const { isConnected, connectedProviders, isLoading: connectionsLoading } = useDropshipConnections();
   const { data: surfaces } = useSurfaces();
@@ -83,14 +84,20 @@ export default function EshopConnectPage() {
   };
 
   const doSearch = useCallback(async (q: string, provider?: string) => {
-    const pk = provider || providerKey;
+    const fallbackProvider = connectedProviders().find((p) => p !== "estores") || "";
+    const pk = provider || providerKey || fallbackProvider;
     if (!q.trim()) return;
+    if (!pk) {
+      toast.error("Connect a supplier first to search.");
+      return;
+    }
     if (!isConnected(pk)) {
       toast.error(`Connect ${pk === "cj" ? "CJ Dropshipping" : pk === "moderndropship" ? "ModernDropship" : pk} first to search.`);
       return;
     }
     setSearching(true);
     setResults([]);
+    setProviderWarnings([]);
     try {
       const res = await supabase.functions.invoke("dropship-search", {
         body: {
@@ -100,6 +107,12 @@ export default function EshopConnectPage() {
         },
       });
       if (res.error) throw new Error(res.error.message);
+
+      const responseWarnings = Array.isArray(res.data?.warnings)
+        ? res.data.warnings.filter((w: unknown) => typeof w === "string")
+        : [];
+      setProviderWarnings(responseWarnings as string[]);
+
       const items = (res.data?.items || []).map((i: any) => ({
         ...i,
         provider_key: pk,
@@ -116,7 +129,7 @@ export default function EshopConnectPage() {
     } finally {
       setSearching(false);
     }
-  }, [providerKey, isConnected, selectedShopSurfaceId]);
+  }, [providerKey, connectedProviders, isConnected, selectedShopSurfaceId]);
 
   // Multi-provider feed: query all connected providers in parallel
   const loadMultiProviderFeed = useCallback(async () => {
@@ -124,36 +137,60 @@ export default function EshopConnectPage() {
     if (connected.length === 0) return;
     setSearching(true);
     setResults([]);
+    setProviderWarnings([]);
+
     try {
-      const promises = connected.map(async (pk) => {
-        try {
-          const res = await supabase.functions.invoke("dropship-search", {
-            body: {
+      const responses = await Promise.all(
+        connected.map(async (pk) => {
+          try {
+            const res = await supabase.functions.invoke("dropship-search", {
+              body: {
+                provider_key: pk,
+                query: "trending best sellers",
+                shop_surface_id: selectedShopSurfaceId || undefined,
+              },
+            });
+
+            if (res.error) {
+              const fallbackWarning =
+                pk === "moderndropship" && /missing api key|not configured/i.test(res.error.message || "")
+                  ? ["ModernDropship not configured (missing API key)"]
+                  : [];
+              console.warn(`Feed load failed for ${pk}:`, res.error.message);
+              return { items: [], warnings: fallbackWarning };
+            }
+
+            const responseWarnings = Array.isArray(res.data?.warnings)
+              ? res.data.warnings.filter((w: unknown) => typeof w === "string")
+              : [];
+
+            const items = (res.data?.items || []).map((i: any) => ({
+              ...i,
               provider_key: pk,
-              query: "trending best sellers",
-              shop_surface_id: selectedShopSurfaceId || undefined,
-            },
-          });
-          if (res.error) {
-            console.warn(`Feed load failed for ${pk}:`, res.error.message);
-            return [];
+              thumbnail: i.thumbnail_url || i.thumbnail || "",
+              image_urls: i.image_urls || [],
+              category_name: i.category_name || i.raw?.categoryName || undefined,
+              ship_from_country: i.ship_from_country || undefined,
+            }));
+
+            return { items, warnings: responseWarnings as string[] };
+          } catch (err: any) {
+            console.warn(`Feed load error for ${pk}:`, err.message);
+            const fallbackWarning =
+              pk === "moderndropship" && /missing api key|not configured/i.test(err.message || "")
+                ? ["ModernDropship not configured (missing API key)"]
+                : [];
+            return { items: [], warnings: fallbackWarning };
           }
-          return (res.data?.items || []).map((i: any) => ({
-            ...i,
-            provider_key: pk,
-            thumbnail: i.thumbnail_url || i.thumbnail || "",
-            image_urls: i.image_urls || [],
-            category_name: i.category_name || i.raw?.categoryName || undefined,
-            ship_from_country: i.ship_from_country || undefined,
-          }));
-        } catch (err: any) {
-          console.warn(`Feed load error for ${pk}:`, err.message);
-          return [];
-        }
-      });
-      const allResults = await Promise.all(promises);
-      const merged = allResults.flat();
+        })
+      );
+
+      const merged = responses.flatMap((r) => r.items);
+      const warningMessages = Array.from(new Set(responses.flatMap((r) => r.warnings)));
+
+      setProviderWarnings(warningMessages);
       setResults(merged);
+
       if (merged.length === 0) toast.info("No products found from connected providers.");
     } finally {
       setSearching(false);
@@ -166,7 +203,6 @@ export default function EshopConnectPage() {
     const connected = connectedProviders().filter((p) => p !== "estores");
     if (connected.length > 0 && !autoFeedLoaded) {
       setAutoFeedLoaded(true);
-      setProviderKey(connected[0]);
       loadMultiProviderFeed();
     }
   }, [connectionsLoading, autoFeedLoaded, results.length, searching, connectedProviders, loadMultiProviderFeed]);
@@ -306,6 +342,7 @@ export default function EshopConnectPage() {
             onSearch={(q) => { setQuery(q); doSearch(q); }}
             hasConnectedProvider={hasAnyProvider}
             onGoToManufacturers={() => setActiveTab("manufacturers")}
+            providerWarnings={providerWarnings}
           />
         )}
         {activeTab === "manufacturers" && (

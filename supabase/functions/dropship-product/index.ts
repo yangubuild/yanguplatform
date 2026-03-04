@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
 
   // Validate required fields
   if (!provider_key || typeof provider_key !== "string") {
-    return jsonResponse({ request_id, error: { code: "BAD_REQUEST", message: "provider_key is required (cj | modern | yangu_estores)" } }, 400);
+    return jsonResponse({ request_id, error: { code: "BAD_REQUEST", message: "provider_key is required (cj | moderndropship | estores)" } }, 400);
   }
   if (!external_product_id || typeof external_product_id !== "string") {
     return jsonResponse({ request_id, error: { code: "BAD_REQUEST", message: "external_product_id is required" } }, 400);
