@@ -47,9 +47,12 @@ export const modernDropshipAdapter: DropshipAdapter = {
     const products = Array.isArray(data) ? data : (data?.products || data?.data || []);
 
     return products.map((p: any) => {
-      const thumbRaw = p.image?.src || p.images?.[0]?.src || null;
+      const thumbRaw = p.image?.src || p.images?.[0]?.src || p.featured_image || null;
       const imageUrls = extractImageUrls(p.images);
       const thumbnail = normalizeUrl(thumbRaw) || imageUrls[0] || null;
+
+      // Extract category from tags or product_type
+      const categoryName = p.product_type || (Array.isArray(p.tags) ? p.tags[0] : null) || null;
 
       return {
         external_product_id: String(p.id || ""),
@@ -60,6 +63,7 @@ export const modernDropshipAdapter: DropshipAdapter = {
         min_price: Number(p.variants?.[0]?.price || 0),
         max_price: Number(p.variants?.[p.variants?.length - 1]?.price || p.variants?.[0]?.price || 0),
         stock_hint: "unknown" as const,
+        category_name: categoryName,
         raw: p,
       };
     });

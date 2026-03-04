@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Download, Loader2, Truck, ShieldCheck, ChevronRight, ChevronDown } from "lucide-react";
+import { ArrowLeft, Download, Loader2, Truck, ShieldCheck, ChevronRight, ChevronDown, Percent } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { SearchItem } from "@/pages/seller/eshop-connect/EshopConnectPage";
@@ -23,6 +25,7 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
   const [imported, setImported] = useState(false);
   const [mainImage, setMainImage] = useState(product.thumbnail);
   const [localShopId, setLocalShopId] = useState(shopSurfaceId || (shopSurfaces[0]?.id ?? ""));
+  const [markupPercent, setMarkupPercent] = useState(30);
 
   useEffect(() => {
     (async () => {
@@ -48,6 +51,12 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
     })();
   }, [product.external_product_id, providerKey]);
 
+  // Pricing calculations
+  const supplierCostCents = detail?.provider_base_price_cents ?? product.provider_min_price_cents ?? 0;
+  const supplierCurrency = detail?.provider_currency ?? product.provider_currency ?? "USD";
+  const sellingPriceCents = Math.round(supplierCostCents * (1 + markupPercent / 100));
+  const displayCurrency = detail?.display_currency ?? product.display_currency ?? supplierCurrency;
+
   const handleImport = async () => {
     if (!localShopId) {
       toast.error("Select a shop to import this product into.");
@@ -60,6 +69,8 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
           provider_key: providerKey,
           external_product_id: product.external_product_id,
           shop_surface_id: localShopId,
+          markup_percent: markupPercent,
+          selling_price_cents: sellingPriceCents,
         },
       });
       if (res.error) throw new Error(res.error.message);
@@ -156,6 +167,42 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
                   </div>
                 )}
 
+                {/* Markup / Pricing Controls */}
+                <div className="rounded-xl border border-accent/30 bg-accent/5 p-4 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Percent className="w-4 h-4 text-accent" />
+                    <h4 className="text-sm font-semibold text-foreground">Pricing & Markup</h4>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="space-y-1">
+                      <Label className="text-xs text-muted-foreground">Supplier Cost</Label>
+                      <div className="px-3 py-2 text-sm rounded-lg border border-border bg-muted/40 text-foreground font-medium">
+                        {formatPrice(supplierCostCents, supplierCurrency)}
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs text-muted-foreground">Markup %</Label>
+                      <Input
+                        type="number"
+                        min={0}
+                        max={500}
+                        value={markupPercent}
+                        onChange={(e) => setMarkupPercent(Math.max(0, Number(e.target.value)))}
+                        className="text-sm"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs text-muted-foreground">Your Selling Price</Label>
+                      <div className="px-3 py-2 text-sm rounded-lg border border-accent/40 bg-accent/10 text-accent font-bold">
+                        {formatPrice(sellingPriceCents, displayCurrency)}
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground/70">
+                    Margin: {formatPrice(sellingPriceCents - supplierCostCents, displayCurrency)} per unit
+                  </p>
+                </div>
+
                 {/* Shipping block */}
                 <div className="rounded-xl border border-border bg-card p-4 space-y-3">
                   <div className="flex items-center justify-between">
@@ -215,6 +262,12 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
                       )}
                     </Button>
                   </div>
+
+                  {imported && (
+                    <p className="text-xs text-accent">
+                      Product imported! Edit pricing in your Shop editor.
+                    </p>
+                  )}
                 </div>
 
                 {/* Order protection */}

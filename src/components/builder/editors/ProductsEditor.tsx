@@ -46,6 +46,8 @@ interface Product {
   images: string[];
   media: MediaAsset[];
   price: string;
+  compare_at_price: string;
+  supplier_cost: string;
   stock_quantity: string;
   discount_percent: string;
   discount_label: string;
@@ -106,6 +108,8 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
     images: legacyImages,
     media,
     price: p.price || "",
+    compare_at_price: p.compare_at_price || "",
+    supplier_cost: p.supplier_cost || "",
     stock_quantity: p.stock_quantity || "",
     discount_percent: p.discount_percent || "",
     discount_label: p.discount_label || "",
@@ -134,6 +138,8 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
   const [pImages, setPImages] = useState<string[]>([]);
   const [pMedia, setPMedia] = useState<MediaAsset[]>([]);
   const [pPrice, setPPrice] = useState("");
+  const [pCompareAtPrice, setPCompareAtPrice] = useState("");
+  const [pSupplierCost, setPSupplierCost] = useState("");
   const [pStock, setPStock] = useState("");
   const [pDiscountPct, setPDiscountPct] = useState("");
   const [pDiscountLabel, setPDiscountLabel] = useState("");
@@ -205,7 +211,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
     setShowAddMethodDialog(false);
     setEditProductIndex(null);
     setPName(""); setPBrand(""); setPCategory(categories[0]?.name || "");
-    setPDesc(""); setPImages([]); setPMedia([]); setPPrice(""); setPStock("");
+    setPDesc(""); setPImages([]); setPMedia([]); setPPrice(""); setPCompareAtPrice(""); setPSupplierCost(""); setPStock("");
     setPDiscountPct(""); setPDiscountLabel("");
     setPSizes([]); setPSizeInput(""); setPColors([]);
     setPMaterial(""); setPWeight(""); setPDimensions("");
@@ -218,7 +224,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
     const p = products[i];
     setEditProductIndex(i);
     setPName(p.name); setPBrand(p.brand); setPCategory(p.category);
-    setPDesc(p.description); setPImages(p.images); setPMedia(p.media); setPPrice(p.price);
+    setPDesc(p.description); setPImages(p.images); setPMedia(p.media); setPPrice(p.price); setPCompareAtPrice(p.compare_at_price); setPSupplierCost(p.supplier_cost);
     setPStock(p.stock_quantity); setPDiscountPct(p.discount_percent);
     setPDiscountLabel(p.discount_label); setPSizes(p.sizes);
     setPColors(p.colors); setPMaterial(p.material); setPWeight(p.weight);
@@ -233,6 +239,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
     const product: Product = {
       name: pName, brand: pBrand, category: pCategory,
       description: pDesc, images: pMedia.map(m => m.src).filter(Boolean), media: pMedia, price: pPrice,
+      compare_at_price: pCompareAtPrice, supplier_cost: pSupplierCost,
       stock_quantity: pStock, discount_percent: pDiscountPct,
       discount_label: pDiscountLabel, sizes: pSizes,
       colors: pColors, material: pMaterial, weight: pWeight,
@@ -606,17 +613,40 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
               />
             </div>
 
-            {/* Price + Stock */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label className="text-sm font-bold">Price ({currency}) *</Label>
-                <Input type="number" value={pPrice} onChange={(e) => setPPrice(e.target.value)} placeholder="0" />
-                <p className="text-xs text-muted-foreground">Enter price in {currency}</p>
+            {/* Pricing Section */}
+            <div className="border border-border rounded-lg p-3 space-y-3">
+              <h4 className="text-sm font-bold">Pricing</h4>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-bold">Selling Price ({currency}) *</Label>
+                  <Input type="number" value={pPrice} onChange={(e) => setPPrice(e.target.value)} placeholder="0" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-bold">Compare-at Price</Label>
+                  <Input type="number" value={pCompareAtPrice} onChange={(e) => setPCompareAtPrice(e.target.value)} placeholder="Optional" />
+                  <p className="text-xs text-muted-foreground">Show as original price (strikethrough)</p>
+                </div>
               </div>
-              <div className="space-y-1.5">
-                <Label className="text-sm font-bold">Stock Quantity</Label>
-                <Input type="number" value={pStock} onChange={(e) => setPStock(e.target.value)} placeholder="Optional" />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-bold">Supplier Cost</Label>
+                  <Input type="number" value={pSupplierCost} onChange={(e) => setPSupplierCost(e.target.value)} placeholder="Auto-filled on import" disabled={!!pSupplierCost && pSupplierCost !== "0"} />
+                  <p className="text-xs text-muted-foreground">Read-only after import</p>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-bold">Margin</Label>
+                  <div className="px-3 py-2 text-sm rounded-md border border-border bg-muted/40 text-foreground font-medium">
+                    {pPrice && pSupplierCost ? `${currency} ${(parseFloat(pPrice) - parseFloat(pSupplierCost)).toFixed(2)}` : "—"}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Selling price − supplier cost</p>
+                </div>
               </div>
+            </div>
+
+            {/* Stock */}
+            <div className="space-y-1.5">
+              <Label className="text-sm font-bold">Stock Quantity</Label>
+              <Input type="number" value={pStock} onChange={(e) => setPStock(e.target.value)} placeholder="Optional" />
             </div>
 
             {/* Discount section (orange border like wireframe) */}
