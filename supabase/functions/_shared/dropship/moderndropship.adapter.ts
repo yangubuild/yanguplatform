@@ -125,6 +125,37 @@ export const modernDropshipAdapter: DropshipAdapter = {
     };
   },
 
+  async getOrderStatus(provider_order_id: string) {
+    const data = (await mdFetch("GET", `/orders/${provider_order_id}`)) as any;
+    const o = data?.order || data;
+    if (!o) throw new Error("Order not found in ModernDropship");
+
+    const statusMap: Record<string, string> = {
+      pending: "submitted",
+      processing: "accepted",
+      shipped: "shipped",
+      delivered: "delivered",
+      cancelled: "cancelled",
+      failed: "failed",
+    };
+    const normalized = (statusMap[o.status] || o.fulfillment_status || "submitted") as any;
+
+    const fulfillment = o.fulfillments?.[0] || {};
+
+    return {
+      status: normalized,
+      tracking: {
+        tracking_number: fulfillment.tracking_number || o.tracking_number || null,
+        tracking_url: fulfillment.tracking_url || o.tracking_url || null,
+        carrier: fulfillment.tracking_company || o.carrier || null,
+        shipment_status: normalized === "delivered" ? "delivered" as const
+          : normalized === "shipped" ? "shipped" as const
+          : "pending" as const,
+      },
+      raw: o,
+    };
+  },
+
   async syncInventory() { throw new Error("Not implemented — Phase 2"); },
   async syncPrice() { throw new Error("Not implemented — Phase 2"); },
 };

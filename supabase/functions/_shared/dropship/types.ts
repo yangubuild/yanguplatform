@@ -42,11 +42,23 @@ export interface CreateOrderResult {
   raw?: Record<string, unknown>;
 }
 
+export interface OrderStatusResult {
+  status: "submitted" | "accepted" | "shipped" | "delivered" | "cancelled" | "failed";
+  tracking: {
+    tracking_number: string | null;
+    tracking_url: string | null;
+    carrier: string | null;
+    shipment_status: "pending" | "shipped" | "delivered";
+  };
+  raw: Record<string, unknown>;
+}
+
 export interface DropshipAdapter {
   searchProducts(query: string, filters: SearchFilters): Promise<DropshipSearchItem[]>;
   getProduct(external_product_id: string): Promise<DropshipProductDetail>;
   importProduct(external_product_id: string, shop_surface_id: string): Promise<{ status: string }>;
   createOrder(order_payload: Record<string, unknown>): Promise<CreateOrderResult>;
+  getOrderStatus(provider_order_id: string): Promise<OrderStatusResult>;
   syncInventory(external_product_id: string): Promise<{ status: string }>;
   syncPrice(external_product_id: string): Promise<{ status: string }>;
 }

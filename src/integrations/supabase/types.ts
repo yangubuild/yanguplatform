@@ -2237,6 +2237,53 @@ export type Database = {
           },
         ]
       }
+      dropship_order_sync_jobs: {
+        Row: {
+          attempts: number
+          created_at: string
+          dropship_order_id: string
+          id: string
+          last_error: string | null
+          provider_key: string
+          provider_order_id: string
+          run_after: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          dropship_order_id: string
+          id?: string
+          last_error?: string | null
+          provider_key: string
+          provider_order_id: string
+          run_after?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          dropship_order_id?: string
+          id?: string
+          last_error?: string | null
+          provider_key?: string
+          provider_order_id?: string
+          run_after?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dropship_order_sync_jobs_dropship_order_id_fkey"
+            columns: ["dropship_order_id"]
+            isOneToOne: false
+            referencedRelation: "dropship_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dropship_orders: {
         Row: {
           created_at: string
@@ -2244,6 +2291,8 @@ export type Database = {
           customer: Json
           id: string
           last_error: string | null
+          last_synced_at: string | null
+          next_sync_after: string
           notes: string | null
           provider_key: string
           provider_order_id: string | null
@@ -2251,6 +2300,8 @@ export type Database = {
           shipping_address: Json
           shop_surface_id: string
           status: string
+          sync_attempts: number
+          sync_status: string
           total_cost_cents: number
           updated_at: string
         }
@@ -2260,6 +2311,8 @@ export type Database = {
           customer?: Json
           id?: string
           last_error?: string | null
+          last_synced_at?: string | null
+          next_sync_after?: string
           notes?: string | null
           provider_key: string
           provider_order_id?: string | null
@@ -2267,6 +2320,8 @@ export type Database = {
           shipping_address?: Json
           shop_surface_id: string
           status?: string
+          sync_attempts?: number
+          sync_status?: string
           total_cost_cents?: number
           updated_at?: string
         }
@@ -2276,6 +2331,8 @@ export type Database = {
           customer?: Json
           id?: string
           last_error?: string | null
+          last_synced_at?: string | null
+          next_sync_after?: string
           notes?: string | null
           provider_key?: string
           provider_order_id?: string | null
@@ -2283,6 +2340,8 @@ export type Database = {
           shipping_address?: Json
           shop_surface_id?: string
           status?: string
+          sync_attempts?: number
+          sync_status?: string
           total_cost_cents?: number
           updated_at?: string
         }
@@ -2363,6 +2422,7 @@ export type Database = {
           shipped_at: string | null
           status: string
           tracking_number: string | null
+          tracking_url: string | null
           updated_at: string
         }
         Insert: {
@@ -2376,6 +2436,7 @@ export type Database = {
           shipped_at?: string | null
           status?: string
           tracking_number?: string | null
+          tracking_url?: string | null
           updated_at?: string
         }
         Update: {
@@ -2389,6 +2450,7 @@ export type Database = {
           shipped_at?: string | null
           status?: string
           tracking_number?: string | null
+          tracking_url?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -3947,6 +4009,17 @@ export type Database = {
         Returns: Json
       }
       claim_dashboard_credits: { Args: never; Returns: Json }
+      complete_dropship_order_sync_job: {
+        Args: {
+          p_error?: string
+          p_job_id: string
+          p_new_status?: string
+          p_provider_payload?: Json
+          p_success: boolean
+          p_tracking?: Json
+        }
+        Returns: undefined
+      }
       complete_dropship_sync_job: {
         Args: {
           p_error?: string
@@ -4044,6 +4117,10 @@ export type Database = {
         Returns: Json
       }
       dismiss_promo: { Args: { p_campaign_key: string }; Returns: undefined }
+      enqueue_dropship_order_sync_jobs: {
+        Args: { p_limit?: number }
+        Returns: number
+      }
       enqueue_dropship_sync_jobs: {
         Args: { p_limit?: number }
         Returns: number
@@ -4267,6 +4344,10 @@ export type Database = {
       org_has_active_subscription: {
         Args: { p_org_id: string }
         Returns: boolean
+      }
+      process_dropship_order_sync_batch: {
+        Args: { p_limit?: number }
+        Returns: Json
       }
       process_dropship_sync_batch: { Args: { p_limit?: number }; Returns: Json }
       publish_app_listing: {
