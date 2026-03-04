@@ -2112,6 +2112,69 @@ export type Database = {
         }
         Relationships: []
       }
+      dropship_connections: {
+        Row: {
+          connection_status: string
+          created_at: string
+          id: string
+          metadata: Json
+          org_id: string
+          provider_key: string
+        }
+        Insert: {
+          connection_status?: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          org_id: string
+          provider_key: string
+        }
+        Update: {
+          connection_status?: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          org_id?: string
+          provider_key?: string
+        }
+        Relationships: []
+      }
+      dropship_imports: {
+        Row: {
+          created_at: string
+          external_product_id: string
+          id: string
+          images: Json | null
+          provider_key: string
+          raw: Json | null
+          shop_surface_id: string
+          title: string
+          variants: Json | null
+        }
+        Insert: {
+          created_at?: string
+          external_product_id: string
+          id?: string
+          images?: Json | null
+          provider_key: string
+          raw?: Json | null
+          shop_surface_id: string
+          title: string
+          variants?: Json | null
+        }
+        Update: {
+          created_at?: string
+          external_product_id?: string
+          id?: string
+          images?: Json | null
+          provider_key?: string
+          raw?: Json | null
+          shop_surface_id?: string
+          title?: string
+          variants?: Json | null
+        }
+        Relationships: []
+      }
       dropship_providers: {
         Row: {
           created_at: string
@@ -3881,6 +3944,18 @@ export type Database = {
         Returns: boolean
       }
       has_used_trial: { Args: { _user_id: string }; Returns: boolean }
+      import_external_product_to_shop: {
+        Args: {
+          p_external_product_id: string
+          p_images?: Json
+          p_provider_key: string
+          p_raw?: Json
+          p_shop_surface_id: string
+          p_title: string
+          p_variants?: Json
+        }
+        Returns: Json
+      }
       is_drive_connected: { Args: never; Returns: boolean }
       is_owner: { Args: { _user_id: string }; Returns: boolean }
       is_slug_available: {
