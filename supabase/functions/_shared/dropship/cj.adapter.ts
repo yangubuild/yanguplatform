@@ -173,7 +173,17 @@ export const cjAdapter: DropshipAdapter = {
         max_price: Number(p.sellPrice || 0),
         stock_hint: "unknown" as const,
         category_name: p.categoryName || null,
-        ship_from_country: p.sourceFrom === 10 ? "China" : p.sourceFrom === 20 ? "United States" : p.sourceFrom === 30 ? "Thailand" : "China",
+        ship_from_country: (() => {
+          const sf = String(p.sourceFrom ?? "");
+          if (sf === "10") return "China";
+          if (sf === "20") return "United States";
+          if (sf === "30") return "Thailand";
+          // Also check shippingCountryCodes array
+          const codes = Array.isArray(p.shippingCountryCodes) ? p.shippingCountryCodes : [];
+          const codeMap: Record<string, string> = { CN: "China", US: "United States", TH: "Thailand", GB: "United Kingdom", AE: "UAE", IN: "India", VN: "Vietnam", ID: "Indonesia", MY: "Malaysia", TR: "Türkiye", PK: "Pakistan", DE: "Germany", FR: "France", AU: "Australia", JP: "Japan", KR: "South Korea", SG: "Singapore" };
+          if (codes.length > 0 && codeMap[codes[0]]) return codeMap[codes[0]];
+          return "China";
+        })(),
         raw: p,
       };
     });

@@ -3,7 +3,7 @@ import type { SearchItem } from "@/pages/seller/eshop-connect/EshopConnectPage";
 import ProductCard from "./ProductCard";
 import { Globe } from "lucide-react";
 
-const STATIC_COUNTRIES = [
+const PINNED_COUNTRIES: Array<{ key: string; label: string; flag: string | null }> = [
   { key: "all", label: "All", flag: null },
   { key: "China", label: "China", flag: "🇨🇳" },
   { key: "United States", label: "United States", flag: "🇺🇸" },
@@ -17,6 +17,8 @@ const STATIC_COUNTRIES = [
   { key: "Pakistan", label: "Pakistan", flag: "🇵🇰" },
   { key: "Thailand", label: "Thailand", flag: "🇹🇭" },
 ];
+
+const PINNED_KEYS = new Set(PINNED_COUNTRIES.map((c) => c.key));
 
 interface Props {
   selectedCountry: string;
@@ -37,12 +39,38 @@ export default function WorldwideTab({ selectedCountry, onCountryChange, results
     return counts;
   }, [results]);
 
+  // Build merged list: pinned countries + any dynamic countries from data
   const countries = useMemo(() => {
-    return STATIC_COUNTRIES.map((c) => ({
+    const pinned = PINNED_COUNTRIES.map((c) => ({
       ...c,
       count: c.key === "all" ? results.length : (countryCounts[c.key] || 0),
     }));
+
+    // Find countries in data that aren't in the pinned list
+    const dynamicCountries: Array<{ key: string; label: string; flag: string | null; count: number }> = [];
+    for (const [country, count] of Object.entries(countryCounts)) {
+      if (!PINNED_KEYS.has(country) && country !== "Unknown") {
+        dynamicCountries.push({ key: country, label: country, flag: null, count });
+      }
+    }
+    // Sort dynamic by count desc
+    dynamicCountries.sort((a, b) => b.count - a.count);
+
+    // Add "Unknown" at the end if present
+    if (countryCounts["Unknown"]) {
+      dynamicCountries.push({ key: "Unknown", label: "Unknown", flag: "❓", count: countryCounts["Unknown"] });
+    }
+
+    return [...pinned, ...dynamicCountries];
   }, [countryCounts, results.length]);
+
+  // Dev-only debug logging
+  if (import.meta.env.DEV) {
+    const top5 = Object.entries(countryCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5);
+    console.log("[WorldwideTab] debug", { totalItems: results.length, top5Countries: top5 });
+  }
 
   const filteredResults = useMemo(() => {
     if (selectedCountry === "all") return results;

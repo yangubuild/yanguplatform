@@ -317,17 +317,54 @@ export default function EshopConnectPage() {
             <div className="text-center space-y-2">
               <Sparkles className="w-10 h-10 text-accent mx-auto" />
               <h2 className="text-lg font-bold text-foreground">AI Sourcing Mode</h2>
-              <p className="text-sm text-muted-foreground">Describe what you're looking for and AI will help you find the best products.</p>
+              <p className="text-sm text-muted-foreground">
+                {results.length > 0
+                  ? `${results.length} ${providerKey === "cj" ? "CJ" : providerKey === "moderndropship" ? "ModernDropship" : "YANGU"} products loaded. Ask AI to recommend the best ones.`
+                  : "Describe what you're looking for and AI will help you find the best products."}
+              </p>
             </div>
+
+            {/* Product context summary */}
+            {results.length > 0 && (
+              <div className="rounded-xl border border-border bg-card/50 p-4 space-y-2">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Current Dataset</p>
+                <div className="flex flex-wrap gap-3 text-xs text-foreground">
+                  <span>Provider: <strong>{providerKey === "cj" ? "CJ" : providerKey === "moderndropship" ? "ModernDropship" : "YANGU Estores"}</strong></span>
+                  <span>Products: <strong>{results.length}</strong></span>
+                  {(() => {
+                    const cats = new Set(results.map((r) => r.category_name).filter(Boolean));
+                    return cats.size > 0 ? <span>Categories: <strong>{cats.size}</strong></span> : null;
+                  })()}
+                  {(() => {
+                    const countries = new Set(results.map((r) => r.ship_from_country).filter(Boolean));
+                    return countries.size > 0 ? <span>Ship from: <strong>{Array.from(countries).join(", ")}</strong></span> : null;
+                  })()}
+                </div>
+                <div className="flex flex-wrap gap-1.5 mt-1">
+                  {results.slice(0, 5).map((r) => (
+                    <span key={r.external_product_id} className="text-[10px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground truncate max-w-[180px]">
+                      {r.title}
+                    </span>
+                  ))}
+                  {results.length > 5 && <span className="text-[10px] text-muted-foreground">+{results.length - 5} more</span>}
+                </div>
+              </div>
+            )}
+
             <form onSubmit={(e) => { e.preventDefault(); setActiveTab("products"); doSearch(query); }} className="space-y-3">
               <textarea
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="e.g. Find trending wireless earbuds under $15 with fast shipping from China..."
+                placeholder={results.length > 0
+                  ? "e.g. Which of these products have the best margin? Show me items under $5 from China..."
+                  : "e.g. Find trending wireless earbuds under $15 with fast shipping from China..."}
                 className="w-full h-28 p-4 rounded-xl border-2 border-accent/30 bg-card text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent resize-none"
               />
               <div className="flex flex-wrap gap-2">
-                {["Trending on TikTok", "High margin products", "US warehouse items", "Best sellers under $10"].map((chip) => (
+                {(results.length > 0
+                  ? ["Show best margin products", "Items under $5", "Fast shipping options", "Top categories"]
+                  : ["Trending on TikTok", "High margin products", "US warehouse items", "Best sellers under $10"]
+                ).map((chip) => (
                   <button
                     key={chip}
                     type="button"
