@@ -1,4 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { crypto } from "https://deno.land/std@0.224.0/crypto/mod.ts";
+import { encodeHex } from "https://deno.land/std@0.224.0/encoding/hex.ts";
 
 const FRONTEND_URL = "https://yangu-launchpad.lovable.app/dashboard/seller/eshop-connect";
 
@@ -181,26 +183,48 @@ Deno.serve(async (req) => {
     return redirectWithError("AliExpress not configured");
   }
 
-  // Exchange code for tokens using the documented endpoint
+  // Exchange code for tokens using TOP protocol signing
+  // Endpoint: https://api-sg.aliexpress.com/rest (GET with signed params)
+  const apiPath = "/auth/token/create";
 
-  // Use the documented token endpoint
-  const tokenUrl = new URL("https://open-api.taobao.com/rest");
-  tokenUrl.searchParams.set("path", "/auth/token/create");
-
-  const tokenParams = new URLSearchParams({
+  const params: Record<string, string> = {
+    app_key: appKey,
     code,
-    appkey: appKey,
-    secretKey: appSecret,
-  });
+    sign_method: "sha256",
+    timestamp: Date.now().toString(),
+    v: "2.0",
+  };
+
+  // Generate HMAC-SHA256 signature per TOP protocol:
+  // For /rest endpoints: signString = apiPath + sorted(key+value pairs)
+  // HMAC key = appSecret
+  const sortedKeys = Object.keys(params).sort();
+  let signString = apiPath;
+  for (const key of sortedKeys) {
+    signString += key + params[key];
+  }
+
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(appSecret);
+  const msgData = encoder.encode(signString);
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw", keyData, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
+  );
+  const signatureBuffer = await crypto.subtle.sign("HMAC", cryptoKey, msgData);
+  const sign = encodeHex(new Uint8Array(signatureBuffer)).toUpperCase();
+
+  params.sign = sign;
+
+  const searchParams = new URLSearchParams(params);
+  const finalTokenUrl = `https://api-sg.aliexpress.com/rest${apiPath}?${searchParams.toString()}`;
+  console.log("[aliexpress-auth-callback] Final token URL used:", finalTokenUrl.replace(sign, sign.slice(0, 8) + "..."));
 
   let tokenRes: Response;
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15_000);
-    tokenRes = await fetch(tokenUrl.toString(), {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-      body: tokenParams.toString(),
+    tokenRes = await fetch(finalTokenUrl, {
+      method: "GET",
       signal: controller.signal,
     });
     clearTimeout(timeout);
@@ -258,7 +282,7 @@ Deno.serve(async (req) => {
 
   console.log("[aliexpress-auth-callback] Final parsed path used:", parsedPath);
 
-  if (ret !== "true" || !accessToken) {
+  if (!accessToken || (ret && ret !== "true")) {
     const errCode = parsedToken.code || "UNKNOWN";
     const errMsg = parsedToken.msg || "Unknown error";
     console.error("[aliexpress-auth-callback] Token exchange failed", {
