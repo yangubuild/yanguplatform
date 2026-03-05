@@ -47,13 +47,14 @@ export default function ProductsTab({
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
 
   const providerCounts = useMemo(() => {
-    const counts = { cj: 0, moderndropship: 0, estores: 0 };
+    const counts = { cj: 0, moderndropship: 0, estores: 0, aliexpress: 0 };
 
     for (const item of results) {
       const key = String(item.provider_key || "").toLowerCase();
       if (key === "cj") counts.cj += 1;
       if (key === "moderndropship") counts.moderndropship += 1;
       if (key === "estores" || key === "yangu_estores") counts.estores += 1;
+      if (key === "aliexpress") counts.aliexpress += 1;
     }
 
     return counts;
@@ -167,7 +168,7 @@ export default function ProductsTab({
       <div className="flex-1 p-5">
         {import.meta.env.DEV && (
           <div className="mb-2 text-[11px] text-muted-foreground">
-            CJ: {providerCounts.cj} · ModernDropship: {providerCounts.moderndropship} · YANGU Estores: {providerCounts.estores}
+            CJ: {providerCounts.cj} · ModernDropship: {providerCounts.moderndropship} · AliExpress: {providerCounts.aliexpress} · YANGU Estores: {providerCounts.estores}
           </div>
         )}
 
@@ -257,7 +258,7 @@ export default function ProductsTab({
               const w = providerWarnings.join(" ");
               const isUnauthorized = w.includes("unauthorized") || w.includes("permissions") || w.includes("401") || w.includes("403");
               const isRateLimited = w.includes("rate limited") || w.includes("429");
-              const providerLabel = selectedProviderKey === "moderndropship" ? "ModernDropship" : selectedProviderKey === "cj" ? "CJ" : "YANGU Estores";
+              const providerLabel = selectedProviderKey === "moderndropship" ? "ModernDropship" : selectedProviderKey === "cj" ? "CJ" : selectedProviderKey === "aliexpress" ? "AliExpress" : "YANGU Estores";
 
               if (selectedProviderKey === "estores") {
                 return (
@@ -306,6 +307,25 @@ export default function ProductsTab({
                     <div>
                       <p className="text-sm text-foreground font-medium">No ModernDropship products available for this account.</p>
                       <p className="text-xs text-muted-foreground mt-1">Your Modern buyer account has 0 assigned products. Add/share products in ModernDropship, then refresh.</p>
+                    </div>
+                    <div className="flex justify-center gap-2">
+                      {onRefreshProvider && (
+                        <Button onClick={onRefreshProvider} variant="outline" className="gap-1.5">
+                          <RefreshCw className="w-4 h-4" />
+                          Refresh
+                        </Button>
+                      )}
+                    </div>
+                  </>
+                );
+              }
+
+              if (selectedProviderKey === "aliexpress") {
+                return (
+                  <>
+                    <div>
+                      <p className="text-sm text-foreground font-medium">No AliExpress products found for this query.</p>
+                      <p className="text-xs text-muted-foreground mt-1">Try a different search term or check back later.</p>
                     </div>
                     <div className="flex justify-center gap-2">
                       {onRefreshProvider && (
