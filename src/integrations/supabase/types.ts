@@ -4374,6 +4374,24 @@ export type Database = {
       import_external_product_to_shop:
         | {
             Args: {
+              p_display_currency?: string
+              p_display_price_cents?: number
+              p_external_product_id: string
+              p_fx_rate?: number
+              p_fx_rate_timestamp?: string
+              p_images?: string
+              p_provider_currency?: string
+              p_provider_key: string
+              p_provider_price_cents?: number
+              p_raw?: string
+              p_shop_surface_id: string
+              p_title: string
+              p_variants?: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
               p_external_product_id: string
               p_images?: Json
               p_provider_key: string
