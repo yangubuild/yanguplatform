@@ -239,7 +239,7 @@ export async function runAliExpressDebugSearch(
 
 export const aliexpressAdapter: DropshipAdapter = {
   async searchProducts(query: string, filters: SearchFilters & { bypass_cache?: boolean; country?: string; access_token?: string | null }): Promise<DropshipSearchItem[]> {
-    const keyword = query.trim() || "trending best sellers";
+    const keyword = query.trim() || "popular products";
     const countryCode = typeof filters?.country === "string" ? filters.country : "US";
     const accessToken = filters?.access_token || null;
     const cacheKey = `ae:${keyword}:${countryCode}:v3`;
