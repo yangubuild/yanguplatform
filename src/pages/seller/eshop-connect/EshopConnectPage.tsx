@@ -83,36 +83,22 @@ export default function EshopConnectPage() {
     if (!dismissed) setShowPopup(true);
   }, []);
 
-  // Handle AliExpress OAuth callback
+  // Handle AliExpress OAuth success redirect (?connected=1) or error (?ae_error=...)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const isCallback = params.get("aliexpress_callback") === "1";
-    const code = params.get("code");
-    const state = params.get("state");
+    const connected = params.get("connected") === "1";
+    const aeError = params.get("ae_error");
 
-    if (isCallback && code && state) {
-      // Remove query params from URL
-      const cleanUrl = window.location.pathname;
-      window.history.replaceState({}, "", cleanUrl);
-
-      // Exchange code for tokens
-      (async () => {
-        try {
-          const res = await supabase.functions.invoke("aliexpress-auth-callback", {
-            body: { code, state },
-          });
-          if (res.data?.ok) {
-            toast.success("AliExpress connected successfully!");
-            setAliexpressNeedsAuth(false);
-            setProviderKey("aliexpress");
-            void doSearch("", "aliexpress");
-          } else {
-            toast.error("AliExpress connection failed: " + (res.data?.error || "Unknown error"));
-          }
-        } catch (e: any) {
-          toast.error("AliExpress connection failed: " + (e?.message || "Unknown error"));
-        }
-      })();
+    if (connected) {
+      // Clean URL
+      window.history.replaceState({}, "", window.location.pathname);
+      toast.success("AliExpress connected successfully!");
+      setAliexpressNeedsAuth(false);
+      setProviderKey("aliexpress");
+      void doSearch("", "aliexpress");
+    } else if (aeError) {
+      window.history.replaceState({}, "", window.location.pathname);
+      toast.error("AliExpress connection failed: " + aeError);
     }
   }, []);
 
