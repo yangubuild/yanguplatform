@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { crypto } from "https://deno.land/std@0.224.0/crypto/mod.ts";
 import { encodeHex } from "https://deno.land/std@0.224.0/encoding/hex.ts";
 
-const FRONTEND_URL = "https://yangu-launchpad.lovable.app/dashboard/seller/eshop-connect";
+const DEFAULT_FRONTEND_URL = "https://yangu-launchpad.lovable.app/dashboard/seller/eshop-connect";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,14 +11,14 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
 };
 
-function redirectWithError(msg: string) {
-  const url = new URL(FRONTEND_URL);
+function redirectWithError(frontendUrl: string, msg: string) {
+  const url = new URL(frontendUrl);
   url.searchParams.set("ae_error", msg);
   return new Response(null, { status: 302, headers: { Location: url.toString() } });
 }
 
-function redirectWithSuccess() {
-  const url = new URL(FRONTEND_URL);
+function redirectWithSuccess(frontendUrl: string) {
+  const url = new URL(frontendUrl);
   url.searchParams.set("connected", "1");
   return new Response(null, { status: 302, headers: { Location: url.toString() } });
 }
@@ -158,21 +158,30 @@ Deno.serve(async (req) => {
     method: req.method,
   });
 
+  // Extract user_id and return origin from state (format: userId:randomUUID:returnOrigin)
+  const stateParts = state.split(":");
+  const userId = stateParts[0];
+  // Reconstruct origin (may contain colons, e.g. https://...)
+  const returnOrigin = stateParts.length >= 3 ? stateParts.slice(2).join(":") : "";
+  const frontendUrl = returnOrigin
+    ? `${returnOrigin}/dashboard/seller/eshop-connect`
+    : DEFAULT_FRONTEND_URL;
+
+  console.log("[aliexpress-auth-callback] Redirect target:", frontendUrl);
+
   if (!code) {
     console.error("[aliexpress-auth-callback] Missing authorization code");
-    return redirectWithError("Missing authorization code");
+    return redirectWithError(frontendUrl, "Missing authorization code");
   }
 
   if (!state || !state.includes(":")) {
     console.error("[aliexpress-auth-callback] Invalid state token");
-    return redirectWithError("Invalid state token");
+    return redirectWithError(frontendUrl, "Invalid state token");
   }
 
-  // Extract user_id from state (format: userId:randomUUID)
-  const userId = state.split(":")[0];
   if (!userId || userId.length < 10) {
     console.error("[aliexpress-auth-callback] Invalid user_id in state");
-    return redirectWithError("Invalid state token (bad user_id)");
+    return redirectWithError(frontendUrl, "Invalid state token (bad user_id)");
   }
 
   const appKey = (Deno.env.get("ALIEXPRESS_APP_KEY") || "").trim();
@@ -180,7 +189,7 @@ Deno.serve(async (req) => {
 
   if (!appKey || !appSecret) {
     console.error("[aliexpress-auth-callback] Missing AliExpress credentials");
-    return redirectWithError("AliExpress not configured");
+    return redirectWithError(frontendUrl, "AliExpress not configured");
   }
 
   // Exchange code for tokens using TOP protocol signing
@@ -230,7 +239,7 @@ Deno.serve(async (req) => {
     clearTimeout(timeout);
   } catch (fetchErr: any) {
     console.error("[aliexpress-auth-callback] Token fetch failed:", fetchErr?.message);
-    return redirectWithError("Failed to reach AliExpress token endpoint");
+    return redirectWithError(frontendUrl, "Failed to reach AliExpress token endpoint");
   }
 
   const tokenText = await tokenRes.text();
@@ -258,7 +267,7 @@ Deno.serve(async (req) => {
     } catch (xmlErr: any) {
       console.error("[aliexpress-auth-callback] Failed to parse XML response:", xmlErr?.message);
       console.log("[aliexpress-auth-callback] Final parsed path used:", "(unparsed: invalid-xml-response)");
-      return redirectWithError("Invalid XML response from AliExpress");
+      return redirectWithError(frontendUrl, "Invalid XML response from AliExpress");
     }
   } else {
     let tokenJson: any;
@@ -267,7 +276,7 @@ Deno.serve(async (req) => {
     } catch {
       console.error("[aliexpress-auth-callback] Invalid JSON from AliExpress:", tokenText);
       console.log("[aliexpress-auth-callback] Final parsed path used:", "(unparsed: non-json-response)");
-      return redirectWithError("Invalid response from AliExpress");
+      return redirectWithError(frontendUrl, "Invalid response from AliExpress");
     }
 
     parsedToken = parseJsonTokenBody(tokenJson);
@@ -291,7 +300,7 @@ Deno.serve(async (req) => {
       msg: errMsg,
       parsed_path: parsedPath,
     });
-    return redirectWithError(`AliExpress error ${errCode}: ${errMsg}`);
+    return redirectWithError(frontendUrl, `AliExpress error ${errCode}: ${errMsg}`);
   }
 
   console.log("[aliexpress-auth-callback] Token exchange successful, storing tokens for user:", userId.slice(0, 8) + "...");
@@ -319,7 +328,7 @@ Deno.serve(async (req) => {
 
   if (upsertErr) {
     console.error("[aliexpress-auth-callback] Failed to store token:", upsertErr.message);
-    return redirectWithError("Failed to store token");
+    return redirectWithError(frontendUrl, "Failed to store token");
   }
 
   // Verify the row was inserted
@@ -335,5 +344,5 @@ Deno.serve(async (req) => {
     expires_at: verifyRow?.expires_at,
   });
 
-  return redirectWithSuccess();
+  return redirectWithSuccess(frontendUrl);
 });

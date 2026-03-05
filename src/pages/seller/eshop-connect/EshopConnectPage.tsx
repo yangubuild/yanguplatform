@@ -126,7 +126,9 @@ export default function EshopConnectPage() {
   const handleConnectAliExpress = async () => {
     setAliexpressConnecting(true);
     try {
-      const res = await supabase.functions.invoke("aliexpress-auth-start", {});
+      const res = await supabase.functions.invoke("aliexpress-auth-start", {
+        body: { return_origin: window.location.origin },
+      });
       if (res.data?.ok && res.data?.authorize_url) {
         // Save state for CSRF verification
         localStorage.setItem("ae_oauth_state", res.data.state);

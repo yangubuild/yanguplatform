@@ -42,8 +42,17 @@ Deno.serve(async (req) => {
       return safeJson({ ok: false, error: "AliExpress not configured" }, 200);
     }
 
-    // Generate CSRF state token = userId:random
-    const stateToken = `${userData.user.id}:${crypto.randomUUID()}`;
+    // Read the caller's origin so callback can redirect back to correct environment
+    let returnOrigin = "https://yangu-launchpad.lovable.app";
+    try {
+      const body = await req.json();
+      if (body?.return_origin && typeof body.return_origin === "string") {
+        returnOrigin = body.return_origin.replace(/\/+$/, "");
+      }
+    } catch { /* no body or invalid json, use default */ }
+
+    // Generate CSRF state token = userId:random:returnOrigin
+    const stateToken = `${userData.user.id}:${crypto.randomUUID()}:${returnOrigin}`;
 
     // Store state in DB for validation on callback
     const adminClient = createClient(
