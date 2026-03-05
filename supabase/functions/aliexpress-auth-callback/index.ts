@@ -28,6 +28,117 @@ function safeJson(data: unknown) {
   });
 }
 
+type ParsedAliToken = {
+  accessToken?: string;
+  refreshToken?: string | null;
+  expiresIn?: number | null;
+  ret?: string;
+  code?: string;
+  msg?: string;
+  path?: string;
+};
+
+function normalizeRet(value: unknown): string {
+  if (typeof value === "string") return value.toLowerCase();
+  if (typeof value === "boolean") return value ? "true" : "false";
+  if (value == null) return "";
+  return String(value).toLowerCase();
+}
+
+function toPositiveNumber(value: unknown): number | null {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
+function parseXmlTokenBody(xmlText: string): ParsedAliToken {
+  const doc = new DOMParser().parseFromString(xmlText, "application/xml");
+  const parserError = doc.querySelector("parsererror");
+  if (parserError) throw new Error("XML parse error");
+
+  const read = (selectors: string[]) => {
+    for (const selector of selectors) {
+      const text = doc.querySelector(selector)?.textContent?.trim();
+      if (text) return text;
+    }
+    return "";
+  };
+
+  const accessToken = read(["aliexpress_system_oauth_token_response > result > data > access_token", "result > data > access_token", "data > access_token", "access_token"]);
+  const refreshToken = read(["aliexpress_system_oauth_token_response > result > data > refresh_token", "result > data > refresh_token", "data > refresh_token", "refresh_token"]);
+  const expiresInRaw = read(["aliexpress_system_oauth_token_response > result > data > expires_in", "result > data > expires_in", "data > expires_in", "expires_in"]);
+  const ret = read(["aliexpress_system_oauth_token_response > result > ret", "result > ret", "ret"]);
+  const code = read(["aliexpress_system_oauth_token_response > result > code", "result > code", "code"]);
+  const msg = read(["aliexpress_system_oauth_token_response > result > msg", "result > msg", "msg", "message"]);
+
+  const path = accessToken
+    ? "xml.aliexpress_system_oauth_token_response.result.data.access_token|xml.result.data.access_token"
+    : "xml.(token path not found)";
+
+  return {
+    accessToken: accessToken || undefined,
+    refreshToken: refreshToken || null,
+    expiresIn: toPositiveNumber(expiresInRaw),
+    ret,
+    code,
+    msg,
+    path,
+  };
+}
+
+function parseJsonTokenBody(tokenJson: any): ParsedAliToken {
+  const nestedResult = tokenJson?.aliexpress_system_oauth_token_response?.result;
+  const topResult = tokenJson?.result;
+
+  const candidates = [
+    {
+      path: "aliexpress_system_oauth_token_response.result.data.access_token",
+      data: nestedResult?.data,
+      result: nestedResult,
+    },
+    {
+      path: "result.data.access_token",
+      data: topResult?.data,
+      result: topResult,
+    },
+    {
+      path: "data.access_token",
+      data: tokenJson?.data,
+      result: tokenJson,
+    },
+    {
+      path: "access_token",
+      data: tokenJson,
+      result: tokenJson,
+    },
+  ];
+
+  const ret = nestedResult?.ret ?? topResult?.ret ?? tokenJson?.ret;
+  const code = nestedResult?.code ?? topResult?.code ?? tokenJson?.code;
+  const msg = nestedResult?.msg ?? topResult?.msg ?? tokenJson?.msg ?? tokenJson?.message;
+
+  for (const candidate of candidates) {
+    const accessToken = candidate?.data?.access_token;
+    if (!accessToken) continue;
+
+    return {
+      accessToken,
+      refreshToken: candidate?.data?.refresh_token ?? null,
+      expiresIn: toPositiveNumber(candidate?.data?.expires_in),
+      ret,
+      code,
+      msg,
+      path: candidate.path,
+    };
+  }
+
+  return {
+    ret,
+    code,
+    msg,
+    path: "(token path not found)",
+  };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: corsHeaders });
@@ -99,35 +210,65 @@ Deno.serve(async (req) => {
   }
 
   const tokenText = await tokenRes.text();
-  console.log("[aliexpress-auth-callback] Raw token response body:", tokenText.slice(0, 1000));
-  console.log("[aliexpress-auth-callback] Token response status:", tokenRes.status, "body length:", tokenText.length);
+  const tokenStatus = tokenRes.status;
+  const tokenContentType = tokenRes.headers.get("content-type") || "(none)";
 
-  let tokenJson: any;
-  try { tokenJson = JSON.parse(tokenText); } catch {
-    console.error("[aliexpress-auth-callback] Invalid JSON from AliExpress:", tokenText.slice(0, 500));
-    return redirectWithError("Invalid response from AliExpress");
+  console.log("[aliexpress-auth-callback] Token response status:", tokenStatus);
+  console.log("[aliexpress-auth-callback] Token response content-type:", tokenContentType);
+  console.log("[aliexpress-auth-callback] Raw token response body START");
+  console.log(tokenText);
+  console.log("[aliexpress-auth-callback] Raw token response body END");
+
+  let parsedToken: ParsedAliToken;
+  const trimmedBody = tokenText.trim();
+  const lowerTrimmedBody = trimmedBody.toLowerCase();
+  const isXmlResponse =
+    tokenContentType.toLowerCase().includes("xml") ||
+    /^<\?xml/i.test(trimmedBody) ||
+    (/^<[^!][\s\S]*?>/.test(trimmedBody) && !lowerTrimmedBody.startsWith("<!doctype html"));
+
+  if (isXmlResponse) {
+    try {
+      parsedToken = parseXmlTokenBody(tokenText);
+      console.log("[aliexpress-auth-callback] Parsed XML token path:", parsedToken.path);
+    } catch (xmlErr: any) {
+      console.error("[aliexpress-auth-callback] Failed to parse XML response:", xmlErr?.message);
+      console.log("[aliexpress-auth-callback] Final parsed path used:", "(unparsed: invalid-xml-response)");
+      return redirectWithError("Invalid XML response from AliExpress");
+    }
+  } else {
+    let tokenJson: any;
+    try {
+      tokenJson = JSON.parse(tokenText);
+    } catch {
+      console.error("[aliexpress-auth-callback] Invalid JSON from AliExpress:", tokenText);
+      console.log("[aliexpress-auth-callback] Final parsed path used:", "(unparsed: non-json-response)");
+      return redirectWithError("Invalid response from AliExpress");
+    }
+
+    parsedToken = parseJsonTokenBody(tokenJson);
+    console.log("[aliexpress-auth-callback] Parsed JSON token path:", parsedToken.path);
   }
 
-  // Parse nested AliExpress response structure
-  const oauthResponse = tokenJson?.aliexpress_system_oauth_token_response?.result;
-  const topLevelResult = tokenJson?.result;
+  const parsedPath = parsedToken.path || "(unknown path)";
+  const accessToken = parsedToken.accessToken;
+  const refreshToken = parsedToken.refreshToken;
+  const expiresIn = parsedToken.expiresIn;
+  const ret = normalizeRet(parsedToken.ret);
 
-  // Check for success in the nested structure
-  const successData = oauthResponse?.data;
-  const isSuccess = oauthResponse?.ret === "true" && successData?.access_token;
+  console.log("[aliexpress-auth-callback] Final parsed path used:", parsedPath);
 
-  if (!isSuccess) {
-    // Error: could be in nested or top-level result
-    const errResult = oauthResponse || topLevelResult || tokenJson;
-    const errCode = errResult?.code || "UNKNOWN";
-    const errMsg = errResult?.msg || errResult?.message || "Unknown error";
-    console.error("[aliexpress-auth-callback] Token exchange failed", { ret: oauthResponse?.ret || topLevelResult?.ret, code: errCode, msg: errMsg });
+  if (ret !== "true" || !accessToken) {
+    const errCode = parsedToken.code || "UNKNOWN";
+    const errMsg = parsedToken.msg || "Unknown error";
+    console.error("[aliexpress-auth-callback] Token exchange failed", {
+      ret,
+      code: errCode,
+      msg: errMsg,
+      parsed_path: parsedPath,
+    });
     return redirectWithError(`AliExpress error ${errCode}: ${errMsg}`);
   }
-
-  const accessToken = successData.access_token;
-  const refreshToken = successData.refresh_token;
-  const expiresIn = successData.expires_in; // seconds
 
   console.log("[aliexpress-auth-callback] Token exchange successful, storing tokens for user:", userId.slice(0, 8) + "...");
 
