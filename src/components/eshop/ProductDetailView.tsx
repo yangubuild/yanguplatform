@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Download, Loader2, Truck, ShieldCheck, ChevronRight, ChevronDown, Percent } from "lucide-react";
+import { ArrowLeft, Download, Loader2, Truck, ShieldCheck, ChevronRight, ChevronDown, Percent, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,9 +11,11 @@ import type { SurfaceWithPublishes } from "@/hooks/useSurfaces";
 // Surface type display labels + eligibility
 const SURFACE_TYPE_CONFIG: Record<string, { label: string; eligible: boolean }> = {
   shop: { label: "Eshop", eligible: true },
+  eshop: { label: "Eshop", eligible: true },
   store_listing: { label: "Store", eligible: true },
   live_selling: { label: "Live Selling", eligible: false },
   live_bio: { label: "Live Bio", eligible: false },
+  community: { label: "Community", eligible: false },
   community_group: { label: "Community", eligible: false },
   influencer: { label: "Influencer", eligible: false },
   esite: { label: "Website", eligible: false },
@@ -42,7 +44,9 @@ interface Props {
 }
 
 export default function ProductDetailView({ product, providerKey, shopSurfaceId, formatPrice, onBack, allSurfaces, shopSurfaces = [], onShopSurfaceChange }: Props) {
-  const surfaces = allSurfaces || shopSurfaces;
+  // Deduplicate surfaces by id
+  const rawSurfaces = allSurfaces || shopSurfaces;
+  const surfaces = rawSurfaces.filter((s, i, arr) => arr.findIndex(x => x.id === s.id) === i);
   const [detail, setDetail] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
@@ -51,6 +55,7 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
   const [localShopId, setLocalShopId] = useState(shopSurfaceId || "");
   const [markupPercent, setMarkupPercent] = useState(30);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [selectedVariants, setSelectedVariants] = useState<Set<number>>(new Set());
 
   // Auto-select first eligible surface
   useEffect(() => {
@@ -143,6 +148,30 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
   const images: string[] = detail?.images?.length > 0 ? detail.images : (product?.images?.length > 0 ? product.images : [product.thumbnail].filter(Boolean));
   const variants: any[] = detail?.variants || [];
 
+  // Auto-select all variants when they load
+  useEffect(() => {
+    if (variants.length > 0 && selectedVariants.size === 0) {
+      setSelectedVariants(new Set(variants.map((_, i) => i)));
+    }
+  }, [variants.length]);
+
+  const toggleVariant = (i: number) => {
+    setSelectedVariants(prev => {
+      const next = new Set(prev);
+      if (next.has(i)) next.delete(i);
+      else next.add(i);
+      return next;
+    });
+  };
+
+  const toggleAllVariants = () => {
+    if (selectedVariants.size === variants.length) {
+      setSelectedVariants(new Set());
+    } else {
+      setSelectedVariants(new Set(variants.map((_, i) => i)));
+    }
+  };
+
   const displayPrice = supplierCostCents > 0
     ? formatPrice(sellingPriceCents, displayCurrency)
     : "$0.00";
@@ -220,21 +249,47 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
                 {/* Variants */}
                 {variants.length > 0 && (
                   <div>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                      Variations ({variants.length})
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {variants.map((v: any, i: number) => (
-                        <div key={i} className="px-3 py-1.5 text-xs rounded-lg border border-border bg-muted/30 text-foreground">
-                          {v.name || v.variant_name || `Variant ${i + 1}`}
-                          <span className="ml-2 text-accent font-medium">
-                            {v.display_price_cents != null
-                              ? formatPrice(v.display_price_cents, v.display_currency)
-                              : formatPrice(v.provider_price_cents, v.provider_currency)
-                            }
-                          </span>
-                        </div>
-                      ))}
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                        Variations ({selectedVariants.size}/{variants.length} selected)
+                      </p>
+                      <button
+                        onClick={toggleAllVariants}
+                        className="text-xs text-accent hover:underline"
+                      >
+                        {selectedVariants.size === variants.length ? "Deselect all" : "Select all"}
+                      </button>
+                    </div>
+                    <div className="flex flex-wrap gap-2 max-h-60 overflow-y-auto">
+                      {variants.map((v: any, i: number) => {
+                        const isSelected = selectedVariants.has(i);
+                        return (
+                          <button
+                            key={i}
+                            onClick={() => toggleVariant(i)}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg border transition-colors ${
+                              isSelected
+                                ? "border-accent bg-accent/15 text-foreground"
+                                : "border-border/50 bg-muted/20 text-muted-foreground"
+                            }`}
+                          >
+                            <span className={`w-3.5 h-3.5 rounded-sm border flex items-center justify-center shrink-0 ${
+                              isSelected ? "bg-accent border-accent" : "border-muted-foreground/40"
+                            }`}>
+                              {isSelected && <Check className="w-2.5 h-2.5 text-accent-foreground" />}
+                            </span>
+                            <span className="truncate max-w-[200px]">
+                              {v.name || v.variant_name || `Variant ${i + 1}`}
+                            </span>
+                            <span className="text-accent font-medium shrink-0">
+                              {v.display_price_cents != null
+                                ? formatPrice(v.display_price_cents, v.display_currency)
+                                : formatPrice(v.provider_price_cents, v.provider_currency)
+                              }
+                            </span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
