@@ -253,11 +253,14 @@ export default function ProductsTab({
             <Search className="w-10 h-10 text-muted-foreground/40 mx-auto" />
             <div>
               <p className="text-sm text-foreground font-medium">
-                {selectedProviderKey === "moderndropship"
-                  ? "No ModernDropship products available for this account."
-                  : selectedProviderKey === "estores"
-                    ? "No YANGU Estores products available right now."
-                    : "No CJ products found for this query."}
+                {(() => {
+                  const w = providerWarnings.join(" ");
+                  if (selectedProviderKey === "estores") return "No YANGU Estores products available right now.";
+                  if (w.includes("unauthorized") || w.includes("permissions")) return `${selectedProviderKey === "moderndropship" ? "ModernDropship" : "CJ"} API key unauthorized or insufficient permissions.`;
+                  if (w.includes("rate limited")) return `${selectedProviderKey === "moderndropship" ? "ModernDropship" : "CJ"} rate limited — try again in a moment.`;
+                  if (selectedProviderKey === "moderndropship") return "No ModernDropship products available for this account.";
+                  return "No CJ products found for this query.";
+                })()}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 {selectedProviderKey === "estores"

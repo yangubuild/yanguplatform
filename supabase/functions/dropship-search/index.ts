@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getAdapter } from "../_shared/dropship/providerRegistry.ts";
+import { getLastModernDiagnostics } from "../_shared/dropship/moderndropship.adapter.ts";
 import { getDisplayCurrencyForShop, getFxRate, decimalToDisplayCents } from "../_shared/dropship/fx.ts";
 import { toCents } from "../_shared/dropship/normalize.ts";
 
@@ -155,8 +156,11 @@ Deno.serve(async (req) => {
 
         if (isConfigMissing) {
           warnings.push("ModernDropship not configured (missing API key)");
+        } else if (providerErr?.code === "RATE_LIMITED" || providerErr?.status === 429) {
+          warnings.push(`${provider_key} rate limited — try again in a moment`);
+        } else if (providerErr?.status === 401 || providerErr?.status === 403) {
+          warnings.push(`${provider_key} API key unauthorized or insufficient permissions`);
         } else {
-          // Return safe response instead of 502 — never crash the UI
           const msg = err.message || "Unknown upstream error";
           console.error("dropship-search provider error", { provider_key, query, message: msg, stack: err.stack || "no stack" });
           warnings.push(`${provider_key} temporarily unavailable: ${msg}`);
@@ -209,12 +213,16 @@ Deno.serve(async (req) => {
       return result;
     });
 
+    // Attach ModernDropship diagnostics if applicable
+    const modernDiag = provider_key === "moderndropship" ? getLastModernDiagnostics() : null;
+
     return new Response(JSON.stringify({
       provider_key,
       items: enrichedItems,
       debug: getProviderDebugCounts(provider_key, enrichedItems.length),
       ...(warnings.length > 0 ? { warnings } : {}),
       ...(displayCurrency ? { display_currency: displayCurrency, fx_rate: fxRate, fx_as_of: fxAsOf } : {}),
+      ...(modernDiag ? { modern_diagnostics: modernDiag } : {}),
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
