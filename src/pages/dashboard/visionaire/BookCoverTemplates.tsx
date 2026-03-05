@@ -45,16 +45,16 @@ export default function BookCoverTemplates() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Search covers (e.g. Cover-42)..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {filtered.map((cover) => (
             <div key={cover.id} className="group rounded-xl border border-border bg-card overflow-hidden">
               <div className="aspect-[3/4] overflow-hidden bg-muted">
                 <img src={cover.url} alt={cover.label} className="w-full h-full object-cover" loading="lazy" />
               </div>
-              <div className="p-2 flex items-center justify-between">
-                <span className="text-xs font-medium text-muted-foreground">{cover.label}</span>
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDownload(cover.url, cover.label)}>
-                  <Download className="h-3.5 w-3.5" />
+              <div className="p-3 flex items-center justify-between">
+                <span className="text-sm font-medium text-muted-foreground">{cover.label}</span>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDownload(cover.url, cover.label)}>
+                  <Download className="h-4 w-4" />
                 </Button>
               </div>
             </div>
