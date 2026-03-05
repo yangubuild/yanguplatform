@@ -74,6 +74,7 @@ const ProductDescriptions = lazy(() => import("./pages/dashboard/visionaire/Prod
 const ProductIdeas = lazy(() => import("./pages/dashboard/visionaire/ProductIdeas"));
 const BookTitleGenerator = lazy(() => import("./pages/dashboard/visionaire/BookTitleGenerator"));
 const PDFRebrander = lazy(() => import("./pages/dashboard/visionaire/PDFRebrander"));
+const VisionaireItemDetail = lazy(() => import("./pages/dashboard/visionaire/VisionaireItemDetail"));
 
 // Developer platform (lazy)
 const DevelopersLayout = lazy(() => import("./components/developers/DevelopersLayout").then(m => ({ default: m.DevelopersLayout })));
@@ -328,6 +329,7 @@ const App = () => (
                   <Route path="visionaire/tools/product-ideas" element={<ProductIdeas />} />
                   <Route path="visionaire/tools/book-title-generator" element={<BookTitleGenerator />} />
                   <Route path="visionaire/tools/pdf-rebrander" element={<PDFRebrander />} />
+                  <Route path="visionaire/item/:id" element={<VisionaireItemDetail />} />
                   <Route path="app-store" element={<DashboardPlaceholder />} />
                   <Route path="community" element={<DashboardCommunityPage />} />
                   <Route path="live-selling" element={<LiveSellingPage />} />
