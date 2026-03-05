@@ -3,6 +3,7 @@ import { Search, GraduationCap, BookOpen, BarChart3 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { VisionaireGrid } from "@/components/visionaire/VisionaireGrid";
+import { VisionairePageContainer } from "@/components/visionaire/VisionairePageContainer";
 import { useVisionaireItems } from "@/hooks/useVisionaireItems";
 
 const LEVELS = ["all", "beginner", "intermediate", "advanced"] as const;
@@ -38,35 +39,37 @@ export default function DigitalProductUniversity() {
   }, [items]);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-foreground">Digital Product University</h1>
-        <p className="text-sm text-muted-foreground mt-1">Structured courses to master digital product creation</p>
-      </div>
-
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatCard icon={GraduationCap} label="Courses" value={totalCourses} />
-        <StatCard icon={BookOpen} label="Total Lessons" value={totalLessons} />
-        <StatCard icon={BarChart3} label="Beginner" value={levelCounts.beginner} />
-        <StatCard icon={BarChart3} label="Advanced" value={levelCounts.advanced} />
-      </div>
-
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative max-w-xs flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search courses..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+    <VisionairePageContainer>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-xl font-bold text-foreground">Digital Product University</h1>
+          <p className="text-sm text-muted-foreground mt-1">Structured courses to master digital product creation</p>
         </div>
-        <div className="flex gap-1.5">
-          {LEVELS.map((l) => (
-            <Badge key={l} variant={level === l ? "default" : "outline"} className="cursor-pointer capitalize" onClick={() => setLevel(l)}>
-              {l}
-            </Badge>
-          ))}
-        </div>
-      </div>
 
-      <VisionaireGrid items={filtered} isLoading={isLoading} />
-    </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <StatCard icon={GraduationCap} label="Courses" value={totalCourses} />
+          <StatCard icon={BookOpen} label="Total Lessons" value={totalLessons} />
+          <StatCard icon={BarChart3} label="Beginner" value={levelCounts.beginner} />
+          <StatCard icon={BarChart3} label="Advanced" value={levelCounts.advanced} />
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative max-w-xs flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input placeholder="Search courses..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+          </div>
+          <div className="flex gap-1.5">
+            {LEVELS.map((l) => (
+              <Badge key={l} variant={level === l ? "default" : "outline"} className="cursor-pointer capitalize" onClick={() => setLevel(l)}>
+                {l}
+              </Badge>
+            ))}
+          </div>
+        </div>
+
+        <VisionaireGrid items={filtered} isLoading={isLoading} />
+      </div>
+    </VisionairePageContainer>
   );
 }
 

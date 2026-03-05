@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useSaveItem, useUnsaveItem, useVisionaireSaves, useVisionaireItems } from "@/hooks/useVisionaireItems";
 import { Bookmark, BookmarkCheck } from "lucide-react";
+import { VisionairePageContainer } from "@/components/visionaire/VisionairePageContainer";
 import { toast } from "sonner";
 
 export default function SpecialDeals() {
@@ -27,6 +28,7 @@ export default function SpecialDeals() {
   }
 
   return (
+    <VisionairePageContainer>
     <div className="space-y-6">
       <div>
         <h1 className="text-xl font-bold text-foreground">Special Deals</h1>
@@ -36,7 +38,7 @@ export default function SpecialDeals() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input placeholder="Search deals..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         {filtered.map((deal) => {
           const c = deal.content as any;
           const isSaved = savedIds.has(deal.id);
@@ -93,7 +95,8 @@ export default function SpecialDeals() {
             </div>
           );
         })}
+       </div>
       </div>
-    </div>
+    </VisionairePageContainer>
   );
 }
