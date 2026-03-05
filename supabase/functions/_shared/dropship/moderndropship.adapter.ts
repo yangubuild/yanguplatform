@@ -14,11 +14,40 @@ function makeModernConfigError() {
   return err;
 }
 
+// Diagnostics collector for dev-only reporting
+export interface ModernDiagnostics {
+  provider_http_status: number | null;
+  provider_url: string;
+  provider_query_params: string;
+  provider_auth_header_used: string;
+  provider_response_preview: string;
+  request_id: string;
+  error_code?: string;
+}
+
+let _lastDiagnostics: ModernDiagnostics | null = null;
+export function getLastModernDiagnostics(): ModernDiagnostics | null { return _lastDiagnostics; }
+
 async function mdFetch(method: string, path: string, body?: Record<string, unknown>): Promise<unknown> {
   const baseUrl = Deno.env.get("MODERNDROPSHIP_BASE_URL") || "https://api.moderndropship.com";
   const apiKey = Deno.env.get("MODERNDROPSHIP_API_KEY");
+  const requestId = crypto.randomUUID();
 
-  if (!apiKey) throw makeModernConfigError();
+  // Build diagnostics skeleton
+  const diag: ModernDiagnostics = {
+    provider_http_status: null,
+    provider_url: `${baseUrl}${path}`.replace(apiKey || "REDACTED", "***REDACTED***"),
+    provider_query_params: path.includes("?") ? path.split("?")[1] : "(none)",
+    provider_auth_header_used: apiKey ? "Authorization: present (API key)" : "Authorization: MISSING",
+    provider_response_preview: "",
+    request_id: requestId,
+  };
+
+  if (!apiKey) {
+    diag.error_code = "MODERNDROPSHIP_CONFIG_MISSING";
+    _lastDiagnostics = diag;
+    throw makeModernConfigError();
+  }
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 15_000);
@@ -36,13 +65,19 @@ async function mdFetch(method: string, path: string, body?: Record<string, unkno
     });
 
     const rawBody = await res.text();
-    const bodyPreview = rawBody.slice(0, 200);
+    diag.provider_http_status = res.status;
+    diag.provider_response_preview = rawBody.slice(0, 500);
 
-    console.log("moderndropship response", {
-      path,
+    console.log("[ModernDropship diagnostics]", {
+      request_id: requestId,
+      method,
+      url: diag.provider_url,
       status: res.status,
-      body_preview: bodyPreview,
+      auth_header: diag.provider_auth_header_used,
+      response_preview: rawBody.slice(0, 500),
     });
+
+    _lastDiagnostics = diag;
 
     let data: unknown = null;
     try {
@@ -57,7 +92,7 @@ async function mdFetch(method: string, path: string, body?: Record<string, unkno
         status?: number;
         body_preview?: string;
       };
-      err.code = "UPSTREAM_PROVIDER_ERROR";
+      err.code = res.status === 429 ? "RATE_LIMITED" : "UPSTREAM_PROVIDER_ERROR";
       err.status = res.status;
       err.body_preview = rawBody.slice(0, 2000);
       throw err;

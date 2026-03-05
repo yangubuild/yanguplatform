@@ -150,6 +150,9 @@ export default function EshopConnectPage() {
       if (import.meta.env.DEV && res.data?.debug) {
         console.log("dropship-search debug", { provider: responseProvider, debug: res.data.debug });
       }
+      if (import.meta.env.DEV && res.data?.modern_diagnostics) {
+        console.log("[ModernDropship Diagnostics]", res.data.modern_diagnostics);
+      }
 
       setResults(items);
     } catch (err: any) {
