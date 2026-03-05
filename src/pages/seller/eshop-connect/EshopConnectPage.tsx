@@ -90,6 +90,9 @@ export default function EshopConnectPage() {
     return normalized;
   };
 
+  // AbortController ref for cancelling in-flight searches
+  const searchAbortRef = { current: null as AbortController | null };
+
   const doSearch = useCallback(async (rawQuery: string, provider?: string) => {
     const pk = normalizeProviderKey(provider || providerKey);
     const effectiveQuery = rawQuery.trim() || "trending best sellers";
@@ -104,6 +107,13 @@ export default function EshopConnectPage() {
       setActiveTab("manufacturers");
       return;
     }
+
+    // Abort any in-flight search
+    if (searchAbortRef.current) {
+      searchAbortRef.current.abort();
+    }
+    const abortController = new AbortController();
+    searchAbortRef.current = abortController;
 
     setSearching(true);
     setResults([]);
@@ -120,11 +130,13 @@ export default function EshopConnectPage() {
         },
       });
 
+      // If this request was aborted, discard results
+      if (abortController.signal.aborted) return;
+
       // Handle edge function transport errors gracefully (502, 429, etc.)
       if (res.error) {
         const errorMsg = res.error.message || "Unknown error";
         console.warn("dropship-search returned error:", errorMsg);
-        // Check if response data still has items (graceful degradation)
         if (!res.data?.items) {
           setProviderWarnings([`Provider temporarily unavailable: ${errorMsg}`]);
           setResults([]);
@@ -154,13 +166,18 @@ export default function EshopConnectPage() {
         console.log("[ModernDropship Diagnostics]", res.data.modern_diagnostics);
       }
 
-      setResults(items);
+      if (!abortController.signal.aborted) {
+        setResults(items);
+      }
     } catch (err: any) {
+      if (abortController.signal.aborted) return;
       console.warn("Search error (non-fatal):", err);
       setProviderWarnings([`Provider temporarily unavailable. Try again.`]);
       setResults([]);
     } finally {
-      setSearching(false);
+      if (!abortController.signal.aborted) {
+        setSearching(false);
+      }
     }
   }, [providerKey, isConnected, selectedShopSurfaceId]);
 
