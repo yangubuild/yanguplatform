@@ -97,12 +97,16 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
     fetchDetail();
   }, [product.external_product_id, providerKey]);
 
-  // Pricing — use detail if available, fall back to search-level data
+  // Pricing — use detail if available, fall back to search-level data, or min variant price
+  const detailVariants: any[] = detail?.variants || [];
+  const variantMinCents = detailVariants.length > 0
+    ? Math.min(...detailVariants.map((v: any) => v.provider_price_cents || 0).filter((c: number) => c > 0))
+    : 0;
   const supplierCostCents = (detail?.provider_base_price_cents && detail.provider_base_price_cents > 0)
     ? detail.provider_base_price_cents
     : (product.provider_min_price_cents && product.provider_min_price_cents > 0)
       ? product.provider_min_price_cents
-      : 0;
+      : (variantMinCents > 0 ? variantMinCents : 0);
   const supplierCurrency = detail?.provider_currency ?? product.provider_currency ?? "USD";
   const sellingPriceCents = Math.round(supplierCostCents * (1 + markupPercent / 100));
   const displayCurrency = detail?.display_currency ?? product.display_currency ?? supplierCurrency;
@@ -128,9 +132,9 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
           selling_price_cents: sellingPriceCents,
           // Pass search-level data as fallback for providers with stub getProduct
           fallback_title: product.title,
-          fallback_price: product.provider_min_price_cents ? product.provider_min_price_cents / 100 : 0,
-          fallback_currency: product.provider_currency || "USD",
-          fallback_images: product.images || [product.thumbnail].filter(Boolean),
+          fallback_price: supplierCostCents > 0 ? supplierCostCents / 100 : (product.provider_min_price_cents ? product.provider_min_price_cents / 100 : 0),
+          fallback_currency: supplierCurrency || "USD",
+          fallback_images: detail?.images?.length > 0 ? detail.images : (product.images || [product.thumbnail].filter(Boolean)),
         },
       });
       if (res.error) throw new Error(res.error.message);
