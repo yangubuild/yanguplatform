@@ -1,4 +1,4 @@
-import { Search, Plug, RefreshCw } from "lucide-react";
+import { Search, Plug, RefreshCw, ExternalLink } from "lucide-react";
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import type { SearchItem } from "@/pages/seller/eshop-connect/EshopConnectPage";
@@ -18,6 +18,9 @@ interface Props {
   hasAttemptedProviderLoad?: boolean;
   onRefreshProvider?: () => void;
   isAliExpressDisabled?: boolean;
+  aliexpressNeedsAuth?: boolean;
+  onConnectAliExpress?: () => void;
+  aliexpressConnecting?: boolean;
 }
 
 const SUGGESTIONS = [
@@ -43,6 +46,9 @@ export default function ProductsTab({
   hasAttemptedProviderLoad = false,
   onRefreshProvider,
   isAliExpressDisabled = false,
+  aliexpressNeedsAuth = false,
+  onConnectAliExpress,
+  aliexpressConnecting = false,
 }: Props) {
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -328,6 +334,30 @@ export default function ProductsTab({
                     <div>
                       <p className="text-sm text-foreground font-medium">AliExpress pending verification (signature/auth requirements).</p>
                       <p className="text-xs text-muted-foreground mt-1">AliExpress is disabled for now until signing/auth is confirmed.</p>
+                    </div>
+                  );
+                }
+
+                if (aliexpressNeedsAuth) {
+                  return (
+                    <div className="space-y-4">
+                      <div className="w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto">
+                        <ExternalLink className="w-8 h-8 text-accent" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-foreground font-medium">Connect AliExpress</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Authorization required to search AliExpress dropship products.
+                        </p>
+                      </div>
+                      <Button
+                        onClick={onConnectAliExpress}
+                        disabled={aliexpressConnecting}
+                        className="bg-accent text-accent-foreground hover:bg-accent/90 gap-1.5"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        {aliexpressConnecting ? "Connecting…" : "Connect AliExpress Account"}
+                      </Button>
                     </div>
                   );
                 }

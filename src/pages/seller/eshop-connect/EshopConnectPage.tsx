@@ -68,7 +68,9 @@ export default function EshopConnectPage() {
   const [hasAttemptedProviderLoad, setHasAttemptedProviderLoad] = useState(false);
   const [selectedShopSurfaceId, setSelectedShopSurfaceId] = useState(shopSurfaceIdParam);
   const [providerWarnings, setProviderWarnings] = useState<string[]>([]);
-  const [isAliExpressDisabled, setIsAliExpressDisabled] = useState(false); // re-enabled
+  const [isAliExpressDisabled, setIsAliExpressDisabled] = useState(false);
+  const [aliexpressNeedsAuth, setAliexpressNeedsAuth] = useState(false);
+  const [aliexpressConnecting, setAliexpressConnecting] = useState(false);
 
   const { isConnected, connectedProviders, isLoading: connectionsLoading } = useDropshipConnections();
   const { data: surfaces } = useSurfaces();
@@ -79,6 +81,39 @@ export default function EshopConnectPage() {
   useEffect(() => {
     const dismissed = localStorage.getItem("eshop_ai_popup_dismissed");
     if (!dismissed) setShowPopup(true);
+  }, []);
+
+  // Handle AliExpress OAuth callback
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const isCallback = params.get("aliexpress_callback") === "1";
+    const code = params.get("code");
+    const state = params.get("state");
+
+    if (isCallback && code && state) {
+      // Remove query params from URL
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, "", cleanUrl);
+
+      // Exchange code for tokens
+      (async () => {
+        try {
+          const res = await supabase.functions.invoke("aliexpress-auth-callback", {
+            body: { code, state },
+          });
+          if (res.data?.ok) {
+            toast.success("AliExpress connected successfully!");
+            setAliexpressNeedsAuth(false);
+            setProviderKey("aliexpress");
+            void doSearch("", "aliexpress");
+          } else {
+            toast.error("AliExpress connection failed: " + (res.data?.error || "Unknown error"));
+          }
+        } catch (e: any) {
+          toast.error("AliExpress connection failed: " + (e?.message || "Unknown error"));
+        }
+      })();
+    }
   }, []);
 
   useEffect(() => {
@@ -101,6 +136,25 @@ export default function EshopConnectPage() {
       active = false;
     };
   }, []);
+
+  const handleConnectAliExpress = async () => {
+    setAliexpressConnecting(true);
+    try {
+      const res = await supabase.functions.invoke("aliexpress-auth-start", {});
+      if (res.data?.ok && res.data?.authorize_url) {
+        // Save state for CSRF verification
+        localStorage.setItem("ae_oauth_state", res.data.state);
+        // Redirect to AliExpress
+        window.location.href = res.data.authorize_url;
+      } else {
+        toast.error("Failed to start AliExpress authorization: " + (res.data?.error || "Unknown error"));
+      }
+    } catch (e: any) {
+      toast.error("Failed to start AliExpress authorization: " + (e?.message || "Unknown error"));
+    } finally {
+      setAliexpressConnecting(false);
+    }
+  };
 
   const dismissPopup = () => {
     setShowPopup(false);
@@ -193,6 +247,10 @@ export default function EshopConnectPage() {
           ...responseWarnings,
           "AliExpress pending verification (signature/auth requirements). Disabled for now.",
         ]));
+      }
+
+      if (res.data?.aliexpress_needs_auth === true) {
+        setAliexpressNeedsAuth(true);
       }
 
       setProviderWarnings(responseWarnings as string[]);
@@ -480,6 +538,9 @@ export default function EshopConnectPage() {
             hasAttemptedProviderLoad={hasAttemptedProviderLoad}
             isAliExpressDisabled={isAliExpressDisabled}
             onRefreshProvider={() => void doSearch(query, providerKey, { bypass_cache: true })}
+            aliexpressNeedsAuth={aliexpressNeedsAuth}
+            onConnectAliExpress={handleConnectAliExpress}
+            aliexpressConnecting={aliexpressConnecting}
           />
         )}
         {activeTab === "manufacturers" && (
