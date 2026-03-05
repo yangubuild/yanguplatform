@@ -97,28 +97,28 @@ export const VISIONAIRE_SECTIONS: NavSection[] = [
   {
     title: "MASTER LIBRARY",
     items: [
-      { icon: Home, label: "Home" },
-      { icon: Lightbulb, label: "Product Requests" },
-      { icon: Bookmark, label: "Saved" },
+      { icon: Home, label: "Home", to: "/dashboard/visionaire" },
+      { icon: Lightbulb, label: "Product Requests", to: "/dashboard/visionaire/requests" },
+      { icon: Bookmark, label: "Saved", to: "/dashboard/visionaire/saved" },
     ],
   },
   {
     title: "RESOURCES",
     items: [
-      { icon: GraduationCap, label: "Digital Product University" },
-      { icon: TrendingUp, label: "Evergreen Problems", badge: "NEW" },
-      { icon: Layers, label: "Product Mockups" },
-      { icon: Image, label: "Book Covers" },
-      { icon: Tag, label: "Special Deals" },
+      { icon: GraduationCap, label: "Digital Product University", to: "/dashboard/visionaire/university" },
+      { icon: TrendingUp, label: "Evergreen Problems", badge: "NEW", to: "/dashboard/visionaire/evergreen" },
+      { icon: Layers, label: "Product Mockups", to: "/dashboard/visionaire/mockups" },
+      { icon: Image, label: "Book Covers", to: "/dashboard/visionaire/book-covers" },
+      { icon: Tag, label: "Special Deals", to: "/dashboard/visionaire/deals" },
     ],
   },
   {
     title: "TOOLS",
     items: [
-      { icon: FileText, label: "PDF Rebrander" },
-      { icon: Settings, label: "Product Descriptions" },
-      { icon: Zap, label: "Product Ideas" },
-      { icon: Sparkle, label: "Book Title Generator" },
+      { icon: FileText, label: "PDF Rebrander", to: "/dashboard/visionaire/tools/pdf-rebrander" },
+      { icon: Settings, label: "Product Descriptions", to: "/dashboard/visionaire/tools/product-descriptions" },
+      { icon: Zap, label: "Product Ideas", to: "/dashboard/visionaire/tools/product-ideas" },
+      { icon: Sparkle, label: "Book Title Generator", to: "/dashboard/visionaire/tools/book-title-generator" },
     ],
   },
 ];

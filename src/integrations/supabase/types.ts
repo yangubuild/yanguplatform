@@ -3867,6 +3867,104 @@ export type Database = {
           },
         ]
       }
+      visionaire_items: {
+        Row: {
+          category: string
+          content: Json
+          created_at: string
+          description: string | null
+          download_url: string | null
+          external_url: string | null
+          id: string
+          is_active: boolean
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string
+          type: string
+        }
+        Insert: {
+          category: string
+          content?: Json
+          created_at?: string
+          description?: string | null
+          download_url?: string | null
+          external_url?: string | null
+          id?: string
+          is_active?: boolean
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title: string
+          type: string
+        }
+        Update: {
+          category?: string
+          content?: Json
+          created_at?: string
+          description?: string | null
+          download_url?: string | null
+          external_url?: string | null
+          id?: string
+          is_active?: boolean
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
+      visionaire_tool_runs: {
+        Row: {
+          created_at: string
+          id: string
+          input: Json
+          output: string | null
+          tool_key: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          input?: Json
+          output?: string | null
+          tool_key: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          input?: Json
+          output?: string | null
+          tool_key?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      visionaire_user_saves: {
+        Row: {
+          created_at: string
+          item_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          item_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          item_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visionaire_user_saves_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "visionaire_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       webhook_events: {
         Row: {
           event_id: string | null

@@ -61,6 +61,20 @@ const AiSafety = lazy(() => import("./pages/AiSafety"));
 const AdaLanding = lazy(() => import("./pages/AdaLanding"));
 const DashboardCommunityPage = lazy(() => import("./pages/dashboard/DashboardCommunityPage"));
 
+// Visionaire pages (lazy)
+const VisionaireHome = lazy(() => import("./pages/dashboard/visionaire/VisionaireHome"));
+const SavedProducts = lazy(() => import("./pages/dashboard/visionaire/SavedProducts"));
+const ProductRequests = lazy(() => import("./pages/dashboard/visionaire/ProductRequests"));
+const DigitalProductUniversity = lazy(() => import("./pages/dashboard/visionaire/DigitalProductUniversity"));
+const EvergreenProblems = lazy(() => import("./pages/dashboard/visionaire/EvergreenProblems"));
+const ProductMockups = lazy(() => import("./pages/dashboard/visionaire/ProductMockups"));
+const BookCoverTemplates = lazy(() => import("./pages/dashboard/visionaire/BookCoverTemplates"));
+const SpecialDeals = lazy(() => import("./pages/dashboard/visionaire/SpecialDeals"));
+const ProductDescriptions = lazy(() => import("./pages/dashboard/visionaire/ProductDescriptions"));
+const ProductIdeas = lazy(() => import("./pages/dashboard/visionaire/ProductIdeas"));
+const BookTitleGenerator = lazy(() => import("./pages/dashboard/visionaire/BookTitleGenerator"));
+const PDFRebrander = lazy(() => import("./pages/dashboard/visionaire/PDFRebrander"));
+
 // Developer platform (lazy)
 const DevelopersLayout = lazy(() => import("./components/developers/DevelopersLayout").then(m => ({ default: m.DevelopersLayout })));
 const DevelopersHome = lazy(() => import("./pages/developers/DevelopersHome"));
@@ -302,7 +316,18 @@ const App = () => (
                   <Route path="studio/assets" element={<StudioAssetGallery />} />
                   {/* video-editor is mounted as standalone full-screen route below */}
                   <Route path="influencer" element={<InfluencerPage />} />
-                  <Route path="visionaire" element={<DashboardPlaceholder />} />
+                  <Route path="visionaire" element={<VisionaireHome />} />
+                  <Route path="visionaire/saved" element={<SavedProducts />} />
+                  <Route path="visionaire/requests" element={<ProductRequests />} />
+                  <Route path="visionaire/university" element={<DigitalProductUniversity />} />
+                  <Route path="visionaire/evergreen" element={<EvergreenProblems />} />
+                  <Route path="visionaire/mockups" element={<ProductMockups />} />
+                  <Route path="visionaire/book-covers" element={<BookCoverTemplates />} />
+                  <Route path="visionaire/deals" element={<SpecialDeals />} />
+                  <Route path="visionaire/tools/product-descriptions" element={<ProductDescriptions />} />
+                  <Route path="visionaire/tools/product-ideas" element={<ProductIdeas />} />
+                  <Route path="visionaire/tools/book-title-generator" element={<BookTitleGenerator />} />
+                  <Route path="visionaire/tools/pdf-rebrander" element={<PDFRebrander />} />
                   <Route path="app-store" element={<DashboardPlaceholder />} />
                   <Route path="community" element={<DashboardCommunityPage />} />
                   <Route path="live-selling" element={<LiveSellingPage />} />
