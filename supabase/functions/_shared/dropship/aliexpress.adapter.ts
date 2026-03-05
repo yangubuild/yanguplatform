@@ -112,12 +112,19 @@ interface SearchResult {
   diagnostic: Record<string, unknown>;
 }
 
-async function doAliExpressSearch(keyword: string, countryCode: string, currency: string, local: string): Promise<SearchResult> {
+async function doAliExpressSearch(keyword: string, countryCode: string, currency: string, local: string, accessToken?: string | null): Promise<SearchResult> {
   const appSecret = (Deno.env.get("ALIEXPRESS_APP_SECRET") || "").trim();
   if (!appSecret || !APP_KEY) {
     return {
       ok: false, items: [],
       diagnostic: { error: "ALIEXPRESS_CONFIG_MISSING", message: "Missing APP_KEY or APP_SECRET" },
+    };
+  }
+
+  if (!accessToken) {
+    return {
+      ok: false, items: [],
+      diagnostic: { error: "ALIEXPRESS_TOKEN_REQUIRED", message: "AliExpress OAuth access token required. Please connect your AliExpress account." },
     };
   }
 
@@ -131,6 +138,7 @@ async function doAliExpressSearch(keyword: string, countryCode: string, currency
     format: "json",
     v: "2.0",
     sign_method: "sha256",
+    session: accessToken,
     // Business params — required by DS text search
     keyWord: keyword,
     local: local,
@@ -201,11 +209,12 @@ async function doAliExpressSearch(keyword: string, countryCode: string, currency
 export async function runAliExpressDebugSearch(
   query: string,
   filters: SearchFilters & { country?: string } = {},
+  accessToken?: string | null,
 ): Promise<Record<string, unknown>> {
   const keyword = query.trim() || "shoes";
   const countryCode = typeof filters.country === "string" ? filters.country : "US";
 
-  const result = await doAliExpressSearch(keyword, countryCode, "USD", "en_US");
+  const result = await doAliExpressSearch(keyword, countryCode, "USD", "en_US", accessToken);
   const payload = {
     ok: result.ok,
     api_method: "aliexpress.ds.text.search",
@@ -220,9 +229,10 @@ export async function runAliExpressDebugSearch(
 }
 
 export const aliexpressAdapter: DropshipAdapter = {
-  async searchProducts(query: string, filters: SearchFilters & { bypass_cache?: boolean; country?: string }): Promise<DropshipSearchItem[]> {
+  async searchProducts(query: string, filters: SearchFilters & { bypass_cache?: boolean; country?: string; access_token?: string | null }): Promise<DropshipSearchItem[]> {
     const keyword = query.trim() || "trending best sellers";
     const countryCode = typeof filters?.country === "string" ? filters.country : "US";
+    const accessToken = filters?.access_token || null;
     const cacheKey = `ae:${keyword}:${countryCode}:v3`;
 
     if (!filters?.bypass_cache) {
@@ -241,7 +251,7 @@ export const aliexpressAdapter: DropshipAdapter = {
     }
     _lastCallTs = now;
 
-    const result = await doAliExpressSearch(keyword, countryCode, "USD", "en_US");
+    const result = await doAliExpressSearch(keyword, countryCode, "USD", "en_US", accessToken);
     _lastDiag = result.diagnostic;
 
     if (!result.ok) {

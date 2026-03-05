@@ -2,6 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getAdapter } from "../_shared/dropship/providerRegistry.ts";
 import { getLastModernDiagnostics } from "../_shared/dropship/moderndropship.adapter.ts";
 import { getLastAliexpressDiagnostics, runAliExpressDebugSearch } from "../_shared/dropship/aliexpress.adapter.ts";
+import { getAliExpressAccessToken, hasAliExpressToken } from "../_shared/dropship/aliexpress-token.ts";
 import { getDisplayCurrencyForShop, getFxRate, decimalToDisplayCents } from "../_shared/dropship/fx.ts";
 import { toCents } from "../_shared/dropship/normalize.ts";
 
@@ -218,7 +219,8 @@ Deno.serve(async (req) => {
       // AliExpress debug mode
       if (aliexpressDebugRequest) {
         try {
-          const debugResult = await runAliExpressDebugSearch(query || "trending best sellers", filters);
+          const aeToken = await getAliExpressAccessToken(user.id);
+          const debugResult = await runAliExpressDebugSearch(query || "trending best sellers", filters, aeToken);
           const debugItems = Array.isArray(debugResult?.items) ? debugResult.items : [];
 
           if (!debugResult?.ok) warnings.push("AliExpress search returned an error — see diagnostics.");
@@ -227,6 +229,7 @@ Deno.serve(async (req) => {
             ok: debugResult?.ok === true, provider_key, items: debugItems,
             debug: getProviderDebugCounts(provider_key, debugItems.length),
             aliexpress_diagnostics: debugResult,
+            aliexpress_connected: !!aeToken,
             ...(warnings.length > 0 ? { warnings } : {}),
           });
         } catch (e: any) {
@@ -241,7 +244,22 @@ Deno.serve(async (req) => {
       }
 
       try {
-        items = await adapter.searchProducts(query || "trending best sellers", { ...filters, bypass_cache });
+        // For AliExpress, fetch the user's access token and pass it
+        let extraFilters = { ...filters, bypass_cache };
+        if (provider_key === "aliexpress") {
+          const aeToken = await getAliExpressAccessToken(user.id);
+          if (!aeToken) {
+            return safeJson({
+              provider_key,
+              items: [],
+              debug: getProviderDebugCounts(provider_key, 0),
+              warnings: ["AliExpress account not connected. Please connect your AliExpress account to search products."],
+              aliexpress_needs_auth: true,
+            });
+          }
+          extraFilters = { ...extraFilters, access_token: aeToken };
+        }
+        items = await adapter.searchProducts(query || "trending best sellers", extraFilters);
       } catch (providerErr: any) {
         const err = providerErr instanceof Error ? providerErr : new Error(String(providerErr));
         const isConfigMissing =
