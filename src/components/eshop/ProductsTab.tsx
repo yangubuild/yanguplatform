@@ -17,6 +17,7 @@ interface Props {
   selectedProviderKey?: string;
   hasAttemptedProviderLoad?: boolean;
   onRefreshProvider?: () => void;
+  isAliExpressDisabled?: boolean;
 }
 
 const SUGGESTIONS = [
@@ -41,6 +42,7 @@ export default function ProductsTab({
   selectedProviderKey,
   hasAttemptedProviderLoad = false,
   onRefreshProvider,
+  isAliExpressDisabled = false,
 }: Props) {
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -321,6 +323,15 @@ export default function ProductsTab({
               }
 
               if (selectedProviderKey === "aliexpress") {
+                if (isAliExpressDisabled) {
+                  return (
+                    <div>
+                      <p className="text-sm text-foreground font-medium">AliExpress pending verification (signature/auth requirements).</p>
+                      <p className="text-xs text-muted-foreground mt-1">AliExpress is disabled for now until signing/auth is confirmed.</p>
+                    </div>
+                  );
+                }
+
                 return (
                   <>
                     <div>

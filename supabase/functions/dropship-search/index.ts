@@ -1,7 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getAdapter } from "../_shared/dropship/providerRegistry.ts";
 import { getLastModernDiagnostics } from "../_shared/dropship/moderndropship.adapter.ts";
-import { getLastAliexpressDiagnostics } from "../_shared/dropship/aliexpress.adapter.ts";
+import { getLastAliexpressDiagnostics, runAliExpressDebugSearch } from "../_shared/dropship/aliexpress.adapter.ts";
 import { getDisplayCurrencyForShop, getFxRate, decimalToDisplayCents } from "../_shared/dropship/fx.ts";
 import { toCents } from "../_shared/dropship/normalize.ts";
 
@@ -30,6 +30,30 @@ function getProviderDebugCounts(providerKey: string, count: number) {
   if (providerKey === "estores") debug.yangu = count;
   if (providerKey === "aliexpress") debug.aliexpress = count;
   return debug;
+}
+
+async function disableAliExpressProvider(): Promise<boolean> {
+  const serviceRole = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  const url = Deno.env.get("SUPABASE_URL");
+  if (!serviceRole || !url) return false;
+
+  try {
+    const admin = createClient(url, serviceRole);
+    const { error } = await admin
+      .from("dropship_providers")
+      .update({ is_enabled: false })
+      .eq("provider_key", "aliexpress");
+
+    if (error) {
+      console.error("Failed to disable AliExpress provider", error.message);
+      return false;
+    }
+
+    return true;
+  } catch (e) {
+    console.error("Unexpected disableAliExpressProvider error", e);
+    return false;
+  }
 }
 
 async function searchEstoresProducts(supabase: any, userId: string, query: string) {
@@ -91,6 +115,10 @@ async function searchEstoresProducts(supabase: any, userId: string, query: strin
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  const requestUrl = new URL(req.url);
+  const queryDebugMode = requestUrl.searchParams.get("debug") === "1";
+  let aliexpressDebugRequest = false;
+
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
@@ -105,7 +133,7 @@ Deno.serve(async (req) => {
     const { data: { user }, error: authErr } = await supabase.auth.getUser();
     if (authErr || !user) return errResponse("BAD_REQUEST", "Unauthorized", 401);
 
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     const rawProviderKey = typeof body?.provider_key === "string" ? normalizeProviderKey(body.provider_key) : "";
     const providerKeys = Array.isArray(body?.provider_keys)
       ? Array.from(new Set(body.provider_keys.filter((p: unknown) => typeof p === "string").map((p: string) => normalizeProviderKey(p))))
@@ -126,6 +154,9 @@ Deno.serve(async (req) => {
       return errResponse("BAD_REQUEST", "provider_key or provider_keys is required");
     }
 
+    const debugMode = queryDebugMode || body?.debug === true || body?.debug === 1 || body?.debug === "1";
+    aliexpressDebugRequest = debugMode && provider_key === "aliexpress";
+
     const query = typeof body?.query === "string" ? body.query : "";
     const filters = body?.filters ?? {};
     const shop_surface_id = body?.shop_surface_id;
@@ -143,8 +174,71 @@ Deno.serve(async (req) => {
         .eq("provider_key", provider_key)
         .single();
 
-      if (provErr || !provider) return errResponse("PROVIDER_NOT_FOUND", `Provider '${provider_key}' not found`);
-      if (!provider.is_enabled) return errResponse("PROVIDER_DISABLED", `Provider '${provider_key}' is disabled`);
+      if (provErr || !provider) {
+        if (aliexpressDebugRequest) {
+          return new Response(JSON.stringify({
+            ok: false,
+            provider_key,
+            debug: {
+              error: "PROVIDER_NOT_FOUND",
+              message: `Provider '${provider_key}' not found`,
+            },
+          }), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        return errResponse("PROVIDER_NOT_FOUND", `Provider '${provider_key}' not found`);
+      }
+
+      if (!provider.is_enabled) {
+        if (aliexpressDebugRequest) {
+          return new Response(JSON.stringify({
+            ok: false,
+            provider_key,
+            aliexpress_disabled: true,
+            message: "AliExpress pending verification (signature/auth requirements). Disabled for now.",
+            debug: {
+              error: "PROVIDER_DISABLED",
+              message: `Provider '${provider_key}' is disabled`,
+            },
+          }), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        return errResponse("PROVIDER_DISABLED", `Provider '${provider_key}' is disabled`);
+      }
+
+      if (aliexpressDebugRequest) {
+        const debugResult = await runAliExpressDebugSearch(query || "trending best sellers", filters);
+        const debugItems = Array.isArray(debugResult?.items) ? debugResult.items : [];
+        const shouldDisable = debugResult?.ok !== true;
+        const disabledPersisted = shouldDisable ? await disableAliExpressProvider() : false;
+
+        if (shouldDisable) {
+          warnings.push("AliExpress integration pending approval / signature verification.");
+        }
+
+        return new Response(JSON.stringify({
+          ok: debugResult?.ok === true,
+          provider_key,
+          items: debugItems,
+          debug: getProviderDebugCounts(provider_key, debugItems.length),
+          aliexpress_diagnostics: debugResult,
+          ...(warnings.length > 0 ? { warnings } : {}),
+          ...(shouldDisable
+            ? {
+              aliexpress_disabled: true,
+              aliexpress_disabled_persisted: disabledPersisted,
+              message: "AliExpress pending verification (signature/auth requirements). Disabled for now.",
+            }
+            : {}),
+        }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
 
       const adapter = getAdapter(provider_key);
       if (!adapter) return errResponse("PROVIDER_NOT_FOUND", `No adapter for '${provider_key}'`);
@@ -169,7 +263,6 @@ Deno.serve(async (req) => {
           console.error("dropship-search provider error", { provider_key, query, message: msg, stack: err.stack || "no stack" });
           warnings.push(`${provider_key} temporarily unavailable: ${msg}`);
         }
-        // Fall through with items = [] and warnings
       }
     }
 
@@ -217,7 +310,6 @@ Deno.serve(async (req) => {
       return result;
     });
 
-    // Attach provider diagnostics if applicable
     const modernDiag = provider_key === "moderndropship" ? getLastModernDiagnostics() : null;
     const aeDiag = provider_key === "aliexpress" ? getLastAliexpressDiagnostics() : null;
 
@@ -234,6 +326,23 @@ Deno.serve(async (req) => {
     });
   } catch (e: any) {
     console.error(e?.stack || e);
+
+    if (aliexpressDebugRequest) {
+      return new Response(JSON.stringify({
+        ok: false,
+        provider_key: "aliexpress",
+        aliexpress_disabled: false,
+        debug: {
+          error: "UPSTREAM_ERROR",
+          message: e?.message || "Unknown error",
+          last_diagnostics: getLastAliexpressDiagnostics(),
+        },
+      }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     return errResponse("UPSTREAM_ERROR", e?.message || "Unknown error", 500);
   }
 });

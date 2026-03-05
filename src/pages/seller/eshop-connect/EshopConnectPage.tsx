@@ -68,6 +68,7 @@ export default function EshopConnectPage() {
   const [hasAttemptedProviderLoad, setHasAttemptedProviderLoad] = useState(false);
   const [selectedShopSurfaceId, setSelectedShopSurfaceId] = useState(shopSurfaceIdParam);
   const [providerWarnings, setProviderWarnings] = useState<string[]>([]);
+  const [isAliExpressDisabled, setIsAliExpressDisabled] = useState(false);
 
   const { isConnected, connectedProviders, isLoading: connectionsLoading } = useDropshipConnections();
   const { data: surfaces } = useSurfaces();
@@ -78,6 +79,27 @@ export default function EshopConnectPage() {
   useEffect(() => {
     const dismissed = localStorage.getItem("eshop_ai_popup_dismissed");
     if (!dismissed) setShowPopup(true);
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    void (async () => {
+      const { data, error } = await supabase
+        .from("dropship_providers")
+        .select("is_enabled")
+        .eq("provider_key", "aliexpress")
+        .maybeSingle();
+
+      if (!active || error) return;
+      if (data?.is_enabled === false) {
+        setIsAliExpressDisabled(true);
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const dismissPopup = () => {
@@ -100,6 +122,13 @@ export default function EshopConnectPage() {
 
     if (!pk) {
       toast.info("Select a provider first.");
+      return;
+    }
+
+    if (pk === "aliexpress" && isAliExpressDisabled) {
+      setProviderWarnings(["AliExpress integration pending approval / signature verification."]);
+      setHasAttemptedProviderLoad(true);
+      setResults([]);
       return;
     }
 
@@ -142,15 +171,30 @@ export default function EshopConnectPage() {
         const errorMsg = res.error.message || "Unknown error";
         console.warn("dropship-search returned error:", errorMsg);
         if (!res.data?.items) {
-          setProviderWarnings([`Provider temporarily unavailable: ${errorMsg}`]);
+          const aliDisabled = pk === "aliexpress" && errorMsg.toLowerCase().includes("disabled");
+          if (aliDisabled) {
+            setIsAliExpressDisabled(true);
+            setProviderWarnings(["AliExpress pending verification (signature/auth requirements). Disabled for now."]);
+          } else {
+            setProviderWarnings([`Provider temporarily unavailable: ${errorMsg}`]);
+          }
           setResults([]);
           return;
         }
       }
 
-      const responseWarnings = Array.isArray(res.data?.warnings)
+      let responseWarnings = Array.isArray(res.data?.warnings)
         ? res.data.warnings.filter((w: unknown) => typeof w === "string")
         : [];
+
+      if (pk === "aliexpress" && (res.data?.aliexpress_disabled === true || res.data?.aliexpress_disabled_persisted === true)) {
+        setIsAliExpressDisabled(true);
+        responseWarnings = Array.from(new Set([
+          ...responseWarnings,
+          "AliExpress pending verification (signature/auth requirements). Disabled for now.",
+        ]));
+      }
+
       setProviderWarnings(responseWarnings as string[]);
 
       const responseProvider = normalizeProviderKey(res.data?.provider_key || pk);
@@ -186,7 +230,7 @@ export default function EshopConnectPage() {
         setSearching(false);
       }
     }
-  }, [providerKey, isConnected, selectedShopSurfaceId]);
+  }, [providerKey, isConnected, selectedShopSurfaceId, isAliExpressDisabled]);
 
   useEffect(() => {
     if (connectionsLoading || hasAttemptedProviderLoad) return;
@@ -220,6 +264,15 @@ export default function EshopConnectPage() {
     if (key === "dsers") return;
 
     const normalizedKey = normalizeProviderKey(key);
+
+    if (normalizedKey === "aliexpress" && isAliExpressDisabled) {
+      setProviderKey(normalizedKey);
+      setHasAttemptedProviderLoad(true);
+      setResults([]);
+      setProviderWarnings(["AliExpress pending verification (signature/auth requirements). Disabled for now."]);
+      return;
+    }
+
     if (normalizedKey !== "estores" && normalizedKey !== "aliexpress" && !isConnected(normalizedKey)) {
       const label = normalizedKey === "cj" ? "CJ Dropshipping" : "ModernDropship";
       toast.info(`Connect ${label} in the Manufacturers tab first.`);
@@ -307,27 +360,30 @@ export default function EshopConnectPage() {
               {ALL_SOURCES.map((s) => {
                 const connected = isConnected(s.key);
                 const isComingSoon = s.key === "dsers";
+                const isAliExpressPending = s.key === "aliexpress" && isAliExpressDisabled;
+                const isUnavailable = isComingSoon || isAliExpressPending;
                 const active = providerKey === s.key;
 
                 return (
                   <button
                     key={s.key}
-                    disabled={isComingSoon}
+                    disabled={isUnavailable}
                     onClick={() => handleSourceClick(s.key)}
                     className={`text-xs px-3 py-1.5 rounded-md border transition-colors flex items-center gap-1.5 ${
                       active
                         ? "border-accent bg-accent/10 text-accent font-medium"
                         : connected
                           ? "border-border text-muted-foreground hover:border-accent/40 hover:text-foreground"
-                          : isComingSoon
+                          : isUnavailable
                             ? "border-border/40 text-muted-foreground/40 cursor-not-allowed"
                             : "border-border/60 text-muted-foreground/60 hover:border-accent/40"
                     }`}
                   >
-                {!connected && !isComingSoon && s.key !== "estores" && s.key !== "aliexpress" && <Plug className="w-3 h-3" />}
+                    {!connected && !isUnavailable && s.key !== "estores" && s.key !== "aliexpress" && <Plug className="w-3 h-3" />}
                     {s.label}
                     {isComingSoon && " (soon)"}
-                    {!connected && !isComingSoon && s.key !== "estores" && s.key !== "aliexpress" && (
+                    {isAliExpressPending && " (pending verification)"}
+                    {!connected && !isUnavailable && s.key !== "estores" && s.key !== "aliexpress" && (
                       <span className="text-[10px] text-muted-foreground/50">• not connected</span>
                     )}
                   </button>
@@ -422,6 +478,7 @@ export default function EshopConnectPage() {
             providerWarnings={providerWarnings}
             selectedProviderKey={providerKey}
             hasAttemptedProviderLoad={hasAttemptedProviderLoad}
+            isAliExpressDisabled={isAliExpressDisabled}
             onRefreshProvider={() => void doSearch(query, providerKey, { bypass_cache: true })}
           />
         )}
