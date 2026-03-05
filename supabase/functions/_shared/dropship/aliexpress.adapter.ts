@@ -29,24 +29,46 @@ function getCached(key: string): CacheEntry | null {
   return e;
 }
 
-// ─── AliExpress HMAC-SHA256 signature ───────────────────────────────────
-async function sign(
+// ─── Timestamp in AliExpress format: yyyy-MM-dd HH:mm:ss ───────────────
+function aeTimestamp(): string {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
+}
+
+// ─── AliExpress signature (try md5 first, fallback sha256) ──────────────
+type SignMethod = "md5" | "sha256";
+
+async function computeSign(
   params: Record<string, string>,
-  apiMethod: string,
   appSecret: string,
+  method: SignMethod,
 ): Promise<string> {
-  // AliExpress signature format:
-  // 1. Sort params alphabetically by key
-  // 2. Concatenate: appSecret + apiMethod + key1value1key2value2... + appSecret
-  // 3. HMAC-SHA256(appSecret, concatenated) → uppercase hex
-  const sortedKeys = Object.keys(params).sort();
-  let signStr = appSecret + apiMethod;
+  // AliExpress spec:
+  // 1. Sort all params (except "sign") alphabetically by key
+  // 2. Concatenate: appSecret + key1value1key2value2... + appSecret
+  // 3. Hash → uppercase hex
+  const sortedKeys = Object.keys(params).filter(k => k !== "sign").sort();
+  let signStr = appSecret;
   for (const k of sortedKeys) {
     signStr += k + params[k];
   }
   signStr += appSecret;
 
   const encoder = new TextEncoder();
+  const data = encoder.encode(signStr);
+
+  if (method === "md5") {
+    // Deno's native crypto.subtle doesn't support MD5 — use std library
+    const { crypto: stdCrypto } = await import("https://deno.land/std@0.177.0/crypto/mod.ts");
+    const md5Buf = await stdCrypto.subtle.digest("MD5", data);
+    return Array.from(new Uint8Array(md5Buf))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("")
+      .toUpperCase();
+  }
+
+  // HMAC-SHA256
   const key = await crypto.subtle.importKey(
     "raw",
     encoder.encode(appSecret),
@@ -62,10 +84,12 @@ async function sign(
 }
 
 // ─── Build signed URL ───────────────────────────────────────────────────
+let _currentSignMethod: SignMethod = "md5"; // start with md5
+
 async function buildSignedUrl(
   apiMethod: string,
   bizParams: Record<string, string>,
-): Promise<string> {
+): Promise<{ url: string; signMethod: SignMethod; signedParams: Record<string, string> }> {
   const appSecret = Deno.env.get("ALIEXPRESS_APP_SECRET");
   if (!appSecret) {
     const err: any = new Error("AliExpress APP_SECRET not configured");
@@ -73,25 +97,24 @@ async function buildSignedUrl(
     throw err;
   }
 
-  const timestamp = String(Date.now());
-  const sysParams: Record<string, string> = {
+  const allParams: Record<string, string> = {
     app_key: APP_KEY,
     method: apiMethod,
-    timestamp,
-    sign_method: "sha256",
+    timestamp: aeTimestamp(),
+    sign_method: _currentSignMethod === "md5" ? "md5" : "sha256",
     v: "2.0",
     format: "json",
+    ...bizParams,
   };
 
-  // Merge sys + biz for signature
-  const allParams = { ...sysParams, ...bizParams };
-  const signature = await sign(allParams, apiMethod, appSecret);
+  const signature = await computeSign(allParams, appSecret, _currentSignMethod);
+  allParams.sign = signature;
 
-  const qs = new URLSearchParams({ ...allParams, sign: signature });
-  return `${BASE_URL}?${qs.toString()}`;
+  const qs = new URLSearchParams(allParams);
+  return { url: `${BASE_URL}?${qs.toString()}`, signMethod: _currentSignMethod, signedParams: { ...allParams, sign: "REDACTED" } };
 }
 
-// ─── Generic fetch with throttle ────────────────────────────────────────
+// ─── Generic fetch with throttle + sign-method fallback ─────────────────
 async function callAliexpress(
   apiMethod: string,
   bizParams: Record<string, string>,
@@ -105,53 +128,62 @@ async function callAliexpress(
   }
   _lastCallTs = now;
 
-  const url = await buildSignedUrl(apiMethod, bizParams);
-
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 15_000);
-
   const requestId = crypto.randomUUID();
-  const redactedUrl = url.replace(/sign=[A-F0-9]+/, "sign=REDACTED")
-    .replace(/app_key=\d+/, "app_key=***");
 
-  try {
-    const res = await fetch(url, { signal: controller.signal });
-    const text = await res.text();
+  // Try current sign method, fallback to other if IncompleteSignature
+  for (const attempt of [0, 1]) {
+    const { url, signMethod, signedParams } = await buildSignedUrl(apiMethod, bizParams);
 
-    _lastDiag = {
-      request_id: requestId,
-      provider_http_status: res.status,
-      provider_url: redactedUrl,
-      provider_query_params: bizParams,
-      provider_auth_header_used: "query_param_sign (HMAC-SHA256)",
-      provider_response_preview: text.slice(0, 500),
-      timestamp: new Date().toISOString(),
-    };
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15_000);
 
-    console.log("[AliExpress Diagnostics]", JSON.stringify(_lastDiag));
+    try {
+      const res = await fetch(url, { signal: controller.signal });
+      const text = await res.text();
 
-    if (!res.ok) {
-      const err: any = new Error(`AliExpress HTTP ${res.status}`);
-      err.status = res.status;
-      throw err;
+      _lastDiag = {
+        request_id: requestId,
+        provider_http_status: res.status,
+        sign_method_used: signMethod,
+        signed_params: signedParams,
+        provider_response_preview: text.slice(0, 500),
+        timestamp: new Date().toISOString(),
+        attempt: attempt + 1,
+      };
+
+      console.log("[AliExpress Diagnostics]", JSON.stringify(_lastDiag));
+
+      if (!res.ok) {
+        const err: any = new Error(`AliExpress HTTP ${res.status}`);
+        err.status = res.status;
+        throw err;
+      }
+
+      const json = JSON.parse(text);
+      const errResp = json?.error_response;
+
+      // If signature rejected and we haven't tried the other method yet
+      if (errResp?.code === "IncompleteSignature" && attempt === 0) {
+        console.log(`[AliExpress] ${signMethod} signature rejected, trying ${signMethod === "md5" ? "sha256" : "md5"}`);
+        _currentSignMethod = signMethod === "md5" ? "sha256" : "md5";
+        continue;
+      }
+
+      if (errResp) {
+        console.error("[AliExpress API Error]", JSON.stringify(errResp));
+        const err: any = new Error(errResp.msg || errResp.sub_msg || "AliExpress API error");
+        err.code = errResp.code;
+        err.status = errResp.code === "27" ? 403 : 400;
+        throw err;
+      }
+
+      return json;
+    } finally {
+      clearTimeout(timeout);
     }
-
-    const json = JSON.parse(text);
-
-    // Check for AliExpress-level error
-    const errResp = json?.error_response;
-    if (errResp) {
-      console.error("[AliExpress API Error]", JSON.stringify(errResp));
-      const err: any = new Error(errResp.msg || errResp.sub_msg || "AliExpress API error");
-      err.code = errResp.code;
-      err.status = errResp.code === "27" ? 403 : 400;
-      throw err;
-    }
-
-    return json;
-  } finally {
-    clearTimeout(timeout);
   }
+
+  throw new Error("AliExpress signature failed with both md5 and sha256");
 }
 
 // ─── Normalize search result ────────────────────────────────────────────
