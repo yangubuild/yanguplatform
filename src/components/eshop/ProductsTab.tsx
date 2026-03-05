@@ -1,4 +1,4 @@
-import { Search, Plug } from "lucide-react";
+import { Search, Plug, RefreshCw } from "lucide-react";
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import type { SearchItem } from "@/pages/seller/eshop-connect/EshopConnectPage";
@@ -16,6 +16,7 @@ interface Props {
   providerWarnings?: string[];
   selectedProviderKey?: string;
   hasAttemptedProviderLoad?: boolean;
+  onRefreshProvider?: () => void;
 }
 
 const SUGGESTIONS = [
@@ -39,6 +40,7 @@ export default function ProductsTab({
   providerWarnings = [],
   selectedProviderKey,
   hasAttemptedProviderLoad = false,
+  onRefreshProvider,
 }: Props) {
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -251,29 +253,79 @@ export default function ProductsTab({
         ) : hasAttemptedProviderLoad && selectedProviderKey ? (
           <div className="max-w-xl mx-auto py-14 text-center space-y-4">
             <Search className="w-10 h-10 text-muted-foreground/40 mx-auto" />
-            <div>
-              <p className="text-sm text-foreground font-medium">
-                {(() => {
-                  const w = providerWarnings.join(" ");
-                  if (selectedProviderKey === "estores") return "No YANGU Estores products available right now.";
-                  if (w.includes("unauthorized") || w.includes("permissions")) return `${selectedProviderKey === "moderndropship" ? "ModernDropship" : "CJ"} API key unauthorized or insufficient permissions.`;
-                  if (w.includes("rate limited")) return `${selectedProviderKey === "moderndropship" ? "ModernDropship" : "CJ"} rate limited — try again in a moment.`;
-                  if (selectedProviderKey === "moderndropship") return "No ModernDropship products available for this account.";
-                  return "No CJ products found for this query.";
-                })()}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                {selectedProviderKey === "estores"
-                  ? "Products will appear here once stores list items on Eshop Connect."
-                  : "Try another query or provider."}
-              </p>
-            </div>
-            {selectedProviderKey === "moderndropship" && (
-              <Button onClick={onGoToManufacturers} variant="outline" className="gap-1.5">
-                <Plug className="w-4 h-4" />
-                Check connection / API key
-              </Button>
-            )}
+            {(() => {
+              const w = providerWarnings.join(" ");
+              const isUnauthorized = w.includes("unauthorized") || w.includes("permissions") || w.includes("401") || w.includes("403");
+              const isRateLimited = w.includes("rate limited") || w.includes("429");
+              const providerLabel = selectedProviderKey === "moderndropship" ? "ModernDropship" : selectedProviderKey === "cj" ? "CJ" : "YANGU Estores";
+
+              if (selectedProviderKey === "estores") {
+                return (
+                  <div>
+                    <p className="text-sm text-foreground font-medium">No YANGU Estores products available right now.</p>
+                    <p className="text-xs text-muted-foreground mt-1">Products will appear here once stores list items on Eshop Connect.</p>
+                  </div>
+                );
+              }
+
+              if (isUnauthorized) {
+                return (
+                  <>
+                    <div>
+                      <p className="text-sm text-foreground font-medium">{providerLabel} API key unauthorized or insufficient permissions.</p>
+                      <p className="text-xs text-muted-foreground mt-1">Check that your API key is valid and has the correct permissions.</p>
+                    </div>
+                    <Button onClick={onGoToManufacturers} variant="outline" className="gap-1.5">
+                      <Plug className="w-4 h-4" />
+                      Check connection / API key
+                    </Button>
+                  </>
+                );
+              }
+
+              if (isRateLimited) {
+                return (
+                  <>
+                    <div>
+                      <p className="text-sm text-foreground font-medium">{providerLabel} rate limited — try again in a moment.</p>
+                      <p className="text-xs text-muted-foreground mt-1">Too many requests. Wait a few seconds and try again.</p>
+                    </div>
+                    {onRefreshProvider && (
+                      <Button onClick={onRefreshProvider} variant="outline" className="gap-1.5">
+                        <RefreshCw className="w-4 h-4" />
+                        Retry
+                      </Button>
+                    )}
+                  </>
+                );
+              }
+
+              if (selectedProviderKey === "moderndropship") {
+                return (
+                  <>
+                    <div>
+                      <p className="text-sm text-foreground font-medium">No ModernDropship products available for this account.</p>
+                      <p className="text-xs text-muted-foreground mt-1">Your Modern buyer account has 0 assigned products. Add/share products in ModernDropship, then refresh.</p>
+                    </div>
+                    <div className="flex justify-center gap-2">
+                      {onRefreshProvider && (
+                        <Button onClick={onRefreshProvider} variant="outline" className="gap-1.5">
+                          <RefreshCw className="w-4 h-4" />
+                          Refresh
+                        </Button>
+                      )}
+                    </div>
+                  </>
+                );
+              }
+
+              return (
+                <div>
+                  <p className="text-sm text-foreground font-medium">No {providerLabel} products found for this query.</p>
+                  <p className="text-xs text-muted-foreground mt-1">Try another query or provider.</p>
+                </div>
+              );
+            })()}
           </div>
         ) : (
           <div className="max-w-xl mx-auto py-12">

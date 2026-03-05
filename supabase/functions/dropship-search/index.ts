@@ -127,6 +127,7 @@ Deno.serve(async (req) => {
     const query = typeof body?.query === "string" ? body.query : "";
     const filters = body?.filters ?? {};
     const shop_surface_id = body?.shop_surface_id;
+    const bypass_cache = body?.bypass_cache === true;
 
     let items: any[] = [];
     const warnings: string[] = [];
@@ -147,7 +148,7 @@ Deno.serve(async (req) => {
       if (!adapter) return errResponse("PROVIDER_NOT_FOUND", `No adapter for '${provider_key}'`);
 
       try {
-        items = await adapter.searchProducts(query || "trending best sellers", filters);
+        items = await adapter.searchProducts(query || "trending best sellers", { ...filters, bypass_cache });
       } catch (providerErr: any) {
         const err = providerErr instanceof Error ? providerErr : new Error(String(providerErr));
         const isConfigMissing =
