@@ -42,26 +42,7 @@ function getProviderDebugCounts(providerKey: string, count: number) {
   return debug;
 }
 
-async function disableAliExpressProvider(): Promise<boolean> {
-  try {
-    const serviceRole = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    const url = Deno.env.get("SUPABASE_URL");
-    if (!serviceRole || !url) return false;
-    const admin = createClient(url, serviceRole);
-    const { error } = await admin
-      .from("dropship_providers")
-      .update({ is_enabled: false })
-      .eq("provider_key", "aliexpress");
-    if (error) {
-      console.error("Failed to disable AliExpress provider", error.message);
-      return false;
-    }
-    return true;
-  } catch (e) {
-    console.error("Unexpected disableAliExpressProvider error", e);
-    return false;
-  }
-}
+// Auto-disable removed — AliExpress stays enabled; errors surface as warnings
 
 async function searchEstoresProducts(supabase: any, userId: string, query: string) {
   const { data: memberships } = await supabase
@@ -239,17 +220,14 @@ Deno.serve(async (req) => {
         try {
           const debugResult = await runAliExpressDebugSearch(query || "trending best sellers", filters);
           const debugItems = Array.isArray(debugResult?.items) ? debugResult.items : [];
-          const shouldDisable = debugResult?.ok !== true;
-          const disabledPersisted = shouldDisable ? await disableAliExpressProvider() : false;
 
-          if (shouldDisable) warnings.push("AliExpress integration pending approval / signature verification.");
+          if (!debugResult?.ok) warnings.push("AliExpress search returned an error — see diagnostics.");
 
           return safeJson({
             ok: debugResult?.ok === true, provider_key, items: debugItems,
             debug: getProviderDebugCounts(provider_key, debugItems.length),
             aliexpress_diagnostics: debugResult,
             ...(warnings.length > 0 ? { warnings } : {}),
-            ...(shouldDisable ? { aliexpress_disabled: true, aliexpress_disabled_persisted: disabledPersisted, message: "AliExpress pending verification (signature/auth requirements). Disabled for now." } : {}),
           });
         } catch (e: any) {
           return safeJson({ ok: false, provider_key, debug: { error: "DEBUG_SEARCH_CRASH", message: e?.message || "Unknown" }, aliexpress_diagnostics: getLastAliexpressDiagnostics() });
