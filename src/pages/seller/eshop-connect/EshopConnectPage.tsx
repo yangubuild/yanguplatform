@@ -68,7 +68,7 @@ export default function EshopConnectPage() {
   const [hasAttemptedProviderLoad, setHasAttemptedProviderLoad] = useState(false);
   const [selectedShopSurfaceId, setSelectedShopSurfaceId] = useState(shopSurfaceIdParam);
   const [providerWarnings, setProviderWarnings] = useState<string[]>([]);
-  const [isAliExpressDisabled, setIsAliExpressDisabled] = useState(false);
+  const [isAliExpressDisabled, setIsAliExpressDisabled] = useState(false); // re-enabled
 
   const { isConnected, connectedProviders, isLoading: connectionsLoading } = useDropshipConnections();
   const { data: surfaces } = useSurfaces();

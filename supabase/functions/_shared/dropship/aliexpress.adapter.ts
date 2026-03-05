@@ -6,54 +6,16 @@ import type {
   CreateOrderResult,
   OrderStatusResult,
 } from "./types.ts";
-import { crypto as stdCrypto } from "https://deno.land/std@0.177.0/crypto/mod.ts";
 
-const BASE_URL = (Deno.env.get("ALIEXPRESS_BASE_URL") || "https://api-sg.aliexpress.com/sync").trim();
-const APP_KEY = (Deno.env.get("ALIEXPRESS_APP_KEY") || "528918").trim();
+const BASE_URL = "https://api-sg.aliexpress.com/sync";
+const APP_KEY = (Deno.env.get("ALIEXPRESS_APP_KEY") || "").trim();
 const CACHE_TTL_MS = 120_000;
 const MIN_CALL_INTERVAL_MS = 2_000;
 
-type SignMethod = "md5" | "sha256";
-type AuthParamName = "app_key" | "client_id";
-type HttpMethod = "GET" | "POST";
-type PayloadStyle = "param0" | "flat";
-
 interface CacheEntry { items: DropshipSearchItem[]; ts: number }
-
-interface AttemptSpec {
-  variant: "A" | "B";
-  auth_param_name: AuthParamName;
-  sign_method: SignMethod;
-  http_method: HttpMethod;
-  payload_style: PayloadStyle;
-}
-
-interface AttemptResult {
-  ok: boolean;
-  json: Record<string, unknown> | null;
-  diagnostic: Record<string, unknown>;
-}
-
-const ATTEMPT_SPECS: AttemptSpec[] = [
-  {
-    variant: "A",
-    auth_param_name: "app_key",
-    sign_method: "md5",
-    http_method: "POST",
-    payload_style: "param0",
-  },
-  {
-    variant: "B",
-    auth_param_name: "client_id",
-    sign_method: "sha256",
-    http_method: "GET",
-    payload_style: "flat",
-  },
-];
 
 const _cache = new Map<string, CacheEntry>();
 let _lastCallTs = 0;
-let _lastDebugTs = 0;
 let _lastDiag: Record<string, unknown> | null = null;
 
 export function getLastAliexpressDiagnostics() {
@@ -69,51 +31,26 @@ function aeTimestamp(): string {
 function getCached(key: string): CacheEntry | null {
   const e = _cache.get(key);
   if (!e) return null;
-  if (Date.now() - e.ts > CACHE_TTL_MS) {
-    _cache.delete(key);
-    return null;
-  }
+  if (Date.now() - e.ts > CACHE_TTL_MS) { _cache.delete(key); return null; }
   return e;
 }
 
 function toUpperHex(bytes: Uint8Array): string {
-  return Array.from(bytes)
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("")
-    .toUpperCase();
+  return Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("").toUpperCase();
 }
 
-async function digestSignature(content: string, method: SignMethod): Promise<string> {
-  const data = new TextEncoder().encode(content);
-  if (method === "md5") {
-    const md5 = await stdCrypto.subtle.digest("MD5", data);
-    return toUpperHex(new Uint8Array(md5));
-  }
-
-  const sha = await crypto.subtle.digest("SHA-256", data);
-  return toUpperHex(new Uint8Array(sha));
+async function hmacSha256Sign(secret: string, content: string): Promise<string> {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey("raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(content));
+  return toUpperHex(new Uint8Array(sig));
 }
 
 function safeParseJson(text: string): Record<string, unknown> | null {
   try {
-    const parsed = JSON.parse(text);
-    if (parsed && typeof parsed === "object") return parsed as Record<string, unknown>;
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-function buildSearchPayload(keyword: string, shipToCountry: string): Record<string, string> {
-  return {
-    keyword,
-    page_no: "1",
-    page_size: "20",
-    target_currency: "USD",
-    target_language: "EN",
-    ship_to_country: shipToCountry,
-    sort: "SALE_PRICE_ASC",
-  };
+    const p = JSON.parse(text);
+    return p && typeof p === "object" ? p as Record<string, unknown> : null;
+  } catch { return null; }
 }
 
 function normalizeSearchItem(item: Record<string, unknown>): DropshipSearchItem {
@@ -148,7 +85,6 @@ function normalizeSearchItem(item: Record<string, unknown>): DropshipSearchItem 
 
 function extractSearchItems(json: Record<string, unknown> | null): DropshipSearchItem[] {
   if (!json) return [];
-
   const response = json.aliexpress_ds_text_search_response as Record<string, unknown> | undefined;
   const data = (response?.data as Record<string, unknown> | undefined) ||
     ((response?.resp_result as Record<string, unknown> | undefined)?.result as Record<string, unknown> | undefined) ||
@@ -156,11 +92,8 @@ function extractSearchItems(json: Record<string, unknown> | null): DropshipSearc
 
   const productsNode = data?.products as Record<string, unknown> | undefined;
   const list = (productsNode?.product as unknown[]) || (Array.isArray(data?.products) ? (data?.products as unknown[]) : []);
-
   if (!Array.isArray(list)) return [];
-  return list
-    .filter((i): i is Record<string, unknown> => Boolean(i) && typeof i === "object")
-    .map(normalizeSearchItem);
+  return list.filter((i): i is Record<string, unknown> => Boolean(i) && typeof i === "object").map(normalizeSearchItem);
 }
 
 function extractAliError(json: Record<string, unknown> | null): { code: string | null; message: string | null; requestId: string | null } {
@@ -170,216 +103,118 @@ function extractAliError(json: Record<string, unknown> | null): { code: string |
   const message = messageRaw != null ? String(messageRaw) : null;
   const requestIdRaw = errorResp?.request_id ?? json?.request_id ?? null;
   const requestId = requestIdRaw != null ? String(requestIdRaw) : null;
-
   return { code, message, requestId };
 }
 
-function buildSignatureInput(params: Record<string, string>, appSecret: string): {
-  sortedKeys: string[];
-  signInput: string;
-  signInputMasked: string;
-} {
-  const sortedKeys = Object.keys(params)
-    .filter((k) => k !== "sign")
-    .sort();
-  const concat = sortedKeys.map((k) => `${k}${params[k]}`).join("");
-  return {
-    sortedKeys,
-    signInput: `${appSecret}${concat}${appSecret}`,
-    signInputMasked: `***${concat}***`,
-  };
+interface SearchResult {
+  ok: boolean;
+  items: DropshipSearchItem[];
+  diagnostic: Record<string, unknown>;
 }
 
-function redactSignedParams(params: Record<string, string>): Record<string, unknown> {
-  return {
-    keys: Object.keys(params).sort(),
-    visible_values: {
-      method: params.method,
-      timestamp: params.timestamp,
-      format: params.format,
-      v: params.v,
-      sign_method: params.sign_method,
-    },
-  };
-}
-
-async function runAttempt(apiMethod: string, payload: Record<string, string>, spec: AttemptSpec): Promise<AttemptResult> {
+async function doAliExpressSearch(keyword: string, countryCode: string, currency: string, local: string): Promise<SearchResult> {
   const appSecret = (Deno.env.get("ALIEXPRESS_APP_SECRET") || "").trim();
   if (!appSecret || !APP_KEY) {
-    const message = "AliExpress not configured (missing APP_KEY/APP_SECRET)";
     return {
-      ok: false,
-      json: null,
-      diagnostic: {
-        base_url_used: BASE_URL,
-        endpoint_url: BASE_URL,
-        api_method: apiMethod,
-        method_name: apiMethod,
-        http_method: spec.http_method,
-        content_type: spec.http_method === "POST" ? "application/x-www-form-urlencoded;charset=UTF-8" : "application/json",
-        timestamp_used: aeTimestamp(),
-        sign_method_used: spec.sign_method,
-        sorted_param_keys: [],
-        param_string_before_sign: "***",
-        signature_preview: "",
-        final_signed_params: { keys: [] },
-        response_http_status: 0,
-        response_body_first_800_chars: "",
-        aliexpress_error_code: "ALIEXPRESS_CONFIG_MISSING",
-        aliexpress_error_message: message,
-        request_id: null,
-        auth_param_name: spec.auth_param_name,
-        attempt_variant: spec.variant,
-      },
+      ok: false, items: [],
+      diagnostic: { error: "ALIEXPRESS_CONFIG_MISSING", message: "Missing APP_KEY or APP_SECRET" },
     };
   }
 
   const timestamp = aeTimestamp();
-  const businessParams = spec.payload_style === "param0"
-    ? { param0: JSON.stringify(payload) }
-    : payload;
 
-  const unsignedParams: Record<string, string> = {
-    [spec.auth_param_name]: APP_KEY,
-    method: apiMethod,
+  // All params that go into the signature + request body (flat, root-level)
+  const params: Record<string, string> = {
+    app_key: APP_KEY,
+    method: "aliexpress.ds.text.search",
     timestamp,
     format: "json",
     v: "2.0",
-    sign_method: spec.sign_method,
-    ...businessParams,
+    sign_method: "sha256",
+    // Business params — required by DS text search
+    keyWord: keyword,
+    local: local,
+    countryCode: countryCode,
+    currency: currency,
+    pageSize: "20",
+    pageIndex: "1",
   };
 
-  const { sortedKeys, signInput, signInputMasked } = buildSignatureInput(unsignedParams, appSecret);
-  const signature = await digestSignature(signInput, spec.sign_method);
-  const signedParams: Record<string, string> = { ...unsignedParams, sign: signature };
+  // Build HMAC-SHA256 signature: sort keys, concat key+value, HMAC with appSecret
+  const sortedKeys = Object.keys(params).sort();
+  const concat = sortedKeys.map((k) => `${k}${params[k]}`).join("");
+  const signature = await hmacSha256Sign(appSecret, concat);
 
-  const contentType = spec.http_method === "POST"
-    ? "application/x-www-form-urlencoded;charset=UTF-8"
-    : "application/json";
+  const signedParams: Record<string, string> = { ...params, sign: signature };
 
-  const url = spec.http_method === "GET"
-    ? `${BASE_URL}?${new URLSearchParams(signedParams).toString()}`
-    : BASE_URL;
-
-  const res = await fetch(url, {
-    method: spec.http_method,
-    headers: spec.http_method === "POST" ? { "Content-Type": contentType } : undefined,
-    body: spec.http_method === "POST" ? new URLSearchParams(signedParams).toString() : undefined,
-  });
+  // POST form-encoded
+  let res: Response;
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15_000);
+    res = await fetch(BASE_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+      body: new URLSearchParams(signedParams).toString(),
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+  } catch (fetchErr: any) {
+    return {
+      ok: false, items: [],
+      diagnostic: {
+        error: "FETCH_FAILED",
+        message: fetchErr?.message || "Fetch failed",
+        base_url_used: BASE_URL,
+        sorted_param_keys: sortedKeys,
+        sign_method_used: "hmac-sha256",
+        timestamp_used: timestamp,
+      },
+    };
+  }
 
   const responseText = await res.text();
   const json = safeParseJson(responseText);
   const aliError = extractAliError(json);
   const ok = res.ok && !aliError.code;
+  const items = ok ? extractSearchItems(json) : [];
 
-  return {
-    ok,
-    json,
-    diagnostic: {
-      base_url_used: BASE_URL,
-      endpoint_url: BASE_URL,
-      api_method: apiMethod,
-      method_name: apiMethod,
-      http_method: spec.http_method,
-      content_type: contentType,
-      timestamp_used: timestamp,
-      sign_method_used: spec.sign_method,
-      sorted_param_keys: sortedKeys,
-      param_string_before_sign: signInputMasked,
-      signature_preview: signature.length > 12 ? `${signature.slice(0, 6)}...${signature.slice(-6)}` : signature,
-      final_signed_params: redactSignedParams(signedParams),
-      response_http_status: res.status,
-      response_body_first_800_chars: responseText.slice(0, 800),
-      aliexpress_error_code: aliError.code,
-      aliexpress_error_message: aliError.message,
-      request_id: aliError.requestId,
-      auth_param_name: spec.auth_param_name,
-      attempt_variant: spec.variant,
-      payload_style: spec.payload_style,
-    },
+  const diagnostic: Record<string, unknown> = {
+    base_url_used: BASE_URL,
+    api_method: "aliexpress.ds.text.search",
+    http_method: "POST",
+    sign_method_used: "hmac-sha256",
+    timestamp_used: timestamp,
+    sorted_param_keys: sortedKeys,
+    signature_preview: signature.length > 12 ? `${signature.slice(0, 6)}...${signature.slice(-6)}` : signature,
+    response_http_status: res.status,
+    response_body_first_800_chars: responseText.slice(0, 800),
+    aliexpress_error_code: aliError.code,
+    aliexpress_error_message: aliError.message,
+    request_id: aliError.requestId,
+    result_count: items.length,
   };
-}
 
-async function runSearchWithTwoAttempts(keyword: string, shipToCountry: string): Promise<{
-  ok: boolean;
-  items: DropshipSearchItem[];
-  diagnostics: Record<string, unknown>[];
-  successfulVariant: string | null;
-}> {
-  const payload = buildSearchPayload(keyword, shipToCountry);
-  const diagnostics: Record<string, unknown>[] = [];
-
-  for (const spec of ATTEMPT_SPECS) {
-    const attempt = await runAttempt("aliexpress.ds.text.search", payload, spec);
-    diagnostics.push(attempt.diagnostic);
-
-    if (attempt.ok) {
-      const items = extractSearchItems(attempt.json);
-      return {
-        ok: true,
-        items,
-        diagnostics,
-        successfulVariant: spec.variant,
-      };
-    }
-  }
-
-  return {
-    ok: false,
-    items: [],
-    diagnostics,
-    successfulVariant: null,
-  };
+  return { ok, items, diagnostic };
 }
 
 export async function runAliExpressDebugSearch(
   query: string,
   filters: SearchFilters & { country?: string } = {},
 ): Promise<Record<string, unknown>> {
-  const now = Date.now();
-  if (now - _lastDebugTs < MIN_CALL_INTERVAL_MS) {
-    const throttled = {
-      ok: false,
-      rate_limited: true,
-      message: "AliExpress debug mode throttled: max 1 request per 2 seconds",
-      attempts: [],
-      base_url_used: BASE_URL,
-      api_method: "aliexpress.ds.text.search",
-    };
-    _lastDiag = throttled;
-    return throttled;
-  }
-  _lastDebugTs = now;
+  const keyword = query.trim() || "shoes";
+  const countryCode = typeof filters.country === "string" ? filters.country : "US";
 
-  const keyword = query.trim() || "trending best sellers";
-  const shipToCountry = typeof (filters as Record<string, unknown>).country === "string"
-    ? String((filters as Record<string, unknown>).country)
-    : "US";
-
-  const result = await runSearchWithTwoAttempts(keyword, shipToCountry);
-  const attempts = result.diagnostics;
-  const tokenRequired = attempts.some((a) => {
-    const code = String(a.aliexpress_error_code || "").toLowerCase();
-    const message = String(a.aliexpress_error_message || "").toLowerCase();
-    return code.includes("token") || message.includes("token") || message.includes("session");
-  });
-
+  const result = await doAliExpressSearch(keyword, countryCode, "USD", "en_US");
   const payload = {
     ok: result.ok,
     api_method: "aliexpress.ds.text.search",
     base_url_used: BASE_URL,
-    attempts,
-    successful_attempt_variant: result.successfulVariant,
-    sign_method_that_succeeded: result.successfulVariant
-      ? String((attempts.find((a) => a.attempt_variant === result.successfulVariant)?.sign_method_used) || "")
-      : null,
     result_count: result.items.length,
     first_product_title: result.items[0]?.title || null,
-    token_required: tokenRequired,
+    diagnostic: result.diagnostic,
     items: result.items,
-    disable_recommended: !result.ok,
   };
-
   _lastDiag = payload;
   return payload;
 }
@@ -387,8 +222,8 @@ export async function runAliExpressDebugSearch(
 export const aliexpressAdapter: DropshipAdapter = {
   async searchProducts(query: string, filters: SearchFilters & { bypass_cache?: boolean; country?: string }): Promise<DropshipSearchItem[]> {
     const keyword = query.trim() || "trending best sellers";
-    const shipToCountry = typeof filters?.country === "string" ? filters.country : "US";
-    const cacheKey = `ae:${keyword}:${shipToCountry}:v2`;
+    const countryCode = typeof filters?.country === "string" ? filters.country : "US";
+    const cacheKey = `ae:${keyword}:${countryCode}:v3`;
 
     if (!filters?.bypass_cache) {
       const cached = getCached(cacheKey);
@@ -406,22 +241,15 @@ export const aliexpressAdapter: DropshipAdapter = {
     }
     _lastCallTs = now;
 
-    const result = await runSearchWithTwoAttempts(keyword, shipToCountry);
-    _lastDiag = {
-      ok: result.ok,
-      api_method: "aliexpress.ds.text.search",
-      base_url_used: BASE_URL,
-      attempts: result.diagnostics,
-      successful_attempt_variant: result.successfulVariant,
-      result_count: result.items.length,
-      first_product_title: result.items[0]?.title || null,
-    };
+    const result = await doAliExpressSearch(keyword, countryCode, "USD", "en_US");
+    _lastDiag = result.diagnostic;
 
     if (!result.ok) {
-      const first = result.diagnostics[0] || {};
-      const err: any = new Error(String(first.aliexpress_error_message || "AliExpress request failed"));
-      err.code = first.aliexpress_error_code || "ALIEXPRESS_UPSTREAM_ERROR";
-      err.status = Number(first.response_http_status || 502);
+      const errCode = String(result.diagnostic.aliexpress_error_code || "ALIEXPRESS_UPSTREAM_ERROR");
+      const errMsg = String(result.diagnostic.aliexpress_error_message || "AliExpress request failed");
+      const err: any = new Error(errMsg);
+      err.code = errCode;
+      err.status = Number(result.diagnostic.response_http_status || 502);
       throw err;
     }
 
@@ -430,7 +258,6 @@ export const aliexpressAdapter: DropshipAdapter = {
   },
 
   async getProduct(external_product_id: string): Promise<DropshipProductDetail> {
-    const notImplementedRaw = { reason: "AliExpress product detail pending signature verification", external_product_id };
     return {
       external_product_id,
       title: "AliExpress product",
@@ -439,27 +266,13 @@ export const aliexpressAdapter: DropshipAdapter = {
       currency: "USD",
       base_price: 0,
       variants: [],
-      raw: notImplementedRaw,
+      raw: { reason: "Product detail not yet implemented" },
     };
   },
 
-  async importProduct(_external_product_id: string, _shop_surface_id: string) {
-    return { status: "ok" };
-  },
-
-  async createOrder(): Promise<CreateOrderResult> {
-    throw new Error("Not implemented — AliExpress ordering is Phase 2");
-  },
-
-  async getOrderStatus(): Promise<OrderStatusResult> {
-    throw new Error("Not implemented — AliExpress ordering is Phase 2");
-  },
-
-  async syncInventory() {
-    throw new Error("Not implemented — AliExpress sync is Phase 2");
-  },
-
-  async syncPrice() {
-    throw new Error("Not implemented — AliExpress sync is Phase 2");
-  },
+  async importProduct() { return { status: "ok" }; },
+  async createOrder(): Promise<CreateOrderResult> { throw new Error("Not implemented"); },
+  async getOrderStatus(): Promise<OrderStatusResult> { throw new Error("Not implemented"); },
+  async syncInventory() { throw new Error("Not implemented"); },
+  async syncPrice() { throw new Error("Not implemented"); },
 };
