@@ -55,7 +55,8 @@ Deno.serve(async (req) => {
     // We'll use a separate lightweight approach — store in the state param itself (signed)
     // For simplicity and security, we encode user_id in state and verify on callback
 
-    const redirectUri = "https://yangu-launchpad.lovable.app/dashboard/seller/eshop-connect?aliexpress_callback=1";
+    // Redirect to edge function callback (server-side token exchange)
+    const redirectUri = `${Deno.env.get("SUPABASE_URL")}/functions/v1/aliexpress-auth-callback`;
 
     // AliExpress OAuth authorize URL
     // https://api-sg.aliexpress.com/oauth/authorize
