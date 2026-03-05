@@ -55,7 +55,9 @@ function safeParseJson(text: string): Record<string, unknown> | null {
 
 function normalizeSearchItem(item: Record<string, unknown>): DropshipSearchItem {
   const images: string[] = [];
-  const mainImage = typeof item.product_main_image_url === "string" ? item.product_main_image_url : "";
+  // Handle both old field names and new selection_search_product field names
+  const mainImage = typeof item.product_main_image_url === "string" ? item.product_main_image_url
+    : typeof item.itemMainPic === "string" ? item.itemMainPic : "";
   if (mainImage) images.push(mainImage);
 
   const small = (item.product_small_image_urls as { string?: unknown[] } | undefined)?.string;
@@ -65,15 +67,19 @@ function normalizeSearchItem(item: Record<string, unknown>): DropshipSearchItem 
     }
   }
 
-  const sale = Number.parseFloat(String(item.target_sale_price ?? item.target_original_price ?? "0"));
-  const original = Number.parseFloat(String(item.target_original_price ?? item.target_sale_price ?? "0"));
+  const sale = Number.parseFloat(String(
+    item.target_sale_price ?? item.targetSalePrice ?? item.salePrice ?? item.target_original_price ?? "0"
+  ));
+  const original = Number.parseFloat(String(
+    item.target_original_price ?? item.originalPrice ?? item.target_sale_price ?? "0"
+  ));
 
   return {
-    external_product_id: String(item.product_id ?? ""),
-    title: String(item.product_title ?? "Untitled"),
+    external_product_id: String(item.product_id ?? item.itemId ?? ""),
+    title: String(item.product_title ?? item.title ?? "Untitled"),
     thumbnail_url: mainImage || null,
     image_urls: images,
-    currency: String(item.target_sale_price_currency ?? item.target_original_price_currency ?? "USD"),
+    currency: String(item.target_sale_price_currency ?? item.targetOriginalPriceCurrency ?? item.originalPriceCurrency ?? "USD"),
     min_price: Number.isFinite(sale) ? sale : 0,
     max_price: Number.isFinite(original) && original > sale ? original : Number.isFinite(sale) ? sale : 0,
     stock_hint: "unknown",
@@ -91,7 +97,10 @@ function extractSearchItems(json: Record<string, unknown> | null): DropshipSearc
     (json.result as Record<string, unknown> | undefined);
 
   const productsNode = data?.products as Record<string, unknown> | undefined;
-  const list = (productsNode?.product as unknown[]) || (Array.isArray(data?.products) ? (data?.products as unknown[]) : []);
+  const list =
+    (productsNode?.selection_search_product as unknown[]) ||
+    (productsNode?.product as unknown[]) ||
+    (Array.isArray(data?.products) ? (data?.products as unknown[]) : []);
   if (!Array.isArray(list)) return [];
   return list.filter((i): i is Record<string, unknown> => Boolean(i) && typeof i === "object").map(normalizeSearchItem);
 }
