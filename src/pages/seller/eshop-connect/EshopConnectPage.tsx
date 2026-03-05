@@ -144,8 +144,8 @@ export default function EshopConnectPage() {
       if (res.data?.ok && res.data?.authorize_url) {
         // Save state for CSRF verification
         localStorage.setItem("ae_oauth_state", res.data.state);
-        // Redirect to AliExpress
-        window.location.href = res.data.authorize_url;
+        // Open in new tab to avoid iframe restrictions
+        window.open(res.data.authorize_url, "_blank", "noopener,noreferrer");
       } else {
         toast.error("Failed to start AliExpress authorization: " + (res.data?.error || "Unknown error"));
       }
