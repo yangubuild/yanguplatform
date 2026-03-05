@@ -9,12 +9,22 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
 };
 
-function errResponse(code: string, message: string, status = 400) {
-  return new Response(JSON.stringify({ error: { code, message } }), {
-    status,
+function safeJson(data: unknown) {
+  return new Response(JSON.stringify(data), {
+    status: 200,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
+function warnResponse(provider_key: string, code: string, message: string) {
+  return safeJson({
+    ok: false,
+    provider_key,
+    items: [],
+    warnings: [{ code, message }],
   });
 }
 
@@ -33,22 +43,19 @@ function getProviderDebugCounts(providerKey: string, count: number) {
 }
 
 async function disableAliExpressProvider(): Promise<boolean> {
-  const serviceRole = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  const url = Deno.env.get("SUPABASE_URL");
-  if (!serviceRole || !url) return false;
-
   try {
+    const serviceRole = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const url = Deno.env.get("SUPABASE_URL");
+    if (!serviceRole || !url) return false;
     const admin = createClient(url, serviceRole);
     const { error } = await admin
       .from("dropship_providers")
       .update({ is_enabled: false })
       .eq("provider_key", "aliexpress");
-
     if (error) {
       console.error("Failed to disable AliExpress provider", error.message);
       return false;
     }
-
     return true;
   } catch (e) {
     console.error("Unexpected disableAliExpressProvider error", e);
@@ -113,16 +120,31 @@ async function searchEstoresProducts(supabase: any, userId: string, query: strin
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  // CORS preflight — always safe
+  if (req.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: corsHeaders });
+  }
 
-  const requestUrl = new URL(req.url);
-  const queryDebugMode = requestUrl.searchParams.get("debug") === "1";
+  // Top-level crash guard — nothing escapes
+  let provider_key = "unknown";
   let aliexpressDebugRequest = false;
 
   try {
+    const requestUrl = new URL(req.url);
+    const queryDebugMode = requestUrl.searchParams.get("debug") === "1";
+
+    // Safe body parse
+    let body: any = {};
+    try {
+      body = await req.json();
+    } catch {
+      body = {};
+    }
+
+    // Auth check
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
-      return errResponse("BAD_REQUEST", "Unauthorized", 401);
+      return warnResponse("unknown", "UNAUTHORIZED", "Missing or invalid authorization header");
     }
 
     const supabase = createClient(
@@ -130,28 +152,37 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_ANON_KEY")!,
       { global: { headers: { Authorization: authHeader } } }
     );
-    const { data: { user }, error: authErr } = await supabase.auth.getUser();
-    if (authErr || !user) return errResponse("BAD_REQUEST", "Unauthorized", 401);
 
-    const body = await req.json().catch(() => ({}));
+    let user: any = null;
+    try {
+      const { data, error: authErr } = await supabase.auth.getUser();
+      if (authErr || !data?.user) {
+        return warnResponse("unknown", "UNAUTHORIZED", "Invalid session");
+      }
+      user = data.user;
+    } catch {
+      return warnResponse("unknown", "UNAUTHORIZED", "Auth check failed");
+    }
+
+    // Resolve provider key
     const rawProviderKey = typeof body?.provider_key === "string" ? normalizeProviderKey(body.provider_key) : "";
     const providerKeys = Array.isArray(body?.provider_keys)
       ? Array.from(new Set(body.provider_keys.filter((p: unknown) => typeof p === "string").map((p: string) => normalizeProviderKey(p))))
       : [];
     const enableMultiProvider = body?.enable_multi_provider === true;
 
-    let provider_key = rawProviderKey;
+    provider_key = rawProviderKey;
     if (!provider_key && providerKeys.length === 1) provider_key = providerKeys[0];
 
     if (!provider_key && providerKeys.length > 1) {
       if (!enableMultiProvider) {
-        return errResponse("BAD_REQUEST", "provider_keys requires enable_multi_provider=true");
+        return warnResponse("unknown", "BAD_REQUEST", "provider_keys requires enable_multi_provider=true");
       }
-      return errResponse("BAD_REQUEST", "Multi-provider mode is disabled for this view; use provider_key", 400);
+      return warnResponse("unknown", "BAD_REQUEST", "Multi-provider mode is disabled for this view; use provider_key");
     }
 
     if (!provider_key) {
-      return errResponse("BAD_REQUEST", "provider_key or provider_keys is required");
+      return warnResponse("unknown", "BAD_REQUEST", "provider_key or provider_keys is required");
     }
 
     const debugMode = queryDebugMode || body?.debug === true || body?.debug === 1 || body?.debug === "1";
@@ -166,90 +197,77 @@ Deno.serve(async (req) => {
     const warnings: string[] = [];
 
     if (provider_key === "estores") {
-      items = await searchEstoresProducts(supabase, user.id, query || "trending best sellers");
+      try {
+        items = await searchEstoresProducts(supabase, user.id, query || "trending best sellers");
+      } catch (e: any) {
+        console.error("estores search error", e?.message);
+        warnings.push("Yangu eStores search failed: " + (e?.message || "unknown"));
+      }
     } else {
-      const { data: provider, error: provErr } = await supabase
-        .from("dropship_providers")
-        .select("provider_key, is_enabled")
-        .eq("provider_key", provider_key)
-        .single();
-
-      if (provErr || !provider) {
-        if (aliexpressDebugRequest) {
-          return new Response(JSON.stringify({
-            ok: false,
-            provider_key,
-            debug: {
-              error: "PROVIDER_NOT_FOUND",
-              message: `Provider '${provider_key}' not found`,
-            },
-          }), {
-            status: 200,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
+      // Lookup provider
+      let provider: any = null;
+      try {
+        const { data, error: provErr } = await supabase
+          .from("dropship_providers")
+          .select("provider_key, is_enabled")
+          .eq("provider_key", provider_key)
+          .single();
+        if (provErr || !data) {
+          if (aliexpressDebugRequest) {
+            return safeJson({ ok: false, provider_key, debug: { error: "PROVIDER_NOT_FOUND", message: `Provider '${provider_key}' not found` } });
+          }
+          return warnResponse(provider_key, "PROVIDER_NOT_FOUND", `Provider '${provider_key}' not found`);
         }
-        return errResponse("PROVIDER_NOT_FOUND", `Provider '${provider_key}' not found`);
+        provider = data;
+      } catch (e: any) {
+        return warnResponse(provider_key, "PROVIDER_LOOKUP_ERROR", e?.message || "Failed to look up provider");
       }
 
       if (!provider.is_enabled) {
         if (aliexpressDebugRequest) {
-          return new Response(JSON.stringify({
-            ok: false,
-            provider_key,
-            aliexpress_disabled: true,
+          return safeJson({
+            ok: false, provider_key, aliexpress_disabled: true,
             message: "AliExpress pending verification (signature/auth requirements). Disabled for now.",
-            debug: {
-              error: "PROVIDER_DISABLED",
-              message: `Provider '${provider_key}' is disabled`,
-            },
-          }), {
-            status: 200,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            debug: { error: "PROVIDER_DISABLED", message: `Provider '${provider_key}' is disabled` },
           });
         }
-        return errResponse("PROVIDER_DISABLED", `Provider '${provider_key}' is disabled`);
+        return warnResponse(provider_key, "PROVIDER_DISABLED", `Provider '${provider_key}' is disabled`);
       }
 
+      // AliExpress debug mode
       if (aliexpressDebugRequest) {
-        const debugResult = await runAliExpressDebugSearch(query || "trending best sellers", filters);
-        const debugItems = Array.isArray(debugResult?.items) ? debugResult.items : [];
-        const shouldDisable = debugResult?.ok !== true;
-        const disabledPersisted = shouldDisable ? await disableAliExpressProvider() : false;
+        try {
+          const debugResult = await runAliExpressDebugSearch(query || "trending best sellers", filters);
+          const debugItems = Array.isArray(debugResult?.items) ? debugResult.items : [];
+          const shouldDisable = debugResult?.ok !== true;
+          const disabledPersisted = shouldDisable ? await disableAliExpressProvider() : false;
 
-        if (shouldDisable) {
-          warnings.push("AliExpress integration pending approval / signature verification.");
+          if (shouldDisable) warnings.push("AliExpress integration pending approval / signature verification.");
+
+          return safeJson({
+            ok: debugResult?.ok === true, provider_key, items: debugItems,
+            debug: getProviderDebugCounts(provider_key, debugItems.length),
+            aliexpress_diagnostics: debugResult,
+            ...(warnings.length > 0 ? { warnings } : {}),
+            ...(shouldDisable ? { aliexpress_disabled: true, aliexpress_disabled_persisted: disabledPersisted, message: "AliExpress pending verification (signature/auth requirements). Disabled for now." } : {}),
+          });
+        } catch (e: any) {
+          return safeJson({ ok: false, provider_key, debug: { error: "DEBUG_SEARCH_CRASH", message: e?.message || "Unknown" }, aliexpress_diagnostics: getLastAliexpressDiagnostics() });
         }
-
-        return new Response(JSON.stringify({
-          ok: debugResult?.ok === true,
-          provider_key,
-          items: debugItems,
-          debug: getProviderDebugCounts(provider_key, debugItems.length),
-          aliexpress_diagnostics: debugResult,
-          ...(warnings.length > 0 ? { warnings } : {}),
-          ...(shouldDisable
-            ? {
-              aliexpress_disabled: true,
-              aliexpress_disabled_persisted: disabledPersisted,
-              message: "AliExpress pending verification (signature/auth requirements). Disabled for now.",
-            }
-            : {}),
-        }), {
-          status: 200,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
       }
 
+      // Normal provider search
       const adapter = getAdapter(provider_key);
-      if (!adapter) return errResponse("PROVIDER_NOT_FOUND", `No adapter for '${provider_key}'`);
+      if (!adapter) {
+        return warnResponse(provider_key, "PROVIDER_NOT_FOUND", `No adapter for '${provider_key}'`);
+      }
 
       try {
         items = await adapter.searchProducts(query || "trending best sellers", { ...filters, bypass_cache });
       } catch (providerErr: any) {
         const err = providerErr instanceof Error ? providerErr : new Error(String(providerErr));
         const isConfigMissing =
-          (provider_key === "moderndropship" &&
-            (providerErr?.code === "MODERNDROPSHIP_CONFIG_MISSING" || String(err.message).toLowerCase().includes("missing api key"))) ||
+          (provider_key === "moderndropship" && (providerErr?.code === "MODERNDROPSHIP_CONFIG_MISSING" || String(err.message).toLowerCase().includes("missing api key"))) ||
           (provider_key === "aliexpress" && providerErr?.code === "ALIEXPRESS_CONFIG_MISSING");
 
         if (isConfigMissing) {
@@ -270,6 +288,7 @@ Deno.serve(async (req) => {
       warnings.push("No ModernDropship products available for this account.");
     }
 
+    // FX enrichment
     let displayCurrency: string | null = null;
     let fxRate: number | null = null;
     let fxAsOf: string | null = null;
@@ -313,7 +332,7 @@ Deno.serve(async (req) => {
     const modernDiag = provider_key === "moderndropship" ? getLastModernDiagnostics() : null;
     const aeDiag = provider_key === "aliexpress" ? getLastAliexpressDiagnostics() : null;
 
-    return new Response(JSON.stringify({
+    return safeJson({
       provider_key,
       items: enrichedItems,
       debug: getProviderDebugCounts(provider_key, enrichedItems.length),
@@ -321,28 +340,25 @@ Deno.serve(async (req) => {
       ...(displayCurrency ? { display_currency: displayCurrency, fx_rate: fxRate, fx_as_of: fxAsOf } : {}),
       ...(modernDiag ? { modern_diagnostics: modernDiag } : {}),
       ...(aeDiag ? { aliexpress_diagnostics: aeDiag } : {}),
-    }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e: any) {
-    console.error(e?.stack || e);
+    // Absolute last resort — must never crash
+    console.error("dropship-search FATAL", e?.stack || e?.message || e);
 
     if (aliexpressDebugRequest) {
-      return new Response(JSON.stringify({
-        ok: false,
-        provider_key: "aliexpress",
-        aliexpress_disabled: false,
-        debug: {
-          error: "UPSTREAM_ERROR",
-          message: e?.message || "Unknown error",
-          last_diagnostics: getLastAliexpressDiagnostics(),
-        },
-      }), {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      return safeJson({
+        ok: false, provider_key,
+        items: [],
+        debug: { error: "FATAL_ERROR", message: e?.message || "Unknown error" },
+        aliexpress_diagnostics: (() => { try { return getLastAliexpressDiagnostics(); } catch { return null; } })(),
       });
     }
 
-    return errResponse("UPSTREAM_ERROR", e?.message || "Unknown error", 500);
+    return safeJson({
+      ok: false,
+      provider_key,
+      items: [],
+      warnings: [{ code: "UNEXPECTED_ERROR", message: e?.message || "An unexpected error occurred" }],
+    });
   }
 });
