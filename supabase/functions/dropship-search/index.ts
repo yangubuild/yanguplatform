@@ -1,6 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getAdapter } from "../_shared/dropship/providerRegistry.ts";
 import { getLastModernDiagnostics } from "../_shared/dropship/moderndropship.adapter.ts";
+import { getLastAliexpressDiagnostics } from "../_shared/dropship/aliexpress.adapter.ts";
 import { getDisplayCurrencyForShop, getFxRate, decimalToDisplayCents } from "../_shared/dropship/fx.ts";
 import { toCents } from "../_shared/dropship/normalize.ts";
 
@@ -23,10 +24,11 @@ function normalizeProviderKey(providerKey: string) {
 }
 
 function getProviderDebugCounts(providerKey: string, count: number) {
-  const debug = { cj: 0, modern: 0, yangu: 0 };
+  const debug = { cj: 0, modern: 0, yangu: 0, aliexpress: 0 };
   if (providerKey === "cj") debug.cj = count;
   if (providerKey === "moderndropship") debug.modern = count;
   if (providerKey === "estores") debug.yangu = count;
+  if (providerKey === "aliexpress") debug.aliexpress = count;
   return debug;
 }
 
@@ -152,11 +154,12 @@ Deno.serve(async (req) => {
       } catch (providerErr: any) {
         const err = providerErr instanceof Error ? providerErr : new Error(String(providerErr));
         const isConfigMissing =
-          provider_key === "moderndropship" &&
-          (providerErr?.code === "MODERNDROPSHIP_CONFIG_MISSING" || String(err.message).toLowerCase().includes("missing api key"));
+          (provider_key === "moderndropship" &&
+            (providerErr?.code === "MODERNDROPSHIP_CONFIG_MISSING" || String(err.message).toLowerCase().includes("missing api key"))) ||
+          (provider_key === "aliexpress" && providerErr?.code === "ALIEXPRESS_CONFIG_MISSING");
 
         if (isConfigMissing) {
-          warnings.push("ModernDropship not configured (missing API key)");
+          warnings.push(`${provider_key === "moderndropship" ? "ModernDropship" : "AliExpress"} not configured (missing API key)`);
         } else if (providerErr?.code === "RATE_LIMITED" || providerErr?.status === 429) {
           warnings.push(`${provider_key} rate limited — try again in a moment`);
         } else if (providerErr?.status === 401 || providerErr?.status === 403) {
@@ -214,8 +217,9 @@ Deno.serve(async (req) => {
       return result;
     });
 
-    // Attach ModernDropship diagnostics if applicable
+    // Attach provider diagnostics if applicable
     const modernDiag = provider_key === "moderndropship" ? getLastModernDiagnostics() : null;
+    const aeDiag = provider_key === "aliexpress" ? getLastAliexpressDiagnostics() : null;
 
     return new Response(JSON.stringify({
       provider_key,
@@ -224,6 +228,7 @@ Deno.serve(async (req) => {
       ...(warnings.length > 0 ? { warnings } : {}),
       ...(displayCurrency ? { display_currency: displayCurrency, fx_rate: fxRate, fx_as_of: fxAsOf } : {}),
       ...(modernDiag ? { modern_diagnostics: modernDiag } : {}),
+      ...(aeDiag ? { aliexpress_diagnostics: aeDiag } : {}),
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

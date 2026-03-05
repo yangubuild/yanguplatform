@@ -48,6 +48,7 @@ const ALL_SOURCES = [
   { key: "cj", label: "CJ Dropshipping" },
   { key: "moderndropship", label: "ModernDropship" },
   { key: "estores", label: "YANGU Estores" },
+  { key: "aliexpress", label: "AliExpress" },
   { key: "dsers", label: "DSers" },
 ];
 
@@ -102,8 +103,10 @@ export default function EshopConnectPage() {
       return;
     }
 
-    if (pk !== "estores" && !isConnected(pk)) {
-      toast.info(`Connect ${pk === "cj" ? "CJ Dropshipping" : "ModernDropship"} in the Manufacturers tab first.`);
+    // AliExpress + estores don't require explicit connection
+    if (pk !== "estores" && pk !== "aliexpress" && !isConnected(pk)) {
+      const label = pk === "cj" ? "CJ Dropshipping" : "ModernDropship";
+      toast.info(`Connect ${label} in the Manufacturers tab first.`);
       setActiveTab("manufacturers");
       return;
     }
@@ -166,6 +169,9 @@ export default function EshopConnectPage() {
       if (import.meta.env.DEV && res.data?.modern_diagnostics) {
         console.log("[ModernDropship Diagnostics]", res.data.modern_diagnostics);
       }
+      if (import.meta.env.DEV && res.data?.aliexpress_diagnostics) {
+        console.log("[AliExpress Diagnostics]", res.data.aliexpress_diagnostics);
+      }
 
       if (!abortController.signal.aborted) {
         setResults(items);
@@ -214,8 +220,9 @@ export default function EshopConnectPage() {
     if (key === "dsers") return;
 
     const normalizedKey = normalizeProviderKey(key);
-    if (normalizedKey !== "estores" && !isConnected(normalizedKey)) {
-      toast.info(`Connect ${normalizedKey === "cj" ? "CJ Dropshipping" : "ModernDropship"} in the Manufacturers tab first.`);
+    if (normalizedKey !== "estores" && normalizedKey !== "aliexpress" && !isConnected(normalizedKey)) {
+      const label = normalizedKey === "cj" ? "CJ Dropshipping" : "ModernDropship";
+      toast.info(`Connect ${label} in the Manufacturers tab first.`);
       setActiveTab("manufacturers");
       return;
     }
@@ -317,10 +324,10 @@ export default function EshopConnectPage() {
                             : "border-border/60 text-muted-foreground/60 hover:border-accent/40"
                     }`}
                   >
-                    {!connected && !isComingSoon && s.key !== "estores" && <Plug className="w-3 h-3" />}
+                {!connected && !isComingSoon && s.key !== "estores" && s.key !== "aliexpress" && <Plug className="w-3 h-3" />}
                     {s.label}
                     {isComingSoon && " (soon)"}
-                    {!connected && !isComingSoon && s.key !== "estores" && (
+                    {!connected && !isComingSoon && s.key !== "estores" && s.key !== "aliexpress" && (
                       <span className="text-[10px] text-muted-foreground/50">• not connected</span>
                     )}
                   </button>
@@ -340,7 +347,7 @@ export default function EshopConnectPage() {
               <h2 className="text-lg font-bold text-foreground">AI Sourcing Mode</h2>
               <p className="text-sm text-muted-foreground">
                 {results.length > 0
-                  ? `${results.length} ${providerKey === "cj" ? "CJ" : providerKey === "moderndropship" ? "ModernDropship" : "YANGU"} products loaded. Ask AI to recommend the best ones.`
+                  ? `${results.length} ${providerKey === "cj" ? "CJ" : providerKey === "moderndropship" ? "ModernDropship" : providerKey === "aliexpress" ? "AliExpress" : "YANGU"} products loaded. Ask AI to recommend the best ones.`
                   : "Describe what you're looking for and AI will help you find the best products."}
               </p>
             </div>
@@ -350,7 +357,7 @@ export default function EshopConnectPage() {
               <div className="rounded-xl border border-border bg-card/50 p-4 space-y-2">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Current Dataset</p>
                 <div className="flex flex-wrap gap-3 text-xs text-foreground">
-                  <span>Provider: <strong>{providerKey === "cj" ? "CJ" : providerKey === "moderndropship" ? "ModernDropship" : "YANGU Estores"}</strong></span>
+                  <span>Provider: <strong>{providerKey === "cj" ? "CJ" : providerKey === "moderndropship" ? "ModernDropship" : providerKey === "aliexpress" ? "AliExpress" : "YANGU Estores"}</strong></span>
                   <span>Products: <strong>{results.length}</strong></span>
                   {(() => {
                     const cats = new Set(results.map((r) => r.category_name).filter(Boolean));
