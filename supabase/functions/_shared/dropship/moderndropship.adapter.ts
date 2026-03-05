@@ -212,13 +212,19 @@ export const modernDropshipAdapter: DropshipAdapter = {
   async searchProducts(query: string, _filters: SearchFilters): Promise<DropshipSearchItem[]> {
     const normalizedQuery = query.trim() || "best sellers";
     const cacheKey = getCacheKey(normalizedQuery);
+    const bypassCache = (_filters as any)?.bypass_cache === true;
 
-    // ─── Check cache first ───
-    const cached = getCached(cacheKey);
-    if (cached) {
-      _lastDiagnostics = { ...cached.diagnostics, cache_hit: true, upstream_calls_made: 0 };
-      console.log("[ModernDropship] Cache hit for:", normalizedQuery);
-      return cached.items;
+    // ─── Check cache first (skip if bypass requested) ───
+    if (!bypassCache) {
+      const cached = getCached(cacheKey);
+      if (cached) {
+        _lastDiagnostics = { ...cached.diagnostics, cache_hit: true, upstream_calls_made: 0 };
+        console.log("[ModernDropship] Cache hit for:", normalizedQuery);
+        return cached.items;
+      }
+    } else {
+      _cache.delete(cacheKey);
+      console.log("[ModernDropship] Cache bypassed for:", normalizedQuery);
     }
 
     let upstreamCalls = 0;

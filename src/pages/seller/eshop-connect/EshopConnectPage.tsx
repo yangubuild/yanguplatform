@@ -93,7 +93,7 @@ export default function EshopConnectPage() {
   // AbortController ref for cancelling in-flight searches
   const searchAbortRef = { current: null as AbortController | null };
 
-  const doSearch = useCallback(async (rawQuery: string, provider?: string) => {
+  const doSearch = useCallback(async (rawQuery: string, provider?: string, options?: { bypass_cache?: boolean }) => {
     const pk = normalizeProviderKey(provider || providerKey);
     const effectiveQuery = rawQuery.trim() || "trending best sellers";
 
@@ -127,6 +127,7 @@ export default function EshopConnectPage() {
           provider_key: pk,
           query: effectiveQuery,
           shop_surface_id: selectedShopSurfaceId || undefined,
+          ...(options?.bypass_cache ? { bypass_cache: true } : {}),
         },
       });
 
@@ -414,6 +415,7 @@ export default function EshopConnectPage() {
             providerWarnings={providerWarnings}
             selectedProviderKey={providerKey}
             hasAttemptedProviderLoad={hasAttemptedProviderLoad}
+            onRefreshProvider={() => void doSearch(query, providerKey, { bypass_cache: true })}
           />
         )}
         {activeTab === "manufacturers" && (
