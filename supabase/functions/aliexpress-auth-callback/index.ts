@@ -70,22 +70,23 @@ Deno.serve(async (req) => {
     return redirectWithError("AliExpress not configured");
   }
 
-  // Exchange code for tokens
-  const redirectUri = `${Deno.env.get("SUPABASE_URL")}/functions/v1/aliexpress-auth-callback`;
+  // Exchange code for tokens using the documented endpoint
+
+  // Use the documented token endpoint
+  const tokenUrl = new URL("https://open-api.taobao.com/rest");
+  tokenUrl.searchParams.set("path", "/auth/token/create");
 
   const tokenParams = new URLSearchParams({
-    app_key: appKey,
-    app_secret: appSecret,
     code,
-    grant_type: "authorization_code",
-    redirect_uri: redirectUri,
+    appkey: appKey,
+    secretKey: appSecret,
   });
 
   let tokenRes: Response;
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15_000);
-    tokenRes = await fetch("https://api-sg.aliexpress.com/auth/token/create", {
+    tokenRes = await fetch(tokenUrl.toString(), {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
       body: tokenParams.toString(),
@@ -98,30 +99,40 @@ Deno.serve(async (req) => {
   }
 
   const tokenText = await tokenRes.text();
+  console.log("[aliexpress-auth-callback] Raw token response body:", tokenText.slice(0, 1000));
   console.log("[aliexpress-auth-callback] Token response status:", tokenRes.status, "body length:", tokenText.length);
 
   let tokenJson: any;
   try { tokenJson = JSON.parse(tokenText); } catch {
-    console.error("[aliexpress-auth-callback] Invalid JSON from AliExpress:", tokenText.slice(0, 300));
+    console.error("[aliexpress-auth-callback] Invalid JSON from AliExpress:", tokenText.slice(0, 500));
     return redirectWithError("Invalid response from AliExpress");
   }
 
-  const accessToken = tokenJson.access_token;
-  const refreshToken = tokenJson.refresh_token;
-  const expireTime = tokenJson.expire_time;
+  // Parse nested AliExpress response structure
+  const oauthResponse = tokenJson?.aliexpress_system_oauth_token_response?.result;
+  const topLevelResult = tokenJson?.result;
 
-  if (!accessToken) {
-    console.error("[aliexpress-auth-callback] No access_token returned", {
-      ali_error_code: tokenJson.code || tokenJson.error_code,
-      ali_error_msg: tokenJson.msg || tokenJson.message || tokenJson.sub_msg,
-    });
-    return redirectWithError("AliExpress did not return an access token: " + (tokenJson.msg || tokenJson.message || "unknown"));
+  // Check for success in the nested structure
+  const successData = oauthResponse?.data;
+  const isSuccess = oauthResponse?.ret === "true" && successData?.access_token;
+
+  if (!isSuccess) {
+    // Error: could be in nested or top-level result
+    const errResult = oauthResponse || topLevelResult || tokenJson;
+    const errCode = errResult?.code || "UNKNOWN";
+    const errMsg = errResult?.msg || errResult?.message || "Unknown error";
+    console.error("[aliexpress-auth-callback] Token exchange failed", { ret: oauthResponse?.ret || topLevelResult?.ret, code: errCode, msg: errMsg });
+    return redirectWithError(`AliExpress error ${errCode}: ${errMsg}`);
   }
+
+  const accessToken = successData.access_token;
+  const refreshToken = successData.refresh_token;
+  const expiresIn = successData.expires_in; // seconds
 
   console.log("[aliexpress-auth-callback] Token exchange successful, storing tokens for user:", userId.slice(0, 8) + "...");
 
-  const expiresAt = expireTime
-    ? new Date(Number(expireTime)).toISOString()
+  const expiresAt = expiresIn
+    ? new Date(Date.now() + Number(expiresIn) * 1000).toISOString()
     : new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
   // Store tokens using service role (bypasses RLS)
