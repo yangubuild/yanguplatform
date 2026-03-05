@@ -34,7 +34,18 @@ Deno.serve(async (req) => {
     if (authErr || !user) return errResponse("BAD_REQUEST", "Unauthorized", 401);
 
     const body = await req.json();
-    const { provider_key, external_product_id, shop_surface_id } = body;
+    const {
+      provider_key,
+      external_product_id,
+      shop_surface_id,
+      // Frontend can pass pricing from search results as fallback
+      fallback_title,
+      fallback_price,
+      fallback_currency,
+      fallback_images,
+      markup_percent,
+      selling_price_cents,
+    } = body;
 
     if (!provider_key || typeof provider_key !== "string") {
       return errResponse("BAD_REQUEST", "provider_key is required");
@@ -65,12 +76,32 @@ Deno.serve(async (req) => {
       return errResponse("PROVIDER_NOT_FOUND", `No adapter for '${provider_key}'`);
     }
 
-    // Fetch product from upstream
-    const product = await adapter.getProduct(external_product_id);
+    // Fetch product from upstream - use fallback if getProduct returns stub data
+    let product: any;
+    try {
+      product = await adapter.getProduct(external_product_id);
+    } catch (e) {
+      console.warn("getProduct failed, using fallback:", e);
+      product = null;
+    }
+
+    // Determine if upstream product data is usable (has a real price)
+    const upstreamHasPrice = product && product.base_price > 0;
+
+    // Use fallback pricing from frontend search results if upstream is stub/zero
+    const effectiveTitle = (upstreamHasPrice ? product.title : null) || fallback_title || `${provider_key} product`;
+    const effectiveImages = (upstreamHasPrice && product.images?.length > 0) ? product.images : (fallback_images || []);
+    const effectiveBasePrice = upstreamHasPrice ? product.base_price : (fallback_price || 0);
+    const effectiveCurrency = (upstreamHasPrice ? product.currency : null) || fallback_currency || "USD";
+    const effectiveVariants = (upstreamHasPrice ? product.variants : null) || [];
+    const effectiveRaw = product?.raw || {};
 
     // Resolve display currency + FX rate
-    const providerCurrency = product.currency || "USD";
-    const providerPriceCents = toCents(product.base_price);
+    const providerCurrency = effectiveCurrency;
+    const providerPriceCents = typeof effectiveBasePrice === "number" && effectiveBasePrice > 0 && effectiveBasePrice < 100
+      ? toCents(effectiveBasePrice)  // decimal like 2.27
+      : (typeof effectiveBasePrice === "number" && effectiveBasePrice >= 100 ? effectiveBasePrice : toCents(effectiveBasePrice)); // already cents or decimal
+    
     let displayCurrency = providerCurrency;
     let displayPriceCents = providerPriceCents;
     let fxRate = 1;
@@ -81,16 +112,20 @@ Deno.serve(async (req) => {
       const fx = await getFxRate(providerCurrency, displayCurrency);
       fxRate = fx.rate;
       fxTimestamp = fx.as_of;
-      displayPriceCents = decimalToDisplayCents(product.base_price, fxRate);
+      displayPriceCents = decimalToDisplayCents(effectiveBasePrice, fxRate);
     } catch (e: any) {
       if (e.code !== "FX_RATE_MISSING") throw e;
-      // Fallback: store provider currency as display currency
       displayCurrency = providerCurrency;
       displayPriceCents = providerPriceCents;
     }
 
+    // If frontend provided selling_price_cents, use that as display price
+    if (selling_price_cents && typeof selling_price_cents === "number" && selling_price_cents > 0) {
+      displayPriceCents = selling_price_cents;
+    }
+
     // Enrich variants with currency data
-    const enrichedVariants = (product.variants || []).map((v: any) => ({
+    const enrichedVariants = (effectiveVariants || []).map((v: any) => ({
       ...v,
       provider_currency: providerCurrency,
       provider_price_cents: toCents(v.price),
@@ -105,10 +140,10 @@ Deno.serve(async (req) => {
         p_provider_key: provider_key,
         p_external_product_id: external_product_id,
         p_shop_surface_id: shop_surface_id,
-        p_title: product.title,
-        p_images: JSON.stringify(product.images || []),
+        p_title: effectiveTitle,
+        p_images: JSON.stringify(effectiveImages),
         p_variants: JSON.stringify(enrichedVariants),
-        p_raw: JSON.stringify(product.raw || {}),
+        p_raw: JSON.stringify(effectiveRaw),
         p_provider_currency: providerCurrency,
         p_provider_price_cents: providerPriceCents,
         p_display_currency: displayCurrency,
@@ -123,7 +158,20 @@ Deno.serve(async (req) => {
       return errResponse("UPSTREAM_ERROR", rpcErr.message, 500);
     }
 
-    return new Response(JSON.stringify({ provider_key, import: importResult }), {
+    const result = {
+      ok: true,
+      provider_key,
+      import: importResult,
+      destination_surface_id: shop_surface_id,
+      created_import_id: (importResult as any)?.id || null,
+      provider_price_cents: providerPriceCents,
+      display_price_cents: displayPriceCents,
+      markup_percent: markup_percent || 30,
+    };
+
+    console.log("Import success:", JSON.stringify(result));
+
+    return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {

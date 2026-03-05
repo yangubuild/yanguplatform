@@ -8,25 +8,60 @@ import { toast } from "sonner";
 import type { SearchItem } from "@/pages/seller/eshop-connect/EshopConnectPage";
 import type { SurfaceWithPublishes } from "@/hooks/useSurfaces";
 
+// Surface type display labels + eligibility
+const SURFACE_TYPE_CONFIG: Record<string, { label: string; eligible: boolean }> = {
+  shop: { label: "Eshop", eligible: true },
+  store_listing: { label: "Store", eligible: true },
+  live_selling: { label: "Live Selling", eligible: false },
+  live_bio: { label: "Live Bio", eligible: false },
+  community_group: { label: "Community", eligible: false },
+  influencer: { label: "Influencer", eligible: false },
+  esite: { label: "Website", eligible: false },
+};
+
+function getSurfaceLabel(s: SurfaceWithPublishes) {
+  const config = SURFACE_TYPE_CONFIG[s.surface_type];
+  const typeLabel = config?.label || s.surface_type;
+  return `${s.title || "Untitled"} — ${typeLabel}`;
+}
+
+function isSurfaceEligible(s: SurfaceWithPublishes) {
+  const config = SURFACE_TYPE_CONFIG[s.surface_type];
+  return config?.eligible ?? false;
+}
+
 interface Props {
   product: SearchItem;
   providerKey: string;
   shopSurfaceId: string;
   formatPrice: (cents: number | undefined, currency: string | undefined) => string;
   onBack: () => void;
+  allSurfaces?: SurfaceWithPublishes[];
   shopSurfaces?: SurfaceWithPublishes[];
   onShopSurfaceChange?: (id: string) => void;
 }
 
-export default function ProductDetailView({ product, providerKey, shopSurfaceId, formatPrice, onBack, shopSurfaces = [], onShopSurfaceChange }: Props) {
+export default function ProductDetailView({ product, providerKey, shopSurfaceId, formatPrice, onBack, allSurfaces, shopSurfaces = [], onShopSurfaceChange }: Props) {
+  const surfaces = allSurfaces || shopSurfaces;
   const [detail, setDetail] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
   const [imported, setImported] = useState(false);
   const [mainImage, setMainImage] = useState(product.thumbnail);
-  const [localShopId, setLocalShopId] = useState(shopSurfaceId || (shopSurfaces[0]?.id ?? ""));
+  const [localShopId, setLocalShopId] = useState(shopSurfaceId || "");
   const [markupPercent, setMarkupPercent] = useState(30);
   const [fetchError, setFetchError] = useState<string | null>(null);
+
+  // Auto-select first eligible surface
+  useEffect(() => {
+    if (!localShopId && surfaces.length > 0) {
+      const firstEligible = surfaces.find(isSurfaceEligible);
+      if (firstEligible) {
+        setLocalShopId(firstEligible.id);
+        onShopSurfaceChange?.(firstEligible.id);
+      }
+    }
+  }, [surfaces]);
 
   const fetchDetail = async () => {
     setLoading(true);
@@ -57,15 +92,24 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
     fetchDetail();
   }, [product.external_product_id, providerKey]);
 
-  // Pricing calculations
-  const supplierCostCents = detail?.provider_base_price_cents ?? product.provider_min_price_cents ?? 0;
+  // Pricing — use detail if available, fall back to search-level data
+  const supplierCostCents = (detail?.provider_base_price_cents && detail.provider_base_price_cents > 0)
+    ? detail.provider_base_price_cents
+    : (product.provider_min_price_cents && product.provider_min_price_cents > 0)
+      ? product.provider_min_price_cents
+      : 0;
   const supplierCurrency = detail?.provider_currency ?? product.provider_currency ?? "USD";
   const sellingPriceCents = Math.round(supplierCostCents * (1 + markupPercent / 100));
   const displayCurrency = detail?.display_currency ?? product.display_currency ?? supplierCurrency;
 
   const handleImport = async () => {
-    if (!localShopId) {
-      toast.error("Select a shop to import this product into.");
+    const destSurface = surfaces.find(s => s.id === localShopId);
+    if (!localShopId || !destSurface) {
+      toast.error("Select a destination to import this product.");
+      return;
+    }
+    if (!isSurfaceEligible(destSurface)) {
+      toast.error("This destination type doesn't support imports yet.");
       return;
     }
     setImporting(true);
@@ -77,11 +121,17 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
           shop_surface_id: localShopId,
           markup_percent: markupPercent,
           selling_price_cents: sellingPriceCents,
+          // Pass search-level data as fallback for providers with stub getProduct
+          fallback_title: product.title,
+          fallback_price: product.provider_min_price_cents ? product.provider_min_price_cents / 100 : 0,
+          fallback_currency: product.provider_currency || "USD",
+          fallback_images: product.images || [product.thumbnail].filter(Boolean),
         },
       });
       if (res.error) throw new Error(res.error.message);
+      if (res.data?.error) throw new Error(res.data.error.message || "Import failed");
       setImported(true);
-      const shopName = shopSurfaces.find(s => s.id === localShopId)?.title || "your shop";
+      const shopName = destSurface.title || "your shop";
       toast.success(`✓ Imported to ${shopName}`);
     } catch (err: any) {
       toast.error("Import failed — " + (err.message || "unknown error"));
@@ -90,16 +140,25 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
     }
   };
 
-  const images: string[] = detail?.images || product?.images || [product.thumbnail];
+  const images: string[] = detail?.images?.length > 0 ? detail.images : (product?.images?.length > 0 ? product.images : [product.thumbnail].filter(Boolean));
   const variants: any[] = detail?.variants || [];
 
-  const displayPrice = detail?.display_base_price_cents != null
-    ? formatPrice(detail.display_base_price_cents, detail.display_currency)
-    : formatPrice(product.display_min_price_cents ?? product.provider_min_price_cents, product.display_currency ?? product.provider_currency);
+  const displayPrice = supplierCostCents > 0
+    ? formatPrice(sellingPriceCents, displayCurrency)
+    : "$0.00";
 
-  const providerPrice = detail?.provider_base_price_cents != null
-    ? formatPrice(detail.provider_base_price_cents, detail.provider_currency)
+  const providerPrice = supplierCostCents > 0
+    ? formatPrice(supplierCostCents, supplierCurrency)
     : null;
+
+  // Group surfaces by type for the picker
+  const groupedSurfaces = surfaces.reduce<Record<string, SurfaceWithPublishes[]>>((acc, s) => {
+    const config = SURFACE_TYPE_CONFIG[s.surface_type];
+    const group = config?.label || s.surface_type;
+    if (!acc[group]) acc[group] = [];
+    acc[group].push(s);
+    return acc;
+  }, {});
 
   return (
     <div className="flex flex-col h-full min-h-0 overflow-hidden">
@@ -233,12 +292,11 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
                   </div>
                 </div>
 
-                {/* Dropship to store block */}
+                {/* Import to destination block */}
                 <div className="rounded-xl border border-border bg-card p-4 space-y-3">
                   <h4 className="text-sm font-semibold text-foreground">Import to your shop</h4>
 
-                  {/* Shop surface picker */}
-                  {shopSurfaces.length > 0 ? (
+                  {surfaces.length > 0 ? (
                     <div className="space-y-2">
                       <label className="text-xs text-muted-foreground">Destination shop</label>
                       <div className="relative">
@@ -251,15 +309,24 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
                           className="w-full appearance-none px-3 py-2 pr-8 text-sm rounded-lg border border-border bg-card text-foreground focus:outline-none focus:border-accent/60"
                         >
                           <option value="">Select a shop…</option>
-                          {shopSurfaces.map((s) => (
-                            <option key={s.id} value={s.id}>{s.title || "Untitled Shop"}</option>
+                          {Object.entries(groupedSurfaces).map(([groupLabel, items]) => (
+                            <optgroup key={groupLabel} label={groupLabel}>
+                              {items.map((s) => {
+                                const eligible = isSurfaceEligible(s);
+                                return (
+                                  <option key={s.id} value={s.id} disabled={!eligible}>
+                                    {s.title || "Untitled"}{!eligible ? " (coming soon)" : ""}
+                                  </option>
+                                );
+                              })}
+                            </optgroup>
                           ))}
                         </select>
                         <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
                       </div>
                     </div>
                   ) : (
-                    <p className="text-xs text-muted-foreground">Create a .shop surface first to import products.</p>
+                    <p className="text-xs text-muted-foreground">Create a business surface first to import products.</p>
                   )}
 
                   <div className="flex items-center gap-3">
@@ -278,7 +345,7 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
 
                   {imported && (
                     <p className="text-xs text-accent">
-                      Product imported! Edit pricing in your Shop editor.
+                      Product imported! Check My Imports tab or edit pricing in your Shop editor.
                     </p>
                   )}
                 </div>

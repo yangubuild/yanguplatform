@@ -77,6 +77,8 @@ export default function EshopConnectPage() {
 
   // Get user's .shop surfaces for import destination picker
   const shopSurfaces = (surfaces || []).filter((s) => s.surface_type === "shop" && !s.archived_at);
+  // All non-archived surfaces for the full destination picker
+  const allSurfaces = (surfaces || []).filter((s) => !s.archived_at);
 
   useEffect(() => {
     const dismissed = localStorage.getItem("eshop_ai_popup_dismissed");
@@ -338,6 +340,7 @@ export default function EshopConnectPage() {
         shopSurfaceId={selectedShopSurfaceId}
         formatPrice={formatPrice}
         onBack={() => setSelectedProduct(null)}
+        allSurfaces={allSurfaces}
         shopSurfaces={shopSurfaces}
         onShopSurfaceChange={setSelectedShopSurfaceId}
       />
