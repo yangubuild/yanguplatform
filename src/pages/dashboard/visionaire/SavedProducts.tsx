@@ -1,65 +1,49 @@
-import { useState, useMemo } from "react";
-import { Search, Grid3X3, List } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { useMemo } from "react";
+import { Bookmark } from "lucide-react";
 import { VisionaireGrid } from "@/components/visionaire/VisionaireGrid";
 import { VisionairePageContainer } from "@/components/visionaire/VisionairePageContainer";
 import { useVisionaireSaves } from "@/hooks/useVisionaireItems";
 
-const TYPE_FILTERS = ["all", "ebook", "course", "template", "mockup", "deal", "tool"] as const;
-
 export default function SavedProducts() {
-  const [search, setSearch] = useState("");
-  const [typeFilter, setTypeFilter] = useState<string>("all");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const { data: saves, isLoading } = useVisionaireSaves();
 
   const items = useMemo(() => {
     if (!saves) return [];
-    let list = saves.map((s) => s.visionaire_items).filter(Boolean);
-    if (typeFilter !== "all") list = list.filter((i: any) => i.type === typeFilter);
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      list = list.filter((i: any) => i.title?.toLowerCase().includes(q) || i.description?.toLowerCase().includes(q));
-    }
-    return list;
-  }, [saves, typeFilter, search]);
+    return saves.map((s) => s.visionaire_items).filter(Boolean);
+  }, [saves]);
 
   return (
     <VisionairePageContainer>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-xl font-bold text-foreground">Saved Products</h1>
-          <p className="text-sm text-muted-foreground mt-1">Your bookmarked items across all categories</p>
+      <div className="space-y-8 pb-12">
+        {/* Hero Section */}
+        <div className="text-center space-y-4 pt-4 pb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-card/50 text-xs text-muted-foreground">
+            <Bookmark className="h-3.5 w-3.5" /> Your favorites
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">
+            Saved Products
+          </h1>
+          <p className="text-muted-foreground max-w-md mx-auto">
+            Your collection of bookmarked digital products
+          </p>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="relative max-w-xs flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search saved..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+
+        {/* Divider */}
+        <div className="border-t border-border" />
+
+        {/* Content */}
+        {isLoading ? (
+          <div className="text-center py-12 text-muted-foreground text-sm">Loading...</div>
+        ) : items.length === 0 ? (
+          <div className="rounded-xl border border-border bg-card p-12 text-center">
+            <h3 className="font-semibold text-foreground text-base">No saved products yet</h3>
+            <p className="text-sm text-muted-foreground mt-2">
+              Products you bookmark will appear here for easy access.
+            </p>
           </div>
-          <div className="flex gap-1.5 flex-wrap">
-            {TYPE_FILTERS.map((t) => (
-              <Badge
-                key={t}
-                variant={typeFilter === t ? "default" : "outline"}
-                className="cursor-pointer capitalize"
-                onClick={() => setTypeFilter(t)}
-              >
-                {t}
-              </Badge>
-            ))}
-          </div>
-          <div className="flex gap-1 ml-auto">
-            <Button variant={viewMode === "grid" ? "secondary" : "ghost"} size="icon" className="h-8 w-8" onClick={() => setViewMode("grid")}>
-              <Grid3X3 className="h-4 w-4" />
-            </Button>
-            <Button variant={viewMode === "list" ? "secondary" : "ghost"} size="icon" className="h-8 w-8" onClick={() => setViewMode("list")}>
-              <List className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-        <VisionaireGrid items={items} isLoading={isLoading} />
+        ) : (
+          <VisionaireGrid items={items} isLoading={false} />
+        )}
       </div>
     </VisionairePageContainer>
   );
