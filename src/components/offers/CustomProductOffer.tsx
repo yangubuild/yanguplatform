@@ -1,5 +1,8 @@
 import * as React from "react";
 import { ArrowRight, Star, Clock, Shield, Users, Zap } from "lucide-react";
+
+const YANGU_ORANGE = "#b5622a";
+const YANGU_GRADIENT = "linear-gradient(135deg, #b5622a, #5c2a12)";
 import { useNavigate } from "react-router-dom";
 
 const BOOK_ROWS = [
