@@ -3936,6 +3936,74 @@ export type Database = {
         }
         Relationships: []
       }
+      visionaire_product_requests: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          sort_order: number | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string | null
+          votes_count: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          sort_order?: number | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id?: string | null
+          votes_count?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          sort_order?: number | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string | null
+          votes_count?: number
+        }
+        Relationships: []
+      }
+      visionaire_request_votes: {
+        Row: {
+          created_at: string
+          id: string
+          request_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          request_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          request_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visionaire_request_votes_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "visionaire_product_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       visionaire_tool_runs: {
         Row: {
           created_at: string
