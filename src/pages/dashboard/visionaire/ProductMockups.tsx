@@ -1,10 +1,8 @@
 import { useState } from "react";
-import { ExternalLink, Sparkles, Loader2, Download, ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { ExternalLink, Sparkles } from "lucide-react";
 import { VisionairePageContainer } from "@/components/visionaire/VisionairePageContainer";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { BoxMockupGallery, type BoxMockup } from "@/components/visionaire/mockups/BoxMockupGallery";
+import { BoxMockupEditor } from "@/components/visionaire/mockups/BoxMockupEditor";
 
 import gradientsImg from "@/assets/mockups/gradients.png";
 import shotsSoImg from "@/assets/mockups/shots-so.jpg";
@@ -37,132 +35,55 @@ const RESOURCES = [
   },
 ];
 
+type View = "grid" | "box-gallery" | "box-editor";
+
 export default function ProductMockups() {
-  const [activeView, setActiveView] = useState<"grid" | "box-generator">("grid");
-  const [prompt, setPrompt] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [activeView, setActiveView] = useState<View>("grid");
+  const [selectedMockup, setSelectedMockup] = useState<BoxMockup | null>(null);
 
   const handleCardClick = (resource: (typeof RESOURCES)[number]) => {
     if (resource.type === "external") {
       window.open(resource.url, "_blank", "noopener,noreferrer");
     } else {
-      setActiveView("box-generator");
+      setActiveView("box-gallery");
     }
   };
 
-  const handleGenerate = async () => {
-    if (!prompt.trim()) {
-      toast.error("Please describe your box mockup");
-      return;
-    }
-    setIsGenerating(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("generate-box-mockup", {
-        body: { prompt: prompt.trim() },
-      });
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
-
-      const urls = (data.images || []).map(
-        (img: { image_url: { url: string } }) => img.image_url.url
-      );
-      if (!urls.length) throw new Error("No images generated");
-      setGeneratedImages((prev) => [...urls, ...prev]);
-      toast.success("Box mockup generated!");
-    } catch (err: any) {
-      toast.error(err.message || "Generation failed");
-    } finally {
-      setIsGenerating(false);
-    }
+  const handleUseMockup = (mockup: BoxMockup) => {
+    setSelectedMockup(mockup);
+    setActiveView("box-editor");
   };
 
-  const handleDownload = (dataUrl: string, index: number) => {
-    const a = document.createElement("a");
-    a.href = dataUrl;
-    a.download = `box-mockup-${index + 1}.png`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  };
+  if (activeView === "box-editor" && selectedMockup) {
+    return (
+      <VisionairePageContainer>
+        <BoxMockupEditor
+          mockup={selectedMockup}
+          onBack={() => setActiveView("box-gallery")}
+        />
+      </VisionairePageContainer>
+    );
+  }
 
-  if (activeView === "box-generator") {
+  if (activeView === "box-gallery") {
     return (
       <VisionairePageContainer>
         <div className="space-y-6">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setActiveView("grid")}
-              className="shrink-0"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
+          <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl font-bold text-foreground">Box Mockup Generator</h1>
-              <p className="text-sm text-muted-foreground mt-0.5">
-                Describe your product box and AI will generate a professional mockup
+              <h1 className="text-xl font-bold text-foreground">Box Mockups</h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                Choose a mockup to generate new angles or apply custom designs with AI
               </p>
             </div>
+            <button
+              onClick={() => setActiveView("grid")}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              ← Back
+            </button>
           </div>
-
-          {/* Input */}
-          <div className="max-w-2xl space-y-4">
-            <Textarea
-              placeholder="e.g. A premium skincare product box with gold accents and minimalist typography on a matte black surface..."
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              rows={3}
-              className="resize-none"
-            />
-            <Button onClick={handleGenerate} disabled={isGenerating || !prompt.trim()}>
-              {isGenerating ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Generating…
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Generate Mockup
-                </>
-              )}
-            </Button>
-          </div>
-
-          {/* Generated images gallery */}
-          {generatedImages.length > 0 && (
-            <div className="space-y-3">
-              <h2 className="text-sm font-medium text-muted-foreground">
-                Generated Mockups ({generatedImages.length})
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {generatedImages.map((src, i) => (
-                  <div
-                    key={i}
-                    className="group relative rounded-xl border border-border overflow-hidden bg-muted"
-                  >
-                    <img
-                      src={src}
-                      alt={`Box mockup ${i + 1}`}
-                      className="w-full aspect-square object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => handleDownload(src, i)}
-                      >
-                        <Download className="h-4 w-4 mr-1" />
-                        Download
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          <BoxMockupGallery onUse={handleUseMockup} />
         </div>
       </VisionairePageContainer>
     );
