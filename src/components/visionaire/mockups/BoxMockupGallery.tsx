@@ -10,6 +10,9 @@ import bookStanding from "@/assets/mockups/boxes/book-standing.jpg";
 import bookSet from "@/assets/mockups/boxes/book-set.jpg";
 import boxSet from "@/assets/mockups/boxes/box-set.jpg";
 import cubeClean from "@/assets/mockups/boxes/cube-clean.jpg";
+import bookTemplateSet from "@/assets/mockups/boxes/book-template-set.jpg";
+import whiteBoxSet from "@/assets/mockups/boxes/white-box-set.jpg";
+import cubes3 from "@/assets/mockups/boxes/cubes3.jpg";
 
 export interface BoxMockup {
   id: string;
@@ -28,6 +31,9 @@ export const BOX_MOCKUPS: BoxMockup[] = [
   { id: "book-hardcover", label: "Hardcover Book", src: bookHardcover },
   { id: "book-standing", label: "Standing Book", src: bookStanding },
   { id: "book-set", label: "Book Set", src: bookSet },
+  { id: "book-template-set", label: "Book Templates", src: bookTemplateSet },
+  { id: "white-box-set", label: "White Box Set", src: whiteBoxSet },
+  { id: "cubes3", label: "Cube Collection", src: cubes3 },
 ];
 
 interface BoxMockupGalleryProps {
