@@ -208,35 +208,45 @@ export function CustomProductOffer() {
         ))}
       </div>
 
-      {/* ─── Testimonial ─────────────────────────────── */}
-      <div className="rounded-xl border border-border bg-card px-4 py-3">
-        <div className="max-w-md mx-auto text-center">
-          <span className="text-lg text-muted-foreground/40 font-serif">"</span>
-          <blockquote className="text-foreground text-[11px] leading-relaxed italic">
-            You have saved us bunch of work. The effort and attention to detail truly shine through.
+      {/* ─── Testimonial + CTA side by side ────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+        {/* Left: Testimonial */}
+        <div className="rounded-xl border border-border bg-card px-5 py-4 flex flex-col justify-between min-h-[140px]">
+          {/* Stars */}
+          <div className="flex gap-0.5 mb-2">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} className="w-3 h-3 fill-[#b5622a] text-[#b5622a]" />
+            ))}
+          </div>
+          {/* Quote */}
+          <blockquote className="text-foreground text-xs sm:text-sm leading-relaxed">
+            "You have saved us <span className="text-[#b5622a] font-semibold">bunch</span> of work. The effort and attention to detail truly shine through."
           </blockquote>
-          <div className="mt-2 flex items-center justify-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-[9px] font-bold text-foreground">
+          {/* Avatar */}
+          <div className="mt-3 flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold text-foreground">
               FP
             </div>
-            <div className="text-left">
-              <p className="text-[10px] font-semibold text-foreground">Filip Pesek</p>
-              <p className="text-[9px] text-muted-foreground">CEO, DonnaPro</p>
+            <div>
+              <p className="text-[11px] font-semibold text-foreground">Filip Pesek</p>
+              <p className="text-[9px] text-muted-foreground uppercase tracking-wide">CEO, DonnaPro</p>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* ─── CTA ─────────────────────────────────────── */}
-      <div className="rounded-xl border border-border bg-card px-4 py-3">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+        {/* Right: CTA offer card — dark bg */}
+        <div className="rounded-xl border border-border bg-[#0c1a12] px-5 py-4 flex flex-col justify-between relative min-h-[140px]">
+          {/* Limited Offer badge top-right */}
+          <span className="absolute top-3 right-3 px-2 py-0.5 rounded-md bg-gradient-to-r from-[#b5622a] to-[#5c2a12] text-white text-[8px] font-bold uppercase tracking-wider">
+            Limited Offer
+          </span>
+          {/* Title + subtitle */}
           <div>
-            <span className="text-[9px] font-semibold text-[#b5622a] tracking-wide">Limited Offer</span>
-            <h3 className="text-xs font-bold text-foreground mt-0.5">Claim your authority.</h3>
+            <h3 className="text-sm font-bold text-foreground mt-1">Claim your authority.</h3>
             <p className="text-[10px] text-muted-foreground mt-0.5">
               Get a fully produced, world-class digital asset in 7 days.
             </p>
-            <div className="flex gap-1.5 mt-1.5 flex-wrap">
+            <div className="flex gap-1.5 mt-2 flex-wrap">
               {["Strategy", "Copywriting", "Design", "Launch"].map((tag) => (
                 <span
                   key={tag}
@@ -247,15 +257,18 @@ export function CustomProductOffer() {
               ))}
             </div>
           </div>
-          <div className="text-center flex-shrink-0">
-            <p className="text-[9px] text-muted-foreground mb-0.5">Starting at</p>
-            <div className="flex items-baseline gap-1">
-              <span className="text-base font-bold text-foreground">$299</span>
-              <span className="text-[10px] text-muted-foreground line-through">$399</span>
+          {/* Pricing + CTA bottom row */}
+          <div className="flex items-end justify-between mt-3">
+            <div>
+              <p className="text-[8px] text-muted-foreground uppercase tracking-wider">Starting at</p>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-xl font-bold text-foreground">$299</span>
+                <span className="text-xs text-muted-foreground line-through">$399</span>
+              </div>
             </div>
             <button
               onClick={() => navigate("/dashboard/offers/custom-product")}
-              className="mt-1.5 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-[#b5622a] to-[#5c2a12] text-white font-semibold text-[10px] hover:opacity-90 transition-opacity"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-gradient-to-r from-[#b5622a] to-[#5c2a12] text-white font-semibold text-[10px] hover:opacity-90 transition-opacity"
             >
               Get Started
               <ArrowRight className="w-3 h-3" />
