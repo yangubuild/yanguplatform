@@ -11,13 +11,22 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { prompt } = await req.json();
+    const { prompt, referenceImage } = await req.json();
     if (!prompt) throw new Error("Prompt is required");
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     const enhancedPrompt = `Professional 3D product box mockup: ${prompt}. Photorealistic, studio lighting, clean white/gray background, high quality packaging design, commercial product photography style.`;
+
+    // Build message content - include reference image if provided
+    const messageContent: any[] = [{ type: "text", text: enhancedPrompt }];
+    if (referenceImage) {
+      messageContent.push({
+        type: "image_url",
+        image_url: { url: referenceImage },
+      });
+    }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -27,7 +36,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash-image",
-        messages: [{ role: "user", content: enhancedPrompt }],
+        messages: [{ role: "user", content: messageContent }],
         modalities: ["image", "text"],
       }),
     });
