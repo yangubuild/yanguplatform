@@ -225,12 +225,9 @@ const INSTALL_STATS: { amount: string; period: string }[] = [
 function YanguAddButton() {
   return (
     <button
-      className="shrink-0 px-4 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-80"
+      className="shrink-0 px-5 py-1.5 rounded-lg text-xs font-semibold text-white transition-opacity hover:opacity-80"
       style={{
-        background: "linear-gradient(135deg, #b5622a, #5c2a12)",
-        clipPath:
-          "polygon(0% 20%, 15% 0%, 85% 0%, 100% 20%, 100% 80%, 85% 100%, 15% 100%, 0% 80%)",
-        borderRadius: "6px",
+        background: "#3b6bf5",
       }}
     >
       Add
