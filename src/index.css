@@ -463,6 +463,24 @@ html {
     100% { transform: translateX(-50%); }
   }
 
+  @keyframes scroll-left {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  @keyframes scroll-right {
+    0% { transform: translateX(-50%); }
+    100% { transform: translateX(0); }
+  }
+
+  .animate-scroll-left {
+    animation: scroll-left linear infinite;
+  }
+
+  .animate-scroll-right {
+    animation: scroll-right linear infinite;
+  }
+
   @keyframes borderTrace {
     0% { stroke-dashoffset: 0; }
     100% { stroke-dashoffset: calc(-1px * var(--perim, 1000)); }
