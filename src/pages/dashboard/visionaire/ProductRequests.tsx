@@ -130,7 +130,7 @@ export default function ProductRequests() {
           </p>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="destructive" size="lg" className="mt-2">
+              <Button variant="accent" size="lg" className="mt-2">
                 Submit new idea
               </Button>
             </DialogTrigger>
