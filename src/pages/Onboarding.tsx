@@ -21,15 +21,10 @@ import { PLATFORM_DOMAIN } from "@/config/platform";
 import { useDebounce } from "@/hooks/useDebounce";
 import { cn } from "@/lib/utils";
 
-// Preset avatars
-import avatar1 from "@/assets/avatars/avatar-1.png";
-import avatar2 from "@/assets/avatars/avatar-2.png";
-import avatar3 from "@/assets/avatars/avatar-3.png";
-import avatar4 from "@/assets/avatars/avatar-4.png";
-import avatar5 from "@/assets/avatars/avatar-5.png";
-import avatar6 from "@/assets/avatars/avatar-6.png";
+// Preset avatars – use YANGU 3D animal emojis from public/avatars
+import { YANGU_EMOJIS, getEmojiAvatarUrl } from "@/lib/avatarUtils";
 
-const PRESET_AVATARS = [avatar1, avatar2, avatar3, avatar4, avatar5, avatar6];
+const PRESET_AVATARS = YANGU_EMOJIS.map(({ key }) => getEmojiAvatarUrl(key));
 
 // ============================================================
 // LOCKED DOMAIN MAP - DO NOT CHANGE
