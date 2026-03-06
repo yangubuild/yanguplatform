@@ -1,8 +1,6 @@
 import { useState, useRef, useCallback } from "react";
-import { Upload, Image, Download, FileText, Loader2 } from "lucide-react";
+import { Upload, ChevronDown, ChevronUp, Download, FileText, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { VisionairePageContainer } from "@/components/visionaire/VisionairePageContainer";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,10 +12,12 @@ export default function PDFRebrander() {
   const [pdfUrl, setPdfUrl] = useState<string>("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string>("");
-  const [ctaText, setCtaText] = useState("Visit our website");
-  const [ctaEnabled, setCtaEnabled] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [bookFileOpen, setBookFileOpen] = useState(true);
+  const [coverOpen, setCoverOpen] = useState(false);
+  const [coverLogoOpen, setCoverLogoOpen] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const pdfInputRef = useRef<HTMLInputElement>(null);
 
   const handlePdfUpload = async (file: File) => {
     if (!user) return toast.error("Please log in");
@@ -43,7 +43,7 @@ export default function PDFRebrander() {
     reader.readAsDataURL(file);
   };
 
-  const handleExportCoverPng = useCallback(() => {
+  const handleExport = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -62,14 +62,6 @@ export default function PDFRebrander() {
         const logoW = 200;
         const logoH = (img.height / img.width) * logoW;
         ctx.drawImage(img, 300, 400, logoW, logoH);
-        if (ctaEnabled && ctaText) {
-          ctx.fillStyle = "#e94560";
-          ctx.roundRect(250, 800, 300, 50, 12);
-          ctx.fill();
-          ctx.fillStyle = "#ffffff";
-          ctx.font = "bold 18px sans-serif";
-          ctx.fillText(ctaText, 400, 830);
-        }
         const link = document.createElement("a");
         link.download = "branded-cover.png";
         link.href = canvas.toDataURL("image/png");
@@ -77,104 +69,172 @@ export default function PDFRebrander() {
       };
       img.src = logoPreview;
     } else {
-      if (ctaEnabled && ctaText) {
-        ctx.fillStyle = "#e94560";
-        ctx.roundRect(250, 800, 300, 50, 12);
-        ctx.fill();
-        ctx.fillStyle = "#ffffff";
-        ctx.font = "bold 18px sans-serif";
-        ctx.fillText(ctaText, 400, 830);
-      }
       const link = document.createElement("a");
       link.download = "branded-cover.png";
       link.href = canvas.toDataURL("image/png");
       link.click();
     }
-  }, [pdfFile, logoPreview, ctaEnabled, ctaText]);
+  }, [pdfFile, logoPreview]);
 
   return (
-    <VisionairePageContainer>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-xl font-bold text-foreground">PDF Rebrander</h1>
-          <p className="text-sm text-muted-foreground mt-1">Upload, rebrand, and export PDFs with your branding</p>
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="space-y-5 rounded-xl border border-border bg-card p-5">
-            <div className="space-y-2">
-              <Label>Upload PDF</Label>
-              <label className="flex flex-col items-center justify-center h-28 rounded-lg border-2 border-dashed border-border bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors">
-                <input type="file" accept=".pdf" className="sr-only" onChange={(e) => e.target.files?.[0] && handlePdfUpload(e.target.files[0])} />
-                {uploading ? (
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                ) : pdfFile ? (
-                  <div className="flex items-center gap-2 text-sm text-foreground">
-                    <FileText className="h-5 w-5" />
-                    <span className="truncate max-w-[200px]">{pdfFile.name}</span>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center gap-1">
-                    <Upload className="h-6 w-6 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">Click to upload PDF</span>
-                  </div>
-                )}
-              </label>
-            </div>
-            <div className="space-y-2">
-              <Label>Upload Logo</Label>
-              <label className="flex flex-col items-center justify-center h-28 rounded-lg border-2 border-dashed border-border bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors">
-                <input type="file" accept="image/*" className="sr-only" onChange={(e) => e.target.files?.[0] && handleLogoUpload(e.target.files[0])} />
-                {logoPreview ? (
-                  <img src={logoPreview} alt="Logo" className="h-16 object-contain" />
-                ) : (
-                  <div className="flex flex-col items-center gap-1">
-                    <Image className="h-6 w-6 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">Click to upload logo</span>
-                  </div>
-                )}
-              </label>
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <input type="checkbox" checked={ctaEnabled} onChange={(e) => setCtaEnabled(e.target.checked)} className="rounded" />
-                <Label>Add CTA Button</Label>
-              </div>
-              {ctaEnabled && (
-                <Input value={ctaText} onChange={(e) => setCtaText(e.target.value)} placeholder="CTA text..." />
-              )}
-            </div>
-            <div className="flex gap-3">
-              <Button variant="accent" onClick={handleExportCoverPng} disabled={!pdfFile}>
-                <Download className="h-4 w-4 mr-2" /> Download Cover PNG
-              </Button>
-              <Button variant="outline" onClick={() => toast.info("Export branded PDF coming soon")} disabled={!pdfFile}>
-                Export Branded PDF
-              </Button>
-            </div>
-          </div>
-          <div className="rounded-xl border border-border bg-card p-5">
-            <h3 className="text-sm font-semibold text-foreground mb-3">Preview</h3>
-            <div className="aspect-[3/4] rounded-lg bg-muted/30 border border-border flex items-center justify-center overflow-hidden">
-              {pdfFile ? (
-                <div className="text-center space-y-3 p-6">
-                  <div className="w-full h-full flex flex-col items-center justify-center gap-4" style={{ background: "#1a1a2e", borderRadius: 8, padding: 24 }}>
-                    {logoPreview && <img src={logoPreview} alt="Logo" className="h-16 object-contain" />}
-                    <p className="text-white font-bold text-lg">{pdfFile.name.replace(".pdf", "")}</p>
-                    {ctaEnabled && ctaText && (
-                      <div className="px-6 py-2 rounded-lg text-white text-sm font-semibold" style={{ background: "#e94560" }}>
-                        {ctaText}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">Upload a PDF to see preview</p>
-              )}
-            </div>
-          </div>
-        </div>
-        <canvas ref={canvasRef} className="hidden" />
+    <VisionairePageContainer className="!px-0 !pt-0 !pb-0 !max-w-full">
+      {/* Top bar */}
+      <div className="flex items-center justify-between px-5 py-3 border-b border-border">
+        <h1 className="text-base font-semibold text-foreground">PDF Rebrander</h1>
+        <Button
+          size="sm"
+          className="bg-[hsl(var(--foreground))] text-[hsl(var(--background))] hover:bg-[hsl(var(--foreground))]/90 rounded-full px-5 text-xs font-medium"
+          onClick={handleExport}
+          disabled={!pdfFile}
+        >
+          Download PDF
+        </Button>
       </div>
+
+      <div className="flex min-h-[calc(100vh-120px)]">
+        {/* Left sidebar */}
+        <div className="w-[280px] shrink-0 border-r border-border bg-background">
+          <div className="px-4 py-3 border-b border-border">
+            <span className="text-sm font-medium text-foreground">Design Controls</span>
+          </div>
+
+          {/* Book File section */}
+          <div className="border-b border-border">
+            <button
+              onClick={() => setBookFileOpen(!bookFileOpen)}
+              className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors"
+            >
+              Book File
+              {bookFileOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+            </button>
+            {bookFileOpen && (
+              <div className="px-4 pb-4">
+                <label className="flex flex-col items-center justify-center py-6 rounded-lg border-2 border-dashed border-border cursor-pointer hover:bg-muted/30 transition-colors">
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    className="sr-only"
+                    ref={pdfInputRef}
+                    onChange={(e) => e.target.files?.[0] && handlePdfUpload(e.target.files[0])}
+                  />
+                  {uploading ? (
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  ) : pdfFile ? (
+                    <div className="flex flex-col items-center gap-1">
+                      <FileText className="h-6 w-6 text-muted-foreground" />
+                      <span className="text-xs font-medium text-foreground truncate max-w-[180px]">{pdfFile.name}</span>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-1">
+                      <Upload className="h-6 w-6 text-muted-foreground" />
+                      <span className="text-xs font-medium text-foreground">Upload Ebook PDF</span>
+                      <span className="text-[11px] text-muted-foreground">Drag & drop PDF</span>
+                    </div>
+                  )}
+                </label>
+              </div>
+            )}
+          </div>
+
+          {/* Cover section */}
+          <div className="border-b border-border">
+            <button
+              onClick={() => setCoverOpen(!coverOpen)}
+              className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors"
+            >
+              Cover
+              {coverOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+            </button>
+            {coverOpen && (
+              <div className="px-4 pb-4 text-xs text-muted-foreground">
+                Cover customization options will appear here after uploading a PDF.
+              </div>
+            )}
+          </div>
+
+          {/* Cover Logo section */}
+          <div className="border-b border-border">
+            <button
+              onClick={() => setCoverLogoOpen(!coverLogoOpen)}
+              className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors"
+            >
+              Cover Logo
+              {coverLogoOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+            </button>
+            {coverLogoOpen && (
+              <div className="px-4 pb-4">
+                <label className="flex flex-col items-center justify-center py-6 rounded-lg border-2 border-dashed border-border cursor-pointer hover:bg-muted/30 transition-colors">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    onChange={(e) => e.target.files?.[0] && handleLogoUpload(e.target.files[0])}
+                  />
+                  {logoPreview ? (
+                    <img src={logoPreview} alt="Logo" className="h-12 object-contain" />
+                  ) : (
+                    <div className="flex flex-col items-center gap-1">
+                      <Upload className="h-5 w-5 text-muted-foreground" />
+                      <span className="text-xs font-medium text-foreground">Upload Logo</span>
+                    </div>
+                  )}
+                </label>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Main preview area */}
+        <div
+          className="flex-1 relative overflow-hidden"
+          style={{
+            backgroundImage: "radial-gradient(circle, hsl(var(--border)) 1px, transparent 1px)",
+            backgroundSize: "20px 20px",
+          }}
+        >
+          {pdfFile ? (
+            <div className="flex items-center justify-center h-full p-8">
+              <div className="w-[400px] aspect-[3/4] rounded-lg shadow-lg overflow-hidden" style={{ background: "#1a1a2e" }}>
+                <div className="flex flex-col items-center justify-center h-full gap-4 p-6">
+                  {logoPreview && <img src={logoPreview} alt="Logo" className="h-16 object-contain" />}
+                  <p className="text-white font-bold text-lg text-center">{pdfFile.name.replace(".pdf", "")}</p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-full gap-4">
+              {/* Empty state icons */}
+              <div className="flex items-end gap-1 text-muted-foreground/40">
+                <svg width="40" height="48" viewBox="0 0 40 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="1" y="1" width="38" height="46" rx="4" stroke="currentColor" strokeWidth="1.5" />
+                  <line x1="10" y1="14" x2="30" y2="14" stroke="currentColor" strokeWidth="1.5" />
+                  <line x1="10" y1="22" x2="30" y2="22" stroke="currentColor" strokeWidth="1.5" />
+                  <line x1="10" y1="30" x2="22" y2="30" stroke="currentColor" strokeWidth="1.5" />
+                </svg>
+                <svg width="44" height="52" viewBox="0 0 44 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="1" y="1" width="42" height="50" rx="4" stroke="currentColor" strokeWidth="1.5" />
+                  <circle cx="22" cy="22" r="8" stroke="currentColor" strokeWidth="1.5" />
+                  <line x1="10" y1="38" x2="34" y2="38" stroke="currentColor" strokeWidth="1.5" />
+                  <line x1="10" y1="44" x2="28" y2="44" stroke="currentColor" strokeWidth="1.5" />
+                </svg>
+              </div>
+              <h2 className="text-base font-semibold text-foreground mt-2">No PDF Selected</h2>
+              <p className="text-sm text-muted-foreground text-center max-w-[280px]">
+                Upload a PDF file to customize its cover and add your branding assets.
+              </p>
+              <Button
+                size="sm"
+                className="bg-[hsl(var(--foreground))] text-[hsl(var(--background))] hover:bg-[hsl(var(--foreground))]/90 rounded-md px-5 text-xs font-medium mt-1"
+                onClick={() => pdfInputRef.current?.click()}
+              >
+                Upload PDF
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <canvas ref={canvasRef} className="hidden" />
     </VisionairePageContainer>
   );
 }
