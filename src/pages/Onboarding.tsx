@@ -616,7 +616,7 @@ export default function Onboarding() {
           {showAvatarPicker && (
             <div className="rounded-xl border border-border bg-card p-4 space-y-3 animate-fade-in">
               <p className="text-sm font-medium">Choose an avatar</p>
-              <div className="grid grid-cols-6 gap-2">
+              <div className="grid grid-cols-5 gap-2">
                 {PRESET_AVATARS.map((src, i) => (
                   <button
                     key={i}
