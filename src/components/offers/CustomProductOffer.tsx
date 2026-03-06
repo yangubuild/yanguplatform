@@ -1,4 +1,5 @@
 import { ArrowRight, Star, Clock, Shield, Users, Zap } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 /* ── Cover image rows ────────────────────────────────────── */
 const ROW1 = [
@@ -111,6 +112,7 @@ const STATS = [
 
 /* ── Main component ──────────────────────────────────────── */
 export function CustomProductOffer() {
+  const navigate = useNavigate();
   return (
     <div className="space-y-5 mt-5">
       {/* ─── Hero section ─────────────────────────────── */}
@@ -126,15 +128,13 @@ export function CustomProductOffer() {
             We transform your idea into a world-class digital asset without you writing a single word.
           </p>
           <div className="mt-6 flex items-center gap-4 flex-wrap">
-            <a
-              href="https://www.entrepedia.co/custom-product/wizard"
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => navigate("/dashboard/offers/custom-product")}
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#b5622a] to-[#5c2a12] text-white font-semibold text-sm hover:opacity-90 transition-opacity"
             >
               Get Your Own Product
               <ArrowRight className="w-4 h-4" />
-            </a>
+            </button>
             <span className="text-xs text-muted-foreground font-medium tracking-wide uppercase">
               150+ Happy Customers
             </span>
@@ -256,15 +256,13 @@ export function CustomProductOffer() {
               <span className="text-2xl font-bold text-foreground">$299</span>
               <span className="text-sm text-muted-foreground line-through">$399</span>
             </div>
-            <a
-              href="https://www.entrepedia.co/custom-product/wizard"
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => navigate("/dashboard/offers/custom-product")}
               className="mt-3 inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#b5622a] to-[#5c2a12] text-white font-semibold text-sm hover:opacity-90 transition-opacity"
             >
               Get Started
               <ArrowRight className="w-4 h-4" />
-            </a>
+            </button>
           </div>
         </div>
       </div>
