@@ -1,9 +1,12 @@
 import * as React from "react";
 import { ArrowRight, Star, Clock, Shield, Users, Zap } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const YANGU_ORANGE = "#b5622a";
+const YANGU_ORANGE_LIGHT = "rgba(181, 98, 42, 0.1)";
+const YANGU_ORANGE_BORDER = "rgba(181, 98, 42, 0.25)";
+const YANGU_ORANGE_BORDER_35 = "rgba(181, 98, 42, 0.35)";
 const YANGU_GRADIENT = "linear-gradient(135deg, #b5622a, #5c2a12)";
-import { useNavigate } from "react-router-dom";
 
 const BOOK_ROWS = [
   [
@@ -42,7 +45,7 @@ const PROCESS_STEPS = [
   {
     label: "WRITING",
     icon: (
-      <svg width="34" height="34" viewBox="0 0 40 40" fill="none" className="text-destructive">
+      <svg width="34" height="34" viewBox="0 0 40 40" fill="none" style={{ color: YANGU_ORANGE }}>
         <path d="M8 32C8 32 10 28 12 26L28 10C29.1 8.9 30.9 8.9 32 10C33.1 11.1 33.1 12.9 32 14L16 30C14 32 10 34 10 34" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         <path d="M8 32L10 34" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       </svg>
@@ -51,7 +54,7 @@ const PROCESS_STEPS = [
   {
     label: "EDITING",
     icon: (
-      <svg width="34" height="34" viewBox="0 0 40 40" fill="none" className="text-destructive">
+      <svg width="34" height="34" viewBox="0 0 40 40" fill="none" style={{ color: YANGU_ORANGE }}>
         <rect x="10" y="8" width="4" height="24" rx="1" stroke="currentColor" strokeWidth="1.5" />
         <rect x="18" y="8" width="4" height="24" rx="1" stroke="currentColor" strokeWidth="1.5" />
         <rect x="26" y="8" width="4" height="24" rx="1" stroke="currentColor" strokeWidth="1.5" />
@@ -62,7 +65,7 @@ const PROCESS_STEPS = [
   {
     label: "DESIGN",
     icon: (
-      <svg width="34" height="34" viewBox="0 0 40 40" fill="none" className="text-destructive">
+      <svg width="34" height="34" viewBox="0 0 40 40" fill="none" style={{ color: YANGU_ORANGE }}>
         <rect x="8" y="8" width="24" height="24" rx="2" stroke="currentColor" strokeWidth="1.5" />
         <line x1="20" y1="8" x2="20" y2="32" stroke="currentColor" strokeWidth="1.5" />
         <line x1="8" y1="20" x2="32" y2="20" stroke="currentColor" strokeWidth="1.5" />
@@ -74,7 +77,7 @@ const PROCESS_STEPS = [
   {
     label: "LAUNCH READY",
     icon: (
-      <svg width="34" height="34" viewBox="0 0 40 40" fill="none" className="text-destructive">
+      <svg width="34" height="34" viewBox="0 0 40 40" fill="none" style={{ color: YANGU_ORANGE }}>
         <path d="M20 6L20 28" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         <path d="M14 12L20 6L26 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         <path d="M12 34L20 28L28 34" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -94,7 +97,7 @@ const STATS = [
   {
     value: "7 Days",
     label: "TURNAROUND",
-    icon: <Clock className="h-5 w-5 text-destructive" />,
+    icon: <Clock className="h-5 w-5" style={{ color: YANGU_ORANGE }} />,
     highlight: true,
   },
   {
@@ -143,7 +146,7 @@ export function CustomProductOffer() {
           <div className="absolute inset-0 opacity-40 [background-image:linear-gradient(to_right,hsl(var(--border)/0.55)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.55)_1px,transparent_1px)] [background-size:28px_28px]" />
           <div className="relative z-10 flex h-full flex-col justify-center">
             <h2 className="max-w-[520px] text-4xl font-black leading-[1.05] text-foreground sm:text-5xl">
-              Have your own <span className="text-destructive">Signature Product</span> created in 7 days.
+              Have your own <span style={{ color: YANGU_ORANGE }}>Signature Product</span> created in 7 days.
             </h2>
             <p className="mt-5 max-w-[520px] text-xl leading-relaxed text-muted-foreground">
               We transform your idea into a world-class digital asset without you writing a single word.
@@ -152,7 +155,8 @@ export function CustomProductOffer() {
             <div className="mt-6 flex flex-wrap items-center gap-4">
               <button
                 onClick={() => navigate("/dashboard/offers/custom-product")}
-                className="inline-flex items-center gap-2 rounded-full bg-destructive px-7 py-3 text-lg font-bold text-destructive-foreground transition-opacity hover:opacity-90"
+                className="inline-flex items-center gap-2 rounded-xl px-7 py-3 text-lg font-bold text-white transition-opacity hover:opacity-90"
+                style={{ background: YANGU_GRADIENT }}
               >
                 Get Your Own Product
                 <ArrowRight className="h-4 w-4" />
@@ -195,7 +199,10 @@ export function CustomProductOffer() {
         <div className="absolute inset-0 opacity-40 [background-image:linear-gradient(to_right,hsl(var(--border)/0.5)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.5)_1px,transparent_1px)] [background-size:28px_28px]" />
         <div className="relative z-10 flex h-full items-center gap-6">
           <div className="shrink-0">
-            <span className="inline-flex items-center gap-1 rounded-full border border-destructive/25 bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold text-destructive">
+            <span
+              className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+              style={{ color: YANGU_ORANGE, backgroundColor: YANGU_ORANGE_LIGHT, borderWidth: 1, borderColor: YANGU_ORANGE_BORDER }}
+            >
               <Zap className="h-3 w-3" />
               ZERO WORK
             </span>
@@ -227,15 +234,17 @@ export function CustomProductOffer() {
             <div
               key={stat.label}
               className={`h-[106px] rounded-2xl border px-4 py-3 sm:h-[114px] ${
-                stat.highlight ? "border-destructive/35 bg-card" : "border-border bg-card"
+                stat.highlight ? "bg-card" : "border-border bg-card"
               }`}
+              style={stat.highlight ? { borderColor: YANGU_ORANGE_BORDER_35 } : undefined}
             >
               <div className="flex h-full items-center justify-between gap-2">
                 <div>
                   <p
                     className={`font-bold leading-none ${isLongValue ? "text-3xl" : "text-4xl"} ${
-                      stat.highlight ? "text-destructive" : "text-foreground"
+                      stat.highlight ? "" : "text-foreground"
                     }`}
+                    style={stat.highlight ? { color: YANGU_ORANGE } : undefined}
                   >
                     {stat.value}
                   </p>
@@ -255,12 +264,12 @@ export function CustomProductOffer() {
           <div className="flex h-full flex-col justify-between">
             <div className="flex gap-1">
               {[...Array(5)].map((_, index) => (
-                <Star key={index} className="h-4 w-4 fill-destructive text-destructive" />
+                <Star key={index} className="h-4 w-4" style={{ color: YANGU_ORANGE, fill: YANGU_ORANGE }} />
               ))}
             </div>
 
             <blockquote className="text-lg leading-relaxed text-foreground">
-              "You have saved us <span className="font-semibold text-destructive">bunch</span> of work. The effort and attention to detail truly shine through."
+              "You have saved us <span className="font-semibold" style={{ color: YANGU_ORANGE }}>bunch</span> of work. The effort and attention to detail truly shine through."
             </blockquote>
 
             <div className="flex items-center gap-3">
@@ -279,7 +288,10 @@ export function CustomProductOffer() {
         </div>
 
         <div className="relative h-[236px] rounded-2xl border border-border bg-foreground px-6 py-5 text-background sm:h-[252px] lg:h-[268px]">
-          <span className="absolute right-4 top-4 rounded-md bg-destructive px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-destructive-foreground">
+          <span
+            className="absolute right-4 top-4 rounded-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white"
+            style={{ background: YANGU_GRADIENT }}
+          >
             Limited Offer
           </span>
 
@@ -311,7 +323,8 @@ export function CustomProductOffer() {
               </div>
               <button
                 onClick={() => navigate("/dashboard/offers/custom-product")}
-                className="inline-flex items-center gap-1.5 rounded-full bg-destructive px-5 py-2.5 text-sm font-semibold text-destructive-foreground transition-opacity hover:opacity-90"
+                className="inline-flex items-center gap-1.5 rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                style={{ background: YANGU_GRADIENT }}
               >
                 Get Started
                 <ArrowRight className="h-4 w-4" />
