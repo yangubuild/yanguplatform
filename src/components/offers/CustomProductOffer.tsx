@@ -119,7 +119,7 @@ export function CustomProductOffer() {
       {/* ─── Signature Product + Books mosaic (paired square cards) ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5 min-w-0">
         {/* Left: Text card — compact near-square */}
-        <div className="rounded-2xl border border-border bg-card px-6 py-6 flex flex-col justify-end min-w-0 aspect-square">
+        <div className="rounded-2xl border border-border bg-card px-6 py-6 flex flex-col justify-end min-w-0 h-[280px] sm:h-[320px] lg:h-[360px]">
           <h2 className="text-base sm:text-lg font-bold text-foreground leading-snug">
             Have your own{" "}
             <span className="text-[#b5622a]">Signature Product</span>{" "}
@@ -143,7 +143,7 @@ export function CustomProductOffer() {
         </div>
 
         {/* Right: Scrolling book covers — matched height card */}
-        <div className="rounded-2xl border border-border bg-card px-2.5 py-3 overflow-hidden flex flex-col justify-center gap-2 min-w-0 aspect-square">
+        <div className="rounded-2xl border border-border bg-card px-2.5 py-3 overflow-hidden flex flex-col justify-center gap-2 min-w-0 h-[280px] sm:h-[320px] lg:h-[360px]">
           <ScrollingRow images={ROW1} direction="left" speed={30} />
           <ScrollingRow images={ROW2} direction="right" speed={35} />
           <ScrollingRow images={ROW3} direction="left" speed={28} />
@@ -185,7 +185,7 @@ export function CustomProductOffer() {
         {STATS.map((stat) => (
           <div
             key={stat.label}
-            className={`rounded-2xl border px-4 py-4 flex items-center justify-between aspect-[5/4] ${
+            className={`rounded-2xl border px-4 py-4 flex items-center justify-between h-[112px] sm:h-[120px] ${
               stat.highlight
                 ? "border-[#b5622a]/40 bg-card"
                 : "border-border bg-card"
@@ -211,7 +211,7 @@ export function CustomProductOffer() {
       {/* ─── Testimonial + CTA (paired square cards) ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5">
         {/* Left: Testimonial card */}
-        <div className="rounded-2xl border border-border bg-card px-6 py-5 flex flex-col justify-between aspect-square">
+        <div className="rounded-2xl border border-border bg-card px-6 py-5 flex flex-col justify-between h-[240px] sm:h-[280px] lg:h-[320px]">
           {/* Stars */}
           <div className="flex gap-0.5 mb-3">
             {[...Array(5)].map((_, i) => (
@@ -235,7 +235,7 @@ export function CustomProductOffer() {
         </div>
 
         {/* Right: CTA offer card — dark bg */}
-        <div className="rounded-2xl border border-border bg-[#0c1a12] px-6 py-5 flex flex-col justify-between relative aspect-square">
+        <div className="rounded-2xl border border-border bg-[#0c1a12] px-6 py-5 flex flex-col justify-between relative h-[240px] sm:h-[280px] lg:h-[320px]">
           {/* Limited Offer badge top-right */}
           <span className="absolute top-4 right-4 px-2.5 py-1 rounded-md bg-gradient-to-r from-[#b5622a] to-[#5c2a12] text-white text-[9px] font-bold uppercase tracking-wider">
             Limited Offer
