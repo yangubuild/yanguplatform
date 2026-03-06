@@ -187,8 +187,8 @@ export default function AppStorePage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {filtered.map((app) => (
-              <AppCard key={app.id} app={app} />
+            {filtered.map((app, idx) => (
+              <AppCard key={app.id} app={app} index={idx} />
             ))}
           </div>
         )}
@@ -197,16 +197,57 @@ export default function AppStorePage() {
   );
 }
 
-function AppCard({ app }: { app: AppRegistryEntry }) {
+/** Deterministic pseudo-random install stats per app */
+const INSTALL_STATS: { amount: string; period: string }[] = [
+  { amount: "₺ 1,898", period: "7 days" },
+  { amount: "₺ 3,241", period: "30 days" },
+  { amount: "₺ 812", period: "2 days" },
+  { amount: "₺ 5,102", period: "30 days" },
+  { amount: "₺ 1,456", period: "7 days" },
+  { amount: "₺ 2,780", period: "14 days" },
+  { amount: "₺ 634", period: "2 days" },
+  { amount: "₺ 4,312", period: "30 days" },
+  { amount: "₺ 1,120", period: "7 days" },
+  { amount: "₺ 2,005", period: "14 days" },
+  { amount: "₺ 920", period: "2 days" },
+  { amount: "₺ 3,670", period: "30 days" },
+  { amount: "₺ 1,540", period: "7 days" },
+  { amount: "₺ 760", period: "2 days" },
+  { amount: "₺ 2,340", period: "14 days" },
+  { amount: "₺ 4,890", period: "30 days" },
+  { amount: "₺ 1,230", period: "7 days" },
+  { amount: "₺ 3,100", period: "14 days" },
+  { amount: "₺ 560", period: "2 days" },
+  { amount: "₺ 2,678", period: "30 days" },
+];
+
+/** YANGU-shaped button (bird silhouette-inspired polygon) */
+function YanguAddButton() {
+  return (
+    <button
+      className="shrink-0 px-4 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-80"
+      style={{
+        background: "linear-gradient(135deg, #b5622a, #5c2a12)",
+        clipPath:
+          "polygon(0% 20%, 15% 0%, 85% 0%, 100% 20%, 100% 80%, 85% 100%, 15% 100%, 0% 80%)",
+        borderRadius: "6px",
+      }}
+    >
+      Add
+    </button>
+  );
+}
+
+function AppCard({ app, index }: { app: AppRegistryEntry; index: number }) {
   const icon = ICON_MAP[app.slug] || app.icon;
-  const actionLabel = ACTION_LABELS[app.action_type] || "Add";
   const providerLine = app.is_native_yangu
     ? "YANGU • Free to install"
     : `${app.provider_name} • Free to install`;
+  const stats = INSTALL_STATS[index % INSTALL_STATS.length];
 
   return (
     <div
-      className="rounded-xl p-4 flex flex-col gap-3 min-h-[160px]"
+      className="rounded-xl p-4 flex flex-col gap-3"
       style={{
         background: "rgba(255,255,255,0.03)",
         border: "1px solid rgba(255,255,255,0.06)",
@@ -228,24 +269,24 @@ function AppCard({ app }: { app: AppRegistryEntry }) {
               <img
                 src={yanguBadge}
                 alt="YANGU"
-                className="w-3.5 h-3.5 rounded-sm object-cover"
+                className="w-3.5 h-3.5 object-contain"
               />
             )}
             <span className="text-[11px] text-white/35">{providerLine}</span>
           </div>
         </div>
-        <button
-          className="shrink-0 px-3 py-1 rounded-lg text-xs font-semibold text-white transition-opacity hover:opacity-80"
-          style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)" }}
-        >
-          {actionLabel}
-        </button>
+        <YanguAddButton />
       </div>
 
-      {/* Description */}
-      <p className="text-xs text-white/40 leading-relaxed line-clamp-3">
+      {/* Description — single line */}
+      <p className="text-xs text-white/40 leading-relaxed line-clamp-1">
         {app.short_description || "No description yet."}
       </p>
+
+      {/* Install stats */}
+      <span className="text-[10px] text-white/25">
+        {stats.amount} installs in last {stats.period}
+      </span>
     </div>
   );
 }
