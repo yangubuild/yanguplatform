@@ -9,6 +9,9 @@ const BOOK_ROWS = [
     "/images/custom-product-source/cover-3.jpg",
     "/images/custom-product-source/cover-4.jpg",
     "/images/custom-product-source/cover-1.jpg",
+    "/images/custom-product-source/cover-2.jpg",
+    "/images/custom-product-source/cover-3.jpg",
+    "/images/custom-product-source/cover-4.jpg",
   ],
   [
     "/images/custom-product-source/cover-5.jpg",
@@ -16,6 +19,9 @@ const BOOK_ROWS = [
     "/images/custom-product-source/cover-7.jpg",
     "/images/custom-product-source/cover-8.jpg",
     "/images/custom-product-source/cover-5.jpg",
+    "/images/custom-product-source/cover-6.jpg",
+    "/images/custom-product-source/cover-7.jpg",
+    "/images/custom-product-source/cover-8.jpg",
   ],
   [
     "/images/custom-product-source/cover-9.jpg",
@@ -23,6 +29,9 @@ const BOOK_ROWS = [
     "/images/custom-product-source/cover-11.jpg",
     "/images/custom-product-source/cover-12.jpg",
     "/images/custom-product-source/cover-9.jpg",
+    "/images/custom-product-source/cover-10.jpg",
+    "/images/custom-product-source/cover-11.jpg",
+    "/images/custom-product-source/cover-12.jpg",
   ],
 ] as const;
 
@@ -100,17 +109,23 @@ const STATS = [
 ] as const;
 
 function CoverRow({ images, rowIndex }: { images: readonly string[]; rowIndex: number }) {
+  const reverse = rowIndex % 2 === 1;
   return (
-    <div className="grid grid-cols-5 gap-2">
-      {images.map((src, index) => (
-        <img
-          key={`${src}-${index}`}
-          src={src}
-          alt={`Book cover ${rowIndex + 1}-${index + 1}`}
-          className="h-full min-h-[118px] w-full rounded-md object-cover"
-          loading="lazy"
-        />
-      ))}
+    <div className="relative overflow-hidden">
+      <div
+        className="flex gap-2 w-max"
+        style={{ animation: `${reverse ? "scroll-right" : "scroll-left"} 25s linear infinite` }}
+      >
+        {[...images, ...images].map((src, index) => (
+          <img
+            key={`${src}-${index}`}
+            src={src}
+            alt={`Book cover ${rowIndex + 1}-${index + 1}`}
+            className="h-full min-h-[118px] w-[120px] shrink-0 rounded-md object-cover"
+            loading="lazy"
+          />
+        ))}
+      </div>
     </div>
   );
 }
