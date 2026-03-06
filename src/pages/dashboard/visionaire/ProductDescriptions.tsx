@@ -1,5 +1,16 @@
 import { useState, useRef, useMemo } from "react";
 import { ChevronDown, ChevronUp, Search, Terminal, FileText, History, Loader2 } from "lucide-react";
+import designLoveImg from "@/assets/products/design-your-love-life.webp";
+import subtleWaysImg from "@/assets/products/13-subtle-ways.webp";
+import stopWaitingImg from "@/assets/products/stop-waiting-for-love.webp";
+import datingResetImg from "@/assets/products/30-day-dating-reset.webp";
+
+const FEATURED_PRODUCTS = [
+  { id: "fp-1", title: "Design Your Love Life", image: designLoveImg },
+  { id: "fp-2", title: "13 Subtle Ways You're Sabotaging Your Own Love Life", image: subtleWaysImg },
+  { id: "fp-3", title: "Stop Waiting for Love to Find You", image: stopWaitingImg },
+  { id: "fp-4", title: "The 30-Day Dating Reset", image: datingResetImg },
+];
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -145,6 +156,28 @@ export default function ProductDescriptions() {
                     </div>
                     <div className="rounded-lg border border-border p-2 max-h-[360px] overflow-y-auto">
                       <div className="grid grid-cols-2 gap-2">
+                        {/* Featured products first */}
+                        {(!searchQuery.trim() ? FEATURED_PRODUCTS : FEATURED_PRODUCTS.filter(p => p.title.toLowerCase().includes(searchQuery.toLowerCase()))).map((fp) => (
+                          <button
+                            key={fp.id}
+                            onClick={() => setSelectedProduct({ id: fp.id, title: fp.title, description: "" })}
+                            className={`flex flex-col items-center gap-1 rounded-md p-1 transition-colors text-center ${
+                              selectedProduct?.id === fp.id
+                                ? "ring-2 ring-primary bg-muted/60"
+                                : "hover:bg-muted/40"
+                            }`}
+                          >
+                            <img
+                              src={fp.image}
+                              alt={fp.title}
+                              className="w-full aspect-[3/4] object-cover rounded"
+                            />
+                            <span className="text-[10px] text-foreground leading-tight line-clamp-2 font-medium">
+                              {fp.title}
+                            </span>
+                          </button>
+                        ))}
+                        {/* DB products after */}
                         {libraryProducts.map((item) => (
                           <button
                             key={item.id}
@@ -172,7 +205,7 @@ export default function ProductDescriptions() {
                           </button>
                         ))}
                       </div>
-                      {libraryProducts.length === 0 && (
+                      {libraryProducts.length === 0 && !FEATURED_PRODUCTS.length && (
                         <p className="text-[10px] text-muted-foreground text-center py-4">No products found.</p>
                       )}
                     </div>
