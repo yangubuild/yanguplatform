@@ -133,6 +133,7 @@ const ManageTeam = lazy(() => import("./pages/manage/ManageTeam"));
 const NavigationDashboardPage = lazy(() => import("@/components/mass/navigation").then((m) => ({ default: m.NavigationDashboardPage })));
 const DashboardHome = lazy(() => import("./pages/dashboard/DashboardHome"));
 const DashboardPlaceholder = lazy(() => import("./pages/dashboard/DashboardPlaceholder"));
+const AppStorePage = lazy(() => import("./pages/dashboard/AppStorePage"));
 const MyBusinessPage = lazy(() => import("./pages/dashboard/MyBusinessPage"));
 const InfluencerPage = lazy(() => import("./pages/dashboard/InfluencerPage"));
 const SellerSurfacePage = lazy(() => import("./pages/dashboard/SellerSurfacePage"));
@@ -340,7 +341,7 @@ const App = () => (
                   <Route path="visionaire/item/:id" element={<VisionaireItemDetail />} />
                   <Route path="visionaire/bundles" element={<VisionaireBundles />} />
                   <Route path="visionaire/bundle/:id" element={<VisionaireBundleDetail />} />
-                  <Route path="app-store" element={<DashboardPlaceholder />} />
+                  <Route path="app-store" element={<AppStorePage />} />
                   <Route path="community" element={<DashboardCommunityPage />} />
                   <Route path="live-selling" element={<LiveSellingPage />} />
                   <Route path="studio-showcase" element={<StudioShowcasePage />} />
