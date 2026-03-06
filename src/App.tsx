@@ -138,6 +138,7 @@ const InfluencerPage = lazy(() => import("./pages/dashboard/InfluencerPage"));
 const SellerSurfacePage = lazy(() => import("./pages/dashboard/SellerSurfacePage"));
 const EshopConnectPage = lazy(() => import("./pages/seller/eshop-connect/EshopConnectPage"));
 const DashboardOffers = lazy(() => import("./pages/dashboard/DashboardOffers"));
+const CustomProductWizard = lazy(() => import("./pages/dashboard/CustomProductWizard"));
 const DashboardExplore = lazy(() => import("./pages/dashboard/DashboardExplore"));
 const LiveSellingPage = lazy(() => import("./pages/dashboard/LiveSellingPage"));
 const StudioShowcasePage = lazy(() => import("./pages/dashboard/StudioShowcasePage"));
@@ -310,6 +311,7 @@ const App = () => (
                   <Route path="home" element={<DashboardHome />} />
                   <Route path="explore" element={<DashboardExplore />} />
                   <Route path="offers" element={<DashboardOffers />} />
+                  <Route path="offers/custom-product" element={<CustomProductWizard />} />
                   <Route path="messages" element={<MessagesPage />} />
                   <Route path="ada" element={<AdaAi />} />
                   <Route path="studio" element={<Studio />} />
