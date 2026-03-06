@@ -83,3 +83,6 @@ verify_jwt = false
 
 [functions.visionaire-llm]
 verify_jwt = false
+
+[functions.generate-box-mockup]
+verify_jwt = false
