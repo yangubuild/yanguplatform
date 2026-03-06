@@ -98,6 +98,7 @@ export const VISIONAIRE_SECTIONS: NavSection[] = [
     title: "MASTER LIBRARY",
     items: [
       { icon: Home, label: "Home", to: "/dashboard/visionaire" },
+      { icon: Package, label: "Bundles", to: "/dashboard/visionaire/bundles" },
       { icon: Lightbulb, label: "Product Requests", to: "/dashboard/visionaire/requests" },
       { icon: Bookmark, label: "Saved", to: "/dashboard/visionaire/saved" },
     ],
