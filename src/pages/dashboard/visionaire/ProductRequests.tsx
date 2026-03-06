@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { VisionairePageContainer } from "@/components/visionaire/VisionairePageContainer";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import customEbookPromo from "@/assets/custom-ebook-promo.jpg";
 
 const TABS = [
   { key: "idea", label: "Ideas" },
@@ -196,13 +197,16 @@ export default function ProductRequests() {
                 filtered.map((req: any) => {
                   const hasVoted = userVotes?.has(req.id) ?? false;
                   return (
-                    <div
+                    <a
                       key={req.id}
-                      className="flex gap-4 rounded-xl border border-border bg-card p-4 hover:border-primary/20 transition-colors"
+                      href="https://www.entrepedia.co/library/request"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex gap-4 rounded-xl border border-border bg-card p-4 hover:border-primary/20 transition-colors cursor-pointer"
                     >
                       {/* Vote Block */}
                       <button
-                        onClick={() => voteMutation.mutate(req.id)}
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); voteMutation.mutate(req.id); }}
                         className={`flex flex-col items-center justify-center min-w-[56px] h-[56px] rounded-xl border transition-colors shrink-0 ${
                           hasVoted
                             ? "border-primary bg-primary/10 text-primary"
@@ -222,7 +226,7 @@ export default function ProductRequests() {
                           </p>
                         )}
                       </div>
-                    </div>
+                    </a>
                   );
                 })
               )}
@@ -234,23 +238,11 @@ export default function ProductRequests() {
             <div className="rounded-xl border border-border bg-card overflow-hidden">
               {/* Product Image */}
               <div className="bg-muted/30 p-6 flex items-center justify-center">
-                <div className="relative w-40 h-48">
-                  <div
-                    className="absolute inset-0 rounded-lg shadow-2xl"
-                    style={{
-                      background: "linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%)",
-                    }}
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center px-4">
-                      <p className="text-[10px] text-white/40 uppercase tracking-widest mb-1">2024</p>
-                      <p className="text-white font-bold text-sm leading-tight">YOUR<br/>EBOOK</p>
-                      <p className="text-[8px] text-white/40 mt-2 leading-snug">
-                        Custom designed and written for your brand
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                <img
+                  src={customEbookPromo}
+                  alt="Your custom ebook"
+                  className="w-48 h-auto object-contain"
+                />
               </div>
 
               {/* Promo Content */}
