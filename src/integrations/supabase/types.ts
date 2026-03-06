@@ -485,6 +485,135 @@ export type Database = {
         }
         Relationships: []
       }
+      app_categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      app_registry: {
+        Row: {
+          action_type: Database["public"]["Enums"]["app_action_type"]
+          app_type: Database["public"]["Enums"]["app_registry_type"]
+          category: string
+          connect_route: string | null
+          created_at: string
+          embed_url: string | null
+          generate_route: string | null
+          icon: string | null
+          id: string
+          install_route: string | null
+          is_featured: boolean
+          is_native_yangu: boolean
+          launch_route: string | null
+          long_description: string | null
+          name: string
+          pricing_type: Database["public"]["Enums"]["app_pricing_type"]
+          provider_badge_logo: string | null
+          provider_name: string
+          provider_type: string
+          short_description: string | null
+          slug: string
+          sort_order: number
+          status: Database["public"]["Enums"]["app_registry_status"]
+          subcategory: string | null
+          supports_api_key: boolean
+          supports_desktop_install: boolean
+          supports_embed: boolean
+          supports_oauth: boolean
+          supports_web_install: boolean
+          tags: string[]
+          updated_at: string
+          visibility: Database["public"]["Enums"]["app_visibility"]
+        }
+        Insert: {
+          action_type?: Database["public"]["Enums"]["app_action_type"]
+          app_type?: Database["public"]["Enums"]["app_registry_type"]
+          category?: string
+          connect_route?: string | null
+          created_at?: string
+          embed_url?: string | null
+          generate_route?: string | null
+          icon?: string | null
+          id?: string
+          install_route?: string | null
+          is_featured?: boolean
+          is_native_yangu?: boolean
+          launch_route?: string | null
+          long_description?: string | null
+          name: string
+          pricing_type?: Database["public"]["Enums"]["app_pricing_type"]
+          provider_badge_logo?: string | null
+          provider_name?: string
+          provider_type?: string
+          short_description?: string | null
+          slug: string
+          sort_order?: number
+          status?: Database["public"]["Enums"]["app_registry_status"]
+          subcategory?: string | null
+          supports_api_key?: boolean
+          supports_desktop_install?: boolean
+          supports_embed?: boolean
+          supports_oauth?: boolean
+          supports_web_install?: boolean
+          tags?: string[]
+          updated_at?: string
+          visibility?: Database["public"]["Enums"]["app_visibility"]
+        }
+        Update: {
+          action_type?: Database["public"]["Enums"]["app_action_type"]
+          app_type?: Database["public"]["Enums"]["app_registry_type"]
+          category?: string
+          connect_route?: string | null
+          created_at?: string
+          embed_url?: string | null
+          generate_route?: string | null
+          icon?: string | null
+          id?: string
+          install_route?: string | null
+          is_featured?: boolean
+          is_native_yangu?: boolean
+          launch_route?: string | null
+          long_description?: string | null
+          name?: string
+          pricing_type?: Database["public"]["Enums"]["app_pricing_type"]
+          provider_badge_logo?: string | null
+          provider_name?: string
+          provider_type?: string
+          short_description?: string | null
+          slug?: string
+          sort_order?: number
+          status?: Database["public"]["Enums"]["app_registry_status"]
+          subcategory?: string | null
+          supports_api_key?: boolean
+          supports_desktop_install?: boolean
+          supports_embed?: boolean
+          supports_oauth?: boolean
+          supports_web_install?: boolean
+          tags?: string[]
+          updated_at?: string
+          visibility?: Database["public"]["Enums"]["app_visibility"]
+        }
+        Relationships: []
+      }
       app_review_appeals: {
         Row: {
           admin_notes: string | null
@@ -625,6 +754,44 @@ export type Database = {
             columns: ["app_id"]
             isOneToOne: true
             referencedRelation: "developer_apps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      app_user_installs: {
+        Row: {
+          app_id: string
+          config: Json
+          id: string
+          installed_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          app_id: string
+          config?: Json
+          id?: string
+          installed_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          app_id?: string
+          config?: Json
+          id?: string
+          installed_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "app_user_installs_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "app_registry"
             referencedColumns: ["id"]
           },
         ]
@@ -4799,7 +4966,17 @@ export type Database = {
     Enums: {
       ad_status: "draft" | "pending_review" | "active" | "paused" | "rejected"
       agent_status: "draft" | "active" | "paused" | "archived"
+      app_action_type: "install" | "connect" | "launch" | "generate" | "embed"
+      app_pricing_type: "free" | "freemium" | "paid" | "enterprise"
+      app_registry_status: "draft" | "active" | "hidden" | "archived"
+      app_registry_type:
+        | "native_app"
+        | "connector_app"
+        | "ai_generated_app"
+        | "embedded_app"
+        | "developer_app"
       app_role: "admin" | "user" | "owner" | "manager" | "designer"
+      app_visibility: "public" | "private" | "internal"
       builder_surface_type:
         | "live_bio"
         | "live_selling"
@@ -4950,7 +5127,18 @@ export const Constants = {
     Enums: {
       ad_status: ["draft", "pending_review", "active", "paused", "rejected"],
       agent_status: ["draft", "active", "paused", "archived"],
+      app_action_type: ["install", "connect", "launch", "generate", "embed"],
+      app_pricing_type: ["free", "freemium", "paid", "enterprise"],
+      app_registry_status: ["draft", "active", "hidden", "archived"],
+      app_registry_type: [
+        "native_app",
+        "connector_app",
+        "ai_generated_app",
+        "embedded_app",
+        "developer_app",
+      ],
       app_role: ["admin", "user", "owner", "manager", "designer"],
+      app_visibility: ["public", "private", "internal"],
       builder_surface_type: [
         "live_bio",
         "live_selling",
