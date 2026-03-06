@@ -13,6 +13,14 @@ import cubeClean from "@/assets/mockups/boxes/cube-clean.jpg";
 import bookTemplateSet from "@/assets/mockups/boxes/book-template-set.jpg";
 import whiteBoxSet from "@/assets/mockups/boxes/white-box-set.jpg";
 import cubes3 from "@/assets/mockups/boxes/cubes3.jpg";
+import bookMockup1 from "@/assets/mockups/boxes/book-mockup-1.jpg";
+import bookMockup2 from "@/assets/mockups/boxes/book-mockup-2.jpg";
+import bookBlank from "@/assets/mockups/boxes/book-blank.jpg";
+import cosmeticsBlue from "@/assets/mockups/boxes/cosmetics-blue.jpg";
+import bottlesBrown from "@/assets/mockups/boxes/bottles-brown.jpg";
+import cosmeticsMen from "@/assets/mockups/boxes/cosmetics-men.jpg";
+import bottlesGold from "@/assets/mockups/boxes/bottles-gold.jpg";
+import cosmeticsPastel from "@/assets/mockups/boxes/cosmetics-pastel.jpg";
 
 export interface BoxMockup {
   id: string;
@@ -34,6 +42,14 @@ export const BOX_MOCKUPS: BoxMockup[] = [
   { id: "book-template-set", label: "Book Templates", src: bookTemplateSet },
   { id: "white-box-set", label: "White Box Set", src: whiteBoxSet },
   { id: "cubes3", label: "Cube Collection", src: cubes3 },
+  { id: "book-mockup-1", label: "Book Cover Mockup", src: bookMockup1 },
+  { id: "book-mockup-2", label: "Book Front View", src: bookMockup2 },
+  { id: "book-blank", label: "Blank Hardcover", src: bookBlank },
+  { id: "cosmetics-blue", label: "Cosmetics Blue", src: cosmeticsBlue },
+  { id: "bottles-brown", label: "Bottles Brown", src: bottlesBrown },
+  { id: "cosmetics-men", label: "Men's Cosmetics", src: cosmeticsMen },
+  { id: "bottles-gold", label: "Bottles Gold", src: bottlesGold },
+  { id: "cosmetics-pastel", label: "Cosmetics Pastel", src: cosmeticsPastel },
 ];
 
 interface BoxMockupGalleryProps {
