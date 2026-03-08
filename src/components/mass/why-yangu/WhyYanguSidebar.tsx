@@ -15,6 +15,7 @@ const builderSections = [
     items: [
       { label: "Community", id: "community" },
       { label: "Shop", id: "shop" },
+      { label: "Payments", id: "payments" },
       { label: "Studio", id: "studio" },
       { label: "Live", id: "live" },
       { label: "Site", id: "site" },

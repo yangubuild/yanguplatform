@@ -28,6 +28,19 @@ const DOCS: Record<string, FeatureDoc> = {
       { heading: "Inventory", body: "Track stock levels, set low-stock alerts, and manage fulfilment from a single dashboard." },
     ],
   },
+  payments: {
+    title: "Payments & Invoicing",
+    intro: "Create, send, and track invoices directly from YANGU. Request payments from customers with professional invoices that support one-time or recurring billing.",
+    sections: [
+      { heading: "Send an invoice", body: "YANGU lets you create professional invoices and send them directly to your customers. Each invoice includes your branding, itemized details, and a secure payment link. Customers receive the invoice via email and can pay instantly using their preferred payment method." },
+      { heading: "How invoice creation works", body: "Creating an invoice is simple: Add your customer's email, set the due date, write a description of what you're billing for, enter the amount, choose between one-time or recurring billing, configure payment methods and any advanced options, then send. Your customer receives a professional invoice immediately." },
+      { heading: "One-time vs recurring invoices", body: "One-time invoices are perfect for single projects, consultations, or one-off purchases. Recurring invoices automatically bill your customer on a schedule you define — weekly, monthly, quarterly, or annually. Ideal for subscriptions, retainers, or ongoing services." },
+      { heading: "Automated reminders", body: "YANGU automatically sends payment reminders to customers with unpaid invoices. Reminders are sent at 3 days, 7 days, 14 days, 30 days, and 60 days past due. After extended non-payment, you can void the invoice to close it without collecting payment." },
+      { heading: "Invoice actions", body: "From your dashboard, you can void or cancel an invoice if it's no longer needed, download a PDF copy for your records or to share manually, and track the real-time status of every invoice you've sent." },
+      { heading: "Invoice statuses", body: "Every invoice has a status: Open means sent and awaiting payment. Paid means the customer has completed payment. Past due means the due date has passed without payment. Void means the invoice was cancelled and is no longer collectible." },
+      { heading: "Dashboard controls", body: "Your invoice dashboard gives you full control. Use filters to view invoices by status, date, or customer. Customize columns to show the information you need. Export your invoice data for accounting, reporting, or backup purposes." },
+    ],
+  },
   studio: {
     title: "Studio",
     intro: "Create professional ads, images, and branded content powered by AI.",
