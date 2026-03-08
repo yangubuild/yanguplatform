@@ -1,88 +1,63 @@
 project_id = "xcipuyvcwfytlsjryhvs"
 
-[functions.ada-generate-image]
-verify_jwt = false
-
-[functions.ingest-anthropic-research]
-verify_jwt = false
-
-[functions.ideogram-generate]
-verify_jwt = false
-
-[functions.qwen-generate]
-verify_jwt = false
-
-[functions.creatify-generate]
-verify_jwt = false
-
-[functions.ada-chat]
-verify_jwt = false
-
-[functions.send-invite-email]
-verify_jwt = false
-
-[functions.talking-avatar]
-verify_jwt = false
-
-[functions.ada-export-pdf]
-verify_jwt = false
-
-[functions.ada-export-docx]
-verify_jwt = false
-
-[functions.drive-connect]
-verify_jwt = false
-
-[functions.drive-callback]
-verify_jwt = false
-
-[functions.drive-upload]
-verify_jwt = false
-
-[functions.image-ads-orchestrate]
-verify_jwt = false
-
-[functions.ad-clone-analyze]
-verify_jwt = false
-
-[functions.avatar-train-start]
-verify_jwt = false
-
-[functions.avatar-train-status]
-verify_jwt = false
-
-[functions.video-render-start]
-verify_jwt = false
-
-[functions.video-render-status]
-verify_jwt = false
-
-[functions.builder-ai-generate-section]
-verify_jwt = false
-
-[functions.builder-ai-generate-business-profile]
-verify_jwt = false
-
-[functions.dropship-search]
-verify_jwt = false
-
-[functions.dropship-product]
-verify_jwt = false
-
-[functions.dropship-import]
-verify_jwt = false
-
-[functions.dropship-sync-inventory]
-verify_jwt = false
-
-[functions.dropship-create-order]
-verify_jwt = false
-
-[functions.dropship-sync-orders]
-verify_jwt = false
-
-[functions.visionaire-llm]
-verify_jwt = false
-
-[functions.generate-box-mockup]
-verify_jwt = false
+[functions]
+  [functions.ad-clone-analyze]
+    verify_jwt = false
+  [functions.ada-chat]
+    verify_jwt = false
+  [functions.ada-export-docx]
+    verify_jwt = false
+  [functions.ada-export-pdf]
+    verify_jwt = false
+  [functions.ada-generate-image]
+    verify_jwt = false
+  [functions.auth-email-hook]
+    verify_jwt = false
+  [functions.avatar-train-start]
+    verify_jwt = false
+  [functions.avatar-train-status]
+    verify_jwt = false
+  [functions.builder-ai-generate-business-profile]
+    verify_jwt = false
+  [functions.builder-ai-generate-section]
+    verify_jwt = false
+  [functions.creatify-generate]
+    verify_jwt = false
+  [functions.drive-callback]
+    verify_jwt = false
+  [functions.drive-connect]
+    verify_jwt = false
+  [functions.drive-upload]
+    verify_jwt = false
+  [functions.dropship-create-order]
+    verify_jwt = false
+  [functions.dropship-import]
+    verify_jwt = false
+  [functions.dropship-product]
+    verify_jwt = false
+  [functions.dropship-search]
+    verify_jwt = false
+  [functions.dropship-sync-inventory]
+    verify_jwt = false
+  [functions.dropship-sync-orders]
+    verify_jwt = false
+  [functions.generate-box-mockup]
+    verify_jwt = false
+  [functions.ideogram-generate]
+    verify_jwt = false
+  [functions.image-ads-orchestrate]
+    verify_jwt = false
+  [functions.ingest-anthropic-research]
+    verify_jwt = false
+  [functions.qwen-generate]
+    verify_jwt = false
+  [functions.send-invite-email]
+    verify_jwt = false
+  [functions.talking-avatar]
+    verify_jwt = false
+  [functions.video-render-start]
+    verify_jwt = false
+  [functions.video-render-status]
+    verify_jwt = false
+  [functions.visionaire-llm]
+    verify_jwt = false
