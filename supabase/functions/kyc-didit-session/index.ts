@@ -15,6 +15,29 @@ function jsonResponse(payload: unknown, status = 200) {
   });
 }
 
+async function parseJsonOrText(response: Response): Promise<unknown> {
+  const text = await response.text();
+  if (!text) return {};
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { raw: text };
+  }
+}
+
+function extractDiditError(payload: unknown, fallback = "Failed to start verification session."): string {
+  if (payload && typeof payload === "object" && !Array.isArray(payload)) {
+    const body = payload as Record<string, unknown>;
+    const message = body.detail ?? body.error ?? body.message;
+    if (typeof message === "string" && message.length > 0) {
+      return message;
+    }
+  }
+
+  return fallback;
+}
+
 function mapDiditStatus(rawStatus: string | null | undefined): InternalStatus {
   const normalized = (rawStatus ?? "").toLowerCase().trim();
 
@@ -45,6 +68,8 @@ function getOrigin(req: Request): string | null {
 }
 
 Deno.serve(async (req) => {
+  const requestId = crypto.randomUUID();
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -52,7 +77,7 @@ Deno.serve(async (req) => {
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      return jsonResponse({ error: "Unauthorized" }, 401);
+      return jsonResponse({ error: "Unauthorized", request_id: requestId }, 401);
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
@@ -102,9 +127,25 @@ Deno.serve(async (req) => {
         ? (existing.metadata as Record<string, unknown>)
         : {};
 
-    const diditApiKey = Deno.env.get("DIDIT_API_KEY") ?? Deno.env.get("DID_API_KEY");
+    const diditApiKeyPrimary = Deno.env.get("DIDIT_API_KEY");
+    const diditApiKeyFallback = Deno.env.get("DID_API_KEY");
+    const diditApiKey = diditApiKeyPrimary ?? diditApiKeyFallback;
+    const diditApiKeySource = diditApiKeyPrimary
+      ? "DIDIT_API_KEY"
+      : diditApiKeyFallback
+      ? "DID_API_KEY"
+      : "none";
     const diditWorkflowId = Deno.env.get("DIDIT_WORKFLOW_ID");
     const diditBaseUrl = Deno.env.get("DIDIT_BASE_URL") ?? "https://verification.didit.me";
+
+    console.log("[kyc-didit-session] runtime config", {
+      request_id: requestId,
+      has_didit_api_key: !!diditApiKey,
+      didit_api_key_source: diditApiKeySource,
+      has_didit_workflow_id: !!diditWorkflowId,
+      didit_workflow_id: diditWorkflowId ?? null,
+      didit_base_url: diditBaseUrl,
+    });
 
     const upsertKyc = async (params: {
       status: InternalStatus;
@@ -252,11 +293,23 @@ Deno.serve(async (req) => {
     }
 
     if (!diditApiKey || !diditWorkflowId) {
-      console.error("Missing Didit config:", { hasApiKey: !!diditApiKey, hasWorkflowId: !!diditWorkflowId });
+      console.error("[kyc-didit-session] missing Didit config", {
+        request_id: requestId,
+        has_didit_api_key: !!diditApiKey,
+        didit_api_key_source: diditApiKeySource,
+        has_didit_workflow_id: !!diditWorkflowId,
+      });
+
       return jsonResponse(
         {
-          error:
-            "Didit is not fully configured. Missing DIDIT_API_KEY or DIDIT_WORKFLOW_ID secret.",
+          error: "Didit is not fully configured. Missing DIDIT_API_KEY (or DID_API_KEY) or DIDIT_WORKFLOW_ID secret.",
+          request_id: requestId,
+          config: {
+            has_didit_api_key: !!diditApiKey,
+            didit_api_key_source: diditApiKeySource,
+            has_didit_workflow_id: !!diditWorkflowId,
+            didit_workflow_id: diditWorkflowId ?? null,
+          },
         },
         503,
       );
@@ -265,31 +318,84 @@ Deno.serve(async (req) => {
     const callbackUrl =
       Deno.env.get("DIDIT_CALLBACK_URL") ?? `${getOrigin(req) ?? "https://yangu-launchpad.lovable.app"}/kyc`;
 
-    const createResponse = await fetch(`${diditBaseUrl}/v3/session/`, {
-      method: "POST",
-      headers: {
-        accept: "application/json",
-        "content-type": "application/json",
-        "x-api-key": diditApiKey,
-      },
-      body: JSON.stringify({
-        workflow_id: diditWorkflowId,
-        vendor_data: user.id,
-        callback: callbackUrl,
-      }),
+    const createEndpoints = [`${diditBaseUrl}/v3/session/`, `${diditBaseUrl}/v2/session/`];
+    const diditPayload = {
+      workflow_id: diditWorkflowId,
+      vendor_data: user.id,
+      callback: callbackUrl,
+    };
+
+    console.log("[kyc-didit-session] create session request", {
+      request_id: requestId,
+      endpoints: createEndpoints,
+      payload: diditPayload,
+      didit_api_key_source: diditApiKeySource,
     });
 
-    const createBody = await createResponse.json().catch(() => ({}));
+    let createEndpointUsed: string | null = null;
+    let createBody: Record<string, unknown> | null = null;
+    let createStatus: number | null = null;
+    let lastCreateErrorBody: unknown = null;
 
-    if (!createResponse.ok) {
-      const message =
-        (createBody as Record<string, unknown>).detail ||
-        (createBody as Record<string, unknown>).error ||
-        "Failed to start verification session.";
-      return jsonResponse({ error: String(message) }, 400);
+    for (const endpoint of createEndpoints) {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          "content-type": "application/json",
+          "x-api-key": diditApiKey,
+        },
+        body: JSON.stringify(diditPayload),
+      });
+
+      const parsed = await parseJsonOrText(response);
+      const normalizedBody =
+        parsed && typeof parsed === "object" && !Array.isArray(parsed)
+          ? (parsed as Record<string, unknown>)
+          : { raw: parsed };
+
+      console.log("[kyc-didit-session] create session response", {
+        request_id: requestId,
+        endpoint,
+        status: response.status,
+        ok: response.ok,
+        body: normalizedBody,
+      });
+
+      createStatus = response.status;
+
+      if (response.ok) {
+        createEndpointUsed = endpoint;
+        createBody = normalizedBody;
+        break;
+      }
+
+      lastCreateErrorBody = normalizedBody;
     }
 
-    const body = createBody as Record<string, unknown>;
+    if (!createBody || !createEndpointUsed) {
+      return jsonResponse(
+        {
+          error: extractDiditError(lastCreateErrorBody),
+          request_id: requestId,
+          didit_status: createStatus,
+          didit_endpoint: createEndpoints,
+          didit_response: lastCreateErrorBody,
+          payload: diditPayload,
+          config: {
+            has_didit_api_key: !!diditApiKey,
+            didit_api_key_source: diditApiKeySource,
+            has_didit_workflow_id: !!diditWorkflowId,
+            didit_workflow_id: diditWorkflowId,
+            callback_url: callbackUrl,
+          },
+        },
+        createStatus && createStatus >= 400 && createStatus < 600 ? createStatus : 400,
+      );
+    }
+
+    const body = createBody;
+
     const verificationUrl =
       typeof body.verification_url === "string"
         ? body.verification_url
@@ -326,9 +432,14 @@ Deno.serve(async (req) => {
       verification_url: verificationUrl,
       mapped_status: mappedStatus,
       session_id: sessionId,
+      request_id: requestId,
+      didit_endpoint: createEndpointUsed,
     });
   } catch (error) {
-    console.error("kyc-didit-session error:", error);
-    return jsonResponse({ error: error instanceof Error ? error.message : "Internal error" }, 500);
+    console.error("kyc-didit-session error:", { request_id: requestId, error });
+    return jsonResponse(
+      { error: error instanceof Error ? error.message : "Internal error", request_id: requestId },
+      500,
+    );
   }
 });
