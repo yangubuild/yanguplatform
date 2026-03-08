@@ -197,6 +197,7 @@ export function ProfileWorkspace() {
   // Use local state if just uploaded, otherwise fall back to profile
   const resolvedAvatar = profile ? resolveAvatarUrl(profile) : null;
   const displayCover = coverUrl || (profile as any)?.cover_url || null;
+  const displayCoverCrop = (profile as any)?.cover_crop as CropData | null;
   const displayAvatar = avatarUrl || resolvedAvatar || null;
   const handleImageUpload = async (
     file: File,
@@ -227,23 +228,38 @@ export function ProfileWorkspace() {
       const { data: { publicUrl } } = supabase.storage.from("profile-media").getPublicUrl(path);
       const url = `${publicUrl}?t=${Date.now()}`;
 
-      const updateCol = type === "cover" ? "cover_url" : "avatar_url";
-      const { error: profileErr } = await supabase
-        .from("profiles")
-        .update({ [updateCol]: url })
-        .eq("id", user.id);
-      if (profileErr) throw profileErr;
-
-      if (type === "cover") setCoverUrl(url);
-      else setAvatarUrl(url);
-
-      await refreshProfile();
-      toast.success(`${type === "cover" ? "Cover" : "Profile"} image updated`);
+      if (type === "cover") {
+        // Open crop modal instead of saving immediately
+        setPendingCoverUrl(url);
+        setCropModalOpen(true);
+      } else {
+        const { error: profileErr } = await supabase
+          .from("profiles")
+          .update({ avatar_url: url })
+          .eq("id", user.id);
+        if (profileErr) throw profileErr;
+        setAvatarUrl(url);
+        await refreshProfile();
+        toast.success("Profile image updated");
+      }
     } catch (err: any) {
       toast.error(err.message || "Upload failed");
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleSaveCoverCrop = async (cropData: CropData) => {
+    if (!user || !pendingCoverUrl) return;
+    const { error: profileErr } = await supabase
+      .from("profiles")
+      .update({ cover_url: pendingCoverUrl, cover_crop: cropData } as any)
+      .eq("id", user.id);
+    if (profileErr) throw profileErr;
+    setCoverUrl(pendingCoverUrl);
+    await refreshProfile();
+    toast.success("Cover image updated");
+    setPendingCoverUrl(null);
   };
 
   const displayName = profile?.display_name || profile?.business_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Unnamed";
