@@ -149,6 +149,7 @@ export default function ProfilePage() {
 
   const avatarSrc = profile ? resolveAvatarUrl(profile) : null;
   const coverUrl = (profile as any)?.cover_url || null;
+  const coverCrop = (profile as any)?.cover_crop as CropData | null;
   const displayName = profile?.display_name || "User";
   const usernameDisplay = profile?.username || "user";
   const joinDate = profile?.created_at
