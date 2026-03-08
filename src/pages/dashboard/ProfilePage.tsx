@@ -176,19 +176,27 @@ export default function ProfilePage() {
       if (uploadErr) throw uploadErr;
       const { data: { publicUrl } } = supabase.storage.from("profile-media").getPublicUrl(path);
       const url = `${publicUrl}?t=${Date.now()}`;
-      const { error: profileErr } = await supabase
-        .from("profiles")
-        .update({ cover_url: url } as any)
-        .eq("id", user.id);
-      if (profileErr) throw profileErr;
-      await refreshProfile();
-      toast({ title: "Cover image updated" });
+      // Open crop modal instead of saving immediately
+      setPendingCoverUrl(url);
+      setCropModalOpen(true);
     } catch (err: any) {
       toast({ title: "Upload failed", description: err.message, variant: "destructive" });
     } finally {
       setUploadingCover(false);
       if (coverInputRef.current) coverInputRef.current.value = "";
     }
+  };
+
+  const handleSaveCrop = async (cropData: CropData) => {
+    if (!user || !pendingCoverUrl) return;
+    const { error: profileErr } = await supabase
+      .from("profiles")
+      .update({ cover_url: pendingCoverUrl, cover_crop: cropData } as any)
+      .eq("id", user.id);
+    if (profileErr) throw profileErr;
+    await refreshProfile();
+    toast({ title: "Cover image updated" });
+    setPendingCoverUrl(null);
   };
 
   const handleCopyLink = () => {
