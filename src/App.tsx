@@ -298,7 +298,17 @@ const App = () => (
                     </ProtectedRoute>
                   }
                 />
-                
+
+                {/* KYC - required before publishing */}
+                <Route
+                  path="/kyc"
+                  element={
+                    <ProtectedRoute>
+                      <KYC />
+                    </ProtectedRoute>
+                  }
+                />
+
                 {/* ====== APP SHELL: /dashboard/* ====== */}
                 <Route
                   path="/dashboard"
