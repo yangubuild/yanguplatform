@@ -7,7 +7,7 @@ interface InvoiceEmptyStateProps {
 export function InvoiceEmptyState({ onCreateInvoice }: InvoiceEmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] px-4"
-      style={{ background: "#0c0c0c" }}>
+      style={{ background: "#08120D" }}>
       {/* Illustration area */}
       <div className="mb-6">
         <div className="w-[160px] h-[130px] flex items-center justify-center">
