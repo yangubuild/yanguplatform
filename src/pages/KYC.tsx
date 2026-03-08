@@ -177,7 +177,7 @@ export default function KYC() {
   const uiStatus = useMemo(() => mapToUiStatus(kyc?.status ?? null), [kyc?.status]);
   const verificationUrl = useMemo(() => getDiditUrl(kyc?.metadata ?? null), [kyc?.metadata]);
 
-  const statusConfig: Record<KycUiStatus, { label: string; description: string; badgeVariant: "default" | "secondary" | "destructive"; icon: JSX.Element }> = {
+  const statusConfig: Record<KycUiStatus, { label: string; description: string; badgeVariant: "default" | "secondary" | "destructive"; icon: ReactNode }> = {
     not_started: {
       label: "Not started",
       description: "Complete KYC verification before publishing.",
