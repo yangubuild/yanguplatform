@@ -331,11 +331,29 @@ export function ProfileWorkspace() {
           className="w-full h-[200px] relative overflow-hidden group cursor-pointer"
           onClick={() => coverInputRef.current?.click()}
           style={{
-            background: displayCover
+            background: displayCover && !displayCoverCrop
               ? `url(${displayCover}) center/cover no-repeat`
-              : "radial-gradient(ellipse 80% 140% at 65% 30%, rgba(34,197,94,0.45) 0%, rgba(16,185,129,0.2) 35%, rgba(6,78,59,0.15) 60%, transparent 80%), linear-gradient(135deg, #061a12 0%, #0a2e1e 30%, #0d3a27 55%, #072217 80%, #051510 100%)",
+              : !displayCover
+              ? "radial-gradient(ellipse 80% 140% at 65% 30%, rgba(34,197,94,0.45) 0%, rgba(16,185,129,0.2) 35%, rgba(6,78,59,0.15) 60%, transparent 80%), linear-gradient(135deg, #061a12 0%, #0a2e1e 30%, #0d3a27 55%, #072217 80%, #051510 100%)"
+              : undefined,
           }}
         >
+          {/* Positioned cover with crop data */}
+          {displayCover && displayCoverCrop && (
+            <img
+              src={displayCover}
+              alt=""
+              draggable={false}
+              className="absolute pointer-events-none"
+              style={{
+                width: "100%",
+                left: "50%",
+                top: "50%",
+                transform: `translate(calc(-50% + ${displayCoverCrop.x}px), calc(-50% + ${displayCoverCrop.y}px)) scale(${displayCoverCrop.scale})`,
+                transformOrigin: "center center",
+              }}
+            />
+          )}
           {!displayCover && (
             <>
               <div
