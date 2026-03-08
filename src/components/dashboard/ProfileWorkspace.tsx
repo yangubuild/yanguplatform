@@ -966,6 +966,17 @@ export function ProfileWorkspace() {
         saving={savingSocial}
       />
       <AvatarPickerModal open={avatarPickerOpen} onOpenChange={setAvatarPickerOpen} />
+      {pendingCoverUrl && (
+        <CoverCropModal
+          open={cropModalOpen}
+          onOpenChange={(open) => {
+            setCropModalOpen(open);
+            if (!open) setPendingCoverUrl(null);
+          }}
+          imageUrl={pendingCoverUrl}
+          onSave={handleSaveCoverCrop}
+        />
+      )}
     </div>
   );
 }
