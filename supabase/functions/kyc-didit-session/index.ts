@@ -318,31 +318,84 @@ Deno.serve(async (req) => {
     const callbackUrl =
       Deno.env.get("DIDIT_CALLBACK_URL") ?? `${getOrigin(req) ?? "https://yangu-launchpad.lovable.app"}/kyc`;
 
-    const createResponse = await fetch(`${diditBaseUrl}/v3/session/`, {
-      method: "POST",
-      headers: {
-        accept: "application/json",
-        "content-type": "application/json",
-        "x-api-key": diditApiKey,
-      },
-      body: JSON.stringify({
-        workflow_id: diditWorkflowId,
-        vendor_data: user.id,
-        callback: callbackUrl,
-      }),
+    const createEndpoints = [`${diditBaseUrl}/v3/session/`, `${diditBaseUrl}/v2/session/`];
+    const diditPayload = {
+      workflow_id: diditWorkflowId,
+      vendor_data: user.id,
+      callback: callbackUrl,
+    };
+
+    console.log("[kyc-didit-session] create session request", {
+      request_id: requestId,
+      endpoints: createEndpoints,
+      payload: diditPayload,
+      didit_api_key_source: diditApiKeySource,
     });
 
-    const createBody = await createResponse.json().catch(() => ({}));
+    let createEndpointUsed: string | null = null;
+    let createBody: Record<string, unknown> | null = null;
+    let createStatus: number | null = null;
+    let lastCreateErrorBody: unknown = null;
 
-    if (!createResponse.ok) {
-      const message =
-        (createBody as Record<string, unknown>).detail ||
-        (createBody as Record<string, unknown>).error ||
-        "Failed to start verification session.";
-      return jsonResponse({ error: String(message) }, 400);
+    for (const endpoint of createEndpoints) {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          "content-type": "application/json",
+          "x-api-key": diditApiKey,
+        },
+        body: JSON.stringify(diditPayload),
+      });
+
+      const parsed = await parseJsonOrText(response);
+      const normalizedBody =
+        parsed && typeof parsed === "object" && !Array.isArray(parsed)
+          ? (parsed as Record<string, unknown>)
+          : { raw: parsed };
+
+      console.log("[kyc-didit-session] create session response", {
+        request_id: requestId,
+        endpoint,
+        status: response.status,
+        ok: response.ok,
+        body: normalizedBody,
+      });
+
+      createStatus = response.status;
+
+      if (response.ok) {
+        createEndpointUsed = endpoint;
+        createBody = normalizedBody;
+        break;
+      }
+
+      lastCreateErrorBody = normalizedBody;
     }
 
-    const body = createBody as Record<string, unknown>;
+    if (!createBody || !createEndpointUsed) {
+      return jsonResponse(
+        {
+          error: extractDiditError(lastCreateErrorBody),
+          request_id: requestId,
+          didit_status: createStatus,
+          didit_endpoint: createEndpoints,
+          didit_response: lastCreateErrorBody,
+          payload: diditPayload,
+          config: {
+            has_didit_api_key: !!diditApiKey,
+            didit_api_key_source: diditApiKeySource,
+            has_didit_workflow_id: !!diditWorkflowId,
+            didit_workflow_id: diditWorkflowId,
+            callback_url: callbackUrl,
+          },
+        },
+        createStatus && createStatus >= 400 && createStatus < 600 ? createStatus : 400,
+      );
+    }
+
+    const body = createBody;
+
     const verificationUrl =
       typeof body.verification_url === "string"
         ? body.verification_url
