@@ -77,7 +77,7 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
   return (
     <div
       className="flex w-full min-h-[calc(100vh-64px)]"
-      style={{ background: "#0c0c0c" }}
+      style={{ background: "#08120D" }}
     >
       {/* Left panel — form */}
       <div
