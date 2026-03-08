@@ -293,11 +293,23 @@ Deno.serve(async (req) => {
     }
 
     if (!diditApiKey || !diditWorkflowId) {
-      console.error("Missing Didit config:", { hasApiKey: !!diditApiKey, hasWorkflowId: !!diditWorkflowId });
+      console.error("[kyc-didit-session] missing Didit config", {
+        request_id: requestId,
+        has_didit_api_key: !!diditApiKey,
+        didit_api_key_source: diditApiKeySource,
+        has_didit_workflow_id: !!diditWorkflowId,
+      });
+
       return jsonResponse(
         {
-          error:
-            "Didit is not fully configured. Missing DIDIT_API_KEY or DIDIT_WORKFLOW_ID secret.",
+          error: "Didit is not fully configured. Missing DIDIT_API_KEY (or DID_API_KEY) or DIDIT_WORKFLOW_ID secret.",
+          request_id: requestId,
+          config: {
+            has_didit_api_key: !!diditApiKey,
+            didit_api_key_source: diditApiKeySource,
+            has_didit_workflow_id: !!diditWorkflowId,
+            didit_workflow_id: diditWorkflowId ?? null,
+          },
         },
         503,
       );
