@@ -36,9 +36,9 @@ export const EmailChangeEmail = ({
       <Container style={container}>
         <Section style={logoSection}>
           <Img
-            src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/yangu-y-icon.png"
-            width="40"
-            height="40"
+            src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/yangu-logo-email.png"
+            width="48"
+            height="48"
             alt="yangu"
             style={logo}
           />
