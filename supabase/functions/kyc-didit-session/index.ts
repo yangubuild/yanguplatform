@@ -436,7 +436,10 @@ Deno.serve(async (req) => {
       didit_endpoint: createEndpointUsed,
     });
   } catch (error) {
-    console.error("kyc-didit-session error:", error);
-    return jsonResponse({ error: error instanceof Error ? error.message : "Internal error" }, 500);
+    console.error("kyc-didit-session error:", { request_id: requestId, error });
+    return jsonResponse(
+      { error: error instanceof Error ? error.message : "Internal error", request_id: requestId },
+      500,
+    );
   }
 });
