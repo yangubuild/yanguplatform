@@ -68,6 +68,8 @@ function getOrigin(req: Request): string | null {
 }
 
 Deno.serve(async (req) => {
+  const requestId = crypto.randomUUID();
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -75,7 +77,7 @@ Deno.serve(async (req) => {
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      return jsonResponse({ error: "Unauthorized" }, 401);
+      return jsonResponse({ error: "Unauthorized", request_id: requestId }, 401);
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
