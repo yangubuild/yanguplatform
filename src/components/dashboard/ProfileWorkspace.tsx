@@ -29,6 +29,7 @@ import adaIcon from "@/assets/ada-icon.png";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import { triggerEmojiPreload } from "@/hooks/useEmojiPreloader";
 import AvatarPickerModal from "@/components/profile/AvatarPickerModal";
+import CoverCropModal, { type CropData } from "@/components/profile/CoverCropModal";
 import { useNavigate } from "react-router-dom";
 import { AddTeamModal } from "./AddTeamModal";
 import { NotificationPrefsModal } from "./NotificationPrefsModal";
