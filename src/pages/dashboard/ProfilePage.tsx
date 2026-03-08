@@ -694,6 +694,18 @@ export default function ProfilePage() {
           </div>
         </>
       )}
+      {/* Cover Crop Modal */}
+      {pendingCoverUrl && (
+        <CoverCropModal
+          open={cropModalOpen}
+          onOpenChange={(open) => {
+            setCropModalOpen(open);
+            if (!open) setPendingCoverUrl(null);
+          }}
+          imageUrl={pendingCoverUrl}
+          onSave={handleSaveCrop}
+        />
+      )}
     </div>
   );
 }
