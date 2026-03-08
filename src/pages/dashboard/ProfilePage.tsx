@@ -274,12 +274,30 @@ export default function ProfilePage() {
         className="relative rounded-2xl overflow-hidden group cursor-pointer"
         style={{
           height: 160,
-          background: coverUrl
+          background: coverUrl && !coverCrop
             ? `url(${coverUrl}) center/cover no-repeat`
-            : "#2a3038",
+            : !coverUrl ? "#2a3038" : undefined,
+          overflow: "hidden",
+          position: "relative",
         }}
         onClick={() => coverInputRef.current?.click()}
       >
+        {/* Positioned cover image with crop data */}
+        {coverUrl && coverCrop && (
+          <img
+            src={coverUrl}
+            alt=""
+            draggable={false}
+            className="absolute pointer-events-none"
+            style={{
+              width: "100%",
+              left: "50%",
+              top: "50%",
+              transform: `translate(calc(-50% + ${coverCrop.x}px), calc(-50% + ${coverCrop.y}px)) scale(${coverCrop.scale})`,
+              transformOrigin: "center center",
+            }}
+          />
+        )}
         {/* Hidden cover file input */}
         <input
           ref={coverInputRef}
