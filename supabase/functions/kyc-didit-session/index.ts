@@ -432,6 +432,8 @@ Deno.serve(async (req) => {
       verification_url: verificationUrl,
       mapped_status: mappedStatus,
       session_id: sessionId,
+      request_id: requestId,
+      didit_endpoint: createEndpointUsed,
     });
   } catch (error) {
     console.error("kyc-didit-session error:", error);
