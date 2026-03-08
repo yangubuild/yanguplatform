@@ -35,6 +35,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { useRef } from "react";
 import { ImagePlus, Loader2 } from "lucide-react";
+import CoverCropModal, { type CropData } from "@/components/profile/CoverCropModal";
 
 import xIcon from "@/assets/icons/x-3.png";
 import instagramIcon from "@/assets/icons/instagram-3.png";
@@ -115,6 +116,8 @@ export default function ProfilePage() {
   const [avatarModalOpen, setAvatarModalOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [pendingCoverUrl, setPendingCoverUrl] = useState<string | null>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
   // Edit form state
@@ -146,6 +149,7 @@ export default function ProfilePage() {
 
   const avatarSrc = profile ? resolveAvatarUrl(profile) : null;
   const coverUrl = (profile as any)?.cover_url || null;
+  const coverCrop = (profile as any)?.cover_crop as CropData | null;
   const displayName = profile?.display_name || "User";
   const usernameDisplay = profile?.username || "user";
   const joinDate = profile?.created_at
@@ -173,19 +177,27 @@ export default function ProfilePage() {
       if (uploadErr) throw uploadErr;
       const { data: { publicUrl } } = supabase.storage.from("profile-media").getPublicUrl(path);
       const url = `${publicUrl}?t=${Date.now()}`;
-      const { error: profileErr } = await supabase
-        .from("profiles")
-        .update({ cover_url: url } as any)
-        .eq("id", user.id);
-      if (profileErr) throw profileErr;
-      await refreshProfile();
-      toast({ title: "Cover image updated" });
+      // Open crop modal instead of saving immediately
+      setPendingCoverUrl(url);
+      setCropModalOpen(true);
     } catch (err: any) {
       toast({ title: "Upload failed", description: err.message, variant: "destructive" });
     } finally {
       setUploadingCover(false);
       if (coverInputRef.current) coverInputRef.current.value = "";
     }
+  };
+
+  const handleSaveCrop = async (cropData: CropData) => {
+    if (!user || !pendingCoverUrl) return;
+    const { error: profileErr } = await supabase
+      .from("profiles")
+      .update({ cover_url: pendingCoverUrl, cover_crop: cropData } as any)
+      .eq("id", user.id);
+    if (profileErr) throw profileErr;
+    await refreshProfile();
+    toast({ title: "Cover image updated" });
+    setPendingCoverUrl(null);
   };
 
   const handleCopyLink = () => {
@@ -262,12 +274,30 @@ export default function ProfilePage() {
         className="relative rounded-2xl overflow-hidden group cursor-pointer"
         style={{
           height: 160,
-          background: coverUrl
+          background: coverUrl && !coverCrop
             ? `url(${coverUrl}) center/cover no-repeat`
-            : "#2a3038",
+            : !coverUrl ? "#2a3038" : undefined,
+          overflow: "hidden",
+          position: "relative",
         }}
         onClick={() => coverInputRef.current?.click()}
       >
+        {/* Positioned cover image with crop data */}
+        {coverUrl && coverCrop && (
+          <img
+            src={coverUrl}
+            alt=""
+            draggable={false}
+            className="absolute pointer-events-none"
+            style={{
+              width: "100%",
+              left: "50%",
+              top: "50%",
+              transform: `translate(calc(-50% + ${coverCrop.x}px), calc(-50% + ${coverCrop.y}px)) scale(${coverCrop.scale})`,
+              transformOrigin: "center center",
+            }}
+          />
+        )}
         {/* Hidden cover file input */}
         <input
           ref={coverInputRef}
@@ -663,6 +693,18 @@ export default function ProfilePage() {
             )}
           </div>
         </>
+      )}
+      {/* Cover Crop Modal */}
+      {pendingCoverUrl && (
+        <CoverCropModal
+          open={cropModalOpen}
+          onOpenChange={(open) => {
+            setCropModalOpen(open);
+            if (!open) setPendingCoverUrl(null);
+          }}
+          imageUrl={pendingCoverUrl}
+          onSave={handleSaveCrop}
+        />
       )}
     </div>
   );

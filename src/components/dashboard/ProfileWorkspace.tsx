@@ -29,6 +29,7 @@ import adaIcon from "@/assets/ada-icon.png";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import { triggerEmojiPreload } from "@/hooks/useEmojiPreloader";
 import AvatarPickerModal from "@/components/profile/AvatarPickerModal";
+import CoverCropModal, { type CropData } from "@/components/profile/CoverCropModal";
 import { useNavigate } from "react-router-dom";
 import { AddTeamModal } from "./AddTeamModal";
 import { NotificationPrefsModal } from "./NotificationPrefsModal";
@@ -54,6 +55,8 @@ export function ProfileWorkspace() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [kycStatus, setKycStatus] = useState<string | null>(null);
   const [kycLoading, setKycLoading] = useState(true);
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [pendingCoverUrl, setPendingCoverUrl] = useState<string | null>(null);
   const [editingName, setEditingName] = useState(false);
   const [editingDesc, setEditingDesc] = useState(false);
   const [nameValue, setNameValue] = useState("");
@@ -194,6 +197,7 @@ export function ProfileWorkspace() {
   // Use local state if just uploaded, otherwise fall back to profile
   const resolvedAvatar = profile ? resolveAvatarUrl(profile) : null;
   const displayCover = coverUrl || (profile as any)?.cover_url || null;
+  const displayCoverCrop = (profile as any)?.cover_crop as CropData | null;
   const displayAvatar = avatarUrl || resolvedAvatar || null;
   const handleImageUpload = async (
     file: File,
@@ -224,23 +228,38 @@ export function ProfileWorkspace() {
       const { data: { publicUrl } } = supabase.storage.from("profile-media").getPublicUrl(path);
       const url = `${publicUrl}?t=${Date.now()}`;
 
-      const updateCol = type === "cover" ? "cover_url" : "avatar_url";
-      const { error: profileErr } = await supabase
-        .from("profiles")
-        .update({ [updateCol]: url })
-        .eq("id", user.id);
-      if (profileErr) throw profileErr;
-
-      if (type === "cover") setCoverUrl(url);
-      else setAvatarUrl(url);
-
-      await refreshProfile();
-      toast.success(`${type === "cover" ? "Cover" : "Profile"} image updated`);
+      if (type === "cover") {
+        // Open crop modal instead of saving immediately
+        setPendingCoverUrl(url);
+        setCropModalOpen(true);
+      } else {
+        const { error: profileErr } = await supabase
+          .from("profiles")
+          .update({ avatar_url: url })
+          .eq("id", user.id);
+        if (profileErr) throw profileErr;
+        setAvatarUrl(url);
+        await refreshProfile();
+        toast.success("Profile image updated");
+      }
     } catch (err: any) {
       toast.error(err.message || "Upload failed");
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleSaveCoverCrop = async (cropData: CropData) => {
+    if (!user || !pendingCoverUrl) return;
+    const { error: profileErr } = await supabase
+      .from("profiles")
+      .update({ cover_url: pendingCoverUrl, cover_crop: cropData } as any)
+      .eq("id", user.id);
+    if (profileErr) throw profileErr;
+    setCoverUrl(pendingCoverUrl);
+    await refreshProfile();
+    toast.success("Cover image updated");
+    setPendingCoverUrl(null);
   };
 
   const displayName = profile?.display_name || profile?.business_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Unnamed";
@@ -312,11 +331,29 @@ export function ProfileWorkspace() {
           className="w-full h-[200px] relative overflow-hidden group cursor-pointer"
           onClick={() => coverInputRef.current?.click()}
           style={{
-            background: displayCover
+            background: displayCover && !displayCoverCrop
               ? `url(${displayCover}) center/cover no-repeat`
-              : "radial-gradient(ellipse 80% 140% at 65% 30%, rgba(34,197,94,0.45) 0%, rgba(16,185,129,0.2) 35%, rgba(6,78,59,0.15) 60%, transparent 80%), linear-gradient(135deg, #061a12 0%, #0a2e1e 30%, #0d3a27 55%, #072217 80%, #051510 100%)",
+              : !displayCover
+              ? "radial-gradient(ellipse 80% 140% at 65% 30%, rgba(34,197,94,0.45) 0%, rgba(16,185,129,0.2) 35%, rgba(6,78,59,0.15) 60%, transparent 80%), linear-gradient(135deg, #061a12 0%, #0a2e1e 30%, #0d3a27 55%, #072217 80%, #051510 100%)"
+              : undefined,
           }}
         >
+          {/* Positioned cover with crop data */}
+          {displayCover && displayCoverCrop && (
+            <img
+              src={displayCover}
+              alt=""
+              draggable={false}
+              className="absolute pointer-events-none"
+              style={{
+                width: "100%",
+                left: "50%",
+                top: "50%",
+                transform: `translate(calc(-50% + ${displayCoverCrop.x}px), calc(-50% + ${displayCoverCrop.y}px)) scale(${displayCoverCrop.scale})`,
+                transformOrigin: "center center",
+              }}
+            />
+          )}
           {!displayCover && (
             <>
               <div
@@ -929,6 +966,17 @@ export function ProfileWorkspace() {
         saving={savingSocial}
       />
       <AvatarPickerModal open={avatarPickerOpen} onOpenChange={setAvatarPickerOpen} />
+      {pendingCoverUrl && (
+        <CoverCropModal
+          open={cropModalOpen}
+          onOpenChange={(open) => {
+            setCropModalOpen(open);
+            if (!open) setPendingCoverUrl(null);
+          }}
+          imageUrl={pendingCoverUrl}
+          onSave={handleSaveCoverCrop}
+        />
+      )}
     </div>
   );
 }
