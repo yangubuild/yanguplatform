@@ -127,9 +127,25 @@ Deno.serve(async (req) => {
         ? (existing.metadata as Record<string, unknown>)
         : {};
 
-    const diditApiKey = Deno.env.get("DIDIT_API_KEY") ?? Deno.env.get("DID_API_KEY");
+    const diditApiKeyPrimary = Deno.env.get("DIDIT_API_KEY");
+    const diditApiKeyFallback = Deno.env.get("DID_API_KEY");
+    const diditApiKey = diditApiKeyPrimary ?? diditApiKeyFallback;
+    const diditApiKeySource = diditApiKeyPrimary
+      ? "DIDIT_API_KEY"
+      : diditApiKeyFallback
+      ? "DID_API_KEY"
+      : "none";
     const diditWorkflowId = Deno.env.get("DIDIT_WORKFLOW_ID");
     const diditBaseUrl = Deno.env.get("DIDIT_BASE_URL") ?? "https://verification.didit.me";
+
+    console.log("[kyc-didit-session] runtime config", {
+      request_id: requestId,
+      has_didit_api_key: !!diditApiKey,
+      didit_api_key_source: diditApiKeySource,
+      has_didit_workflow_id: !!diditWorkflowId,
+      didit_workflow_id: diditWorkflowId ?? null,
+      didit_base_url: diditBaseUrl,
+    });
 
     const upsertKyc = async (params: {
       status: InternalStatus;
