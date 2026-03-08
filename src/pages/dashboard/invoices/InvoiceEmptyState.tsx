@@ -1,13 +1,19 @@
-import { Plus, FileText } from "lucide-react";
+import { Plus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface InvoiceEmptyStateProps {
   onCreateInvoice: () => void;
 }
 
 export function InvoiceEmptyState({ onCreateInvoice }: InvoiceEmptyStateProps) {
+  const navigate = useNavigate();
+
+  const handleViewDocs = () => {
+    navigate("/docs/builders/payments");
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] px-4"
-      style={{ background: "#08120D" }}>
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] px-4 bg-background">
       {/* Illustration area */}
       <div className="mb-6">
         <div className="w-[160px] h-[130px] flex items-center justify-center">
@@ -33,32 +39,26 @@ export function InvoiceEmptyState({ onCreateInvoice }: InvoiceEmptyStateProps) {
         </div>
       </div>
 
-      <h2 className="text-2xl font-semibold text-white mb-2">No invoices yet</h2>
-      <p className="text-sm mb-16" style={{ color: "rgba(255,255,255,0.45)" }}>
+      <h2 className="text-2xl font-semibold text-foreground mb-2">No invoices yet</h2>
+      <p className="text-sm mb-16 text-muted-foreground">
         Create your first invoice to request payment directly from a customer.
       </p>
 
       {/* Bottom action bar */}
-      <div
-        className="flex items-center gap-3 px-6 py-4 rounded-2xl max-w-2xl w-full"
-        style={{
-          background: "rgba(255,255,255,0.04)",
-          border: "1px solid rgba(255,255,255,0.08)",
-        }}
-      >
-        <p className="text-sm flex-1" style={{ color: "rgba(255,255,255,0.5)" }}>
+      <div className="flex items-center gap-3 px-6 py-4 rounded-2xl max-w-2xl w-full bg-card border border-border">
+        <p className="text-sm flex-1 text-muted-foreground">
           Create your first invoice to request payment directly from a customer.
         </p>
         <button
           onClick={onCreateInvoice}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium text-black shrink-0"
-          style={{ background: "white" }}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium bg-primary text-primary-foreground shrink-0"
         >
           <Plus className="w-4 h-4" />
           Create invoice
         </button>
         <button
-          className="text-sm font-medium text-white shrink-0 px-3 py-2.5 hover:underline"
+          onClick={handleViewDocs}
+          className="text-sm font-medium text-foreground shrink-0 px-3 py-2.5 hover:underline"
         >
           View docs
         </button>
