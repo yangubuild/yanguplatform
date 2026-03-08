@@ -252,6 +252,7 @@ Deno.serve(async (req) => {
     }
 
     if (!diditApiKey || !diditWorkflowId) {
+      console.error("Missing Didit config:", { hasApiKey: !!diditApiKey, hasWorkflowId: !!diditWorkflowId });
       return jsonResponse(
         {
           error:
