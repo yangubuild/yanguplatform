@@ -63,7 +63,7 @@ export default function Signup() {
       }
 
       toast.success("Check your email to verify your account!");
-      navigate("/auth/verify-email");
+      navigate(`/auth/verify-email?email=${encodeURIComponent(data.email)}`);
     } catch (err) {
       toast.error("An unexpected error occurred");
     } finally {
