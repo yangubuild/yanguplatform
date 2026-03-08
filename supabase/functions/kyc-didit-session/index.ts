@@ -15,6 +15,29 @@ function jsonResponse(payload: unknown, status = 200) {
   });
 }
 
+async function parseJsonOrText(response: Response): Promise<unknown> {
+  const text = await response.text();
+  if (!text) return {};
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { raw: text };
+  }
+}
+
+function extractDiditError(payload: unknown, fallback = "Failed to start verification session."): string {
+  if (payload && typeof payload === "object" && !Array.isArray(payload)) {
+    const body = payload as Record<string, unknown>;
+    const message = body.detail ?? body.error ?? body.message;
+    if (typeof message === "string" && message.length > 0) {
+      return message;
+    }
+  }
+
+  return fallback;
+}
+
 function mapDiditStatus(rawStatus: string | null | undefined): InternalStatus {
   const normalized = (rawStatus ?? "").toLowerCase().trim();
 
