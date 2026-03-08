@@ -116,6 +116,8 @@ export default function ProfilePage() {
   const [avatarModalOpen, setAvatarModalOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [pendingCoverUrl, setPendingCoverUrl] = useState<string | null>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
   // Edit form state
