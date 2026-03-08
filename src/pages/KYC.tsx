@@ -109,7 +109,12 @@ export default function KYC() {
       body: { action, ...(payload ?? {}) },
     });
 
-    if (error) throw error;
+    if (error) {
+      // Try to extract the real error message from the response body
+      const body = data as DiditResponse | null;
+      if (body?.error) throw new Error(body.error);
+      throw error;
+    }
     const response = (data ?? {}) as DiditResponse;
     if (response.error) throw new Error(response.error);
     return response;
