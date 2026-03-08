@@ -110,11 +110,34 @@ export default function KYC() {
     });
 
     if (error) {
-      // Try to extract the real error message from the response body
+      let backendMessage: string | null = null;
       const body = data as DiditResponse | null;
-      if (body?.error) throw new Error(body.error);
-      throw error;
+
+      if (body?.error) {
+        backendMessage = body.error;
+      }
+
+      const errorWithContext = error as { context?: Response; message?: string };
+      if (!backendMessage && errorWithContext.context) {
+        try {
+          const cloned = errorWithContext.context.clone();
+          const contextJson = (await cloned.json()) as DiditResponse;
+          if (typeof contextJson?.error === "string" && contextJson.error.length > 0) {
+            backendMessage = contextJson.error;
+          }
+        } catch {
+          try {
+            const contextText = await errorWithContext.context.clone().text();
+            if (contextText) backendMessage = contextText;
+          } catch {
+            // ignore secondary parse errors
+          }
+        }
+      }
+
+      throw new Error(backendMessage ?? error.message ?? "Could not start verification.");
     }
+
     const response = (data ?? {}) as DiditResponse;
     if (response.error) throw new Error(response.error);
     return response;
