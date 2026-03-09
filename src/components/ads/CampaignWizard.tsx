@@ -96,7 +96,7 @@ export function CampaignWizard({ onClose }: CampaignWizardProps) {
               <div key={step} className="flex items-center gap-2">
                 <button
                   onClick={() => i <= stepIndex && setCurrentStep(step)}
-                  className="px-5 py-1.5 rounded-xl text-xs font-medium transition-colors"
+                  className="px-6 py-2 rounded-xl text-xs font-medium transition-all"
                   style={{
                     background: i === stepIndex
                       ? "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)"
