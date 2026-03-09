@@ -60,8 +60,8 @@ export function PromoSuccessModal({ open, onClose, promo }: Props) {
 
   const discount = `${promo.discountValue}${promo.discountType === "percentage" ? "%" : "$"} OFF`;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center">
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
       <div
         className="relative z-10 w-full max-w-md mx-4 rounded-2xl border border-white/10 overflow-hidden"
