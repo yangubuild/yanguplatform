@@ -138,10 +138,58 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
     onChange({ ...data, creatives: data.creatives.filter((c) => c.id !== id) });
   };
 
+  const fetchPublishedSurfaces = async () => {
+    setSurfacesLoading(true);
+    try {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user?.user) return;
+      const { data: surfaces } = await supabase
+        .from("builder_publishes")
+        .select("id, slug, surface_id, published_schema, builder_surfaces!inner(title, metadata, user_id)")
+        .eq("state", "published")
+        .eq("builder_surfaces.user_id", user.user.id);
+      if (surfaces) {
+        setPublishedSurfaces(
+          surfaces.map((s: any) => ({
+            id: s.surface_id,
+            title: s.builder_surfaces?.title || s.slug,
+            slug: s.slug,
+            coverImage: (s.builder_surfaces?.metadata as any)?.coverImage,
+          }))
+        );
+      }
+    } catch (err) {
+      console.error("Failed to fetch surfaces:", err);
+    } finally {
+      setSurfacesLoading(false);
+    }
+  };
+
+  const handleSearchAdSave = () => {
+    if (modal.type !== "search-ads-form") return;
+    const entry: SearchAdEntry = {
+      surfaceId: modal.surface.id,
+      surfaceTitle: modal.surface.title,
+      surfaceSlug: modal.surface.slug,
+      coverImage: modal.surface.coverImage,
+      productType: searchAdForm.productType,
+      category: searchAdForm.category,
+      description: searchAdForm.description,
+    };
+    onChange({ ...data, searchAd: entry });
+    setModal({ type: "none" });
+    setSearchAdForm({ productType: "", category: "", description: "" });
+  };
+
+  const removeSearchAd = () => {
+    onChange({ ...data, searchAd: null });
+  };
+
   // Determine highlighted reach stats based on creatives
   const getReachHighlight = (label: string) => {
     if (label === "Display ads" && imageCreatives.length > 0) return true;
     if (label === "Vertical video" && videoCreatives.length > 0) return true;
+    if (label === "Search ads" && data.searchAd) return true;
     return false;
   };
 
