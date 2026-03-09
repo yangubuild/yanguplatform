@@ -3,6 +3,8 @@ project_id = "xcipuyvcwfytlsjryhvs"
 [functions]
   [functions.ad-clone-analyze]
     verify_jwt = false
+  [functions.admin-invite-user]
+    verify_jwt = false
   [functions.ada-chat]
     verify_jwt = false
   [functions.ada-export-docx]
