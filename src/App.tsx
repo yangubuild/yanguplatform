@@ -371,7 +371,7 @@ const App = () => (
                   <Route path="invoices" element={<InvoicesPage />} />
                   <Route path="ads" element={<AdsPage />} />
                   <Route path="promo-codes" element={<PromoCodesPage />} />
-                  <Route path="affiliates" element={<DashboardPlaceholder />} />
+                  <Route path="affiliates" element={<AffiliatesPage />} />
                   <Route path="billing" element={<DashboardBilling />} />
 
                   {/* Legacy /dashboard/dashboard/* redirects */}
