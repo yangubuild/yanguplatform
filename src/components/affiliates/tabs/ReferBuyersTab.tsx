@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronRight, Plus, Search, Rocket, ChevronLeft, Copy, X, ChevronDown } from "lucide-react";
+import { ChevronRight, Plus, Search, Rocket, ChevronLeft, Copy, X, ChevronDown, Check } from "lucide-react";
 import { AffEmptyTable } from "../shared/AffEmptyTable";
 import { createPortal } from "react-dom";
 import { toast } from "sonner";
@@ -8,9 +8,25 @@ interface Props {
   isAuthenticated: boolean;
 }
 
-const SAMPLE_OFFERS = [
+interface Offer {
+  id: string;
+  name: string;
+  category: string;
+  type: string;
+  price: string;
+  rate: string;
+  sales: string;
+  earnings: string;
+  conversion: string;
+  epc: string;
+  image: string;
+  color: string;
+}
+
+const ALL_OFFERS: Offer[] = [
   {
-    name: "KingCapS...",
+    id: "1",
+    name: "KingCapSports Full Access",
     category: "Sports Picks Group",
     type: "One-time",
     price: "$50.00",
@@ -20,9 +36,11 @@ const SAMPLE_OFFERS = [
     conversion: "12.26%",
     epc: "$8.53",
     image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=300&h=160&fit=crop",
+    color: "#e8732a",
   },
   {
-    name: "ToolSuite ...",
+    id: "2",
+    name: "ToolSuite VIP Access",
     category: "Subscription Account Sharing",
     type: "Recurring",
     price: "$29.95 / month",
@@ -32,9 +50,11 @@ const SAMPLE_OFFERS = [
     conversion: "7.25%",
     epc: "$2.59",
     image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=300&h=160&fit=crop",
+    color: "#4a90d9",
   },
   {
-    name: "PokePings ...",
+    id: "3",
+    name: "PokePings Premium",
     category: "Other General",
     type: "Recurring",
     price: "$8.99 / month",
@@ -44,14 +64,8 @@ const SAMPLE_OFFERS = [
     conversion: "6.25%",
     epc: "$0.19",
     image: "https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=300&h=160&fit=crop",
+    color: "#6366f1",
   },
-];
-
-const SAMPLE_PROGRAMS = [
-  { name: "DEAL SOLDIER", icon: "🎮", color: "#4a90d9", clicks: 0, conversions: 0, earnings: "$0.00" },
-  { name: "Whop Partners", icon: "🧡", color: "#e8732a", clicks: 0, conversions: 0, earnings: "$0.00" },
-  { name: "Urban Oasis Salon & Spa", icon: "US", color: "#22c55e", clicks: 0, conversions: 0, earnings: "$0.00" },
-  { name: "Fresh & Wholesome Foods Co.", icon: "FC", color: "#6366f1", clicks: 0, conversions: 0, earnings: "$0.00" },
 ];
 
 const SAMPLE_LINKS = [
@@ -62,6 +76,18 @@ const SAMPLE_LINKS = [
 export function ReferBuyersTab({ isAuthenticated }: Props) {
   const [showMarketplace, setShowMarketplace] = useState(false);
   const [viewAssetsProgram, setViewAssetsProgram] = useState<string | null>(null);
+  const [joinedOffers, setJoinedOffers] = useState<Offer[]>([]);
+
+  const handleAddOffer = (offer: Offer) => {
+    if (joinedOffers.find(o => o.id === offer.id)) {
+      toast.info("Already added to your programs");
+      return;
+    }
+    setJoinedOffers(prev => [...prev, offer]);
+    toast.success(`${offer.name} added to your affiliate programs`);
+  };
+
+  const isJoined = (id: string) => joinedOffers.some(o => o.id === id);
 
   if (showMarketplace) {
     return <AffiliateMarketplace onBack={() => setShowMarketplace(false)} />;
@@ -81,32 +107,41 @@ export function ReferBuyersTab({ isAuthenticated }: Props) {
       </div>
 
       <div className="grid grid-cols-3 gap-4 mb-8">
-        {SAMPLE_OFFERS.map((offer) => (
-          <div key={offer.name} className="rounded-xl border border-white/[0.04] overflow-hidden" style={{ background: "#111a15" }}>
-            {/* Product image */}
-            <div className="w-full h-[120px] overflow-hidden">
-              <img src={offer.image} alt={offer.name} className="w-full h-full object-cover" />
-            </div>
-            <div className="p-4">
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <p className="text-sm font-medium text-white">{offer.name}</p>
-                  <p className="text-xs text-white/40 mt-0.5">
-                    {offer.category} • <span className="text-white/50 bg-white/[0.06] px-1.5 py-0.5 rounded text-[10px]">{offer.type}</span>
-                  </p>
+        {ALL_OFFERS.map((offer) => (
+          <div key={offer.id} className="rounded-xl border border-white/[0.04] overflow-hidden" style={{ background: "#111a15" }}>
+            <div className="flex gap-3 p-4 pb-3">
+              {/* Thumbnail */}
+              <div className="w-[120px] h-[72px] rounded-lg overflow-hidden flex-shrink-0">
+                <img src={offer.image} alt={offer.name} className="w-full h-full object-cover" />
+              </div>
+              {/* Title + category */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-1">
+                  <p className="text-sm font-medium text-white leading-tight">{offer.name}</p>
+                  <button
+                    onClick={() => handleAddOffer(offer)}
+                    className={`w-7 h-7 rounded-lg border flex items-center justify-center flex-shrink-0 transition-colors ${
+                      isJoined(offer.id)
+                        ? "border-green-500/40 text-green-400 bg-green-500/10"
+                        : "border-white/[0.06] text-white/40 hover:text-white"
+                    }`}
+                  >
+                    {isJoined(offer.id) ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                  </button>
                 </div>
-                <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-white/40 hover:text-white">
-                  <Plus className="w-4 h-4" />
-                </button>
+                <p className="text-xs text-white/40 mt-1">
+                  {offer.category} • <span className="text-white/50 bg-white/[0.06] px-1.5 py-0.5 rounded text-[10px]">{offer.type}</span>
+                </p>
               </div>
-              <div className="grid grid-cols-3 gap-y-2 text-[11px]">
-                <div><span className="text-white/30">Product price</span><br /><span className="text-white/80 font-medium">{offer.price}</span></div>
-                <div><span className="text-white/30">Commission rate</span><br /><span className="text-white/80 font-medium">{offer.rate}</span></div>
-                <div><span className="text-white/30">Affiliate sales</span><br /><span className="text-white/80 font-medium">{offer.sales}</span></div>
-                <div><span className="text-white/30">Affiliate earnings</span><br /><span className="text-white/80 font-medium">{offer.earnings}</span></div>
-                <div><span className="text-white/30">Conversion rate</span><br /><span className="text-white/80 font-medium">{offer.conversion}</span></div>
-                <div><span className="text-white/30">Earnings per click</span><br /><span className="text-white/80 font-medium">{offer.epc}</span></div>
-              </div>
+            </div>
+            {/* Stats grid */}
+            <div className="grid grid-cols-3 gap-y-2 text-[11px] px-4 pb-4">
+              <div><span className="text-white/30">Product price</span><br /><span className="text-white/80 font-medium">{offer.price}</span></div>
+              <div><span className="text-white/30">Commission rate</span><br /><span className="text-white/80 font-medium">{offer.rate}</span></div>
+              <div><span className="text-white/30">Affiliate sales</span><br /><span className="text-white/80 font-medium">{offer.sales}</span></div>
+              <div><span className="text-white/30">Affiliate earnings</span><br /><span className="text-white/80 font-medium">{offer.earnings}</span></div>
+              <div><span className="text-white/30">Conversion rate</span><br /><span className="text-white/80 font-medium">{offer.conversion}</span></div>
+              <div><span className="text-white/30">Earnings per click</span><br /><span className="text-white/80 font-medium">{offer.epc}</span></div>
             </div>
           </div>
         ))}
@@ -123,53 +158,59 @@ export function ReferBuyersTab({ isAuthenticated }: Props) {
             </div>
           </div>
 
-          <div className="rounded-xl border border-white/[0.04] overflow-hidden" style={{ background: "#111a15" }}>
-            {/* Header */}
-            <div className="flex items-center border-b border-white/[0.04] px-4 py-3">
-              <div className="flex-[2] text-xs text-white/30 font-medium">Company</div>
-              <div className="flex-1 text-xs text-white/30 font-medium text-center">Clicks</div>
-              <div className="flex-1 text-xs text-white/30 font-medium text-center">Conversions</div>
-              <div className="flex-1 text-xs text-white/30 font-medium text-center">Earnings</div>
-              <div className="flex-1 text-xs text-white/30 font-medium text-center">Assets</div>
-            </div>
-            {/* Rows */}
-            {SAMPLE_PROGRAMS.map((prog) => (
-              <div key={prog.name} className="flex items-center border-b border-white/[0.04] px-4 py-3 hover:bg-white/[0.02] transition-colors">
-                <div className="flex-[2] flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white" style={{ background: prog.color }}>
-                    {prog.icon}
+          {joinedOffers.length === 0 ? (
+            <AffEmptyTable
+              columns={["Company", "Clicks", "Conversions", "Earnings", "Assets"]}
+              icon={<Rocket className="w-8 h-8 text-white/20" />}
+              title="No affiliate programs yet"
+              subtitle="Join affiliate programs to start earning"
+            />
+          ) : (
+            <div className="rounded-xl border border-white/[0.04] overflow-hidden" style={{ background: "#111a15" }}>
+              <div className="flex items-center border-b border-white/[0.04] px-4 py-3">
+                <div className="flex-[2] text-xs text-white/30 font-medium">Company</div>
+                <div className="flex-1 text-xs text-white/30 font-medium text-center">Clicks</div>
+                <div className="flex-1 text-xs text-white/30 font-medium text-center">Conversions</div>
+                <div className="flex-1 text-xs text-white/30 font-medium text-center">Earnings</div>
+                <div className="flex-1 text-xs text-white/30 font-medium text-center">Assets</div>
+              </div>
+              {joinedOffers.map((prog) => (
+                <div key={prog.id} className="flex items-center border-b border-white/[0.04] px-4 py-3 hover:bg-white/[0.02] transition-colors">
+                  <div className="flex-[2] flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0">
+                      <img src={prog.image} alt={prog.name} className="w-full h-full object-cover" />
+                    </div>
+                    <span className="text-sm text-white font-medium">{prog.name}</span>
                   </div>
-                  <span className="text-sm text-white font-medium">{prog.name}</span>
+                  <div className="flex-1 text-sm text-white/60 text-center">0</div>
+                  <div className="flex-1 text-sm text-white/60 text-center">0</div>
+                  <div className="flex-1 text-sm text-white/60 text-center">$0.00</div>
+                  <div className="flex-1 text-center">
+                    <button
+                      onClick={() => setViewAssetsProgram(prog.name)}
+                      className="px-3 py-1.5 rounded-lg text-xs font-medium text-white border border-white/[0.06] hover:bg-white/[0.04] transition-colors"
+                    >
+                      View assets
+                    </button>
+                  </div>
                 </div>
-                <div className="flex-1 text-sm text-white/60 text-center">{prog.clicks}</div>
-                <div className="flex-1 text-sm text-white/60 text-center">{prog.conversions}</div>
-                <div className="flex-1 text-sm text-white/60 text-center">{prog.earnings}</div>
-                <div className="flex-1 text-center">
-                  <button
-                    onClick={() => setViewAssetsProgram(prog.name)}
-                    className="px-3 py-1.5 rounded-lg text-xs font-medium text-white border border-white/[0.06] hover:bg-white/[0.04] transition-colors"
-                  >
-                    View assets
-                  </button>
+              ))}
+              <div className="flex items-center justify-between px-4 py-3 text-xs text-white/30">
+                <span>Showing 1 to {joinedOffers.length} of {joinedOffers.length}</span>
+                <div className="flex items-center gap-2">
+                  <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-white/30">‹</button>
+                  <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-white bg-white/[0.06]">1</button>
+                  <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-white/30">›</button>
                 </div>
-              </div>
-            ))}
-            {/* Pagination */}
-            <div className="flex items-center justify-between px-4 py-3 text-xs text-white/30">
-              <span>Showing 1 to {SAMPLE_PROGRAMS.length} of {SAMPLE_PROGRAMS.length}</span>
-              <div className="flex items-center gap-2">
-                <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-white/30">‹</button>
-                <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-white bg-white/[0.06]">1</button>
-                <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-white/30">›</button>
-              </div>
-              <div className="flex items-center gap-2">
-                <span>Show</span>
-                <div className="flex items-center gap-1 px-2 py-1 rounded-lg border border-white/[0.06] text-white/60">
-                  10 <ChevronDown className="w-3 h-3" />
+                <div className="flex items-center gap-2">
+                  <span>Show</span>
+                  <div className="flex items-center gap-1 px-2 py-1 rounded-lg border border-white/[0.06] text-white/60">
+                    10 <ChevronDown className="w-3 h-3" />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Pending applications */}
           <h3 className="text-base font-semibold text-white mt-8 mb-4">Pending applications</h3>
@@ -182,7 +223,6 @@ export function ReferBuyersTab({ isAuthenticated }: Props) {
         </>
       )}
 
-      {/* View Assets Modal */}
       {viewAssetsProgram && (
         <ViewAssetsModal
           programName={viewAssetsProgram}
@@ -203,7 +243,6 @@ function ViewAssetsModal({ programName, onClose }: { programName: string; onClos
     <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-16">
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
       <div className="relative w-full max-w-5xl rounded-xl border border-white/[0.04] overflow-hidden" style={{ background: "#111a15" }}>
-        {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-white/[0.04]">
           <div className="flex items-center gap-3">
             <button onClick={onClose} className="text-white/50 hover:text-white">
@@ -225,7 +264,6 @@ function ViewAssetsModal({ programName, onClose }: { programName: string; onClos
           </div>
         </div>
 
-        {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -270,7 +308,6 @@ function ViewAssetsModal({ programName, onClose }: { programName: string; onClos
           </table>
         </div>
 
-        {/* Pagination */}
         <div className="flex items-center justify-between px-4 py-3 text-xs text-white/30 border-t border-white/[0.04]">
           <span>Showing 1 to 2 of 2</span>
           <div className="flex items-center gap-2">
