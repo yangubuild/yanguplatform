@@ -209,7 +209,7 @@ export function CreatorDashboardTab() {
             </defs>
             <CartesianGrid strokeDasharray="6 6" stroke="rgba(255,255,255,0.06)" horizontal vertical={false} />
             <XAxis dataKey="date" tick={{ fontSize: 11, fill: "rgba(255,255,255,0.3)" }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
-            <YAxis domain={[0, 20]} ticks={Y_TICKS} tick={{ fontSize: 11, fill: "rgba(255,255,255,0.3)" }} axisLine={false} tickLine={false} />
+            <YAxis domain={[0, yMax]} ticks={yTicks} tick={{ fontSize: 11, fill: "rgba(255,255,255,0.3)" }} axisLine={false} tickLine={false} />
             <Tooltip content={<ChartTooltip />} cursor={{ stroke: "rgba(255,255,255,0.1)", strokeWidth: 1 }} />
             <Area type="monotone" dataKey="direct" stroke="#22d3ee" strokeWidth={2} fill="url(#gDirect)" />
             <Area type="monotone" dataKey="explore" stroke="#fb923c" strokeWidth={2} fill="url(#gExplore)" />
