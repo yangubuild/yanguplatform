@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Calendar, ChevronDown, Gift, Rocket } from "lucide-react";
+import { Gift } from "lucide-react";
 import { AffDashboardTab } from "./tabs/AffDashboardTab";
 import { ReferBuyersTab } from "./tabs/ReferBuyersTab";
 import { ReferSellersTab } from "./tabs/ReferSellersTab";
+import { AffiliateMarketplacePage } from "./AffiliateMarketplacePage";
 
 interface Props {
   isAuthenticated: boolean;
@@ -15,6 +16,21 @@ const TABS_PUBLIC = ["Refer buyers", "Refer sellers"] as const;
 export function AffiliateDashboardView({ isAuthenticated, onSwitchToCreator }: Props) {
   const tabs = isAuthenticated ? TABS_AUTH : TABS_PUBLIC;
   const [activeTab, setActiveTab] = useState<string>(tabs[0]);
+  const [showMarketplace, setShowMarketplace] = useState(false);
+  const [showPartnerApply, setShowPartnerApply] = useState(false);
+
+  if (showMarketplace) {
+    return (
+      <AffiliateMarketplacePage
+        onBack={() => setShowMarketplace(false)}
+        onSwitchToCreator={onSwitchToCreator}
+        onApplyPartner={() => {
+          setShowMarketplace(false);
+          setActiveTab("Refer sellers");
+        }}
+      />
+    );
+  }
 
   return (
     <div>
@@ -22,14 +38,20 @@ export function AffiliateDashboardView({ isAuthenticated, onSwitchToCreator }: P
       <div className="flex items-center justify-between mb-1">
         <h1 className="text-xl font-semibold text-white">Affiliates</h1>
         <div className="flex items-center gap-2">
-          {isAuthenticated && (
+          {isAuthenticated ? (
             <>
-              <button className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white"
-                style={{ background: "rgba(255,255,255,0.08)" }}>
+              <button
+                onClick={() => setShowMarketplace(true)}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white"
+                style={{ background: "rgba(255,255,255,0.08)" }}
+              >
                 <Gift className="w-4 h-4 text-accent" />
                 Affiliate marketplace
               </button>
-              <button className="px-4 py-2 rounded-xl text-sm font-medium border border-accent/40 text-accent">
+              <button
+                onClick={() => setActiveTab("Refer sellers")}
+                className="px-4 py-2 rounded-xl text-sm font-medium border border-accent/40 text-accent"
+              >
                 Apply to be a partner
               </button>
               <button
@@ -39,6 +61,13 @@ export function AffiliateDashboardView({ isAuthenticated, onSwitchToCreator }: P
                 Creator dashboard
               </button>
             </>
+          ) : (
+            <button
+              onClick={() => setActiveTab("Refer sellers")}
+              className="px-4 py-2 rounded-xl text-sm font-medium border border-accent/40 text-accent"
+            >
+              Apply to be a partner
+            </button>
           )}
         </div>
       </div>
@@ -63,7 +92,12 @@ export function AffiliateDashboardView({ isAuthenticated, onSwitchToCreator }: P
 
       {/* Tab content */}
       {activeTab === "Dashboard" && isAuthenticated && <AffDashboardTab />}
-      {activeTab === "Refer buyers" && <ReferBuyersTab isAuthenticated={isAuthenticated} />}
+      {activeTab === "Refer buyers" && (
+        <ReferBuyersTab
+          isAuthenticated={isAuthenticated}
+          onOpenMarketplace={() => setShowMarketplace(true)}
+        />
+      )}
       {activeTab === "Refer sellers" && <ReferSellersTab />}
     </div>
   );
