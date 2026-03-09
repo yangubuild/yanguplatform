@@ -178,80 +178,81 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
       {/* Payment Modal */}
       {showPayment && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl w-full max-w-md mx-4 shadow-2xl overflow-hidden">
+          <div
+            className="rounded-2xl w-full max-w-md mx-4 shadow-2xl overflow-hidden border border-white/10"
+            style={{ background: "#0e1a14" }}
+          >
             {/* Header */}
             <div className="p-6 pb-4">
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-8 h-8 rounded-lg flex items-center justify-center"
-                    style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)" }}
-                  >
-                    <span className="text-white text-xs font-bold">Y</span>
-                  </div>
-                  <span className="text-gray-900 font-semibold text-sm">
-                    YANGU Ads
-                  </span>
-                </div>
+                <img src={yanguLogo} alt="yangu" className="h-7 w-auto" />
                 <button
                   onClick={() => setShowPayment(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-white/40 hover:text-white/70 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <p className="text-gray-500 text-xs mb-2">Charge from YANGU Ads</p>
+              <p className="text-white/40 text-xs mb-2">Charge from YANGU Ads</p>
 
               <div className="text-center py-3">
-                <p className="text-gray-500 text-sm">YANGU Ads</p>
-                <p className="text-4xl font-bold text-gray-900 mt-1">
+                <p className="text-white/50 text-sm">YANGU Ads</p>
+                <p className="text-4xl font-bold text-white mt-1">
                   ${data.dailyBudget.toFixed(2)}
                 </p>
               </div>
 
               <div className="mt-2">
-                <p className="text-gray-700 text-xs font-semibold">Description</p>
-                <p className="text-gray-500 text-xs">Charge from YANGU Ads</p>
+                <p className="text-white/70 text-xs font-semibold">Description</p>
+                <p className="text-white/40 text-xs">Daily ad budget charge</p>
               </div>
             </div>
 
             {/* Payment form */}
             <div className="px-6 pb-6 space-y-4">
-              {/* Card input mockup */}
+              {/* Payment method */}
               <div>
-                <p className="text-gray-700 text-xs font-semibold mb-2">
+                <p className="text-white/70 text-xs font-semibold mb-2">
                   Payment method
                 </p>
-                <div className="border border-gray-200 rounded-xl overflow-hidden">
-                  <div className="flex items-center gap-3 p-3 border-b border-gray-100">
-                    <div className="w-4 h-4 rounded-full border-2 border-[#b5622a] flex items-center justify-center">
-                      <div className="w-2 h-2 rounded-full bg-[#b5622a]" />
-                    </div>
-                    <CreditCard className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm text-gray-700">Card</span>
-                  </div>
-                  <div className="p-3 space-y-2">
-                    <p className="text-xs font-semibold text-gray-700">
-                      Card information
-                    </p>
+                <div className="border border-white/10 rounded-xl overflow-hidden">
+                  {/* Card */}
+                  <PaymentMethodRow icon={<CreditCard className="w-4 h-4 text-white/50" />} label="Card" selected />
+                  <div className="p-3 space-y-2 border-b border-white/10">
+                    <p className="text-xs font-semibold text-white/70">Card information</p>
                     <input
                       type="text"
                       placeholder="1234 1234 1234 1234"
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder:text-gray-300 outline-none focus:border-[#b5622a]"
+                      className="w-full bg-white/[0.04] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/20 outline-none focus:border-[#b5622a]"
                     />
                     <div className="flex gap-2">
                       <input
                         type="text"
                         placeholder="MM / YY"
-                        className="w-1/2 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder:text-gray-300 outline-none focus:border-[#b5622a]"
+                        className="w-1/2 bg-white/[0.04] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/20 outline-none focus:border-[#b5622a]"
                       />
                       <input
                         type="text"
                         placeholder="CVC"
-                        className="w-1/2 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder:text-gray-300 outline-none focus:border-[#b5622a]"
+                        className="w-1/2 bg-white/[0.04] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/20 outline-none focus:border-[#b5622a]"
                       />
                     </div>
                   </div>
+                  {/* Mobile Money */}
+                  <PaymentMethodRow icon={<Smartphone className="w-4 h-4 text-white/50" />} label="Mobile Money" tag="Coming soon" />
+                  {/* Apple Pay */}
+                  <PaymentMethodRow icon={<Apple className="w-4 h-4 text-white/50" />} label="Apple Pay" tag="Coming soon" />
+                  {/* Google Pay */}
+                  <PaymentMethodRow
+                    icon={
+                      <svg className="w-4 h-4 text-white/50" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" />
+                      </svg>
+                    }
+                    label="Google Pay"
+                    tag="Coming soon"
+                    last
+                  />
                 </div>
               </div>
 
@@ -263,7 +264,7 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
                   background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)",
                 }}
               >
-                Pay
+                Pay ${data.dailyBudget.toFixed(2)}
               </button>
             </div>
           </div>
