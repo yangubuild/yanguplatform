@@ -48,6 +48,7 @@ export function CampaignWizard({ onClose }: CampaignWizardProps) {
     selectedProduct: null,
     globalReach: true,
     location: "",
+    selectedLocations: [],
     creatives: [],
     dailyBudget: 50,
   });
