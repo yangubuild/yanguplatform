@@ -6,6 +6,7 @@ import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import { triggerEmojiPreload } from "@/hooks/useEmojiPreloader";
 import AvatarPickerModal from "@/components/profile/AvatarPickerModal";
 import { supabase } from "@/integrations/supabase/client";
+import { ICON_MAP } from "@/lib/app-store/icon-map";
 import { Switch } from "@/components/ui/switch";
 import {
   MoreHorizontal,
