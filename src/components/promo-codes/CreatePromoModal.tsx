@@ -341,7 +341,7 @@ export function CreatePromoModal({ open, onClose, onSubmit, isSubmitting }: Prop
                       }}
                       className={`w-full flex items-center gap-2 rounded-xl px-4 h-10 text-sm border transition-colors ${
                         selected
-                          ? "border-blue-500/40 bg-blue-500/10 text-white"
+                          ? "border-accent/40 bg-accent/10 text-white"
                           : "border-white/10 bg-white/[0.04] text-white/50 hover:bg-white/[0.06]"
                       }`}
                     >
