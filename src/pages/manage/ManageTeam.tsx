@@ -116,41 +116,36 @@ export default function ManageTeam() {
 
     setSending(true);
     try {
-      const { error } = await supabase.rpc("send_admin_invite", {
-        p_email: trimmed,
-        p_role: role,
-      });
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-invite-user`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.access_token}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({ email: trimmed, role }),
+        }
+      );
 
-      if (error) {
-        if (error.message?.includes("admin_invites_unique_pending")) {
+      const result = await res.json();
+
+      if (!res.ok) {
+        if (res.status === 409) {
           toast.error("A pending invite already exists for this email and role");
         } else {
-          throw error;
+          throw new Error(result.error || "Failed to send invite");
         }
         return;
       }
 
-      // Send invite email via edge function
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-invite-email`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${session?.access_token}`,
-              apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-            },
-            body: JSON.stringify({ email: trimmed, role }),
-          }
-        );
-      } catch (emailErr) {
-        console.error("Failed to send invite email:", emailErr);
-        // Don't block the invite if email fails
+      if (result.user_exists) {
+        toast.success(`${trimmed} already has an account — role will be assigned on next login`);
+      } else {
+        toast.success(`Invite sent to ${trimmed} as ${role}`);
       }
-
-      toast.success(`Invite sent to ${trimmed} as ${role}`);
       setEmail("");
       fetchInvites();
     } catch (err: any) {
