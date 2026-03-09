@@ -375,6 +375,7 @@ export function CreatePromoModal({ open, onClose, onSubmit, isSubmitting }: Prop
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
