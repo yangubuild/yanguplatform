@@ -497,7 +497,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
       {/* Caption modal */}
       {modal.type === "caption" && (
         <ModalOverlay onClose={() => setModal({ type: "none" })}>
-          <div className="rounded-2xl p-6 w-full max-w-2xl" style={{ background: "#0f1f17" }}>
+          <div className="rounded-2xl p-6 w-full max-w-2xl" style={{ background: "#1a1a1a" }}>
             <h3 className="text-lg font-semibold text-white mb-5">Add caption</h3>
             <div className="flex gap-6 flex-col md:flex-row">
               <div className="w-full md:w-1/2">
