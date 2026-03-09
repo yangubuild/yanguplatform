@@ -80,21 +80,13 @@ export function CampaignWizard({ onClose }: CampaignWizardProps) {
           </div>
 
           <div className="flex items-center gap-2">
-            {currentStep !== "Budget" ? (
+            {currentStep !== "Budget" && (
               <Button
                 variant="accent"
                 onClick={goNext}
                 className="rounded-xl px-5 h-9"
               >
                 Next
-              </Button>
-            ) : (
-              <Button
-                variant="accent"
-                onClick={handleLaunch}
-                className="rounded-xl px-5 h-9"
-              >
-                Launch campaign
               </Button>
             )}
           </div>
