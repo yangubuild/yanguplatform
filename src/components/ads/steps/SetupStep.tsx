@@ -7,7 +7,6 @@ interface SetupStepProps {
   onChange: (data: CampaignData) => void;
 }
 
-// Mock products
 const MOCK_PRODUCTS = [
   {
     id: "1",
@@ -53,9 +52,10 @@ export function SetupStep({ data, onChange }: SetupStepProps) {
               onClick={() => onChange({ ...data, selectedProduct: product.id })}
               className={`flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all ${
                 data.selectedProduct === product.id
-                  ? "ring-2 ring-blue-500 bg-blue-500/5"
+                  ? "bg-[rgba(181,98,42,0.08)]"
                   : "bg-white/[0.03] hover:bg-white/[0.06] border border-white/10"
               }`}
+              style={data.selectedProduct === product.id ? { border: "2px solid #b5622a" } : {}}
             >
               <img
                 src={product.image}
@@ -82,11 +82,12 @@ export function SetupStep({ data, onChange }: SetupStepProps) {
           onClick={() => onChange({ ...data, globalReach: !data.globalReach })}
           className={`flex items-center gap-3 p-4 rounded-xl cursor-pointer transition-all mb-3 ${
             data.globalReach
-              ? "ring-2 ring-blue-500 bg-blue-500/5"
+              ? "bg-[rgba(181,98,42,0.08)]"
               : "bg-white/[0.03] border border-white/10"
           }`}
+          style={data.globalReach ? { border: "2px solid #b5622a" } : {}}
         >
-          <Globe className="w-5 h-5 text-blue-400" />
+          <Globe className="w-5 h-5" style={{ color: "#b5622a" }} />
           <div>
             <span className="text-sm font-medium text-white">Global reach</span>
             <p className="text-xs text-white/40">
@@ -94,9 +95,11 @@ export function SetupStep({ data, onChange }: SetupStepProps) {
             </p>
           </div>
           <div
-            className={`ml-auto w-10 h-6 rounded-full transition-colors flex items-center ${
-              data.globalReach ? "bg-blue-600 justify-end" : "bg-white/10 justify-start"
-            }`}
+            className="ml-auto w-10 h-6 rounded-full transition-colors flex items-center"
+            style={{
+              background: data.globalReach ? "linear-gradient(90deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.1)",
+              justifyContent: data.globalReach ? "flex-end" : "flex-start",
+            }}
           >
             <div className="w-5 h-5 rounded-full bg-white mx-0.5 shadow" />
           </div>

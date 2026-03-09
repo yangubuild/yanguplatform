@@ -50,16 +50,15 @@ export function CampaignWizard({ onClose }: CampaignWizardProps) {
   };
 
   const handleLaunch = () => {
-    // TODO: persist campaign
     onClose();
   };
 
   return (
-    <div className="min-h-screen" style={{ background: "#0a0a0a" }}>
+    <div className="min-h-screen" style={{ background: "#08120D" }}>
       {/* Header */}
       <div
         className="sticky top-0 z-20 border-b border-white/10"
-        style={{ background: "#0a0a0a" }}
+        style={{ background: "#08120D" }}
       >
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -72,15 +71,17 @@ export function CampaignWizard({ onClose }: CampaignWizardProps) {
           <div className="flex items-center gap-2">
             {currentStep !== "Budget" ? (
               <Button
+                variant="accent"
                 onClick={goNext}
-                className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-5 h-9"
+                className="rounded-xl px-5 h-9"
               >
                 Next
               </Button>
             ) : (
               <Button
+                variant="accent"
                 onClick={handleLaunch}
-                className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-5 h-9"
+                className="rounded-xl px-5 h-9"
               >
                 Launch campaign
               </Button>
@@ -95,13 +96,20 @@ export function CampaignWizard({ onClose }: CampaignWizardProps) {
               <div key={step} className="flex items-center gap-2">
                 <button
                   onClick={() => i <= stepIndex && setCurrentStep(step)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                    i === stepIndex
-                      ? "bg-blue-600 text-white"
+                  className="px-4 py-1.5 rounded-xl text-xs font-medium transition-colors"
+                  style={{
+                    background: i === stepIndex
+                      ? "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)"
                       : i < stepIndex
-                      ? "bg-white/10 text-white/70 cursor-pointer"
-                      : "bg-white/5 text-white/30"
-                  }`}
+                      ? "rgba(255,255,255,0.1)"
+                      : "rgba(255,255,255,0.04)",
+                    color: i === stepIndex
+                      ? "#fff"
+                      : i < stepIndex
+                      ? "rgba(255,255,255,0.7)"
+                      : "rgba(255,255,255,0.3)",
+                    cursor: i <= stepIndex ? "pointer" : "default",
+                  }}
                 >
                   {step}
                 </button>

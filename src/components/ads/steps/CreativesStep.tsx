@@ -83,7 +83,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
             <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90">
               <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="8" />
               <circle
-                cx="60" cy="60" r="52" fill="none" stroke="#3b82f6" strokeWidth="8"
+                cx="60" cy="60" r="52" fill="none" stroke="#b5622a" strokeWidth="8"
                 strokeDasharray={`${reachPercent * 3.27} ${327 - reachPercent * 3.27}`}
                 strokeLinecap="round"
               />
@@ -147,7 +147,8 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
               </div>
               <button
                 onClick={() => setModal({ type: "preview", item })}
-                className="text-xs text-blue-400 hover:text-blue-300 mr-2"
+                className="text-xs mr-2 hover:brightness-110"
+                style={{ color: "#b5622a" }}
               >
                 Preview
               </button>
@@ -177,7 +178,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
       {/* Upload choose modal */}
       {modal.type === "upload-choose" && (
         <ModalOverlay onClose={() => setModal({ type: "none" })}>
-          <div className="bg-[#1a1a1a] rounded-2xl p-6 w-full max-w-sm space-y-4">
+          <div className="rounded-2xl p-6 w-full max-w-sm space-y-4" style={{ background: "#0f1f17" }}>
             <h3 className="text-lg font-semibold text-white">Upload media</h3>
             <button
               onClick={() => {
@@ -189,7 +190,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
               className="w-full p-4 rounded-xl bg-white/[0.04] border border-white/10 text-left hover:bg-white/[0.08] transition-colors"
             >
               <div className="flex items-center gap-3">
-                <Image className="w-5 h-5 text-blue-400" />
+                <Image className="w-5 h-5" style={{ color: "#b5622a" }} />
                 <div>
                   <span className="text-sm font-medium text-white">Upload image</span>
                   <p className="text-xs text-white/40">Upload from my computer</p>
@@ -206,14 +207,14 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
               className="w-full p-4 rounded-xl bg-white/[0.04] border border-white/10 text-left hover:bg-white/[0.08] transition-colors"
             >
               <div className="flex items-center gap-3">
-                <Video className="w-5 h-5 text-blue-400" />
+                <Video className="w-5 h-5" style={{ color: "#b5622a" }} />
                 <div>
                   <span className="text-sm font-medium text-white">Upload video</span>
                   <p className="text-xs text-white/40">Upload from my computer</p>
                 </div>
               </div>
             </button>
-            <button className="w-full text-center text-sm text-blue-400 hover:text-blue-300 py-2">
+            <button className="w-full text-center text-sm py-2 hover:brightness-110" style={{ color: "#b5622a" }}>
               Choose from my creatives library instead
             </button>
           </div>
@@ -223,11 +224,10 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
       {/* Crop modal */}
       {modal.type === "crop" && (
         <ModalOverlay onClose={() => setModal({ type: "none" })}>
-          <div className="bg-[#1a1a1a] rounded-2xl p-6 w-full max-w-lg space-y-5">
+          <div className="rounded-2xl p-6 w-full max-w-lg space-y-5" style={{ background: "#0f1f17" }}>
             <h3 className="text-lg font-semibold text-white">Crop media</h3>
 
-            {/* Preview */}
-            <div className="bg-black rounded-xl overflow-hidden flex items-center justify-center h-64">
+            <div className="rounded-xl overflow-hidden flex items-center justify-center h-64" style={{ background: "#08120D" }}>
               {modal.fileType === "image" ? (
                 <img
                   src={modal.src}
@@ -246,11 +246,14 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
                 <button
                   key={r.label}
                   onClick={() => setSelectedRatio(i)}
-                  className={`flex-1 p-3 rounded-lg text-center text-xs transition-colors ${
-                    selectedRatio === i
-                      ? "bg-blue-600 text-white"
-                      : "bg-white/[0.04] text-white/50 border border-white/10"
-                  }`}
+                  className="flex-1 p-3 rounded-xl text-center text-xs transition-colors"
+                  style={{
+                    background: selectedRatio === i
+                      ? "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)"
+                      : "rgba(255,255,255,0.04)",
+                    color: selectedRatio === i ? "#fff" : "rgba(255,255,255,0.5)",
+                    border: selectedRatio === i ? "none" : "1px solid rgba(255,255,255,0.1)",
+                  }}
                 >
                   <div className="font-medium">{r.label}</div>
                   <div className="text-[10px] mt-0.5 opacity-60">{r.size}</div>
@@ -276,7 +279,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
               <Button variant="ghost" onClick={() => setModal({ type: "none" })} className="text-white/50">
                 Cancel
               </Button>
-              <Button onClick={handleCropSave} className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Button variant="accent" onClick={handleCropSave} className="rounded-xl">
                 Save
               </Button>
             </div>
@@ -287,10 +290,9 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
       {/* Caption modal */}
       {modal.type === "caption" && (
         <ModalOverlay onClose={() => setModal({ type: "none" })}>
-          <div className="bg-[#1a1a1a] rounded-2xl p-6 w-full max-w-2xl">
+          <div className="rounded-2xl p-6 w-full max-w-2xl" style={{ background: "#0f1f17" }}>
             <h3 className="text-lg font-semibold text-white mb-5">Add caption</h3>
             <div className="flex gap-6 flex-col md:flex-row">
-              {/* Left: media preview */}
               <div className="w-full md:w-1/2">
                 {modal.item.type === "image" ? (
                   <img src={modal.item.src} alt="" className="w-full rounded-xl object-cover aspect-[4/5]" />
@@ -299,7 +301,6 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
                 )}
               </div>
 
-              {/* Right: caption */}
               <div className="flex-1 space-y-4">
                 <div>
                   <label className="text-xs font-medium text-white/60 block mb-2">Caption</label>
@@ -336,7 +337,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
               <Button variant="ghost" onClick={() => setModal({ type: "none" })} className="text-white/50">
                 Cancel
               </Button>
-              <Button onClick={handleCaptionSave} className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Button variant="accent" onClick={handleCaptionSave} className="rounded-xl">
                 Save & Continue
               </Button>
             </div>
@@ -347,7 +348,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
       {/* Preview modal */}
       {modal.type === "preview" && (
         <ModalOverlay onClose={() => setModal({ type: "none" })}>
-          <div className="bg-[#1a1a1a] rounded-2xl p-6 w-full max-w-md">
+          <div className="rounded-2xl p-6 w-full max-w-md" style={{ background: "#0f1f17" }}>
             <h3 className="text-lg font-semibold text-white mb-4">Preview</h3>
             {modal.item.type === "image" ? (
               <img src={modal.item.src} alt="" className="w-full rounded-xl object-cover aspect-[4/5] mb-4" />
@@ -356,7 +357,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
             )}
             <p className="text-sm text-white/60 mb-6">{modal.item.caption || "No caption"}</p>
             <div className="flex justify-end">
-              <Button onClick={() => setModal({ type: "none" })} className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Button variant="accent" onClick={() => setModal({ type: "none" })} className="rounded-xl">
                 Done
               </Button>
             </div>

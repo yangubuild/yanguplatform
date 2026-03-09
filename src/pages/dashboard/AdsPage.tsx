@@ -14,14 +14,15 @@ export default function AdsPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "#0a0a0a" }}>
+    <div className="min-h-screen" style={{ background: "#08120D" }}>
       <div className="max-w-5xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-white">Ads</h1>
           <Button
+            variant="accent"
             onClick={() => setShowWizard(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-5 h-10"
+            className="rounded-xl px-5 h-10"
           >
             Launch new campaign
           </Button>
@@ -41,7 +42,7 @@ export default function AdsPage() {
             >
               {tab}
               {activeTab === tab && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full" style={{ background: "#b5622a" }} />
               )}
             </button>
           ))}
@@ -51,9 +52,9 @@ export default function AdsPage() {
         <div className="flex flex-col items-center justify-center py-24">
           <div
             className="w-32 h-32 rounded-2xl flex items-center justify-center mb-8"
-            style={{ background: "rgba(59,130,246,0.08)" }}
+            style={{ background: "rgba(181,98,42,0.1)" }}
           >
-            <Megaphone className="w-16 h-16 text-blue-500/60" />
+            <Megaphone className="w-16 h-16" style={{ color: "rgba(181,98,42,0.6)" }} />
           </div>
 
           <h2 className="text-xl font-semibold text-white mb-3">
@@ -64,8 +65,9 @@ export default function AdsPage() {
           </p>
 
           <Button
+            variant="accent"
             onClick={() => setShowWizard(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-6 h-11"
+            className="rounded-xl px-6 h-11"
           >
             Launch new campaign
           </Button>
