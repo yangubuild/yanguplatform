@@ -10,7 +10,7 @@ export function RevenueShareTab() {
     <div className="max-w-[700px]">
       <h3 className="text-lg font-semibold text-white mb-4">Revenue share partners</h3>
 
-      <div className="rounded-xl border border-white/8 mb-6" style={{ background: "#141A21" }}>
+      <div className="rounded-xl border border-white/[0.04] mb-6" style={{ background: "#111a15" }}>
         <button
           onClick={() => setShowDrawer(true)}
           className="w-full flex items-center gap-4 p-4 text-left hover:bg-white/[0.02] transition-colors"
@@ -46,9 +46,9 @@ function ShareRevenueDrawer({ onClose }: { onClose: () => void }) {
   return createPortal(
     <div className="fixed inset-0 z-[9999] flex justify-end">
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-      <div className="relative w-full max-w-sm h-full flex flex-col border-l border-white/10" style={{ background: "#111a15" }}>
+      <div className="relative w-full max-w-sm h-full flex flex-col border-l border-white/[0.04]" style={{ background: "#111a15" }}>
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-white/10">
+        <div className="flex items-center justify-between p-5 border-b border-white/[0.04]">
           <h3 className="text-base font-semibold text-white">Share your revenue</h3>
           <button onClick={onClose} className="text-white/40 hover:text-white">
             <X className="w-5 h-5" />
@@ -56,26 +56,24 @@ function ShareRevenueDrawer({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="flex-1 overflow-y-auto p-5 space-y-5">
-          {/* User */}
           <div>
             <label className="text-sm text-white/60 mb-1.5 block">User</label>
             <input
               value={user}
               onChange={(e) => setUser(e.target.value)}
               placeholder="user@example.com"
-              className="w-full h-10 px-3 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-accent/40"
+              className="w-full h-10 px-3 rounded-lg bg-white/5 border border-white/[0.06] text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-accent/40"
             />
-            <p className="text-[11px] text-white/30 mt-1">You can add users by their email, YANGU username, or user ID.</p>
+            <p className="text-[11px] text-white/30 mt-1">You can add users by their email, yangu username, or user ID.</p>
           </div>
 
-          {/* Share type */}
           <div>
             <label className="text-sm text-white/60 mb-1.5 block">Share type ⓘ</label>
             <div className="relative">
               <select
                 value={shareType}
                 onChange={(e) => setShareType(e.target.value)}
-                className="w-full h-10 px-3 rounded-lg bg-white/5 border border-white/10 text-sm text-white appearance-none focus:outline-none focus:border-accent/40"
+                className="w-full h-10 px-3 rounded-lg bg-white/5 border border-white/[0.06] text-sm text-white appearance-none focus:outline-none focus:border-accent/40"
               >
                 <option value="Post fee">Post fee</option>
                 <option value="Pre fee">Pre fee</option>
@@ -84,31 +82,29 @@ function ShareRevenueDrawer({ onClose }: { onClose: () => void }) {
             </div>
           </div>
 
-          {/* Share % */}
           <div>
             <label className="text-sm text-white/60 mb-1.5 block">Share %</label>
             <div className="relative">
               <input
                 value={sharePercent}
                 onChange={(e) => setSharePercent(e.target.value)}
-                className="w-full h-10 px-3 rounded-lg bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-accent/40"
+                className="w-full h-10 px-3 rounded-lg bg-white/5 border border-white/[0.06] text-sm text-white focus:outline-none focus:border-accent/40"
               />
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-white/30">%</span>
             </div>
             <p className="text-[11px] text-white/30 mt-1">Partner receives this percentage of all sales</p>
           </div>
 
-          {/* Products */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-sm text-white/60">Products</label>
               <button className="text-xs text-accent font-medium">Select all</button>
             </div>
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10 mb-2">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/[0.06] mb-2">
               <Search className="w-4 h-4 text-white/30" />
               <input className="bg-transparent text-sm text-white placeholder:text-white/30 focus:outline-none w-full" placeholder="Search products" />
             </div>
-            <div className="rounded-lg border border-white/10 p-3 flex items-center gap-3">
+            <div className="rounded-lg border border-white/[0.06] p-3 flex items-center gap-3">
               <input type="checkbox" className="rounded border-white/20" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-white">Budget-Friendly Meal Prep Kits</p>
@@ -118,8 +114,7 @@ function ShareRevenueDrawer({ onClose }: { onClose: () => void }) {
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="p-5 border-t border-white/10">
+        <div className="p-5 border-t border-white/[0.04]">
           <button
             className="w-full h-11 rounded-xl text-sm font-semibold text-white"
             style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}

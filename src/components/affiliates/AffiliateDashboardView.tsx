@@ -44,7 +44,7 @@ export function AffiliateDashboardView({ isAuthenticated, onSwitchToCreator }: P
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-6 border-b border-white/10 mt-2 mb-6">
+      <div className="flex gap-6 border-b border-white/[0.06] mt-2 mb-6">
         {tabs.map((tab) => (
           <button
             key={tab}

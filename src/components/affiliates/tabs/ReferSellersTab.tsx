@@ -1,15 +1,26 @@
-import { Link2, UserPlus, DollarSign } from "lucide-react";
+import { useState } from "react";
+import { Link2, UserPlus, DollarSign, X, Star } from "lucide-react";
+import { createPortal } from "react-dom";
+import { toast } from "sonner";
 
 export function ReferSellersTab() {
+  const [showPartnerPage, setShowPartnerPage] = useState(false);
+  const [showApplyForm, setShowApplyForm] = useState(false);
+
+  if (showPartnerPage) {
+    return <PartnerDetailPage onBack={() => setShowPartnerPage(false)} />;
+  }
+
   return (
     <div className="flex flex-col items-center pt-10 pb-16">
       <h2 className="text-4xl font-bold text-white mb-4 text-center">
-        Become a YANGU partner
+        Become a yangu partner
       </h2>
       <p className="text-white/50 text-center max-w-xl mb-6">
-        Become a YANGU Partner, refer users, and earn money whenever YANGU grows.
+        Become a yangu Partner, refer users, and earn money whenever yangu grows.
       </p>
       <button
+        onClick={() => setShowPartnerPage(true)}
         className="w-full max-w-lg h-12 rounded-xl text-sm font-semibold text-white mb-12"
         style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
       >
@@ -21,9 +32,9 @@ export function ReferSellersTab() {
         <StepCard
           step={1}
           title="Share your link"
-          desc="Share your referral link with your network or invite new users to your YANGU."
+          desc="Share your referral link with your network or invite new users to your yangu."
           visual={
-            <div className="rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-xs text-white/60 mb-3 max-w-[200px]">
+            <div className="rounded-lg bg-white/5 border border-white/[0.06] px-3 py-2 text-xs text-white/60 mb-3 max-w-[200px]">
               yangu.studio/?a=yourcode
             </div>
           }
@@ -31,10 +42,10 @@ export function ReferSellersTab() {
         <StepCard
           step={2}
           title="New user signs up"
-          desc="When people sign up to YANGU with your link, they will be attributed to you."
+          desc="When people sign up to yangu with your link, they will be attributed to you."
           visual={
             <div className="mb-3">
-              <div className="rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-xs text-white/60 max-w-[200px]">
+              <div className="rounded-lg bg-white/5 border border-white/[0.06] px-3 py-2 text-xs text-white/60 max-w-[200px]">
                 user@example.com
               </div>
               <div className="flex items-center gap-1 mt-1 text-[11px] text-green-400">
@@ -46,11 +57,11 @@ export function ReferSellersTab() {
         <StepCard
           step={3}
           title="Get paid"
-          desc="Anytime YANGU earns from one of your referrals, you'll get paid."
+          desc="Anytime yangu earns from one of your referrals, you'll get paid."
           visual={
-            <div className="rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-xs text-white/60 mb-3 flex items-center gap-2 max-w-[220px]">
-              <div className="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center">
-                <DollarSign className="w-3 h-3 text-accent" />
+            <div className="rounded-lg bg-white/5 border border-white/[0.06] px-3 py-2 text-xs text-white/60 mb-3 flex items-center gap-2 max-w-[220px]">
+              <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #1a3a2a 0%, #0d1f15 100%)" }}>
+                <span className="text-[10px] font-bold text-white">y</span>
               </div>
               <span>You've earned $50.00 from a new referral!</span>
             </div>
@@ -60,25 +71,257 @@ export function ReferSellersTab() {
 
       {/* Bottom info cards */}
       <div className="grid grid-cols-2 gap-4 w-full max-w-4xl">
-        <div className="rounded-xl border border-white/8 p-5" style={{ background: "#141A21" }}>
-          <p className="text-sm font-semibold text-white mb-1">💰 Your YANGU earns money</p>
-          <p className="text-xs text-white/40">Every new user who joins your YANGU and didn't have an account before is automatically counted as your referral.</p>
+        <div className="rounded-xl border border-white/[0.04] p-5" style={{ background: "#111a15" }}>
+          <p className="text-sm font-semibold text-white mb-1">💰 Your yangu earns money</p>
+          <p className="text-xs text-white/40">Every new user who joins your yangu and didn't have an account before is automatically counted as your referral.</p>
         </div>
-        <div className="rounded-xl border border-white/8 p-5" style={{ background: "#141A21" }}>
+        <div className="rounded-xl border border-white/[0.04] p-5" style={{ background: "#111a15" }}>
           <p className="text-sm font-semibold text-white mb-1">📚 Learn from the best</p>
           <p className="text-xs text-white/40">If you're just getting started it's all good! Once accepted, you'll get access to a free community with top partners, educational resources, and best practices.</p>
         </div>
       </div>
+
+      {showApplyForm && <ApplyPartnerForm onClose={() => setShowApplyForm(false)} />}
     </div>
   );
 }
 
 function StepCard({ step, title, desc, visual }: { step: number; title: string; desc: string; visual: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-white/8 p-5 flex flex-col" style={{ background: "#141A21" }}>
+    <div className="rounded-xl border border-white/[0.04] p-5 flex flex-col" style={{ background: "linear-gradient(180deg, #0f2318 0%, #0a1710 100%)" }}>
       {visual}
       <p className="text-sm font-semibold text-white mb-1">{step}. {title}</p>
       <p className="text-xs text-white/40">{desc}</p>
     </div>
+  );
+}
+
+function PartnerDetailPage({ onBack }: { onBack: () => void }) {
+  const [showApplyForm, setShowApplyForm] = useState(false);
+
+  return (
+    <div className="max-w-4xl mx-auto">
+      {/* Header */}
+      <button onClick={onBack} className="flex items-center gap-2 text-sm text-white/50 hover:text-white mb-6">
+        <span>‹</span>
+        <div className="w-6 h-6 rounded flex items-center justify-center" style={{ background: "linear-gradient(135deg, #1a3a2a 0%, #0d1f15 100%)" }}>
+          <span className="text-[8px] font-bold text-white">y</span>
+        </div>
+        yangu Partners
+      </button>
+
+      <div className="grid grid-cols-[1fr_320px] gap-6">
+        {/* Left content */}
+        <div>
+          {/* Hero banner */}
+          <div className="rounded-xl overflow-hidden mb-4 h-[280px] flex items-center justify-center relative" style={{ background: "linear-gradient(135deg, #1a3a2a 0%, #0d1f15 60%, #08120D 100%)" }}>
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)" }}>
+                  <span className="text-sm font-bold text-white">y</span>
+                </div>
+                <span className="text-2xl font-bold text-white">yangu</span>
+              </div>
+              <p className="text-4xl font-black text-white tracking-wide">AFFILIATES</p>
+            </div>
+          </div>
+
+          {/* Info bar */}
+          <div className="flex items-center gap-4 rounded-xl border border-white/[0.04] px-5 py-3 mb-6" style={{ background: "#111a15" }}>
+            <span className="text-sm text-white/60">🏷 Free</span>
+            <span className="w-px h-4 bg-white/10" />
+            <span className="text-sm text-white/60">👥 434 members</span>
+            <span className="w-px h-4 bg-white/10" />
+            <span className="text-sm text-white/60">By Alex Heiden</span>
+          </div>
+
+          {/* Description */}
+          <h3 className="text-xl font-bold text-white mb-2">Make Money Bringing People to yangu</h3>
+          <p className="text-sm text-white/50 mb-8">
+            This yangu will provide you with full training and support to make the most money possible bringing new people to yangu
+          </p>
+
+          {/* Customer reviews */}
+          <h3 className="text-lg font-semibold text-white mb-4">Customer reviews</h3>
+          <div className="rounded-xl border border-white/[0.04] p-5 mb-8" style={{ background: "#111a15" }}>
+            <div className="flex gap-8">
+              <div className="text-center">
+                <p className="text-3xl font-bold text-white">4.3</p>
+                <div className="flex gap-0.5 justify-center my-1">
+                  {[1, 2, 3, 4].map(i => <Star key={i} className="w-4 h-4 fill-yellow-500 text-yellow-500" />)}
+                  <Star className="w-4 h-4 fill-yellow-500/50 text-yellow-500" />
+                </div>
+                <p className="text-xs text-white/40">18 ratings</p>
+              </div>
+              <div className="flex-1 space-y-1.5">
+                {[
+                  { stars: 5, pct: 78, count: 14, color: "#22c55e" },
+                  { stars: 4, pct: 6, count: 1, color: "#84cc16" },
+                  { stars: 3, pct: 0, count: 0, color: "#9ca3af" },
+                  { stars: 2, pct: 6, count: 1, color: "#f97316" },
+                  { stars: 1, pct: 11, count: 2, color: "#ef4444" },
+                ].map(r => (
+                  <div key={r.stars} className="flex items-center gap-2 text-xs">
+                    <span className="text-white/60 w-4">{r.stars}</span>
+                    <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
+                    <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                      <div className="h-full rounded-full" style={{ width: `${r.pct}%`, background: r.color }} />
+                    </div>
+                    <span className="text-white/40 w-16 text-right">{r.pct}% ({r.count})</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Top reviews */}
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-white">Top reviews</h3>
+            <button className="text-sm text-white/50 hover:text-white">See all reviews</button>
+          </div>
+          <div className="grid grid-cols-2 gap-4 mb-8">
+            {[
+              { name: "GHOST PICKZ", handle: "@ghostsportzpi...", time: "4 months ago", text: "Def a goat. Studies all plays and it shows" },
+              { name: "AB", handle: "@abonsocials", time: "6 months ago", text: "lots to learn from yangu partners! i love the outreach help section" },
+              { name: "K 🏈", handle: "@scalewithk", time: "2 months ago", text: "" },
+              { name: "RichCrypto", handle: "@richcrypto", time: "2 months ago", text: "" },
+            ].map((review, i) => (
+              <div key={i} className="rounded-xl border border-white/[0.04] p-4" style={{ background: "#111a15" }}>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white">
+                    {review.name.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-white">{review.name}</p>
+                    <p className="text-xs text-white/30">{review.handle}</p>
+                  </div>
+                  <span className="text-xs text-white/30 ml-auto">{review.time}</span>
+                </div>
+                <div className="flex gap-0.5 mb-2">
+                  {[1, 2, 3, 4, 5].map(s => <Star key={s} className="w-3 h-3 fill-yellow-500 text-yellow-500" />)}
+                </div>
+                {review.text && <p className="text-xs text-white/50">{review.text}</p>}
+              </div>
+            ))}
+          </div>
+
+          <p className="text-xs text-white/30 text-center">🚩 Report this creator</p>
+        </div>
+
+        {/* Right sidebar */}
+        <div>
+          <div className="rounded-xl border border-white/[0.04] p-5 sticky top-6" style={{ background: "#111a15" }}>
+            <div className="rounded-xl overflow-hidden mb-4 h-[180px] flex items-center justify-center" style={{ background: "linear-gradient(135deg, #1a3a2a 0%, #0d1f15 100%)" }}>
+              <div className="text-center">
+                <div className="w-12 h-12 rounded-xl mx-auto mb-2 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)" }}>
+                  <span className="text-xl font-bold text-white">y</span>
+                </div>
+                <p className="text-lg font-bold text-white">yangu Partners</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 mb-1">
+              {[1, 2, 3, 4].map(i => <Star key={i} className="w-3.5 h-3.5 fill-yellow-500 text-yellow-500" />)}
+              <Star className="w-3.5 h-3.5 fill-yellow-500/50 text-yellow-500" />
+              <span className="text-xs text-white/50 ml-1">4.3 (18)</span>
+            </div>
+            <p className="text-sm font-medium text-white mb-3">yangu Partners</p>
+            <button
+              onClick={() => setShowApplyForm(true)}
+              className="w-full h-10 rounded-xl text-sm font-semibold text-white"
+              style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
+            >
+              Join the waitlist
+            </button>
+            <p className="text-xs text-white/30 text-center mt-3">Powered by yangu</p>
+          </div>
+        </div>
+      </div>
+
+      {showApplyForm && <ApplyPartnerForm onClose={() => setShowApplyForm(false)} />}
+    </div>
+  );
+}
+
+function ApplyPartnerForm({ onClose }: { onClose: () => void }) {
+  const [formData, setFormData] = useState({ fullName: "", username: "", email: "", phone: "" });
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    // In production, this would send to partners@yangu.io
+    setTimeout(() => {
+      toast.success("Application submitted! We'll be in touch at partners@yangu.io");
+      setLoading(false);
+      onClose();
+    }, 1000);
+  };
+
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+      <div className="relative w-full max-w-md rounded-xl border border-white/[0.04] p-6" style={{ background: "#111a15" }}>
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-lg font-semibold text-white">Apply to be a partner</h3>
+          <button onClick={onClose} className="text-white/40 hover:text-white">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="text-sm text-white/60 mb-1.5 block">Full name</label>
+            <input
+              required
+              value={formData.fullName}
+              onChange={e => setFormData(d => ({ ...d, fullName: e.target.value }))}
+              className="w-full h-10 px-3 rounded-lg bg-white/5 border border-white/[0.06] text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-accent/40"
+              placeholder="John Doe"
+            />
+          </div>
+          <div>
+            <label className="text-sm text-white/60 mb-1.5 block">Username</label>
+            <input
+              required
+              value={formData.username}
+              onChange={e => setFormData(d => ({ ...d, username: e.target.value }))}
+              className="w-full h-10 px-3 rounded-lg bg-white/5 border border-white/[0.06] text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-accent/40"
+              placeholder="@johndoe"
+            />
+          </div>
+          <div>
+            <label className="text-sm text-white/60 mb-1.5 block">Email</label>
+            <input
+              type="email"
+              required
+              value={formData.email}
+              onChange={e => setFormData(d => ({ ...d, email: e.target.value }))}
+              className="w-full h-10 px-3 rounded-lg bg-white/5 border border-white/[0.06] text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-accent/40"
+              placeholder="john@example.com"
+            />
+          </div>
+          <div>
+            <label className="text-sm text-white/60 mb-1.5 block">Phone number</label>
+            <input
+              type="tel"
+              required
+              value={formData.phone}
+              onChange={e => setFormData(d => ({ ...d, phone: e.target.value }))}
+              className="w-full h-10 px-3 rounded-lg bg-white/5 border border-white/[0.06] text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-accent/40"
+              placeholder="+1 (555) 000-0000"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full h-11 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-40"
+            style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
+          >
+            {loading ? "Submitting..." : "Submit application"}
+          </button>
+          <p className="text-[11px] text-white/30 text-center">Your application will be sent to partners@yangu.io</p>
+        </form>
+      </div>
+    </div>,
+    document.body
   );
 }
