@@ -206,9 +206,7 @@ function PartnerDetailPage({ onBack }: { onBack: () => void }) {
           <div className="rounded-xl border border-white/[0.04] p-5 sticky top-6" style={{ background: "#111a15" }}>
             <div className="rounded-xl overflow-hidden mb-4 h-[180px] flex items-center justify-center" style={{ background: "linear-gradient(135deg, #1a3a2a 0%, #0d1f15 100%)" }}>
               <div className="text-center">
-                <div className="w-12 h-12 rounded-xl mx-auto mb-2 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)" }}>
-                  <span className="text-xl font-bold text-white">y</span>
-                </div>
+                <img src={yanguYLogo} alt="yangu" className="w-14 h-14 mx-auto mb-2 object-contain" />
                 <p className="text-lg font-bold text-white">yangu Partners</p>
               </div>
             </div>
