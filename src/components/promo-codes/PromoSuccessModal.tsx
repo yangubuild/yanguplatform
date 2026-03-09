@@ -138,6 +138,7 @@ export function PromoSuccessModal({ open, onClose, promo }: Props) {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
