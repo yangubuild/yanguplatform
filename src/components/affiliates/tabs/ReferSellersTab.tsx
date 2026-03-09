@@ -112,15 +112,13 @@ function PartnerDetailPage({ onBack }: { onBack: () => void }) {
         <div>
           {/* Hero banner */}
           <div className="rounded-xl overflow-hidden mb-4 h-[280px] flex items-center justify-center relative" style={{ background: "linear-gradient(135deg, #1a3a2a 0%, #0d1f15 60%, #08120D 100%)" }}>
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)" }}>
-                  <span className="text-sm font-bold text-white">y</span>
-                </div>
-                <span className="text-2xl font-bold text-white">yangu</span>
-              </div>
-              <p className="text-4xl font-black text-white tracking-wide">AFFILIATES</p>
-            </div>
+             <div className="text-center">
+               <div className="flex items-center justify-center gap-2 mb-2">
+                 <img src={yanguYLogo} alt="yangu" className="w-10 h-10 object-contain" />
+                 <span className="text-2xl font-bold text-white">yangu</span>
+               </div>
+               <p className="text-4xl font-black text-white tracking-wide">AFFILIATES</p>
+             </div>
           </div>
 
           {/* Info bar */}
