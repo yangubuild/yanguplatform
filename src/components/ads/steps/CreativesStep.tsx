@@ -51,6 +51,9 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
   const [aiCaptions, setAiCaptions] = useState<string[]>([]);
   const [selectedCaptionIdx, setSelectedCaptionIdx] = useState<number | null>(null);
   const [writeOwn, setWriteOwn] = useState(false);
+  const [publishedSurfaces, setPublishedSurfaces] = useState<Array<{ id: string; title: string; slug: string; coverImage?: string }>>([]);
+  const [surfacesLoading, setSurfacesLoading] = useState(false);
+  const [searchAdForm, setSearchAdForm] = useState({ productType: "", category: "", description: "" });
   const fileRef = useRef<HTMLInputElement>(null);
   const bulkFileRef = useRef<HTMLInputElement>(null);
 
