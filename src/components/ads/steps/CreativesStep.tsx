@@ -449,9 +449,9 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
       {/* Crop modal */}
       {modal.type === "crop" && (
         <ModalOverlay onClose={() => setModal({ type: "none" })}>
-          <div className="rounded-2xl p-6 w-full max-w-lg space-y-5" style={{ background: "#0f1f17" }}>
+          <div className="rounded-2xl p-6 w-full max-w-lg space-y-5" style={{ background: "#1a1a1a" }}>
             <h3 className="text-lg font-semibold text-white">Crop media</h3>
-            <div className="rounded-xl overflow-hidden flex items-center justify-center h-64" style={{ background: "#08120D" }}>
+            <div className="rounded-xl overflow-hidden flex items-center justify-center h-64" style={{ background: "#111111" }}>
               {modal.fileType === "image" ? (
                 <img
                   src={modal.src}
@@ -497,7 +497,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
       {/* Caption modal */}
       {modal.type === "caption" && (
         <ModalOverlay onClose={() => setModal({ type: "none" })}>
-          <div className="rounded-2xl p-6 w-full max-w-2xl" style={{ background: "#0f1f17" }}>
+          <div className="rounded-2xl p-6 w-full max-w-2xl" style={{ background: "#1a1a1a" }}>
             <h3 className="text-lg font-semibold text-white mb-5">Add caption</h3>
             <div className="flex gap-6 flex-col md:flex-row">
               <div className="w-full md:w-1/2">
@@ -548,7 +548,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
       {/* Preview modal */}
       {modal.type === "preview" && (
         <ModalOverlay onClose={() => setModal({ type: "none" })}>
-          <div className="rounded-2xl p-6 w-full max-w-md" style={{ background: "#0f1f17" }}>
+          <div className="rounded-2xl p-6 w-full max-w-md" style={{ background: "#1a1a1a" }}>
             <h3 className="text-lg font-semibold text-white mb-4">Preview</h3>
             {modal.item.type === "image" ? (
               <img src={modal.item.src} alt="" className="w-full rounded-xl object-cover aspect-[4/5] mb-4" />
