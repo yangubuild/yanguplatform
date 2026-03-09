@@ -150,6 +150,7 @@ const ProfilePage = lazy(() => import("./pages/dashboard/ProfilePage"));
 const EditProfilePage = lazy(() => import("./pages/dashboard/EditProfilePage"));
 const SubscriptionPage = lazy(() => import("./pages/dashboard/SubscriptionPage"));
 const DashboardBilling = lazy(() => import("./pages/dashboard/DashboardBilling"));
+const PromoCodesPage = lazy(() => import("./pages/dashboard/PromoCodesPage"));
 const AgencyLayout = lazy(() => import("./pages/dashboard/AgencyLayout"));
 const AgencyHomePage = lazy(() => import("./pages/dashboard/AgencyHomePage"));
 const AgencyAnalyticsPage = lazy(() => import("./pages/dashboard/AgencyAnalyticsPage"));
@@ -368,7 +369,7 @@ const App = () => (
                   <Route path="payments" element={<Navigate to="/dashboard/payment-settings" replace />} />
                   <Route path="invoices" element={<InvoicesPage />} />
                   <Route path="ads" element={<AdsPage />} />
-                  <Route path="promo-codes" element={<DashboardPlaceholder />} />
+                  <Route path="promo-codes" element={<PromoCodesPage />} />
                   <Route path="affiliates" element={<DashboardPlaceholder />} />
                   <Route path="billing" element={<DashboardBilling />} />
 

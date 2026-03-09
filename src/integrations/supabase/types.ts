@@ -2875,6 +2875,118 @@ export type Database = {
         }
         Relationships: []
       }
+      merchant_promo_codes: {
+        Row: {
+          affiliate_id: string | null
+          applicable_product_ids: string[] | null
+          code: string
+          created_at: string
+          discount_type: string
+          discount_value: number
+          duration: string
+          duration_months: number | null
+          eligible_users: string
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          max_redemptions: number | null
+          one_use_per_user: boolean
+          popup_config: Json | null
+          promo_link: string | null
+          qr_code_url: string | null
+          redemption_count: number
+          surface_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          affiliate_id?: string | null
+          applicable_product_ids?: string[] | null
+          code: string
+          created_at?: string
+          discount_type?: string
+          discount_value?: number
+          duration?: string
+          duration_months?: number | null
+          eligible_users?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_redemptions?: number | null
+          one_use_per_user?: boolean
+          popup_config?: Json | null
+          promo_link?: string | null
+          qr_code_url?: string | null
+          redemption_count?: number
+          surface_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          affiliate_id?: string | null
+          applicable_product_ids?: string[] | null
+          code?: string
+          created_at?: string
+          discount_type?: string
+          discount_value?: number
+          duration?: string
+          duration_months?: number | null
+          eligible_users?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_redemptions?: number | null
+          one_use_per_user?: boolean
+          popup_config?: Json | null
+          promo_link?: string | null
+          qr_code_url?: string | null
+          redemption_count?: number
+          surface_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "merchant_promo_codes_surface_id_fkey"
+            columns: ["surface_id"]
+            isOneToOne: false
+            referencedRelation: "surfaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      merchant_promo_redemptions: {
+        Row: {
+          id: string
+          promo_code_id: string
+          redeemed_at: string
+          user_id: string | null
+          visitor_email: string | null
+        }
+        Insert: {
+          id?: string
+          promo_code_id: string
+          redeemed_at?: string
+          user_id?: string | null
+          visitor_email?: string | null
+        }
+        Update: {
+          id?: string
+          promo_code_id?: string
+          redeemed_at?: string
+          user_id?: string | null
+          visitor_email?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "merchant_promo_redemptions_promo_code_id_fkey"
+            columns: ["promo_code_id"]
+            isOneToOne: false
+            referencedRelation: "merchant_promo_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           created_at: string
