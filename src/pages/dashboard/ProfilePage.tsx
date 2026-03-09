@@ -267,7 +267,29 @@ export default function ProfilePage() {
   const filledSocials = ALL_SOCIALS.filter(s => socialLinks[s.id]);
   const publicSocials = filledSocials.slice(0, 6);
 
-  const tabData = activeTab === "created" ? mockCreated : activeTab === "joined" ? mockJoined : [];
+  const tabData = activeTab === "created" ? mockCreated : activeTab === "joined" ? mockJoined : activeTab === "reviews" ? [] : [];
+
+  // Fetch user's installed apps for the "apps" tab
+  const { data: installedApps } = useQuery({
+    queryKey: ["profile-my-apps", user?.id],
+    enabled: !!user?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("app_user_installs")
+        .select("id, app_id, status, installed_at")
+        .eq("user_id", user!.id)
+        .order("installed_at", { ascending: false });
+      if (error) throw error;
+      if (!data || data.length === 0) return [];
+      const appIds = data.map((i) => i.app_id);
+      const { data: apps } = await supabase
+        .from("app_registry")
+        .select("id, slug, name, short_description, icon, provider_name, is_native_yangu")
+        .in("id", appIds);
+      const appMap = new Map((apps || []).map((a: any) => [a.id, a]));
+      return data.map((install) => ({ ...install, app: appMap.get(install.app_id) })).filter((i) => i.app);
+    },
+  });
 
   return (
     <div className="max-w-2xl mx-auto py-6 px-4">
