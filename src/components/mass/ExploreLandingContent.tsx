@@ -2,6 +2,7 @@ import { MassHero } from "./MassHero";
 import { MassSearchBar } from "./MassSearchBar";
 import { MassResourceSection } from "./MassResourceSection";
 import { MassTrendsBar } from "./MassTrendsBar";
+import { ExploreSponsoredSection } from "./ExploreSponsoredSection";
 import {
   featuredResources,
   inspirationResources,
@@ -25,6 +26,7 @@ export function ExploreLandingContent() {
         <MassHero />
       </div>
       <MassSearchBar />
+      <ExploreSponsoredSection />
       <MassResourceSection title="Featured" resources={featuredResources} />
       <MassResourceSection title="Inspiration" resources={inspirationResources} />
       <MassResourceSection title="No Code" resources={noCodeResources} />
