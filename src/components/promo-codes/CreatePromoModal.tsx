@@ -124,13 +124,13 @@ export function CreatePromoModal({ open, onClose, onSubmit, isSubmitting }: Prop
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
       {/* Overlay */}
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
 
       {/* Modal */}
       <div
-        className="relative z-10 w-full max-w-md mx-4 rounded-2xl border border-white/10 flex flex-col"
+        className="relative z-10 w-full max-w-md mx-auto rounded-2xl border border-white/10 flex flex-col"
         style={{ background: "#111a15", maxHeight: "90vh" }}
       >
         {/* Header */}
