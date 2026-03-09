@@ -151,6 +151,7 @@ const EditProfilePage = lazy(() => import("./pages/dashboard/EditProfilePage"));
 const SubscriptionPage = lazy(() => import("./pages/dashboard/SubscriptionPage"));
 const DashboardBilling = lazy(() => import("./pages/dashboard/DashboardBilling"));
 const PromoCodesPage = lazy(() => import("./pages/dashboard/PromoCodesPage"));
+const AffiliatesPage = lazy(() => import("./pages/dashboard/AffiliatesPage"));
 const AgencyLayout = lazy(() => import("./pages/dashboard/AgencyLayout"));
 const AgencyHomePage = lazy(() => import("./pages/dashboard/AgencyHomePage"));
 const AgencyAnalyticsPage = lazy(() => import("./pages/dashboard/AgencyAnalyticsPage"));
