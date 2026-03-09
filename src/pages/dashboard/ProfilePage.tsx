@@ -664,7 +664,7 @@ export default function ProfilePage() {
           {/* Tabs */}
           <div className="mt-6 border-b" style={{ borderColor: "rgba(255,255,255,0.1)" }}>
             <div className="flex">
-              {(["created", "joined", "reviews"] as const).map((tab) => (
+              {(["created", "joined", "apps", "reviews"] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
