@@ -17,6 +17,7 @@ export interface CampaignData {
   selectedProduct: string | null;
   globalReach: boolean;
   location: string;
+  selectedLocations: string[];
   creatives: CreativeItem[];
   dailyBudget: number;
   searchAd?: SearchAdEntry | null;
