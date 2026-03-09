@@ -38,7 +38,9 @@ type ModalState =
   | { type: "upload-image" }
   | { type: "crop"; src: string; fileType: "image" | "video" }
   | { type: "confirm-creative"; item: CreativeItem }
-  | { type: "preview"; item: CreativeItem };
+  | { type: "preview"; item: CreativeItem }
+  | { type: "search-ads" }
+  | { type: "search-ads-form"; surface: { id: string; title: string; slug: string; coverImage?: string } };
 
 export function CreativesStep({ data, onChange }: CreativesStepProps) {
   const [modal, setModal] = useState<ModalState>({ type: "none" });
