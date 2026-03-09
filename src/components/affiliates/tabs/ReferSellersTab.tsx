@@ -61,9 +61,7 @@ export function ReferSellersTab() {
           desc="Anytime yangu earns from one of your referrals, you'll get paid."
           visual={
             <div className="rounded-lg bg-white/5 border border-white/[0.06] px-3 py-2 text-xs text-white/60 mb-3 flex items-center gap-2 max-w-[220px]">
-              <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #1a3a2a 0%, #0d1f15 100%)" }}>
-                <span className="text-[10px] font-bold text-white">y</span>
-              </div>
+              <img src={yanguYLogo} alt="yangu" className="w-6 h-6 object-contain" />
               <span>You've earned $50.00 from a new referral!</span>
             </div>
           }
