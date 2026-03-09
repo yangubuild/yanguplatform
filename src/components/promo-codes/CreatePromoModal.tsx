@@ -369,7 +369,7 @@ export function CreatePromoModal({ open, onClose, onSubmit, isSubmitting }: Prop
             disabled={isSubmitting || !form.code.trim()}
             onClick={handleSubmit as any}
             className="w-full h-12 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-40"
-            style={{ background: "#3b82f6" }}
+            style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
           >
             {isSubmitting ? "Creating…" : "Create"}
           </button>
