@@ -109,8 +109,10 @@ export function CreatorDashboardTab() {
   // Sub-views
   const [activePanel, setActivePanel] = useState<"none" | "commission" | "invite" | "external">("none");
 
-  const period = PERIOD_OPTIONS[periodIdx];
   const chartData = generateChartData(period.days);
+  const maxVal = Math.max(10, ...chartData.map(d => Math.max(d.direct, d.explore, d.affiliates)));
+  const yMax = Math.ceil(maxVal / 5) * 5;
+  const yTicks = Array.from({ length: 5 }, (_, i) => Math.round((yMax / 4) * i));
 
   // Leaderboard
   const [leaderboard, setLeaderboard] = useState<{ email: string; referrals: number; rewards: string; retention: string }[]>([]);
