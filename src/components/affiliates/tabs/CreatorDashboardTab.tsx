@@ -97,7 +97,6 @@ function ChartTooltip({ active, payload, label }: any) {
   );
 }
 
-// ── Y-axis ticks ────────────────────────────────────────────────────
 const Y_TICKS = [0, 2, 5, 7, 10, 12, 15, 17, 20];
 
 // ── main component ──────────────────────────────────────────────────
