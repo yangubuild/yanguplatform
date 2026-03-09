@@ -134,6 +134,7 @@ const ManageTeam = lazy(() => import("./pages/manage/ManageTeam"));
 const NavigationDashboardPage = lazy(() => import("@/components/mass/navigation").then((m) => ({ default: m.NavigationDashboardPage })));
 const DashboardHome = lazy(() => import("./pages/dashboard/DashboardHome"));
 const DashboardPlaceholder = lazy(() => import("./pages/dashboard/DashboardPlaceholder"));
+const AdsPage = lazy(() => import("./pages/dashboard/AdsPage"));
 const AppStorePage = lazy(() => import("./pages/dashboard/AppStorePage"));
 const MyBusinessPage = lazy(() => import("./pages/dashboard/MyBusinessPage"));
 const InfluencerPage = lazy(() => import("./pages/dashboard/InfluencerPage"));
