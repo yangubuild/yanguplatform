@@ -17,7 +17,7 @@ export function AffiliatePortalTab() {
     <div className="max-w-[700px]">
       <h3 className="text-lg font-semibold text-white mb-4">Affiliate setup</h3>
 
-      <div className="rounded-xl border border-white/8 divide-y divide-white/6 mb-8" style={{ background: "#141A21" }}>
+      <div className="rounded-xl border border-white/[0.04] divide-y divide-white/[0.04] mb-8" style={{ background: "#111a15" }}>
         {/* Portal link */}
         <div className="flex items-center gap-4 p-4">
           <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
@@ -49,15 +49,15 @@ export function AffiliatePortalTab() {
         </div>
       </div>
 
-      <div className="border-t border-white/6 my-6" />
+      <div className="border-t border-white/[0.04] my-6" />
 
       <h3 className="text-lg font-semibold text-white mb-4">Affiliate management</h3>
 
       <div className="flex items-center gap-3 mb-4">
-        <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-white/70 border border-white/10">
+        <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-white/70 border border-white/[0.06]">
           Status: <span className="text-white font-medium">{statusFilter}</span>
         </button>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 flex-1">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/[0.06] flex-1">
           <Search className="w-4 h-4 text-white/30" />
           <input className="bg-transparent text-sm text-white placeholder:text-white/30 focus:outline-none w-full" placeholder="Search" />
         </div>

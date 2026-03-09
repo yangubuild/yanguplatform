@@ -13,13 +13,18 @@ interface Props {
 export function CreatorDashboardView({ onBack }: Props) {
   const [activeTab, setActiveTab] = useState<string>(TABS[0]);
 
+  const handleBack = () => {
+    onBack();
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-1">
         <h1 className="text-xl font-semibold text-white">Affiliates</h1>
         <button
-          onClick={onBack}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-white/10 text-white/70 hover:text-white transition-colors"
+          type="button"
+          onClick={handleBack}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-white/10 text-white/70 hover:text-white transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           Affiliate dashboard
@@ -27,7 +32,7 @@ export function CreatorDashboardView({ onBack }: Props) {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-6 border-b border-white/10 mt-2 mb-6">
+      <div className="flex gap-6 border-b border-white/[0.06] mt-2 mb-6">
         {TABS.map((tab) => (
           <button
             key={tab}

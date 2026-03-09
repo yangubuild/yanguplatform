@@ -11,9 +11,9 @@ interface Props {
 
 export function AffEmptyTable({ columns, icon, title, subtitle, actionLabel, onAction }: Props) {
   return (
-    <div className="rounded-xl border border-white/8 overflow-hidden" style={{ background: "#141A21" }}>
+    <div className="rounded-xl border border-white/[0.04] overflow-hidden" style={{ background: "#111a15" }}>
       {/* Header row */}
-      <div className="flex items-center border-b border-white/6 px-4 py-3">
+      <div className="flex items-center border-b border-white/[0.04] px-4 py-3">
         {columns.map((col, i) => (
           <div
             key={col}
@@ -26,7 +26,7 @@ export function AffEmptyTable({ columns, icon, title, subtitle, actionLabel, onA
 
       {/* Empty state */}
       <div className="flex flex-col items-center justify-center py-16 px-4">
-        <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/8 flex items-center justify-center mb-4">
+        <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/[0.04] flex items-center justify-center mb-4">
           {icon || <Rocket className="w-8 h-8 text-white/20" />}
         </div>
         <p className="text-sm font-medium text-white mb-1">{title}</p>

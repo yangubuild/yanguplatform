@@ -16,7 +16,7 @@ export function CreatorDashboardTab() {
           </button>
           <p className="text-3xl font-bold text-white">0</p>
         </div>
-        <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-white/70 border border-white/10">
+        <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-white/70 border border-white/[0.06]">
           <Calendar className="w-3.5 h-3.5" />
           {period}
           <ChevronDown className="w-3.5 h-3.5" />
@@ -24,9 +24,8 @@ export function CreatorDashboardTab() {
       </div>
 
       {/* Chart area placeholder */}
-      <div className="rounded-xl border border-white/6 p-6 mb-6 min-h-[200px] flex flex-col justify-end" style={{ background: "#141A21" }}>
-        <div className="h-[160px] flex items-end border-b border-white/6 mb-3">
-          {/* Empty chart grid lines */}
+      <div className="rounded-xl border border-white/[0.04] p-6 mb-6 min-h-[200px] flex flex-col justify-end" style={{ background: "#111a15" }}>
+        <div className="h-[160px] flex items-end border-b border-white/[0.04] mb-3">
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="flex-1 border-l border-dashed border-white/5 h-full" />
           ))}
@@ -39,7 +38,7 @@ export function CreatorDashboardTab() {
       </div>
 
       {/* Action cards */}
-      <div className="rounded-xl border border-white/8 divide-y divide-white/6 mb-8" style={{ background: "#141A21" }}>
+      <div className="rounded-xl border border-white/[0.04] divide-y divide-white/[0.04] mb-8" style={{ background: "#111a15" }}>
         <ActionRow
           icon={<Percent className="w-5 h-5 text-white/40" />}
           title="Set the affiliate commission for a specific product"
@@ -63,7 +62,7 @@ export function CreatorDashboardTab() {
         columns={["User", "Referrals", "Rewards (USD)", "Past three month retention"]}
         icon={<Rocket className="w-8 h-8 text-white/20" />}
         title="No affiliates yet"
-        subtitle="Add affiliates to expand your reach by incentivizing users to refer their friends to your YANGU."
+        subtitle="Add affiliates to expand your reach by incentivizing users to refer their friends to your yangu."
       />
     </div>
   );
