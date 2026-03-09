@@ -27,6 +27,7 @@ type ModalState =
   | { type: "none" }
   | { type: "bulk-upload" }
   | { type: "upload-video" }
+  | { type: "upload-image" }
   | { type: "crop"; src: string; fileType: "image" | "video" }
   | { type: "caption"; item: CreativeItem }
   | { type: "preview"; item: CreativeItem };
