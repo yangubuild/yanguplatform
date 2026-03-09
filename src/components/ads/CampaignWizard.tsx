@@ -134,7 +134,7 @@ export function CampaignWizard({ onClose }: CampaignWizardProps) {
           <CreativesStep data={data} onChange={setData} />
         )}
         {currentStep === "Budget" && (
-          <BudgetStep data={data} onChange={setData} />
+          <BudgetStep data={data} onChange={setData} onLaunch={handleLaunch} />
         )}
       </div>
     </div>
