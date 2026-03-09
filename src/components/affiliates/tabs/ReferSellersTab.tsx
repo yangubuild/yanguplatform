@@ -176,16 +176,14 @@ function PartnerDetailPage({ onBack }: { onBack: () => void }) {
           </div>
           <div className="grid grid-cols-2 gap-4 mb-8">
             {[
-              { name: "GHOST PICKZ", handle: "@ghostsportzpi...", time: "4 months ago", text: "Def a goat. Studies all plays and it shows" },
-              { name: "AB", handle: "@abonsocials", time: "6 months ago", text: "lots to learn from yangu partners! i love the outreach help section" },
-              { name: "K 🏈", handle: "@scalewithk", time: "2 months ago", text: "" },
-              { name: "RichCrypto", handle: "@richcrypto", time: "2 months ago", text: "" },
+              { name: "GHOST PICKZ", handle: "@ghostsportzpi...", time: "4 months ago", text: "Def a goat. Studies all plays and it shows", img: "https://i.pravatar.cc/80?img=12" },
+              { name: "AB", handle: "@abonsocials", time: "6 months ago", text: "lots to learn from yangu partners! i love the outreach help section", img: "https://i.pravatar.cc/80?img=32" },
+              { name: "K 🏈", handle: "@scalewithk", time: "2 months ago", text: "", img: "https://i.pravatar.cc/80?img=45" },
+              { name: "RichCrypto", handle: "@richcrypto", time: "2 months ago", text: "", img: "https://i.pravatar.cc/80?img=57" },
             ].map((review, i) => (
               <div key={i} className="rounded-xl border border-white/[0.04] p-4" style={{ background: "#111a15" }}>
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white">
-                    {review.name.charAt(0)}
-                  </div>
+                  <img src={review.img} alt={review.name} className="w-10 h-10 rounded-full object-cover" />
                   <div>
                     <p className="text-sm font-medium text-white">{review.name}</p>
                     <p className="text-xs text-white/30">{review.handle}</p>
