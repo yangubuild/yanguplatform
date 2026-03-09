@@ -66,6 +66,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
   let activeReach = 0;
   if (videoCreatives.length > 0) activeReach += 100;
   if (imageCreatives.length > 0) activeReach += 100;
+  if (data.searchAd) activeReach += 5;
   const reachPercent = MAX_REACH > 0 ? (activeReach / MAX_REACH) * 100 : 0;
   const totalReach = activeReach > 0 ? `${activeReach}M` : "0";
   const hasCreatives = data.creatives.length > 0;
