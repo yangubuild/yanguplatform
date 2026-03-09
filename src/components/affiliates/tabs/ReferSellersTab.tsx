@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link2, UserPlus, DollarSign, X, Star } from "lucide-react";
 import { createPortal } from "react-dom";
 import { toast } from "sonner";
+import yanguYLogo from "@/assets/yangu-y-logo.png";
 
 export function ReferSellersTab() {
   const [showPartnerPage, setShowPartnerPage] = useState(false);
@@ -60,9 +61,7 @@ export function ReferSellersTab() {
           desc="Anytime yangu earns from one of your referrals, you'll get paid."
           visual={
             <div className="rounded-lg bg-white/5 border border-white/[0.06] px-3 py-2 text-xs text-white/60 mb-3 flex items-center gap-2 max-w-[220px]">
-              <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #1a3a2a 0%, #0d1f15 100%)" }}>
-                <span className="text-[10px] font-bold text-white">y</span>
-              </div>
+              <img src={yanguYLogo} alt="yangu" className="w-6 h-6 object-contain" />
               <span>You've earned $50.00 from a new referral!</span>
             </div>
           }
@@ -104,9 +103,7 @@ function PartnerDetailPage({ onBack }: { onBack: () => void }) {
       {/* Header */}
       <button onClick={onBack} className="flex items-center gap-2 text-sm text-white/50 hover:text-white mb-6">
         <span>‹</span>
-        <div className="w-6 h-6 rounded flex items-center justify-center" style={{ background: "linear-gradient(135deg, #1a3a2a 0%, #0d1f15 100%)" }}>
-          <span className="text-[8px] font-bold text-white">y</span>
-        </div>
+        <img src={yanguYLogo} alt="yangu" className="w-6 h-6 object-contain" />
         yangu Partners
       </button>
 
@@ -115,15 +112,13 @@ function PartnerDetailPage({ onBack }: { onBack: () => void }) {
         <div>
           {/* Hero banner */}
           <div className="rounded-xl overflow-hidden mb-4 h-[280px] flex items-center justify-center relative" style={{ background: "linear-gradient(135deg, #1a3a2a 0%, #0d1f15 60%, #08120D 100%)" }}>
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)" }}>
-                  <span className="text-sm font-bold text-white">y</span>
-                </div>
-                <span className="text-2xl font-bold text-white">yangu</span>
-              </div>
-              <p className="text-4xl font-black text-white tracking-wide">AFFILIATES</p>
-            </div>
+             <div className="text-center">
+               <div className="flex items-center justify-center gap-2 mb-2">
+                 <img src={yanguYLogo} alt="yangu" className="w-10 h-10 object-contain" />
+                 <span className="text-2xl font-bold text-white">yangu</span>
+               </div>
+               <p className="text-4xl font-black text-white tracking-wide">AFFILIATES</p>
+             </div>
           </div>
 
           {/* Info bar */}
@@ -181,16 +176,14 @@ function PartnerDetailPage({ onBack }: { onBack: () => void }) {
           </div>
           <div className="grid grid-cols-2 gap-4 mb-8">
             {[
-              { name: "GHOST PICKZ", handle: "@ghostsportzpi...", time: "4 months ago", text: "Def a goat. Studies all plays and it shows" },
-              { name: "AB", handle: "@abonsocials", time: "6 months ago", text: "lots to learn from yangu partners! i love the outreach help section" },
-              { name: "K 🏈", handle: "@scalewithk", time: "2 months ago", text: "" },
-              { name: "RichCrypto", handle: "@richcrypto", time: "2 months ago", text: "" },
+              { name: "GHOST PICKZ", handle: "@ghostsportzpi...", time: "4 months ago", text: "Def a goat. Studies all plays and it shows", img: "https://i.pravatar.cc/80?img=12" },
+              { name: "AB", handle: "@abonsocials", time: "6 months ago", text: "lots to learn from yangu partners! i love the outreach help section", img: "https://i.pravatar.cc/80?img=32" },
+              { name: "K 🏈", handle: "@scalewithk", time: "2 months ago", text: "", img: "https://i.pravatar.cc/80?img=45" },
+              { name: "RichCrypto", handle: "@richcrypto", time: "2 months ago", text: "", img: "https://i.pravatar.cc/80?img=57" },
             ].map((review, i) => (
               <div key={i} className="rounded-xl border border-white/[0.04] p-4" style={{ background: "#111a15" }}>
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white">
-                    {review.name.charAt(0)}
-                  </div>
+                  <img src={review.img} alt={review.name} className="w-10 h-10 rounded-full object-cover" />
                   <div>
                     <p className="text-sm font-medium text-white">{review.name}</p>
                     <p className="text-xs text-white/30">{review.handle}</p>
@@ -213,9 +206,7 @@ function PartnerDetailPage({ onBack }: { onBack: () => void }) {
           <div className="rounded-xl border border-white/[0.04] p-5 sticky top-6" style={{ background: "#111a15" }}>
             <div className="rounded-xl overflow-hidden mb-4 h-[180px] flex items-center justify-center" style={{ background: "linear-gradient(135deg, #1a3a2a 0%, #0d1f15 100%)" }}>
               <div className="text-center">
-                <div className="w-12 h-12 rounded-xl mx-auto mb-2 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)" }}>
-                  <span className="text-xl font-bold text-white">y</span>
-                </div>
+                <img src={yanguYLogo} alt="yangu" className="w-14 h-14 mx-auto mb-2 object-contain" />
                 <p className="text-lg font-bold text-white">yangu Partners</p>
               </div>
             </div>
