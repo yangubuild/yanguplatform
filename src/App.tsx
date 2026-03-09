@@ -134,6 +134,7 @@ const ManageTeam = lazy(() => import("./pages/manage/ManageTeam"));
 const NavigationDashboardPage = lazy(() => import("@/components/mass/navigation").then((m) => ({ default: m.NavigationDashboardPage })));
 const DashboardHome = lazy(() => import("./pages/dashboard/DashboardHome"));
 const DashboardPlaceholder = lazy(() => import("./pages/dashboard/DashboardPlaceholder"));
+const AdsPage = lazy(() => import("./pages/dashboard/AdsPage"));
 const AppStorePage = lazy(() => import("./pages/dashboard/AppStorePage"));
 const MyBusinessPage = lazy(() => import("./pages/dashboard/MyBusinessPage"));
 const InfluencerPage = lazy(() => import("./pages/dashboard/InfluencerPage"));
@@ -366,7 +367,7 @@ const App = () => (
                   <Route path="payment-settings" element={<PaymentsSettingsPage />} />
                   <Route path="payments" element={<Navigate to="/dashboard/payment-settings" replace />} />
                   <Route path="invoices" element={<InvoicesPage />} />
-                  <Route path="ads" element={<DashboardPlaceholder />} />
+                  <Route path="ads" element={<AdsPage />} />
                   <Route path="promo-codes" element={<DashboardPlaceholder />} />
                   <Route path="affiliates" element={<DashboardPlaceholder />} />
                   <Route path="billing" element={<DashboardBilling />} />
