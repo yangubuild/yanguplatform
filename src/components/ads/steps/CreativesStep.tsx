@@ -27,6 +27,7 @@ type ModalState =
   | { type: "none" }
   | { type: "bulk-upload" }
   | { type: "upload-video" }
+  | { type: "upload-image" }
   | { type: "crop"; src: string; fileType: "image" | "video" }
   | { type: "caption"; item: CreativeItem }
   | { type: "preview"; item: CreativeItem };
@@ -182,12 +183,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
           <Button
             variant="accent"
             className="rounded-xl px-4 h-8 text-xs"
-            onClick={() => {
-              if (fileRef.current) {
-                fileRef.current.accept = "video/*";
-                fileRef.current.click();
-              }
-            }}
+            onClick={() => setModal({ type: "upload-video" })}
           >
             Add creative set
           </Button>
@@ -218,12 +214,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
           <Button
             variant="accent"
             className="rounded-xl px-4 h-8 text-xs"
-            onClick={() => {
-              if (fileRef.current) {
-                fileRef.current.accept = "image/*";
-                fileRef.current.click();
-              }
-            }}
+            onClick={() => setModal({ type: "upload-image" })}
           >
             Add creative set
           </Button>
@@ -374,6 +365,61 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
                 </div>
                 <span className="text-sm text-white/60">Choose a file or drag and drop here</span>
                 <span className="text-xs text-white/30 mt-1">.MP4 and .MOV formats</span>
+              </div>
+              <button className="w-full flex items-center justify-between p-3 rounded-xl border border-white/10 text-sm text-white/50">
+                Choose from my creatives library instead
+                <span className="text-white/40">∨</span>
+              </button>
+            </div>
+            <div className="flex gap-3 p-5 border-t border-white/10">
+              <Button
+                variant="outline"
+                onClick={() => setModal({ type: "none" })}
+                className="flex-1 rounded-xl border-white/10 text-white/60"
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="secondary"
+                className="flex-1 rounded-xl opacity-50 cursor-not-allowed"
+                disabled
+              >
+                Continue
+              </Button>
+            </div>
+          </div>
+        </ModalOverlay>
+      )}
+
+      {/* Upload image modal */}
+      {modal.type === "upload-image" && (
+        <ModalOverlay onClose={() => setModal({ type: "none" })}>
+          <div className="rounded-2xl w-full max-w-md" style={{ background: "#1a1a1a" }}>
+            <div className="flex items-center justify-between p-5 border-b border-white/10">
+              <h3 className="text-lg font-semibold text-white">Upload image</h3>
+              <button onClick={() => setModal({ type: "none" })} className="text-white/40 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-5 space-y-4">
+              <button className="w-full flex items-center justify-between p-3 rounded-xl border border-white/10 text-sm text-white/70">
+                Upload from my computer
+                <span className="text-white/40">∧</span>
+              </button>
+              <div
+                onClick={() => {
+                  if (fileRef.current) {
+                    fileRef.current.accept = "image/*";
+                    fileRef.current.click();
+                  }
+                }}
+                className="border-2 border-dashed border-white/15 rounded-xl p-10 flex flex-col items-center justify-center cursor-pointer hover:border-white/25 transition-colors"
+              >
+                <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center mb-4">
+                  <Image className="w-5 h-5 text-white/50" />
+                </div>
+                <span className="text-sm text-white/60">Choose a file or drag and drop here</span>
+                <span className="text-xs text-white/30 mt-1">.PNG and .JPG formats up to 25MB</span>
               </div>
               <button className="w-full flex items-center justify-between p-3 rounded-xl border border-white/10 text-sm text-white/50">
                 Choose from my creatives library instead
