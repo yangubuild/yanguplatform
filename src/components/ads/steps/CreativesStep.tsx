@@ -548,7 +548,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
       {/* Preview modal */}
       {modal.type === "preview" && (
         <ModalOverlay onClose={() => setModal({ type: "none" })}>
-          <div className="rounded-2xl p-6 w-full max-w-md" style={{ background: "#0f1f17" }}>
+          <div className="rounded-2xl p-6 w-full max-w-md" style={{ background: "#1a1a1a" }}>
             <h3 className="text-lg font-semibold text-white mb-4">Preview</h3>
             {modal.item.type === "image" ? (
               <img src={modal.item.src} alt="" className="w-full rounded-xl object-cover aspect-[4/5] mb-4" />
