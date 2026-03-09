@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { AlertCircle, Info, X, CreditCard } from "lucide-react";
+import { AlertCircle, Info, X, CreditCard, Smartphone, Apple } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { CampaignData } from "../CampaignWizard";
+import yanguLogo from "@/assets/yangu-logo-full.png";
 
 interface BudgetStepProps {
   data: CampaignData;
