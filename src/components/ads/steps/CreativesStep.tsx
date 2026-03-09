@@ -153,7 +153,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
               <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="6" />
               <circle
                 cx="60" cy="60" r="52" fill="none"
-                stroke={hasCreatives ? "#3b82f6" : "rgba(255,255,255,0.15)"}
+                stroke={hasCreatives ? "#b5622a" : "rgba(255,255,255,0.15)"}
                 strokeWidth="6"
                 strokeDasharray={`${reachPercent * 3.27} ${327 - reachPercent * 3.27}`}
                 strokeLinecap="round"
