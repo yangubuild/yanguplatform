@@ -31,9 +31,9 @@ const STAT_CARDS = [
 ];
 
 const RECOMMENDED_APPS = [
-  { name: "Automations", provider: "YANGU", desc: "Send emails and create workflows (replaces Zapier and N8N)" },
-  { name: "Email Marketing & Automations", provider: "YANGU", desc: "Email marketing campaigns and automated sequences" },
-  { name: "Contracts", provider: "YANGU", desc: "Create contracts, collect signatures and payments, and automate invoices." },
+  { name: "Automations", provider: "yangu", desc: "Send emails and create workflows (replaces Zapier and N8N)" },
+  { name: "Email Marketing & Automations", provider: "yangu", desc: "Email marketing campaigns and automated sequences" },
+  { name: "Contracts", provider: "yangu", desc: "Create contracts, collect signatures and payments, and automate invoices." },
 ];
 
 export default function BusinessAnalyticsPage() {
