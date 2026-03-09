@@ -80,7 +80,18 @@ export function CampaignWizard({ onClose }: CampaignWizardProps) {
           </div>
 
           <div className="flex items-center gap-2">
-            {currentStep !== "Budget" && (
+            {currentStep === "Budget" ? (
+              <Button
+                variant="accent"
+                onClick={() => {
+                  const budgetStep = document.querySelector('[data-launch-campaign]') as HTMLButtonElement;
+                  budgetStep?.click();
+                }}
+                className="rounded-xl px-5 h-9"
+              >
+                Launch campaign
+              </Button>
+            ) : (
               <Button
                 variant="accent"
                 onClick={goNext}

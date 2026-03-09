@@ -165,6 +165,13 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
           </a>{" "}
           and allow us to charge your payment method for your campaign.
         </p>
+
+        {/* Hidden trigger for header Launch button */}
+        <button
+          data-launch-campaign
+          className="hidden"
+          onClick={handleLaunchClick}
+        />
       </div>
 
       {/* Payment Modal */}
