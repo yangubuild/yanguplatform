@@ -311,12 +311,12 @@ function CommissionPanel({ onBack }: { onBack: () => void }) {
           <div>
             <h3 className="text-sm font-semibold text-white">Featured product</h3>
             <p className="text-xs text-white/50 mt-1">
-              Choose which product appears on the <span className="text-accentnderline cursor-pointer">affiliate marketplace</span> for potential affiliates to discover and promote.
+              Choose which product appears on the <span className="text-accenterline cursor-pointer">affiliate marketplace</span> for potential affiliates to discover and promote.
             </p>
           </div>
           <button
             onClick={() => setFeaturedEnabled(!featuredEnabled)}
-            className={`w-11 h-6 rounded-full transition-colors flex items-center px-0.5 ${featuredEnabled ? "bg-blaccent: "bg-white/20"}`}
+            className={`w-11 h-6 rounded-full transition-colors flex items-center px-0.5 ${featuredEnabled ? "bg-blacaccentg-white/20"}`}
           >
             <span className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${featuredEnabled ? "translate-x-5" : "translate-x-0"}`} />
           </button>
@@ -325,7 +325,7 @@ function CommissionPanel({ onBack }: { onBack: () => void }) {
         {featuredEnabled ? (
           <div className="mt-4 flex items-center gap-2 rounded-lg border border-white/10 p-2" style={{ background: "#0d1510" }}>
             <Check className="w-4 h-4 text-white/50" />
-            <div className="w-7 h-7 rounded bg-blue-600/50 flex items-center justify-center text-[10px] text-white font-bold">BK</div>
+            <div className="w-7 h-7 rounded bg-blueaccentflex items-center justify-center text-[10px] text-white font-bold">BK</div>
             <span className="text-sm text-white flex-1">{selectedProduct}</span>
             <button onClick={() => setShowPreview(true)} className="flex items-center gap-1 text-xs text-white/50 hover:text-white px-2 py-1 rounded border border-white/10">
               <Eye className="w-3.5 h-3.5" /> Preview
