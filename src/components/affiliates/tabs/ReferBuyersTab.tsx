@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { ChevronRight, Plus, Search, Rocket, ChevronLeft, Copy, X, ChevronDown, Check } from "lucide-react";
 import { AffEmptyTable } from "../shared/AffEmptyTable";
-import { createPortal } from "react-dom";
 import { toast } from "sonner";
 
 interface Props {
   isAuthenticated: boolean;
+  onOpenMarketplace?: () => void;
 }
 
 interface Offer {
@@ -23,7 +23,7 @@ interface Offer {
   color: string;
 }
 
-const ALL_OFFERS: Offer[] = [
+export const ALL_OFFERS: Offer[] = [
   {
     id: "1",
     name: "KingCapSports Full Access",
@@ -73,8 +73,7 @@ const SAMPLE_LINKS = [
   { type: "Company", typeBg: "#f59e0b", name: "DEAL SOLDIER", price: "-", rate: "-", link: "https://yangu.studio/deal-soldier?a=heavyvrasp23", earned: "$0.00", clicks: 0, users: 0, conversionRate: "-" },
 ];
 
-export function ReferBuyersTab({ isAuthenticated }: Props) {
-  const [showMarketplace, setShowMarketplace] = useState(false);
+export function ReferBuyersTab({ isAuthenticated, onOpenMarketplace }: Props) {
   const [viewAssetsProgram, setViewAssetsProgram] = useState<string | null>(null);
   const [joinedOffers, setJoinedOffers] = useState<Offer[]>([]);
 
@@ -89,17 +88,13 @@ export function ReferBuyersTab({ isAuthenticated }: Props) {
 
   const isJoined = (id: string) => joinedOffers.some(o => o.id === id);
 
-  if (showMarketplace) {
-    return <AffiliateMarketplace onBack={() => setShowMarketplace(false)} />;
-  }
-
   return (
     <div>
       {/* Hot offers */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-base font-semibold text-white">Hot offers</h3>
         <button
-          onClick={() => setShowMarketplace(true)}
+          onClick={onOpenMarketplace}
           className="flex items-center gap-1 text-sm text-white/50 hover:text-white/80 transition-colors"
         >
           View all <ChevronRight className="w-4 h-4" />
@@ -110,11 +105,9 @@ export function ReferBuyersTab({ isAuthenticated }: Props) {
         {ALL_OFFERS.map((offer) => (
           <div key={offer.id} className="rounded-xl border border-white/[0.04] overflow-hidden" style={{ background: "#111a15" }}>
             <div className="flex gap-3 p-4 pb-3">
-              {/* Thumbnail */}
               <div className="w-[120px] h-[72px] rounded-lg overflow-hidden flex-shrink-0">
                 <img src={offer.image} alt={offer.name} className="w-full h-full object-cover" />
               </div>
-              {/* Title + category */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-1">
                   <p className="text-sm font-medium text-white leading-tight">{offer.name}</p>
@@ -134,7 +127,6 @@ export function ReferBuyersTab({ isAuthenticated }: Props) {
                 </p>
               </div>
             </div>
-            {/* Stats grid */}
             <div className="grid grid-cols-3 gap-y-2 text-[11px] px-4 pb-4">
               <div><span className="text-white/30">Product price</span><br /><span className="text-white/80 font-medium">{offer.price}</span></div>
               <div><span className="text-white/30">Commission rate</span><br /><span className="text-white/80 font-medium">{offer.rate}</span></div>
@@ -224,7 +216,7 @@ export function ReferBuyersTab({ isAuthenticated }: Props) {
       )}
 
       {viewAssetsProgram && (
-        <ViewAssetsModal
+        <ViewAssetsPage
           programName={viewAssetsProgram}
           onClose={() => setViewAssetsProgram(null)}
         />
@@ -233,127 +225,94 @@ export function ReferBuyersTab({ isAuthenticated }: Props) {
   );
 }
 
-function ViewAssetsModal({ programName, onClose }: { programName: string; onClose: () => void }) {
+/* ── View Assets Full Page ── */
+function ViewAssetsPage({ programName, onClose }: { programName: string; onClose: () => void }) {
   const handleCopy = (link: string) => {
     navigator.clipboard.writeText(link);
     toast.success("Affiliate link copied!");
   };
 
-  return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-16">
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-      <div className="relative w-full max-w-5xl rounded-xl border border-white/[0.04] overflow-hidden" style={{ background: "#111a15" }}>
-        <div className="flex items-center justify-between p-5 border-b border-white/[0.04]">
+  return (
+    <div className="fixed inset-0 z-[100] overflow-y-auto" style={{ background: "#08120D" }}>
+      <div className="w-full px-6 py-6">
+        <button onClick={onClose} className="flex items-center gap-1 text-sm text-white/50 hover:text-white mb-4">
+          <ChevronLeft className="w-4 h-4" /> Back
+        </button>
+
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <button onClick={onClose} className="text-white/50 hover:text-white">
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <h3 className="text-base font-semibold text-white">Your affiliate links</h3>
+            <h3 className="text-base font-semibold text-white">Your affiliate links — {programName}</h3>
             <button className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-dashed border-white/20 text-xs text-white/50">
               <span className="text-white/30">⊕</span> Link type
             </button>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/[0.06] w-56">
-              <Search className="w-4 h-4 text-white/30" />
-              <input className="bg-transparent text-sm text-white placeholder:text-white/30 focus:outline-none w-full" placeholder="Search" />
-            </div>
-            <button onClick={onClose} className="text-white/40 hover:text-white">
-              <X className="w-5 h-5" />
-            </button>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/[0.06] w-56">
+            <Search className="w-4 h-4 text-white/30" />
+            <input className="bg-transparent text-sm text-white placeholder:text-white/30 focus:outline-none w-full" placeholder="Search" />
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-white/[0.04]">
-                <th className="text-left text-xs text-white/30 font-medium px-4 py-3">Type</th>
-                <th className="text-left text-xs text-white/30 font-medium px-4 py-3">Name</th>
-                <th className="text-left text-xs text-white/30 font-medium px-4 py-3">Price</th>
-                <th className="text-left text-xs text-white/30 font-medium px-4 py-3">Affiliate rate</th>
-                <th className="text-left text-xs text-white/30 font-medium px-4 py-3">Affiliate link</th>
-                <th className="text-right text-xs text-white/30 font-medium px-4 py-3">Earned</th>
-                <th className="text-center text-xs text-white/30 font-medium px-4 py-3">Clicks</th>
-                <th className="text-center text-xs text-white/30 font-medium px-4 py-3">Users</th>
-                <th className="text-center text-xs text-white/30 font-medium px-4 py-3">Conversion rate</th>
-              </tr>
-            </thead>
-            <tbody>
-              {SAMPLE_LINKS.map((link, i) => (
-                <tr key={i} className="border-b border-white/[0.04] hover:bg-white/[0.02]">
-                  <td className="px-4 py-3">
-                    <span className="text-xs font-medium px-2 py-0.5 rounded" style={{ background: `${link.typeBg}20`, color: link.typeBg }}>
-                      {link.type}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-white">{link.name}</td>
-                  <td className="px-4 py-3 text-sm text-white/60">{link.price}</td>
-                  <td className="px-4 py-3 text-sm text-white/60">{link.rate}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-white/60 truncate max-w-[240px]">{link.link}</span>
-                      <button onClick={() => handleCopy(link.link)} className="text-white/30 hover:text-white flex-shrink-0">
-                        <Copy className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-white/60 text-right">{link.earned}</td>
-                  <td className="px-4 py-3 text-sm text-white/60 text-center">{link.clicks}</td>
-                  <td className="px-4 py-3 text-sm text-white/60 text-center">{link.users}</td>
-                  <td className="px-4 py-3 text-sm text-white/60 text-center">{link.conversionRate}</td>
+        <div className="rounded-xl border border-white/[0.04] overflow-hidden" style={{ background: "#111a15" }}>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-white/[0.04]">
+                  <th className="text-left text-xs text-white/30 font-medium px-4 py-3">Type</th>
+                  <th className="text-left text-xs text-white/30 font-medium px-4 py-3">Name</th>
+                  <th className="text-left text-xs text-white/30 font-medium px-4 py-3">Price</th>
+                  <th className="text-left text-xs text-white/30 font-medium px-4 py-3">Affiliate rate</th>
+                  <th className="text-left text-xs text-white/30 font-medium px-4 py-3">Affiliate link</th>
+                  <th className="text-right text-xs text-white/30 font-medium px-4 py-3">Earned</th>
+                  <th className="text-center text-xs text-white/30 font-medium px-4 py-3">Clicks</th>
+                  <th className="text-center text-xs text-white/30 font-medium px-4 py-3">Users</th>
+                  <th className="text-center text-xs text-white/30 font-medium px-4 py-3">Conversion rate</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="flex items-center justify-between px-4 py-3 text-xs text-white/30 border-t border-white/[0.04]">
-          <span>Showing 1 to 2 of 2</span>
-          <div className="flex items-center gap-2">
-            <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-white/30">‹</button>
-            <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-white bg-white/[0.06]">1</button>
-            <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-white/30">›</button>
+              </thead>
+              <tbody>
+                {SAMPLE_LINKS.map((link, i) => (
+                  <tr key={i} className="border-b border-white/[0.04] hover:bg-white/[0.02]">
+                    <td className="px-4 py-3">
+                      <span className="text-xs font-medium px-2 py-0.5 rounded" style={{ background: `${link.typeBg}20`, color: link.typeBg }}>
+                        {link.type}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-white">{link.name}</td>
+                    <td className="px-4 py-3 text-sm text-white/60">{link.price}</td>
+                    <td className="px-4 py-3 text-sm text-white/60">{link.rate}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-white/60 truncate max-w-[240px]">{link.link}</span>
+                        <button onClick={() => handleCopy(link.link)} className="text-white/30 hover:text-white flex-shrink-0">
+                          <Copy className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-white/60 text-right">{link.earned}</td>
+                    <td className="px-4 py-3 text-sm text-white/60 text-center">{link.clicks}</td>
+                    <td className="px-4 py-3 text-sm text-white/60 text-center">{link.users}</td>
+                    <td className="px-4 py-3 text-sm text-white/60 text-center">{link.conversionRate}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <div className="flex items-center gap-2">
-            <span>Show</span>
-            <div className="flex items-center gap-1 px-2 py-1 rounded-lg border border-white/[0.06] text-white/60">
-              10 <ChevronDown className="w-3 h-3" />
+
+          <div className="flex items-center justify-between px-4 py-3 text-xs text-white/30 border-t border-white/[0.04]">
+            <span>Showing 1 to 2 of 2</span>
+            <div className="flex items-center gap-2">
+              <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-white/30">‹</button>
+              <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-white bg-white/[0.06]">1</button>
+              <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-white/30">›</button>
+            </div>
+            <div className="flex items-center gap-2">
+              <span>Show</span>
+              <div className="flex items-center gap-1 px-2 py-1 rounded-lg border border-white/[0.06] text-white/60">
+                10 <ChevronDown className="w-3 h-3" />
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>,
-    document.body
-  );
-}
-
-function AffiliateMarketplace({ onBack }: { onBack: () => void }) {
-  return (
-    <div>
-      <button onClick={onBack} className="flex items-center gap-1 text-sm text-white/50 hover:text-white mb-4">
-        <ChevronLeft className="w-4 h-4" /> Back
-      </button>
-
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <h3 className="text-base font-semibold text-white">Affiliate marketplace</h3>
-          <button className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-dashed border-white/20 text-xs text-white/50">
-            <span className="text-white/30">⊕</span> Industry type
-          </button>
-        </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/[0.06] w-56">
-          <Search className="w-4 h-4 text-white/30" />
-          <input className="bg-transparent text-sm text-white placeholder:text-white/30 focus:outline-none w-full" placeholder="Search" />
-        </div>
-      </div>
-
-      <AffEmptyTable
-        columns={["Company", "Industry type", "Commission rate", "Affiliate earnings", "Conversions", "Earnings per click", "Conversion rate", "Actions"]}
-        icon={<Rocket className="w-8 h-8 text-white/20" />}
-        title="No marketplace listings yet"
-        subtitle="Check back soon for affiliate opportunities."
-      />
     </div>
   );
 }
