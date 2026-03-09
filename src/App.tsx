@@ -136,6 +136,7 @@ const DashboardHome = lazy(() => import("./pages/dashboard/DashboardHome"));
 const DashboardPlaceholder = lazy(() => import("./pages/dashboard/DashboardPlaceholder"));
 const AdsPage = lazy(() => import("./pages/dashboard/AdsPage"));
 const AppStorePage = lazy(() => import("./pages/dashboard/AppStorePage"));
+const MyAppsPage = lazy(() => import("./pages/dashboard/MyAppsPage"));
 const MyBusinessPage = lazy(() => import("./pages/dashboard/MyBusinessPage"));
 const InfluencerPage = lazy(() => import("./pages/dashboard/InfluencerPage"));
 const SellerSurfacePage = lazy(() => import("./pages/dashboard/SellerSurfacePage"));
