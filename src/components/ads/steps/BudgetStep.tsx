@@ -28,8 +28,8 @@ export function BudgetStep({ data, onChange }: BudgetStepProps) {
         {/* Progress bar */}
         <div className="h-2 rounded-full bg-white/[0.06] overflow-hidden">
           <div
-            className="h-full rounded-full bg-blue-500 transition-all duration-300"
-            style={{ width: `${reachPercent}%` }}
+            className="h-full rounded-full transition-all duration-300"
+            style={{ width: `${reachPercent}%`, background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
           />
         </div>
       </div>
@@ -67,11 +67,14 @@ export function BudgetStep({ data, onChange }: BudgetStepProps) {
             <button
               key={b}
               onClick={() => onChange({ ...data, dailyBudget: b })}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                data.dailyBudget === b
-                  ? "bg-blue-600 text-white"
-                  : "bg-white/[0.04] text-white/50 border border-white/10 hover:bg-white/[0.08]"
-              }`}
+              className="px-4 py-2 rounded-xl text-sm font-medium transition-colors"
+              style={{
+                background: data.dailyBudget === b
+                  ? "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)"
+                  : "rgba(255,255,255,0.04)",
+                color: data.dailyBudget === b ? "#fff" : "rgba(255,255,255,0.5)",
+                border: data.dailyBudget === b ? "none" : "1px solid rgba(255,255,255,0.1)",
+              }}
             >
               ${b}/day
             </button>
