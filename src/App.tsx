@@ -365,7 +365,7 @@ const App = () => (
                   <Route path="profile/subscription" element={<SubscriptionPage />} />
 
                   {/* Dashboard module pages (flat, no nesting) */}
-                  <Route path="my-apps" element={<DashboardPlaceholder />} />
+                  <Route path="my-apps" element={<MyAppsPage />} />
                   <Route path="my-business" element={<MyBusinessPage />} />
                   <Route path="payment-settings" element={<PaymentsSettingsPage />} />
                   <Route path="payments" element={<Navigate to="/dashboard/payment-settings" replace />} />
