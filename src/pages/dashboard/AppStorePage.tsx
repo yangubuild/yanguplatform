@@ -29,6 +29,8 @@ const CATEGORY_TABS = [
 
 export default function AppStorePage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [activeCategory, setActiveCategory] = useState("all");
   const [prompt, setPrompt] = useState("");
 
