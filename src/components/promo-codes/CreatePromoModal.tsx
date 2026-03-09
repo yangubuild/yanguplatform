@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { X, ChevronDown, Check, Search, Info, Calendar } from "lucide-react";
 import type { PromoCodeFormData } from "@/pages/dashboard/PromoCodesPage";
 import { useSurfaces } from "@/hooks/useSurfaces";
