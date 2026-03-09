@@ -451,7 +451,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
         <ModalOverlay onClose={() => setModal({ type: "none" })}>
           <div className="rounded-2xl p-6 w-full max-w-lg space-y-5" style={{ background: "#1a1a1a" }}>
             <h3 className="text-lg font-semibold text-white">Crop media</h3>
-            <div className="rounded-xl overflow-hidden flex items-center justify-center h-64" style={{ background: "#08120D" }}>
+            <div className="rounded-xl overflow-hidden flex items-center justify-center h-64" style={{ background: "#111111" }}>
               {modal.fileType === "image" ? (
                 <img
                   src={modal.src}
