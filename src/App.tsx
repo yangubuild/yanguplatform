@@ -367,7 +367,7 @@ const App = () => (
                   <Route path="payment-settings" element={<PaymentsSettingsPage />} />
                   <Route path="payments" element={<Navigate to="/dashboard/payment-settings" replace />} />
                   <Route path="invoices" element={<InvoicesPage />} />
-                  <Route path="ads" element={<DashboardPlaceholder />} />
+                  <Route path="ads" element={<AdsPage />} />
                   <Route path="promo-codes" element={<DashboardPlaceholder />} />
                   <Route path="affiliates" element={<DashboardPlaceholder />} />
                   <Route path="billing" element={<DashboardBilling />} />
