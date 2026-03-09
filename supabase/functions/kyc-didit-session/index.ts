@@ -316,7 +316,7 @@ Deno.serve(async (req) => {
     }
 
     const callbackUrl =
-      Deno.env.get("DIDIT_CALLBACK_URL") ?? `${getOrigin(req) ?? "https://yangu-launchpad.lovable.app"}/kyc`;
+      Deno.env.get("DIDIT_CALLBACK_URL") ?? `${getOrigin(req) ?? "https://yangu.io"}/kyc`;
 
     const createEndpoints = [`${diditBaseUrl}/v3/session/`, `${diditBaseUrl}/v2/session/`];
     const diditPayload = {

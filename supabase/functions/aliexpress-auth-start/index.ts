@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
     }
 
     // Read the caller's origin so callback can redirect back to correct environment
-    let returnOrigin = "https://yangu-launchpad.lovable.app";
+    let returnOrigin = "https://yangu.io";
     try {
       const body = await req.json();
       if (body?.return_origin && typeof body.return_origin === "string") {
