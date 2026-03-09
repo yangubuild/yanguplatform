@@ -9,7 +9,6 @@ import {
   Head,
   Heading,
   Html,
-  Img,
   Link,
   Preview,
   Text,
@@ -33,13 +32,6 @@ export const SignupEmail = ({
     <Preview>Confirm your email for {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Img
-          src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/yangu-logo-email.png"
-          width="48"
-          height="48"
-          alt="yangu"
-          style={{ marginBottom: '24px' }}
-        />
         <Heading style={h1}>Confirm your email</Heading>
         <Text style={text}>
           Thanks for signing up for{' '}
@@ -68,12 +60,12 @@ export const SignupEmail = ({
 
 export default SignupEmail
 
-const main = { backgroundColor: '#ffffff', fontFamily: "'Lufga', Arial, sans-serif" }
+const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
 const container = { padding: '20px 25px' }
 const h1 = {
   fontSize: '22px',
   fontWeight: 'bold' as const,
-  color: '#08120D',
+  color: '#000000',
   margin: '0 0 20px',
 }
 const text = {
@@ -84,7 +76,7 @@ const text = {
 }
 const link = { color: 'inherit', textDecoration: 'underline' }
 const button = {
-  backgroundColor: '#D4731A',
+  backgroundColor: '#000000',
   color: '#ffffff',
   fontSize: '14px',
   borderRadius: '8px',
