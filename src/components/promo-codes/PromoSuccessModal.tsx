@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { X, Copy, Download, Eye, CheckCircle, QrCode, Link as LinkIcon } from "lucide-react";
 import type { CreatedPromo } from "@/pages/dashboard/PromoCodesPage";
 import { toast } from "sonner";
