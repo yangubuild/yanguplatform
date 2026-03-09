@@ -99,7 +99,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
     e.target.value = "";
   };
 
-  const handleCropSave = () => {
+  const handleCropSave = async () => {
     if (modal.type !== "crop") return;
     const item: CreativeItem = {
       id: crypto.randomUUID(),
@@ -114,12 +114,50 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
     setAiCaptions([]);
     setAiLoading(true);
     setModal({ type: "confirm-creative", item });
-    // Simulate AI caption generation
-    setTimeout(() => {
+
+    // Convert image blob URL to data URL for AI vision analysis
+    let imageDataUrl: string | undefined;
+    try {
+      const resp = await fetch(modal.src);
+      const blob = await resp.blob();
+      imageDataUrl = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(blob);
+      });
+    } catch {
+      // If conversion fails, proceed without image
+    }
+
+    // Call AI caption generation edge function
+    try {
+      const { data: aiData, error } = await supabase.functions.invoke("ad-caption-generate", {
+        body: {
+          image_data_url: imageDataUrl,
+          campaign_name: data.name,
+          product_name: data.selectedProduct || data.name,
+          location: data.location || "Global",
+          media_type: modal.fileType,
+        },
+      });
+
+      if (error) throw error;
+
+      if (aiData?.captions && Array.isArray(aiData.captions) && aiData.captions.length > 0) {
+        setAiCaptions(aiData.captions);
+        setSelectedCaptionIdx(0);
+      } else {
+        setAiCaptions(AI_CAPTIONS);
+        setSelectedCaptionIdx(0);
+      }
+    } catch (err) {
+      console.error("AI caption generation failed:", err);
+      // Fallback to static captions
       setAiCaptions(AI_CAPTIONS);
-      setAiLoading(false);
       setSelectedCaptionIdx(0);
-    }, 3000);
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const handleConfirmSave = () => {
