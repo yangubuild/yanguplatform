@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react";
-import { Upload, Plus, Video, Image, Monitor, Search, Tv, X, ZoomIn, Grid2x2, Film, MessageSquare } from "lucide-react";
+import { Upload, Plus, Video, Image, Monitor, Search, Tv, X, ZoomIn, Grid2x2, Film, MessageSquare, Store, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import yanguYGreen from "@/assets/yangu-y-loader.png";
-import type { CampaignData, CreativeItem } from "../CampaignWizard";
+import { supabase } from "@/integrations/supabase/client";
+import type { CampaignData, CreativeItem, SearchAdEntry } from "../CampaignWizard";
 
 interface CreativesStepProps {
   data: CampaignData;
@@ -37,7 +38,9 @@ type ModalState =
   | { type: "upload-image" }
   | { type: "crop"; src: string; fileType: "image" | "video" }
   | { type: "confirm-creative"; item: CreativeItem }
-  | { type: "preview"; item: CreativeItem };
+  | { type: "preview"; item: CreativeItem }
+  | { type: "search-ads" }
+  | { type: "search-ads-form"; surface: { id: string; title: string; slug: string; coverImage?: string } };
 
 export function CreativesStep({ data, onChange }: CreativesStepProps) {
   const [modal, setModal] = useState<ModalState>({ type: "none" });
@@ -48,6 +51,9 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
   const [aiCaptions, setAiCaptions] = useState<string[]>([]);
   const [selectedCaptionIdx, setSelectedCaptionIdx] = useState<number | null>(null);
   const [writeOwn, setWriteOwn] = useState(false);
+  const [publishedSurfaces, setPublishedSurfaces] = useState<Array<{ id: string; title: string; slug: string; coverImage?: string }>>([]);
+  const [surfacesLoading, setSurfacesLoading] = useState(false);
+  const [searchAdForm, setSearchAdForm] = useState({ productType: "", category: "", description: "" });
   const fileRef = useRef<HTMLInputElement>(null);
   const bulkFileRef = useRef<HTMLInputElement>(null);
 
@@ -60,6 +66,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
   let activeReach = 0;
   if (videoCreatives.length > 0) activeReach += 100;
   if (imageCreatives.length > 0) activeReach += 100;
+  if (data.searchAd) activeReach += 5;
   const reachPercent = MAX_REACH > 0 ? (activeReach / MAX_REACH) * 100 : 0;
   const totalReach = activeReach > 0 ? `${activeReach}M` : "0";
   const hasCreatives = data.creatives.length > 0;
@@ -132,10 +139,58 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
     onChange({ ...data, creatives: data.creatives.filter((c) => c.id !== id) });
   };
 
+  const fetchPublishedSurfaces = async () => {
+    setSurfacesLoading(true);
+    try {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user?.user) return;
+      const { data: surfaces } = await supabase
+        .from("builder_publishes")
+        .select("id, slug, surface_id, published_schema, builder_surfaces!inner(title, metadata, user_id)")
+        .eq("state", "published")
+        .eq("builder_surfaces.user_id", user.user.id);
+      if (surfaces) {
+        setPublishedSurfaces(
+          surfaces.map((s: any) => ({
+            id: s.surface_id,
+            title: s.builder_surfaces?.title || s.slug,
+            slug: s.slug,
+            coverImage: (s.builder_surfaces?.metadata as any)?.coverImage,
+          }))
+        );
+      }
+    } catch (err) {
+      console.error("Failed to fetch surfaces:", err);
+    } finally {
+      setSurfacesLoading(false);
+    }
+  };
+
+  const handleSearchAdSave = () => {
+    if (modal.type !== "search-ads-form") return;
+    const entry: SearchAdEntry = {
+      surfaceId: modal.surface.id,
+      surfaceTitle: modal.surface.title,
+      surfaceSlug: modal.surface.slug,
+      coverImage: modal.surface.coverImage,
+      productType: searchAdForm.productType,
+      category: searchAdForm.category,
+      description: searchAdForm.description,
+    };
+    onChange({ ...data, searchAd: entry });
+    setModal({ type: "none" });
+    setSearchAdForm({ productType: "", category: "", description: "" });
+  };
+
+  const removeSearchAd = () => {
+    onChange({ ...data, searchAd: null });
+  };
+
   // Determine highlighted reach stats based on creatives
   const getReachHighlight = (label: string) => {
     if (label === "Display ads" && imageCreatives.length > 0) return true;
     if (label === "Vertical video" && videoCreatives.length > 0) return true;
+    if (label === "Search ads" && data.searchAd) return true;
     return false;
   };
 
@@ -282,21 +337,52 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
         )}
       </div>
 
-      {/* Search ads bar - disabled */}
-      <div className="flex items-center justify-between px-5 py-4 rounded-xl opacity-60" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-        <div className="flex items-center gap-4">
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "rgba(255,255,255,0.06)" }}>
-            <Search className="w-5 h-5 text-white/40" />
+      {/* Search ads bar - active */}
+      <div className="rounded-xl" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center gap-4">
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "rgba(255,255,255,0.06)" }}>
+              <Search className="w-5 h-5 text-white/40" />
+            </div>
+            <div>
+              <span className="text-sm font-medium text-white">Search ads</span>
+              <p className="text-xs text-white/40">Appears in YANGU Explore search results based on keywords</p>
+            </div>
           </div>
-          <div>
-            <span className="text-sm font-medium text-white">Search ads</span>
-            <p className="text-xs text-white/40">Appears in YANGU Discover search results based on keywords</p>
+          <div className="flex items-center gap-3">
+            <span className={`text-xs px-3 py-1.5 rounded-lg ${data.searchAd ? "text-green-400 bg-green-400/10 border border-green-400/20" : "text-white/40"}`} style={!data.searchAd ? { background: "rgba(255,255,255,0.06)" } : {}}>
+              5M reach/mo
+            </span>
+            <Button
+              variant="accent"
+              className="rounded-xl px-4 h-8 text-xs"
+              onClick={() => { fetchPublishedSurfaces(); setModal({ type: "search-ads" }); }}
+            >
+              Add your business
+            </Button>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-white/40 px-3 py-1.5 rounded-lg" style={{ background: "rgba(255,255,255,0.06)" }}>5M reach/mo</span>
-          <span className="text-xs text-white/30 max-w-[160px] text-right">Your product must be on Discover to serve search ads</span>
-        </div>
+        {data.searchAd && (
+          <div className="px-5 pb-4 flex items-center gap-3">
+            <div className="relative flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] flex-1">
+              {data.searchAd.coverImage && (
+                <img src={data.searchAd.coverImage} alt="" className="w-10 h-10 rounded-lg object-cover" />
+              )}
+              {!data.searchAd.coverImage && (
+                <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
+                  <Store className="w-5 h-5 text-white/40" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-white font-medium truncate">{data.searchAd.surfaceTitle}</p>
+                <p className="text-xs text-white/40">{data.searchAd.category} · {data.searchAd.productType}</p>
+              </div>
+              <button onClick={removeSearchAd} className="text-white/30 hover:text-white/60">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Hidden file inputs */}
@@ -533,6 +619,128 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
                 className="flex-1 rounded-xl h-12"
               >
                 Save & Continue
+              </Button>
+            </div>
+          </div>
+        </ModalOverlay>
+      )}
+      {/* Search ads - select business modal */}
+      {modal.type === "search-ads" && (
+        <ModalOverlay onClose={() => setModal({ type: "none" })}>
+          <div className="rounded-2xl w-full max-w-lg" style={{ background: "#1a1a1a" }}>
+            <div className="flex items-center justify-between p-5 border-b border-white/10">
+              <h3 className="text-lg font-semibold text-white">Add your business</h3>
+              <button onClick={() => setModal({ type: "none" })} className="text-white/40 hover:text-white"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-5">
+              <p className="text-sm text-white/50 mb-4">Select a published business to promote on Explore</p>
+              {surfacesLoading ? (
+                <div className="flex flex-col items-center py-10 gap-3">
+                  <img src={yanguYGreen} alt="Loading" className="w-10 h-10 animate-spin" style={{ animationDuration: "2s" }} />
+                  <span className="text-sm text-white/40">Loading businesses...</span>
+                </div>
+              ) : publishedSurfaces.length === 0 ? (
+                <div className="text-center py-10">
+                  <Store className="w-10 h-10 text-white/20 mx-auto mb-3" />
+                  <p className="text-sm text-white/40">No published businesses found</p>
+                  <p className="text-xs text-white/25 mt-1">Publish a business first to use Search ads</p>
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-80 overflow-y-auto">
+                  {publishedSurfaces.map((s) => (
+                    <button
+                      key={s.id}
+                      onClick={() => setModal({ type: "search-ads-form", surface: s })}
+                      className="w-full flex items-center gap-3 p-3 rounded-xl text-left transition-colors hover:bg-white/[0.06]"
+                      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+                    >
+                      {s.coverImage ? (
+                        <img src={s.coverImage} alt="" className="w-10 h-10 rounded-lg object-cover" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
+                          <Store className="w-5 h-5 text-white/40" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-white font-medium truncate">{s.title}</p>
+                        <p className="text-xs text-white/30">/{s.slug}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="flex gap-3 p-5 border-t border-white/10">
+              <Button variant="outline" onClick={() => setModal({ type: "none" })} className="flex-1 rounded-xl border-white/10 text-white/60">Cancel</Button>
+            </div>
+          </div>
+        </ModalOverlay>
+      )}
+
+      {/* Search ads - business details form */}
+      {modal.type === "search-ads-form" && (
+        <ModalOverlay onClose={() => setModal({ type: "none" })}>
+          <div className="rounded-2xl w-full max-w-lg" style={{ background: "#1a1a1a" }}>
+            <div className="flex items-center justify-between p-5 border-b border-white/10">
+              <h3 className="text-lg font-semibold text-white">Business details</h3>
+              <button onClick={() => setModal({ type: "none" })} className="text-white/40 hover:text-white"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-5 space-y-4">
+              <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                {modal.surface.coverImage ? (
+                  <img src={modal.surface.coverImage} alt="" className="w-10 h-10 rounded-lg object-cover" />
+                ) : (
+                  <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
+                    <Store className="w-5 h-5 text-white/40" />
+                  </div>
+                )}
+                <div>
+                  <p className="text-sm text-white font-medium">{modal.surface.title}</p>
+                  <p className="text-xs text-white/30">/{modal.surface.slug}</p>
+                </div>
+                <Check className="w-5 h-5 text-green-400 ml-auto" />
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-white/60 block mb-1.5">Product type</label>
+                <input
+                  type="text"
+                  value={searchAdForm.productType}
+                  onChange={(e) => setSearchAdForm((f) => ({ ...f, productType: e.target.value }))}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-white/25 outline-none"
+                  placeholder="e.g. SaaS, Fashion, Food, Service..."
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-white/60 block mb-1.5">Category of business</label>
+                <input
+                  type="text"
+                  value={searchAdForm.category}
+                  onChange={(e) => setSearchAdForm((f) => ({ ...f, category: e.target.value }))}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-white/25 outline-none"
+                  placeholder="e.g. Technology, Lifestyle, Health..."
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-white/60 block mb-1.5">Business description</label>
+                <textarea
+                  value={searchAdForm.description}
+                  onChange={(e) => setSearchAdForm((f) => ({ ...f, description: e.target.value }))}
+                  rows={3}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-white/25 outline-none resize-none"
+                  placeholder="Briefly describe what your business offers..."
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 p-5 border-t border-white/10">
+              <Button variant="outline" onClick={() => setModal({ type: "search-ads" })} className="flex-1 rounded-xl border-white/10 text-white/60">Back</Button>
+              <Button
+                variant="accent"
+                onClick={handleSearchAdSave}
+                disabled={!searchAdForm.productType || !searchAdForm.category || !searchAdForm.description}
+                className="flex-1 rounded-xl"
+              >
+                Save
               </Button>
             </div>
           </div>
