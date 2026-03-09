@@ -183,12 +183,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
           <Button
             variant="accent"
             className="rounded-xl px-4 h-8 text-xs"
-            onClick={() => {
-              if (fileRef.current) {
-                fileRef.current.accept = "video/*";
-                fileRef.current.click();
-              }
-            }}
+            onClick={() => setModal({ type: "upload-video" })}
           >
             Add creative set
           </Button>
