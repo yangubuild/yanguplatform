@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import { triggerEmojiPreload } from "@/hooks/useEmojiPreloader";
 import AvatarPickerModal from "@/components/profile/AvatarPickerModal";
 import { supabase } from "@/integrations/supabase/client";
+import { ICON_MAP } from "@/lib/app-store/icon-map";
 import { Switch } from "@/components/ui/switch";
 import {
   MoreHorizontal,
@@ -112,7 +114,7 @@ const mockJoined = [
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { user, profile, refreshProfile } = useAuth();
-  const [activeTab, setActiveTab] = useState<"created" | "joined" | "reviews">("created");
+  const [activeTab, setActiveTab] = useState<"created" | "joined" | "apps" | "reviews">("created");
   const [avatarModalOpen, setAvatarModalOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
@@ -265,7 +267,29 @@ export default function ProfilePage() {
   const filledSocials = ALL_SOCIALS.filter(s => socialLinks[s.id]);
   const publicSocials = filledSocials.slice(0, 6);
 
-  const tabData = activeTab === "created" ? mockCreated : activeTab === "joined" ? mockJoined : [];
+  const tabData = activeTab === "created" ? mockCreated : activeTab === "joined" ? mockJoined : activeTab === "reviews" ? [] : [];
+
+  // Fetch user's installed apps for the "apps" tab
+  const { data: installedApps } = useQuery({
+    queryKey: ["profile-my-apps", user?.id],
+    enabled: !!user?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("app_user_installs")
+        .select("id, app_id, status, installed_at")
+        .eq("user_id", user!.id)
+        .order("installed_at", { ascending: false });
+      if (error) throw error;
+      if (!data || data.length === 0) return [];
+      const appIds = data.map((i) => i.app_id);
+      const { data: apps } = await supabase
+        .from("app_registry")
+        .select("id, slug, name, short_description, icon, provider_name, is_native_yangu")
+        .in("id", appIds);
+      const appMap = new Map((apps || []).map((a: any) => [a.id, a]));
+      return data.map((install) => ({ ...install, app: appMap.get(install.app_id) })).filter((i) => i.app);
+    },
+  });
 
   return (
     <div className="max-w-2xl mx-auto py-6 px-4">
@@ -640,7 +664,7 @@ export default function ProfilePage() {
           {/* Tabs */}
           <div className="mt-6 border-b" style={{ borderColor: "rgba(255,255,255,0.1)" }}>
             <div className="flex">
-              {(["created", "joined", "reviews"] as const).map((tab) => (
+              {(["created", "joined", "apps", "reviews"] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -658,7 +682,41 @@ export default function ProfilePage() {
 
           {/* Tab content */}
           <div className="mt-4 space-y-1">
-            {tabData.length === 0 ? (
+            {activeTab === "apps" ? (
+              !installedApps || installedApps.length === 0 ? (
+                <p className="text-center py-12 text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  No apps installed yet.
+                </p>
+              ) : (
+                installedApps.map((item: any) => {
+                  const appIcon = ICON_MAP[item.app.slug] || item.app.icon;
+                  return (
+                    <div
+                      key={item.id}
+                      className="flex items-center gap-3 px-3 py-4 rounded-xl transition-colors cursor-pointer"
+                      style={{ background: "transparent" }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                    >
+                      <img
+                        src={appIcon}
+                        alt={item.app.name}
+                        className="w-12 h-12 rounded-xl object-cover shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-white truncate">{item.app.name}</p>
+                        <p className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
+                          {item.app.provider_name}
+                        </p>
+                      </div>
+                      <span className="text-[11px] px-2 py-0.5 rounded-md" style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.5)" }}>
+                        Installed
+                      </span>
+                    </div>
+                  );
+                })
+              )
+            ) : tabData.length === 0 ? (
               <p className="text-center py-12 text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
                 Nothing here yet.
               </p>
