@@ -231,7 +231,7 @@ export function CreatePromoModal({ open, onClose, onSubmit, isSubmitting }: Prop
                 <span className="text-sm font-medium text-white/80">Affiliate</span>
                 <Info className="w-3.5 h-3.5 text-white/30" />
               </div>
-              <button type="button" className="text-xs text-blue-400 hover:text-blue-300">
+              <button type="button" className="text-xs text-accent hover:brightness-110">
                 Set affiliate
               </button>
             </div>
