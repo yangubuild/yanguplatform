@@ -13,6 +13,19 @@ interface BudgetStepProps {
 const QUICK_BUDGETS = [50, 200, 500];
 const MIN_BUDGET = 50;
 
+function PaymentMethodRow({ icon, label, selected, tag, last }: { icon: React.ReactNode; label: string; selected?: boolean; tag?: string; last?: boolean }) {
+  return (
+    <div className={`flex items-center gap-3 p-3 ${last ? "" : "border-b border-white/10"}`}>
+      <div className="w-4 h-4 rounded-full border-2 flex items-center justify-center" style={{ borderColor: selected ? "#b5622a" : "rgba(255,255,255,0.2)" }}>
+        {selected && <div className="w-2 h-2 rounded-full" style={{ background: "#b5622a" }} />}
+      </div>
+      {icon}
+      <span className="text-sm text-white/70">{label}</span>
+      {tag && <span className="ml-auto text-[10px] text-white/30 bg-white/[0.06] px-2 py-0.5 rounded-lg">{tag}</span>}
+    </div>
+  );
+}
+
 export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
   const [showPayment, setShowPayment] = useState(false);
   const [inputValue, setInputValue] = useState(
