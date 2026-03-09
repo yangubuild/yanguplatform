@@ -103,9 +103,7 @@ function PartnerDetailPage({ onBack }: { onBack: () => void }) {
       {/* Header */}
       <button onClick={onBack} className="flex items-center gap-2 text-sm text-white/50 hover:text-white mb-6">
         <span>‹</span>
-        <div className="w-6 h-6 rounded flex items-center justify-center" style={{ background: "linear-gradient(135deg, #1a3a2a 0%, #0d1f15 100%)" }}>
-          <span className="text-[8px] font-bold text-white">y</span>
-        </div>
+        <img src={yanguYLogo} alt="yangu" className="w-6 h-6 object-contain" />
         yangu Partners
       </button>
 
