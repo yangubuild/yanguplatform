@@ -114,7 +114,7 @@ const mockJoined = [
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { user, profile, refreshProfile } = useAuth();
-  const [activeTab, setActiveTab] = useState<"created" | "joined" | "reviews">("created");
+  const [activeTab, setActiveTab] = useState<"created" | "joined" | "apps" | "reviews">("created");
   const [avatarModalOpen, setAvatarModalOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
