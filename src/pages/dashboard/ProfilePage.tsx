@@ -682,7 +682,41 @@ export default function ProfilePage() {
 
           {/* Tab content */}
           <div className="mt-4 space-y-1">
-            {tabData.length === 0 ? (
+            {activeTab === "apps" ? (
+              !installedApps || installedApps.length === 0 ? (
+                <p className="text-center py-12 text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  No apps installed yet.
+                </p>
+              ) : (
+                installedApps.map((item: any) => {
+                  const appIcon = ICON_MAP[item.app.slug] || item.app.icon;
+                  return (
+                    <div
+                      key={item.id}
+                      className="flex items-center gap-3 px-3 py-4 rounded-xl transition-colors cursor-pointer"
+                      style={{ background: "transparent" }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                    >
+                      <img
+                        src={appIcon}
+                        alt={item.app.name}
+                        className="w-12 h-12 rounded-xl object-cover shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-white truncate">{item.app.name}</p>
+                        <p className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
+                          {item.app.provider_name}
+                        </p>
+                      </div>
+                      <span className="text-[11px] px-2 py-0.5 rounded-md" style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.5)" }}>
+                        Installed
+                      </span>
+                    </div>
+                  );
+                })
+              )
+            ) : tabData.length === 0 ? (
               <p className="text-center py-12 text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
                 Nothing here yet.
               </p>
