@@ -51,13 +51,18 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const bulkFileRef = useRef<HTMLInputElement>(null);
 
-  const hasCreatives = data.creatives.length > 0;
-  const totalReach = hasCreatives ? "265M" : "0";
-  const reachPercent = hasCreatives ? 38 : 0;
-
   // Find which format categories have creatives
   const videoCreatives = data.creatives.filter((c) => c.type === "video");
   const imageCreatives = data.creatives.filter((c) => c.type === "image");
+
+  // Calculate reach dynamically
+  const MAX_REACH = 265;
+  let activeReach = 0;
+  if (videoCreatives.length > 0) activeReach += 100;
+  if (imageCreatives.length > 0) activeReach += 100;
+  const reachPercent = MAX_REACH > 0 ? (activeReach / MAX_REACH) * 100 : 0;
+  const totalReach = activeReach > 0 ? `${activeReach}M` : "0";
+  const hasCreatives = data.creatives.length > 0;
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -148,7 +153,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
               <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="6" />
               <circle
                 cx="60" cy="60" r="52" fill="none"
-                stroke={hasCreatives ? "#3b82f6" : "rgba(255,255,255,0.15)"}
+                stroke={hasCreatives ? "#b5622a" : "rgba(255,255,255,0.15)"}
                 strokeWidth="6"
                 strokeDasharray={`${reachPercent * 3.27} ${327 - reachPercent * 3.27}`}
                 strokeLinecap="round"
