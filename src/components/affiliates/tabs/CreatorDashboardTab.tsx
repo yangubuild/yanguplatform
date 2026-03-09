@@ -11,16 +11,47 @@ import { toast } from "sonner";
 
 // ── helpers ──────────────────────────────────────────────────────────
 function generateChartData(days: number) {
-  const data = [];
+  const data: { date: string; direct: number; explore: number; affiliates: number }[] = [];
   const now = new Date();
-  for (let i = days - 1; i >= 0; i--) {
+
+  // For large ranges, aggregate into fewer points
+  let step = 1;
+  let formatOpts: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" };
+  if (days <= 2) {
+    // 48h: show hourly (48 points)
+    const points: typeof data = [];
+    for (let i = 47; i >= 0; i--) {
+      const d = new Date(now.getTime() - i * 3600000);
+      const label = d.toLocaleTimeString("en-US", { hour: "numeric", hour12: true });
+      const datePart = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      points.push({
+        date: i % 6 === 0 ? `${datePart} ${label}` : label,
+        direct: Math.floor(Math.random() * 3),
+        explore: Math.floor(Math.random() * 2),
+        affiliates: Math.floor(Math.random() * 2),
+      });
+    }
+    return points;
+  } else if (days <= 30) {
+    step = 1;
+    formatOpts = { month: "short", day: "numeric" };
+  } else if (days <= 180) {
+    step = 7; // weekly
+    formatOpts = { month: "short", day: "numeric" };
+  } else {
+    step = 30; // monthly
+    formatOpts = { month: "short", year: "2-digit" };
+  }
+
+  for (let i = Math.floor(days / step) - 1; i >= 0; i--) {
     const d = new Date(now);
-    d.setDate(d.getDate() - i);
+    d.setDate(d.getDate() - i * step);
+    const scale = days <= 30 ? 1 : days <= 180 ? 7 : 30;
     data.push({
-      date: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-      direct: 0,
-      explore: 0,
-      affiliates: 0,
+      date: d.toLocaleDateString("en-US", formatOpts),
+      direct: Math.floor(Math.random() * 5 * scale),
+      explore: Math.floor(Math.random() * 3 * scale),
+      affiliates: Math.floor(Math.random() * 4 * scale),
     });
   }
   return data;
@@ -66,7 +97,6 @@ function ChartTooltip({ active, payload, label }: any) {
   );
 }
 
-// ── Y-axis ticks ────────────────────────────────────────────────────
 const Y_TICKS = [0, 2, 5, 7, 10, 12, 15, 17, 20];
 
 // ── main component ──────────────────────────────────────────────────
@@ -81,6 +111,9 @@ export function CreatorDashboardTab() {
 
   const period = PERIOD_OPTIONS[periodIdx];
   const chartData = generateChartData(period.days);
+  const maxVal = Math.max(10, ...chartData.map(d => Math.max(d.direct, d.explore, d.affiliates)));
+  const yMax = Math.ceil(maxVal / 5) * 5;
+  const yTicks = Array.from({ length: 5 }, (_, i) => Math.round((yMax / 4) * i));
 
   // Leaderboard
   const [leaderboard, setLeaderboard] = useState<{ email: string; referrals: number; rewards: string; retention: string }[]>([]);
@@ -176,7 +209,7 @@ export function CreatorDashboardTab() {
             </defs>
             <CartesianGrid strokeDasharray="6 6" stroke="rgba(255,255,255,0.06)" horizontal vertical={false} />
             <XAxis dataKey="date" tick={{ fontSize: 11, fill: "rgba(255,255,255,0.3)" }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
-            <YAxis domain={[0, 20]} ticks={Y_TICKS} tick={{ fontSize: 11, fill: "rgba(255,255,255,0.3)" }} axisLine={false} tickLine={false} />
+            <YAxis domain={[0, yMax]} ticks={yTicks} tick={{ fontSize: 11, fill: "rgba(255,255,255,0.3)" }} axisLine={false} tickLine={false} />
             <Tooltip content={<ChartTooltip />} cursor={{ stroke: "rgba(255,255,255,0.1)", strokeWidth: 1 }} />
             <Area type="monotone" dataKey="direct" stroke="#22d3ee" strokeWidth={2} fill="url(#gDirect)" />
             <Area type="monotone" dataKey="explore" stroke="#fb923c" strokeWidth={2} fill="url(#gExplore)" />
