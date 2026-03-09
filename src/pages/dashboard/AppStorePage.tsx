@@ -181,7 +181,7 @@ const INSTALL_STATS: { amount: string; period: string }[] = [
 function AppCard({ app, index, userId, queryClient }: { app: AppRegistryEntry; index: number; userId: string | null; queryClient: any }) {
   const icon = ICON_MAP[app.slug] || app.icon;
   const providerLine = app.is_native_yangu
-    ? "YANGU • Free to install"
+    ? "yangu • Free to install"
     : `${app.provider_name} • Free to install`;
   const stats = INSTALL_STATS[index % INSTALL_STATS.length];
 

@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Card } from "@/components/primitives";
 import { forceDeleteSurface } from "@/lib/forceDeleteSurface";
+import { ICON_MAP, yanguBadge } from "@/lib/app-store/icon-map";
 
 const SURFACE_TYPE_META: Record<string, { label: string; icon: typeof ShoppingBag }> = {
   eshop: { label: "Eshop", icon: ShoppingBag },
@@ -31,9 +32,15 @@ interface Surface {
 }
 
 const RECOMMENDED_APPS = [
-  { name: "Automations", provider: "YANGU", desc: "Send emails and create workflows (replaces Zapier and N8N)" },
-  { name: "Email Marketing & Automations", provider: "YANGU", desc: "Email marketing campaigns and automated sequences" },
-  { name: "Contracts", provider: "YANGU", desc: "Create contracts, collect signatures and payments, and automate invoices." },
+  { name: "VLS", slug: "vls", desc: "Vision Leadership System assessment and coaching tools", provider: "yangu" },
+  { name: "VisionBoard", slug: "visionboard", desc: "Productivity app to help businesses plan and execute", provider: "yangu" },
+  { name: "Visionaire", slug: "visionaire", desc: "yangu digital university with more resources", provider: "yangu" },
+];
+
+const INSTALL_STATS = [
+  { amount: "₺ 1,898", period: "7 days" },
+  { amount: "₺ 3,241", period: "30 days" },
+  { amount: "₺ 812", period: "2 days" },
 ];
 
 export default function MyBusinessPage() {
@@ -172,15 +179,15 @@ export default function MyBusinessPage() {
                       </AlertDialog>
                     </div>
 
-                    {/* Management actions */}
-                    <div className="flex gap-2 border-t border-border pt-3">
-                      <Button size="sm" variant="ghost" className="flex-1 gap-1.5 text-xs rounded-xl" onClick={() => navigate(`/dashboard/my-business/${s.id}/analytics`)}>
+                    {/* Management actions — 3 clear buttons */}
+                    <div className="grid grid-cols-3 gap-2 border-t border-border pt-3">
+                      <Button size="sm" variant="ghost" className="gap-1 text-xs rounded-xl" onClick={() => navigate(`/dashboard/my-business/${s.id}/analytics`)}>
                         <BarChart3 className="h-3.5 w-3.5" /> Analytics
                       </Button>
-                      <Button size="sm" variant="ghost" className="flex-1 gap-1.5 text-xs rounded-xl" onClick={() => navigate(`/dashboard/my-business/${s.id}/users`)}>
+                      <Button size="sm" variant="ghost" className="gap-1 text-xs rounded-xl" onClick={() => navigate(`/dashboard/my-business/${s.id}/users`)}>
                         <Users className="h-3.5 w-3.5" /> Users
                       </Button>
-                      <Button size="sm" variant="ghost" className="flex-1 gap-1.5 text-xs rounded-xl" onClick={() => navigate(`/dashboard/my-business/${s.id}/deposit`)}>
+                      <Button size="sm" variant="ghost" className="gap-1 text-xs rounded-xl" onClick={() => navigate(`/dashboard/my-business/${s.id}/deposit`)}>
                         <Wallet className="h-3.5 w-3.5" /> Deposit
                       </Button>
                     </div>
@@ -192,19 +199,47 @@ export default function MyBusinessPage() {
         );
       })}
 
-      {/* Recommended apps */}
+      {/* Recommended apps — same style as App Store cards */}
       <section className="space-y-4 pt-4">
         <h2 className="text-lg font-semibold text-foreground">Recommended apps to grow your business</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {RECOMMENDED_APPS.map((app) => (
-            <Card key={app.name} className="p-4 bg-card border-border space-y-2">
-              <div>
-                <p className="font-medium text-foreground text-sm">{app.name}</p>
-                <p className="text-xs text-muted-foreground">{app.provider}</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {RECOMMENDED_APPS.map((app, idx) => {
+            const icon = ICON_MAP[app.slug];
+            const stats = INSTALL_STATS[idx % INSTALL_STATS.length];
+            return (
+              <div
+                key={app.slug}
+                className="rounded-xl p-4 flex flex-col gap-3 cursor-pointer hover:opacity-90 transition-opacity"
+                style={{
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                }}
+                onClick={() => navigate("/dashboard/app-store")}
+              >
+                <div className="flex items-start gap-3">
+                  {icon && (
+                    <img src={icon} alt={app.name} className="w-11 h-11 rounded-xl object-cover shrink-0" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-foreground font-semibold text-sm leading-tight">{app.name}</h4>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <img src={yanguBadge} alt="yangu" className="w-3.5 h-3.5 object-contain" />
+                      <span className="text-[11px] text-muted-foreground">{app.provider} • Free to install</span>
+                    </div>
+                  </div>
+                  <button
+                    className="shrink-0 px-5 py-1.5 rounded-lg text-xs font-semibold text-white transition-opacity hover:opacity-80"
+                    style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
+                    onClick={(e) => { e.stopPropagation(); navigate("/dashboard/app-store"); }}
+                  >
+                    Add
+                  </button>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-1">{app.desc}</p>
+                <span className="text-[10px] text-muted-foreground/50">{stats.amount} installs in last {stats.period}</span>
               </div>
-              <p className="text-xs text-muted-foreground">{app.desc}</p>
-            </Card>
-          ))}
+            );
+          })}
         </div>
       </section>
     </div>
