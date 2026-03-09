@@ -31,7 +31,7 @@ export const MagicLinkEmail = ({
         <Img src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/yangu-logo-email.png" width="48" height="48" alt="YANGU" style={{ marginBottom: '24px' }} />
         <Heading style={h1}>Your login link</Heading>
         <Text style={text}>
-          Click the button below to log in. This link will expire shortly.
+          Click below to log in to YANGU. This link will expire shortly.
         </Text>
         <Button style={button} href={confirmationUrl}>
           Log In

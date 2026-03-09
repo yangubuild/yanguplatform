@@ -31,7 +31,7 @@ export const RecoveryEmail = ({
         <Img src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/yangu-logo-email.png" width="48" height="48" alt="YANGU" style={{ marginBottom: '24px' }} />
         <Heading style={h1}>Reset your password</Heading>
         <Text style={text}>
-          We received a request to reset your password. Click the button below to choose a new one.
+          We received a request to reset your password. Click below to choose a new one.
         </Text>
         <Button style={button} href={confirmationUrl}>
           Reset Password
