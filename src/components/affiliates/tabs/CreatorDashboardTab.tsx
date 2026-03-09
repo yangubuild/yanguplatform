@@ -11,16 +11,47 @@ import { toast } from "sonner";
 
 // ── helpers ──────────────────────────────────────────────────────────
 function generateChartData(days: number) {
-  const data = [];
+  const data: { date: string; direct: number; explore: number; affiliates: number }[] = [];
   const now = new Date();
-  for (let i = days - 1; i >= 0; i--) {
+
+  // For large ranges, aggregate into fewer points
+  let step = 1;
+  let formatOpts: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" };
+  if (days <= 2) {
+    // 48h: show hourly (48 points)
+    const points: typeof data = [];
+    for (let i = 47; i >= 0; i--) {
+      const d = new Date(now.getTime() - i * 3600000);
+      const label = d.toLocaleTimeString("en-US", { hour: "numeric", hour12: true });
+      const datePart = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      points.push({
+        date: i % 6 === 0 ? `${datePart} ${label}` : label,
+        direct: Math.floor(Math.random() * 3),
+        explore: Math.floor(Math.random() * 2),
+        affiliates: Math.floor(Math.random() * 2),
+      });
+    }
+    return points;
+  } else if (days <= 30) {
+    step = 1;
+    formatOpts = { month: "short", day: "numeric" };
+  } else if (days <= 180) {
+    step = 7; // weekly
+    formatOpts = { month: "short", day: "numeric" };
+  } else {
+    step = 30; // monthly
+    formatOpts = { month: "short", year: "2-digit" };
+  }
+
+  for (let i = Math.floor(days / step) - 1; i >= 0; i--) {
     const d = new Date(now);
-    d.setDate(d.getDate() - i);
+    d.setDate(d.getDate() - i * step);
+    const scale = days <= 30 ? 1 : days <= 180 ? 7 : 30;
     data.push({
-      date: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-      direct: 0,
-      explore: 0,
-      affiliates: 0,
+      date: d.toLocaleDateString("en-US", formatOpts),
+      direct: Math.floor(Math.random() * 5 * scale),
+      explore: Math.floor(Math.random() * 3 * scale),
+      affiliates: Math.floor(Math.random() * 4 * scale),
     });
   }
   return data;
