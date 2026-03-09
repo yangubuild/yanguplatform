@@ -138,6 +138,9 @@ const AdsPage = lazy(() => import("./pages/dashboard/AdsPage"));
 const AppStorePage = lazy(() => import("./pages/dashboard/AppStorePage"));
 const MyAppsPage = lazy(() => import("./pages/dashboard/MyAppsPage"));
 const MyBusinessPage = lazy(() => import("./pages/dashboard/MyBusinessPage"));
+const BusinessAnalyticsPage = lazy(() => import("./pages/dashboard/business/BusinessAnalyticsPage"));
+const BusinessUsersPage = lazy(() => import("./pages/dashboard/business/BusinessUsersPage"));
+const BusinessDepositPage = lazy(() => import("./pages/dashboard/business/BusinessDepositPage"));
 const InfluencerPage = lazy(() => import("./pages/dashboard/InfluencerPage"));
 const SellerSurfacePage = lazy(() => import("./pages/dashboard/SellerSurfacePage"));
 const EshopConnectPage = lazy(() => import("./pages/seller/eshop-connect/EshopConnectPage"));
@@ -367,6 +370,9 @@ const App = () => (
                   {/* Dashboard module pages (flat, no nesting) */}
                   <Route path="my-apps" element={<MyAppsPage />} />
                   <Route path="my-business" element={<MyBusinessPage />} />
+                  <Route path="my-business/:businessId/analytics" element={<BusinessAnalyticsPage />} />
+                  <Route path="my-business/:businessId/users" element={<BusinessUsersPage />} />
+                  <Route path="my-business/:businessId/deposit" element={<BusinessDepositPage />} />
                   <Route path="payment-settings" element={<PaymentsSettingsPage />} />
                   <Route path="payments" element={<Navigate to="/dashboard/payment-settings" replace />} />
                   <Route path="invoices" element={<InvoicesPage />} />
