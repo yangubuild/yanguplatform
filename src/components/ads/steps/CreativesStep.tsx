@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react";
-import { Upload, Plus, Video, Image, Monitor, Search, Tv, X, ZoomIn, Grid2x2, Film, MessageSquare } from "lucide-react";
+import { Upload, Plus, Video, Image, Monitor, Search, Tv, X, ZoomIn, Grid2x2, Film, MessageSquare, Store, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import yanguYGreen from "@/assets/yangu-y-loader.png";
-import type { CampaignData, CreativeItem } from "../CampaignWizard";
+import { supabase } from "@/integrations/supabase/client";
+import type { CampaignData, CreativeItem, SearchAdEntry } from "../CampaignWizard";
 
 interface CreativesStepProps {
   data: CampaignData;
