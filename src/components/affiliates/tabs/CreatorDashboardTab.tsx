@@ -311,20 +311,19 @@ function CommissionPanel({ onBack }: { onBack: () => void }) {
           <div>
             <h3 className="text-sm font-semibold text-white">Featured product</h3>
             <p className="text-xs text-white/50 mt-1">
-              Choose which product appears on the <span className="text-accentr-pointer">affiliate marketplace</span> for potential affiliates to discover and promote.
+              Choose which product appears on the <span className="text-accentpointer">affiliate marketplace</span> for potential affiliates to discover and promote.
             </p>
           </div>
           <button
             onClick={() => setFeaturedEnabled(!featuredEnabled)}
-            className={`w-11 h-6 rounded-full transition-colors flex items-center px-0.5 ${featuredEnabled ? "bg-blacacacacacacacaccent >
-            <span className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${featuredEnabled ? "translate-x-5" : "translate-x-0"}`} />
+            className={`w-11 h-6 rounded-full transition-colors flex items-center px-0.5 ${featuredEnabled ? "bg-blacacacacacacacacaccent           <span className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${featuredEnabled ? "translate-x-5" : "translate-x-0"}`} />
           </button>
         </div>
 
         {featuredEnabled ? (
           <div className="mt-4 flex items-center gap-2 rounded-lg border border-white/10 p-2" style={{ background: "#0d1510" }}>
             <Check className="w-4 h-4 text-white/50" />
-            <div className="w-7 h-7 rounded bg-blueacceacceacceacceacceacceaccentt-[10px] text-white font-bold">BK</div>
+            <div className="w-7 h-7 rounded bg-blueacceacceacceacceacceacceacceaccentx] text-white font-bold">BK</div>
             <span className="text-sm text-white flex-1">{selectedProduct}</span>
             <button onClick={() => setShowPreview(true)} className="flex items-center gap-1 text-xs text-white/50 hover:text-white px-2 py-1 rounded border border-white/10">
               <Eye className="w-3.5 h-3.5" /> Preview
@@ -359,10 +358,10 @@ function CommissionPanel({ onBack }: { onBack: () => void }) {
           If an affiliate refers a user to a yangu, they will earn a percentage of the revenue. The default is 30% of the recurring revenue the user pays, but you can set a custom rate depending on which yangu they invite someone to.
         </p>
         <div className="flex items-center gap-3 rounded-lg border border-white/[0.06] p-3" style={{ background: "#0d1510" }}>
-          <div className="w-9 h-9 rounded bg-blue-6accentaccentaccentaccentaccentaccentx] text-white font-bold">BK</div>
+          <div className="w-9 h-9 rounded bg-blue-6accentaccentaccentaccentaccentaccentaccentwhite font-bold">BK</div>
           <div className="flex-1 min-w-0">
             <p className="text-sm text-white">{selectedProduct}</p>
-            <p className="text-xs text-blue-400accenteraccent  accentdiaccent  accentclassName="flex items-center gap-4">
+            <p className="text-xs text-blue-400accenteraccent  accentdiaccent  accentclaccent"flex items-center gap-4">
             <div className="text-center">
               <p className="text-[10px] text-white/40 mb-1">Global affiliate rate ⓘ</p>
               <div className="flex items-center gap-1 rounded border border-white/10 px-2 py-1" style={{ background: "#0d1510" }}>
@@ -391,7 +390,7 @@ function CommissionPanel({ onBack }: { onBack: () => void }) {
 
       <button
         onClick={() => { toast.success("Commission settings saved"); onBack(); }}
-        className="w-full py-3 rounded-xl text-sm font-medium text-white bg-blue-60transitiontransitiontransitiontransition-colors" style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}0deg, #b5622a 0%, #5c2a12 100%)" }}0deg, #b5622a 0%, #5c2a12 100%)" }}0deg, #b5622a 0%, #5c2a12 100%)" }}       Save
+        className="w-full py-3 rounded-xl text-sm font-medium text-white bg-blue-60transitiontransitiontransitiontransitiontransition-colors" style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}0deg, #b5622a 0%, #5c2a12 100%)" }}0deg, #b5622a 0%, #5c2a12 100%)" }}0deg, #b5622a 0%, #5c2a12 100%)" }}0deg, #b5622a 0%, #5c2a12 100%)" }}       Save
       </button>
     </div>
   );
@@ -404,14 +403,12 @@ function CommissionPreview({ product, onClose }: { product: string; onClose: () 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={onClose}>
       <div className="w-full max-w-[600px] rounded-2xl border border-white/10 p-6" style={{ background: "#1a1f24" }} onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-4">accent/30 border border-accent/30 flex items-center justify-center text-accenter justify-center text-accenter justify-center text-accentcenter justify-center text-blue-300 font-bold text-sm">{initials}</div>
+        <div className="flex accent/30 border border-accent/30 flex items-center justify-center text-accenter justify-center text-accenter justify-center text-accenter justify-center text-accentcenter justify-center text-blue-300 font-bold text-sm">{initials}</div>
             <h2 className="text-lg font-semibold text-white">{product}</h2>
           </div>
-          <button onClick={onClose} className="text-white/40 hover:text-white"><X className="w-5 h-accent/20 text-accentdiv>accent/20 text-accent"bg-blue-600/20 text-blue-300 text-sm text-center py-2 rounded-lg mb-5">
+          <button onClick={onClose} className="text-white/40 hover:texaccent/20 text-accent5 h-accent/20 text-accentdiv>accent/20 text-accent"bg-blue-600/20 text-blue-300 text-sm text-center py-2 rounded-lg mb-5">
           How new affiliates will see your offer
-        </div>
-
-        <div className=accent/20 border border-accent/20 flex items-center justify-center text-accenttify-center text-blue-300 font-bold text-2xl mb-3">
+        </div>accent/20 border border-accent/20 flex items-center justify-center text-accent-center text-accenttify-center text-blue-300 font-bold text-2xl mb-3">
           {initials}
         </div>
         <p className="text-white/60 text-sm mb-4">Meal Kits</p>
@@ -463,7 +460,7 @@ function InviteAffiliatePanel({ onBack, onInvited }: { onBack: () => void; onInv
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="gilfoyle@piedpiper.net"
-          className="w-full rounded-lg border border-white/10 bg-transparent text-sm text-white p-2.5 mb-1 placeholder:text-white/30 focus:outline-none focus:border-blue-500"
+          className="w-full rounded-lg border border-white/10 bg-transparent text-sm text-white p-2.5 mb-1 placeholder:text-white/30 focus:outlineaccentcus:border-blue-500"
         />
         <p className="text-[11px] text-white/40 mb-5">You can add users by their email, yangu username, or yangu user ID.</p>
 
