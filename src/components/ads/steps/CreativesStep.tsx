@@ -51,13 +51,18 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const bulkFileRef = useRef<HTMLInputElement>(null);
 
-  const hasCreatives = data.creatives.length > 0;
-  const totalReach = hasCreatives ? "265M" : "0";
-  const reachPercent = hasCreatives ? 38 : 0;
-
   // Find which format categories have creatives
   const videoCreatives = data.creatives.filter((c) => c.type === "video");
   const imageCreatives = data.creatives.filter((c) => c.type === "image");
+
+  // Calculate reach dynamically
+  const MAX_REACH = 265;
+  let activeReach = 0;
+  if (videoCreatives.length > 0) activeReach += 100;
+  if (imageCreatives.length > 0) activeReach += 100;
+  const reachPercent = MAX_REACH > 0 ? (activeReach / MAX_REACH) * 100 : 0;
+  const totalReach = activeReach > 0 ? `${activeReach}M` : "0";
+  const hasCreatives = data.creatives.length > 0;
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
