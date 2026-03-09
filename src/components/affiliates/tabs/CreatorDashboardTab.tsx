@@ -311,12 +311,12 @@ function CommissionPanel({ onBack }: { onBack: () => void }) {
           <div>
             <h3 className="text-sm font-semibold text-white">Featured product</h3>
             <p className="text-xs text-white/50 mt-1">
-              Choose which product appears on the <span className="text-accent underline cursor-pointer">affiliate marketplace</span> for potential affiliates to discover and promote.
+              Choose which product appears on the <span className="text-accentnderline cursor-pointer">affiliate marketplace</span> for potential affiliates to discover and promote.
             </p>
           </div>
           <button
             onClick={() => setFeaturedEnabled(!featuredEnabled)}
-            className={`w-11 h-6 rounded-full transition-colors flex items-center px-0.5 ${featuredEnabled ? "bg-blue-500" : "bg-white/20"}`}
+            className={`w-11 h-6 rounded-full transition-colors flex items-center px-0.5 ${featuredEnabled ? "bg-blaccent: "bg-white/20"}`}
           >
             <span className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${featuredEnabled ? "translate-x-5" : "translate-x-0"}`} />
           </button>
