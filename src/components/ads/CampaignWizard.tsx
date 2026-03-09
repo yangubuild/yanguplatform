@@ -17,6 +17,7 @@ export interface CampaignData {
   selectedProduct: string | null;
   globalReach: boolean;
   location: string;
+  selectedLocations: string[];
   creatives: CreativeItem[];
   dailyBudget: number;
   searchAd?: SearchAdEntry | null;
@@ -47,6 +48,7 @@ export function CampaignWizard({ onClose }: CampaignWizardProps) {
     selectedProduct: null,
     globalReach: true,
     location: "",
+    selectedLocations: [],
     creatives: [],
     dailyBudget: 50,
   });
