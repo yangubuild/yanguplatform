@@ -311,7 +311,7 @@ function CommissionPanel({ onBack }: { onBack: () => void }) {
           <div>
             <h3 className="text-sm font-semibold text-white">Featured product</h3>
             <p className="text-xs text-white/50 mt-1">
-              Choose which product appears on the <span className="text-blue-400 underline cursor-pointer">affiliate marketplace</span> for potential affiliates to discover and promote.
+              Choose which product appears on the <span className="text-accent underline cursor-pointer">affiliate marketplace</span> for potential affiliates to discover and promote.
             </p>
           </div>
           <button
