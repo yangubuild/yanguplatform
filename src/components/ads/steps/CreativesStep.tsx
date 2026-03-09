@@ -337,21 +337,52 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
         )}
       </div>
 
-      {/* Search ads bar - disabled */}
-      <div className="flex items-center justify-between px-5 py-4 rounded-xl opacity-60" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-        <div className="flex items-center gap-4">
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "rgba(255,255,255,0.06)" }}>
-            <Search className="w-5 h-5 text-white/40" />
+      {/* Search ads bar - active */}
+      <div className="rounded-xl" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center gap-4">
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "rgba(255,255,255,0.06)" }}>
+              <Search className="w-5 h-5 text-white/40" />
+            </div>
+            <div>
+              <span className="text-sm font-medium text-white">Search ads</span>
+              <p className="text-xs text-white/40">Appears in YANGU Explore search results based on keywords</p>
+            </div>
           </div>
-          <div>
-            <span className="text-sm font-medium text-white">Search ads</span>
-            <p className="text-xs text-white/40">Appears in YANGU Discover search results based on keywords</p>
+          <div className="flex items-center gap-3">
+            <span className={`text-xs px-3 py-1.5 rounded-lg ${data.searchAd ? "text-green-400 bg-green-400/10 border border-green-400/20" : "text-white/40"}`} style={!data.searchAd ? { background: "rgba(255,255,255,0.06)" } : {}}>
+              5M reach/mo
+            </span>
+            <Button
+              variant="accent"
+              className="rounded-xl px-4 h-8 text-xs"
+              onClick={() => { fetchPublishedSurfaces(); setModal({ type: "search-ads" }); }}
+            >
+              Add your business
+            </Button>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-white/40 px-3 py-1.5 rounded-lg" style={{ background: "rgba(255,255,255,0.06)" }}>5M reach/mo</span>
-          <span className="text-xs text-white/30 max-w-[160px] text-right">Your product must be on Discover to serve search ads</span>
-        </div>
+        {data.searchAd && (
+          <div className="px-5 pb-4 flex items-center gap-3">
+            <div className="relative flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] flex-1">
+              {data.searchAd.coverImage && (
+                <img src={data.searchAd.coverImage} alt="" className="w-10 h-10 rounded-lg object-cover" />
+              )}
+              {!data.searchAd.coverImage && (
+                <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
+                  <Store className="w-5 h-5 text-white/40" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-white font-medium truncate">{data.searchAd.surfaceTitle}</p>
+                <p className="text-xs text-white/40">{data.searchAd.category} · {data.searchAd.productType}</p>
+              </div>
+              <button onClick={removeSearchAd} className="text-white/30 hover:text-white/60">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Hidden file inputs */}
