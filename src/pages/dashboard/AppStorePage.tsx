@@ -1,58 +1,13 @@
 import { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, ArrowUp, Loader2 } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowLeft, ArrowUp, Loader2, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { fetchApps, fetchCategories } from "@/lib/app-store/queries";
+import { fetchApps, fetchCategories, installApp, getUserAppState } from "@/lib/app-store/queries";
 import { ACTION_LABELS } from "@/lib/app-store/types";
 import type { AppRegistryEntry } from "@/lib/app-store/types";
-
-// --- App icon imports (uploaded brand logos) ---
-import vlsIcon from "@/assets/app-icons/vls.jpg";
-import visionboardIcon from "@/assets/app-icons/visionboard.jpg";
-import visionaireIcon from "@/assets/app-icons/visionaire.jpg";
-import foundawebIcon from "@/assets/app-icons/foundaweb.jpg";
-import adaAiIcon from "@/assets/app-icons/ada-ai.jpg";
-import yanguBadge from "@/assets/app-icons/yangu-badge.png";
-// Generated icons
-import livestreamIcon from "@/assets/app-icons/yangu-livestream.png";
-import studioIcon from "@/assets/app-icons/yangu-studio.png";
-import youtubeIcon from "@/assets/app-icons/youtube.png";
-import telegramIcon from "@/assets/app-icons/telegram.png";
-import zoomIcon from "@/assets/app-icons/zoom.png";
-import googleMeetIcon from "@/assets/app-icons/google-meet.png";
-import gmailIcon from "@/assets/app-icons/gmail.png";
-import googleDriveIcon from "@/assets/app-icons/google-drive.png";
-import notionIcon from "@/assets/app-icons/notion.png";
-import discordIcon from "@/assets/app-icons/discord.png";
-import tasksIcon from "@/assets/app-icons/tasks.png";
-import hrAppIcon from "@/assets/app-icons/hr-app.png";
-import personalBudgetingIcon from "@/assets/app-icons/personal-budgeting.png";
-import salesMarketingIcon from "@/assets/app-icons/sales-marketing.png";
-import logoCreatorIcon from "@/assets/app-icons/logo-creator.png";
-
-/** Maps slug → local icon asset */
-const ICON_MAP: Record<string, string> = {
-  vls: vlsIcon,
-  visionboard: visionboardIcon,
-  visionaire: visionaireIcon,
-  foundaweb: foundawebIcon,
-  "ada-ai": adaAiIcon,
-  "yangu-livestream": livestreamIcon,
-  "yangu-studio": studioIcon,
-  youtube: youtubeIcon,
-  telegram: telegramIcon,
-  zoom: zoomIcon,
-  "google-meet": googleMeetIcon,
-  gmail: gmailIcon,
-  "google-drive": googleDriveIcon,
-  notion: notionIcon,
-  discord: discordIcon,
-  tasks: tasksIcon,
-  "hr-app": hrAppIcon,
-  "personal-budgeting": personalBudgetingIcon,
-  "sales-marketing": salesMarketingIcon,
-  "logo-creator": logoCreatorIcon,
-};
+import { ICON_MAP, yanguBadge } from "@/lib/app-store/icon-map";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 const SUGGESTION_CHIPS = [
   "Build a sales app",
