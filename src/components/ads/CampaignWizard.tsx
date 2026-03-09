@@ -19,6 +19,17 @@ export interface CampaignData {
   location: string;
   creatives: CreativeItem[];
   dailyBudget: number;
+  searchAd?: SearchAdEntry | null;
+}
+
+export interface SearchAdEntry {
+  surfaceId: string;
+  surfaceTitle: string;
+  surfaceSlug: string;
+  coverImage?: string;
+  productType: string;
+  category: string;
+  description: string;
 }
 
 export interface CreativeItem {
