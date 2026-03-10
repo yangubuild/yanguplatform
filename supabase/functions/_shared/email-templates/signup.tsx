@@ -33,8 +33,8 @@ export const SignupEmail = ({
     <Preview>Confirm your email for {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Img src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/yangu-logo-email.png" width="48" height="48" alt="YANGU" style={{ marginBottom: '24px' }} />
-        <Heading style={h1}>Welcome to YANGU</Heading>
+        <Img src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/yangu-logo-email.png" width="48" height="48" alt="yangu" style={{ marginBottom: '24px' }} />
+        <Heading style={h1}>Welcome to yangu</Heading>
         <Text style={text}>
           Thanks for signing up! Please confirm your email address (
           <Link href={`mailto:${recipient}`} style={link}>{recipient}</Link>
