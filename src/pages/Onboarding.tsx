@@ -484,7 +484,10 @@ export default function Onboarding() {
         country: selectedCountry,
         business_name: businessName,
         onboarding_completed: true,
-      }).eq("id", user.id);
+        onboarding_completed_at: new Date().toISOString(),
+        account_status: 'active',
+        onboarding_step: null,
+      } as any).eq("id", user.id);
 
       if (error) {
         if (error.message.includes("username")) { toast.error("Username is no longer available"); setCurrentStep("identity"); }
