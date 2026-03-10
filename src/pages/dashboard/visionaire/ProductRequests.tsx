@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { ChevronUp, Users, Sparkles, PenLine, Clock, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import CompletedProducts from "@/components/visionaire/CompletedProducts";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { VisionairePageContainer } from "@/components/visionaire/VisionairePageContainer";
@@ -187,50 +188,50 @@ export default function ProductRequests() {
               ))}
             </div>
 
-            {/* Request Items */}
-            <div className="space-y-3">
-              {filtered.length === 0 ? (
-                <div className="text-center py-12 text-muted-foreground text-sm">
-                  No {activeTab} requests yet
-                </div>
-              ) : (
-                filtered.map((req: any) => {
-                  const hasVoted = userVotes?.has(req.id) ?? false;
-                  return (
-                    <a
-                      key={req.id}
-                      href="https://www.entrepedia.co/library/request"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex gap-4 rounded-xl border border-border bg-card p-4 hover:border-primary/20 transition-colors cursor-pointer"
-                    >
-                      {/* Vote Block */}
-                      <button
-                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); voteMutation.mutate(req.id); }}
-                        className={`flex flex-col items-center justify-center min-w-[56px] h-[56px] rounded-xl border transition-colors shrink-0 ${
-                          hasVoted
-                            ? "border-primary bg-primary/10 text-primary"
-                            : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
-                        }`}
+            {activeTab === "completed" ? (
+              <CompletedProducts />
+            ) : (
+              <div className="space-y-3">
+                {filtered.length === 0 ? (
+                  <div className="text-center py-12 text-muted-foreground text-sm">
+                    No {activeTab} requests yet
+                  </div>
+                ) : (
+                  filtered.map((req: any) => {
+                    const hasVoted = userVotes?.has(req.id) ?? false;
+                    return (
+                      <div
+                        key={req.id}
+                        className="flex gap-4 rounded-xl border border-border bg-card p-4 hover:border-primary/20 transition-colors"
                       >
-                        <ChevronUp className="h-4 w-4" />
-                        <span className="text-sm font-bold leading-tight">{req.votes_count}</span>
-                      </button>
+                        {/* Vote Block */}
+                        <button
+                          onClick={() => voteMutation.mutate(req.id)}
+                          className={`flex flex-col items-center justify-center min-w-[56px] h-[56px] rounded-xl border transition-colors shrink-0 ${
+                            hasVoted
+                              ? "border-primary bg-primary/10 text-primary"
+                              : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                          }`}
+                        >
+                          <ChevronUp className="h-4 w-4" />
+                          <span className="text-sm font-bold leading-tight">{req.votes_count}</span>
+                        </button>
 
-                      {/* Content */}
-                      <div className="min-w-0 flex-1 py-0.5">
-                        <h3 className="font-semibold text-foreground text-sm leading-snug">{req.title}</h3>
-                        {req.description && (
-                          <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2 leading-relaxed">
-                            {req.description}
-                          </p>
-                        )}
+                        {/* Content */}
+                        <div className="min-w-0 flex-1 py-0.5">
+                          <h3 className="font-semibold text-foreground text-sm leading-snug">{req.title}</h3>
+                          {req.description && (
+                            <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2 leading-relaxed">
+                              {req.description}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </a>
-                  );
-                })
-              )}
-            </div>
+                    );
+                  })
+                )}
+              </div>
+            )}
           </div>
 
           {/* Right Column: Custom Product Promo */}
