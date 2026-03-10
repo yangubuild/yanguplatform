@@ -30,7 +30,7 @@ export const EmailChangeEmail = ({
 }: EmailChangeEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Confirm your email change for YANGU</Preview>
+    <Preview>Confirm your email change for yangu</Preview>
     <Body style={main}>
       <Container style={container}>
         <Img src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/yangu-logo-email.png" width="48" height="48" alt="YANGU" style={{ marginBottom: '24px' }} />
