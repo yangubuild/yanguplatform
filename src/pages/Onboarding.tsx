@@ -369,6 +369,31 @@ export default function Onboarding() {
 
   // === STEP HANDLERS ===
 
+  // Mark onboarding started on first step transition
+  const markOnboardingStarted = useCallback(async () => {
+    if (!user) return;
+    try {
+      await supabase.from("profiles").update({
+        onboarding_started_at: new Date().toISOString(),
+        account_status: 'onboarding_in_progress',
+        onboarding_step: 'identity',
+      } as any).eq("id", user.id).is("onboarding_started_at" as any, null);
+    } catch (err) {
+      console.error("Failed to mark onboarding started:", err);
+    }
+  }, [user]);
+
+  const updateOnboardingStep = useCallback(async (step: string) => {
+    if (!user) return;
+    try {
+      await supabase.from("profiles").update({
+        onboarding_step: step,
+      } as any).eq("id", user.id);
+    } catch (err) {
+      console.error("Failed to update onboarding step:", err);
+    }
+  }, [user]);
+
   const handleIdentitySubmit = (data: UsernameFormData) => {
     if (usernameAvailable !== true) {
       toast.error("Please choose an available username");
@@ -376,11 +401,13 @@ export default function Onboarding() {
     }
     setSavedUsername(data.username);
     setSavedDisplayName(data.displayName || "");
+    markOnboardingStarted();
     setCurrentStep("category");
   };
 
   const handleCategorySelect = (pathKey: OnboardingPathKey) => {
     setSelectedPath(pathKey);
+    updateOnboardingStep('category');
     setCurrentStep("country");
   };
 
@@ -389,6 +416,7 @@ export default function Onboarding() {
       toast.error("Please select a country");
       return;
     }
+    updateOnboardingStep('country');
     setCurrentStep("business");
   };
 
@@ -456,7 +484,10 @@ export default function Onboarding() {
         country: selectedCountry,
         business_name: businessName,
         onboarding_completed: true,
-      }).eq("id", user.id);
+        onboarding_completed_at: new Date().toISOString(),
+        account_status: 'active',
+        onboarding_step: null,
+      } as any).eq("id", user.id);
 
       if (error) {
         if (error.message.includes("username")) { toast.error("Username is no longer available"); setCurrentStep("identity"); }
@@ -548,7 +579,12 @@ export default function Onboarding() {
       }
 
       // NOW mark onboarding complete
-      const { error: completeError } = await supabase.from("profiles").update({ onboarding_completed: true }).eq("id", user.id);
+      const { error: completeError } = await supabase.from("profiles").update({ 
+        onboarding_completed: true,
+        onboarding_completed_at: new Date().toISOString(),
+        account_status: 'active',
+        onboarding_step: null,
+      } as any).eq("id", user.id);
       if (completeError) { toast.error("Setup issue — please try again."); return; }
 
       await refreshProfile();
