@@ -55,19 +55,18 @@ serve(async (req) => {
       return json({ ok: false, error_code: "PROVIDER_NOT_CONFIGURED", message: "Creatify API credentials not configured" }, 500);
     }
 
-    // Extract user ID from JWT payload (verify_jwt=false, decode manually)
-    let userId: string | null = null;
-    if (authHeader?.startsWith("Bearer ")) {
-      try {
-        const token = authHeader.slice(7);
-        const payloadB64 = token.split(".")[1];
-        const payload = JSON.parse(atob(payloadB64));
-        userId = payload.sub || null;
-      } catch (_) { /* ignore */ }
+    // Verify user via Supabase Auth
+    if (!authHeader?.startsWith("Bearer ")) {
+      return json({ ok: false, error_code: "AUTH_REQUIRED", message: "Authentication required" }, 401);
     }
-
-    if (!userId) return json({ ok: false, error_code: "AUTH_REQUIRED", message: "Authentication required" }, 401);
-    const user = { id: userId };
+    const userClient = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: { user: authUser }, error: authErr } = await userClient.auth.getUser();
+    if (authErr || !authUser) {
+      return json({ ok: false, error_code: "AUTH_REQUIRED", message: "Authentication required" }, 401);
+    }
+    const user = { id: authUser.id };
 
     const body = await req.json();
     const action = body.action || "generate";

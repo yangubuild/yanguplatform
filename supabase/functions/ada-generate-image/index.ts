@@ -15,21 +15,18 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    // Extract user ID from JWT payload (verify_jwt=false, decode manually)
-    let userId: string | null = null;
-    if (authHeader?.startsWith("Bearer ")) {
-      try {
-        const token = authHeader.slice(7);
-        const payloadB64 = token.split(".")[1];
-        const payload = JSON.parse(atob(payloadB64));
-        userId = payload.sub || null;
-      } catch (_) { /* ignore */ }
-    }
-
-    if (!userId) {
+    // Verify user via Supabase Auth (not raw JWT decode)
+    if (!authHeader?.startsWith("Bearer ")) {
       return json({ ok: false, error_code: "AUTH_REQUIRED", message: "Authentication required" }, 401);
     }
-    const user = { id: userId };
+    const userClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: { user: authUser }, error: authErr } = await userClient.auth.getUser();
+    if (authErr || !authUser) {
+      return json({ ok: false, error_code: "AUTH_REQUIRED", message: "Authentication required" }, 401);
+    }
+    const user = { id: authUser.id };
 
     const body = await req.json();
     const { prompt, chatId, debug = false } = body;

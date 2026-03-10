@@ -25,19 +25,20 @@ serve(async (req) => {
 
     if (!ideogramKey) return json({ ok: false, error_code: "PROVIDER_NOT_CONFIGURED", message: "Ideogram API key not configured" }, 500);
 
-    // Extract user ID from JWT payload (verify_jwt=false, so we decode manually)
-    let userId: string | null = null;
-    if (authHeader?.startsWith("Bearer ")) {
-      try {
-        const token = authHeader.slice(7);
-        const payloadB64 = token.split(".")[1];
-        const payload = JSON.parse(atob(payloadB64));
-        userId = payload.sub || null;
-      } catch (_) { /* ignore decode errors */ }
+    // Verify user via Supabase Auth
+    if (!authHeader?.startsWith("Bearer ")) {
+      return json({ ok: false, error_code: "AUTH_REQUIRED", message: "Authentication required" }, 401);
     }
-
-    if (!userId) return json({ ok: false, error_code: "AUTH_REQUIRED", message: "Authentication required" }, 401);
-    const user = { id: userId };
+    const userClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+    const { data: { user: authUser }, error: authErr } = await userClient.auth.getUser();
+    if (authErr || !authUser) {
+      return json({ ok: false, error_code: "AUTH_REQUIRED", message: "Authentication required" }, 401);
+    }
+    const user = { id: authUser.id };
 
     const { generation_id } = await req.json();
     if (!generation_id) return json({ ok: false, error_code: "BAD_REQUEST", message: "generation_id is required" }, 400);

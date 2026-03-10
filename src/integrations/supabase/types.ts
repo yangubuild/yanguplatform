@@ -3625,6 +3625,27 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limit_log: {
+        Row: {
+          action_key: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          action_key: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          action_key?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       studio_assets: {
         Row: {
           asset_type: string
@@ -4682,7 +4703,17 @@ export type Database = {
         Args: { p_quota_key: string }
         Returns: Json
       }
+      check_rate_limit: {
+        Args: {
+          p_action_key: string
+          p_max_count: number
+          p_user_id: string
+          p_window_seconds: number
+        }
+        Returns: boolean
+      }
       claim_dashboard_credits: { Args: never; Returns: Json }
+      cleanup_rate_limit_log: { Args: never; Returns: undefined }
       complete_dropship_order_sync_job: {
         Args: {
           p_error?: string

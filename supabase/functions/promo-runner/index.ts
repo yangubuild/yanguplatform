@@ -15,6 +15,39 @@ Deno.serve(async (req) => {
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const admin = createClient(supabaseUrl, serviceKey);
 
+    // --- Auth: require service secret for cron/admin calls ---
+    const cronSecret = req.headers.get("x-cron-secret");
+    const expectedSecret = Deno.env.get("CRON_SECRET");
+    const isCronAuth = expectedSecret && cronSecret === expectedSecret;
+
+    if (!isCronAuth) {
+      const authHeader = req.headers.get("Authorization");
+      if (!authHeader?.startsWith("Bearer ")) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const userClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const { data: { user }, error: authErr } = await userClient.auth.getUser();
+      if (authErr || !user) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const { data: roles } = await admin
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id);
+      const callerRoles = (roles ?? []).map((r: any) => r.role);
+      if (!callerRoles.includes("admin") && !callerRoles.includes("owner")) {
+        return new Response(JSON.stringify({ error: "Forbidden" }), {
+          status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
     // Find active milestone campaigns
     const { data: campaigns, error: cErr } = await admin
       .from("promo_campaigns")
