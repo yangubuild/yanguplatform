@@ -197,12 +197,9 @@ export default function ProductRequests() {
                 filtered.map((req: any) => {
                   const hasVoted = userVotes?.has(req.id) ?? false;
                   return (
-                    <a
+                    <div
                       key={req.id}
-                      href="https://www.entrepedia.co/library/request"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex gap-4 rounded-xl border border-border bg-card p-4 hover:border-primary/20 transition-colors cursor-pointer"
+                      className="flex gap-4 rounded-xl border border-border bg-card p-4 hover:border-primary/20 transition-colors"
                     >
                       {/* Vote Block */}
                       <button
