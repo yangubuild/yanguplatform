@@ -27,7 +27,7 @@ export const InviteEmail = ({
 }: InviteEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>You've been invited to join YANGU</Preview>
+    <Preview>You've been invited to join yangu</Preview>
     <Body style={main}>
       <Container style={container}>
         <Img src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/yangu-logo-email.png" width="48" height="48" alt="YANGU" style={{ marginBottom: '24px' }} />
