@@ -32,6 +32,21 @@ serve(async (req) => {
   const reqId = crypto.randomUUID().slice(0, 8);
 
   try {
+    // --- Auth: verify caller identity ---
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return jsonError(401, "Authentication required", "AUTH_REQUIRED");
+    }
+    const userClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+    const { data: { user: authUser }, error: authErr } = await userClient.auth.getUser();
+    if (authErr || !authUser) {
+      return jsonError(401, "Authentication required", "AUTH_REQUIRED");
+    }
+
     const { messages, intent, search_context, stream: wantStream } = await req.json();
 
     const LOVABLE_KEY = Deno.env.get("LOVABLE_API_KEY");
