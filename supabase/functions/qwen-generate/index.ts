@@ -70,14 +70,19 @@ serve(async (req) => {
       return json({ ok: false, error_code: "QWEN_MISCONFIG", message: "Missing env var: QWEN_API_KEY" }, 500);
     }
 
-    // --- Auth ---
+    // --- Auth (verified via Supabase Auth) ---
     const authHeader = req.headers.get("Authorization");
-    let userId: string | null = null;
-    if (authHeader?.startsWith("Bearer ")) {
-      try {
-        const token = authHeader.slice(7);
-        const payloadB64 = token.split(".")[1];
-        const payload = JSON.parse(atob(payloadB64));
+    if (!authHeader?.startsWith("Bearer ")) {
+      return json({ ok: false, error_code: "AUTH_REQUIRED", message: "Authentication required" }, 401);
+    }
+    const userClient = createClient(supabaseUrl!, Deno.env.get("SUPABASE_ANON_KEY")!, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: { user: authUser }, error: authErr } = await userClient.auth.getUser();
+    if (authErr || !authUser) {
+      return json({ ok: false, error_code: "AUTH_REQUIRED", message: "Authentication required" }, 401);
+    }
+    const userId: string = authUser.id;
         userId = payload.sub || null;
       } catch (_) { /* ignore */ }
     }

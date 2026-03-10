@@ -19,15 +19,17 @@ serve(async (req) => {
 
   try {
     const authHeader = req.headers.get("Authorization");
-    let userId: string | null = null;
-    if (authHeader?.startsWith("Bearer ")) {
-      try {
-        const token = authHeader.slice(7);
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        userId = payload.sub || null;
-      } catch (_) {}
+    if (!authHeader?.startsWith("Bearer ")) {
+      return json({ ok: false, error: "Auth required" }, 401);
     }
-    if (!userId) return json({ ok: false, error: "Auth required" }, 401);
+    const userClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+    const { data: { user: authUser }, error: authErr } = await userClient.auth.getUser();
+    if (authErr || !authUser) return json({ ok: false, error: "Auth required" }, 401);
+    const userId = authUser.id;
 
     const { prompt } = await req.json();
     if (!prompt) return json({ ok: false, error: "prompt is required" }, 400);
