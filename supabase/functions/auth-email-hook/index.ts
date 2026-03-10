@@ -35,7 +35,7 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 }
 
 // Configuration
-const SITE_NAME = "YANGU"
+const SITE_NAME = "yangu"
 const SENDER_DOMAIN = "notify.yangu.io"
 const ROOT_DOMAIN = "yangu.io"
 const FROM_DOMAIN = "yangu.io" // Domain shown in From address (may be root or sender subdomain)
