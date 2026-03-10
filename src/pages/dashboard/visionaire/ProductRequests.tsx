@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { ChevronUp, Users, Sparkles, PenLine, Clock, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import CompletedProducts from "@/components/visionaire/CompletedProducts";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { VisionairePageContainer } from "@/components/visionaire/VisionairePageContainer";
