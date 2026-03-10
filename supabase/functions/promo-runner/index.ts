@@ -11,11 +11,16 @@ Deno.serve(async (req) => {
   }
 
   try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const admin = createClient(supabaseUrl, serviceKey);
+
     // --- Auth: require service secret for cron/admin calls ---
-    const authSecret = req.headers.get("x-cron-secret") || req.headers.get("authorization");
+    const cronSecret = req.headers.get("x-cron-secret");
     const expectedSecret = Deno.env.get("CRON_SECRET");
-    if (!expectedSecret || authSecret !== `Bearer ${expectedSecret}`) {
-      // Also allow admin users
+    const isCronAuth = expectedSecret && cronSecret === expectedSecret;
+
+    if (!isCronAuth) {
       const authHeader = req.headers.get("Authorization");
       if (!authHeader?.startsWith("Bearer ")) {
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -31,7 +36,6 @@ Deno.serve(async (req) => {
           status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      // Verify admin role
       const { data: roles } = await admin
         .from("user_roles")
         .select("role")
