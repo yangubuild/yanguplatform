@@ -33,7 +33,7 @@ export const InviteEmail = ({
         <Img src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/yangu-logo-email.png" width="48" height="48" alt="yangu" style={{ marginBottom: '24px' }} />
         <Heading style={h1}>You've been invited</Heading>
         <Text style={text}>
-          You've been invited to join YANGU. Click below to accept and create your account.
+          You've been invited to join yangu. Click below to accept and create your account.
         </Text>
         <Button style={button} href={confirmationUrl}>
           Accept Invitation
