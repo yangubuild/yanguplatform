@@ -407,6 +407,7 @@ export default function Onboarding() {
 
   const handleCategorySelect = (pathKey: OnboardingPathKey) => {
     setSelectedPath(pathKey);
+    updateOnboardingStep('category');
     setCurrentStep("country");
   };
 
@@ -415,6 +416,7 @@ export default function Onboarding() {
       toast.error("Please select a country");
       return;
     }
+    updateOnboardingStep('country');
     setCurrentStep("business");
   };
 
