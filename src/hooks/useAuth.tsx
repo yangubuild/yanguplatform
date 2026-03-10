@@ -69,7 +69,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return null;
       }
 
-      return data as Profile;
+      // Sync email_verified_at from auth session if not yet set
+      const profile = data as Profile;
+      if (!profile.email_verified_at) {
+        const { data: { session } } = await supabase.auth.getSession();
+        const confirmedAt = session?.user?.email_confirmed_at;
+        if (confirmedAt) {
+          const newStatus = !profile.onboarding_completed 
+            ? (profile.onboarding_started_at ? 'onboarding_in_progress' : 'verified_pending_onboarding')
+            : profile.account_status;
+          await supabase.from("profiles").update({
+            email_verified_at: confirmedAt,
+            account_status: newStatus,
+          } as any).eq("id", userId);
+          profile.email_verified_at = confirmedAt;
+          if (newStatus !== profile.account_status) {
+            profile.account_status = newStatus as AccountStatus;
+          }
+        }
+      }
+
+      return profile;
     } catch (err) {
       console.error("Failed to fetch profile:", err);
       return null;

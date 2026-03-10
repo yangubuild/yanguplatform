@@ -40,6 +40,18 @@ export function ProtectedRoute({ children, requireOnboarding = true }: Protected
       return <Navigate to="/developers/portal/apps" replace />;
     }
 
+    // Suspended users cannot access the app
+    if (profile && (profile as any).account_status === 'suspended') {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-background p-4">
+          <div className="text-center max-w-md">
+            <h1 className="text-xl font-bold text-foreground mb-2">Account Suspended</h1>
+            <p className="text-muted-foreground text-sm">Your account has been suspended. Please contact support for assistance.</p>
+          </div>
+        </div>
+      );
+    }
+
     if (needsOnboarding) return <Navigate to="/onboarding" replace />;
     if (!profile?.username) return <Navigate to="/onboarding" replace />;
     if (!activeOrg) return <Navigate to="/onboarding" replace />;

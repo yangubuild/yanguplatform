@@ -579,7 +579,12 @@ export default function Onboarding() {
       }
 
       // NOW mark onboarding complete
-      const { error: completeError } = await supabase.from("profiles").update({ onboarding_completed: true }).eq("id", user.id);
+      const { error: completeError } = await supabase.from("profiles").update({ 
+        onboarding_completed: true,
+        onboarding_completed_at: new Date().toISOString(),
+        account_status: 'active',
+        onboarding_step: null,
+      } as any).eq("id", user.id);
       if (completeError) { toast.error("Setup issue — please try again."); return; }
 
       await refreshProfile();
