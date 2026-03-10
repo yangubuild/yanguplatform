@@ -3274,6 +3274,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_status: string
           avatar_emoji_key: string | null
           avatar_mode: string
           avatar_url: string | null
@@ -3285,15 +3286,22 @@ export type Database = {
           creator_type: Database["public"]["Enums"]["creator_type"] | null
           dashboard_credit_claimed: boolean
           display_name: string | null
+          email_verified_at: string | null
           free_images_used: number
           free_videos_used: number
           id: string
+          last_onboarding_reminder_sent_at: string | null
           onboarding_completed: boolean
+          onboarding_completed_at: string | null
+          onboarding_started_at: string | null
+          onboarding_step: string | null
           social_links: Json | null
           updated_at: string
           username: string | null
+          welcome_email_sent_at: string | null
         }
         Insert: {
+          account_status?: string
           avatar_emoji_key?: string | null
           avatar_mode?: string
           avatar_url?: string | null
@@ -3305,15 +3313,22 @@ export type Database = {
           creator_type?: Database["public"]["Enums"]["creator_type"] | null
           dashboard_credit_claimed?: boolean
           display_name?: string | null
+          email_verified_at?: string | null
           free_images_used?: number
           free_videos_used?: number
           id: string
+          last_onboarding_reminder_sent_at?: string | null
           onboarding_completed?: boolean
+          onboarding_completed_at?: string | null
+          onboarding_started_at?: string | null
+          onboarding_step?: string | null
           social_links?: Json | null
           updated_at?: string
           username?: string | null
+          welcome_email_sent_at?: string | null
         }
         Update: {
+          account_status?: string
           avatar_emoji_key?: string | null
           avatar_mode?: string
           avatar_url?: string | null
@@ -3325,13 +3340,19 @@ export type Database = {
           creator_type?: Database["public"]["Enums"]["creator_type"] | null
           dashboard_credit_claimed?: boolean
           display_name?: string | null
+          email_verified_at?: string | null
           free_images_used?: number
           free_videos_used?: number
           id?: string
+          last_onboarding_reminder_sent_at?: string | null
           onboarding_completed?: boolean
+          onboarding_completed_at?: string | null
+          onboarding_started_at?: string | null
+          onboarding_step?: string | null
           social_links?: Json | null
           updated_at?: string
           username?: string | null
+          welcome_email_sent_at?: string | null
         }
         Relationships: []
       }
@@ -4904,6 +4925,7 @@ export type Database = {
       }
       is_username_available: { Args: { _username: string }; Returns: boolean }
       list_on_community: { Args: { p_surface_id: string }; Returns: Json }
+      manage_get_user_detail: { Args: { p_user_id: string }; Returns: Json }
       manage_invite_user: {
         Args: {
           p_email: string
@@ -4914,6 +4936,15 @@ export type Database = {
       manage_list_invites: { Args: never; Returns: Json }
       manage_list_users: {
         Args: { p_limit?: number; p_offset?: number }
+        Returns: Json
+      }
+      manage_list_users_lifecycle: {
+        Args: {
+          p_filter?: string
+          p_limit?: number
+          p_offset?: number
+          p_status?: string
+        }
         Returns: Json
       }
       manage_overview_stats: { Args: never; Returns: Json }
@@ -4928,6 +4959,11 @@ export type Database = {
         }
         Returns: Json
       }
+      manage_update_user_lifecycle: {
+        Args: { p_action: string; p_user_id: string }
+        Returns: Json
+      }
+      manage_user_lifecycle_stats: { Args: never; Returns: Json }
       org_has_active_subscription: {
         Args: { p_org_id: string }
         Returns: boolean
