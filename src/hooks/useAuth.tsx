@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type CreatorType = "seller" | "builder" | "organization" | "learner";
 
+export type AccountStatus = 'registered' | 'verified_pending_onboarding' | 'onboarding_in_progress' | 'active' | 'suspended';
+
 export interface Profile {
   id: string;
   username: string | null;
@@ -15,6 +17,13 @@ export interface Profile {
   country: string | null;
   business_name: string | null;
   onboarding_completed: boolean;
+  account_status: AccountStatus;
+  email_verified_at: string | null;
+  onboarding_started_at: string | null;
+  onboarding_completed_at: string | null;
+  onboarding_step: string | null;
+  welcome_email_sent_at: string | null;
+  last_onboarding_reminder_sent_at: string | null;
   created_at: string;
   updated_at: string;
 }
