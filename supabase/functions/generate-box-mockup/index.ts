@@ -32,7 +32,7 @@ serve(async (req) => {
 
     const { prompt, referenceImage } = await req.json();
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!prompt) throw new Error("Prompt is required");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     const enhancedPrompt = `Professional 3D product box mockup: ${prompt}. Photorealistic, studio lighting, clean white/gray background, high quality packaging design, commercial product photography style.`;
