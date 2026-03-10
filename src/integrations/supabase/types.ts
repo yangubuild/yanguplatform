@@ -51,6 +51,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "ad_placements_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "public_ads_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "ad_placements_surface_id_fkey"
             columns: ["surface_id"]
             isOneToOne: false
@@ -4415,6 +4422,102 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      public_ads_view: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          ends_at: string | null
+          id: string | null
+          image_url: string | null
+          starts_at: string | null
+          status: Database["public"]["Enums"]["ad_status"] | null
+          target_url: string | null
+          title: string | null
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          ends_at?: string | null
+          id?: string | null
+          image_url?: string | null
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["ad_status"] | null
+          target_url?: string | null
+          title?: string | null
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          ends_at?: string | null
+          id?: string | null
+          image_url?: string | null
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["ad_status"] | null
+          target_url?: string | null
+          title?: string | null
+        }
+        Relationships: []
+      }
+      public_profile_view: {
+        Row: {
+          avatar_emoji_key: string | null
+          avatar_mode: string | null
+          avatar_url: string | null
+          business_name: string | null
+          country: string | null
+          cover_crop: Json | null
+          cover_url: string | null
+          creator_type: Database["public"]["Enums"]["creator_type"] | null
+          display_name: string | null
+          id: string | null
+          social_links: Json | null
+          username: string | null
+        }
+        Insert: {
+          avatar_emoji_key?: string | null
+          avatar_mode?: string | null
+          avatar_url?: string | null
+          business_name?: string | null
+          country?: string | null
+          cover_crop?: Json | null
+          cover_url?: string | null
+          creator_type?: Database["public"]["Enums"]["creator_type"] | null
+          display_name?: string | null
+          id?: string | null
+          social_links?: Json | null
+          username?: string | null
+        }
+        Update: {
+          avatar_emoji_key?: string | null
+          avatar_mode?: string | null
+          avatar_url?: string | null
+          business_name?: string | null
+          country?: string | null
+          cover_crop?: Json | null
+          cover_url?: string | null
+          creator_type?: Database["public"]["Enums"]["creator_type"] | null
+          display_name?: string | null
+          id?: string | null
+          social_links?: Json | null
+          username?: string | null
+        }
+        Relationships: []
+      }
+      public_vote_counts: {
+        Row: {
+          request_id: string | null
+          vote_count: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visionaire_request_votes_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "visionaire_product_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Functions: {
