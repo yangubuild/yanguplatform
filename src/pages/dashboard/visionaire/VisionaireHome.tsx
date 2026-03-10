@@ -42,9 +42,15 @@ const SORT_OPTIONS = [
 
 export default function VisionaireHome() {
   const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [formatFilter, setFormatFilter] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
-  const { data: items, isLoading } = useVisionaireItems(["master_library", "university", "evergreen"]);
+  
+  // Fetch all relevant categories
+  const allCategories = categoryFilter === "all"
+    ? ["master_library", "university", "evergreen", "ebooks", "audio", "bundles", "business_podcast", "checklists", "courses", "guide", "prompts", "templates", "toolstack", "video_learning", "vls", "workbook"]
+    : [categoryFilter];
+  const { data: items, isLoading } = useVisionaireItems(allCategories);
 
   const filtered = useMemo(() => {
     if (!items) return [];
