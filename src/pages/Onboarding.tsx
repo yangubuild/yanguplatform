@@ -369,6 +369,31 @@ export default function Onboarding() {
 
   // === STEP HANDLERS ===
 
+  // Mark onboarding started on first step transition
+  const markOnboardingStarted = useCallback(async () => {
+    if (!user) return;
+    try {
+      await supabase.from("profiles").update({
+        onboarding_started_at: new Date().toISOString(),
+        account_status: 'onboarding_in_progress',
+        onboarding_step: 'identity',
+      } as any).eq("id", user.id).is("onboarding_started_at" as any, null);
+    } catch (err) {
+      console.error("Failed to mark onboarding started:", err);
+    }
+  }, [user]);
+
+  const updateOnboardingStep = useCallback(async (step: string) => {
+    if (!user) return;
+    try {
+      await supabase.from("profiles").update({
+        onboarding_step: step,
+      } as any).eq("id", user.id);
+    } catch (err) {
+      console.error("Failed to update onboarding step:", err);
+    }
+  }, [user]);
+
   const handleIdentitySubmit = (data: UsernameFormData) => {
     if (usernameAvailable !== true) {
       toast.error("Please choose an available username");
@@ -376,6 +401,7 @@ export default function Onboarding() {
     }
     setSavedUsername(data.username);
     setSavedDisplayName(data.displayName || "");
+    markOnboardingStarted();
     setCurrentStep("category");
   };
 
