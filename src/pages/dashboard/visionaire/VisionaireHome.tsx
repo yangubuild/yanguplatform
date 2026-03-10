@@ -15,7 +15,25 @@ import { VisionairePageContainer } from "@/components/visionaire/VisionairePageC
 import { useVisionaireItems } from "@/hooks/useVisionaireItems";
 
 const POPULAR_TAGS = ["Content Creation", "Artificial Intelligence", "Productivity Guides", "Marketing", "Business"];
-const FORMAT_OPTIONS = ["all", "ebook", "course", "template", "mockup", "deal", "tool"] as const;
+
+const CATEGORY_OPTIONS = [
+  { value: "all", label: "All Categories" },
+  { value: "ebooks", label: "Ebooks" },
+  { value: "audio", label: "Audio" },
+  { value: "bundles", label: "Bundles" },
+  { value: "business_podcast", label: "Business Podcast" },
+  { value: "checklists", label: "Checklists" },
+  { value: "courses", label: "Courses" },
+  { value: "guide", label: "Guide" },
+  { value: "prompts", label: "Prompts" },
+  { value: "templates", label: "Templates" },
+  { value: "toolstack", label: "Toolstack" },
+  { value: "video_learning", label: "Video Learning" },
+  { value: "vls", label: "VLS" },
+  { value: "workbook", label: "Workbook" },
+] as const;
+
+const FORMAT_OPTIONS = ["all", "ebook", "course", "template", "mockup", "deal", "tool", "audio", "podcast", "checklist", "guide", "prompt", "video", "vls", "workbook", "bundle"] as const;
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest" },
   { value: "oldest", label: "Oldest" },
@@ -24,9 +42,15 @@ const SORT_OPTIONS = [
 
 export default function VisionaireHome() {
   const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [formatFilter, setFormatFilter] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
-  const { data: items, isLoading } = useVisionaireItems(["master_library", "university", "evergreen"]);
+  
+  // Fetch all relevant categories
+  const allCategories = categoryFilter === "all"
+    ? ["master_library", "university", "evergreen", "ebooks", "audio", "bundles", "business_podcast", "checklists", "courses", "guide", "prompts", "templates", "toolstack", "video_learning", "vls", "workbook"]
+    : [categoryFilter];
+  const { data: items, isLoading } = useVisionaireItems(allCategories);
 
   const filtered = useMemo(() => {
     if (!items) return [];
@@ -104,6 +128,20 @@ export default function VisionaireHome() {
 
         {/* Filters Row */}
         <div className="flex flex-wrap items-center gap-3">
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="w-[180px] h-9 text-xs">
+              <SlidersHorizontal className="h-3.5 w-3.5 mr-1.5" />
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+            <SelectContent>
+              {CATEGORY_OPTIONS.map((c) => (
+                <SelectItem key={c.value} value={c.value} className="text-xs">
+                  {c.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
           <Select value={formatFilter} onValueChange={setFormatFilter}>
             <SelectTrigger className="w-[160px] h-9 text-xs">
               <SlidersHorizontal className="h-3.5 w-3.5 mr-1.5" />
