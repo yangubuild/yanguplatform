@@ -17,11 +17,11 @@ export function VisionaireItemCard({ item, isSaved, onOpen, onSave, onUnsave }: 
       onClick={onOpen}
     >
       {item.thumbnail_url && (
-        <div className="aspect-[4/3] overflow-hidden bg-muted">
+        <div className="overflow-hidden bg-muted">
           <img
             src={item.thumbnail_url}
             alt={item.title}
-            className="w-full h-full object-cover transition-transform group-hover:scale-105"
+            className="w-full h-auto block transition-transform group-hover:scale-105"
             loading="lazy"
           />
         </div>

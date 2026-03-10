@@ -59,11 +59,11 @@ export default function CompletedProducts() {
           key={product.title}
           className="rounded-xl border border-border bg-card overflow-hidden hover:border-primary/20 transition-colors"
         >
-          <div className="aspect-[3/4] bg-muted/30">
+          <div className="bg-muted/30">
             <img
               src={product.cover}
               alt={product.title}
-              className="w-full h-full object-cover"
+              className="w-full h-auto block"
               loading="lazy"
             />
           </div>
