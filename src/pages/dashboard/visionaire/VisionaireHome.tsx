@@ -128,6 +128,20 @@ export default function VisionaireHome() {
 
         {/* Filters Row */}
         <div className="flex flex-wrap items-center gap-3">
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="w-[180px] h-9 text-xs">
+              <SlidersHorizontal className="h-3.5 w-3.5 mr-1.5" />
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+            <SelectContent>
+              {CATEGORY_OPTIONS.map((c) => (
+                <SelectItem key={c.value} value={c.value} className="text-xs">
+                  {c.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
           <Select value={formatFilter} onValueChange={setFormatFilter}>
             <SelectTrigger className="w-[160px] h-9 text-xs">
               <SlidersHorizontal className="h-3.5 w-3.5 mr-1.5" />
