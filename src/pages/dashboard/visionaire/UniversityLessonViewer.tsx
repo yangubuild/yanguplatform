@@ -41,8 +41,9 @@ export default function UniversityLessonViewer() {
     const currentLesson = courseLessons[idx];
     const basePath = `/dashboard/visionaire/university/${slug}/course/${courseSlug}`;
 
-    // For course 1, we have rich content from MASTER_LIBRARY_LESSONS
-    const richContent = course.id === 1 ? MASTER_LIBRARY_LESSONS[idx] : null;
+    // Resolve rich content from COURSE_CONTENT_MAP (all courses) or fall back to MASTER_LIBRARY_LESSONS for course 1
+    const courseContent = COURSE_CONTENT_MAP[course.id];
+    const richContent = courseContent ? courseContent[idx] : (course.id === 1 ? MASTER_LIBRARY_LESSONS[idx] : null);
 
     const progress =
       courseLessons.length > 0
