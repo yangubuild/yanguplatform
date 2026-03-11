@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Bookmark, BookmarkCheck, Package, Tag } from "lucide-react";
+import { ArrowLeft, Bookmark, BookmarkCheck, ExternalLink, Package, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { VisionairePageContainer } from "@/components/visionaire/VisionairePageContainer";
