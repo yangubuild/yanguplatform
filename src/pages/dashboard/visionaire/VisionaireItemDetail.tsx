@@ -8,6 +8,8 @@ import { VisionairePageContainer } from "@/components/visionaire/VisionairePageC
 import { VisionaireGrid } from "@/components/visionaire/VisionaireGrid";
 import { useSaveItem, useUnsaveItem, useVisionaireSaves } from "@/hooks/useVisionaireItems";
 import { toast } from "sonner";
+import { getItemThumbnail, extractDriveFileId } from "@/lib/driveUtils";
+import { useState } from "react";
 
 export default function VisionaireItemDetail() {
   const { id } = useParams<{ id: string }>();
@@ -140,15 +142,18 @@ export default function VisionaireItemDetail() {
             </div>
 
             {/* Cover preview (large) */}
-            {item.thumbnail_url && (
-              <div className="rounded-xl overflow-hidden border border-border bg-muted max-w-lg">
-                <img
-                  src={item.preview_image_url || item.thumbnail_url}
-                  alt={item.title}
-                  className="w-full h-auto object-contain"
-                />
-              </div>
-            )}
+            {(() => {
+              const thumb = getItemThumbnail(item);
+              return thumb ? (
+                <div className="rounded-xl overflow-hidden border border-border bg-muted max-w-lg">
+                  <img
+                    src={item.preview_image_url || thumb}
+                    alt={item.title}
+                    className="w-full h-auto object-contain"
+                  />
+                </div>
+              ) : null;
+            })()}
 
             {/* Product contents */}
             {content.lessons && (
@@ -162,15 +167,18 @@ export default function VisionaireItemDetail() {
           {/* Right: Sidebar actions */}
           <div className="space-y-4">
             {/* Cover thumbnail */}
-            {item.thumbnail_url && (
-              <div className="rounded-xl overflow-hidden border border-border bg-muted p-4">
-                <img
-                  src={item.thumbnail_url}
-                  alt={item.title}
-                  className="w-full h-auto object-contain rounded-lg"
-                />
-              </div>
-            )}
+            {(() => {
+              const thumb = getItemThumbnail(item);
+              return thumb ? (
+                <div className="rounded-xl overflow-hidden border border-border bg-muted p-4">
+                  <img
+                    src={thumb}
+                    alt={item.title}
+                    className="w-full h-auto object-contain rounded-lg"
+                  />
+                </div>
+              ) : null;
+            })()}
 
             {/* Save button */}
             <Button
@@ -201,7 +209,29 @@ export default function VisionaireItemDetail() {
             {item.download_url && (
               <Button
                 className="w-full bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-                onClick={() => window.open(item.download_url, "_blank")}
+                onClick={async () => {
+                  const fileId = extractDriveFileId(item.download_url);
+                  if (!fileId) { window.open(item.download_url, "_blank"); return; }
+                  toast.info("Starting download…");
+                  try {
+                    const { data, error } = await supabase.functions.invoke("drive-download-proxy", {
+                      body: { file_id: fileId },
+                    });
+                    if (error) throw error;
+                    const blob = data instanceof Blob ? data : new Blob([data]);
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `${item.title || "download"}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    URL.revokeObjectURL(url);
+                    toast.success("Download complete!");
+                  } catch {
+                    window.open(item.download_url, "_blank");
+                  }
+                }}
               >
                 <Download className="h-4 w-4 mr-2" />
                 Download product
