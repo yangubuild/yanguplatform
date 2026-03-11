@@ -14,8 +14,8 @@ const RESOURCES = [
     title: "Gradients",
     description: "Beautiful gradient backgrounds and patterns",
     image: gradientsImg,
-    url: "https://www.entrepedia.co/tools/gradients",
-    type: "external" as const,
+    url: "",
+    type: "ai" as const,
   },
   {
     id: "shots-so",
