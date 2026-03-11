@@ -68,6 +68,7 @@ const SavedProducts = lazy(() => import("./pages/dashboard/visionaire/SavedProdu
 const ProductRequests = lazy(() => import("./pages/dashboard/visionaire/ProductRequests"));
 const DigitalProductUniversity = lazy(() => import("./pages/dashboard/visionaire/DigitalProductUniversity"));
 const UniversityCourseDetail = lazy(() => import("./pages/dashboard/visionaire/UniversityCourseDetail"));
+const UniversityLessonViewer = lazy(() => import("./pages/dashboard/visionaire/UniversityLessonViewer"));
 const EvergreenProblems = lazy(() => import("./pages/dashboard/visionaire/EvergreenProblems"));
 const EvergreenProblemDetail = lazy(() => import("./pages/dashboard/visionaire/EvergreenProblemDetail"));
 const ProductMockups = lazy(() => import("./pages/dashboard/visionaire/ProductMockups"));
@@ -347,6 +348,7 @@ const App = () => (
                   <Route path="visionaire/requests" element={<ProductRequests />} />
                   <Route path="visionaire/university" element={<DigitalProductUniversity />} />
                   <Route path="visionaire/university/:slug" element={<UniversityCourseDetail />} />
+                  <Route path="visionaire/university/:slug/lessons/:lessonIndex" element={<UniversityLessonViewer />} />
                   <Route path="visionaire/evergreen" element={<EvergreenProblems />} />
                   <Route path="visionaire/evergreen/:slug" element={<EvergreenProblemDetail />} />
                   <Route path="visionaire/mockups" element={<ProductMockups />} />
