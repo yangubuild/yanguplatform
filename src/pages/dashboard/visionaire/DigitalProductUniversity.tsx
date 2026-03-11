@@ -11,6 +11,16 @@ import pricingGuideImg from "@/assets/university/pricing-guide.jpg";
 import aiWritingImg from "@/assets/university/ai-writing.jpg";
 import visualsGuideImg from "@/assets/university/visuals-guide.jpg";
 
+// Maps main page slugs to their masterclass course slugs
+const MASTERCLASS_SLUG_MAP: Record<string, string> = {
+  "starting-an-online-business": "online-business-master-plan",
+  "choosing-the-right-platform": "platforms-guide",
+  "building-your-sales-funnel": "funnel-guide",
+  "pricing-your-digital-products": "pricing-guide",
+  "ai-powered-content-writing": "copywriting-guide",
+  "creating-stunning-product-visuals": "visuals-guide",
+};
+
 const COURSES = [
   {
     slug: "master-library-masterclass",
