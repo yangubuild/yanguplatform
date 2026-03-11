@@ -343,7 +343,7 @@ export default function UniversityCourseDetail() {
 
         {/* Course Curriculum */}
         <div className="space-y-6">
-          <h2 className="text-xl font-bold text-foreground">Course Curriculum</h2>
+          <h2 id="course-curriculum" className="text-xl font-bold text-foreground">Course Curriculum</h2>
           <div className="space-y-4">
             {course.modules.map((mod, mi) => (
               <div
