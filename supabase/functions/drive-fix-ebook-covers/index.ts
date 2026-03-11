@@ -79,18 +79,19 @@ Deno.serve(async (req) => {
     const apiKey = Deno.env.get("GOOGLE_PLACES_API_KEY");
     if (!apiKey) return jsonRes({ error: "Google API key not configured" }, 500);
 
-    // Parse batch params: offset and limit (default 30 items per call)
     const body = await req.json().catch(() => ({}));
     const offset = body.offset ?? 0;
-    const limit = body.limit ?? 30;
+    const limit = body.limit ?? 20;
 
+    // Only process items that have Drive thumbnails AND a source folder
     const ebookCategories = ["ebooks", "guide", "workbook"];
     const { data: items, error: fetchErr } = await adminClient
       .from("visionaire_items")
       .select("id, title, thumbnail_url, source_url, category")
       .in("category", ebookCategories)
       .eq("is_active", true)
-      .not("source_url", "is", null)
+      .like("thumbnail_url", "https://lh3%")
+      .like("source_url", "%folders/%")
       .order("title")
       .range(offset, offset + limit - 1);
 
@@ -99,19 +100,11 @@ Deno.serve(async (req) => {
     let fixed = 0;
     let skipped = 0;
     let errors = 0;
-    const details: Array<{ title: string; action: string }> = [];
+    const details: Array<{ title: string; action: string; images?: string[] }> = [];
 
     for (const item of items || []) {
-      if (item.thumbnail_url?.startsWith("/images/")) {
-        skipped++;
-        continue;
-      }
-
       const folderId = extractFolderId(item.source_url);
-      if (!folderId) {
-        skipped++;
-        continue;
-      }
+      if (!folderId) { skipped++; continue; }
 
       try {
         const files = await listDriveFiles(folderId, apiKey);
@@ -125,7 +118,7 @@ Deno.serve(async (req) => {
 
         if (!bestCover) {
           skipped++;
-          details.push({ title: item.title, action: "no images found" });
+          details.push({ title: item.title, action: "no images", images: files.map(f => f.name) });
           continue;
         }
 
@@ -133,6 +126,7 @@ Deno.serve(async (req) => {
 
         if (item.thumbnail_url === newUrl) {
           skipped++;
+          details.push({ title: item.title, action: `already using ${bestCover.name}` });
           continue;
         }
 
@@ -146,7 +140,11 @@ Deno.serve(async (req) => {
           details.push({ title: item.title, action: `error: ${updateErr.message}` });
         } else {
           fixed++;
-          details.push({ title: item.title, action: `→ ${bestCover.name}` });
+          details.push({
+            title: item.title,
+            action: `→ ${bestCover.name}`,
+            images: imageFiles.map(f => f.name),
+          });
         }
       } catch (e) {
         errors++;
@@ -159,10 +157,7 @@ Deno.serve(async (req) => {
     return jsonRes({
       ok: true,
       batch: { offset, limit, returned: items?.length || 0, hasMore, nextOffset: hasMore ? offset + limit : null },
-      fixed,
-      skipped,
-      errors,
-      details,
+      fixed, skipped, errors, details,
     });
   } catch (err) {
     console.error("[drive-fix-covers] Error:", err);
