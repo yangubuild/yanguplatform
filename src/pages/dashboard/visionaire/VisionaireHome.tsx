@@ -33,7 +33,7 @@ const CATEGORY_OPTIONS = [
   { value: "workbook", label: "Workbook" },
 ] as const;
 
-const FORMAT_OPTIONS = ["all", "ebook", "course", "template", "mockup", "deal", "tool", "audio", "podcast", "checklist", "guide", "prompt", "video", "vls", "workbook", "bundle"] as const;
+const FORMAT_OPTIONS = ["all", "ebook", "course", "template", "mockup", "deal", "tool", "audio", "podcast", "checklist", "guide", "prompt", "video", "workbook", "bundle"] as const;
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest" },
   { value: "oldest", label: "Oldest" },

@@ -84,7 +84,7 @@ export default function VisionaireBundleDetail() {
           <div className="lg:col-span-2">
             <div className="rounded-xl overflow-hidden border border-border bg-black aspect-[3/4] flex items-center justify-center">
               {item.thumbnail_url ? (
-                <img src={item.thumbnail_url} alt={item.title} className="w-full h-full object-cover" />
+                <img src={item.thumbnail_url} alt={item.title} className="w-full h-full object-contain" />
               ) : (
                 <Package className="h-16 w-16 text-muted-foreground/30" />
               )}

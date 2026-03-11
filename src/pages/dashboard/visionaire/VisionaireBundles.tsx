@@ -138,7 +138,7 @@ export default function VisionaireBundles() {
                           navigate(`/dashboard/visionaire/bundle/${bundle.id}`);
                         }}
                       >
-                        <ExternalLink className="h-3.5 w-3.5 mr-1.5" /> Open Bundle
+                        <Package className="h-3.5 w-3.5 mr-1.5" /> Open Bundle
                       </Button>
                       <Button
                         size="sm"
