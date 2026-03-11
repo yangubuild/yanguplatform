@@ -1,11 +1,22 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Bookmark, BookmarkCheck, ExternalLink, Package } from "lucide-react";
+import { Search, Bookmark, BookmarkCheck, Package } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { VisionairePageContainer } from "@/components/visionaire/VisionairePageContainer";
 import { useVisionaireItems, useVisionaireSaves, useSaveItem, useUnsaveItem } from "@/hooks/useVisionaireItems";
 import { toast } from "sonner";
+
+// Generate a deterministic gradient from a title string
+function titleToGradient(title: string): string {
+  let hash = 0;
+  for (let i = 0; i < title.length; i++) {
+    hash = title.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const h1 = Math.abs(hash % 360);
+  const h2 = (h1 + 40 + Math.abs((hash >> 8) % 30)) % 360;
+  return `linear-gradient(135deg, hsl(${h1}, 55%, 25%), hsl(${h2}, 45%, 15%))`;
+}
 
 export default function VisionaireBundles() {
   const navigate = useNavigate();
@@ -18,13 +29,22 @@ export default function VisionaireBundles() {
 
   const filtered = useMemo(() => {
     if (!items) return [];
-    if (!search.trim()) return items;
-    const q = search.toLowerCase();
-    return items.filter(
-      (i) =>
-        i.title.toLowerCase().includes(q) ||
-        (i.tags as string[] | null)?.some((t) => t.toLowerCase().includes(q))
-    );
+    let list = [...items];
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter(
+        (i) =>
+          i.title.toLowerCase().includes(q) ||
+          (i.tags as string[] | null)?.some((t) => t.toLowerCase().includes(q))
+      );
+    }
+    // Sort: bundles with images first
+    list.sort((a, b) => {
+      const aHas = a.thumbnail_url ? 0 : 1;
+      const bHas = b.thumbnail_url ? 0 : 1;
+      return aHas - bHas;
+    });
+    return list;
   }, [items, search]);
 
   return (
@@ -75,16 +95,19 @@ export default function VisionaireBundles() {
                   onClick={() => navigate(`/dashboard/visionaire/bundle/${bundle.id}`)}
                 >
                   {/* Cover */}
-                  <div className="relative aspect-[4/3] bg-black overflow-hidden">
+                  <div className="relative aspect-[4/3] overflow-hidden bg-black">
                     {bundle.thumbnail_url ? (
                       <img
                         src={bundle.thumbnail_url}
                         alt={bundle.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-muted">
-                        <Package className="h-12 w-12 text-muted-foreground/30" />
+                      <div
+                        className="w-full h-full flex items-center justify-center"
+                        style={{ background: titleToGradient(bundle.title) }}
+                      >
+                        <Package className="h-12 w-12 text-white/20" />
                       </div>
                     )}
                     {/* Item count badge */}
@@ -115,7 +138,7 @@ export default function VisionaireBundles() {
                           navigate(`/dashboard/visionaire/bundle/${bundle.id}`);
                         }}
                       >
-                        <ExternalLink className="h-3.5 w-3.5 mr-1.5" /> Open Bundle
+                        <Package className="h-3.5 w-3.5 mr-1.5" /> Open Bundle
                       </Button>
                       <Button
                         size="sm"

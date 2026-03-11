@@ -29,11 +29,11 @@ const CATEGORY_OPTIONS = [
   { value: "templates", label: "Templates" },
   { value: "toolstack", label: "Toolstack" },
   { value: "video_learning", label: "Video Learning" },
-  { value: "vls", label: "VLS" },
+  
   { value: "workbook", label: "Workbook" },
 ] as const;
 
-const FORMAT_OPTIONS = ["all", "ebook", "course", "template", "mockup", "deal", "tool", "audio", "podcast", "checklist", "guide", "prompt", "video", "vls", "workbook", "bundle"] as const;
+const FORMAT_OPTIONS = ["all", "ebook", "course", "template", "mockup", "deal", "tool", "audio", "podcast", "checklist", "guide", "prompt", "video", "workbook", "bundle"] as const;
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest" },
   { value: "oldest", label: "Oldest" },
@@ -48,7 +48,7 @@ export default function VisionaireHome() {
   
   // Fetch all relevant categories
   const allCategories = categoryFilter === "all"
-    ? ["master_library", "university", "evergreen", "ebooks", "audio", "bundles", "business_podcast", "checklists", "courses", "guide", "prompts", "templates", "toolstack", "video_learning", "vls", "workbook"]
+    ? ["master_library", "university", "evergreen", "ebooks", "audio", "bundles", "business_podcast", "checklists", "courses", "guide", "prompts", "templates", "toolstack", "video_learning", "workbook"]
     : [categoryFilter];
   const { data: items, isLoading } = useVisionaireItems(allCategories);
 

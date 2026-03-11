@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Bookmark, BookmarkCheck, ExternalLink, Package, Tag } from "lucide-react";
+import { ArrowLeft, Bookmark, BookmarkCheck, Package, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { VisionairePageContainer } from "@/components/visionaire/VisionairePageContainer";
@@ -84,7 +84,7 @@ export default function VisionaireBundleDetail() {
           <div className="lg:col-span-2">
             <div className="rounded-xl overflow-hidden border border-border bg-black aspect-[3/4] flex items-center justify-center">
               {item.thumbnail_url ? (
-                <img src={item.thumbnail_url} alt={item.title} className="w-full h-full object-cover" />
+                <img src={item.thumbnail_url} alt={item.title} className="w-full h-full object-contain" />
               ) : (
                 <Package className="h-16 w-16 text-muted-foreground/30" />
               )}
@@ -136,11 +136,6 @@ export default function VisionaireBundleDetail() {
 
             {/* Actions */}
             <div className="flex gap-3 pt-2">
-              {item.source_url && (
-                <Button className="flex-1" onClick={() => window.open(item.source_url!, "_blank")}>
-                  <ExternalLink className="h-4 w-4 mr-2" /> Open Source
-                </Button>
-              )}
               <Button
                 variant="outline"
                 className="flex-1"

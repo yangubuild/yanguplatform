@@ -1,4 +1,4 @@
-import { Bookmark, BookmarkCheck, Download, ExternalLink, Play, Headphones, FileText } from "lucide-react";
+import { Bookmark, BookmarkCheck, Download, Play, Headphones, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getItemThumbnail, extractDriveFileId } from "@/lib/driveUtils";
@@ -106,19 +106,6 @@ export function VisionaireItemCard({ item, isSaved, onOpen, onSave, onUnsave }: 
             >
               <Download className="h-4 w-4" />
             </Button>
-          ) : item.source_url ? (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={(e) => {
-                e.stopPropagation();
-                window.open(item.source_url, "_blank");
-              }}
-              title="Download from Drive"
-            >
-              <Download className="h-4 w-4" />
-            </Button>
           ) : null}
           <Button
             variant="ghost"
@@ -133,20 +120,6 @@ export function VisionaireItemCard({ item, isSaved, onOpen, onSave, onUnsave }: 
               <Bookmark className="h-4 w-4" />
             )}
           </Button>
-          {item.external_url && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={(e) => {
-                e.stopPropagation();
-                window.open(item.external_url, "_blank");
-              }}
-              title="Open source"
-            >
-              <ExternalLink className="h-4 w-4" />
-            </Button>
-          )}
         </div>
       </div>
     </div>
