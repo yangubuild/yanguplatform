@@ -206,7 +206,7 @@ export default function VisionaireItemDetail() {
             </Button>
 
             {/* Download button */}
-            {item.download_url && (
+            {item.download_url ? (
               <Button
                 className="w-full bg-destructive hover:bg-destructive/90 text-destructive-foreground"
                 onClick={async () => {
@@ -236,7 +236,15 @@ export default function VisionaireItemDetail() {
                 <Download className="h-4 w-4 mr-2" />
                 Download product
               </Button>
-            )}
+            ) : item.source_url ? (
+              <Button
+                className="w-full bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                onClick={() => window.open(item.source_url, "_blank")}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Download from Drive
+              </Button>
+            ) : null}
 
             {/* Product info card */}
             <div className="rounded-xl border border-border p-4 space-y-3">

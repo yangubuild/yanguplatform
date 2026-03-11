@@ -1,4 +1,4 @@
-import { Bookmark, BookmarkCheck, Download, ExternalLink } from "lucide-react";
+import { Bookmark, BookmarkCheck, Download, ExternalLink, Play, Headphones, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getItemThumbnail, extractDriveFileId } from "@/lib/driveUtils";
@@ -65,7 +65,13 @@ export function VisionaireItemCard({ item, isSaved, onOpen, onSave, onUnsave }: 
         </div>
       ) : (
         <div className="h-32 bg-muted flex items-center justify-center">
-          <span className="text-3xl opacity-40">📄</span>
+          {item.type === "video" ? (
+            <Play className="h-10 w-10 text-muted-foreground/40" />
+          ) : item.type === "audio" || item.type === "podcast" ? (
+            <Headphones className="h-10 w-10 text-muted-foreground/40" />
+          ) : (
+            <FileText className="h-10 w-10 text-muted-foreground/40" />
+          )}
         </div>
       )}
       <div className="p-4 space-y-2 flex-1 flex flex-col">
@@ -87,7 +93,7 @@ export function VisionaireItemCard({ item, isSaved, onOpen, onSave, onUnsave }: 
           >
             Open
           </Button>
-          {item.download_url && (
+          {item.download_url ? (
             <Button
               variant="ghost"
               size="icon"
@@ -100,7 +106,20 @@ export function VisionaireItemCard({ item, isSaved, onOpen, onSave, onUnsave }: 
             >
               <Download className="h-4 w-4" />
             </Button>
-          )}
+          ) : item.source_url ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(item.source_url, "_blank");
+              }}
+              title="Download from Drive"
+            >
+              <Download className="h-4 w-4" />
+            </Button>
+          ) : null}
           <Button
             variant="ghost"
             size="icon"
