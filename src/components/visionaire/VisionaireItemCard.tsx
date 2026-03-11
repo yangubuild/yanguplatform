@@ -93,7 +93,7 @@ export function VisionaireItemCard({ item, isSaved, onOpen, onSave, onUnsave }: 
           >
             Open
           </Button>
-          {item.download_url && (
+          {item.download_url ? (
             <Button
               variant="ghost"
               size="icon"
@@ -106,7 +106,20 @@ export function VisionaireItemCard({ item, isSaved, onOpen, onSave, onUnsave }: 
             >
               <Download className="h-4 w-4" />
             </Button>
-          )}
+          ) : item.source_url ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(item.source_url, "_blank");
+              }}
+              title="Download from Drive"
+            >
+              <Download className="h-4 w-4" />
+            </Button>
+          ) : null}
           <Button
             variant="ghost"
             size="icon"
