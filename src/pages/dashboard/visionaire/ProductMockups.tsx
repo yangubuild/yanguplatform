@@ -44,9 +44,10 @@ export default function ProductMockups() {
   const handleCardClick = (resource: (typeof RESOURCES)[number]) => {
     if (resource.type === "external") {
       window.open(resource.url, "_blank", "noopener,noreferrer");
-    } else {
+    } else if (resource.type === "ai") {
       setActiveView("box-gallery");
     }
+    // "coming-soon" does nothing
   };
 
   const handleUseMockup = (mockup: BoxMockup) => {
