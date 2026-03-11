@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
@@ -7,6 +7,7 @@ import { triggerEmojiPreload } from "@/hooks/useEmojiPreloader";
 import AvatarPickerModal from "@/components/profile/AvatarPickerModal";
 import { supabase } from "@/integrations/supabase/client";
 import { ICON_MAP } from "@/lib/app-store/icon-map";
+import { connectApp } from "@/lib/app-store/connect";
 import { Switch } from "@/components/ui/switch";
 import {
   MoreHorizontal,
@@ -284,7 +285,7 @@ export default function ProfilePage() {
       const appIds = data.map((i) => i.app_id);
       const { data: apps } = await supabase
         .from("app_registry")
-        .select("id, slug, name, short_description, icon, provider_name, is_native_yangu")
+        .select("id, slug, name, short_description, icon, provider_name, is_native_yangu, supports_oauth, launch_route")
         .in("id", appIds);
       const appMap = new Map((apps || []).map((a: any) => [a.id, a]));
       return data.map((install) => ({ ...install, app: appMap.get(install.app_id) })).filter((i) => i.app);
@@ -691,38 +692,7 @@ export default function ProfilePage() {
                 installedApps.map((item: any) => {
                   const appIcon = ICON_MAP[item.app.slug] || item.app.icon;
                   return (
-                    <div
-                      key={item.id}
-                      className="flex items-center gap-3 px-3 py-4 rounded-xl transition-colors cursor-pointer"
-                      style={{ background: "transparent" }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-                    >
-                      <img
-                        src={appIcon}
-                        alt={item.app.name}
-                        className="w-12 h-12 rounded-xl object-cover shrink-0"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-white truncate">{item.app.name}</p>
-                        <p className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
-                          {item.app.provider_name}
-                        </p>
-                      </div>
-                      <span
-                        className="text-[11px] px-2 py-0.5 rounded-md"
-                        style={{
-                          background: item.status === "connected"
-                            ? "rgba(74,222,128,0.1)"
-                            : "rgba(255,255,255,0.06)",
-                          color: item.status === "connected"
-                            ? "rgb(74,222,128)"
-                            : "rgba(255,255,255,0.5)",
-                        }}
-                      >
-                        {item.status === "connected" ? "✓ Connected" : "Installed"}
-                      </span>
-                    </div>
+                    <ProfileAppRow key={item.id} item={item} appIcon={appIcon} navigate={navigate} />
                   );
                 })
               )
@@ -774,6 +744,74 @@ export default function ProfilePage() {
           onSave={handleSaveCrop}
         />
       )}
+    </div>
+  );
+}
+
+function ProfileAppRow({ item, appIcon, navigate }: { item: any; appIcon: string; navigate: any }) {
+  const [connecting, setConnecting] = useState(false);
+
+  const handleConnect = async () => {
+    setConnecting(true);
+    try {
+      const result = await connectApp(item.app.slug, "/dashboard/profile");
+      if (!result.ok) {
+        toast({ title: result.error || "Connection failed", variant: "destructive" });
+      } else if (result.redirect) {
+        window.location.href = result.redirect;
+      } else {
+        toast({ title: "OAuth flow started — check the new tab" });
+      }
+    } catch {
+      toast({ title: "Connection failed", variant: "destructive" });
+    } finally {
+      setConnecting(false);
+    }
+  };
+
+  return (
+    <div
+      className="flex items-center gap-3 px-3 py-4 rounded-xl transition-colors cursor-pointer"
+      style={{ background: "transparent" }}
+      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
+      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+    >
+      <img src={appIcon} alt={item.app.name} className="w-12 h-12 rounded-xl object-cover shrink-0" />
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold text-white truncate">{item.app.name}</p>
+        <p className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>{item.app.provider_name}</p>
+      </div>
+      <div className="flex items-center gap-2">
+        {item.app.supports_oauth && item.status !== "connected" && (
+          <button
+            onClick={handleConnect}
+            disabled={connecting}
+            className="px-3 py-1 rounded-lg text-xs font-medium text-white flex items-center gap-1"
+            style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}
+          >
+            {connecting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Link2 className="w-3 h-3" />}
+            Connect
+          </button>
+        )}
+        {item.app.launch_route && item.status === "connected" && (
+          <button
+            onClick={() => navigate(item.app.launch_route)}
+            className="px-3 py-1 rounded-lg text-xs font-medium text-white"
+            style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
+          >
+            Open
+          </button>
+        )}
+        <span
+          className="text-[11px] px-2 py-0.5 rounded-md"
+          style={{
+            background: item.status === "connected" ? "rgba(74,222,128,0.1)" : "rgba(255,255,255,0.06)",
+            color: item.status === "connected" ? "rgb(74,222,128)" : "rgba(255,255,255,0.5)",
+          }}
+        >
+          {item.status === "connected" ? "✓ Connected" : "Installed"}
+        </span>
+      </div>
     </div>
   );
 }
