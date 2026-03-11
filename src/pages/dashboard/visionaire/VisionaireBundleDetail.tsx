@@ -1,13 +1,46 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Bookmark, BookmarkCheck, ExternalLink, Package, Tag } from "lucide-react";
+import { ArrowLeft, Bookmark, BookmarkCheck, Download, ExternalLink, FileText, Package, Tag, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { VisionairePageContainer } from "@/components/visionaire/VisionairePageContainer";
 import { useVisionaireSaves, useSaveItem, useUnsaveItem, useVisionaireItems } from "@/hooks/useVisionaireItems";
 import { VisionaireGrid } from "@/components/visionaire/VisionaireGrid";
 import { toast } from "sonner";
+import { extractDriveFileId } from "@/lib/driveUtils";
+import { useState } from "react";
+
+/** Extract folder ID from a Google Drive folder URL */
+function extractFolderId(url: string | null): string | null {
+  if (!url) return null;
+  const match = url.match(/folders\/([a-zA-Z0-9_-]+)/);
+  return match ? match[1] : null;
+}
+
+/** Download a file via the edge function proxy */
+async function proxyDownload(fileId: string, fileName: string) {
+  toast.info("Starting download…");
+  try {
+    const { data, error } = await supabase.functions.invoke("drive-download-proxy", {
+      body: { file_id: fileId },
+    });
+    if (error) throw error;
+    const blob = data instanceof Blob ? data : new Blob([data]);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    toast.success("Download complete!");
+  } catch (err) {
+    console.error("Download error:", err);
+    toast.error("Download failed. Please try again.");
+  }
+}
 
 export default function VisionaireBundleDetail() {
   const { id } = useParams<{ id: string }>();
