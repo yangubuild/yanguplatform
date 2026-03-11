@@ -10,7 +10,40 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { file_id } = await req.json();
+    const body = await req.json();
+    const { file_id, list_folder, folder_id } = body;
+
+    // --- Folder listing mode ---
+    if (list_folder && folder_id) {
+      const apiKey = Deno.env.get("GOOGLE_PLACES_API_KEY");
+      if (!apiKey) {
+        return new Response(JSON.stringify({ error: "API key not configured" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const q = `'${folder_id}' in parents AND trashed=false`;
+      const params = new URLSearchParams({
+        q,
+        key: apiKey,
+        fields: "files(id, name, mimeType)",
+        pageSize: "100",
+        supportsAllDrives: "true",
+        includeItemsFromAllDrives: "true",
+      });
+      const res = await fetch(`https://www.googleapis.com/drive/v3/files?${params}`);
+      if (!res.ok) {
+        return new Response(JSON.stringify({ error: "Failed to list folder" }), {
+          status: 502,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const data = await res.json();
+      return new Response(JSON.stringify({ files: data.files || [] }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (!file_id) {
       return new Response(JSON.stringify({ error: "file_id required" }), {
         status: 400,
