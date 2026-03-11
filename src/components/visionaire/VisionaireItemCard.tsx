@@ -65,7 +65,13 @@ export function VisionaireItemCard({ item, isSaved, onOpen, onSave, onUnsave }: 
         </div>
       ) : (
         <div className="h-32 bg-muted flex items-center justify-center">
-          <span className="text-3xl opacity-40">📄</span>
+          {item.type === "video" ? (
+            <Play className="h-10 w-10 text-muted-foreground/40" />
+          ) : item.type === "audio" || item.type === "podcast" ? (
+            <Headphones className="h-10 w-10 text-muted-foreground/40" />
+          ) : (
+            <FileText className="h-10 w-10 text-muted-foreground/40" />
+          )}
         </div>
       )}
       <div className="p-4 space-y-2 flex-1 flex flex-col">
