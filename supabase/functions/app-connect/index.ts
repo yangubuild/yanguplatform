@@ -53,9 +53,9 @@ Deno.serve(async (req) => {
 
     // --------------- Google OAuth (shared) ---------------
     if (["google-drive", "gmail", "google-meet", "youtube"].includes(slug)) {
-      const clientId = Deno.env.get("GOOGLE_CLIENT_ID") || Deno.env.get("GOOGLE_DRIVE_CLIENT_ID");
+      const clientId = Deno.env.get("GOOGLE_DRIVE_CLIENT_ID");
       if (!clientId) {
-        return json({ ok: false, error: "Google OAuth not configured" });
+        return json({ ok: false, error: "Google OAuth not configured. GOOGLE_DRIVE_CLIENT_ID required." });
       }
 
       // Scopes per app
