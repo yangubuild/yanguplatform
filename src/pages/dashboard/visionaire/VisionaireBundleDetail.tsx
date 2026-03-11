@@ -1,13 +1,46 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Bookmark, BookmarkCheck, ExternalLink, Package, Tag } from "lucide-react";
+import { ArrowLeft, Bookmark, BookmarkCheck, Download, ExternalLink, FileText, Package, Tag, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { VisionairePageContainer } from "@/components/visionaire/VisionairePageContainer";
 import { useVisionaireSaves, useSaveItem, useUnsaveItem, useVisionaireItems } from "@/hooks/useVisionaireItems";
 import { VisionaireGrid } from "@/components/visionaire/VisionaireGrid";
 import { toast } from "sonner";
+import { extractDriveFileId } from "@/lib/driveUtils";
+import { useState } from "react";
+
+/** Extract folder ID from a Google Drive folder URL */
+function extractFolderId(url: string | null): string | null {
+  if (!url) return null;
+  const match = url.match(/folders\/([a-zA-Z0-9_-]+)/);
+  return match ? match[1] : null;
+}
+
+/** Download a file via the edge function proxy */
+async function proxyDownload(fileId: string, fileName: string) {
+  toast.info("Starting download…");
+  try {
+    const { data, error } = await supabase.functions.invoke("drive-download-proxy", {
+      body: { file_id: fileId },
+    });
+    if (error) throw error;
+    const blob = data instanceof Blob ? data : new Blob([data]);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    toast.success("Download complete!");
+  } catch (err) {
+    console.error("Download error:", err);
+    toast.error("Download failed. Please try again.");
+  }
+}
 
 export default function VisionaireBundleDetail() {
   const { id } = useParams<{ id: string }>();
@@ -15,6 +48,7 @@ export default function VisionaireBundleDetail() {
   const { data: saves } = useVisionaireSaves();
   const saveItem = useSaveItem();
   const unsaveItem = useUnsaveItem();
+  const [downloading, setDownloading] = useState<string | null>(null);
 
   const { data: item, isLoading } = useQuery({
     queryKey: ["visionaire-bundle", id],
@@ -28,6 +62,20 @@ export default function VisionaireBundleDetail() {
       return data;
     },
     enabled: !!id,
+  });
+
+  // Fetch folder contents for the bundle
+  const folderId = extractFolderId(item?.source_url);
+  const { data: folderFiles, isLoading: filesLoading } = useQuery({
+    queryKey: ["bundle-files", folderId],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke("drive-download-proxy", {
+        body: { list_folder: true, folder_id: folderId },
+      });
+      if (error) throw error;
+      return (data as any)?.files as Array<{ id: string; name: string; mimeType: string }> ?? [];
+    },
+    enabled: !!folderId,
   });
 
   // Related items: same tags, different id, non-bundle
@@ -136,19 +184,21 @@ export default function VisionaireBundleDetail() {
 
             {/* Actions */}
             <div className="flex gap-3 pt-2">
-              <Button
-                className="flex-1"
-                onClick={() => {
-                  const url = item.source_url || item.download_url;
-                  if (url) {
-                    window.open(url, "_blank", "noopener");
-                  } else {
-                    toast.error("Bundle link not available");
-                  }
-                }}
-              >
-                <ExternalLink className="h-4 w-4 mr-2" /> Open Bundle
-              </Button>
+              {item.download_url ? (
+                <Button
+                  className="flex-1"
+                  onClick={async () => {
+                    const fileId = extractDriveFileId(item.download_url);
+                    if (fileId) {
+                      await proxyDownload(fileId, `${item.title}.pdf`);
+                    } else {
+                      toast.error("Download link not available");
+                    }
+                  }}
+                >
+                  <Download className="h-4 w-4 mr-2" /> Download Bundle
+                </Button>
+              ) : null}
               <Button
                 variant="outline"
                 size="icon"
@@ -177,6 +227,54 @@ export default function VisionaireBundleDetail() {
             </div>
           </div>
         </div>
+
+        {/* Bundle Files */}
+        {folderId && (
+          <div className="space-y-4 pt-4">
+            <h2 className="text-lg font-semibold text-foreground">Bundle Contents</h2>
+            {filesLoading ? (
+              <div className="flex items-center gap-2 text-muted-foreground text-sm py-4">
+                <Loader2 className="h-4 w-4 animate-spin" /> Loading files…
+              </div>
+            ) : folderFiles && folderFiles.length > 0 ? (
+              <div className="space-y-2">
+                {folderFiles
+                  .filter((f) => !f.mimeType.includes("folder"))
+                  .map((file) => (
+                    <div
+                      key={file.id}
+                      className="flex items-center justify-between gap-3 p-3 rounded-lg border border-border bg-card"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                        <span className="text-sm text-foreground truncate">{file.name}</span>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="shrink-0"
+                        disabled={downloading === file.id}
+                        onClick={async () => {
+                          setDownloading(file.id);
+                          await proxyDownload(file.id, file.name);
+                          setDownloading(null);
+                        }}
+                      >
+                        {downloading === file.id ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Download className="h-3.5 w-3.5" />
+                        )}
+                        <span className="ml-1.5">Download</span>
+                      </Button>
+                    </div>
+                  ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">No files found in this bundle.</p>
+            )}
+          </div>
+        )}
 
         {/* Related Items */}
         {related.length > 0 && (
