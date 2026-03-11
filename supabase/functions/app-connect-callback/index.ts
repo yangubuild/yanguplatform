@@ -184,6 +184,20 @@ Deno.serve(async (req) => {
       { onConflict: "user_id,provider" }
     );
 
+    // Also sync to drive_tokens for google-drive so existing Drive features work
+    if (state.slug === "google-drive" && accessToken) {
+      await admin.from("drive_tokens").upsert(
+        {
+          user_id: state.uid,
+          access_token: accessToken,
+          refresh_token: refreshToken,
+          expires_at: expiresAt || new Date(Date.now() + 3600 * 1000).toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id" }
+      );
+    }
+
     // Update app_user_installs status to connected
     const { data: appRow } = await admin
       .from("app_registry")
