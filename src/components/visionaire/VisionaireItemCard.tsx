@@ -1,6 +1,10 @@
 import { Bookmark, BookmarkCheck, Download, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { getItemThumbnail, extractDriveFileId } from "@/lib/driveUtils";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useState } from "react";
 
 interface VisionaireItemCardProps {
   item: any;
@@ -10,20 +14,58 @@ interface VisionaireItemCardProps {
   onUnsave: (e: React.MouseEvent) => void;
 }
 
+async function handleDriveDownload(downloadUrl: string) {
+  const fileId = extractDriveFileId(downloadUrl);
+  if (!fileId) {
+    window.open(downloadUrl, "_blank");
+    return;
+  }
+  toast.info("Starting download…");
+  try {
+    const { data, error } = await supabase.functions.invoke("drive-download-proxy", {
+      body: { file_id: fileId },
+    });
+    if (error) throw error;
+    // data is a Blob when responseType isn't json
+    const blob = data instanceof Blob ? data : new Blob([data]);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "download.pdf";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    toast.success("Download complete!");
+  } catch (err) {
+    console.error("Download error:", err);
+    // Fallback: open Google Drive link directly
+    window.open(downloadUrl, "_blank");
+  }
+}
+
 export function VisionaireItemCard({ item, isSaved, onOpen, onSave, onUnsave }: VisionaireItemCardProps) {
+  const thumbnail = getItemThumbnail(item);
+  const [imgError, setImgError] = useState(false);
+
   return (
     <div
       className="group rounded-xl border border-border bg-card overflow-hidden transition-all hover:shadow-lg hover:-translate-y-0.5 cursor-pointer flex flex-col"
       onClick={onOpen}
     >
-      {item.thumbnail_url && (
+      {thumbnail && !imgError ? (
         <div className="overflow-hidden bg-muted">
           <img
-            src={item.thumbnail_url}
+            src={thumbnail}
             alt={item.title}
             className="w-full h-auto block transition-transform group-hover:scale-105"
             loading="lazy"
+            onError={() => setImgError(true)}
           />
+        </div>
+      ) : (
+        <div className="h-32 bg-muted flex items-center justify-center">
+          <span className="text-3xl opacity-40">📄</span>
         </div>
       )}
       <div className="p-4 space-y-2 flex-1 flex flex-col">
@@ -52,7 +94,7 @@ export function VisionaireItemCard({ item, isSaved, onOpen, onSave, onUnsave }: 
               className="h-8 w-8"
               onClick={(e) => {
                 e.stopPropagation();
-                window.open(item.download_url, "_blank");
+                handleDriveDownload(item.download_url);
               }}
               title="Download"
             >
