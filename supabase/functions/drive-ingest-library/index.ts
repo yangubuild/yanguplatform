@@ -38,7 +38,7 @@ const TYPE_MAP: Record<string, string> = {
   templates: "template",
   toolstack: "tool",
   video_learning: "video",
-  vls: "vls",
+  // vls removed — separate app
   workbook: "workbook",
 };
 
