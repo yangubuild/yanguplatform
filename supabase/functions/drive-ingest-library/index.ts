@@ -21,7 +21,7 @@ const CATEGORY_MAP: Record<string, string> = {
   TEMPLATES: "templates",
   TOOLSTACK: "toolstack",
   "VIDEO LEARNING": "video_learning",
-  VLS: "vls",
+  // VLS removed — now a separate app
   WORKBOOK: "workbook",
 };
 
