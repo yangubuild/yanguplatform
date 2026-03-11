@@ -45,6 +45,8 @@ export const ICON_MAP: Record<string, string> = {
   "personal-budgeting": personalBudgetingIcon,
   "sales-marketing": salesMarketingIcon,
   "logo-creator": logoCreatorIcon,
+  paypal: paypalIcon,
+  stripe: stripeIcon,
 };
 
 export { yanguBadge };
