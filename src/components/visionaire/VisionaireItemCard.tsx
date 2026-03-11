@@ -1,4 +1,4 @@
-import { Bookmark, BookmarkCheck, Download, ExternalLink } from "lucide-react";
+import { Bookmark, BookmarkCheck, Download, ExternalLink, Play, Headphones, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getItemThumbnail, extractDriveFileId } from "@/lib/driveUtils";
