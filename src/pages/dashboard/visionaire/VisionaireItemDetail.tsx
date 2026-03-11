@@ -209,7 +209,29 @@ export default function VisionaireItemDetail() {
             {item.download_url && (
               <Button
                 className="w-full bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-                onClick={() => window.open(item.download_url, "_blank")}
+                onClick={async () => {
+                  const fileId = extractDriveFileId(item.download_url);
+                  if (!fileId) { window.open(item.download_url, "_blank"); return; }
+                  toast.info("Starting download…");
+                  try {
+                    const { data, error } = await supabase.functions.invoke("drive-download-proxy", {
+                      body: { file_id: fileId },
+                    });
+                    if (error) throw error;
+                    const blob = data instanceof Blob ? data : new Blob([data]);
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `${item.title || "download"}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    URL.revokeObjectURL(url);
+                    toast.success("Download complete!");
+                  } catch {
+                    window.open(item.download_url, "_blank");
+                  }
+                }}
               >
                 <Download className="h-4 w-4 mr-2" />
                 Download product
