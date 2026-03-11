@@ -207,12 +207,16 @@ Deno.serve(async (req) => {
         // List files inside product folder
         const files = await listDriveFiles(prodFolder.id, apiKey);
 
-        // Find cover image
-        const coverFile = files.find(
+        // Find cover image — prefer "Book cover" for ebooks, fall back to any image
+        const imageFiles = files.filter(
           (f) =>
             /\.(jpe?g|png|webp|gif)$/i.test(f.name) ||
             f.mimeType.startsWith("image/")
         );
+        const isEbookCategory = ["ebooks", "guide", "workbook"].includes(categorySlug);
+        const coverFile = isEbookCategory
+          ? imageFiles.find((f) => /book\s*cover/i.test(f.name)) || imageFiles.find((f) => !/artwork/i.test(f.name)) || imageFiles[0]
+          : imageFiles[0];
 
         // Find PDF only
         const pdfFile = files.find(
