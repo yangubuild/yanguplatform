@@ -285,7 +285,7 @@ export default function ProfilePage() {
       const appIds = data.map((i) => i.app_id);
       const { data: apps } = await supabase
         .from("app_registry")
-        .select("id, slug, name, short_description, icon, provider_name, is_native_yangu")
+        .select("id, slug, name, short_description, icon, provider_name, is_native_yangu, supports_oauth, launch_route")
         .in("id", appIds);
       const appMap = new Map((apps || []).map((a: any) => [a.id, a]));
       return data.map((install) => ({ ...install, app: appMap.get(install.app_id) })).filter((i) => i.app);
