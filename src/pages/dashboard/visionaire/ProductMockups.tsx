@@ -35,6 +35,7 @@ const RESOURCES = [
   },
 ];
 
+type ResourceType = "external" | "ai" | "coming-soon";
 type View = "grid" | "box-gallery" | "box-editor";
 
 export default function ProductMockups() {
