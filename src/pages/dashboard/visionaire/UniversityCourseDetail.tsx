@@ -324,15 +324,18 @@ export default function UniversityCourseDetail() {
 
         {/* CTA */}
         <div>
-          <a
-            href="https://www.entrepedia.co/university"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Button
+            variant="accent"
+            size="lg"
+            className="gap-2"
+            onClick={() =>
+              document
+                .getElementById("course-curriculum")
+                ?.scrollIntoView({ behavior: "smooth" })
+            }
           >
-            <Button variant="accent" size="lg" className="gap-2">
-              Start Learning <ArrowRight className="h-4 w-4" />
-            </Button>
-          </a>
+            Start Learning <ArrowRight className="h-4 w-4" />
+          </Button>
         </div>
 
         {/* Divider */}
@@ -340,7 +343,7 @@ export default function UniversityCourseDetail() {
 
         {/* Course Curriculum */}
         <div className="space-y-6">
-          <h2 className="text-xl font-bold text-foreground">Course Curriculum</h2>
+          <h2 id="course-curriculum" className="text-xl font-bold text-foreground">Course Curriculum</h2>
           <div className="space-y-4">
             {course.modules.map((mod, mi) => (
               <div
