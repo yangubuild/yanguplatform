@@ -246,3 +246,11 @@ Deno.serve(async (req) => {
     );
   }
 });
+
+function maskCredential(value: string, visibleChars: number): string {
+  if (value.length <= visibleChars * 2) {
+    return `${value.slice(0, 1)}***${value.slice(-1)}`;
+  }
+
+  return `${value.slice(0, visibleChars)}***${value.slice(-visibleChars)}`;
+}
