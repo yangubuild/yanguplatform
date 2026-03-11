@@ -81,17 +81,25 @@ Deno.serve(async (req) => {
 
     const body = await req.json().catch(() => ({}));
     const offset = body.offset ?? 0;
-    const limit = body.limit ?? 20;
+    const limit = body.limit ?? 15;
+    const mode = body.mode ?? "null_only"; // "null_only" | "all" | "artwork_only"
 
-    // Only process items that have Drive thumbnails AND a source folder
-    const ebookCategories = ["ebooks", "guide", "workbook"];
-    const { data: items, error: fetchErr } = await adminClient
+    // Build query for ebook items with Drive folder source URLs
+    let query = adminClient
       .from("visionaire_items")
       .select("id, title, thumbnail_url, source_url, category")
-      .in("category", ebookCategories)
+      .eq("category", "ebooks")
       .eq("is_active", true)
-      .like("thumbnail_url", "https://lh3%")
-      .like("source_url", "%folders/%")
+      .like("source_url", "%folders/%");
+
+    if (mode === "null_only") {
+      query = query.is("thumbnail_url", null);
+    } else if (mode === "artwork_only") {
+      query = query.like("thumbnail_url", "https://lh3%");
+    }
+    // "all" mode: no filter on thumbnail_url (except skip local)
+
+    const { data: items, error: fetchErr } = await query
       .order("title")
       .range(offset, offset + limit - 1);
 
@@ -100,25 +108,36 @@ Deno.serve(async (req) => {
     let fixed = 0;
     let skipped = 0;
     let errors = 0;
-    const details: Array<{ title: string; action: string; images?: string[] }> = [];
+    const details: Array<{ title: string; action: string; allImages?: string[] }> = [];
 
     for (const item of items || []) {
+      // Skip manually set local covers
+      if (item.thumbnail_url?.startsWith("/images/")) {
+        skipped++;
+        continue;
+      }
+
       const folderId = extractFolderId(item.source_url);
       if (!folderId) { skipped++; continue; }
 
       try {
+        // List files in the product's Drive folder
         const files = await listDriveFiles(folderId, apiKey);
         const imageFiles = files.filter(
           (f) => /\.(jpe?g|png|webp|gif)$/i.test(f.name) || f.mimeType.startsWith("image/")
         );
 
+        // Priority: "Book Cover" > "Ebook Cover" > any non-Artwork image > first image
         const bookCover = imageFiles.find((f) => /book\s*cover/i.test(f.name));
+        const ebookCover = imageFiles.find((f) => /ebook\s*cover/i.test(f.name));
         const nonArtwork = imageFiles.find((f) => !/artwork/i.test(f.name));
-        const bestCover = bookCover || nonArtwork || imageFiles[0];
+        const bestCover = bookCover || ebookCover || nonArtwork || imageFiles[0];
 
         if (!bestCover) {
+          // No images in folder — check if the folder itself contains subfolders
+          // Some products might have a deeper structure
           skipped++;
-          details.push({ title: item.title, action: "no images", images: files.map(f => f.name) });
+          details.push({ title: item.title, action: "no images found", allImages: files.map(f => f.name) });
           continue;
         }
 
@@ -126,7 +145,6 @@ Deno.serve(async (req) => {
 
         if (item.thumbnail_url === newUrl) {
           skipped++;
-          details.push({ title: item.title, action: `already using ${bestCover.name}` });
           continue;
         }
 
@@ -142,8 +160,8 @@ Deno.serve(async (req) => {
           fixed++;
           details.push({
             title: item.title,
-            action: `→ ${bestCover.name}`,
-            images: imageFiles.map(f => f.name),
+            action: `set → ${bestCover.name}`,
+            allImages: imageFiles.map(f => f.name),
           });
         }
       } catch (e) {
