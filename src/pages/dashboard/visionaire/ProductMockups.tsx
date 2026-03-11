@@ -124,10 +124,12 @@ export default function ProductMockups() {
                         <Sparkles className="h-3.5 w-3.5" />
                         Generate
                       </>
+                    ) : r.type === "coming-soon" ? (
+                      "Coming Soon"
                     ) : (
                       <>
                         <ExternalLink className="h-3.5 w-3.5" />
-                        Download
+                        Open
                       </>
                     )}
                   </span>
