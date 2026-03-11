@@ -76,6 +76,9 @@ Deno.serve(async (req) => {
       if (!isAdmin) return jsonRes({ error: "Admin access required" }, 403);
     }
 
+    const apiKey = Deno.env.get("GOOGLE_PLACES_API_KEY");
+    if (!apiKey) return jsonRes({ error: "Google API key not configured" }, 500);
+
     // Get all ebook-category items that have a source_url (Drive folder)
     const ebookCategories = ["ebooks", "guide", "workbook"];
     const { data: items, error: fetchErr } = await adminClient
