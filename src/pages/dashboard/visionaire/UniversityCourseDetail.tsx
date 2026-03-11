@@ -324,18 +324,11 @@ export default function UniversityCourseDetail() {
 
         {/* CTA */}
         <div>
-          <Button
-            variant="accent"
-            size="lg"
-            className="gap-2"
-            onClick={() =>
-              document
-                .getElementById("course-curriculum")
-                ?.scrollIntoView({ behavior: "smooth" })
-            }
-          >
-            Start Learning <ArrowRight className="h-4 w-4" />
-          </Button>
+          <Link to={`/dashboard/visionaire/university/${course.slug}/lessons/0`}>
+            <Button variant="accent" size="lg" className="gap-2">
+              Start Learning <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
         </div>
 
         {/* Divider */}
