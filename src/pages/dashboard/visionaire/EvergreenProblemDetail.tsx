@@ -149,7 +149,7 @@ interface RichData {
 }
 
 const richDataByTitle = new Map<string, RichData>();
-(evergreenData as RichData & { title: string }[]).forEach((item) => {
+(evergreenData as unknown as (RichData & { title: string })[]).forEach((item) => {
   richDataByTitle.set(item.title.toLowerCase(), item);
 });
 
