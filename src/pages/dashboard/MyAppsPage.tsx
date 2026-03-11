@@ -129,7 +129,7 @@ export default function MyAppsPage() {
                   <div className="flex-1 min-w-0">
                     <h4 className="text-white font-semibold text-sm leading-tight">{item.app.name}</h4>
                     <span className="text-[11px] text-white/35">
-                      {item.app.provider_name} • Installed
+                      {item.app.provider_name} • {item.status === "connected" ? "Connected" : "Installed"}
                     </span>
                   </div>
                 </div>
