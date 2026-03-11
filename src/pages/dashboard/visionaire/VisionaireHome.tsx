@@ -48,7 +48,7 @@ export default function VisionaireHome() {
   
   // Fetch all relevant categories
   const allCategories = categoryFilter === "all"
-    ? ["master_library", "university", "evergreen", "ebooks", "audio", "bundles", "business_podcast", "checklists", "courses", "guide", "prompts", "templates", "toolstack", "video_learning", "vls", "workbook"]
+    ? ["master_library", "university", "evergreen", "ebooks", "audio", "bundles", "business_podcast", "checklists", "courses", "guide", "prompts", "templates", "toolstack", "video_learning", "workbook"]
     : [categoryFilter];
   const { data: items, isLoading } = useVisionaireItems(allCategories);
 
