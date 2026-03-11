@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // --- Auth (admin only) ---
+    // --- Auth (admin or service-role) ---
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return jsonRes({ error: "Unauthorized" }, 401);
@@ -103,28 +103,39 @@ Deno.serve(async (req) => {
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
+    const token = authHeader.replace("Bearer ", "");
+    const isServiceRole = token === serviceRoleKey;
 
-    const {
-      data: { user },
-      error: userErr,
-    } = await userClient.auth.getUser();
-    if (userErr || !user) {
-      return jsonRes({ error: "Unauthorized" }, 401);
-    }
+    let adminClient: ReturnType<typeof createClient>;
 
-    // Check admin role
-    const adminClient = createClient(supabaseUrl, serviceRoleKey);
-    const { data: roles } = await adminClient
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id);
-    
-    const isAdmin = roles?.some((r: any) => r.role === "admin" || r.role === "owner");
-    if (!isAdmin) {
-      return jsonRes({ error: "Admin access required" }, 403);
+    if (isServiceRole) {
+      // Service-role invocation (e.g. from curl/admin tool) — skip user auth
+      adminClient = createClient(supabaseUrl, serviceRoleKey);
+    } else {
+      // Normal user auth flow
+      const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: authHeader } },
+      });
+
+      const {
+        data: { user },
+        error: userErr,
+      } = await userClient.auth.getUser();
+      if (userErr || !user) {
+        return jsonRes({ error: "Unauthorized" }, 401);
+      }
+
+      // Check admin role
+      adminClient = createClient(supabaseUrl, serviceRoleKey);
+      const { data: roles } = await adminClient
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id);
+      
+      const isAdmin = roles?.some((r: any) => r.role === "admin" || r.role === "owner");
+      if (!isAdmin) {
+        return jsonRes({ error: "Admin access required" }, 403);
+      }
     }
 
     const body = await req.json();
