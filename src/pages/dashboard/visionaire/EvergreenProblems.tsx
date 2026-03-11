@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { TrendingUp, DollarSign, Shield, Users, Crown, ArrowRight } from "lucide-react";
+import { TrendingUp, ArrowRight } from "lucide-react";
 import { VisionairePageContainer } from "@/components/visionaire/VisionairePageContainer";
 
 /* ────────────────────────────────────────────
