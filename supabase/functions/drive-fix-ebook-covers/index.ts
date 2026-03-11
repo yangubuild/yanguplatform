@@ -52,17 +52,29 @@ Deno.serve(async (req) => {
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const token = authHeader.replace("Bearer ", "");
+    const isServiceRole = token === serviceRoleKey;
 
-    if (token !== serviceRoleKey) {
-      return jsonRes({ error: "Service role required" }, 403);
+    let adminClient;
+    if (isServiceRole) {
+      adminClient = createClient(supabaseUrl, serviceRoleKey);
+    } else {
+      const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const { data: { user }, error: userErr } = await userClient.auth.getUser();
+      if (userErr || !user) return jsonRes({ error: "Unauthorized" }, 401);
+
+      adminClient = createClient(supabaseUrl, serviceRoleKey);
+      const { data: roles } = await adminClient
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id);
+      const isAdmin = roles?.some((r: any) => r.role === "admin" || r.role === "owner");
+      if (!isAdmin) return jsonRes({ error: "Admin access required" }, 403);
     }
-
-    const apiKey = Deno.env.get("GOOGLE_PLACES_API_KEY");
-    if (!apiKey) return jsonRes({ error: "Google API key not configured" }, 500);
-
-    const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
     // Get all ebook-category items that have a source_url (Drive folder)
     const ebookCategories = ["ebooks", "guide", "workbook"];
