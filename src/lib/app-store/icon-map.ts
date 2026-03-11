@@ -20,6 +20,8 @@ import hrAppIcon from "@/assets/app-icons/hr-app.png";
 import personalBudgetingIcon from "@/assets/app-icons/personal-budgeting.png";
 import salesMarketingIcon from "@/assets/app-icons/sales-marketing.png";
 import logoCreatorIcon from "@/assets/app-icons/logo-creator.png";
+import paypalIcon from "@/assets/app-icons/paypal.png";
+import stripeIcon from "@/assets/app-icons/stripe.png";
 
 /** Maps slug → local icon asset */
 export const ICON_MAP: Record<string, string> = {
