@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
     }
 
     // --------------- Google OAuth (shared) ---------------
-    if (["google-drive", "gmail", "google-meet"].includes(slug)) {
+    if (["google-drive", "gmail", "google-meet", "youtube"].includes(slug)) {
       const clientId = Deno.env.get("GOOGLE_CLIENT_ID") || Deno.env.get("GOOGLE_DRIVE_CLIENT_ID");
       if (!clientId) {
         return json({ ok: false, error: "Google OAuth not configured" });
@@ -67,6 +67,9 @@ Deno.serve(async (req) => {
         ],
         "google-meet": [
           "https://www.googleapis.com/auth/calendar.events",
+        ],
+        youtube: [
+          "https://www.googleapis.com/auth/youtube.readonly",
         ],
       };
 
