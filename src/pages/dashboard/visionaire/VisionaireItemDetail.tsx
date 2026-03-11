@@ -8,6 +8,8 @@ import { VisionairePageContainer } from "@/components/visionaire/VisionairePageC
 import { VisionaireGrid } from "@/components/visionaire/VisionaireGrid";
 import { useSaveItem, useUnsaveItem, useVisionaireSaves } from "@/hooks/useVisionaireItems";
 import { toast } from "sonner";
+import { getItemThumbnail, extractDriveFileId } from "@/lib/driveUtils";
+import { useState } from "react";
 
 export default function VisionaireItemDetail() {
   const { id } = useParams<{ id: string }>();
