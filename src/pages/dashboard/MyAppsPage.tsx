@@ -1,10 +1,12 @@
+import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchUserInstalls, uninstallApp } from "@/lib/app-store/queries";
+import { connectApp } from "@/lib/app-store/connect";
 import { supabase } from "@/integrations/supabase/client";
 import { ICON_MAP } from "@/lib/app-store/icon-map";
-import { Plus, Loader2, Trash2, ExternalLink, Grid3X3 } from "lucide-react";
+import { Plus, Loader2, Trash2, ExternalLink, Grid3X3, Link2 } from "lucide-react";
 import { toast } from "sonner";
 import type { AppRegistryEntry } from "@/lib/app-store/types";
 
