@@ -145,7 +145,9 @@ export default function UniversityLessonViewer() {
       );
     }
 
-    // For other courses, show a "coming soon" placeholder with course info
+    // For other courses, show course info with lesson list
+    const courseLessons = course.lessonsList;
+
     return (
       <VisionairePageContainer>
         <div className="space-y-8 pb-12">
@@ -187,18 +189,24 @@ export default function UniversityLessonViewer() {
 
           <div className="border-t border-border" />
 
-          {/* Lessons list placeholder */}
+          {/* Lessons list */}
           <div className="space-y-3">
             <h2 className="text-lg font-bold text-foreground">Lessons</h2>
             <div className="space-y-2">
-              {Array.from({ length: course.lessons }, (_, i) => (
+              {courseLessons.map((lesson, i) => (
                 <div
-                  key={i}
-                  className="flex items-center gap-3 px-5 py-3.5 rounded-xl border border-border bg-card text-sm text-muted-foreground"
+                  key={lesson.id}
+                  className="flex items-start gap-4 px-5 py-4 rounded-xl border border-border bg-card text-sm hover:border-primary/30 transition-colors"
                 >
-                  <Lock className="h-4 w-4 text-muted-foreground/50 shrink-0" />
-                  <span>Lesson {i + 1}</span>
-                  <span className="ml-auto text-xs text-muted-foreground/60">Coming soon</span>
+                  <span className="shrink-0 w-7 h-7 rounded-full bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground mt-0.5">
+                    {i + 1}
+                  </span>
+                  <div className="space-y-1">
+                    <span className="font-medium text-foreground">{lesson.title}</span>
+                    {lesson.description && (
+                      <p className="text-xs text-muted-foreground leading-relaxed">{lesson.description}</p>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
