@@ -298,7 +298,7 @@ Deno.serve(async (req) => {
         );
 
         const thumbnailUrl = matchCover
-          ? `https://lh3.googleusercontent.com/d/${matchCover.id}`
+          ? `https://drive.google.com/thumbnail?id=${matchCover.id}&sz=w800`
           : null;
 
         const { error: insertErr } = await adminClient
