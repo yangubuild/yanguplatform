@@ -29,7 +29,7 @@ const CATEGORY_OPTIONS = [
   { value: "templates", label: "Templates" },
   { value: "toolstack", label: "Toolstack" },
   { value: "video_learning", label: "Video Learning" },
-  { value: "vls", label: "VLS" },
+  
   { value: "workbook", label: "Workbook" },
 ] as const;
 
