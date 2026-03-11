@@ -1,0 +1,2195 @@
+[
+  {
+    "id": 1,
+    "title": "The 6-Day YouTube Accelerator",
+    "type": "course",
+    "category": "university",
+    "description": "Master AI-powered content creation strategies",
+    "thumbnail": "https://entrepedia-products.com/thumbnails/The%206-Day%20YouTube%20Accelerator%20-%20Mini-Course.jpg",
+    "tags": [
+      "AI",
+      "Content",
+      "Marketing"
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Interview Success Blueprint",
+    "type": "ebook",
+    "category": "evergreen",
+    "description": "Optimize your content creation process",
+    "thumbnail": "https://entrepedia-products.com/thumbnails/Interview%20Success%20Blueprint%20-%20Book.jpg",
+    "tags": [
+      "Productivity",
+      "Content",
+      "Workflow"
+    ]
+  },
+  {
+    "id": 3,
+    "title": "The Multi-Bucket Savings System",
+    "type": "ebook",
+    "category": "university",
+    "description": "Leverage AI to save time and boost productivity",
+    "thumbnail": "https://entrepedia-products.com/thumbnails/Multi-Bucket%20Saving%20System.jpg",
+    "tags": [
+      "AI",
+      "Time Management",
+      "Productivity"
+    ]
+  },
+  {
+    "id": 4,
+    "title": "The Advertising Funnel Blueprint Strategies",
+    "type": "course",
+    "category": "university",
+    "description": "Complete guide to creating and selling digital products",
+    "thumbnail": "https://entrepedia-products.com/thumbnails/The%20Ad%20Funnel%20Blueprint%20Strategies%20-%20Ebook.jpg",
+    "tags": [
+      "Business",
+      "Digital Products",
+      "Entrepreneurship"
+    ]
+  },
+  {
+    "id": 5,
+    "title": "Keep Them Coming Back",
+    "type": "ebook",
+    "category": "evergreen",
+    "description": "Proven strategies for social media growth",
+    "thumbnail": "https://entrepedia-products.com/thumbnails/Keep%20Them%20Coming%20Back%20-%20Book.jpg",
+    "tags": [
+      "Marketing",
+      "Social Media",
+      "Growth"
+    ]
+  },
+  {
+    "id": 6,
+    "title": "Headline Construction Framework",
+    "type": "course",
+    "category": "university",
+    "description": "Automate your business processes using AI tools",
+    "thumbnail": "https://entrepedia-products.com/thumbnails/Headline%20Framework%20-%20Guide.jpg",
+    "tags": [
+      "AI",
+      "Automation",
+      "Business"
+    ]
+  },
+  {
+    "id": 7,
+    "title": "GetResponse Growth: Automate, Convert, Scale",
+    "type": "video",
+    "category": "university",
+    "description": "Master email marketing automation and conversion",
+    "thumbnail": "https://entrepedia-products.com/thumbnails/GetResponse%20Growth%20System.jpg",
+    "tags": [
+      "Marketing",
+      "Automation",
+      "Email"
+    ]
+  },
+  {
+    "id": 8,
+    "title": "Claude AI for Business and Content",
+    "type": "video",
+    "category": "university",
+    "description": "Leverage Claude AI for business operations",
+    "thumbnail": "https://entrepedia-products.com/thumbnails/Claude%20AI%20for%20business%20and%20Content.jpg",
+    "tags": [
+      "AI",
+      "Business",
+      "Content"
+    ]
+  },
+  {
+    "id": 9,
+    "title": "AI Research & Workflow Automation with Perplexity",
+    "type": "video",
+    "category": "university",
+    "description": "Streamline research with AI-powered tools",
+    "thumbnail": "https://entrepedia-products.com/thumbnails/AI%20Research%20%26%20Workflow%20Automation%20with%20Perplexity.jpg",
+    "tags": [
+      "AI",
+      "Research",
+      "Automation"
+    ]
+  },
+  {
+    "id": 10,
+    "title": "The Ultimate Guide to ChatGPT Sora",
+    "type": "video",
+    "category": "university",
+    "description": "Master video creation with ChatGPT Sora",
+    "thumbnail": "https://entrepedia-products.com/thumbnails/The%20Ultimate%20Guide%20to%20ChatGPT%20Sora.jpg",
+    "tags": [
+      "AI",
+      "Video",
+      "ChatGPT"
+    ]
+  },
+  {
+    "id": 11,
+    "title": "Mastering CapCut Tutorials",
+    "type": "video",
+    "category": "university",
+    "description": "Professional video editing made simple",
+    "thumbnail": "https://entrepedia-products.com/thumbnails/Mastering%20CapCut%20Tutorials.jpg",
+    "tags": [
+      "Video",
+      "Editing",
+      "Tutorial"
+    ]
+  },
+  {
+    "id": 12,
+    "title": "Smart Digital Creation with AI",
+    "type": "video",
+    "category": "university",
+    "description": "Create digital products faster with AI",
+    "thumbnail": "https://entrepedia-products.com/thumbnails/Smart%20Digital%20Creation%20with%20AI.jpg",
+    "tags": [
+      "AI",
+      "Digital Products",
+      "Creation"
+    ]
+  },
+  {
+    "id": "mockup_1",
+    "title": "Long Ebook",
+    "type": "mockup",
+    "category": "mockups",
+    "description": "Professional long ebook mockup",
+    "thumbnail": "https://entrepedia-products.com/app/long-ebook.png",
+    "tags": [
+      "Mockup",
+      "Ebook",
+      "Design"
+    ]
+  },
+  {
+    "id": "mockup_2",
+    "title": "Short Ebook",
+    "type": "mockup",
+    "category": "mockups",
+    "description": "Professional short ebook mockup",
+    "thumbnail": "https://entrepedia-products.com/app/short-ebook.png",
+    "tags": [
+      "Mockup",
+      "Ebook",
+      "Design"
+    ]
+  },
+  {
+    "id": "mockup_3",
+    "title": "Email Course",
+    "type": "mockup",
+    "category": "mockups",
+    "description": "Professional email course mockup",
+    "thumbnail": "https://entrepedia-products.com/app/email-course.png",
+    "tags": [
+      "Mockup",
+      "Course",
+      "Design"
+    ]
+  },
+  {
+    "id": "mockup_4",
+    "title": "Bundle",
+    "type": "mockup",
+    "category": "mockups",
+    "description": "Professional bundle mockup",
+    "thumbnail": "https://entrepedia-products.com/app/guide.png",
+    "tags": [
+      "Mockup",
+      "Bundle",
+      "Design"
+    ]
+  },
+  {
+    "id": "mockup_5",
+    "title": "Guide",
+    "type": "mockup",
+    "category": "mockups",
+    "description": "Professional guide mockup",
+    "thumbnail": "https://entrepedia-products.com/app/guide.png",
+    "tags": [
+      "Mockup",
+      "Guide",
+      "Design"
+    ]
+  },
+  {
+    "id": "mockup_6",
+    "title": "Prompt Pack",
+    "type": "mockup",
+    "category": "mockups",
+    "description": "Professional prompt pack mockup",
+    "thumbnail": "https://entrepedia-products.com/app/prompt-pack.png",
+    "tags": [
+      "Mockup",
+      "Prompts",
+      "Design"
+    ]
+  },
+  {
+    "id": "mockup_7",
+    "title": "Notion Template",
+    "type": "mockup",
+    "category": "mockups",
+    "description": "Professional Notion template mockup",
+    "thumbnail": "https://entrepedia-products.com/app/notion-template.png",
+    "tags": [
+      "Mockup",
+      "Notion",
+      "Design"
+    ]
+  },
+  {
+    "id": "mockup_8",
+    "title": "Video Course",
+    "type": "mockup",
+    "category": "mockups",
+    "description": "Professional video course mockup",
+    "thumbnail": "https://entrepedia-products.com/app/video.png",
+    "tags": [
+      "Mockup",
+      "Video",
+      "Design"
+    ]
+  },
+  {
+    "id": "mockup_9",
+    "title": "Tool Stack",
+    "type": "mockup",
+    "category": "mockups",
+    "description": "Professional tool stack mockup",
+    "thumbnail": "https://entrepedia-products.com/app/toolstack.png",
+    "tags": [
+      "Mockup",
+      "Tools",
+      "Design"
+    ]
+  },
+  {
+    "id": "mockup_10",
+    "title": "Checklist",
+    "type": "mockup",
+    "category": "mockups",
+    "description": "Professional checklist mockup",
+    "thumbnail": "https://entrepedia-products.com/app/toolstack.png",
+    "tags": [
+      "Mockup",
+      "Checklist",
+      "Design"
+    ]
+  },
+  {
+    "id": "mockup_11",
+    "title": "Workbook",
+    "type": "mockup",
+    "category": "mockups",
+    "description": "Professional workbook mockup",
+    "thumbnail": "https://entrepedia-products.com/app/workbook.png",
+    "tags": [
+      "Mockup",
+      "Workbook",
+      "Design"
+    ]
+  },
+  {
+    "id": "mockup_12",
+    "title": "Thumbnails",
+    "type": "mockup",
+    "category": "mockups",
+    "description": "Professional thumbnail templates",
+    "thumbnail": "https://entrepedia-products.com/app/thumbs-v2.png",
+    "tags": [
+      "Mockup",
+      "Thumbnails",
+      "Design"
+    ]
+  },
+  {
+    "id": "mockup_13",
+    "title": "Extra Thumbnails",
+    "type": "mockup",
+    "category": "mockups",
+    "description": "Additional thumbnail templates and layouts",
+    "thumbnail": "https://entrepedia-products.com/app/extra-v2.png",
+    "tags": [
+      "Mockup",
+      "Thumbnails",
+      "Design"
+    ]
+  },
+  {
+    "id": "mockup_14",
+    "title": "Square Mockups",
+    "type": "mockup",
+    "category": "mockups",
+    "description": "1:1 aspect ratio product mockups",
+    "thumbnail": "https://entrepedia-products.com/app/square-v2.png",
+    "tags": [
+      "Mockup",
+      "Square",
+      "Design"
+    ]
+  },
+  {
+    "id": "mockup_15",
+    "title": "Widescreen Mockups",
+    "type": "mockup",
+    "category": "mockups",
+    "description": "16:9 aspect ratio product mockups",
+    "thumbnail": "https://entrepedia-products.com/app/wide-v2.png",
+    "tags": [
+      "Mockup",
+      "Widescreen",
+      "Design"
+    ]
+  },
+  {
+    "id": "mockup_16",
+    "title": "Gradients",
+    "type": "mockup",
+    "category": "mockups",
+    "description": "Beautiful gradient backgrounds and patterns",
+    "thumbnail": "https://entrepedia-products.com/app/gradients.png",
+    "tags": [
+      "Design",
+      "Gradients",
+      "Resources"
+    ],
+    "externalUrl": "https://unsplash.com/s/photos/Gradient-background"
+  },
+  {
+    "id": "mockup_17",
+    "title": "Shots.so",
+    "type": "mockup",
+    "category": "mockups",
+    "description": "Professional screenshot templates",
+    "thumbnail": "https://entrepedia-products.com/app/shots-so.jpg",
+    "tags": [
+      "Design",
+      "Screenshots",
+      "Resources"
+    ],
+    "externalUrl": "https://shots.so"
+  },
+  {
+    "id": "mockup_18",
+    "title": "Box Mockups",
+    "type": "mockup",
+    "category": "mockups",
+    "description": "3D product box mockup templates",
+    "thumbnail": "https://entrepedia-products.com/app/box-mockups.png",
+    "tags": [
+      "Mockup",
+      "3D",
+      "Design"
+    ],
+    "externalUrl": "https://www.freepik.com/free-photos-vectors/box-mockup"
+  },
+  {
+    "id": "book_120",
+    "title": "Book Cover Template 120",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-120.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-120.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-120"
+  },
+  {
+    "id": "book_119",
+    "title": "Book Cover Template 119",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-119.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-119.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-119"
+  },
+  {
+    "id": "book_118",
+    "title": "Book Cover Template 118",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-118.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-118.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-118"
+  },
+  {
+    "id": "book_117",
+    "title": "Book Cover Template 117",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-117.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-117.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-117"
+  },
+  {
+    "id": "book_116",
+    "title": "Book Cover Template 116",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-116.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-116.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-116"
+  },
+  {
+    "id": "book_115",
+    "title": "Book Cover Template 115",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-115.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-115.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-115"
+  },
+  {
+    "id": "book_114",
+    "title": "Book Cover Template 114",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-114.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-114.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-114"
+  },
+  {
+    "id": "book_113",
+    "title": "Book Cover Template 113",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-113.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-113.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-113"
+  },
+  {
+    "id": "book_112",
+    "title": "Book Cover Template 112",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-112.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-112.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-112"
+  },
+  {
+    "id": "book_111",
+    "title": "Book Cover Template 111",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-111.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-111.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-111"
+  },
+  {
+    "id": "book_110",
+    "title": "Book Cover Template 110",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-110.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-110.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-110"
+  },
+  {
+    "id": "book_109",
+    "title": "Book Cover Template 109",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-109.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-109.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-109"
+  },
+  {
+    "id": "book_108",
+    "title": "Book Cover Template 108",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-108.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-108.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-108"
+  },
+  {
+    "id": "book_107",
+    "title": "Book Cover Template 107",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-107.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-107.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-107"
+  },
+  {
+    "id": "book_106",
+    "title": "Book Cover Template 106",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-106.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-106.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-106"
+  },
+  {
+    "id": "book_105",
+    "title": "Book Cover Template 105",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-105.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-105.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-105"
+  },
+  {
+    "id": "book_104",
+    "title": "Book Cover Template 104",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-104.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-104.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-104"
+  },
+  {
+    "id": "book_103",
+    "title": "Book Cover Template 103",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-103.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-103.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-103"
+  },
+  {
+    "id": "book_102",
+    "title": "Book Cover Template 102",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-102.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-102.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-102"
+  },
+  {
+    "id": "book_101",
+    "title": "Book Cover Template 101",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-101.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-101.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-101"
+  },
+  {
+    "id": "book_100",
+    "title": "Book Cover Template 100",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-100.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-100.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-100"
+  },
+  {
+    "id": "book_99",
+    "title": "Book Cover Template 99",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-99.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-99.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-99"
+  },
+  {
+    "id": "book_98",
+    "title": "Book Cover Template 98",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-98.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-98.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-98"
+  },
+  {
+    "id": "book_97",
+    "title": "Book Cover Template 97",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-97.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-97.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-97"
+  },
+  {
+    "id": "book_96",
+    "title": "Book Cover Template 96",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-96.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-96.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-96"
+  },
+  {
+    "id": "book_95",
+    "title": "Book Cover Template 95",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-95.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-95.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-95"
+  },
+  {
+    "id": "book_94",
+    "title": "Book Cover Template 94",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-94.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-94.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-94"
+  },
+  {
+    "id": "book_93",
+    "title": "Book Cover Template 93",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-93.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-93.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-93"
+  },
+  {
+    "id": "book_92",
+    "title": "Book Cover Template 92",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-92.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-92.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-92"
+  },
+  {
+    "id": "book_91",
+    "title": "Book Cover Template 91",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-91.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-91.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-91"
+  },
+  {
+    "id": "book_90",
+    "title": "Book Cover Template 90",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-90.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-90.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-90"
+  },
+  {
+    "id": "book_89",
+    "title": "Book Cover Template 89",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-89.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-89.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-89"
+  },
+  {
+    "id": "book_88",
+    "title": "Book Cover Template 88",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-88.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-88.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-88"
+  },
+  {
+    "id": "book_87",
+    "title": "Book Cover Template 87",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-87.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-87.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-87"
+  },
+  {
+    "id": "book_86",
+    "title": "Book Cover Template 86",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-86.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-86.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-86"
+  },
+  {
+    "id": "book_85",
+    "title": "Book Cover Template 85",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-85.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-85.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-85"
+  },
+  {
+    "id": "book_84",
+    "title": "Book Cover Template 84",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-84.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-84.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-84"
+  },
+  {
+    "id": "book_83",
+    "title": "Book Cover Template 83",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-83.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-83.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-83"
+  },
+  {
+    "id": "book_82",
+    "title": "Book Cover Template 82",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-82.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-82.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-82"
+  },
+  {
+    "id": "book_81",
+    "title": "Book Cover Template 81",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-81.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-81.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-81"
+  },
+  {
+    "id": "book_80",
+    "title": "Book Cover Template 80",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-80.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-80.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-80"
+  },
+  {
+    "id": "book_79",
+    "title": "Book Cover Template 79",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-79.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-79.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-79"
+  },
+  {
+    "id": "book_78",
+    "title": "Book Cover Template 78",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-78.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-78.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-78"
+  },
+  {
+    "id": "book_77",
+    "title": "Book Cover Template 77",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-77.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-77.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-77"
+  },
+  {
+    "id": "book_76",
+    "title": "Book Cover Template 76",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-76.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-76.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-76"
+  },
+  {
+    "id": "book_75",
+    "title": "Book Cover Template 75",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-75.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-75.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-75"
+  },
+  {
+    "id": "book_74",
+    "title": "Book Cover Template 74",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-74.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-74.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-74"
+  },
+  {
+    "id": "book_73",
+    "title": "Book Cover Template 73",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-73.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-73.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-73"
+  },
+  {
+    "id": "book_72",
+    "title": "Book Cover Template 72",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-72.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-72.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-72"
+  },
+  {
+    "id": "book_71",
+    "title": "Book Cover Template 71",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-71.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-71.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-71"
+  },
+  {
+    "id": "book_70",
+    "title": "Book Cover Template 70",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-70.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-70.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-70"
+  },
+  {
+    "id": "book_69",
+    "title": "Book Cover Template 69",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-69.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-69.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-69"
+  },
+  {
+    "id": "book_68",
+    "title": "Book Cover Template 68",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-68.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-68.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-68"
+  },
+  {
+    "id": "book_67",
+    "title": "Book Cover Template 67",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-67.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-67.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-67"
+  },
+  {
+    "id": "book_66",
+    "title": "Book Cover Template 66",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-66.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-66.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-66"
+  },
+  {
+    "id": "book_65",
+    "title": "Book Cover Template 65",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-65.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-65.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-65"
+  },
+  {
+    "id": "book_64",
+    "title": "Book Cover Template 64",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-64.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-64.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-64"
+  },
+  {
+    "id": "book_63",
+    "title": "Book Cover Template 63",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-63.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-63.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-63"
+  },
+  {
+    "id": "book_62",
+    "title": "Book Cover Template 62",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-62.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-62.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-62"
+  },
+  {
+    "id": "book_61",
+    "title": "Book Cover Template 61",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-61.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-61.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-61"
+  },
+  {
+    "id": "book_60",
+    "title": "Book Cover Template 60",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-60.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-60.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-60"
+  },
+  {
+    "id": "book_59",
+    "title": "Book Cover Template 59",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-59.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-59.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-59"
+  },
+  {
+    "id": "book_58",
+    "title": "Book Cover Template 58",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-58.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-58.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-58"
+  },
+  {
+    "id": "book_57",
+    "title": "Book Cover Template 57",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-57.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-57.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-57"
+  },
+  {
+    "id": "book_56",
+    "title": "Book Cover Template 56",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-56.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-56.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-56"
+  },
+  {
+    "id": "book_55",
+    "title": "Book Cover Template 55",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-55.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-55.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-55"
+  },
+  {
+    "id": "book_54",
+    "title": "Book Cover Template 54",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-54.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-54.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-54"
+  },
+  {
+    "id": "book_53",
+    "title": "Book Cover Template 53",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-53.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-53.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-53"
+  },
+  {
+    "id": "book_52",
+    "title": "Book Cover Template 52",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-52.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-52.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-52"
+  },
+  {
+    "id": "book_51",
+    "title": "Book Cover Template 51",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-51.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-51.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-51"
+  },
+  {
+    "id": "book_50",
+    "title": "Book Cover Template 50",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-50.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-50.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-50"
+  },
+  {
+    "id": "book_49",
+    "title": "Book Cover Template 49",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-49.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-49.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-49"
+  },
+  {
+    "id": "book_48",
+    "title": "Book Cover Template 48",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-48.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-48.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-48"
+  },
+  {
+    "id": "book_47",
+    "title": "Book Cover Template 47",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-47.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-47.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-47"
+  },
+  {
+    "id": "book_46",
+    "title": "Book Cover Template 46",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-46.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-46.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-46"
+  },
+  {
+    "id": "book_45",
+    "title": "Book Cover Template 45",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-45.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-45.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-45"
+  },
+  {
+    "id": "book_44",
+    "title": "Book Cover Template 44",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-44.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-44.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-44"
+  },
+  {
+    "id": "book_43",
+    "title": "Book Cover Template 43",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-43.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-43.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-43"
+  },
+  {
+    "id": "book_42",
+    "title": "Book Cover Template 42",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-42.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-42.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-42"
+  },
+  {
+    "id": "book_41",
+    "title": "Book Cover Template 41",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-41.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-41.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-41"
+  },
+  {
+    "id": "book_40",
+    "title": "Book Cover Template 40",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-40.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-40.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-40"
+  },
+  {
+    "id": "book_39",
+    "title": "Book Cover Template 39",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-39.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-39.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-39"
+  },
+  {
+    "id": "book_38",
+    "title": "Book Cover Template 38",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-38.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-38.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-38"
+  },
+  {
+    "id": "book_37",
+    "title": "Book Cover Template 37",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-37.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-37.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-37"
+  },
+  {
+    "id": "book_36",
+    "title": "Book Cover Template 36",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-36.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-36.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-36"
+  },
+  {
+    "id": "book_35",
+    "title": "Book Cover Template 35",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-35.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-35.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-35"
+  },
+  {
+    "id": "book_34",
+    "title": "Book Cover Template 34",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-34.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-34.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-34"
+  },
+  {
+    "id": "book_33",
+    "title": "Book Cover Template 33",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-33.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-33.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-33"
+  },
+  {
+    "id": "book_32",
+    "title": "Book Cover Template 32",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-32.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-32.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-32"
+  },
+  {
+    "id": "book_31",
+    "title": "Book Cover Template 31",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-31.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-31.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-31"
+  },
+  {
+    "id": "book_30",
+    "title": "Book Cover Template 30",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-30.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-30.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-30"
+  },
+  {
+    "id": "book_29",
+    "title": "Book Cover Template 29",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-29.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-29.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-29"
+  },
+  {
+    "id": "book_28",
+    "title": "Book Cover Template 28",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-28.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-28.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-28"
+  },
+  {
+    "id": "book_27",
+    "title": "Book Cover Template 27",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-27.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-27.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-27"
+  },
+  {
+    "id": "book_26",
+    "title": "Book Cover Template 26",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-26.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-26.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-26"
+  },
+  {
+    "id": "book_25",
+    "title": "Book Cover Template 25",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-25.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-25.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-25"
+  },
+  {
+    "id": "book_24",
+    "title": "Book Cover Template 24",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-24.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-24.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-24"
+  },
+  {
+    "id": "book_23",
+    "title": "Book Cover Template 23",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-23.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-23.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-23"
+  },
+  {
+    "id": "book_22",
+    "title": "Book Cover Template 22",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-22.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-22.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-22"
+  },
+  {
+    "id": "book_21",
+    "title": "Book Cover Template 21",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-21.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-21.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-21"
+  },
+  {
+    "id": "book_20",
+    "title": "Book Cover Template 20",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-20.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-20.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-20"
+  },
+  {
+    "id": "book_19",
+    "title": "Book Cover Template 19",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-19.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-19.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-19"
+  },
+  {
+    "id": "book_18",
+    "title": "Book Cover Template 18",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-18.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-18.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-18"
+  },
+  {
+    "id": "book_17",
+    "title": "Book Cover Template 17",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-17.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-17.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-17"
+  },
+  {
+    "id": "book_16",
+    "title": "Book Cover Template 16",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-16.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-16.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-16"
+  },
+  {
+    "id": "book_15",
+    "title": "Book Cover Template 15",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-15.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-15.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-15"
+  },
+  {
+    "id": "book_14",
+    "title": "Book Cover Template 14",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-14.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-14.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-14"
+  },
+  {
+    "id": "book_13",
+    "title": "Book Cover Template 13",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-13.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-13.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-13"
+  },
+  {
+    "id": "book_12",
+    "title": "Book Cover Template 12",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-12.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-12.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-12"
+  },
+  {
+    "id": "book_11",
+    "title": "Book Cover Template 11",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-11.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-11.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-11"
+  },
+  {
+    "id": "book_10",
+    "title": "Book Cover Template 10",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-10.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-10.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-10"
+  },
+  {
+    "id": "book_9",
+    "title": "Book Cover Template 9",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-9.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-9.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-9"
+  },
+  {
+    "id": "book_8",
+    "title": "Book Cover Template 8",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-8.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-8.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-8"
+  },
+  {
+    "id": "book_7",
+    "title": "Book Cover Template 7",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-7.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-7.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-7"
+  },
+  {
+    "id": "book_6",
+    "title": "Book Cover Template 6",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-6.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-6.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-6"
+  },
+  {
+    "id": "book_5",
+    "title": "Book Cover Template 5",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-5.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-5.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-5"
+  },
+  {
+    "id": "book_4",
+    "title": "Book Cover Template 4",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-4.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-4.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-4"
+  },
+  {
+    "id": "book_3",
+    "title": "Book Cover Template 3",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-3.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-3.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-3"
+  },
+  {
+    "id": "book_2",
+    "title": "Book Cover Template 2",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-2.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-2.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-2"
+  },
+  {
+    "id": "book_1",
+    "title": "Book Cover Template 1",
+    "type": "template",
+    "category": "book_covers",
+    "description": "Professional book cover design ready to customize",
+    "thumbnail": "https://entrepedia-products.com/app/book-cover-templates/Cover-1.jpeg",
+    "tags": [
+      "Design",
+      "Template",
+      "Book Cover"
+    ],
+    "imageUrl": "https://entrepedia-products.com/app/book-cover-templates/Cover-1.jpeg",
+    "canvaUrl": "https://www.canva.com/design/template-1"
+  }
+]
