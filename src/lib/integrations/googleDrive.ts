@@ -29,36 +29,10 @@ export async function connect(
   redirectBack?: string
 ): Promise<{ ok: boolean; error?: string }> {
   try {
-    const { data: sessionData } = await supabase.auth.getSession();
-    const accessToken = sessionData?.session?.access_token;
-    if (!accessToken) {
-      return { ok: false, error: "Not authenticated" };
-    }
-
-    const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
-    const url = `https://${projectId}.supabase.co/functions/v1/drive-connect`;
-
-    const res = await fetch(url, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-        apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-      },
-      body: JSON.stringify({
-        redirect_back: redirectBack || window.location.pathname,
-      }),
-    });
-
-    const body = await res.json();
-
-    if (!res.ok || !body.url) {
-      return { ok: false, error: body.error || "Failed to start OAuth" };
-    }
-
-    // Redirect browser to Google consent
-    window.location.href = body.url;
-    return { ok: true };
+    // Use the unified app-connect flow
+    const { connectApp } = await import("@/lib/app-store/connect");
+    const result = await connectApp("google-drive", redirectBack || window.location.pathname);
+    return { ok: result.ok, error: result.error };
   } catch (err) {
     console.error("[GoogleDrive] connect error:", err);
     return {
