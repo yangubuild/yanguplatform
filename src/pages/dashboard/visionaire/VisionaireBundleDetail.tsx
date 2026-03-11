@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Bookmark, BookmarkCheck, Package, Tag } from "lucide-react";
+import { ArrowLeft, Bookmark, BookmarkCheck, ExternalLink, Package, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { VisionairePageContainer } from "@/components/visionaire/VisionairePageContainer";
@@ -137,8 +137,22 @@ export default function VisionaireBundleDetail() {
             {/* Actions */}
             <div className="flex gap-3 pt-2">
               <Button
-                variant="outline"
                 className="flex-1"
+                onClick={() => {
+                  const url = item.source_url || item.download_url;
+                  if (url) {
+                    window.open(url, "_blank", "noopener");
+                  } else {
+                    toast.error("Bundle link not available");
+                  }
+                }}
+              >
+                <ExternalLink className="h-4 w-4 mr-2" /> Open Bundle
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-10 w-10"
                 onClick={() => {
                   if (isSaved) {
                     unsaveItem.mutate(item.id, {
@@ -152,11 +166,12 @@ export default function VisionaireBundleDetail() {
                     });
                   }
                 }}
+                title={isSaved ? "Saved" : "Save"}
               >
                 {isSaved ? (
-                  <><BookmarkCheck className="h-4 w-4 mr-2" /> Saved</>
+                  <BookmarkCheck className="h-4 w-4 text-primary" />
                 ) : (
-                  <><Bookmark className="h-4 w-4 mr-2" /> Save Bundle</>
+                  <Bookmark className="h-4 w-4" />
                 )}
               </Button>
             </div>

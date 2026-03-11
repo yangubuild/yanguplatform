@@ -21,7 +21,7 @@ const CATEGORY_MAP: Record<string, string> = {
   TEMPLATES: "templates",
   TOOLSTACK: "toolstack",
   "VIDEO LEARNING": "video_learning",
-  VLS: "vls",
+  // VLS removed — now a separate app
   WORKBOOK: "workbook",
 };
 
@@ -38,7 +38,7 @@ const TYPE_MAP: Record<string, string> = {
   templates: "template",
   toolstack: "tool",
   video_learning: "video",
-  vls: "vls",
+  // vls removed — separate app
   workbook: "workbook",
 };
 
