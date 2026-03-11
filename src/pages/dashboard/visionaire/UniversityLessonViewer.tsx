@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { VisionairePageContainer } from "@/components/visionaire/VisionairePageContainer";
 import { MASTER_LIBRARY_LESSONS } from "@/data/university/master-library-lessons";
 import { MASTERCLASS_COURSES } from "@/data/university/masterclass-courses";
+import { COURSE_CONTENT_MAP } from "@/data/university/course-content";
 
 export default function UniversityLessonViewer() {
   const { slug, lessonIndex, courseSlug, courseLessonIndex } = useParams<{
