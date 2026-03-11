@@ -136,11 +136,6 @@ export default function VisionaireBundleDetail() {
 
             {/* Actions */}
             <div className="flex gap-3 pt-2">
-              {item.source_url && (
-                <Button className="flex-1" onClick={() => window.open(item.source_url!, "_blank")}>
-                  <ExternalLink className="h-4 w-4 mr-2" /> Open Source
-                </Button>
-              )}
               <Button
                 variant="outline"
                 className="flex-1"
