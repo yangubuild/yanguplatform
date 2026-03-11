@@ -1,10 +1,12 @@
+import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchUserInstalls, uninstallApp } from "@/lib/app-store/queries";
+import { connectApp } from "@/lib/app-store/connect";
 import { supabase } from "@/integrations/supabase/client";
 import { ICON_MAP } from "@/lib/app-store/icon-map";
-import { Plus, Loader2, Trash2, ExternalLink, Grid3X3 } from "lucide-react";
+import { Plus, Loader2, Trash2, ExternalLink, Grid3X3, Link2 } from "lucide-react";
 import { toast } from "sonner";
 import type { AppRegistryEntry } from "@/lib/app-store/types";
 
@@ -127,7 +129,7 @@ export default function MyAppsPage() {
                   <div className="flex-1 min-w-0">
                     <h4 className="text-white font-semibold text-sm leading-tight">{item.app.name}</h4>
                     <span className="text-[11px] text-white/35">
-                      {item.app.provider_name} • Installed
+                      {item.app.provider_name} • {item.status === "connected" ? "Connected" : "Installed"}
                     </span>
                   </div>
                 </div>
@@ -137,6 +139,10 @@ export default function MyAppsPage() {
                 <div className="flex items-center justify-between mt-auto pt-1">
                   <span className="text-[10px] text-white/25">Added {installedDate}</span>
                   <div className="flex items-center gap-1.5">
+                    {/* Show Connect button for OAuth apps not yet connected */}
+                    {item.app.supports_oauth && item.status !== "connected" && (
+                      <ConnectButton app={item.app} queryClient={queryClient} />
+                    )}
                     {item.app.launch_route && (
                       <button
                         onClick={() => navigate(item.app.launch_route!)}
@@ -145,6 +151,11 @@ export default function MyAppsPage() {
                       >
                         Open
                       </button>
+                    )}
+                    {item.status === "connected" && (
+                      <span className="px-2 py-1 rounded-lg text-[10px] font-medium text-green-400" style={{ background: "rgba(74,222,128,0.1)" }}>
+                        ✓ Connected
+                      </span>
                     )}
                     <button
                       onClick={() => handleRemove(item.app_id, item.app.name)}
@@ -160,5 +171,40 @@ export default function MyAppsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+function ConnectButton({ app, queryClient }: { app: AppRegistryEntry; queryClient: any }) {
+  const [connecting, setConnecting] = useState(false);
+
+  const handleConnect = async () => {
+    setConnecting(true);
+    try {
+      const result = await connectApp(app.slug, "/dashboard/my-apps");
+      if (!result.ok) {
+        toast.error(result.error || "Connection failed");
+      } else if (result.redirect) {
+        queryClient.invalidateQueries({ queryKey: ["my-apps"] });
+        window.location.href = result.redirect;
+      } else {
+        toast.success("OAuth flow started — check the new tab");
+      }
+    } catch {
+      toast.error("Connection failed");
+    } finally {
+      setConnecting(false);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleConnect}
+      disabled={connecting}
+      className="px-3 py-1 rounded-lg text-xs font-medium text-white transition-colors hover:opacity-80 flex items-center gap-1"
+      style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}
+    >
+      {connecting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Link2 className="w-3 h-3" />}
+      Connect
+    </button>
   );
 }

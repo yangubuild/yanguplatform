@@ -6,6 +6,7 @@ import { fetchApps, fetchCategories, installApp, getUserAppState } from "@/lib/a
 import { ACTION_LABELS } from "@/lib/app-store/types";
 import type { AppRegistryEntry } from "@/lib/app-store/types";
 import { ICON_MAP, yanguBadge } from "@/lib/app-store/icon-map";
+import { connectApp } from "@/lib/app-store/connect";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
@@ -206,6 +207,19 @@ function AppCard({ app, index, userId, queryClient }: { app: AppRegistryEntry; i
       queryClient.invalidateQueries({ queryKey: ["app-install-state", userId, app.id] });
       queryClient.invalidateQueries({ queryKey: ["my-apps"] });
       toast.success(`${app.name} added to My Apps`);
+
+      // If app supports OAuth, trigger connect flow immediately
+      if (app.supports_oauth) {
+        const result = await connectApp(app.slug, "/dashboard/my-apps");
+        if (!result.ok) {
+          toast.error(result.error || "Connection not available yet");
+        } else if (result.redirect) {
+          // Direct connection (e.g. Stripe) — navigate
+          queryClient.invalidateQueries({ queryKey: ["app-install-state"] });
+          queryClient.invalidateQueries({ queryKey: ["my-apps"] });
+          window.location.href = result.redirect;
+        }
+      }
     } catch {
       toast.error("Failed to add app");
     } finally {
