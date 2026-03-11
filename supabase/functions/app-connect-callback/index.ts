@@ -36,11 +36,19 @@ Deno.serve(async (req) => {
 
     // --------------- Google ---------------
     if (["google-drive", "gmail", "google-meet", "youtube"].includes(state.slug)) {
-      const clientId = Deno.env.get("GOOGLE_CLIENT_ID") || Deno.env.get("GOOGLE_DRIVE_CLIENT_ID");
-      const clientSecret = Deno.env.get("GOOGLE_CLIENT_SECRET") || Deno.env.get("GOOGLE_DRIVE_CLIENT_SECRET");
+      const clientId = Deno.env.get("GOOGLE_DRIVE_CLIENT_ID");
+      const clientSecret = Deno.env.get("GOOGLE_DRIVE_CLIENT_SECRET");
       if (!clientId || !clientSecret) {
         return new Response("Google OAuth not configured", { status: 500 });
       }
+
+      const credentialFingerprint = {
+        source: "GOOGLE_DRIVE_CLIENT_ID/GOOGLE_DRIVE_CLIENT_SECRET",
+        clientId: maskCredential(clientId, 8),
+        clientIdLength: clientId.length,
+        clientSecret: maskCredential(clientSecret, 4),
+        clientSecretLength: clientSecret.length,
+      };
 
       const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
         method: "POST",
@@ -55,7 +63,11 @@ Deno.serve(async (req) => {
       });
       const tokens = await tokenRes.json();
       if (!tokenRes.ok) {
-        console.error("Google token error:", tokens);
+        console.error("Google token error:", {
+          tokens,
+          credentialFingerprint,
+          slug: state.slug,
+        });
         return new Response(`Token exchange failed: ${tokens.error}`, { status: 500 });
       }
 
