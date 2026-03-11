@@ -184,6 +184,20 @@ Deno.serve(async (req) => {
       { onConflict: "user_id,provider" }
     );
 
+    // Also sync to drive_tokens for google-drive so existing Drive features work
+    if (state.slug === "google-drive" && accessToken) {
+      await admin.from("drive_tokens").upsert(
+        {
+          user_id: state.uid,
+          access_token: accessToken,
+          refresh_token: refreshToken,
+          expires_at: expiresAt || new Date(Date.now() + 3600 * 1000).toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id" }
+      );
+    }
+
     // Update app_user_installs status to connected
     const { data: appRow } = await admin
       .from("app_registry")
@@ -199,14 +213,18 @@ Deno.serve(async (req) => {
         .eq("app_id", appRow.id);
     }
 
-    // Redirect back
-    const redirectBase = state.rb?.startsWith("http")
-      ? state.rb
-      : `https://yangu.io${state.rb || "/dashboard/my-apps"}`;
+    // Redirect back — use meta-refresh HTML so it works from any origin
+    const rb = state.rb || "/dashboard/my-apps";
+    const sep = rb.includes("?") ? "&" : "?";
+    const finalPath = `${rb}${sep}connect_status=success&connect_app=${state.slug}`;
 
-    return new Response(null, {
-      status: 302,
-      headers: { Location: redirectBase },
+    const html = `<!DOCTYPE html>
+<html><head><meta http-equiv="refresh" content="0;url=${finalPath}"></head>
+<body><p>Connected! Redirecting…</p></body></html>`;
+
+    return new Response(html, {
+      status: 200,
+      headers: { "Content-Type": "text/html; charset=utf-8" },
     });
   } catch (err) {
     console.error("[app-connect-callback]", err);
