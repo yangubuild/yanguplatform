@@ -48,6 +48,7 @@ export default function VisionaireBundleDetail() {
   const { data: saves } = useVisionaireSaves();
   const saveItem = useSaveItem();
   const unsaveItem = useUnsaveItem();
+  const [downloading, setDownloading] = useState<string | null>(null);
 
   const { data: item, isLoading } = useQuery({
     queryKey: ["visionaire-bundle", id],
@@ -61,6 +62,20 @@ export default function VisionaireBundleDetail() {
       return data;
     },
     enabled: !!id,
+  });
+
+  // Fetch folder contents for the bundle
+  const folderId = extractFolderId(item?.source_url);
+  const { data: folderFiles, isLoading: filesLoading } = useQuery({
+    queryKey: ["bundle-files", folderId],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke("drive-download-proxy", {
+        body: { list_folder: true, folder_id: folderId },
+      });
+      if (error) throw error;
+      return (data as any)?.files as Array<{ id: string; name: string; mimeType: string }> ?? [];
+    },
+    enabled: !!folderId,
   });
 
   // Related items: same tags, different id, non-bundle
