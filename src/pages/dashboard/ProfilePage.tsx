@@ -692,38 +692,7 @@ export default function ProfilePage() {
                 installedApps.map((item: any) => {
                   const appIcon = ICON_MAP[item.app.slug] || item.app.icon;
                   return (
-                    <div
-                      key={item.id}
-                      className="flex items-center gap-3 px-3 py-4 rounded-xl transition-colors cursor-pointer"
-                      style={{ background: "transparent" }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-                    >
-                      <img
-                        src={appIcon}
-                        alt={item.app.name}
-                        className="w-12 h-12 rounded-xl object-cover shrink-0"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-white truncate">{item.app.name}</p>
-                        <p className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
-                          {item.app.provider_name}
-                        </p>
-                      </div>
-                      <span
-                        className="text-[11px] px-2 py-0.5 rounded-md"
-                        style={{
-                          background: item.status === "connected"
-                            ? "rgba(74,222,128,0.1)"
-                            : "rgba(255,255,255,0.06)",
-                          color: item.status === "connected"
-                            ? "rgb(74,222,128)"
-                            : "rgba(255,255,255,0.5)",
-                        }}
-                      >
-                        {item.status === "connected" ? "✓ Connected" : "Installed"}
-                      </span>
-                    </div>
+                    <ProfileAppRow key={item.id} item={item} appIcon={appIcon} navigate={navigate} />
                   );
                 })
               )
