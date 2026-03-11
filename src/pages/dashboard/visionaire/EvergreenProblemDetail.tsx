@@ -221,15 +221,6 @@ export default function EvergreenProblemDetail() {
 
         {/* CTA */}
         <div className="flex gap-3">
-          <Button variant="accent" size="lg" asChild>
-            <a
-              href={`https://www.entrepedia.co/evergreen-problems-vault/${slug}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              View on Source →
-            </a>
-          </Button>
           <Button variant="outline" size="lg" asChild>
             <Link to="/dashboard/visionaire/evergreen">
               Browse All Problems

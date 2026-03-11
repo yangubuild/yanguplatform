@@ -14,8 +14,8 @@ const RESOURCES = [
     title: "Gradients",
     description: "Beautiful gradient backgrounds and patterns",
     image: gradientsImg,
-    url: "https://www.entrepedia.co/tools/gradients",
-    type: "external" as const,
+    url: "",
+    type: "coming-soon" as const,
   },
   {
     id: "shots-so",
@@ -44,9 +44,10 @@ export default function ProductMockups() {
   const handleCardClick = (resource: (typeof RESOURCES)[number]) => {
     if (resource.type === "external") {
       window.open(resource.url, "_blank", "noopener,noreferrer");
-    } else {
+    } else if (resource.type === "ai") {
       setActiveView("box-gallery");
     }
+    // "coming-soon" does nothing
   };
 
   const handleUseMockup = (mockup: BoxMockup) => {
@@ -123,10 +124,12 @@ export default function ProductMockups() {
                         <Sparkles className="h-3.5 w-3.5" />
                         Generate
                       </>
+                    ) : r.type === "coming-soon" ? (
+                      "Coming Soon"
                     ) : (
                       <>
                         <ExternalLink className="h-3.5 w-3.5" />
-                        Download
+                        Open
                       </>
                     )}
                   </span>
