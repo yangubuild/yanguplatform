@@ -27,7 +27,6 @@ async function listDriveFiles(
     supportsAllDrives: "true",
     includeItemsFromAllDrives: "true",
   });
-
   const res = await fetch(`${DRIVE_FILES_URL}?${params}`);
   if (!res.ok) throw new Error(`Drive API error: ${res.status}`);
   const data = await res.json();
@@ -40,6 +39,11 @@ function extractFolderId(sourceUrl: string | null): string | null {
   return match ? match[1] : null;
 }
 
+// Use a cache-busting URL format
+function driveImageUrl(fileId: string): string {
+  return `https://drive.google.com/thumbnail?id=${fileId}&sz=w800`;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -47,9 +51,7 @@ Deno.serve(async (req) => {
 
   try {
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return jsonRes({ error: "Unauthorized" }, 401);
-    }
+    if (!authHeader?.startsWith("Bearer ")) return jsonRes({ error: "Unauthorized" }, 401);
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
@@ -66,12 +68,8 @@ Deno.serve(async (req) => {
       });
       const { data: { user }, error: userErr } = await userClient.auth.getUser();
       if (userErr || !user) return jsonRes({ error: "Unauthorized" }, 401);
-
       adminClient = createClient(supabaseUrl, serviceRoleKey);
-      const { data: roles } = await adminClient
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id);
+      const { data: roles } = await adminClient.from("user_roles").select("role").eq("user_id", user.id);
       const isAdmin = roles?.some((r: any) => r.role === "admin" || r.role === "owner");
       if (!isAdmin) return jsonRes({ error: "Admin access required" }, 403);
     }
@@ -82,24 +80,13 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const offset = body.offset ?? 0;
     const limit = body.limit ?? 15;
-    const mode = body.mode ?? "null_only"; // "null_only" | "all" | "artwork_only"
 
-    // Build query for ebook items with Drive folder source URLs
-    let query = adminClient
+    const { data: items, error: fetchErr } = await adminClient
       .from("visionaire_items")
       .select("id, title, thumbnail_url, source_url, category")
       .eq("category", "ebooks")
       .eq("is_active", true)
-      .like("source_url", "%folders/%");
-
-    if (mode === "null_only") {
-      query = query.is("thumbnail_url", null);
-    } else if (mode === "artwork_only") {
-      query = query.like("thumbnail_url", "https://lh3%");
-    }
-    // "all" mode: no filter on thumbnail_url (except skip local)
-
-    const { data: items, error: fetchErr } = await query
+      .like("source_url", "%folders/%")
       .order("title")
       .range(offset, offset + limit - 1);
 
@@ -108,7 +95,7 @@ Deno.serve(async (req) => {
     let fixed = 0;
     let skipped = 0;
     let errors = 0;
-    const details: Array<{ title: string; action: string; allImages?: string[] }> = [];
+    const details: Array<{ title: string; action: string; chosen?: string; allImages?: string[] }> = [];
 
     for (const item of items || []) {
       // Skip manually set local covers
@@ -121,27 +108,24 @@ Deno.serve(async (req) => {
       if (!folderId) { skipped++; continue; }
 
       try {
-        // List files in the product's Drive folder
         const files = await listDriveFiles(folderId, apiKey);
         const imageFiles = files.filter(
           (f) => /\.(jpe?g|png|webp|gif)$/i.test(f.name) || f.mimeType.startsWith("image/")
         );
 
-        // Priority: "Book Cover" > "Ebook Cover" > any non-Artwork image > first image
+        if (imageFiles.length === 0) {
+          skipped++;
+          details.push({ title: item.title, action: "no images in folder" });
+          continue;
+        }
+
+        // Priority: "Book Cover" > "Ebook Cover" > any non-Artwork > fallback
         const bookCover = imageFiles.find((f) => /book\s*cover/i.test(f.name));
         const ebookCover = imageFiles.find((f) => /ebook\s*cover/i.test(f.name));
         const nonArtwork = imageFiles.find((f) => !/artwork/i.test(f.name));
         const bestCover = bookCover || ebookCover || nonArtwork || imageFiles[0];
 
-        if (!bestCover) {
-          // No images in folder — check if the folder itself contains subfolders
-          // Some products might have a deeper structure
-          skipped++;
-          details.push({ title: item.title, action: "no images found", allImages: files.map(f => f.name) });
-          continue;
-        }
-
-        const newUrl = `https://lh3.googleusercontent.com/d/${bestCover.id}`;
+        const newUrl = driveImageUrl(bestCover.id);
 
         if (item.thumbnail_url === newUrl) {
           skipped++;
@@ -160,7 +144,8 @@ Deno.serve(async (req) => {
           fixed++;
           details.push({
             title: item.title,
-            action: `set → ${bestCover.name}`,
+            action: `updated`,
+            chosen: bestCover.name,
             allImages: imageFiles.map(f => f.name),
           });
         }
