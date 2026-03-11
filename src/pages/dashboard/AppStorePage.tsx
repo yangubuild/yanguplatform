@@ -6,6 +6,7 @@ import { fetchApps, fetchCategories, installApp, getUserAppState } from "@/lib/a
 import { ACTION_LABELS } from "@/lib/app-store/types";
 import type { AppRegistryEntry } from "@/lib/app-store/types";
 import { ICON_MAP, yanguBadge } from "@/lib/app-store/icon-map";
+import { connectApp } from "@/lib/app-store/connect";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
