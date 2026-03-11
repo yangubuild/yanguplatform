@@ -15,7 +15,7 @@ const RESOURCES = [
     description: "Beautiful gradient backgrounds and patterns",
     image: gradientsImg,
     url: "",
-    type: "ai" as const,
+    type: "coming-soon" as const,
   },
   {
     id: "shots-so",
