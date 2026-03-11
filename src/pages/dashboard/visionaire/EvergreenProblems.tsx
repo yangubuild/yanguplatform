@@ -287,10 +287,10 @@ export default function EvergreenProblems() {
         <div className="space-y-4 pt-4">
           <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground font-medium">
             <span className="w-0.5 h-4 bg-foreground rounded-full" />
-            200 Curated Ideas
+            27 Curated Ideas
           </div>
           <h1 className="text-4xl md:text-5xl lg:text-[3.2rem] font-extrabold text-foreground tracking-tight leading-[1.1]">
-            200 Evergreen Problems<br />Every Business Faces
+            27 Evergreen Problems<br />Every Business Faces
           </h1>
           <p className="text-muted-foreground text-base md:text-lg max-w-2xl leading-relaxed">
             A curated vault of business opportunities rooted in universal human desires. Don't chase trends. Solve one of these for businesses, and you have a business for life.
