@@ -709,8 +709,18 @@ export default function ProfilePage() {
                           {item.app.provider_name}
                         </p>
                       </div>
-                      <span className="text-[11px] px-2 py-0.5 rounded-md" style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.5)" }}>
-                        Installed
+                      <span
+                        className="text-[11px] px-2 py-0.5 rounded-md"
+                        style={{
+                          background: item.status === "connected"
+                            ? "rgba(74,222,128,0.1)"
+                            : "rgba(255,255,255,0.06)",
+                          color: item.status === "connected"
+                            ? "rgb(74,222,128)"
+                            : "rgba(255,255,255,0.5)",
+                        }}
+                      >
+                        {item.status === "connected" ? "✓ Connected" : "Installed"}
                       </span>
                     </div>
                   );
