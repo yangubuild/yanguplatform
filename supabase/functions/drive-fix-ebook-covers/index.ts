@@ -79,14 +79,20 @@ Deno.serve(async (req) => {
     const apiKey = Deno.env.get("GOOGLE_PLACES_API_KEY");
     if (!apiKey) return jsonRes({ error: "Google API key not configured" }, 500);
 
-    // Get all ebook-category items that have a source_url (Drive folder)
+    // Parse batch params: offset and limit (default 30 items per call)
+    const body = await req.json().catch(() => ({}));
+    const offset = body.offset ?? 0;
+    const limit = body.limit ?? 30;
+
     const ebookCategories = ["ebooks", "guide", "workbook"];
     const { data: items, error: fetchErr } = await adminClient
       .from("visionaire_items")
       .select("id, title, thumbnail_url, source_url, category")
       .in("category", ebookCategories)
       .eq("is_active", true)
-      .not("source_url", "is", null);
+      .not("source_url", "is", null)
+      .order("title")
+      .range(offset, offset + limit - 1);
 
     if (fetchErr) throw fetchErr;
 
@@ -96,7 +102,6 @@ Deno.serve(async (req) => {
     const details: Array<{ title: string; action: string }> = [];
 
     for (const item of items || []) {
-      // Skip items with manually set covers (local paths)
       if (item.thumbnail_url?.startsWith("/images/")) {
         skipped++;
         continue;
@@ -114,13 +119,13 @@ Deno.serve(async (req) => {
           (f) => /\.(jpe?g|png|webp|gif)$/i.test(f.name) || f.mimeType.startsWith("image/")
         );
 
-        // Prefer "Book cover" file, then any non-Artwork image
         const bookCover = imageFiles.find((f) => /book\s*cover/i.test(f.name));
         const nonArtwork = imageFiles.find((f) => !/artwork/i.test(f.name));
         const bestCover = bookCover || nonArtwork || imageFiles[0];
 
         if (!bestCover) {
           skipped++;
+          details.push({ title: item.title, action: "no images found" });
           continue;
         }
 
@@ -141,7 +146,7 @@ Deno.serve(async (req) => {
           details.push({ title: item.title, action: `error: ${updateErr.message}` });
         } else {
           fixed++;
-          details.push({ title: item.title, action: `updated to ${bestCover.name}` });
+          details.push({ title: item.title, action: `→ ${bestCover.name}` });
         }
       } catch (e) {
         errors++;
@@ -149,7 +154,16 @@ Deno.serve(async (req) => {
       }
     }
 
-    return jsonRes({ ok: true, total: items?.length || 0, fixed, skipped, errors, details });
+    const hasMore = (items?.length || 0) === limit;
+
+    return jsonRes({
+      ok: true,
+      batch: { offset, limit, returned: items?.length || 0, hasMore, nextOffset: hasMore ? offset + limit : null },
+      fixed,
+      skipped,
+      errors,
+      details,
+    });
   } catch (err) {
     console.error("[drive-fix-covers] Error:", err);
     return jsonRes({ error: err instanceof Error ? err.message : "Internal error" }, 500);
