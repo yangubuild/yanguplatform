@@ -95,16 +95,19 @@ export default function VisionaireBundles() {
                   onClick={() => navigate(`/dashboard/visionaire/bundle/${bundle.id}`)}
                 >
                   {/* Cover */}
-                  <div className="relative aspect-[4/3] bg-black overflow-hidden">
+                  <div className="relative aspect-[4/3] overflow-hidden bg-black">
                     {bundle.thumbnail_url ? (
                       <img
                         src={bundle.thumbnail_url}
                         alt={bundle.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-muted">
-                        <Package className="h-12 w-12 text-muted-foreground/30" />
+                      <div
+                        className="w-full h-full flex items-center justify-center"
+                        style={{ background: titleToGradient(bundle.title) }}
+                      >
+                        <Package className="h-12 w-12 text-white/20" />
                       </div>
                     )}
                     {/* Item count badge */}
