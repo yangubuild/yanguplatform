@@ -167,15 +167,18 @@ export default function VisionaireItemDetail() {
           {/* Right: Sidebar actions */}
           <div className="space-y-4">
             {/* Cover thumbnail */}
-            {item.thumbnail_url && (
-              <div className="rounded-xl overflow-hidden border border-border bg-muted p-4">
-                <img
-                  src={item.thumbnail_url}
-                  alt={item.title}
-                  className="w-full h-auto object-contain rounded-lg"
-                />
-              </div>
-            )}
+            {(() => {
+              const thumb = getItemThumbnail(item);
+              return thumb ? (
+                <div className="rounded-xl overflow-hidden border border-border bg-muted p-4">
+                  <img
+                    src={thumb}
+                    alt={item.title}
+                    className="w-full h-auto object-contain rounded-lg"
+                  />
+                </div>
+              ) : null;
+            })()}
 
             {/* Save button */}
             <Button
