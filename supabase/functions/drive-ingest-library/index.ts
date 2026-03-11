@@ -225,7 +225,7 @@ Deno.serve(async (req) => {
 
         // Build URLs - use Google Drive thumbnail for covers
         const thumbnailUrl = coverFile
-          ? `https://lh3.googleusercontent.com/d/${coverFile.id}`
+          ? `https://drive.google.com/thumbnail?id=${coverFile.id}&sz=w800`
           : null;
 
         // PDF download link (only PDF, not doc)
