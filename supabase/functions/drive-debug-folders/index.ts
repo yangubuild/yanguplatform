@@ -17,18 +17,22 @@ function jsonRes(body: unknown, status = 200) {
 
 async function listDriveFiles(
   folderId: string,
-  apiKey: string
+  apiKey: string,
+  query?: string
 ): Promise<Array<{ id: string; name: string; mimeType: string }>> {
+  const q = query
+    ? `'${folderId}' in parents AND ${query} AND trashed=false`
+    : `'${folderId}' in parents AND trashed=false`;
   const params = new URLSearchParams({
-    q: `'${folderId}' in parents AND trashed=false`,
+    q,
     key: apiKey,
     fields: "files(id, name, mimeType)",
-    pageSize: "100",
+    pageSize: "1000",
     supportsAllDrives: "true",
     includeItemsFromAllDrives: "true",
   });
   const res = await fetch(`${DRIVE_FILES_URL}?${params}`);
-  if (!res.ok) throw new Error(`Drive API error: ${res.status}`);
+  if (!res.ok) throw new Error(`Drive API error: ${res.status} ${await res.text()}`);
   const data = await res.json();
   return data.files || [];
 }
@@ -37,11 +41,6 @@ function extractFolderId(sourceUrl: string | null): string | null {
   if (!sourceUrl) return null;
   const match = sourceUrl.match(/folders\/([a-zA-Z0-9_-]+)/);
   return match ? match[1] : null;
-}
-
-// Use a cache-busting URL format
-function driveImageUrl(fileId: string): string {
-  return `https://drive.google.com/thumbnail?id=${fileId}&sz=w800`;
 }
 
 Deno.serve(async (req) => {
@@ -78,92 +77,56 @@ Deno.serve(async (req) => {
     if (!apiKey) return jsonRes({ error: "Google API key not configured" }, 500);
 
     const body = await req.json().catch(() => ({}));
-    const offset = body.offset ?? 0;
-    const limit = body.limit ?? 15;
+    const itemIds = body.item_ids as string[] | undefined;
+
+    if (!itemIds || !itemIds.length) {
+      return jsonRes({ error: "item_ids required" }, 400);
+    }
 
     const { data: items, error: fetchErr } = await adminClient
       .from("visionaire_items")
-      .select("id, title, thumbnail_url, source_url, category")
-      .eq("category", "ebooks")
-      .eq("is_active", true)
-      .like("source_url", "%folders/%")
-      .order("title")
-      .range(offset, offset + limit - 1);
+      .select("id, title, thumbnail_url, source_url, category, download_url")
+      .in("id", itemIds);
 
     if (fetchErr) throw fetchErr;
 
-    let fixed = 0;
-    let skipped = 0;
-    let errors = 0;
-    const details: Array<{ title: string; action: string; chosen?: string; allImages?: string[] }> = [];
+    const results: any[] = [];
 
     for (const item of items || []) {
-      // Skip manually set local covers
-      if (item.thumbnail_url?.startsWith("/images/")) {
-        skipped++;
-        continue;
-      }
-
       const folderId = extractFolderId(item.source_url);
-      if (!folderId) { skipped++; continue; }
+      const result: any = {
+        id: item.id,
+        title: item.title,
+        thumbnail_url: item.thumbnail_url,
+        source_url: item.source_url,
+        folderId,
+        files: [],
+        subfolders: [],
+      };
 
-      try {
-        const files = await listDriveFiles(folderId, apiKey);
-        const imageFiles = files.filter(
-          (f) => /\.(jpe?g|png|webp|gif)$/i.test(f.name) || f.mimeType.startsWith("image/")
-        );
+      if (folderId) {
+        // List ALL files in folder
+        const allFiles = await listDriveFiles(folderId, apiKey);
+        result.files = allFiles.map(f => ({ id: f.id, name: f.name, mimeType: f.mimeType }));
 
-        if (imageFiles.length === 0) {
-          skipped++;
-          details.push({ title: item.title, action: "no images in folder" });
-          continue;
-        }
-
-        // Priority: "Book Cover" > "Ebook Cover" > any non-Artwork > fallback
-        const bookCover = imageFiles.find((f) => /book\s*cover/i.test(f.name));
-        const ebookCover = imageFiles.find((f) => /ebook\s*cover/i.test(f.name));
-        const nonArtwork = imageFiles.find((f) => !/artwork/i.test(f.name));
-        const bestCover = bookCover || ebookCover || nonArtwork || imageFiles[0];
-
-        const newUrl = driveImageUrl(bestCover.id);
-
-        if (item.thumbnail_url === newUrl) {
-          skipped++;
-          continue;
-        }
-
-        const { error: updateErr } = await adminClient
-          .from("visionaire_items")
-          .update({ thumbnail_url: newUrl })
-          .eq("id", item.id);
-
-        if (updateErr) {
-          errors++;
-          details.push({ title: item.title, action: `error: ${updateErr.message}` });
-        } else {
-          fixed++;
-          details.push({
-            title: item.title,
-            action: `updated`,
-            chosen: bestCover.name,
-            allImages: imageFiles.map(f => f.name),
+        // Check subfolders
+        const subfolders = allFiles.filter(f => f.mimeType === "application/vnd.google-apps.folder");
+        for (const sub of subfolders) {
+          const subFiles = await listDriveFiles(sub.id, apiKey);
+          result.subfolders.push({
+            name: sub.name,
+            id: sub.id,
+            files: subFiles.map(f => ({ id: f.id, name: f.name, mimeType: f.mimeType })),
           });
         }
-      } catch (e) {
-        errors++;
-        details.push({ title: item.title, action: `error: ${e.message}` });
       }
+
+      results.push(result);
     }
 
-    const hasMore = (items?.length || 0) === limit;
-
-    return jsonRes({
-      ok: true,
-      batch: { offset, limit, returned: items?.length || 0, hasMore, nextOffset: hasMore ? offset + limit : null },
-      fixed, skipped, errors, details,
-    });
+    return jsonRes({ ok: true, results });
   } catch (err) {
-    console.error("[drive-fix-covers] Error:", err);
+    console.error("[drive-debug] Error:", err);
     return jsonRes({ error: err instanceof Error ? err.message : "Internal error" }, 500);
   }
 });
