@@ -14,8 +14,8 @@ const RESOURCES = [
     title: "Gradients",
     description: "Beautiful gradient backgrounds and patterns",
     image: gradientsImg,
-    url: "",
-    type: "coming-soon" as const,
+    url: "https://unsplash.com/s/photos/Gradient-background",
+    type: "external" as const,
   },
   {
     id: "shots-so",
