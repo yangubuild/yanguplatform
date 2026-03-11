@@ -173,3 +173,38 @@ export default function MyAppsPage() {
     </div>
   );
 }
+
+function ConnectButton({ app, queryClient }: { app: AppRegistryEntry; queryClient: any }) {
+  const [connecting, setConnecting] = useState(false);
+
+  const handleConnect = async () => {
+    setConnecting(true);
+    try {
+      const result = await connectApp(app.slug, "/dashboard/my-apps");
+      if (!result.ok) {
+        toast.error(result.error || "Connection failed");
+      } else if (result.redirect) {
+        queryClient.invalidateQueries({ queryKey: ["my-apps"] });
+        window.location.href = result.redirect;
+      } else {
+        toast.success("OAuth flow started — check the new tab");
+      }
+    } catch {
+      toast.error("Connection failed");
+    } finally {
+      setConnecting(false);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleConnect}
+      disabled={connecting}
+      className="px-3 py-1 rounded-lg text-xs font-medium text-white transition-colors hover:opacity-80 flex items-center gap-1"
+      style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}
+    >
+      {connecting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Link2 className="w-3 h-3" />}
+      Connect
+    </button>
+  );
+}
