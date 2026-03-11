@@ -1,0 +1,1166 @@
+[
+  {
+    "id": 1,
+    "title": "No backend offers",
+    "pageName": "NoBackendOffers",
+    "demand": 8,
+    "income": 9,
+    "ease": 5,
+    "subtitle": "Approachable for beginners because the strategy is logic-based, not tech-heavy. The income potential is massive because adding a backend is the fastest way to double a business's profit.",
+    "scoreDescription": "Analysis based on market demand, income potential, and implementation difficulty.",
+    "motivation": {
+      "hook": "Because selling to a stranger is hard, but selling to a customer is easy.",
+      "explanation": "It costs 5x more to get a new customer than to keep an existing one. Businesses without backend offers are running on a treadmill—exhausting themselves finding new people instead of serving the ones who already trust them with their wallet."
+    },
+    "monetization": {
+      "quickWin": {
+        "title": "The 'Thank You Page' Upsell Script",
+        "description": "A simple fill-in-the-blank script that business owners can put on their order confirmation page to sell one more small item immediately.",
+        "price": "$27 - $47",
+        "benefit": "An incredibly quick win. The business owner pastes it in and potentially makes extra money the same day."
+      },
+      "coreAsset": {
+        "title": "The Backend Profit Playbook",
+        "description": "A catalog of 50 proven 'second sale' ideas for different industries, plus templates for the emails that sell them.",
+        "price": "$67 - $147",
+        "benefit": "Solves the 'I don't know what else to sell' problem and gives them the assets to launch it."
+      },
+      "highTicket": {
+        "title": "Lifetime Value (LTV) Campaign Setup",
+        "description": "Design and set up an automated email sequence that sells high-ticket services or products to previous buyers.",
+        "price": "$750 - $2,500",
+        "benefit": "You build a system that generates sales while the business owner sleeps. Very high ROI service."
+      }
+    },
+    "executionPlan": "Pick a niche (like pet groomers). List 10 things a customer needs *after* a grooming session (e.g., special shampoo, brushes, nutritional treats). Package these ideas into a 'Pet Business Profit Multiplier' PDF guide and sell it for $27.",
+    "offerAngles": [
+      "Stop chasing new customers and start profiting from the ones you have",
+      "The hidden goldmine in your past customer list",
+      "How to double your profit per customer without spending a penny on ads",
+      "Why your 'Thank You' page is costing you thousands every month",
+      "Turn one-time buyers into loyal, repeat clients automatically",
+      "The simple 'Second Sale' strategy that stabilizes your monthly cash flow"
+    ]
+  },
+  {
+    "id": 2,
+    "title": "No system for attracting cold traffic",
+    "pageName": "NoSystemColdTraffic",
+    "demand": 10,
+    "income": 9,
+    "ease": 7,
+    "subtitle": "Getting strangers to pay attention is harder than selling to friends, but it is the most valuable skill in business. Once you solve this, you can write your own paycheck.",
+    "scoreDescription": "Analysis based on market demand, income potential, and implementation difficulty.",
+    "motivation": {
+      "hook": "Because you can't scale a business on luck and referrals.",
+      "explanation": "Word-of-mouth eventually dries up. Businesses pay for cold traffic systems because they want a 'faucet' they can turn on to generate new leads whenever they need them, rather than waiting and hoping for the phone to ring."
+    },
+    "monetization": {
+      "quickWin": {
+        "title": "The Traffic Source Checklist",
+        "description": "A curated list of 50+ places (digital and physical) where businesses can find new customers, categorized by industry.",
+        "price": "$17 - $29",
+        "benefit": "Helps a stuck business owner see new possibilities instantly."
+      },
+      "coreAsset": {
+        "title": "The 'Hook Strangers' Template Pack",
+        "description": "A collection of fill-in-the-blank headlines, social posts, and ad scripts specifically designed to grab the attention of people who don't know the brand yet.",
+        "price": "$47 - $127",
+        "benefit": "Saves them hours of writing and removes the fear of a blank page."
+      },
+      "highTicket": {
+        "title": "One-Channel Traffic Setup",
+        "description": "Pick one traffic source (like a specific social platform, local SEO, or simple flyers) and set up the entire system for them so it runs automatically.",
+        "price": "$750 - $2,500",
+        "benefit": "They get a reliable stream of new eyes on their business without having to learn how to run it themselves."
+      }
+    },
+    "executionPlan": "Sell a $27 'Traffic Hooks' swipe file that gives business owners 30 ways to introduce themselves to strangers. Once they buy that, offer to set up their first real traffic campaign for $500. You only need a few clients to replace a full-time income.",
+    "offerAngles": [
+      "Stop waiting for referrals: How to generate your own leads",
+      "The 'Stranger to Customer' system your business is missing",
+      "Why your business is invisible to 99% of your market (and how to fix it)",
+      "Turn on the tap: How to get consistent traffic without relying on luck",
+      "Break the referral ceiling and control your own growth",
+      "Get your offer in front of people who have never heard of you today"
+    ]
+  },
+  {
+    "id": 3,
+    "title": "No lead qualification process",
+    "pageName": "NoLeadQualification",
+    "demand": 9,
+    "income": 8,
+    "ease": 5,
+    "subtitle": "Simple to solve with basic logic and forms, but extremely valuable because it saves expensive human time. High demand across all service businesses.",
+    "scoreDescription": "Analysis based on market demand, income potential, and implementation difficulty.",
+    "motivation": {
+      "hook": "Because sales time is expensive and 'tire kickers' are free.",
+      "explanation": "Every minute a business owner or salesperson spends talking to someone who can't afford them is money lost. They pay for qualification systems to protect their calendar and ensure they only speak to serious buyers."
+    },
+    "monetization": {
+      "quickWin": {
+        "title": "The 'Tire-Kicker' Filter Script",
+        "description": "A set of 5 copy-paste email scripts designed to politely verify budget and timeline before booking a meeting.",
+        "price": "$27 - $47",
+        "benefit": "Sell this immediately to service providers who are tired of bad sales calls."
+      },
+      "coreAsset": {
+        "title": "Automated Qualification System (AQS)",
+        "description": "A complete Notion or Typeform template pack that automatically sorts leads into 'Qualified' vs 'Unqualified' buckets.",
+        "price": "$97 - $197",
+        "benefit": "A leverageable asset that solves the problem on autopilot 24/7."
+      },
+      "highTicket": {
+        "title": "Sales Pipeline Cleanup & Setup",
+        "description": "Audit their current lead flow, install your qualification forms, and integrate them with their calendar.",
+        "price": "$1,000 - $2,500",
+        "benefit": "High-value service that directly increases their revenue per hour worked."
+      }
+    },
+    "executionPlan": "Find service businesses (agencies, coaches, consultants) with a generic 'Contact Us' page. Offer them a $47 'Filter Script' pack to stop bad leads. Upsell a $997 setup where you install a proper application form for them.",
+    "offerAngles": [
+      "Stop wasting hours on leads who can't afford you",
+      "The 3 questions that weed out tire kickers instantly",
+      "How to automate your 'no' so you can focus on the 'yes'",
+      "Protect your calendar from time-wasters",
+      "Why your sales team is burnout: You aren't filtering your leads",
+      "Get better clients by adding friction to your contact form"
+    ]
+  },
+  {
+    "id": 4,
+    "title": "No re-engagement campaigns",
+    "pageName": "NoReengagementCampaigns",
+    "demand": 9,
+    "income": 8,
+    "ease": 4,
+    "subtitle": "Very beginner-friendly because it mainly requires writing simple emails, yet highly profitable because it generates 'found money' for the business instantly.",
+    "scoreDescription": "Analysis based on market demand, income potential, and implementation difficulty.",
+    "motivation": {
+      "hook": "Because their 'dead' email list is actually a hidden goldmine.",
+      "explanation": "Acquiring a new customer is expensive and difficult. Reactivating an old one is cheap and fast. Business owners are often too busy chasing new sales to realize they are sitting on a pile of potential revenue from people who already trust them. They pay you to unlock that cash."
+    },
+    "monetization": {
+      "quickWin": {
+        "title": "The 'Wake Up' Email Script Pack",
+        "description": "A collection of 5 copy-paste email scripts designed to get old leads to reply or buy again.",
+        "price": "$27 - $47",
+        "benefit": "Sell this TODAY. It solves a specific pain point with zero setup time for the buyer."
+      },
+      "coreAsset": {
+        "title": "Customer Reactivation Toolkit",
+        "description": "A complete system including templates, a scheduling calendar, and a guide on how to segment lists for maximum profit.",
+        "price": "$97 - $147",
+        "benefit": "A professional asset that positions you as an expert in 'Lifecycle Marketing' without needing technical skills."
+      },
+      "highTicket": {
+        "title": "Done-For-You List Revival",
+        "description": "You take their list of old contacts, clean it up, seek out the opportunities, and send a campaign to generate immediate sales.",
+        "price": "$750 - $2,000",
+        "benefit": "High-value service where you can often prove ROI instantly (e.g., 'I recovered $5k for you this week')."
+      }
+    },
+    "executionPlan": "Create a simple PDF with 3 powerful email templates that ask old leads if they are still interested. Sell this for $27 to local service businesses like gyms, contractors, or salons. Once they see it works, offer to manage their monthly email newsletter for $500/month.",
+    "offerAngles": [
+      "The simple email that wakes up 'dead' leads",
+      "Stop ignoring your most profitable asset: your past customers",
+      "How to generate sales this week without spending a dollar on ads",
+      "Your old leads aren't dead, they're just sleeping—here is how to wake them up",
+      "Why it costs 5x more to get a new customer than to allow us to keep an old one",
+      "Turn your neglected email list into an on-demand revenue source"
+    ]
+  },
+  {
+    "id": 5,
+    "title": "No testing or optimization system",
+    "pageName": "NoTestingOptimization",
+    "demand": 8,
+    "income": 9,
+    "ease": 6,
+    "subtitle": "Moderate difficulty because you need to learn basic metrics, but the income potential is huge. Businesses will pay a premium for anyone who can prove they are improving results.",
+    "scoreDescription": "Analysis based on market demand, income potential, and implementation difficulty.",
+    "motivation": {
+      "hook": "Because guessing is expensive.",
+      "explanation": "When a business doesn't test, they waste thousands of dollars on bad headlines, weak offers, and confusing layouts. They pay for 'optimization' because it stops the financial bleeding and turns current traffic into more profit."
+    },
+    "monetization": {
+      "quickWin": {
+        "title": "The A/B Testing Tracker",
+        "description": "A simple spreadsheet system to track marketing experiments and results.",
+        "price": "$19 - $29",
+        "benefit": "A quick, useful tool that helps business owners get organized immediately."
+      },
+      "coreAsset": {
+        "title": "The Optimization Experiment Library",
+        "description": "A database of 50+ proven 'tests' to run on any website (headlines, guarantees, button colors, etc.).",
+        "price": "$47 - $97",
+        "benefit": "Saves the client brainpower—they don't have to think of what to test, they just follow your guide."
+      },
+      "highTicket": {
+        "title": "Conversion Rate Optimization (CRO) Retainer",
+        "description": "You set up, manage, and report on 2-4 split tests per month for the client.",
+        "price": "$1,000 - $3,000/mo",
+        "benefit": "Recurring revenue for you; consistent growth for the client."
+      }
+    },
+    "executionPlan": "Most owners know they should test, but don't know *what* to test. Create a guide listing 20 high-impact experiments (like 'Price Anchoring' or 'Social Proof'). Sell this roadmap for $37 to e-commerce store owners looking for quick wins.",
+    "offerAngles": [
+      "Stop guessing what your customers want and start effective testing",
+      "How to get 20% more revenue from your existing traffic",
+      "The 'Scientific Method' for scaling your business without risk",
+      "Why your ad performance is plateauing (and the system to fix it)",
+      "Turn your website into a self-correcting sales machine",
+      "Don't change your whole website—just optimized these 3 proven levers"
+    ]
+  },
+  {
+    "id": 6,
+    "title": "No structured sales process",
+    "pageName": "NoStructuredSales",
+    "demand": 9,
+    "income": 8,
+    "ease": 5,
+    "subtitle": "High demand because most small businesses are disorganized. It is surprisingly easy to solve because you are providing structure and organization, not magic sales tricks.",
+    "scoreDescription": "Analysis based on market demand, income potential, and implementation difficulty.",
+    "motivation": {
+      "hook": "Because inconsistency kills growth and traps the owner.",
+      "explanation": "If a business doesn't have a written process, the owner can never step away or hire help, because the 'magic' is all in their head. They pay for a system so they can stop stressing about every lead and finally hand off sales to someone else."
+    },
+    "monetization": {
+      "quickWin": {
+        "title": "The 'Can't Miss' Sales Checklist",
+        "description": "A simple one-page PDF checklist outlining the 5 steps every sales call must cover to be successful.",
+        "price": "$19 - $29",
+        "benefit": "Perfect for beginners. It requires zero tech, just a clean document that provides instant clarity."
+      },
+      "coreAsset": {
+        "title": "Sales System Toolkit",
+        "description": "A complete bundle containing call scripts, email follow-up templates, and a tracker spreadsheet/CRM template.",
+        "price": "$67 - $147",
+        "benefit": "Positions you as a systems expert. High perceived value because it saves them dozens of hours of writing."
+      },
+      "highTicket": {
+        "title": "CRM & Pipeline Implementation",
+        "description": "Set up a simple CRM (like HubSpot or Pipedrive) for them, import their leads, and load in your scripts.",
+        "price": "$1,000 - $2,500",
+        "benefit": "High-ticket service that solves a technical headache for business owners who hate software setup."
+      }
+    },
+    "executionPlan": "Most small businesses track leads on sticky notes or loose paper. Create a simple 'Lead Tracking Spreadsheet' and a 'Call Script' template. Sell this bundle for $27 to local service businesses (plumbers, landscapers, agencies). It instantly makes them feel more professional.",
+    "offerAngles": [
+      "Stop guessing what to say next: The script that closes deals",
+      "Why 'winging it' is costing you 30% of your revenue",
+      "How to delegate sales without losing performance",
+      "Turn your chaotic sales calls into a predictable 5-step system",
+      "The Follow-Up Formula: Catch the leads that are slipping through the cracks",
+      "You don't need a better salesperson, you need a better process"
+    ]
+  },
+  {
+    "id": 7,
+    "title": "No win-back system",
+    "pageName": "NoWinBackSystem",
+    "demand": 9,
+    "income": 8,
+    "ease": 4,
+    "subtitle": "Extremely low tech difficulty (just sending emails or texts), but the financial upside is massive because you are mining 'found money' from existing data.",
+    "scoreDescription": "Analysis based on market demand, income potential, and implementation difficulty.",
+    "motivation": {
+      "hook": "Because selling to an old customer is 5x cheaper than finding a new one.",
+      "explanation": "Most business owners are obsessed with getting *new* traffic, completely ignoring the hundreds of people who already trust them but just drifted away. Reactivating these people creates immediate cash flow without any ad spend. It's the fastest way to increase revenue."
+    },
+    "monetization": {
+      "quickWin": {
+        "title": "The 'Miss You' Email Script",
+        "description": "A short, psychology-backed email script designed to wake up dormant customers and get them to book or buy again.",
+        "price": "$19 - $29",
+        "benefit": "Low friction. The customer just copies, pastes, and hits send to see instant results."
+      },
+      "coreAsset": {
+        "title": "The Client Resurrection Kit",
+        "description": "A complete timeline of emails, text message templates, and offer structures (e.g., coupons, incentives) to automate the win-back process.",
+        "price": "$47 - $97",
+        "benefit": "A robust asset that solves the problem once and runs on autopilot forever."
+      },
+      "highTicket": {
+        "title": "Database Reactivation Campaign",
+        "description": "You take their list of inactive customers, clean the data, and send the reactivation campaign for them.",
+        "price": "$750 - $1,500",
+        "benefit": "High value because you are literally printing money for them from a 'dead' asset."
+      }
+    },
+    "executionPlan": "Approach a local service business (like a landscaping or detailing company). Offer to email their list of past clients who haven't booked in 6 months. Charge a small setup fee ($100) plus a percentage of every job booked from your email.",
+    "offerAngles": [
+      "There is a gold mine hidden in your 'inactive' customer list",
+      "How to wake up sleeping buyers without being annoying",
+      "Stop chasing new leads until you've engaged your old ones",
+      "The detailed script that brought 14% of our past clients back in one week",
+      "Don't let your past customers forget you: The automated win-back system",
+      "Turn your 'dead' email database into next month's revenue"
+    ]
+  },
+  {
+    "id": 8,
+    "title": "No transformation communicated",
+    "pageName": "NoTransformationCommunicated",
+    "demand": 9,
+    "income": 8,
+    "ease": 4,
+    "subtitle": "A very common problem that is easy to fix if you understand basic human psychology. Businesses pay well for this because better messaging directly increases their sales.",
+    "scoreDescription": "Analysis based on market demand, income potential, and implementation difficulty.",
+    "motivation": {
+      "hook": "Because customers buy the destination, not the plane.",
+      "explanation": "If a business only talks about itself or its technical specs, confused customers leave. By clearly showing the 'Before' (pain) and the 'After' (relief), you help the business close more sales without them needing to change their actual product."
+    },
+    "monetization": {
+      "quickWin": {
+        "title": "Before & After Headline Swipe File",
+        "description": "A collection of fill-in-the-blank headlines that force business owners to focus on the result, not the feature.",
+        "price": "$19 - $29",
+        "benefit": "Sell this immediately to frustrated business owners who don't know what to say on their website."
+      },
+      "coreAsset": {
+        "title": "The Transformation Messaging Kit",
+        "description": "A complete workbook and template set that helps businesses map out their customer's journey from 'Stuck' to 'Successful.'",
+        "price": "$47 - $97",
+        "benefit": "Positions you as a strategy expert and creates a reusable asset you can sell indefinitely."
+      },
+      "highTicket": {
+        "title": "Sales Page Rewrite",
+        "description": "Take a client's boring, feature-heavy landing page and rewrite the copy to focus entirely on the customer's transformation.",
+        "price": "$500 - $1,500",
+        "benefit": "High value service because it improves conviction and conversion rates instantly."
+      }
+    },
+    "executionPlan": "Go to 5 business websites this week that sound boring or confusing. Rewrite just their main headline to focus on a specific benefit or result, and send it to them for free. Offer to do the rest of the page for a fixed fee of $250 to get your first testimonial.",
+    "offerAngles": [
+      "Your customers don't care about your features; they care about their own results.",
+      "Stop selling the drill and start selling the hole in the wall.",
+      "The #1 reason websites fail to convert: You're talking about yourself, not them.",
+      "How to turn boring technical specs into an irresistible emotional offer.",
+      "Switching your messaging from 'What we do' to 'Who you become' can double sales.",
+      "If you can describe their problem better than they can, they will trust you with the solution."
+    ]
+  },
+  {
+    "id": 9,
+    "title": "Offer solves a non-urgent problem",
+    "pageName": "OfferNonUrgent",
+    "demand": 9,
+    "income": 9,
+    "ease": 6,
+    "subtitle": "Requires understanding buyer psychology more than technical skills. The demand is massive because this is often the hidden reason why 'great' products fail to sell.",
+    "scoreDescription": "Analysis based on market demand, income potential, and implementation difficulty.",
+    "motivation": {
+      "hook": "'Nice to have' doesn't pay the rent.",
+      "explanation": "Business owners are often confused why people compliment their product but don't buy it. They pay for this solution because they need to shift their offer from being a 'vitamin' (optional) to a 'painkiller' (mandatory) to unlock consistent revenue."
+    },
+    "monetization": {
+      "quickWin": {
+        "title": "The Urgency Audit Checklist",
+        "description": "A 15-point checklist to see if an offer has enough natural urgency triggers to make people act now.",
+        "price": "$27 - $37",
+        "benefit": "Sell this to frustrated business owners who want a quick diagnosis of why their launch failed."
+      },
+      "coreAsset": {
+        "title": "Vitamin to Painkiller: Offer Repositioning Kit",
+        "description": "A step-by-step workbook and template pack that helps businesses rewrite their dull offers into urgent, must-have solutions.",
+        "price": "$67 - $147",
+        "benefit": "High-leverage product that teaches a valuable skill (copywriting and positioning) without requiring you to do the writing yourself."
+      },
+      "highTicket": {
+        "title": "Offer Hook & Headline Makeover",
+        "description": "A done-for-you service where you rewrite the top 20% of their sales page to inject specific urgency and pain relief.",
+        "price": "$500 - $1,500",
+        "benefit": "Great entry-level service. It is high impact but low scope, so you don't get stuck in months of work."
+      }
+    },
+    "executionPlan": "Find a business selling a generic product (like 'better health' or 'more productivity'). Sell them the $27 Audit Checklist to show them why their sales are slow. Then, pitch the $500 makeover to fix their main headline so visitors feel the need to buy immediately.",
+    "offerAngles": [
+      "Stop selling vitamins and start selling painkillers",
+      "Why your customers love your product but never typically buy it",
+      "The 'lazy buyer' fix: How to make buying NOW the only logical choice",
+      "Turn 'I'll think about it' into a paid invoice",
+      "3 ways to create ethical urgency without using fake countdown timers",
+      "Your offer isn't bad, it's just not urgent (and how to fix it today)"
+    ]
+  },
+  {
+    "id": 10,
+    "title": "Paid traffic not profitable",
+    "pageName": "PaidTrafficNotProfitable",
+    "demand": 9,
+    "income": 9,
+    "ease": 7,
+    "subtitle": "Slightly higher learning curve because paid ads involve money and metrics, but the income potential is massive. Businesses are desperate to make their ad spend work.",
+    "scoreDescription": "Analysis based on market demand, income potential, and implementation difficulty.",
+    "motivation": {
+      "hook": "Because losing money on ads is terrifying.",
+      "explanation": "When ads aren't profitable, a business is literally paying to lose money. It creates immense financial stress. Owners will pay handsomely for anyone who can stop the bleeding and turn that expense into an investment that actually pays off."
+    },
+    "monetization": {
+      "quickWin": {
+        "title": "Ad Creative Checklist",
+        "description": "A quick diagnostic tool to check if their ad images and headlines have the necessary psychological triggers to work.",
+        "price": "$19 - $37",
+        "benefit": "Easy entry point that provides instant clarity on why their ads might be failing."
+      },
+      "coreAsset": {
+        "title": "High-Converting Ad Templates",
+        "description": "A library of fill-in-the-blank scripts and visual templates for Facebook or Instagram ads that are proven to stop the scroll.",
+        "price": "$67 - $147",
+        "benefit": "Scalable asset that helps businesses fix their own ads without hiring an expensive agency."
+      },
+      "highTicket": {
+        "title": "Ad Campaign Audit & Optimization",
+        "description": "A deep-dive review of their ad account followed by a 'rescue plan' to fix targeting, creative, and budget allocation.",
+        "price": "$750 - $2,500",
+        "benefit": "High-value consulting that directly impacts their bottom line, justifying a high fee."
+      }
+    },
+    "executionPlan": "Don't rush to manage their ads yet. Start by offering a $47 'Ad Health Check' using the checklist from the Vault. Identify why they are losing money (bad images? weak offer?) and then upsell them into a $197 deeper strategy session or template pack.",
+    "offerAngles": [
+      "Stop donating your profits to Mark Zuckerberg",
+      "How to finally make your ad spend an investment, not an expense",
+      "The 5 'silent killers' draining your Facebook ad budget",
+      "Turn $1 into $3: The math behind profitable traffic",
+      "Why your ads get clicks but no sales (and how to fix it)",
+      "Stop the bleeding: Fix your unprofitable campaigns in 7 days"
+    ]
+  },
+  {
+    "id": 11,
+    "title": "Unpredictable lead flow",
+    "pageName": "UnpredictableLeadFlow",
+    "demand": 10,
+    "income": 9,
+    "ease": 6,
+    "subtitle": "Moderate difficulty because it requires setting up systems, but the demand is massive. Every business owner wants to stop worrying about where their next client is coming from.",
+    "scoreDescription": "Analysis based on market demand, income potential, and implementation difficulty.",
+    "motivation": {
+      "hook": "Because financial uncertainty causes sleepless nights.",
+      "explanation": "When leads are inconsistent, the business owner is constantly stressed and cannot make financial commitments or hire help. They will happily pay for a system that turns a rollercoaster income into a predictable paycheck."
+    },
+    "monetization": {
+      "quickWin": {
+        "title": "Daily Lead Gen Checklist",
+        "description": "A strict yet simple daily routine of 5 actions a business owner can take to generate activity immediately.",
+        "price": "$17 - $27",
+        "benefit": "Instant clarity for overwhelmed owners. Selling a routine is easier than selling a complex system and proves you can help."
+      },
+      "coreAsset": {
+        "title": "The Steady Pipeline Toolkit",
+        "description": "A collection of scripts, outreach templates, and a tracking spreadsheet designed to secure 3-5 consistent leads per week.",
+        "price": "$67 - $127",
+        "benefit": "Positions you as a systems expert. Customers feel they are buying a permanent solution ('an asset') to a recurring problem."
+      },
+      "highTicket": {
+        "title": "Automated Lead Capture Setup",
+        "description": "Build a simple lead magnet and email follow-up sequence for them so they capture leads 24/7 without manual work.",
+        "price": "$750 - $2,000",
+        "benefit": "High value because you are removing the technology headache and 'installing' a flow of potential customers."
+      }
+    },
+    "executionPlan": "Create a '15-Minute Daily Lead Gen Routine' PDF as a low-ticket offer. Market it in Facebook groups for freelancers or service providers who complain about it being 'slow' right now. It's an impulse buy that solves immediate panic.",
+    "offerAngles": [
+      "Stop wondering where your next client is coming from",
+      "Break the feast or famine cycle in your business forever",
+      "The 15-minute daily habit that guarantees a full pipeline",
+      "Turn your business income from a rollercoaster into a steady climb",
+      "How to get leads on demand without spending a fortune on ads",
+      "Silence the 'slow month' anxiety with this simple system"
+    ]
+  },
+  {
+    "id": 12,
+    "title": "Slow email list growth",
+    "pageName": "SlowEmailGrowth",
+    "demand": 9,
+    "income": 8,
+    "ease": 4,
+    "subtitle": "One of the most consistently in-demand problems to solve. The technical barrier is low (simple forms and PDFs), but the value to a business is massive because email drives sales.",
+    "scoreDescription": "Analysis based on market demand, income potential, and implementation difficulty.",
+    "motivation": {
+      "hook": "Because email is the only channel they actually own.",
+      "explanation": "Social media reach can disappear overnight, but an email list is permanent. Businesses pay for list growth because email converts significantly better than social media, and a stagnant list means stagnant revenue."
+    },
+    "monetization": {
+      "quickWin": {
+        "title": "50 High-Converting Lead Magnet Ideas",
+        "description": "A curated list of proven lead magnet concepts (checklists, quizzes, mini-courses) across different industries to help owners unblock their creativity.",
+        "price": "$19 - $27",
+        "benefit": "A low-risk, instant-value resource that solves 'writer's block' for business owners."
+      },
+      "coreAsset": {
+        "title": "The List Growth Launchpad",
+        "description": "A complete template pack including landing page copy, Canva templates for PDF guides, and a pre-written 3-day welcome email sequence.",
+        "price": "$67 - $127",
+        "benefit": "A 'copy-paste' system that saves the owner dozens of hours and creates a professional first impression."
+      },
+      "highTicket": {
+        "title": "Lead Magnet & Funnel Setup",
+        "description": "Design a custom lead magnet (PDF or mini-training), set up the landing page, and connect the automation software so it runs 24/7.",
+        "price": "$750 - $1,500",
+        "benefit": "A complete 'Done-For-You' solution where you handle the tech headaches and they get a working lead machine."
+      }
+    },
+    "executionPlan": "Find businesses that have a generic 'Join our newsletter' box on their site—nobody signs up for those anymore. Offer them your $27 Lead Magnet Template Pack to turn that boring box into an exciting offer. It's an easy pitch because the problem is visible on their homepage.",
+    "offerAngles": [
+      "Why your 'Subscribe to Newsletter' button is killing your growth",
+      "How to get your first 1,000 subscribers without paid ads",
+      "The simple asset that protects your revenue from social media algorithm changes",
+      "Turn invisible website visitors into leads you can sell to forever",
+      "Stop renting your audience on Instagram and start owning it on email",
+      "The 10-minute website tweak that doubles daily subscribers"
+    ]
+  },
+  {
+    "id": 13,
+    "title": "Weak customer research",
+    "pageName": "WeakCustomerResearch",
+    "demand": 9,
+    "income": 8,
+    "ease": 4,
+    "subtitle": "Surprisingly easy to start because most competitors don't do it at all. The value is incredibly high because better research improves every other part of the business.",
+    "scoreDescription": "Analysis based on market demand, income potential, and implementation difficulty.",
+    "motivation": {
+      "hook": "Because guessing is the most expensive thing a business can do.",
+      "explanation": "When a business guesses what customers want, they waste thousands on ads that don't convert and products nobody buys. They will happily pay to stop 'flying blind' and finally understand exactly what makes their buyers tick."
+    },
+    "monetization": {
+      "quickWin": {
+        "title": "The 'Ask The Right Questions' Script Pack",
+        "description": "A curated list of the 20 most revealing questions a business can ask their customers to uncover hidden buying triggers.",
+        "price": "$27 - $37",
+        "benefit": "Low-effort entry point. Owners love this because they often don't know what to ask."
+      },
+      "coreAsset": {
+        "title": "Ideal Customer Avatar Toolkit",
+        "description": "A complete template system for building detailed 'Customer Personas'—including demographics, pain points, and emotional drivers.",
+        "price": "$67 - $127",
+        "benefit": "Creates a tangible asset the business can use forever to train employees and brief ad agencies."
+      },
+      "highTicket": {
+        "title": "Customer Insight Deep Dive",
+        "description": "You conduct phone interviews with 5 of their best recent customers, record them, and deliver a 'Strategy Report' summarizing exactly why they bought.",
+        "price": "$750 - $2,000",
+        "benefit": "High-ticket tailored service. You do the work they are too scared or busy to do."
+      }
+    },
+    "executionPlan": "Create a simple 'Customer Discovery Checklist' (the simple offer) and sell it for $27. Once they buy, offer to perform the actual interviews for them as a done-for-you service. This bridges the gap between a small purchase and a high-ticket consulting fee.",
+    "offerAngles": [
+      "Stop guessing what your customers want and start knowing",
+      "Why your ads are being ignored (and how to fix your messaging)",
+      "The 3 simple questions that reveal why people really buy from you",
+      "Build a marketing strategy based on data, not intuition",
+      "Silence the guesswork: How to define your perfect customer in 60 minutes",
+      "Turn one-time buyers into raving fans by understanding their true needs"
+    ]
+  },
+  {
+    "id": 14,
+    "title": "Weak email nurturing",
+    "pageName": "WeakEmailNurturing",
+    "demand": 9,
+    "income": 8,
+    "ease": 4,
+    "subtitle": "Very beginner-friendly because it requires writing skills rather than technical skills. However, the income potential is high because email marketing is often the #1 revenue driver for online businesses.",
+    "scoreDescription": "Analysis based on market demand, income potential, and implementation difficulty.",
+    "motivation": {
+      "hook": "Because an ignored email list is wasted money.",
+      "explanation": "Businesses spend thousands on ads to get leads. If they don't nurture those leads with emails, they are essentially lighting that ad money on fire. They will pay happily to stop the waste and start seeing sales."
+    },
+    "monetization": {
+      "quickWin": {
+        "title": "The Welcome Series Checklist",
+        "description": "A simple PDF breakdown of exactly what to say in result-getting emails for new subscribers.",
+        "price": "$27 - $47",
+        "benefit": "Perfect for beginners to sell fast. Solve the 'blank page' problem instantly."
+      },
+      "coreAsset": {
+        "title": "Infinite Nurture Template Pack",
+        "description": "50+ fill-in-the-blank email templates for holidays, educational tips, and product launches.",
+        "price": "$67 - $127",
+        "benefit": "Sell a 'Year of Content' in a box. High perceived value and very low maintenance."
+      },
+      "highTicket": {
+        "title": "Done-For-You Autoresponder Setup",
+        "description": "Write and load a 5-email 'Welcome Sequence' that automatically sends to every new signup.",
+        "price": "$500 - $1,500",
+        "benefit": "Businesses love this because they pay once and it generates sales forever."
+      }
+    },
+    "executionPlan": "Your first move is to sell a 'Welcome Sequence' service. Find a business that asks for your email but sends nothing back. Offer to write their 5-part introductory email series for $300–$500 using the templates in this Vault.",
+    "offerAngles": [
+      "Stop ghosting the leads you paid to acquire",
+      "Turn silent subscribers into raving fans with this simple sequence",
+      "The 5 emails every business needs to send automatically",
+      "How to wake up a 'dead' email list without being spammy",
+      "Double the value of every lead without spending more on ads",
+      "Don't let your potential customers forget you exist"
+    ]
+  },
+  {
+    "id": 15,
+    "title": "Weak objection handling",
+    "pageName": "WeakObjectionHandling",
+    "demand": 9,
+    "income": 8,
+    "ease": 4,
+    "subtitle": "Very beginner-friendly because it mostly involves writing scripts and FAQs. However, the value is massive because fixing this directly increases cash in the bank immediately.",
+    "scoreDescription": "Analysis based on market demand, income potential, and implementation difficulty.",
+    "motivation": {
+      "hook": "Because a customer who is 'thinking about it' pays $0.",
+      "explanation": "Businesses spend thousands to get a lead's attention. Losing them at the very last second because the sales team couldn't answer a simple doubt is the most expensive mistake a business can make. Fixing this saves deals that are already in the pipeline."
+    },
+    "monetization": {
+      "quickWin": {
+        "title": "The 'Too Expensive' Script Kit",
+        "description": "A simple PDF with 10 proven responses to the most common objection: price. Includes fill-in-the-blank templates.",
+        "price": "$17 - $29",
+        "benefit": "Easy impulse buy for freelancers and sales reps who hate hearing 'you're too expensive'."
+      },
+      "coreAsset": {
+        "title": "The Objection Handling Playbook",
+        "description": "A complete library of scripts, email templates, and FAQ frameworks to handle the top 20 objections across any industry.",
+        "price": "$47 - $97",
+        "benefit": "A professional resource that business owners can use to train their entire team at once."
+      },
+      "highTicket": {
+        "title": "Sales Friction Audit & Scripting",
+        "description": "Review their recent sales calls, emails, or chat logs to identify where deals die, then write custom scripts to fix those specific leaks.",
+        "price": "$500 - $1,500",
+        "benefit": "High-value intervention that pays for itself after just one or two saved deals."
+      }
+    },
+    "executionPlan": "Identify the top 5 reasons people say 'no' (Price, Timing, Spouse, Competitor, Trust). Write 3 polite, effective responses for each. Package this as a $27 'Close More Deals' Kit. You can create this in a single afternoon and sell it to real estate agents or freelancers.",
+    "offerAngles": [
+      "What to say when a client says 'I need to think about it'",
+      "Stop losing sales to the phrase 'It's too expensive'",
+      "The 1-page cheat sheet that turns 'No' into 'Let's do it'",
+      "3 polite ways to handle difficult pricing questions without discounting",
+      "Why you are losing 50% of your leads at the finish line (and how to stop it)",
+      "Turn your sales team into closers with these 5 simple scripts"
+    ]
+  },
+  {
+    "id": 16,
+    "title": "Weak lead magnet or entry offer",
+    "pageName": "WeakLeadMagnet",
+    "demand": 10,
+    "income": 8,
+    "ease": 3,
+    "subtitle": "Extremely beginner-friendly because you can create the solution (a simple PDF or checklist) in one afternoon. However, the demand is massive because every business needs more leads.",
+    "scoreDescription": "Analysis based on market demand, income potential, and implementation difficulty.",
+    "motivation": {
+      "hook": "Because traffic is expensive and 98% of it is being wasted.",
+      "explanation": "Businesses spend thousands getting people to their website, only to have them bounce. They will happily pay for a 'plug-and-play' asset that captures contact information, allowing them to follow up and eventually make the sale."
+    },
+    "monetization": {
+      "quickWin": {
+        "title": "The 'Irresistible Hook' List",
+        "description": "A curated list of 50 proven lead magnet ideas and headlines specific to their industry.",
+        "price": "$17 - $27",
+        "benefit": "Quick cash flow. You solve their 'writer's block' instantly so they can capture more leads."
+      },
+      "coreAsset": {
+        "title": "Lead Magnet Toolkit",
+        "description": "A bundle containing 3 template styles for guides, a fill-in-the-blank writing script, and a delivery email template.",
+        "price": "$47 - $97",
+        "benefit": "A 'campaign in a box' that allows a business owner to launch a professional lead magnet in under an hour."
+      },
+      "highTicket": {
+        "title": "Done-For-You Lead Capture System",
+        "description": "You create the PDF guide, design a simple cover, and set up the automated email delivery for them.",
+        "price": "$500 - $1,500",
+        "benefit": "High perceived value. They don't want to learn design or tech; they just want the result (more leads)."
+      }
+    },
+    "executionPlan": "Pick a niche (like local real estate agents). Create a 'First Time Homebuyer Checklist' template. Sell the template pack for $27. Upsell the service of customizing it and setting it up on their website for $497.",
+    "offerAngles": [
+      "Stop letting 98% of your website visitors leave without saying hello",
+      "The simple 1-page PDF that builds your email list automatically",
+      "Why asking for the sale immediately is killing your conversion rates",
+      "Turn 'just browsing' traffic into lifelong customers",
+      "The 'Entry Offer' Strategy: How to acquire customers without breaking the bank",
+      "Don't let your ad budget go to waste—capture leads before they bounce"
+    ]
+  },
+  {
+    "id": 17,
+    "title": "No customer success system",
+    "pageName": "NoCustomerSuccess",
+    "demand": 9,
+    "income": 8,
+    "ease": 4,
+    "subtitle": "Very easy to solve with simple communication checklists and email templates. High income potential because keeping existing customers is the easiest way to grow profit.",
+    "scoreDescription": "Analysis based on market demand, income potential, and implementation difficulty.",
+    "motivation": {
+      "hook": "Because losing a customer costs 5x more than keeping one.",
+      "explanation": "When a customer cancels or asks for a refund, the business loses money immediately. But they also lose future sales and referrals. Owners will happily pay for a simple system that stops this 'leaky bucket' effect and keeps buyers happy."
+    },
+    "monetization": {
+      "quickWin": {
+        "title": "The New Customer Welcome Checklist",
+        "description": "A straightforward checklist of what every business should do in the first 7 days after a new customer signs up.",
+        "price": "$19 - $29",
+        "benefit": "A quick impulse buy that helps owners feel organized and professional immediately."
+      },
+      "coreAsset": {
+        "title": "The Client Retention Toolkit",
+        "description": "A complete pack of email templates, check-in scripts, and onboarding milestones to automate customer happiness.",
+        "price": "$67 - $147",
+        "benefit": "Sell a complete 'system in a box' that reduces refunds and increases customer lifetime value."
+      },
+      "highTicket": {
+        "title": "Onboarding Experience Setup",
+        "description": "Write and set up their welcome emails, access instructions, and first-month check-in points for them.",
+        "price": "$750 - $2,500",
+        "benefit": "High-value service where you save them hours of time and permanently improve their reputation."
+      }
+    },
+    "executionPlan": "Draft 5 simple email templates that a business should send a new client (Welcome, What to Expect, Quick Tip, Checking In, Ask for Feedback). Bundle this as a $27 digital product. It's an easy 'yes' for any business owner worried about unhappy clients.",
+    "offerAngles": [
+      "Stop losing customers you worked hard to get",
+      "The 'Leaky Bucket' fix: How to keep clients coming back",
+      "Cut your refund rate in half with this simple welcome system",
+      "Turn one-time buyers into raving fans on autopilot",
+      "Why your post-purchase experience is costing you thousands",
+      "The 7-day onboarding sequence that builds lifetime loyalty"
+    ]
+  },
+  {
+    "id": 18,
+    "title": "Weak value proposition",
+    "pageName": "WeakValueProposition",
+    "demand": 10,
+    "income": 9,
+    "ease": 5,
+    "subtitle": "Accessible for anyone who can write clearly, as it requires no technical skills. The income potential is massive because fixing a message is often the fastest way to unlock revenue.",
+    "scoreDescription": "Analysis based on market demand, income potential, and implementation difficulty.",
+    "motivation": {
+      "hook": "Because confusion is the #1 silent killer of sales.",
+      "explanation": "If a customer lands on a website and doesn't understand 'what's in it for me' within 3 seconds, they bounce. Businesses pay to fix this because clarity translates directly into higher conversion rates and easier sales calls."
+    },
+    "monetization": {
+      "quickWin": {
+        "title": "The 'One-Liner' Rewrite Script",
+        "description": "A simple PDF with fill-in-the-blank formulas to turn vague slogans into powerful, benefit-driven headlines.",
+        "price": "$19 - $29",
+        "benefit": "Sell it instantly to business owners who know their website headline is boring but don't know how to fix it."
+      },
+      "coreAsset": {
+        "title": "The Value Clarity Framework",
+        "description": "A step-by-step workbook or video guide that helps a business uncover their unique selling points and turn them into marketing assets.",
+        "price": "$47 - $147",
+        "benefit": "Allows you to sell a 'branding workshop in a box' that businesses can use repeatedly."
+      },
+      "highTicket": {
+        "title": "Homepage Messaging Overhaul",
+        "description": "A focused service where you interview the founder, identify their true value, and rewrite their core website copy.",
+        "price": "$500 - $1,500",
+        "benefit": "High perceived value because you aren't just writing words; you are clarifying their entire business strategy."
+      }
+    },
+    "executionPlan": "Find 5 local businesses with vague website headlines (e.g., 'Welcome to Jones Corp'). Rewrite them using a value-first formula. Send them a simple PDF showing the 'Before' and your improved 'After.' Offer to rewrite the rest of their homepage for $250 to get your first testimonial.",
+    "offerAngles": [
+      "Why customers are choosing your cheaper competitors (and how to stop it)",
+      "The 3-second rule: Does your website pass or fail?",
+      "Stop describing features and start selling value",
+      "How to charge premium prices by articulating your value clearly",
+      "The specific reason your website traffic isn't turning into revenue",
+      "Turn confused browsers into confident buyers with one sentence"
+    ]
+  },
+  {
+    "id": 19,
+    "title": "Long sales cycles",
+    "pageName": "LongSalesCycles",
+    "demand": 8,
+    "income": 9,
+    "ease": 7,
+    "subtitle": "Requires understanding why buyers hesitate, but the payoff is huge. Businesses will happily pay you if you can help them get money into their bank account faster.",
+    "scoreDescription": "Analysis based on market demand, income potential, and implementation difficulty.",
+    "motivation": {
+      "hook": "'Time kills all deals.'",
+      "explanation": "The longer a prospect waits to buy, the more likely they are to change their mind or go to a competitor. Businesses pay to shorten this gap because it immediately improves their cash flow and certainty."
+    },
+    "monetization": {
+      "quickWin": {
+        "title": "The 'Ghost' Revival Script Pack",
+        "description": "A set of 5 copy-paste email templates designed to gently nudge prospects who have stopped responding.",
+        "price": "$27 - $47",
+        "benefit": "An easy entry point. Every business has dead leads they want to revive right now."
+      },
+      "coreAsset": {
+        "title": "Sales Acceleration Toolkit",
+        "description": "A complete system of templates (FAQ sheets, timeline visuals, objection handlers) that answers buyer questions before they even ask.",
+        "price": "$97 - $197",
+        "benefit": "Positions you as a sales strategist while selling a scalable digital asset."
+      },
+      "highTicket": {
+        "title": "Pipeline Velocity Audit",
+        "description": "Review their current sales conversations to find where leads get stuck, then build the specific assets needed to unstick them.",
+        "price": "$1,000 - $3,000",
+        "benefit": "High-value consulting. If you help them close just one extra deal a month, this service pays for itself instantly."
+      }
+    },
+    "executionPlan": "Target freelancers or agencies who send proposals and then wait weeks for a reply. Offer a $27 'Re-engagement Script' that they can send to their stalled leads today. Since they have money sitting in limbo, this is an easy impulse buy.",
+    "offerAngles": [
+      "Time kills all deals: How to close clients in 14 days instead of 40",
+      "The exact follow-up scripts that wake up 'dead' leads",
+      "Stop letting prospects 'think about it' forever",
+      "How to speed up your sales cycle without being pushy",
+      "Why your proposals are getting ghosted (and how to fix it)",
+      "Turn 'maybe later' into 'paid today'",
+      "Reduce the gap between 'sending the invoice' and 'getting paid'"
+    ]
+  },
+  {
+    "id": 20,
+    "title": "No clear target audience",
+    "pageName": "NoClearTargetAudience",
+    "demand": 10,
+    "income": 9,
+    "ease": 3,
+    "subtitle": "One of the easiest problems to understand, but fixing it creates massive value. Almost every struggling business suffers from this, making the market demand limitless.",
+    "scoreDescription": "Analysis based on market demand, income potential, and implementation difficulty.",
+    "motivation": {
+      "hook": "Because generic marketing burns cash.",
+      "explanation": "Businesses bleed money when they run ads or write content that targets the wrong people. They pay for clarity because narrowing their focus instantly lowers their costs and increases their conversion rates."
+    },
+    "monetization": {
+      "quickWin": {
+        "title": "Ideal Customer Avatar Worksheet",
+        "description": "A simple, fill-in-the-blanks PDF that helps a business owner define exactly who their dream buyer is.",
+        "price": "$17 - $29",
+        "benefit": "Sell this today. It solves a huge headache with a simple 10-minute exercise."
+      },
+      "coreAsset": {
+        "title": "Niche Clarity Toolkit",
+        "description": "A complete guide including market research templates, survey scripts, and a workbook to lock in a profitable niche.",
+        "price": "$47 - $97",
+        "benefit": "Positions you as a strategic expert and gives them a permanent asset for their marketing team."
+      },
+      "highTicket": {
+        "title": "Audience Profile Deep-Dive",
+        "description": "Work with the business to research, interview, and build a comprehensive 'Customer Persona' profile they can use for all future marketing.",
+        "price": "$500 - $1,500",
+        "benefit": "Consulting revenue with high ROI for the client, as it fixes the foundation of their entire business."
+      }
+    },
+    "executionPlan": "Create a 'Dream Buyer Checklist' tailored to a specific industry (e.g., for real estate agents or fitness coaches). Sell the checklist for $27 to help them stop wasting time on bad leads, then upsell a $47 guide on where to find those specific buyers.",
+    "offerAngles": [
+      "Stop trying to sell to everyone and start selling to the right ones",
+      "Why your ads aren't working (it's not the copy, it's the audience)",
+      "The 'Niche Down' formula: How to charge more by narrowing your focus",
+      "Find your 1,000 true fans: A guide to audience clarity",
+      "Eliminate bad leads and tire-kickers forever",
+      "Clarify your message so the right customers finally listen"
+    ]
+  },
+  {
+    "id": 21,
+    "title": "Low website conversion rates",
+    "pageName": "LowWebsiteConversion",
+    "demand": 10,
+    "income": 9,
+    "ease": 6,
+    "subtitle": "A universal problem with massive demand. It requires some study of psychology and design (moderate difficulty), but companies pay very well for it because the ROI is immediate.",
+    "scoreDescription": "Analysis based on market demand, income potential, and implementation difficulty.",
+    "motivation": {
+      "hook": "Because traffic is expensive and wasted clicks flush money down the toilet.",
+      "explanation": "Most businesses pay for visitors via ads or hard work on social media. If those visitors don't buy, that effort is wasted. Fixing conversion rates is the fastest way to increase revenue without spending a single extra dollar on marketing."
+    },
+    "monetization": {
+      "quickWin": {
+        "title": "The 'Above the Fold' Checklist",
+        "description": "A 1-page PDF checklist ensuring the top part of a website has the 5 crucial elements needed to hook a visitor instantly.",
+        "price": "$19 - $29",
+        "benefit": "Quick to create, easy to sell, and provides an instant 'quick win' for the client."
+      },
+      "coreAsset": {
+        "title": "Conversion Optimization Kit",
+        "description": "A set of templates for headlines, buttons, guarantee badges, and checkout pages that are proven to increase sales.",
+        "price": "$67 - $147",
+        "benefit": "Saves the business owner hours of design thinking and provides a 'copy-paste' solution to their revenue problem."
+      },
+      "highTicket": {
+        "title": "Video Friction Audit",
+        "description": "You record your screen while narrating your experience trying to buy from their site, pointing out every place you get confused or stuck.",
+        "price": "$297 - $997",
+        "benefit": "High value because you are showing them exactly where they are losing money in real-time."
+      }
+    },
+    "executionPlan": "Use free software like Loom to record yourself browsing a potential client's website. Point out 3 things that confuse you or make you hesitate to buy. Send them a 2-minute preview for free, and offer the full deep-dive audit + a checklist of fixes for $97 - $197.",
+    "offerAngles": [
+      "Stop paying for traffic that doesn't buy",
+      "How to double your sales without spending more on ads",
+      "Is your website a leaky bucket? Here is how to plug the holes",
+      "The 5-point checklist to turn browsers into buyers",
+      "Why 98% of your visitors are leaving (and how to catch them)",
+      "Turn your 'brochure' website into a 24/7 sales machine",
+      "Don't redesign your site—just fix these 3 friction points"
+    ]
+  },
+  {
+    "id": 22,
+    "title": "Checkout problems",
+    "pageName": "CheckoutProblems",
+    "demand": 9,
+    "income": 8,
+    "ease": 4,
+    "subtitle": "Very beginner-friendly because the fixes are often simple (like removing unnecessary form fields), but extremely valuable because fixing this directly increases cash in the bank.",
+    "scoreDescription": "Analysis based on market demand, income potential, and implementation difficulty.",
+    "motivation": {
+      "hook": "Because losing a customer who is ready to pay is the most painful loss in business.",
+      "explanation": "Imagine a customer standing at a cash register with a wallet in hand, and then walking out because the line was too long or the machine was confusing. Businesses spend thousands on marketing to get people to the checkout page. If the checkout fails, that money is wasted. They will pay gladly to stop this 'leak.'"
+    },
+    "monetization": {
+      "quickWin": {
+        "title": "The No-Friction Checkout Checklist",
+        "description": "A 1-page PDF list of everything that should (and shouldn't) be on a checkout page to ensure the sale goes through.",
+        "price": "$19 - $29",
+        "benefit": "Sell this to e-commerce owners instantly. It requires zero technical skill, just common sense and observation."
+      },
+      "coreAsset": {
+        "title": "Cart Abandonment Recovery Kit",
+        "description": "A bundle containing checkout optimization templates and pre-written email scripts to send to customers who left without paying.",
+        "price": "$47 - $97",
+        "benefit": "Solves the problem two ways: fixing the page and winning back lost customers. High perceived value."
+      },
+      "highTicket": {
+        "title": "Checkout Experience Audit",
+        "description": "You walk through their purchase process as a customer, record your screen, and document every friction point that causes people to leave.",
+        "price": "$500 - $1,500",
+        "benefit": "High ROI service. If you find one error costing them 5 sales a week, your fee pays for itself in a month."
+      }
+    },
+    "executionPlan": "Go to a small online store and test their checkout process yourself. If you find friction (like forced account creation or surprise shipping fees), send the owner a polite email pointing it out. Offer your $97 'Recovery Kit' or a $500 audit to help them fix it completely.",
+    "offerAngles": [
+      "Stop losing 70% of your sales at the finish line",
+      "The 5-minute fix that could double your daily sales revenue",
+      "Why your customers are adding to cart but never paying",
+      "The invisible friction killing your conversion rate",
+      "Turn abandoned carts into completed orders automatically",
+      "Don't spend more on ads until you fix your checkout flow"
+    ]
+  },
+  {
+    "id": 23,
+    "title": "Confusing funnel structure",
+    "pageName": "ConfusingFunnelStructure",
+    "demand": 8,
+    "income": 9,
+    "ease": 6,
+    "subtitle": "Moderate difficulty because it requires logical thinking more than technical skill. The income potential is huge because fixing a broken funnel immediately releases trapped revenue.",
+    "scoreDescription": "Analysis based on market demand, income potential, and implementation difficulty.",
+    "motivation": {
+      "hook": "Because a confused mind always says 'no'.",
+      "explanation": "If a potential customer doesn't know exactly what button to click next, they close the tab. Businesses lose countless sales simply because their checkout flow or sign-up process is messy, complicated, or overwhelming."
+    },
+    "monetization": {
+      "quickWin": {
+        "title": "The Funnel Clarity Checklist",
+        "description": "A 1-page PDF listing the 10 essential elements every sales page needs so customers don't get stuck.",
+        "price": "$19 - $29",
+        "benefit": "Easy entry point that helps a business owner self-diagnose their problem in 10 minutes."
+      },
+      "coreAsset": {
+        "title": "Proven Funnel Maps Pack",
+        "description": "A collection of visual diagrams (maps) showing exactly how 5 different successful sales funnels are structured.",
+        "price": "$67 - $129",
+        "benefit": "High perceived value because it saves them from guessing; they just copy the map."
+      },
+      "highTicket": {
+        "title": "Customer Journey Mapping & Audit",
+        "description": "You review their current setup, draw a map of where it is broken, and design a simplified 'ideal flow' for them to build.",
+        "price": "$750 - $2,500",
+        "benefit": "High-ticket consulting where you provide the strategy without having to do the technical building yourself."
+      }
+    },
+    "executionPlan": "Go through a business's current sales process or website as if you were a customer. Sketch out their current 'map' on paper, highlighting every dead end or confusing step. Send them a video of this map to prove they are losing money, then offer your Audit service to fix it.",
+    "offerAngles": [
+      "Is your checkout process difficult to navigate?",
+      "Stop sending paid traffic to a dead end",
+      "The 3-step framework to untangle your sales process",
+      "Why 'more options' is killing your conversion rate",
+      "Fix the hidden leaks in your customer journey",
+      "Simplify your funnel: How to make buying from you the easiest choice"
+    ]
+  },
+  {
+    "id": 24,
+    "title": "No sales scripts or frameworks",
+    "pageName": "NoSalesScripts",
+    "demand": 9,
+    "income": 8,
+    "ease": 4,
+    "subtitle": "Highly in demand because most business owners hate selling and don't know what to say. It's beginner-friendly to fix because it's mostly about organizing words, but the payoff is higher revenue.",
+    "scoreDescription": "Analysis based on market demand, income potential, and implementation difficulty.",
+    "motivation": {
+      "hook": "Because guessing what to say costs them money.",
+      "explanation": "Without a script, businesses lose customers who were actually ready to buy, simply because the salesperson got nervous or forgot to ask for the sale. They pay for certainty—knowing that their team is saying the right thing, every time, to close more deals."
+    },
+    "monetization": {
+      "quickWin": {
+        "title": "Objection Handling Cheat Sheet",
+        "description": "A simple PDF list of the top 10 reasons customers say 'no' (like price or timing) and exactly what to say to win them back.",
+        "price": "$19 - $27",
+        "benefit": "Solves the scariest part of selling instantly. Easy to create and easy to buy."
+      },
+      "coreAsset": {
+        "title": "The 'Close More Deals' Script Kit",
+        "description": "A complete set of fill-in-the-blank templates for cold calls, discovery meetings, and closing conversations.",
+        "price": "$97 - $147",
+        "benefit": "A professional asset that a business owner can hand to new employees to get them selling immediately."
+      },
+      "highTicket": {
+        "title": "Sales Playbook Creation & Roleplay",
+        "description": "Interview the founder to extract what works, turn it into a formal script, and run a training session with their team to practice it.",
+        "price": "$1,000 - $3,000",
+        "benefit": "High-value service that completely removes sales stress from the business owner."
+      }
+    },
+    "executionPlan": "Most people freeze when a customer says 'it's too expensive.' Create a one-page 'Objection Crusher' guide with 5 scripted responses to price resistance. Sell it for $27 to freelancers or agencies who are tired of losing deals at the last minute.",
+    "offerAngles": [
+      "Stop saying 'um' and start closing deals",
+      "The exact words to say when a client says 'it's too expensive'",
+      "Clone your best salesperson with this simple script framework",
+      "Remove the anxiety from your sales calls forever",
+      "Turn your team from nervous improvisers into confident closers",
+      "Why 'winging it' is costing you thousands every month"
+    ]
+  },
+  {
+    "id": 25,
+    "title": "Weak follow-up",
+    "pageName": "WeakFollowUp",
+    "demand": 10,
+    "income": 8,
+    "ease": 4,
+    "subtitle": "One of the most common business mistakes in history. It is very easy to fix with simple email templates, but the financial return for the business is massive, allowing you to charge premium prices for simple work.",
+    "scoreDescription": "Analysis based on market demand, income potential, and implementation difficulty.",
+    "motivation": {
+      "hook": "Because most sales happen after the 5th contact, not the 1st.",
+      "explanation": "Businesses spend a fortune trying to find new people, but then ignore the ones who already showed interest. Fixing follow-up is the fastest way to increase revenue because it converts 'maybe' into 'yes' without spending more money on ads."
+    },
+    "monetization": {
+      "quickWin": {
+        "title": "The 'Dead Lead' Revival Script",
+        "description": "A set of 3 simple copy-paste email scripts designed to get a response from potential customers who stopped replying.",
+        "price": "$19 - $27",
+        "benefit": "Sell this immediately to any business owner frustrated by ghosting. No tech required."
+      },
+      "coreAsset": {
+        "title": "Automated Follow-Up Playbook",
+        "description": "20+ templates, timing schedules, and guides on how to set up automatic follow-up messages that run while the owner sleeps.",
+        "price": "$47 - $147",
+        "benefit": "Positions you as a systems expert. High value because it saves the owner time forever."
+      },
+      "highTicket": {
+        "title": "Total Lead Reactivation Service",
+        "description": "You take their list of old, unconverted leads and run a 14-day email campaign to get them buying again.",
+        "price": "$500 - $1,500",
+        "benefit": "High ROI service. You can often pay for your own fee just by waking up 2 or 3 old customers for them."
+      }
+    },
+    "executionPlan": "Create a 'Reactivation Kit' (3 simple emails). Ask a local service business (like a landscaper or gym) if they have a list of people who asked for quotes but never bought. Sell them the kit for $27, or offer to send the emails for them for $497.",
+    "offerAngles": [
+      "The 3-email sequence that wakes up ghosting leads",
+      "Stop losing sales to 'I'll think about it'",
+      "How to double your closing rate without finding new customers",
+      "The fortune is in the follow-up: Are you leaving yours on the table?",
+      "Turn your pile of 'dead leads' into instant cash this week",
+      "Why your silence is handing customers to your competitors"
+    ]
+  },
+  {
+    "id": 26,
+    "title": "Low landing page opt-ins",
+    "pageName": "LowLandingPageOptIns",
+    "demand": 10,
+    "income": 8,
+    "ease": 4,
+    "subtitle": "Very beginner-friendly because the fixes are usually about words (copy) rather than code. Demand is massive because every business wants a bigger email list.",
+    "scoreDescription": "Analysis based on market demand, income potential, and implementation difficulty.",
+    "motivation": {
+      "hook": "Because traffic without leads is just burning cash.",
+      "explanation": "If a business sends 1,000 people to a page and only 10 sign up, they are losing money. Increasing that number to 50 or 100 instantly multiplies their leads without costing them a penny more in advertising. They pay to stop the waste."
+    },
+    "monetization": {
+      "quickWin": {
+        "title": "Killer Headline Scripts",
+        "description": "A simple collection of fill-in-the-blank headlines proven to get people to stop scrolling and pay attention.",
+        "price": "$19 - $37",
+        "benefit": "Quick win for the customer—they just copy, paste, and see results."
+      },
+      "coreAsset": {
+        "title": "The High-Converting Page Toolkit",
+        "description": "A comprehensive guide including page layout templates, button checklists, and 'thank you' page strategies.",
+        "price": "$47 - $127",
+        "benefit": "Positions you as an organized expert with a replicable system."
+      },
+      "highTicket": {
+        "title": "Landing Page Optimization Audit",
+        "description": "Review their current page, rewrite their main headline, and tell them exactly what to change to get more sign-ups.",
+        "price": "$500 - $1,500",
+        "benefit": "High value because effective landing pages directly create money for the client."
+      }
+    },
+    "executionPlan": "Find businesses running ads to a page that looks confusing. Send them a polite message offering a $27 'Headline & Hook' rewrite to test against their current page. Once they see your version works better, pitch a full page rewrite service.",
+    "offerAngles": [
+      "Stop paying for traffic that doesn't turn into leads",
+      "Double your email list growth without spending more on ads",
+      "Why 90% of your visitors leave without saying hello (and how to fix it)",
+      "Turn your landing page into a lead-generating asset",
+      "The 'above the fold' mistake costing you daily subscribers",
+      "How to write headlines that force visitors to pay attention"
+    ]
+  },
+  {
+    "id": 27,
+    "title": "No CRM or pipeline management",
+    "pageName": "NoCrmPipeline",
+    "demand": 9,
+    "income": 8,
+    "ease": 4,
+    "subtitle": "Very beginner-friendly because modern tools are easy to set up, yet highly lucrative because businesses know they are losing money by being disorganized.",
+    "scoreDescription": "Analysis based on market demand, income potential, and implementation difficulty.",
+    "motivation": {
+      "hook": "Because a forgotten lead is lost money.",
+      "explanation": "When a business relies on memory to track sales, they drop the ball. They forget to call back, they miss emails, and the customer goes to a competitor. Fixing this systemizes their revenue and removes the anxiety of 'guessing' where the next sale is coming from."
+    },
+    "monetization": {
+      "quickWin": {
+        "title": "The Sales Tracker Spreadsheet",
+        "description": "A clean, automated Google Sheet or Notion dashboard that replaces sticky notes. Helps them track who to call and when.",
+        "price": "$19 - $37",
+        "benefit": "Instant organization for a very low price. No monthly subscriptions required."
+      },
+      "coreAsset": {
+        "title": "CRM Setup Toolkit",
+        "description": "A video guide and template pack for setting up a free CRM (like HubSpot or Pipedrive), including email templates and pipeline stages.",
+        "price": "$97 - $147",
+        "benefit": "Teaches them how to build a professional sales engine in one weekend."
+      },
+      "highTicket": {
+        "title": "Done-For-You Sales CRM Implementation",
+        "description": "You set up the software, import their scattered contacts, create the pipeline, and train their team on how to use it.",
+        "price": "$1,000 - $3,000",
+        "benefit": "Complete peace of mind. They get a turnkey sales system without lifting a finger."
+      }
+    },
+    "executionPlan": "Build a simple 'Sales Pipeline Tracker' in Notion or Google Sheets. Offer it for $27 to local service businesses (contractors, landscapers, designers) who are notoriously disorganized. Use the trust from that small sale to pitch a $1,000 implementation of a real CRM software later.",
+    "offerAngles": [
+      "Classify your leads: Stop letting potential deals slip through the cracks",
+      "Turn your pile of sticky notes into a predictable sales machine",
+      "The simple tracking system that recovers lost revenue instantly",
+      "Stop guessing who to follow up with today",
+      "How to organize your sales process without expensive software",
+      "Never lose a customer's phone number again",
+      "From chaos to clarity: See your entire revenue pipeline in one click"
+    ]
+  }
+]
