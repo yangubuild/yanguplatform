@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
     let expiresAt: string | null = null;
 
     // --------------- Google ---------------
-    if (["google-drive", "gmail", "google-meet"].includes(state.slug)) {
+    if (["google-drive", "gmail", "google-meet", "youtube"].includes(state.slug)) {
       const clientId = Deno.env.get("GOOGLE_CLIENT_ID") || Deno.env.get("GOOGLE_DRIVE_CLIENT_ID");
       const clientSecret = Deno.env.get("GOOGLE_CLIENT_SECRET") || Deno.env.get("GOOGLE_DRIVE_CLIENT_SECRET");
       if (!clientId || !clientSecret) {

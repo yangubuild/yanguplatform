@@ -68,6 +68,9 @@ Deno.serve(async (req) => {
         "google-meet": [
           "https://www.googleapis.com/auth/calendar.events",
         ],
+        youtube: [
+          "https://www.googleapis.com/auth/youtube.readonly",
+        ],
       };
 
       const scopes = [
