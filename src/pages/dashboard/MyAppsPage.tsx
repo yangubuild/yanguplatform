@@ -139,6 +139,10 @@ export default function MyAppsPage() {
                 <div className="flex items-center justify-between mt-auto pt-1">
                   <span className="text-[10px] text-white/25">Added {installedDate}</span>
                   <div className="flex items-center gap-1.5">
+                    {/* Show Connect button for OAuth apps not yet connected */}
+                    {item.app.supports_oauth && item.status !== "connected" && (
+                      <ConnectButton app={item.app} queryClient={queryClient} />
+                    )}
                     {item.app.launch_route && (
                       <button
                         onClick={() => navigate(item.app.launch_route!)}
@@ -147,6 +151,11 @@ export default function MyAppsPage() {
                       >
                         Open
                       </button>
+                    )}
+                    {item.status === "connected" && (
+                      <span className="px-2 py-1 rounded-lg text-[10px] font-medium text-green-400" style={{ background: "rgba(74,222,128,0.1)" }}>
+                        ✓ Connected
+                      </span>
                     )}
                     <button
                       onClick={() => handleRemove(item.app_id, item.app.name)}
