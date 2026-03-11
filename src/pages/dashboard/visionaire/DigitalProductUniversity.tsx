@@ -11,6 +11,16 @@ import pricingGuideImg from "@/assets/university/pricing-guide.jpg";
 import aiWritingImg from "@/assets/university/ai-writing.jpg";
 import visualsGuideImg from "@/assets/university/visuals-guide.jpg";
 
+// Maps main page slugs to their masterclass course slugs
+const MASTERCLASS_SLUG_MAP: Record<string, string> = {
+  "starting-an-online-business": "online-business-master-plan",
+  "choosing-the-right-platform": "platforms-guide",
+  "building-your-sales-funnel": "funnel-guide",
+  "pricing-your-digital-products": "pricing-guide",
+  "ai-powered-content-writing": "copywriting-guide",
+  "creating-stunning-product-visuals": "visuals-guide",
+};
+
 const COURSES = [
   {
     slug: "master-library-masterclass",
@@ -157,7 +167,11 @@ export default function DigitalProductUniversity() {
           {grid.map((course) => (
             <Link
               key={course.slug}
-              to={`/dashboard/visionaire/university/${course.slug}`}
+              to={
+                MASTERCLASS_SLUG_MAP[course.slug]
+                  ? `/dashboard/visionaire/university/master-library-masterclass/course/${MASTERCLASS_SLUG_MAP[course.slug]}`
+                  : `/dashboard/visionaire/university/${course.slug}`
+              }
               className="group rounded-xl border border-border bg-card overflow-hidden hover:border-primary/30 transition-colors flex flex-col"
             >
               <div className="relative aspect-[16/10] overflow-hidden">
