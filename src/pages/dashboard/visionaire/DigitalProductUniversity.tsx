@@ -167,7 +167,11 @@ export default function DigitalProductUniversity() {
           {grid.map((course) => (
             <Link
               key={course.slug}
-              to={`/dashboard/visionaire/university/${course.slug}`}
+              to={
+                MASTERCLASS_SLUG_MAP[course.slug]
+                  ? `/dashboard/visionaire/university/master-library-masterclass/course/${MASTERCLASS_SLUG_MAP[course.slug]}`
+                  : `/dashboard/visionaire/university/${course.slug}`
+              }
               className="group rounded-xl border border-border bg-card overflow-hidden hover:border-primary/30 transition-colors flex flex-col"
             >
               <div className="relative aspect-[16/10] overflow-hidden">
