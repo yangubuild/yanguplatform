@@ -8,14 +8,25 @@ import gradientsImg from "@/assets/mockups/gradients.png";
 import shotsSoImg from "@/assets/mockups/shots-so.jpg";
 import boxMockupsImg from "@/assets/mockups/box-mockups.png";
 
-const RESOURCES = [
+type ResourceType = "external" | "ai" | "coming-soon";
+
+interface Resource {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  url: string;
+  type: ResourceType;
+}
+
+const RESOURCES: Resource[] = [
   {
     id: "gradients",
     title: "Gradients",
     description: "Beautiful gradient backgrounds and patterns",
     image: gradientsImg,
     url: "https://unsplash.com/s/photos/Gradient-background",
-    type: "external" as const,
+    type: "external",
   },
   {
     id: "shots-so",
@@ -23,7 +34,7 @@ const RESOURCES = [
     description: "Professional screenshot templates",
     image: shotsSoImg,
     url: "https://shots.so",
-    type: "external" as const,
+    type: "external",
   },
   {
     id: "box-mockups",
@@ -31,7 +42,7 @@ const RESOURCES = [
     description: "3D product box mockup templates",
     image: boxMockupsImg,
     url: "",
-    type: "ai" as const,
+    type: "ai",
   },
 ];
 
