@@ -1,9 +1,10 @@
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, TrendingUp } from "lucide-react";
+import { ArrowLeft, TrendingUp, Lightbulb, DollarSign, Zap, Target, Rocket, MessageSquare } from "lucide-react";
 import { VisionairePageContainer } from "@/components/visionaire/VisionairePageContainer";
 import { Button } from "@/components/ui/button";
+import evergreenData from "@/data/evergreen-problems.json";
 
-/* We import the same data to look up the problem by slug */
+/* ─── Slug lookup for all problems ─── */
 const ALL_PROBLEMS = [
   { title: "Low landing page opt-ins", demand: 10, income: 8, ease: 4, slug: "low-landing-page-opt-ins", category: "More Revenue" },
   { title: "Social media presence unoptimized", demand: 10, income: 7, ease: 3, slug: "social-media-unoptimized", category: "More Revenue" },
@@ -133,6 +134,26 @@ const ALL_PROBLEMS = [
   { title: "No deep work time", demand: 10, income: 8, ease: 4, slug: "no-deep-work-time", category: "More Freedom & Control for the Owner" },
 ];
 
+/* ─── Build title→richData lookup from JSON ─── */
+interface RichData {
+  subtitle: string;
+  scoreDescription: string;
+  motivation: { hook: string; explanation: string };
+  monetization: {
+    quickWin: { title: string; description: string; price: string; benefit: string };
+    coreAsset: { title: string; description: string; price: string; benefit: string };
+    highTicket: { title: string; description: string; price: string; benefit: string };
+  };
+  executionPlan: string;
+  offerAngles: string[];
+}
+
+const richDataByTitle = new Map<string, RichData>();
+(evergreenData as unknown as (RichData & { title: string })[]).forEach((item) => {
+  richDataByTitle.set(item.title.toLowerCase(), item);
+});
+
+/* ─── Score Badge ─── */
 function ScoreBadge({ value, label }: { value: number; label: string }) {
   return (
     <div className="flex flex-col items-center gap-1">
@@ -142,6 +163,38 @@ function ScoreBadge({ value, label }: { value: number; label: string }) {
       <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
         {label}
       </span>
+    </div>
+  );
+}
+
+/* ─── Monetization Card ─── */
+function MonetizationCard({
+  tier,
+  title,
+  description,
+  price,
+  benefit,
+  icon,
+}: {
+  tier: string;
+  title: string;
+  description: string;
+  price: string;
+  benefit: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-5 space-y-3">
+      <div className="flex items-center gap-2">
+        {icon}
+        <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{tier}</span>
+      </div>
+      <h4 className="font-bold text-foreground text-sm">{title}</h4>
+      <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
+      <div className="flex items-center justify-between pt-2 border-t border-border">
+        <span className="text-sm font-bold text-foreground">{price}</span>
+      </div>
+      <p className="text-xs text-muted-foreground italic">{benefit}</p>
     </div>
   );
 }
@@ -162,6 +215,8 @@ export default function EvergreenProblemDetail() {
       </VisionairePageContainer>
     );
   }
+
+  const rich = richDataByTitle.get(problem.title.toLowerCase()) || null;
 
   return (
     <VisionairePageContainer>
@@ -186,6 +241,13 @@ export default function EvergreenProblemDetail() {
           {problem.title}
         </h1>
 
+        {/* Subtitle from JSON */}
+        {rich && (
+          <p className="text-muted-foreground leading-relaxed text-base max-w-3xl">
+            {rich.subtitle}
+          </p>
+        )}
+
         {/* Scores */}
         <div className="flex items-center gap-8 py-4">
           <ScoreBadge value={problem.demand} label="Demand" />
@@ -196,28 +258,131 @@ export default function EvergreenProblemDetail() {
         {/* Divider */}
         <div className="border-t border-border" />
 
-        {/* Content area */}
-        <div className="rounded-xl border border-border bg-card p-6 md:p-8 space-y-6">
-          <h2 className="text-lg font-bold text-foreground">About this opportunity</h2>
-          <p className="text-muted-foreground leading-relaxed">
-            This is an evergreen business problem that businesses face consistently. With a demand score of {problem.demand}, income potential of {problem.income}, and ease of entry at {problem.ease}, this represents a significant opportunity to build a sustainable business around solving this problem.
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-            <div className="rounded-lg border border-border p-4 text-center">
-              <div className="text-2xl font-bold text-foreground">{problem.demand}/10</div>
-              <div className="text-xs text-muted-foreground mt-1">Market Demand</div>
-            </div>
-            <div className="rounded-lg border border-border p-4 text-center">
-              <div className="text-2xl font-bold text-foreground">{problem.income}/10</div>
-              <div className="text-xs text-muted-foreground mt-1">Income Potential</div>
-            </div>
-            <div className="rounded-lg border border-border p-4 text-center">
-              <div className="text-2xl font-bold text-foreground">{problem.ease}/10</div>
-              <div className="text-xs text-muted-foreground mt-1">Ease of Entry</div>
+        {/* Score description */}
+        {rich && (
+          <div className="rounded-xl border border-border bg-card p-6 md:p-8 space-y-6">
+            <h2 className="text-lg font-bold text-foreground">About this opportunity</h2>
+            <p className="text-muted-foreground leading-relaxed">{rich.scoreDescription}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+              <div className="rounded-lg border border-border p-4 text-center">
+                <div className="text-2xl font-bold text-foreground">{problem.demand}/10</div>
+                <div className="text-xs text-muted-foreground mt-1">Market Demand</div>
+              </div>
+              <div className="rounded-lg border border-border p-4 text-center">
+                <div className="text-2xl font-bold text-foreground">{problem.income}/10</div>
+                <div className="text-xs text-muted-foreground mt-1">Income Potential</div>
+              </div>
+              <div className="rounded-lg border border-border p-4 text-center">
+                <div className="text-2xl font-bold text-foreground">{problem.ease}/10</div>
+                <div className="text-xs text-muted-foreground mt-1">Ease of Entry</div>
+              </div>
             </div>
           </div>
-        </div>
+        )}
+
+        {/* Motivation / Why This Matters */}
+        {rich && (
+          <div className="rounded-xl border border-border bg-card p-6 md:p-8 space-y-4">
+            <div className="flex items-center gap-2">
+              <Lightbulb className="h-5 w-5 text-foreground" />
+              <h2 className="text-lg font-bold text-foreground">Why This Matters</h2>
+            </div>
+            <blockquote className="border-l-2 border-foreground/30 pl-4 text-foreground font-semibold italic text-base">
+              "{rich.motivation.hook}"
+            </blockquote>
+            <p className="text-muted-foreground leading-relaxed">{rich.motivation.explanation}</p>
+          </div>
+        )}
+
+        {/* Monetization */}
+        {rich && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <DollarSign className="h-5 w-5 text-foreground" />
+              <h2 className="text-lg font-bold text-foreground">How to Monetize</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <MonetizationCard
+                tier="Quick Win"
+                icon={<Zap className="h-4 w-4 text-foreground" />}
+                title={rich.monetization.quickWin.title}
+                description={rich.monetization.quickWin.description}
+                price={rich.monetization.quickWin.price}
+                benefit={rich.monetization.quickWin.benefit}
+              />
+              <MonetizationCard
+                tier="Core Asset"
+                icon={<Target className="h-4 w-4 text-foreground" />}
+                title={rich.monetization.coreAsset.title}
+                description={rich.monetization.coreAsset.description}
+                price={rich.monetization.coreAsset.price}
+                benefit={rich.monetization.coreAsset.benefit}
+              />
+              <MonetizationCard
+                tier="High Ticket"
+                icon={<Rocket className="h-4 w-4 text-foreground" />}
+                title={rich.monetization.highTicket.title}
+                description={rich.monetization.highTicket.description}
+                price={rich.monetization.highTicket.price}
+                benefit={rich.monetization.highTicket.benefit}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Execution Plan */}
+        {rich && (
+          <div className="rounded-xl border border-border bg-card p-6 md:p-8 space-y-4">
+            <div className="flex items-center gap-2">
+              <Rocket className="h-5 w-5 text-foreground" />
+              <h2 className="text-lg font-bold text-foreground">Execution Plan</h2>
+            </div>
+            <p className="text-muted-foreground leading-relaxed">{rich.executionPlan}</p>
+          </div>
+        )}
+
+        {/* Offer Angles */}
+        {rich && rich.offerAngles.length > 0 && (
+          <div className="rounded-xl border border-border bg-card p-6 md:p-8 space-y-4">
+            <div className="flex items-center gap-2">
+              <MessageSquare className="h-5 w-5 text-foreground" />
+              <h2 className="text-lg font-bold text-foreground">Offer Angles</h2>
+            </div>
+            <p className="text-xs text-muted-foreground">Use these hooks in your marketing copy, ads, and sales pages.</p>
+            <ul className="space-y-2">
+              {rich.offerAngles.map((angle, i) => (
+                <li key={i} className="flex items-start gap-2">
+                  <span className="text-foreground/60 font-bold text-sm mt-0.5">→</span>
+                  <span className="text-muted-foreground text-sm leading-relaxed">{angle}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Fallback for problems without rich data */}
+        {!rich && (
+          <div className="rounded-xl border border-border bg-card p-6 md:p-8 space-y-6">
+            <h2 className="text-lg font-bold text-foreground">About this opportunity</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              This is an evergreen business problem that businesses face consistently. With a demand score of {problem.demand}, income potential of {problem.income}, and ease of entry at {problem.ease}, this represents a significant opportunity to build a sustainable business around solving this problem.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+              <div className="rounded-lg border border-border p-4 text-center">
+                <div className="text-2xl font-bold text-foreground">{problem.demand}/10</div>
+                <div className="text-xs text-muted-foreground mt-1">Market Demand</div>
+              </div>
+              <div className="rounded-lg border border-border p-4 text-center">
+                <div className="text-2xl font-bold text-foreground">{problem.income}/10</div>
+                <div className="text-xs text-muted-foreground mt-1">Income Potential</div>
+              </div>
+              <div className="rounded-lg border border-border p-4 text-center">
+                <div className="text-2xl font-bold text-foreground">{problem.ease}/10</div>
+                <div className="text-xs text-muted-foreground mt-1">Ease of Entry</div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* CTA */}
         <div className="flex gap-3">
