@@ -59,10 +59,6 @@ function ProblemCard({
    ──────────────────────────────────────────── */
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   revenue: <TrendingUp className="h-5 w-5 text-foreground" />,
-  profit: <DollarSign className="h-5 w-5 text-foreground" />,
-  predictability: <Shield className="h-5 w-5 text-foreground" />,
-  team: <Users className="h-5 w-5 text-foreground" />,
-  freedom: <Crown className="h-5 w-5 text-foreground" />,
 };
 
 /* ────────────────────────────────────────────
