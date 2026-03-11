@@ -142,15 +142,18 @@ export default function VisionaireItemDetail() {
             </div>
 
             {/* Cover preview (large) */}
-            {item.thumbnail_url && (
-              <div className="rounded-xl overflow-hidden border border-border bg-muted max-w-lg">
-                <img
-                  src={item.preview_image_url || item.thumbnail_url}
-                  alt={item.title}
-                  className="w-full h-auto object-contain"
-                />
-              </div>
-            )}
+            {(() => {
+              const thumb = getItemThumbnail(item);
+              return thumb ? (
+                <div className="rounded-xl overflow-hidden border border-border bg-muted max-w-lg">
+                  <img
+                    src={item.preview_image_url || thumb}
+                    alt={item.title}
+                    className="w-full h-auto object-contain"
+                  />
+                </div>
+              ) : null;
+            })()}
 
             {/* Product contents */}
             {content.lessons && (
