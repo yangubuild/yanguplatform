@@ -147,7 +147,10 @@ Deno.serve(async (req) => {
       const clientId = Deno.env.get("PAYPAL_CLIENT_ID");
       const clientSecret = Deno.env.get("PAYPAL_CLIENT_SECRET");
       if (!clientId || !clientSecret) {
-        return new Response("PayPal not configured", { status: 500 });
+        return new Response(JSON.stringify({ error: "PayPal not configured" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
 
       const tokenRes = await fetch("https://api-m.paypal.com/v1/oauth2/token", {
