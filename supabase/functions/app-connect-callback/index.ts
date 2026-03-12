@@ -248,6 +248,116 @@ Deno.serve(async (req) => {
   }
 });
 
+type GoogleTokenResponse = {
+  access_token?: string;
+  refresh_token?: string;
+  expires_in?: number;
+  error?: string;
+  error_description?: string;
+};
+
+async function exchangeGoogleToken(params: {
+  code: string;
+  clientId: string;
+  clientSecret: string;
+  redirectUri: string;
+}): Promise<{ tokens: GoogleTokenResponse; authMethod: "client_secret_post" | "client_secret_basic" }> {
+  const tokenUrl = "https://oauth2.googleapis.com/token";
+
+  const postResponse = await fetch(tokenUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      code: params.code,
+      client_id: params.clientId,
+      client_secret: params.clientSecret,
+      redirect_uri: params.redirectUri,
+      grant_type: "authorization_code",
+    }),
+  });
+
+  const postTokens = (await postResponse.json()) as GoogleTokenResponse;
+  if (postResponse.ok || postTokens.error !== "invalid_client") {
+    return { tokens: postTokens, authMethod: "client_secret_post" };
+  }
+
+  const basicResponse = await fetch(tokenUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization: `Basic ${btoa(`${params.clientId}:${params.clientSecret}`)}`,
+    },
+    body: new URLSearchParams({
+      code: params.code,
+      redirect_uri: params.redirectUri,
+      grant_type: "authorization_code",
+    }),
+  });
+
+  const basicTokens = (await basicResponse.json()) as GoogleTokenResponse;
+  return { tokens: basicTokens, authMethod: "client_secret_basic" };
+}
+
+function normalizeOAuthCredential(raw: string | undefined): string {
+  return (raw || "")
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    .replace(/\s+/g, "")
+    .replace(/^['"]+|['"]+$/g, "")
+    .trim();
+}
+
+function redirectToApp(
+  redirectBack: string | undefined,
+  slug: string,
+  status: "success" | "error",
+  message?: string,
+): Response {
+  const target = sanitizeRedirectPath(redirectBack || "/dashboard/my-apps");
+  const params = new URLSearchParams({
+    connect_status: status,
+    connect_app: slug,
+  });
+
+  if (status === "error" && message) {
+    params.set("connect_error", message.slice(0, 180));
+  }
+
+  const sep = target.includes("?") ? "&" : "?";
+  const finalPath = `${target}${sep}${params.toString()}`;
+
+  const html = `<!DOCTYPE html>
+<html>
+<head><meta http-equiv="refresh" content="0;url=${escapeHtml(finalPath)}"></head>
+<body><p>Redirecting…</p></body>
+</html>`;
+
+  return new Response(html, {
+    status: 200,
+    headers: { "Content-Type": "text/html; charset=utf-8" },
+  });
+}
+
+function sanitizeRedirectPath(target: string): string {
+  if (target.startsWith("http")) {
+    try {
+      const parsed = new URL(target);
+      return parsed.pathname + parsed.search + parsed.hash;
+    } catch {
+      return "/dashboard/my-apps";
+    }
+  }
+
+  return target.startsWith("/") ? target : "/dashboard/my-apps";
+}
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
 function maskCredential(value: string, visibleChars: number): string {
   if (value.length <= visibleChars * 2) {
     return `${value.slice(0, 1)}***${value.slice(-1)}`;
