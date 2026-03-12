@@ -142,13 +142,13 @@ export function CustomProductOffer() {
   return (
     <section className="mt-2 space-y-2.5">
       <div className="grid min-w-0 grid-cols-1 gap-2.5 lg:grid-cols-2">
-        <div className="relative h-[390px] overflow-hidden rounded-2xl border border-border bg-card px-6 py-7 sm:h-[420px] sm:px-7 lg:h-[450px]">
+        <div className="relative h-[280px] overflow-hidden rounded-2xl border border-border bg-card px-6 py-6 sm:h-[300px] sm:px-7 lg:h-[310px]">
           <div className="absolute inset-0 opacity-40 [background-image:linear-gradient(to_right,hsl(var(--border)/0.55)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.55)_1px,transparent_1px)] [background-size:28px_28px]" />
           <div className="relative z-10 flex h-full flex-col justify-center">
-            <h2 className="max-w-[520px] text-4xl font-black leading-[1.05] text-foreground sm:text-5xl">
+            <h2 className="max-w-[460px] text-3xl font-black leading-[1.08] text-foreground sm:text-4xl">
               Have your own <span style={{ color: YANGU_ORANGE }}>Signature Product</span> created in 7 days.
             </h2>
-            <p className="mt-5 max-w-[520px] text-xl leading-relaxed text-muted-foreground">
+            <p className="mt-3 max-w-[460px] text-base leading-relaxed text-muted-foreground">
               We transform your idea into a world-class digital asset without you writing a single word.
             </p>
 
@@ -186,7 +186,7 @@ export function CustomProductOffer() {
           </div>
         </div>
 
-        <div className="h-[390px] overflow-hidden rounded-2xl border border-border bg-card p-2.5 sm:h-[420px] sm:p-3 lg:h-[450px]">
+        <div className="h-[280px] overflow-hidden rounded-2xl border border-border bg-card p-2.5 sm:h-[300px] sm:p-3 lg:h-[310px]">
           <div className="grid h-full grid-rows-3 gap-2">
             {BOOK_ROWS.map((row, rowIndex) => (
               <CoverRow key={rowIndex} images={row} rowIndex={rowIndex} />
@@ -195,7 +195,7 @@ export function CustomProductOffer() {
         </div>
       </div>
 
-      <div className="relative h-[174px] overflow-hidden rounded-2xl border border-border bg-card px-6 py-4 sm:h-[186px]">
+      <div className="relative h-[140px] overflow-hidden rounded-2xl border border-border bg-card px-5 py-3 sm:h-[150px]">
         <div className="absolute inset-0 opacity-40 [background-image:linear-gradient(to_right,hsl(var(--border)/0.5)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.5)_1px,transparent_1px)] [background-size:28px_28px]" />
         <div className="relative z-10 flex h-full items-center gap-6">
           <div className="shrink-0">
@@ -233,26 +233,25 @@ export function CustomProductOffer() {
           return (
             <div
               key={stat.label}
-              className={`h-[106px] rounded-2xl border px-4 py-3 sm:h-[114px] ${
-                stat.highlight ? "bg-card" : "border-border bg-card"
-              }`}
-              style={stat.highlight ? { borderColor: YANGU_ORANGE_BORDER_35 } : undefined}
+              className={`h-[82px] rounded-2xl border px-4 py-3 sm:h-[88px]`}
+              style={{
+                background: "#ffffff",
+                borderColor: stat.highlight ? YANGU_ORANGE_BORDER_35 : "rgba(0,0,0,0.08)",
+              }}
             >
               <div className="flex h-full items-center justify-between gap-2">
                 <div>
                   <p
-                    className={`font-bold leading-none ${isLongValue ? "text-3xl" : "text-4xl"} ${
-                      stat.highlight ? "" : "text-foreground"
-                    }`}
-                    style={stat.highlight ? { color: YANGU_ORANGE } : undefined}
+                    className={`font-bold leading-none ${isLongValue ? "text-2xl" : "text-3xl"}`}
+                    style={{ color: stat.highlight ? YANGU_ORANGE : "#1a1a1a" }}
                   >
                     {stat.value}
                   </p>
-                  <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                  <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: "#888" }}>
                     {stat.label}
                   </p>
                 </div>
-                {React.cloneElement(stat.icon, { className: "h-5 w-5" })}
+                {React.cloneElement(stat.icon, { className: "h-5 w-5", style: { color: stat.highlight ? YANGU_ORANGE : "#999" } })}
               </div>
             </div>
           );
@@ -260,7 +259,7 @@ export function CustomProductOffer() {
       </div>
 
       <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
-        <div className="h-[236px] rounded-2xl border border-border bg-card px-6 py-5 sm:h-[252px] lg:h-[268px]">
+        <div className="h-[200px] rounded-2xl border border-border bg-card px-6 py-5 sm:h-[210px] lg:h-[220px]">
           <div className="flex h-full flex-col justify-between">
             <div className="flex gap-1">
               {[...Array(5)].map((_, index) => (
@@ -287,7 +286,7 @@ export function CustomProductOffer() {
           </div>
         </div>
 
-        <div className="relative h-[236px] rounded-2xl border border-border bg-foreground px-6 py-5 text-background sm:h-[252px] lg:h-[268px]">
+        <div className="relative h-[200px] rounded-2xl border border-border bg-foreground px-6 py-5 text-background sm:h-[210px] lg:h-[220px]">
           <span
             className="absolute right-4 top-4 rounded-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white"
             style={{ background: YANGU_GRADIENT }}
