@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
     const userId = user.id;
 
     // --- Build OAuth URL ---
-    const clientId = Deno.env.get("GOOGLE_DRIVE_CLIENT_ID");
+    const clientId = (Deno.env.get("GOOGLE_DRIVE_CLIENT_ID") || "").trim();
     if (!clientId) {
       return new Response(
         JSON.stringify({ error: "Google Drive not configured" }),

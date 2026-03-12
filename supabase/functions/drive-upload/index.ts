@@ -82,8 +82,8 @@ Deno.serve(async (req) => {
 
     if (expiresAt.getTime() - Date.now() < 60_000) {
       // Refresh
-      const clientId = Deno.env.get("GOOGLE_DRIVE_CLIENT_ID")!;
-      const clientSecret = Deno.env.get("GOOGLE_DRIVE_CLIENT_SECRET")!;
+      const clientId = (Deno.env.get("GOOGLE_DRIVE_CLIENT_ID") || "").trim();
+      const clientSecret = (Deno.env.get("GOOGLE_DRIVE_CLIENT_SECRET") || "").trim();
 
       const refreshRes = await fetch(GOOGLE_TOKEN_URL, {
         method: "POST",
