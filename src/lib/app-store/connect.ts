@@ -31,10 +31,11 @@ export async function connectApp(
       return { ok: false, error: data?.error || "Connection failed" };
     }
 
-    // OAuth redirect flow
+    // OAuth redirect flow — redirect current tab for reliability
     if (data.method === "redirect" && data.authorize_url) {
-      window.open(data.authorize_url, "_blank", "noopener");
-      return { ok: true };
+      window.location.href = data.authorize_url;
+      // Won't resolve — page is navigating away
+      return new Promise(() => {});
     }
 
     // Direct connection (e.g. Stripe)
