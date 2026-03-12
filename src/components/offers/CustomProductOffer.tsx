@@ -286,7 +286,7 @@ export function CustomProductOffer() {
           </div>
         </div>
 
-        <div className="relative h-[236px] rounded-2xl border border-border bg-foreground px-6 py-5 text-background sm:h-[252px] lg:h-[268px]">
+        <div className="relative h-[200px] rounded-2xl border border-border bg-foreground px-6 py-5 text-background sm:h-[210px] lg:h-[220px]">
           <span
             className="absolute right-4 top-4 rounded-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white"
             style={{ background: YANGU_GRADIENT }}
