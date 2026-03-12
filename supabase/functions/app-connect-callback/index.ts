@@ -45,10 +45,10 @@ Deno.serve(async (req) => {
 
     // --------------- Google ---------------
     if (["google-drive", "gmail", "google-meet", "youtube"].includes(state.slug)) {
-      const clientId = (Deno.env.get("GOOGLE_DRIVE_CLIENT_ID") || "").trim();
-      const clientSecret = (Deno.env.get("GOOGLE_DRIVE_CLIENT_SECRET") || "").trim();
+      const clientId = normalizeOAuthCredential(Deno.env.get("GOOGLE_DRIVE_CLIENT_ID"));
+      const clientSecret = normalizeOAuthCredential(Deno.env.get("GOOGLE_DRIVE_CLIENT_SECRET"));
       if (!clientId || !clientSecret) {
-        return new Response("Google OAuth not configured", { status: 500 });
+        return redirectToApp(state.rb, state.slug, "error", "Google OAuth is not configured");
       }
 
       const credentialFingerprint = {
@@ -59,30 +59,34 @@ Deno.serve(async (req) => {
         clientSecretLength: clientSecret.length,
       };
 
-      const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-          code,
-          client_id: clientId,
-          client_secret: clientSecret,
-          redirect_uri: callbackUrl,
-          grant_type: "authorization_code",
-        }),
+      const tokenResult = await exchangeGoogleToken({
+        code,
+        clientId,
+        clientSecret,
+        redirectUri: callbackUrl,
       });
-      const tokens = await tokenRes.json();
-      if (!tokenRes.ok) {
+
+      if (!tokenResult.tokens?.access_token) {
         console.error("Google token error:", {
-          tokens,
+          tokens: tokenResult.tokens,
           credentialFingerprint,
+          authMethod: tokenResult.authMethod,
           slug: state.slug,
         });
-        return new Response(`Token exchange failed: ${tokens.error}`, { status: 500 });
+
+        const providerMessage =
+          tokenResult.tokens?.error_description ||
+          tokenResult.tokens?.error ||
+          "Token exchange failed";
+
+        return redirectToApp(state.rb, state.slug, "error", providerMessage);
       }
 
-      accessToken = tokens.access_token;
-      refreshToken = tokens.refresh_token || "";
-      expiresAt = new Date(Date.now() + (tokens.expires_in || 3600) * 1000).toISOString();
+      accessToken = tokenResult.tokens.access_token;
+      refreshToken = tokenResult.tokens.refresh_token || "";
+      expiresAt = new Date(
+        Date.now() + (tokenResult.tokens.expires_in || 3600) * 1000,
+      ).toISOString();
 
       // Get user info
       const userInfoRes = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
