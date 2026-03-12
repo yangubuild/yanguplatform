@@ -26,7 +26,7 @@ Deno.serve(async (req) => {
     }
 
     if (errorParam) {
-      return redirectToApp(state.rb, state.slug, "error", "OAuth access was denied");
+      return redirectToApp(state.rb, state.slug, "error", "OAuth access was denied", state.origin);
     }
 
     if (!code) {
