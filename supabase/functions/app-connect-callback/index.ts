@@ -30,7 +30,7 @@ Deno.serve(async (req) => {
     }
 
     if (!code) {
-      return redirectToApp(state.rb, state.slug, "error", "Missing authorization code");
+      return redirectToApp(state.rb, state.slug, "error", "Missing authorization code", state.origin);
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
