@@ -241,7 +241,10 @@ Deno.serve(async (req) => {
       const tokens = await tokenRes.json();
       if (!tokenRes.ok) {
         console.error("Discord token error:", tokens);
-        return new Response("Discord token exchange failed", { status: 500 });
+        return new Response(JSON.stringify({ error: "Discord token exchange failed" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
 
       accessToken = tokens.access_token;
