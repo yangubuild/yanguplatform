@@ -374,6 +374,7 @@ const App = () => (
 
                   {/* Dashboard module pages (flat, no nesting) */}
                   <Route path="my-apps" element={<MyAppsPage />} />
+                  <Route path="apps/:appSlug" element={<ConnectedAppPage />} />
                   <Route path="my-business" element={<MyBusinessPage />} />
                   <Route path="my-business/:businessId/analytics" element={<BusinessAnalyticsPage />} />
                   <Route path="my-business/:businessId/users" element={<BusinessUsersPage />} />
