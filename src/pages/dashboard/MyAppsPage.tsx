@@ -24,18 +24,28 @@ export default function MyAppsPage() {
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Handle OAuth callback success toast
+  // Handle OAuth callback status toast
   useEffect(() => {
     const status = searchParams.get("connect_status");
     const app = searchParams.get("connect_app");
-    if (status === "success" && app) {
-      toast.success(`${app.replace("-", " ")} connected successfully`);
+    const errorMessage = searchParams.get("connect_error");
+
+    if (!status || !app) return;
+
+    const appLabel = app.replace(/-/g, " ");
+    if (status === "success") {
+      toast.success(`${appLabel} connected successfully`);
       queryClient.invalidateQueries({ queryKey: ["my-apps"] });
-      searchParams.delete("connect_status");
-      searchParams.delete("connect_app");
-      setSearchParams(searchParams, { replace: true });
+    } else {
+      toast.error(errorMessage || `Failed to connect ${appLabel}`);
     }
-  }, [searchParams]);
+
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete("connect_status");
+    nextParams.delete("connect_app");
+    nextParams.delete("connect_error");
+    setSearchParams(nextParams, { replace: true });
+  }, [searchParams, queryClient, setSearchParams]);
 
   const { data: installs, isLoading } = useQuery({
     queryKey: ["my-apps", user?.id],

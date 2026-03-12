@@ -13,6 +13,14 @@ function json(data: unknown, status = 200) {
   });
 }
 
+function normalizeOAuthCredential(raw: string | undefined): string {
+  return (raw || "")
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    .replace(/\s+/g, "")
+    .replace(/^['"]+|['"]+$/g, "")
+    .trim();
+}
+
 /**
  * Unified app-connect edge function.
  * Routes to the correct OAuth flow based on app_slug.
@@ -53,7 +61,7 @@ Deno.serve(async (req) => {
 
     // --------------- Google OAuth (shared) ---------------
     if (["google-drive", "gmail", "google-meet", "youtube"].includes(slug)) {
-      const clientId = (Deno.env.get("GOOGLE_DRIVE_CLIENT_ID") || "").trim();
+      const clientId = normalizeOAuthCredential(Deno.env.get("GOOGLE_DRIVE_CLIENT_ID"));
       if (!clientId) {
         return json({ ok: false, error: "Google OAuth not configured. GOOGLE_DRIVE_CLIENT_ID required." });
       }

@@ -12,9 +12,10 @@ Deno.serve(async (req) => {
     const url = new URL(req.url);
     const code = url.searchParams.get("code");
     const stateB64 = url.searchParams.get("state");
+    const errorParam = url.searchParams.get("error");
 
-    if (!code || !stateB64) {
-      return new Response("Missing code or state", { status: 400 });
+    if (!stateB64) {
+      return new Response("Missing state", { status: 400 });
     }
 
     let state: { uid: string; slug: string; rb: string };
@@ -22,6 +23,14 @@ Deno.serve(async (req) => {
       state = JSON.parse(atob(stateB64));
     } catch {
       return new Response("Invalid state", { status: 400 });
+    }
+
+    if (errorParam) {
+      return redirectToApp(state.rb, state.slug, "error", "OAuth access was denied");
+    }
+
+    if (!code) {
+      return redirectToApp(state.rb, state.slug, "error", "Missing authorization code");
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -36,10 +45,10 @@ Deno.serve(async (req) => {
 
     // --------------- Google ---------------
     if (["google-drive", "gmail", "google-meet", "youtube"].includes(state.slug)) {
-      const clientId = (Deno.env.get("GOOGLE_DRIVE_CLIENT_ID") || "").trim();
-      const clientSecret = (Deno.env.get("GOOGLE_DRIVE_CLIENT_SECRET") || "").trim();
+      const clientId = normalizeOAuthCredential(Deno.env.get("GOOGLE_DRIVE_CLIENT_ID"));
+      const clientSecret = normalizeOAuthCredential(Deno.env.get("GOOGLE_DRIVE_CLIENT_SECRET"));
       if (!clientId || !clientSecret) {
-        return new Response("Google OAuth not configured", { status: 500 });
+        return redirectToApp(state.rb, state.slug, "error", "Google OAuth is not configured");
       }
 
       const credentialFingerprint = {
@@ -50,30 +59,34 @@ Deno.serve(async (req) => {
         clientSecretLength: clientSecret.length,
       };
 
-      const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-          code,
-          client_id: clientId,
-          client_secret: clientSecret,
-          redirect_uri: callbackUrl,
-          grant_type: "authorization_code",
-        }),
+      const tokenResult = await exchangeGoogleToken({
+        code,
+        clientId,
+        clientSecret,
+        redirectUri: callbackUrl,
       });
-      const tokens = await tokenRes.json();
-      if (!tokenRes.ok) {
+
+      if (!tokenResult.tokens?.access_token) {
         console.error("Google token error:", {
-          tokens,
+          tokens: tokenResult.tokens,
           credentialFingerprint,
+          authMethod: tokenResult.authMethod,
           slug: state.slug,
         });
-        return new Response(`Token exchange failed: ${tokens.error}`, { status: 500 });
+
+        const providerMessage =
+          tokenResult.tokens?.error_description ||
+          tokenResult.tokens?.error ||
+          "Token exchange failed";
+
+        return redirectToApp(state.rb, state.slug, "error", providerMessage);
       }
 
-      accessToken = tokens.access_token;
-      refreshToken = tokens.refresh_token || "";
-      expiresAt = new Date(Date.now() + (tokens.expires_in || 3600) * 1000).toISOString();
+      accessToken = tokenResult.tokens.access_token;
+      refreshToken = tokenResult.tokens.refresh_token || "";
+      expiresAt = new Date(
+        Date.now() + (tokenResult.tokens.expires_in || 3600) * 1000,
+      ).toISOString();
 
       // Get user info
       const userInfoRes = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
@@ -225,19 +238,7 @@ Deno.serve(async (req) => {
         .eq("app_id", appRow.id);
     }
 
-    // Redirect back — use meta-refresh HTML so it works from any origin
-    const rb = state.rb || "/dashboard/my-apps";
-    const sep = rb.includes("?") ? "&" : "?";
-    const finalPath = `${rb}${sep}connect_status=success&connect_app=${state.slug}`;
-
-    const html = `<!DOCTYPE html>
-<html><head><meta http-equiv="refresh" content="0;url=${finalPath}"></head>
-<body><p>Connected! Redirecting…</p></body></html>`;
-
-    return new Response(html, {
-      status: 200,
-      headers: { "Content-Type": "text/html; charset=utf-8" },
-    });
+    return redirectToApp(state.rb, state.slug, "success");
   } catch (err) {
     console.error("[app-connect-callback]", err);
     return new Response(
@@ -246,6 +247,116 @@ Deno.serve(async (req) => {
     );
   }
 });
+
+type GoogleTokenResponse = {
+  access_token?: string;
+  refresh_token?: string;
+  expires_in?: number;
+  error?: string;
+  error_description?: string;
+};
+
+async function exchangeGoogleToken(params: {
+  code: string;
+  clientId: string;
+  clientSecret: string;
+  redirectUri: string;
+}): Promise<{ tokens: GoogleTokenResponse; authMethod: "client_secret_post" | "client_secret_basic" }> {
+  const tokenUrl = "https://oauth2.googleapis.com/token";
+
+  const postResponse = await fetch(tokenUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      code: params.code,
+      client_id: params.clientId,
+      client_secret: params.clientSecret,
+      redirect_uri: params.redirectUri,
+      grant_type: "authorization_code",
+    }),
+  });
+
+  const postTokens = (await postResponse.json()) as GoogleTokenResponse;
+  if (postResponse.ok || postTokens.error !== "invalid_client") {
+    return { tokens: postTokens, authMethod: "client_secret_post" };
+  }
+
+  const basicResponse = await fetch(tokenUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization: `Basic ${btoa(`${params.clientId}:${params.clientSecret}`)}`,
+    },
+    body: new URLSearchParams({
+      code: params.code,
+      redirect_uri: params.redirectUri,
+      grant_type: "authorization_code",
+    }),
+  });
+
+  const basicTokens = (await basicResponse.json()) as GoogleTokenResponse;
+  return { tokens: basicTokens, authMethod: "client_secret_basic" };
+}
+
+function normalizeOAuthCredential(raw: string | undefined): string {
+  return (raw || "")
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    .replace(/\s+/g, "")
+    .replace(/^['"]+|['"]+$/g, "")
+    .trim();
+}
+
+function redirectToApp(
+  redirectBack: string | undefined,
+  slug: string,
+  status: "success" | "error",
+  message?: string,
+): Response {
+  const target = sanitizeRedirectPath(redirectBack || "/dashboard/my-apps");
+  const params = new URLSearchParams({
+    connect_status: status,
+    connect_app: slug,
+  });
+
+  if (status === "error" && message) {
+    params.set("connect_error", message.slice(0, 180));
+  }
+
+  const sep = target.includes("?") ? "&" : "?";
+  const finalPath = `${target}${sep}${params.toString()}`;
+
+  const html = `<!DOCTYPE html>
+<html>
+<head><meta http-equiv="refresh" content="0;url=${escapeHtml(finalPath)}"></head>
+<body><p>Redirecting…</p></body>
+</html>`;
+
+  return new Response(html, {
+    status: 200,
+    headers: { "Content-Type": "text/html; charset=utf-8" },
+  });
+}
+
+function sanitizeRedirectPath(target: string): string {
+  if (target.startsWith("http")) {
+    try {
+      const parsed = new URL(target);
+      return parsed.pathname + parsed.search + parsed.hash;
+    } catch {
+      return "/dashboard/my-apps";
+    }
+  }
+
+  return target.startsWith("/") ? target : "/dashboard/my-apps";
+}
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
 
 function maskCredential(value: string, visibleChars: number): string {
   if (value.length <= visibleChars * 2) {
