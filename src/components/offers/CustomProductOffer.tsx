@@ -259,7 +259,7 @@ export function CustomProductOffer() {
       </div>
 
       <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
-        <div className="h-[236px] rounded-2xl border border-border bg-card px-6 py-5 sm:h-[252px] lg:h-[268px]">
+        <div className="h-[200px] rounded-2xl border border-border bg-card px-6 py-5 sm:h-[210px] lg:h-[220px]">
           <div className="flex h-full flex-col justify-between">
             <div className="flex gap-1">
               {[...Array(5)].map((_, index) => (
