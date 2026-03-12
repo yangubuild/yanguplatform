@@ -185,7 +185,10 @@ Deno.serve(async (req) => {
       const clientId = Deno.env.get("NOTION_CLIENT_ID");
       const clientSecret = Deno.env.get("NOTION_CLIENT_SECRET");
       if (!clientId || !clientSecret) {
-        return new Response("Notion not configured", { status: 500 });
+        return new Response(JSON.stringify({ error: "Notion not configured" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
 
       const tokenRes = await fetch("https://api.notion.com/v1/oauth/token", {
