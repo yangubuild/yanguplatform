@@ -92,6 +92,7 @@ Deno.serve(async (req) => {
         uid: user.id,
         slug,
         rb: redirectBack,
+        origin: appOrigin,
       });
       const state = btoa(statePayload);
       const callbackUrl = `${supabaseUrl}/functions/v1/app-connect-callback`;
