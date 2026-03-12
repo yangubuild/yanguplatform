@@ -92,6 +92,7 @@ Deno.serve(async (req) => {
         requestId,
         authMethod: tokenResult.authMethod,
         slug: state.slug,
+        attempts: tokenResult.attempts,
       });
 
       if (!tokenResult.tokens?.access_token) {
@@ -285,30 +286,106 @@ type GoogleTokenResponse = {
   error_description?: string;
 };
 
+type GoogleTokenAttempt = {
+  method: "client_secret_post" | "client_secret_basic" | "minimal_form_post";
+  tokenUrl: string;
+  grantType: "authorization_code";
+  clientIdSource: "GOOGLE_DRIVE_CLIENT_ID";
+  clientSecretSource: "GOOGLE_DRIVE_CLIENT_SECRET";
+  redirectUri: string;
+  contentType: "application/x-www-form-urlencoded";
+  formEncoded: true;
+  includesClientSecretInBody: boolean;
+  includesClientSecretInAuthorizationHeader: boolean;
+  requestBodyShape: string;
+  status: number;
+  responseError?: string;
+  responseErrorDescription?: string;
+};
+
 async function exchangeGoogleToken(params: {
   code: string;
   clientId: string;
   clientSecret: string;
   redirectUri: string;
-}): Promise<{ tokens: GoogleTokenResponse; authMethod: "client_secret_post" | "client_secret_basic" }> {
+}): Promise<{
+  tokens: GoogleTokenResponse;
+  authMethod: "client_secret_post" | "client_secret_basic" | "minimal_form_post";
+  attempts: GoogleTokenAttempt[];
+}> {
   const tokenUrl = "https://oauth2.googleapis.com/token";
+  const attempts: GoogleTokenAttempt[] = [];
+
+  const postBody = new URLSearchParams({
+    code: params.code,
+    client_id: params.clientId,
+    client_secret: params.clientSecret,
+    redirect_uri: params.redirectUri,
+    grant_type: "authorization_code",
+  }).toString();
+
+  console.log("[app-connect-callback] Google token request", {
+    method: "client_secret_post",
+    tokenUrl,
+    grant_type: "authorization_code",
+    client_id_source: "GOOGLE_DRIVE_CLIENT_ID",
+    client_secret_source: "GOOGLE_DRIVE_CLIENT_SECRET",
+    redirect_uri: params.redirectUri,
+    includes_client_secret_in_body: true,
+    includes_client_secret_in_authorization_header: false,
+    content_type: "application/x-www-form-urlencoded",
+    form_encoded: true,
+    request_body_shape: redactGoogleTokenBody(postBody),
+  });
 
   const postResponse = await fetch(tokenUrl, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      code: params.code,
-      client_id: params.clientId,
-      client_secret: params.clientSecret,
-      redirect_uri: params.redirectUri,
-      grant_type: "authorization_code",
-    }),
+    body: postBody,
   });
 
   const postTokens = (await postResponse.json()) as GoogleTokenResponse;
+
+  attempts.push({
+    method: "client_secret_post",
+    tokenUrl,
+    grantType: "authorization_code",
+    clientIdSource: "GOOGLE_DRIVE_CLIENT_ID",
+    clientSecretSource: "GOOGLE_DRIVE_CLIENT_SECRET",
+    redirectUri: params.redirectUri,
+    contentType: "application/x-www-form-urlencoded",
+    formEncoded: true,
+    includesClientSecretInBody: true,
+    includesClientSecretInAuthorizationHeader: false,
+    requestBodyShape: redactGoogleTokenBody(postBody),
+    status: postResponse.status,
+    responseError: postTokens.error,
+    responseErrorDescription: postTokens.error_description,
+  });
+
   if (postResponse.ok || postTokens.error !== "invalid_client") {
-    return { tokens: postTokens, authMethod: "client_secret_post" };
+    return { tokens: postTokens, authMethod: "client_secret_post", attempts };
   }
+
+  const basicBody = new URLSearchParams({
+    code: params.code,
+    redirect_uri: params.redirectUri,
+    grant_type: "authorization_code",
+  }).toString();
+
+  console.log("[app-connect-callback] Google token request", {
+    method: "client_secret_basic",
+    tokenUrl,
+    grant_type: "authorization_code",
+    client_id_source: "GOOGLE_DRIVE_CLIENT_ID",
+    client_secret_source: "GOOGLE_DRIVE_CLIENT_SECRET",
+    redirect_uri: params.redirectUri,
+    includes_client_secret_in_body: false,
+    includes_client_secret_in_authorization_header: true,
+    content_type: "application/x-www-form-urlencoded",
+    form_encoded: true,
+    request_body_shape: redactGoogleTokenBody(basicBody),
+  });
 
   const basicResponse = await fetch(tokenUrl, {
     method: "POST",
@@ -316,15 +393,87 @@ async function exchangeGoogleToken(params: {
       "Content-Type": "application/x-www-form-urlencoded",
       Authorization: `Basic ${btoa(`${params.clientId}:${params.clientSecret}`)}`,
     },
-    body: new URLSearchParams({
-      code: params.code,
-      redirect_uri: params.redirectUri,
-      grant_type: "authorization_code",
-    }),
+    body: basicBody,
   });
 
   const basicTokens = (await basicResponse.json()) as GoogleTokenResponse;
-  return { tokens: basicTokens, authMethod: "client_secret_basic" };
+
+  attempts.push({
+    method: "client_secret_basic",
+    tokenUrl,
+    grantType: "authorization_code",
+    clientIdSource: "GOOGLE_DRIVE_CLIENT_ID",
+    clientSecretSource: "GOOGLE_DRIVE_CLIENT_SECRET",
+    redirectUri: params.redirectUri,
+    contentType: "application/x-www-form-urlencoded",
+    formEncoded: true,
+    includesClientSecretInBody: false,
+    includesClientSecretInAuthorizationHeader: true,
+    requestBodyShape: redactGoogleTokenBody(basicBody),
+    status: basicResponse.status,
+    responseError: basicTokens.error,
+    responseErrorDescription: basicTokens.error_description,
+  });
+
+  if (basicResponse.ok || basicTokens.error !== "invalid_client") {
+    return { tokens: basicTokens, authMethod: "client_secret_basic", attempts };
+  }
+
+  // Minimal direct form-encoded comparison test using the same runtime values.
+  const minimalBody = [
+    `code=${encodeURIComponent(params.code)}`,
+    `client_id=${encodeURIComponent(params.clientId)}`,
+    `client_secret=${encodeURIComponent(params.clientSecret)}`,
+    `redirect_uri=${encodeURIComponent(params.redirectUri)}`,
+    "grant_type=authorization_code",
+  ].join("&");
+
+  console.log("[app-connect-callback] Google token request", {
+    method: "minimal_form_post",
+    tokenUrl,
+    grant_type: "authorization_code",
+    client_id_source: "GOOGLE_DRIVE_CLIENT_ID",
+    client_secret_source: "GOOGLE_DRIVE_CLIENT_SECRET",
+    redirect_uri: params.redirectUri,
+    includes_client_secret_in_body: true,
+    includes_client_secret_in_authorization_header: false,
+    content_type: "application/x-www-form-urlencoded",
+    form_encoded: true,
+    request_body_shape: redactGoogleTokenBody(minimalBody),
+  });
+
+  const minimalResponse = await fetch(tokenUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: minimalBody,
+  });
+
+  const minimalTokens = (await minimalResponse.json()) as GoogleTokenResponse;
+
+  attempts.push({
+    method: "minimal_form_post",
+    tokenUrl,
+    grantType: "authorization_code",
+    clientIdSource: "GOOGLE_DRIVE_CLIENT_ID",
+    clientSecretSource: "GOOGLE_DRIVE_CLIENT_SECRET",
+    redirectUri: params.redirectUri,
+    contentType: "application/x-www-form-urlencoded",
+    formEncoded: true,
+    includesClientSecretInBody: true,
+    includesClientSecretInAuthorizationHeader: false,
+    requestBodyShape: redactGoogleTokenBody(minimalBody),
+    status: minimalResponse.status,
+    responseError: minimalTokens.error,
+    responseErrorDescription: minimalTokens.error_description,
+  });
+
+  return { tokens: minimalTokens, authMethod: "minimal_form_post", attempts };
+}
+
+function redactGoogleTokenBody(body: string): string {
+  return body
+    .replace(/(code=)[^&]*/g, "$1[REDACTED]")
+    .replace(/(client_secret=)[^&]*/g, "$1[REDACTED]");
 }
 
 async function credentialDigest(value: string): Promise<string> {
