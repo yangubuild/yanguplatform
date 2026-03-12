@@ -25,6 +25,14 @@ Deno.serve(async (req) => {
       return new Response("Invalid state", { status: 400 });
     }
 
+    if (errorParam) {
+      return redirectToApp(state.rb, state.slug, "error", "OAuth access was denied");
+    }
+
+    if (!code) {
+      return redirectToApp(state.rb, state.slug, "error", "Missing authorization code");
+    }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const admin = createClient(supabaseUrl, serviceKey);
