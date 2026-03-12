@@ -15,7 +15,7 @@ function json(data: unknown, status = 200) {
 
 /**
  * Unified Google API proxy edge function.
- * Routes: drive/files, gmail/messages, gmail/send, calendar/events, calendar/create
+ * Routes: drive/files, gmail/messages, gmail/send, calendar/events, calendar/create, youtube/channel
  * Handles token refresh automatically.
  */
 Deno.serve(async (req) => {
@@ -136,6 +136,8 @@ Deno.serve(async (req) => {
         return await handleCalendarEvents(accessToken, body);
       case "calendar/create":
         return await handleCalendarCreate(accessToken, body);
+      case "youtube/channel":
+        return await handleYouTubeChannel(accessToken);
       default:
         return json({ error: `Unknown action: ${action}` }, 400);
     }
@@ -149,6 +151,7 @@ function getProviderForAction(action: string): string {
   if (action.startsWith("drive/")) return "google-drive";
   if (action.startsWith("gmail/")) return "gmail";
   if (action.startsWith("calendar/")) return "google-meet";
+  if (action.startsWith("youtube/")) return "youtube";
   return "google-drive";
 }
 
