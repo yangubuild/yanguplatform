@@ -92,6 +92,7 @@ Deno.serve(async (req) => {
         requestId,
         authMethod: tokenResult.authMethod,
         slug: state.slug,
+        attempts: tokenResult.attempts,
       });
 
       if (!tokenResult.tokens?.access_token) {
