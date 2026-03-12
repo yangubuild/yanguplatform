@@ -327,6 +327,18 @@ async function exchangeGoogleToken(params: {
   return { tokens: basicTokens, authMethod: "client_secret_basic" };
 }
 
+async function credentialDigest(value: string): Promise<string> {
+  if (!value) return "missing";
+
+  const bytes = new TextEncoder().encode(value);
+  const digestBuffer = await crypto.subtle.digest("SHA-256", bytes);
+  const digestHex = Array.from(new Uint8Array(digestBuffer))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+
+  return digestHex.slice(0, 12);
+}
+
 function normalizeOAuthCredential(raw: string | undefined): string {
   return (raw || "")
     .replace(/[\u200B-\u200D\uFEFF]/g, "")
