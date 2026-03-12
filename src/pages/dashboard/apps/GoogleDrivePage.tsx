@@ -48,32 +48,45 @@ export default function GoogleDrivePage() {
   const [nextPageToken, setNextPageToken] = useState<string | null>(null);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [fetching, setFetching] = useState(false);
+  const fetchingRef = useRef(false);
 
   const fetchFiles = useCallback(async (query?: string, pageToken?: string) => {
-    if (fetching) return;
-    setFetching(true);
-    const params: Record<string, unknown> = { pageSize: 30 };
-    if (query) params.query = `name contains '${query}'`;
-    if (pageToken) params.pageToken = pageToken;
+    if (fetchingRef.current) return;
 
-    const result = await callApi<{ files: DriveFile[]; nextPageToken?: string }>("drive/files", params);
-    if (result) {
-      clearError();
-      if (pageToken) {
-        setFiles(prev => [...prev, ...(result.files || [])]);
-      } else {
-        setFiles(result.files || []);
+    fetchingRef.current = true;
+    setFetching(true);
+
+    try {
+      const params: Record<string, unknown> = { pageSize: 30 };
+      if (query) params.query = `name contains '${query}'`;
+      if (pageToken) params.pageToken = pageToken;
+
+      const result = await callApi<{ files: DriveFile[]; nextPageToken?: string }>("drive/files", params);
+
+      if (result) {
+        clearError();
+        const nextFiles = Array.isArray(result.files) ? result.files : [];
+
+        if (pageToken) {
+          setFiles((prev) => [...prev, ...nextFiles]);
+        } else {
+          setFiles(nextFiles);
+        }
+
+        setNextPageToken(result.nextPageToken || null);
       }
-      setNextPageToken(result.nextPageToken || null);
+    } finally {
+      setHasLoaded(true);
+      setFetching(false);
+      fetchingRef.current = false;
     }
-    setHasLoaded(true);
-    setFetching(false);
-  }, [callApi, clearError, fetching]);
+  }, [callApi, clearError]);
 
   useEffect(() => {
-    if (user?.id && !hasLoaded) fetchFiles();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
+    if (user?.id && !hasLoaded) {
+      void fetchFiles();
+    }
+  }, [user?.id, hasLoaded, fetchFiles]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
