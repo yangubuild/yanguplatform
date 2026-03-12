@@ -128,15 +128,15 @@ export default function GoogleDrivePage() {
           </div>
         </form>
 
-        {/* Error */}
-        {error && !(hasLoaded && files.length === 0 && error.includes("non-2xx")) && (
+        {/* Error - only show real errors, not empty-state false positives */}
+        {error && !hasLoaded && (
           <div className="rounded-xl p-4 mb-4 text-sm text-red-300" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}>
             {error}
           </div>
         )}
 
         {/* Files list */}
-        {loading && !hasLoaded ? (
+        {fetching && !hasLoaded ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-6 h-6 text-white/20 animate-spin" />
           </div>
