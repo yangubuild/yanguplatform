@@ -37,6 +37,7 @@ Deno.serve(async (req) => {
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const admin = createClient(supabaseUrl, serviceKey);
     const callbackUrl = `${supabaseUrl}/functions/v1/app-connect-callback`;
+    const requestId = crypto.randomUUID();
 
     let providerUserId = "";
     let accessToken = "";
