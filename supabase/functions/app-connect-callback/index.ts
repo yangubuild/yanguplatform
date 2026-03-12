@@ -574,7 +574,7 @@ function redirectToApp(
 
   return new Response(null, {
     status: 302,
-    headers: { Location: finalUrl },
+    headers: { ...corsHeaders, Location: finalUrl },
   });
 }
 
