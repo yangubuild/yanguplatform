@@ -5,6 +5,11 @@ project_id = "xcipuyvcwfytlsjryhvs"
     verify_jwt = false
   [functions.admin-invite-user]
     verify_jwt = false
+  [functions.app-connect]
+    verify_jwt = false
+  [functions.app-connect-callback]
+    verify_jwt = false
+    verify_jwt = false
   [functions.ada-chat]
     verify_jwt = false
   [functions.ada-export-docx]
