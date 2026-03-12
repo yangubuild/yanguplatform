@@ -62,9 +62,12 @@ export function NavDashPromoCards() {
         }}
       >
         <Search className="w-4 h-4" style={{ color: "rgba(255,255,255,0.35)" }} />
-        <span className="text-sm" style={{ color: "rgba(255,255,255,0.35)" }}>
-          Search games
-        </span>
+        <input
+          type="text"
+          placeholder="Search offers"
+          className="flex-1 bg-transparent text-sm outline-none border-none placeholder:text-[rgba(255,255,255,0.35)]"
+          style={{ color: "rgba(255,255,255,0.85)" }}
+        />
       </div>
     </div>
   );
