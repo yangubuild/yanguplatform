@@ -13,6 +13,14 @@ function json(data: unknown, status = 200) {
   });
 }
 
+function normalizeOAuthCredential(raw: string | undefined): string {
+  return (raw || "")
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    .replace(/\s+/g, "")
+    .replace(/^['"]+|['"]+$/g, "")
+    .trim();
+}
+
 /**
  * Unified app-connect edge function.
  * Routes to the correct OAuth flow based on app_slug.
