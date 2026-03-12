@@ -54,6 +54,7 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const slug: string = body.app_slug;
     const redirectBack: string = body.redirect_back || "/dashboard/my-apps";
+    const appOrigin: string = body.origin || "";
 
     if (!slug) {
       return json({ ok: false, error: "app_slug is required" }, 400);
@@ -91,6 +92,7 @@ Deno.serve(async (req) => {
         uid: user.id,
         slug,
         rb: redirectBack,
+        origin: appOrigin,
       });
       const state = btoa(statePayload);
       const callbackUrl = `${supabaseUrl}/functions/v1/app-connect-callback`;
@@ -119,7 +121,7 @@ Deno.serve(async (req) => {
         return json({ ok: false, error: "PayPal not configured. PAYPAL_CLIENT_ID required." });
       }
 
-      const statePayload = JSON.stringify({ uid: user.id, slug, rb: redirectBack });
+      const statePayload = JSON.stringify({ uid: user.id, slug, rb: redirectBack, origin: appOrigin });
       const state = btoa(statePayload);
       const callbackUrl = `${supabaseUrl}/functions/v1/app-connect-callback`;
 
@@ -188,7 +190,7 @@ Deno.serve(async (req) => {
         return json({ ok: false, error: "Notion not configured. NOTION_CLIENT_ID required." });
       }
 
-      const statePayload = JSON.stringify({ uid: user.id, slug, rb: redirectBack });
+      const statePayload = JSON.stringify({ uid: user.id, slug, rb: redirectBack, origin: appOrigin });
       const state = btoa(statePayload);
       const callbackUrl = `${supabaseUrl}/functions/v1/app-connect-callback`;
 
@@ -214,7 +216,7 @@ Deno.serve(async (req) => {
         return json({ ok: false, error: "Discord not configured. DISCORD_CLIENT_ID required." });
       }
 
-      const statePayload = JSON.stringify({ uid: user.id, slug, rb: redirectBack });
+      const statePayload = JSON.stringify({ uid: user.id, slug, rb: redirectBack, origin: appOrigin });
       const state = btoa(statePayload);
       const callbackUrl = `${supabaseUrl}/functions/v1/app-connect-callback`;
 

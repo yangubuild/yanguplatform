@@ -19,6 +19,7 @@ export async function connectApp(
       body: {
         app_slug: appSlug,
         redirect_back: redirectBack || window.location.pathname,
+        origin: window.location.origin,
       },
     });
 

@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
       return new Response("Missing state", { status: 400 });
     }
 
-    let state: { uid: string; slug: string; rb: string };
+    let state: { uid: string; slug: string; rb: string; origin?: string };
     try {
       state = JSON.parse(atob(stateB64));
     } catch {
@@ -26,11 +26,11 @@ Deno.serve(async (req) => {
     }
 
     if (errorParam) {
-      return redirectToApp(state.rb, state.slug, "error", "OAuth access was denied");
+      return redirectToApp(state.rb, state.slug, "error", "OAuth access was denied", state.origin);
     }
 
     if (!code) {
-      return redirectToApp(state.rb, state.slug, "error", "Missing authorization code");
+      return redirectToApp(state.rb, state.slug, "error", "Missing authorization code", state.origin);
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -109,7 +109,7 @@ Deno.serve(async (req) => {
           tokenResult.tokens?.error ||
           "Token exchange failed";
 
-        return redirectToApp(state.rb, state.slug, "error", providerMessage);
+        return redirectToApp(state.rb, state.slug, "error", providerMessage, state.origin);
       }
 
       accessToken = tokenResult.tokens.access_token;
@@ -268,7 +268,7 @@ Deno.serve(async (req) => {
         .eq("app_id", appRow.id);
     }
 
-    return redirectToApp(state.rb, state.slug, "success");
+    return redirectToApp(state.rb, state.slug, "success", undefined, state.origin);
   } catch (err) {
     console.error("[app-connect-callback]", err);
     return new Response(
@@ -501,8 +501,9 @@ function redirectToApp(
   slug: string,
   status: "success" | "error",
   message?: string,
+  appOrigin?: string,
 ): Response {
-  const target = sanitizeRedirectPath(redirectBack || "/dashboard/my-apps");
+  const path = sanitizeRedirectPath(redirectBack || "/dashboard/my-apps");
   const params = new URLSearchParams({
     connect_status: status,
     connect_app: slug,
@@ -512,12 +513,16 @@ function redirectToApp(
     params.set("connect_error", message.slice(0, 180));
   }
 
-  const sep = target.includes("?") ? "&" : "?";
-  const finalPath = `${target}${sep}${params.toString()}`;
+  const sep = path.includes("?") ? "&" : "?";
+  const pathWithParams = `${path}${sep}${params.toString()}`;
+
+  // Build absolute URL so meta-refresh navigates to the app, not the Edge Function domain
+  const origin = appOrigin || "https://yangu.io";
+  const finalUrl = `${origin}${pathWithParams}`;
 
   const html = `<!DOCTYPE html>
 <html>
-<head><meta http-equiv="refresh" content="0;url=${escapeHtml(finalPath)}"></head>
+<head><meta http-equiv="refresh" content="0;url=${escapeHtml(finalUrl)}"></head>
 <body><p>Redirecting…</p></body>
 </html>`;
 
