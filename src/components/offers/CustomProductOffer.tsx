@@ -142,7 +142,7 @@ export function CustomProductOffer() {
   return (
     <section className="mt-2 space-y-2.5">
       <div className="grid min-w-0 grid-cols-1 gap-2.5 lg:grid-cols-2">
-        <div className="relative h-[390px] overflow-hidden rounded-2xl border border-border bg-card px-6 py-7 sm:h-[420px] sm:px-7 lg:h-[450px]">
+        <div className="relative h-[280px] overflow-hidden rounded-2xl border border-border bg-card px-6 py-6 sm:h-[300px] sm:px-7 lg:h-[310px]">
           <div className="absolute inset-0 opacity-40 [background-image:linear-gradient(to_right,hsl(var(--border)/0.55)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.55)_1px,transparent_1px)] [background-size:28px_28px]" />
           <div className="relative z-10 flex h-full flex-col justify-center">
             <h2 className="max-w-[520px] text-4xl font-black leading-[1.05] text-foreground sm:text-5xl">
