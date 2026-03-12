@@ -221,7 +221,10 @@ Deno.serve(async (req) => {
       const clientId = Deno.env.get("DISCORD_CLIENT_ID");
       const clientSecret = Deno.env.get("DISCORD_CLIENT_SECRET");
       if (!clientId || !clientSecret) {
-        return new Response("Discord not configured", { status: 500 });
+        return new Response(JSON.stringify({ error: "Discord not configured" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
 
       const tokenRes = await fetch("https://discord.com/api/v10/oauth2/token", {
