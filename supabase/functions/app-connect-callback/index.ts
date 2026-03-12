@@ -226,7 +226,7 @@ Deno.serve(async (req) => {
     }
 
     // Store in connected_accounts
-    await admin.from("connected_accounts").upsert(
+    const { error: connectedAccountUpsertError } = await admin.from("connected_accounts").upsert(
       {
         user_id: state.uid,
         provider: state.slug,
@@ -239,9 +239,19 @@ Deno.serve(async (req) => {
       { onConflict: "user_id,provider" }
     );
 
+    if (connectedAccountUpsertError) {
+      console.error("[app-connect-callback] Failed to persist connected_accounts", {
+        requestId,
+        slug: state.slug,
+        userId: state.uid,
+        error: connectedAccountUpsertError.message,
+      });
+      return redirectToApp(state.rb, state.slug, "error", "Failed to persist connection token", state.origin);
+    }
+
     // Also sync to drive_tokens for google-drive so existing Drive features work
     if (state.slug === "google-drive" && accessToken) {
-      await admin.from("drive_tokens").upsert(
+      const { error: driveTokenUpsertError } = await admin.from("drive_tokens").upsert(
         {
           user_id: state.uid,
           access_token: accessToken,
@@ -251,6 +261,14 @@ Deno.serve(async (req) => {
         },
         { onConflict: "user_id" }
       );
+
+      if (driveTokenUpsertError) {
+        console.error("[app-connect-callback] Failed to sync drive_tokens", {
+          requestId,
+          userId: state.uid,
+          error: driveTokenUpsertError.message,
+        });
+      }
     }
 
     // Update app_user_installs status to connected

@@ -42,7 +42,7 @@ function formatFileSize(bytes?: string) {
 export default function GoogleDrivePage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { callApi, loading, error } = useGoogleApi();
+  const { callApi, loading, error, clearError } = useGoogleApi();
   const [files, setFiles] = useState<DriveFile[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [nextPageToken, setNextPageToken] = useState<string | null>(null);
@@ -55,15 +55,16 @@ export default function GoogleDrivePage() {
 
     const result = await callApi<{ files: DriveFile[]; nextPageToken?: string }>("drive/files", params);
     if (result) {
+      clearError();
       if (pageToken) {
-        setFiles(prev => [...prev, ...result.files]);
+        setFiles(prev => [...prev, ...(result.files || [])]);
       } else {
         setFiles(result.files || []);
       }
       setNextPageToken(result.nextPageToken || null);
       setHasLoaded(true);
     }
-  }, [callApi]);
+  }, [callApi, clearError]);
 
   useEffect(() => {
     if (user?.id) fetchFiles();
@@ -123,7 +124,7 @@ export default function GoogleDrivePage() {
         </form>
 
         {/* Error */}
-        {error && (
+        {error && !(hasLoaded && files.length === 0 && error.includes("non-2xx")) && (
           <div className="rounded-xl p-4 mb-4 text-sm text-red-300" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}>
             {error}
           </div>

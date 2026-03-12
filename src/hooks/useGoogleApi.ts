@@ -8,7 +8,8 @@ type GoogleApiAction =
   | "gmail/message-detail"
   | "gmail/send"
   | "calendar/events"
-  | "calendar/create";
+  | "calendar/create"
+  | "youtube/channel";
 
 export function useGoogleApi() {
   const [loading, setLoading] = useState(false);

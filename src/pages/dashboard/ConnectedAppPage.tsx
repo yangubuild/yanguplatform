@@ -9,11 +9,11 @@ const EXTERNAL_URLS: Record<string, string> = {
   "google-drive": "https://drive.google.com",
   gmail: "https://mail.google.com",
   "google-meet": "https://meet.google.com",
-  youtube: "https://studio.youtube.com",
   stripe: "https://dashboard.stripe.com",
 };
 
 const MANAGEMENT_LINKS: Record<string, { label: string; route: string }> = {
+  youtube: { label: "YouTube Manager", route: "/dashboard/apps/youtube" },
   stripe: { label: "Payment Settings", route: "/dashboard/payment-settings" },
 };
 

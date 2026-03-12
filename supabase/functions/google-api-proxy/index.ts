@@ -15,7 +15,7 @@ function json(data: unknown, status = 200) {
 
 /**
  * Unified Google API proxy edge function.
- * Routes: drive/files, gmail/messages, gmail/send, calendar/events, calendar/create
+ * Routes: drive/files, gmail/messages, gmail/send, calendar/events, calendar/create, youtube/channel
  * Handles token refresh automatically.
  */
 Deno.serve(async (req) => {
@@ -136,6 +136,8 @@ Deno.serve(async (req) => {
         return await handleCalendarEvents(accessToken, body);
       case "calendar/create":
         return await handleCalendarCreate(accessToken, body);
+      case "youtube/channel":
+        return await handleYouTubeChannel(accessToken);
       default:
         return json({ error: `Unknown action: ${action}` }, 400);
     }
@@ -149,6 +151,7 @@ function getProviderForAction(action: string): string {
   if (action.startsWith("drive/")) return "google-drive";
   if (action.startsWith("gmail/")) return "gmail";
   if (action.startsWith("calendar/")) return "google-meet";
+  if (action.startsWith("youtube/")) return "youtube";
   return "google-drive";
 }
 
@@ -412,5 +415,44 @@ async function handleCalendarCreate(token: string, body: {
     summary: data.summary,
     start: data.start?.dateTime,
     end: data.end?.dateTime,
+  });
+}
+
+// ============ YOUTUBE ============
+
+async function handleYouTubeChannel(token: string) {
+  const params = new URLSearchParams({
+    part: "snippet,statistics,contentDetails",
+    mine: "true",
+  });
+
+  const res = await fetch(`https://www.googleapis.com/youtube/v3/channels?${params}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await res.json();
+  if (!res.ok) return json({ error: data.error?.message || "YouTube API error" }, res.status);
+
+  const channel = data.items?.[0];
+  if (!channel) {
+    return json({
+      channel: null,
+      message: "No channel found for this Google account.",
+    });
+  }
+
+  return json({
+    channel: {
+      id: channel.id,
+      title: channel.snippet?.title || "",
+      description: channel.snippet?.description || "",
+      customUrl: channel.snippet?.customUrl || "",
+      thumbnails: channel.snippet?.thumbnails || {},
+      publishedAt: channel.snippet?.publishedAt || null,
+      country: channel.snippet?.country || null,
+      subscriberCount: channel.statistics?.subscriberCount || "0",
+      videoCount: channel.statistics?.videoCount || "0",
+      viewCount: channel.statistics?.viewCount || "0",
+      uploadsPlaylistId: channel.contentDetails?.relatedPlaylists?.uploads || null,
+    },
   });
 }
