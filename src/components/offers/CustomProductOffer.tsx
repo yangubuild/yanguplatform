@@ -233,26 +233,25 @@ export function CustomProductOffer() {
           return (
             <div
               key={stat.label}
-              className={`h-[106px] rounded-2xl border px-4 py-3 sm:h-[114px] ${
-                stat.highlight ? "bg-card" : "border-border bg-card"
-              }`}
-              style={stat.highlight ? { borderColor: YANGU_ORANGE_BORDER_35 } : undefined}
+              className={`h-[82px] rounded-2xl border px-4 py-3 sm:h-[88px]`}
+              style={{
+                background: "#ffffff",
+                borderColor: stat.highlight ? YANGU_ORANGE_BORDER_35 : "rgba(0,0,0,0.08)",
+              }}
             >
               <div className="flex h-full items-center justify-between gap-2">
                 <div>
                   <p
-                    className={`font-bold leading-none ${isLongValue ? "text-3xl" : "text-4xl"} ${
-                      stat.highlight ? "" : "text-foreground"
-                    }`}
-                    style={stat.highlight ? { color: YANGU_ORANGE } : undefined}
+                    className={`font-bold leading-none ${isLongValue ? "text-2xl" : "text-3xl"}`}
+                    style={{ color: stat.highlight ? YANGU_ORANGE : "#1a1a1a" }}
                   >
                     {stat.value}
                   </p>
-                  <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                  <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: "#888" }}>
                     {stat.label}
                   </p>
                 </div>
-                {React.cloneElement(stat.icon, { className: "h-5 w-5" })}
+                {React.cloneElement(stat.icon, { className: "h-5 w-5", style: { color: stat.highlight ? YANGU_ORANGE : "#999" } })}
               </div>
             </div>
           );
