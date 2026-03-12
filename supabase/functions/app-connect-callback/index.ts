@@ -206,7 +206,10 @@ Deno.serve(async (req) => {
       const tokens = await tokenRes.json();
       if (!tokenRes.ok) {
         console.error("Notion token error:", tokens);
-        return new Response("Notion token exchange failed", { status: 500 });
+        return new Response(JSON.stringify({ error: "Notion token exchange failed" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
 
       accessToken = tokens.access_token;
