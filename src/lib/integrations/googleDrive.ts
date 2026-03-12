@@ -32,6 +32,9 @@ export async function connect(
     // Use the unified app-connect flow
     const { connectApp } = await import("@/lib/app-store/connect");
     const result = await connectApp("google-drive", redirectBack || window.location.pathname);
+    if (result.ok && result.redirect) {
+      window.location.assign(result.redirect);
+    }
     return { ok: result.ok, error: result.error };
   } catch (err) {
     console.error("[GoogleDrive] connect error:", err);
