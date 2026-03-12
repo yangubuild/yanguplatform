@@ -4,7 +4,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { ICON_MAP } from "@/lib/app-store/icon-map";
 import { ArrowLeft, ExternalLink, Loader2, CheckCircle2, XCircle, Settings } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 const EXTERNAL_URLS: Record<string, string> = {
   "google-drive": "https://drive.google.com",
