@@ -195,29 +195,29 @@ export function CustomProductOffer() {
         </div>
       </div>
 
-      <div className="relative h-[140px] overflow-hidden rounded-2xl border border-border bg-card px-5 py-3 sm:h-[150px]">
+      <div className="relative h-[120px] overflow-hidden rounded-2xl border border-border bg-card px-4 py-2.5 sm:h-[125px]">
         <div className="absolute inset-0 opacity-40 [background-image:linear-gradient(to_right,hsl(var(--border)/0.5)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.5)_1px,transparent_1px)] [background-size:28px_28px]" />
-        <div className="relative z-10 flex h-full items-center gap-6">
+        <div className="relative z-10 flex h-full items-center gap-5">
           <div className="shrink-0">
             <span
-              className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+              className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-semibold"
               style={{ color: YANGU_ORANGE, backgroundColor: YANGU_ORANGE_LIGHT, borderWidth: 1, borderColor: YANGU_ORANGE_BORDER }}
             >
-              <Zap className="h-3 w-3" />
+              <Zap className="h-2.5 w-2.5" />
               ZERO WORK
             </span>
-            <h3 className="mt-2 text-4xl font-bold leading-none text-foreground">We handle it all.</h3>
-            <p className="mt-2 text-lg text-muted-foreground">You just approve the results.</p>
+            <h3 className="mt-1.5 text-2xl font-bold leading-none text-foreground">We handle it all.</h3>
+            <p className="mt-1.5 text-sm text-muted-foreground">You just approve the results.</p>
           </div>
 
           <div className="relative hidden h-full flex-1 items-center justify-between sm:flex">
             <div className="pointer-events-none absolute left-[10%] right-[8%] top-[46%] h-px bg-border" />
             {PROCESS_STEPS.map((step) => (
-              <div key={step.label} className="relative z-10 flex flex-col items-center gap-2 text-center">
-                <div className="flex h-20 w-20 items-center justify-center rounded-full border border-border bg-card">
-                  {step.icon}
+              <div key={step.label} className="relative z-10 flex flex-col items-center gap-1.5 text-center">
+                <div className="flex h-14 w-14 items-center justify-center rounded-full border border-border bg-card">
+                  {React.cloneElement(step.icon, { width: 24, height: 24 })}
                 </div>
-                <span className="text-[11px] font-semibold tracking-[0.12em] text-muted-foreground">
+                <span className="text-[9px] font-semibold tracking-[0.12em] text-muted-foreground">
                   {step.label}
                 </span>
               </div>
