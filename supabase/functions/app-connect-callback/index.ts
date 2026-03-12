@@ -470,6 +470,12 @@ async function exchangeGoogleToken(params: {
   return { tokens: minimalTokens, authMethod: "minimal_form_post", attempts };
 }
 
+function redactGoogleTokenBody(body: string): string {
+  return body
+    .replace(/(code=)[^&]*/g, "$1[REDACTED]")
+    .replace(/(client_secret=)[^&]*/g, "$1[REDACTED]");
+}
+
 async function credentialDigest(value: string): Promise<string> {
   if (!value) return "missing";
 
