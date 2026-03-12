@@ -186,7 +186,7 @@ export function CustomProductOffer() {
           </div>
         </div>
 
-        <div className="h-[390px] overflow-hidden rounded-2xl border border-border bg-card p-2.5 sm:h-[420px] sm:p-3 lg:h-[450px]">
+        <div className="h-[280px] overflow-hidden rounded-2xl border border-border bg-card p-2.5 sm:h-[300px] sm:p-3 lg:h-[310px]">
           <div className="grid h-full grid-rows-3 gap-2">
             {BOOK_ROWS.map((row, rowIndex) => (
               <CoverRow key={rowIndex} images={row} rowIndex={rowIndex} />
