@@ -142,6 +142,7 @@ const ConnectedAppPage = lazy(() => import("./pages/dashboard/ConnectedAppPage")
 const GoogleDrivePage = lazy(() => import("./pages/dashboard/apps/GoogleDrivePage"));
 const GmailPage = lazy(() => import("./pages/dashboard/apps/GmailPage"));
 const GoogleMeetPage = lazy(() => import("./pages/dashboard/apps/GoogleMeetPage"));
+const YouTubePage = lazy(() => import("./pages/dashboard/apps/YouTubePage"));
 const MyBusinessPage = lazy(() => import("./pages/dashboard/MyBusinessPage"));
 const BusinessAnalyticsPage = lazy(() => import("./pages/dashboard/business/BusinessAnalyticsPage"));
 const BusinessUsersPage = lazy(() => import("./pages/dashboard/business/BusinessUsersPage"));
