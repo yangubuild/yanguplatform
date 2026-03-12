@@ -9,7 +9,7 @@ export default function DashboardOffers() {
   return (
     <div>
       <NavDashPromoCards />
-      <div className="px-4 md:px-5 pb-6">
+      <div className="px-6 md:px-10 lg:px-14 pb-6">
         <CustomProductOffer />
       </div>
     </div>
