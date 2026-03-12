@@ -88,13 +88,15 @@ Deno.serve(async (req) => {
         redirectUri: callbackUrl,
       });
 
+      console.log("[app-connect-callback] Google token exchange result", {
+        requestId,
+        authMethod: tokenResult.authMethod,
+        slug: state.slug,
+      });
+
       if (!tokenResult.tokens?.access_token) {
         console.error("Google token error:", {
-          tokens: tokenResult.tokens,
-          credentialFingerprint,
-          authMethod: tokenResult.authMethod,
-          slug: state.slug,
-        });
+          requestId,
 
         const providerMessage =
           tokenResult.tokens?.error_description ||
