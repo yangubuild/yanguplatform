@@ -47,8 +47,11 @@ export default function GoogleDrivePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [nextPageToken, setNextPageToken] = useState<string | null>(null);
   const [hasLoaded, setHasLoaded] = useState(false);
+  const [fetching, setFetching] = useState(false);
 
   const fetchFiles = useCallback(async (query?: string, pageToken?: string) => {
+    if (fetching) return;
+    setFetching(true);
     const params: Record<string, unknown> = { pageSize: 30 };
     if (query) params.query = `name contains '${query}'`;
     if (pageToken) params.pageToken = pageToken;
@@ -62,13 +65,15 @@ export default function GoogleDrivePage() {
         setFiles(result.files || []);
       }
       setNextPageToken(result.nextPageToken || null);
-      setHasLoaded(true);
     }
-  }, [callApi, clearError]);
+    setHasLoaded(true);
+    setFetching(false);
+  }, [callApi, clearError, fetching]);
 
   useEffect(() => {
-    if (user?.id) fetchFiles();
-  }, [user?.id, fetchFiles]);
+    if (user?.id && !hasLoaded) fetchFiles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
