@@ -67,12 +67,25 @@ export default function MyAppsPage() {
         .in("id", appIds);
       if (appsError) throw appsError;
 
+      // Also check connected_accounts for real connection status
+      const { data: connections } = await supabase
+        .from("connected_accounts")
+        .select("provider")
+        .eq("user_id", user!.id);
+      const connectedProviders = new Set((connections || []).map((c) => c.provider));
+
       const appMap = new Map((apps || []).map((a) => [a.id, a]));
       return data
-        .map((install) => ({
-          ...install,
-          app: appMap.get(install.app_id),
-        }))
+        .map((install) => {
+          const app = appMap.get(install.app_id);
+          // Mark as connected if either install status says so OR connected_accounts has a token
+          const isConnected = install.status === "connected" || (app && connectedProviders.has(app.slug));
+          return {
+            ...install,
+            status: isConnected ? "connected" : install.status,
+            app,
+          };
+        })
         .filter((i) => i.app) as InstalledApp[];
     },
   });
