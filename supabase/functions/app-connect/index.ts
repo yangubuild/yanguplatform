@@ -54,6 +54,7 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const slug: string = body.app_slug;
     const redirectBack: string = body.redirect_back || "/dashboard/my-apps";
+    const appOrigin: string = body.origin || "";
 
     if (!slug) {
       return json({ ok: false, error: "app_slug is required" }, 400);
