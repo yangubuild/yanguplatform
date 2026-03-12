@@ -215,7 +215,7 @@ export default function MyAppsPage() {
   );
 }
 
-function ConnectButton({ app, queryClient }: { app: AppRegistryEntry; queryClient: any }) {
+function ConnectButton({ app }: { app: AppRegistryEntry }) {
   const [connecting, setConnecting] = useState(false);
 
   const handleConnect = async () => {
