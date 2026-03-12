@@ -417,3 +417,42 @@ async function handleCalendarCreate(token: string, body: {
     end: data.end?.dateTime,
   });
 }
+
+// ============ YOUTUBE ============
+
+async function handleYouTubeChannel(token: string) {
+  const params = new URLSearchParams({
+    part: "snippet,statistics,contentDetails",
+    mine: "true",
+  });
+
+  const res = await fetch(`https://www.googleapis.com/youtube/v3/channels?${params}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await res.json();
+  if (!res.ok) return json({ error: data.error?.message || "YouTube API error" }, res.status);
+
+  const channel = data.items?.[0];
+  if (!channel) {
+    return json({
+      channel: null,
+      message: "No channel found for this Google account.",
+    });
+  }
+
+  return json({
+    channel: {
+      id: channel.id,
+      title: channel.snippet?.title || "",
+      description: channel.snippet?.description || "",
+      customUrl: channel.snippet?.customUrl || "",
+      thumbnails: channel.snippet?.thumbnails || {},
+      publishedAt: channel.snippet?.publishedAt || null,
+      country: channel.snippet?.country || null,
+      subscriberCount: channel.statistics?.subscriberCount || "0",
+      videoCount: channel.statistics?.videoCount || "0",
+      viewCount: channel.statistics?.viewCount || "0",
+      uploadsPlaylistId: channel.contentDetails?.relatedPlaylists?.uploads || null,
+    },
+  });
+}
