@@ -182,7 +182,7 @@ export default function MyAppsPage() {
                   <div className="flex items-center gap-1.5">
                     {/* Show Connect button for OAuth apps not yet connected */}
                     {item.app.supports_oauth && item.status !== "connected" && (
-                      <ConnectButton app={item.app} queryClient={queryClient} />
+                      <ConnectButton app={item.app} />
                     )}
                     {item.app.launch_route && (
                       <button
