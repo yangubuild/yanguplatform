@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
       return new Response("Missing state", { status: 400 });
     }
 
-    let state: { uid: string; slug: string; rb: string };
+    let state: { uid: string; slug: string; rb: string; origin?: string };
     try {
       state = JSON.parse(atob(stateB64));
     } catch {
