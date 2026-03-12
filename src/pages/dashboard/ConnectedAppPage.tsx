@@ -3,13 +3,19 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { ICON_MAP } from "@/lib/app-store/icon-map";
-import { ArrowLeft, ExternalLink, Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { ArrowLeft, ExternalLink, Loader2, CheckCircle2, XCircle, Settings } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const EXTERNAL_URLS: Record<string, string> = {
   "google-drive": "https://drive.google.com",
   gmail: "https://mail.google.com",
   "google-meet": "https://meet.google.com",
   youtube: "https://studio.youtube.com",
+  stripe: "https://dashboard.stripe.com",
+};
+
+const MANAGEMENT_LINKS: Record<string, { label: string; route: string }> = {
+  stripe: { label: "Payment Settings", route: "/dashboard/payment-settings" },
 };
 
 export default function ConnectedAppPage() {
