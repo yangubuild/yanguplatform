@@ -46,18 +46,39 @@ Deno.serve(async (req) => {
 
     // --------------- Google ---------------
     if (["google-drive", "gmail", "google-meet", "youtube"].includes(state.slug)) {
-      const clientId = normalizeOAuthCredential(Deno.env.get("GOOGLE_DRIVE_CLIENT_ID"));
-      const clientSecret = normalizeOAuthCredential(Deno.env.get("GOOGLE_DRIVE_CLIENT_SECRET"));
+      const clientIdEnvName = "GOOGLE_DRIVE_CLIENT_ID";
+      const clientSecretEnvName = "GOOGLE_DRIVE_CLIENT_SECRET";
+      const rawClientId = Deno.env.get(clientIdEnvName);
+      const rawClientSecret = Deno.env.get(clientSecretEnvName);
+      const clientId = normalizeOAuthCredential(rawClientId);
+      const clientSecret = normalizeOAuthCredential(rawClientSecret);
+
+      console.log("[app-connect-callback] Google OAuth env binding", {
+        requestId,
+        slug: state.slug,
+        envNames: [clientIdEnvName, clientSecretEnvName],
+        clientIdPresent: Boolean(rawClientId),
+        clientSecretPresent: Boolean(rawClientSecret),
+        clientIdLength: clientId.length,
+        clientSecretLength: clientSecret.length,
+        clientIdDigest: await credentialDigest(clientId),
+        clientSecretDigest: await credentialDigest(clientSecret),
+        redirectUri: callbackUrl,
+      });
+
       if (!clientId || !clientSecret) {
         return redirectToApp(state.rb, state.slug, "error", "Google OAuth is not configured");
       }
 
       const credentialFingerprint = {
         source: "GOOGLE_DRIVE_CLIENT_ID/GOOGLE_DRIVE_CLIENT_SECRET",
+        envNames: [clientIdEnvName, clientSecretEnvName],
         clientId: maskCredential(clientId, 8),
         clientIdLength: clientId.length,
         clientSecret: maskCredential(clientSecret, 4),
         clientSecretLength: clientSecret.length,
+        clientIdDigest: await credentialDigest(clientId),
+        clientSecretDigest: await credentialDigest(clientSecret),
       };
 
       const tokenResult = await exchangeGoogleToken({
