@@ -139,6 +139,9 @@ const AdsPage = lazy(() => import("./pages/dashboard/AdsPage"));
 const AppStorePage = lazy(() => import("./pages/dashboard/AppStorePage"));
 const MyAppsPage = lazy(() => import("./pages/dashboard/MyAppsPage"));
 const ConnectedAppPage = lazy(() => import("./pages/dashboard/ConnectedAppPage"));
+const GoogleDrivePage = lazy(() => import("./pages/dashboard/apps/GoogleDrivePage"));
+const GmailPage = lazy(() => import("./pages/dashboard/apps/GmailPage"));
+const GoogleMeetPage = lazy(() => import("./pages/dashboard/apps/GoogleMeetPage"));
 const MyBusinessPage = lazy(() => import("./pages/dashboard/MyBusinessPage"));
 const BusinessAnalyticsPage = lazy(() => import("./pages/dashboard/business/BusinessAnalyticsPage"));
 const BusinessUsersPage = lazy(() => import("./pages/dashboard/business/BusinessUsersPage"));
@@ -374,6 +377,9 @@ const App = () => (
 
                   {/* Dashboard module pages (flat, no nesting) */}
                   <Route path="my-apps" element={<MyAppsPage />} />
+                  <Route path="apps/google-drive" element={<GoogleDrivePage />} />
+                  <Route path="apps/gmail" element={<GmailPage />} />
+                  <Route path="apps/google-meet" element={<GoogleMeetPage />} />
                   <Route path="apps/:appSlug" element={<ConnectedAppPage />} />
                   <Route path="my-business" element={<MyBusinessPage />} />
                   <Route path="my-business/:businessId/analytics" element={<BusinessAnalyticsPage />} />
