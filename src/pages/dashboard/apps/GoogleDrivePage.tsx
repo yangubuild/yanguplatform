@@ -47,8 +47,11 @@ export default function GoogleDrivePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [nextPageToken, setNextPageToken] = useState<string | null>(null);
   const [hasLoaded, setHasLoaded] = useState(false);
+  const [fetching, setFetching] = useState(false);
 
   const fetchFiles = useCallback(async (query?: string, pageToken?: string) => {
+    if (fetching) return;
+    setFetching(true);
     const params: Record<string, unknown> = { pageSize: 30 };
     if (query) params.query = `name contains '${query}'`;
     if (pageToken) params.pageToken = pageToken;
@@ -62,13 +65,15 @@ export default function GoogleDrivePage() {
         setFiles(result.files || []);
       }
       setNextPageToken(result.nextPageToken || null);
-      setHasLoaded(true);
     }
-  }, [callApi, clearError]);
+    setHasLoaded(true);
+    setFetching(false);
+  }, [callApi, clearError, fetching]);
 
   useEffect(() => {
-    if (user?.id) fetchFiles();
-  }, [user?.id, fetchFiles]);
+    if (user?.id && !hasLoaded) fetchFiles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,11 +106,11 @@ export default function GoogleDrivePage() {
           </div>
           <button
             onClick={() => fetchFiles(searchQuery)}
-            disabled={loading}
+            disabled={fetching}
             className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-white/60 hover:text-white transition-colors"
             style={{ background: "rgba(255,255,255,0.06)" }}
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+            <RefreshCw className={`w-4 h-4 ${fetching ? "animate-spin" : ""}`} />
             Refresh
           </button>
         </div>
@@ -123,15 +128,15 @@ export default function GoogleDrivePage() {
           </div>
         </form>
 
-        {/* Error */}
-        {error && !(hasLoaded && files.length === 0 && error.includes("non-2xx")) && (
+        {/* Error - only show real errors, not empty-state false positives */}
+        {error && !hasLoaded && (
           <div className="rounded-xl p-4 mb-4 text-sm text-red-300" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}>
             {error}
           </div>
         )}
 
         {/* Files list */}
-        {loading && !hasLoaded ? (
+        {fetching && !hasLoaded ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-6 h-6 text-white/20 animate-spin" />
           </div>
@@ -194,11 +199,11 @@ export default function GoogleDrivePage() {
           <div className="flex justify-center mt-6">
             <button
               onClick={() => fetchFiles(searchQuery, nextPageToken)}
-              disabled={loading}
+              disabled={fetching}
               className="px-4 py-2 rounded-xl text-sm text-white/60 hover:text-white transition-colors"
               style={{ background: "rgba(255,255,255,0.06)" }}
             >
-              {loading ? "Loading..." : "Load more"}
+              {fetching ? "Loading..." : "Load more"}
             </button>
           </div>
         )}

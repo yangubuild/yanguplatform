@@ -67,12 +67,25 @@ export default function MyAppsPage() {
         .in("id", appIds);
       if (appsError) throw appsError;
 
+      // Also check connected_accounts for real connection status
+      const { data: connections } = await supabase
+        .from("connected_accounts")
+        .select("provider")
+        .eq("user_id", user!.id);
+      const connectedProviders = new Set((connections || []).map((c) => c.provider));
+
       const appMap = new Map((apps || []).map((a) => [a.id, a]));
       return data
-        .map((install) => ({
-          ...install,
-          app: appMap.get(install.app_id),
-        }))
+        .map((install) => {
+          const app = appMap.get(install.app_id);
+          // Mark as connected if either install status says so OR connected_accounts has a token
+          const isConnected = install.status === "connected" || (app && connectedProviders.has(app.slug));
+          return {
+            ...install,
+            status: isConnected ? "connected" : install.status,
+            app,
+          };
+        })
         .filter((i) => i.app) as InstalledApp[];
     },
   });
@@ -207,15 +220,15 @@ function ConnectButton({ app, queryClient }: { app: AppRegistryEntry; queryClien
       const result = await connectApp(app.slug, "/dashboard/my-apps");
       if (!result.ok) {
         toast.error(result.error || "Connection failed");
+        setConnecting(false);
       } else if (result.redirect) {
         queryClient.invalidateQueries({ queryKey: ["my-apps"] });
         window.location.href = result.redirect;
-      } else {
-        toast.success("OAuth flow started — check the new tab");
       }
+      // For OAuth redirect flow, connectApp redirects current tab via window.location.href
+      // and never resolves, so no toast/spinner reset needed
     } catch {
       toast.error("Connection failed");
-    } finally {
       setConnecting(false);
     }
   };

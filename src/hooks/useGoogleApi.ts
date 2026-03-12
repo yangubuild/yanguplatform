@@ -15,6 +15,8 @@ export function useGoogleApi() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const clearError = useCallback(() => setError(null), []);
+
   const callApi = useCallback(async <T = unknown>(
     action: GoogleApiAction,
     params: Record<string, unknown> = {}
@@ -47,5 +49,5 @@ export function useGoogleApi() {
     }
   }, []);
 
-  return { callApi, loading, error, clearError: () => setError(null) };
+  return { callApi, loading, error, clearError };
 }
