@@ -148,7 +148,7 @@ export function CustomProductOffer() {
             <h2 className="max-w-[460px] text-3xl font-black leading-[1.08] text-foreground sm:text-4xl">
               Have your own <span style={{ color: YANGU_ORANGE }}>Signature Product</span> created in 7 days.
             </h2>
-            <p className="mt-5 max-w-[520px] text-xl leading-relaxed text-muted-foreground">
+            <p className="mt-3 max-w-[460px] text-base leading-relaxed text-muted-foreground">
               We transform your idea into a world-class digital asset without you writing a single word.
             </p>
 
