@@ -114,18 +114,30 @@ export default function ConnectedAppPage() {
         </div>
 
         {/* Actions */}
-        {externalUrl && (
-          <a
-            href={externalUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-white transition-colors hover:opacity-90"
-            style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
-          >
-            <ExternalLink className="w-4 h-4" />
-            Open {app.name}
-          </a>
-        )}
+        <div className="flex flex-wrap gap-3">
+          {MANAGEMENT_LINKS[app.slug] && (
+            <button
+              onClick={() => navigate(MANAGEMENT_LINKS[app.slug].route)}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-white transition-colors hover:opacity-90"
+              style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
+            >
+              <Settings className="w-4 h-4" />
+              {MANAGEMENT_LINKS[app.slug].label}
+            </button>
+          )}
+          {externalUrl && (
+            <a
+              href={externalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-white transition-colors hover:opacity-90"
+              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
+            >
+              <ExternalLink className="w-4 h-4" />
+              Open {app.name}
+            </a>
+          )}
+        </div>
       </div>
     </div>
   );
