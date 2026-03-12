@@ -53,6 +53,9 @@ Deno.serve(async (req) => {
     const admin = createClient(supabaseUrl, serviceKey);
     const provider = getProviderForAction(action);
 
+    console.log("[google-api-proxy]", { action, provider, userId: user.id });
+
+    // Try connected_accounts first
     const { data: account } = await admin
       .from("connected_accounts")
       .select("access_token, refresh_token, expires_at")
@@ -60,14 +63,41 @@ Deno.serve(async (req) => {
       .eq("provider", provider)
       .single();
 
-    if (!account?.access_token) {
+    // Fallback to drive_tokens for google-drive (legacy connection flow)
+    let tokenRecord = account;
+    if (!tokenRecord?.access_token && provider === "google-drive") {
+      console.log("[google-api-proxy] Falling back to drive_tokens table");
+      const { data: driveToken } = await admin
+        .from("drive_tokens")
+        .select("access_token, refresh_token, expires_at")
+        .eq("user_id", user.id)
+        .single();
+
+      if (driveToken?.access_token) {
+        tokenRecord = driveToken;
+        // Sync to connected_accounts for future use
+        await admin.from("connected_accounts").upsert({
+          user_id: user.id,
+          provider: "google-drive",
+          provider_user_id: "synced",
+          access_token: driveToken.access_token,
+          refresh_token: driveToken.refresh_token || "",
+          expires_at: driveToken.expires_at,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: "user_id,provider" });
+      }
+    }
+
+    if (!tokenRecord?.access_token) {
+      console.log("[google-api-proxy] No token found", { provider, userId: user.id });
       return json({ error: `Not connected to ${provider}. Please connect first.` }, 403);
     }
 
     // Check if token needs refresh
-    let accessToken = account.access_token;
-    if (account.expires_at && new Date(account.expires_at) <= new Date()) {
-      const refreshed = await refreshGoogleToken(account.refresh_token);
+    let accessToken = tokenRecord.access_token;
+    if (tokenRecord.expires_at && new Date(tokenRecord.expires_at) <= new Date()) {
+      console.log("[google-api-proxy] Token expired, refreshing...");
+      const refreshed = await refreshGoogleToken(tokenRecord.refresh_token);
       if (!refreshed) {
         return json({ error: "Token expired. Please reconnect the app." }, 401);
       }
