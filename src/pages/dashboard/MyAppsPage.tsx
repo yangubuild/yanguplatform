@@ -36,6 +36,10 @@ export default function MyAppsPage() {
     if (status === "success") {
       toast.success(`${appLabel} connected successfully`);
       queryClient.invalidateQueries({ queryKey: ["my-apps"] });
+      queryClient.invalidateQueries({ queryKey: ["app-install-state"] });
+      if (user?.id) {
+        queryClient.refetchQueries({ queryKey: ["my-apps", user.id], exact: true });
+      }
     } else {
       toast.error(errorMessage || `Failed to connect ${appLabel}`);
     }
@@ -45,7 +49,7 @@ export default function MyAppsPage() {
     nextParams.delete("connect_app");
     nextParams.delete("connect_error");
     setSearchParams(nextParams, { replace: true });
-  }, [searchParams, queryClient, setSearchParams]);
+  }, [searchParams, queryClient, setSearchParams, user?.id]);
 
   const { data: installs, isLoading } = useQuery({
     queryKey: ["my-apps", user?.id],
