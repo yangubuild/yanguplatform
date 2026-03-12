@@ -199,11 +199,11 @@ export default function GoogleDrivePage() {
           <div className="flex justify-center mt-6">
             <button
               onClick={() => fetchFiles(searchQuery, nextPageToken)}
-              disabled={loading}
+              disabled={fetching}
               className="px-4 py-2 rounded-xl text-sm text-white/60 hover:text-white transition-colors"
               style={{ background: "rgba(255,255,255,0.06)" }}
             >
-              {loading ? "Loading..." : "Load more"}
+              {fetching ? "Loading..." : "Load more"}
             </button>
           </div>
         )}
