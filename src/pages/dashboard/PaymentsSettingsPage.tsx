@@ -192,17 +192,23 @@ export default function PaymentsSettingsPage() {
         )}
       </Card>
 
-      {/* Stripe - placeholder */}
-      <Card className="p-5 opacity-60">
+      {/* Stripe */}
+      <Card className="p-5 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-muted p-2"><Zap className="h-4 w-4 text-muted-foreground" /></div>
+            <div className="rounded-lg bg-primary/10 p-2"><Zap className="h-4 w-4 text-primary" /></div>
             <div>
-              <Label className="text-sm font-semibold text-muted-foreground">Stripe</Label>
-              <p className="text-xs text-muted-foreground">Coming next</p>
+              <Label className="text-sm font-semibold">Stripe</Label>
+              <p className="text-xs text-muted-foreground">Accept card payments via Stripe</p>
             </div>
           </div>
+          <Switch checked={methods.stripe.enabled} onCheckedChange={(v) => update("stripe", { enabled: v })} />
         </div>
+        {methods.stripe.enabled && (
+          <p className="text-xs text-muted-foreground pl-11">
+            Stripe is managed through My Apps. Ensure it's connected there to accept payments.
+          </p>
+        )}
       </Card>
 
       {/* Flutterwave - placeholder */}
