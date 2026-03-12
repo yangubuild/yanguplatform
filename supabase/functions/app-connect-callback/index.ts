@@ -12,9 +12,10 @@ Deno.serve(async (req) => {
     const url = new URL(req.url);
     const code = url.searchParams.get("code");
     const stateB64 = url.searchParams.get("state");
+    const errorParam = url.searchParams.get("error");
 
-    if (!code || !stateB64) {
-      return new Response("Missing code or state", { status: 400 });
+    if (!stateB64) {
+      return new Response("Missing state", { status: 400 });
     }
 
     let state: { uid: string; slug: string; rb: string };
