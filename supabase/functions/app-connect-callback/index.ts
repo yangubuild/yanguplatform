@@ -268,7 +268,7 @@ Deno.serve(async (req) => {
         .eq("app_id", appRow.id);
     }
 
-    return redirectToApp(state.rb, state.slug, "success");
+    return redirectToApp(state.rb, state.slug, "success", undefined, state.origin);
   } catch (err) {
     console.error("[app-connect-callback]", err);
     return new Response(
