@@ -324,8 +324,8 @@ Deno.serve(async (req) => {
   } catch (err) {
     console.error("[app-connect-callback]", err);
     return new Response(
-      `Connection failed: ${err instanceof Error ? err.message : "Unknown error"}`,
-      { status: 500 }
+      JSON.stringify({ error: `Connection failed: ${err instanceof Error ? err.message : "Unknown error"}` }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
