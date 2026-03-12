@@ -36,8 +36,8 @@ Deno.serve(async (req) => {
 
     // --------------- Google ---------------
     if (["google-drive", "gmail", "google-meet", "youtube"].includes(state.slug)) {
-      const clientId = Deno.env.get("GOOGLE_DRIVE_CLIENT_ID");
-      const clientSecret = Deno.env.get("GOOGLE_DRIVE_CLIENT_SECRET");
+      const clientId = (Deno.env.get("GOOGLE_DRIVE_CLIENT_ID") || "").trim();
+      const clientSecret = (Deno.env.get("GOOGLE_DRIVE_CLIENT_SECRET") || "").trim();
       if (!clientId || !clientSecret) {
         return new Response("Google OAuth not configured", { status: 500 });
       }
