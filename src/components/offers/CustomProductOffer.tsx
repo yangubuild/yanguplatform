@@ -144,25 +144,25 @@ export function CustomProductOffer() {
       <div className="grid min-w-0 grid-cols-1 gap-2.5 lg:grid-cols-2">
         <div className="relative h-[280px] overflow-hidden rounded-2xl border border-border bg-card px-6 py-6 sm:h-[300px] sm:px-7 lg:h-[310px]">
           <div className="absolute inset-0 opacity-40 [background-image:linear-gradient(to_right,hsl(var(--border)/0.55)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.55)_1px,transparent_1px)] [background-size:28px_28px]" />
-          <div className="relative z-10 flex h-full flex-col justify-center">
-            <h2 className="max-w-[460px] text-3xl font-black leading-[1.08] text-foreground sm:text-4xl">
+          <div className="relative z-10 flex h-full flex-col items-start justify-center">
+            <h2 className="max-w-[400px] text-2xl font-black leading-[1.12] text-foreground sm:text-[1.7rem]">
               Have your own <span style={{ color: YANGU_ORANGE }}>Signature Product</span> created in 7 days.
             </h2>
-            <p className="mt-3 max-w-[460px] text-base leading-relaxed text-muted-foreground">
+            <p className="mt-2.5 max-w-[380px] text-sm leading-relaxed text-muted-foreground">
               We transform your idea into a world-class digital asset without you writing a single word.
             </p>
 
-            <div className="mt-6 flex flex-wrap items-center gap-4">
+            <div className="mt-5 flex flex-wrap items-center gap-3">
               <button
                 onClick={() => navigate("/dashboard/offers/custom-product")}
-                className="inline-flex items-center gap-2 rounded-xl px-7 py-3 text-lg font-bold text-white transition-opacity hover:opacity-90"
+                className="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90"
                 style={{ background: YANGU_GRADIENT }}
               >
                 Get Your Own Product
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-3.5 w-3.5" />
               </button>
 
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
                   {[
                     "/images/custom-product-source/happy-1.avif",
@@ -173,12 +173,12 @@ export function CustomProductOffer() {
                       key={index}
                       src={avatarSrc}
                       alt={`Happy customer ${index + 1}`}
-                      className="h-7 w-7 rounded-full border-2 border-card object-cover"
+                      className="h-6 w-6 rounded-full border-2 border-card object-cover"
                       loading="lazy"
                     />
                   ))}
                 </div>
-                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                   150+ Happy Customers
                 </span>
               </div>
