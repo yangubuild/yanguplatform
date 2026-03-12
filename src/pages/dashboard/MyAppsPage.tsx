@@ -244,6 +244,7 @@ function ConnectButton({ app, queryClient }: { app: AppRegistryEntry; queryClien
 
   return (
     <button
+      type="button"
       onClick={handleConnect}
       disabled={connecting}
       className="px-3 py-1 rounded-lg text-xs font-medium text-white transition-colors hover:opacity-80 flex items-center gap-1"
