@@ -219,20 +219,25 @@ function ConnectButton({ app, queryClient }: { app: AppRegistryEntry; queryClien
   const [connecting, setConnecting] = useState(false);
 
   const handleConnect = async () => {
+    if (connecting) return;
+
     setConnecting(true);
     try {
       const result = await connectApp(app.slug, "/dashboard/my-apps");
       if (!result.ok) {
         toast.error(result.error || "Connection failed");
-        setConnecting(false);
-      } else if (result.redirect) {
-        queryClient.invalidateQueries({ queryKey: ["my-apps"] });
-        window.location.href = result.redirect;
+        return;
       }
-      // For OAuth redirect flow, connectApp redirects current tab via window.location.href
-      // and never resolves, so no toast/spinner reset needed
+
+      if (result.redirect) {
+        window.location.assign(result.redirect);
+        return;
+      }
+
+      toast.error("Could not start connection flow");
     } catch {
       toast.error("Connection failed");
+    } finally {
       setConnecting(false);
     }
   };
