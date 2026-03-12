@@ -37,6 +37,7 @@ Deno.serve(async (req) => {
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const admin = createClient(supabaseUrl, serviceKey);
     const callbackUrl = `${supabaseUrl}/functions/v1/app-connect-callback`;
+    const requestId = crypto.randomUUID();
 
     let providerUserId = "";
     let accessToken = "";
@@ -45,18 +46,39 @@ Deno.serve(async (req) => {
 
     // --------------- Google ---------------
     if (["google-drive", "gmail", "google-meet", "youtube"].includes(state.slug)) {
-      const clientId = normalizeOAuthCredential(Deno.env.get("GOOGLE_DRIVE_CLIENT_ID"));
-      const clientSecret = normalizeOAuthCredential(Deno.env.get("GOOGLE_DRIVE_CLIENT_SECRET"));
+      const clientIdEnvName = "GOOGLE_DRIVE_CLIENT_ID";
+      const clientSecretEnvName = "GOOGLE_DRIVE_CLIENT_SECRET";
+      const rawClientId = Deno.env.get(clientIdEnvName);
+      const rawClientSecret = Deno.env.get(clientSecretEnvName);
+      const clientId = normalizeOAuthCredential(rawClientId);
+      const clientSecret = normalizeOAuthCredential(rawClientSecret);
+
+      console.log("[app-connect-callback] Google OAuth env binding", {
+        requestId,
+        slug: state.slug,
+        envNames: [clientIdEnvName, clientSecretEnvName],
+        clientIdPresent: Boolean(rawClientId),
+        clientSecretPresent: Boolean(rawClientSecret),
+        clientIdLength: clientId.length,
+        clientSecretLength: clientSecret.length,
+        clientIdDigest: await credentialDigest(clientId),
+        clientSecretDigest: await credentialDigest(clientSecret),
+        redirectUri: callbackUrl,
+      });
+
       if (!clientId || !clientSecret) {
         return redirectToApp(state.rb, state.slug, "error", "Google OAuth is not configured");
       }
 
       const credentialFingerprint = {
         source: "GOOGLE_DRIVE_CLIENT_ID/GOOGLE_DRIVE_CLIENT_SECRET",
+        envNames: [clientIdEnvName, clientSecretEnvName],
         clientId: maskCredential(clientId, 8),
         clientIdLength: clientId.length,
         clientSecret: maskCredential(clientSecret, 4),
         clientSecretLength: clientSecret.length,
+        clientIdDigest: await credentialDigest(clientId),
+        clientSecretDigest: await credentialDigest(clientSecret),
       };
 
       const tokenResult = await exchangeGoogleToken({
@@ -66,8 +88,15 @@ Deno.serve(async (req) => {
         redirectUri: callbackUrl,
       });
 
+      console.log("[app-connect-callback] Google token exchange result", {
+        requestId,
+        authMethod: tokenResult.authMethod,
+        slug: state.slug,
+      });
+
       if (!tokenResult.tokens?.access_token) {
         console.error("Google token error:", {
+          requestId,
           tokens: tokenResult.tokens,
           credentialFingerprint,
           authMethod: tokenResult.authMethod,
@@ -296,6 +325,18 @@ async function exchangeGoogleToken(params: {
 
   const basicTokens = (await basicResponse.json()) as GoogleTokenResponse;
   return { tokens: basicTokens, authMethod: "client_secret_basic" };
+}
+
+async function credentialDigest(value: string): Promise<string> {
+  if (!value) return "missing";
+
+  const bytes = new TextEncoder().encode(value);
+  const digestBuffer = await crypto.subtle.digest("SHA-256", bytes);
+  const digestHex = Array.from(new Uint8Array(digestBuffer))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+
+  return digestHex.slice(0, 12);
 }
 
 function normalizeOAuthCredential(raw: string | undefined): string {
