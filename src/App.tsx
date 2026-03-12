@@ -381,6 +381,7 @@ const App = () => (
                   <Route path="apps/google-drive" element={<GoogleDrivePage />} />
                   <Route path="apps/gmail" element={<GmailPage />} />
                   <Route path="apps/google-meet" element={<GoogleMeetPage />} />
+                  <Route path="apps/youtube" element={<YouTubePage />} />
                   <Route path="apps/:appSlug" element={<ConnectedAppPage />} />
                   <Route path="my-business" element={<MyBusinessPage />} />
                   <Route path="my-business/:businessId/analytics" element={<BusinessAnalyticsPage />} />
