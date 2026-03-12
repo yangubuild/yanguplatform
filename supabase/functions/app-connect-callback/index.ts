@@ -109,7 +109,7 @@ Deno.serve(async (req) => {
           tokenResult.tokens?.error ||
           "Token exchange failed";
 
-        return redirectToApp(state.rb, state.slug, "error", providerMessage);
+        return redirectToApp(state.rb, state.slug, "error", providerMessage, state.origin);
       }
 
       accessToken = tokenResult.tokens.access_token;
