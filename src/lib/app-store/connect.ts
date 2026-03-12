@@ -31,11 +31,9 @@ export async function connectApp(
       return { ok: false, error: data?.error || "Connection failed" };
     }
 
-    // OAuth redirect flow — redirect current tab for reliability
+    // OAuth flow: caller should redirect current tab for reliability
     if (data.method === "redirect" && data.authorize_url) {
-      window.location.href = data.authorize_url;
-      // Won't resolve — page is navigating away
-      return new Promise(() => {});
+      return { ok: true, redirect: data.authorize_url };
     }
 
     // Direct connection (e.g. Stripe)
@@ -43,7 +41,7 @@ export async function connectApp(
       return { ok: true, redirect: data.redirect };
     }
 
-    return { ok: true };
+    return { ok: false, error: "Connection did not return a redirect URL" };
   } catch (err) {
     return {
       ok: false,

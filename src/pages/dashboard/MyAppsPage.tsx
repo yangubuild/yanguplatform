@@ -36,6 +36,10 @@ export default function MyAppsPage() {
     if (status === "success") {
       toast.success(`${appLabel} connected successfully`);
       queryClient.invalidateQueries({ queryKey: ["my-apps"] });
+      queryClient.invalidateQueries({ queryKey: ["app-install-state"] });
+      if (user?.id) {
+        queryClient.refetchQueries({ queryKey: ["my-apps", user.id], exact: true });
+      }
     } else {
       toast.error(errorMessage || `Failed to connect ${appLabel}`);
     }
@@ -45,7 +49,7 @@ export default function MyAppsPage() {
     nextParams.delete("connect_app");
     nextParams.delete("connect_error");
     setSearchParams(nextParams, { replace: true });
-  }, [searchParams, queryClient, setSearchParams]);
+  }, [searchParams, queryClient, setSearchParams, user?.id]);
 
   const { data: installs, isLoading } = useQuery({
     queryKey: ["my-apps", user?.id],
@@ -178,7 +182,7 @@ export default function MyAppsPage() {
                   <div className="flex items-center gap-1.5">
                     {/* Show Connect button for OAuth apps not yet connected */}
                     {item.app.supports_oauth && item.status !== "connected" && (
-                      <ConnectButton app={item.app} queryClient={queryClient} />
+                      <ConnectButton app={item.app} />
                     )}
                     {item.app.launch_route && (
                       <button
@@ -211,30 +215,36 @@ export default function MyAppsPage() {
   );
 }
 
-function ConnectButton({ app, queryClient }: { app: AppRegistryEntry; queryClient: any }) {
+function ConnectButton({ app }: { app: AppRegistryEntry }) {
   const [connecting, setConnecting] = useState(false);
 
   const handleConnect = async () => {
+    if (connecting) return;
+
     setConnecting(true);
     try {
       const result = await connectApp(app.slug, "/dashboard/my-apps");
       if (!result.ok) {
         toast.error(result.error || "Connection failed");
-        setConnecting(false);
-      } else if (result.redirect) {
-        queryClient.invalidateQueries({ queryKey: ["my-apps"] });
-        window.location.href = result.redirect;
+        return;
       }
-      // For OAuth redirect flow, connectApp redirects current tab via window.location.href
-      // and never resolves, so no toast/spinner reset needed
+
+      if (result.redirect) {
+        window.location.assign(result.redirect);
+        return;
+      }
+
+      toast.error("Could not start connection flow");
     } catch {
       toast.error("Connection failed");
+    } finally {
       setConnecting(false);
     }
   };
 
   return (
     <button
+      type="button"
       onClick={handleConnect}
       disabled={connecting}
       className="px-3 py-1 rounded-lg text-xs font-medium text-white transition-colors hover:opacity-80 flex items-center gap-1"
