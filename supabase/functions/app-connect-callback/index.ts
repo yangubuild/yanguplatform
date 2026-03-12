@@ -25,7 +25,10 @@ Deno.serve(async (req) => {
     const errorParam = url.searchParams.get("error");
 
     if (!stateB64) {
-      return new Response("Missing state", { status: 400 });
+      return new Response(JSON.stringify({ error: "Missing state" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     let state: { uid: string; slug: string; rb: string; origin?: string };
