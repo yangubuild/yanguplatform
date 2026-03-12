@@ -1,5 +1,12 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+};
+
 /**
  * Universal OAuth callback for app connections.
  * Receives ?code=...&state=... from OAuth provider.
@@ -8,6 +15,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
  * then redirects user back.
  */
 Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
   try {
     const url = new URL(req.url);
     const code = url.searchParams.get("code");
@@ -15,14 +25,20 @@ Deno.serve(async (req) => {
     const errorParam = url.searchParams.get("error");
 
     if (!stateB64) {
-      return new Response("Missing state", { status: 400 });
+      return new Response(JSON.stringify({ error: "Missing state" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     let state: { uid: string; slug: string; rb: string; origin?: string };
     try {
       state = JSON.parse(atob(stateB64));
     } catch {
-      return new Response("Invalid state", { status: 400 });
+      return new Response(JSON.stringify({ error: "Invalid state" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     if (errorParam) {
@@ -131,7 +147,10 @@ Deno.serve(async (req) => {
       const clientId = Deno.env.get("PAYPAL_CLIENT_ID");
       const clientSecret = Deno.env.get("PAYPAL_CLIENT_SECRET");
       if (!clientId || !clientSecret) {
-        return new Response("PayPal not configured", { status: 500 });
+        return new Response(JSON.stringify({ error: "PayPal not configured" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
 
       const tokenRes = await fetch("https://api-m.paypal.com/v1/oauth2/token", {
@@ -149,7 +168,10 @@ Deno.serve(async (req) => {
       const tokens = await tokenRes.json();
       if (!tokenRes.ok) {
         console.error("PayPal token error:", tokens);
-        return new Response(`PayPal token exchange failed`, { status: 500 });
+        return new Response(JSON.stringify({ error: "PayPal token exchange failed" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
 
       accessToken = tokens.access_token;
@@ -163,7 +185,10 @@ Deno.serve(async (req) => {
       const clientId = Deno.env.get("NOTION_CLIENT_ID");
       const clientSecret = Deno.env.get("NOTION_CLIENT_SECRET");
       if (!clientId || !clientSecret) {
-        return new Response("Notion not configured", { status: 500 });
+        return new Response(JSON.stringify({ error: "Notion not configured" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
 
       const tokenRes = await fetch("https://api.notion.com/v1/oauth/token", {
@@ -181,7 +206,10 @@ Deno.serve(async (req) => {
       const tokens = await tokenRes.json();
       if (!tokenRes.ok) {
         console.error("Notion token error:", tokens);
-        return new Response("Notion token exchange failed", { status: 500 });
+        return new Response(JSON.stringify({ error: "Notion token exchange failed" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
 
       accessToken = tokens.access_token;
@@ -193,7 +221,10 @@ Deno.serve(async (req) => {
       const clientId = Deno.env.get("DISCORD_CLIENT_ID");
       const clientSecret = Deno.env.get("DISCORD_CLIENT_SECRET");
       if (!clientId || !clientSecret) {
-        return new Response("Discord not configured", { status: 500 });
+        return new Response(JSON.stringify({ error: "Discord not configured" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
 
       const tokenRes = await fetch("https://discord.com/api/v10/oauth2/token", {
@@ -210,7 +241,10 @@ Deno.serve(async (req) => {
       const tokens = await tokenRes.json();
       if (!tokenRes.ok) {
         console.error("Discord token error:", tokens);
-        return new Response("Discord token exchange failed", { status: 500 });
+        return new Response(JSON.stringify({ error: "Discord token exchange failed" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
 
       accessToken = tokens.access_token;
@@ -290,8 +324,8 @@ Deno.serve(async (req) => {
   } catch (err) {
     console.error("[app-connect-callback]", err);
     return new Response(
-      `Connection failed: ${err instanceof Error ? err.message : "Unknown error"}`,
-      { status: 500 }
+      JSON.stringify({ error: `Connection failed: ${err instanceof Error ? err.message : "Unknown error"}` }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
@@ -540,7 +574,7 @@ function redirectToApp(
 
   return new Response(null, {
     status: 302,
-    headers: { Location: finalUrl },
+    headers: { ...corsHeaders, Location: finalUrl },
   });
 }
 
