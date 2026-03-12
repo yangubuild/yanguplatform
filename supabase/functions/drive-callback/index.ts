@@ -104,8 +104,8 @@ function redirectWithStatus(
   message: string,
   redirectBack: string
 ): Response {
-  // Default redirect to the ADA page
-  let target = redirectBack || "/dashboard/ada";
+  // Default redirect to the My Apps page
+  let target = redirectBack || "/dashboard/my-apps";
 
   // Ensure it's a relative path (security)
   if (target.startsWith("http")) {
@@ -113,26 +113,22 @@ function redirectWithStatus(
       const u = new URL(target);
       target = u.pathname + u.search + u.hash;
     } catch {
-      target = "/dashboard/ada";
+      target = "/dashboard/my-apps";
     }
   }
 
   const sep = target.includes("?") ? "&" : "?";
   const finalUrl = `${target}${sep}drive_status=${status}${message ? `&drive_msg=${encodeURIComponent(message)}` : ""}`;
 
-  // We need to redirect to the app origin. Since edge functions run on the
-  // Supabase domain, we redirect to the app's origin.
-  // The client passes redirect_back as a full path; we prepend the app origin.
-  // For now, use a meta-refresh HTML page that works with any origin.
-  const html = `<!DOCTYPE html>
-<html>
-<head><meta http-equiv="refresh" content="0;url=${escapeHtml(finalUrl)}"></head>
-<body><p>Redirecting…</p></body>
-</html>`;
+  // Use true HTTP 302 redirect to cleanly return to the app
+  // Since this is a relative path, the browser resolves it against the current origin.
+  // For cross-origin redirect, prepend the app origin.
+  const appOrigin = "https://yangu.io";
+  const absoluteUrl = finalUrl.startsWith("http") ? finalUrl : `${appOrigin}${finalUrl}`;
 
-  return new Response(html, {
-    status: 200,
-    headers: { "Content-Type": "text/html; charset=utf-8" },
+  return new Response(null, {
+    status: 302,
+    headers: { Location: absoluteUrl },
   });
 }
 

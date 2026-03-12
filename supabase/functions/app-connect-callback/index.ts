@@ -516,19 +516,13 @@ function redirectToApp(
   const sep = path.includes("?") ? "&" : "?";
   const pathWithParams = `${path}${sep}${params.toString()}`;
 
-  // Build absolute URL so meta-refresh navigates to the app, not the Edge Function domain
+  // Build absolute URL and use a true HTTP 302 redirect
   const origin = appOrigin || "https://yangu.io";
   const finalUrl = `${origin}${pathWithParams}`;
 
-  const html = `<!DOCTYPE html>
-<html>
-<head><meta http-equiv="refresh" content="0;url=${escapeHtml(finalUrl)}"></head>
-<body><p>Redirecting…</p></body>
-</html>`;
-
-  return new Response(html, {
-    status: 200,
-    headers: { "Content-Type": "text/html; charset=utf-8" },
+  return new Response(null, {
+    status: 302,
+    headers: { Location: finalUrl },
   });
 }
 
