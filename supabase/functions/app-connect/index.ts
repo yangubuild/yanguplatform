@@ -190,7 +190,7 @@ Deno.serve(async (req) => {
         return json({ ok: false, error: "Notion not configured. NOTION_CLIENT_ID required." });
       }
 
-      const statePayload = JSON.stringify({ uid: user.id, slug, rb: redirectBack });
+      const statePayload = JSON.stringify({ uid: user.id, slug, rb: redirectBack, origin: appOrigin });
       const state = btoa(statePayload);
       const callbackUrl = `${supabaseUrl}/functions/v1/app-connect-callback`;
 
