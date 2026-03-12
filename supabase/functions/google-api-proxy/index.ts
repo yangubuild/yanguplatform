@@ -94,9 +94,10 @@ Deno.serve(async (req) => {
     }
 
     // Check if token needs refresh
-    let accessToken = account.access_token;
-    if (account.expires_at && new Date(account.expires_at) <= new Date()) {
-      const refreshed = await refreshGoogleToken(account.refresh_token);
+    let accessToken = tokenRecord.access_token;
+    if (tokenRecord.expires_at && new Date(tokenRecord.expires_at) <= new Date()) {
+      console.log("[google-api-proxy] Token expired, refreshing...");
+      const refreshed = await refreshGoogleToken(tokenRecord.refresh_token);
       if (!refreshed) {
         return json({ error: "Token expired. Please reconnect the app." }, 401);
       }
