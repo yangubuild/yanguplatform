@@ -501,8 +501,9 @@ function redirectToApp(
   slug: string,
   status: "success" | "error",
   message?: string,
+  appOrigin?: string,
 ): Response {
-  const target = sanitizeRedirectPath(redirectBack || "/dashboard/my-apps");
+  const path = sanitizeRedirectPath(redirectBack || "/dashboard/my-apps");
   const params = new URLSearchParams({
     connect_status: status,
     connect_app: slug,
@@ -512,12 +513,16 @@ function redirectToApp(
     params.set("connect_error", message.slice(0, 180));
   }
 
-  const sep = target.includes("?") ? "&" : "?";
-  const finalPath = `${target}${sep}${params.toString()}`;
+  const sep = path.includes("?") ? "&" : "?";
+  const pathWithParams = `${path}${sep}${params.toString()}`;
+
+  // Build absolute URL so meta-refresh navigates to the app, not the Edge Function domain
+  const origin = appOrigin || "https://yangu.io";
+  const finalUrl = `${origin}${pathWithParams}`;
 
   const html = `<!DOCTYPE html>
 <html>
-<head><meta http-equiv="refresh" content="0;url=${escapeHtml(finalPath)}"></head>
+<head><meta http-equiv="refresh" content="0;url=${escapeHtml(finalUrl)}"></head>
 <body><p>Redirecting…</p></body>
 </html>`;
 
