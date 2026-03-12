@@ -106,11 +106,11 @@ export default function GoogleDrivePage() {
           </div>
           <button
             onClick={() => fetchFiles(searchQuery)}
-            disabled={loading}
+            disabled={fetching}
             className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-white/60 hover:text-white transition-colors"
             style={{ background: "rgba(255,255,255,0.06)" }}
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+            <RefreshCw className={`w-4 h-4 ${fetching ? "animate-spin" : ""}`} />
             Refresh
           </button>
         </div>
