@@ -97,6 +97,11 @@ Deno.serve(async (req) => {
       if (!tokenResult.tokens?.access_token) {
         console.error("Google token error:", {
           requestId,
+          tokens: tokenResult.tokens,
+          credentialFingerprint,
+          authMethod: tokenResult.authMethod,
+          slug: state.slug,
+        });
 
         const providerMessage =
           tokenResult.tokens?.error_description ||
