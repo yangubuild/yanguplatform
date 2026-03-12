@@ -35,7 +35,10 @@ Deno.serve(async (req) => {
     try {
       state = JSON.parse(atob(stateB64));
     } catch {
-      return new Response("Invalid state", { status: 400 });
+      return new Response(JSON.stringify({ error: "Invalid state" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     if (errorParam) {
