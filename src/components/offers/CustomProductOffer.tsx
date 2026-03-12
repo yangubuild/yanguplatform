@@ -195,7 +195,7 @@ export function CustomProductOffer() {
         </div>
       </div>
 
-      <div className="relative h-[174px] overflow-hidden rounded-2xl border border-border bg-card px-6 py-4 sm:h-[186px]">
+      <div className="relative h-[140px] overflow-hidden rounded-2xl border border-border bg-card px-5 py-3 sm:h-[150px]">
         <div className="absolute inset-0 opacity-40 [background-image:linear-gradient(to_right,hsl(var(--border)/0.5)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.5)_1px,transparent_1px)] [background-size:28px_28px]" />
         <div className="relative z-10 flex h-full items-center gap-6">
           <div className="shrink-0">
