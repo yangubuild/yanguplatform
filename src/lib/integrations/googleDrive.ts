@@ -21,8 +21,7 @@ export async function isConnected(): Promise<boolean> {
 
 /**
  * Start the Google Drive OAuth flow.
- * Calls drive-connect edge function, then redirects the browser
- * to Google's consent screen.
+ * Calls unified app-connect and redirects the current tab to provider consent.
  * @param redirectBack - path to return to after OAuth (default: current path)
  */
 export async function connect(
