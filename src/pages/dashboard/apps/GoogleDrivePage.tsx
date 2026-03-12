@@ -124,7 +124,7 @@ export default function GoogleDrivePage() {
         </form>
 
         {/* Error */}
-        {error && (
+        {error && !(hasLoaded && files.length === 0 && error.includes("non-2xx")) && (
           <div className="rounded-xl p-4 mb-4 text-sm text-red-300" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}>
             {error}
           </div>
