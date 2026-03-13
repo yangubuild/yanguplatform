@@ -161,17 +161,10 @@ const buttonSection = {
   padding: '0 32px 32px',
 }
 
-const button = {
-  backgroundColor: '#D4731A',
-  color: '#ffffff',
-  fontSize: '16px',
-  fontWeight: 'bold' as const,
-  letterSpacing: '1.5px',
-  borderRadius: '12px',
-  padding: '16px 48px',
-  textDecoration: 'none',
-  textTransform: 'uppercase' as const,
-  display: 'inline-block' as const,
+const buttonImg = {
+  display: 'block' as const,
+  margin: '0 auto',
+  borderRadius: '14px',
 }
 
 const signoffText = {
@@ -204,16 +197,9 @@ const divider = {
   margin: '0 32px 24px',
 }
 
-const footerSection = {
-  padding: '0 32px 32px',
-  display: 'flex' as const,
-  justifyContent: 'space-between' as const,
-}
-
-const footerItem = {
+const footerTd = {
   fontSize: '13px',
   color: '#888888',
-  margin: '0',
 }
 
 const footerLink = {
