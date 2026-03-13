@@ -54,9 +54,14 @@ export const MagicLinkEmail = ({
 
         {/* CTA Button */}
         <Section style={buttonSection}>
-          <Button href={confirmationUrl} style={ctaButton}>
-            LOG IN
-          </Button>
+          <Link href={confirmationUrl} style={{ display: 'inline-block' }}>
+            <Img
+              src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/email-button-log-in.png"
+              width="300"
+              alt="LOG IN"
+              style={ctaButtonImg}
+            />
+          </Link>
         </Section>
 
         {/* Sign-off */}
