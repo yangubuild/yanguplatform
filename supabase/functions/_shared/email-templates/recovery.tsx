@@ -44,7 +44,7 @@ export const RecoveryEmail = ({
         </Section>
 
         {/* Heading */}
-        <Heading style={h1}>Password Reset</Heading>
+        <Heading style={h1}>Password Reset!</Heading>
 
         {/* Body text */}
         <Text style={bodyText}>
