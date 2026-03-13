@@ -30,7 +30,7 @@ export const InviteEmail = ({
     <Preview>You've been invited to join yangu</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Img src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/yangu-logo-email.png" width="48" height="48" alt="yangu" style={{ marginBottom: '24px' }} />
+        <Img src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/yangu-auth-logo.png" width="48" height="48" alt="yangu" style={{ marginBottom: '24px', borderRadius: '10px' }} />
         <Heading style={h1}>You've been invited</Heading>
         <Text style={text}>
           You've been invited to join yangu. Click below to accept and create your account.
