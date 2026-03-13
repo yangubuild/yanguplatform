@@ -54,16 +54,11 @@ export const InviteEmail = ({
           You've been invited to join yangu. Click below to accept and create your account.
         </Text>
 
-        {/* CTA Button as image */}
+        {/* CTA Button */}
         <Section style={buttonSection}>
-          <Link href={confirmationUrl} style={{ textDecoration: 'none' }}>
-            <Img
-              src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/email-button-get-started.png"
-              width="300"
-              alt="ACCEPT INVITATION"
-              style={buttonImg}
-            />
-          </Link>
+          <Button href={confirmationUrl} style={ctaButton}>
+            ACCEPT INVITE
+          </Button>
         </Section>
 
         {/* Sign-off */}
@@ -152,10 +147,18 @@ const buttonSection = {
   padding: '0 32px 32px',
 }
 
-const buttonImg = {
-  display: 'block' as const,
-  margin: '0 auto',
+const ctaButton = {
+  display: 'inline-block' as const,
+  backgroundColor: '#D4731A',
+  color: '#ffffff',
+  fontFamily: "'Lufga', Arial, sans-serif",
+  fontSize: '16px',
+  fontWeight: 'bold' as const,
+  textDecoration: 'none',
+  textAlign: 'center' as const,
+  padding: '16px 48px',
   borderRadius: '14px',
+  letterSpacing: '1px',
 }
 
 const signoffText = {
