@@ -54,9 +54,14 @@ export const RecoveryEmail = ({
 
         {/* CTA Button */}
         <Section style={buttonSection}>
-          <Button href={confirmationUrl} style={ctaButton}>
-            RESET PASSWORD
-          </Button>
+          <Link href={confirmationUrl} style={{ display: 'inline-block' }}>
+            <Img
+              src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/email-button-reset-password.png"
+              width="300"
+              alt="RESET PASSWORD"
+              style={ctaButtonImg}
+            />
+          </Link>
         </Section>
 
         {/* Sign-off */}
