@@ -43,7 +43,7 @@ export const InviteEmail = ({
 
         {/* News badge */}
         <Section style={badgeRow}>
-          <Text style={badge}>News 🔥</Text>
+          <Text style={badge}>Invite 🎉</Text>
         </Section>
 
         {/* Heading */}
