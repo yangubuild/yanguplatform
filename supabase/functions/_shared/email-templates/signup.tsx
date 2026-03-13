@@ -58,11 +58,17 @@ export const SignupEmail = ({
           ) to get started.
         </Text>
 
-        {/* CTA Button */}
+        {/* CTA Button as image */}
         <Section style={buttonSection}>
-          <Button style={button} href={confirmationUrl}>
-            GET STARTED
-          </Button>
+          <Link href={confirmationUrl} style={{ textDecoration: 'none' }}>
+            <Img
+              src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/email-button-get-started.png"
+              width="260"
+              height="64"
+              alt="GET STARTED"
+              style={buttonImg}
+            />
+          </Link>
         </Section>
 
         {/* Sign-off */}
