@@ -72,10 +72,10 @@ export const SignupEmail = ({
 
         {/* Sign-off */}
         <Text style={signoffText}>
-          Dive in, connect, and let's grow together in style!
+          Build, connect, and grow wealth with yangu!
         </Text>
-        <Text style={signoffLabel}>Your business BFF,</Text>
-        <Text style={teamName}>yangu team 🥰</Text>
+        <Text style={signoffLabel}>Your internet business hub,</Text>
+        <Text style={teamName}>Lets go 🚀</Text>
 
         {/* Divider */}
         <Hr style={divider} />
@@ -84,10 +84,10 @@ export const SignupEmail = ({
         <table width="100%" cellPadding="0" cellSpacing="0" style={{ padding: '0 32px 32px' }}>
           <tr>
             <td align="left" style={footerTd}>
-              ✉️&nbsp;&nbsp;<Link href="mailto:info@yangu.io" style={footerLink}>info@yangu.io</Link>
+              <span style={orangeIcon}>✉️</span>&nbsp;&nbsp;<Link href="mailto:info@yangu.io" style={footerLink}>info@yangu.io</Link>
             </td>
             <td align="right" style={footerTd}>
-              🌐&nbsp;&nbsp;<Link href="https://www.yangu.io" style={footerLink}>www.yangu.io</Link>
+              <span style={orangeIcon}>🌐</span>&nbsp;&nbsp;<Link href="https://www.yangu.io" style={footerLink}>www.yangu.io</Link>
             </td>
           </tr>
         </table>
@@ -117,6 +117,7 @@ const heroImage = {
   height: 'auto',
   borderRadius: '0',
   margin: '0 auto',
+  marginRight: '8px',
 }
 
 const badgeRow = {
@@ -205,4 +206,9 @@ const footerTd = {
 const footerLink = {
   color: '#888888',
   textDecoration: 'none',
+}
+
+const orangeIcon = {
+  color: '#D4731A',
+  fontSize: '14px',
 }
