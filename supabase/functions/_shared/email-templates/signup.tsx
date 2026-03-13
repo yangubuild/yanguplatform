@@ -58,11 +58,17 @@ export const SignupEmail = ({
           ) to get started.
         </Text>
 
-        {/* CTA Button */}
+        {/* CTA Button as image */}
         <Section style={buttonSection}>
-          <Button style={button} href={confirmationUrl}>
-            GET STARTED
-          </Button>
+          <Link href={confirmationUrl} style={{ textDecoration: 'none' }}>
+            <Img
+              src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/email-button-get-started.png"
+              width="260"
+              height="64"
+              alt="GET STARTED"
+              style={buttonImg}
+            />
+          </Link>
         </Section>
 
         {/* Sign-off */}
@@ -75,15 +81,17 @@ export const SignupEmail = ({
         {/* Divider */}
         <Hr style={divider} />
 
-        {/* Footer */}
-        <Section style={footerSection}>
-          <Text style={footerItem}>
-            ✉️&nbsp;&nbsp;<Link href="mailto:info@yangu.io" style={footerLink}>info@yangu.io</Link>
-          </Text>
-          <Text style={footerItem}>
-            🌐&nbsp;&nbsp;<Link href="https://www.yangu.io" style={footerLink}>www.yangu.io</Link>
-          </Text>
-        </Section>
+        {/* Footer - table layout for left/right alignment */}
+        <table width="100%" cellPadding="0" cellSpacing="0" style={{ padding: '0 32px 32px' }}>
+          <tr>
+            <td align="left" style={footerTd}>
+              ✉️&nbsp;&nbsp;<Link href="mailto:info@yangu.io" style={footerLink}>info@yangu.io</Link>
+            </td>
+            <td align="right" style={footerTd}>
+              🌐&nbsp;&nbsp;<Link href="https://www.yangu.io" style={footerLink}>www.yangu.io</Link>
+            </td>
+          </tr>
+        </table>
       </Container>
     </Body>
   </Html>
@@ -153,17 +161,10 @@ const buttonSection = {
   padding: '0 32px 32px',
 }
 
-const button = {
-  backgroundColor: '#D4731A',
-  color: '#ffffff',
-  fontSize: '16px',
-  fontWeight: 'bold' as const,
-  letterSpacing: '1.5px',
-  borderRadius: '12px',
-  padding: '16px 48px',
-  textDecoration: 'none',
-  textTransform: 'uppercase' as const,
-  display: 'inline-block' as const,
+const buttonImg = {
+  display: 'block' as const,
+  margin: '0 auto',
+  borderRadius: '14px',
 }
 
 const signoffText = {
@@ -196,16 +197,9 @@ const divider = {
   margin: '0 32px 24px',
 }
 
-const footerSection = {
-  padding: '0 32px 32px',
-  display: 'flex' as const,
-  justifyContent: 'space-between' as const,
-}
-
-const footerItem = {
+const footerTd = {
   fontSize: '13px',
   color: '#888888',
-  margin: '0',
 }
 
 const footerLink = {
