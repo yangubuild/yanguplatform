@@ -81,15 +81,17 @@ export const SignupEmail = ({
         {/* Divider */}
         <Hr style={divider} />
 
-        {/* Footer */}
-        <Section style={footerSection}>
-          <Text style={footerItem}>
-            ✉️&nbsp;&nbsp;<Link href="mailto:info@yangu.io" style={footerLink}>info@yangu.io</Link>
-          </Text>
-          <Text style={footerItem}>
-            🌐&nbsp;&nbsp;<Link href="https://www.yangu.io" style={footerLink}>www.yangu.io</Link>
-          </Text>
-        </Section>
+        {/* Footer - table layout for left/right alignment */}
+        <table width="100%" cellPadding="0" cellSpacing="0" style={{ padding: '0 32px 32px' }}>
+          <tr>
+            <td align="left" style={footerTd}>
+              ✉️&nbsp;&nbsp;<Link href="mailto:info@yangu.io" style={footerLink}>info@yangu.io</Link>
+            </td>
+            <td align="right" style={footerTd}>
+              🌐&nbsp;&nbsp;<Link href="https://www.yangu.io" style={footerLink}>www.yangu.io</Link>
+            </td>
+          </tr>
+        </table>
       </Container>
     </Body>
   </Html>
