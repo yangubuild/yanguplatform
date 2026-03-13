@@ -64,7 +64,7 @@ export const EmailChangeEmail = ({
           <Link href={confirmationUrl} style={{ display: 'inline-block' }}>
             <Img
               src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/email-button-confirm-change.png"
-              width="300"
+              width="260"
               alt="CONFIRM CHANGE"
               style={ctaButtonImg}
             />
