@@ -72,10 +72,10 @@ export const SignupEmail = ({
 
         {/* Sign-off */}
         <Text style={signoffText}>
-          Dive in, connect, and let's grow together in style!
+          Build, connect, and grow wealth with yangu!
         </Text>
-        <Text style={signoffLabel}>Your business BFF,</Text>
-        <Text style={teamName}>yangu team 🥰</Text>
+        <Text style={signoffLabel}>Your internet business hub,</Text>
+        <Text style={teamName}>Lets go 🚀</Text>
 
         {/* Divider */}
         <Hr style={divider} />
