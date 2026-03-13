@@ -52,16 +52,11 @@ export const MagicLinkEmail = ({
           Click below to log in to yangu. This link will expire shortly.
         </Text>
 
-        {/* CTA Button as image */}
+        {/* CTA Button */}
         <Section style={buttonSection}>
-          <Link href={confirmationUrl} style={{ textDecoration: 'none' }}>
-            <Img
-              src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/email-button-get-started.png"
-              width="300"
-              alt="LOG IN"
-              style={buttonImg}
-            />
-          </Link>
+          <Button href={confirmationUrl} style={ctaButton}>
+            LOG IN
+          </Button>
         </Section>
 
         {/* Sign-off */}
