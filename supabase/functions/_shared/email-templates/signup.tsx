@@ -84,10 +84,10 @@ export const SignupEmail = ({
         <table width="100%" cellPadding="0" cellSpacing="0" style={{ padding: '0 32px 32px' }}>
           <tr>
             <td align="left" style={footerTd}>
-              ✉️&nbsp;&nbsp;<Link href="mailto:info@yangu.io" style={footerLink}>info@yangu.io</Link>
+              <span style={orangeIcon}>✉️</span>&nbsp;&nbsp;<Link href="mailto:info@yangu.io" style={footerLink}>info@yangu.io</Link>
             </td>
             <td align="right" style={footerTd}>
-              🌐&nbsp;&nbsp;<Link href="https://www.yangu.io" style={footerLink}>www.yangu.io</Link>
+              <span style={orangeIcon}>🌐</span>&nbsp;&nbsp;<Link href="https://www.yangu.io" style={footerLink}>www.yangu.io</Link>
             </td>
           </tr>
         </table>
