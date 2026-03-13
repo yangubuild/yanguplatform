@@ -41,7 +41,7 @@ export const MagicLinkEmail = ({
 
         {/* News badge */}
         <Section style={badgeRow}>
-          <Text style={badge}>News 🔥</Text>
+          <Text style={badge}>Access ✨</Text>
         </Section>
 
         {/* Heading */}

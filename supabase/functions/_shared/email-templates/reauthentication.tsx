@@ -36,7 +36,7 @@ export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => 
 
         {/* News badge */}
         <Section style={badgeRow}>
-          <Text style={badge}>News 🔥</Text>
+          <Text style={badge}>Secure 🛡️</Text>
         </Section>
 
         {/* Heading */}
