@@ -109,7 +109,6 @@ const container = {
   maxWidth: '600px',
   margin: '0 auto',
   padding: '0',
-  textAlign: 'center' as const,
 }
 
 const heroImage = {
@@ -117,7 +116,6 @@ const heroImage = {
   width: '100%',
   height: 'auto',
   borderRadius: '0',
-  margin: '0 auto',
 }
 
 const badgeRow = {
