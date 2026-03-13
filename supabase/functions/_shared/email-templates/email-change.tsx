@@ -8,10 +8,12 @@ import {
   Container,
   Head,
   Heading,
+  Hr,
   Html,
   Img,
   Link,
   Preview,
+  Section,
   Text,
 } from 'npm:@react-email/components@0.0.22'
 
@@ -33,20 +35,64 @@ export const EmailChangeEmail = ({
     <Preview>Confirm your email change for yangu</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Img src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/yangu-auth-logo.png" width="48" height="48" alt="yangu" style={{ marginBottom: '24px', borderRadius: '10px' }} />
-        <Heading style={h1}>Confirm your email change</Heading>
-        <Text style={text}>
+        {/* Hero banner image */}
+        <Img
+          src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/email-header-3.png"
+          width="100%"
+          alt="Build & Sell with yangu"
+          style={heroImage}
+        />
+
+        {/* News badge */}
+        <Section style={badgeRow}>
+          <Text style={badge}>News 🔥</Text>
+        </Section>
+
+        {/* Heading */}
+        <Heading style={h1}>Email Change</Heading>
+
+        {/* Body text */}
+        <Text style={bodyText}>
           You requested to change your email from{' '}
-          <Link href={`mailto:${email}`} style={link}>{email}</Link>{' '}
+          <Link href={`mailto:${email}`} style={emailLink}>{email}</Link>{' '}
           to{' '}
-          <Link href={`mailto:${newEmail}`} style={link}>{newEmail}</Link>.
+          <Link href={`mailto:${newEmail}`} style={emailLink}>{newEmail}</Link>.
+          {' '}Click below to confirm.
         </Text>
-        <Button style={button} href={confirmationUrl}>
-          Confirm Email Change
-        </Button>
-        <Text style={footer}>
-          If you didn't request this change, please secure your account immediately.
+
+        {/* CTA Button as image */}
+        <Section style={buttonSection}>
+          <Link href={confirmationUrl} style={{ textDecoration: 'none' }}>
+            <Img
+              src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/email-button-get-started.png"
+              width="300"
+              alt="CONFIRM EMAIL CHANGE"
+              style={buttonImg}
+            />
+          </Link>
+        </Section>
+
+        {/* Sign-off */}
+        <Text style={signoffText}>
+          Build, connect, and grow wealth with yangu!
         </Text>
+        <Text style={signoffLabel}>Your internet business hub,</Text>
+        <Text style={teamName}>Lets go 🚀</Text>
+
+        {/* Divider */}
+        <Hr style={divider} />
+
+        {/* Footer */}
+        <table width="100%" cellPadding="0" cellSpacing="0" style={{ padding: '0 32px 32px' }}>
+          <tr>
+            <td align="left" style={footerTd}>
+              <span style={orangeIcon}>✉️</span>&nbsp;&nbsp;<Link href="mailto:info@yangu.io" style={footerLink}>info@yangu.io</Link>
+            </td>
+            <td align="right" style={footerTd}>
+              <span style={orangeIcon}>🌐</span>&nbsp;&nbsp;<Link href="https://www.yangu.io" style={footerLink}>www.yangu.io</Link>
+            </td>
+          </tr>
+        </table>
       </Container>
     </Body>
   </Html>
@@ -54,10 +100,116 @@ export const EmailChangeEmail = ({
 
 export default EmailChangeEmail
 
-const main = { backgroundColor: '#ffffff', fontFamily: "'Lufga', Arial, sans-serif" }
-const container = { padding: '32px 28px' }
-const h1 = { fontSize: '24px', fontWeight: 'bold' as const, color: '#08120D', margin: '0 0 20px' }
-const text = { fontSize: '14px', color: '#55575d', lineHeight: '1.6', margin: '0 0 28px' }
-const link = { color: '#D4731A', textDecoration: 'underline' }
-const button = { backgroundColor: '#D4731A', color: '#ffffff', fontSize: '14px', borderRadius: '10px', padding: '12px 24px', textDecoration: 'none', fontWeight: 'bold' as const }
-const footer = { fontSize: '12px', color: '#999999', margin: '32px 0 0' }
+/* ── Styles ── */
+
+const main = {
+  backgroundColor: '#ffffff',
+  fontFamily: "'Lufga', Arial, sans-serif",
+}
+
+const container = {
+  maxWidth: '600px',
+  margin: '0 auto',
+  padding: '0',
+}
+
+const heroImage = {
+  display: 'block' as const,
+  width: '100%',
+  height: 'auto',
+  borderRadius: '0',
+  margin: '0 auto',
+}
+
+const badgeRow = {
+  textAlign: 'right' as const,
+  padding: '16px 32px 0',
+}
+
+const badge = {
+  display: 'inline-block' as const,
+  fontSize: '13px',
+  color: '#333333',
+  backgroundColor: '#f5f5f5',
+  borderRadius: '8px',
+  padding: '4px 12px',
+  margin: '0',
+}
+
+const h1 = {
+  fontSize: '32px',
+  fontWeight: 'bold' as const,
+  color: '#08120D',
+  textAlign: 'center' as const,
+  margin: '24px 0 16px',
+}
+
+const bodyText = {
+  fontSize: '16px',
+  color: '#55575d',
+  lineHeight: '1.6',
+  textAlign: 'center' as const,
+  padding: '0 32px',
+  margin: '0 0 32px',
+}
+
+const emailLink = {
+  color: '#D4731A',
+  textDecoration: 'underline',
+}
+
+const buttonSection = {
+  textAlign: 'center' as const,
+  padding: '0 32px 32px',
+}
+
+const buttonImg = {
+  display: 'block' as const,
+  margin: '0 auto',
+  borderRadius: '14px',
+}
+
+const signoffText = {
+  fontSize: '16px',
+  fontWeight: 'bold' as const,
+  color: '#08120D',
+  textAlign: 'center' as const,
+  margin: '0 0 24px',
+  padding: '0 32px',
+}
+
+const signoffLabel = {
+  fontSize: '15px',
+  color: '#55575d',
+  textAlign: 'center' as const,
+  margin: '0 0 8px',
+}
+
+const teamName = {
+  fontSize: '20px',
+  fontWeight: 'bold' as const,
+  color: '#08120D',
+  textAlign: 'center' as const,
+  margin: '0 0 40px',
+}
+
+const divider = {
+  borderColor: '#e5e5e5',
+  borderStyle: 'dashed' as const,
+  margin: '0 32px 24px',
+}
+
+const footerTd = {
+  fontSize: '13px',
+  color: '#888888',
+}
+
+const footerLink = {
+  color: '#888888',
+  textDecoration: 'none',
+}
+
+const orangeIcon = {
+  color: '#D4731A',
+  fontSize: '14px',
+}
