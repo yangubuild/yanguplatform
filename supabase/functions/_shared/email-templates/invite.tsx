@@ -58,7 +58,7 @@ export const InviteEmail = ({
           <Link href={confirmationUrl} style={{ display: 'inline-block' }}>
             <Img
               src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/email-button-accept-invite.png"
-              width="300"
+              width="230"
               alt="ACCEPT INVITE"
               style={ctaButtonImg}
             />
