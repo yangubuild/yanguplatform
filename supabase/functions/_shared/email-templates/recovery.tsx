@@ -52,16 +52,11 @@ export const RecoveryEmail = ({
           We received a request to reset your password. Click below to choose a new one.
         </Text>
 
-        {/* CTA Button as image */}
+        {/* CTA Button */}
         <Section style={buttonSection}>
-          <Link href={confirmationUrl} style={{ textDecoration: 'none' }}>
-            <Img
-              src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/email-button-get-started.png"
-              width="300"
-              alt="RESET PASSWORD"
-              style={buttonImg}
-            />
-          </Link>
+          <Button href={confirmationUrl} style={ctaButton}>
+            RESET PASSWORD
+          </Button>
         </Section>
 
         {/* Sign-off */}
