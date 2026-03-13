@@ -62,7 +62,7 @@ export const SignupEmail = ({
           <Link href={confirmationUrl} style={{ display: 'inline-block' }}>
             <Img
               src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/email-button-get-started.png"
-              width="300"
+              width="230"
               alt="GET STARTED"
               style={ctaButtonImg}
             />
