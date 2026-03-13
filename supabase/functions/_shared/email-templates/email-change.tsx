@@ -48,7 +48,7 @@ export const EmailChangeEmail = ({
         </Section>
 
         {/* Heading */}
-        <Heading style={h1}>Email Change</Heading>
+        <Heading style={h1}>Email Change!</Heading>
 
         {/* Body text */}
         <Text style={bodyText}>

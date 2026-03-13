@@ -44,7 +44,7 @@ export const MagicLinkEmail = ({
         </Section>
 
         {/* Heading */}
-        <Heading style={h1}>Magic Link</Heading>
+        <Heading style={h1}>Magic Link!</Heading>
 
         {/* Body text */}
         <Text style={bodyText}>

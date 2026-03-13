@@ -40,7 +40,7 @@ export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => 
         </Section>
 
         {/* Heading */}
-        <Heading style={h1}>Reauthentication</Heading>
+        <Heading style={h1}>Reauthentication!</Heading>
 
         {/* Body text */}
         <Text style={bodyText}>

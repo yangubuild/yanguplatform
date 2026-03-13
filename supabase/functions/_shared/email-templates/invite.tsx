@@ -46,7 +46,7 @@ export const InviteEmail = ({
         </Section>
 
         {/* Heading */}
-        <Heading style={h1}>Invite</Heading>
+        <Heading style={h1}>Invite!</Heading>
 
         {/* Body text */}
         <Text style={bodyText}>
