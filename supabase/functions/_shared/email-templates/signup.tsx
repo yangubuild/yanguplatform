@@ -156,10 +156,18 @@ const buttonSection = {
   padding: '0 32px 32px',
 }
 
-const buttonImg = {
-  display: 'block' as const,
-  margin: '0 auto',
+const ctaButton = {
+  display: 'inline-block' as const,
+  backgroundColor: '#D4731A',
+  color: '#ffffff',
+  fontFamily: "'Lufga', Arial, sans-serif",
+  fontSize: '16px',
+  fontWeight: 'bold' as const,
+  textDecoration: 'none',
+  textAlign: 'center' as const,
+  padding: '16px 48px',
   borderRadius: '14px',
+  letterSpacing: '1px',
 }
 
 const signoffText = {
