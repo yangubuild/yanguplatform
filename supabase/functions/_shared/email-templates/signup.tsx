@@ -8,10 +8,12 @@ import {
   Container,
   Head,
   Heading,
+  Hr,
   Html,
   Img,
   Link,
   Preview,
+  Section,
   Text,
 } from 'npm:@react-email/components@0.0.22'
 
@@ -30,22 +32,58 @@ export const SignupEmail = ({
 }: SignupEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Confirm your email for yangu</Preview>
+    <Preview>Welcome to yangu — confirm your email to get started</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Img src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/yangu-auth-logo.png" width="48" height="48" alt="yangu" style={{ marginBottom: '24px', borderRadius: '10px' }} />
-        <Heading style={h1}>Welcome to yangu</Heading>
-        <Text style={text}>
+        {/* Hero banner image */}
+        <Img
+          src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/email-header-welcome.png"
+          width="100%"
+          alt="Welcome to yangu"
+          style={heroImage}
+        />
+
+        {/* News badge */}
+        <Section style={badgeRow}>
+          <Text style={badge}>News 🔥</Text>
+        </Section>
+
+        {/* Greeting */}
+        <Heading style={h1}>Hello Builder!</Heading>
+
+        {/* Body text */}
+        <Text style={bodyText}>
           Thanks for signing up! Please confirm your email address (
-          <Link href={`mailto:${recipient}`} style={link}>{recipient}</Link>
+          <Link href={`mailto:${recipient}`} style={emailLink}>{recipient}</Link>
           ) to get started.
         </Text>
-        <Button style={button} href={confirmationUrl}>
-          Get Started
-        </Button>
-        <Text style={footer}>
-          If you didn't create an account, you can safely ignore this email.
+
+        {/* CTA Button */}
+        <Section style={buttonSection}>
+          <Button style={button} href={confirmationUrl}>
+            GET STARTED
+          </Button>
+        </Section>
+
+        {/* Sign-off */}
+        <Text style={signoffText}>
+          Dive in, connect, and let's grow together in style!
         </Text>
+        <Text style={signoffLabel}>Your business BFF,</Text>
+        <Text style={teamName}>yangu team 🥰</Text>
+
+        {/* Divider */}
+        <Hr style={divider} />
+
+        {/* Footer */}
+        <Section style={footerSection}>
+          <Text style={footerItem}>
+            ✉️&nbsp;&nbsp;<Link href="mailto:info@yangu.io" style={footerLink}>info@yangu.io</Link>
+          </Text>
+          <Text style={footerItem}>
+            🌐&nbsp;&nbsp;<Link href="https://www.yangu.io" style={footerLink}>www.yangu.io</Link>
+          </Text>
+        </Section>
       </Container>
     </Body>
   </Html>
@@ -53,10 +91,124 @@ export const SignupEmail = ({
 
 export default SignupEmail
 
-const main = { backgroundColor: '#ffffff', fontFamily: "'Lufga', Arial, sans-serif" }
-const container = { padding: '32px 28px' }
-const h1 = { fontSize: '24px', fontWeight: 'bold' as const, color: '#08120D', margin: '0 0 20px' }
-const text = { fontSize: '14px', color: '#55575d', lineHeight: '1.6', margin: '0 0 28px' }
-const link = { color: '#D4731A', textDecoration: 'underline' }
-const button = { backgroundColor: '#D4731A', color: '#ffffff', fontSize: '14px', borderRadius: '10px', padding: '12px 24px', textDecoration: 'none', fontWeight: 'bold' as const }
-const footer = { fontSize: '12px', color: '#999999', margin: '32px 0 0' }
+/* ── Styles ── */
+
+const main = {
+  backgroundColor: '#ffffff',
+  fontFamily: "'Lufga', Arial, sans-serif",
+}
+
+const container = {
+  maxWidth: '600px',
+  margin: '0 auto',
+  padding: '0',
+}
+
+const heroImage = {
+  display: 'block' as const,
+  width: '100%',
+  height: 'auto',
+  borderRadius: '0',
+}
+
+const badgeRow = {
+  textAlign: 'right' as const,
+  padding: '16px 32px 0',
+}
+
+const badge = {
+  display: 'inline-block' as const,
+  fontSize: '13px',
+  color: '#333333',
+  backgroundColor: '#f5f5f5',
+  borderRadius: '8px',
+  padding: '4px 12px',
+  margin: '0',
+}
+
+const h1 = {
+  fontSize: '32px',
+  fontWeight: 'bold' as const,
+  color: '#08120D',
+  textAlign: 'center' as const,
+  margin: '24px 0 16px',
+}
+
+const bodyText = {
+  fontSize: '16px',
+  color: '#55575d',
+  lineHeight: '1.6',
+  textAlign: 'center' as const,
+  padding: '0 32px',
+  margin: '0 0 32px',
+}
+
+const emailLink = {
+  color: '#D4731A',
+  textDecoration: 'underline',
+}
+
+const buttonSection = {
+  textAlign: 'center' as const,
+  padding: '0 32px 32px',
+}
+
+const button = {
+  backgroundColor: '#D4731A',
+  color: '#ffffff',
+  fontSize: '16px',
+  fontWeight: 'bold' as const,
+  letterSpacing: '1.5px',
+  borderRadius: '12px',
+  padding: '16px 48px',
+  textDecoration: 'none',
+  textTransform: 'uppercase' as const,
+  display: 'inline-block' as const,
+}
+
+const signoffText = {
+  fontSize: '16px',
+  fontWeight: 'bold' as const,
+  color: '#08120D',
+  textAlign: 'center' as const,
+  margin: '0 0 24px',
+  padding: '0 32px',
+}
+
+const signoffLabel = {
+  fontSize: '15px',
+  color: '#55575d',
+  textAlign: 'center' as const,
+  margin: '0 0 8px',
+}
+
+const teamName = {
+  fontSize: '20px',
+  fontWeight: 'bold' as const,
+  color: '#08120D',
+  textAlign: 'center' as const,
+  margin: '0 0 40px',
+}
+
+const divider = {
+  borderColor: '#e5e5e5',
+  borderStyle: 'dashed' as const,
+  margin: '0 32px 24px',
+}
+
+const footerSection = {
+  padding: '0 32px 32px',
+  display: 'flex' as const,
+  justifyContent: 'space-between' as const,
+}
+
+const footerItem = {
+  fontSize: '13px',
+  color: '#888888',
+  margin: '0',
+}
+
+const footerLink = {
+  color: '#888888',
+  textDecoration: 'none',
+}
