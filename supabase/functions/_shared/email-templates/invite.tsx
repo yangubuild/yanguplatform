@@ -4,7 +4,6 @@ import * as React from 'npm:react@18.3.1'
 
 import {
   Body,
-  Button,
   Container,
   Head,
   Heading,
@@ -56,9 +55,14 @@ export const InviteEmail = ({
 
         {/* CTA Button */}
         <Section style={buttonSection}>
-          <Button href={confirmationUrl} style={ctaButton}>
-            ACCEPT INVITE
-          </Button>
+          <Link href={confirmationUrl} style={{ display: 'inline-block' }}>
+            <Img
+              src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/email-button-accept-invite.png"
+              width="300"
+              alt="ACCEPT INVITE"
+              style={ctaButtonImg}
+            />
+          </Link>
         </Section>
 
         {/* Sign-off */}
@@ -147,18 +151,11 @@ const buttonSection = {
   padding: '0 32px 32px',
 }
 
-const ctaButton = {
-  display: 'inline-block' as const,
-  backgroundColor: '#D4731A',
-  color: '#ffffff',
-  fontFamily: "'Lufga', Arial, sans-serif",
-  fontSize: '16px',
-  fontWeight: 'bold' as const,
-  textDecoration: 'none',
-  textAlign: 'center' as const,
-  padding: '16px 48px',
-  borderRadius: '14px',
-  letterSpacing: '1px',
+const ctaButtonImg = {
+  display: 'block' as const,
+  margin: '0 auto',
+  height: 'auto',
+  border: 'none',
 }
 
 const signoffText = {
