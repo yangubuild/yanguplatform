@@ -117,6 +117,7 @@ const heroImage = {
   height: 'auto',
   borderRadius: '0',
   margin: '0 auto',
+  marginRight: '8px',
 }
 
 const badgeRow = {
