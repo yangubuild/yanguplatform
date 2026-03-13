@@ -56,9 +56,14 @@ export const InviteEmail = ({
 
         {/* CTA Button */}
         <Section style={buttonSection}>
-          <Button href={confirmationUrl} style={ctaButton}>
-            ACCEPT INVITE
-          </Button>
+          <Link href={confirmationUrl} style={{ display: 'inline-block' }}>
+            <Img
+              src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/email-button-accept-invite.png"
+              width="300"
+              alt="ACCEPT INVITE"
+              style={ctaButtonImg}
+            />
+          </Link>
         </Section>
 
         {/* Sign-off */}
