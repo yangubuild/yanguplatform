@@ -207,3 +207,8 @@ const footerLink = {
   color: '#888888',
   textDecoration: 'none',
 }
+
+const orangeIcon = {
+  color: '#D4731A',
+  fontSize: '14px',
+}
