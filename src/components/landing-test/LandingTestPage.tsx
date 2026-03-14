@@ -12,6 +12,8 @@ import { LandingTestFooter } from "./LandingTestFooter";
 import {
   verifiedBusinesses,
   salesCommunityBusinesses,
+  mindsetCoachingBusinesses,
+  weightLossCoachingBusinesses,
   popularBusinesses,
 } from "./landingTestData";
 
