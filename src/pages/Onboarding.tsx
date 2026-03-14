@@ -496,6 +496,10 @@ export default function Onboarding() {
       }
 
       await refreshProfile();
+      // Fire-and-forget welcome email
+      supabase.functions.invoke('send-welcome-email').catch(err =>
+        console.warn('Welcome email failed (non-blocking):', err)
+      );
       toast.success("Welcome to yangu!");
       navigate(path.redirectTo);
     } catch (err) {
