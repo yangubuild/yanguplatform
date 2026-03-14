@@ -26,7 +26,7 @@ export function LandingTestGettingStarted() {
           >
             <span className="flex items-center gap-2">
               <img src={iconVisionaire} alt="" className="w-7 h-7 rounded-lg" />
-              <span className="text-white font-semibold text-base flex items-center gap-1 group-hover:underline">
+              <span className="text-white font-semibold text-base flex items-center gap-1">
                 Visionaire digital university
                 <ChevronRight className="w-4 h-4" />
               </span>
