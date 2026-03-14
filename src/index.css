@@ -474,7 +474,7 @@ html {
   }
 
   .animate-scroll-left {
-    animation: scroll-left linear infinite;
+    animation: scroll-left 30s linear infinite;
   }
 
   .animate-scroll-right {
