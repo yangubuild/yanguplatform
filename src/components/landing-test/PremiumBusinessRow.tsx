@@ -38,10 +38,10 @@ export function PremiumBusinessRow({ title, subtitle, businesses }: Props) {
           {subtitle && <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.35)' }}>{subtitle}</p>}
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => scroll("left")} className="w-8 h-8 flex items-center justify-center rounded-full border transition-colors" style={{ borderColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.3)' }}>
+          <button onClick={() => scroll("left")} className="w-8 h-8 flex items-center justify-center rounded-lg border transition-colors" style={{ borderColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.3)' }}>
             <ChevronLeft className="w-4 h-4" />
           </button>
-          <button onClick={() => scroll("right")} className="w-8 h-8 flex items-center justify-center rounded-full border transition-colors" style={{ borderColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.3)' }}>
+          <button onClick={() => scroll("right")} className="w-8 h-8 flex items-center justify-center rounded-lg border transition-colors" style={{ borderColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.3)' }}>
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
