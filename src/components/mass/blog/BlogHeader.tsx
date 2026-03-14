@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, X } from "lucide-react";
 import yanguLogo from "@/assets/yangu-logo-blog.png";
+import yanguLogoFull from "@/assets/yangu-logo-full.png";
 
 interface BlogHeaderProps {
   onSubscribeClick: () => void;
