@@ -391,6 +391,7 @@ const App = () => (
                   <Route path="payment-settings" element={<PaymentsSettingsPage />} />
                   <Route path="payments" element={<Navigate to="/dashboard/payment-settings" replace />} />
                   <Route path="invoices" element={<InvoicesPage />} />
+                  <Route path="email-preview" element={<EmailPreviewPage />} />
                   <Route path="ads" element={<AdsPage />} />
                   <Route path="promo-codes" element={<PromoCodesPage />} />
                   <Route path="affiliates" element={<AffiliatesPage />} />
