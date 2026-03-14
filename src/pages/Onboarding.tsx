@@ -496,6 +496,10 @@ export default function Onboarding() {
       }
 
       await refreshProfile();
+      // Fire-and-forget welcome email
+      supabase.functions.invoke('send-welcome-email').catch(err =>
+        console.warn('Welcome email failed (non-blocking):', err)
+      );
       toast.success("Welcome to yangu!");
       navigate(path.redirectTo);
     } catch (err) {
@@ -588,6 +592,10 @@ export default function Onboarding() {
       if (completeError) { toast.error("Setup issue — please try again."); return; }
 
       await refreshProfile();
+      // Fire-and-forget welcome email
+      supabase.functions.invoke('send-welcome-email').catch(err =>
+        console.warn('Welcome email failed (non-blocking):', err)
+      );
       queryClient.invalidateQueries({ queryKey: ["surfaces"] });
       toast.success("Welcome to yangu! Your space is ready.");
       navigate(path.redirectTo);

@@ -20,6 +20,10 @@ project_id = "xcipuyvcwfytlsjryhvs"
     verify_jwt = false
   [functions.auth-email-hook]
     verify_jwt = false
+  [functions.process-email-queue]
+    verify_jwt = true
+  [functions.send-welcome-email]
+    verify_jwt = false
   [functions.avatar-train-start]
     verify_jwt = false
   [functions.avatar-train-status]
