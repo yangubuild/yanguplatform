@@ -38,6 +38,8 @@ const INTERNAL_ROUTES = [
   "/ada-ai",
   "/privacy",
   "/terms",
+  "/landingtest",
+  "/builder",
 ];
 
 const resolverFallback = <div className="min-h-screen" style={{ backgroundColor: "#08120D" }} />;
