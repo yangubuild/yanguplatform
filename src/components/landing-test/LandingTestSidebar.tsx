@@ -18,9 +18,6 @@ const bottomNavItems = [
   { icon: PenLine, label: "Blog", id: "blog", route: "/blog" },
   { icon: Users, label: "Community", id: "community", route: "/community" },
   { icon: Sparkle, label: "Affiliates", id: "affiliates", route: "/dashboard/affiliates" },
-  { icon: Blocks, label: "Builder", id: "builder", route: "/builder" },
-  { icon: Code2, label: "Developers", id: "developers", route: "/developers" },
-  { icon: Terminal, label: "API", id: "api", route: "#" },
   { icon: Info, label: "Terms of Service", id: "termsofservice", route: "/termsofservice" },
   { icon: Shield, label: "Privacy Policy", id: "privacypolicy", route: "/privacypolicy" },
 ];
