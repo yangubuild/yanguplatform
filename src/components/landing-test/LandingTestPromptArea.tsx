@@ -20,38 +20,38 @@ export function LandingTestPromptArea() {
     <div className="flex flex-col items-center py-8 gap-6">
       {/* Toggle */}
       <div
-        className="inline-flex items-center p-1"
+        className="inline-flex items-center p-1.5"
         style={{
           background: 'rgba(255,255,255,0.06)',
           border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: '28px',
+          borderRadius: '14px',
         }}
       >
         <button
-          className="px-6 py-2.5 text-sm font-medium transition-all"
+          className="px-7 py-2.5 text-sm font-medium transition-all"
           style={mode === "build" ? {
             background: 'linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)',
             color: '#fff',
-            borderRadius: '24px',
+            borderRadius: '10px',
           } : {
             background: 'transparent',
             color: 'rgba(255,255,255,0.45)',
-            borderRadius: '24px',
+            borderRadius: '10px',
           }}
           onClick={() => setMode("build")}
         >
           Build
         </button>
         <button
-          className="px-6 py-2.5 text-sm font-medium transition-all"
+          className="px-7 py-2.5 text-sm font-medium transition-all"
           style={mode === "explore" ? {
             background: 'linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)',
             color: '#fff',
-            borderRadius: '24px',
+            borderRadius: '10px',
           } : {
             background: 'transparent',
             color: 'rgba(255,255,255,0.45)',
-            borderRadius: '24px',
+            borderRadius: '10px',
           }}
           onClick={() => setMode("explore")}
         >
