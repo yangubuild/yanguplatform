@@ -102,6 +102,98 @@ export const salesCommunityBusinesses: PremiumBusiness[] = [
   },
 ];
 
+export const mindsetCoachingBusinesses: PremiumBusiness[] = [
+  {
+    coverImage: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&h=400&fit=crop",
+    profileImage: "https://api.dicebear.com/7.x/shapes/svg?seed=satva",
+    name: "Satva Academy",
+    creator: "Milana-Mind",
+    description: "Hi, ich bin Milana, Gründerin der Satva Academy. Meine Mission ist es, Menschen zu inspirieren...",
+    rating: 5.0,
+    reviewCount: 1,
+    members: "16",
+    views: "7.0k",
+    launchedAgo: "Launched 1y ago",
+  },
+  {
+    coverImage: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=600&h=400&fit=crop",
+    profileImage: "https://api.dicebear.com/7.x/shapes/svg?seed=robdial",
+    name: "Rob Dial",
+    creator: "Rob Dial",
+    description: "Rob Dial is a coach, author, speaker, and entrepreneur helping people reach their highest...",
+    rating: 5.0,
+    reviewCount: 1,
+    members: "411",
+    views: "3.5k",
+    launchedAgo: "Launched 1y ago",
+  },
+  {
+    coverImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=400&fit=crop",
+    profileImage: "https://api.dicebear.com/7.x/shapes/svg?seed=elevation",
+    name: "[ELEVATION]",
+    creator: "Aamer",
+    description: "A place to actualize by means of identity architecture. Where neuroscience, psychology,...",
+    rating: 5.0,
+    reviewCount: 11,
+    members: "72",
+    views: "2.2k",
+    launchedAgo: "Launched 2mo ago",
+  },
+  {
+    coverImage: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop",
+    profileImage: "https://api.dicebear.com/7.x/shapes/svg?seed=obsidian",
+    name: "Obsidian Mind",
+    creator: "Ryan",
+    description: "Hey, I'm Ryan. Ideas, no infra — build your mindset with clarity and intention.",
+    members: "21",
+    views: "385",
+  },
+];
+
+export const weightLossCoachingBusinesses: PremiumBusiness[] = [
+  {
+    coverImage: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&h=400&fit=crop",
+    profileImage: "https://api.dicebear.com/7.x/shapes/svg?seed=jckinetics",
+    name: "JC Kinetics",
+    creator: "JC Krynauw",
+    description: "Science backed training, precision nutrition, and relentless accountability.",
+    rating: 5.0,
+    reviewCount: 1,
+    members: "3",
+    views: "29",
+    launchedAgo: "Launched 1y ago",
+  },
+  {
+    coverImage: "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&h=400&fit=crop",
+    profileImage: "https://api.dicebear.com/7.x/shapes/svg?seed=ampowered",
+    name: "AMPowered Wellness",
+    creator: "Alexis Marsh",
+    description: "Online fitness coach helping busy women lose weight and keep it off through a sustainable and...",
+    members: "2",
+    views: "9",
+    launchedAgo: "Launched 4mo ago",
+  },
+  {
+    coverImage: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&h=400&fit=crop",
+    profileImage: "https://api.dicebear.com/7.x/shapes/svg?seed=mamanshape",
+    name: "Maman In shape",
+    creator: "PapaInShape",
+    description: "Atteins ton poids de forme après 40 ans, sans sacrifier ta vie de famille ni tes plaisirs. Un...",
+    members: "194",
+    views: "4",
+    launchedAgo: "Launched 2mo ago",
+  },
+  {
+    coverImage: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=600&h=400&fit=crop",
+    profileImage: "https://api.dicebear.com/7.x/shapes/svg?seed=robloss",
+    name: "Rob's Fitness",
+    creator: "Rob",
+    description: "I lost 100 lbs and now help others get unstuck. With 10+ years experience in transformation coaching.",
+    members: "1",
+    views: "2",
+  },
+];
+
 export const popularBusinesses: PopularBusiness[] = [
   {
     profileImage: "https://api.dicebear.com/7.x/shapes/svg?seed=emoney",
