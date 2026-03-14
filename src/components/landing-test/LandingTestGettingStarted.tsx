@@ -13,7 +13,7 @@ export function LandingTestGettingStarted() {
           onClick={() => navigate("/auth/login")}
           className="overflow-hidden rounded-2xl h-[160px] relative group"
         >
-          <img src={getStarted1} alt="Viisoniare Digital University" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+          <img src={getStarted1} alt="Viisoniare Digital University" className="w-full h-full object-contain transition-transform group-hover:scale-105" style={{ background: '#e0d5d3' }} />
         </button>
         <button
           onClick={() => navigate("/dashboard/affiliates")}
