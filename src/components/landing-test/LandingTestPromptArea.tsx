@@ -82,29 +82,46 @@ function useTypingAnimation(prompts: string[], active: boolean) {
 
 // Live counting stats
 const STATS_CONFIG = [
-  { label: "earned", base: 2_770_949_959, increment: 0.47, prefix: "$", suffix: "" },
-  { label: "users", base: 22_277_339, increment: 0.12, prefix: "", suffix: "" },
-  { label: "businesses", base: 2_420_966, increment: 0.05, prefix: "", suffix: "" },
+  { label: "earned", target: 2_770_949_959, increment: 0.47, prefix: "$" },
+  { label: "users", target: 22_277_339, increment: 0.12, prefix: "" },
+  { label: "businesses", target: 2_420_966, increment: 0.05, prefix: "" },
 ];
 
+const RAMP_DURATION = 4000; // ms to reach target
+
 function useLiveStats() {
-  const [values, setValues] = useState(() => STATS_CONFIG.map(s => s.base));
+  const [values, setValues] = useState(() => STATS_CONFIG.map(() => 0));
+  const startTime = useRef(performance.now());
+  const reached = useRef(STATS_CONFIG.map(() => false));
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    let raf: number;
+    const step = (now: number) => {
+      const elapsed = now - startTime.current;
       setValues(prev =>
         prev.map((v, i) => {
+          if (!reached.current[i]) {
+            // Fast ramp: ease-out from 0 to target
+            const t = Math.min(elapsed / RAMP_DURATION, 1);
+            const eased = 1 - Math.pow(1 - t, 3); // cubic ease-out
+            const val = Math.round(STATS_CONFIG[i].target * eased);
+            if (t >= 1) reached.current[i] = true;
+            return val;
+          }
+          // Slow live counting after reaching target
           const jitter = 0.5 + Math.random();
           return +(v + STATS_CONFIG[i].increment * jitter).toFixed(0);
         })
       );
-    }, 3000);
-    return () => clearInterval(interval);
+      raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
   }, []);
 
   return values.map((v, i) => ({
     label: STATS_CONFIG[i].label,
-    display: STATS_CONFIG[i].prefix + v.toLocaleString("en-US") + STATS_CONFIG[i].suffix,
+    display: STATS_CONFIG[i].prefix + v.toLocaleString("en-US"),
   }));
 }
 
