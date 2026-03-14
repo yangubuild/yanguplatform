@@ -61,6 +61,7 @@ const AiSafety = lazy(() => import("./pages/AiSafety"));
 const AdaLanding = lazy(() => import("./pages/AdaLanding"));
 const DashboardCommunityPage = lazy(() => import("./pages/dashboard/DashboardCommunityPage"));
 const InvoicesPage = lazy(() => import("./pages/dashboard/invoices/InvoicesPage"));
+const EmailPreviewPage = lazy(() => import("./pages/dashboard/EmailPreviewPage"));
 
 // Visionaire pages (lazy)
 const VisionaireHome = lazy(() => import("./pages/dashboard/visionaire/VisionaireHome"));
