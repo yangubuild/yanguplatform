@@ -214,6 +214,8 @@ const App = () => (
                 <Route path="/termsofservice" element={<TermsOfService />} />
                 <Route path="/privacypolicy" element={<PrivacyPolicy />} />
                 <Route path="/aisafety" element={<AiSafety />} />
+                <Route path="/landingtest" element={<LandingTest />} />
+                <Route path="/builder" element={<BuilderPage />} />
 
                 {/* Developer platform */}
                 <Route path="/developers" element={<DevelopersLayout />}>
