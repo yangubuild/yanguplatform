@@ -1,6 +1,5 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, X } from "lucide-react";
 import yanguLogo from "@/assets/yangu-logo-blog.png";
 import yanguLogoFull from "@/assets/yangu-logo-full.png";
 
@@ -10,10 +9,7 @@ interface BlogHeaderProps {
 
 export function BlogHeader({ onSubscribeClick }: BlogHeaderProps) {
   const navigate = useNavigate();
-  const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,12 +18,6 @@ export function BlogHeader({ onSubscribeClick }: BlogHeaderProps) {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  useEffect(() => {
-    if (searchOpen && searchRef.current) {
-      searchRef.current.focus();
-    }
-  }, [searchOpen]);
 
   return (
     <header
@@ -44,34 +34,14 @@ export function BlogHeader({ onSubscribeClick }: BlogHeaderProps) {
           gridTemplateColumns: "1fr auto 1fr",
         }}
       >
-        {/* Left: yangu logo + search icon */}
-        <div className="flex items-center gap-4">
+        {/* Left: yangu logo */}
+        <div className="flex items-center">
           <img
             src={yanguLogoFull}
             alt="yangu"
-            className="h-8 w-auto cursor-pointer"
+            className="h-12 w-auto cursor-pointer"
             onClick={() => navigate("/")}
           />
-          <button
-            onClick={() => setSearchOpen(!searchOpen)}
-            className="text-white/70 hover:text-white transition-colors"
-            aria-label="Search"
-          >
-            {searchOpen ? <X className="w-5 h-5" /> : <Search className="w-5 h-5" />}
-          </button>
-          <div
-            className="overflow-hidden transition-all duration-300 ease-out"
-            style={{ width: searchOpen ? 220 : 0 }}
-          >
-            <input
-              ref={searchRef}
-              type="text"
-              placeholder="Search…"
-              className="w-[220px] bg-transparent border-b text-sm text-white/90 placeholder:text-white/40 outline-none py-1"
-              style={{ borderColor: "rgba(255,255,255,0.2)" }}
-              onBlur={() => setSearchOpen(false)}
-            />
-          </div>
         </div>
 
         {/* Center: small EVERY logo with divider lines, visible on scroll */}

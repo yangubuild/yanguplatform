@@ -15,7 +15,7 @@ export function AdaAiPage() {
         <img
           src={yanguLogoFull}
           alt="yangu"
-          className="absolute top-5 left-7 h-8 w-auto cursor-pointer z-10"
+          className="absolute top-5 left-7 h-12 w-auto cursor-pointer z-10"
           onClick={() => navigate("/")}
         />
         <AdaMainPanel />
