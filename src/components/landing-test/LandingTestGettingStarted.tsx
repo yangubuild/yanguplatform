@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import getStarted1 from "@/assets/landing-get-started-1.png";
+import getStarted1 from "@/assets/landing-get-started-university.png";
 import getStarted2 from "@/assets/landing-get-started-2.png";
 
 export function LandingTestGettingStarted() {
@@ -13,7 +13,7 @@ export function LandingTestGettingStarted() {
           onClick={() => navigate("/auth/login")}
           className="overflow-hidden rounded-2xl h-[160px] relative group"
         >
-          <img src={getStarted1} alt="Viisoniare Digital University" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+          <img src={getStarted1} alt="Viisoniare Digital University" className="w-full h-full object-contain transition-transform group-hover:scale-105" style={{ background: '#e0d5d3' }} />
         </button>
         <button
           onClick={() => navigate("/dashboard/affiliates")}
