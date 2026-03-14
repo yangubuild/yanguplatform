@@ -10,7 +10,7 @@ export function LandingTestHeader({ onMenuClick }: Props) {
   const navigate = useNavigate();
 
   return (
-    <header className="flex items-center justify-between py-5">
+    <header className="flex items-center justify-between py-5 mb-4">
       {/* Left: hamburger + logo */}
       <div className="flex items-center gap-4">
         <button onClick={onMenuClick} className="p-2 text-white/60 hover:text-white transition-colors">

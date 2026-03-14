@@ -20,30 +20,38 @@ export function LandingTestPromptArea() {
     <div className="flex flex-col items-center py-8 gap-6">
       {/* Toggle */}
       <div
-        className="inline-flex items-center rounded-xl overflow-hidden"
-        style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
+        className="inline-flex items-center p-1"
+        style={{
+          background: 'rgba(255,255,255,0.06)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: '28px',
+        }}
       >
         <button
-          className="px-5 py-2 text-sm font-medium transition-all rounded-xl"
+          className="px-6 py-2.5 text-sm font-medium transition-all"
           style={mode === "build" ? {
-            background: 'linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)',
+            background: 'linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)',
             color: '#fff',
+            borderRadius: '24px',
           } : {
             background: 'transparent',
-            color: 'rgba(255,255,255,0.5)',
+            color: 'rgba(255,255,255,0.45)',
+            borderRadius: '24px',
           }}
           onClick={() => setMode("build")}
         >
           Build
         </button>
         <button
-          className="px-5 py-2 text-sm font-medium transition-all rounded-xl"
+          className="px-6 py-2.5 text-sm font-medium transition-all"
           style={mode === "explore" ? {
-            background: 'linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)',
+            background: 'linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)',
             color: '#fff',
+            borderRadius: '24px',
           } : {
             background: 'transparent',
-            color: 'rgba(255,255,255,0.5)',
+            color: 'rgba(255,255,255,0.45)',
+            borderRadius: '24px',
           }}
           onClick={() => setMode("explore")}
         >
@@ -51,39 +59,70 @@ export function LandingTestPromptArea() {
         </button>
       </div>
 
-      {/* Prompt box */}
-      <div
-        className="w-full max-w-[700px] rounded-2xl overflow-hidden"
-        style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
-      >
-        <div className="px-5 pt-4 pb-2">
+      {/* BUILD mode = large AI chat bar */}
+      {mode === "build" && (
+        <div
+          className="w-full max-w-[700px] rounded-2xl overflow-hidden"
+          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
+        >
+          <div className="px-5 pt-5 pb-2">
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+              placeholder="Launch a custom emoji design shop..."
+              className="w-full bg-transparent text-white placeholder:text-white/30 text-base focus:outline-none"
+            />
+          </div>
+          <div className="flex items-center justify-between px-4 pb-4">
+            <button className="w-9 h-9 flex items-center justify-center rounded-full" style={{ background: 'rgba(255,255,255,0.05)' }}>
+              <Plus className="w-4 h-4 text-white/40" />
+            </button>
+            <div className="flex items-center gap-2">
+              <button className="w-9 h-9 flex items-center justify-center rounded-full" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                <Mic className="w-4 h-4 text-white/40" />
+              </button>
+              <button
+                onClick={handleSubmit}
+                className="w-9 h-9 flex items-center justify-center rounded-full"
+                style={{ background: 'rgba(255,255,255,0.08)' }}
+              >
+                <ArrowUp className="w-4 h-4 text-white/40" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* EXPLORE mode = slim search bar */}
+      {mode === "explore" && (
+        <div
+          className="w-full max-w-[700px] flex items-center gap-3 px-5 py-3"
+          style={{
+            background: 'rgba(255,255,255,0.06)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: '999px',
+          }}
+        >
+          <Search className="w-4 h-4 text-white/40 shrink-0" />
           <input
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-            placeholder={mode === "build" ? "Launch a custom emoji design shop..." : "Search yangu to buy, learn, create or sell ..."}
-            className="w-full bg-transparent text-white placeholder:text-white/30 text-base focus:outline-none"
+            placeholder="I'm looking for stock trading signals..."
+            className="flex-1 bg-transparent text-white placeholder:text-white/30 text-sm focus:outline-none"
           />
-        </div>
-        <div className="flex items-center justify-between px-4 pb-3">
-          <button className="w-8 h-8 flex items-center justify-center rounded-full" style={{ background: 'rgba(255,255,255,0.05)' }}>
-            {mode === "build" ? <Plus className="w-4 h-4 text-white/40" /> : <Search className="w-4 h-4 text-white/40" />}
+          <button
+            onClick={handleSubmit}
+            className="w-8 h-8 flex items-center justify-center rounded-full shrink-0"
+            style={{ background: 'rgba(255,255,255,0.08)' }}
+          >
+            <ArrowUp className="w-4 h-4 text-white/40" />
           </button>
-          <div className="flex items-center gap-2">
-            <button className="w-8 h-8 flex items-center justify-center rounded-full" style={{ background: 'rgba(255,255,255,0.05)' }}>
-              <Mic className="w-4 h-4 text-white/40" />
-            </button>
-            <button
-              onClick={handleSubmit}
-              className="w-8 h-8 flex items-center justify-center rounded-full"
-              style={{ background: 'rgba(255,255,255,0.08)' }}
-            >
-              <ArrowUp className="w-4 h-4 text-white/40" />
-            </button>
-          </div>
         </div>
-      </div>
+      )}
 
       {/* Stats row */}
       <div className="flex items-center justify-center gap-8 flex-wrap">
