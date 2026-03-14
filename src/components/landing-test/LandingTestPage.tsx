@@ -35,11 +35,21 @@ export function LandingTestPage() {
             businesses={verifiedBusinesses}
           />
           <BusinessIdeasRow />
-          <LandingTestDynamicBanner slot="middle" />
           <PremiumBusinessRow
             title="Sales community"
             subtitle="Network with founders, e-com sellers, and entrepreneurs building real businesses"
             businesses={salesCommunityBusinesses}
+          />
+          <PremiumBusinessRow
+            title="Mindset coaching"
+            subtitle="Level up your mindset, productivity, public speaking, and leadership skills"
+            businesses={mindsetCoachingBusinesses}
+          />
+          <LandingTestDynamicBanner slot="middle" />
+          <PremiumBusinessRow
+            title="Weight loss coaching"
+            subtitle="Custom workout plans, nutrition coaching, and accountability from certified trainers"
+            businesses={weightLossCoachingBusinesses}
           />
           <LandingTestDynamicBanner slot="lower" />
           <PopularBusinessGrid businesses={popularBusinesses} />
