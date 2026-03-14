@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import getStarted1 from "@/assets/landing-get-started-1.png";
+import getStarted1 from "@/assets/landing-get-started-university.png";
 import getStarted2 from "@/assets/landing-get-started-2.png";
 
 export function LandingTestGettingStarted() {
