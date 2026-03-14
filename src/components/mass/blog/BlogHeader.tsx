@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, X } from "lucide-react";
 import yanguLogo from "@/assets/yangu-logo-blog.png";
+import yanguLogoFull from "@/assets/yangu-logo-full.png";
 
 interface BlogHeaderProps {
   onSubscribeClick: () => void;
@@ -43,8 +44,14 @@ export function BlogHeader({ onSubscribeClick }: BlogHeaderProps) {
           gridTemplateColumns: "1fr auto 1fr",
         }}
       >
-        {/* Left: search icon with expandable input */}
-        <div className="flex items-center gap-3">
+        {/* Left: yangu logo + search icon */}
+        <div className="flex items-center gap-4">
+          <img
+            src={yanguLogoFull}
+            alt="yangu"
+            className="h-8 w-auto cursor-pointer"
+            onClick={() => navigate("/")}
+          />
           <button
             onClick={() => setSearchOpen(!searchOpen)}
             className="text-white/70 hover:text-white transition-colors"
