@@ -29,7 +29,7 @@ export function ReferSellersTab() {
       </button>
 
       {/* Steps */}
-      <div className="grid grid-cols-3 gap-4 w-full max-w-4xl mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-4xl mb-8">
         <StepCard
           step={1}
           title="Share your link"

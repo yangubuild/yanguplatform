@@ -270,8 +270,8 @@ function UpgradeDialog({ open, onClose }: { open: boolean; onClose: () => void }
           </div>
 
           {/* Right visual */}
-          <div className="w-[380px] bg-muted/5 p-6 flex flex-col gap-4 overflow-y-auto">
-            <div className="grid grid-cols-3 gap-2">
+          <div className="w-full md:w-[380px] bg-muted/5 p-4 sm:p-6 flex flex-col gap-4 overflow-y-auto">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {REALISTIC_AVATARS.slice(0, 3).map((a) => (
                 <div key={a.id} className="aspect-[3/4] rounded-lg overflow-hidden bg-muted/10">
                   <video src={a.video} muted playsInline preload="metadata" className="w-full h-full object-cover" />
@@ -285,7 +285,7 @@ function UpgradeDialog({ open, onClose }: { open: boolean; onClose: () => void }
               <p>"Create higher-quality visuals that convert better and scale campaigns faster."</p>
               <p>"Join thousands of marketers who've upgraded for industry-leading ROI."</p>
             </div>
-            <div className="grid grid-cols-3 gap-2 mt-auto">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-auto">
               {REALISTIC_AVATARS.slice(2, 5).map((a) => (
                 <div key={a.id} className="aspect-[3/4] rounded-lg overflow-hidden bg-muted/10">
                   <video src={a.video} muted playsInline preload="metadata" className="w-full h-full object-cover" />

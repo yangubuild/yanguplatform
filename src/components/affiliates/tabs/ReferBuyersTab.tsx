@@ -101,7 +101,7 @@ export function ReferBuyersTab({ isAuthenticated, onOpenMarketplace }: Props) {
         </button>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         {ALL_OFFERS.map((offer) => (
           <div key={offer.id} className="rounded-xl border border-white/[0.04] overflow-hidden" style={{ background: "#111a15" }}>
             <div className="flex gap-3 p-4 pb-3">
