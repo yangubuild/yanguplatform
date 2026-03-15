@@ -401,7 +401,7 @@ function MediaPreviewDialog({ item, open, onClose, onNavigate }: {
       <DialogContent className="max-w-3xl bg-card border-border/30 p-6 gap-4">
         <h2 className="text-lg font-semibold text-foreground">Preview</h2>
         <div className="relative w-full flex items-center justify-center">
-          <button onClick={() => onNavigate(-1)} className="absolute left-2 p-2 rounded-full bg-muted/40 hover:bg-muted/60 transition-colors z-10">
+          <button onClick={() => onNavigate(-1)} className="absolute left-2 p-2 rounded-lg bg-muted/40 hover:bg-muted/60 transition-colors z-10">
             <ChevronLeft className="h-5 w-5 text-foreground" />
           </button>
           <div className="w-full max-w-[360px] aspect-[9/16] bg-black rounded-lg overflow-hidden">
