@@ -2009,9 +2009,9 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
           <>
             {/* Welcome / hero state */}
             <img src={adaLogo} alt="Ada AI" className="h-10 mb-4 object-contain" />
-            <h1 className="text-white text-2xl sm:text-4xl md:text-5xl font-bold text-center mb-2 flex flex-wrap items-center justify-center gap-1.5 sm:gap-3 px-4">
+            <h1 className="text-white text-xl sm:text-4xl md:text-5xl font-bold text-center mb-2 flex flex-wrap items-center justify-center gap-1 sm:gap-3 px-2 sm:px-4 max-w-full overflow-hidden">
               <span>Build your</span>
-              <span className="inline-flex" style={{ minWidth: "3em" }}>
+              <span className="inline-flex min-w-0">
                 <span className="text-[#F4A83D]">
                   {displayText}!
                 </span>
