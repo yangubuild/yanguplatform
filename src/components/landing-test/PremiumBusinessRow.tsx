@@ -35,8 +35,8 @@ export function PremiumBusinessRow({ title, subtitle, businesses }: Props) {
     <section className="mb-12">
       <div className="flex items-center justify-between mb-1">
         <div>
-          <h2 className="text-white text-xl font-bold">{title}</h2>
-          {subtitle && <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.35)' }}>{subtitle}</p>}
+          <h2 className={`text-white ${T.sectionH2}`}>{title}</h2>
+          {subtitle && <p className={`${T.body} mt-1`} style={{ color: 'rgba(255,255,255,0.35)' }}>{subtitle}</p>}
         </div>
         <div className="flex items-center gap-2">
           <button onClick={() => scroll("left")} className="w-8 h-8 flex items-center justify-center rounded-lg border transition-colors" style={{ borderColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.3)' }}>
