@@ -76,7 +76,7 @@ function ScriptPanel() {
       <h2 className="text-lg font-semibold text-foreground">Script</h2>
       <div className="border-t border-dashed border-border/30" />
       <div className="flex items-center justify-between">
-        <span className="px-3 py-1 rounded-full bg-muted/30 text-sm text-foreground">Scene 1</span>
+        <span className="px-3 py-1 rounded-md bg-muted/30 text-sm text-foreground">Scene 1</span>
         <div className="relative">
           <button className="p-1 rounded hover:bg-muted/20" onClick={() => setShowScriptMenu(!showScriptMenu)}>
             <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
