@@ -271,7 +271,7 @@ function UpgradeDialog({ open, onClose }: { open: boolean; onClose: () => void }
 
           {/* Right visual */}
           <div className="w-[380px] bg-muted/5 p-6 flex flex-col gap-4 overflow-y-auto">
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {REALISTIC_AVATARS.slice(0, 3).map((a) => (
                 <div key={a.id} className="aspect-[3/4] rounded-lg overflow-hidden bg-muted/10">
                   <video src={a.video} muted playsInline preload="metadata" className="w-full h-full object-cover" />
