@@ -81,9 +81,8 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
     >
       {/* Left panel — form */}
       <div
-        className="flex flex-col shrink-0 overflow-y-auto w-full md:w-[min(540px,42%)]"
+        className="invoice-left flex flex-col shrink-0 overflow-y-auto w-full md:w-[min(540px,42%)]"
         style={{
-          borderRight: "none",
           borderBottom: "1px solid rgba(255,255,255,0.06)",
         }}
       >
