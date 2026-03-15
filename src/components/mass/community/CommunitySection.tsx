@@ -18,8 +18,8 @@ export function CommunitySection({ title, items, showSeeAll = true, seeAllHref, 
   if (items.length === 0) return null;
 
   return (
-    <section className="w-full px-6 transition-colors duration-300" style={{ backgroundColor: c.bg }}>
-      <div className="mx-auto max-w-[1200px] pb-4 pt-10">
+    <section className="w-full px-4 sm:px-6 lg:px-10 transition-colors duration-300" style={{ backgroundColor: c.bg }}>
+      <div className="mx-auto max-w-[1100px] pb-4 pt-10">
         <div className="mb-5 flex items-center justify-between">
           <h2 className={T.sectionH2} style={{ color: c.text }}>{title}</h2>
           {showSeeAll && (

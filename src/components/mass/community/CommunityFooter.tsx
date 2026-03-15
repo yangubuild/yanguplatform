@@ -7,8 +7,8 @@ export function CommunityFooter() {
   const c = getThemeColors(theme);
 
   return (
-    <footer className="w-full px-6 py-10 transition-colors duration-300" style={{ backgroundColor: c.bg }}>
-      <div className="mx-auto flex max-w-[1200px] items-center justify-between">
+    <footer className="w-full px-4 sm:px-6 lg:px-10 py-10 transition-colors duration-300" style={{ backgroundColor: c.bg }}>
+      <div className="mx-auto flex max-w-[1100px] items-center justify-between">
         <img
           src={theme === "dark" ? yanguLogoFull : yanguLogoDarkText}
           alt="yangu"
