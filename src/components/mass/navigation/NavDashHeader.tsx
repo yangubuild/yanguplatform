@@ -177,7 +177,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
           {/* Search — hidden on mobile to save space */}
           <div className="relative hidden sm:flex items-center" ref={searchContainerRef}>
             <div
-              className="flex items-center h-9 rounded-[10px] overflow-hidden transition-all duration-300 ease-in-out"
+              className="flex items-center h-9 rounded-lg overflow-hidden transition-all duration-300 ease-in-out"
               style={{
                 width: searchOpen ? "260px" : "36px",
                 background: "#2a3038",
