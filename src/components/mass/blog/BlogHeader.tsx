@@ -24,7 +24,6 @@ export function BlogHeader({ onSubscribeClick }: BlogHeaderProps) {
       className="sticky top-0 z-50 w-full"
       style={{
         background: "#08120D",
-        borderBottom: "1px solid rgba(255,255,255,0.1)",
       }}
     >
       <div
