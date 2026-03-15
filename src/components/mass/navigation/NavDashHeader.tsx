@@ -161,7 +161,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
         }}
       >
         {/* Left */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <button
             onClick={onMenuToggle}
             className="p-2 lg:hidden"
@@ -169,7 +169,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
           >
             <Menu className="w-5 h-5" />
           </button>
-          <img src={yanguLogo} alt="yangu" className="h-10 w-auto" />
+          <img src={yanguLogo} alt="yangu" className="h-8 sm:h-10 w-auto shrink-0" />
         </div>
 
         {/* Right — shrink gaps on mobile, hide non-critical icons */}
