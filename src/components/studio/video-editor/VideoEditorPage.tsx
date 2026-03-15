@@ -116,7 +116,7 @@ function ScriptPanel() {
       <div className="flex items-center gap-3">
         <button className="p-1.5 rounded hover:bg-muted/20"><Clock className="h-4 w-4 text-muted-foreground" /></button>
         <button className="p-1.5 rounded hover:bg-muted/20"><RefreshCw className="h-4 w-4 text-muted-foreground" /></button>
-        <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-muted/20 text-xs text-muted-foreground">
+        <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-muted/20 text-xs text-muted-foreground">
           <MicOff className="h-3.5 w-3.5" /> OFF
         </div>
       </div>
