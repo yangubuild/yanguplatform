@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom";
 import { Youtube, Twitter, Instagram } from "lucide-react";
+import { T } from "@/lib/typography";
 
 export function LandingTestFooter() {
   return (
     <footer className="py-6" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-      <div className="flex items-center justify-between flex-wrap gap-4 text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>
+      <div className={`flex items-center justify-between flex-wrap gap-4 ${T.body}`} style={{ color: 'rgba(255,255,255,0.4)' }}>
         <div className="flex items-center gap-5 flex-wrap">
           <Link to="/why-yangu" className="hover:text-white/60 transition-colors">Mission</Link>
           <span className="hover:text-white/60 transition-colors cursor-pointer">Press</span>

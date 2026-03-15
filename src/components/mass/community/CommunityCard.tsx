@@ -22,10 +22,10 @@ export function CommunityCard({ item, href }: CommunityCardProps) {
         />
       </div>
       {item.price && (
-        <p className="mt-2.5 text-[12px] font-semibold" style={{ color: c.priceText }}>{item.price}</p>
+        <p className={`mt-2.5 ${T.bodyCompact} font-semibold`} style={{ color: c.priceText }}>{item.price}</p>
       )}
       <p
-        className={`${item.price ? "mt-1" : "mt-2.5"} text-[12px] leading-[1.5] line-clamp-2`}
+        className={`${item.price ? "mt-1" : "mt-2.5"} ${T.bodyCompact} leading-[1.5] line-clamp-2`}
         style={{ color: c.descText }}
       >
         {item.description}

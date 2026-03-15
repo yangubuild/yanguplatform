@@ -57,7 +57,7 @@ export function LandingTestGettingStarted() {
                 <ChevronRight className="w-4 h-4" />
               </span>
             </span>
-            <span className="text-white/70 text-sm pl-9">
+            <span className={`text-white/70 ${T.body} pl-9`}>
               Get paid for promoting products
             </span>
           </button>

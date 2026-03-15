@@ -77,7 +77,7 @@ export function PremiumBusinessRow({ title, subtitle, businesses }: Props) {
                 </div>
               </div>
               <p className={`${T.bodyCompact} mb-3 line-clamp-2`} style={{ color: 'rgba(255,255,255,0.45)' }}>{biz.description}</p>
-              <div className="flex items-center gap-3 text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>
+              <div className={`flex items-center gap-3 ${T.bodyCompact}`} style={{ color: 'rgba(255,255,255,0.35)' }}>
                 {biz.rating && (
                   <span className="flex items-center gap-1">
                     <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
