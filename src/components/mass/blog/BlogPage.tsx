@@ -43,7 +43,7 @@ export function BlogPage() {
     <div className="min-h-screen" style={{ background: "#08120D", color: "#FFFFFF", fontFamily: "'Lufga', sans-serif" }}>
       <main className="min-h-screen">
         <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-10 py-6 pt-8">
-          <MassHeader hideTrends />
+          <MassHeader hideTrends showLogo />
       <BlogHero onSubscribeClick={openSubscribe} />
       <BlogStampStrip />
 
