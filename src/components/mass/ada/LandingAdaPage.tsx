@@ -1,7 +1,7 @@
 import { AdaContentSections } from "./AdaContentSections";
 import { AdaMainPanel } from "./AdaMainPanel";
 import { SurfaceProvider } from "@/contexts/SurfaceContext";
-import { MassHeader } from "../MassHeader";
+import { SecondaryPageHeaderShell } from "../SecondaryPageHeaderShell";
 
 export function LandingAdaPage() {
   return (
@@ -13,9 +13,7 @@ export function LandingAdaPage() {
         }}
       >
         <main className="min-h-screen">
-          <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-10 py-6 pt-8">
-            <MassHeader hideTrends showLogo />
-          </div>
+          <SecondaryPageHeaderShell />
 
           {/* ADA main panel (public landing — no top controls) */}
           <AdaMainPanel hideBottomSection isLanding />
