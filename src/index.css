@@ -567,9 +567,10 @@ body {
 /* ── Mobile (320px–767px) ── */
 @media (max-width: 767px) {
   /* 1. Width discipline — nothing exceeds viewport */
-  body, #root {
+  html, body, #root {
     overflow-x: hidden;
     max-width: 100vw;
+    width: 100%;
   }
 
   main, section, article, aside, div, form, header, footer, nav {
