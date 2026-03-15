@@ -1,4 +1,3 @@
-import yanguLogo from "@/assets/yangu-logo-blog.png";
 import { T } from "@/lib/typography";
 
 interface BlogHeroProps {
@@ -7,13 +6,7 @@ interface BlogHeroProps {
 
 export function BlogHero({ onSubscribeClick }: BlogHeroProps) {
   return (
-    <section className="flex flex-col items-center text-center px-6 pt-20 pb-2">
-      {/* Logo */}
-      <img src={yanguLogo} alt="yangu" className="h-16 w-auto" />
-
-      {/* Divider */}
-      <div className="w-16 mt-8 mb-14" style={{ height: 1, background: "rgba(255,255,255,0.2)" }} />
-
+    <section className="flex flex-col items-center text-center px-6 pt-12 pb-2">
       {/* Headline */}
       <h2
         className={`mx-auto ${T.header}`}
