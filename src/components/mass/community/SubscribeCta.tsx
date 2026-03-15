@@ -15,7 +15,7 @@ export function SubscribeCta() {
           <h2 className={`max-w-[360px] ${T.header} text-white`}>
             Be the first to<br />know about new creators<br />and communities
           </h2>
-          <button className="mt-5 rounded-lg border border-white/30 px-5 py-[8px] text-sm font-medium text-white transition-colors hover:bg-white/10">
+          <button className="mt-5 rounded-[14px] border border-white/30 px-5 py-[8px] text-[14px] font-medium text-white transition-colors hover:bg-white/10">
             Subscribe to Discover
           </button>
         </div>
