@@ -13,7 +13,7 @@ export function CreditBadge({ className, showLabel = true }: CreditBadgeProps) {
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/10 text-accent font-medium text-sm",
+        "inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-accent/10 text-accent font-medium text-sm",
         className
       )}
     >

@@ -76,7 +76,7 @@ function ScriptPanel() {
       <h2 className="text-lg font-semibold text-foreground">Script</h2>
       <div className="border-t border-dashed border-border/30" />
       <div className="flex items-center justify-between">
-        <span className="px-3 py-1 rounded-full bg-muted/30 text-sm text-foreground">Scene 1</span>
+        <span className="px-3 py-1 rounded-md bg-muted/30 text-sm text-foreground">Scene 1</span>
         <div className="relative">
           <button className="p-1 rounded hover:bg-muted/20" onClick={() => setShowScriptMenu(!showScriptMenu)}>
             <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
@@ -116,7 +116,7 @@ function ScriptPanel() {
       <div className="flex items-center gap-3">
         <button className="p-1.5 rounded hover:bg-muted/20"><Clock className="h-4 w-4 text-muted-foreground" /></button>
         <button className="p-1.5 rounded hover:bg-muted/20"><RefreshCw className="h-4 w-4 text-muted-foreground" /></button>
-        <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-muted/20 text-xs text-muted-foreground">
+        <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-muted/20 text-xs text-muted-foreground">
           <MicOff className="h-3.5 w-3.5" /> OFF
         </div>
       </div>
@@ -227,7 +227,7 @@ function UpgradeDialog({ open, onClose }: { open: boolean; onClose: () => void }
             <h2 className="text-2xl font-bold text-foreground">Unlock Premium Avatar</h2>
             <p className="text-sm text-muted-foreground">Upgrade to Pro and access a growing library of 1,500+ premium avatars, optimized and updated regularly to maximize creative results.</p>
 
-            <div className="flex rounded-full overflow-hidden border border-border/20">
+            <div className="flex rounded-lg overflow-hidden border border-border/20">
               <button onClick={() => setBilling("monthly")} className={`flex-1 py-2 text-sm font-medium transition-colors ${billing === "monthly" ? "bg-muted/30 text-foreground" : "text-muted-foreground"}`}>Monthly</button>
               <button onClick={() => setBilling("yearly")} className={`flex-1 py-2 text-sm font-medium transition-colors ${billing === "yearly" ? "bg-muted/30 text-foreground" : "text-muted-foreground"}`}>Yearly (50% OFF)</button>
             </div>
@@ -313,7 +313,7 @@ function EmotionsPanel() {
       </div>
       <div className="flex flex-wrap gap-2">
         {tags.map((t, i) => (
-          <button key={t} className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${i === 0 ? "bg-primary text-primary-foreground" : "bg-muted/20 text-foreground hover:bg-muted/30 border border-border/20"}`}>{t}</button>
+          <button key={t} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${i === 0 ? "bg-primary text-primary-foreground" : "bg-muted/20 text-foreground hover:bg-muted/30 border border-border/20"}`}>{t}</button>
         ))}
       </div>
       {/* EMPTY grid container */}
@@ -401,7 +401,7 @@ function MediaPreviewDialog({ item, open, onClose, onNavigate }: {
       <DialogContent className="max-w-3xl bg-card border-border/30 p-6 gap-4">
         <h2 className="text-lg font-semibold text-foreground">Preview</h2>
         <div className="relative w-full flex items-center justify-center">
-          <button onClick={() => onNavigate(-1)} className="absolute left-2 p-2 rounded-full bg-muted/40 hover:bg-muted/60 transition-colors z-10">
+          <button onClick={() => onNavigate(-1)} className="absolute left-2 p-2 rounded-lg bg-muted/40 hover:bg-muted/60 transition-colors z-10">
             <ChevronLeft className="h-5 w-5 text-foreground" />
           </button>
           <div className="w-full max-w-[360px] aspect-[9/16] bg-black rounded-lg overflow-hidden">
@@ -411,7 +411,7 @@ function MediaPreviewDialog({ item, open, onClose, onNavigate }: {
               <img src={(item as any).image} alt="" className="w-full h-full object-cover" />
             )}
           </div>
-          <button onClick={() => onNavigate(1)} className="absolute right-2 p-2 rounded-full bg-muted/40 hover:bg-muted/60 transition-colors z-10">
+          <button onClick={() => onNavigate(1)} className="absolute right-2 p-2 rounded-lg bg-muted/40 hover:bg-muted/60 transition-colors z-10">
             <ChevronRight className="h-5 w-5 text-foreground" />
           </button>
         </div>

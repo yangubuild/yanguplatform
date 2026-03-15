@@ -85,7 +85,7 @@ html {
     --input: 214 32% 91%;
     --ring: 214 32% 80%;
 
-    --radius: 0.625rem;
+    --radius: 0.5rem;
 
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(263 70% 50%) 100%);
@@ -344,7 +344,7 @@ html {
     background: linear-gradient(135deg, hsl(25 85% 45%) 0%, hsl(20 75% 30%) 100%);
     color: hsl(0 0% 100%);
     border: 1px solid hsl(25 85% 45% / 0.3);
-    border-radius: 0.625rem;
+    border-radius: 0.5rem;
     font-weight: 600;
     font-size: 0.875rem;
     padding: 0.5rem 1.25rem;
@@ -361,7 +361,7 @@ html {
     background: transparent;
     color: hsl(var(--admin-text));
     border: 1px solid hsl(var(--admin-border) / 0.6);
-    border-radius: 0.625rem;
+    border-radius: 0.5rem;
     font-weight: 500;
     font-size: 0.875rem;
     padding: 0.5rem 1.25rem;
@@ -377,7 +377,7 @@ html {
     background: linear-gradient(135deg, hsl(0 72% 51%) 0%, hsl(0 72% 38%) 100%);
     color: hsl(0 0% 100%);
     border: 1px solid hsl(0 72% 51% / 0.3);
-    border-radius: 0.625rem;
+    border-radius: 0.5rem;
     font-weight: 600;
     font-size: 0.875rem;
     padding: 0.5rem 1.25rem;

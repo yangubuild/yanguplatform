@@ -177,7 +177,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
           {/* Search — hidden on mobile to save space */}
           <div className="relative hidden sm:flex items-center" ref={searchContainerRef}>
             <div
-              className="flex items-center h-9 rounded-[10px] overflow-hidden transition-all duration-300 ease-in-out"
+              className="flex items-center h-9 rounded-lg overflow-hidden transition-all duration-300 ease-in-out"
               style={{
                 width: searchOpen ? "260px" : "36px",
                 background: "#2a3038",
@@ -207,7 +207,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
           <Popover>
             <PopoverTrigger asChild>
               <button
-                className="w-9 h-9 rounded-[10px] hidden sm:flex items-center justify-center"
+                className="w-9 h-9 rounded-lg hidden sm:flex items-center justify-center"
                 style={{ background: "#2a3038", color: "rgba(255,255,255,0.5)" }}
                 title="Language"
               >
@@ -355,7 +355,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
           <Popover>
             <PopoverTrigger asChild>
               <button
-                className="w-9 h-9 rounded-[10px] hidden sm:flex items-center justify-center"
+                className="w-9 h-9 rounded-lg hidden sm:flex items-center justify-center"
                 style={{ background: "#2a3038", color: "rgba(255,255,255,0.5)" }}
                 title="Offers"
               >
@@ -417,7 +417,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
           <Popover>
             <PopoverTrigger asChild>
               <button
-                className="w-9 h-9 rounded-[10px] flex items-center justify-center relative"
+                className="w-9 h-9 rounded-lg flex items-center justify-center relative"
                 style={{ color: "rgba(255,255,255,0.5)" }}
               >
                 <Bell className="w-4 h-4" />
