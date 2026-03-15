@@ -154,7 +154,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
   return (
     <>
       <header
-        className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-5 h-16"
+        className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-3 sm:px-5 h-16 max-w-[100vw]"
         style={{
           background: "linear-gradient(90deg, #1f262b 0%, #232a30 100%)",
           borderBottom: "1px solid rgba(255,255,255,0.05)",

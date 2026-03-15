@@ -14,7 +14,7 @@ export function VisionairePageContainer({ children, className }: VisionairePageC
   return (
     <div
       className={cn(
-        "w-full max-w-[1200px] mx-auto px-3 sm:px-4 lg:px-6 pt-6 pb-10 min-w-0 overflow-x-hidden",
+        "w-full max-w-[1200px] mx-auto px-3 sm:px-4 lg:px-6 pt-4 sm:pt-6 pb-8 sm:pb-10 min-w-0 overflow-x-hidden",
         className
       )}
     >
