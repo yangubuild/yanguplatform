@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Loader2, Menu } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { CommunityThemeProvider, useCommunityTheme, getThemeColors } from "./CommunityThemeContext";
 import { CommunityHero } from "./CommunityHero";
 import { CommunityFilterBar } from "./CommunityFilterBar";
@@ -12,7 +12,6 @@ import { useCommunitySection, type CommunitySectionItem } from "@/hooks/useCommu
 import { useCommunityListings } from "@/hooks/useCommunityListings";
 import { useBuilderCommunityListings, type BuilderCommunityListing } from "@/hooks/useBuilderCommunityListings";
 import type { CommunityItem } from "./communityData";
-import { MassSidebar } from "../MassSidebar";
 import { MassHeader } from "../MassHeader";
 
 function mapToItem(l: CommunitySectionItem): CommunityItem {
@@ -35,7 +34,6 @@ function buildLinkMap(items: CommunitySectionItem[]): Map<string, string> {
 
 function CommunityPageInner() {
   const [activeFilter, setActiveFilter] = useState("Explore");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { theme, toggle } = useCommunityTheme();
   const colors = getThemeColors(theme);
 
@@ -107,15 +105,8 @@ function CommunityPageInner() {
       className="min-h-screen"
       style={{ background: '#08120D' }}
     >
-      <button
-        onClick={() => setSidebarOpen(true)}
-        className="fixed top-4 left-4 z-30 p-2 rounded-lg bg-[#1c1c1c] text-white lg:hidden"
-      >
-        <Menu className="w-6 h-6" />
-      </button>
-      <MassSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <main className="lg:ml-[240px] min-h-screen">
-        <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-10 py-6 pt-16 lg:pt-8">
+      <main className="min-h-screen">
+        <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-10 py-6 pt-8">
           <MassHeader hideTrends />
         </div>
 
