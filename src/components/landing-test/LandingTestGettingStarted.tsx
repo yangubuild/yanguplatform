@@ -32,7 +32,7 @@ export function LandingTestGettingStarted() {
                 <ChevronRight className="w-4 h-4" />
               </span>
             </span>
-            <span className="text-white/70 text-sm pl-9">
+            <span className={`text-white/70 ${T.body} pl-9`}>
               Learn how to grow and build on yangu
             </span>
           </button>
