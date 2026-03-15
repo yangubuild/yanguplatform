@@ -87,12 +87,12 @@ export function BlogExplorePanel() {
           {/* Bottom CTA */}
           <div className="px-5 pb-5 pt-2">
             <button
-              className="w-full py-3.5 text-sm font-medium flex items-center justify-center gap-2 transition-all hover:brightness-110"
+              className="w-full py-3.5 text-[14px] font-medium flex items-center justify-center gap-2 transition-all hover:brightness-110"
               style={{
                 background: "transparent",
                 color: "rgba(255,255,255,0.7)",
                 border: "1px solid rgba(255,255,255,0.15)",
-                borderRadius: 6,
+                borderRadius: 14,
               }}
             >
               Create your free account <span style={{ fontSize: 16 }}>→</span>
