@@ -17,7 +17,7 @@ export function BottomCta() {
             <h2 className={`max-w-[400px] ${T.header} text-white`}>
               Circle powers the top communities. Now it's your turn.
             </h2>
-            <button className="mt-5 rounded-lg border border-white/40 px-5 py-[8px] text-sm font-medium text-white transition-colors hover:bg-white/10">
+            <button className="mt-5 rounded-[14px] border border-white/40 px-5 py-[8px] text-[14px] font-medium text-white transition-colors hover:bg-white/10">
               Create a Circle
             </button>
           </div>

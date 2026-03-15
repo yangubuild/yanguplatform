@@ -20,9 +20,9 @@ interface PrimaryButtonProps
 }
 
 const sizeClasses = {
-  sm: "h-9 px-4 text-sm rounded-lg [&_svg]:size-4",
-  md: "h-10 px-5 text-sm rounded-lg [&_svg]:size-4",
-  lg: "h-12 px-8 text-base rounded-xl [&_svg]:size-5",
+  sm: "h-9 px-4 text-[14px] rounded-[14px] [&_svg]:size-4",
+  md: "h-10 px-5 text-[14px] rounded-[14px] [&_svg]:size-4",
+  lg: "h-12 px-8 text-base rounded-[14px] [&_svg]:size-5",
 };
 
 /**
@@ -40,7 +40,7 @@ export const PrimaryButton = React.forwardRef<
       className={cn(
         baseStyles,
         sizeClasses[size],
-        "bg-accent text-accent-foreground shadow-md hover:bg-accent/90 hover:shadow-lg hover:shadow-accent/20 active:scale-[0.98]",
+        "text-white shadow-md hover:shadow-lg hover:brightness-110 active:scale-[0.98] [background:linear-gradient(135deg,#c47a3a_0%,#b5622a_50%,#5c2a12_100%)]",
         className
       )}
       {...props}
@@ -106,9 +106,9 @@ interface IconButtonProps
 }
 
 const iconSizeClasses = {
-  sm: "h-8 w-8 rounded-lg [&_svg]:size-4",
-  md: "h-10 w-10 rounded-lg [&_svg]:size-5",
-  lg: "h-12 w-12 rounded-xl [&_svg]:size-6",
+  sm: "h-8 w-8 rounded-[14px] [&_svg]:size-4",
+  md: "h-10 w-10 rounded-[14px] [&_svg]:size-5",
+  lg: "h-12 w-12 rounded-[14px] [&_svg]:size-6",
 };
 
 /**
