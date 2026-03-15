@@ -63,7 +63,7 @@ export function CommunityTopBar() {
             <input
               type="text"
               placeholder="Search"
-              className="w-full rounded-2xl py-[12px] pl-11 pr-4 text-sm focus:outline-none transition-all duration-200 hover:border-[#F46D2A] hover:shadow-[0_2px_16px_rgba(244,109,42,0.2)]"
+              className="w-full rounded-lg py-[12px] pl-11 pr-4 text-sm focus:outline-none transition-all duration-200 hover:border-[#F46D2A] hover:shadow-[0_2px_16px_rgba(244,109,42,0.2)]"
               style={{
                 backgroundColor: theme === "dark" ? "rgba(10,23,16,0.55)" : "#FFFFFF",
                 color: c.inputText,

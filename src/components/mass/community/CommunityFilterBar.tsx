@@ -47,7 +47,7 @@ export function CommunityFilterBar({ onFilterChange }: CommunityFilterBarProps) 
           })}
         </div>
         <button
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-colors"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition-colors"
           style={{ borderColor: c.scrollBtnBorder, color: c.scrollBtnText }}
         >
           <ChevronRight size={16} />

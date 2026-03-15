@@ -106,9 +106,9 @@ interface IconButtonProps
 }
 
 const iconSizeClasses = {
-  sm: "h-8 w-8 rounded-[14px] [&_svg]:size-4",
-  md: "h-10 w-10 rounded-[14px] [&_svg]:size-5",
-  lg: "h-12 w-12 rounded-[14px] [&_svg]:size-6",
+  sm: "h-8 w-8 rounded-lg [&_svg]:size-4",
+  md: "h-10 w-10 rounded-lg [&_svg]:size-5",
+  lg: "h-12 w-12 rounded-lg [&_svg]:size-6",
 };
 
 /**

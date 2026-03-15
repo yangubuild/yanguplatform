@@ -92,7 +92,7 @@ export function BlogExplorePanel() {
                 background: "transparent",
                 color: "rgba(255,255,255,0.7)",
                 border: "1px solid rgba(255,255,255,0.15)",
-                borderRadius: 14,
+                borderRadius: 8,
               }}
             >
               Create your free account <span style={{ fontSize: 16 }}>→</span>

@@ -9,25 +9,25 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 rounded-[14px]",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-[14px]",
-        outline: "border border-input bg-transparent text-foreground hover:bg-muted rounded-[14px]",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-[14px]",
-        ghost: "hover:bg-accent/10 hover:text-accent-foreground rounded-[14px]",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-lg",
+        outline: "border border-input bg-transparent text-foreground hover:bg-muted rounded-lg",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-lg",
+        ghost: "hover:bg-accent/10 hover:text-accent-foreground rounded-lg",
         link: "text-primary underline-offset-4 hover:underline",
         // yangu primary gradient CTA — master Build/Explore gradient
-        accent: "text-white border-0 shadow-md hover:shadow-lg hover:brightness-110 transition-all rounded-[14px] [background:linear-gradient(135deg,#c47a3a_0%,#b5622a_50%,#5c2a12_100%)]",
+        accent: "text-white border-0 shadow-md hover:shadow-lg hover:brightness-110 transition-all rounded-lg [background:linear-gradient(135deg,#c47a3a_0%,#b5622a_50%,#5c2a12_100%)]",
         // yangu solid green button
-        solid: "text-white border-0 rounded-[14px] transition-all hover:brightness-110 [background:#152A20]",
+        solid: "text-white border-0 rounded-lg transition-all hover:brightness-110 [background:#152A20]",
         // yangu transparent dark green
-        "dark-green": "text-white/80 bg-transparent border border-[#152A20]/40 rounded-[14px] hover:bg-[#152A20]/20 transition-all",
-        success: "bg-success text-success-foreground hover:bg-success/90 rounded-[14px]",
+        "dark-green": "text-white/80 bg-transparent border border-[#152A20]/40 rounded-lg hover:bg-[#152A20]/20 transition-all",
+        success: "bg-success text-success-foreground hover:bg-success/90 rounded-lg",
       },
       size: {
         default: "h-10 px-5 py-2",
         sm: "h-9 px-4",
         lg: "h-12 px-8 text-base",
-        icon: "h-10 w-10 rounded-[14px]",
+        icon: "h-10 w-10 rounded-lg",
       },
     },
     defaultVariants: {
