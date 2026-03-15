@@ -207,7 +207,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
           <Popover>
             <PopoverTrigger asChild>
               <button
-                className="w-9 h-9 rounded-[10px] hidden sm:flex items-center justify-center"
+                className="w-9 h-9 rounded-lg hidden sm:flex items-center justify-center"
                 style={{ background: "#2a3038", color: "rgba(255,255,255,0.5)" }}
                 title="Language"
               >
