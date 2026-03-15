@@ -20,9 +20,9 @@ interface PrimaryButtonProps
 }
 
 const sizeClasses = {
-  sm: "h-9 px-4 text-[14px] rounded-[14px] [&_svg]:size-4",
-  md: "h-10 px-5 text-[14px] rounded-[14px] [&_svg]:size-4",
-  lg: "h-12 px-8 text-base rounded-[14px] [&_svg]:size-5",
+  sm: "h-9 px-4 text-[14px] rounded-lg [&_svg]:size-4",
+  md: "h-10 px-5 text-[14px] rounded-lg [&_svg]:size-4",
+  lg: "h-12 px-8 text-base rounded-lg [&_svg]:size-5",
 };
 
 /**
@@ -106,9 +106,9 @@ interface IconButtonProps
 }
 
 const iconSizeClasses = {
-  sm: "h-8 w-8 rounded-[14px] [&_svg]:size-4",
-  md: "h-10 w-10 rounded-[14px] [&_svg]:size-5",
-  lg: "h-12 w-12 rounded-[14px] [&_svg]:size-6",
+  sm: "h-8 w-8 rounded-lg [&_svg]:size-4",
+  md: "h-10 w-10 rounded-lg [&_svg]:size-5",
+  lg: "h-12 w-12 rounded-lg [&_svg]:size-6",
 };
 
 /**

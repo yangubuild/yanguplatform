@@ -32,13 +32,13 @@ export function CommunityTopBar() {
             List on community
           </a>
           <button
-            className="rounded-[14px] border px-5 py-[8px] text-[14px] font-medium transition-colors hover:opacity-90"
+            className="rounded-lg border px-5 py-[8px] text-[14px] font-medium transition-colors hover:opacity-90"
             style={{ backgroundColor: "transparent", borderColor: c.signInBorder, color: c.signInText }}
           >
             Sign in
           </button>
           <button
-            className="rounded-[14px] px-5 py-[8px] text-[14px] font-medium text-white transition-opacity hover:opacity-90"
+            className="rounded-lg px-5 py-[8px] text-[14px] font-medium text-white transition-opacity hover:opacity-90"
             style={{ background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" }}
           >
             Start selling
@@ -63,7 +63,7 @@ export function CommunityTopBar() {
             <input
               type="text"
               placeholder="Search"
-              className="w-full rounded-2xl py-[12px] pl-11 pr-4 text-sm focus:outline-none transition-all duration-200 hover:border-[#F46D2A] hover:shadow-[0_2px_16px_rgba(244,109,42,0.2)]"
+              className="w-full rounded-lg py-[12px] pl-11 pr-4 text-sm focus:outline-none transition-all duration-200 hover:border-[#F46D2A] hover:shadow-[0_2px_16px_rgba(244,109,42,0.2)]"
               style={{
                 backgroundColor: theme === "dark" ? "rgba(10,23,16,0.55)" : "#FFFFFF",
                 color: c.inputText,

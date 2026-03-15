@@ -47,14 +47,14 @@ function CommunityHeader() {
       <div className="flex items-center gap-3">
         <button
           onClick={() => navigate("/auth/login")}
-          className="px-5 py-[8px] rounded-[14px] text-[14px] font-medium text-white transition-opacity hover:opacity-90"
+          className="px-5 py-[8px] rounded-lg text-[14px] font-medium text-white transition-opacity hover:opacity-90"
           style={{ background: '#152A20' }}
         >
           Sign in
         </button>
         <button
           onClick={() => navigate("/auth/signup")}
-          className="px-5 py-[8px] rounded-[14px] text-[14px] font-medium text-white transition-opacity hover:opacity-90"
+          className="px-5 py-[8px] rounded-lg text-[14px] font-medium text-white transition-opacity hover:opacity-90"
           style={{ background: 'linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)' }}
         >
           Start selling

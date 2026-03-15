@@ -30,7 +30,7 @@ export function CommunityFilterBar({ onFilterChange }: CommunityFilterBarProps) 
               <button
                 key={cat}
                 onClick={() => handleClick(cat)}
-                className="shrink-0 whitespace-nowrap rounded-[14px] px-4 py-[7px] text-[13px] font-medium transition-colors"
+                className="shrink-0 whitespace-nowrap rounded-lg px-4 py-[7px] text-[13px] font-medium transition-colors"
                 style={
                   isActive
                     ? { background: c.filterActiveBg, color: c.filterActiveText }
@@ -47,7 +47,7 @@ export function CommunityFilterBar({ onFilterChange }: CommunityFilterBarProps) 
           })}
         </div>
         <button
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-colors"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition-colors"
           style={{ borderColor: c.scrollBtnBorder, color: c.scrollBtnText }}
         >
           <ChevronRight size={16} />
