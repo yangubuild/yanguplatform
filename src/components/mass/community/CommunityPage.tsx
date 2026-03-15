@@ -106,9 +106,16 @@ function CommunityPageInner() {
       className="min-h-screen"
       style={{ background: '#08120D' }}
     >
-      <main className="min-h-screen">
-        <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-10 py-6">
-          <CommunityHeader />
+      <button
+        onClick={() => setSidebarOpen(true)}
+        className="fixed top-4 left-4 z-30 p-2 rounded-lg bg-[#1c1c1c] text-white lg:hidden"
+      >
+        <Menu className="w-6 h-6" />
+      </button>
+      <MassSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <main className="lg:ml-[240px] min-h-screen">
+        <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-10 py-6 pt-16 lg:pt-8">
+          <MassHeader hideTrends />
         </div>
 
         {/* Community content */}

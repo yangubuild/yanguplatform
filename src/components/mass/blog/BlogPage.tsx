@@ -135,6 +135,8 @@ export function BlogPage() {
       {/* Overlays */}
       <BlogExplorePanel />
       <BlogSubscribeModal />
+        </div>
+      </main>
     </div>
   );
 }
