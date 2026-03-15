@@ -30,7 +30,7 @@ export function CommunityFilterBar({ onFilterChange }: CommunityFilterBarProps) 
               <button
                 key={cat}
                 onClick={() => handleClick(cat)}
-                className="shrink-0 whitespace-nowrap rounded-[14px] px-4 py-[7px] text-[13px] font-medium transition-colors"
+                className="shrink-0 whitespace-nowrap rounded-lg px-4 py-[7px] text-[13px] font-medium transition-colors"
                 style={
                   isActive
                     ? { background: c.filterActiveBg, color: c.filterActiveText }
