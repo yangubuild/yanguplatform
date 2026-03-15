@@ -161,7 +161,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
         }}
       >
         {/* Left */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <button
             onClick={onMenuToggle}
             className="p-2 lg:hidden"
@@ -169,11 +169,11 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
           >
             <Menu className="w-5 h-5" />
           </button>
-          <img src={yanguLogo} alt="yangu" className="h-10 w-auto" />
+          <img src={yanguLogo} alt="yangu" className="h-8 sm:h-10 w-auto shrink-0" />
         </div>
 
         {/* Right — shrink gaps on mobile, hide non-critical icons */}
-        <div className="flex items-center gap-1 sm:gap-2.5 overflow-hidden max-w-[calc(100vw-120px)] sm:max-w-none">
+        <div className="flex items-center gap-1 sm:gap-2.5 overflow-hidden min-w-0 flex-1 justify-end">
           {/* Search — hidden on mobile to save space */}
           <div className="relative hidden sm:flex items-center" ref={searchContainerRef}>
             <div
@@ -254,20 +254,20 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setCurrencyOpen(!currencyOpen)}
-              className="flex items-center gap-2 h-9 px-3 rounded-lg"
+              className="flex items-center gap-1.5 sm:gap-2 h-8 sm:h-9 px-2 sm:px-3 rounded-lg"
               style={{
                 background: "#2a3038",
                 color: "rgba(255,255,255,0.75)",
               }}
             >
               <div
-                className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold"
+                className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0"
                 style={{ background: "linear-gradient(135deg, #b5622a 0%, #5c2a12 100%)", color: "#fff" }}
               >
                 {selectedCurrency.symbol.charAt(0)}
               </div>
-              <span className="text-xs font-medium whitespace-nowrap">{selectedCurrency.code} 0.00</span>
-              <ChevronDown className={`w-3 h-3 transition-transform ${currencyOpen ? "rotate-180" : ""}`} style={{ color: "rgba(255,255,255,0.35)" }} />
+              <span className="text-[10px] sm:text-xs font-medium whitespace-nowrap">{selectedCurrency.code} 0.00</span>
+              <ChevronDown className={`w-3 h-3 transition-transform shrink-0 ${currencyOpen ? "rotate-180" : ""}`} style={{ color: "rgba(255,255,255,0.35)" }} />
             </button>
 
             {currencyOpen && (
@@ -304,7 +304,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
           <Popover>
             <PopoverTrigger asChild>
               <button
-                className="h-9 px-5 rounded-lg text-xs font-bold text-white"
+                className="h-8 sm:h-9 px-3 sm:px-5 rounded-lg text-[10px] sm:text-xs font-bold text-white whitespace-nowrap shrink-0"
                 style={{
                   background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)",
                 }}

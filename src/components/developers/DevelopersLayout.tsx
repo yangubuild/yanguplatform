@@ -25,11 +25,11 @@ export function DevelopersLayout() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pt-16 lg:pt-8">
           <MassHeader hideTrends />
 
-          <div className="flex gap-6 mt-6">
+          <div className="flex flex-col md:flex-row gap-6 mt-6">
             <div className="hidden md:block w-[200px] flex-shrink-0">
               <DevelopersSidebar />
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 overflow-x-hidden">
               <Outlet />
             </div>
           </div>

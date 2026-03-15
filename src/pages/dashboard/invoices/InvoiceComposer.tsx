@@ -76,17 +76,17 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
 
   return (
     <div
-      className="flex w-full min-h-[calc(100vh-64px)]"
+      className="flex flex-col md:flex-row w-full min-h-[calc(100vh-64px)]"
       style={{ background: "#08120D" }}
     >
       {/* Left panel — form */}
       <div
-        className="flex flex-col shrink-0 overflow-y-auto"
+        className="invoice-left flex flex-col shrink-0 overflow-y-auto w-full md:w-[min(540px,42%)]"
         style={{
-          width: "min(540px, 42%)",
-          borderRight: "1px solid rgba(255,255,255,0.06)",
+          borderBottom: "1px solid rgba(255,255,255,0.06)",
         }}
       >
+        <style>{`@media (min-width: 768px) { .invoice-left { border-right: 1px solid rgba(255,255,255,0.06) !important; border-bottom: none !important; } }`}</style>
         {/* Top header */}
         <div className="flex items-center gap-3 px-5 py-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
           <button onClick={onClose} className="text-white/60 hover:text-white">
