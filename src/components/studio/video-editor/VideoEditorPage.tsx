@@ -313,7 +313,7 @@ function EmotionsPanel() {
       </div>
       <div className="flex flex-wrap gap-2">
         {tags.map((t, i) => (
-          <button key={t} className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${i === 0 ? "bg-primary text-primary-foreground" : "bg-muted/20 text-foreground hover:bg-muted/30 border border-border/20"}`}>{t}</button>
+          <button key={t} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${i === 0 ? "bg-primary text-primary-foreground" : "bg-muted/20 text-foreground hover:bg-muted/30 border border-border/20"}`}>{t}</button>
         ))}
       </div>
       {/* EMPTY grid container */}
