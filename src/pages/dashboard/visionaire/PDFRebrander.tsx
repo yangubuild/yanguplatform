@@ -91,9 +91,9 @@ export default function PDFRebrander() {
         </Button>
       </div>
 
-      <div className="flex min-h-[calc(100vh-120px)]">
+      <div className="flex flex-col md:flex-row min-h-[calc(100vh-120px)]">
         {/* Left sidebar */}
-        <div className="w-[280px] shrink-0 border-r border-border bg-background">
+        <div className="w-full md:w-[280px] md:shrink-0 border-b md:border-b-0 md:border-r border-border bg-background">
           <div className="px-4 py-3 border-b border-border">
             <span className="text-sm font-medium text-foreground">Design Controls</span>
           </div>
