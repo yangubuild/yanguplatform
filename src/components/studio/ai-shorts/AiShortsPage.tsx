@@ -185,7 +185,7 @@ export default function AiShortsPage() {
             </div>
             <div className="flex items-center gap-2 sm:gap-3 min-w-0 max-w-full flex-wrap justify-end">
               <button className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0">Feedback</button>
-              <button className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-accent/40 bg-accent/10 px-2.5 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm font-semibold text-accent hover:bg-accent/20 transition-colors max-w-[calc(100vw-120px)] sm:max-w-[280px] md:max-w-none min-w-0" onClick={() => navigate("/billing")}>
+              <button className="inline-flex items-center gap-1.5 sm:gap-2 rounded-lg border border-accent/40 bg-accent/10 px-2.5 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm font-semibold text-accent hover:bg-accent/20 transition-colors max-w-[calc(100vw-120px)] sm:max-w-[280px] md:max-w-none min-w-0" onClick={() => navigate("/billing")}>
                 {creditsLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" /> : <><Coins className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" /><span className="truncate">{credits?.balance ?? 0} credits</span></>}
                 <span className="border-l border-accent/30 pl-1.5 sm:pl-2 shrink-0">Upgrade</span>
               </button>

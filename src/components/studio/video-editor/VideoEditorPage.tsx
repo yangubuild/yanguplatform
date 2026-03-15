@@ -411,7 +411,7 @@ function MediaPreviewDialog({ item, open, onClose, onNavigate }: {
               <img src={(item as any).image} alt="" className="w-full h-full object-cover" />
             )}
           </div>
-          <button onClick={() => onNavigate(1)} className="absolute right-2 p-2 rounded-full bg-muted/40 hover:bg-muted/60 transition-colors z-10">
+          <button onClick={() => onNavigate(1)} className="absolute right-2 p-2 rounded-lg bg-muted/40 hover:bg-muted/60 transition-colors z-10">
             <ChevronRight className="h-5 w-5 text-foreground" />
           </button>
         </div>

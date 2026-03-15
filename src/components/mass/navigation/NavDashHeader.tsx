@@ -417,7 +417,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
           <Popover>
             <PopoverTrigger asChild>
               <button
-                className="w-9 h-9 rounded-[10px] flex items-center justify-center relative"
+                className="w-9 h-9 rounded-lg flex items-center justify-center relative"
                 style={{ color: "rgba(255,255,255,0.5)" }}
               >
                 <Bell className="w-4 h-4" />

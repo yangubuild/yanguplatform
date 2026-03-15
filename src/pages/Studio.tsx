@@ -120,7 +120,7 @@ export default function Studio() {
         {/* ── Top bar ── */}
         <div className="flex items-center justify-end px-6 pt-4 pb-2">
           <button
-            className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-4 py-1.5 text-sm font-semibold text-accent hover:bg-accent/20 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg border border-accent/40 bg-accent/10 px-4 py-1.5 text-sm font-semibold text-accent hover:bg-accent/20 transition-colors"
             onClick={() => navigate("/billing")}
           >
             Upgrade
