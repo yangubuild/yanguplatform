@@ -12,7 +12,7 @@ import { useCommunitySection, type CommunitySectionItem } from "@/hooks/useCommu
 import { useCommunityListings } from "@/hooks/useCommunityListings";
 import { useBuilderCommunityListings, type BuilderCommunityListing } from "@/hooks/useBuilderCommunityListings";
 import type { CommunityItem } from "./communityData";
-import { MassHeader } from "../MassHeader";
+import { SecondaryPageHeaderShell } from "../SecondaryPageHeaderShell";
 
 function mapToItem(l: CommunitySectionItem): CommunityItem {
   return {
@@ -106,9 +106,7 @@ function CommunityPageInner() {
       style={{ background: '#08120D' }}
     >
       <main className="min-h-screen">
-        <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-10 py-6 pt-8">
-          <MassHeader hideTrends showLogo />
-        </div>
+        <SecondaryPageHeaderShell />
 
         {/* Community content */}
         <CommunityHero />
