@@ -1,5 +1,6 @@
 import type { CommunityItem } from "./communityData";
 import { useCommunityTheme, getThemeColors } from "./CommunityThemeContext";
+import { T } from "@/lib/typography";
 
 interface CommunityCardProps {
   item: CommunityItem;
