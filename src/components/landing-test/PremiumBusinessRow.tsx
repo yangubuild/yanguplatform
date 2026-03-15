@@ -73,7 +73,7 @@ export function PremiumBusinessRow({ title, subtitle, businesses }: Props) {
                       <span className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] text-white shrink-0" style={{ background: '#b5622a' }}>✓</span>
                     )}
                   </div>
-                  <span className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>by {biz.creator}</span>
+                  <span className={T.bodyCompact} style={{ color: 'rgba(255,255,255,0.35)' }}>by {biz.creator}</span>
                 </div>
               </div>
               <p className="text-xs leading-relaxed mb-3 line-clamp-2" style={{ color: 'rgba(255,255,255,0.45)' }}>{biz.description}</p>
