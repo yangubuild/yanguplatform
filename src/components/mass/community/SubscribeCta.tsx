@@ -1,4 +1,5 @@
 import { useCommunityTheme, getThemeColors } from "./CommunityThemeContext";
+import { T } from "@/lib/typography";
 
 export function SubscribeCta() {
   const { theme } = useCommunityTheme();
@@ -11,10 +12,10 @@ export function SubscribeCta() {
         style={{ background: "radial-gradient(ellipse at 40% 60%, #1a5c3a 0%, #0f3d2a 30%, #0a2e1e 50%, #0d1f15 70%, #0a1710 100%)" }}
       >
         <div>
-          <h2 className="max-w-[360px] text-[24px] font-bold leading-tight text-white sm:text-[28px]">
+          <h2 className={`max-w-[360px] ${T.header} text-white`}>
             Be the first to<br />know about new creators<br />and communities
           </h2>
-          <button className="mt-5 rounded-lg border border-white/30 px-5 py-[8px] text-[13px] font-medium text-white transition-colors hover:bg-white/10">
+          <button className="mt-5 rounded-lg border border-white/30 px-5 py-[8px] text-sm font-medium text-white transition-colors hover:bg-white/10">
             Subscribe to Discover
           </button>
         </div>

@@ -1,5 +1,6 @@
 import { Search } from "lucide-react";
 import chatIcon2 from "@/assets/chat_icon_2.png";
+import { T } from "@/lib/typography";
 
 export function CommunityHero() {
   return (
@@ -9,10 +10,10 @@ export function CommunityHero() {
         <div className="flex justify-center mb-4">
           <img src={chatIcon2} alt="Community" className="w-8 h-8 object-contain" />
         </div>
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
+        <h1 className={`${T.hero} text-white`}>
           Build and run your community
         </h1>
-        <p className="mt-2 text-sm text-white/50">
+        <p className={`mt-2 ${T.subheader} text-white/50`}>
           Find communities, creators, and products that transform your life
         </p>
       </div>

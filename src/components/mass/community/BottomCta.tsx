@@ -1,5 +1,6 @@
 import { useCommunityTheme, getThemeColors } from "./CommunityThemeContext";
 import bottomCtaBg from "@/assets/bottom-cta-bg.jpg";
+import { T } from "@/lib/typography";
 
 export function BottomCta() {
   const { theme } = useCommunityTheme();
@@ -13,10 +14,10 @@ export function BottomCta() {
       >
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="max-w-[400px] text-[28px] font-bold leading-tight text-white sm:text-[32px]">
+            <h2 className={`max-w-[400px] ${T.header} text-white`}>
               Circle powers the top communities. Now it's your turn.
             </h2>
-            <button className="mt-5 rounded-lg border border-white/40 px-5 py-[8px] text-[13px] font-medium text-white transition-colors hover:bg-white/10">
+            <button className="mt-5 rounded-lg border border-white/40 px-5 py-[8px] text-sm font-medium text-white transition-colors hover:bg-white/10">
               Create a Circle
             </button>
           </div>

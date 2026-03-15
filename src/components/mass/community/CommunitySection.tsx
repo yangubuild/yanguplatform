@@ -1,6 +1,7 @@
 import { CommunityCard } from "./CommunityCard";
 import type { CommunityItem } from "./communityData";
 import { useCommunityTheme, getThemeColors } from "./CommunityThemeContext";
+import { T } from "@/lib/typography";
 
 interface CommunitySectionProps {
   title: string;
@@ -20,9 +21,9 @@ export function CommunitySection({ title, items, showSeeAll = true, seeAllHref, 
     <section className="w-full px-6 transition-colors duration-300" style={{ backgroundColor: c.bg }}>
       <div className="mx-auto max-w-[1200px] pb-4 pt-10">
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-[16px] font-bold" style={{ color: c.text }}>{title}</h2>
+          <h2 className={T.sectionH2} style={{ color: c.text }}>{title}</h2>
           {showSeeAll && (
-            <a href={seeAllHref || "#"} className="text-[13px] font-medium transition-colors hover:underline" style={{ color: c.seeAllText }}>
+            <a href={seeAllHref || "#"} className="text-sm font-medium transition-colors hover:underline" style={{ color: c.seeAllText }}>
               See all &gt;
             </a>
           )}

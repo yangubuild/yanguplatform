@@ -1,3 +1,5 @@
+import { T } from "@/lib/typography";
+
 export function LandingTestHero() {
   return (
     <div
@@ -12,11 +14,11 @@ export function LandingTestHero() {
       }}
     >
       <div className="relative z-10 max-w-md">
-        <h1 className="text-4xl md:text-[44px] font-semibold leading-[1.1] mb-4 tracking-tight">
+        <h1 className={`${T.hero} mb-4`}>
           <span className="text-white block">Build and.</span>
           <span className="block" style={{ color: 'rgba(255,255,255,0.45)' }}>Sell Online.</span>
         </h1>
-        <p className="text-sm max-w-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.35)' }}>
+        <p className={`${T.subheader} max-w-xs`} style={{ color: 'rgba(255,255,255,0.35)' }}>
           Your all-in-one platform to build, market, and scale a business with live video and AI.
         </p>
       </div>
