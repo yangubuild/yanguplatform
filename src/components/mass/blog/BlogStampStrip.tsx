@@ -22,12 +22,12 @@ export function BlogStampStrip() {
   return (
     <section className="px-4 pt-2 pb-8">
       <div
-        className="relative mx-auto flex flex-nowrap justify-center overflow-hidden md:overflow-hidden"
+        className="relative mx-auto flex flex-nowrap justify-center overflow-hidden"
         style={{ maxWidth: 1100 }}
       >
         <style>{`.stamp-strip-wrap::-webkit-scrollbar{display:none}`}</style>
 
-        <div className="stamp-strip-wrap flex flex-nowrap items-end justify-start md:justify-center overflow-x-auto md:overflow-x-hidden -webkit-overflow-scrolling-touch gap-0">
+        <div className="stamp-strip-wrap flex flex-nowrap items-end justify-center">
           {STAMPS.map((stamp) => {
             const isHov = hovered === stamp.id;
             return (

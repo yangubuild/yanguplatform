@@ -10,15 +10,15 @@ export function MassHeader({ hideTrends }: { hideTrends?: boolean } = {}) {
       {/* Top row - Buttons aligned right */}
       <div className="flex items-center justify-end gap-3">
         <button
-          className="px-5 py-2.5 text-base md:text-lg font-semibold transition-colors hover:opacity-90"
-          style={{ backgroundColor: "#152A20", border: "1px solid #152A20", borderRadius: 12, color: "#FFFFFF" }}
+          className="rounded-lg border px-5 py-[8px] text-[14px] font-medium transition-colors hover:opacity-90"
+          style={{ backgroundColor: "#152A20", borderColor: "#152A20", color: "#FFFFFF" }}
           onClick={() => navigate("/auth/login")}
         >
           Sign in
         </button>
         <button
-          className="px-5 py-2.5 text-base md:text-lg font-semibold text-white transition-opacity hover:opacity-90"
-          style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)", borderRadius: 12 }}
+          className="rounded-lg px-5 py-[8px] text-[14px] font-medium text-white transition-opacity hover:opacity-90"
+          style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
           onClick={() => navigate("/auth/signup")}
         >
           Start selling

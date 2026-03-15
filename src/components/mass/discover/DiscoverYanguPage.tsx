@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import yanguYIcon from "@/assets/yangu-y-icon.png";
 import { LegalFooter } from "@/components/LegalFooter";
+// yanguLogoFull removed — nav is now in the shell
 
 /* ── Stats Counter ── */
 function StatItem({ value, label }: { value: string; label: string }) {
@@ -23,15 +24,12 @@ function AppChip({ icon: Icon, label, active, onClick }: { icon: any; label: str
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-all ${
+      className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
         active 
           ? "text-white" 
           : "bg-[#152A20] text-white/70 hover:bg-[#1a3528] hover:text-white"
       }`}
-      style={{
-        borderRadius: 12,
-        ...(active ? { background: "linear-gradient(90deg, #b5622a, #5c2a12)" } : {}),
-      }}
+      style={active ? { background: "linear-gradient(90deg, #b5622a, #5c2a12)" } : undefined}
     >
       <Icon className="w-4 h-4" />
       {label}
@@ -135,22 +133,22 @@ export function DiscoverYanguPage() {
   const [activeApp, setActiveApp] = useState(0);
 
   return (
-    <div>
+    <div style={{ fontFamily: "'Lufga', sans-serif" }}>
       {/* ─── Hero ─── */}
       <section className="text-center px-6 pt-16 pb-20 max-w-[900px] mx-auto">
-        <h1 className="mb-6">
+        <h1 className="text-5xl md:text-7xl font-bold leading-[1.05] tracking-tight mb-6">
           <span className="text-white">Our mission is to deliver </span>
           <span className="text-[#F46D2A]">everyone</span>
           <span className="text-white"> a sustainable </span>
           <span className="text-[#F46D2A]">income.</span>
         </h1>
-        <p className="text-white/50 text-base md:text-xl max-w-[600px] mx-auto mb-10" style={{ lineHeight: 1.5, fontWeight: 400 }}>
+        <p className="text-white/50 text-lg md:text-xl max-w-[600px] mx-auto mb-10 leading-relaxed">
           Paid groups, software, coaching, courses, services — whatever you sell, yangu is where the internet does business.
         </p>
         <a 
           href="/auth/signup"
-          className="inline-block px-6 py-2.5 text-base md:text-lg font-semibold text-white transition-all hover:brightness-110"
-          style={{ background: "linear-gradient(90deg, #b5622a, #5c2a12)", borderRadius: 12 }}
+          className="inline-block px-6 py-2.5 rounded-lg text-sm font-semibold text-white transition-all hover:brightness-110"
+          style={{ background: "linear-gradient(90deg, #b5622a, #5c2a12)" }}
         >
           Start selling
         </a>
@@ -166,10 +164,10 @@ export function DiscoverYanguPage() {
 
       {/* ─── Supported Business Models ─── */}
       <section className="px-6 max-w-[1100px] mx-auto mb-24">
-        <h2 className="text-white text-center mb-4">
+        <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-4">
           Supported business models
         </h2>
-        <p className="text-white/40 text-center mb-12 max-w-[500px] mx-auto text-base md:text-xl" style={{ fontWeight: 400, lineHeight: 1.5 }}>
+        <p className="text-white/40 text-center mb-12 max-w-[500px] mx-auto">
           Whatever your business looks like, yangu has the tools to help you grow.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -181,10 +179,10 @@ export function DiscoverYanguPage() {
 
       {/* ─── Build with Apps ─── */}
       <section className="px-6 max-w-[1100px] mx-auto mb-24">
-        <h2 className="text-white text-center mb-4">
+        <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-4">
           Build your product with yangu apps
         </h2>
-        <p className="text-white/40 text-center mb-10 max-w-[550px] mx-auto text-base md:text-xl" style={{ fontWeight: 400, lineHeight: 1.5 }}>
+        <p className="text-white/40 text-center mb-10 max-w-[550px] mx-auto">
           Pick from powerful apps like chat, courses, livestreams and more — and instantly give your customers a home base.
         </p>
 
@@ -222,8 +220,8 @@ export function DiscoverYanguPage() {
           </ul>
           <a 
             href="/auth/signup"
-            className="inline-block px-6 py-2.5 text-base md:text-lg font-semibold text-white transition-all hover:brightness-110"
-            style={{ background: "linear-gradient(90deg, #b5622a, #5c2a12)", borderRadius: 12 }}
+            className="inline-block px-6 py-2.5 rounded-lg text-sm font-semibold text-white transition-all hover:brightness-110"
+            style={{ background: "linear-gradient(90deg, #b5622a, #5c2a12)" }}
           >
             Get started
           </a>
@@ -232,10 +230,10 @@ export function DiscoverYanguPage() {
 
       {/* ─── All Tools Section ─── */}
       <section className="px-6 max-w-[1100px] mx-auto mb-24">
-        <h2 className="text-white text-center mb-4">
+        <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-4">
           All the tools you need to grow, all in one app
         </h2>
-        <p className="text-white/40 text-center mb-12 max-w-[500px] mx-auto text-base md:text-xl" style={{ fontWeight: 400, lineHeight: 1.5 }}>
+        <p className="text-white/40 text-center mb-12 max-w-[500px] mx-auto">
           From storefront to payments, everything you need is built in.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -250,7 +248,7 @@ export function DiscoverYanguPage() {
 
       {/* ─── Pricing Section ─── */}
       <section className="px-6 max-w-[600px] mx-auto mb-24">
-        <h2 className="text-white text-center mb-12">
+        <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-12">
           yangu pricing
         </h2>
         <div 
@@ -269,13 +267,13 @@ export function DiscoverYanguPage() {
           
           <a 
             href="/auth/signup"
-            className="inline-block px-6 py-2.5 text-base md:text-lg font-semibold text-white w-full transition-all hover:brightness-110"
-            style={{ background: "linear-gradient(90deg, #b5622a, #5c2a12)", borderRadius: 12 }}
+            className="inline-block px-6 py-2.5 rounded-lg text-sm font-semibold text-white w-full transition-all hover:brightness-110"
+            style={{ background: "linear-gradient(90deg, #b5622a, #5c2a12)" }}
           >
             Start selling for free
           </a>
 
-          <ul className="text-left space-y-3 mt-6">
+          <ul className="text-left space-y-3">
             {[
               "Accept payments and offer BNPL",
               "Host courses, chats, livestreams, and more",
@@ -294,7 +292,7 @@ export function DiscoverYanguPage() {
 
       {/* ─── FAQ ─── */}
       <section className="px-6 max-w-[700px] mx-auto mb-24">
-        <h2 className="text-white text-center mb-12">
+        <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-12">
           Frequently asked questions
         </h2>
         <div>
@@ -312,13 +310,13 @@ export function DiscoverYanguPage() {
             background: "radial-gradient(ellipse at 40% 60%, #1a5c3a 0%, #0f3d2a 30%, #0a2e1e 50%, #0d1f15 70%, #0a1710 100%)",
           }}
         >
-          <h2 className="text-white mb-8">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
             Start selling with yangu.
           </h2>
           <a 
             href="/auth/signup"
-            className="inline-block px-6 py-2.5 text-base md:text-lg font-semibold text-white transition-all hover:brightness-110"
-            style={{ background: "linear-gradient(90deg, #b5622a, #5c2a12)", borderRadius: 12 }}
+            className="inline-block px-6 py-2.5 rounded-lg text-sm font-semibold text-white transition-all hover:brightness-110"
+            style={{ background: "linear-gradient(90deg, #b5622a, #5c2a12)" }}
           >
             Get started
           </a>
