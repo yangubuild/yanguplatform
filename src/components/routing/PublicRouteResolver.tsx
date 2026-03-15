@@ -38,7 +38,7 @@ const INTERNAL_ROUTES = [
   "/ada-ai",
   "/privacy",
   "/terms",
-  "/landingtest",
+  
   "/builder",
 ];
 

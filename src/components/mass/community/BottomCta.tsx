@@ -7,9 +7,9 @@ export function BottomCta() {
   const c = getThemeColors(theme);
 
   return (
-    <section className="w-full px-6 pb-0 transition-colors duration-300" style={{ backgroundColor: c.bg }}>
+    <section className="w-full px-4 sm:px-6 lg:px-10 pb-0 transition-colors duration-300" style={{ backgroundColor: c.bg }}>
       <div
-        className="mx-auto max-w-[1200px] overflow-hidden rounded-2xl px-10 py-16"
+        className="mx-auto max-w-[1100px] overflow-hidden rounded-2xl px-10 py-16"
         style={{ backgroundImage: `url(${bottomCtaBg})`, backgroundSize: "cover", backgroundPosition: "center" }}
       >
         <div className="flex items-center justify-between">

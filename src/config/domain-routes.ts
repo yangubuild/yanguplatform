@@ -43,7 +43,7 @@ export const UNIVERSAL_ROUTES = [
   "/billing",
   "/settings",
   "/profile",
-  "/landingtest",
+  
   "/builder",
   "/dev/seed", // Dev-only seeder
 ] as const;

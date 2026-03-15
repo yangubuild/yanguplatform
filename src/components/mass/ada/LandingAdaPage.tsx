@@ -22,7 +22,7 @@ export function LandingAdaPage() {
           className="absolute top-4 left-4 sm:top-5 sm:left-7 h-8 sm:h-12 w-auto cursor-pointer z-10"
           onClick={() => navigate("/")}
         />
-        <div className="max-w-[1100px] mx-auto px-3 sm:px-6 lg:px-10 py-6 pt-8">
+        <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-10 py-6 pt-8">
           <MassHeader hideTrends />
         </div>
 

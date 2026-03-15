@@ -10,7 +10,7 @@ export function CommunityTopBar() {
 
   return (
     <header className="w-full transition-colors duration-300" style={{ backgroundColor: c.bg }}>
-      <div className="mx-auto flex h-[64px] max-w-[1200px] items-center justify-between px-6">
+      <div className="mx-auto flex h-[64px] max-w-[1100px] items-center justify-between px-4 sm:px-6 lg:px-10">
         <div className="flex items-center gap-4">
           <a href="/" className="flex items-center">
             <img
@@ -46,7 +46,7 @@ export function CommunityTopBar() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-[1200px] px-6 pb-5 pt-4 text-center">
+      <div className="mx-auto max-w-[1100px] px-4 sm:px-6 lg:px-10 pb-5 pt-4 text-center">
         <h1
           className={`mx-auto max-w-[520px] ${T.hero}`}
           style={{ color: c.text }}
