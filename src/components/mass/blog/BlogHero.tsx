@@ -16,14 +16,11 @@ export function BlogHero({ onSubscribeClick }: BlogHeroProps) {
 
       {/* Headline */}
       <h2
-        className="mx-auto"
+        className={`mx-auto ${T.header}`}
         style={{
           fontFamily: "'Lufga', sans-serif",
-          fontSize: "clamp(2rem, 4vw, 3.2rem)",
-          fontWeight: 400,
           color: "#FFFFFF",
           maxWidth: 720,
-          lineHeight: 1.15,
         }}
       >
         The Only Subscription You Need
