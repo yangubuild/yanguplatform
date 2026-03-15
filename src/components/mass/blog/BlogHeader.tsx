@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import yanguLogo from "@/assets/yangu-logo-blog.png";
 import yanguLogoFull from "@/assets/yangu-logo-full.png";
 
 interface BlogHeaderProps {
@@ -24,15 +23,11 @@ export function BlogHeader({ onSubscribeClick }: BlogHeaderProps) {
       className="sticky top-0 z-50 w-full"
       style={{
         background: "#08120D",
-        borderBottom: "1px solid rgba(255,255,255,0.1)",
       }}
     >
       <div
-        className="mx-auto grid items-center px-6 py-4"
-        style={{
-          maxWidth: 1100,
-          gridTemplateColumns: "1fr auto 1fr",
-        }}
+        className="mx-auto flex items-center justify-between px-6 py-4"
+        style={{ maxWidth: 1100 }}
       >
         {/* Left: yangu logo */}
         <div className="flex items-center">
@@ -44,36 +39,22 @@ export function BlogHeader({ onSubscribeClick }: BlogHeaderProps) {
           />
         </div>
 
-        {/* Center: small EVERY logo with divider lines, visible on scroll */}
-        <div
-          className="flex items-center gap-0 transition-all duration-200"
-          style={{
-            opacity: scrolled ? 1 : 0,
-            transform: scrolled ? "translateY(0)" : "translateY(6px)",
-            pointerEvents: scrolled ? "auto" : "none",
-          }}
-        >
-          <div style={{ width: 80, height: 1, background: "rgba(255,255,255,0.2)" }} />
-          <img src={yanguLogo} alt="yangu" className="h-6 w-auto px-4 cursor-pointer" onClick={() => navigate("/")} />
-          <div style={{ width: 80, height: 1, background: "rgba(255,255,255,0.2)" }} />
-        </div>
-
         {/* Right: sign in + subscribe */}
-        <div className="flex items-center gap-3 justify-end">
+        <div className="flex items-center gap-3">
           <button
-            className="px-5 py-2.5 text-sm font-medium transition-all hover:brightness-110"
+            className="px-5 py-2.5 text-base md:text-lg font-semibold transition-all hover:brightness-110"
             style={{
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.15)",
+              background: "#152A20",
+              border: "1px solid #152A20",
               borderRadius: 12,
-              color: "rgba(255,255,255,0.85)",
+              color: "#FFFFFF",
             }}
           >
             Sign in
           </button>
           <button
             onClick={onSubscribeClick}
-            className="px-5 py-2.5 text-sm font-medium transition-all hover:brightness-110"
+            className="px-5 py-2.5 text-base md:text-lg font-semibold transition-all hover:brightness-110"
             style={{
               background: "linear-gradient(90deg, #b5622a, #5c2a12)",
               borderRadius: 12,

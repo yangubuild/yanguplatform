@@ -29,20 +29,20 @@ export function BlogExplorePanel() {
   }, [open]);
 
   return (
-    <div ref={panelRef} className="fixed bottom-6 right-6 z-50" style={{ maxWidth: 420 }}>
+    <div ref={panelRef} className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50" style={{ maxWidth: "min(420px, calc(100vw - 32px))" }}>
       {open && (
         <div
-          className="mb-3 overflow-hidden"
+          className="mb-3 overflow-hidden max-h-[70vh] overflow-y-auto"
           style={{
             background: "linear-gradient(180deg, #0f1f17 0%, #0a1710 100%)",
             border: "1px solid rgba(255,255,255,0.08)",
-            borderRadius: 8,
+            borderRadius: 12,
           }}
         >
           {/* Header */}
           <button
             onClick={() => setOpen(false)}
-            className="w-full flex items-center justify-between px-6 py-5"
+            className="w-full flex items-center justify-between px-5 py-4"
             style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}
           >
             <span
@@ -55,15 +55,15 @@ export function BlogExplorePanel() {
           </button>
 
           {/* Items */}
-          <div className="px-4 py-3 flex flex-col">
+          <div className="px-3 py-2 flex flex-col">
             {exploreItems.map((item, i) => (
               <a
                 key={i}
                 href="#"
-                className="group flex items-center justify-between gap-4 px-3 py-3.5 transition-colors"
+                className="group flex items-center justify-between gap-3 px-3 py-3 transition-colors"
                 style={{
                   textDecoration: "none",
-                  borderRadius: 6,
+                  borderRadius: 8,
                   color: (item as any).muted ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.75)",
                 }}
                 onMouseEnter={(e) => {
@@ -75,8 +75,8 @@ export function BlogExplorePanel() {
                   e.currentTarget.style.color = (item as any).muted ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.75)";
                 }}
               >
-                <div className="flex items-center gap-4">
-                  <span className="text-base w-6 text-center">{item.icon}</span>
+                <div className="flex items-center gap-3">
+                  <span className="text-base w-5 text-center">{item.icon}</span>
                   <span className="text-sm">{item.label}</span>
                 </div>
                 <ChevronRight className="w-4 h-4 opacity-40 group-hover:opacity-70" />
@@ -85,14 +85,14 @@ export function BlogExplorePanel() {
           </div>
 
           {/* Bottom CTA */}
-          <div className="px-5 pb-5 pt-2">
+          <div className="px-4 pb-4 pt-1">
             <button
-              className="w-full py-3.5 text-sm font-medium flex items-center justify-center gap-2 transition-all hover:brightness-110"
+              className="w-full py-3 text-sm font-semibold flex items-center justify-center gap-2 transition-all hover:brightness-110"
               style={{
                 background: "transparent",
                 color: "rgba(255,255,255,0.7)",
                 border: "1px solid rgba(255,255,255,0.15)",
-                borderRadius: 6,
+                borderRadius: 12,
               }}
             >
               Create your free account <span style={{ fontSize: 16 }}>→</span>
@@ -101,16 +101,16 @@ export function BlogExplorePanel() {
         </div>
       )}
 
-      {/* Trigger - simple text button */}
+      {/* Trigger - positioned lower on mobile */}
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="flex items-center gap-2 px-5 py-3 text-xs font-medium uppercase tracking-wider transition-all hover:brightness-110"
+          className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider transition-all hover:brightness-110"
           style={{
             background: "linear-gradient(180deg, #0f1f17 0%, #0a1710 100%)",
             color: "rgba(255,255,255,0.6)",
             border: "1px solid rgba(255,255,255,0.08)",
-            borderRadius: 6,
+            borderRadius: 12,
             letterSpacing: "0.1em",
           }}
         >
