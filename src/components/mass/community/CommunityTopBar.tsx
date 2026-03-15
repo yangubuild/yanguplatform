@@ -46,7 +46,7 @@ export function CommunityTopBar() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-[1200px] px-6 pb-5 pt-4 text-center">
+      <div className="mx-auto max-w-[1100px] px-4 sm:px-6 lg:px-10 pb-5 pt-4 text-center">
         <h1
           className={`mx-auto max-w-[520px] ${T.hero}`}
           style={{ color: c.text }}
