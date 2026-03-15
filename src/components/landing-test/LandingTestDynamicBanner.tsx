@@ -1,3 +1,5 @@
+import { T } from "@/lib/typography";
+
 interface Props {
   slot: "middle" | "lower";
 }
@@ -18,10 +20,10 @@ export function LandingTestDynamicBanner({ slot }: Props) {
         }}
       >
         <div className="flex-1">
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
+          <h2 className={`${T.header} text-white mb-3`}>
             {isMiddle ? "yangu for enterprise" : "Meet yangu Treasury"}
           </h2>
-          <p className="text-sm leading-relaxed mb-6" style={{ color: 'rgba(255,255,255,0.45)' }}>
+          <p className={`${T.subheader} mb-6`} style={{ color: 'rgba(255,255,255,0.45)' }}>
             {isMiddle
               ? "yangu isn't just for the best solo entrepreneurs, it's also effective for enterprises."
               : "Earn up to 6% yield on your cash."

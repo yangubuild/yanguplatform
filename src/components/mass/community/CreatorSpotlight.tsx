@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { creatorItems } from "./communityData";
 import { useCommunityTheme, getThemeColors } from "./CommunityThemeContext";
+import { T } from "@/lib/typography";
 
 export function CreatorSpotlight() {
   const { theme } = useCommunityTheme();
@@ -10,7 +11,7 @@ export function CreatorSpotlight() {
     <section className="w-full transition-colors duration-300" style={{ backgroundColor: c.bg }}>
       <div className="mx-auto max-w-[1200px] px-6 pb-4 pt-14">
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-[16px] font-bold" style={{ color: c.text }}>Creators you might like</h2>
+          <h2 className={T.sectionH2} style={{ color: c.text }}>Creators you might like</h2>
           <div className="flex gap-1">
             <button className="flex h-7 w-7 items-center justify-center rounded-md border transition-colors" style={{ borderColor: c.border, color: c.textMuted }}>
               <ChevronLeft size={16} />
@@ -27,8 +28,8 @@ export function CreatorSpotlight() {
             <img src={creator.image} alt={creator.name} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
             <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(234,120,50,0.7) 0%, rgba(234,120,50,0.3) 30%, rgba(0,0,0,0) 60%)" }} />
             <div className="absolute bottom-0 left-0 p-3">
-              <h3 className="text-[14px] font-bold leading-tight text-white">{creator.name}</h3>
-              <p className="mt-0.5 text-[11px] text-white/70">{creator.role}</p>
+              <h3 className="text-sm font-bold leading-tight text-white">{creator.name}</h3>
+              <p className="mt-0.5 text-xs text-white/70">{creator.role}</p>
             </div>
           </a>
         ))}

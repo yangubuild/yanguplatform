@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import yanguYIcon from "@/assets/yangu-y-icon.png";
 import { LegalFooter } from "@/components/LegalFooter";
+import { T } from "@/lib/typography";
 // yanguLogoFull removed — nav is now in the shell
 
 /* ── Stats Counter ── */
@@ -24,7 +25,7 @@ function AppChip({ icon: Icon, label, active, onClick }: { icon: any; label: str
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+      className={`flex items-center gap-2 px-4 py-2.5 rounded-xl ${T.body} font-medium transition-all ${
         active 
           ? "text-white" 
           : "bg-[#152A20] text-white/70 hover:bg-[#1a3528] hover:text-white"
@@ -50,8 +51,8 @@ function BusinessModelCard({ icon: Icon, title, description }: { icon: any; titl
       <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(244, 109, 42, 0.15)" }}>
         <Icon className="w-5 h-5 text-[#F46D2A]" />
       </div>
-      <h3 className="text-white font-semibold text-lg mb-2">{title}</h3>
-      <p className="text-white/50 text-sm leading-relaxed">{description}</p>
+      <h3 className={`text-white ${T.cardTitle} mb-2`}>{title}</h3>
+      <p className={`text-white/50 ${T.body}`}>{description}</p>
     </div>
   );
 }
@@ -71,8 +72,8 @@ function ToolCard({ icon: Icon, title, description, highlight }: { icon: any; ti
       <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: highlight ? "rgba(244,109,42,0.2)" : "rgba(255,255,255,0.06)" }}>
         <Icon className={`w-5 h-5 ${highlight ? "text-[#F46D2A]" : "text-white/60"}`} />
       </div>
-      <h3 className="text-white font-semibold">{title}</h3>
-      <p className="text-white/50 text-sm leading-relaxed">{description}</p>
+      <h3 className={`text-white ${T.cardTitle}`}>{title}</h3>
+      <p className={`text-white/50 ${T.body}`}>{description}</p>
     </div>
   );
 }
@@ -86,11 +87,11 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
       onClick={() => setOpen(!open)}
     >
       <div className="flex items-center justify-between">
-        <h3 className="text-white font-medium text-[15px]">{question}</h3>
+        <h3 className={`text-white font-medium ${T.body}`}>{question}</h3>
         {open ? <ChevronUp className="w-4 h-4 text-white/40" /> : <ChevronDown className="w-4 h-4 text-white/40" />}
       </div>
       {open && (
-        <p className="text-white/50 text-sm mt-3 leading-relaxed">{answer}</p>
+        <p className={`text-white/50 ${T.body} mt-3`}>{answer}</p>
       )}
     </div>
   );
@@ -136,13 +137,13 @@ export function DiscoverYanguPage() {
     <div style={{ fontFamily: "'Lufga', sans-serif" }}>
       {/* ─── Hero ─── */}
       <section className="text-center px-6 pt-16 pb-20 max-w-[900px] mx-auto">
-        <h1 className="text-5xl md:text-7xl font-bold leading-[1.05] tracking-tight mb-6">
+        <h1 className={`${T.hero} mb-6`}>
           <span className="text-white">Our mission is to deliver </span>
           <span className="text-[#F46D2A]">everyone</span>
           <span className="text-white"> a sustainable </span>
           <span className="text-[#F46D2A]">income.</span>
         </h1>
-        <p className="text-white/50 text-lg md:text-xl max-w-[600px] mx-auto mb-10 leading-relaxed">
+        <p className={`text-white/50 ${T.subheader} max-w-[600px] mx-auto mb-10`}>
           Paid groups, software, coaching, courses, services — whatever you sell, yangu is where the internet does business.
         </p>
         <a 
@@ -164,10 +165,10 @@ export function DiscoverYanguPage() {
 
       {/* ─── Supported Business Models ─── */}
       <section className="px-6 max-w-[1100px] mx-auto mb-24">
-        <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-4">
+        <h2 className={`${T.header} text-white text-center mb-4`}>
           Supported business models
         </h2>
-        <p className="text-white/40 text-center mb-12 max-w-[500px] mx-auto">
+        <p className={`text-white/40 text-center mb-12 max-w-[500px] mx-auto ${T.subheader}`}>
           Whatever your business looks like, yangu has the tools to help you grow.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -179,10 +180,10 @@ export function DiscoverYanguPage() {
 
       {/* ─── Build with Apps ─── */}
       <section className="px-6 max-w-[1100px] mx-auto mb-24">
-        <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-4">
+        <h2 className={`${T.header} text-white text-center mb-4`}>
           Build your product with yangu apps
         </h2>
-        <p className="text-white/40 text-center mb-10 max-w-[550px] mx-auto">
+        <p className={`text-white/40 text-center mb-10 max-w-[550px] mx-auto ${T.subheader}`}>
           Pick from powerful apps like chat, courses, livestreams and more — and instantly give your customers a home base.
         </p>
 
@@ -206,13 +207,13 @@ export function DiscoverYanguPage() {
               {(() => { const Icon = apps[activeApp].icon; return <Icon className="w-6 h-6 text-[#F46D2A]" />; })()}
             </div>
             <div>
-              <h3 className="text-white text-xl font-bold">{apps[activeApp].title}</h3>
-              <p className="text-white/50 text-sm mt-1">{apps[activeApp].description}</p>
+              <h3 className={`text-white ${T.sectionH2}`}>{apps[activeApp].title}</h3>
+              <p className={`text-white/50 ${T.body} mt-1`}>{apps[activeApp].description}</p>
             </div>
           </div>
           <ul className="space-y-2 mb-8">
             {apps[activeApp].features.map((f) => (
-              <li key={f} className="flex items-center gap-3 text-white/60 text-sm">
+              <li key={f} className={`flex items-center gap-3 text-white/60 ${T.body}`}>
                 <Star className="w-3.5 h-3.5 text-[#F46D2A]" />
                 {f}
               </li>
@@ -230,10 +231,10 @@ export function DiscoverYanguPage() {
 
       {/* ─── All Tools Section ─── */}
       <section className="px-6 max-w-[1100px] mx-auto mb-24">
-        <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-4">
+        <h2 className={`${T.header} text-white text-center mb-4`}>
           All the tools you need to grow, all in one app
         </h2>
-        <p className="text-white/40 text-center mb-12 max-w-[500px] mx-auto">
+        <p className={`text-white/40 text-center mb-12 max-w-[500px] mx-auto ${T.subheader}`}>
           From storefront to payments, everything you need is built in.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -248,7 +249,7 @@ export function DiscoverYanguPage() {
 
       {/* ─── Pricing Section ─── */}
       <section className="px-6 max-w-[600px] mx-auto mb-24">
-        <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-12">
+        <h2 className={`${T.header} text-white text-center mb-12`}>
           yangu pricing
         </h2>
         <div 
@@ -261,9 +262,9 @@ export function DiscoverYanguPage() {
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6" style={{ background: "rgba(244,109,42,0.12)" }}>
             <Sparkles className="w-8 h-8 text-[#F46D2A]" />
           </div>
-          <div className="text-white/50 text-sm font-medium mb-2">Free to start</div>
+          <div className={`text-white/50 ${T.body} font-medium mb-2`}>Free to start</div>
           <div className="text-white text-4xl font-bold mb-1">$0<span className="text-lg font-normal text-white/40">/ Month</span></div>
-          <p className="text-white/40 text-sm mb-8">Just 2.9% + $0.30 per transaction</p>
+          <p className={`text-white/40 ${T.body} mb-8`}>Just 2.9% + $0.30 per transaction</p>
           
           <a 
             href="/auth/signup"
@@ -281,7 +282,7 @@ export function DiscoverYanguPage() {
               "Get listed on the yangu Marketplace",
               "Manage affiliates",
             ].map((item) => (
-              <li key={item} className="flex items-center gap-3 text-white/60 text-sm">
+              <li key={item} className={`flex items-center gap-3 text-white/60 ${T.body}`}>
                 <Heart className="w-3.5 h-3.5 text-[#F46D2A] flex-shrink-0" />
                 {item}
               </li>
@@ -292,7 +293,7 @@ export function DiscoverYanguPage() {
 
       {/* ─── FAQ ─── */}
       <section className="px-6 max-w-[700px] mx-auto mb-24">
-        <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-12">
+        <h2 className={`${T.header} text-white text-center mb-12`}>
           Frequently asked questions
         </h2>
         <div>
@@ -310,7 +311,7 @@ export function DiscoverYanguPage() {
             background: "radial-gradient(ellipse at 40% 60%, #1a5c3a 0%, #0f3d2a 30%, #0a2e1e 50%, #0d1f15 70%, #0a1710 100%)",
           }}
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
+          <h2 className={`${T.header} text-white mb-8`}>
             Start selling with yangu.
           </h2>
           <a 
