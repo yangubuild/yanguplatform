@@ -233,17 +233,22 @@ html {
     min-height: 100vh;
   }
 
-  /* Typography scale */
+  /* Typography scale — YANGU Public Landing Standard */
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold tracking-tight;
+    font-family: 'Lufga', system-ui, sans-serif;
+    @apply font-bold tracking-tight;
   }
 
   h1 {
-    @apply text-4xl md:text-5xl lg:text-6xl;
+    font-size: 56px;
+    line-height: 1.1;
+    font-weight: 700;
   }
 
   h2 {
-    @apply text-3xl md:text-4xl;
+    font-size: 40px;
+    line-height: 1.15;
+    font-weight: 700;
   }
 
   h3 {
