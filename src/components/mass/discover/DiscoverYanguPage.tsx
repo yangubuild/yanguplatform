@@ -25,7 +25,7 @@ function AppChip({ icon: Icon, label, active, onClick }: { icon: any; label: str
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 px-4 py-2.5 rounded-[14px] ${T.body} font-medium transition-all ${
+      className={`flex items-center gap-2 px-4 py-2.5 rounded-lg ${T.body} font-medium transition-all ${
         active 
           ? "text-white" 
           : "bg-[#152A20] text-white/70 hover:bg-[#1a3528] hover:text-white"
