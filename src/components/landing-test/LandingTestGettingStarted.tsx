@@ -52,7 +52,7 @@ export function LandingTestGettingStarted() {
           >
             <span className="flex items-center gap-2">
               <img src={iconYangu} alt="" className="w-7 h-7 rounded-lg" />
-              <span className="text-white font-semibold text-base flex items-center gap-1">
+              <span className={`text-white ${T.cardTitle} flex items-center gap-1`}>
                 Micro-Influence
                 <ChevronRight className="w-4 h-4" />
               </span>
