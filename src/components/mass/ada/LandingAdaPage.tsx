@@ -24,7 +24,9 @@ export function LandingAdaPage() {
               className="h-8 sm:h-12 w-auto cursor-pointer"
               onClick={() => navigate("/")}
             />
-            <MassHeader hideTrends />
+            <div className="[&>header]:mb-0">
+              <MassHeader hideTrends />
+            </div>
           </div>
         </div>
 
