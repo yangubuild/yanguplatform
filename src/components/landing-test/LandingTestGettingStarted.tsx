@@ -4,13 +4,14 @@ import getStarted1 from "@/assets/landing-get-started-university.png";
 import getStarted2 from "@/assets/landing-get-started-2.png";
 import iconVisionaire from "@/assets/icon-visionaire.png";
 import iconYangu from "@/assets/icon-yangu.png";
+import { T } from "@/lib/typography";
 
 export function LandingTestGettingStarted() {
   const navigate = useNavigate();
 
   return (
     <section className="mb-12">
-      <h2 className="text-white text-xl font-bold mb-5">Getting started</h2>
+      <h2 className={`text-white ${T.sectionH2} mb-5`}>Getting started</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Left card */}
         <div className="overflow-hidden rounded-2xl h-[160px] relative group">
@@ -26,12 +27,12 @@ export function LandingTestGettingStarted() {
           >
             <span className="flex items-center gap-2">
               <img src={iconVisionaire} alt="" className="w-7 h-7 rounded-lg" />
-              <span className="text-white font-semibold text-base flex items-center gap-1">
+              <span className={`text-white ${T.cardTitle} flex items-center gap-1`}>
                 Visionaire digital university
                 <ChevronRight className="w-4 h-4" />
               </span>
             </span>
-            <span className="text-white/70 text-sm pl-9">
+            <span className={`text-white/70 ${T.body} pl-9`}>
               Learn how to grow and build on yangu
             </span>
           </button>
@@ -51,12 +52,12 @@ export function LandingTestGettingStarted() {
           >
             <span className="flex items-center gap-2">
               <img src={iconYangu} alt="" className="w-7 h-7 rounded-lg" />
-              <span className="text-white font-semibold text-base flex items-center gap-1">
+              <span className={`text-white ${T.cardTitle} flex items-center gap-1`}>
                 Micro-Influence
                 <ChevronRight className="w-4 h-4" />
               </span>
             </span>
-            <span className="text-white/70 text-sm pl-9">
+            <span className={`text-white/70 ${T.body} pl-9`}>
               Get paid for promoting products
             </span>
           </button>

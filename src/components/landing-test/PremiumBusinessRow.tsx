@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { ChevronLeft, ChevronRight, Star, Users, Eye } from "lucide-react";
+import { T } from "@/lib/typography";
 
 export interface PremiumBusiness {
   coverImage: string;
@@ -34,8 +35,8 @@ export function PremiumBusinessRow({ title, subtitle, businesses }: Props) {
     <section className="mb-12">
       <div className="flex items-center justify-between mb-1">
         <div>
-          <h2 className="text-white text-xl font-bold">{title}</h2>
-          {subtitle && <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.35)' }}>{subtitle}</p>}
+          <h2 className={`text-white ${T.sectionH2}`}>{title}</h2>
+          {subtitle && <p className={`${T.body} mt-1`} style={{ color: 'rgba(255,255,255,0.35)' }}>{subtitle}</p>}
         </div>
         <div className="flex items-center gap-2">
           <button onClick={() => scroll("left")} className="w-8 h-8 flex items-center justify-center rounded-lg border transition-colors" style={{ borderColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.3)' }}>
@@ -64,7 +65,7 @@ export function PremiumBusinessRow({ title, subtitle, businesses }: Props) {
                 <img src={biz.profileImage} alt={biz.name} className="w-10 h-10 rounded-full object-cover" />
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-white text-sm font-semibold truncate">{biz.name}</span>
+                    <span className={`text-white ${T.body} font-semibold truncate`}>{biz.name}</span>
                     {biz.verified === "blue" && (
                       <span className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center text-[8px] text-white shrink-0">✓</span>
                     )}
@@ -72,11 +73,11 @@ export function PremiumBusinessRow({ title, subtitle, businesses }: Props) {
                       <span className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] text-white shrink-0" style={{ background: '#b5622a' }}>✓</span>
                     )}
                   </div>
-                  <span className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>by {biz.creator}</span>
+                  <span className={T.bodyCompact} style={{ color: 'rgba(255,255,255,0.35)' }}>by {biz.creator}</span>
                 </div>
               </div>
-              <p className="text-xs leading-relaxed mb-3 line-clamp-2" style={{ color: 'rgba(255,255,255,0.45)' }}>{biz.description}</p>
-              <div className="flex items-center gap-3 text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>
+              <p className={`${T.bodyCompact} mb-3 line-clamp-2`} style={{ color: 'rgba(255,255,255,0.45)' }}>{biz.description}</p>
+              <div className={`flex items-center gap-3 ${T.bodyCompact}`} style={{ color: 'rgba(255,255,255,0.35)' }}>
                 {biz.rating && (
                   <span className="flex items-center gap-1">
                     <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
