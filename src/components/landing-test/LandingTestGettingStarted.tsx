@@ -11,7 +11,7 @@ export function LandingTestGettingStarted() {
 
   return (
     <section className="mb-12">
-      <h2 className="text-white text-xl font-bold mb-5">Getting started</h2>
+      <h2 className={`text-white ${T.sectionH2} mb-5`}>Getting started</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Left card */}
         <div className="overflow-hidden rounded-2xl h-[160px] relative group">
