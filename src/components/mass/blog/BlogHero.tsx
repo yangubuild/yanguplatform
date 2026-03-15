@@ -1,4 +1,5 @@
 import yanguLogo from "@/assets/yangu-logo-blog.png";
+import { T } from "@/lib/typography";
 
 interface BlogHeroProps {
   onSubscribeClick: () => void;
