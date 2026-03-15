@@ -149,8 +149,8 @@ export function DiscoverYanguPage() {
         </p>
         <a 
           href="/auth/signup"
-          className="inline-block px-6 py-2.5 rounded-lg text-sm font-semibold text-white transition-all hover:brightness-110"
-          style={{ background: "linear-gradient(90deg, #b5622a, #5c2a12)" }}
+          className="inline-block px-6 py-2.5 rounded-[14px] text-[14px] font-medium text-white transition-all hover:brightness-110"
+          style={{ background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" }}
         >
           Start selling
         </a>
