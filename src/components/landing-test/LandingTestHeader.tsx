@@ -27,7 +27,7 @@ export function LandingTestHeader({ onMenuClick }: Props) {
         </nav>
         <div className="flex items-center gap-3">
           <button
-            className="rounded-[14px] border px-5 py-[8px] text-[14px] font-medium transition-colors hover:opacity-90"
+            className="rounded-lg border px-5 py-[8px] text-[14px] font-medium transition-colors hover:opacity-90"
             style={{ backgroundColor: "#152A20", borderColor: "#152A20", color: "#FFFFFF" }}
             onClick={() => navigate("/auth/login")}
           >
