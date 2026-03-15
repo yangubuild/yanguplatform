@@ -40,7 +40,7 @@ export const PrimaryButton = React.forwardRef<
       className={cn(
         baseStyles,
         sizeClasses[size],
-        "bg-accent text-accent-foreground shadow-md hover:bg-accent/90 hover:shadow-lg hover:shadow-accent/20 active:scale-[0.98]",
+        "text-white shadow-md hover:shadow-lg hover:brightness-110 active:scale-[0.98] [background:linear-gradient(135deg,#c47a3a_0%,#b5622a_50%,#5c2a12_100%)]",
         className
       )}
       {...props}
