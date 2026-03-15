@@ -173,7 +173,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
         </div>
 
         {/* Right — shrink gaps on mobile, hide non-critical icons */}
-        <div className="flex items-center gap-1 sm:gap-2.5 overflow-hidden max-w-[calc(100vw-120px)] sm:max-w-none">
+        <div className="flex items-center gap-1 sm:gap-2.5 overflow-hidden min-w-0 flex-1 justify-end">
           {/* Search — hidden on mobile to save space */}
           <div className="relative hidden sm:flex items-center" ref={searchContainerRef}>
             <div
