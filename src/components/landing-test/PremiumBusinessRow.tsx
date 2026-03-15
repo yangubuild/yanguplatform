@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { ChevronLeft, ChevronRight, Star, Users, Eye } from "lucide-react";
+import { T } from "@/lib/typography";
 
 export interface PremiumBusiness {
   coverImage: string;
