@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Menu } from "lucide-react";
 import { CommunityThemeProvider, useCommunityTheme, getThemeColors } from "./CommunityThemeContext";
-import { CommunityTopBar } from "./CommunityTopBar";
 import { CommunityHero } from "./CommunityHero";
 import { CommunityFilterBar } from "./CommunityFilterBar";
 import { CommunitySection } from "./CommunitySection";
@@ -13,8 +12,8 @@ import { useCommunitySection, type CommunitySectionItem } from "@/hooks/useCommu
 import { useCommunityListings } from "@/hooks/useCommunityListings";
 import { useBuilderCommunityListings, type BuilderCommunityListing } from "@/hooks/useBuilderCommunityListings";
 import type { CommunityItem } from "./communityData";
-import { useNavigate } from "react-router-dom";
-import yanguLogo from "@/assets/yangu-logo-full.png";
+import { MassSidebar } from "../MassSidebar";
+import { MassHeader } from "../MassHeader";
 
 function mapToItem(l: CommunitySectionItem): CommunityItem {
   return {
@@ -32,36 +31,6 @@ function buildLinkMap(items: CommunitySectionItem[]): Map<string, string> {
     m.set(l.surface_id, `https://${l.domain_host}/${l.slug}`);
   }
   return m;
-}
-
-function CommunityHeader() {
-  const navigate = useNavigate();
-  return (
-    <header className="flex items-center justify-between">
-      <img
-        src={yanguLogo}
-        alt="yangu"
-        className="h-12 w-auto cursor-pointer"
-        onClick={() => navigate("/")}
-      />
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => navigate("/auth/login")}
-          className="px-5 py-[8px] rounded-lg text-[14px] font-medium text-white transition-opacity hover:opacity-90"
-          style={{ background: '#152A20' }}
-        >
-          Sign in
-        </button>
-        <button
-          onClick={() => navigate("/auth/signup")}
-          className="px-5 py-[8px] rounded-lg text-[14px] font-medium text-white transition-opacity hover:opacity-90"
-          style={{ background: 'linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)' }}
-        >
-          Start selling
-        </button>
-      </div>
-    </header>
-  );
 }
 
 function CommunityPageInner() {
