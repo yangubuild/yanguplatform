@@ -81,7 +81,7 @@ export function SocialAuthButtons({ disabled }: SocialAuthButtonsProps) {
       <Button
         type="button"
         variant="outline"
-        className="w-full h-11 gap-3"
+        className="w-full h-11 gap-3 rounded-[14px]"
         onClick={() => handleSocialSignIn("google")}
         disabled={disabled || isGoogleLoading || isAppleLoading}
       >
