@@ -140,7 +140,8 @@ export function DiscoverYanguPage() {
         <h1 className={`${T.hero} mb-6`}>
           <span className="text-white">Our mission is to deliver </span>
           <span className="text-[#F46D2A]">everyone</span>
-          <span className="text-white"> a sustainable </span>
+          <br />
+          <span className="text-white">a sustainable </span>
           <span className="text-[#F46D2A]">income.</span>
         </h1>
         <p className={`text-white/50 ${T.subheader} max-w-[600px] mx-auto mb-10`}>
