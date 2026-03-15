@@ -65,7 +65,7 @@ export function PremiumBusinessRow({ title, subtitle, businesses }: Props) {
                 <img src={biz.profileImage} alt={biz.name} className="w-10 h-10 rounded-full object-cover" />
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-white text-sm font-semibold truncate">{biz.name}</span>
+                    <span className={`text-white ${T.body} font-semibold truncate`}>{biz.name}</span>
                     {biz.verified === "blue" && (
                       <span className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center text-[8px] text-white shrink-0">✓</span>
                     )}
