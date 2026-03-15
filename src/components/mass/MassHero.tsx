@@ -12,11 +12,11 @@ export function MassHero() {
       }}
     >
       <div className="relative z-10 max-w-md">
-        <h1 className="text-4xl md:text-[42px] font-semibold leading-[1.1] mb-4 tracking-tight">
+        <h1>
           <span className="text-white block">Build and.</span>
           <span className="text-white/50 block">Sell Online.</span>
         </h1>
-        <p className="text-sm text-white/40 max-w-xs leading-relaxed">
+        <p className="text-base md:text-xl text-white/40 max-w-xs leading-relaxed mt-4" style={{ fontWeight: 400 }}>
           Your all-in-one platform to build, market, and scale a business with live video and AI.
         </p>
       </div>
