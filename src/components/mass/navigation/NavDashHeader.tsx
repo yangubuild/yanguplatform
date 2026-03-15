@@ -304,7 +304,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
           <Popover>
             <PopoverTrigger asChild>
               <button
-                className="h-9 px-5 rounded-lg text-xs font-bold text-white"
+                className="h-8 sm:h-9 px-3 sm:px-5 rounded-lg text-[10px] sm:text-xs font-bold text-white whitespace-nowrap shrink-0"
                 style={{
                   background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)",
                 }}

@@ -4,6 +4,8 @@ import { MessagesDmList } from "@/components/messages/MessagesDmList";
 import { MessagesCenterPanel } from "@/components/messages/MessagesCenterPanel";
 import { MessagesDiscoverySidebar } from "@/components/messages/MessagesDiscoverySidebar";
 import { InfluencerProfilePopup } from "@/components/messages/InfluencerProfilePopup";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Users, X } from "lucide-react";
 
 export type MessagesTab = "posts" | "chats" | "influencers" | "global";
 
@@ -35,6 +37,8 @@ export default function MessagesPage() {
   const [activeTab, setActiveTab] = useState<MessagesTab>(tabParam && ["posts", "chats", "influencers", "global"].includes(tabParam) ? tabParam : "posts");
   const [selectedDm, setSelectedDm] = useState<string | null>("team-yangu");
   const [selectedUser, setSelectedUser] = useState<PopularUser | null>(null);
+  const [showUsersPanel, setShowUsersPanel] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (tabParam && ["posts", "chats", "influencers", "global"].includes(tabParam)) {
@@ -46,6 +50,56 @@ export default function MessagesPage() {
     setActiveTab(tab);
     setSearchParams({ tab });
   };
+
+  // Mobile: single-column stacked layout
+  if (isMobile) {
+    return (
+      <div className="h-[calc(100vh-64px)] flex flex-col overflow-hidden" style={{ background: "#0B0F14" }}>
+        {/* Users drawer toggle */}
+        <div className="flex items-center justify-end px-3 py-2">
+          <button
+            onClick={() => setShowUsersPanel(!showUsersPanel)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium"
+            style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.6)" }}
+          >
+            <Users className="w-3.5 h-3.5" />
+            People
+          </button>
+        </div>
+
+        {/* Users drawer overlay */}
+        {showUsersPanel && (
+          <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "#0F141A" }}>
+            <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+              <span className="text-sm font-semibold text-white">People</span>
+              <button onClick={() => setShowUsersPanel(false)} style={{ color: "rgba(255,255,255,0.5)" }}>
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <MessagesDiscoverySidebar users={POPULAR_USERS} onUserClick={(u) => { setSelectedUser(u); setShowUsersPanel(false); }} />
+            </div>
+          </div>
+        )}
+
+        {/* Center panel — full width */}
+        <div className="flex-1 min-h-0 overflow-hidden"
+          style={{
+            background: "#0F141A",
+            borderRadius: "14px",
+            margin: "0 8px 8px",
+            border: "1px solid rgba(255,255,255,0.06)",
+          }}
+        >
+          <MessagesCenterPanel activeTab={activeTab} onTabChange={handleTabChange} />
+        </div>
+
+        {selectedUser && (
+          <InfluencerProfilePopup user={selectedUser} onClose={() => setSelectedUser(null)} />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div
