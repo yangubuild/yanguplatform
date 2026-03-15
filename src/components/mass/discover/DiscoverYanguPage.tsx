@@ -25,12 +25,12 @@ function AppChip({ icon: Icon, label, active, onClick }: { icon: any; label: str
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 px-4 py-2.5 rounded-xl ${T.body} font-medium transition-all ${
+      className={`flex items-center gap-2 px-4 py-2.5 rounded-[14px] ${T.body} font-medium transition-all ${
         active 
           ? "text-white" 
           : "bg-[#152A20] text-white/70 hover:bg-[#1a3528] hover:text-white"
       }`}
-      style={active ? { background: "linear-gradient(90deg, #b5622a, #5c2a12)" } : undefined}
+      style={active ? { background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" } : undefined}
     >
       <Icon className="w-4 h-4" />
       {label}
