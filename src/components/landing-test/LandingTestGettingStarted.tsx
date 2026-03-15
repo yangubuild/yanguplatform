@@ -4,6 +4,7 @@ import getStarted1 from "@/assets/landing-get-started-university.png";
 import getStarted2 from "@/assets/landing-get-started-2.png";
 import iconVisionaire from "@/assets/icon-visionaire.png";
 import iconYangu from "@/assets/icon-yangu.png";
+import { T } from "@/lib/typography";
 
 export function LandingTestGettingStarted() {
   const navigate = useNavigate();
