@@ -35,6 +35,7 @@ function buildLinkMap(items: CommunitySectionItem[]): Map<string, string> {
 
 function CommunityPageInner() {
   const [activeFilter, setActiveFilter] = useState("Explore");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { theme, toggle } = useCommunityTheme();
   const colors = getThemeColors(theme);
 
