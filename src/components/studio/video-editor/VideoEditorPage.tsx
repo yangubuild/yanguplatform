@@ -227,7 +227,7 @@ function UpgradeDialog({ open, onClose }: { open: boolean; onClose: () => void }
             <h2 className="text-2xl font-bold text-foreground">Unlock Premium Avatar</h2>
             <p className="text-sm text-muted-foreground">Upgrade to Pro and access a growing library of 1,500+ premium avatars, optimized and updated regularly to maximize creative results.</p>
 
-            <div className="flex rounded-full overflow-hidden border border-border/20">
+            <div className="flex rounded-lg overflow-hidden border border-border/20">
               <button onClick={() => setBilling("monthly")} className={`flex-1 py-2 text-sm font-medium transition-colors ${billing === "monthly" ? "bg-muted/30 text-foreground" : "text-muted-foreground"}`}>Monthly</button>
               <button onClick={() => setBilling("yearly")} className={`flex-1 py-2 text-sm font-medium transition-colors ${billing === "yearly" ? "bg-muted/30 text-foreground" : "text-muted-foreground"}`}>Yearly (50% OFF)</button>
             </div>
