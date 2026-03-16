@@ -36,6 +36,7 @@ const INTERNAL_ROUTES = [
   "/discover-yangu",
   "/blog",
   "/ada-ai",
+  "/ada",
   "/privacy",
   "/terms",
   
