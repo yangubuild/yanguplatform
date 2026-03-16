@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import getStarted1 from "@/assets/landing-get-started-university.png";
-import getStarted2 from "@/assets/landing-get-started-2.png";
+import getStarted2 from "@/assets/landing-get-started-micro.png";
 import iconVisionaire from "@/assets/icon-visionaire.png";
-import iconYangu from "@/assets/icon-yangu.png";
+import iconYangu from "@/assets/icon-yangu-micro.png";
 import { T } from "@/lib/typography";
 
 export function LandingTestGettingStarted() {
