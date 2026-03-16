@@ -43,7 +43,7 @@ export function WhyYanguPage() {
 
       {/* Main Content */}
       <main className="lg:ml-[240px] min-h-screen">
-        <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-10 py-6 pt-16 lg:pt-8">
+        <div className="max-w-[900px] mx-auto px-4 sm:px-6 lg:px-10 py-6 pt-16 lg:pt-8">
           <MassHeader hideTrends />
 
           {/* Audience toggle — right-aligned */}
