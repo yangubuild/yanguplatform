@@ -135,34 +135,36 @@ export function DiscoverYanguPage() {
 
   return (
     <div style={{ fontFamily: "'Lufga', sans-serif" }}>
-      {/* ─── Hero ─── */}
-      <section className="text-center px-6 pt-16 pb-20 max-w-[900px] mx-auto">
-        <h1 className={`${T.hero} mb-6`}>
-          <span className="text-white">Our mission is to deliver </span>
-          <span className="text-[#F46D2A]">everyone</span>
-          <br />
-          <span className="text-white">a sustainable </span>
-          <span className="text-[#F46D2A]">income.</span>
-        </h1>
-        <p className={`text-white/50 ${T.subheader} max-w-[600px] mx-auto mb-10`}>
-          Paid groups, software, coaching, courses, services — whatever you sell, yangu is where the internet does business.
-        </p>
-        <a 
-          href="/auth/signup"
-          className="inline-block px-6 py-2.5 rounded-lg text-[14px] font-medium text-white transition-all hover:brightness-110"
-          style={{ background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" }}
-        >
-          Start selling
-        </a>
-        <p className="text-white/30 text-sm mt-4">No subscription required</p>
-      </section>
+      <div className="lg:relative lg:right-6">
+        {/* ─── Hero ─── */}
+        <section className="text-center px-6 pt-16 pb-20 max-w-[900px] mx-auto">
+          <h1 className={`${T.hero} mb-6`}>
+            <span className="text-white">Our mission is to deliver </span>
+            <span className="text-[#F46D2A]">everyone</span>
+            <br />
+            <span className="text-white">a sustainable </span>
+            <span className="text-[#F46D2A]">income.</span>
+          </h1>
+          <p className={`text-white/50 ${T.subheader} max-w-[600px] mx-auto mb-10`}>
+            Paid groups, software, coaching, courses, services — whatever you sell, yangu is where the internet does business.
+          </p>
+          <a 
+            href="/auth/signup"
+            className="inline-block px-6 py-2.5 rounded-lg text-[14px] font-medium text-white transition-all hover:brightness-110"
+            style={{ background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" }}
+          >
+            Start selling
+          </a>
+          <p className="text-white/30 text-sm mt-4">No subscription required</p>
+        </section>
 
-      {/* ─── Stats Bar ─── */}
-      <section className="flex items-center justify-center gap-8 md:gap-16 py-10 border-y border-white/6 max-w-[800px] mx-auto mb-20">
-        <StatItem value="$2.1B+" label="Made by sellers on yangu" />
-        <StatItem value="82K+" label="Sellers on yangu" />
-        <StatItem value="15M+" label="Users on yangu" />
-      </section>
+        {/* ─── Stats Bar ─── */}
+        <section className="flex items-center justify-center gap-8 md:gap-16 py-10 border-y border-white/6 max-w-[800px] mx-auto mb-20">
+          <StatItem value="$2.1B+" label="Made by sellers on yangu" />
+          <StatItem value="82K+" label="Sellers on yangu" />
+          <StatItem value="15M+" label="Users on yangu" />
+        </section>
+      </div>
 
       {/* ─── Supported Business Models ─── */}
       <section className="px-6 max-w-[1100px] mx-auto mb-24">
