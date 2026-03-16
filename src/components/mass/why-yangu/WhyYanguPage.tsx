@@ -46,7 +46,7 @@ export function WhyYanguPage() {
         <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-10 py-6 pt-16 lg:pt-8">
           <MassHeader hideTrends />
 
-          <div className="lg:relative lg:right-10">
+          <div className="lg:relative lg:right-14">
             {/* Audience toggle — right-aligned */}
             <div className="flex items-center justify-end mt-6">
               <AudienceToggle value={audience} onChange={setAudience} />
