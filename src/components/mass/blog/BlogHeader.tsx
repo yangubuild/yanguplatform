@@ -27,7 +27,7 @@ export function BlogHeader({ onSubscribeClick }: BlogHeaderProps) {
       }}
     >
       <div
-        className="mx-auto grid items-center px-4 sm:px-6 lg:px-10 py-4 max-w-[1100px]"
+        className="mx-auto grid items-center px-4 sm:px-6 lg:px-10 py-4 max-w-[1320px]"
         style={{
           gridTemplateColumns: "1fr auto 1fr",
         }}
