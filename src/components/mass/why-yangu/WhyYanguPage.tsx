@@ -43,24 +43,26 @@ export function WhyYanguPage() {
 
       {/* Main Content */}
       <main className="lg:ml-[240px] min-h-screen">
-        <div className="max-w-[900px] mx-auto px-4 sm:px-6 lg:px-10 py-6 pt-16 lg:pt-8">
+        <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-10 py-6 pt-16 lg:pt-8">
           <MassHeader hideTrends />
 
-          {/* Audience toggle — right-aligned */}
-          <div className="flex items-center justify-end mt-6">
-            <AudienceToggle value={audience} onChange={setAudience} />
-          </div>
-
-          {/* Page layout: sidebar + content */}
-          <div className="flex gap-8 mt-6">
-            {/* Left sidebar nav */}
-            <div className="hidden md:block w-[220px] flex-shrink-0">
-              <WhyYanguSidebar audience={audience} />
+          <div className="lg:relative lg:right-6">
+            {/* Audience toggle — right-aligned */}
+            <div className="flex items-center justify-end mt-6">
+              <AudienceToggle value={audience} onChange={setAudience} />
             </div>
 
-            {/* Right content area */}
-            <div className="flex-1 min-w-0">
-              {audience === "builders" ? <WhyYanguContent /> : <WhyYanguDevelopersContent />}
+            {/* Page layout: sidebar + content */}
+            <div className="flex gap-8 mt-6">
+              {/* Left sidebar nav */}
+              <div className="hidden md:block w-[220px] flex-shrink-0">
+                <WhyYanguSidebar audience={audience} />
+              </div>
+
+              {/* Right content area */}
+              <div className="flex-1 min-w-0">
+                {audience === "builders" ? <WhyYanguContent /> : <WhyYanguDevelopersContent />}
+              </div>
             </div>
           </div>
         </div>
