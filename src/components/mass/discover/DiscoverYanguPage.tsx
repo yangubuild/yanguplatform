@@ -134,8 +134,8 @@ export function DiscoverYanguPage() {
   const [activeApp, setActiveApp] = useState(0);
 
   return (
-    <div style={{ fontFamily: "'Lufga', sans-serif" }}>
-      <div className="lg:relative lg:right-18">
+    <div style={{ fontFamily: "'Lufga', sans-serif" }} className="max-w-[960px] mx-auto">
+      <div>
         {/* ─── Hero ─── */}
         <section className="text-center px-6 pt-16 pb-20 max-w-[900px] mx-auto">
           <h1 className={`${T.hero} mb-6`}>
