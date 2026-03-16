@@ -16,7 +16,9 @@ export function LandingAdaPage() {
           <SecondaryPageHeaderShell />
 
           {/* ADA main panel (public landing — no top controls) */}
-          <AdaMainPanel hideBottomSection isLanding />
+          <div className="mx-auto max-w-[1100px] px-4 sm:px-6 lg:px-10">
+            <AdaMainPanel hideBottomSection isLanding />
+          </div>
 
           {/* Content sections below */}
           <AdaContentSections />

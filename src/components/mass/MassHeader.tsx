@@ -23,14 +23,14 @@ export function MassHeader({ hideTrends, showLogo }: { hideTrends?: boolean; sho
 
         <div className="flex items-center gap-3">
           <button
-            className="rounded-lg border px-5 py-[8px] text-[14px] font-medium transition-colors hover:opacity-90"
+            className="h-10 px-4 text-sm md:h-auto md:px-5 md:py-[8px] md:text-[14px] rounded-lg border font-medium transition-colors hover:opacity-90"
             style={{ backgroundColor: "#152A20", borderColor: "#152A20", color: "#FFFFFF" }}
             onClick={() => navigate("/auth/login")}
           >
             Sign in
           </button>
           <button
-            className="rounded-lg px-5 py-[8px] text-[14px] font-medium text-white transition-opacity hover:opacity-90"
+            className="h-10 px-4 text-sm md:h-auto md:px-5 md:py-[8px] md:text-[14px] rounded-lg font-medium text-white transition-opacity hover:opacity-90"
             style={{ background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" }}
             onClick={() => navigate("/auth/signup")}
           >
