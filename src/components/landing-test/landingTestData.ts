@@ -15,7 +15,7 @@ export const verifiedBusinesses: PremiumBusiness[] = [
     verified: "blue",
   },
   {
-    coverImage: "https://images.unsplash.com/photo-1461896836934-bd45ba8c9e5a?w=600&h=400&fit=crop",
+    coverImage: "https://images.unsplash.com/photo-1518604666860-9ed391f76460?w=600&h=400&fit=crop",
     profileImage: "https://api.dicebear.com/7.x/shapes/svg?seed=bravo",
     name: "Bravo Six Picks | Sports...",
     creator: "Bravo Six Picks",
