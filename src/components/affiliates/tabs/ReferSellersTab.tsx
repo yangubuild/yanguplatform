@@ -303,14 +303,14 @@ function ApplyPartnerForm({ onClose }: { onClose: () => void }) {
               placeholder="+1 (555) 000-0000"
             />
           </div>
-          <button
+          <Button
             type="submit"
+            variant="accent"
+            className="w-full h-11"
             disabled={loading}
-            className="w-full h-11 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-40"
-            style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
           >
             {loading ? "Submitting..." : "Submit application"}
-          </button>
+          </Button>
           <p className="text-[11px] text-white/30 text-center">Your application will be sent to partners@yangu.io</p>
         </form>
       </div>
