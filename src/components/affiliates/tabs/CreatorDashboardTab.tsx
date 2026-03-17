@@ -660,7 +660,9 @@ function ExternalLinksPanel({ onBack }: { onBack: () => void }) {
               <Button variant="dark-green" size="default" onClick={() => setShowCreate(false)}>
                 Cancel
               </Button>
-              <button
+              <Button
+                variant="accent"
+                size="default"
                 disabled={!newName.trim() || !newUrl.trim()}
                 onClick={() => {
                   setLinks((prev) => [...prev, { name: newName, url: newUrl }]);
@@ -669,11 +671,9 @@ function ExternalLinksPanel({ onBack }: { onBack: () => void }) {
                   setShowCreate(false);
                   toast.success("External link created");
                 }}
-                className="px-5 py-2.5 rounded-lg text-sm font-medium text-white disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90"
-                style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
               >
                 Create
-              </button>
+              </Button>
             </div>
           </div>
         </div>
