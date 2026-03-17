@@ -52,9 +52,9 @@ export default function BusinessDepositPage() {
           <p className="text-3xl font-bold text-foreground">$0.00 <span className="text-lg font-normal text-muted-foreground">USD</span></p>
         </div>
         <div className="flex gap-2">
-          <Button size="sm" variant="outline" className="rounded-xl gap-1.5 border-primary/30 text-primary" onClick={() => setModal("deposit")}><Download className="h-3.5 w-3.5" /> Deposit</Button>
-          <Button size="sm" variant="outline" className="rounded-xl gap-1.5 border-primary/30 text-primary" onClick={() => setModal("withdraw")}><Upload className="h-3.5 w-3.5" /> Withdraw</Button>
-          <Button size="sm" variant="outline" className="rounded-xl gap-1.5 border-primary/30 text-primary" onClick={() => setModal("move")}><ArrowLeftRight className="h-3.5 w-3.5" /> Move</Button>
+          <Button size="sm" variant="outline" className="gap-1.5 border-primary/30 text-primary" onClick={() => setModal("deposit")}><Download className="h-3.5 w-3.5" /> Deposit</Button>
+          <Button size="sm" variant="outline" className="gap-1.5 border-primary/30 text-primary" onClick={() => setModal("withdraw")}><Upload className="h-3.5 w-3.5" /> Withdraw</Button>
+          <Button size="sm" variant="outline" className="gap-1.5 border-primary/30 text-primary" onClick={() => setModal("move")}><ArrowLeftRight className="h-3.5 w-3.5" /> Move</Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size="sm" variant="ghost" className="h-8 w-8 p-0"><MoreVertical className="h-4 w-4" /></Button>
