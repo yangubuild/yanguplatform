@@ -11,7 +11,7 @@ import {
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
 import { sectionLabels } from "./adminNavConfig";
-import { Bell, FileWarning, ServerCrash, CreditCard } from "lucide-react";
+import { Bell, AlertTriangle, CheckCircle2, Globe, Mail, ServerCrash, FileWarning } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Popover,
@@ -19,39 +19,86 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useRoles } from "@/hooks/useRoles";
-
-const mockAdaAlerts = [
-  { id: "1", icon: FileWarning, label: "Content flagged", detail: "Blog post #412 needs review", severity: "warning" as const },
-  { id: "2", icon: ServerCrash, label: "System anomaly", detail: "5xx spike on payments API", severity: "error" as const },
-  { id: "3", icon: CreditCard, label: "Payment risk", detail: "Chargeback dispute #9102", severity: "warning" as const },
-];
+import { usePlatformAlerts, useCriticalAlertCount } from "@/hooks/manage/useManageDashboardData";
+import { useNavigate } from "react-router-dom";
 
 function AdaAlertsButton() {
+  const navigate = useNavigate();
+  const { data, isLoading } = usePlatformAlerts();
+  const criticalCount = useCriticalAlertCount();
+
+  const auto = data?.auto_detected ?? { email_dlq_24h: 0, failed_publishes: 0 };
+  const manualAlerts = data?.manual_alerts ?? [];
+
+  // Build display items
+  const items: Array<{ id: string; icon: typeof AlertTriangle; label: string; detail: string; severity: "error" | "warning" }> = [];
+  if (auto.email_dlq_24h > 0) {
+    items.push({ id: "dlq", icon: Mail, label: "Email DLQ", detail: `${auto.email_dlq_24h} failed in 24h`, severity: "error" });
+  }
+  if (auto.failed_publishes > 0) {
+    items.push({ id: "pub", icon: Globe, label: "Publish failure", detail: `${auto.failed_publishes} failed`, severity: "error" });
+  }
+  manualAlerts.slice(0, 5).forEach((a) => {
+    items.push({
+      id: a.id,
+      icon: a.severity === "critical" ? ServerCrash : FileWarning,
+      label: a.title,
+      detail: a.detail ?? "",
+      severity: a.severity === "critical" ? "error" : "warning",
+    });
+  });
+
+  const totalCount = items.length;
+  const hasCritical = criticalCount > 0;
+
   return (
     <Popover>
       <PopoverTrigger asChild>
         <button className="relative p-2 rounded-lg hover:bg-[hsl(var(--admin-surface-elevated)/0.5)] transition-colors">
-          <Bell className="h-5 w-5 text-[hsl(var(--admin-text-muted))]" />
-          <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-[hsl(24,95%,53%)] ring-2 ring-[hsl(var(--admin-bg))]" />
+          {hasCritical ? (
+            <AlertTriangle className="h-5 w-5 text-[hsl(0,72%,51%)] animate-pulse" />
+          ) : (
+            <Bell className="h-5 w-5 text-[hsl(var(--admin-text-muted))]" />
+          )}
+          {totalCount > 0 && (
+            <span className={`absolute -top-0.5 -right-0.5 h-4 min-w-[16px] px-0.5 rounded-full text-[10px] font-bold flex items-center justify-center ring-2 ring-[hsl(var(--admin-bg))] ${hasCritical ? "bg-[hsl(0,72%,51%)] text-white" : "bg-[hsl(24,95%,53%)] text-white"}`}>
+              {totalCount}
+            </span>
+          )}
         </button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80 p-0 admin-glass-card border-[hsl(var(--admin-border)/0.5)]">
         <div className="px-4 py-3 border-b border-[hsl(var(--admin-border)/0.4)] flex items-center justify-between">
-          <p className="text-sm font-semibold text-[hsl(var(--admin-text))]" style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>ADA Alerts</p>
-          <Badge variant="outline" className="text-[10px] border-[hsl(var(--admin-border)/0.5)] text-[hsl(24,95%,53%)]">{mockAdaAlerts.length}</Badge>
+          <p className="text-sm font-semibold text-[hsl(var(--admin-text))]" style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>Platform Alerts</p>
+          {totalCount > 0 && (
+            <Badge variant="outline" className={`text-[10px] border-[hsl(var(--admin-border)/0.5)] ${hasCritical ? "text-[hsl(0,72%,51%)]" : "text-[hsl(24,95%,53%)]"}`}>
+              {totalCount}
+            </Badge>
+          )}
         </div>
         <div className="divide-y divide-[hsl(var(--admin-border)/0.3)]">
-          {mockAdaAlerts.map((a) => (
-            <div key={a.id} className="px-4 py-2.5 flex items-start gap-3 hover:bg-[hsl(var(--admin-surface-elevated)/0.3)] transition-colors">
-              <div className={`p-1.5 rounded-md shrink-0 ${a.severity === "error" ? "bg-[hsl(0,72%,51%,0.12)]" : "bg-[hsl(38,92%,50%,0.12)]"}`}>
-                <a.icon className={`h-4 w-4 ${a.severity === "error" ? "text-[hsl(0,72%,51%)]" : "text-[hsl(38,92%,55%)]"}`} />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-medium text-[hsl(var(--admin-text))]">{a.label}</p>
-                <p className="text-[11px] text-[hsl(var(--admin-text-muted))] truncate">{a.detail}</p>
-              </div>
+          {items.length === 0 ? (
+            <div className="px-4 py-4 flex items-center gap-3">
+              <CheckCircle2 className="h-4 w-4 text-[hsl(160,84%,45%)]" />
+              <p className="text-xs text-[hsl(var(--admin-text-muted))]">No active issues</p>
             </div>
-          ))}
+          ) : (
+            items.map((a) => (
+              <button
+                key={a.id}
+                className="w-full px-4 py-2.5 flex items-start gap-3 hover:bg-[hsl(var(--admin-surface-elevated)/0.3)] transition-colors text-left"
+                onClick={() => navigate(manageLink("alerts-security"))}
+              >
+                <div className={`p-1.5 rounded-md shrink-0 ${a.severity === "error" ? "bg-[hsl(0,72%,51%,0.12)]" : "bg-[hsl(38,92%,50%,0.12)]"}`}>
+                  <a.icon className={`h-4 w-4 ${a.severity === "error" ? "text-[hsl(0,72%,51%)]" : "text-[hsl(38,92%,55%)]"}`} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-medium text-[hsl(var(--admin-text))]">{a.label}</p>
+                  <p className="text-[11px] text-[hsl(var(--admin-text-muted))] truncate">{a.detail}</p>
+                </div>
+              </button>
+            ))
+          )}
         </div>
       </PopoverContent>
     </Popover>
