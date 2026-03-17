@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { BarChart3, ChevronRight, Rocket, X, ChevronDown, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { AffEmptyTable } from "../shared/AffEmptyTable";
 import { createPortal } from "react-dom";
 
