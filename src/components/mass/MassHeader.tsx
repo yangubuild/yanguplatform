@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import yanguLogo from "@/assets/yangu-logo-full.png";
+import { Button } from "@/components/ui/button";
 
 import { MassTrendsBar } from "./MassTrendsBar";
 
@@ -22,20 +23,20 @@ export function MassHeader({ hideTrends, showLogo }: { hideTrends?: boolean; sho
         )}
 
         <div className="flex items-center gap-3">
-          <button
-            className="h-10 px-4 text-sm md:h-auto md:px-5 md:py-[8px] md:text-[14px] rounded-lg border font-medium transition-colors hover:opacity-90"
-            style={{ backgroundColor: "#152A20", borderColor: "#152A20", color: "#FFFFFF" }}
+          <Button
+            variant="solid"
+            size="default"
             onClick={() => navigate("/auth/login")}
           >
             Sign in
-          </button>
-          <button
-            className="h-10 px-4 text-sm md:h-auto md:px-5 md:py-[8px] md:text-[14px] rounded-lg font-medium text-white transition-opacity hover:opacity-90"
-            style={{ background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" }}
+          </Button>
+          <Button
+            variant="accent"
+            size="default"
             onClick={() => navigate("/auth/signup")}
           >
             Start selling
-          </button>
+          </Button>
         </div>
       </div>
 
