@@ -12,7 +12,7 @@ export interface CommunityListing {
   category: string | null;
 }
 
-export function useCommunityListings(limit = 24, offset = 0) {
+export function useCommunityListings(limit = 24, offset = 0, enabled = true) {
   return useQuery({
     queryKey: ["community_listings_feed", limit, offset],
     queryFn: async () => {
@@ -23,5 +23,6 @@ export function useCommunityListings(limit = 24, offset = 0) {
       if (error) throw error;
       return (data ?? []) as CommunityListing[];
     },
+    enabled,
   });
 }

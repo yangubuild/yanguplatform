@@ -45,9 +45,9 @@ function CommunityPageInner() {
 
   // Fallback for filtered (non-Explore) view — only fetch when user leaves Explore tab
   const isFiltered = activeFilter !== "Explore";
-  const { data: liveListings, isLoading: listingsLoading } = useCommunityListings(24, 0);
+  const { data: liveListings, isLoading: listingsLoading } = useCommunityListings(24, 0, isFiltered);
 
-  // Builder community listings — defer until user scrolls past initial sections
+  // Builder community listings — deferred, loads after initial render
   const { data: builderListings } = useBuilderCommunityListings(12, 0);
   const builderItems: CommunityItem[] = (builderListings ?? []).map((bl) => ({
     id: bl.surface_id,

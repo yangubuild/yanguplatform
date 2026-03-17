@@ -11,7 +11,7 @@ export interface BuilderCommunityListing {
   published_at: string | null;
 }
 
-export function useBuilderCommunityListings(limit = 24, offset = 0) {
+export function useBuilderCommunityListings(limit = 24, offset = 0, enabled = true) {
   return useQuery({
     queryKey: ["builder_community_listings", limit, offset],
     queryFn: async () => {
@@ -22,5 +22,6 @@ export function useBuilderCommunityListings(limit = 24, offset = 0) {
       if (error) throw error;
       return (data ?? []) as BuilderCommunityListing[];
     },
+    enabled,
   });
 }
