@@ -195,11 +195,11 @@ export function ImageAdsGeneratedPage({
                 </button>
                 <button
                   onClick={unselectAll}
-                  className="rounded-full border border-border/40 bg-card px-3 py-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  className="rounded-lg border border-border/40 bg-card px-3 py-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Unselect all
                 </button>
-                <button className="rounded-full border border-destructive/40 bg-destructive/5 px-3 py-1 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors">
+                <button className="rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-1 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors">
                   Delete select
                 </button>
               </div>
