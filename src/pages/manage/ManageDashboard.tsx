@@ -7,6 +7,7 @@ import {
   Megaphone, BarChart3, Lock,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { manageLink } from "@/lib/routing/managePathUtils";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
