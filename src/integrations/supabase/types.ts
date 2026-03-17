@@ -5238,6 +5238,7 @@ export type Database = {
         }
         Returns: Json
       }
+      manage_analytics_overview: { Args: { p_days?: number }; Returns: Json }
       manage_audit_log_filters: { Args: never; Returns: Json }
       manage_audit_logs_list: {
         Args: {
