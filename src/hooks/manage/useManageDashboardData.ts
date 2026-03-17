@@ -108,9 +108,12 @@ export function useCriticalAlertCount() {
   const manualCritical = data.manual_alerts.filter(
     (a) => a.severity === "critical"
   ).length;
+  const auto = data.auto_detected;
   const autoCritical =
-    (data.auto_detected.email_dlq_24h > 0 ? 1 : 0) +
-    (data.auto_detected.failed_publishes > 0 ? 1 : 0);
+    (auto.email_dlq_24h > 0 ? 1 : 0) +
+    (auto.failed_publishes > 0 ? 1 : 0) +
+    (auto.failed_webhooks_24h > 0 ? 1 : 0) +
+    (auto.stuck_jobs > 0 ? 1 : 0);
 
   return manualCritical + autoCritical;
 }
