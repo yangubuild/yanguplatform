@@ -3366,6 +3366,48 @@ export type Database = {
           },
         ]
       }
+      platform_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string
+          detail: string | null
+          id: string
+          is_resolved: boolean
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          source_entity_id: string | null
+          source_table: string | null
+          title: string
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string
+          detail?: string | null
+          id?: string
+          is_resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          source_entity_id?: string | null
+          source_table?: string | null
+          title: string
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string
+          detail?: string | null
+          id?: string
+          is_resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          source_entity_id?: string | null
+          source_table?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           account_status: string
@@ -5187,6 +5229,7 @@ export type Database = {
       }
       is_username_available: { Args: { _username: string }; Returns: boolean }
       list_on_community: { Args: { p_surface_id: string }; Returns: Json }
+      manage_domains_list: { Args: never; Returns: Json }
       manage_get_user_detail: { Args: { p_user_id: string }; Returns: Json }
       manage_invite_user: {
         Args: {
@@ -5210,6 +5253,7 @@ export type Database = {
         Returns: Json
       }
       manage_overview_stats: { Args: never; Returns: Json }
+      manage_platform_alerts: { Args: never; Returns: Json }
       manage_recent_audit_logs: {
         Args: { p_limit?: number; p_offset?: number }
         Returns: Json
@@ -5221,6 +5265,7 @@ export type Database = {
         }
         Returns: Json
       }
+      manage_surfaces_list: { Args: never; Returns: Json }
       manage_update_user_lifecycle: {
         Args: { p_action: string; p_user_id: string }
         Returns: Json
