@@ -34,8 +34,8 @@ export default function ManageResearchTesting() {
       </div>
 
       {error && (
-        <AdminGlassCard className="p-6 border-red-500/30">
-          <p className="text-sm text-red-400">Failed to load: {(error as Error).message}</p>
+        <AdminGlassCard className="p-6 border-destructive/30">
+          <p className="text-sm text-destructive">Failed to load: {(error as Error).message}</p>
         </AdminGlassCard>
       )}
 
