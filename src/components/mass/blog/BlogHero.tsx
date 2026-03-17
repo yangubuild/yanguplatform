@@ -1,4 +1,5 @@
 import { T } from "@/lib/typography";
+import { Button } from "@/components/ui/button";
 
 interface BlogHeroProps {
   onSubscribeClick: () => void;
@@ -27,13 +28,14 @@ export function BlogHero({ onSubscribeClick }: BlogHeroProps) {
       </p>
 
       {/* CTA */}
-      <button
+      <Button
+        variant="accent"
+        size="default"
         onClick={onSubscribeClick}
-        className="mt-8 px-6 py-2.5 rounded-lg text-sm font-semibold transition-all hover:brightness-110"
-        style={{ background: "linear-gradient(90deg, #b5622a, #5c2a12)", color: "#fff" }}
+        className="mt-8"
       >
         Subscribe
-      </button>
+      </Button>
     </section>
   );
 }

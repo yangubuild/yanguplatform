@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { BarChart3, ChevronRight, Rocket, X, ChevronDown, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { AffEmptyTable } from "../shared/AffEmptyTable";
 import { createPortal } from "react-dom";
 
@@ -115,12 +116,12 @@ function ShareRevenueDrawer({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="p-5 border-t border-white/[0.04]">
-          <button
-            className="w-full h-11 rounded-xl text-sm font-semibold text-white"
-            style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
+          <Button
+            variant="accent"
+            className="w-full h-11"
           >
             Invite
-          </button>
+          </Button>
         </div>
       </div>
     </div>,

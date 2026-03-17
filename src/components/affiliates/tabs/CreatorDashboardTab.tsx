@@ -3,6 +3,7 @@ import {
   Calendar, ChevronDown, ChevronRight, Percent, Users, Link2, Rocket,
   X, Eye, ChevronUp, Search, ExternalLink, Plus, MoreVertical, Check
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { AffEmptyTable } from "../shared/AffEmptyTable";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
@@ -425,13 +426,13 @@ function CommissionPanel({ onBack }: { onBack: () => void }) {
         </div>
       </div>
 
-      <button
+      <Button
+        variant="accent"
+        className="w-full"
         onClick={() => { toast.success("Commission settings saved"); onBack(); }}
-        className="w-full py-3 rounded-xl text-sm font-medium text-white transition-colors hover:opacity-90"
-        style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
       >
         Save
-      </button>
+      </Button>
     </div>
   );
 }
@@ -559,14 +560,14 @@ function InviteAffiliatePanel({ onBack, onInvited }: { onBack: () => void; onInv
           <span className="text-sm text-white">Budget-Friendly Meal Prep Kits</span>
         </div>
 
-        <button
+        <Button
+          variant="accent"
+          className="w-full"
           disabled={!email.trim()}
           onClick={() => email.trim() && onInvited(email.trim())}
-          className="w-full py-3 rounded-xl text-sm font-medium text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90"
-          style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
         >
           Invite
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -590,13 +591,13 @@ function ExternalLinksPanel({ onBack }: { onBack: () => void }) {
           <h2 className="text-base font-semibold text-white">External links</h2>
           <p className="text-xs text-white/50 mt-1">Set external sales page links you want affiliates to promote.</p>
         </div>
-        <button
+        <Button
+          variant="accent"
+          size="default"
           onClick={() => setShowCreate(true)}
-          className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors hover:opacity-90"
-          style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
         >
           Create
-        </button>
+        </Button>
       </div>
 
       <div className="rounded-xl border border-white/[0.04] overflow-hidden" style={{ background: "#111a15" }}>
@@ -656,10 +657,12 @@ function ExternalLinksPanel({ onBack }: { onBack: () => void }) {
             />
 
             <div className="mt-auto flex items-center justify-between">
-              <button onClick={() => setShowCreate(false)} className="px-5 py-2.5 rounded-lg text-sm text-white/70 border border-white/10 hover:text-white">
+              <Button variant="dark-green" size="default" onClick={() => setShowCreate(false)}>
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="accent"
+                size="default"
                 disabled={!newName.trim() || !newUrl.trim()}
                 onClick={() => {
                   setLinks((prev) => [...prev, { name: newName, url: newUrl }]);
@@ -668,11 +671,9 @@ function ExternalLinksPanel({ onBack }: { onBack: () => void }) {
                   setShowCreate(false);
                   toast.success("External link created");
                 }}
-                className="px-5 py-2.5 rounded-lg text-sm font-medium text-white disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90"
-                style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
               >
                 Create
-              </button>
+              </Button>
             </div>
           </div>
         </div>

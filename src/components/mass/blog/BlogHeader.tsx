@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import yanguLogo from "@/assets/yangu-logo-blog.png";
 import yanguLogoFull from "@/assets/yangu-logo-full.png";
+import { Button } from "@/components/ui/button";
 
 interface BlogHeaderProps {
   onSubscribeClick: () => void;
@@ -58,28 +59,19 @@ export function BlogHeader({ onSubscribeClick }: BlogHeaderProps) {
 
         {/* Right: sign in + subscribe */}
         <div className="flex items-center gap-3 justify-end">
-          <button
-            className="px-5 py-2.5 text-sm font-medium transition-all hover:brightness-110"
-            style={{
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.15)",
-              borderRadius: 12,
-              color: "rgba(255,255,255,0.85)",
-            }}
+          <Button
+            variant="dark-green"
+            size="default"
           >
             Sign in
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="accent"
+            size="default"
             onClick={onSubscribeClick}
-            className="px-5 py-2.5 text-sm font-medium transition-all hover:brightness-110"
-            style={{
-              background: "linear-gradient(90deg, #b5622a, #5c2a12)",
-              borderRadius: 12,
-              color: "#fff",
-            }}
           >
             Subscribe
-          </button>
+          </Button>
         </div>
       </div>
     </header>

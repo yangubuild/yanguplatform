@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useGoogleApi } from "@/hooks/useGoogleApi";
 import { ArrowLeft, RefreshCw, Mail, Send, Loader2, ChevronLeft, ExternalLink, Inbox } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
@@ -109,14 +110,14 @@ export default function GmailPage() {
             <p className="text-sm text-white/40 mt-1">Manage your inbox inside YANGU</p>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => { setView("compose"); setComposeTo(""); setComposeSubject(""); setComposeBody(""); }}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-white transition-colors"
-              style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
-            >
-              <Send className="w-4 h-4" />
-              Compose
-            </button>
+              <Button
+                variant="accent"
+                size="sm"
+                onClick={() => { setView("compose"); setComposeTo(""); setComposeSubject(""); setComposeBody(""); }}
+              >
+                <Send className="w-4 h-4" />
+                Compose
+              </Button>
             {view === "inbox" && (
               <button
                 onClick={() => fetchInbox()}
@@ -162,15 +163,15 @@ export default function GmailPage() {
                 rows={8}
                 className="bg-white/5 border-white/10 text-white placeholder:text-white/30 resize-none"
               />
-              <button
+              <Button
+                variant="accent"
+                size="default"
                 onClick={handleSend}
                 disabled={sending || !composeTo.trim()}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-white transition-colors disabled:opacity-40"
-                style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
               >
                 {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 Send
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -231,14 +232,14 @@ export default function GmailPage() {
 
             {nextPageToken && (
               <div className="flex justify-center mt-6">
-                <button
+                <Button
+                  variant="dark-green"
+                  size="default"
                   onClick={() => fetchInbox(nextPageToken)}
                   disabled={loading}
-                  className="px-4 py-2 rounded-xl text-sm text-white/60 hover:text-white transition-colors"
-                  style={{ background: "rgba(255,255,255,0.06)" }}
                 >
                   {loading ? "Loading..." : "Load more"}
-                </button>
+                </Button>
               </div>
             )}
           </>

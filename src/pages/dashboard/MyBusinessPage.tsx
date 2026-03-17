@@ -227,13 +227,13 @@ export default function MyBusinessPage() {
                       <span className="text-[11px] text-muted-foreground">{app.provider} • Free to install</span>
                     </div>
                   </div>
-                  <button
-                    className="shrink-0 px-5 py-1.5 rounded-lg text-xs font-semibold text-white transition-opacity hover:opacity-80"
-                    style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
+                  <Button
+                    variant="accent"
+                    size="sm"
                     onClick={(e) => { e.stopPropagation(); navigate("/dashboard/app-store"); }}
                   >
                     Add
-                  </button>
+                  </Button>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed line-clamp-1">{app.desc}</p>
                 <span className="text-[10px] text-muted-foreground/50">{stats.amount} installs in last {stats.period}</span>

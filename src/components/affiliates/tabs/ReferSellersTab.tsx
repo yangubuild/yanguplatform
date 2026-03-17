@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link2, UserPlus, DollarSign, X, Star } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import yanguYLogo from "@/assets/yangu-y-logo.png";
@@ -20,13 +21,14 @@ export function ReferSellersTab() {
       <p className="text-white/50 text-center max-w-xl mb-6">
         Become a yangu Partner, refer users, and earn money whenever yangu grows.
       </p>
-      <button
+      <Button
+        variant="accent"
+        size="lg"
+        className="w-full max-w-lg mb-12"
         onClick={() => setShowPartnerPage(true)}
-        className="w-full max-w-lg h-12 rounded-xl text-sm font-semibold text-white mb-12"
-        style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
       >
         Apply to be a partner
-      </button>
+      </Button>
 
       {/* Steps */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-4xl mb-8">
@@ -216,13 +218,13 @@ function PartnerDetailPage({ onBack }: { onBack: () => void }) {
               <span className="text-xs text-white/50 ml-1">4.3 (18)</span>
             </div>
             <p className="text-sm font-medium text-white mb-3">yangu Partners</p>
-            <button
+            <Button
+              variant="accent"
+              className="w-full"
               onClick={() => setShowApplyForm(true)}
-              className="w-full h-10 rounded-xl text-sm font-semibold text-white"
-              style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
             >
               Join the waitlist
-            </button>
+            </Button>
             <p className="text-xs text-white/30 text-center mt-3">Powered by yangu</p>
           </div>
         </div>
@@ -301,14 +303,14 @@ function ApplyPartnerForm({ onClose }: { onClose: () => void }) {
               placeholder="+1 (555) 000-0000"
             />
           </div>
-          <button
+          <Button
             type="submit"
+            variant="accent"
+            className="w-full h-11"
             disabled={loading}
-            className="w-full h-11 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-40"
-            style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
           >
             {loading ? "Submitting..." : "Submit application"}
-          </button>
+          </Button>
           <p className="text-[11px] text-white/30 text-center">Your application will be sent to partners@yangu.io</p>
         </form>
       </div>
