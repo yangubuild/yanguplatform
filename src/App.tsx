@@ -120,6 +120,11 @@ const BuilderDocsPage = lazy(() => import("./pages/developers/docs/builders/Buil
 
 const ManageDashboard = lazy(() => import("./pages/manage/ManageDashboard"));
 const ManagePlaceholder = lazy(() => import("./pages/manage/ManagePlaceholder"));
+const ManageAgents = lazy(() => import("./pages/manage/ManageAgents"));
+const ManageIntegrations = lazy(() => import("./pages/manage/ManageIntegrations"));
+const ManagePages = lazy(() => import("./pages/manage/ManagePages"));
+const ManageBranding = lazy(() => import("./pages/manage/ManageBranding"));
+const ManageResearchTesting = lazy(() => import("./pages/manage/ManageResearchTesting"));
 const ManageAnalytics = lazy(() => import("./pages/manage/ManageAnalytics"));
 const ManageAuditLogs = lazy(() => import("./pages/manage/ManageAuditLogs"));
 const ManageSettings = lazy(() => import("./pages/manage/ManageSettings"));
@@ -489,7 +494,7 @@ const App = () => (
                   <Route path="surfaces" element={<ManageRoleGate allowedRoles={["admin"]}><ManageSurfaces /></ManageRoleGate>} />
                   <Route path="navigation" element={<ManageRoleGate allowedRoles={["admin"]}><ManageNavigation /></ManageRoleGate>} />
                   <Route path="community" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManageCommunity /></ManageRoleGate>} />
-                  <Route path="agents" element={<ManageRoleGate allowedRoles={["admin"]}><ManagePlaceholder /></ManageRoleGate>} />
+                  <Route path="agents" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAgents /></ManageRoleGate>} />
                   <Route path="domains" element={<ManageRoleGate allowedRoles={["admin"]}><ManageDomains /></ManageRoleGate>} />
                   {/* Analytics */}
                   <Route path="analytics" element={<ManageRoleGate allowedRoles={["admin", "analyst"]}><ManageAnalytics /></ManageRoleGate>} />
@@ -499,11 +504,11 @@ const App = () => (
                   <Route path="content/news" element={<ManageRoleGate allowedRoles={["admin", "writer", "content_editor"]}><ManageNews /></ManageRoleGate>} />
                   <Route path="content/events" element={<ManageRoleGate allowedRoles={["admin", "writer", "content_editor"]}><ManageEvents /></ManageRoleGate>} />
                   {/* Design & Pages */}
-                  <Route path="branding" element={<ManageRoleGate allowedRoles={["admin", "designer"]}><ManagePlaceholder /></ManageRoleGate>} />
-                  <Route path="pages" element={<ManageRoleGate allowedRoles={["admin", "designer"]}><ManagePlaceholder /></ManageRoleGate>} />
+                  <Route path="branding" element={<ManageRoleGate allowedRoles={["admin", "designer"]}><ManageBranding /></ManageRoleGate>} />
+                  <Route path="pages" element={<ManageRoleGate allowedRoles={["admin", "designer"]}><ManagePages /></ManageRoleGate>} />
                   {/* Operations */}
-                  <Route path="integrations" element={<ManageRoleGate allowedRoles={["admin"]}><ManagePlaceholder /></ManageRoleGate>} />
-                  <Route path="research-testing" element={<ManageRoleGate allowedRoles={["admin", "analyst"]}><ManagePlaceholder /></ManageRoleGate>} />
+                  <Route path="integrations" element={<ManageRoleGate allowedRoles={["admin"]}><ManageIntegrations /></ManageRoleGate>} />
+                  <Route path="research-testing" element={<ManageRoleGate allowedRoles={["admin", "analyst"]}><ManageResearchTesting /></ManageRoleGate>} />
                   <Route path="alerts-security" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAlertsSecurity /></ManageRoleGate>} />
                   <Route path="app-review" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAppReview /></ManageRoleGate>} />
                   {/* System */}
