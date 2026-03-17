@@ -111,14 +111,14 @@ export default function MyAppsPage() {
     <div className="w-full min-h-screen px-6 py-6" style={{ background: "#08120D" }}>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-semibold text-white">My Apps</h1>
-        <button
+        <Button
+          variant="accent"
+          size="default"
           onClick={() => navigate("/dashboard/app-store")}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white transition-colors hover:opacity-90"
-          style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
         >
           <Plus className="w-4 h-4" />
           Add App
-        </button>
+        </Button>
       </div>
 
       {isLoading ? (
