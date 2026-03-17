@@ -5,6 +5,7 @@ import { MessagesCenterPanel } from "@/components/messages/MessagesCenterPanel";
 import { MessagesDiscoverySidebar } from "@/components/messages/MessagesDiscoverySidebar";
 import { InfluencerProfilePopup } from "@/components/messages/InfluencerProfilePopup";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { Users, X } from "lucide-react";
 
 export type MessagesTab = "posts" | "chats" | "influencers" | "global";
