@@ -11,7 +11,7 @@ import {
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
 import { sectionLabels } from "./adminNavConfig";
-import { Bell, AlertTriangle, CheckCircle2, Globe, Mail, ServerCrash, FileWarning } from "lucide-react";
+import { Bell, AlertTriangle, CheckCircle2, Globe, Mail, ServerCrash, FileWarning, Webhook, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Popover,
@@ -37,6 +37,12 @@ function AdaAlertsButton() {
   }
   if (auto.failed_publishes > 0) {
     items.push({ id: "pub", icon: Globe, label: "Publish failure", detail: `${auto.failed_publishes} failed`, severity: "error" });
+  }
+  if ((auto as any).failed_webhooks_24h > 0) {
+    items.push({ id: "whk", icon: Webhook, label: "Webhook failures", detail: `${(auto as any).failed_webhooks_24h} failed in 24h`, severity: "error" });
+  }
+  if ((auto as any).stuck_jobs > 0) {
+    items.push({ id: "jobs", icon: Clock, label: "Stuck jobs", detail: `${(auto as any).stuck_jobs} stuck`, severity: "warning" });
   }
   manualAlerts.slice(0, 5).forEach((a) => {
     items.push({

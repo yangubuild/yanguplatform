@@ -5229,6 +5229,15 @@ export type Database = {
       }
       is_username_available: { Args: { _username: string }; Returns: boolean }
       list_on_community: { Args: { p_surface_id: string }; Returns: Json }
+      manage_alerts_list: {
+        Args: {
+          p_limit?: number
+          p_offset?: number
+          p_severity?: string
+          p_status?: string
+        }
+        Returns: Json
+      }
       manage_domains_list: { Args: never; Returns: Json }
       manage_get_user_detail: { Args: { p_user_id: string }; Returns: Json }
       manage_invite_user: {
@@ -5257,6 +5266,10 @@ export type Database = {
       manage_recent_audit_logs: {
         Args: { p_limit?: number; p_offset?: number }
         Returns: Json
+      }
+      manage_resolve_alert: {
+        Args: { p_alert_id: string; p_resolve?: boolean }
+        Returns: undefined
       }
       manage_set_user_roles: {
         Args: {
