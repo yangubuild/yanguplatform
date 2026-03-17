@@ -175,7 +175,7 @@ export default function ManageEntities() {
 
       {/* Filters */}
       <AdminToolbar
-        actions={
+        left={
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex items-center gap-2">
               <Tag className="h-3.5 w-3.5 text-muted-foreground" />
@@ -209,7 +209,8 @@ export default function ManageEntities() {
         <AdminTable
           columns={columns}
           data={data ?? []}
-          isLoading={isLoading}
+          loading={isLoading}
+          rowKey={(r) => r.id}
           emptyMessage={error ? `Error: ${error.message}` : "No entities found"}
         />
       </AdminGlassCard>
