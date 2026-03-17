@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ShieldX } from "lucide-react";
 import { useRoles, ManageRole } from "@/hooks/useRoles";
+import { manageLink } from "@/lib/routing/managePathUtils";
 
 interface ManageRoleGateProps {
   /** Roles that grant access to this section. Admin always has access. */
