@@ -123,6 +123,7 @@ const ManagePlaceholder = lazy(() => import("./pages/manage/ManagePlaceholder"))
 const ManageNotFound = lazy(() => import("./pages/manage/ManageNotFound"));
 const ManageUsers = lazy(() => import("./pages/manage/ManageUsers"));
 const ManageSurfaces = lazy(() => import("./pages/manage/ManageSurfaces"));
+const ManageDomains = lazy(() => import("./pages/manage/ManageDomains"));
 const ManageNavigation = lazy(() => import("./pages/manage/ManageNavigation"));
 const ManageCommunity = lazy(() => import("./pages/manage/ManageCommunity"));
 const ManageBlog = lazy(() => import("./pages/manage/ManageBlog"));
