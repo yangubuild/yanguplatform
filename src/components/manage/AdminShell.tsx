@@ -1,4 +1,5 @@
 import { Outlet, useLocation, Link } from "react-router-dom";
+import { getManageSlug, manageLink } from "@/lib/routing/managePathUtils";
 import { AdminSidebar } from "./AdminSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import {
