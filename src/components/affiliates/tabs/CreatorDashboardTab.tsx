@@ -560,14 +560,14 @@ function InviteAffiliatePanel({ onBack, onInvited }: { onBack: () => void; onInv
           <span className="text-sm text-white">Budget-Friendly Meal Prep Kits</span>
         </div>
 
-        <button
+        <Button
+          variant="accent"
+          className="w-full"
           disabled={!email.trim()}
           onClick={() => email.trim() && onInvited(email.trim())}
-          className="w-full py-3 rounded-xl text-sm font-medium text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90"
-          style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
         >
           Invite
-        </button>
+        </Button>
       </div>
     </div>
   );
