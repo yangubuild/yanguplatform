@@ -591,13 +591,13 @@ function ExternalLinksPanel({ onBack }: { onBack: () => void }) {
           <h2 className="text-base font-semibold text-white">External links</h2>
           <p className="text-xs text-white/50 mt-1">Set external sales page links you want affiliates to promote.</p>
         </div>
-        <button
+        <Button
+          variant="accent"
+          size="default"
           onClick={() => setShowCreate(true)}
-          className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors hover:opacity-90"
-          style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
         >
           Create
-        </button>
+        </Button>
       </div>
 
       <div className="rounded-xl border border-white/[0.04] overflow-hidden" style={{ background: "#111a15" }}>
