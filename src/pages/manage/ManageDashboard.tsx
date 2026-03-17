@@ -121,8 +121,8 @@ function OperationalAlerts() {
   }
 
   const alerts = data?.manual_alerts ?? [];
-  const auto = data?.auto_detected ?? { email_dlq_24h: 0, failed_publishes: 0 };
-  const hasCritical = alerts.some((a) => a.severity === "critical") || auto.email_dlq_24h > 0 || auto.failed_publishes > 0;
+  const auto = data?.auto_detected ?? { email_dlq_24h: 0, failed_publishes: 0, failed_webhooks_24h: 0, stuck_jobs: 0 };
+  const hasCritical = alerts.some((a) => a.severity === "critical") || auto.email_dlq_24h > 0 || auto.failed_publishes > 0 || auto.failed_webhooks_24h > 0;
 
   // Build unified list
   const items: Array<{ id: string; severity: string; title: string; detail: string; icon: typeof AlertTriangle }> = [];
@@ -132,6 +132,12 @@ function OperationalAlerts() {
   }
   if (auto.failed_publishes > 0) {
     items.push({ id: "auto-pub", severity: "critical", title: "Publish failures", detail: `${auto.failed_publishes} surface publish(es) in failed state`, icon: Globe });
+  }
+  if (auto.failed_webhooks_24h > 0) {
+    items.push({ id: "auto-whk", severity: "critical", title: "Webhook failures", detail: `${auto.failed_webhooks_24h} webhook delivery failure(s) in last 24h`, icon: Globe });
+  }
+  if (auto.stuck_jobs > 0) {
+    items.push({ id: "auto-jobs", severity: "warning", title: "Stuck jobs", detail: `${auto.stuck_jobs} job(s) stuck for over 1 hour`, icon: FileWarning });
   }
   alerts.forEach((a) => {
     items.push({ id: a.id, severity: a.severity, title: a.title, detail: a.detail ?? "", icon: a.severity === "critical" ? ServerCrash : FileWarning });
