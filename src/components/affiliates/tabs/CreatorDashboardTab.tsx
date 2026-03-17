@@ -657,9 +657,9 @@ function ExternalLinksPanel({ onBack }: { onBack: () => void }) {
             />
 
             <div className="mt-auto flex items-center justify-between">
-              <button onClick={() => setShowCreate(false)} className="px-5 py-2.5 rounded-lg text-sm text-white/70 border border-white/10 hover:text-white">
+              <Button variant="dark-green" size="default" onClick={() => setShowCreate(false)}>
                 Cancel
-              </button>
+              </Button>
               <button
                 disabled={!newName.trim() || !newUrl.trim()}
                 onClick={() => {
