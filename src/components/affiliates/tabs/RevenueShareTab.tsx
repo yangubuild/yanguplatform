@@ -115,12 +115,12 @@ function ShareRevenueDrawer({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="p-5 border-t border-white/[0.04]">
-          <button
-            className="w-full h-11 rounded-xl text-sm font-semibold text-white"
-            style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
+          <Button
+            variant="accent"
+            className="w-full h-11"
           >
             Invite
-          </button>
+          </Button>
         </div>
       </div>
     </div>,
