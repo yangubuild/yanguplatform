@@ -95,7 +95,7 @@ export function AdminShell() {
                   <BreadcrumbItem>
                     {segments.length > 0 ? (
                       <BreadcrumbLink asChild>
-                        <Link to="/manage" className="text-[hsl(var(--admin-text-muted))] hover:text-[hsl(24,95%,53%)] transition-colors text-sm">Management</Link>
+                        <Link to={manageLink("")} className="text-[hsl(var(--admin-text-muted))] hover:text-[hsl(24,95%,53%)] transition-colors text-sm">Management</Link>
                       </BreadcrumbLink>
                     ) : (
                       <BreadcrumbPage className="text-[hsl(var(--admin-text))] text-sm">Management</BreadcrumbPage>
