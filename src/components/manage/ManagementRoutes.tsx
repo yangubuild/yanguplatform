@@ -5,6 +5,7 @@ import { AdminShell } from "./AdminShell";
 import { ManageRoleGate } from "./ManageRoleGate";
 
 const ManageDashboard = lazy(() => import("@/pages/manage/ManageDashboard"));
+const ManageAlertsSecurity = lazy(() => import("@/pages/manage/ManageAlertsSecurity"));
 const ManageUsers = lazy(() => import("@/pages/manage/ManageUsers"));
 const ManagePlaceholder = lazy(() => import("@/pages/manage/ManagePlaceholder"));
 const ManageNotFound = lazy(() => import("@/pages/manage/ManageNotFound"));
