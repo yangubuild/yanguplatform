@@ -244,15 +244,15 @@ function ConnectButton({ app }: { app: AppRegistryEntry }) {
   };
 
   return (
-    <button
+    <Button
       type="button"
+      variant="dark-green"
+      size="sm"
       onClick={handleConnect}
       disabled={connecting}
-      className="px-3 py-1 rounded-lg text-xs font-medium text-white transition-colors hover:opacity-80 flex items-center gap-1"
-      style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}
     >
       {connecting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Link2 className="w-3 h-3" />}
       Connect
-    </button>
+    </Button>
   );
 }
