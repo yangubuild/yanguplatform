@@ -5238,6 +5238,17 @@ export type Database = {
         }
         Returns: Json
       }
+      manage_audit_log_filters: { Args: never; Returns: Json }
+      manage_audit_logs_list: {
+        Args: {
+          p_action?: string
+          p_entity_type?: string
+          p_limit?: number
+          p_offset?: number
+          p_search?: string
+        }
+        Returns: Json
+      }
       manage_domains_list: { Args: never; Returns: Json }
       manage_get_user_detail: { Args: { p_user_id: string }; Returns: Json }
       manage_invite_user: {
@@ -5279,6 +5290,20 @@ export type Database = {
         Returns: Json
       }
       manage_surfaces_list: { Args: never; Returns: Json }
+      manage_toggle_feature_flag: {
+        Args: { p_enabled: boolean; p_key: string }
+        Returns: undefined
+      }
+      manage_update_quota_config: {
+        Args: {
+          p_creator_limit?: number
+          p_free_limit?: number
+          p_is_enabled?: boolean
+          p_key: string
+          p_starter_limit?: number
+        }
+        Returns: undefined
+      }
       manage_update_user_lifecycle: {
         Args: { p_action: string; p_user_id: string }
         Returns: Json
