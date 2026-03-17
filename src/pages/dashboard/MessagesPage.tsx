@@ -5,6 +5,7 @@ import { MessagesCenterPanel } from "@/components/messages/MessagesCenterPanel";
 import { MessagesDiscoverySidebar } from "@/components/messages/MessagesDiscoverySidebar";
 import { InfluencerProfilePopup } from "@/components/messages/InfluencerProfilePopup";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { Users, X } from "lucide-react";
 
 export type MessagesTab = "posts" | "chats" | "influencers" | "global";
@@ -39,6 +40,7 @@ export default function MessagesPage() {
   const [selectedUser, setSelectedUser] = useState<PopularUser | null>(null);
   const [showUsersPanel, setShowUsersPanel] = useState(false);
   const isMobile = useIsMobile();
+  const isTablet = useMediaQuery("(min-width: 768px) and (max-width: 1023px)");
 
   useEffect(() => {
     if (tabParam && ["posts", "chats", "influencers", "global"].includes(tabParam)) {
@@ -101,6 +103,54 @@ export default function MessagesPage() {
     );
   }
 
+  // Tablet: 2-column — DM List + Center, hide discovery sidebar
+  if (isTablet) {
+    return (
+      <div
+        className="h-[calc(100vh-64px)] overflow-hidden"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "280px 1fr",
+          gap: "0px",
+          background: "#0B0F14",
+        }}
+      >
+        {/* LEFT — DM List */}
+        <div className="h-full overflow-hidden p-2 pr-0" style={{ background: "#0B0F14" }}>
+          <div
+            className="h-full overflow-hidden flex flex-col"
+            style={{
+              background: "#0F141A",
+              borderRadius: "14px",
+              border: "1px solid rgba(255,255,255,0.06)",
+            }}
+          >
+            <MessagesDmList selectedId={selectedDm} onSelect={setSelectedDm} />
+          </div>
+        </div>
+
+        {/* CENTER — Tabs + content */}
+        <div className="h-full overflow-hidden p-2" style={{ background: "#0B0F14" }}>
+          <div
+            className="h-full overflow-hidden flex flex-col"
+            style={{
+              background: "#0F141A",
+              borderRadius: "14px",
+              border: "1px solid rgba(255,255,255,0.06)",
+            }}
+          >
+            <MessagesCenterPanel activeTab={activeTab} onTabChange={handleTabChange} />
+          </div>
+        </div>
+
+        {selectedUser && (
+          <InfluencerProfilePopup user={selectedUser} onClose={() => setSelectedUser(null)} />
+        )}
+      </div>
+    );
+  }
+
+  // Desktop: full 3-column layout
   return (
     <div
       className="h-[calc(100vh-64px)] overflow-hidden"
