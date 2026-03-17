@@ -56,7 +56,7 @@ export function AdminRoute({ children }: AdminRouteProps) {
 
   // content_editor landing on /manage root → redirect to content home
   if (isContentEditor && !isAdmin && location.pathname === "/manage") {
-    return <Navigate to="/manage/content" replace />;
+    return <Navigate to={manageLink("content")} replace />;
   }
 
   return <>{children}</>;
