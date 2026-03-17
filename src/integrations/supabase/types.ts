@@ -4823,6 +4823,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      check_rate_limit_anon: {
+        Args: {
+          p_action_key: string
+          p_identifier: string
+          p_max_count: number
+          p_window_seconds: number
+        }
+        Returns: boolean
+      }
       claim_dashboard_credits: { Args: never; Returns: Json }
       cleanup_rate_limit_log: { Args: never; Returns: undefined }
       complete_dropship_order_sync_job: {
