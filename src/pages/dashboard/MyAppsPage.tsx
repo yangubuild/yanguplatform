@@ -186,13 +186,13 @@ export default function MyAppsPage() {
                       <ConnectButton app={item.app} />
                     )}
                     {item.app.launch_route && (
-                      <button
+                      <Button
+                        variant="accent"
+                        size="sm"
                         onClick={() => navigate(item.app.launch_route!)}
-                        className="px-3 py-1 rounded-lg text-xs font-medium text-white transition-colors hover:opacity-80"
-                        style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
                       >
                         Open
-                      </button>
+                      </Button>
                     )}
                     {item.status === "connected" && (
                       <span className="px-2 py-1 rounded-lg text-[10px] font-medium text-green-400" style={{ background: "rgba(74,222,128,0.1)" }}>
