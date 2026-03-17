@@ -22,10 +22,12 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { ManageRole } from "@/hooks/useRoles";
+import { manageLink } from "@/lib/routing/managePathUtils";
 
 export interface AdminNavItem {
   title: string;
-  to: string;
+  /** Panel-relative slug (e.g. "users", "content/blog"). Resolved at render via manageLink(). */
+  slug: string;
   icon: LucideIcon;
   /** If true, NavLink uses `end` matching */
   end?: boolean;
@@ -44,58 +46,58 @@ export const adminNavGroups: AdminNavGroup[] = [
   {
     label: "AI",
     items: [
-      { title: "ADA AI", to: "/manage/ada", icon: Bot, allowedRoles: ["admin"] },
+      { title: "ADA AI", slug: "ada", icon: Bot, allowedRoles: ["admin"] },
     ],
   },
   {
     label: "Overview",
     items: [
-      { title: "Dashboard", to: "/manage", icon: LayoutDashboard, end: true, allowedRoles: ["admin"] },
-      { title: "Analytics", to: "/manage/analytics", icon: BarChart3, allowedRoles: ["admin", "analyst"] },
+      { title: "Dashboard", slug: "", icon: LayoutDashboard, end: true, allowedRoles: ["admin"] },
+      { title: "Analytics", slug: "analytics", icon: BarChart3, allowedRoles: ["admin", "analyst"] },
     ],
   },
   {
     label: "Platform",
     items: [
-      { title: "Users", to: "/manage/users", icon: Users, allowedRoles: ["admin"] },
-      { title: "Team & Invites", to: "/manage/team", icon: UserPlus, allowedRoles: ["admin", "owner"] },
-      { title: "Pricing & Subscriptions", to: "/manage/pricing", icon: CreditCard, allowedRoles: ["admin"] },
-      { title: "Promos & Rewards", to: "/manage/promos", icon: Megaphone, allowedRoles: ["admin"] },
-      { title: "Navigation", to: "/manage/navigation", icon: Layers, allowedRoles: ["admin"] },
-      { title: "Community", to: "/manage/community", icon: Megaphone, allowedRoles: ["admin", "moderator"] },
-      { title: "Messages", to: "/manage/messages", icon: MessageSquare, allowedRoles: ["admin", "content_editor"] },
-      { title: "Agents", to: "/manage/agents", icon: Bot, allowedRoles: ["admin"] },
-      { title: "Domains", to: "/manage/domains", icon: Globe, allowedRoles: ["admin"] },
+      { title: "Users", slug: "users", icon: Users, allowedRoles: ["admin"] },
+      { title: "Team & Invites", slug: "team", icon: UserPlus, allowedRoles: ["admin", "owner"] },
+      { title: "Pricing & Subscriptions", slug: "pricing", icon: CreditCard, allowedRoles: ["admin"] },
+      { title: "Promos & Rewards", slug: "promos", icon: Megaphone, allowedRoles: ["admin"] },
+      { title: "Navigation", slug: "navigation", icon: Layers, allowedRoles: ["admin"] },
+      { title: "Community", slug: "community", icon: Megaphone, allowedRoles: ["admin", "moderator"] },
+      { title: "Messages", slug: "messages", icon: MessageSquare, allowedRoles: ["admin", "content_editor"] },
+      { title: "Agents", slug: "agents", icon: Bot, allowedRoles: ["admin"] },
+      { title: "Domains", slug: "domains", icon: Globe, allowedRoles: ["admin"] },
     ],
   },
   {
     label: "Content Engine",
     items: [
-      { title: "Blog (Layout & Engine)", to: "/manage/content/blog", icon: FileText, allowedRoles: ["admin", "writer", "content_editor"] },
-      { title: "Articles / News", to: "/manage/content/news", icon: Newspaper, allowedRoles: ["admin", "writer", "content_editor"] },
-      { title: "Events (Registration)", to: "/manage/content/events", icon: Calendar, allowedRoles: ["admin", "writer", "content_editor"] },
+      { title: "Blog (Layout & Engine)", slug: "content/blog", icon: FileText, allowedRoles: ["admin", "writer", "content_editor"] },
+      { title: "Articles / News", slug: "content/news", icon: Newspaper, allowedRoles: ["admin", "writer", "content_editor"] },
+      { title: "Events (Registration)", slug: "content/events", icon: Calendar, allowedRoles: ["admin", "writer", "content_editor"] },
     ],
   },
   {
     label: "Design & Pages",
     items: [
-      { title: "Branding", to: "/manage/branding", icon: Palette, allowedRoles: ["admin", "designer"] },
-      { title: "Pages", to: "/manage/pages", icon: FileStack, allowedRoles: ["admin", "designer"] },
+      { title: "Branding", slug: "branding", icon: Palette, allowedRoles: ["admin", "designer"] },
+      { title: "Pages", slug: "pages", icon: FileStack, allowedRoles: ["admin", "designer"] },
     ],
   },
   {
     label: "Operations",
     items: [
-      { title: "Integrations", to: "/manage/integrations", icon: Puzzle, allowedRoles: ["admin"] },
-      { title: "Research & Testing", to: "/manage/research-testing", icon: FlaskConical, allowedRoles: ["admin", "analyst"] },
-      { title: "Alerts & Security", to: "/manage/alerts-security", icon: ShieldAlert, allowedRoles: ["admin"] },
+      { title: "Integrations", slug: "integrations", icon: Puzzle, allowedRoles: ["admin"] },
+      { title: "Research & Testing", slug: "research-testing", icon: FlaskConical, allowedRoles: ["admin", "analyst"] },
+      { title: "Alerts & Security", slug: "alerts-security", icon: ShieldAlert, allowedRoles: ["admin"] },
     ],
   },
   {
     label: "System",
     items: [
-      { title: "Settings", to: "/manage/settings", icon: Settings, allowedRoles: ["admin", "content_editor"] },
-      { title: "Audit Logs", to: "/manage/audit-logs", icon: ScrollText, allowedRoles: ["admin", "moderator"] },
+      { title: "Settings", slug: "settings", icon: Settings, allowedRoles: ["admin", "content_editor"] },
+      { title: "Audit Logs", slug: "audit-logs", icon: ScrollText, allowedRoles: ["admin", "moderator"] },
     ],
   },
 ];
@@ -104,12 +106,10 @@ export const adminNavGroups: AdminNavGroup[] = [
 export const sectionLabels: Record<string, string> = {};
 for (const group of adminNavGroups) {
   for (const item of group.items) {
-    const slug = item.to.replace("/manage/", "").replace("/manage", "");
-    if (slug) sectionLabels[slug] = item.title;
+    if (item.slug) sectionLabels[item.slug] = item.title;
     if (item.children) {
       for (const child of item.children) {
-        const childSlug = child.to.replace("/manage/", "");
-        sectionLabels[childSlug] = child.title;
+        sectionLabels[child.slug] = child.title;
       }
     }
   }
