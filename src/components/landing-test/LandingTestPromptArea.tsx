@@ -1,6 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Plus, Mic, ArrowUp, Search } from "lucide-react";
+import { Plus, Mic, ArrowUp, Search, Building2, Star as StarIcon, Users as UsersIcon, Palette, Wrench, Package } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useSearchEntities } from "@/hooks/landing/useSearchEntities";
+import { useLandingCounters } from "@/hooks/landing/useLandingCounters";
+import { getEntityRoute, isExternalRoute } from "@/lib/entityRouting";
+import type { SearchEntityResult } from "@/types/search";
+import { ENTITY_TYPE_CONFIG } from "@/types/search";
 
 const BUILD_PROMPTS = [
   "Launch a custom emoji design shop...",
@@ -80,19 +85,29 @@ function useTypingAnimation(prompts: string[], active: boolean) {
   return display;
 }
 
-// Live counting stats
-const STATS_CONFIG = [
-  { label: "earned", target: 2_770_949_959, increment: 0.47, prefix: "$" },
-  { label: "users", target: 22_277_339, increment: 0.12, prefix: "" },
-  { label: "businesses", target: 2_420_966, increment: 0.05, prefix: "" },
-];
-
-const RAMP_DURATION = 4000; // ms to reach target
+// Ramp animation config
+const RAMP_DURATION = 4000;
 
 function useLiveStats() {
-  const [values, setValues] = useState(() => STATS_CONFIG.map(() => 0));
+  const { data: counters } = useLandingCounters();
+
+  const targets = [
+    { label: "earned", target: 0, increment: 0, prefix: "$" }, // deferred
+    { label: "users", target: counters?.users ?? 0, increment: 0.12, prefix: "" },
+    { label: "businesses", target: counters?.businesses ?? 0, increment: 0.05, prefix: "" },
+  ];
+
+  const [values, setValues] = useState(() => targets.map(() => 0));
   const startTime = useRef(performance.now());
-  const reached = useRef(STATS_CONFIG.map(() => false));
+  const reached = useRef(targets.map(() => false));
+  const targetsRef = useRef(targets);
+  targetsRef.current = targets;
+
+  useEffect(() => {
+    // Reset on target change
+    reached.current = targetsRef.current.map(() => false);
+    startTime.current = performance.now();
+  }, [counters?.users, counters?.businesses]);
 
   useEffect(() => {
     let raf: number;
@@ -100,17 +115,17 @@ function useLiveStats() {
       const elapsed = now - startTime.current;
       setValues(prev =>
         prev.map((v, i) => {
+          const cfg = targetsRef.current[i];
+          if (!cfg || cfg.target === 0) return 0;
           if (!reached.current[i]) {
-            // Fast ramp: ease-out from 0 to target
             const t = Math.min(elapsed / RAMP_DURATION, 1);
-            const eased = 1 - Math.pow(1 - t, 3); // cubic ease-out
-            const val = Math.round(STATS_CONFIG[i].target * eased);
+            const eased = 1 - Math.pow(1 - t, 3);
+            const val = Math.round(cfg.target * eased);
             if (t >= 1) reached.current[i] = true;
             return val;
           }
-          // Slow live counting after reaching target
           const jitter = 0.5 + Math.random();
-          return +(v + STATS_CONFIG[i].increment * jitter).toFixed(0);
+          return +(v + cfg.increment * jitter).toFixed(0);
         })
       );
       raf = requestAnimationFrame(step);
@@ -119,25 +134,86 @@ function useLiveStats() {
     return () => cancelAnimationFrame(raf);
   }, []);
 
-  return values.map((v, i) => ({
-    label: STATS_CONFIG[i].label,
-    display: STATS_CONFIG[i].prefix + v.toLocaleString("en-US"),
+  return targets.map((t, i) => ({
+    label: t.label,
+    display: t.prefix + (values[i] || 0).toLocaleString("en-US"),
+    hidden: t.target === 0,
   }));
+}
+
+const ENTITY_ICONS: Record<string, React.FC<{ className?: string }>> = {
+  business: Building2,
+  creator: StarIcon,
+  community: UsersIcon,
+  project: Palette,
+  service: Wrench,
+  product: Package,
+  organization: Building2,
+};
+
+function EntityResultCard({ entity }: { entity: SearchEntityResult }) {
+  const navigate = useNavigate();
+  const route = getEntityRoute(entity);
+  const external = isExternalRoute(route);
+  const Icon = ENTITY_ICONS[entity.entity_type] || Building2;
+
+  return (
+    <button
+      onClick={() => external ? window.open(route, "_blank") : navigate(route)}
+      className="flex items-start gap-3 px-4 py-3 rounded-xl text-left transition-colors hover:opacity-80 w-full"
+      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}
+    >
+      {entity.cover_image_url ? (
+        <img src={entity.cover_image_url} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" />
+      ) : (
+        <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'rgba(255,255,255,0.06)' }}>
+          <Icon className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.3)' }} />
+        </div>
+      )}
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-1.5">
+          <span className="text-white text-sm font-semibold truncate">{entity.title}</span>
+          <span className="text-[10px] px-1.5 py-0.5 rounded-full shrink-0" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.35)' }}>
+            {ENTITY_TYPE_CONFIG[entity.entity_type]?.label || entity.entity_type}
+          </span>
+        </div>
+        {entity.short_description && (
+          <p className="text-xs line-clamp-1 mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>{entity.short_description}</p>
+        )}
+      </div>
+    </button>
+  );
 }
 
 export function LandingTestPromptArea() {
   const [mode, setMode] = useState<"build" | "explore">("build");
   const [inputValue, setInputValue] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const animatedText = useTypingAnimation(BUILD_PROMPTS, mode === "build" && !inputValue);
   const stats = useLiveStats();
 
+  // Debounce search
+  useEffect(() => {
+    if (mode !== "explore") return;
+    const t = setTimeout(() => setSearchQuery(inputValue.trim()), 300);
+    return () => clearTimeout(t);
+  }, [inputValue, mode]);
+
+  const { data: searchResults, isLoading: searching } = useSearchEntities(
+    { query: searchQuery || undefined, limit: 8 },
+    mode === "explore" && searchQuery.length >= 2,
+    `explore-${searchQuery}`,
+  );
+
   const handleSubmit = () => {
     if (!inputValue.trim()) return;
     if (mode === "build") {
-      navigate("/ada");
+      // Transfer prompt text to ADA AI page via query param
+      navigate(`/ada?prompt=${encodeURIComponent(inputValue.trim())}`);
     } else {
-      // search mode — future wiring
+      // Explore search — navigate to discover with query
+      navigate(`/discover?q=${encodeURIComponent(inputValue.trim())}`);
     }
   };
 
@@ -163,7 +239,7 @@ export function LandingTestPromptArea() {
             color: 'rgba(255,255,255,0.45)',
             borderRadius: '10px',
           }}
-          onClick={() => { setMode("build"); setInputValue(""); }}
+          onClick={() => { setMode("build"); setInputValue(""); setSearchQuery(""); }}
         >
           Build
         </button>
@@ -178,7 +254,7 @@ export function LandingTestPromptArea() {
             color: 'rgba(255,255,255,0.45)',
             borderRadius: '10px',
           }}
-          onClick={() => { setMode("explore"); setInputValue(""); }}
+          onClick={() => { setMode("explore"); setInputValue(""); setSearchQuery(""); }}
         >
           Explore
         </button>
@@ -228,38 +304,58 @@ export function LandingTestPromptArea() {
         </div>
       )}
 
-      {/* EXPLORE mode = slim search bar (static placeholder) */}
+      {/* EXPLORE mode = slim search bar + live results */}
       {mode === "explore" && (
-        <div
-          className="w-full max-w-[700px] flex items-center gap-3 px-5 py-3"
-          style={{
-            background: 'rgba(255,255,255,0.06)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: '999px',
-          }}
-        >
-          <Search className="w-4 h-4 text-white/40 shrink-0" />
-          <input
-            type="text"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-            placeholder="Search yangu to buy, learn, create or sell..."
-            className="flex-1 bg-transparent text-white placeholder:text-white/30 text-sm focus:outline-none"
-          />
-          <button
-            onClick={handleSubmit}
-            className="w-8 h-8 flex items-center justify-center rounded-full shrink-0"
-            style={{ background: 'rgba(255,255,255,0.08)' }}
+        <div className="w-full max-w-[700px]">
+          <div
+            className="flex items-center gap-3 px-5 py-3"
+            style={{
+              background: 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: searchResults && searchResults.length > 0 ? '20px 20px 0 0' : '999px',
+            }}
           >
-            <ArrowUp className="w-4 h-4 text-white/40" />
-          </button>
+            <Search className="w-4 h-4 text-white/40 shrink-0" />
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+              placeholder="Search yangu to buy, learn, create or sell..."
+              className="flex-1 bg-transparent text-white placeholder:text-white/30 text-sm focus:outline-none"
+            />
+            <button
+              onClick={handleSubmit}
+              className="w-8 h-8 flex items-center justify-center rounded-full shrink-0"
+              style={{ background: 'rgba(255,255,255,0.08)' }}
+            >
+              <ArrowUp className="w-4 h-4 text-white/40" />
+            </button>
+          </div>
+
+          {/* Live search results dropdown */}
+          {searchResults && searchResults.length > 0 && (
+            <div
+              className="rounded-b-2xl overflow-hidden divide-y divide-white/[0.04]"
+              style={{ background: 'rgba(255,255,255,0.04)', borderLeft: '1px solid rgba(255,255,255,0.08)', borderRight: '1px solid rgba(255,255,255,0.08)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}
+            >
+              {searchResults.map((entity) => (
+                <EntityResultCard key={entity.id} entity={entity} />
+              ))}
+            </div>
+          )}
+
+          {searching && searchQuery.length >= 2 && (
+            <div className="text-center py-3 text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>
+              Searching...
+            </div>
+          )}
         </div>
       )}
 
-      {/* Stats row — live counting */}
+      {/* Stats row — live counting from platform state */}
       <div className="flex items-center justify-center gap-8 flex-wrap">
-        {stats.map((s) => (
+        {stats.filter(s => !s.hidden).map((s) => (
           <span key={s.label} className="text-sm" style={{ color: 'rgba(255,255,255,0.35)' }}>
             <span className="font-semibold text-white/50 tabular-nums">{s.display}</span> {s.label}
           </span>
