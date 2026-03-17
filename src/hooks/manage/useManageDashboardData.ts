@@ -33,6 +33,8 @@ interface AlertData {
   auto_detected: {
     email_dlq_24h: number;
     failed_publishes: number;
+    failed_webhooks_24h: number;
+    stuck_jobs: number;
   };
 }
 
