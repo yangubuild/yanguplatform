@@ -426,13 +426,13 @@ function CommissionPanel({ onBack }: { onBack: () => void }) {
         </div>
       </div>
 
-      <button
+      <Button
+        variant="accent"
+        className="w-full"
         onClick={() => { toast.success("Commission settings saved"); onBack(); }}
-        className="w-full py-3 rounded-xl text-sm font-medium text-white transition-colors hover:opacity-90"
-        style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
       >
         Save
-      </button>
+      </Button>
     </div>
   );
 }
