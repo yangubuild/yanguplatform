@@ -5090,6 +5090,14 @@ export type Database = {
         Returns: boolean
       }
       delete_surface: { Args: { p_surface_id: string }; Returns: Json }
+      derive_entity_subtype: {
+        Args: { p_industry?: string; p_surface_type: string }
+        Returns: Database["public"]["Enums"]["entity_subtype"]
+      }
+      derive_entity_type: {
+        Args: { p_surface_type: string }
+        Returns: Database["public"]["Enums"]["searchable_entity_type"]
+      }
       developer_check_and_increment_usage: {
         Args: {
           p_app_id: string
@@ -5558,6 +5566,10 @@ export type Database = {
           p_message: string
         }
         Returns: string
+      }
+      sync_searchable_entity: {
+        Args: { p_surface_id: string }
+        Returns: undefined
       }
       track_order: {
         Args: { p_buyer_email: string; p_tracking_code: string }
