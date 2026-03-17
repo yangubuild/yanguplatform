@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { manageLink } from "@/lib/routing/managePathUtils";
 import { useRoles } from "@/hooks/useRoles";
 import { Loader2, ShieldX } from "lucide-react";
 
