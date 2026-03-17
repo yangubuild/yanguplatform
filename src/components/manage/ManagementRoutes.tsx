@@ -84,11 +84,11 @@ export function ManagementRoutes() {
           <Route path="content/news" element={<ManageRoleGate allowedRoles={["admin", "writer", "content_editor"]}><ManageNews /></ManageRoleGate>} />
           <Route path="content/events" element={<ManageRoleGate allowedRoles={["admin", "writer", "content_editor"]}><ManageEvents /></ManageRoleGate>} />
           {/* Design & Pages */}
-          <Route path="branding" element={<ManageRoleGate allowedRoles={["admin", "designer"]}><ManagePlaceholder /></ManageRoleGate>} />
-          <Route path="pages" element={<ManageRoleGate allowedRoles={["admin", "designer"]}><ManagePlaceholder /></ManageRoleGate>} />
+          <Route path="branding" element={<ManageRoleGate allowedRoles={["admin", "designer"]}><ManageBranding /></ManageRoleGate>} />
+          <Route path="pages" element={<ManageRoleGate allowedRoles={["admin", "designer"]}><ManagePages /></ManageRoleGate>} />
           {/* Operations */}
-          <Route path="integrations" element={<ManageRoleGate allowedRoles={["admin"]}><ManagePlaceholder /></ManageRoleGate>} />
-          <Route path="research-testing" element={<ManageRoleGate allowedRoles={["admin", "analyst"]}><ManagePlaceholder /></ManageRoleGate>} />
+          <Route path="integrations" element={<ManageRoleGate allowedRoles={["admin"]}><ManageIntegrations /></ManageRoleGate>} />
+          <Route path="research-testing" element={<ManageRoleGate allowedRoles={["admin", "analyst"]}><ManageResearchTesting /></ManageRoleGate>} />
           <Route path="alerts-security" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAlertsSecurity /></ManageRoleGate>} />
           <Route path="app-review" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAppReview /></ManageRoleGate>} />
           {/* System */}
