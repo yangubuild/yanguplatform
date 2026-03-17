@@ -86,7 +86,7 @@ export function BoxMockupEditor({ mockup, onBack }: BoxMockupEditorProps) {
           <div className="flex gap-2">
             <button
               onClick={() => setMode("angles")}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
                 mode === "angles"
                   ? "bg-foreground text-background border-foreground"
                   : "bg-background text-foreground border-border hover:bg-muted"
