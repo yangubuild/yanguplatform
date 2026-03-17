@@ -72,7 +72,7 @@ function RoleBadge() {
 export function AdminShell() {
   const location = useLocation();
   const { isAdmin } = useRoles();
-  const tail = location.pathname.replace(/^\/manage\/?/, "");
+  const tail = getManageSlug(location.pathname);
   const segments = tail.split("/").filter(Boolean);
 
   const fullSlug = segments.join("/");
