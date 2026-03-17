@@ -135,13 +135,13 @@ export default function MyAppsPage() {
           </div>
           <h2 className="text-lg font-semibold text-white mb-1">No apps yet</h2>
           <p className="text-sm text-white/40 mb-6">Browse the app store to add apps to your dashboard.</p>
-          <button
+          <Button
+            variant="accent"
+            size="default"
             onClick={() => navigate("/dashboard/app-store")}
-            className="px-5 py-2.5 rounded-xl text-sm font-medium text-white transition-colors hover:opacity-90"
-            style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
           >
             Browse App Store
-          </button>
+          </Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
