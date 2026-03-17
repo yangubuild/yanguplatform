@@ -30,6 +30,8 @@ const AuthCallback = lazy(() => import("@/pages/auth/AuthCallback"));
  * Routes for the management subdomain (manage.yangu.studio).
  * Completely isolated runtime — no landing page, no domain gate, no platform routes.
  * Signup is disabled; login only.
+ *
+ * Route definitions mirror App.tsx /manage/* exactly to prevent drift.
  */
 export function ManagementRoutes() {
   return (
@@ -51,37 +53,42 @@ export function ManagementRoutes() {
             </ManagementGuard>
           }
         >
-          <Route index element={<Navigate to="/overview" replace />} />
-          <Route path="overview" element={<ManageDashboard />} />
-          <Route path="users" element={<ManageUsers />} />
-          <Route path="moderation" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManageCommunity /></ManageRoleGate>} />
-          <Route path="logs" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManagePlaceholder /></ManageRoleGate>} />
-          <Route path="settings" element={<ManagePlaceholder />} />
-          {/* Extended management routes */}
+          <Route index element={<ManageDashboard />} />
           <Route path="ada" element={<ManageAda />} />
           <Route path="messages" element={<ManageMessages />} />
+          {/* Platform */}
+          <Route path="users" element={<ManageUsers />} />
           <Route path="team" element={<ManageTeam />} />
-          <Route path="pricing" element={<ManagePricing />} />
-          <Route path="promos" element={<ManagePromos />} />
-          <Route path="surfaces" element={<ManageSurfaces />} />
-          <Route path="navigation" element={<ManageNavigation />} />
+          <Route path="pricing" element={<ManageRoleGate allowedRoles={["admin"]}><ManagePricing /></ManageRoleGate>} />
+          <Route path="promos" element={<ManageRoleGate allowedRoles={["admin"]}><ManagePromos /></ManageRoleGate>} />
+          <Route path="surfaces" element={<ManageRoleGate allowedRoles={["admin"]}><ManageSurfaces /></ManageRoleGate>} />
+          <Route path="navigation" element={<ManageRoleGate allowedRoles={["admin"]}><ManageNavigation /></ManageRoleGate>} />
           <Route path="community" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManageCommunity /></ManageRoleGate>} />
+          <Route path="agents" element={<ManageRoleGate allowedRoles={["admin"]}><ManagePlaceholder /></ManageRoleGate>} />
+          <Route path="domains" element={<ManageRoleGate allowedRoles={["admin"]}><ManagePlaceholder /></ManageRoleGate>} />
+          {/* Analytics */}
           <Route path="analytics" element={<ManageRoleGate allowedRoles={["admin", "analyst"]}><ManagePlaceholder /></ManageRoleGate>} />
+          {/* Content */}
           <Route path="content" element={<ManageRoleGate allowedRoles={["admin", "writer", "content_editor"]}><ManageContentHome /></ManageRoleGate>} />
           <Route path="content/blog" element={<ManageRoleGate allowedRoles={["admin", "writer", "content_editor"]}><ManageBlog /></ManageRoleGate>} />
           <Route path="content/news" element={<ManageRoleGate allowedRoles={["admin", "writer", "content_editor"]}><ManageNews /></ManageRoleGate>} />
           <Route path="content/events" element={<ManageRoleGate allowedRoles={["admin", "writer", "content_editor"]}><ManageEvents /></ManageRoleGate>} />
+          {/* Design & Pages */}
           <Route path="branding" element={<ManageRoleGate allowedRoles={["admin", "designer"]}><ManagePlaceholder /></ManageRoleGate>} />
           <Route path="pages" element={<ManageRoleGate allowedRoles={["admin", "designer"]}><ManagePlaceholder /></ManageRoleGate>} />
-          <Route path="integrations" element={<ManagePlaceholder />} />
-          <Route path="alerts-security" element={<ManagePlaceholder />} />
-          <Route path="app-review" element={<ManageAppReview />} />
+          {/* Operations */}
+          <Route path="integrations" element={<ManageRoleGate allowedRoles={["admin"]}><ManagePlaceholder /></ManageRoleGate>} />
+          <Route path="research-testing" element={<ManageRoleGate allowedRoles={["admin", "analyst"]}><ManagePlaceholder /></ManageRoleGate>} />
+          <Route path="alerts-security" element={<ManageRoleGate allowedRoles={["admin"]}><ManagePlaceholder /></ManageRoleGate>} />
+          <Route path="app-review" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAppReview /></ManageRoleGate>} />
+          {/* System */}
+          <Route path="settings" element={<ManagePlaceholder />} />
           <Route path="audit-logs" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManagePlaceholder /></ManageRoleGate>} />
-          <Route path="*" element={<Navigate to="/overview" replace />} />
+          <Route path="*" element={<ManageNotFound />} />
         </Route>
 
-        {/* Catch-all — redirect everything else to /overview */}
-        <Route path="*" element={<Navigate to="/overview" replace />} />
+        {/* Catch-all — redirect to panel root */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>
   );

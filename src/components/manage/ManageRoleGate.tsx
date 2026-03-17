@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ShieldX } from "lucide-react";
 import { useRoles, ManageRole } from "@/hooks/useRoles";
+import { manageLink } from "@/lib/routing/managePathUtils";
 
 interface ManageRoleGateProps {
   /** Roles that grant access to this section. Admin always has access. */
@@ -21,7 +22,7 @@ export function ManageRoleGate({ allowedRoles, children }: ManageRoleGateProps) 
   const hasAccess = manageRoles.some((r) => allowedRoles.includes(r));
 
   if (!hasAccess) {
-    const backTo = isContentEditor ? "/manage/content" : "/manage";
+    const backTo = isContentEditor ? manageLink("content") : manageLink("");
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">

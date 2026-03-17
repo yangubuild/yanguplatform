@@ -7,6 +7,7 @@ import {
   Megaphone, BarChart3, Lock,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { manageLink } from "@/lib/routing/managePathUtils";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
@@ -301,7 +302,7 @@ function SupportTicketsWidget() {
           <button
             key={item.label}
             className="flex w-full items-center justify-between rounded-lg border border-[hsl(var(--admin-border)/0.4)] px-3 py-2 text-sm hover:bg-[hsl(var(--admin-surface-elevated)/0.3)] transition-colors"
-            onClick={() => navigate(`/manage/messages?filter=${item.filter}`)}
+            onClick={() => navigate(manageLink(`messages?filter=${item.filter}`))}
           >
             <span className="flex items-center gap-2 text-[hsl(var(--admin-text))]">
               <item.icon className={`h-4 w-4 ${item.color}`} />

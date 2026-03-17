@@ -479,13 +479,13 @@ const App = () => (
                   {/* Platform */}
                   <Route path="users" element={<ManageUsers />} />
                   <Route path="team" element={<ManageTeam />} />
-                  <Route path="pricing" element={<ManagePricing />} />
-                  <Route path="promos" element={<ManagePromos />} />
-                  <Route path="surfaces" element={<ManageSurfaces />} />
-                  <Route path="navigation" element={<ManageNavigation />} />
+                  <Route path="pricing" element={<ManageRoleGate allowedRoles={["admin"]}><ManagePricing /></ManageRoleGate>} />
+                  <Route path="promos" element={<ManageRoleGate allowedRoles={["admin"]}><ManagePromos /></ManageRoleGate>} />
+                  <Route path="surfaces" element={<ManageRoleGate allowedRoles={["admin"]}><ManageSurfaces /></ManageRoleGate>} />
+                  <Route path="navigation" element={<ManageRoleGate allowedRoles={["admin"]}><ManageNavigation /></ManageRoleGate>} />
                   <Route path="community" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManageCommunity /></ManageRoleGate>} />
-                  <Route path="agents" element={<ManagePlaceholder />} />
-                  <Route path="domains" element={<ManagePlaceholder />} />
+                  <Route path="agents" element={<ManageRoleGate allowedRoles={["admin"]}><ManagePlaceholder /></ManageRoleGate>} />
+                  <Route path="domains" element={<ManageRoleGate allowedRoles={["admin"]}><ManagePlaceholder /></ManageRoleGate>} />
                   {/* Analytics */}
                   <Route path="analytics" element={<ManageRoleGate allowedRoles={["admin", "analyst"]}><ManagePlaceholder /></ManageRoleGate>} />
                   {/* Content */}
@@ -497,10 +497,10 @@ const App = () => (
                   <Route path="branding" element={<ManageRoleGate allowedRoles={["admin", "designer"]}><ManagePlaceholder /></ManageRoleGate>} />
                   <Route path="pages" element={<ManageRoleGate allowedRoles={["admin", "designer"]}><ManagePlaceholder /></ManageRoleGate>} />
                   {/* Operations */}
-                  <Route path="integrations" element={<ManagePlaceholder />} />
+                  <Route path="integrations" element={<ManageRoleGate allowedRoles={["admin"]}><ManagePlaceholder /></ManageRoleGate>} />
                   <Route path="research-testing" element={<ManageRoleGate allowedRoles={["admin", "analyst"]}><ManagePlaceholder /></ManageRoleGate>} />
-                  <Route path="alerts-security" element={<ManagePlaceholder />} />
-                  <Route path="app-review" element={<ManageAppReview />} />
+                  <Route path="alerts-security" element={<ManageRoleGate allowedRoles={["admin"]}><ManagePlaceholder /></ManageRoleGate>} />
+                  <Route path="app-review" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAppReview /></ManageRoleGate>} />
                   {/* System */}
                   <Route path="settings" element={<ManagePlaceholder />} />
                   <Route path="audit-logs" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManagePlaceholder /></ManageRoleGate>} />

@@ -5,6 +5,7 @@ import {
   FlaskConical, FileStack, ShieldAlert, Construction,
 } from "lucide-react";
 import { AdminGlassCard } from "@/components/manage/AdminGlassCard";
+import { getManageSlug } from "@/lib/routing/managePathUtils";
 
 const sections: Record<string, { label: string; icon: React.ElementType }> = {
   users: { label: "Users", icon: Users },
@@ -27,7 +28,7 @@ const sections: Record<string, { label: string; icon: React.ElementType }> = {
 
 export default function ManagePlaceholder() {
   const location = useLocation();
-  const slug = location.pathname.replace(/^\/manage\/?/, "");
+  const slug = getManageSlug(location.pathname);
   const match = sections[slug];
   const Icon = match?.icon ?? Construction;
   const title = match?.label ?? (slug || "Section");

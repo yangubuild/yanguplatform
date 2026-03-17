@@ -1,4 +1,5 @@
 import { Outlet, useLocation, Link } from "react-router-dom";
+import { getManageSlug, manageLink } from "@/lib/routing/managePathUtils";
 import { AdminSidebar } from "./AdminSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import {
@@ -71,7 +72,7 @@ function RoleBadge() {
 export function AdminShell() {
   const location = useLocation();
   const { isAdmin } = useRoles();
-  const tail = location.pathname.replace(/^\/manage\/?/, "");
+  const tail = getManageSlug(location.pathname);
   const segments = tail.split("/").filter(Boolean);
 
   const fullSlug = segments.join("/");
@@ -94,7 +95,7 @@ export function AdminShell() {
                   <BreadcrumbItem>
                     {segments.length > 0 ? (
                       <BreadcrumbLink asChild>
-                        <Link to="/manage" className="text-[hsl(var(--admin-text-muted))] hover:text-[hsl(24,95%,53%)] transition-colors text-sm">Management</Link>
+                        <Link to={manageLink("")} className="text-[hsl(var(--admin-text-muted))] hover:text-[hsl(24,95%,53%)] transition-colors text-sm">Management</Link>
                       </BreadcrumbLink>
                     ) : (
                       <BreadcrumbPage className="text-[hsl(var(--admin-text))] text-sm">Management</BreadcrumbPage>
