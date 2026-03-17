@@ -1,4 +1,5 @@
 import { T } from "@/lib/typography";
+import { Button } from "@/components/ui/button";
 
 interface BlogHeroProps {
   onSubscribeClick: () => void;
