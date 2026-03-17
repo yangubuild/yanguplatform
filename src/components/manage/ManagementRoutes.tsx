@@ -31,6 +31,7 @@ const ManagePricing = lazy(() => import("@/pages/manage/ManagePricing"));
 const ManagePromos = lazy(() => import("@/pages/manage/ManagePromos"));
 const ManageTeam = lazy(() => import("@/pages/manage/ManageTeam"));
 const ManageAppReview = lazy(() => import("@/pages/manage/ManageAppReview"));
+const ManageEntities = lazy(() => import("@/pages/manage/ManageEntities"));
 
 // Auth — login only, no signup
 const Login = lazy(() => import("@/pages/auth/Login"));
