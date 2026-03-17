@@ -494,7 +494,7 @@ const App = () => (
                   <Route path="surfaces" element={<ManageRoleGate allowedRoles={["admin"]}><ManageSurfaces /></ManageRoleGate>} />
                   <Route path="navigation" element={<ManageRoleGate allowedRoles={["admin"]}><ManageNavigation /></ManageRoleGate>} />
                   <Route path="community" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManageCommunity /></ManageRoleGate>} />
-                  <Route path="agents" element={<ManageRoleGate allowedRoles={["admin"]}><ManagePlaceholder /></ManageRoleGate>} />
+                  <Route path="agents" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAgents /></ManageRoleGate>} />
                   <Route path="domains" element={<ManageRoleGate allowedRoles={["admin"]}><ManageDomains /></ManageRoleGate>} />
                   {/* Analytics */}
                   <Route path="analytics" element={<ManageRoleGate allowedRoles={["admin", "analyst"]}><ManageAnalytics /></ManageRoleGate>} />
