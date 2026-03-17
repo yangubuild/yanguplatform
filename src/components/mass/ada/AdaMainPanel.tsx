@@ -931,7 +931,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
         return;
       }
 
-      // Call edge function with SSE streaming for progress
+      // Submit to provider (returns immediately)
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
       const session = (await supabase.auth.getSession()).data.session;
@@ -944,74 +944,87 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
         headers["Authorization"] = `Bearer ${session.access_token}`;
       }
 
-      const res = await fetch(`${supabaseUrl}/functions/v1/creatify-generate`, {
+      const submitRes = await fetch(`${supabaseUrl}/functions/v1/creatify-generate`, {
         method: "POST",
         headers,
-        body: JSON.stringify({ generation_id: generationId, stream: true }),
+        body: JSON.stringify({ generation_id: generationId }),
       });
 
-      if (!res.ok || !res.body) {
-        const errData = await res.json().catch(() => null);
-        console.error("[AdaVideo] Edge function error:", errData);
+      const submitData = await submitRes.json().catch(() => null);
+
+      if (!submitRes.ok || !submitData?.ok) {
+        console.error("[AdaVideo] Submit error:", submitData);
         setMessages(prev => prev.map(m => m.id === mediaMsgId ? {
           ...m,
-          mediaGen: { ...m.mediaGen!, status: "error" as MediaGenStatus, error: errData?.message || "Video generation failed" },
+          mediaGen: { ...m.mediaGen!, status: "error" as MediaGenStatus, error: submitData?.message || "Video generation failed" },
         } : m));
         return;
       }
 
-      // Read SSE progress events
-      const reader = res.body.getReader();
-      let finalAssetUrl: string | null = null;
-      let finalGenId = generationId;
+      // Poll check-status until done/failed
+      setMessages(prev => prev.map(m => m.id === mediaMsgId ? {
+        ...m,
+        mediaGen: { ...m.mediaGen!, status: "generating" as MediaGenStatus, progressStep: "Generating video…" },
+      } : m));
 
-      await readGenerationSSE(
-        reader,
-        (status, data) => {
-          const statusMap: Record<string, { mediaStatus: MediaGenStatus; step: string }> = {
-            queued: { mediaStatus: "queued", step: "Queued…" },
-            generating: { mediaStatus: "generating", step: "Generating video…" },
-            uploading: { mediaStatus: "uploading", step: "Uploading…" },
-            complete: { mediaStatus: "done", step: "Complete" },
-            error: { mediaStatus: "error", step: "Failed" },
-          };
-          const mapped = statusMap[status] || { mediaStatus: status as MediaGenStatus, step: status };
+      const POLL_INTERVAL = 5000;
+      const MAX_POLLS = 120; // 10 min max
 
-          if (status === "complete" && data.asset_url) {
-            finalAssetUrl = data.asset_url as string;
-            const caption = prompt.length > 50 ? prompt.slice(0, 47) + "…" : prompt;
-            setMessages(prev => prev.map(m => m.id === mediaMsgId ? {
-              ...m,
-              content: `🎬 Video generated: ${finalAssetUrl}`,
-              mediaGen: { ...m.mediaGen!, status: "done" as MediaGenStatus, previewUrl: finalAssetUrl!, caption },
-              metadata: { type: "video", provider: "creatify", generation_id: finalGenId },
-            } : m));
-          } else if (status === "error") {
-            setMessages(prev => prev.map(m => m.id === mediaMsgId ? {
-              ...m,
-              mediaGen: { ...m.mediaGen!, status: "error" as MediaGenStatus, error: (data.error as string) || "Video generation failed" },
-            } : m));
-          } else {
-            setMessages(prev => prev.map(m => m.id === mediaMsgId ? {
-              ...m,
-              mediaGen: { ...m.mediaGen!, status: mapped.mediaStatus, progressStep: mapped.step },
-            } : m));
-          }
+      for (let attempt = 0; attempt < MAX_POLLS; attempt++) {
+        await new Promise(r => setTimeout(r, POLL_INTERVAL));
+
+        const statusRes = await fetch(`${supabaseUrl}/functions/v1/creatify-generate`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ action: "check-status", generation_id: generationId }),
+        });
+
+        const statusData = await statusRes.json().catch(() => null);
+
+        if (statusData?.status === "done" && statusData?.videos?.length > 0) {
+          const assetUrl = statusData.videos[0].url;
+          const caption = prompt.length > 50 ? prompt.slice(0, 47) + "…" : prompt;
+          setMessages(prev => prev.map(m => m.id === mediaMsgId ? {
+            ...m,
+            content: `🎬 Video generated: ${assetUrl}`,
+            mediaGen: { ...m.mediaGen!, status: "done" as MediaGenStatus, previewUrl: assetUrl, caption },
+            metadata: { type: "video", provider: "creatify", generation_id: generationId },
+          } : m));
+
+          persistMessage(cid, {
+            id: mediaMsgId,
+            role: "assistant",
+            content: `🎬 Video generated: ${assetUrl}`,
+            metadata: { type: "video", provider: "creatify", generation_id: generationId },
+            created_at: new Date().toISOString(),
+          });
           smartScroll();
-        },
-        () => {
-          // If we got a final URL, persist it
-          if (finalAssetUrl) {
-            persistMessage(cid, {
-              id: mediaMsgId,
-              role: "assistant",
-              content: `🎬 Video generated: ${finalAssetUrl}`,
-              metadata: { type: "video", provider: "creatify", generation_id: finalGenId },
-              created_at: new Date().toISOString(),
-            });
-          }
-        },
-      );
+          return;
+        }
+
+        if (statusData?.status === "failed") {
+          setMessages(prev => prev.map(m => m.id === mediaMsgId ? {
+            ...m,
+            mediaGen: { ...m.mediaGen!, status: "error" as MediaGenStatus, error: statusData?.error || "Video generation failed" },
+          } : m));
+          return;
+        }
+
+        // Still processing — update progress step occasionally
+        if (attempt === 12) {
+          setMessages(prev => prev.map(m => m.id === mediaMsgId ? {
+            ...m,
+            mediaGen: { ...m.mediaGen!, progressStep: "Still generating…" },
+          } : m));
+        }
+      }
+
+      // Timed out
+      setMessages(prev => prev.map(m => m.id === mediaMsgId ? {
+        ...m,
+        mediaGen: { ...m.mediaGen!, status: "error" as MediaGenStatus, error: "Video generation timed out" },
+      } : m));
+
     } catch (err) {
       console.error("[AdaVideo] Error:", err);
       setMessages(prev => prev.map(m => m.id === mediaMsgId ? {
