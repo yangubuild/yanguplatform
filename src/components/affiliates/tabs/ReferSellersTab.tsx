@@ -21,13 +21,14 @@ export function ReferSellersTab() {
       <p className="text-white/50 text-center max-w-xl mb-6">
         Become a yangu Partner, refer users, and earn money whenever yangu grows.
       </p>
-      <button
+      <Button
+        variant="accent"
+        size="lg"
+        className="w-full max-w-lg mb-12"
         onClick={() => setShowPartnerPage(true)}
-        className="w-full max-w-lg h-12 rounded-xl text-sm font-semibold text-white mb-12"
-        style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
       >
         Apply to be a partner
-      </button>
+      </Button>
 
       {/* Steps */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-4xl mb-8">
