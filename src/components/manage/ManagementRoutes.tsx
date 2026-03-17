@@ -8,6 +8,8 @@ const ManageDashboard = lazy(() => import("@/pages/manage/ManageDashboard"));
 const ManageAlertsSecurity = lazy(() => import("@/pages/manage/ManageAlertsSecurity"));
 const ManageUsers = lazy(() => import("@/pages/manage/ManageUsers"));
 const ManagePlaceholder = lazy(() => import("@/pages/manage/ManagePlaceholder"));
+const ManageAuditLogs = lazy(() => import("@/pages/manage/ManageAuditLogs"));
+const ManageSettings = lazy(() => import("@/pages/manage/ManageSettings"));
 const ManageNotFound = lazy(() => import("@/pages/manage/ManageNotFound"));
 const ManageSurfaces = lazy(() => import("@/pages/manage/ManageSurfaces"));
 const ManageDomains = lazy(() => import("@/pages/manage/ManageDomains"));
