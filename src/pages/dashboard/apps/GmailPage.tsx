@@ -232,14 +232,14 @@ export default function GmailPage() {
 
             {nextPageToken && (
               <div className="flex justify-center mt-6">
-                <button
+                <Button
+                  variant="dark-green"
+                  size="default"
                   onClick={() => fetchInbox(nextPageToken)}
                   disabled={loading}
-                  className="px-4 py-2 rounded-xl text-sm text-white/60 hover:text-white transition-colors"
-                  style={{ background: "rgba(255,255,255,0.06)" }}
                 >
                   {loading ? "Loading..." : "Load more"}
-                </button>
+                </Button>
               </div>
             )}
           </>
