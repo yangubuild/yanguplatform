@@ -110,14 +110,14 @@ export default function GmailPage() {
             <p className="text-sm text-white/40 mt-1">Manage your inbox inside YANGU</p>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => { setView("compose"); setComposeTo(""); setComposeSubject(""); setComposeBody(""); }}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-white transition-colors"
-              style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
-            >
-              <Send className="w-4 h-4" />
-              Compose
-            </button>
+              <Button
+                variant="accent"
+                size="sm"
+                onClick={() => { setView("compose"); setComposeTo(""); setComposeSubject(""); setComposeBody(""); }}
+              >
+                <Send className="w-4 h-4" />
+                Compose
+              </Button>
             {view === "inbox" && (
               <button
                 onClick={() => fetchInbox()}
