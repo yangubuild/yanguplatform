@@ -10,7 +10,7 @@ import { consumeEntitlement } from "@/lib/entitlements";
 import { consumeAiImageCredit, consumeAiVideoCredit } from "@/lib/aiCredits";
 import { executeWithRuntime, getEnabledWidgetsForSurface, runProviderAction } from "@/lib/runtime";
 import type { RuntimeContext } from "@/lib/runtime";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { MediaGenerationCard, type MediaGenStatus } from "./MediaGenerationCard";
 import { AdaAuthModal } from "./AdaAuthModal";
 import { AdaBottomSection } from "./AdaBottomSection";
