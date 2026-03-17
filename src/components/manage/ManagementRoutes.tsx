@@ -6,6 +6,7 @@ import { ManageRoleGate } from "./ManageRoleGate";
 
 const ManageDashboard = lazy(() => import("@/pages/manage/ManageDashboard"));
 const ManageAlertsSecurity = lazy(() => import("@/pages/manage/ManageAlertsSecurity"));
+const ManageAnalytics = lazy(() => import("@/pages/manage/ManageAnalytics"));
 const ManageUsers = lazy(() => import("@/pages/manage/ManageUsers"));
 const ManagePlaceholder = lazy(() => import("@/pages/manage/ManagePlaceholder"));
 const ManageAuditLogs = lazy(() => import("@/pages/manage/ManageAuditLogs"));
