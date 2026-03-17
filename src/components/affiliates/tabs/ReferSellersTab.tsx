@@ -218,13 +218,13 @@ function PartnerDetailPage({ onBack }: { onBack: () => void }) {
               <span className="text-xs text-white/50 ml-1">4.3 (18)</span>
             </div>
             <p className="text-sm font-medium text-white mb-3">yangu Partners</p>
-            <button
+            <Button
+              variant="accent"
+              className="w-full"
               onClick={() => setShowApplyForm(true)}
-              className="w-full h-10 rounded-xl text-sm font-semibold text-white"
-              style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
             >
               Join the waitlist
-            </button>
+            </Button>
             <p className="text-xs text-white/30 text-center mt-3">Powered by yangu</p>
           </div>
         </div>
