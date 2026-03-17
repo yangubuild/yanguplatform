@@ -43,10 +43,11 @@ function CommunityPageInner() {
   const productive = useCommunitySection("category", "be_more_productive", 4, 0);
   const business = useCommunitySection("category", "start_scale_business", 8, 0);
 
-  // Fallback for filtered (non-Explore) view: use the general listings RPC
-  const { data: liveListings, isLoading: listingsLoading } = useCommunityListings(24, 0);
+  // Fallback for filtered (non-Explore) view — only fetch when user leaves Explore tab
+  const isFiltered = activeFilter !== "Explore";
+  const { data: liveListings, isLoading: listingsLoading } = useCommunityListings(24, 0, isFiltered);
 
-  // Builder community listings (surfaces with list_on_community = true)
+  // Builder community listings — deferred, loads after initial render
   const { data: builderListings } = useBuilderCommunityListings(12, 0);
   const builderItems: CommunityItem[] = (builderListings ?? []).map((bl) => ({
     id: bl.surface_id,
