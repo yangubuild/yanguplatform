@@ -3,6 +3,7 @@ import {
   Calendar, ChevronDown, ChevronRight, Percent, Users, Link2, Rocket,
   X, Eye, ChevronUp, Search, ExternalLink, Plus, MoreVertical, Check
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { AffEmptyTable } from "../shared/AffEmptyTable";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
