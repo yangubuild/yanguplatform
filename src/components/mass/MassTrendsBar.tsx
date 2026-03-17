@@ -1,24 +1,28 @@
 import { TrendingUp } from "lucide-react";
+import { useTrendEntities } from "@/hooks/landing/useSearchEntities";
 
-const trendItems = [
+const FALLBACK_ITEMS = [
   "restaurants",
   "automate your sales with ai crm",
   "subscription success guaranteed",
   "triple your sales this month",
   "automated invoicing - get paid fast",
   "sign documents digitally",
-  "manage all documents in one place",
-  "from idea to profit in 30 days",
-  "join 10,000+ successful entrepreneurs",
-  "unlimited access - platform owner",
-  "your apps for the build phase",
-  "click any app to get started",
-  "enjoy digital books & courses",
 ];
 
 export function MassTrendsBar() {
+  const { data: trendEntities } = useTrendEntities(20);
+
+  // Build trend text from paid entities; fall back to static if none yet
+  const liveItems =
+    trendEntities && trendEntities.length > 0
+      ? trendEntities.map(
+          (e) => e.short_description || e.title || e.primary_category || "yangu"
+        )
+      : FALLBACK_ITEMS;
+
   // Duplicate items for seamless loop
-  const duplicatedItems = [...trendItems, ...trendItems];
+  const duplicatedItems = [...liveItems, ...liveItems];
 
   return (
     <div className="flex items-center gap-4 mt-6 overflow-hidden lg:-ml-[60px] lg:w-[calc(100%+120px)] xl:-ml-[200px] xl:w-[calc(100%+260px)]">
