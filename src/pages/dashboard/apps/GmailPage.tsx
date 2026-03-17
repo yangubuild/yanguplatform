@@ -163,15 +163,15 @@ export default function GmailPage() {
                 rows={8}
                 className="bg-white/5 border-white/10 text-white placeholder:text-white/30 resize-none"
               />
-              <button
+              <Button
+                variant="accent"
+                size="default"
                 onClick={handleSend}
                 disabled={sending || !composeTo.trim()}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-white transition-colors disabled:opacity-40"
-                style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
               >
                 {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 Send
-              </button>
+              </Button>
             </div>
           </div>
         )}
