@@ -261,9 +261,17 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
   const { user, profile, isAuthenticated } = useAuth();
   const { surfaceId: ctxSurfaceId } = useSurfaceContext();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [mode, setMode] = useState<"chat" | "voice">("chat");
   const [intent, setIntent] = useState<"search" | "discuss" | null>(null);
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState(() => searchParams.get("prompt") || "");
+  // Clear the ?prompt= param after reading so it doesn't persist on refresh
+  useEffect(() => {
+    if (searchParams.has("prompt")) {
+      setSearchParams((prev) => { prev.delete("prompt"); return prev; }, { replace: true });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   // Forced mode from quick action buttons: "image" forces image gen, "text" forces text chat
   const [forcedMode, setForcedMode] = useState<"image" | "text" | null>(null);
   const [isFocused, setIsFocused] = useState(false);
