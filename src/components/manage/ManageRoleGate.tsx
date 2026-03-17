@@ -22,7 +22,7 @@ export function ManageRoleGate({ allowedRoles, children }: ManageRoleGateProps) 
   const hasAccess = manageRoles.some((r) => allowedRoles.includes(r));
 
   if (!hasAccess) {
-    const backTo = isContentEditor ? "/manage/content" : "/manage";
+    const backTo = isContentEditor ? manageLink("content") : manageLink("");
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { FileQuestion } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { manageLink } from "@/lib/routing/managePathUtils";
 
 export default function ManageNotFound() {
   return (
@@ -12,7 +13,7 @@ export default function ManageNotFound() {
       <p className="text-sm text-muted-foreground max-w-xs">
         This management section doesn't exist.
       </p>
-      <Link to="/manage">
+      <Link to={manageLink("")}>
         <Button variant="outline" size="sm">
           Back to Management
         </Button>
