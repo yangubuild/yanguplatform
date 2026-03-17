@@ -21,10 +21,11 @@ interface ManagementGuardProps {
  * - Allows access if email is in allowlist OR user has admin/management role.
  * - Does NOT trigger onboarding redirects.
  * - Sets active context to "management".
+ * - Redirects content_editor to /content on root landing (mirrors AdminRoute).
  */
 export function ManagementGuard({ children }: ManagementGuardProps) {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
-  const { hasAnyManageRole, isLoading: rolesLoading } = useRoles();
+  const { hasAnyManageRole, isContentEditor, isAdmin, isLoading: rolesLoading } = useRoles();
   const location = useLocation();
 
   const emailAllowed = !!user?.email && ALLOWED_ADMIN_EMAILS.includes(user.email.toLowerCase());
@@ -60,6 +61,11 @@ export function ManagementGuard({ children }: ManagementGuardProps) {
         </p>
       </div>
     );
+  }
+
+  // content_editor landing on panel root → redirect to content home
+  if (isContentEditor && !isAdmin && location.pathname === "/") {
+    return <Navigate to="/content" replace />;
   }
 
   return <>{children}</>;

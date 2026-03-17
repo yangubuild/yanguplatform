@@ -1,23 +1,24 @@
 import { FileText, Newspaper, Calendar, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { manageLink } from "@/lib/routing/managePathUtils";
 
 const contentLinks = [
   {
     title: "Blog (Layout & Engine)",
     description: "Manage sections, content layout, and publishing for the public blog.",
-    to: "/manage/content/blog",
+    slug: "content/blog",
     icon: FileText,
   },
   {
     title: "Articles / News",
     description: "Create and manage articles that feed into blog sections.",
-    to: "/manage/content/news",
+    slug: "content/news",
     icon: Newspaper,
   },
   {
     title: "Events (Registration)",
     description: "Create events with registration that appear in the Events blog section.",
-    to: "/manage/content/events",
+    slug: "content/events",
     icon: Calendar,
   },
 ];
@@ -35,8 +36,8 @@ export default function ManageContentHome() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {contentLinks.map((link) => (
           <Link
-            key={link.to}
-            to={link.to}
+            key={link.slug}
+            to={manageLink(link.slug)}
             className="group rounded-xl border border-border bg-card p-5 hover:border-accent/40 hover:shadow-sm transition-all"
           >
             <div className="flex items-start gap-3">

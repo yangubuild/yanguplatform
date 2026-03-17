@@ -2,6 +2,7 @@ import { NavLink } from "@/components/NavLink";
 import { useRoles } from "@/hooks/useRoles";
 import { useAuth } from "@/hooks/useAuth";
 import { adminNavGroups } from "./adminNavConfig";
+import { manageLink } from "@/lib/routing/managePathUtils";
 import yanguYIcon from "@/assets/yangu-y-icon.png";
 import { Shield, Crown, UserCog, Paintbrush } from "lucide-react";
 import {
@@ -81,10 +82,10 @@ export function AdminSidebar() {
               <SidebarGroupContent>
                 <SidebarMenu>
                   {visibleItems.map((item) => (
-                    <SidebarMenuItem key={item.to}>
+                    <SidebarMenuItem key={item.slug}>
                       <SidebarMenuButton asChild>
                         <NavLink
-                          to={item.to}
+                          to={manageLink(item.slug)}
                           end={item.end}
                           className="admin-nav-item flex items-center gap-3 text-sm"
                           activeClassName="admin-nav-item-active"
