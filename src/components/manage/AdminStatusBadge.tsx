@@ -9,6 +9,7 @@ const statusStyles: Record<string, string> = {
   pending:   "bg-warning/15 text-warning border-warning/20",
   draft:     "bg-muted text-muted-foreground border-border",
   archived:  "bg-muted text-muted-foreground border-border",
+  inactive:  "bg-muted text-muted-foreground border-border",
   removed:   "bg-destructive/15 text-destructive border-destructive/20",
   error:     "bg-destructive/15 text-destructive border-destructive/20",
   rejected:  "bg-destructive/15 text-destructive border-destructive/20",
