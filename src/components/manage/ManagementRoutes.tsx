@@ -31,6 +31,7 @@ const ManagePricing = lazy(() => import("@/pages/manage/ManagePricing"));
 const ManagePromos = lazy(() => import("@/pages/manage/ManagePromos"));
 const ManageTeam = lazy(() => import("@/pages/manage/ManageTeam"));
 const ManageAppReview = lazy(() => import("@/pages/manage/ManageAppReview"));
+const ManageEntities = lazy(() => import("@/pages/manage/ManageEntities"));
 
 // Auth — login only, no signup
 const Login = lazy(() => import("@/pages/auth/Login"));
@@ -91,6 +92,7 @@ export function ManagementRoutes() {
           <Route path="research-testing" element={<ManageRoleGate allowedRoles={["admin", "analyst"]}><ManageResearchTesting /></ManageRoleGate>} />
           <Route path="alerts-security" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAlertsSecurity /></ManageRoleGate>} />
           <Route path="app-review" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAppReview /></ManageRoleGate>} />
+          <Route path="entities" element={<ManageRoleGate allowedRoles={["admin"]}><ManageEntities /></ManageRoleGate>} />
           {/* System */}
           <Route path="settings" element={<ManageSettings />} />
           <Route path="audit-logs" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManageAuditLogs /></ManageRoleGate>} />

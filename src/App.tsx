@@ -104,6 +104,7 @@ const StoreBrowse = lazy(() => import("./pages/developers/store/StoreBrowse"));
 const StoreListing = lazy(() => import("./pages/developers/store/StoreListing"));
 const StoreInstall = lazy(() => import("./pages/developers/store/StoreInstall"));
 const ManageAppReview = lazy(() => import("./pages/manage/ManageAppReview"));
+const ManageEntities = lazy(() => import("./pages/manage/ManageEntities"));
 
 // Developer Portal (lazy)
 const PortalLayoutModule = lazy(() => import("./components/developers/portal/PortalLayout").then(m => ({ default: m.PortalLayout })));
@@ -511,6 +512,7 @@ const App = () => (
                   <Route path="research-testing" element={<ManageRoleGate allowedRoles={["admin", "analyst"]}><ManageResearchTesting /></ManageRoleGate>} />
                   <Route path="alerts-security" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAlertsSecurity /></ManageRoleGate>} />
                   <Route path="app-review" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAppReview /></ManageRoleGate>} />
+                  <Route path="entities" element={<ManageRoleGate allowedRoles={["admin"]}><ManageEntities /></ManageRoleGate>} />
                   {/* System */}
                   <Route path="settings" element={<ManageSettings />} />
                   <Route path="audit-logs" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManageAuditLogs /></ManageRoleGate>} />

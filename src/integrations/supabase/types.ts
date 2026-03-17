@@ -3775,6 +3775,122 @@ export type Database = {
         }
         Relationships: []
       }
+      searchable_entities: {
+        Row: {
+          builder_surface_id: string | null
+          builder_surface_type: string | null
+          cover_image_url: string | null
+          created_at: string
+          domain_host: string | null
+          entity_subtype: Database["public"]["Enums"]["entity_subtype"]
+          entity_type: Database["public"]["Enums"]["searchable_entity_type"]
+          id: string
+          industry: string | null
+          is_ad_eligible: boolean
+          is_published: boolean
+          is_searchable: boolean
+          is_verified: boolean
+          owner_org_id: string | null
+          owner_user_id: string
+          primary_category: string | null
+          promotion_id: string | null
+          published_at: string | null
+          short_description: string | null
+          slug: string | null
+          surface_id: string | null
+          surface_type: string | null
+          tags: string[]
+          title: string
+          updated_at: string
+          visibility_tier: Database["public"]["Enums"]["visibility_tier"]
+        }
+        Insert: {
+          builder_surface_id?: string | null
+          builder_surface_type?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          domain_host?: string | null
+          entity_subtype?: Database["public"]["Enums"]["entity_subtype"]
+          entity_type: Database["public"]["Enums"]["searchable_entity_type"]
+          id?: string
+          industry?: string | null
+          is_ad_eligible?: boolean
+          is_published?: boolean
+          is_searchable?: boolean
+          is_verified?: boolean
+          owner_org_id?: string | null
+          owner_user_id: string
+          primary_category?: string | null
+          promotion_id?: string | null
+          published_at?: string | null
+          short_description?: string | null
+          slug?: string | null
+          surface_id?: string | null
+          surface_type?: string | null
+          tags?: string[]
+          title: string
+          updated_at?: string
+          visibility_tier?: Database["public"]["Enums"]["visibility_tier"]
+        }
+        Update: {
+          builder_surface_id?: string | null
+          builder_surface_type?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          domain_host?: string | null
+          entity_subtype?: Database["public"]["Enums"]["entity_subtype"]
+          entity_type?: Database["public"]["Enums"]["searchable_entity_type"]
+          id?: string
+          industry?: string | null
+          is_ad_eligible?: boolean
+          is_published?: boolean
+          is_searchable?: boolean
+          is_verified?: boolean
+          owner_org_id?: string | null
+          owner_user_id?: string
+          primary_category?: string | null
+          promotion_id?: string | null
+          published_at?: string | null
+          short_description?: string | null
+          slug?: string | null
+          surface_id?: string | null
+          surface_type?: string | null
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          visibility_tier?: Database["public"]["Enums"]["visibility_tier"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "searchable_entities_builder_surface_id_fkey"
+            columns: ["builder_surface_id"]
+            isOneToOne: true
+            referencedRelation: "builder_surfaces"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "searchable_entities_owner_org_id_fkey"
+            columns: ["owner_org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "searchable_entities_promotion_id_fkey"
+            columns: ["promotion_id"]
+            isOneToOne: false
+            referencedRelation: "community_promotions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "searchable_entities_surface_id_fkey"
+            columns: ["surface_id"]
+            isOneToOne: true
+            referencedRelation: "surfaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       studio_assets: {
         Row: {
           asset_type: string
@@ -4974,6 +5090,14 @@ export type Database = {
         Returns: boolean
       }
       delete_surface: { Args: { p_surface_id: string }; Returns: Json }
+      derive_entity_subtype: {
+        Args: { p_industry?: string; p_surface_type: string }
+        Returns: Database["public"]["Enums"]["entity_subtype"]
+      }
+      derive_entity_type: {
+        Args: { p_surface_type: string }
+        Returns: Database["public"]["Enums"]["searchable_entity_type"]
+      }
       developer_check_and_increment_usage: {
         Args: {
           p_app_id: string
@@ -5283,6 +5407,38 @@ export type Database = {
         Args: { p_alert_id: string; p_resolve?: boolean }
         Returns: undefined
       }
+      manage_searchable_entities: {
+        Args: {
+          p_entity_type?: string
+          p_limit?: number
+          p_offset?: number
+          p_searchable_only?: boolean
+        }
+        Returns: {
+          builder_surface_type: string
+          cover_image_url: string
+          created_at: string
+          domain_host: string
+          entity_subtype: string
+          entity_type: string
+          id: string
+          industry: string
+          is_ad_eligible: boolean
+          is_published: boolean
+          is_searchable: boolean
+          is_verified: boolean
+          primary_category: string
+          published_at: string
+          short_description: string
+          slug: string
+          surface_id: string
+          surface_type: string
+          tags: string[]
+          title: string
+          total_count: number
+          visibility_tier: string
+        }[]
+      }
       manage_set_user_roles: {
         Args: {
           p_roles: Database["public"]["Enums"]["app_role"][]
@@ -5381,6 +5537,36 @@ export type Database = {
       rotate_app_key: { Args: { p_key_id: string }; Returns: Json }
       rotate_webhook_secret: { Args: { p_webhook_id: string }; Returns: string }
       run_auto_review: { Args: { p_listing_id: string }; Returns: string }
+      search_entities: {
+        Args: {
+          p_category?: string
+          p_entity_subtype?: Database["public"]["Enums"]["entity_subtype"]
+          p_entity_type?: Database["public"]["Enums"]["searchable_entity_type"]
+          p_limit?: number
+          p_offset?: number
+          p_query?: string
+          p_verified_only?: boolean
+          p_visibility_tier?: Database["public"]["Enums"]["visibility_tier"]
+        }
+        Returns: {
+          cover_image_url: string
+          domain_host: string
+          entity_subtype: Database["public"]["Enums"]["entity_subtype"]
+          entity_type: Database["public"]["Enums"]["searchable_entity_type"]
+          id: string
+          industry: string
+          is_verified: boolean
+          primary_category: string
+          published_at: string
+          relevance_score: number
+          short_description: string
+          slug: string
+          surface_type: string
+          tags: string[]
+          title: string
+          visibility_tier: Database["public"]["Enums"]["visibility_tier"]
+        }[]
+      }
       send_admin_invite: {
         Args: {
           p_email: string
@@ -5422,6 +5608,8 @@ export type Database = {
         }
         Returns: undefined
       }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
       spend_credits: {
         Args: {
           _amount: number
@@ -5440,6 +5628,10 @@ export type Database = {
           p_message: string
         }
         Returns: string
+      }
+      sync_searchable_entity: {
+        Args: { p_surface_id: string }
+        Returns: undefined
       }
       track_order: {
         Args: { p_buyer_email: string; p_tracking_code: string }
@@ -5502,9 +5694,31 @@ export type Database = {
         | "studio_showcase"
         | "community_listing"
       creator_type: "seller" | "builder" | "organization" | "learner"
+      entity_subtype:
+        | "influencer"
+        | "freelancer"
+        | "coach"
+        | "consultant"
+        | "leader"
+        | "church"
+        | "ministry"
+        | "faith_org"
+        | "ngo"
+        | "school"
+        | "institution"
+        | "professional_network"
+        | "general"
       kyc_status: "pending" | "submitted" | "approved" | "rejected"
       login_mode: "disabled" | "optional" | "required"
       payment_status: "pending" | "completed" | "failed" | "refunded"
+      searchable_entity_type:
+        | "product"
+        | "service"
+        | "business"
+        | "creator"
+        | "organization"
+        | "community"
+        | "project"
       subscription_status:
         | "active"
         | "canceled"
@@ -5512,6 +5726,7 @@ export type Database = {
         | "trialing"
         | "unpaid"
       surface_type: "shop" | "store" | "site" | "studio" | "live" | "community"
+      visibility_tier: "free" | "verified" | "paid" | "premium"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -5665,9 +5880,33 @@ export const Constants = {
         "community_listing",
       ],
       creator_type: ["seller", "builder", "organization", "learner"],
+      entity_subtype: [
+        "influencer",
+        "freelancer",
+        "coach",
+        "consultant",
+        "leader",
+        "church",
+        "ministry",
+        "faith_org",
+        "ngo",
+        "school",
+        "institution",
+        "professional_network",
+        "general",
+      ],
       kyc_status: ["pending", "submitted", "approved", "rejected"],
       login_mode: ["disabled", "optional", "required"],
       payment_status: ["pending", "completed", "failed", "refunded"],
+      searchable_entity_type: [
+        "product",
+        "service",
+        "business",
+        "creator",
+        "organization",
+        "community",
+        "project",
+      ],
       subscription_status: [
         "active",
         "canceled",
@@ -5676,6 +5915,7 @@ export const Constants = {
         "unpaid",
       ],
       surface_type: ["shop", "store", "site", "studio", "live", "community"],
+      visibility_tier: ["free", "verified", "paid", "premium"],
     },
   },
 } as const
