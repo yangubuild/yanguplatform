@@ -35,6 +35,7 @@ export type VisibilityTier = 'free' | 'verified' | 'paid' | 'premium';
 
 // ── Surface type → entity type mapping (mirrors derive_entity_type SQL) ──
 export const SURFACE_TO_ENTITY: Record<string, SearchableEntityType> = {
+  // builder_surface_type values
   eshop: 'business',
   emenu: 'business',
   quick_site: 'business',
@@ -44,6 +45,13 @@ export const SURFACE_TO_ENTITY: Record<string, SearchableEntityType> = {
   community_group: 'community',
   community_listing: 'community',
   studio_showcase: 'project',
+  // domain-level surface_type values
+  shop: 'business',
+  store: 'business',
+  site: 'business',
+  live: 'creator',
+  community: 'community',
+  studio: 'project',
 };
 
 // ── Entity type display config ──
