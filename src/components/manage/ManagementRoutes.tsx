@@ -8,6 +8,8 @@ const ManageDashboard = lazy(() => import("@/pages/manage/ManageDashboard"));
 const ManageAlertsSecurity = lazy(() => import("@/pages/manage/ManageAlertsSecurity"));
 const ManageUsers = lazy(() => import("@/pages/manage/ManageUsers"));
 const ManagePlaceholder = lazy(() => import("@/pages/manage/ManagePlaceholder"));
+const ManageAuditLogs = lazy(() => import("@/pages/manage/ManageAuditLogs"));
+const ManageSettings = lazy(() => import("@/pages/manage/ManageSettings"));
 const ManageNotFound = lazy(() => import("@/pages/manage/ManageNotFound"));
 const ManageSurfaces = lazy(() => import("@/pages/manage/ManageSurfaces"));
 const ManageDomains = lazy(() => import("@/pages/manage/ManageDomains"));
@@ -84,8 +86,8 @@ export function ManagementRoutes() {
           <Route path="alerts-security" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAlertsSecurity /></ManageRoleGate>} />
           <Route path="app-review" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAppReview /></ManageRoleGate>} />
           {/* System */}
-          <Route path="settings" element={<ManagePlaceholder />} />
-          <Route path="audit-logs" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManagePlaceholder /></ManageRoleGate>} />
+          <Route path="settings" element={<ManageSettings />} />
+          <Route path="audit-logs" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManageAuditLogs /></ManageRoleGate>} />
           <Route path="*" element={<ManageNotFound />} />
         </Route>
 
