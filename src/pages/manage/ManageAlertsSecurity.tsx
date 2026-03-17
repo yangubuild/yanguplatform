@@ -232,7 +232,7 @@ export default function ManageAlertsSecurity() {
     <div className="space-y-5">
       <AdminPageHeader
         title="Alerts & Security"
-        subtitle="Real-time platform incident visibility and alert management"
+        description="Real-time platform incident visibility and alert management"
       />
       <AutoDetectedSources />
       <AlertsTable />
