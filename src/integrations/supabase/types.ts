@@ -3775,6 +3775,122 @@ export type Database = {
         }
         Relationships: []
       }
+      searchable_entities: {
+        Row: {
+          builder_surface_id: string | null
+          builder_surface_type: string | null
+          cover_image_url: string | null
+          created_at: string
+          domain_host: string | null
+          entity_subtype: Database["public"]["Enums"]["entity_subtype"]
+          entity_type: Database["public"]["Enums"]["searchable_entity_type"]
+          id: string
+          industry: string | null
+          is_ad_eligible: boolean
+          is_published: boolean
+          is_searchable: boolean
+          is_verified: boolean
+          owner_org_id: string | null
+          owner_user_id: string
+          primary_category: string | null
+          promotion_id: string | null
+          published_at: string | null
+          short_description: string | null
+          slug: string | null
+          surface_id: string | null
+          surface_type: string | null
+          tags: string[]
+          title: string
+          updated_at: string
+          visibility_tier: Database["public"]["Enums"]["visibility_tier"]
+        }
+        Insert: {
+          builder_surface_id?: string | null
+          builder_surface_type?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          domain_host?: string | null
+          entity_subtype?: Database["public"]["Enums"]["entity_subtype"]
+          entity_type: Database["public"]["Enums"]["searchable_entity_type"]
+          id?: string
+          industry?: string | null
+          is_ad_eligible?: boolean
+          is_published?: boolean
+          is_searchable?: boolean
+          is_verified?: boolean
+          owner_org_id?: string | null
+          owner_user_id: string
+          primary_category?: string | null
+          promotion_id?: string | null
+          published_at?: string | null
+          short_description?: string | null
+          slug?: string | null
+          surface_id?: string | null
+          surface_type?: string | null
+          tags?: string[]
+          title: string
+          updated_at?: string
+          visibility_tier?: Database["public"]["Enums"]["visibility_tier"]
+        }
+        Update: {
+          builder_surface_id?: string | null
+          builder_surface_type?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          domain_host?: string | null
+          entity_subtype?: Database["public"]["Enums"]["entity_subtype"]
+          entity_type?: Database["public"]["Enums"]["searchable_entity_type"]
+          id?: string
+          industry?: string | null
+          is_ad_eligible?: boolean
+          is_published?: boolean
+          is_searchable?: boolean
+          is_verified?: boolean
+          owner_org_id?: string | null
+          owner_user_id?: string
+          primary_category?: string | null
+          promotion_id?: string | null
+          published_at?: string | null
+          short_description?: string | null
+          slug?: string | null
+          surface_id?: string | null
+          surface_type?: string | null
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          visibility_tier?: Database["public"]["Enums"]["visibility_tier"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "searchable_entities_builder_surface_id_fkey"
+            columns: ["builder_surface_id"]
+            isOneToOne: true
+            referencedRelation: "builder_surfaces"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "searchable_entities_owner_org_id_fkey"
+            columns: ["owner_org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "searchable_entities_promotion_id_fkey"
+            columns: ["promotion_id"]
+            isOneToOne: false
+            referencedRelation: "community_promotions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "searchable_entities_surface_id_fkey"
+            columns: ["surface_id"]
+            isOneToOne: true
+            referencedRelation: "surfaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       studio_assets: {
         Row: {
           asset_type: string
@@ -5422,6 +5538,8 @@ export type Database = {
         }
         Returns: undefined
       }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
       spend_credits: {
         Args: {
           _amount: number
@@ -5502,9 +5620,31 @@ export type Database = {
         | "studio_showcase"
         | "community_listing"
       creator_type: "seller" | "builder" | "organization" | "learner"
+      entity_subtype:
+        | "influencer"
+        | "freelancer"
+        | "coach"
+        | "consultant"
+        | "leader"
+        | "church"
+        | "ministry"
+        | "faith_org"
+        | "ngo"
+        | "school"
+        | "institution"
+        | "professional_network"
+        | "general"
       kyc_status: "pending" | "submitted" | "approved" | "rejected"
       login_mode: "disabled" | "optional" | "required"
       payment_status: "pending" | "completed" | "failed" | "refunded"
+      searchable_entity_type:
+        | "product"
+        | "service"
+        | "business"
+        | "creator"
+        | "organization"
+        | "community"
+        | "project"
       subscription_status:
         | "active"
         | "canceled"
@@ -5512,6 +5652,7 @@ export type Database = {
         | "trialing"
         | "unpaid"
       surface_type: "shop" | "store" | "site" | "studio" | "live" | "community"
+      visibility_tier: "free" | "verified" | "paid" | "premium"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -5665,9 +5806,33 @@ export const Constants = {
         "community_listing",
       ],
       creator_type: ["seller", "builder", "organization", "learner"],
+      entity_subtype: [
+        "influencer",
+        "freelancer",
+        "coach",
+        "consultant",
+        "leader",
+        "church",
+        "ministry",
+        "faith_org",
+        "ngo",
+        "school",
+        "institution",
+        "professional_network",
+        "general",
+      ],
       kyc_status: ["pending", "submitted", "approved", "rejected"],
       login_mode: ["disabled", "optional", "required"],
       payment_status: ["pending", "completed", "failed", "refunded"],
+      searchable_entity_type: [
+        "product",
+        "service",
+        "business",
+        "creator",
+        "organization",
+        "community",
+        "project",
+      ],
       subscription_status: [
         "active",
         "canceled",
@@ -5676,6 +5841,7 @@ export const Constants = {
         "unpaid",
       ],
       surface_type: ["shop", "store", "site", "studio", "live", "community"],
+      visibility_tier: ["free", "verified", "paid", "premium"],
     },
   },
 } as const
