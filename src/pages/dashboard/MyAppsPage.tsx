@@ -7,6 +7,7 @@ import { connectApp } from "@/lib/app-store/connect";
 import { supabase } from "@/integrations/supabase/client";
 import { ICON_MAP } from "@/lib/app-store/icon-map";
 import { Plus, Loader2, Trash2, ExternalLink, Grid3X3, Link2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import type { AppRegistryEntry } from "@/lib/app-store/types";
 
