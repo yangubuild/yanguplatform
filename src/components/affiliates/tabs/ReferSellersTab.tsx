@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link2, UserPlus, DollarSign, X, Star } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import yanguYLogo from "@/assets/yangu-y-logo.png";
