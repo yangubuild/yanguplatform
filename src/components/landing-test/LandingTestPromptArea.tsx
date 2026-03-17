@@ -336,8 +336,8 @@ export function LandingTestPromptArea() {
           {/* Live search results dropdown */}
           {searchResults && searchResults.length > 0 && (
             <div
-              className="rounded-b-2xl overflow-hidden divide-y"
-              style={{ background: 'rgba(255,255,255,0.04)', borderLeft: '1px solid rgba(255,255,255,0.08)', borderRight: '1px solid rgba(255,255,255,0.08)', borderBottom: '1px solid rgba(255,255,255,0.08)', divideColor: 'rgba(255,255,255,0.04)' }}
+              className="rounded-b-2xl overflow-hidden divide-y divide-white/[0.04]"
+              style={{ background: 'rgba(255,255,255,0.04)', borderLeft: '1px solid rgba(255,255,255,0.08)', borderRight: '1px solid rgba(255,255,255,0.08)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}
             >
               {searchResults.map((entity) => (
                 <EntityResultCard key={entity.id} entity={entity} />
