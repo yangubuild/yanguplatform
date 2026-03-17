@@ -5407,6 +5407,38 @@ export type Database = {
         Args: { p_alert_id: string; p_resolve?: boolean }
         Returns: undefined
       }
+      manage_searchable_entities: {
+        Args: {
+          p_entity_type?: string
+          p_limit?: number
+          p_offset?: number
+          p_searchable_only?: boolean
+        }
+        Returns: {
+          builder_surface_type: string
+          cover_image_url: string
+          created_at: string
+          domain_host: string
+          entity_subtype: string
+          entity_type: string
+          id: string
+          industry: string
+          is_ad_eligible: boolean
+          is_published: boolean
+          is_searchable: boolean
+          is_verified: boolean
+          primary_category: string
+          published_at: string
+          short_description: string
+          slug: string
+          surface_id: string
+          surface_type: string
+          tags: string[]
+          title: string
+          total_count: number
+          visibility_tier: string
+        }[]
+      }
       manage_set_user_roles: {
         Args: {
           p_roles: Database["public"]["Enums"]["app_role"][]
@@ -5505,6 +5537,36 @@ export type Database = {
       rotate_app_key: { Args: { p_key_id: string }; Returns: Json }
       rotate_webhook_secret: { Args: { p_webhook_id: string }; Returns: string }
       run_auto_review: { Args: { p_listing_id: string }; Returns: string }
+      search_entities: {
+        Args: {
+          p_category?: string
+          p_entity_subtype?: Database["public"]["Enums"]["entity_subtype"]
+          p_entity_type?: Database["public"]["Enums"]["searchable_entity_type"]
+          p_limit?: number
+          p_offset?: number
+          p_query?: string
+          p_verified_only?: boolean
+          p_visibility_tier?: Database["public"]["Enums"]["visibility_tier"]
+        }
+        Returns: {
+          cover_image_url: string
+          domain_host: string
+          entity_subtype: Database["public"]["Enums"]["entity_subtype"]
+          entity_type: Database["public"]["Enums"]["searchable_entity_type"]
+          id: string
+          industry: string
+          is_verified: boolean
+          primary_category: string
+          published_at: string
+          relevance_score: number
+          short_description: string
+          slug: string
+          surface_type: string
+          tags: string[]
+          title: string
+          visibility_tier: Database["public"]["Enums"]["visibility_tier"]
+        }[]
+      }
       send_admin_invite: {
         Args: {
           p_email: string
