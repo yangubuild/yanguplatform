@@ -40,7 +40,7 @@ const TYPE_ICONS: Record<string, React.FC<{ className?: string; style?: React.CS
   project: Palette,
 };
 
-function EntityCard({ entity }: { entity: SearchEntityResult }) {
+function EntityCard({ entity, onClickTrack }: { entity: SearchEntityResult; onClickTrack?: (e: SearchEntityResult) => void }) {
   const navigate = useNavigate();
   const route = getEntityRoute(entity);
   const ext = isExternalRoute(route);
@@ -50,7 +50,7 @@ function EntityCard({ entity }: { entity: SearchEntityResult }) {
 
   return (
     <div
-      onClick={() => ext ? window.open(route, "_blank") : navigate(route)}
+      onClick={() => { onClickTrack?.(entity); ext ? window.open(route, "_blank") : navigate(route); }}
       className="shrink-0 w-[290px] rounded-2xl overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
       style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', scrollSnapAlign: 'start' }}
     >
