@@ -124,13 +124,16 @@ export function trackExploreEvent(
   scheduleFlush();
 }
 
+/** @deprecated Use trackExploreEvent */
+export const trackDiscoveryEvent = trackExploreEvent;
+
 /**
  * Track impressions for a batch of entities shown on a surface.
  * Use with IntersectionObserver for viewport-aware tracking.
  */
 export function trackImpressions(
   entities: TrackableEntity[],
-  surface: DiscoverySurface,
+  surface: ExploreSurface,
 ) {
   const sid = getSessionId();
   for (const entity of entities) {
