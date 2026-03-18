@@ -92,7 +92,7 @@ export function MassLandingPage() {
 
           {/* Row 1: Verified — 4 key surfaces */}
           <PremiumBusinessRow
-            title="Verified"
+            title="Trusted Businesses"
             entities={verifiedSlotted.length > 0 ? verifiedSlotted : undefined}
             businesses={verifiedBusinesses}
           />
