@@ -120,7 +120,7 @@ export function MassLandingPage() {
 
           {/* Row 4: Community — 4 key surfaces */}
           <PremiumBusinessRow
-            title="Community"
+            title="Join Communities"
             subtitle="Join communities for learning, networking, and growth"
             entities={communitySlotted.length > 0 ? communitySlotted : undefined}
             businesses={weightLossCoachingBusinesses}

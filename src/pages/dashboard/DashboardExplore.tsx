@@ -36,7 +36,7 @@ export default function DashboardExplore() {
           businesses={mindsetCoachingBusinesses}
         />
         <PremiumBusinessRow
-          title="Community"
+          title="Join Communities"
           subtitle="Join communities for learning, networking, and growth"
           businesses={weightLossCoachingBusinesses}
         />
