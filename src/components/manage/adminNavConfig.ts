@@ -53,6 +53,7 @@ export const adminNavGroups: AdminNavGroup[] = [
     label: "Overview",
     items: [
       { title: "Dashboard", slug: "", icon: LayoutDashboard, end: true, allowedRoles: ["admin"] },
+      { title: "Explore Dashboard", slug: "explore-dashboard", icon: Layers, allowedRoles: ["admin"] },
       { title: "Analytics", slug: "analytics", icon: BarChart3, allowedRoles: ["admin", "analyst"] },
     ],
   },
@@ -125,4 +126,5 @@ sectionLabels["content/events"] = "Events (Registration)";
 sectionLabels["ada"] = "ADA AI";
 sectionLabels["messages"] = "Messages & Support";
 sectionLabels["content"] = "Content Engine";
+sectionLabels["explore-dashboard"] = "Explore Dashboard";
 sectionLabels["navigation"] = "Navigation Manager";

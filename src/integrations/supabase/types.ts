@@ -2970,6 +2970,27 @@ export type Database = {
           },
         ]
       }
+      explore_manual_overrides: {
+        Row: {
+          entity_id: string
+          position: number
+          set_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          entity_id: string
+          position?: number
+          set_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          entity_id?: string
+          position?: number
+          set_by?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       exposure_tuning_signals: {
         Row: {
           clicks_7d: number
@@ -5711,6 +5732,9 @@ export type Database = {
         Returns: Json
       }
       manage_domains_list: { Args: never; Returns: Json }
+      manage_explore_surfaces: { Args: never; Returns: Json }
+      manage_explore_surfaces_stats: { Args: never; Returns: Json }
+      manage_explore_users_stats: { Args: never; Returns: Json }
       manage_get_user_detail: { Args: { p_user_id: string }; Returns: Json }
       manage_invite_user: {
         Args: {
@@ -5741,6 +5765,10 @@ export type Database = {
       }
       manage_resolve_alert: {
         Args: { p_alert_id: string; p_resolve?: boolean }
+        Returns: undefined
+      }
+      manage_save_explore_order: {
+        Args: { p_orderings: Json }
         Returns: undefined
       }
       manage_searchable_entities: {

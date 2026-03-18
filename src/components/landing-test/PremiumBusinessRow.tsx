@@ -99,10 +99,10 @@ function EntityCard({ entity, onClickTrack }: { entity: SearchEntityResult; onCl
 }
 
 const TITLE_TO_SURFACE: Record<string, ExploreSurface> = {
+  "Verified": "landing_verified",
   "Verified Businesses": "landing_verified",
   "Products": "landing_products",
   "Services": "landing_services",
-  "Influencers / Creators": "landing_creators",
   "Community": "landing_community",
 };
 
