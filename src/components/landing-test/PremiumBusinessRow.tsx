@@ -5,8 +5,8 @@ import { T } from "@/lib/typography";
 import type { SearchEntityResult } from "@/types/search";
 import { ENTITY_TYPE_CONFIG } from "@/types/search";
 import { getEntityRoute, isExternalRoute, getVerifiedBadgeColor } from "@/lib/entityRouting";
-import { useImpressionTracker } from "@/hooks/useDiscoveryTracking";
-import type { DiscoverySurface } from "@/lib/discoveryAnalytics";
+import { useImpressionTracker } from "@/hooks/useExploreTracking";
+import type { ExploreSurface } from "@/lib/exploreAnalytics";
 
 export interface PremiumBusiness {
   coverImage: string;

@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { SearchEntityResult, SearchEntitiesParams } from "@/types/search";
 import { diversifyResults } from "@/lib/discoveryDiversity";
-import { personalizeResults } from "@/lib/personalizeDiscovery";
+import { personalizeResults } from "@/lib/personalizeExplore";
 
 /**
  * Generic hook that calls the canonical search_entities RPC.

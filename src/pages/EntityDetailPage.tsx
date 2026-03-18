@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ReviewForm } from "@/components/entity/ReviewForm";
 import { ReportDialog } from "@/components/entity/ReportDialog";
 import { recordEntityClick } from "@/lib/sessionMemory";
-import { useImpressionTracker } from "@/hooks/useDiscoveryTracking";
+import { useImpressionTracker } from "@/hooks/useExploreTracking";
 import { ENTITY_TYPE_CONFIG, ENTITY_SUBTYPE_LABELS } from "@/types/search";
 import type { SearchableEntityType, EntitySubtype } from "@/types/search";
 import { getEntityRoute, isExternalRoute } from "@/lib/entityRouting";

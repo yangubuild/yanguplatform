@@ -193,7 +193,7 @@ export default function ManageExploreAnalytics() {
 
       {isLoading && (
         <AdminGlassCard className="p-8 text-center">
-          <p className="text-sm text-[hsl(var(--admin-text-muted))]">Loading discovery analytics…</p>
+          <p className="text-sm text-[hsl(var(--admin-text-muted))]">Loading explore analytics…</p>
         </AdminGlassCard>
       )}
 
