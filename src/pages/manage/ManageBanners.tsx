@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Image, Eye, EyeOff, RotateCcw, Upload, Trash2, Lock } from "lucide-react";
-import { AdminToolbar } from "@/components/manage/AdminToolbar";
+import { Button } from "@/components/ui/button";
 import { Button } from "@/components/ui/button";
 import { useLandingBanners, useBannerMutations } from "@/hooks/landing/useLandingBanners";
 import { BANNER_CONTRACT } from "@/lib/bannerContracts";
