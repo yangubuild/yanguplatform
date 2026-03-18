@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Store, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { SPONSORED_TRUST_FLOOR } from "@/lib/monetizationRules";
 
 interface SponsoredBusiness {
   id: string;
@@ -9,6 +10,7 @@ interface SponsoredBusiness {
   coverImage?: string;
   description?: string;
   category?: string;
+  trustScore?: number;
 }
 
 /**
@@ -37,6 +39,12 @@ export function ExploreSponsoredSection() {
                 const t = ad.targeting as any;
                 return t?.type === "search_ad";
               })
+              .filter((ad) => {
+                // Phase 8: trust floor — sponsored entities must meet minimum trust
+                const t = ad.targeting as any;
+                const trust = t?.trust_score ?? 0;
+                return trust >= SPONSORED_TRUST_FLOOR;
+              })
               .map((ad) => {
                 const t = ad.targeting as any;
                 return {
@@ -46,6 +54,7 @@ export function ExploreSponsoredSection() {
                   coverImage: ad.image_url || undefined,
                   description: ad.content || t?.description,
                   category: t?.category,
+                  trustScore: t?.trust_score ?? 0,
                 };
               })
           );

@@ -104,6 +104,7 @@ export interface SearchEntityResult {
   cover_image_url: string | null;
   published_at: string | null;
   relevance_score: number;
+  trust_score?: number | null;
 }
 
 // ── Search params (mirrors search_entities RPC args) ──
