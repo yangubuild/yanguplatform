@@ -154,9 +154,9 @@ export function trackImpressions(
  */
 export function trackClick(
   entity: TrackableEntity,
-  surface: DiscoverySurface,
+  surface: ExploreSurface,
 ) {
-  trackDiscoveryEvent("click", entity, surface);
+  trackExploreEvent("click", entity, surface);
 }
 
 /**
