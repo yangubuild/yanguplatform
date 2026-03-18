@@ -195,6 +195,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Automotive",
       surface_type: "eshop",
       cover_image_url: urbandriveMotors,
+      avatar_url: avatarB1_03,
       published_at: "2025-10-20T00:00:00Z",
       relevance_score: 80,
       trust_score: 65,
