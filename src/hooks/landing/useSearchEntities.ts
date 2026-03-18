@@ -2,11 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { SearchEntityResult, SearchEntitiesParams } from "@/types/search";
 import { diversifyResults } from "@/lib/discoveryDiversity";
+import { personalizeResults } from "@/lib/personalizeDiscovery";
 
 /**
  * Generic hook that calls the canonical search_entities RPC.
  * Every landing section uses this with different filter params.
- * Results are soft-diversified so first visible rows avoid category repetition.
+ * Pipeline: server ranking → personalization nudge → diversity interleaving.
  */
 export function useSearchEntities(
   params: SearchEntitiesParams,
@@ -28,7 +29,8 @@ export function useSearchEntities(
       });
       if (error) throw error;
       const results = (data ?? []) as unknown as SearchEntityResult[];
-      return diversifyResults(results);
+      // Pipeline: personalize → diversify
+      return diversifyResults(personalizeResults(results));
     },
     enabled,
     staleTime: 60_000,
@@ -63,7 +65,7 @@ export function usePopularBusinesses(limit = 16) {
   );
 }
 
-/** Product discovery — bridges through business/shop surfaces until item-level indexing exists */
+/** Product discovery — bridges through business/shop surfaces */
 export function useProductEntities(limit = 8) {
   return useSearchEntities(
     { entity_type: "business", category: "shop", limit },
@@ -90,7 +92,7 @@ export function useCommunityEntities(limit = 8) {
   );
 }
 
-/** Creator entities (includes influencers, coaches, etc.) */
+/** Creator entities */
 export function useCreatorEntities(limit = 8) {
   return useSearchEntities(
     { entity_type: "creator", limit },

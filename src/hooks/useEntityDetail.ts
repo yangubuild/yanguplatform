@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { personalizeResults } from "@/lib/personalizeDiscovery";
 
 export interface EntityDetail {
   id: string;
@@ -114,8 +115,8 @@ export function useEntityFaqs(entityId: string | undefined) {
 }
 
 /**
- * Uses the intelligent get_related_entities RPC (same-type + cross-category + tag overlap + trust band).
- * Falls back to simple search_entities if RPC not available.
+ * Intelligent related entities with session-aware personalization.
+ * Pipeline: server relatedness ranking → personalization nudge.
  */
 export function useRelatedEntities(entityId: string | undefined) {
   return useQuery({
@@ -123,10 +124,11 @@ export function useRelatedEntities(entityId: string | undefined) {
     queryFn: async () => {
       const { data, error } = await supabase.rpc("get_related_entities" as any, {
         p_entity_id: entityId!,
-        p_limit: 9, // fetch extra for diversity interleaving
+        p_limit: 9,
       });
       if (error) throw error;
-      return (data ?? []) as RelatedEntity[];
+      const results = (data ?? []) as RelatedEntity[];
+      return personalizeResults(results);
     },
     enabled: !!entityId,
     staleTime: 60_000,
