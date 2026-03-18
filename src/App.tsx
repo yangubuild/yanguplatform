@@ -127,6 +127,7 @@ const ManageAgents = lazy(() => import("./pages/manage/ManageAgents"));
 const ManageIntegrations = lazy(() => import("./pages/manage/ManageIntegrations"));
 const ManagePages = lazy(() => import("./pages/manage/ManagePages"));
 const ManageBranding = lazy(() => import("./pages/manage/ManageBranding"));
+const ManageBanners = lazy(() => import("./pages/manage/ManageBanners"));
 const ManageResearchTesting = lazy(() => import("./pages/manage/ManageResearchTesting"));
 const ManageAnalytics = lazy(() => import("./pages/manage/ManageAnalytics"));
 const ManageAuditLogs = lazy(() => import("./pages/manage/ManageAuditLogs"));
