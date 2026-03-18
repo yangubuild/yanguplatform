@@ -20,7 +20,7 @@ export default function DashboardExplore() {
         <LandingTestPromptArea />
         <LandingTestGettingStarted />
         <PremiumBusinessRow
-          title="Verified"
+          title="Trusted Businesses"
           businesses={verifiedBusinesses}
         />
         <BusinessIdeasRow />
