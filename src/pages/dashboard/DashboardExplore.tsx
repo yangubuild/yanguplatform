@@ -25,7 +25,7 @@ export default function DashboardExplore() {
         />
         <BusinessIdeasRow />
         <PremiumBusinessRow
-          title="Products"
+          title="Buy From"
           subtitle="Shop products from verified sellers and businesses on yangu"
           businesses={salesCommunityBusinesses}
         />
