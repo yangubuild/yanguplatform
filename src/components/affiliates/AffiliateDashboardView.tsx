@@ -23,7 +23,7 @@ export function AffiliateDashboardView({ isAuthenticated, onSwitchToCreator, isL
   const [showSignupGate, setShowSignupGate] = useState(false);
 
   const handlePublicGatedAction = () => {
-    if (!isAuthenticated) {
+    if (isLandingPage || !isAuthenticated) {
       setShowSignupGate(true);
     } else {
       setShowMarketplace(true);
