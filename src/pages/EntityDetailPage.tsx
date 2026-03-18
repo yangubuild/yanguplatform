@@ -263,9 +263,16 @@ export default function EntityDetailPage() {
       {/* Reviews */}
       <div className="max-w-4xl mx-auto px-4 mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-white text-lg font-bold">
-            Reviews{reviews && reviews.length > 0 ? ` (${reviews.length})` : ""}
-          </h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-white text-lg font-bold">
+              Reviews{reviews && reviews.length > 0 ? ` (${reviews.length})` : ""}
+            </h2>
+            {reviewConfidence.confidence === "strong" && (
+              <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "rgba(74,222,128,0.08)", color: "rgb(74,222,128)" }}>
+                High confidence
+              </span>
+            )}
+          </div>
           <button onClick={() => setShowReviewForm(!showReviewForm)} className="text-xs px-3 py-1.5 rounded-lg font-medium" style={{ background: "rgba(181,98,42,0.15)", color: "#b5622a" }}>
             <MessageSquare className="w-3.5 h-3.5 inline mr-1" />
             Write a review
