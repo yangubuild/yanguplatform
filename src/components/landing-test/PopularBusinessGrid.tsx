@@ -4,6 +4,7 @@ import { T } from "@/lib/typography";
 import type { SearchEntityResult } from "@/types/search";
 import { ENTITY_TYPE_CONFIG } from "@/types/search";
 import { getEntityRoute, isExternalRoute, getVerifiedBadgeColor } from "@/lib/entityRouting";
+import { useImpressionTracker } from "@/hooks/useDiscoveryTracking";
 
 export interface PopularBusiness {
   profileImage: string;
@@ -33,7 +34,7 @@ const TYPE_ICONS: Record<string, React.FC<{ className?: string; style?: React.CS
   project: Palette,
 };
 
-function EntityGridCard({ entity }: { entity: SearchEntityResult }) {
+function EntityGridCard({ entity, onClickTrack }: { entity: SearchEntityResult; onClickTrack?: (e: SearchEntityResult) => void }) {
   const navigate = useNavigate();
   const route = getEntityRoute(entity);
   const ext = isExternalRoute(route);
@@ -43,7 +44,7 @@ function EntityGridCard({ entity }: { entity: SearchEntityResult }) {
 
   return (
     <div
-      onClick={() => ext ? window.open(route, "_blank") : navigate(route)}
+      onClick={() => { onClickTrack?.(entity); ext ? window.open(route, "_blank") : navigate(route); }}
       className="rounded-2xl p-4 cursor-pointer hover:opacity-90 transition-opacity"
       style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}
     >
@@ -86,16 +87,17 @@ function EntityGridCard({ entity }: { entity: SearchEntityResult }) {
 
 export function PopularBusinessGrid({ businesses, entities }: Props) {
   const hasLive = entities && entities.length > 0;
+  const { ref: trackRef, handleClick } = useImpressionTracker(entities ?? [], "popular_grid");
 
   return (
-    <section className="mb-12">
+    <section className="mb-12" ref={trackRef}>
       <div className="flex items-center justify-between mb-5">
         <h2 className="text-white text-xl font-bold">Popular businesses</h2>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {hasLive
-          ? entities.map((entity) => <EntityGridCard key={entity.id} entity={entity} />)
+          ? entities.map((entity) => <EntityGridCard key={entity.id} entity={entity} onClickTrack={handleClick} />)
           : businesses?.map((biz, i) => (
             <div key={i} className="rounded-2xl p-4 cursor-pointer hover:opacity-90 transition-opacity" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
               <div className="flex items-center gap-3 mb-2">

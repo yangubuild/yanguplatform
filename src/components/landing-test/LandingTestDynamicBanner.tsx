@@ -1,7 +1,9 @@
+import { useEffect, useRef } from "react";
 import { T } from "@/lib/typography";
 import { Button } from "@/components/ui/button";
 import { BANNER_CONTRACT, BANNER_DEFAULTS, type BannerSlot } from "@/lib/bannerContracts";
 import type { BannerData } from "@/lib/bannerContracts";
+import { trackBannerEvent } from "@/lib/discoveryAnalytics";
 
 interface Props {
   slot: "middle" | "lower";
@@ -15,6 +17,20 @@ interface Props {
  */
 export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
   const data = bannerData ?? BANNER_DEFAULTS[slot];
+  const tracked = useRef(false);
+
+  // Track banner impression once (hook must be before early return)
+  useEffect(() => {
+    if (!data.is_active) return;
+    if (!tracked.current) {
+      tracked.current = true;
+      trackBannerEvent("impression", slot);
+    }
+  }, [slot, data.is_active]);
+
+  const handleBannerClick = () => {
+    trackBannerEvent("click", slot);
+  };
 
   // Clean collapse: if banner is explicitly deactivated, render nothing
   if (!data.is_active) return null;
@@ -26,11 +42,12 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
     return (
       <section className={BANNER_CONTRACT.marginClass}>
         <div
-          className={`${BANNER_CONTRACT.radiusClass} overflow-hidden relative`}
+          className={`${BANNER_CONTRACT.radiusClass} overflow-hidden relative cursor-pointer`}
           style={{
             minHeight: BANNER_CONTRACT.minHeight,
             border: BANNER_CONTRACT.borderStyle,
           }}
+          onClick={handleBannerClick}
         >
           <img
             src={data.image_url}

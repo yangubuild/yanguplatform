@@ -5,6 +5,8 @@ import { T } from "@/lib/typography";
 import type { SearchEntityResult } from "@/types/search";
 import { ENTITY_TYPE_CONFIG } from "@/types/search";
 import { getEntityRoute, isExternalRoute, getVerifiedBadgeColor } from "@/lib/entityRouting";
+import { useImpressionTracker } from "@/hooks/useDiscoveryTracking";
+import type { DiscoverySurface } from "@/lib/discoveryAnalytics";
 
 export interface PremiumBusiness {
   coverImage: string;
@@ -25,6 +27,7 @@ interface Props {
   subtitle?: string;
   businesses?: PremiumBusiness[];
   entities?: SearchEntityResult[];
+  trackingSurface?: DiscoverySurface;
 }
 
 const TYPE_ICONS: Record<string, React.FC<{ className?: string; style?: React.CSSProperties }>> = {
@@ -37,7 +40,7 @@ const TYPE_ICONS: Record<string, React.FC<{ className?: string; style?: React.CS
   project: Palette,
 };
 
-function EntityCard({ entity }: { entity: SearchEntityResult }) {
+function EntityCard({ entity, onClickTrack }: { entity: SearchEntityResult; onClickTrack?: (e: SearchEntityResult) => void }) {
   const navigate = useNavigate();
   const route = getEntityRoute(entity);
   const ext = isExternalRoute(route);
@@ -47,7 +50,7 @@ function EntityCard({ entity }: { entity: SearchEntityResult }) {
 
   return (
     <div
-      onClick={() => ext ? window.open(route, "_blank") : navigate(route)}
+      onClick={() => { onClickTrack?.(entity); ext ? window.open(route, "_blank") : navigate(route); }}
       className="shrink-0 w-[290px] rounded-2xl overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
       style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', scrollSnapAlign: 'start' }}
     >
@@ -95,8 +98,18 @@ function EntityCard({ entity }: { entity: SearchEntityResult }) {
   );
 }
 
-export function PremiumBusinessRow({ title, subtitle, businesses, entities }: Props) {
+const TITLE_TO_SURFACE: Record<string, DiscoverySurface> = {
+  "Verified Businesses": "landing_verified",
+  "Products": "landing_products",
+  "Services": "landing_services",
+  "Influencers / Creators": "landing_creators",
+  "Community": "landing_community",
+};
+
+export function PremiumBusinessRow({ title, subtitle, businesses, entities, trackingSurface }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const surface = trackingSurface ?? TITLE_TO_SURFACE[title] ?? ("landing_verified" as DiscoverySurface);
+  const { ref: trackRef, handleClick } = useImpressionTracker(entities ?? [], surface);
 
   const scroll = (dir: "left" | "right") => {
     if (!scrollRef.current) return;
@@ -106,7 +119,7 @@ export function PremiumBusinessRow({ title, subtitle, businesses, entities }: Pr
   const hasLive = entities && entities.length > 0;
 
   return (
-    <section className="mb-12">
+    <section className="mb-12" ref={trackRef}>
       <div className="flex items-center justify-between mb-1">
         <div>
           <h2 className={`text-white ${T.sectionH2}`}>{title}</h2>
@@ -124,7 +137,7 @@ export function PremiumBusinessRow({ title, subtitle, businesses, entities }: Pr
 
       <div ref={scrollRef} className="flex gap-4 overflow-x-auto scrollbar-hide mt-4 pb-2" style={{ scrollSnapType: 'x mandatory' }}>
         {hasLive
-          ? entities.map((entity) => <EntityCard key={entity.id} entity={entity} />)
+          ? entities.map((entity) => <EntityCard key={entity.id} entity={entity} onClickTrack={handleClick} />)
           : businesses?.map((biz, i) => (
             <div key={i} className="shrink-0 w-[290px] rounded-2xl overflow-hidden cursor-pointer hover:opacity-90 transition-opacity" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', scrollSnapAlign: 'start' }}>
               <div className="h-[170px] overflow-hidden">

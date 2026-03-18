@@ -2208,6 +2208,39 @@ export type Database = {
           },
         ]
       }
+      discovery_events: {
+        Row: {
+          created_at: string
+          entity_id: string
+          event_type: string
+          id: string
+          session_id: string | null
+          surface: string
+          trust_band: string | null
+          visibility_tier: string | null
+        }
+        Insert: {
+          created_at?: string
+          entity_id: string
+          event_type: string
+          id?: string
+          session_id?: string | null
+          surface: string
+          trust_band?: string | null
+          visibility_tier?: string | null
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string
+          event_type?: string
+          id?: string
+          session_id?: string | null
+          surface?: string
+          trust_band?: string | null
+          visibility_tier?: string | null
+        }
+        Relationships: []
+      }
       domains: {
         Row: {
           created_at: string | null
@@ -5304,6 +5337,7 @@ export type Database = {
         Args: { p_app_id?: string; p_days?: number }
         Returns: Json
       }
+      discovery_analytics_summary: { Args: { p_days?: number }; Returns: Json }
       dismiss_promo: { Args: { p_campaign_key: string }; Returns: undefined }
       enqueue_dropship_order_sync_jobs: {
         Args: { p_limit?: number }

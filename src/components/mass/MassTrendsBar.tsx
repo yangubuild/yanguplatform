@@ -1,5 +1,7 @@
+import { useEffect, useRef } from "react";
 import { TrendingUp } from "lucide-react";
 import { useTrendEntities } from "@/hooks/landing/useSearchEntities";
+import { trackImpressions, trackClick } from "@/lib/discoveryAnalytics";
 
 const FALLBACK_ITEMS = [
   "restaurants",
@@ -12,6 +14,15 @@ const FALLBACK_ITEMS = [
 
 export function MassTrendsBar() {
   const { data: trendEntities } = useTrendEntities(20);
+  const tracked = useRef(false);
+
+  // Track trend bar impressions once
+  useEffect(() => {
+    if (!tracked.current && trendEntities && trendEntities.length > 0) {
+      tracked.current = true;
+      trackImpressions(trendEntities, "trend_bar");
+    }
+  }, [trendEntities]);
 
   // Build trend text from paid entities; fall back to static if none yet
   const liveItems =

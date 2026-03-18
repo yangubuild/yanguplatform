@@ -130,6 +130,7 @@ const ManageBranding = lazy(() => import("./pages/manage/ManageBranding"));
 const ManageBanners = lazy(() => import("./pages/manage/ManageBanners"));
 const ManageResearchTesting = lazy(() => import("./pages/manage/ManageResearchTesting"));
 const ManageAnalytics = lazy(() => import("./pages/manage/ManageAnalytics"));
+const ManageDiscoveryAnalytics = lazy(() => import("./pages/manage/ManageDiscoveryAnalytics"));
 const ManageAuditLogs = lazy(() => import("./pages/manage/ManageAuditLogs"));
 const ManageSettings = lazy(() => import("./pages/manage/ManageSettings"));
 const ManageNotFound = lazy(() => import("./pages/manage/ManageNotFound"));
@@ -511,6 +512,7 @@ const App = () => (
                   <Route path="domains" element={<ManageRoleGate allowedRoles={["admin"]}><ManageDomains /></ManageRoleGate>} />
                   {/* Analytics */}
                   <Route path="analytics" element={<ManageRoleGate allowedRoles={["admin", "analyst"]}><ManageAnalytics /></ManageRoleGate>} />
+                  <Route path="discovery-analytics" element={<ManageRoleGate allowedRoles={["admin", "analyst"]}><ManageDiscoveryAnalytics /></ManageRoleGate>} />
                   {/* Content */}
                   <Route path="content" element={<ManageRoleGate allowedRoles={["admin", "writer", "content_editor"]}><ManageContentHome /></ManageRoleGate>} />
                   <Route path="content/blog" element={<ManageRoleGate allowedRoles={["admin", "writer", "content_editor"]}><ManageBlog /></ManageRoleGate>} />

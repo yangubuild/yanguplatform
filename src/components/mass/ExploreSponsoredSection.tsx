@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Store, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SPONSORED_TRUST_FLOOR } from "@/lib/monetizationRules";
+import { trackImpressions, trackClick, type DiscoverySurface } from "@/lib/discoveryAnalytics";
 
 interface SponsoredBusiness {
   id: string;
@@ -66,6 +67,17 @@ export function ExploreSponsoredSection() {
     fetchSponsored();
   }, []);
 
+  const impressionTracked = useRef(false);
+  useEffect(() => {
+    if (!impressionTracked.current && businesses.length > 0) {
+      impressionTracked.current = true;
+      trackImpressions(
+        businesses.map(b => ({ id: b.id, visibility_tier: "paid", trust_score: b.trustScore })),
+        "explore_sponsored"
+      );
+    }
+  }, [businesses]);
+
   if (businesses.length === 0) return null;
 
   return (
@@ -82,6 +94,7 @@ export function ExploreSponsoredSection() {
             target="_blank"
             rel="noopener noreferrer"
             className="group cursor-pointer block"
+            onClick={() => trackClick({ id: biz.id, visibility_tier: "paid", trust_score: biz.trustScore }, "explore_sponsored")}
           >
             <div className="relative overflow-hidden rounded-xl mb-3" style={{ background: "#0A1710" }}>
               {biz.coverImage ? (
