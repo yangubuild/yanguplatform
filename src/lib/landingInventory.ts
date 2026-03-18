@@ -3,10 +3,18 @@
  *
  * Landing = curated rotating surface. Never expands into extra rows.
  * Explore = full inventory.
+ *
+ * Phase 10: Rotation now incorporates adaptive tuning signals
+ * (CTR boost + cooldown) from the exposure tuning engine.
  */
 
 import type { SearchEntityResult } from "@/types/search";
 import { computePremiumBoost, TRUST_FLOOR } from "@/lib/monetizationRules";
+import {
+  getRotationAdjustment,
+  applyPaidFairnessGuard,
+  applyDiversityGuard,
+} from "@/lib/adaptiveTuning";
 
 // ── Fixed visible slot counts per section ──
 
@@ -92,6 +100,9 @@ function computeRotationScore(entity: SearchEntityResult, seenTypes: Set<string>
 /**
  * Select `slotCount` entities from a larger pool using weighted rotation.
  * Adds deterministic per-session jitter so different page loads show different selections.
+ *
+ * Phase 10: Now applies adaptive tuning adjustments (CTR boost + cooldown)
+ * with paid fairness guard and diversity dampening.
  */
 export function rotateForSlots(
   entities: SearchEntityResult[],
@@ -110,6 +121,26 @@ export function rotateForSlots(
     seenTypes.add(entity.entity_type);
     return { entity, score: base + jitter, originalIndex: index };
   });
+
+  // Phase 10: Apply adaptive tuning adjustments
+  const rawAdjustments = scored.map((s) => getRotationAdjustment(s.entity.id));
+
+  // Paid fairness guard: paid entities get reduced CTR benefit
+  const fairAdjustments = rawAdjustments.map((adj, i) =>
+    applyPaidFairnessGuard(scored[i].entity.id, scored[i].entity.visibility_tier, adj)
+  );
+
+  // Diversity guard: prevent filter bubbles from CTR concentration
+  const diverseEntities = scored.map((s) => ({
+    entity_type: s.entity.entity_type,
+    primary_category: s.entity.primary_category,
+  }));
+  const finalAdjustments = applyDiversityGuard(diverseEntities, fairAdjustments);
+
+  // Apply adjustments to scores
+  for (let i = 0; i < scored.length; i++) {
+    scored[i].score += finalAdjustments[i];
+  }
 
   // Sort by score descending
   scored.sort((a, b) => b.score - a.score);
