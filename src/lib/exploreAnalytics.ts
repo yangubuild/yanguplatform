@@ -23,6 +23,9 @@ export type ExploreSurface =
   | "banner_middle"
   | "banner_lower";
 
+/** @deprecated Use ExploreSurface */
+export type DiscoverySurface = ExploreSurface;
+
 export type EventType = "impression" | "click";
 
 interface TrackableEntity {
