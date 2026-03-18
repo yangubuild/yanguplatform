@@ -10,13 +10,14 @@ import { AffiliateSignupGateModal } from "./AffiliateSignupGateModal";
 interface Props {
   isAuthenticated: boolean;
   onSwitchToCreator: () => void;
+  isLandingPage?: boolean;
 }
 
 const TABS_AUTH = ["Dashboard", "Refer buyers", "Refer sellers"] as const;
 const TABS_PUBLIC = ["Refer buyers", "Refer sellers"] as const;
 
-export function AffiliateDashboardView({ isAuthenticated, onSwitchToCreator }: Props) {
-  const tabs = isAuthenticated ? TABS_AUTH : TABS_PUBLIC;
+export function AffiliateDashboardView({ isAuthenticated, onSwitchToCreator, isLandingPage }: Props) {
+  const tabs = (isAuthenticated && !isLandingPage) ? TABS_AUTH : TABS_PUBLIC;
   const [activeTab, setActiveTab] = useState<string>(tabs[0]);
   const [showMarketplace, setShowMarketplace] = useState(false);
   const [showSignupGate, setShowSignupGate] = useState(false);
@@ -46,7 +47,7 @@ export function AffiliateDashboardView({ isAuthenticated, onSwitchToCreator }: P
           <div className="flex items-center justify-between mb-1">
             <h1 className="text-xl font-semibold text-white">Affiliates</h1>
             <div className="flex items-center gap-2">
-              {isAuthenticated ? (
+              {isAuthenticated && !isLandingPage ? (
                 <>
                   <button
                     onClick={() => setShowMarketplace(true)}
