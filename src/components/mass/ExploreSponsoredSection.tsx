@@ -67,6 +67,17 @@ export function ExploreSponsoredSection() {
     fetchSponsored();
   }, []);
 
+  const impressionTracked = useRef(false);
+  useEffect(() => {
+    if (!impressionTracked.current && businesses.length > 0) {
+      impressionTracked.current = true;
+      trackImpressions(
+        businesses.map(b => ({ id: b.id, visibility_tier: "paid", trust_score: b.trustScore })),
+        "explore_sponsored"
+      );
+    }
+  }, [businesses]);
+
   if (businesses.length === 0) return null;
 
   return (
