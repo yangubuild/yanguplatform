@@ -127,6 +127,7 @@ const ManageAgents = lazy(() => import("./pages/manage/ManageAgents"));
 const ManageIntegrations = lazy(() => import("./pages/manage/ManageIntegrations"));
 const ManagePages = lazy(() => import("./pages/manage/ManagePages"));
 const ManageBranding = lazy(() => import("./pages/manage/ManageBranding"));
+const ManageBanners = lazy(() => import("./pages/manage/ManageBanners"));
 const ManageResearchTesting = lazy(() => import("./pages/manage/ManageResearchTesting"));
 const ManageAnalytics = lazy(() => import("./pages/manage/ManageAnalytics"));
 const ManageAuditLogs = lazy(() => import("./pages/manage/ManageAuditLogs"));
@@ -517,6 +518,7 @@ const App = () => (
                   <Route path="content/events" element={<ManageRoleGate allowedRoles={["admin", "writer", "content_editor"]}><ManageEvents /></ManageRoleGate>} />
                   {/* Design & Pages */}
                   <Route path="branding" element={<ManageRoleGate allowedRoles={["admin", "designer"]}><ManageBranding /></ManageRoleGate>} />
+                  <Route path="banners" element={<ManageRoleGate allowedRoles={["admin", "content_editor"]}><ManageBanners /></ManageRoleGate>} />
                   <Route path="pages" element={<ManageRoleGate allowedRoles={["admin", "designer"]}><ManagePages /></ManageRoleGate>} />
                   {/* Operations */}
                   <Route path="integrations" element={<ManageRoleGate allowedRoles={["admin"]}><ManageIntegrations /></ManageRoleGate>} />
