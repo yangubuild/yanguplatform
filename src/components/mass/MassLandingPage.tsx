@@ -26,6 +26,7 @@ import {
 } from "@/hooks/landing/useSearchEntities";
 import { useLandingBanners } from "@/hooks/landing/useLandingBanners";
 import { rotateForSlots, LANDING_SLOTS } from "@/lib/landingInventory";
+import { backfillWithPlaceholders } from "@/lib/explorePlaceholders";
 
 export function MassLandingPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -51,19 +52,19 @@ export function MassLandingPage() {
     const globalAppearances = new Map<string, number>();
     const opts = { phase: "bootstrap" as const, globalAppearances };
 
-    const v = rotateForSlots(verifiedEntities ?? [], LANDING_SLOTS["verified"], opts);
-    const p = rotateForSlots(productEntities ?? [], LANDING_SLOTS["products"], opts);
-    const s = rotateForSlots(serviceEntities ?? [], LANDING_SLOTS["services"], opts);
-    const c = rotateForSlots(communityEntities ?? [], LANDING_SLOTS["community"], opts);
-    // Popular grid uses separate appearance tracking
-    const pop = rotateForSlots(popularEntities ?? [], LANDING_SLOTS["popular-grid"]);
+    // Rotate live entities first, then backfill with placeholders
+    const vRaw = rotateForSlots(verifiedEntities ?? [], LANDING_SLOTS["verified"], opts);
+    const pRaw = rotateForSlots(productEntities ?? [], LANDING_SLOTS["products"], opts);
+    const sRaw = rotateForSlots(serviceEntities ?? [], LANDING_SLOTS["services"], opts);
+    const cRaw = rotateForSlots(communityEntities ?? [], LANDING_SLOTS["community"], opts);
+    const popRaw = rotateForSlots(popularEntities ?? [], LANDING_SLOTS["popular-grid"]);
 
     return {
-      verifiedSlotted: v,
-      productSlotted: p,
-      serviceSlotted: s,
-      communitySlotted: c,
-      popularSlotted: pop,
+      verifiedSlotted: backfillWithPlaceholders(vRaw, "verified", LANDING_SLOTS["verified"]),
+      productSlotted: backfillWithPlaceholders(pRaw, "products", LANDING_SLOTS["products"]),
+      serviceSlotted: backfillWithPlaceholders(sRaw, "services", LANDING_SLOTS["services"]),
+      communitySlotted: backfillWithPlaceholders(cRaw, "community", LANDING_SLOTS["community"]),
+      popularSlotted: backfillWithPlaceholders(popRaw, "popular", LANDING_SLOTS["popular-grid"]),
     };
   }, [verifiedEntities, productEntities, serviceEntities, communityEntities, popularEntities]);
 
