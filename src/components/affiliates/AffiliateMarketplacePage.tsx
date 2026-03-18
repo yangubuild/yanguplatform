@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronDown, Search, Plus, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { useAffiliateJoin } from "./AffiliateJoinContext";
 import { AffiliateJoinModal } from "./AffiliateJoinModal";
+import { IndustryTypeFilter } from "./IndustryTypeFilter";
 
 interface Props {
   onBack: () => void;
