@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronDown, Search, Plus, Copy } from "lucide-react";
 import { toast } from "sonner";
+import { getMarketplaceListings, type AffiliateMarketplaceRow } from "@/lib/affiliateCanonicalData";
 
 interface Props {
   onBack: () => void;
@@ -8,34 +9,8 @@ interface Props {
   onApplyPartner: () => void;
 }
 
-interface MarketplaceListing {
-  id: string;
-  company: string;
-  icon: string;
-  industryType: string;
-  commissionRate: string;
-  affiliateEarnings: string;
-  conversions: string;
-  earningsPerClick: string;
-  conversionRate: string;
-  isJoined: boolean;
-}
-
-const MARKETPLACE_DATA: MarketplaceListing[] = [
-  { id: "1", company: "KingCapSports", icon: "🏀", industryType: "Sports Picks Group", commissionRate: "30%", affiliateEarnings: "$100k+", conversions: "10,000+", earningsPerClick: "$8.53", conversionRate: "12.26%", isJoined: false },
-  { id: "2", company: "ToolSuite", icon: "🔧", industryType: "Subscription Account Sharing", commissionRate: "50%", affiliateEarnings: "$250k+", conversions: "10,000+", earningsPerClick: "$2.59", conversionRate: "7.25%", isJoined: false },
-  { id: "3", company: "PokePings", icon: "📡", industryType: "Other General", commissionRate: "50%", affiliateEarnings: "$1k+", conversions: "1,000+", earningsPerClick: "$0.19", conversionRate: "6.25%", isJoined: false },
-  { id: "4", company: "DEAL SOLDIER", icon: "🎖️", industryType: "Reselling", commissionRate: "30%", affiliateEarnings: "$500k+", conversions: "10,000+", earningsPerClick: "$0.17", conversionRate: "6.04%", isJoined: false },
-  { id: "5", company: "Skylit", icon: "⚡", industryType: "Options Flow Tool", commissionRate: "20%", affiliateEarnings: "$500k+", conversions: "1,000+", earningsPerClick: "$18.23", conversionRate: "2.26%", isJoined: false },
-  { id: "6", company: "PokeNotify", icon: "🔔", industryType: "Reselling", commissionRate: "40%", affiliateEarnings: "$100k+", conversions: "10,000+", earningsPerClick: "$0.08", conversionRate: "5.25%", isJoined: false },
-  { id: "7", company: "PropFellas", icon: "📊", industryType: "Sports Picks Group", commissionRate: "-", affiliateEarnings: "$250k+", conversions: "10,000+", earningsPerClick: "$1.95", conversionRate: "6.8%", isJoined: false },
-  { id: "8", company: "Owls Options Traders", icon: "🦉", industryType: "Options Alerts Group", commissionRate: "15%", affiliateEarnings: "$250k+", conversions: "10,000+", earningsPerClick: "$4.50", conversionRate: "3.54%", isJoined: false },
-  { id: "9", company: "Poke Alerts", icon: "🃏", industryType: "Collectibles Community", commissionRate: "40%", affiliateEarnings: "$5k+", conversions: "1,000+", earningsPerClick: "$0.12", conversionRate: "14.43%", isJoined: false },
-  { id: "10", company: "House of Stimms", icon: "☕", industryType: "Other General", commissionRate: "30%", affiliateEarnings: "$10k+", conversions: "1,000+", earningsPerClick: "$2.26", conversionRate: "8.43%", isJoined: false },
-];
-
 export function AffiliateMarketplacePage({ onBack, onSwitchToCreator, onApplyPartner }: Props) {
-  const [listings, setListings] = useState(MARKETPLACE_DATA);
+  const [listings, setListings] = useState<AffiliateMarketplaceRow[]>(() => getMarketplaceListings());
   const [searchQuery, setSearchQuery] = useState("");
   const [viewAssetsId, setViewAssetsId] = useState<string | null>(null);
 
@@ -135,7 +110,9 @@ export function AffiliateMarketplacePage({ onBack, onSwitchToCreator, onApplyPar
                 <tr key={listing.id} className="border-b border-white/[0.04] hover:bg-white/[0.02]">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-lg">{listing.icon}</span>
+                      <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0">
+                        <img src={listing.avatarUrl} alt="" className="w-full h-full object-cover" />
+                      </div>
                       <span className="text-sm text-white font-medium">{listing.company}</span>
                     </div>
                   </td>
@@ -189,9 +166,10 @@ export function AffiliateMarketplacePage({ onBack, onSwitchToCreator, onApplyPar
 
 /* ── View Assets from Marketplace ── */
 function MarketplaceViewAssets({ companyName, onBack }: { companyName: string; onBack: () => void }) {
+  const slug = companyName.toLowerCase().replace(/\s+/g, "-");
   const sampleLinks = [
-    { type: "Product", typeBg: "#22c55e", name: companyName, price: "$44.00 / month", rate: "30.00%", link: `https://yangu.studio/${companyName.toLowerCase().replace(/\s/g, "-")}?a=ref123`, earned: "$0.00", clicks: 0, users: 0, conversionRate: "-" },
-    { type: "Company", typeBg: "#f59e0b", name: companyName, price: "-", rate: "-", link: `https://yangu.studio/${companyName.toLowerCase().replace(/\s/g, "-")}?a=heavyvrasp23`, earned: "$0.00", clicks: 0, users: 0, conversionRate: "-" },
+    { type: "Product", typeBg: "#22c55e", name: companyName, price: "$44.00 / month", rate: "30.00%", link: `https://yangu.studio/${slug}?a=ref123`, earned: "$0.00", clicks: 0, users: 0, conversionRate: "-" },
+    { type: "Company", typeBg: "#f59e0b", name: companyName, price: "-", rate: "-", link: `https://yangu.studio/${slug}?a=heavyvrasp23`, earned: "$0.00", clicks: 0, users: 0, conversionRate: "-" },
   ];
 
   const handleCopy = (link: string) => {
