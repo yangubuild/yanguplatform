@@ -110,10 +110,11 @@ export default function EntityDetailPage() {
   const config = ENTITY_TYPE_CONFIG[entity.entity_type as SearchableEntityType];
   const subtypeLabel = entity.entity_subtype ? ENTITY_SUBTYPE_LABELS[entity.entity_subtype as EntitySubtype] : null;
   const Icon = TYPE_ICONS[entity.entity_type] || Building2;
-  const badgeColor =
-    entity.is_verified
-      ? entity.entity_type === "business" ? "orange" : entity.entity_type === "organization" ? "green" : "blue"
-      : null;
+
+  // Phase 7 — trust expansion signals
+  const verification = getVerificationDepth(entity.entity_type, entity.entity_subtype ?? null, entity.is_verified);
+  const trustTier = getTrustTier(entity.trust_score);
+  const reviewConfidence = getReviewConfidence(entity.review_count, entity.avg_rating);
 
   return (
     <div className="min-h-screen" style={{ background: "#08120D" }}>
