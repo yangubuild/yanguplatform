@@ -102,6 +102,7 @@ export interface SearchEntityResult {
   industry: string | null;
   surface_type: string | null;
   cover_image_url: string | null;
+  avatar_url?: string | null;
   published_at: string | null;
   relevance_score: number;
   trust_score?: number | null;
