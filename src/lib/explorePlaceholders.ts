@@ -220,6 +220,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Food & Beverage",
       surface_type: "eshop",
       cover_image_url: genfuelDrinks,
+      avatar_url: avatarB1_04,
       published_at: "2025-09-10T00:00:00Z",
       relevance_score: 68,
       trust_score: 40,
