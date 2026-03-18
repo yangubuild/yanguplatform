@@ -178,18 +178,29 @@ export default function EntityDetailPage() {
           </div>
         </div>
 
-        {/* Stats row */}
-        <div className="flex items-center gap-6 mt-4 text-sm flex-wrap" style={{ color: "rgba(255,255,255,0.4)" }}>
-          {typeof entity.avg_rating === "number" && entity.avg_rating > 0 && (
-            <span className="flex items-center gap-1">
-              <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-              {entity.avg_rating.toFixed(1)} ({entity.review_count})
+        {/* Stats row — badge priority: verification → trust tier → review confidence */}
+        <div className="flex items-center gap-4 mt-4 text-sm flex-wrap" style={{ color: "rgba(255,255,255,0.4)" }}>
+          {/* Trust tier (only moderate+) */}
+          {trustTier && trustTier.tier !== "low" && trustTier.tier !== "emerging" && (
+            <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full" style={{ background: trustTier.bg, color: trustTier.color }}>
+              <ShieldCheck className="w-3.5 h-3.5" />
+              {trustTier.label}
             </span>
           )}
-          {typeof entity.trust_score === "number" && entity.trust_score >= 30 && (
-            <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full" style={{ background: "rgba(74,222,128,0.1)", color: "rgb(74,222,128)" }}>
-              <ShieldCheck className="w-3.5 h-3.5" />
-              Trusted
+          {/* Rating — only when confidence warrants display */}
+          {reviewConfidence.showRating && typeof entity.avg_rating === "number" && entity.avg_rating > 0 && (
+            <span className="flex items-center gap-1">
+              <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+              {entity.avg_rating.toFixed(1)}
+              <span className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
+                ({reviewConfidence.label})
+              </span>
+            </span>
+          )}
+          {/* Early reviews — count only, no inflated rating */}
+          {reviewConfidence.confidence === "early" && (
+            <span className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
+              {reviewConfidence.label}
             </span>
           )}
           {entity.visibility_tier !== "free" && (
