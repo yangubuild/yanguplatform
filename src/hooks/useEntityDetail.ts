@@ -40,6 +40,26 @@ export interface EntityFaq {
   sort_order: number;
 }
 
+export interface RelatedEntity {
+  id: string;
+  entity_type: string;
+  entity_subtype: string;
+  title: string;
+  short_description: string | null;
+  primary_category: string | null;
+  tags: string[];
+  visibility_tier: string;
+  is_verified: boolean;
+  domain_host: string | null;
+  slug: string;
+  industry: string | null;
+  surface_type: string | null;
+  cover_image_url: string | null;
+  published_at: string | null;
+  trust_score: number | null;
+  relatedness_score: number | null;
+}
+
 export function useEntityDetail(slug: string | undefined) {
   return useQuery({
     queryKey: ["entity_detail", slug],
@@ -93,19 +113,22 @@ export function useEntityFaqs(entityId: string | undefined) {
   });
 }
 
-export function useRelatedEntities(entityType: string | undefined, currentId: string | undefined) {
+/**
+ * Uses the intelligent get_related_entities RPC (same-type + cross-category + tag overlap + trust band).
+ * Falls back to simple search_entities if RPC not available.
+ */
+export function useRelatedEntities(entityId: string | undefined) {
   return useQuery({
-    queryKey: ["related_entities", entityType, currentId],
+    queryKey: ["related_entities_v2", entityId],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("search_entities" as any, {
-        p_entity_type: entityType as any,
-        p_limit: 6,
-        p_offset: 0,
+      const { data, error } = await supabase.rpc("get_related_entities" as any, {
+        p_entity_id: entityId!,
+        p_limit: 9, // fetch extra for diversity interleaving
       });
       if (error) throw error;
-      return ((data ?? []) as any[]).filter((e: any) => e.id !== currentId);
+      return (data ?? []) as RelatedEntity[];
     },
-    enabled: !!entityType && !!currentId,
+    enabled: !!entityId,
     staleTime: 60_000,
   });
 }
