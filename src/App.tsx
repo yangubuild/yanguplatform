@@ -221,6 +221,15 @@ const App = () => (
                 <Route path="/why-yangu" element={<WhyYangu />} />
                 <Route path="/discover" element={<DiscoverYangu />} />
                 <Route path="/discover-yangu" element={<DiscoverYangu />} />
+                <Route path="/discover/:slug" element={<EntityDetailPage />} />
+                {/* Typed public detail routes */}
+                <Route path="/business/:slug" element={<EntityDetailPage />} />
+                <Route path="/creator/:slug" element={<EntityDetailPage />} />
+                <Route path="/community/:slug" element={<EntityDetailPage />} />
+                <Route path="/org/:slug" element={<EntityDetailPage />} />
+                <Route path="/service/:slug" element={<EntityDetailPage />} />
+                <Route path="/product/:slug" element={<EntityDetailPage />} />
+                <Route path="/project/:slug" element={<EntityDetailPage />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
