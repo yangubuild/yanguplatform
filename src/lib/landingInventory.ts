@@ -6,6 +6,7 @@
  */
 
 import type { SearchEntityResult } from "@/types/search";
+import { computePremiumBoost, TRUST_FLOOR } from "@/lib/monetizationRules";
 
 // ── Fixed visible slot counts per section ──
 
