@@ -131,7 +131,7 @@ export default function ManageEntities() {
         </div>
         <div>
           <h1 className="text-xl font-bold text-foreground tracking-tight">Searchable Entities</h1>
-          <p className="text-sm text-muted-foreground">Canonical entity index for platform search & discovery</p>
+          <p className="text-sm text-muted-foreground">Canonical entity index for platform search & explore</p>
         </div>
       </div>
 
