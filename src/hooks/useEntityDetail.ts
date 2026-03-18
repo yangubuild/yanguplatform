@@ -97,7 +97,7 @@ export function useRelatedEntities(entityType: string | undefined, currentId: st
     queryKey: ["related_entities", entityType, currentId],
     queryFn: async () => {
       const { data, error } = await supabase.rpc("search_entities", {
-        p_entity_type: entityType,
+        p_entity_type: entityType as any,
         p_limit: 6,
         p_offset: 0,
       });
