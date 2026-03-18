@@ -56,7 +56,7 @@ export default function EntityDetailPage() {
   const { data: entity, isLoading, isError } = useEntityDetail(slug);
   const { data: reviews } = useEntityReviews(entity?.id);
   const { data: faqs } = useEntityFaqs(entity?.id);
-  const { data: related } = useRelatedEntities(entity?.entity_type, entity?.id);
+  const { data: related } = useRelatedEntities(entity?.id);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [showReport, setShowReport] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState<string | null>(null);
