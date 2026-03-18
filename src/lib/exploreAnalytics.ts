@@ -1,5 +1,5 @@
 /**
- * Discovery Analytics — Lightweight exposure & click tracking
+ * Explore Analytics — Lightweight exposure & click tracking
  *
  * Privacy-safe: no PII, aggregate-only session IDs, no sensitive profiling.
  * All events inserted into `discovery_events` via anon/authenticated RLS.
@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 // ── Types ──
 
-export type DiscoverySurface =
+export type ExploreSurface =
   | "landing_verified"
   | "landing_products"
   | "landing_services"
