@@ -51,19 +51,17 @@ const ROTATION_WEIGHTS: RotationWeights = {
 function computeRotationScore(entity: SearchEntityResult, seenTypes: Set<string>): number {
   let score = 0;
 
-  // Trust score (0-100 normalized to 0-1)
-  const trust = entity.trust_score ?? 0;
-  score += (trust / 100) * ROTATION_WEIGHTS.trustScore;
+  // Relevance score from server (already encodes trust + text match)
+  const relevance = entity.relevance_score ?? 0;
+  score += (relevance / 100) * ROTATION_WEIGHTS.trustScore;
 
-  // Server ranking position (already sorted, use inverse of array position proxy)
-  // We use trust as proxy since results come pre-ranked
-  score += (trust / 100) * ROTATION_WEIGHTS.ranking;
+  // Server ranking position — use relevance as proxy since results come pre-ranked
+  score += (relevance / 100) * ROTATION_WEIGHTS.ranking;
 
-  // Freshness: prefer entities created more recently
-  if (entity.created_at) {
-    const ageMs = Date.now() - new Date(entity.created_at).getTime();
+  // Freshness: prefer entities published more recently
+  if (entity.published_at) {
+    const ageMs = Date.now() - new Date(entity.published_at).getTime();
     const ageDays = ageMs / (1000 * 60 * 60 * 24);
-    // Entities < 30 days old get full freshness; decays linearly to 0 at 365 days
     const freshness = Math.max(0, 1 - ageDays / 365);
     score += freshness * ROTATION_WEIGHTS.freshness;
   }
