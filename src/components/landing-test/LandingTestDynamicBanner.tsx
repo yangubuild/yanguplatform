@@ -41,11 +41,12 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
     return (
       <section className={BANNER_CONTRACT.marginClass}>
         <div
-          className={`${BANNER_CONTRACT.radiusClass} overflow-hidden relative`}
+          className={`${BANNER_CONTRACT.radiusClass} overflow-hidden relative cursor-pointer`}
           style={{
             minHeight: BANNER_CONTRACT.minHeight,
             border: BANNER_CONTRACT.borderStyle,
           }}
+          onClick={handleBannerClick}
         >
           <img
             src={data.image_url}
