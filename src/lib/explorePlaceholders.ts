@@ -90,6 +90,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Financial Technology",
       surface_type: "quick_site",
       cover_image_url: paymintAfrica,
+      avatar_url: avatarB1_01,
       published_at: "2025-12-01T00:00:00Z",
       relevance_score: 85,
       trust_score: 70,
