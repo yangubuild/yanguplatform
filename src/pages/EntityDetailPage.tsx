@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import {
-  ArrowLeft, Building2, Star, Users, Globe, Flag, ChevronDown, ChevronUp,
+  ArrowLeft, Building2, Star, Users, Globe, Flag, ChevronDown, ChevronUp, ShieldCheck,
   MessageSquare, Package, Wrench, Palette, Landmark, Calendar, MapPin, Tag,
 } from "lucide-react";
 import { useEntityDetail, useEntityReviews, useEntityFaqs, useRelatedEntities } from "@/hooks/useEntityDetail";
