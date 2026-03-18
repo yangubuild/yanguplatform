@@ -1,18 +1,59 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { ArrowLeft, Building2, Star, Users, Globe, CheckCircle, Flag, ChevronDown, ChevronUp, MessageSquare } from "lucide-react";
+import {
+  ArrowLeft, Building2, Star, Users, Globe, Flag, ChevronDown, ChevronUp,
+  MessageSquare, Package, Wrench, Palette, Landmark, Calendar, MapPin, Tag,
+} from "lucide-react";
 import { useEntityDetail, useEntityReviews, useEntityFaqs, useRelatedEntities } from "@/hooks/useEntityDetail";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ReviewForm } from "@/components/entity/ReviewForm";
 import { ReportDialog } from "@/components/entity/ReportDialog";
 import { ENTITY_TYPE_CONFIG, ENTITY_SUBTYPE_LABELS } from "@/types/search";
 import type { SearchableEntityType, EntitySubtype } from "@/types/search";
-import { getEntityRoute, isExternalRoute, getVerifiedBadgeColor } from "@/lib/entityRouting";
+import { getEntityRoute, isExternalRoute } from "@/lib/entityRouting";
+
+const TYPE_ICONS: Record<string, React.FC<{ className?: string; style?: React.CSSProperties }>> = {
+  product: Package, service: Wrench, business: Building2, creator: Star,
+  organization: Landmark, community: Users, project: Palette,
+};
+
+/** Type-aware metadata block — renders differently per entity_type */
+function TypeMetaBlock({ entity }: { entity: any }) {
+  const et = entity.entity_type as string;
+  const items: { icon: React.FC<any>; label: string; value: string }[] = [];
+
+  if (entity.industry) items.push({ icon: Tag, label: "Industry", value: entity.industry });
+  if (entity.primary_category) items.push({ icon: Tag, label: "Category", value: entity.primary_category });
+  if (entity.published_at) items.push({ icon: Calendar, label: et === "community" ? "Founded" : "Published", value: new Date(entity.published_at).toLocaleDateString() });
+  if (entity.surface_type) {
+    const surfaceLabel =
+      et === "product" || et === "business" ? "Surface" :
+      et === "creator" ? "Profile type" :
+      et === "community" ? "Group type" : "Type";
+    items.push({ icon: MapPin, label: surfaceLabel, value: entity.surface_type });
+  }
+
+  if (items.length === 0) return null;
+
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-6">
+      {items.map((item) => (
+        <div key={item.label} className="rounded-xl px-4 py-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+          <div className="flex items-center gap-1.5 mb-1">
+            <item.icon className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.25)" }} />
+            <span className="text-[10px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>{item.label}</span>
+          </div>
+          <span className="text-white text-sm font-medium">{item.value}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function EntityDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { data: entity, isLoading } = useEntityDetail(slug);
+  const { data: entity, isLoading, isError } = useEntityDetail(slug);
   const { data: reviews } = useEntityReviews(entity?.id);
   const { data: faqs } = useEntityFaqs(entity?.id);
   const { data: related } = useRelatedEntities(entity?.entity_type, entity?.id);
@@ -33,13 +74,20 @@ export default function EntityDetailPage() {
     );
   }
 
-  if (!entity) {
+  if (!entity || isError) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "#08120D" }}>
         <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.04)" }}>
+            <Building2 className="w-7 h-7" style={{ color: "rgba(255,255,255,0.15)" }} />
+          </div>
           <h1 className="text-white text-xl font-bold mb-2">Not Found</h1>
-          <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>This entity doesn't exist or isn't published.</p>
-          <button onClick={() => navigate("/")} className="mt-4 text-sm underline" style={{ color: "#b5622a" }}>Back to home</button>
+          <p className="text-sm mb-4" style={{ color: "rgba(255,255,255,0.4)" }}>
+            This page doesn't exist or isn't published yet.
+          </p>
+          <button onClick={() => navigate("/")} className="text-sm font-medium px-5 py-2 rounded-lg" style={{ background: "rgba(181,98,42,0.15)", color: "#b5622a" }}>
+            Back to home
+          </button>
         </div>
       </div>
     );
@@ -47,9 +95,11 @@ export default function EntityDetailPage() {
 
   const config = ENTITY_TYPE_CONFIG[entity.entity_type as SearchableEntityType];
   const subtypeLabel = entity.entity_subtype ? ENTITY_SUBTYPE_LABELS[entity.entity_subtype as EntitySubtype] : null;
-  const badgeResult = entity.is_verified ? (
-    entity.entity_type === "business" ? "orange" : entity.entity_type === "organization" ? "green" : "blue"
-  ) : null;
+  const Icon = TYPE_ICONS[entity.entity_type] || Building2;
+  const badgeColor =
+    entity.is_verified
+      ? entity.entity_type === "business" ? "orange" : entity.entity_type === "organization" ? "green" : "blue"
+      : null;
 
   return (
     <div className="min-h-screen" style={{ background: "#08120D" }}>
@@ -67,7 +117,7 @@ export default function EntityDetailPage() {
             <img src={entity.cover_image_url} alt={entity.title} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <Building2 className="w-12 h-12" style={{ color: "rgba(255,255,255,0.08)" }} />
+              <Icon className="w-12 h-12" style={{ color: "rgba(255,255,255,0.08)" }} />
             </div>
           )}
         </div>
@@ -79,19 +129,17 @@ export default function EntityDetailPage() {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <h1 className="text-white text-2xl font-bold">{entity.title}</h1>
-              {badgeResult === "blue" && <span className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-[9px] text-white">✓</span>}
-              {badgeResult === "orange" && <span className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] text-white" style={{ background: "#b5622a" }}>✓</span>}
-              {badgeResult === "green" && <span className="w-5 h-5 rounded-full bg-green-600 flex items-center justify-center text-[9px] text-white">✓</span>}
+              {badgeColor === "blue" && <span className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-[9px] text-white">✓</span>}
+              {badgeColor === "orange" && <span className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] text-white" style={{ background: "#b5622a" }}>✓</span>}
+              {badgeColor === "green" && <span className="w-5 h-5 rounded-full bg-green-600 flex items-center justify-center text-[9px] text-white">✓</span>}
             </div>
             <div className="flex items-center gap-3 flex-wrap text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
               {config && (
                 <span className="px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>{config.label}</span>
               )}
-              {subtypeLabel && (
+              {subtypeLabel && subtypeLabel !== "General" && (
                 <span className="px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>{subtypeLabel}</span>
               )}
-              {entity.primary_category && <span>{entity.primary_category}</span>}
-              {entity.industry && <span>· {entity.industry}</span>}
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -108,10 +156,10 @@ export default function EntityDetailPage() {
 
         {/* Stats row */}
         <div className="flex items-center gap-6 mt-4 text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
-          {entity.avg_rating && (
+          {typeof entity.avg_rating === "number" && entity.avg_rating > 0 && (
             <span className="flex items-center gap-1">
               <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-              {entity.avg_rating} ({entity.review_count})
+              {entity.avg_rating.toFixed(1)} ({entity.review_count})
             </span>
           )}
           {entity.visibility_tier !== "free" && (
@@ -131,10 +179,13 @@ export default function EntityDetailPage() {
           </p>
         )}
 
+        {/* Type-aware metadata block */}
+        <TypeMetaBlock entity={entity} />
+
         {/* Tags */}
         {entity.tags && entity.tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-4">
-            {entity.tags.map((tag) => (
+            {entity.tags.map((tag: string) => (
               <span key={tag} className="text-xs px-2 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.4)" }}>
                 {tag}
               </span>
@@ -143,7 +194,7 @@ export default function EntityDetailPage() {
         )}
       </div>
 
-      {/* FAQs */}
+      {/* FAQs — only rendered when data exists, no dead controls */}
       {faqs && faqs.length > 0 && (
         <div className="max-w-4xl mx-auto px-4 mb-8">
           <h2 className="text-white text-lg font-bold mb-4">FAQ</h2>
@@ -155,7 +206,7 @@ export default function EntityDetailPage() {
                   className="w-full flex items-center justify-between px-4 py-3 text-left"
                 >
                   <span className="text-white text-sm font-medium">{faq.question}</span>
-                  {expandedFaq === faq.id ? <ChevronUp className="w-4 h-4 text-white/30" /> : <ChevronDown className="w-4 h-4 text-white/30" />}
+                  {expandedFaq === faq.id ? <ChevronUp className="w-4 h-4" style={{ color: "rgba(255,255,255,0.3)" }} /> : <ChevronDown className="w-4 h-4" style={{ color: "rgba(255,255,255,0.3)" }} />}
                 </button>
                 {expandedFaq === faq.id && (
                   <div className="px-4 pb-4 text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
@@ -171,7 +222,9 @@ export default function EntityDetailPage() {
       {/* Reviews */}
       <div className="max-w-4xl mx-auto px-4 mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-white text-lg font-bold">Reviews {reviews && reviews.length > 0 && `(${reviews.length})`}</h2>
+          <h2 className="text-white text-lg font-bold">
+            Reviews{reviews && reviews.length > 0 ? ` (${reviews.length})` : ""}
+          </h2>
           <button onClick={() => setShowReviewForm(!showReviewForm)} className="text-xs px-3 py-1.5 rounded-lg font-medium" style={{ background: "rgba(181,98,42,0.15)", color: "#b5622a" }}>
             <MessageSquare className="w-3.5 h-3.5 inline mr-1" />
             Write a review
@@ -204,7 +257,10 @@ export default function EntityDetailPage() {
             ))}
           </div>
         ) : (
-          <p className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>No reviews yet. Be the first to review.</p>
+          <div className="rounded-xl py-8 text-center" style={{ background: "rgba(255,255,255,0.02)" }}>
+            <Star className="w-6 h-6 mx-auto mb-2" style={{ color: "rgba(255,255,255,0.1)" }} />
+            <p className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>No reviews yet. Be the first to share your experience.</p>
+          </div>
         )}
       </div>
 
@@ -216,6 +272,7 @@ export default function EntityDetailPage() {
             {related.slice(0, 6).map((r: any) => {
               const route = getEntityRoute(r);
               const ext = isExternalRoute(route);
+              const RelIcon = TYPE_ICONS[r.entity_type] || Building2;
               return (
                 <div
                   key={r.id}
@@ -223,7 +280,10 @@ export default function EntityDetailPage() {
                   className="rounded-xl p-3 cursor-pointer hover:opacity-80 transition-opacity"
                   style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
                 >
-                  <span className="text-white text-sm font-semibold truncate block">{r.title}</span>
+                  <div className="flex items-center gap-2 mb-1">
+                    <RelIcon className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.25)" }} />
+                    <span className="text-white text-sm font-semibold truncate">{r.title}</span>
+                  </div>
                   {r.short_description && <p className="text-xs line-clamp-1 mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>{r.short_description}</p>}
                 </div>
               );
