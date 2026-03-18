@@ -16,6 +16,10 @@ export function ReferBuyersTab({ isAuthenticated, onOpenMarketplace, onGatedActi
   const [viewAssetsProgram, setViewAssetsProgram] = useState<string | null>(null);
 
   const handleAddOffer = (offer: AffiliateOffer) => {
+    if (onGatedAction) {
+      onGatedAction();
+      return;
+    }
     joinAffiliate(offer.id, offer.name);
   };
 
