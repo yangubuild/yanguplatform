@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { BarChart3, Eye, MousePointerClick, TrendingUp, Shield, Layers, Image } from "lucide-react";
 import { AdminGlassCard } from "@/components/manage/AdminGlassCard";
-import { useDiscoveryAnalytics, type DiscoveryAnalyticsData } from "@/hooks/manage/useDiscoveryAnalytics";
+import { useExploreAnalytics, type ExploreAnalyticsData } from "@/hooks/manage/useExploreAnalytics";
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
