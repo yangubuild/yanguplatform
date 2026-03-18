@@ -14,7 +14,7 @@ export function useSearchEntities(
   return useQuery({
     queryKey: ["search_entities", queryKeySuffix ?? JSON.stringify(params)],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("search_entities", {
+      const { data, error } = await supabase.rpc("search_entities" as any, {
         p_query: params.query ?? undefined,
         p_entity_type: params.entity_type ?? undefined,
         p_entity_subtype: params.entity_subtype ?? undefined,
@@ -25,7 +25,7 @@ export function useSearchEntities(
         p_offset: params.offset ?? 0,
       });
       if (error) throw error;
-      return (data ?? []) as SearchEntityResult[];
+      return (data ?? []) as unknown as SearchEntityResult[];
     },
     enabled,
     staleTime: 60_000,

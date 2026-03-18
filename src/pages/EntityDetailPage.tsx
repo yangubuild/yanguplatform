@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import {
-  ArrowLeft, Building2, Star, Users, Globe, Flag, ChevronDown, ChevronUp,
+  ArrowLeft, Building2, Star, Users, Globe, Flag, ChevronDown, ChevronUp, ShieldCheck,
   MessageSquare, Package, Wrench, Palette, Landmark, Calendar, MapPin, Tag,
 } from "lucide-react";
 import { useEntityDetail, useEntityReviews, useEntityFaqs, useRelatedEntities } from "@/hooks/useEntityDetail";
@@ -155,11 +155,17 @@ export default function EntityDetailPage() {
         </div>
 
         {/* Stats row */}
-        <div className="flex items-center gap-6 mt-4 text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
+        <div className="flex items-center gap-6 mt-4 text-sm flex-wrap" style={{ color: "rgba(255,255,255,0.4)" }}>
           {typeof entity.avg_rating === "number" && entity.avg_rating > 0 && (
             <span className="flex items-center gap-1">
               <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
               {entity.avg_rating.toFixed(1)} ({entity.review_count})
+            </span>
+          )}
+          {typeof entity.trust_score === "number" && entity.trust_score >= 30 && (
+            <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full" style={{ background: "rgba(74,222,128,0.1)", color: "rgb(74,222,128)" }}>
+              <ShieldCheck className="w-3.5 h-3.5" />
+              Trusted
             </span>
           )}
           {entity.visibility_tier !== "free" && (
