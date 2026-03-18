@@ -47,7 +47,7 @@ export function AffiliateDashboardView({ isAuthenticated, onSwitchToCreator, isL
           <div className="flex items-center justify-between mb-1">
             <h1 className="text-xl font-semibold text-white">Affiliates</h1>
             <div className="flex items-center gap-2">
-              {isAuthenticated ? (
+              {isAuthenticated && !isLandingPage ? (
                 <>
                   <button
                     onClick={() => setShowMarketplace(true)}
