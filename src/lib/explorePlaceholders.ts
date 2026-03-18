@@ -405,6 +405,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Culture & Heritage",
       surface_type: "community_group",
       cover_image_url: heritageCircleAfrica,
+      avatar_url: avatarB1_08,
       published_at: "2025-11-01T00:00:00Z",
       relevance_score: 75,
       trust_score: 50,
