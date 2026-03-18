@@ -44,7 +44,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
         <div
           className={`${BANNER_CONTRACT.radiusClass} relative`}
           style={{
-            background: "linear-gradient(90deg, #07110D 0%, #08120D 35%, #06100C 100%)",
+            background: "linear-gradient(90deg, #0F2B1E 0%, #122E21 35%, #0D2419 100%)",
             border: BANNER_CONTRACT.borderStyle,
             minHeight: BANNER_CONTRACT.minHeight,
             overflow: "visible",
@@ -68,9 +68,9 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
               <button
                 className="px-7 py-2.5 rounded-lg text-white text-sm font-medium transition-all hover:brightness-110"
                 style={{
-                  background: "linear-gradient(135deg, #F08A24 0%, #D4731A 100%)",
-                  border: "none",
-                }}
+                   background: "linear-gradient(135deg, #c47a3a 0%, #a0622e 50%, #5c2a12 100%)",
+                   border: "none",
+                 }}
               >
                 {data.cta_text ?? "Learn more"}
               </button>
@@ -83,9 +83,9 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
             style={{
               right: "-20px",
               top: "50%",
-              transform: "translateY(-50%)",
-              width: "420px",
-              height: "480px",
+              transform: "translateY(-48%)",
+              width: "400px",
+              height: "440px",
               zIndex: 20,
             }}
           >
@@ -115,8 +115,8 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
           <div
             className="absolute hidden md:block pointer-events-none"
             style={{
-              right: "230px",
-              top: "48%",
+              right: "420px",
+              top: "42%",
               width: "44px",
               height: "44px",
               zIndex: 25,
