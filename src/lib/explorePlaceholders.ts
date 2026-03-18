@@ -270,6 +270,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Fashion & Apparel",
       surface_type: "eshop",
       cover_image_url: kitengeMode,
+      avatar_url: avatarB2_02,
       published_at: "2025-08-20T00:00:00Z",
       relevance_score: 70,
       trust_score: 42,
