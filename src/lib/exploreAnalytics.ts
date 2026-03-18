@@ -108,10 +108,10 @@ if (typeof window !== "undefined") {
 /**
  * Track an impression or click for a single entity on a surface.
  */
-export function trackDiscoveryEvent(
+export function trackExploreEvent(
   eventType: EventType,
   entity: TrackableEntity,
-  surface: DiscoverySurface,
+  surface: ExploreSurface,
 ) {
   eventQueue.push({
     event_type: eventType,
