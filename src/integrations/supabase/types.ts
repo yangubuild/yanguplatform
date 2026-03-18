@@ -2781,6 +2781,135 @@ export type Database = {
         }
         Relationships: []
       }
+      entity_faqs: {
+        Row: {
+          answer: string
+          created_at: string
+          entity_id: string
+          id: string
+          is_visible: boolean
+          question: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          entity_id: string
+          id?: string
+          is_visible?: boolean
+          question: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          entity_id?: string
+          id?: string
+          is_visible?: boolean
+          question?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entity_faqs_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "searchable_entities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      entity_reports: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          details: string | null
+          entity_id: string
+          id: string
+          reason: string
+          reporter_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          details?: string | null
+          entity_id: string
+          id?: string
+          reason: string
+          reporter_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          details?: string | null
+          entity_id?: string
+          id?: string
+          reason?: string
+          reporter_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entity_reports_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "searchable_entities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      entity_reviews: {
+        Row: {
+          body: string | null
+          created_at: string
+          entity_id: string
+          id: string
+          is_visible: boolean
+          rating: number
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          entity_id: string
+          id?: string
+          is_visible?: boolean
+          rating: number
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          entity_id?: string
+          id?: string
+          is_visible?: boolean
+          rating?: number
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entity_reviews_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "searchable_entities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       external_publications: {
         Row: {
           category: string | null
@@ -5192,6 +5321,29 @@ export type Database = {
         Returns: {
           access_token: string
           expires_at: string
+        }[]
+      }
+      get_entity_by_slug: {
+        Args: { p_slug: string }
+        Returns: {
+          avg_rating: number
+          cover_image_url: string
+          domain_host: string
+          entity_subtype: string
+          entity_type: string
+          id: string
+          industry: string
+          is_verified: boolean
+          owner_user_id: string
+          primary_category: string
+          published_at: string
+          review_count: number
+          short_description: string
+          slug: string
+          surface_type: string
+          tags: string[]
+          title: string
+          visibility_tier: string
         }[]
       }
       get_my_active_promos: {
