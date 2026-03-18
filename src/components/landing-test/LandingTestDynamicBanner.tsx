@@ -68,9 +68,9 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
               <button
                 className="px-7 py-2.5 rounded-lg text-white text-sm font-medium transition-all hover:brightness-110"
                 style={{
-                  background: "linear-gradient(135deg, #F08A24 0%, #D4731A 100%)",
-                  border: "none",
-                }}
+                   background: "linear-gradient(135deg, #c47a3a 0%, #a0622e 50%, #5c2a12 100%)",
+                   border: "none",
+                 }}
               >
                 {data.cta_text ?? "Learn more"}
               </button>
