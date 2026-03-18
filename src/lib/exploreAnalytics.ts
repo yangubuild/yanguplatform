@@ -64,7 +64,7 @@ function getSessionId(): string {
 interface QueuedEvent {
   event_type: EventType;
   entity_id: string;
-  surface: DiscoverySurface;
+  surface: ExploreSurface;
   visibility_tier: string | null;
   trust_band: string | null;
   session_id: string;
