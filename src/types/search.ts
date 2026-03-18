@@ -1,5 +1,5 @@
 /**
- * Canonical searchable entity types for YANGU platform search & discovery.
+ * Canonical searchable entity types for YANGU platform search & explore.
  * These mirror the DB enums and are the single source of truth
  * for all search, explore, landing, and detail page routing.
  */
