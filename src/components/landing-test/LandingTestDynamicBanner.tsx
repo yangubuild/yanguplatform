@@ -115,8 +115,8 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
           <div
             className="absolute hidden md:block pointer-events-none"
             style={{
-              right: "230px",
-              top: "48%",
+              right: "420px",
+              top: "42%",
               width: "44px",
               height: "44px",
               zIndex: 25,
