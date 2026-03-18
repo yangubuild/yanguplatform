@@ -11,7 +11,7 @@ interface Props {
   onGatedAction?: () => void;
 }
 
-export function ReferBuyersTab({ isAuthenticated, onOpenMarketplace }: Props) {
+export function ReferBuyersTab({ isAuthenticated, onOpenMarketplace, onGatedAction }: Props) {
   const { hotOffers, isJoined, joinAffiliate } = useAffiliateJoin();
   const [viewAssetsProgram, setViewAssetsProgram] = useState<string | null>(null);
 
