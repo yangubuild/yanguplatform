@@ -430,6 +430,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Food & Dining",
       surface_type: "community_group",
       cover_image_url: crunchhouseKitchen,
+      avatar_url: avatarB1_09,
       published_at: "2025-10-15T00:00:00Z",
       relevance_score: 71,
       trust_score: 44,
