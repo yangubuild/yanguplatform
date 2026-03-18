@@ -5172,6 +5172,19 @@ export type Database = {
             }
             Returns: string
           }
+      compute_trust_score: {
+        Args: {
+          p_avg_rating: number
+          p_has_cover: boolean
+          p_has_description: boolean
+          p_has_tags: boolean
+          p_is_verified: boolean
+          p_published_at: string
+          p_report_count: number
+          p_review_count: number
+        }
+        Returns: number
+      }
       consume_ai_avatar_credit: { Args: never; Returns: Json }
       consume_ai_image_credit: { Args: never; Returns: Json }
       consume_ai_video_credit: { Args: never; Returns: Json }
@@ -5333,6 +5346,30 @@ export type Database = {
         Returns: {
           access_token: string
           expires_at: string
+        }[]
+      }
+      get_entity_by_slug: {
+        Args: { p_slug: string }
+        Returns: {
+          avg_rating: number
+          cover_image_url: string
+          domain_host: string
+          entity_subtype: string
+          entity_type: string
+          id: string
+          industry: string
+          is_verified: boolean
+          owner_user_id: string
+          primary_category: string
+          published_at: string
+          review_count: number
+          short_description: string
+          slug: string
+          surface_type: string
+          tags: string[]
+          title: string
+          trust_score: number
+          visibility_tier: string
         }[]
       }
       get_my_active_promos: {
@@ -5638,6 +5675,10 @@ export type Database = {
         }[]
       }
       reap_stale_dropship_sync_jobs: { Args: never; Returns: number }
+      refresh_entity_trust_score: {
+        Args: { p_entity_id: string }
+        Returns: undefined
+      }
       refund_credits: {
         Args: {
           p_amount: number
@@ -5678,6 +5719,36 @@ export type Database = {
       rotate_app_key: { Args: { p_key_id: string }; Returns: Json }
       rotate_webhook_secret: { Args: { p_webhook_id: string }; Returns: string }
       run_auto_review: { Args: { p_listing_id: string }; Returns: string }
+      search_entities: {
+        Args: {
+          p_category?: string
+          p_entity_subtype?: Database["public"]["Enums"]["entity_subtype"]
+          p_entity_type?: Database["public"]["Enums"]["searchable_entity_type"]
+          p_limit?: number
+          p_offset?: number
+          p_query?: string
+          p_verified_only?: boolean
+          p_visibility_tier?: Database["public"]["Enums"]["visibility_tier"]
+        }
+        Returns: {
+          cover_image_url: string
+          domain_host: string
+          entity_subtype: Database["public"]["Enums"]["entity_subtype"]
+          entity_type: Database["public"]["Enums"]["searchable_entity_type"]
+          id: string
+          industry: string
+          is_verified: boolean
+          primary_category: string
+          published_at: string
+          relevance_score: number
+          short_description: string
+          slug: string
+          surface_type: string
+          tags: string[]
+          title: string
+          visibility_tier: Database["public"]["Enums"]["visibility_tier"]
+        }[]
+      }
       send_admin_invite: {
         Args: {
           p_email: string

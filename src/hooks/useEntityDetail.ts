@@ -20,6 +20,7 @@ export interface EntityDetail {
   owner_user_id: string | null;
   review_count: number;
   avg_rating: number | null;
+  trust_score: number | null;
 }
 
 export interface EntityReview {
@@ -43,7 +44,7 @@ export function useEntityDetail(slug: string | undefined) {
   return useQuery({
     queryKey: ["entity_detail", slug],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_entity_by_slug", {
+      const { data, error } = await supabase.rpc("get_entity_by_slug" as any, {
         p_slug: slug!,
       });
       if (error) throw error;
@@ -96,7 +97,7 @@ export function useRelatedEntities(entityType: string | undefined, currentId: st
   return useQuery({
     queryKey: ["related_entities", entityType, currentId],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("search_entities", {
+      const { data, error } = await supabase.rpc("search_entities" as any, {
         p_entity_type: entityType as any,
         p_limit: 6,
         p_offset: 0,
