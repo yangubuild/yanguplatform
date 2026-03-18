@@ -16,6 +16,7 @@ export function AffiliateMarketplacePage({ onBack, onSwitchToCreator, onApplyPar
   const [searchQuery, setSearchQuery] = useState("");
   const [viewAssetsId, setViewAssetsId] = useState<string | null>(null);
   const [joinModal, setJoinModal] = useState<{ id: string; company: string; avatarUrl: string } | null>(null);
+  const [industryFilter, setIndustryFilter] = useState("All");
 
   const handleDirectJoin = (id: string) => {
     const item = marketplaceListings.find(l => l.id === id);
@@ -30,10 +31,12 @@ export function AffiliateMarketplacePage({ onBack, onSwitchToCreator, onApplyPar
     }
   };
 
-  const filtered = marketplaceListings.filter(l =>
-    l.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    l.industryType.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filtered = marketplaceListings.filter(l => {
+    const matchesSearch = l.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      l.industryType.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesIndustry = industryFilter === "All" || l.industryType.toLowerCase() === industryFilter.toLowerCase();
+    return matchesSearch && matchesIndustry;
+  });
 
   if (viewAssetsId) {
     const item = marketplaceListings.find(l => l.id === viewAssetsId);
