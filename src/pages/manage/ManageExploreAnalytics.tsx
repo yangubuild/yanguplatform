@@ -170,7 +170,7 @@ export default function ManageExploreAnalytics() {
             <Eye className="h-5 w-5 text-[hsl(var(--admin-accent))]" />
           </div>
           <div>
-            <h1 className="text-xl font-semibold text-[hsl(var(--admin-text))] font-display">Discovery Analytics</h1>
+            <h1 className="text-xl font-semibold text-[hsl(var(--admin-text))] font-display">Explore Analytics</h1>
             <p className="text-xs text-[hsl(var(--admin-text-muted))]">Exposure measurement & optimization intelligence</p>
           </div>
         </div>
