@@ -878,6 +878,33 @@ export type Database = {
         }
         Relationships: []
       }
+      banner_optimization_signals: {
+        Row: {
+          clicks_7d: number
+          ctr_7d: number
+          impressions_7d: number
+          recommended_weight: number
+          slot: string
+          updated_at: string
+        }
+        Insert: {
+          clicks_7d?: number
+          ctr_7d?: number
+          impressions_7d?: number
+          recommended_weight?: number
+          slot: string
+          updated_at?: string
+        }
+        Update: {
+          clicks_7d?: number
+          ctr_7d?: number
+          impressions_7d?: number
+          recommended_weight?: number
+          slot?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       billing_customers: {
         Row: {
           created_at: string
@@ -2942,6 +2969,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      exposure_tuning_signals: {
+        Row: {
+          clicks_7d: number
+          cooldown_factor: number
+          ctr_7d: number
+          ctr_boost: number
+          entity_id: string
+          impressions_7d: number
+          overexposure_score: number
+          trend_engagement_score: number
+          updated_at: string
+        }
+        Insert: {
+          clicks_7d?: number
+          cooldown_factor?: number
+          ctr_7d?: number
+          ctr_boost?: number
+          entity_id: string
+          impressions_7d?: number
+          overexposure_score?: number
+          trend_engagement_score?: number
+          updated_at?: string
+        }
+        Update: {
+          clicks_7d?: number
+          cooldown_factor?: number
+          ctr_7d?: number
+          ctr_boost?: number
+          entity_id?: string
+          impressions_7d?: number
+          overexposure_score?: number
+          trend_engagement_score?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       external_publications: {
         Row: {
@@ -5770,10 +5833,12 @@ export type Database = {
         }[]
       }
       reap_stale_dropship_sync_jobs: { Args: never; Returns: number }
+      refresh_banner_optimization_signals: { Args: never; Returns: undefined }
       refresh_entity_trust_score: {
         Args: { p_entity_id: string }
         Returns: undefined
       }
+      refresh_exposure_tuning_signals: { Args: never; Returns: undefined }
       refund_credits: {
         Args: {
           p_amount: number
