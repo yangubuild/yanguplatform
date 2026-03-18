@@ -350,6 +350,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Beauty & Grooming",
       surface_type: "quick_site",
       cover_image_url: freshcutzBarbers,
+      avatar_url: avatarB1_06,
       published_at: "2025-09-01T00:00:00Z",
       relevance_score: 67,
       trust_score: 38,
