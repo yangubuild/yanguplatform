@@ -105,6 +105,8 @@ const StoreListing = lazy(() => import("./pages/developers/store/StoreListing"))
 const StoreInstall = lazy(() => import("./pages/developers/store/StoreInstall"));
 const ManageAppReview = lazy(() => import("./pages/manage/ManageAppReview"));
 const ManageEntities = lazy(() => import("./pages/manage/ManageEntities"));
+const ManageReports = lazy(() => import("./pages/manage/ManageReports"));
+const EntityDetailPage = lazy(() => import("./pages/EntityDetailPage"));
 
 // Developer Portal (lazy)
 const PortalLayoutModule = lazy(() => import("./components/developers/portal/PortalLayout").then(m => ({ default: m.PortalLayout })));
