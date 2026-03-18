@@ -153,9 +153,9 @@ function DailyChart({ data }: { data: ExploreAnalyticsData["daily_trend"] }) {
   );
 }
 
-export default function ManageDiscoveryAnalytics() {
+export default function ManageExploreAnalytics() {
   const [days, setDays] = useState(30);
-  const { data, isLoading, error } = useDiscoveryAnalytics(days);
+  const { data, isLoading, error } = useExploreAnalytics(days);
 
   const totalImpressions = data?.impressions_by_surface?.reduce((s, r) => s + r.impressions, 0) ?? 0;
   const totalClicks = data?.impressions_by_surface?.reduce((s, r) => s + r.clicks, 0) ?? 0;
