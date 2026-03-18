@@ -1,63 +1,47 @@
 import { useState } from "react";
-import { ChevronRight, Plus, Search, Rocket, ChevronLeft, Copy, X, ChevronDown, Check } from "lucide-react";
+import { ChevronRight, Plus, Search, Rocket, ChevronLeft, Copy, ChevronDown, Check } from "lucide-react";
 import { AffEmptyTable } from "../shared/AffEmptyTable";
 import { toast } from "sonner";
-import { getHotOffers, type AffiliateOffer } from "@/lib/affiliateCanonicalData";
+import { useAffiliateJoin } from "../AffiliateJoinContext";
+import type { AffiliateOffer } from "@/lib/affiliateCanonicalData";
 
 interface Props {
   isAuthenticated: boolean;
   onOpenMarketplace?: () => void;
 }
 
-// Map canonical AffiliateOffer to local Offer shape
-interface Offer {
-  id: string;
-  name: string;
-  category: string;
-  type: string;
-  price: string;
-  rate: string;
-  sales: string;
-  earnings: string;
-  conversion: string;
-  epc: string;
-  image: string;
-  color: string;
-}
-
-function toOffer(a: AffiliateOffer): Offer {
-  return {
-    id: a.id,
-    name: a.name,
-    category: a.category,
-    type: a.type,
-    price: a.price,
-    rate: a.rate,
-    sales: a.sales,
-    earnings: a.earnings,
-    conversion: a.conversion,
-    epc: a.epc,
-    image: a.image,
-    color: a.color,
-  };
-}
-
-export const ALL_OFFERS: Offer[] = getHotOffers().map(toOffer);
-
 export function ReferBuyersTab({ isAuthenticated, onOpenMarketplace }: Props) {
+  const { hotOffers, isJoined, joinAffiliate } = useAffiliateJoin();
   const [viewAssetsProgram, setViewAssetsProgram] = useState<string | null>(null);
-  const [joinedOffers, setJoinedOffers] = useState<Offer[]>([]);
 
-  const handleAddOffer = (offer: Offer) => {
-    if (joinedOffers.find(o => o.id === offer.id)) {
-      toast.info("Already added to your programs");
-      return;
-    }
-    setJoinedOffers(prev => [...prev, offer]);
-    toast.success(`${offer.name} added to your affiliate programs`);
+  const handleAddOffer = (offer: AffiliateOffer) => {
+    joinAffiliate(offer.id, offer.name);
   };
 
-  const isJoined = (id: string) => joinedOffers.some(o => o.id === id);
+  // Build joined list from hotOffers + all canonical that are joined
+  const { marketplaceListings } = useAffiliateJoin();
+  const allJoinedOffers = [
+    ...hotOffers.filter(o => isJoined(o.id)),
+    ...marketplaceListings
+      .filter(m => isJoined(m.id) && !hotOffers.some(o => o.id === m.id))
+      .map(m => ({
+        id: m.id,
+        name: m.company,
+        category: m.industryType,
+        type: "Recurring",
+        price: "-",
+        rate: m.commissionRate,
+        sales: m.conversions,
+        earnings: m.affiliateEarnings,
+        conversion: m.conversionRate,
+        epc: m.earningsPerClick,
+        image: m.avatarUrl,
+        avatarUrl: m.avatarUrl,
+        color: "#e8732a",
+        slug: m.company.toLowerCase().replace(/\s+/g, "-"),
+        industry: m.industryType,
+      } satisfies AffiliateOffer)),
+  ];
 
   return (
     <div>
@@ -73,7 +57,7 @@ export function ReferBuyersTab({ isAuthenticated, onOpenMarketplace }: Props) {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-        {ALL_OFFERS.map((offer) => (
+        {hotOffers.map((offer) => (
           <div key={offer.id} className="rounded-xl border border-white/[0.04] overflow-hidden" style={{ background: "#111a15" }}>
             <div className="flex gap-3 p-4 pb-3">
               <div className="w-[120px] h-[72px] rounded-lg overflow-hidden flex-shrink-0">
@@ -121,7 +105,7 @@ export function ReferBuyersTab({ isAuthenticated, onOpenMarketplace }: Props) {
             </div>
           </div>
 
-          {joinedOffers.length === 0 ? (
+          {allJoinedOffers.length === 0 ? (
             <AffEmptyTable
               columns={["Company", "Clicks", "Conversions", "Earnings", "Assets"]}
               icon={<Rocket className="w-8 h-8 text-white/20" />}
@@ -137,11 +121,11 @@ export function ReferBuyersTab({ isAuthenticated, onOpenMarketplace }: Props) {
                 <div className="flex-1 text-xs text-white/30 font-medium text-center">Earnings</div>
                 <div className="flex-1 text-xs text-white/30 font-medium text-center">Assets</div>
               </div>
-              {joinedOffers.map((prog) => (
+              {allJoinedOffers.map((prog) => (
                 <div key={prog.id} className="flex items-center border-b border-white/[0.04] px-4 py-3 hover:bg-white/[0.02] transition-colors">
                   <div className="flex-[2] flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0">
-                      <img src={prog.image} alt={prog.name} className="w-full h-full object-cover" />
+                      <img src={prog.avatarUrl || prog.image} alt={prog.name} className="w-full h-full object-cover" />
                     </div>
                     <span className="text-sm text-white font-medium">{prog.name}</span>
                   </div>
@@ -159,7 +143,98 @@ export function ReferBuyersTab({ isAuthenticated, onOpenMarketplace }: Props) {
                 </div>
               ))}
               <div className="flex items-center justify-between px-4 py-3 text-xs text-white/30">
-                <span>Showing 1 to {joinedOffers.length} of {joinedOffers.length}</span>
+                <span>Showing 1 to {allJoinedOffers.length} of {allJoinedOffers.length}</span>
+                <div className="flex items-center gap-2">
+                  <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-white/30">‹</button>
+                  <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-white bg-white/[0.06]">1</button>
+                  <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-white/30">›</button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span>Show</span>
+                  <div className="flex items-center gap-1 px-2 py-1 rounded-lg border border-white/[0.06] text-white/60">
+                    10 <ChevronDown className="w-3 h-3" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Your affiliate links */}
+          <h3 className="text-base font-semibold text-white mt-8 mb-4">Your affiliate links</h3>
+          {allJoinedOffers.length === 0 ? (
+            <AffEmptyTable
+              columns={["Type", "Name", "Price", "Affiliate rate", "Affiliate link", "Earned", "Clicks", "Users", "Conversion rate"]}
+              icon={<Rocket className="w-8 h-8 text-white/20" />}
+              title="No affiliate links yet"
+              subtitle="Join affiliate programs to generate links"
+            />
+          ) : (
+            <div className="rounded-xl border border-white/[0.04] overflow-hidden" style={{ background: "#111a15" }}>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-white/[0.04]">
+                      <th className="text-left text-xs text-white/30 font-medium px-4 py-3">Type</th>
+                      <th className="text-left text-xs text-white/30 font-medium px-4 py-3">Name</th>
+                      <th className="text-left text-xs text-white/30 font-medium px-4 py-3">Price</th>
+                      <th className="text-left text-xs text-white/30 font-medium px-4 py-3">Affiliate rate</th>
+                      <th className="text-left text-xs text-white/30 font-medium px-4 py-3">Affiliate link</th>
+                      <th className="text-right text-xs text-white/30 font-medium px-4 py-3">Earned</th>
+                      <th className="text-center text-xs text-white/30 font-medium px-4 py-3">Clicks</th>
+                      <th className="text-center text-xs text-white/30 font-medium px-4 py-3">Users</th>
+                      <th className="text-center text-xs text-white/30 font-medium px-4 py-3">Conversion rate</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {allJoinedOffers.flatMap((prog) => {
+                      const slug = prog.slug || prog.name.toLowerCase().replace(/\s+/g, "-");
+                      return [
+                        {
+                          type: "Product",
+                          typeBg: "#22c55e",
+                          name: prog.name,
+                          price: prog.price || "-",
+                          rate: prog.rate || "-",
+                          link: `https://yangu.studio/${slug}?a=ref123`,
+                        },
+                        {
+                          type: "Company",
+                          typeBg: "#f59e0b",
+                          name: prog.name,
+                          price: "-",
+                          rate: "-",
+                          link: `https://yangu.studio/${slug}?a=heavyvrasp23`,
+                        },
+                      ];
+                    }).map((link, i) => (
+                      <tr key={i} className="border-b border-white/[0.04] hover:bg-white/[0.02]">
+                        <td className="px-4 py-3">
+                          <span className="text-xs font-medium px-2 py-0.5 rounded" style={{ background: `${link.typeBg}20`, color: link.typeBg }}>
+                            {link.type}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-white">{link.name}</td>
+                        <td className="px-4 py-3 text-sm text-white/60">{link.price}</td>
+                        <td className="px-4 py-3 text-sm text-white/60">{link.rate}</td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-white/60 truncate max-w-[240px]">{link.link}</span>
+                            <button onClick={() => { navigator.clipboard.writeText(link.link); toast.success("Affiliate link copied!"); }} className="text-white/30 hover:text-white flex-shrink-0">
+                              <Copy className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-white/60 text-right">$0.00</td>
+                        <td className="px-4 py-3 text-sm text-white/60 text-center">0</td>
+                        <td className="px-4 py-3 text-sm text-white/60 text-center">0</td>
+                        <td className="px-4 py-3 text-sm text-white/60 text-center">-</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="flex items-center justify-between px-4 py-3 text-xs text-white/30 border-t border-white/[0.04]">
+                <span>Showing 1 to {allJoinedOffers.length * 2} of {allJoinedOffers.length * 2}</span>
                 <div className="flex items-center gap-2">
                   <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-white/30">‹</button>
                   <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-white bg-white/[0.06]">1</button>

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronDown, Search, Plus, Copy } from "lucide-react";
 import { toast } from "sonner";
-import { getMarketplaceListings, type AffiliateMarketplaceRow } from "@/lib/affiliateCanonicalData";
+import { useAffiliateJoin } from "./AffiliateJoinContext";
+import { AffiliateJoinModal } from "./AffiliateJoinModal";
 
 interface Props {
   onBack: () => void;
@@ -10,23 +11,31 @@ interface Props {
 }
 
 export function AffiliateMarketplacePage({ onBack, onSwitchToCreator, onApplyPartner }: Props) {
-  const [listings, setListings] = useState<AffiliateMarketplaceRow[]>(() => getMarketplaceListings());
+  const { marketplaceListings, isJoined, joinAffiliate } = useAffiliateJoin();
   const [searchQuery, setSearchQuery] = useState("");
   const [viewAssetsId, setViewAssetsId] = useState<string | null>(null);
+  const [joinModal, setJoinModal] = useState<{ id: string; company: string; avatarUrl: string } | null>(null);
 
-  const handleBecomeAffiliate = (id: string) => {
-    setListings(prev => prev.map(l => l.id === id ? { ...l, isJoined: true } : l));
-    const item = listings.find(l => l.id === id);
-    toast.success(`${item?.company} added to your affiliate programs`);
+  const handleDirectJoin = (id: string) => {
+    const item = marketplaceListings.find(l => l.id === id);
+    if (item) joinAffiliate(id, item.company);
   };
 
-  const filtered = listings.filter(l =>
+  const handleCompanyClick = (listing: typeof marketplaceListings[0]) => {
+    if (isJoined(listing.id)) {
+      setViewAssetsId(listing.id);
+    } else {
+      setJoinModal({ id: listing.id, company: listing.company, avatarUrl: listing.avatarUrl });
+    }
+  };
+
+  const filtered = marketplaceListings.filter(l =>
     l.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
     l.industryType.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   if (viewAssetsId) {
-    const item = listings.find(l => l.id === viewAssetsId);
+    const item = marketplaceListings.find(l => l.id === viewAssetsId);
     return (
       <MarketplaceViewAssets
         companyName={item?.company || ""}
@@ -56,7 +65,7 @@ export function AffiliateMarketplacePage({ onBack, onSwitchToCreator, onApplyPar
         </div>
       </div>
 
-      {/* Tabs - keep consistent */}
+      {/* Tabs */}
       <div className="flex gap-6 border-b border-white/[0.06] mt-2 mb-6">
         <button className="pb-3 text-sm font-medium text-white/40">Dashboard</button>
         <button className="pb-3 text-sm font-medium text-white relative">
@@ -109,12 +118,15 @@ export function AffiliateMarketplacePage({ onBack, onSwitchToCreator, onApplyPar
               {filtered.map((listing) => (
                 <tr key={listing.id} className="border-b border-white/[0.04] hover:bg-white/[0.02]">
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleCompanyClick(listing)}
+                      className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                    >
                       <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0">
                         <img src={listing.avatarUrl} alt="" className="w-full h-full object-cover" />
                       </div>
                       <span className="text-sm text-white font-medium">{listing.company}</span>
-                    </div>
+                    </button>
                   </td>
                   <td className="px-4 py-3 text-sm text-white/60">{listing.industryType}</td>
                   <td className="px-4 py-3 text-sm text-white/60">{listing.commissionRate}</td>
@@ -123,7 +135,7 @@ export function AffiliateMarketplacePage({ onBack, onSwitchToCreator, onApplyPar
                   <td className="px-4 py-3 text-sm text-white/60">{listing.earningsPerClick}</td>
                   <td className="px-4 py-3 text-sm text-white/60">{listing.conversionRate}</td>
                   <td className="px-4 py-3 text-right">
-                    {listing.isJoined ? (
+                    {isJoined(listing.id) ? (
                       <button
                         onClick={() => setViewAssetsId(listing.id)}
                         className="px-3 py-1.5 rounded-lg text-xs font-medium text-green-400 border border-green-500/30 hover:bg-green-500/10 transition-colors"
@@ -132,7 +144,7 @@ export function AffiliateMarketplacePage({ onBack, onSwitchToCreator, onApplyPar
                       </button>
                     ) : (
                       <button
-                        onClick={() => handleBecomeAffiliate(listing.id)}
+                        onClick={() => handleDirectJoin(listing.id)}
                         className="px-3 py-1.5 rounded-lg text-xs font-medium text-white border border-white/[0.08] hover:bg-white/[0.04] transition-colors"
                       >
                         Become affiliate
@@ -160,6 +172,16 @@ export function AffiliateMarketplacePage({ onBack, onSwitchToCreator, onApplyPar
           </div>
         </div>
       </div>
+
+      {/* Join Modal */}
+      {joinModal && (
+        <AffiliateJoinModal
+          companyName={joinModal.company}
+          avatarUrl={joinModal.avatarUrl}
+          onConfirm={() => joinAffiliate(joinModal.id, joinModal.company)}
+          onClose={() => setJoinModal(null)}
+        />
+      )}
     </div>
   );
 }
