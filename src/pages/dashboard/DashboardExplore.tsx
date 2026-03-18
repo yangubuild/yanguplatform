@@ -20,23 +20,23 @@ export default function DashboardExplore() {
         <LandingTestPromptArea />
         <LandingTestGettingStarted />
         <PremiumBusinessRow
-          title="Verified"
+          title="Trusted Businesses"
           businesses={verifiedBusinesses}
         />
         <BusinessIdeasRow />
         <PremiumBusinessRow
-          title="Products"
+          title="Buy From"
           subtitle="Shop products from verified sellers and businesses on yangu"
           businesses={salesCommunityBusinesses}
         />
         <LandingTestDynamicBanner slot="middle" />
         <PremiumBusinessRow
-          title="Services"
+          title="Find Services"
           subtitle="Find expert services from coaches, consultants, and freelancers"
           businesses={mindsetCoachingBusinesses}
         />
         <PremiumBusinessRow
-          title="Community"
+          title="Join Communities"
           subtitle="Join communities for learning, networking, and growth"
           businesses={weightLossCoachingBusinesses}
         />

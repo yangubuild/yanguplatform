@@ -92,7 +92,7 @@ export function MassLandingPage() {
 
           {/* Row 1: Verified — 4 key surfaces */}
           <PremiumBusinessRow
-            title="Verified"
+            title="Trusted Businesses"
             entities={verifiedSlotted.length > 0 ? verifiedSlotted : undefined}
             businesses={verifiedBusinesses}
           />
@@ -101,7 +101,7 @@ export function MassLandingPage() {
 
           {/* Row 2: Products — 4 key surfaces */}
           <PremiumBusinessRow
-            title="Products"
+            title="Buy From"
             subtitle="Shop products from verified sellers and businesses on yangu"
             entities={productSlotted.length > 0 ? productSlotted : undefined}
             businesses={salesCommunityBusinesses}
@@ -112,7 +112,7 @@ export function MassLandingPage() {
 
           {/* Row 3: Services — 4 key surfaces */}
           <PremiumBusinessRow
-            title="Services"
+            title="Find Services"
             subtitle="Find expert services from coaches, consultants, and freelancers"
             entities={serviceSlotted.length > 0 ? serviceSlotted : undefined}
             businesses={mindsetCoachingBusinesses}
@@ -120,7 +120,7 @@ export function MassLandingPage() {
 
           {/* Row 4: Community — 4 key surfaces */}
           <PremiumBusinessRow
-            title="Community"
+            title="Join Communities"
             subtitle="Join communities for learning, networking, and growth"
             entities={communitySlotted.length > 0 ? communitySlotted : undefined}
             businesses={weightLossCoachingBusinesses}
