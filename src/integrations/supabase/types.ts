@@ -3906,6 +3906,7 @@ export type Database = {
       }
       searchable_entities: {
         Row: {
+          avg_rating: number | null
           builder_surface_id: string | null
           builder_surface_type: string | null
           cover_image_url: string | null
@@ -3924,16 +3925,20 @@ export type Database = {
           primary_category: string | null
           promotion_id: string | null
           published_at: string | null
+          report_count: number
+          review_count: number
           short_description: string | null
           slug: string | null
           surface_id: string | null
           surface_type: string | null
           tags: string[]
           title: string
+          trust_score: number
           updated_at: string
           visibility_tier: Database["public"]["Enums"]["visibility_tier"]
         }
         Insert: {
+          avg_rating?: number | null
           builder_surface_id?: string | null
           builder_surface_type?: string | null
           cover_image_url?: string | null
@@ -3952,16 +3957,20 @@ export type Database = {
           primary_category?: string | null
           promotion_id?: string | null
           published_at?: string | null
+          report_count?: number
+          review_count?: number
           short_description?: string | null
           slug?: string | null
           surface_id?: string | null
           surface_type?: string | null
           tags?: string[]
           title: string
+          trust_score?: number
           updated_at?: string
           visibility_tier?: Database["public"]["Enums"]["visibility_tier"]
         }
         Update: {
+          avg_rating?: number | null
           builder_surface_id?: string | null
           builder_surface_type?: string | null
           cover_image_url?: string | null
@@ -3980,12 +3989,15 @@ export type Database = {
           primary_category?: string | null
           promotion_id?: string | null
           published_at?: string | null
+          report_count?: number
+          review_count?: number
           short_description?: string | null
           slug?: string | null
           surface_id?: string | null
           surface_type?: string | null
           tags?: string[]
           title?: string
+          trust_score?: number
           updated_at?: string
           visibility_tier?: Database["public"]["Enums"]["visibility_tier"]
         }
