@@ -165,6 +165,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Software & Technology",
       surface_type: "quick_site",
       cover_image_url: novalimitSoftware,
+      avatar_url: avatarB2_04,
       published_at: "2025-08-01T00:00:00Z",
       relevance_score: 81,
       trust_score: 69,
