@@ -325,6 +325,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Health & Fitness",
       surface_type: "quick_site",
       cover_image_url: coreformStudio,
+      avatar_url: avatarB2_01,
       published_at: "2025-09-25T00:00:00Z",
       relevance_score: 74,
       trust_score: 48,
