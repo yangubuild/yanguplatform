@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ArrowLeft, Building2, Star, Users, Globe, Flag, ChevronDown, ChevronUp, ShieldCheck,
   MessageSquare, Package, Wrench, Palette, Landmark, Calendar, MapPin, Tag,
