@@ -5453,6 +5453,28 @@ export type Database = {
         Args: { p_publish_id?: string; p_surface_id?: string }
         Returns: Json
       }
+      get_related_entities: {
+        Args: { p_entity_id: string; p_limit?: number }
+        Returns: {
+          cover_image_url: string
+          domain_host: string
+          entity_subtype: string
+          entity_type: string
+          id: string
+          industry: string
+          is_verified: boolean
+          primary_category: string
+          published_at: string
+          relatedness_score: number
+          short_description: string
+          slug: string
+          surface_type: string
+          tags: string[]
+          title: string
+          trust_score: number
+          visibility_tier: string
+        }[]
+      }
       grant_credits: {
         Args: { p_amount: number; p_note?: string; p_user_id: string }
         Returns: undefined
