@@ -8,13 +8,18 @@ import type { AffiliateOffer } from "@/lib/affiliateCanonicalData";
 interface Props {
   isAuthenticated: boolean;
   onOpenMarketplace?: () => void;
+  onGatedAction?: () => void;
 }
 
-export function ReferBuyersTab({ isAuthenticated, onOpenMarketplace }: Props) {
+export function ReferBuyersTab({ isAuthenticated, onOpenMarketplace, onGatedAction }: Props) {
   const { hotOffers, isJoined, joinAffiliate } = useAffiliateJoin();
   const [viewAssetsProgram, setViewAssetsProgram] = useState<string | null>(null);
 
   const handleAddOffer = (offer: AffiliateOffer) => {
+    if (onGatedAction) {
+      onGatedAction();
+      return;
+    }
     joinAffiliate(offer.id, offer.name);
   };
 
