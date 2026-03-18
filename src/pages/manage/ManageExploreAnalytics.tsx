@@ -27,7 +27,7 @@ function StatCard({ icon: Icon, label, value, sub }: { icon: React.ElementType; 
   );
 }
 
-function SurfaceTable({ data }: { data: DiscoveryAnalyticsData["impressions_by_surface"] }) {
+function SurfaceTable({ data }: { data: ExploreAnalyticsData["impressions_by_surface"] }) {
   if (!data?.length) return <p className="text-xs text-[hsl(var(--admin-text-muted))]">No surface data yet</p>;
   return (
     <AdminGlassCard className="p-4">
