@@ -67,7 +67,7 @@ export function ReferBuyersTab({ isAuthenticated, onOpenMarketplace, onGatedActi
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-        {hotOffers.map((offer) => (
+        {hotOffers.filter(o => industryFilter === "All" || (o.industry || o.category || "").toLowerCase() === industryFilter.toLowerCase()).map((offer) => (
           <div key={offer.id} className="rounded-xl border border-white/[0.04] overflow-hidden" style={{ background: "#111a15" }}>
             <div className="flex gap-3 p-4 pb-3">
               <div className="w-[120px] h-[72px] rounded-lg overflow-hidden flex-shrink-0">
