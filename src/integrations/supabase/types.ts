@@ -2970,6 +2970,27 @@ export type Database = {
           },
         ]
       }
+      explore_manual_overrides: {
+        Row: {
+          entity_id: string
+          position: number
+          set_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          entity_id: string
+          position?: number
+          set_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          entity_id?: string
+          position?: number
+          set_by?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       exposure_tuning_signals: {
         Row: {
           clicks_7d: number
