@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { personalizeResults } from "@/lib/personalizeDiscovery";
+import { enforceRelatedPaidCap } from "@/lib/monetizationRules";
 
 export interface EntityDetail {
   id: string;
