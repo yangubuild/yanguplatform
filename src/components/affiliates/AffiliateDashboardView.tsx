@@ -5,6 +5,7 @@ import { ReferBuyersTab } from "./tabs/ReferBuyersTab";
 import { ReferSellersTab } from "./tabs/ReferSellersTab";
 import { AffiliateMarketplacePage } from "./AffiliateMarketplacePage";
 import { AffiliateJoinProvider } from "./AffiliateJoinContext";
+import { AffiliateSignupGateModal } from "./AffiliateSignupGateModal";
 
 interface Props {
   isAuthenticated: boolean;
@@ -18,10 +19,19 @@ export function AffiliateDashboardView({ isAuthenticated, onSwitchToCreator }: P
   const tabs = isAuthenticated ? TABS_AUTH : TABS_PUBLIC;
   const [activeTab, setActiveTab] = useState<string>(tabs[0]);
   const [showMarketplace, setShowMarketplace] = useState(false);
+  const [showSignupGate, setShowSignupGate] = useState(false);
+
+  const handlePublicGatedAction = () => {
+    if (!isAuthenticated) {
+      setShowSignupGate(true);
+    } else {
+      setShowMarketplace(true);
+    }
+  };
 
   return (
     <AffiliateJoinProvider>
-      {showMarketplace ? (
+      {showMarketplace && isAuthenticated ? (
         <AffiliateMarketplacePage
           onBack={() => setShowMarketplace(false)}
           onSwitchToCreator={onSwitchToCreator}
@@ -60,12 +70,22 @@ export function AffiliateDashboardView({ isAuthenticated, onSwitchToCreator }: P
                   </button>
                 </>
               ) : (
-                <button
-                  onClick={() => setActiveTab("Refer sellers")}
-                  className="px-4 py-2 rounded-xl text-sm font-medium border border-accent/40 text-accent"
-                >
-                  Apply to be a partner
-                </button>
+                <>
+                  <button
+                    onClick={handlePublicGatedAction}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white"
+                    style={{ background: "rgba(255,255,255,0.08)" }}
+                  >
+                    <Gift className="w-4 h-4 text-accent" />
+                    Affiliate marketplace
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("Refer sellers")}
+                    className="px-4 py-2 rounded-xl text-sm font-medium border border-accent/40 text-accent"
+                  >
+                    Apply to be a partner
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -93,11 +113,17 @@ export function AffiliateDashboardView({ isAuthenticated, onSwitchToCreator }: P
           {activeTab === "Refer buyers" && (
             <ReferBuyersTab
               isAuthenticated={isAuthenticated}
-              onOpenMarketplace={() => setShowMarketplace(true)}
+              onOpenMarketplace={handlePublicGatedAction}
+              onGatedAction={!isAuthenticated ? () => setShowSignupGate(true) : undefined}
             />
           )}
           {activeTab === "Refer sellers" && <ReferSellersTab />}
         </div>
+      )}
+
+      {/* Signup gate popup for anonymous users */}
+      {showSignupGate && (
+        <AffiliateSignupGateModal onClose={() => setShowSignupGate(false)} />
       )}
     </AffiliateJoinProvider>
   );

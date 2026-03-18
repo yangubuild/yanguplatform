@@ -235,6 +235,7 @@ const App = () => (
                 <Route path="/product/:slug" element={<EntityDetailPage />} />
                 <Route path="/project/:slug" element={<EntityDetailPage />} />
                 <Route path="/blog" element={<Blog />} />
+                <Route path="/affiliates" element={<Affiliates />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/termsofservice" element={<TermsOfService />} />
