@@ -3,6 +3,7 @@ import { ChevronRight, Plus, Search, Rocket, ChevronLeft, Copy, ChevronDown, Che
 import { AffEmptyTable } from "../shared/AffEmptyTable";
 import { toast } from "sonner";
 import { useAffiliateJoin } from "../AffiliateJoinContext";
+import { IndustryTypeFilter } from "../IndustryTypeFilter";
 import type { AffiliateOffer } from "@/lib/affiliateCanonicalData";
 
 interface Props {
