@@ -12,6 +12,7 @@
  */
 
 import { getSessionPreferences } from "./sessionMemory";
+import { TRUST_FLOOR } from "./monetizationRules";
 
 const MAX_BOOST = 3.0;
 
