@@ -16,8 +16,8 @@ interface Props {
 const TABS_AUTH = ["Dashboard", "Refer buyers", "Refer sellers"] as const;
 const TABS_PUBLIC = ["Refer buyers", "Refer sellers"] as const;
 
-export function AffiliateDashboardView({ isAuthenticated, onSwitchToCreator }: Props) {
-  const tabs = isAuthenticated ? TABS_AUTH : TABS_PUBLIC;
+export function AffiliateDashboardView({ isAuthenticated, onSwitchToCreator, isLandingPage }: Props) {
+  const tabs = (isAuthenticated && !isLandingPage) ? TABS_AUTH : TABS_PUBLIC;
   const [activeTab, setActiveTab] = useState<string>(tabs[0]);
   const [showMarketplace, setShowMarketplace] = useState(false);
   const [showSignupGate, setShowSignupGate] = useState(false);
