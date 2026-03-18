@@ -1,5 +1,7 @@
+import { useEffect, useRef } from "react";
 import { TrendingUp } from "lucide-react";
 import { useTrendEntities } from "@/hooks/landing/useSearchEntities";
+import { trackImpressions, trackClick } from "@/lib/discoveryAnalytics";
 
 const FALLBACK_ITEMS = [
   "restaurants",
