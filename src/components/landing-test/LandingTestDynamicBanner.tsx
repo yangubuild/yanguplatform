@@ -99,19 +99,6 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
             />
           </div>
 
-          {/* Coin 1 — medium, upper center */}
-          <div
-            className="absolute hidden md:block pointer-events-none"
-            style={{
-              left: "48%",
-              top: "-10px",
-              width: "72px",
-              height: "72px",
-              zIndex: 25,
-            }}
-          >
-            <img src={enterpriseCoin} alt="" className="w-full h-full object-contain" />
-          </div>
 
           {/* Coin 2 — small, mid-right near illustration */}
           <div
