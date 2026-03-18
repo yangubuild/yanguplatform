@@ -34,8 +34,8 @@ function computeBoost(
   entity: Personalizable,
   prefs: ReturnType<typeof getSessionPreferences>,
 ): number {
-  // Trust gate: weak entities cannot benefit from personalization
-  if ((entity.trust_score ?? 0) < 10) return 0;
+  // Trust gate: weak entities cannot benefit from personalization or monetization
+  if ((entity.trust_score ?? 0) < Math.min(10, TRUST_FLOOR)) return 0;
 
   let boost = 0;
 

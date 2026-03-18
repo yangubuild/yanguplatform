@@ -72,10 +72,14 @@ function computeRotationScore(entity: SearchEntityResult, seenTypes: Set<string>
     score += ROTATION_WEIGHTS.verifiedBonus;
   }
 
-  // Paid visibility bonus (light influence only)
-  if (entity.visibility_tier === "paid" || entity.visibility_tier === "premium") {
-    score += ROTATION_WEIGHTS.paidBonus;
-  }
+  // Monetized premium boost (Phase 8) — gated by trust floor
+  const premiumBoost = computePremiumBoost({
+    visibility_tier: entity.visibility_tier,
+    is_verified: entity.is_verified,
+    trust_score: entity.trust_score,
+  });
+  // Normalize premium boost (max 5.0) into the 0–1 weight budget
+  score += (premiumBoost / 5.0) * ROTATION_WEIGHTS.paidBonus;
 
   // Diversity penalty: if we've already seen this type, penalize slightly
   if (seenTypes.has(entity.entity_type)) {
