@@ -17,9 +17,22 @@ interface Props {
  */
 export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
   const data = bannerData ?? BANNER_DEFAULTS[slot];
+  const tracked = useRef(false);
 
   // Clean collapse: if banner is explicitly deactivated, render nothing
   if (!data.is_active) return null;
+
+  // Track banner impression once
+  useEffect(() => {
+    if (!tracked.current) {
+      tracked.current = true;
+      trackBannerEvent("impression", slot);
+    }
+  }, [slot]);
+
+  const handleBannerClick = () => {
+    trackBannerEvent("click", slot);
+  };
 
   const isMiddle = slot === "middle";
 
