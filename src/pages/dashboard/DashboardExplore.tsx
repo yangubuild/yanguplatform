@@ -31,7 +31,7 @@ export default function DashboardExplore() {
         />
         <LandingTestDynamicBanner slot="middle" />
         <PremiumBusinessRow
-          title="Services"
+          title="Find Services"
           subtitle="Find expert services from coaches, consultants, and freelancers"
           businesses={mindsetCoachingBusinesses}
         />
