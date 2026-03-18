@@ -37,16 +37,17 @@ export function isExternalRoute(route: string): boolean {
 
 /**
  * Badge color for verified entities.
- * blue = individual/creator, orange = business, green = organization
+ * blue = individual/creator, orange = business, green = organization/community
  */
 export function getVerifiedBadgeColor(
-  entity: SearchEntityResult,
+  entity: Pick<SearchEntityResult, "is_verified" | "entity_type">,
 ): "blue" | "orange" | "green" | null {
   if (!entity.is_verified) return null;
   switch (entity.entity_type) {
     case "business":
       return "orange";
     case "organization":
+    case "community":
       return "green";
     default:
       return "blue";
