@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ArrowLeft, Building2, Star, Users, Globe, Flag, ChevronDown, ChevronUp, ShieldCheck,
   MessageSquare, Package, Wrench, Palette, Landmark, Calendar, MapPin, Tag,
@@ -8,6 +8,7 @@ import { useEntityDetail, useEntityReviews, useEntityFaqs, useRelatedEntities } 
 import { Skeleton } from "@/components/ui/skeleton";
 import { ReviewForm } from "@/components/entity/ReviewForm";
 import { ReportDialog } from "@/components/entity/ReportDialog";
+import { recordEntityClick } from "@/lib/sessionMemory";
 import { ENTITY_TYPE_CONFIG, ENTITY_SUBTYPE_LABELS } from "@/types/search";
 import type { SearchableEntityType, EntitySubtype } from "@/types/search";
 import { getEntityRoute, isExternalRoute } from "@/lib/entityRouting";
@@ -60,6 +61,18 @@ export default function EntityDetailPage() {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [showReport, setShowReport] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState<string | null>(null);
+
+  // Record session click for personalization
+  useEffect(() => {
+    if (entity) {
+      recordEntityClick({
+        id: entity.id,
+        entity_type: entity.entity_type,
+        primary_category: entity.primary_category,
+        tags: entity.tags,
+      });
+    }
+  }, [entity?.id]);
 
   if (isLoading) {
     return (
