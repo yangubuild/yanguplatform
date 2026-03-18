@@ -147,7 +147,10 @@ export default function ManageBanners() {
 
   return (
     <div>
-      <AdminToolbar title="Landing Banners" icon={<Image className="w-5 h-5" />} />
+      <div className="flex items-center gap-2 px-6 pt-6 pb-2">
+        <Image className="w-5 h-5 text-muted-foreground" />
+        <h1 className="text-lg font-semibold text-foreground">Landing Banners</h1>
+      </div>
 
       <div className="p-6 space-y-4 max-w-3xl">
         <p className="text-sm text-muted-foreground mb-2">
