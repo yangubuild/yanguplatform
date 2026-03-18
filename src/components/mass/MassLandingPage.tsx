@@ -112,7 +112,7 @@ export function MassLandingPage() {
 
           {/* Row 3: Services — 4 key surfaces */}
           <PremiumBusinessRow
-            title="Services"
+            title="Find Services"
             subtitle="Find expert services from coaches, consultants, and freelancers"
             entities={serviceSlotted.length > 0 ? serviceSlotted : undefined}
             businesses={mindsetCoachingBusinesses}
