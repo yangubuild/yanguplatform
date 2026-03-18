@@ -3,6 +3,7 @@ import { ChevronRight, Plus, Search, Rocket, ChevronLeft, Copy, ChevronDown, Che
 import { AffEmptyTable } from "../shared/AffEmptyTable";
 import { toast } from "sonner";
 import { useAffiliateJoin } from "../AffiliateJoinContext";
+import { IndustryTypeFilter } from "../IndustryTypeFilter";
 import type { AffiliateOffer } from "@/lib/affiliateCanonicalData";
 
 interface Props {
@@ -14,6 +15,7 @@ interface Props {
 export function ReferBuyersTab({ isAuthenticated, onOpenMarketplace, onGatedAction }: Props) {
   const { hotOffers, isJoined, joinAffiliate } = useAffiliateJoin();
   const [viewAssetsProgram, setViewAssetsProgram] = useState<string | null>(null);
+  const [industryFilter, setIndustryFilter] = useState("All");
 
   const handleAddOffer = (offer: AffiliateOffer) => {
     if (onGatedAction) {
@@ -52,7 +54,10 @@ export function ReferBuyersTab({ isAuthenticated, onOpenMarketplace, onGatedActi
     <div>
       {/* Hot offers */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base font-semibold text-white">Hot offers</h3>
+        <div className="flex items-center gap-3">
+          <h3 className="text-base font-semibold text-white">Hot offers</h3>
+          <IndustryTypeFilter value={industryFilter} onChange={setIndustryFilter} />
+        </div>
         <button
           onClick={onOpenMarketplace}
           className="flex items-center gap-1 text-sm text-white/50 hover:text-white/80 transition-colors"
@@ -62,7 +67,7 @@ export function ReferBuyersTab({ isAuthenticated, onOpenMarketplace, onGatedActi
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-        {hotOffers.map((offer) => (
+        {hotOffers.filter(o => industryFilter === "All" || (o.industry || o.category || "").toLowerCase() === industryFilter.toLowerCase()).map((offer) => (
           <div key={offer.id} className="rounded-xl border border-white/[0.04] overflow-hidden" style={{ background: "#111a15" }}>
             <div className="flex gap-3 p-4 pb-3">
               <div className="w-[120px] h-[72px] rounded-lg overflow-hidden flex-shrink-0">

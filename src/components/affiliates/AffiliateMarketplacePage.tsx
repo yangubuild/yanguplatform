@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronDown, Search, Plus, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { useAffiliateJoin } from "./AffiliateJoinContext";
 import { AffiliateJoinModal } from "./AffiliateJoinModal";
+import { IndustryTypeFilter } from "./IndustryTypeFilter";
 
 interface Props {
   onBack: () => void;
@@ -15,6 +16,7 @@ export function AffiliateMarketplacePage({ onBack, onSwitchToCreator, onApplyPar
   const [searchQuery, setSearchQuery] = useState("");
   const [viewAssetsId, setViewAssetsId] = useState<string | null>(null);
   const [joinModal, setJoinModal] = useState<{ id: string; company: string; avatarUrl: string } | null>(null);
+  const [industryFilter, setIndustryFilter] = useState("All");
 
   const handleDirectJoin = (id: string) => {
     const item = marketplaceListings.find(l => l.id === id);
@@ -29,10 +31,12 @@ export function AffiliateMarketplacePage({ onBack, onSwitchToCreator, onApplyPar
     }
   };
 
-  const filtered = marketplaceListings.filter(l =>
-    l.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    l.industryType.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filtered = marketplaceListings.filter(l => {
+    const matchesSearch = l.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      l.industryType.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesIndustry = industryFilter === "All" || l.industryType.toLowerCase() === industryFilter.toLowerCase();
+    return matchesSearch && matchesIndustry;
+  });
 
   if (viewAssetsId) {
     const item = marketplaceListings.find(l => l.id === viewAssetsId);
@@ -83,9 +87,7 @@ export function AffiliateMarketplacePage({ onBack, onSwitchToCreator, onApplyPar
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <h3 className="text-base font-semibold text-white">Affiliate marketplace</h3>
-          <button className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-dashed border-white/20 text-xs text-white/50">
-            <Plus className="w-3 h-3 text-white/30" /> Industry type
-          </button>
+          <IndustryTypeFilter value={industryFilter} onChange={setIndustryFilter} />
         </div>
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/[0.06] w-56">
           <Search className="w-4 h-4 text-white/30" />
