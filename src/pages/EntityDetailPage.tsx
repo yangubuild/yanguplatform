@@ -12,6 +12,7 @@ import { recordEntityClick } from "@/lib/sessionMemory";
 import { ENTITY_TYPE_CONFIG, ENTITY_SUBTYPE_LABELS } from "@/types/search";
 import type { SearchableEntityType, EntitySubtype } from "@/types/search";
 import { getEntityRoute, isExternalRoute } from "@/lib/entityRouting";
+import { getVerificationDepth, getTrustTier, getReviewConfidence } from "@/lib/trustSignals";
 
 const TYPE_ICONS: Record<string, React.FC<{ className?: string; style?: React.CSSProperties }>> = {
   product: Package, service: Wrench, business: Building2, creator: Star,
@@ -109,10 +110,11 @@ export default function EntityDetailPage() {
   const config = ENTITY_TYPE_CONFIG[entity.entity_type as SearchableEntityType];
   const subtypeLabel = entity.entity_subtype ? ENTITY_SUBTYPE_LABELS[entity.entity_subtype as EntitySubtype] : null;
   const Icon = TYPE_ICONS[entity.entity_type] || Building2;
-  const badgeColor =
-    entity.is_verified
-      ? entity.entity_type === "business" ? "orange" : entity.entity_type === "organization" ? "green" : "blue"
-      : null;
+
+  // Phase 7 — trust expansion signals
+  const verification = getVerificationDepth(entity.entity_type, entity.entity_subtype ?? null, entity.is_verified);
+  const trustTier = getTrustTier(entity.trust_score);
+  const reviewConfidence = getReviewConfidence(entity.review_count, entity.avg_rating);
 
   return (
     <div className="min-h-screen" style={{ background: "#08120D" }}>
@@ -142,11 +144,20 @@ export default function EntityDetailPage() {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <h1 className="text-white text-2xl font-bold">{entity.title}</h1>
-              {badgeColor === "blue" && <span className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-[9px] text-white">✓</span>}
-              {badgeColor === "orange" && <span className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] text-white" style={{ background: "#b5622a" }}>✓</span>}
-              {badgeColor === "green" && <span className="w-5 h-5 rounded-full bg-green-600 flex items-center justify-center text-[9px] text-white">✓</span>}
+              {verification && (
+                <span
+                  className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] text-white"
+                  style={{ background: verification.color }}
+                  title={verification.label}
+                >✓</span>
+              )}
             </div>
             <div className="flex items-center gap-3 flex-wrap text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
+              {verification && (
+                <span className="px-2 py-0.5 rounded-full font-medium" style={{ background: `${verification.color}15`, color: verification.color }}>
+                  {verification.label}
+                </span>
+              )}
               {config && (
                 <span className="px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>{config.label}</span>
               )}
@@ -167,18 +178,29 @@ export default function EntityDetailPage() {
           </div>
         </div>
 
-        {/* Stats row */}
-        <div className="flex items-center gap-6 mt-4 text-sm flex-wrap" style={{ color: "rgba(255,255,255,0.4)" }}>
-          {typeof entity.avg_rating === "number" && entity.avg_rating > 0 && (
-            <span className="flex items-center gap-1">
-              <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-              {entity.avg_rating.toFixed(1)} ({entity.review_count})
+        {/* Stats row — badge priority: verification → trust tier → review confidence */}
+        <div className="flex items-center gap-4 mt-4 text-sm flex-wrap" style={{ color: "rgba(255,255,255,0.4)" }}>
+          {/* Trust tier (only moderate+) */}
+          {trustTier && trustTier.tier !== "low" && trustTier.tier !== "emerging" && (
+            <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full" style={{ background: trustTier.bg, color: trustTier.color }}>
+              <ShieldCheck className="w-3.5 h-3.5" />
+              {trustTier.label}
             </span>
           )}
-          {typeof entity.trust_score === "number" && entity.trust_score >= 30 && (
-            <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full" style={{ background: "rgba(74,222,128,0.1)", color: "rgb(74,222,128)" }}>
-              <ShieldCheck className="w-3.5 h-3.5" />
-              Trusted
+          {/* Rating — only when confidence warrants display */}
+          {reviewConfidence.showRating && typeof entity.avg_rating === "number" && entity.avg_rating > 0 && (
+            <span className="flex items-center gap-1">
+              <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+              {entity.avg_rating.toFixed(1)}
+              <span className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
+                ({reviewConfidence.label})
+              </span>
+            </span>
+          )}
+          {/* Early reviews — count only, no inflated rating */}
+          {reviewConfidence.confidence === "early" && (
+            <span className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
+              {reviewConfidence.label}
             </span>
           )}
           {entity.visibility_tier !== "free" && (
@@ -241,9 +263,16 @@ export default function EntityDetailPage() {
       {/* Reviews */}
       <div className="max-w-4xl mx-auto px-4 mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-white text-lg font-bold">
-            Reviews{reviews && reviews.length > 0 ? ` (${reviews.length})` : ""}
-          </h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-white text-lg font-bold">
+              Reviews{reviews && reviews.length > 0 ? ` (${reviews.length})` : ""}
+            </h2>
+            {reviewConfidence.confidence === "strong" && (
+              <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "rgba(74,222,128,0.08)", color: "rgb(74,222,128)" }}>
+                High confidence
+              </span>
+            )}
+          </div>
           <button onClick={() => setShowReviewForm(!showReviewForm)} className="text-xs px-3 py-1.5 rounded-lg font-medium" style={{ background: "rgba(181,98,42,0.15)", color: "#b5622a" }}>
             <MessageSquare className="w-3.5 h-3.5 inline mr-1" />
             Write a review
@@ -294,6 +323,8 @@ export default function EntityDetailPage() {
               const RelIcon = TYPE_ICONS[r.entity_type] || Building2;
               const isCrossType = entity && r.entity_type !== entity.entity_type;
               const relConfig = ENTITY_TYPE_CONFIG[r.entity_type as SearchableEntityType];
+              const relVerification = getVerificationDepth(r.entity_type, r.entity_subtype ?? null, r.is_verified);
+              const relTrust = getTrustTier(r.trust_score);
               return (
                 <div
                   key={r.id}
@@ -304,12 +335,23 @@ export default function EntityDetailPage() {
                   <div className="flex items-center gap-2 mb-1">
                     <RelIcon className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.25)" }} />
                     <span className="text-white text-sm font-semibold truncate">{r.title}</span>
-                    {r.is_verified && <span className="w-3.5 h-3.5 rounded-full bg-blue-500 flex-shrink-0 flex items-center justify-center text-[7px] text-white">✓</span>}
+                    {relVerification && (
+                      <span
+                        className="w-3.5 h-3.5 rounded-full flex-shrink-0 flex items-center justify-center text-[7px] text-white"
+                        style={{ background: relVerification.color }}
+                        title={relVerification.label}
+                      >✓</span>
+                    )}
                   </div>
                   <div className="flex items-center gap-2 mt-1">
                     {isCrossType && relConfig && (
                       <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.35)" }}>
                         {relConfig.label}
+                      </span>
+                    )}
+                    {relTrust && (relTrust.tier === "high" || relTrust.tier === "moderate") && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: relTrust.bg, color: relTrust.color }}>
+                        {relTrust.label}
                       </span>
                     )}
                     {r.short_description && <p className="text-xs line-clamp-1" style={{ color: "rgba(255,255,255,0.4)" }}>{r.short_description}</p>}
