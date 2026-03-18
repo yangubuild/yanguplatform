@@ -115,6 +115,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Legal Services",
       surface_type: "quick_site",
       cover_image_url: civiclawAdvisory,
+      avatar_url: avatarB1_02,
       published_at: "2025-07-01T00:00:00Z",
       relevance_score: 78,
       trust_score: 72,
