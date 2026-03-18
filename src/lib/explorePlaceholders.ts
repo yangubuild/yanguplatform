@@ -245,6 +245,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Electronics",
       surface_type: "eshop",
       cover_image_url: novatechStore,
+      avatar_url: avatarB2_06,
       published_at: "2025-10-05T00:00:00Z",
       relevance_score: 82,
       trust_score: 68,
