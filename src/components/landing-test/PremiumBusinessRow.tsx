@@ -27,7 +27,7 @@ interface Props {
   subtitle?: string;
   businesses?: PremiumBusiness[];
   entities?: SearchEntityResult[];
-  trackingSurface?: DiscoverySurface;
+  trackingSurface?: ExploreSurface;
 }
 
 const TYPE_ICONS: Record<string, React.FC<{ className?: string; style?: React.CSSProperties }>> = {
