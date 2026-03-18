@@ -101,7 +101,7 @@ export function MassLandingPage() {
 
           {/* Row 2: Products — 4 key surfaces */}
           <PremiumBusinessRow
-            title="Products"
+            title="Buy From"
             subtitle="Shop products from verified sellers and businesses on yangu"
             entities={productSlotted.length > 0 ? productSlotted : undefined}
             businesses={salesCommunityBusinesses}
