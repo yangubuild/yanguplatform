@@ -300,6 +300,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Lifestyle & Recreation",
       surface_type: "quick_site",
       cover_image_url: coastrideExperiences,
+      avatar_url: avatarB1_05,
       published_at: "2025-11-15T00:00:00Z",
       relevance_score: 72,
       trust_score: 45,
