@@ -8,6 +8,7 @@ import type { AffiliateOffer } from "@/lib/affiliateCanonicalData";
 interface Props {
   isAuthenticated: boolean;
   onOpenMarketplace?: () => void;
+  onGatedAction?: () => void;
 }
 
 export function ReferBuyersTab({ isAuthenticated, onOpenMarketplace }: Props) {
