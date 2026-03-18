@@ -61,7 +61,7 @@ function SurfaceTable({ data }: { data: ExploreAnalyticsData["impressions_by_sur
   );
 }
 
-function TrustBandTable({ data }: { data: DiscoveryAnalyticsData["trust_band_performance"] }) {
+function TrustBandTable({ data }: { data: ExploreAnalyticsData["trust_band_performance"] }) {
   if (!data?.length) return null;
   return (
     <AdminGlassCard className="p-4">
