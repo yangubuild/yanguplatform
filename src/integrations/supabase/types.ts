@@ -5732,6 +5732,9 @@ export type Database = {
         Returns: Json
       }
       manage_domains_list: { Args: never; Returns: Json }
+      manage_explore_surfaces: { Args: never; Returns: Json }
+      manage_explore_surfaces_stats: { Args: never; Returns: Json }
+      manage_explore_users_stats: { Args: never; Returns: Json }
       manage_get_user_detail: { Args: { p_user_id: string }; Returns: Json }
       manage_invite_user: {
         Args: {
@@ -5762,6 +5765,10 @@ export type Database = {
       }
       manage_resolve_alert: {
         Args: { p_alert_id: string; p_resolve?: boolean }
+        Returns: undefined
+      }
+      manage_save_explore_order: {
+        Args: { p_orderings: Json }
         Returns: undefined
       }
       manage_searchable_entities: {
