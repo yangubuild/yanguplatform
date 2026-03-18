@@ -144,11 +144,20 @@ export default function EntityDetailPage() {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <h1 className="text-white text-2xl font-bold">{entity.title}</h1>
-              {badgeColor === "blue" && <span className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-[9px] text-white">✓</span>}
-              {badgeColor === "orange" && <span className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] text-white" style={{ background: "#b5622a" }}>✓</span>}
-              {badgeColor === "green" && <span className="w-5 h-5 rounded-full bg-green-600 flex items-center justify-center text-[9px] text-white">✓</span>}
+              {verification && (
+                <span
+                  className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] text-white"
+                  style={{ background: verification.color }}
+                  title={verification.label}
+                >✓</span>
+              )}
             </div>
             <div className="flex items-center gap-3 flex-wrap text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
+              {verification && (
+                <span className="px-2 py-0.5 rounded-full font-medium" style={{ background: `${verification.color}15`, color: verification.color }}>
+                  {verification.label}
+                </span>
+              )}
               {config && (
                 <span className="px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>{config.label}</span>
               )}
