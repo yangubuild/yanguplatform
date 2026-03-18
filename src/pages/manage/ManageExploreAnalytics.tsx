@@ -82,7 +82,7 @@ function TrustBandTable({ data }: { data: ExploreAnalyticsData["trust_band_perfo
   );
 }
 
-function RotationFairnessCard({ data }: { data: DiscoveryAnalyticsData["rotation_fairness"] }) {
+function RotationFairnessCard({ data }: { data: ExploreAnalyticsData["rotation_fairness"] }) {
   if (!data) return null;
   return (
     <AdminGlassCard className="p-4">
