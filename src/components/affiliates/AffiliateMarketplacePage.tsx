@@ -87,9 +87,7 @@ export function AffiliateMarketplacePage({ onBack, onSwitchToCreator, onApplyPar
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <h3 className="text-base font-semibold text-white">Affiliate marketplace</h3>
-          <button className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-dashed border-white/20 text-xs text-white/50">
-            <Plus className="w-3 h-3 text-white/30" /> Industry type
-          </button>
+          <IndustryTypeFilter value={industryFilter} onChange={setIndustryFilter} />
         </div>
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/[0.06] w-56">
           <Search className="w-4 h-4 text-white/30" />
