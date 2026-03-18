@@ -323,6 +323,8 @@ export default function EntityDetailPage() {
               const RelIcon = TYPE_ICONS[r.entity_type] || Building2;
               const isCrossType = entity && r.entity_type !== entity.entity_type;
               const relConfig = ENTITY_TYPE_CONFIG[r.entity_type as SearchableEntityType];
+              const relVerification = getVerificationDepth(r.entity_type, r.entity_subtype ?? null, r.is_verified);
+              const relTrust = getTrustTier(r.trust_score);
               return (
                 <div
                   key={r.id}
@@ -333,12 +335,23 @@ export default function EntityDetailPage() {
                   <div className="flex items-center gap-2 mb-1">
                     <RelIcon className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.25)" }} />
                     <span className="text-white text-sm font-semibold truncate">{r.title}</span>
-                    {r.is_verified && <span className="w-3.5 h-3.5 rounded-full bg-blue-500 flex-shrink-0 flex items-center justify-center text-[7px] text-white">✓</span>}
+                    {relVerification && (
+                      <span
+                        className="w-3.5 h-3.5 rounded-full flex-shrink-0 flex items-center justify-center text-[7px] text-white"
+                        style={{ background: relVerification.color }}
+                        title={relVerification.label}
+                      >✓</span>
+                    )}
                   </div>
                   <div className="flex items-center gap-2 mt-1">
                     {isCrossType && relConfig && (
                       <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.35)" }}>
                         {relConfig.label}
+                      </span>
+                    )}
+                    {relTrust && (relTrust.tier === "high" || relTrust.tier === "moderate") && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: relTrust.bg, color: relTrust.color }}>
+                        {relTrust.label}
                       </span>
                     )}
                     {r.short_description && <p className="text-xs line-clamp-1" style={{ color: "rgba(255,255,255,0.4)" }}>{r.short_description}</p>}
