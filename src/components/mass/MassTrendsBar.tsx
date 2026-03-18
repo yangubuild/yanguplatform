@@ -13,6 +13,7 @@ const FALLBACK_ITEMS = [
 ];
 
 export function MassTrendsBar() {
+  const { data: trendEntities } = useTrendEntities(20);
   const tracked = useRef(false);
 
   // Track trend bar impressions once
