@@ -45,9 +45,11 @@ export function AffiliateJoinModal({ companyName, avatarUrl, onConfirm, onClose 
         <button
           onClick={() => { if (accepted) { onConfirm(); onClose(); } }}
           disabled={!accepted}
-          className="w-full py-3 rounded-lg text-sm font-medium transition-colors"
+          className="w-full h-10 rounded-lg text-sm font-medium transition-all"
           style={{
-            background: accepted ? "hsl(var(--accent))" : "rgba(255,255,255,0.06)",
+            background: accepted
+              ? "linear-gradient(135deg, #c47a3a 0%, #a0522d 50%, #5c2a12 100%)"
+              : "rgba(255,255,255,0.06)",
             color: accepted ? "#fff" : "rgba(255,255,255,0.3)",
             cursor: accepted ? "pointer" : "not-allowed",
           }}
