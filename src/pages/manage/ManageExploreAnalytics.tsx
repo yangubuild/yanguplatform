@@ -114,7 +114,7 @@ function RotationFairnessCard({ data }: { data: ExploreAnalyticsData["rotation_f
   );
 }
 
-function DailyChart({ data }: { data: DiscoveryAnalyticsData["daily_trend"] }) {
+function DailyChart({ data }: { data: ExploreAnalyticsData["daily_trend"] }) {
   if (!data?.length) return null;
   const formatted = data.map((d) => ({
     ...d,
