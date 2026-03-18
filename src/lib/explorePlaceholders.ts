@@ -375,6 +375,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Travel & Tourism",
       surface_type: "quick_site",
       cover_image_url: skyboundTravels,
+      avatar_url: avatarB1_07,
       published_at: "2025-09-20T00:00:00Z",
       relevance_score: 70,
       trust_score: 43,
