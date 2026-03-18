@@ -54,7 +54,10 @@ export function ReferBuyersTab({ isAuthenticated, onOpenMarketplace, onGatedActi
     <div>
       {/* Hot offers */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base font-semibold text-white">Hot offers</h3>
+        <div className="flex items-center gap-3">
+          <h3 className="text-base font-semibold text-white">Hot offers</h3>
+          <IndustryTypeFilter value={industryFilter} onChange={setIndustryFilter} />
+        </div>
         <button
           onClick={onOpenMarketplace}
           className="flex items-center gap-1 text-sm text-white/50 hover:text-white/80 transition-colors"
