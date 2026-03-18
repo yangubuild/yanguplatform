@@ -166,7 +166,7 @@ export function trackBannerEvent(
   eventType: EventType,
   slot: "middle" | "lower",
 ) {
-  const surface: DiscoverySurface = slot === "middle" ? "banner_middle" : "banner_lower";
+  const surface: ExploreSurface = slot === "middle" ? "banner_middle" : "banner_lower";
   eventQueue.push({
     event_type: eventType,
     entity_id: `banner_${slot}`,

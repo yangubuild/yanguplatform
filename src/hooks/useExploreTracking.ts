@@ -20,7 +20,7 @@ const trackedImpressions = new Set<string>();
  */
 export function useImpressionTracker(
   entities: TrackableEntity[],
-  surface: DiscoverySurface,
+  surface: ExploreSurface,
 ) {
   const ref = useRef<HTMLDivElement>(null);
 

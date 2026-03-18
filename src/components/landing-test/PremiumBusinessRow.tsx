@@ -108,7 +108,7 @@ const TITLE_TO_SURFACE: Record<string, ExploreSurface> = {
 
 export function PremiumBusinessRow({ title, subtitle, businesses, entities, trackingSurface }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const surface = trackingSurface ?? TITLE_TO_SURFACE[title] ?? ("landing_verified" as DiscoverySurface);
+  const surface = trackingSurface ?? TITLE_TO_SURFACE[title] ?? ("landing_verified" as ExploreSurface);
   const { ref: trackRef, handleClick } = useImpressionTracker(entities ?? [], surface);
 
   const scroll = (dir: "left" | "right") => {
