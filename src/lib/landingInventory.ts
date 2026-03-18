@@ -1,0 +1,137 @@
+/**
+ * Landing Inventory Contracts — Fixed Slot Counts & Weighted Rotation
+ *
+ * Landing = curated rotating surface. Never expands into extra rows.
+ * Explore = full inventory.
+ */
+
+import type { SearchEntityResult } from "@/types/search";
+
+// ── Fixed visible slot counts per section ──
+
+export const LANDING_SLOTS = {
+  /** Horizontal scrollable row sections */
+  "verified-businesses": 6,
+  "products": 6,
+  "services": 6,
+  "influencers-creators": 6,
+  "community": 6,
+  /** Popular grid: 2 rows × 4 columns on desktop */
+  "popular-grid": 8,
+  /** Trend bar: continuous ticker, no row expansion */
+  "trend-bar": 20,
+} as const;
+
+export type LandingSectionKey = keyof typeof LANDING_SLOTS;
+
+// ── Weighted Rotation ──
+
+interface RotationWeights {
+  trustScore: number;
+  ranking: number;
+  freshness: number;
+  verifiedBonus: number;
+  paidBonus: number;
+  diversityPenalty: number;
+}
+
+const ROTATION_WEIGHTS: RotationWeights = {
+  trustScore: 0.35,
+  ranking: 0.25,
+  freshness: 0.20,
+  verifiedBonus: 0.10,
+  paidBonus: 0.05,
+  diversityPenalty: 0.05,
+};
+
+/**
+ * Compute a rotation score for an entity.
+ * Higher score = more likely to appear in the visible slot window.
+ */
+function computeRotationScore(entity: SearchEntityResult, seenTypes: Set<string>): number {
+  let score = 0;
+
+  // Trust score (0-100 normalized to 0-1)
+  const trust = entity.trust_score ?? 0;
+  score += (trust / 100) * ROTATION_WEIGHTS.trustScore;
+
+  // Server ranking position (already sorted, use inverse of array position proxy)
+  // We use trust as proxy since results come pre-ranked
+  score += (trust / 100) * ROTATION_WEIGHTS.ranking;
+
+  // Freshness: prefer entities created more recently
+  if (entity.created_at) {
+    const ageMs = Date.now() - new Date(entity.created_at).getTime();
+    const ageDays = ageMs / (1000 * 60 * 60 * 24);
+    // Entities < 30 days old get full freshness; decays linearly to 0 at 365 days
+    const freshness = Math.max(0, 1 - ageDays / 365);
+    score += freshness * ROTATION_WEIGHTS.freshness;
+  }
+
+  // Verified bonus
+  if (entity.is_verified) {
+    score += ROTATION_WEIGHTS.verifiedBonus;
+  }
+
+  // Paid visibility bonus (light influence only)
+  if (entity.visibility_tier === "paid" || entity.visibility_tier === "premium") {
+    score += ROTATION_WEIGHTS.paidBonus;
+  }
+
+  // Diversity penalty: if we've already seen this type, penalize slightly
+  if (seenTypes.has(entity.entity_type)) {
+    score -= ROTATION_WEIGHTS.diversityPenalty;
+  }
+
+  return score;
+}
+
+/**
+ * Select `slotCount` entities from a larger pool using weighted rotation.
+ * Adds deterministic per-session jitter so different page loads show different selections.
+ */
+export function rotateForSlots(
+  entities: SearchEntityResult[],
+  slotCount: number,
+): SearchEntityResult[] {
+  if (!entities || entities.length <= slotCount) return entities ?? [];
+
+  // Session-stable jitter seed (changes per browser session)
+  const sessionSeed = getSessionSeed();
+
+  const seenTypes = new Set<string>();
+  const scored = entities.map((entity, index) => {
+    const base = computeRotationScore(entity, seenTypes);
+    // Add small deterministic jitter based on entity id + session
+    const jitter = hashJitter(entity.id, sessionSeed) * 0.08;
+    seenTypes.add(entity.entity_type);
+    return { entity, score: base + jitter, originalIndex: index };
+  });
+
+  // Sort by score descending
+  scored.sort((a, b) => b.score - a.score);
+
+  // Take top N slots
+  return scored.slice(0, slotCount).map((s) => s.entity);
+}
+
+// ── Helpers ──
+
+function getSessionSeed(): number {
+  const key = "yangu_rotation_seed";
+  let seed = sessionStorage.getItem(key);
+  if (!seed) {
+    seed = String(Math.floor(Math.random() * 100000));
+    try { sessionStorage.setItem(key, seed); } catch {}
+  }
+  return parseInt(seed, 10);
+}
+
+function hashJitter(id: string, seed: number): number {
+  let hash = seed;
+  for (let i = 0; i < id.length; i++) {
+    hash = ((hash << 5) - hash + id.charCodeAt(i)) | 0;
+  }
+  // Normalize to 0-1
+  return Math.abs(hash % 10000) / 10000;
+}
