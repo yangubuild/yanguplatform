@@ -10,7 +10,6 @@ preWarmTuningCache();
 
 /**
  * Generic hook that calls the canonical search_entities RPC.
- * Every landing section uses this with different filter params.
  * Pipeline: server ranking → personalization nudge → diversity interleaving.
  */
 export function useSearchEntities(
@@ -33,7 +32,6 @@ export function useSearchEntities(
       });
       if (error) throw error;
       const results = (data ?? []) as unknown as SearchEntityResult[];
-      // Pipeline: personalize → diversify
       return diversifyResults(personalizeResults(results));
     },
     enabled,
@@ -51,8 +49,8 @@ export function useTrendEntities(limit = 20) {
   );
 }
 
-/** Verified entities */
-export function useVerifiedEntities(limit = 12) {
+/** Verified entities — fetch pool for 4-slot rotation */
+export function useVerifiedEntities(limit = 16) {
   return useSearchEntities(
     { verified_only: true, limit },
     true,
@@ -60,8 +58,8 @@ export function useVerifiedEntities(limit = 12) {
   );
 }
 
-/** Business entities ranked by visibility tier */
-export function usePopularBusinesses(limit = 16) {
+/** Business entities for popular grid — fetch pool for 16-slot grid */
+export function usePopularBusinesses(limit = 32) {
   return useSearchEntities(
     { entity_type: "business", limit },
     true,
@@ -69,8 +67,8 @@ export function usePopularBusinesses(limit = 16) {
   );
 }
 
-/** Product discovery — bridges through business/shop surfaces */
-export function useProductEntities(limit = 8) {
+/** Product entities — fetch pool for 4-slot rotation */
+export function useProductEntities(limit = 16) {
   return useSearchEntities(
     { entity_type: "business", category: "shop", limit },
     true,
@@ -78,8 +76,8 @@ export function useProductEntities(limit = 8) {
   );
 }
 
-/** Service entities */
-export function useServiceEntities(limit = 8) {
+/** Service entities — fetch pool for 4-slot rotation */
+export function useServiceEntities(limit = 16) {
   return useSearchEntities(
     { entity_type: "service", limit },
     true,
@@ -87,8 +85,8 @@ export function useServiceEntities(limit = 8) {
   );
 }
 
-/** Community entities */
-export function useCommunityEntities(limit = 8) {
+/** Community entities — fetch pool for 4-slot rotation */
+export function useCommunityEntities(limit = 16) {
   return useSearchEntities(
     { entity_type: "community", limit },
     true,
@@ -97,7 +95,7 @@ export function useCommunityEntities(limit = 8) {
 }
 
 /** Creator entities */
-export function useCreatorEntities(limit = 8) {
+export function useCreatorEntities(limit = 16) {
   return useSearchEntities(
     { entity_type: "creator", limit },
     true,
