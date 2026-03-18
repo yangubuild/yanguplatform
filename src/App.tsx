@@ -59,6 +59,7 @@ const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const AiSafety = lazy(() => import("./pages/AiSafety"));
 const AdaLanding = lazy(() => import("./pages/AdaLanding"));
+const Affiliates = lazy(() => import("./pages/Affiliates"));
 const DashboardCommunityPage = lazy(() => import("./pages/dashboard/DashboardCommunityPage"));
 const InvoicesPage = lazy(() => import("./pages/dashboard/invoices/InvoicesPage"));
 const EmailPreviewPage = lazy(() => import("./pages/dashboard/EmailPreviewPage"));
