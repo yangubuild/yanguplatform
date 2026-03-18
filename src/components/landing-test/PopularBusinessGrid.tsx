@@ -49,7 +49,9 @@ function EntityGridCard({ entity, onClickTrack }: { entity: SearchEntityResult; 
       style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}
     >
       <div className="flex items-center gap-3 mb-2">
-        {entity.cover_image_url ? (
+        {entity.avatar_url ? (
+          <img src={entity.avatar_url} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />
+        ) : entity.cover_image_url ? (
           <img src={entity.cover_image_url} alt="" className="w-10 h-10 rounded-full object-cover" />
         ) : (
           <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.06)' }}>

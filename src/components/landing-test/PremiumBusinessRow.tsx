@@ -65,9 +65,13 @@ function EntityCard({ entity, onClickTrack }: { entity: SearchEntityResult; onCl
       </div>
       <div className="p-4">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(255,255,255,0.06)' }}>
-            <Icon className="w-5 h-5" style={{ color: 'rgba(255,255,255,0.3)' }} />
-          </div>
+          {entity.avatar_url ? (
+            <img src={entity.avatar_url} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />
+          ) : (
+            <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(255,255,255,0.06)' }}>
+              <Icon className="w-5 h-5" style={{ color: 'rgba(255,255,255,0.3)' }} />
+            </div>
+          )}
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               <span className={`text-white ${T.body} font-semibold truncate`}>{entity.title}</span>

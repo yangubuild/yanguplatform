@@ -33,6 +33,24 @@ import glowlabBeauty from "@/assets/placeholders/glowlab-beauty.jpg";
 import novalimitSoftware from "@/assets/placeholders/novalimit-software.jpg";
 import skyboundTravels from "@/assets/placeholders/skybound-travels.jpg";
 
+// ── Avatar / profile icon imports (all 16, each used exactly once) ──
+import avatarB1_01 from "@/assets/placeholders/avatars/avatar-batch1-01.jpg";
+import avatarB1_02 from "@/assets/placeholders/avatars/avatar-batch1-02.jpg";
+import avatarB1_03 from "@/assets/placeholders/avatars/avatar-batch1-03.jpg";
+import avatarB1_04 from "@/assets/placeholders/avatars/avatar-batch1-04.jpg";
+import avatarB1_05 from "@/assets/placeholders/avatars/avatar-batch1-05.jpg";
+import avatarB1_06 from "@/assets/placeholders/avatars/avatar-batch1-06.jpg";
+import avatarB1_07 from "@/assets/placeholders/avatars/avatar-batch1-07.jpg";
+import avatarB1_08 from "@/assets/placeholders/avatars/avatar-batch1-08.jpg";
+import avatarB1_09 from "@/assets/placeholders/avatars/avatar-batch1-09.jpg";
+import avatarB1_10 from "@/assets/placeholders/avatars/avatar-batch1-10.jpg";
+import avatarB2_01 from "@/assets/placeholders/avatars/avatar-batch2-01.jpg";
+import avatarB2_02 from "@/assets/placeholders/avatars/avatar-batch2-02.jpg";
+import avatarB2_03 from "@/assets/placeholders/avatars/avatar-batch2-03.jpg";
+import avatarB2_04 from "@/assets/placeholders/avatars/avatar-batch2-04.jpg";
+import avatarB2_05 from "@/assets/placeholders/avatars/avatar-batch2-05.jpg";
+import avatarB2_06 from "@/assets/placeholders/avatars/avatar-batch2-06.jpg";
+
 // ── Identity type (metadata only — not part of SearchEntityResult) ──
 export type PlaceholderIdentity = "person" | "brand" | "mixed";
 
@@ -72,6 +90,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Financial Technology",
       surface_type: "quick_site",
       cover_image_url: paymintAfrica,
+      avatar_url: avatarB1_01,
       published_at: "2025-12-01T00:00:00Z",
       relevance_score: 85,
       trust_score: 70,
@@ -96,6 +115,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Legal Services",
       surface_type: "quick_site",
       cover_image_url: civiclawAdvisory,
+      avatar_url: avatarB1_02,
       published_at: "2025-07-01T00:00:00Z",
       relevance_score: 78,
       trust_score: 72,
@@ -120,6 +140,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Real Estate",
       surface_type: "quick_site",
       cover_image_url: kayaProperties,
+      avatar_url: avatarB2_05,
       published_at: "2025-08-15T00:00:00Z",
       relevance_score: 79,
       trust_score: 66,
@@ -144,6 +165,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Software & Technology",
       surface_type: "quick_site",
       cover_image_url: novalimitSoftware,
+      avatar_url: avatarB2_04,
       published_at: "2025-08-01T00:00:00Z",
       relevance_score: 81,
       trust_score: 69,
@@ -173,6 +195,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Automotive",
       surface_type: "eshop",
       cover_image_url: urbandriveMotors,
+      avatar_url: avatarB1_03,
       published_at: "2025-10-20T00:00:00Z",
       relevance_score: 80,
       trust_score: 65,
@@ -197,6 +220,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Food & Beverage",
       surface_type: "eshop",
       cover_image_url: genfuelDrinks,
+      avatar_url: avatarB1_04,
       published_at: "2025-09-10T00:00:00Z",
       relevance_score: 68,
       trust_score: 40,
@@ -221,6 +245,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Electronics",
       surface_type: "eshop",
       cover_image_url: novatechStore,
+      avatar_url: avatarB2_06,
       published_at: "2025-10-05T00:00:00Z",
       relevance_score: 82,
       trust_score: 68,
@@ -245,6 +270,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Fashion & Apparel",
       surface_type: "eshop",
       cover_image_url: kitengeMode,
+      avatar_url: avatarB2_02,
       published_at: "2025-08-20T00:00:00Z",
       relevance_score: 70,
       trust_score: 42,
@@ -274,6 +300,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Lifestyle & Recreation",
       surface_type: "quick_site",
       cover_image_url: coastrideExperiences,
+      avatar_url: avatarB1_05,
       published_at: "2025-11-15T00:00:00Z",
       relevance_score: 72,
       trust_score: 45,
@@ -298,6 +325,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Health & Fitness",
       surface_type: "quick_site",
       cover_image_url: coreformStudio,
+      avatar_url: avatarB2_01,
       published_at: "2025-09-25T00:00:00Z",
       relevance_score: 74,
       trust_score: 48,
@@ -322,6 +350,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Beauty & Grooming",
       surface_type: "quick_site",
       cover_image_url: freshcutzBarbers,
+      avatar_url: avatarB1_06,
       published_at: "2025-09-01T00:00:00Z",
       relevance_score: 67,
       trust_score: 38,
@@ -346,6 +375,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Travel & Tourism",
       surface_type: "quick_site",
       cover_image_url: skyboundTravels,
+      avatar_url: avatarB1_07,
       published_at: "2025-09-20T00:00:00Z",
       relevance_score: 70,
       trust_score: 43,
@@ -375,6 +405,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Culture & Heritage",
       surface_type: "community_group",
       cover_image_url: heritageCircleAfrica,
+      avatar_url: avatarB1_08,
       published_at: "2025-11-01T00:00:00Z",
       relevance_score: 75,
       trust_score: 50,
@@ -399,6 +430,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Food & Dining",
       surface_type: "community_group",
       cover_image_url: crunchhouseKitchen,
+      avatar_url: avatarB1_09,
       published_at: "2025-10-15T00:00:00Z",
       relevance_score: 71,
       trust_score: 44,
@@ -423,6 +455,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Footwear & Fashion",
       surface_type: "community_group",
       cover_image_url: solevaultSneakers,
+      avatar_url: avatarB2_03,
       published_at: "2025-10-10T00:00:00Z",
       relevance_score: 69,
       trust_score: 41,
@@ -447,6 +480,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Beauty & Skincare",
       surface_type: "community_group",
       cover_image_url: glowlabBeauty,
+      avatar_url: avatarB1_10,
       published_at: "2025-11-05T00:00:00Z",
       relevance_score: 73,
       trust_score: 46,
