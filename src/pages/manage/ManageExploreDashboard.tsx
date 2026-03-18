@@ -91,16 +91,19 @@ function ExploreSurfacesTab() {
       key: "drag",
       header: "",
       className: "w-8",
-      render: (_, i) => (
-        <div className="flex flex-col gap-0.5">
-          <button onClick={() => moveItem(i ?? 0, "up")} className="p-0.5 hover:bg-muted rounded">
-            <ArrowUp className="h-3 w-3 text-muted-foreground" />
-          </button>
-          <button onClick={() => moveItem(i ?? 0, "down")} className="p-0.5 hover:bg-muted rounded">
-            <ArrowDown className="h-3 w-3 text-muted-foreground" />
-          </button>
-        </div>
-      ),
+      render: (r) => {
+        const idx = displayData.findIndex((s) => s.id === r.id);
+        return (
+          <div className="flex flex-col gap-0.5">
+            <button onClick={() => moveItem(idx, "up")} className="p-0.5 hover:bg-muted rounded">
+              <ArrowUp className="h-3 w-3 text-muted-foreground" />
+            </button>
+            <button onClick={() => moveItem(idx, "down")} className="p-0.5 hover:bg-muted rounded">
+              <ArrowDown className="h-3 w-3 text-muted-foreground" />
+            </button>
+          </div>
+        );
+      },
     },
     { key: "title", header: "Surface", render: (r) => <span className="font-medium text-foreground">{r.title}</span> },
     { key: "entity_type", header: "Type", render: (r) => <span className="text-xs text-muted-foreground capitalize">{r.entity_type}</span> },
