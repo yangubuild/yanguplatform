@@ -2,12 +2,14 @@ import { useState } from "react";
 import { ChevronRight, Plus, Search, Rocket, ChevronLeft, Copy, X, ChevronDown, Check } from "lucide-react";
 import { AffEmptyTable } from "../shared/AffEmptyTable";
 import { toast } from "sonner";
+import { getHotOffers, type AffiliateOffer } from "@/lib/affiliateCanonicalData";
 
 interface Props {
   isAuthenticated: boolean;
   onOpenMarketplace?: () => void;
 }
 
+// Map canonical AffiliateOffer to local Offer shape
 interface Offer {
   id: string;
   name: string;
@@ -23,55 +25,24 @@ interface Offer {
   color: string;
 }
 
-export const ALL_OFFERS: Offer[] = [
-  {
-    id: "1",
-    name: "KingCapSports Full Access",
-    category: "Sports Picks Group",
-    type: "One-time",
-    price: "$50.00",
-    rate: "30%",
-    sales: "10,000+",
-    earnings: "$100k+",
-    conversion: "12.26%",
-    epc: "$8.53",
-    image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=300&h=160&fit=crop",
-    color: "#e8732a",
-  },
-  {
-    id: "2",
-    name: "ToolSuite VIP Access",
-    category: "Subscription Account Sharing",
-    type: "Recurring",
-    price: "$29.95 / month",
-    rate: "50%",
-    sales: "10,000+",
-    earnings: "$250k+",
-    conversion: "7.25%",
-    epc: "$2.59",
-    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=300&h=160&fit=crop",
-    color: "#4a90d9",
-  },
-  {
-    id: "3",
-    name: "PokePings Premium",
-    category: "Other General",
-    type: "Recurring",
-    price: "$8.99 / month",
-    rate: "50%",
-    sales: "1,000+",
-    earnings: "$1k+",
-    conversion: "6.25%",
-    epc: "$0.19",
-    image: "https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=300&h=160&fit=crop",
-    color: "#6366f1",
-  },
-];
+function toOffer(a: AffiliateOffer): Offer {
+  return {
+    id: a.id,
+    name: a.name,
+    category: a.category,
+    type: a.type,
+    price: a.price,
+    rate: a.rate,
+    sales: a.sales,
+    earnings: a.earnings,
+    conversion: a.conversion,
+    epc: a.epc,
+    image: a.image,
+    color: a.color,
+  };
+}
 
-const SAMPLE_LINKS = [
-  { type: "Product", typeBg: "#22c55e", name: "Deal Soldier", price: "$44.00 / month", rate: "30.00%", link: "https://yangu.studio/deal-soldier/deal-soldier?a=...", earned: "$0.00", clicks: 0, users: 0, conversionRate: "-" },
-  { type: "Company", typeBg: "#f59e0b", name: "DEAL SOLDIER", price: "-", rate: "-", link: "https://yangu.studio/deal-soldier?a=heavyvrasp23", earned: "$0.00", clicks: 0, users: 0, conversionRate: "-" },
-];
+export const ALL_OFFERS: Offer[] = getHotOffers().map(toOffer);
 
 export function ReferBuyersTab({ isAuthenticated, onOpenMarketplace }: Props) {
   const [viewAssetsProgram, setViewAssetsProgram] = useState<string | null>(null);
@@ -232,6 +203,12 @@ function ViewAssetsPage({ programName, onClose }: { programName: string; onClose
     toast.success("Affiliate link copied!");
   };
 
+  const slug = programName.toLowerCase().replace(/\s+/g, "-");
+  const sampleLinks = [
+    { type: "Product", typeBg: "#22c55e", name: programName, price: "$44.00 / month", rate: "30.00%", link: `https://yangu.studio/${slug}?a=ref123`, earned: "$0.00", clicks: 0, users: 0, conversionRate: "-" },
+    { type: "Company", typeBg: "#f59e0b", name: programName, price: "-", rate: "-", link: `https://yangu.studio/${slug}?a=heavyvrasp23`, earned: "$0.00", clicks: 0, users: 0, conversionRate: "-" },
+  ];
+
   return (
     <div className="fixed inset-0 z-[100] overflow-y-auto" style={{ background: "#08120D" }}>
       <div className="w-full px-6 py-6">
@@ -269,7 +246,7 @@ function ViewAssetsPage({ programName, onClose }: { programName: string; onClose
                 </tr>
               </thead>
               <tbody>
-                {SAMPLE_LINKS.map((link, i) => (
+                {sampleLinks.map((link, i) => (
                   <tr key={i} className="border-b border-white/[0.04] hover:bg-white/[0.02]">
                     <td className="px-4 py-3">
                       <span className="text-xs font-medium px-2 py-0.5 rounded" style={{ background: `${link.typeBg}20`, color: link.typeBg }}>
