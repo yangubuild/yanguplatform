@@ -1,7 +1,9 @@
+import { useEffect, useRef } from "react";
 import { T } from "@/lib/typography";
 import { Button } from "@/components/ui/button";
 import { BANNER_CONTRACT, BANNER_DEFAULTS, type BannerSlot } from "@/lib/bannerContracts";
 import type { BannerData } from "@/lib/bannerContracts";
+import { trackBannerEvent } from "@/lib/discoveryAnalytics";
 
 interface Props {
   slot: "middle" | "lower";
