@@ -34,7 +34,7 @@ const TYPE_ICONS: Record<string, React.FC<{ className?: string; style?: React.CS
   project: Palette,
 };
 
-function EntityGridCard({ entity }: { entity: SearchEntityResult }) {
+function EntityGridCard({ entity, onClickTrack }: { entity: SearchEntityResult; onClickTrack?: (e: SearchEntityResult) => void }) {
   const navigate = useNavigate();
   const route = getEntityRoute(entity);
   const ext = isExternalRoute(route);
@@ -44,7 +44,7 @@ function EntityGridCard({ entity }: { entity: SearchEntityResult }) {
 
   return (
     <div
-      onClick={() => ext ? window.open(route, "_blank") : navigate(route)}
+      onClick={() => { onClickTrack?.(entity); ext ? window.open(route, "_blank") : navigate(route); }}
       className="rounded-2xl p-4 cursor-pointer hover:opacity-90 transition-opacity"
       style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}
     >
