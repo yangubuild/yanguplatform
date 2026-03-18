@@ -23,7 +23,7 @@ export interface BuilderFeature {
 }
 
 export const BUILDER_FEATURES: BuilderFeature[] = [
-  { key: "community", icon: Users, title: "Community", description: "Launch groups, enable discovery, and grow a loyal audience.", docsPath: "/developers/docs/builders/community" },
+  { key: "community", icon: Users, title: "Community", description: "Launch groups, enable explore visibility, and grow a loyal audience.", docsPath: "/developers/docs/builders/community" },
   { key: "shop", icon: ShoppingBag, title: "Shop", description: "Sell physical or digital products with built-in checkout.", docsPath: "/developers/docs/builders/shop" },
   { key: "studio", icon: Palette, title: "Studio", description: "Create ads, images, and branded content with AI tools.", docsPath: "/developers/docs/builders/studio" },
   { key: "live", icon: Radio, title: "Live", description: "Go live and sell in real time to your audience.", docsPath: "/developers/docs/builders/live" },

@@ -30,7 +30,7 @@ export type EntitySubtype =
   | 'professional_network'
   | 'general';
 
-// ── Visibility tiers for discovery ranking ──
+// ── Visibility tiers for explore ranking ──
 export type VisibilityTier = 'free' | 'verified' | 'paid' | 'premium';
 
 // ── Surface type → entity type mapping (mirrors derive_entity_type SQL) ──

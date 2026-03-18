@@ -2,7 +2,7 @@
  * Trust Expansion Layer — Phase 7
  *
  * Provides verification depth, badge priority, review confidence,
- * and trust-tier classification for public discovery surfaces.
+ * and trust-tier classification for public explore surfaces.
  */
 
 // ── Verification depth ──

@@ -1,5 +1,5 @@
 /**
- * Discovery Monetization Intelligence — Phase 8
+ * Explore Monetization Intelligence — Phase 8
  *
  * Controls how paid/premium visibility interacts with trust, relevance,
  * and personalization without breaking ranking fairness.
