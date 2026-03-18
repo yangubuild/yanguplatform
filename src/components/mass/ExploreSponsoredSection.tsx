@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Store, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { SPONSORED_TRUST_FLOOR } from "@/lib/monetizationRules";
 
 interface SponsoredBusiness {
   id: string;
@@ -9,6 +10,7 @@ interface SponsoredBusiness {
   coverImage?: string;
   description?: string;
   category?: string;
+  trustScore?: number;
 }
 
 /**
