@@ -83,9 +83,9 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
             style={{
               right: "-20px",
               top: "50%",
-              transform: "translateY(-50%)",
-              width: "420px",
-              height: "480px",
+              transform: "translateY(-48%)",
+              width: "400px",
+              height: "440px",
               zIndex: 20,
             }}
           >
