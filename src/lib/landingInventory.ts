@@ -107,14 +107,14 @@ function classifyFillSource(
 // ── Phase-Aware Fill Priority ──
 
 const BOOTSTRAP_PRIORITY: Record<FillSource, number> = {
-  seeded: 10,              // 1. Seeded surfaces replace placeholders first
-  user_published: 20,      // 2. Newly published user surfaces
-  engagement: 30,          // 3. High engagement free surfaces
+  seeded: 10,              // 1. Seeded surfaces
+  user_published: 20,      // 2. Newly published surfaces
+  engagement: 30,          // 3. High engagement surfaces
   subscribed: 40,          // 4. Subscribed surfaces
-  mid_subscriber: 45,
-  premium_subscriber: 48,
-  ad: 50,                  // 5. Paid ad surfaces (when ads begin)
-  placeholder: 100,        // Always last
+  mid_subscriber: 40,      // (maps to subscribed tier in bootstrap)
+  premium_subscriber: 40,  // (maps to subscribed tier in bootstrap)
+  ad: 50,                  // 5. Paid ad surfaces
+  placeholder: 100,        // 6. Placeholders
 };
 
 const GROWTH_PRIORITY: Record<FillSource, number> = {
@@ -122,10 +122,10 @@ const GROWTH_PRIORITY: Record<FillSource, number> = {
   premium_subscriber: 20,  // 2. Premium subscribers
   mid_subscriber: 30,      // 3. Mid-level subscribers
   engagement: 40,          // 4. High engagement surfaces
-  subscribed: 45,
-  user_published: 50,      // 5. Basic free published
-  seeded: 60,              // 6. Seeded surfaces (low fallback)
-  placeholder: 100,        // 7. Placeholders only if needed
+  user_published: 50,      // 5. Basic free published surfaces
+  subscribed: 50,          // (maps to basic free in growth)
+  seeded: 60,              // 6. Seeded surfaces
+  placeholder: 100,        // 7. Placeholders
 };
 
 function getFillPriority(source: FillSource, phase: PlatformPhase): number {
