@@ -33,6 +33,24 @@ import glowlabBeauty from "@/assets/placeholders/glowlab-beauty.jpg";
 import novalimitSoftware from "@/assets/placeholders/novalimit-software.jpg";
 import skyboundTravels from "@/assets/placeholders/skybound-travels.jpg";
 
+// ── Avatar / profile icon imports (all 16, each used exactly once) ──
+import avatarB1_01 from "@/assets/placeholders/avatars/avatar-batch1-01.jpg";
+import avatarB1_02 from "@/assets/placeholders/avatars/avatar-batch1-02.jpg";
+import avatarB1_03 from "@/assets/placeholders/avatars/avatar-batch1-03.jpg";
+import avatarB1_04 from "@/assets/placeholders/avatars/avatar-batch1-04.jpg";
+import avatarB1_05 from "@/assets/placeholders/avatars/avatar-batch1-05.jpg";
+import avatarB1_06 from "@/assets/placeholders/avatars/avatar-batch1-06.jpg";
+import avatarB1_07 from "@/assets/placeholders/avatars/avatar-batch1-07.jpg";
+import avatarB1_08 from "@/assets/placeholders/avatars/avatar-batch1-08.jpg";
+import avatarB1_09 from "@/assets/placeholders/avatars/avatar-batch1-09.jpg";
+import avatarB1_10 from "@/assets/placeholders/avatars/avatar-batch1-10.jpg";
+import avatarB2_01 from "@/assets/placeholders/avatars/avatar-batch2-01.jpg";
+import avatarB2_02 from "@/assets/placeholders/avatars/avatar-batch2-02.jpg";
+import avatarB2_03 from "@/assets/placeholders/avatars/avatar-batch2-03.jpg";
+import avatarB2_04 from "@/assets/placeholders/avatars/avatar-batch2-04.jpg";
+import avatarB2_05 from "@/assets/placeholders/avatars/avatar-batch2-05.jpg";
+import avatarB2_06 from "@/assets/placeholders/avatars/avatar-batch2-06.jpg";
+
 // ── Identity type (metadata only — not part of SearchEntityResult) ──
 export type PlaceholderIdentity = "person" | "brand" | "mixed";
 
