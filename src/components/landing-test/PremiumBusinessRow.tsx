@@ -5,8 +5,8 @@ import { T } from "@/lib/typography";
 import type { SearchEntityResult } from "@/types/search";
 import { ENTITY_TYPE_CONFIG } from "@/types/search";
 import { getEntityRoute, isExternalRoute, getVerifiedBadgeColor } from "@/lib/entityRouting";
-import { useImpressionTracker } from "@/hooks/useDiscoveryTracking";
-import type { DiscoverySurface } from "@/lib/discoveryAnalytics";
+import { useImpressionTracker } from "@/hooks/useExploreTracking";
+import type { ExploreSurface } from "@/lib/exploreAnalytics";
 
 export interface PremiumBusiness {
   coverImage: string;
@@ -27,7 +27,7 @@ interface Props {
   subtitle?: string;
   businesses?: PremiumBusiness[];
   entities?: SearchEntityResult[];
-  trackingSurface?: DiscoverySurface;
+  trackingSurface?: ExploreSurface;
 }
 
 const TYPE_ICONS: Record<string, React.FC<{ className?: string; style?: React.CSSProperties }>> = {
@@ -98,7 +98,7 @@ function EntityCard({ entity, onClickTrack }: { entity: SearchEntityResult; onCl
   );
 }
 
-const TITLE_TO_SURFACE: Record<string, DiscoverySurface> = {
+const TITLE_TO_SURFACE: Record<string, ExploreSurface> = {
   "Verified Businesses": "landing_verified",
   "Products": "landing_products",
   "Services": "landing_services",
@@ -108,7 +108,7 @@ const TITLE_TO_SURFACE: Record<string, DiscoverySurface> = {
 
 export function PremiumBusinessRow({ title, subtitle, businesses, entities, trackingSurface }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const surface = trackingSurface ?? TITLE_TO_SURFACE[title] ?? ("landing_verified" as DiscoverySurface);
+  const surface = trackingSurface ?? TITLE_TO_SURFACE[title] ?? ("landing_verified" as ExploreSurface);
   const { ref: trackRef, handleClick } = useImpressionTracker(entities ?? [], surface);
 
   const scroll = (dir: "left" | "right") => {

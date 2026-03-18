@@ -1,5 +1,5 @@
 /**
- * Discovery Analytics — Lightweight exposure & click tracking
+ * Explore Analytics — Lightweight exposure & click tracking
  *
  * Privacy-safe: no PII, aggregate-only session IDs, no sensitive profiling.
  * All events inserted into `discovery_events` via anon/authenticated RLS.
@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 // ── Types ──
 
-export type DiscoverySurface =
+export type ExploreSurface =
   | "landing_verified"
   | "landing_products"
   | "landing_services"
@@ -22,6 +22,9 @@ export type DiscoverySurface =
   | "related_entities"
   | "banner_middle"
   | "banner_lower";
+
+/** @deprecated Use ExploreSurface */
+export type DiscoverySurface = ExploreSurface;
 
 export type EventType = "impression" | "click";
 
@@ -61,7 +64,7 @@ function getSessionId(): string {
 interface QueuedEvent {
   event_type: EventType;
   entity_id: string;
-  surface: DiscoverySurface;
+  surface: ExploreSurface;
   visibility_tier: string | null;
   trust_band: string | null;
   session_id: string;
@@ -105,10 +108,10 @@ if (typeof window !== "undefined") {
 /**
  * Track an impression or click for a single entity on a surface.
  */
-export function trackDiscoveryEvent(
+export function trackExploreEvent(
   eventType: EventType,
   entity: TrackableEntity,
-  surface: DiscoverySurface,
+  surface: ExploreSurface,
 ) {
   eventQueue.push({
     event_type: eventType,
@@ -121,13 +124,16 @@ export function trackDiscoveryEvent(
   scheduleFlush();
 }
 
+/** @deprecated Use trackExploreEvent */
+export const trackDiscoveryEvent = trackExploreEvent;
+
 /**
  * Track impressions for a batch of entities shown on a surface.
  * Use with IntersectionObserver for viewport-aware tracking.
  */
 export function trackImpressions(
   entities: TrackableEntity[],
-  surface: DiscoverySurface,
+  surface: ExploreSurface,
 ) {
   const sid = getSessionId();
   for (const entity of entities) {
@@ -148,9 +154,9 @@ export function trackImpressions(
  */
 export function trackClick(
   entity: TrackableEntity,
-  surface: DiscoverySurface,
+  surface: ExploreSurface,
 ) {
-  trackDiscoveryEvent("click", entity, surface);
+  trackExploreEvent("click", entity, surface);
 }
 
 /**
@@ -160,7 +166,7 @@ export function trackBannerEvent(
   eventType: EventType,
   slot: "middle" | "lower",
 ) {
-  const surface: DiscoverySurface = slot === "middle" ? "banner_middle" : "banner_lower";
+  const surface: ExploreSurface = slot === "middle" ? "banner_middle" : "banner_lower";
   eventQueue.push({
     event_type: eventType,
     entity_id: `banner_${slot}`,

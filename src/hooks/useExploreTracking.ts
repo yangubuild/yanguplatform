@@ -4,7 +4,7 @@
  */
 
 import { useEffect, useRef, useCallback } from "react";
-import { trackImpressions, trackClick, type DiscoverySurface } from "@/lib/discoveryAnalytics";
+import { trackImpressions, trackClick, type ExploreSurface } from "@/lib/exploreAnalytics";
 
 interface TrackableEntity {
   id: string;
@@ -20,7 +20,7 @@ const trackedImpressions = new Set<string>();
  */
 export function useImpressionTracker(
   entities: TrackableEntity[],
-  surface: DiscoverySurface,
+  surface: ExploreSurface,
 ) {
   const ref = useRef<HTMLDivElement>(null);
 

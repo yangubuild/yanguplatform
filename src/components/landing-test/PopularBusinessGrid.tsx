@@ -4,7 +4,7 @@ import { T } from "@/lib/typography";
 import type { SearchEntityResult } from "@/types/search";
 import { ENTITY_TYPE_CONFIG } from "@/types/search";
 import { getEntityRoute, isExternalRoute, getVerifiedBadgeColor } from "@/lib/entityRouting";
-import { useImpressionTracker } from "@/hooks/useDiscoveryTracking";
+import { useImpressionTracker } from "@/hooks/useExploreTracking";
 
 export interface PopularBusiness {
   profileImage: string;

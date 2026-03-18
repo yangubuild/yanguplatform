@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { BarChart3, Eye, MousePointerClick, TrendingUp, Shield, Layers, Image } from "lucide-react";
 import { AdminGlassCard } from "@/components/manage/AdminGlassCard";
-import { useDiscoveryAnalytics, type DiscoveryAnalyticsData } from "@/hooks/manage/useDiscoveryAnalytics";
+import { useExploreAnalytics, type ExploreAnalyticsData } from "@/hooks/manage/useExploreAnalytics";
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
@@ -27,7 +27,7 @@ function StatCard({ icon: Icon, label, value, sub }: { icon: React.ElementType; 
   );
 }
 
-function SurfaceTable({ data }: { data: DiscoveryAnalyticsData["impressions_by_surface"] }) {
+function SurfaceTable({ data }: { data: ExploreAnalyticsData["impressions_by_surface"] }) {
   if (!data?.length) return <p className="text-xs text-[hsl(var(--admin-text-muted))]">No surface data yet</p>;
   return (
     <AdminGlassCard className="p-4">
@@ -61,7 +61,7 @@ function SurfaceTable({ data }: { data: DiscoveryAnalyticsData["impressions_by_s
   );
 }
 
-function TrustBandTable({ data }: { data: DiscoveryAnalyticsData["trust_band_performance"] }) {
+function TrustBandTable({ data }: { data: ExploreAnalyticsData["trust_band_performance"] }) {
   if (!data?.length) return null;
   return (
     <AdminGlassCard className="p-4">
@@ -82,7 +82,7 @@ function TrustBandTable({ data }: { data: DiscoveryAnalyticsData["trust_band_per
   );
 }
 
-function RotationFairnessCard({ data }: { data: DiscoveryAnalyticsData["rotation_fairness"] }) {
+function RotationFairnessCard({ data }: { data: ExploreAnalyticsData["rotation_fairness"] }) {
   if (!data) return null;
   return (
     <AdminGlassCard className="p-4">
@@ -114,7 +114,7 @@ function RotationFairnessCard({ data }: { data: DiscoveryAnalyticsData["rotation
   );
 }
 
-function DailyChart({ data }: { data: DiscoveryAnalyticsData["daily_trend"] }) {
+function DailyChart({ data }: { data: ExploreAnalyticsData["daily_trend"] }) {
   if (!data?.length) return null;
   const formatted = data.map((d) => ({
     ...d,
@@ -153,9 +153,9 @@ function DailyChart({ data }: { data: DiscoveryAnalyticsData["daily_trend"] }) {
   );
 }
 
-export default function ManageDiscoveryAnalytics() {
+export default function ManageExploreAnalytics() {
   const [days, setDays] = useState(30);
-  const { data, isLoading, error } = useDiscoveryAnalytics(days);
+  const { data, isLoading, error } = useExploreAnalytics(days);
 
   const totalImpressions = data?.impressions_by_surface?.reduce((s, r) => s + r.impressions, 0) ?? 0;
   const totalClicks = data?.impressions_by_surface?.reduce((s, r) => s + r.clicks, 0) ?? 0;
@@ -170,7 +170,7 @@ export default function ManageDiscoveryAnalytics() {
             <Eye className="h-5 w-5 text-[hsl(var(--admin-accent))]" />
           </div>
           <div>
-            <h1 className="text-xl font-semibold text-[hsl(var(--admin-text))] font-display">Discovery Analytics</h1>
+            <h1 className="text-xl font-semibold text-[hsl(var(--admin-text))] font-display">Explore Analytics</h1>
             <p className="text-xs text-[hsl(var(--admin-text-muted))]">Exposure measurement & optimization intelligence</p>
           </div>
         </div>
@@ -193,7 +193,7 @@ export default function ManageDiscoveryAnalytics() {
 
       {isLoading && (
         <AdminGlassCard className="p-8 text-center">
-          <p className="text-sm text-[hsl(var(--admin-text-muted))]">Loading discovery analytics…</p>
+          <p className="text-sm text-[hsl(var(--admin-text-muted))]">Loading explore analytics…</p>
         </AdminGlassCard>
       )}
 

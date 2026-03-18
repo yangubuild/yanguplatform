@@ -28,7 +28,7 @@ const features = [
   },
   {
     icon: Lock,
-    title: "Discovery Optional",
+    title: "Explore Optional",
     description: "Choose visibility. Get discovered on the platform marketplace, or stay private.",
   },
 ];

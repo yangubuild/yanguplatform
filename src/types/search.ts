@@ -1,5 +1,5 @@
 /**
- * Canonical searchable entity types for YANGU platform search & discovery.
+ * Canonical searchable entity types for YANGU platform search & explore.
  * These mirror the DB enums and are the single source of truth
  * for all search, explore, landing, and detail page routing.
  */
@@ -30,7 +30,7 @@ export type EntitySubtype =
   | 'professional_network'
   | 'general';
 
-// ── Visibility tiers for discovery ranking ──
+// ── Visibility tiers for explore ranking ──
 export type VisibilityTier = 'free' | 'verified' | 'paid' | 'premium';
 
 // ── Surface type → entity type mapping (mirrors derive_entity_type SQL) ──

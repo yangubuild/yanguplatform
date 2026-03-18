@@ -47,7 +47,7 @@ interface RotationFairness {
   top_overexposed: { entity_id: string; impressions: number }[];
 }
 
-export interface DiscoveryAnalyticsData {
+export interface ExploreAnalyticsData {
   impressions_by_surface: SurfaceMetric[];
   top_entities: EntityMetric[];
   trust_band_performance: TrustBandMetric[];
@@ -57,17 +57,24 @@ export interface DiscoveryAnalyticsData {
   banner_performance: BannerMetric[];
 }
 
-export function useDiscoveryAnalytics(days = 30) {
+/** @deprecated Use ExploreAnalyticsData */
+export type DiscoveryAnalyticsData = ExploreAnalyticsData;
+
+export function useExploreAnalytics(days = 30) {
   return useQuery({
-    queryKey: ["manage", "discovery-analytics", days],
+    queryKey: ["manage", "explore-analytics", days],
     queryFn: async () => {
+      // RPC name kept stable for migration compatibility
       const { data, error } = await supabase.rpc("discovery_analytics_summary", {
         p_days: days,
       });
       if (error) throw error;
-      return data as unknown as DiscoveryAnalyticsData;
+      return data as unknown as ExploreAnalyticsData;
     },
     staleTime: 60_000,
     retry: 1,
   });
 }
+
+/** @deprecated Use useExploreAnalytics */
+export const useDiscoveryAnalytics = useExploreAnalytics;

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Store, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SPONSORED_TRUST_FLOOR } from "@/lib/monetizationRules";
-import { trackImpressions, trackClick, type DiscoverySurface } from "@/lib/discoveryAnalytics";
+import { trackImpressions, trackClick, type ExploreSurface } from "@/lib/exploreAnalytics";
 
 interface SponsoredBusiness {
   id: string;
