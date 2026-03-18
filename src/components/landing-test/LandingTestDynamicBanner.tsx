@@ -6,6 +6,8 @@ import type { BannerData } from "@/lib/bannerContracts";
 import { trackBannerEvent } from "@/lib/exploreAnalytics";
 import enterpriseMachine from "@/assets/enterprise-yangu-machine.png";
 import enterpriseCoin from "@/assets/enterprise-yangu-coin.png";
+import treasuryWallet from "@/assets/treasury-yangu-wallet.png";
+import treasuryLight from "@/assets/treasury-yangu-light.png";
 
 interface Props {
   slot: "middle" | "lower";
