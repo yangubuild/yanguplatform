@@ -10,6 +10,7 @@ import { AffiliateSignupGateModal } from "./AffiliateSignupGateModal";
 interface Props {
   isAuthenticated: boolean;
   onSwitchToCreator: () => void;
+  isLandingPage?: boolean;
 }
 
 const TABS_AUTH = ["Dashboard", "Refer buyers", "Refer sellers"] as const;
