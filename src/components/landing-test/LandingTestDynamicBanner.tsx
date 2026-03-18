@@ -6,6 +6,8 @@ import type { BannerData } from "@/lib/bannerContracts";
 import { trackBannerEvent } from "@/lib/exploreAnalytics";
 import enterpriseMachine from "@/assets/enterprise-yangu-machine.png";
 import enterpriseCoin from "@/assets/enterprise-yangu-coin.png";
+import treasuryWallet from "@/assets/treasury-yangu-wallet.png";
+import treasuryLight from "@/assets/treasury-yangu-light.png";
 
 interface Props {
   slot: "middle" | "lower";
@@ -188,33 +190,66 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
   return (
     <section className={BANNER_CONTRACT.marginClass}>
       <div
-        className={`${BANNER_CONTRACT.radiusClass} overflow-hidden ${BANNER_CONTRACT.paddingClass} flex flex-col md:flex-row items-center gap-8`}
+        className={`${BANNER_CONTRACT.radiusClass} relative`}
         style={{
           background: BANNER_CONTRACT.defaultBg,
           border: BANNER_CONTRACT.borderStyle,
           minHeight: BANNER_CONTRACT.minHeight,
+          overflow: "visible",
         }}
       >
-        <div className="flex-1">
-          <h2 className={`${T.header} text-white mb-3`}>
-            {data.headline ?? "Meet yangu Treasury"}
-          </h2>
-          <p className={`${T.subheader} mb-6`} style={{ color: "rgba(255,255,255,0.45)" }}>
-            {data.subheadline ?? "Earn up to 6% yield on your cash."}
-          </p>
-          <Button variant="accent" size="default">
-            {data.cta_text ?? "Get started"}
-          </Button>
-        </div>
-        <div className="flex-1 flex items-center justify-center">
-          <div
-            className="w-full max-w-[400px] h-[200px] rounded-xl"
-            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}
-          >
-            <div className="w-full h-full flex items-center justify-center text-xs" style={{ color: "rgba(255,255,255,0.15)" }}>
-              Dashboard preview
-            </div>
+        {/* Left text block — unchanged */}
+        <div className="relative z-10 p-8 md:p-10 lg:p-14 flex items-center" style={{ minHeight: BANNER_CONTRACT.minHeight }}>
+          <div className="flex-1 max-w-md">
+            <h2 className={`${T.header} text-white mb-3`}>
+              {data.headline ?? "Meet yangu Treasury"}
+            </h2>
+            <p className={`${T.subheader} mb-6`} style={{ color: "rgba(255,255,255,0.45)" }}>
+              {data.subheadline ?? "Earn up to 6% yield on your cash."}
+            </p>
+            <Button variant="accent" size="default">
+              {data.cta_text ?? "Get started"}
+            </Button>
           </div>
+        </div>
+
+        {/* Wallet illustration — right side, matching blueprint */}
+        <div
+          className="absolute hidden md:block pointer-events-none"
+          style={{
+            right: "-30px",
+            top: "-60px",
+            width: "480px",
+            height: "380px",
+            zIndex: 15,
+          }}
+        >
+          <img
+            src={treasuryWallet}
+            alt=""
+            className="w-full h-full object-contain object-right-top"
+            style={{ filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.3))" }}
+          />
+        </div>
+
+        {/* Lightning icon — lower center, overflows bottom */}
+        <div
+          className="absolute hidden md:block pointer-events-none"
+          style={{
+            left: "50%",
+            bottom: "-70px",
+            transform: "translateX(-50%)",
+            width: "130px",
+            height: "200px",
+            zIndex: 25,
+          }}
+        >
+          <img
+            src={treasuryLight}
+            alt=""
+            className="w-full h-full object-contain"
+            style={{ filter: "drop-shadow(0 10px 30px rgba(0,0,0,0.3))" }}
+          />
         </div>
       </div>
     </section>
