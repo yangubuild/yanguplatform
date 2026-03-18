@@ -62,6 +62,18 @@ export default function EntityDetailPage() {
   const [showReport, setShowReport] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState<string | null>(null);
 
+  // Record session click for personalization
+  useEffect(() => {
+    if (entity) {
+      recordEntityClick({
+        id: entity.id,
+        entity_type: entity.entity_type,
+        primary_category: entity.primary_category,
+        tags: entity.tags,
+      });
+    }
+  }, [entity?.id]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen" style={{ background: "#08120D" }}>
