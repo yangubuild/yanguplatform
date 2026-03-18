@@ -44,7 +44,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
         <div
           className={`${BANNER_CONTRACT.radiusClass} relative`}
           style={{
-            background: "linear-gradient(90deg, #0F2B1E 0%, #122E21 35%, #0D2419 100%)",
+            background: BANNER_CONTRACT.defaultBg,
             border: BANNER_CONTRACT.borderStyle,
             minHeight: BANNER_CONTRACT.minHeight,
             overflow: "visible",
