@@ -15,6 +15,7 @@ interface Props {
 export function ReferBuyersTab({ isAuthenticated, onOpenMarketplace, onGatedAction }: Props) {
   const { hotOffers, isJoined, joinAffiliate } = useAffiliateJoin();
   const [viewAssetsProgram, setViewAssetsProgram] = useState<string | null>(null);
+  const [industryFilter, setIndustryFilter] = useState("All");
 
   const handleAddOffer = (offer: AffiliateOffer) => {
     if (onGatedAction) {
