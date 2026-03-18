@@ -3098,6 +3098,45 @@ export type Database = {
         }
         Relationships: []
       }
+      landing_banners: {
+        Row: {
+          created_at: string
+          cta_link: string | null
+          cta_text: string | null
+          headline: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          slot: string
+          subheadline: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          cta_link?: string | null
+          cta_text?: string | null
+          headline?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          slot: string
+          subheadline?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          cta_link?: string | null
+          cta_text?: string | null
+          headline?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          slot?: string
+          subheadline?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       merchant_promo_codes: {
         Row: {
           affiliate_id: string | null
