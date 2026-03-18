@@ -455,6 +455,7 @@ const ALL_PLACEHOLDERS: PlaceholderSurface[] = [
       industry: "Footwear & Fashion",
       surface_type: "community_group",
       cover_image_url: solevaultSneakers,
+      avatar_url: avatarB2_03,
       published_at: "2025-10-10T00:00:00Z",
       relevance_score: 69,
       trust_score: 41,
