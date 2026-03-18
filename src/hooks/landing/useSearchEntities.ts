@@ -1,10 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { SearchEntityResult, SearchEntitiesParams } from "@/types/search";
+import { diversifyResults } from "@/lib/discoveryDiversity";
 
 /**
  * Generic hook that calls the canonical search_entities RPC.
  * Every landing section uses this with different filter params.
+ * Results are soft-diversified so first visible rows avoid category repetition.
  */
 export function useSearchEntities(
   params: SearchEntitiesParams,
@@ -25,7 +27,8 @@ export function useSearchEntities(
         p_offset: params.offset ?? 0,
       });
       if (error) throw error;
-      return (data ?? []) as unknown as SearchEntityResult[];
+      const results = (data ?? []) as unknown as SearchEntityResult[];
+      return diversifyResults(results);
     },
     enabled,
     staleTime: 60_000,
