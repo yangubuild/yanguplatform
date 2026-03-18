@@ -12,6 +12,7 @@ import { recordEntityClick } from "@/lib/sessionMemory";
 import { ENTITY_TYPE_CONFIG, ENTITY_SUBTYPE_LABELS } from "@/types/search";
 import type { SearchableEntityType, EntitySubtype } from "@/types/search";
 import { getEntityRoute, isExternalRoute } from "@/lib/entityRouting";
+import { getVerificationDepth, getTrustTier, getReviewConfidence } from "@/lib/trustSignals";
 
 const TYPE_ICONS: Record<string, React.FC<{ className?: string; style?: React.CSSProperties }>> = {
   product: Package, service: Wrench, business: Building2, creator: Star,
