@@ -4,7 +4,7 @@
  */
 
 import { useEffect, useRef, useCallback } from "react";
-import { trackImpressions, trackClick, type DiscoverySurface } from "@/lib/discoveryAnalytics";
+import { trackImpressions, trackClick, type ExploreSurface } from "@/lib/exploreAnalytics";
 
 interface TrackableEntity {
   id: string;
