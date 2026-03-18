@@ -94,6 +94,7 @@ export function ExploreSponsoredSection() {
             target="_blank"
             rel="noopener noreferrer"
             className="group cursor-pointer block"
+            onClick={() => trackClick({ id: biz.id, visibility_tier: "paid", trust_score: biz.trustScore }, "explore_sponsored")}
           >
             <div className="relative overflow-hidden rounded-xl mb-3" style={{ background: "#0A1710" }}>
               {biz.coverImage ? (
