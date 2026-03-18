@@ -20,6 +20,7 @@ import {
 import {
   useVerifiedEntities,
   usePopularBusinesses,
+  useProductEntities,
   useServiceEntities,
   useCommunityEntities,
   useCreatorEntities,
@@ -31,6 +32,7 @@ export function MassLandingPage() {
   // Canonical search queries
   const { data: verifiedEntities } = useVerifiedEntities(12);
   const { data: popularEntities } = usePopularBusinesses(16);
+  const { data: productEntities } = useProductEntities(8);
   const { data: serviceEntities } = useServiceEntities(8);
   const { data: communityEntities } = useCommunityEntities(8);
   const { data: creatorEntities } = useCreatorEntities(8);
@@ -72,17 +74,25 @@ export function MassLandingPage() {
 
           <BusinessIdeasRow />
 
+          {/* Products / Selling — bridged through business/shop surfaces */}
+          <PremiumBusinessRow
+            title="Products"
+            subtitle="Shop products from verified sellers and businesses on yangu"
+            entities={productEntities}
+            businesses={salesCommunityBusinesses}
+          />
+
           {/* Services — canonical search */}
           <PremiumBusinessRow
             title="Services"
             subtitle="Find expert services from coaches, consultants, and freelancers"
             entities={serviceEntities}
-            businesses={salesCommunityBusinesses}
+            businesses={mindsetCoachingBusinesses}
           />
 
-          {/* Creators — canonical search */}
+          {/* Influencers / Creators — canonical search */}
           <PremiumBusinessRow
-            title="Creators"
+            title="Influencers / Creators"
             subtitle="Discover influencers, coaches, and content creators building on yangu"
             entities={creatorEntities}
             businesses={mindsetCoachingBusinesses}

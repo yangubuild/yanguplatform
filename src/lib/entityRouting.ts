@@ -1,11 +1,13 @@
 import type { SearchEntityResult } from "@/types/search";
+import { ENTITY_TYPE_CONFIG } from "@/types/search";
 
 /**
  * Given a search entity result, return the best available detail route.
  *
- * For now most surfaces don't have a dedicated public detail page yet,
- * so we route to discover or the domain host when available.
- * This will be updated as detail pages ship.
+ * Priority:
+ * 1. Live domain → external link
+ * 2. Slug → typed public detail page (/business/:slug, /creator/:slug, etc.)
+ * 3. Fallback → discover filtered by entity type
  */
 export function getEntityRoute(entity: SearchEntityResult): string {
   // If the entity has a live domain, link to it
@@ -13,8 +15,12 @@ export function getEntityRoute(entity: SearchEntityResult): string {
     return `https://${entity.domain_host}`;
   }
 
-  // If it has a slug, route to the discover page with slug
+  // Typed detail route using entity_type config
   if (entity.slug) {
+    const config = ENTITY_TYPE_CONFIG[entity.entity_type];
+    if (config?.detailRoute) {
+      return `${config.detailRoute}/${entity.slug}`;
+    }
     return `/discover/${entity.slug}`;
   }
 

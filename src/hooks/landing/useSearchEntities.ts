@@ -60,6 +60,15 @@ export function usePopularBusinesses(limit = 16) {
   );
 }
 
+/** Product discovery — bridges through business/shop surfaces until item-level indexing exists */
+export function useProductEntities(limit = 8) {
+  return useSearchEntities(
+    { entity_type: "business", category: "shop", limit },
+    true,
+    "products-bridge",
+  );
+}
+
 /** Service entities */
 export function useServiceEntities(limit = 8) {
   return useSearchEntities(
@@ -78,7 +87,7 @@ export function useCommunityEntities(limit = 8) {
   );
 }
 
-/** Creator entities */
+/** Creator entities (includes influencers, coaches, etc.) */
 export function useCreatorEntities(limit = 8) {
   return useSearchEntities(
     { entity_type: "creator", limit },
