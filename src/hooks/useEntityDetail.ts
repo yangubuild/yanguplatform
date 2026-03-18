@@ -129,7 +129,8 @@ export function useRelatedEntities(entityId: string | undefined) {
       });
       if (error) throw error;
       const results = (data ?? []) as RelatedEntity[];
-      return personalizeResults(results);
+      // Pipeline: personalize → enforce paid cap (Phase 8)
+      return enforceRelatedPaidCap(personalizeResults(results));
     },
     enabled: !!entityId,
     staleTime: 60_000,
