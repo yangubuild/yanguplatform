@@ -13,7 +13,15 @@ const FALLBACK_ITEMS = [
 ];
 
 export function MassTrendsBar() {
-  const { data: trendEntities } = useTrendEntities(20);
+  const tracked = useRef(false);
+
+  // Track trend bar impressions once
+  useEffect(() => {
+    if (!tracked.current && trendEntities && trendEntities.length > 0) {
+      tracked.current = true;
+      trackImpressions(trendEntities, "trend_bar");
+    }
+  }, [trendEntities]);
 
   // Build trend text from paid entities; fall back to static if none yet
   const liveItems =

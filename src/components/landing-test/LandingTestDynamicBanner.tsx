@@ -19,20 +19,21 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
   const data = bannerData ?? BANNER_DEFAULTS[slot];
   const tracked = useRef(false);
 
-  // Clean collapse: if banner is explicitly deactivated, render nothing
-  if (!data.is_active) return null;
-
-  // Track banner impression once
+  // Track banner impression once (hook must be before early return)
   useEffect(() => {
+    if (!data.is_active) return;
     if (!tracked.current) {
       tracked.current = true;
       trackBannerEvent("impression", slot);
     }
-  }, [slot]);
+  }, [slot, data.is_active]);
 
   const handleBannerClick = () => {
     trackBannerEvent("click", slot);
   };
+
+  // Clean collapse: if banner is explicitly deactivated, render nothing
+  if (!data.is_active) return null;
 
   const isMiddle = slot === "middle";
 

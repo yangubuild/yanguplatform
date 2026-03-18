@@ -315,9 +315,8 @@ export default function EntityDetailPage() {
 
       {/* Related entities — intelligent cross-category recommendations */}
       {related && related.length > 0 && (
-        <div className="max-w-4xl mx-auto px-4 mb-12">
-          <h2 className="text-white text-lg font-bold mb-4">You might also like</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <RelatedEntitiesSection related={related} entity={entity} navigate={navigate} />
+      )}
             {related.slice(0, 6).map((r: any) => {
               const route = getEntityRoute(r);
               const ext = isExternalRoute(route);
