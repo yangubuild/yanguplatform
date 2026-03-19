@@ -546,7 +546,7 @@ function ShowcasePreview({ schema, canvas }: { schema: Record<string, unknown>; 
     </div>
   );
 }
-function ShowcaseAccordionItem({ item }: { item: { title?: string; description?: string; image_url?: string; link_url?: string; price?: string } }) {
+function ShowcaseAccordionItem({ item, index, canvas }: { item: { title?: string; description?: string; image_url?: string; link_url?: string; price?: string }; index: number; canvas?: CanvasCallbacks }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="yangu-interactive">
@@ -554,11 +554,9 @@ function ShowcaseAccordionItem({ item }: { item: { title?: string; description?:
         className="w-full flex items-center gap-3 p-3 text-left hover:bg-accent/5 transition-colors"
         onClick={() => setOpen(!open)}
       >
-        {item.image_url && (
-          <div className="w-16 h-16 rounded-lg bg-muted overflow-hidden shrink-0">
-            <img src={item.image_url} alt={item.title || ""} className="w-full h-full object-cover" />
-          </div>
-        )}
+        <div className="w-16 h-16 rounded-lg bg-muted overflow-hidden shrink-0">
+          <EditableImage src={item.image_url || ""} alt={item.title || ""} className="w-full h-full object-cover" field={`showcase_items.${index}.image_url`} canvas={canvas} />
+        </div>
         <div className="flex-1 min-w-0">
           {item.title && <p className="text-sm font-semibold truncate">{item.title}</p>}
           {item.description && !open && <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{item.description}</p>}
