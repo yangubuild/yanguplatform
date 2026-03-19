@@ -1297,11 +1297,9 @@ function CommunityFeedPreview({ schema, canvas }: { schema: Record<string, unkno
             return (
               <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={realIdx}>
                 <div className="rounded-lg border border-border bg-muted/50 overflow-hidden yangu-card" tabIndex={0}>
-                  {imgSrc && (
-                    <div className="aspect-video bg-muted">
-                      <EditableImage src={imgSrc} alt={item.name || item.title || ""} className="w-full h-full object-cover" field={`items.${realIdx}.image_url`} canvas={canvas} />
-                    </div>
-                  )}
+                  <div className="aspect-video bg-muted">
+                    <EditableImage src={imgSrc} alt={item.name || item.title || ""} className="w-full h-full object-cover" field={`items.${realIdx}.image_url`} canvas={canvas} />
+                  </div>
                   <div className="p-3">
                     <div className="flex justify-between items-start">
                       <p className="text-sm font-medium">{item.name || item.title || "Item"}</p>
