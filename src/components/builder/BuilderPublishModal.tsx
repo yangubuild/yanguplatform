@@ -138,6 +138,7 @@ export function BuilderPublishModal({
   surfaceType,
   surfaceTitle,
   defaultSlug,
+  pages,
 }: BuilderPublishModalProps) {
   const {
     allowedDomains,
@@ -150,9 +151,10 @@ export function BuilderPublishModal({
     isPublishing,
     publishResult,
     publishError,
+    validationErrors,
     publish,
     reset,
-  } = useBuilderPublish(surfaceId, surfaceType);
+  } = useBuilderPublish(surfaceId, surfaceType, pages);
 
   // Reset state when modal closes
   useEffect(() => {
