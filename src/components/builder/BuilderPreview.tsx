@@ -10,6 +10,7 @@ import { CanvasSectionControls } from "./canvas/CanvasSectionControls";
 import { CanvasHints } from "./canvas/CanvasHints";
 import { CanvasEditableText } from "./canvas/CanvasEditableText";
 import { CanvasImagePopover } from "./canvas/CanvasImagePopover";
+import { CanvasDraggableOverlay } from "./canvas/CanvasDraggableOverlay";
 
 interface CanvasCallbacks {
   sectionId: string;
