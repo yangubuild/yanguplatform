@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Building2, ExternalLink, Pencil, ShoppingBag, Store, UtensilsCrossed, Globe, Users, Sparkles, Loader2, Trash2, CheckCircle2, BarChart3, Wallet } from "lucide-react";
+import { Building2, ExternalLink, Pencil, ShoppingBag, Store, UtensilsCrossed, Globe, Users, Sparkles, Loader2, Trash2, CheckCircle2, BarChart3, Wallet, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Card } from "@/components/primitives";
 import { forceDeleteSurface } from "@/lib/forceDeleteSurface";
 import { ICON_MAP, yanguBadge } from "@/lib/app-store/icon-map";
+import { SurfaceSettingsDialog, type SurfaceMetadata } from "@/components/builder/SurfaceSettingsDialog";
 
 const SURFACE_TYPE_META: Record<string, { label: string; icon: typeof ShoppingBag }> = {
   eshop: { label: "Eshop", icon: ShoppingBag },
@@ -20,6 +21,21 @@ const SURFACE_TYPE_META: Record<string, { label: string; icon: typeof ShoppingBa
   live_bio: { label: "Live Bio", icon: Globe },
 };
 
+// Domain mapping for building correct public live URLs
+const SURFACE_DOMAIN_MAP: Record<string, string> = {
+  eshop: "yangu.shop",
+  emenu: "yangu.shop",
+  estore: "yangu.store",
+  esite: "yangu.site",
+  quick_site: "yangu.site",
+  influencer: "yangu.live",
+  live_bio: "yangu.live",
+  live_selling: "yangu.live",
+  community_group: "yangu.community",
+  community_listing: "yangu.community",
+  studio_showcase: "yangu.studio",
+};
+
 interface Surface {
   id: string;
   title: string;
@@ -29,6 +45,16 @@ interface Surface {
   created_at: string;
   updated_at: string;
   metadata: Record<string, unknown>;
+  seo_title?: string | null;
+  seo_description?: string | null;
+  favicon_url?: string | null;
+  cover_image_url?: string | null;
+}
+
+interface PublishInfo {
+  surface_id: string;
+  slug: string;
+  domain_host: string;
 }
 
 const RECOMMENDED_APPS = [
@@ -46,8 +72,9 @@ const INSTALL_STATS = [
 export default function MyBusinessPage() {
   const navigate = useNavigate();
   const [surfaces, setSurfaces] = useState<Surface[]>([]);
-  const [publishedIds, setPublishedIds] = useState<Set<string>>(new Set());
+  const [publishMap, setPublishMap] = useState<Record<string, PublishInfo>>({});
   const [loading, setLoading] = useState(true);
+  const [settingsSurface, setSettingsSurface] = useState<Surface | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -57,18 +84,39 @@ export default function MyBusinessPage() {
       const [surfaceRes, publishRes] = await Promise.all([
         supabase
           .from("builder_surfaces")
-          .select("id, title, slug, surface_type, description, created_at, updated_at, metadata")
+          .select("id, title, slug, surface_type, description, created_at, updated_at, metadata, seo_title, seo_description, favicon_url, cover_image_url" as any)
           .eq("user_id", user.id)
           .order("updated_at", { ascending: false }),
         supabase
           .from("builder_publishes")
-          .select("surface_id")
+          .select("surface_id, slug, domain_id")
           .eq("state", "published"),
       ]);
 
       setSurfaces((surfaceRes.data as Surface[]) ?? []);
-      const pubIds = new Set((publishRes.data ?? []).map((p: { surface_id: string }) => p.surface_id));
-      setPublishedIds(pubIds);
+
+      // Build publish map with domain info
+      const pubs = publishRes.data ?? [];
+      if (pubs.length > 0) {
+        const domainIds = [...new Set(pubs.map((p: any) => p.domain_id))];
+        const { data: domains } = await supabase
+          .from("domains")
+          .select("id, host")
+          .in("id", domainIds);
+        const domainMap: Record<string, string> = {};
+        (domains ?? []).forEach((d: any) => { domainMap[d.id] = d.host; });
+
+        const pm: Record<string, PublishInfo> = {};
+        pubs.forEach((p: any) => {
+          pm[p.surface_id] = {
+            surface_id: p.surface_id,
+            slug: p.slug,
+            domain_host: domainMap[p.domain_id] || "",
+          };
+        });
+        setPublishMap(pm);
+      }
+
       setLoading(false);
     })();
   }, []);
@@ -78,6 +126,20 @@ export default function MyBusinessPage() {
     (acc[key] ??= []).push(s);
     return acc;
   }, {});
+
+  // Build live URL for a surface
+  const getLiveUrl = (s: Surface): string | null => {
+    const pub = publishMap[s.id];
+    if (pub && pub.domain_host) {
+      return `https://${pub.domain_host}/${pub.slug}`;
+    }
+    // Fallback: use domain mapping + slug
+    const domain = SURFACE_DOMAIN_MAP[s.surface_type];
+    if (domain) {
+      return `https://${domain}/${s.slug}`;
+    }
+    return null;
+  };
 
   if (loading) {
     return (
@@ -120,9 +182,17 @@ export default function MyBusinessPage() {
             </div>
             <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               {items.map((s) => {
-                const isPublished = publishedIds.has(s.id);
+                const isPublished = !!publishMap[s.id];
+                const liveUrl = getLiveUrl(s);
                 return (
                   <Card key={s.id} className="p-4 flex flex-col gap-3 bg-card border-border">
+                    {/* Cover image if present */}
+                    {(s as any).cover_image_url && (
+                      <div className="rounded-lg overflow-hidden -mx-4 -mt-4 mb-1">
+                        <img src={(s as any).cover_image_url} alt="" className="w-full h-24 object-cover" />
+                      </div>
+                    )}
+
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <h3 className="font-medium text-foreground truncate">{s.title}</h3>
@@ -140,12 +210,29 @@ export default function MyBusinessPage() {
                       </p>
                     </div>
 
-                    {/* Primary actions */}
+                    {/* Primary actions — Edit Builder + Surface Settings + Preview + Delete */}
                     <div className="flex gap-2">
+                      {/* ACTION 1: Edit Builder */}
                       <Button size="sm" variant="outline" className="gap-1.5 flex-1 rounded-xl" onClick={() => navigate(`/builder/${s.id}`)}>
                         <Pencil className="h-3.5 w-3.5" /> Edit
                       </Button>
-                      <Button size="sm" variant="ghost" className="gap-1.5 rounded-xl" onClick={() => window.open(`/s/${s.id}/preview`, "_blank")}>
+                      {/* ACTION 2: Surface Settings */}
+                      <Button size="sm" variant="outline" className="gap-1.5 rounded-xl" onClick={() => setSettingsSurface(s)}>
+                        <Settings2 className="h-3.5 w-3.5" />
+                      </Button>
+                      {/* BLOCK C FIX: Open actual live public page */}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="gap-1.5 rounded-xl"
+                        onClick={() => {
+                          if (liveUrl) {
+                            window.open(liveUrl, "_blank");
+                          } else {
+                            toast.info("This surface hasn't been published yet");
+                          }
+                        }}
+                      >
                         <ExternalLink className="h-3.5 w-3.5" />
                       </Button>
                       <AlertDialog>
@@ -199,7 +286,32 @@ export default function MyBusinessPage() {
         );
       })}
 
-      {/* Recommended apps — same style as App Store cards */}
+      {/* Surface Settings Dialog */}
+      {settingsSurface && (
+        <SurfaceSettingsDialog
+          open={!!settingsSurface}
+          onOpenChange={(open) => { if (!open) setSettingsSurface(null); }}
+          surfaceId={settingsSurface.id}
+          surfaceTitle={settingsSurface.title}
+          initial={{
+            seo_title: (settingsSurface as any).seo_title || "",
+            seo_description: (settingsSurface as any).seo_description || "",
+            favicon_url: (settingsSurface as any).favicon_url || "",
+            cover_image_url: (settingsSurface as any).cover_image_url || "",
+          }}
+          onSaved={(meta) => {
+            setSurfaces(prev =>
+              prev.map(s =>
+                s.id === settingsSurface.id
+                  ? { ...s, ...meta }
+                  : s
+              )
+            );
+          }}
+        />
+      )}
+
+      {/* Recommended apps */}
       <section className="space-y-4 pt-4">
         <h2 className="text-lg font-semibold text-foreground">Recommended apps to grow your business</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
