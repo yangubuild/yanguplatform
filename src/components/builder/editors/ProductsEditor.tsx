@@ -324,6 +324,77 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
     }
   };
 
+  const generateProductImage = async () => {
+    if (!pName.trim()) {
+      toast.error("Enter a product name first");
+      return;
+    }
+    setIsGeneratingImage(true);
+    try {
+      const prompt = `Generate a professional ecommerce product photo for: ${pName}${pBrand ? ` by ${pBrand}` : ""}${pCategory ? ` in category ${pCategory}` : ""}. ${pDesc ? `Description: ${pDesc.slice(0, 100)}` : ""} Clean white background, studio lighting, high quality product photography.`;
+
+      const { data, error } = await supabase.functions.invoke("ada-chat", {
+        body: {
+          messages: [{ role: "user", content: prompt }],
+          model: "google/gemini-2.5-flash-image",
+          modalities: ["image", "text"],
+        },
+      });
+
+      if (error) throw error;
+
+      const imageUrl = data?.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+      if (!imageUrl) throw new Error("No image generated");
+
+      const newAsset: MediaAsset = { type: "image", src: imageUrl, provider: "ai" as any };
+      setPMedia((prev) => prev.length < 10 ? [...prev, newAsset] : prev);
+      toast.success("Product image generated");
+    } catch (err) {
+      console.error("Generate product image failed:", err);
+      toast.error("AI image generation failed");
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
+
+  const generateSpecifications = async () => {
+    if (!pName.trim()) {
+      toast.error("Enter a product name first");
+      return;
+    }
+    setIsGeneratingSpecs(true);
+    try {
+      const prompt = `Generate realistic product specifications for:\nName: ${pName}\nBrand: ${pBrand || "N/A"}\nCategory: ${pCategory || "General"}\nDescription: ${pDesc || "N/A"}\n\nReturn only a concise list of specifications in "Key: Value" format, one per line. Include relevant specs like dimensions, weight, material, compatibility, etc. Max 8 specs.`;
+
+      const { data, error } = await supabase.functions.invoke("ada-chat", {
+        body: {
+          messages: [{ role: "user", content: prompt }],
+          model: "google/gemini-2.5-flash-lite",
+          max_tokens: 200,
+        },
+      });
+
+      if (error) throw error;
+
+      const generatedText = [
+        data?.reply,
+        data?.content,
+        data?.text,
+        data?.choices?.[0]?.message?.content,
+      ].find((v): v is string => typeof v === "string" && v.trim().length > 0)?.trim();
+
+      if (!generatedText) throw new Error("No specifications generated");
+
+      setPSpecs(generatedText);
+      toast.success("Specifications generated");
+    } catch (err) {
+      console.error("Generate specifications failed:", err);
+      toast.error("AI specifications generation failed");
+    } finally {
+      setIsGeneratingSpecs(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Currency selector */}
