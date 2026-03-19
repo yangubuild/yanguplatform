@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { BuilderSurfaceType } from "@/types/builder";
+import { validatePagesForPublish, type PublishPage, type PublishValidationError } from "@/lib/builder/publishValidation";
 
 // ─── Domain mapping (mirrors builder_is_domain_allowed in SQL) ───
 const SURFACE_DOMAIN_MAP: Record<BuilderSurfaceType, string[]> = {
