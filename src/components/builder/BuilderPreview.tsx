@@ -10,6 +10,7 @@ import { CanvasSectionControls } from "./canvas/CanvasSectionControls";
 import { CanvasHints } from "./canvas/CanvasHints";
 import { CanvasEditableText } from "./canvas/CanvasEditableText";
 import { CanvasImagePopover } from "./canvas/CanvasImagePopover";
+import { CanvasDraggableOverlay } from "./canvas/CanvasDraggableOverlay";
 
 interface CanvasCallbacks {
   sectionId: string;
@@ -196,7 +197,11 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
           <div className="aspect-[4/5] relative overflow-hidden">
             <EditableImage src={resolvedMediaUrl} alt="Creator" className="w-full h-full object-cover" field="media.url" canvas={canvas} />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+            <CanvasDraggableOverlay
+              position={(schema.hero_text_position as { x: number; y: number }) || { x: 30, y: 85 }}
+              onPositionChange={canvas?.onUpdateField ? (pos) => canvas.onUpdateField!(canvas.sectionId, "hero_text_position", pos) : undefined}
+              className="text-white max-w-[90%]"
+            >
               {headline && <EditableText value={headline} field="headline" className="text-2xl font-bold" tag="h1" canvas={canvas} />}
               {subheadline && <EditableText value={subheadline} field="subheadline" className="text-sm opacity-80 mt-1" tag="p" canvas={canvas} />}
               {socialRowEnabled && (
@@ -208,7 +213,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
                   ))}
                 </div>
               )}
-            </div>
+            </CanvasDraggableOverlay>
           </div>
           {searchEnabled && (
             <div className="px-5 py-4">
@@ -315,11 +320,15 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
 
   if (isDark || layoutVariant === "fullwidth_center") {
     return (
-      <div className="py-12 px-6 text-center rounded-lg relative overflow-hidden" style={{ backgroundColor: bgColor || "hsl(0 0% 8%)" }}>
+      <div className="py-12 px-6 text-center rounded-lg relative overflow-hidden" style={{ backgroundColor: bgColor || "hsl(0 0% 8%)", minHeight: "280px" }}>
         {mediaType !== "video" && resolvedMediaUrl && (
           <img src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-40" />
         )}
-        <div className="relative z-10 max-w-2xl mx-auto">
+        <CanvasDraggableOverlay
+          position={(schema.hero_text_position as { x: number; y: number }) || { x: 50, y: 50 }}
+          onPositionChange={canvas?.onUpdateField ? (pos) => canvas.onUpdateField!(canvas.sectionId, "hero_text_position", pos) : undefined}
+          className="max-w-2xl"
+        >
           <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className={`font-bold text-white ${isBoldUppercase ? "text-2xl tracking-[0.15em] uppercase" : "text-2xl"}`} tag="h1" canvas={canvas} />
           {schema.subheadline && (
             <EditableText value={schema.subheadline as string} field="subheadline" className="mt-3 text-white/70 text-[10px] leading-relaxed max-w-[480px] mx-auto" tag="p" canvas={canvas} />
@@ -329,7 +338,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
               <EditableText value={ctaText} field="cta_text" className="inline-block px-5 py-2 rounded-full bg-white text-black text-xs font-medium yangu-cta" tag="span" canvas={canvas} />
             </div>
           )}
-        </div>
+        </CanvasDraggableOverlay>
       </div>
     );
   }
