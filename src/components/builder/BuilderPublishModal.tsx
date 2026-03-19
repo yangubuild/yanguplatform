@@ -171,6 +171,14 @@ export function BuilderPublishModal({
     }
   }, [open, defaultSlug, customSlug, setCustomSlug]);
 
+  // Meta fields state (must be before any early returns)
+  const [seoTitle, setSeoTitle] = useState(surfaceTitle);
+  const [seoDescription, setSeoDescription] = useState("");
+  const [faviconUrl, setFaviconUrl] = useState("");
+  const [coverImageUrl, setCoverImageUrl] = useState("");
+  const [uploadingFavicon, setUploadingFavicon] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+
   const isSuccess = publishResult?.ok === true;
   const slugDisplay = customSlug || defaultSlug || "";
   const publishedUrl = selectedDomain
@@ -259,12 +267,6 @@ export function BuilderPublishModal({
   }
 
   // ─── Main State ───
-  const [seoTitle, setSeoTitle] = useState(surfaceTitle);
-  const [seoDescription, setSeoDescription] = useState("");
-  const [faviconUrl, setFaviconUrl] = useState("");
-  const [coverImageUrl, setCoverImageUrl] = useState("");
-  const [uploadingFavicon, setUploadingFavicon] = useState(false);
-  const [uploadingCover, setUploadingCover] = useState(false);
 
   const handleMetaUpload = async (file: File, type: "favicon" | "cover") => {
     const setter = type === "favicon" ? setFaviconUrl : setCoverImageUrl;
