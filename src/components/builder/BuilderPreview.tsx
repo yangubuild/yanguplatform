@@ -354,7 +354,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
     return (
       <div className="py-12 px-6 text-center rounded-lg relative overflow-hidden" style={{ backgroundColor: bgColor || "hsl(0 0% 8%)" }}>
         {mediaType !== "video" && resolvedMediaUrl && (
-          <img src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-40" />
+          <EditableImage src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-40" field="media.url" canvas={canvas} />
         )}
         <div className="relative z-10 max-w-2xl mx-auto">
           <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className={`font-bold text-white ${isBoldUppercase ? "text-2xl tracking-[0.15em] uppercase" : "text-2xl"}`} tag="h1" canvas={canvas} />
