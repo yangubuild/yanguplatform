@@ -782,26 +782,31 @@ function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; can
         );
       })()}
 
-      {socialGallery?.enabled && (
-        <div className="border-t border-border pt-4">
-          {socialGallery.subheading && <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{socialGallery.subheading}</p>}
-          {socialGallery.heading && <h4 className="text-xs font-semibold mb-2">{socialGallery.heading}</h4>}
-          <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${socialGalleryCount}, 1fr)` }}>
-            {Array.from({ length: socialGalleryCount }).map((_, i) => (
-              <div key={i} className="aspect-square rounded bg-muted overflow-hidden">
-                <EditableImage
-                  src={socialGallery.items?.[i]?.image_url || ""}
-                  alt={`Social gallery ${i + 1}`}
-                  className="w-full h-full object-cover"
-                  field={`social_gallery.items.${i}.image_url`}
-                  canvas={canvas}
-                />
-              </div>
-            ))}
+      {socialGallery?.enabled && (() => {
+        const rawSocialItems = ((schema.social_gallery as Record<string, unknown>)?.items as Array<Record<string, unknown>>) || [];
+        return (
+          <div className="border-t border-border pt-4">
+            {socialGallery.subheading && <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{socialGallery.subheading}</p>}
+            {socialGallery.heading && <h4 className="text-xs font-semibold mb-2">{socialGallery.heading}</h4>}
+            <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${socialGalleryCount}, 1fr)` }}>
+              {Array.from({ length: socialGalleryCount }).map((_, i) => (
+                <ItemCardWrapper key={i} canvas={canvas} fieldPath="social_gallery.items" items={rawSocialItems} index={i}>
+                  <div className="aspect-square rounded bg-muted overflow-hidden">
+                    <EditableImage
+                      src={socialGallery.items?.[i]?.image_url || ""}
+                      alt={`Social gallery ${i + 1}`}
+                      className="w-full h-full object-cover"
+                      field={`social_gallery.items.${i}.image_url`}
+                      canvas={canvas}
+                    />
+                  </div>
+                </ItemCardWrapper>
+              ))}
+            </div>
+            {socialGallery.hashtag && <p className="text-[10px] text-muted-foreground mt-1 text-center">{socialGallery.hashtag}</p>}
           </div>
-          {socialGallery.hashtag && <p className="text-[10px] text-muted-foreground mt-1 text-center">{socialGallery.hashtag}</p>}
-        </div>
-      )}
+        );
+      })()}
 
       {newsletter?.enabled && (
         <div className="border-t border-border pt-4">
