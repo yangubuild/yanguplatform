@@ -295,21 +295,27 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
 
   if (isSplit) {
     return (
-      <div className="flex items-stretch overflow-hidden rounded-lg" style={{ backgroundColor: bgColor || "hsl(var(--accent) / 0.1)" }}>
-        <div className="flex-1 py-8 px-6 flex flex-col justify-center">
-          {schema.subheadline && !isEditorialLarge && (
-            <EditableText value={schema.subheadline as string} field="subheadline" className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1" tag="p" canvas={canvas} />
-          )}
-          <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className={`font-bold text-foreground ${isEditorialLarge ? "text-xl leading-tight" : "text-lg"}`} tag="h1" canvas={canvas} />
-          {isEditorialLarge && schema.subheadline && (
-            <EditableText value={schema.subheadline as string} field="subheadline" className="text-xs text-muted-foreground mt-1" tag="p" canvas={canvas} />
-          )}
-          {description && <EditableText value={description} field="description" className="text-[11px] text-muted-foreground mt-2 leading-relaxed" tag="p" canvas={canvas} />}
-          {ctaText && (
-            <div className="mt-3">
-              <EditableText value={ctaText} field="cta_text" className="inline-block px-4 py-1.5 rounded-full bg-foreground text-background text-xs font-medium yangu-cta" tag="span" canvas={canvas} />
-            </div>
-          )}
+      <div className="flex items-stretch overflow-hidden rounded-lg relative" style={{ backgroundColor: bgColor || "hsl(var(--accent) / 0.1)" }}>
+        <div className="flex-1 py-8 px-6 flex flex-col justify-center relative">
+          <CanvasDraggableOverlay
+            position={(schema.hero_text_position as { x: number; y: number }) || { x: 50, y: 50 }}
+            onPositionChange={canvas?.onUpdateField ? (pos) => canvas.onUpdateField!(canvas.sectionId, "hero_text_position", pos) : undefined}
+            className="max-w-[90%]"
+          >
+            {schema.subheadline && !isEditorialLarge && (
+              <EditableText value={schema.subheadline as string} field="subheadline" className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1" tag="p" canvas={canvas} />
+            )}
+            <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className={`font-bold text-foreground ${isEditorialLarge ? "text-xl leading-tight" : "text-lg"}`} tag="h1" canvas={canvas} />
+            {isEditorialLarge && schema.subheadline && (
+              <EditableText value={schema.subheadline as string} field="subheadline" className="text-xs text-muted-foreground mt-1" tag="p" canvas={canvas} />
+            )}
+            {description && <EditableText value={description} field="description" className="text-[11px] text-muted-foreground mt-2 leading-relaxed" tag="p" canvas={canvas} />}
+            {ctaText && (
+              <div className="mt-3">
+                <EditableText value={ctaText} field="cta_text" className="inline-block px-4 py-1.5 rounded-full bg-foreground text-background text-xs font-medium yangu-cta" tag="span" canvas={canvas} />
+              </div>
+            )}
+          </CanvasDraggableOverlay>
         </div>
         <div className="w-2/5 bg-muted overflow-hidden">
           <EditableImage src={resolvedMediaUrl} alt="Hero visual" className="w-full h-full object-cover" field="media.url" canvas={canvas} />
@@ -322,7 +328,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
     return (
       <div className="py-12 px-6 text-center rounded-lg relative overflow-hidden" style={{ backgroundColor: bgColor || "hsl(0 0% 8%)", minHeight: "280px" }}>
         {mediaType !== "video" && resolvedMediaUrl && (
-          <img src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-40" />
+          <EditableImage src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-40" field="media.url" canvas={canvas} />
         )}
         <CanvasDraggableOverlay
           position={(schema.hero_text_position as { x: number; y: number }) || { x: 50, y: 50 }}
@@ -345,7 +351,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
 
   // Default hero
   return (
-    <div className="py-12 px-6 text-center bg-gradient-to-b from-accent/10 to-transparent rounded-lg">
+    <div className="py-12 px-6 text-center bg-gradient-to-b from-accent/10 to-transparent rounded-lg relative">
       {mediaType !== "video" && resolvedMediaUrl && (
         <div className={`aspect-video rounded-lg mb-4 overflow-hidden ${mediaFit === "contain" ? "bg-muted" : ""}`}>
           <EditableImage src={resolvedMediaUrl} alt="Hero visual" className={`w-full h-full ${mediaFit === "cover" ? "object-cover" : "object-contain"}`} field="media.url" canvas={canvas} />
@@ -361,14 +367,20 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
           <video src={mediaUrl} controls className="w-full rounded-lg mb-4" />
         );
       })()}
-      <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className="text-2xl font-bold text-foreground" tag="h1" canvas={canvas} />
-      {schema.subheadline && <EditableText value={schema.subheadline as string} field="subheadline" className="mt-2 text-muted-foreground" tag="p" canvas={canvas} />}
-      {description && <EditableText value={description} field="description" className="mt-2 text-xs text-muted-foreground" tag="p" canvas={canvas} />}
-      {ctaText && (
-        <div className="mt-4">
-          <a href={ctaHref || "#"} className="inline-block px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium yangu-cta">{ctaText}</a>
-        </div>
-      )}
+      <CanvasDraggableOverlay
+        position={(schema.hero_text_position as { x: number; y: number }) || { x: 50, y: 50 }}
+        onPositionChange={canvas?.onUpdateField ? (pos) => canvas.onUpdateField!(canvas.sectionId, "hero_text_position", pos) : undefined}
+        className="max-w-2xl"
+      >
+        <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className="text-2xl font-bold text-foreground" tag="h1" canvas={canvas} />
+        {schema.subheadline && <EditableText value={schema.subheadline as string} field="subheadline" className="mt-2 text-muted-foreground" tag="p" canvas={canvas} />}
+        {description && <EditableText value={description} field="description" className="mt-2 text-xs text-muted-foreground" tag="p" canvas={canvas} />}
+        {ctaText && (
+          <div className="mt-4">
+            <EditableText value={ctaText} field="cta_text" className="inline-block px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium yangu-cta" tag="span" canvas={canvas} />
+          </div>
+        )}
+      </CanvasDraggableOverlay>
     </div>
   );
 }
