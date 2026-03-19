@@ -588,6 +588,7 @@ interface MenuItem {
   image_url: string;
   is_available: boolean;
   category_index: number;
+  cta_action: string;
 }
 
 function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: string }) {
