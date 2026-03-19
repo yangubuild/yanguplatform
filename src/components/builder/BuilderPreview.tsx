@@ -1566,6 +1566,7 @@ const CANVAS_AWARE_TYPES = new Set([
   "testimonials", "faq", "services", "services_list", "listings", "listing_grid",
   "plans", "rules", "schedule", "menu", "hours", "location",
   "properties", "booking_inventory", "community_feed",
+  "links", "links_grid",
 ]);
 
 export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<string, unknown>; canvas?: CanvasCallbacks }>> = {
