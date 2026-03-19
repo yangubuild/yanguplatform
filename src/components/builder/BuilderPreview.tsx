@@ -477,7 +477,7 @@ function ShowcasePreview({ schema, canvas }: { schema: Record<string, unknown>; 
         {heading && <h3 className="text-base font-semibold text-foreground mb-3 text-center">{heading}</h3>}
         <div className="rounded-xl border border-border bg-card/80 overflow-hidden divide-y divide-border">
           {items.map((item, i) => (
-            <ShowcaseAccordionItem key={i} item={item} />
+            <ShowcaseAccordionItem key={i} item={item} index={i} canvas={canvas} />
           ))}
         </div>
       </div>
@@ -546,7 +546,7 @@ function ShowcasePreview({ schema, canvas }: { schema: Record<string, unknown>; 
     </div>
   );
 }
-function ShowcaseAccordionItem({ item }: { item: { title?: string; description?: string; image_url?: string; link_url?: string; price?: string } }) {
+function ShowcaseAccordionItem({ item, index, canvas }: { item: { title?: string; description?: string; image_url?: string; link_url?: string; price?: string }; index: number; canvas?: CanvasCallbacks }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="yangu-interactive">
@@ -554,11 +554,9 @@ function ShowcaseAccordionItem({ item }: { item: { title?: string; description?:
         className="w-full flex items-center gap-3 p-3 text-left hover:bg-accent/5 transition-colors"
         onClick={() => setOpen(!open)}
       >
-        {item.image_url && (
-          <div className="w-16 h-16 rounded-lg bg-muted overflow-hidden shrink-0">
-            <img src={item.image_url} alt={item.title || ""} className="w-full h-full object-cover" />
-          </div>
-        )}
+        <div className="w-16 h-16 rounded-lg bg-muted overflow-hidden shrink-0">
+          <EditableImage src={item.image_url || ""} alt={item.title || ""} className="w-full h-full object-cover" field={`showcase_items.${index}.image_url`} canvas={canvas} />
+        </div>
         <div className="flex-1 min-w-0">
           {item.title && <p className="text-sm font-semibold truncate">{item.title}</p>}
           {item.description && !open && <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{item.description}</p>}
@@ -614,7 +612,7 @@ function GalleryPreview({ schema, canvas }: { schema: Record<string, unknown>; c
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
         {galleryItems.map((src, i) => (
           <div key={i} className="aspect-square rounded bg-muted overflow-hidden">
-            <EditableImage src={src} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" field={`items.${i}`} canvas={canvas} />
+            <EditableImage src={src} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" field={`items.${i}.src`} canvas={canvas} />
           </div>
         ))}
       </div>
@@ -960,7 +958,7 @@ function ServicesPreview({ schema }: { schema: Record<string, unknown> }) {
   );
 }
 
-function FeaturedPreview({ schema }: { schema: Record<string, unknown> }) {
+function FeaturedPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
   const items = (schema.items as Array<{ title?: string; description?: string; image_url?: string; href?: string }>) || [];
   return (
     <div className="py-4 px-6">
@@ -971,11 +969,9 @@ function FeaturedPreview({ schema }: { schema: Record<string, unknown> }) {
         <div className="space-y-2">
           {items.map((item, i) => (
             <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
-              {item.image_url && (
-                <div className="aspect-video rounded overflow-hidden mb-2 bg-muted">
-                  <img src={item.image_url} alt={item.title || ""} className="w-full h-full object-cover" />
-                </div>
-              )}
+              <div className="aspect-video rounded overflow-hidden mb-2 bg-muted">
+                <EditableImage src={item.image_url || ""} alt={item.title || ""} className="w-full h-full object-cover" field={`items.${i}.image_url`} canvas={canvas} />
+              </div>
               <p className="text-sm font-medium">{item.title || "Item"}</p>
               {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
               {item.href && <p className="text-xs text-primary mt-1 truncate">{item.href}</p>}
@@ -1300,6 +1296,7 @@ const CANVAS_AWARE_TYPES = new Set([
   "trust_badges", "cta", "cta_block", "newsletter", "products", "product_grid",
   "categories", "category_grid", "collections", "gallery", "instagram_gallery", "media_grid",
   "contact", "contact_section", "footer", "showcase", "creator_showcase",
+  "featured", "case_studies_grid",
 ]);
 
 export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<string, unknown>; canvas?: CanvasCallbacks }>> = {
