@@ -252,6 +252,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
       dimensions: pDimensions, specifications: pSpecs,
       is_available: pAvailable,
       listed_on_eshop_connect: pListedOnEshop,
+      cta_action: pCtaAction,
     };
     const updated = [...products];
     if (editProductIndex !== null) {
