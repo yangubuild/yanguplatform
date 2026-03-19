@@ -32,6 +32,10 @@ interface BuilderPreviewProps {
   onDeleteSection?: (sectionId: string) => void;
   onImageReplace?: (sectionId: string, fieldPath: string, url: string, source: string) => void;
   previewViewport?: "desktop" | "mobile";
+  /** All pages for the surface — used for page-based header nav links */
+  pages?: Array<{ id: string; slug: string; title: string }>;
+  /** Called when a header nav item targets a different page */
+  onSwitchPage?: (pageId: string) => void;
 }
 
 // ─── Helpers ───
