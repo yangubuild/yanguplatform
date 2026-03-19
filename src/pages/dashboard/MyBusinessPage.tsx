@@ -180,7 +180,7 @@ export default function MyBusinessPage() {
               <h2 className="text-lg font-semibold text-foreground">{meta.label}</h2>
               <span className="text-xs text-muted-foreground">({items.length})</span>
             </div>
-            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            <div className="flex gap-4 overflow-x-auto pb-2">
               {items.map((s) => {
                 const isPublished = !!publishMap[s.id];
                 const liveUrl = getLiveUrl(s);
