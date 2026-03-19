@@ -231,7 +231,7 @@ export function SurfaceSettingsDialog({
                   alt="Cover"
                   className="w-full h-32 object-cover"
                 />
-                <div className="absolute inset-0 bg-black/0 hover:bg-black/30 transition-all flex items-center justify-center group cursor-pointer"
+                <div className="absolute inset-0 bg-black/0 hover:bg-black/30 transition-all flex items-center justify-center gap-2 group cursor-pointer"
                   onClick={() => triggerFileInput("cover")}
                 >
                   <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white text-xs font-medium bg-black/50 px-2.5 py-1 rounded-full">
@@ -255,14 +255,28 @@ export function SurfaceSettingsDialog({
               </div>
             )}
             {coverImageUrl && (
-              <Button
-                size="sm"
-                variant="ghost"
-                className="text-xs text-destructive"
-                onClick={() => setCoverImageUrl("")}
-              >
-                Remove cover
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-xs gap-1.5"
+                  onClick={() => {
+                    setCropImageSrc(coverImageUrl);
+                    setShowCropDialog(true);
+                  }}
+                >
+                  <Crop className="h-3.5 w-3.5" />
+                  Resize / Reposition
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-xs text-destructive"
+                  onClick={() => setCoverImageUrl("")}
+                >
+                  Remove cover
+                </Button>
+              </div>
             )}
             <p className="text-[10px] text-muted-foreground">
               Used as your surface card image in Explore. Recommended: 1200×630
