@@ -1155,8 +1155,9 @@ function SchedulePreview({ schema, canvas }: { schema: Record<string, unknown>; 
   );
 }
 
-function MenuPreview({ schema }: { schema: Record<string, unknown> }) {
-  const categories = (schema.categories as Array<{ name?: string; items?: Array<{ name?: string; price?: string }> }>) || [];
+function MenuPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
+  const rawCategories = (schema.categories as Array<Record<string, unknown>>) || [];
+  const categories = rawCategories.filter((it) => !it._hidden) as Array<{ name?: string; items?: Array<{ name?: string; price?: string }> }>;
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Menu"}</h3>
@@ -1164,17 +1165,22 @@ function MenuPreview({ schema }: { schema: Record<string, unknown> }) {
         <p className="text-sm text-muted-foreground/60 italic">No menu items added</p>
       ) : (
         <div className="space-y-3">
-          {categories.map((cat, i) => (
-            <div key={i}>
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{cat.name || "Category"}</p>
-              {(cat.items || []).map((item, j) => (
-                <div key={j} className="flex justify-between text-sm py-0.5">
-                  <span>{item.name || "Item"}</span>
-                  {item.price && <span className="text-muted-foreground">{item.price}</span>}
+          {categories.map((cat, i) => {
+            const realIdx = rawCategories.indexOf(cat as unknown as Record<string, unknown>);
+            return (
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="categories" items={rawCategories} index={realIdx}>
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{cat.name || "Category"}</p>
+                  {(cat.items || []).map((item, j) => (
+                    <div key={j} className="flex justify-between text-sm py-0.5">
+                      <span>{item.name || "Item"}</span>
+                      {item.price && <span className="text-muted-foreground">{item.price}</span>}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          ))}
+              </ItemCardWrapper>
+            );
+          })}
         </div>
       )}
     </div>
