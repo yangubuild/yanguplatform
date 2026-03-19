@@ -1128,8 +1128,9 @@ function ContactPreview({ schema, canvas }: { schema: Record<string, unknown>; c
   );
 }
 
-function SchedulePreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<{ time?: string; title?: string }>) || [];
+function SchedulePreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
+  const rawItems = (schema.items as Array<Record<string, unknown>>) || [];
+  const items = rawItems.filter((it) => !it._hidden) as Array<{ time?: string; title?: string }>;
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Schedule"}</h3>
@@ -1137,12 +1138,17 @@ function SchedulePreview({ schema }: { schema: Record<string, unknown> }) {
         <p className="text-sm text-muted-foreground/60 italic">No schedule items</p>
       ) : (
         <div className="space-y-1">
-          {items.map((item, i) => (
-            <div key={i} className="flex gap-2 text-sm">
-              <span className="font-medium text-muted-foreground">{item.time || "TBD"}</span>
-              <span>{item.title || "Event"}</span>
-            </div>
-          ))}
+          {items.map((item, i) => {
+            const realIdx = rawItems.indexOf(item as unknown as Record<string, unknown>);
+            return (
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={realIdx}>
+                <div className="flex gap-2 text-sm">
+                  <span className="font-medium text-muted-foreground">{item.time || "TBD"}</span>
+                  <span>{item.title || "Event"}</span>
+                </div>
+              </ItemCardWrapper>
+            );
+          })}
         </div>
       )}
     </div>
