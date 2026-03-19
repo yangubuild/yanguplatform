@@ -1525,9 +1525,11 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
                   {Preview ? (
                     (section.section_type === "hero" || section.section_type === "hero_banner")
                       ? <HeroPreview schema={displaySchema} canvas={canvas} sections={sections} onSelectSection={onSelectSection} />
-                      : CANVAS_AWARE_TYPES.has(section.section_type)
-                        ? <Preview schema={displaySchema} canvas={canvas} />
-                        : <Preview schema={displaySchema} />
+                      : (section.section_type === "header" || section.section_type === "header_logo")
+                        ? <HeaderPreview schema={displaySchema} sections={sections} onSelectSection={onSelectSection} />
+                        : CANVAS_AWARE_TYPES.has(section.section_type)
+                          ? <Preview schema={displaySchema} canvas={canvas} />
+                          : <Preview schema={displaySchema} />
                   ) : (
                     <GenericPreview section={section} />
                   )}
