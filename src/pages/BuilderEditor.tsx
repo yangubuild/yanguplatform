@@ -334,46 +334,42 @@ export default function BuilderEditor() {
             onImageReplace={async (sectionId, fieldPath, url) => {
               const section = sections.find((s) => s.id === sectionId);
               if (!section) return;
-              const newSchema = { ...section.schema };
+              const newSchema = { ...section.schema } as Record<string, any>;
+
               if (fieldPath === "media.url") {
                 const media = (newSchema.media as Record<string, unknown>) || {};
                 newSchema.media = { ...media, url, type: "image" };
-              } else if (fieldPath.startsWith("items.")) {
-                const idx = parseInt(fieldPath.split(".")[1], 10);
-                const items = [...((newSchema.items as any[]) || [])];
-                if (idx < items.length) {
-                  const item = typeof items[idx] === "string" ? { src: url } : { ...items[idx], src: url };
-                  items[idx] = item;
-                } else {
-                  items.push({ src: url });
-                }
-                newSchema.items = items;
-              } else if (fieldPath.startsWith("products.") && fieldPath.endsWith(".image")) {
-                const idx = parseInt(fieldPath.split(".")[1], 10);
-                const key = newSchema.products ? "products" : "items";
-                const items = [...((newSchema[key] as any[]) || [])];
-                if (idx < items.length) {
-                  items[idx] = { ...items[idx], image_url: url };
-                }
-                newSchema[key] = items;
               } else if (fieldPath.includes(".")) {
-                // Handle nested paths like "showcase_items.0.image_url"
                 const parts = fieldPath.split(".");
-                const arrayKey = parts[0];
-                const idx = parseInt(parts[1], 10);
-                const prop = parts.slice(2).join(".");
-                if (!isNaN(idx) && Array.isArray(newSchema[arrayKey])) {
-                  const items = [...(newSchema[arrayKey] as any[])];
-                  if (idx < items.length) {
-                    items[idx] = { ...items[idx], [prop]: url };
+                const rootKey = parts[0];
+                const maybeIndex = Number(parts[1]);
+
+                if (!Number.isNaN(maybeIndex) && parts.length >= 3) {
+                  const prop = parts.slice(2).join(".");
+                  const normalizedProp = rootKey === "products" && prop === "image" ? "image_url" : prop;
+                  const items = Array.isArray(newSchema[rootKey]) ? [...newSchema[rootKey]] : [];
+
+                  while (items.length <= maybeIndex) {
+                    items.push({});
                   }
-                  newSchema[arrayKey] = items;
+
+                  const currentItem = items[maybeIndex] && typeof items[maybeIndex] === "object"
+                    ? items[maybeIndex]
+                    : {};
+
+                  items[maybeIndex] = {
+                    ...currentItem,
+                    [normalizedProp]: url,
+                  };
+
+                  newSchema[rootKey] = items;
                 } else {
-                  (newSchema as any)[fieldPath] = url;
+                  newSchema[fieldPath] = url;
                 }
               } else {
-                (newSchema as any)[fieldPath] = url;
+                newSchema[fieldPath] = url;
               }
+
               await updateSectionSchema(sectionId, newSchema);
               markDirty();
             }}
