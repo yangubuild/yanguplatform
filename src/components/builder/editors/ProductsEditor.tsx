@@ -831,6 +831,9 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
               </Button>
             </div>
 
+            {/* CTA Button */}
+            <ItemCtaSelector value={pCtaAction} onChange={setPCtaAction} />
+
             {/* Available */}
             <div className="flex items-center gap-2">
               <Checkbox
