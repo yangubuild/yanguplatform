@@ -469,8 +469,25 @@ export function BuilderPublishModal({
             </div>
           )}
 
-          {/* Error */}
-          {publishError && (
+          {/* Validation Errors */}
+          {validationErrors.length > 0 && (
+            <Card className="p-4 border-destructive/50 bg-destructive/5">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-destructive">Please fix before publishing:</p>
+                  <ul className="list-disc list-inside text-sm text-destructive space-y-0.5">
+                    {validationErrors.map((e, i) => (
+                      <li key={i}>{e.message}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {/* Server Error */}
+          {publishError && validationErrors.length === 0 && (
             <Card className="p-4 border-destructive/50 bg-destructive/5">
               <div className="flex items-start gap-3">
                 <XCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
