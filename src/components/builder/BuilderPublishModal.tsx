@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { useBuilderPublish, type ActiveDomain } from "@/hooks/useBuilderPublish";
 import type { BuilderSurfaceType } from "@/types/builder";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface BuilderPublishModalProps {
