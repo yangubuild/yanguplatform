@@ -456,7 +456,7 @@ function SocialPreview({ schema }: { schema: Record<string, unknown> }) {
   );
 }
 
-function ShowcasePreview({ schema }: { schema: Record<string, unknown> }) {
+function ShowcasePreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
   const items = (schema.showcase_items as Array<{ title?: string; description?: string; image_url?: string; link_url?: string; price?: string }>) || [];
   const displayMode = (schema.showcase_display as string) || "carousel";
   const heading = (schema.heading as string) || "";
