@@ -201,6 +201,12 @@ serve(async (req) => {
       });
     }
 
+    // Admin client for storage uploads (builder-media bucket requires service role for AI draft uploads)
+    const adminClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+
     // ── Quota check ──
     const { data: quotaResult, error: quotaErr } = await supabase.rpc("check_and_increment_quota", {
       p_quota_key: "builder_ai_business_profile",
