@@ -1144,6 +1144,42 @@ function AboutPreview({ schema, canvas }: { schema: Record<string, unknown>; can
   );
 }
 
+function CommunityFeedPreview({ schema }: { schema: Record<string, unknown> }) {
+  const items = (schema.items as Array<{ name?: string; title?: string; price?: string; description?: string; image_url?: string; media?: Array<{ src?: string }>; cta_action?: string }>) || [];
+  return (
+    <div className="py-4 px-6">
+      <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Feed"}</h3>
+      {items.length === 0 ? (
+        <p className="text-sm text-muted-foreground/60 italic">No feed items added</p>
+      ) : (
+        <div className="space-y-2">
+          {items.map((item, i) => {
+            const imgSrc = item.image_url || item.media?.[0]?.src || "";
+            const cta = ctaLabel(item.cta_action);
+            return (
+              <div key={i} className="rounded-lg border border-border bg-muted/50 overflow-hidden yangu-card" tabIndex={0}>
+                {imgSrc && (
+                  <div className="aspect-video bg-muted">
+                    <img src={imgSrc} alt={item.name || item.title || ""} className="w-full h-full object-cover" />
+                  </div>
+                )}
+                <div className="p-3">
+                  <div className="flex justify-between items-start">
+                    <p className="text-sm font-medium">{item.name || item.title || "Item"}</p>
+                    {item.price && <p className="text-xs font-medium text-primary shrink-0 ml-2">{item.price}</p>}
+                  </div>
+                  {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
+                  {cta && <span className="mt-2 inline-block text-center text-[9px] font-medium py-1 px-3 rounded border border-border text-muted-foreground yangu-cta">{cta}</span>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function GenericPreview({ section }: { section: EditorSection }) {
   return (
     <div className="py-4 px-6">
