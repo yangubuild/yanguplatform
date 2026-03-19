@@ -69,12 +69,44 @@ export default function PublicSurfacePage() {
     return true;
   });
   
-  const title = schema.surface?.title || "Untitled";
-  const surfaceType = schema.surface?.surface_type;
+  const surfaceData = schema.surface || {} as any;
+  const title = surfaceData.seo_title || surfaceData.title || "Untitled";
+  const seoDescription = surfaceData.seo_description || surfaceData.description || "";
+  const faviconUrl = surfaceData.favicon_url || "";
+  const surfaceType = surfaceData.surface_type;
   const isInfluencer = surfaceType === "live_bio";
   
+  // Set document metadata (Block A — public page output)
+  useEffect(() => {
+    document.title = title;
+    
+    // Set meta description
+    let metaDesc = document.querySelector('meta[name="description"]') as HTMLMetaElement;
+    if (!metaDesc) {
+      metaDesc = document.createElement("meta");
+      metaDesc.name = "description";
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.content = seoDescription;
+    
+    // Set favicon
+    if (faviconUrl) {
+      let link = document.querySelector('link[rel="icon"]') as HTMLLinkElement;
+      if (!link) {
+        link = document.createElement("link");
+        link.rel = "icon";
+        document.head.appendChild(link);
+      }
+      link.href = faviconUrl;
+    }
+    
+    return () => {
+      document.title = "YANGU";
+    };
+  }, [title, seoDescription, faviconUrl]);
+  
   // Read theme from published schema
-  const rawTheme = (schema.surface?.theme as Partial<BuilderTheme>) || {};
+  const rawTheme = (surfaceData.theme as Partial<BuilderTheme>) || {};
   const surfaceTheme: BuilderTheme = { ...DEFAULT_THEME, ...rawTheme };
   const themeStyle: React.CSSProperties = {
     fontFamily: surfaceTheme.font_family,
