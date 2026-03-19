@@ -1291,7 +1291,7 @@ function FooterPreview({ schema, canvas }: { schema: Record<string, unknown>; ca
 
 // ─── Preview map (canvas-aware renderers get canvas prop passed separately) ───
 const CANVAS_AWARE_TYPES = new Set([
-  "hero", "hero_banner", "bio", "text", "about", "offer", "offers", "promo", "promo_banner",
+  "hero", "hero_banner", "header", "header_logo", "bio", "text", "about", "offer", "offers", "promo", "promo_banner",
   "trust_badges", "cta", "cta_block", "newsletter", "products", "product_grid",
   "categories", "category_grid", "collections", "gallery", "instagram_gallery", "media_grid",
   "contact", "contact_section", "footer", "showcase", "creator_showcase",
