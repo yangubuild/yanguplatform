@@ -802,8 +802,9 @@ function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; can
   );
 }
 
-function PlansPreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<{ name?: string; price?: string }>) || [];
+function PlansPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
+  const rawItems = (schema.items as Array<Record<string, unknown>>) || [];
+  const items = rawItems.filter((it) => !it._hidden) as Array<{ name?: string; price?: string }>;
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Plans"}</h3>
@@ -811,12 +812,17 @@ function PlansPreview({ schema }: { schema: Record<string, unknown> }) {
         <p className="text-sm text-muted-foreground/60 italic">No plans added</p>
       ) : (
         <div className="grid grid-cols-2 gap-2">
-          {items.map((item, i) => (
-            <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 text-center yangu-card" tabIndex={0}>
-              <p className="text-sm font-medium">{item.name || "Plan"}</p>
-              {item.price && <p className="text-xs text-muted-foreground">{item.price}</p>}
-            </div>
-          ))}
+          {items.map((item, i) => {
+            const realIdx = rawItems.indexOf(item as unknown as Record<string, unknown>);
+            return (
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={realIdx}>
+                <div className="p-3 rounded-lg border border-border bg-muted/50 text-center yangu-card" tabIndex={0}>
+                  <p className="text-sm font-medium">{item.name || "Plan"}</p>
+                  {item.price && <p className="text-xs text-muted-foreground">{item.price}</p>}
+                </div>
+              </ItemCardWrapper>
+            );
+          })}
         </div>
       )}
     </div>
