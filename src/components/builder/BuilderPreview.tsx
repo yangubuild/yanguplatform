@@ -614,7 +614,7 @@ function GalleryPreview({ schema, canvas }: { schema: Record<string, unknown>; c
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
         {galleryItems.map((src, i) => (
           <div key={i} className="aspect-square rounded bg-muted overflow-hidden">
-            <EditableImage src={src} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" field={`items.${i}`} canvas={canvas} />
+            <EditableImage src={src} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" field={`items.${i}.src`} canvas={canvas} />
           </div>
         ))}
       </div>
