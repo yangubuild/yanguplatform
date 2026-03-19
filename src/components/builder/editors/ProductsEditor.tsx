@@ -154,6 +154,8 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
   const [pListedOnEshop, setPListedOnEshop] = useState(false);
   const [pDraftMedia, setPDraftMedia] = useState<MediaValue>({ type: "none", source: "url", url: "", alt: "", fit: "cover" });
   const [isGeneratingDesc, setIsGeneratingDesc] = useState(false);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [isGeneratingSpecs, setIsGeneratingSpecs] = useState(false);
 
   // Category form state
   const [catName, setCatName] = useState("");
@@ -319,6 +321,77 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
       toast.error("AI description generation failed");
     } finally {
       setIsGeneratingDesc(false);
+    }
+  };
+
+  const generateProductImage = async () => {
+    if (!pName.trim()) {
+      toast.error("Enter a product name first");
+      return;
+    }
+    setIsGeneratingImage(true);
+    try {
+      const prompt = `Generate a professional ecommerce product photo for: ${pName}${pBrand ? ` by ${pBrand}` : ""}${pCategory ? ` in category ${pCategory}` : ""}. ${pDesc ? `Description: ${pDesc.slice(0, 100)}` : ""} Clean white background, studio lighting, high quality product photography.`;
+
+      const { data, error } = await supabase.functions.invoke("ada-chat", {
+        body: {
+          messages: [{ role: "user", content: prompt }],
+          model: "google/gemini-2.5-flash-image",
+          modalities: ["image", "text"],
+        },
+      });
+
+      if (error) throw error;
+
+      const imageUrl = data?.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+      if (!imageUrl) throw new Error("No image generated");
+
+      const newAsset: MediaAsset = { type: "image", src: imageUrl, provider: "ai" as any };
+      setPMedia((prev) => prev.length < 10 ? [...prev, newAsset] : prev);
+      toast.success("Product image generated");
+    } catch (err) {
+      console.error("Generate product image failed:", err);
+      toast.error("AI image generation failed");
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
+
+  const generateSpecifications = async () => {
+    if (!pName.trim()) {
+      toast.error("Enter a product name first");
+      return;
+    }
+    setIsGeneratingSpecs(true);
+    try {
+      const prompt = `Generate realistic product specifications for:\nName: ${pName}\nBrand: ${pBrand || "N/A"}\nCategory: ${pCategory || "General"}\nDescription: ${pDesc || "N/A"}\n\nReturn only a concise list of specifications in "Key: Value" format, one per line. Include relevant specs like dimensions, weight, material, compatibility, etc. Max 8 specs.`;
+
+      const { data, error } = await supabase.functions.invoke("ada-chat", {
+        body: {
+          messages: [{ role: "user", content: prompt }],
+          model: "google/gemini-2.5-flash-lite",
+          max_tokens: 200,
+        },
+      });
+
+      if (error) throw error;
+
+      const generatedText = [
+        data?.reply,
+        data?.content,
+        data?.text,
+        data?.choices?.[0]?.message?.content,
+      ].find((v): v is string => typeof v === "string" && v.trim().length > 0)?.trim();
+
+      if (!generatedText) throw new Error("No specifications generated");
+
+      setPSpecs(generatedText);
+      toast.success("Specifications generated");
+    } catch (err) {
+      console.error("Generate specifications failed:", err);
+      toast.error("AI specifications generation failed");
+    } finally {
+      setIsGeneratingSpecs(false);
     }
   };
 
@@ -611,6 +684,9 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
                 label="Product Images"
                 max={10}
               />
+              <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={generateProductImage} disabled={isGeneratingImage || pMedia.length >= 10}>
+                {isGeneratingImage ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />} AI Generate Product Image
+              </Button>
             </div>
 
             {/* Pricing Section */}
@@ -745,6 +821,9 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
             <div className="space-y-1.5">
               <Label className="text-sm font-bold">Specifications</Label>
               <Textarea value={pSpecs} onChange={(e) => setPSpecs(e.target.value)} placeholder="e.g., Storage: 256GB, Battery: 4000mAh" rows={3} />
+              <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={generateSpecifications} disabled={isGeneratingSpecs}>
+                {isGeneratingSpecs ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />} Generate Specifications
+              </Button>
             </div>
 
             {/* Available */}

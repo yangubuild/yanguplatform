@@ -456,7 +456,7 @@ function SocialPreview({ schema }: { schema: Record<string, unknown> }) {
   );
 }
 
-function ShowcasePreview({ schema }: { schema: Record<string, unknown> }) {
+function ShowcasePreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
   const items = (schema.showcase_items as Array<{ title?: string; description?: string; image_url?: string; link_url?: string; price?: string }>) || [];
   const displayMode = (schema.showcase_display as string) || "carousel";
   const heading = (schema.heading as string) || "";
@@ -510,13 +510,15 @@ function ShowcasePreview({ schema }: { schema: Record<string, unknown> }) {
             >
               {item.image_url ? (
                 <div className="aspect-square bg-muted overflow-hidden relative">
-                  <img src={item.image_url} alt={item.title || ""} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  <EditableImage src={item.image_url} alt={item.title || ""} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" field={`showcase_items.${i}.image_url`} canvas={canvas} />
                   {item.price && (
                     <span className="absolute bottom-2 left-2 bg-black/70 text-white text-xs font-semibold px-2 py-0.5 rounded-md">{item.price}</span>
                   )}
                 </div>
               ) : (
-                <div className="aspect-square bg-muted flex items-center justify-center text-muted-foreground/40 text-2xl">📷</div>
+                <div className="aspect-square bg-muted overflow-hidden relative">
+                  <EditableImage src="" alt={item.title || "Showcase"} className="w-full h-full" field={`showcase_items.${i}.image_url`} canvas={canvas} />
+                </div>
               )}
               <div className="p-3">
                 {item.title && <p className="text-sm font-medium truncate">{item.title}</p>}
@@ -1177,12 +1179,14 @@ function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
       {/* CENTER position: left nav, logo center, right nav/icons */}
       {isCenterLogo && (
         <>
-          <div className="flex gap-2 flex-1">
+          <div className="flex gap-2 flex-1 justify-start">
             {navItems.slice(0, 3).map((item, i) => (
               <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
             ))}
           </div>
-          {logoBlock}
+          <div className="flex items-center justify-center shrink-0">
+            {logoBlock}
+          </div>
           <div className="flex items-center gap-2 flex-1 justify-end">
             {(schema.nav_items_right as string[] || []).slice(0, 2).map((item, i) => (
               <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
@@ -1192,17 +1196,21 @@ function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
           </div>
         </>
       )}
-      {/* RIGHT position: nav/icons first, logo on the right */}
+      {/* RIGHT position: icons + nav on left, logo pinned to far right */}
       {isRightLogo && (
         <>
+          <div className="flex items-center gap-2">
+            {showSearch && <span className="text-sm">🔍</span>}
+            {showCart && <span className="text-sm">🛒</span>}
+          </div>
           <div className="flex items-center gap-2 flex-1">
             {navItems.length > 0 && navItems.slice(0, 3).map((item, i) => (
               <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
             ))}
-            {showSearch && <span className="text-sm">🔍</span>}
-            {showCart && <span className="text-sm">🛒</span>}
           </div>
-          {logoBlock}
+          <div className="flex items-center justify-end shrink-0">
+            {logoBlock}
+          </div>
         </>
       )}
     </div>
