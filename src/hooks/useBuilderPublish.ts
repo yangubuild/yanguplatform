@@ -65,7 +65,7 @@ export function filterDomainsForSurface(
 /**
  * Hook for the builder publish flow
  */
-export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurfaceType) {
+export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurfaceType, pages?: PublishPage[]) {
   const { data: allDomains, isLoading: domainsLoading } = useActiveDomains();
 
   const allowedDomains = allDomains
@@ -77,11 +77,26 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishResult, setPublishResult] = useState<BuilderPublishResult | null>(null);
   const [publishError, setPublishError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<PublishValidationError[]>([]);
 
   const selectedDomain = allowedDomains.find((d) => d.id === selectedDomainId) ?? null;
 
+  const validate = useCallback((): PublishValidationError[] => {
+    if (!pages) return [];
+    return validatePagesForPublish(pages, surfaceType, surfaceId);
+  }, [pages, surfaceType, surfaceId]);
+
   const publish = useCallback(async () => {
     if (!selectedDomainId) return;
+
+    // Run client-side validation first
+    const vErrors = validate();
+    setValidationErrors(vErrors);
+    if (vErrors.length > 0) {
+      setPublishError(vErrors[0].message);
+      return;
+    }
+
     setIsPublishing(true);
     setPublishError(null);
     setPublishResult(null);
@@ -103,11 +118,16 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
       setPublishResult(result);
 
       if (!result.ok) {
-        // Map known error codes to user-friendly messages
         const errorMessages: Record<string, string> = {
           surface_not_found_or_not_owner: "Surface not found or you don't own it.",
           domain_not_found_or_inactive: "The selected domain is not available.",
           domain_not_allowed_for_surface: "This domain is not allowed for this surface type.",
+          no_pages: "Add at least one page before publishing.",
+          missing_primary_page: "A required primary page is missing.",
+          duplicate_page_slugs: "Two or more pages have the same slug.",
+          empty_primary_page: "Primary page must have content before publishing.",
+          invalid_page_slug: "A page has an invalid slug.",
+          orphan_sections: "Some sections are attached to missing pages.",
         };
         setPublishError(errorMessages[result.error || ""] || result.error || "Unknown error");
       }
@@ -117,17 +137,18 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
     } finally {
       setIsPublishing(false);
     }
-  }, [surfaceId, selectedDomainId, customSlug]);
+  }, [surfaceId, selectedDomainId, customSlug, validate]);
 
   const reset = useCallback(() => {
     setSelectedDomainId(null);
     setCustomSlug("");
     setPublishResult(null);
     setPublishError(null);
+    setValidationErrors([]);
   }, []);
 
   return {
-    allDomains: allDomains || [],
+    allDomains: allDomains || [],,
     allowedDomains,
     domainsLoading,
     selectedDomainId,
@@ -138,7 +159,9 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
     isPublishing,
     publishResult,
     publishError,
+    validationErrors,
     publish,
+    validate,
     reset,
   };
 }
