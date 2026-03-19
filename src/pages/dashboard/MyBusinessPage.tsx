@@ -185,7 +185,7 @@ export default function MyBusinessPage() {
                 const isPublished = !!publishMap[s.id];
                 const liveUrl = getLiveUrl(s);
                 return (
-                  <Card key={s.id} className="p-4 flex flex-col gap-3 bg-card border-border">
+                  <Card key={s.id} className="p-4 flex flex-col gap-3 bg-card border-border min-w-[280px] max-w-[320px] shrink-0">
                     {/* Cover image if present */}
                     {(s as any).cover_image_url && (
                       <div className="rounded-lg overflow-hidden -mx-4 -mt-4 mb-1">
