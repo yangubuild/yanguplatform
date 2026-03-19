@@ -5202,6 +5202,10 @@ export type Database = {
       }
       builder_delete_page: { Args: { p_page_id: string }; Returns: Json }
       builder_delete_section: { Args: { p_section_id: string }; Returns: Json }
+      builder_duplicate_page: {
+        Args: { p_new_slug?: string; p_new_title?: string; p_page_id: string }
+        Returns: Json
+      }
       builder_get_editor_state: {
         Args: { p_surface_id: string }
         Returns: Json
@@ -5220,6 +5224,10 @@ export type Database = {
       }
       builder_rename_page: {
         Args: { p_page_id: string; p_slug: string; p_title: string }
+        Returns: Json
+      }
+      builder_reorder_pages: {
+        Args: { p_ordered_ids: string[]; p_surface_id: string }
         Returns: Json
       }
       builder_reorder_sections: {

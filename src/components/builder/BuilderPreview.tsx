@@ -32,6 +32,10 @@ interface BuilderPreviewProps {
   onDeleteSection?: (sectionId: string) => void;
   onImageReplace?: (sectionId: string, fieldPath: string, url: string, source: string) => void;
   previewViewport?: "desktop" | "mobile";
+  /** All pages for the surface — used for page-based header nav links */
+  pages?: Array<{ id: string; slug: string; title: string }>;
+  /** Called when a header nav item targets a different page */
+  onSwitchPage?: (pageId: string) => void;
 }
 
 // ─── Helpers ───
@@ -1376,11 +1380,15 @@ function HeaderPreview({
   schema,
   sections,
   onSelectSection,
+  pages,
+  onSwitchPage,
 }: {
   schema: Record<string, unknown>;
   canvas?: CanvasCallbacks;
   sections?: EditorSection[];
   onSelectSection?: (id: string) => void;
+  pages?: Array<{ id: string; slug: string; title: string }>;
+  onSwitchPage?: (pageId: string) => void;
 }) {
   const logoUrl = (schema.logo_url as string) || "";
   const logoPosition = (schema.logo_position as string) || "left";
@@ -1397,7 +1405,19 @@ function HeaderPreview({
   const isRightLogo = logoPosition === "right";
 
   const handleNavClick = (e: React.MouseEvent, label: string) => {
-    e.stopPropagation(); // always prevent header section select
+    e.stopPropagation();
+    // First check if this label matches a page title or slug
+    if (pages && pages.length > 1 && onSwitchPage) {
+      const labelLower = label.toLowerCase().trim();
+      const matchedPage = pages.find(
+        (p) => p.title.toLowerCase() === labelLower || p.slug.toLowerCase() === labelLower
+      );
+      if (matchedPage) {
+        onSwitchPage(matchedPage.id);
+        return;
+      }
+    }
+    // Fallback: jump to section on current page
     if (!sections || !onSelectSection) return;
     const target = findSectionForNavLabel(label, sections);
     if (target) {
@@ -1623,7 +1643,7 @@ export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<st
   community_feed: CommunityFeedPreview,
 };
 
-export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSelectSection, theme, pageSettings, liveSchemaOverride, onUpdateSectionField, onHideSection, onDeleteSection, onImageReplace, previewViewport }: BuilderPreviewProps) {
+export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSelectSection, theme, pageSettings, liveSchemaOverride, onUpdateSectionField, onHideSection, onDeleteSection, onImageReplace, previewViewport, pages, onSwitchPage }: BuilderPreviewProps) {
   const t = theme || DEFAULT_THEME;
   const ps = pageSettings || DEFAULT_PAGE_SETTINGS;
   const isLayoutB = ps.layout === "layout_b";
@@ -1730,7 +1750,7 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
                     (section.section_type === "hero" || section.section_type === "hero_banner")
                       ? <HeroPreview schema={displaySchema} canvas={canvas} sections={sections} onSelectSection={onSelectSection} />
                       : (section.section_type === "header" || section.section_type === "header_logo")
-                        ? <HeaderPreview schema={displaySchema} sections={sections} onSelectSection={onSelectSection} />
+                        ? <HeaderPreview schema={displaySchema} sections={sections} onSelectSection={onSelectSection} pages={pages} onSwitchPage={onSwitchPage} />
                         : CANVAS_AWARE_TYPES.has(section.section_type)
                           ? <Preview schema={displaySchema} canvas={canvas} />
                           : <Preview schema={displaySchema} />

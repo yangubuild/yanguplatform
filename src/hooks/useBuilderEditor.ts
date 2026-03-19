@@ -73,6 +73,15 @@ export function useBuilderEditor(surfaceId: string | undefined) {
       if (!result?.ok) {
         throw new Error((data as any)?.error || "Failed to load editor state");
       }
+      // Sort pages by metadata.position (from reorder RPC), then by title
+      if (result.pages) {
+        result.pages.sort((a, b) => {
+          const posA = (a as any).metadata?.position ?? 999;
+          const posB = (b as any).metadata?.position ?? 999;
+          if (posA !== posB) return posA - posB;
+          return (a.title || "").localeCompare(b.title || "");
+        });
+      }
       return result;
     },
     enabled: !!surfaceId,

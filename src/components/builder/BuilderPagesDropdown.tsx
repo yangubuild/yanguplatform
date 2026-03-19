@@ -16,7 +16,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { ChevronDown, Plus, Pencil, Trash2, FileText, Loader2 } from "lucide-react";
+import { ChevronDown, Plus, Pencil, Trash2, Copy, GripVertical, FileText, Loader2, ArrowUp, ArrowDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { EditorPage } from "@/hooks/useBuilderEditor";
@@ -29,7 +29,7 @@ interface Props {
   onRefresh: () => void;
 }
 
-type ModalMode = null | "create" | "rename" | "delete";
+type ModalMode = null | "create" | "rename" | "delete" | "duplicate";
 
 export function BuilderPagesDropdown({ pages, activePageId, surfaceId, onSwitch, onRefresh }: Props) {
   const [mode, setMode] = useState<ModalMode>(null);
@@ -43,6 +43,12 @@ export function BuilderPagesDropdown({ pages, activePageId, surfaceId, onSwitch,
   const openCreate = () => { setTitle(""); setSlug(""); setMode("create"); };
   const openRename = (page: EditorPage) => { setTargetPage(page); setTitle(page.title); setSlug(page.slug); setMode("rename"); };
   const openDelete = (page: EditorPage) => { setTargetPage(page); setMode("delete"); };
+  const openDuplicate = (page: EditorPage) => {
+    setTargetPage(page);
+    setTitle(page.title + " (Copy)");
+    setSlug(page.slug + "-copy");
+    setMode("duplicate");
+  };
   const close = () => { setMode(null); setTargetPage(null); };
 
   const handleCreate = async () => {
@@ -101,7 +107,6 @@ export function BuilderPagesDropdown({ pages, activePageId, surfaceId, onSwitch,
       const result = data as unknown as { ok: boolean; error?: string };
       if (!result.ok) throw new Error(result.error || "Failed");
       toast.success("Page deleted");
-      // Switch to first remaining page
       const remaining = pages.filter((p) => p.id !== targetPage.id);
       if (remaining.length > 0) onSwitch(remaining[0].id);
       onRefresh();
@@ -110,6 +115,52 @@ export function BuilderPagesDropdown({ pages, activePageId, surfaceId, onSwitch,
       toast.error(err instanceof Error ? err.message : "Failed to delete page");
     } finally {
       setBusy(false);
+    }
+  };
+
+  const handleDuplicate = async () => {
+    if (!targetPage) return;
+    setBusy(true);
+    try {
+      const { data, error } = await supabase.rpc("builder_duplicate_page", {
+        p_page_id: targetPage.id,
+        p_new_title: title.trim() || null,
+        p_new_slug: slug.trim() || null,
+      });
+      if (error) throw new Error(error.message);
+      const result = data as unknown as { ok: boolean; error?: string; page?: { id: string } };
+      if (!result.ok) throw new Error(result.error || "Failed");
+      toast.success("Page duplicated");
+      onRefresh();
+      if (result.page?.id) onSwitch(result.page.id);
+      close();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to duplicate page");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleMove = async (pageId: string, direction: "up" | "down") => {
+    const idx = pages.findIndex((p) => p.id === pageId);
+    if (idx < 0) return;
+    const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= pages.length) return;
+
+    const newOrder = pages.map((p) => p.id);
+    [newOrder[idx], newOrder[swapIdx]] = [newOrder[swapIdx], newOrder[idx]];
+
+    try {
+      const { data, error } = await supabase.rpc("builder_reorder_pages", {
+        p_surface_id: surfaceId,
+        p_ordered_ids: newOrder,
+      });
+      if (error) throw new Error(error.message);
+      const result = data as unknown as { ok: boolean; error?: string };
+      if (!result.ok) throw new Error(result.error || "Failed");
+      onRefresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to reorder pages");
     }
   };
 
@@ -123,8 +174,8 @@ export function BuilderPagesDropdown({ pages, activePageId, surfaceId, onSwitch,
             <ChevronDown className="h-3 w-3 opacity-60" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-56">
-          {pages.map((page) => (
+        <DropdownMenuContent align="start" className="w-64">
+          {pages.map((page, idx) => (
             <DropdownMenuItem
               key={page.id}
               className="flex items-center justify-between group"
@@ -135,6 +186,19 @@ export function BuilderPagesDropdown({ pages, activePageId, surfaceId, onSwitch,
                 <span className="ml-1.5 text-muted-foreground text-[10px]">/{page.slug}</span>
               </span>
               <span className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                {idx > 0 && (
+                  <Button variant="ghost" size="icon" className="h-5 w-5" onClick={(e) => { e.stopPropagation(); handleMove(page.id, "up"); }}>
+                    <ArrowUp className="h-3 w-3" />
+                  </Button>
+                )}
+                {idx < pages.length - 1 && (
+                  <Button variant="ghost" size="icon" className="h-5 w-5" onClick={(e) => { e.stopPropagation(); handleMove(page.id, "down"); }}>
+                    <ArrowDown className="h-3 w-3" />
+                  </Button>
+                )}
+                <Button variant="ghost" size="icon" className="h-5 w-5" onClick={(e) => { e.stopPropagation(); openDuplicate(page); }}>
+                  <Copy className="h-3 w-3" />
+                </Button>
                 <Button variant="ghost" size="icon" className="h-5 w-5" onClick={(e) => { e.stopPropagation(); openRename(page); }}>
                   <Pencil className="h-3 w-3" />
                 </Button>
@@ -154,11 +218,13 @@ export function BuilderPagesDropdown({ pages, activePageId, surfaceId, onSwitch,
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* Create / Rename dialog */}
-      <Dialog open={mode === "create" || mode === "rename"} onOpenChange={(o) => !o && close()}>
+      {/* Create / Rename / Duplicate dialog */}
+      <Dialog open={mode === "create" || mode === "rename" || mode === "duplicate"} onOpenChange={(o) => !o && close()}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>{mode === "create" ? "New Page" : "Rename Page"}</DialogTitle>
+            <DialogTitle>
+              {mode === "create" ? "New Page" : mode === "duplicate" ? "Duplicate Page" : "Rename Page"}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-3 py-2">
             <div className="space-y-1.5">
@@ -172,9 +238,9 @@ export function BuilderPagesDropdown({ pages, activePageId, surfaceId, onSwitch,
           </div>
           <DialogFooter>
             <Button variant="outline" size="sm" onClick={close}>Cancel</Button>
-            <Button size="sm" disabled={busy || !title.trim()} onClick={mode === "create" ? handleCreate : handleRename}>
+            <Button size="sm" disabled={busy || !title.trim()} onClick={mode === "create" ? handleCreate : mode === "duplicate" ? handleDuplicate : handleRename}>
               {busy && <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />}
-              {mode === "create" ? "Create" : "Save"}
+              {mode === "create" ? "Create" : mode === "duplicate" ? "Duplicate" : "Save"}
             </Button>
           </DialogFooter>
         </DialogContent>
