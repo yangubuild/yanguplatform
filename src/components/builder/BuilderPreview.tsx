@@ -1220,8 +1220,9 @@ function MenuPreview({ schema, canvas }: { schema: Record<string, unknown>; canv
   );
 }
 
-function HoursPreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<{ day?: string; hours?: string }>) || [];
+function HoursPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
+  const rawItems = (schema.items as Array<Record<string, unknown>>) || [];
+  const items = rawItems.filter((it) => !it._hidden) as Array<{ day?: string; hours?: string }>;
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Opening Hours"}</h3>
@@ -1229,12 +1230,17 @@ function HoursPreview({ schema }: { schema: Record<string, unknown> }) {
         <p className="text-sm text-muted-foreground/60 italic">No hours set</p>
       ) : (
         <div className="space-y-1">
-          {items.map((item, i) => (
-            <div key={i} className="flex justify-between text-sm">
-              <span className="font-medium">{item.day || "Day"}</span>
-              <span className="text-muted-foreground">{item.hours || "Closed"}</span>
-            </div>
-          ))}
+          {items.map((item, i) => {
+            const realIdx = rawItems.indexOf(item as unknown as Record<string, unknown>);
+            return (
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={realIdx}>
+                <div className="flex justify-between text-sm">
+                  <span className="font-medium">{item.day || "Day"}</span>
+                  <span className="text-muted-foreground">{item.hours || "Closed"}</span>
+                </div>
+              </ItemCardWrapper>
+            );
+          })}
         </div>
       )}
     </div>
