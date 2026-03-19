@@ -8,6 +8,7 @@ import { DEFAULT_THEME } from "./BuilderSettingsDrawer";
 import type { PageEditSettings } from "@/config/builderCoreSections";
 import { DEFAULT_PAGE_SETTINGS } from "@/config/builderCoreSections";
 import { CanvasSectionControls } from "./canvas/CanvasSectionControls";
+import { CanvasItemControls } from "./canvas/CanvasItemControls";
 import { CanvasHints } from "./canvas/CanvasHints";
 import { CanvasEditableText } from "./canvas/CanvasEditableText";
 import { CanvasImagePopover } from "./canvas/CanvasImagePopover";
@@ -78,6 +79,38 @@ const DEMO_IMAGES = [
   "https://picsum.photos/seed/yangu-store-8/1200/900",
 ];
 const demoImage = (index: number) => DEMO_IMAGES[index % DEMO_IMAGES.length];
+
+/** Remove item at index from an array field in schema via canvas */
+function removeItemAtIndex(canvas: CanvasCallbacks | undefined, fieldPath: string, items: unknown[], index: number) {
+  if (!canvas?.onUpdateField) return;
+  const updated = items.filter((_, i) => i !== index);
+  canvas.onUpdateField(canvas.sectionId, fieldPath, updated);
+}
+
+/** Hide item at index by setting hidden flag */
+function hideItemAtIndex(canvas: CanvasCallbacks | undefined, fieldPath: string, items: Array<Record<string, unknown>>, index: number) {
+  if (!canvas?.onUpdateField) return;
+  const updated = [...items];
+  updated[index] = { ...updated[index], _hidden: true };
+  canvas.onUpdateField(canvas.sectionId, fieldPath, updated);
+}
+
+/** Wrapper for item cards with controls */
+function ItemCardWrapper({ children, canvas, fieldPath, items, index, className }: {
+  children: React.ReactNode; canvas?: CanvasCallbacks; fieldPath: string;
+  items: Array<Record<string, unknown>>; index: number; className?: string;
+}) {
+  if (!canvas?.onUpdateField) return <>{children}</>;
+  return (
+    <div className={`relative group/item ${className || ""}`}>
+      <CanvasItemControls
+        onHide={() => hideItemAtIndex(canvas, fieldPath, items, index)}
+        onDelete={() => removeItemAtIndex(canvas, fieldPath, items, index)}
+      />
+      {children}
+    </div>
+  );
+}
 
 // ─── Inline-editable text helper ───
 function EditableText({
@@ -458,8 +491,10 @@ function SocialPreview({ schema }: { schema: Record<string, unknown> }) {
 }
 
 function ShowcasePreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
-  const items = (schema.showcase_items as Array<{ title?: string; description?: string; image_url?: string; link_url?: string; price?: string }>) || [];
+  const rawItems = (schema.showcase_items as Array<Record<string, unknown>>) || [];
+  const items = rawItems.filter((it) => !it._hidden) as Array<{ title?: string; description?: string; image_url?: string; link_url?: string; price?: string }>;
   const displayMode = (schema.showcase_display as string) || "carousel";
+  const allRawItems = rawItems; // for controls
   const heading = (schema.heading as string) || "";
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -502,36 +537,40 @@ function ShowcasePreview({ schema, canvas }: { schema: Record<string, unknown>; 
           className="flex gap-3 overflow-x-auto px-4 pb-2 snap-x snap-mandatory"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
         >
-          {items.map((item, i) => (
-            <div
-              key={i}
-              className="snap-start rounded-xl border border-border bg-card overflow-hidden yangu-interactive hover:shadow-lg transition-all group shrink-0"
-              style={{ width: "calc(50% - 6px)", minWidth: "160px" }}
-              tabIndex={0}
-            >
-              {item.image_url ? (
-                <div className="aspect-square bg-muted overflow-hidden relative">
-                  <EditableImage src={item.image_url} alt={item.title || ""} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" field={`showcase_items.${i}.image_url`} canvas={canvas} />
-                  {item.price && (
-                    <span className="absolute bottom-2 left-2 bg-black/70 text-white text-xs font-semibold px-2 py-0.5 rounded-md">{item.price}</span>
+          {items.map((item, i) => {
+            const realIdx = allRawItems.indexOf(item as unknown as Record<string, unknown>);
+            return (
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="showcase_items" items={allRawItems} index={realIdx} className="shrink-0" >
+                <div
+                  className="snap-start rounded-xl border border-border bg-card overflow-hidden yangu-interactive hover:shadow-lg transition-all group"
+                  style={{ width: "calc(50% - 6px)", minWidth: "160px" }}
+                  tabIndex={0}
+                >
+                  {item.image_url ? (
+                    <div className="aspect-square bg-muted overflow-hidden relative">
+                      <EditableImage src={item.image_url} alt={item.title || ""} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" field={`showcase_items.${realIdx}.image_url`} canvas={canvas} />
+                      {item.price && (
+                        <span className="absolute bottom-2 left-2 bg-black/70 text-white text-xs font-semibold px-2 py-0.5 rounded-md">{item.price}</span>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="aspect-square bg-muted overflow-hidden relative">
+                      <EditableImage src="" alt={item.title || "Showcase"} className="w-full h-full" field={`showcase_items.${realIdx}.image_url`} canvas={canvas} />
+                    </div>
                   )}
+                  <div className="p-3">
+                    {item.title && <p className="text-sm font-medium truncate">{item.title}</p>}
+                    {item.description && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{item.description}</p>}
+                    {item.link_url && (
+                      <a href={item.link_url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block w-full text-center py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium yangu-interactive hover:opacity-90 transition-opacity">
+                        {ctaLabel((item as any).cta_action) || "Buy Now"}
+                      </a>
+                    )}
+                  </div>
                 </div>
-              ) : (
-                <div className="aspect-square bg-muted overflow-hidden relative">
-                  <EditableImage src="" alt={item.title || "Showcase"} className="w-full h-full" field={`showcase_items.${i}.image_url`} canvas={canvas} />
-                </div>
-              )}
-              <div className="p-3">
-                {item.title && <p className="text-sm font-medium truncate">{item.title}</p>}
-                {item.description && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{item.description}</p>}
-                {item.link_url && (
-                  <a href={item.link_url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block w-full text-center py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium yangu-interactive hover:opacity-90 transition-opacity">
-                    {ctaLabel((item as any).cta_action) || "Buy Now"}
-                  </a>
-                )}
-              </div>
-            </div>
-          ))}
+              </ItemCardWrapper>
+            );
+          })}
         </div>
         {/* Right scroll arrow */}
         <button onClick={scrollRight} className="absolute right-1 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-background/80 border border-border shadow flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity yangu-interactive">
@@ -631,7 +670,8 @@ function TextPreview({ schema, canvas }: { schema: Record<string, unknown>; canv
 }
 
 function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
-  const items = (schema.items as Array<{ title?: string; price?: string; description?: string; icon?: string }>) || [];
+  const rawItems = (schema.items as Array<Record<string, unknown>>) || [];
+  const items = rawItems.filter((it) => !it._hidden) as Array<{ title?: string; price?: string; description?: string; icon?: string }>;
   const displayMode = (schema.display_mode as string) || (schema.layout_variant as string) || "";
   const storyBlock = schema.story_block as { enabled?: boolean; eyebrow?: string; heading?: string; description?: string; cta_text?: string } | undefined;
   const socialGallery = schema.social_gallery as { enabled?: boolean; platform?: string; heading?: string; subheading?: string; hashtag?: string; columns?: number; items?: Array<{ image_url?: string }> } | undefined;
@@ -651,13 +691,15 @@ function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; can
       {isTrustBadges && items.length > 0 && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
           {items.map((item, i) => (
-            <div key={i} className="p-3 sm:p-4 rounded-lg border border-border bg-muted/30 text-center yangu-card" tabIndex={0}>
-              <div className="text-lg mb-1">
-                {item.icon === "truck" ? "🚚" : item.icon === "headphones" ? "🎧" : item.icon === "credit-card" ? "💳" : item.icon === "map-pin" ? "📍" : "✨"}
+            <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={rawItems.indexOf(item as unknown as Record<string, unknown>)}>
+              <div className="p-3 sm:p-4 rounded-lg border border-border bg-muted/30 text-center yangu-card" tabIndex={0}>
+                <div className="text-lg mb-1">
+                  {item.icon === "truck" ? "🚚" : item.icon === "headphones" ? "🎧" : item.icon === "credit-card" ? "💳" : item.icon === "map-pin" ? "📍" : "✨"}
+                </div>
+                <p className="text-[11px] font-medium">{item.title || "Feature"}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{item.description || ""}</p>
               </div>
-              <p className="text-[11px] font-medium">{item.title || "Feature"}</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">{item.description || ""}</p>
-            </div>
+            </ItemCardWrapper>
           ))}
         </div>
       )}
@@ -665,13 +707,15 @@ function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; can
       {isStoryBlock && items.length > 0 && (
         <div className="space-y-3">
           {items.map((item, i) => (
-            <div key={i} className="flex gap-3 items-start">
-              <div className="w-1/3 aspect-square rounded-lg bg-muted flex items-center justify-center text-xl">🖼</div>
-              <div className="flex-1">
-                <p className="text-xs font-semibold">{item.title || "Story"}</p>
-                <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">{item.description || ""}</p>
+            <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={rawItems.indexOf(item as unknown as Record<string, unknown>)}>
+              <div className="flex gap-3 items-start">
+                <div className="w-1/3 aspect-square rounded-lg bg-muted flex items-center justify-center text-xl">🖼</div>
+                <div className="flex-1">
+                  <p className="text-xs font-semibold">{item.title || "Story"}</p>
+                  <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">{item.description || ""}</p>
+                </div>
               </div>
-            </div>
+            </ItemCardWrapper>
           ))}
           {schema.cta_text && (
             <span className="inline-block px-4 py-1.5 rounded-full border border-border text-xs font-medium">{schema.cta_text as string}</span>
@@ -681,15 +725,20 @@ function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; can
 
       {!isTrustBadges && !isStoryBlock && items.length > 0 && (
         <div className="space-y-2">
-          {items.map((item, i) => (
-             <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
-              <div className="flex justify-between items-start">
-                <p className="text-sm font-medium">{item.title || "Offer"}</p>
-                {item.price && <p className="text-xs font-medium text-primary shrink-0 ml-2">{item.price}</p>}
-              </div>
-              {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
-            </div>
-          ))}
+          {items.map((item, i) => {
+            const realIdx = rawItems.indexOf(item as unknown as Record<string, unknown>);
+            return (
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={realIdx}>
+                <div className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
+                  <div className="flex justify-between items-start">
+                    <p className="text-sm font-medium">{item.title || "Offer"}</p>
+                    {item.price && <p className="text-xs font-medium text-primary shrink-0 ml-2">{item.price}</p>}
+                  </div>
+                  {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
+                </div>
+              </ItemCardWrapper>
+            );
+          })}
         </div>
       )}
 
@@ -759,8 +808,9 @@ function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; can
   );
 }
 
-function PlansPreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<{ name?: string; price?: string }>) || [];
+function PlansPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
+  const rawItems = (schema.items as Array<Record<string, unknown>>) || [];
+  const items = rawItems.filter((it) => !it._hidden) as Array<{ name?: string; price?: string }>;
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Plans"}</h3>
@@ -768,12 +818,17 @@ function PlansPreview({ schema }: { schema: Record<string, unknown> }) {
         <p className="text-sm text-muted-foreground/60 italic">No plans added</p>
       ) : (
         <div className="grid grid-cols-2 gap-2">
-          {items.map((item, i) => (
-            <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 text-center yangu-card" tabIndex={0}>
-              <p className="text-sm font-medium">{item.name || "Plan"}</p>
-              {item.price && <p className="text-xs text-muted-foreground">{item.price}</p>}
-            </div>
-          ))}
+          {items.map((item, i) => {
+            const realIdx = rawItems.indexOf(item as unknown as Record<string, unknown>);
+            return (
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={realIdx}>
+                <div className="p-3 rounded-lg border border-border bg-muted/50 text-center yangu-card" tabIndex={0}>
+                  <p className="text-sm font-medium">{item.name || "Plan"}</p>
+                  {item.price && <p className="text-xs text-muted-foreground">{item.price}</p>}
+                </div>
+              </ItemCardWrapper>
+            );
+          })}
         </div>
       )}
     </div>
@@ -854,21 +909,26 @@ function ProductsPreview({ schema, canvas }: { schema: Record<string, unknown>; 
         <EditableText value={schema.description as string} field="description" className="text-[10px] text-muted-foreground mb-3 leading-relaxed" tag="p" canvas={canvas} />
       )}
       <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3 xl:grid-cols-4" style={cols !== 2 && cols !== 3 && cols !== 4 ? { gridTemplateColumns: `repeat(${cols}, 1fr)` } : undefined}>
-        {renderedItems.map((item, i) => (
-          <div key={i} className="rounded-lg border border-border bg-card overflow-hidden group max-w-sm yangu-card" tabIndex={0}>
-            <div className={`bg-muted relative ${isPortrait ? "aspect-[3/4]" : isSquare ? "aspect-square" : "aspect-[4/3]"}`}>
-              <EditableImage src={usingSeedData ? item.image_url || demoImage(i) : item.image_url || ""} alt={item.name || "Product"} className="w-full h-full object-cover" field={`products.${i}.image`} canvas={canvas} />
-              {item.badge && cardSettings.badge_enabled !== false && (
-                <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded text-[9px] font-medium bg-primary text-primary-foreground">{item.badge}</span>
-              )}
-            </div>
-            <div className="p-3 lg:p-4">
-              <p className="text-[11px] font-medium truncate">{item.name || "Product"}</p>
-              {item.price && <p className="text-[10px] text-primary font-semibold mt-0.5">{item.price}</p>}
-              {showCta && <span className="mt-2 inline-block text-center text-[9px] font-medium py-1.5 px-4 rounded border border-border text-muted-foreground w-fit yangu-cta">Add to Cart</span>}
-            </div>
-          </div>
-        ))}
+        {renderedItems.map((item, i) => {
+          const rawProducts = (schema.products as Array<Record<string, unknown>>) || [];
+          return (
+            <ItemCardWrapper key={i} canvas={!usingSeedData ? canvas : undefined} fieldPath="products" items={rawProducts} index={i}>
+              <div className="rounded-lg border border-border bg-card overflow-hidden group max-w-sm yangu-card" tabIndex={0}>
+                <div className={`bg-muted relative ${isPortrait ? "aspect-[3/4]" : isSquare ? "aspect-square" : "aspect-[4/3]"}`}>
+                  <EditableImage src={usingSeedData ? item.image_url || demoImage(i) : item.image_url || ""} alt={item.name || "Product"} className="w-full h-full object-cover" field={`products.${i}.image`} canvas={canvas} />
+                  {item.badge && cardSettings.badge_enabled !== false && (
+                    <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded text-[9px] font-medium bg-primary text-primary-foreground">{item.badge}</span>
+                  )}
+                </div>
+                <div className="p-3 lg:p-4">
+                  <p className="text-[11px] font-medium truncate">{item.name || "Product"}</p>
+                  {item.price && <p className="text-[10px] text-primary font-semibold mt-0.5">{item.price}</p>}
+                  {showCta && <span className="mt-2 inline-block text-center text-[9px] font-medium py-1.5 px-4 rounded border border-border text-muted-foreground w-fit yangu-cta">Add to Cart</span>}
+                </div>
+              </div>
+            </ItemCardWrapper>
+          );
+        })}
       </div>
     </div>
   );
@@ -901,8 +961,9 @@ function CategoriesPreview({ schema, canvas }: { schema: Record<string, unknown>
   );
 }
 
-function ListingsPreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<{ title?: string; name?: string; price?: string; description?: string; cta_action?: string }>) || [];
+function ListingsPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
+  const rawItems = (schema.items as Array<Record<string, unknown>>) || [];
+  const items = rawItems.filter((it) => !it._hidden) as Array<{ title?: string; name?: string; price?: string; description?: string; cta_action?: string }>;
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Listings"}</h3>
@@ -912,15 +973,18 @@ function ListingsPreview({ schema }: { schema: Record<string, unknown> }) {
         <div className="space-y-2">
           {items.map((item, i) => {
             const cta = ctaLabel(item.cta_action);
+            const realIdx = rawItems.indexOf(item as unknown as Record<string, unknown>);
             return (
-              <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
-                <div className="flex justify-between items-start">
-                  <p className="text-sm font-medium">{item.title || item.name || "Listing"}</p>
-                  {item.price && <p className="text-xs font-medium text-primary shrink-0 ml-2">{item.price}</p>}
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={realIdx}>
+                <div className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
+                  <div className="flex justify-between items-start">
+                    <p className="text-sm font-medium">{item.title || item.name || "Listing"}</p>
+                    {item.price && <p className="text-xs font-medium text-primary shrink-0 ml-2">{item.price}</p>}
+                  </div>
+                  {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
+                  {cta && <span className="mt-2 inline-block text-center text-[9px] font-medium py-1 px-3 rounded border border-border text-muted-foreground yangu-cta">{cta}</span>}
                 </div>
-                {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
-                {cta && <span className="mt-2 inline-block text-center text-[9px] font-medium py-1 px-3 rounded border border-border text-muted-foreground yangu-cta">{cta}</span>}
-              </div>
+              </ItemCardWrapper>
             );
           })}
         </div>
@@ -945,8 +1009,9 @@ function FiltersPreview({ schema }: { schema: Record<string, unknown> }) {
   );
 }
 
-function ServicesPreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<{ name?: string; price?: string; description?: string; icon?: string; cta_action?: string }>) || [];
+function ServicesPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
+  const rawItems = (schema.items as Array<Record<string, unknown>>) || [];
+  const items = rawItems.filter((it) => !it._hidden) as Array<{ name?: string; price?: string; description?: string; icon?: string; cta_action?: string }>;
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Services"}</h3>
@@ -956,15 +1021,18 @@ function ServicesPreview({ schema }: { schema: Record<string, unknown> }) {
         <div className="space-y-2">
           {items.map((item, i) => {
             const cta = ctaLabel(item.cta_action);
+            const realIdx = rawItems.indexOf(item as unknown as Record<string, unknown>);
             return (
-              <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
-                <div className="flex justify-between items-start">
-                  <p className="text-sm font-medium">{item.icon && <span className="mr-1.5">{item.icon}</span>}{item.name || "Service"}</p>
-                  {item.price && <p className="text-xs font-medium text-primary shrink-0 ml-2">{item.price}</p>}
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={realIdx}>
+                <div className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
+                  <div className="flex justify-between items-start">
+                    <p className="text-sm font-medium">{item.icon && <span className="mr-1.5">{item.icon}</span>}{item.name || "Service"}</p>
+                    {item.price && <p className="text-xs font-medium text-primary shrink-0 ml-2">{item.price}</p>}
+                  </div>
+                  {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
+                  {cta && <span className="mt-2 inline-block text-center text-[9px] font-medium py-1 px-3 rounded border border-border text-muted-foreground yangu-cta">{cta}</span>}
                 </div>
-                {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
-                {cta && <span className="mt-2 inline-block text-center text-[9px] font-medium py-1 px-3 rounded border border-border text-muted-foreground yangu-cta">{cta}</span>}
-              </div>
+              </ItemCardWrapper>
             );
           })}
         </div>
@@ -974,7 +1042,8 @@ function ServicesPreview({ schema }: { schema: Record<string, unknown> }) {
 }
 
 function FeaturedPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
-  const items = (schema.items as Array<{ title?: string; description?: string; image_url?: string; href?: string }>) || [];
+  const rawItems = (schema.items as Array<Record<string, unknown>>) || [];
+  const items = rawItems.filter((it) => !it._hidden) as Array<{ title?: string; description?: string; image_url?: string; href?: string }>;
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.title as string) || "Featured"}</h3>
@@ -982,24 +1051,30 @@ function FeaturedPreview({ schema, canvas }: { schema: Record<string, unknown>; 
         <p className="text-sm text-muted-foreground/60 italic">No featured items</p>
       ) : (
         <div className="space-y-2">
-          {items.map((item, i) => (
-            <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
-              <div className="aspect-video rounded overflow-hidden mb-2 bg-muted">
-                <EditableImage src={item.image_url || ""} alt={item.title || ""} className="w-full h-full object-cover" field={`items.${i}.image_url`} canvas={canvas} />
-              </div>
-              <p className="text-sm font-medium">{item.title || "Item"}</p>
-              {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
-              {item.href && <p className="text-xs text-primary mt-1 truncate">{item.href}</p>}
-            </div>
-          ))}
+          {items.map((item, i) => {
+            const realIdx = rawItems.indexOf(item as unknown as Record<string, unknown>);
+            return (
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={realIdx}>
+                <div className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
+                  <div className="aspect-video rounded overflow-hidden mb-2 bg-muted">
+                    <EditableImage src={item.image_url || ""} alt={item.title || ""} className="w-full h-full object-cover" field={`items.${realIdx}.image_url`} canvas={canvas} />
+                  </div>
+                  <p className="text-sm font-medium">{item.title || "Item"}</p>
+                  {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
+                  {item.href && <p className="text-xs text-primary mt-1 truncate">{item.href}</p>}
+                </div>
+              </ItemCardWrapper>
+            );
+          })}
         </div>
       )}
     </div>
   );
 }
 
-function TestimonialsPreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<{ name?: string; quote?: string }>) || [];
+function TestimonialsPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
+  const rawItems = (schema.items as Array<Record<string, unknown>>) || [];
+  const items = rawItems.filter((it) => !it._hidden) as Array<{ name?: string; quote?: string }>;
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Testimonials"}</h3>
@@ -1007,20 +1082,26 @@ function TestimonialsPreview({ schema }: { schema: Record<string, unknown> }) {
         <p className="text-sm text-muted-foreground/60 italic">No testimonials added</p>
       ) : (
         <div className="space-y-2">
-          {items.map((item, i) => (
-             <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
-              <p className="text-sm italic text-muted-foreground">"{item.quote || "..."}"</p>
-              <p className="text-xs font-medium mt-1">— {item.name || "Anonymous"}</p>
-            </div>
-          ))}
+          {items.map((item, i) => {
+            const realIdx = rawItems.indexOf(item as unknown as Record<string, unknown>);
+            return (
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={realIdx}>
+                <div className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
+                  <p className="text-sm italic text-muted-foreground">"{item.quote || "..."}"</p>
+                  <p className="text-xs font-medium mt-1">— {item.name || "Anonymous"}</p>
+                </div>
+              </ItemCardWrapper>
+            );
+          })}
         </div>
       )}
     </div>
   );
 }
 
-function FaqPreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<{ question?: string; answer?: string }>) || [];
+function FaqPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
+  const rawItems = (schema.items as Array<Record<string, unknown>>) || [];
+  const items = rawItems.filter((it) => !it._hidden) as Array<{ question?: string; answer?: string }>;
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "FAQ"}</h3>
@@ -1028,12 +1109,17 @@ function FaqPreview({ schema }: { schema: Record<string, unknown> }) {
         <p className="text-sm text-muted-foreground/60 italic">No FAQ items added</p>
       ) : (
         <div className="space-y-2">
-          {items.map((item, i) => (
-             <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
-              <p className="text-sm font-medium">{item.question || "Question?"}</p>
-              {item.answer && <p className="text-xs text-muted-foreground mt-1">{item.answer}</p>}
-            </div>
-          ))}
+          {items.map((item, i) => {
+            const realIdx = rawItems.indexOf(item as unknown as Record<string, unknown>);
+            return (
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={realIdx}>
+                <div className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
+                  <p className="text-sm font-medium">{item.question || "Question?"}</p>
+                  {item.answer && <p className="text-xs text-muted-foreground mt-1">{item.answer}</p>}
+                </div>
+              </ItemCardWrapper>
+            );
+          })}
         </div>
       )}
     </div>
@@ -1053,8 +1139,9 @@ function ContactPreview({ schema, canvas }: { schema: Record<string, unknown>; c
   );
 }
 
-function SchedulePreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<{ time?: string; title?: string }>) || [];
+function SchedulePreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
+  const rawItems = (schema.items as Array<Record<string, unknown>>) || [];
+  const items = rawItems.filter((it) => !it._hidden) as Array<{ time?: string; title?: string }>;
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Schedule"}</h3>
@@ -1062,20 +1149,26 @@ function SchedulePreview({ schema }: { schema: Record<string, unknown> }) {
         <p className="text-sm text-muted-foreground/60 italic">No schedule items</p>
       ) : (
         <div className="space-y-1">
-          {items.map((item, i) => (
-            <div key={i} className="flex gap-2 text-sm">
-              <span className="font-medium text-muted-foreground">{item.time || "TBD"}</span>
-              <span>{item.title || "Event"}</span>
-            </div>
-          ))}
+          {items.map((item, i) => {
+            const realIdx = rawItems.indexOf(item as unknown as Record<string, unknown>);
+            return (
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={realIdx}>
+                <div className="flex gap-2 text-sm">
+                  <span className="font-medium text-muted-foreground">{item.time || "TBD"}</span>
+                  <span>{item.title || "Event"}</span>
+                </div>
+              </ItemCardWrapper>
+            );
+          })}
         </div>
       )}
     </div>
   );
 }
 
-function MenuPreview({ schema }: { schema: Record<string, unknown> }) {
-  const categories = (schema.categories as Array<{ name?: string; items?: Array<{ name?: string; price?: string }> }>) || [];
+function MenuPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
+  const rawCategories = (schema.categories as Array<Record<string, unknown>>) || [];
+  const categories = rawCategories.filter((it) => !it._hidden) as Array<{ name?: string; items?: Array<{ name?: string; price?: string }> }>;
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Menu"}</h3>
@@ -1083,17 +1176,22 @@ function MenuPreview({ schema }: { schema: Record<string, unknown> }) {
         <p className="text-sm text-muted-foreground/60 italic">No menu items added</p>
       ) : (
         <div className="space-y-3">
-          {categories.map((cat, i) => (
-            <div key={i}>
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{cat.name || "Category"}</p>
-              {(cat.items || []).map((item, j) => (
-                <div key={j} className="flex justify-between text-sm py-0.5">
-                  <span>{item.name || "Item"}</span>
-                  {item.price && <span className="text-muted-foreground">{item.price}</span>}
+          {categories.map((cat, i) => {
+            const realIdx = rawCategories.indexOf(cat as unknown as Record<string, unknown>);
+            return (
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="categories" items={rawCategories} index={realIdx}>
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{cat.name || "Category"}</p>
+                  {(cat.items || []).map((item, j) => (
+                    <div key={j} className="flex justify-between text-sm py-0.5">
+                      <span>{item.name || "Item"}</span>
+                      {item.price && <span className="text-muted-foreground">{item.price}</span>}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          ))}
+              </ItemCardWrapper>
+            );
+          })}
         </div>
       )}
     </div>
@@ -1144,8 +1242,9 @@ function AboutPreview({ schema, canvas }: { schema: Record<string, unknown>; can
   );
 }
 
-function CommunityFeedPreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<{ name?: string; title?: string; price?: string; description?: string; image_url?: string; media?: Array<{ src?: string }>; cta_action?: string }>) || [];
+function CommunityFeedPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
+  const rawItems = (schema.items as Array<Record<string, unknown>>) || [];
+  const items = rawItems.filter((it) => !it._hidden) as Array<{ name?: string; title?: string; price?: string; description?: string; image_url?: string; media?: Array<{ src?: string }>; cta_action?: string }>;
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Feed"}</h3>
@@ -1156,22 +1255,25 @@ function CommunityFeedPreview({ schema }: { schema: Record<string, unknown> }) {
           {items.map((item, i) => {
             const imgSrc = item.image_url || item.media?.[0]?.src || "";
             const cta = ctaLabel(item.cta_action);
+            const realIdx = rawItems.indexOf(item as unknown as Record<string, unknown>);
             return (
-              <div key={i} className="rounded-lg border border-border bg-muted/50 overflow-hidden yangu-card" tabIndex={0}>
-                {imgSrc && (
-                  <div className="aspect-video bg-muted">
-                    <img src={imgSrc} alt={item.name || item.title || ""} className="w-full h-full object-cover" />
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={realIdx}>
+                <div className="rounded-lg border border-border bg-muted/50 overflow-hidden yangu-card" tabIndex={0}>
+                  {imgSrc && (
+                    <div className="aspect-video bg-muted">
+                      <img src={imgSrc} alt={item.name || item.title || ""} className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <div className="p-3">
+                    <div className="flex justify-between items-start">
+                      <p className="text-sm font-medium">{item.name || item.title || "Item"}</p>
+                      {item.price && <p className="text-xs font-medium text-primary shrink-0 ml-2">{item.price}</p>}
+                    </div>
+                    {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
+                    {cta && <span className="mt-2 inline-block text-center text-[9px] font-medium py-1 px-3 rounded border border-border text-muted-foreground yangu-cta">{cta}</span>}
                   </div>
-                )}
-                <div className="p-3">
-                  <div className="flex justify-between items-start">
-                    <p className="text-sm font-medium">{item.name || item.title || "Item"}</p>
-                    {item.price && <p className="text-xs font-medium text-primary shrink-0 ml-2">{item.price}</p>}
-                  </div>
-                  {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
-                  {cta && <span className="mt-2 inline-block text-center text-[9px] font-medium py-1 px-3 rounded border border-border text-muted-foreground yangu-cta">{cta}</span>}
                 </div>
-              </div>
+              </ItemCardWrapper>
             );
           })}
         </div>
@@ -1413,6 +1515,9 @@ const CANVAS_AWARE_TYPES = new Set([
   "categories", "category_grid", "collections", "gallery", "instagram_gallery", "media_grid",
   "contact", "contact_section", "footer", "showcase", "creator_showcase",
   "featured", "case_studies_grid",
+  "testimonials", "faq", "services", "services_list", "listings", "listing_grid",
+  "plans", "rules", "schedule", "menu", "hours", "location",
+  "properties", "booking_inventory", "community_feed",
 ]);
 
 export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<string, unknown>; canvas?: CanvasCallbacks }>> = {
