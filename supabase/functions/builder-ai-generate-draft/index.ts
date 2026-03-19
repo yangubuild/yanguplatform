@@ -494,33 +494,153 @@ Generate 5-7 sections minimum. Always include content-rich items in every sectio
     }
 
     // ────────────────────────────────────────────────
-    // PHASE 3: IMAGE COMPLETION — fill gaps with stock
+    // PHASE 3: AI IMAGE GENERATION — fill gaps with real AI images
     // ────────────────────────────────────────────────
-    // Count how many empty/placeholder image slots remain
     const { empty: emptySlots } = countImageSlots(filteredSections);
+
+    // Build image prompts per editor type
+    const IMAGE_PROMPT_CONTEXT: Record<string, string> = {
+      eshop: "Professional ecommerce product photography, clean white background, studio lighting, high resolution product shot",
+      estore: "Commercial catalog product photography, wholesale industrial style, clean professional background",
+      emenu: "Professional food photography, appetizing plating, restaurant-quality presentation, warm lighting",
+      esite: "Professional business photography, modern corporate style, clean composition",
+      influencer: "Creator lifestyle photography, vibrant social media aesthetic, engaging visual",
+      community: "Community event photography, diverse people, warm welcoming atmosphere",
+    };
+    const imageContext = IMAGE_PROMPT_CONTEXT[engineKey] || "Professional photography, clean composition";
+
+    // Cap: generate at most 6 AI images per draft to stay performant
+    const AI_IMAGE_CAP = 6;
+    const slotsToFill = emptySlots.slice(0, AI_IMAGE_CAP);
     
-    // Also check minimums — gallery should have at least 6 items, products at least 4
-    let additionalNeeded = 0;
-    for (const section of filteredSections) {
-      const schema = section.schema || {};
-      const min = MIN_IMAGES[section.type] || 0;
-      if (section.type === "gallery" && Array.isArray(schema.items)) {
-        const deficit = Math.max(0, min - schema.items.length);
-        additionalNeeded += deficit;
+    if (slotsToFill.length > 0) {
+      console.log(`[builder-ai] AI Image generation: ${slotsToFill.length} slots to fill (capped from ${emptySlots.length})`);
+      
+      // Build prompts for each slot
+      const imageJobs: { slot: ImageSlot; prompt: string }[] = [];
+      for (const slot of slotsToFill) {
+        const section = filteredSections[slot.sectionIdx];
+        const schema = section.schema || {};
+        let itemPrompt = "";
+
+        if (slot.field === "media.url") {
+          // Hero image
+          const headline = schema.headline || businessName || "";
+          itemPrompt = `${imageContext}. Hero banner for "${businessName}": ${headline}. ${industry || ""} business${location ? ` in ${location}` : ""}.`;
+        } else if (slot.field.startsWith("items.")) {
+          const parts = slot.field.split(".");
+          const idx = parseInt(parts[1], 10);
+          if (Array.isArray(schema.items) && idx < schema.items.length) {
+            const item = schema.items[idx];
+            const itemName = item?.name || item?.title || `Item ${idx + 1}`;
+            const itemDesc = item?.description || "";
+            if (section.type === "gallery") {
+              itemPrompt = `${imageContext}. ${itemName} for ${businessName}. ${itemDesc}`.trim();
+            } else if (section.type === "products" || section.type === "listings") {
+              itemPrompt = `${imageContext}. Product photo of "${itemName}". ${itemDesc}`.trim();
+            } else if (section.type === "menu") {
+              itemPrompt = `Professional food photography, appetizing plating, restaurant-quality. Dish: "${itemName}". ${itemDesc}`.trim();
+            } else {
+              itemPrompt = `${imageContext}. ${itemName}. ${itemDesc}`.trim();
+            }
+          }
+        }
+
+        if (itemPrompt) {
+          imageJobs.push({ slot, prompt: itemPrompt });
+        }
       }
-      if ((section.type === "products" || section.type === "categories" || section.type === "collections") && Array.isArray(schema.items)) {
-        const deficit = Math.max(0, min - schema.items.length);
-        additionalNeeded += deficit;
+
+      // Generate images in parallel batches of 3
+      const BATCH_SIZE = 3;
+      for (let batchStart = 0; batchStart < imageJobs.length; batchStart += BATCH_SIZE) {
+        const batch = imageJobs.slice(batchStart, batchStart + BATCH_SIZE);
+        const results = await Promise.allSettled(
+          batch.map(async (job) => {
+            try {
+              const imgRes = await fetch("https://ai.gateway.lovable.dev/v1/images/generations", {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${LOVABLE_API_KEY}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  model: "google/gemini-2.5-flash-image",
+                  prompt: job.prompt,
+                  n: 1,
+                  size: "1024x1024",
+                  response_format: "b64_json",
+                }),
+              });
+
+              if (!imgRes.ok) {
+                console.warn(`[builder-ai] AI image gen failed (${imgRes.status}) for slot ${job.slot.field}`);
+                return null;
+              }
+
+              const imgData = await imgRes.json();
+              const b64 = imgData.data?.[0]?.b64_json;
+              if (!b64) return null;
+
+              // Decode and upload to builder-media
+              const binaryStr = atob(b64);
+              const bytes = new Uint8Array(binaryStr.length);
+              for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
+
+              const userId = claimsData.claims.sub as string;
+              const storagePath = `${userId}/ai-draft/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.png`;
+              
+              const { error: uploadErr } = await adminClient.storage
+                .from("builder-media")
+                .upload(storagePath, bytes, { contentType: "image/png", upsert: false });
+
+              if (uploadErr) {
+                console.warn(`[builder-ai] Image upload failed for ${job.slot.field}:`, uploadErr.message);
+                return null;
+              }
+
+              const { data: publicData } = adminClient.storage.from("builder-media").getPublicUrl(storagePath);
+              return { slot: job.slot, url: publicData.publicUrl };
+            } catch (err) {
+              console.warn(`[builder-ai] AI image error for ${job.slot.field}:`, err);
+              return null;
+            }
+          })
+        );
+
+        // Apply successful results
+        for (const r of results) {
+          if (r.status !== "fulfilled" || !r.value) continue;
+          const { slot, url } = r.value;
+          const section = filteredSections[slot.sectionIdx];
+          const schema = section.schema || {};
+
+          if (slot.field === "media.url") {
+            if (!schema.media || typeof schema.media !== "object") schema.media = {};
+            (schema.media as any).url = url;
+            (schema.media as any).type = "image";
+            (schema.media as any).fit = "cover";
+            (schema.media as any).source = "ai";
+          } else if (slot.field.startsWith("items.")) {
+            const parts = slot.field.split(".");
+            const idx = parseInt(parts[1], 10);
+            const key = parts[2]; // "src" or "image_url"
+            if (Array.isArray(schema.items) && idx < schema.items.length) {
+              schema.items[idx][key] = url;
+              schema.items[idx].source = "ai";
+            }
+          }
+        }
       }
+
+      console.log(`[builder-ai] AI image generation complete`);
     }
 
-    const totalStockNeeded = emptySlots.length + additionalNeeded;
-
-    if (totalStockNeeded > 0) {
-      console.log(`[builder-ai] Image completion: ${emptySlots.length} placeholder slots + ${additionalNeeded} additional needed = ${totalStockNeeded} stock photos required`);
-      
+    // ── Remaining empty slots without Google photos: fallback to stock if available ──
+    const { empty: stillEmpty } = countImageSlots(filteredSections);
+    if (stillEmpty.length > 0) {
       const stockPhotos = await gatherStockPhotos(
-        totalStockNeeded + 4, // fetch extras for diversity
+        stillEmpty.length + 4,
         businessName,
         industry,
         location,
@@ -528,9 +648,7 @@ Generate 5-7 sections minimum. Always include content-rich items in every sectio
       );
 
       let stockIdx = 0;
-
-      // Fill placeholder slots first
-      for (const slot of emptySlots) {
+      for (const slot of stillEmpty) {
         if (stockIdx >= stockPhotos.length) break;
         const section = filteredSections[slot.sectionIdx];
         const schema = section.schema || {};
@@ -545,7 +663,7 @@ Generate 5-7 sections minimum. Always include content-rich items in every sectio
         } else if (slot.field.startsWith("items.")) {
           const parts = slot.field.split(".");
           const idx = parseInt(parts[1], 10);
-          const key = parts[2]; // "src" or "image_url"
+          const key = parts[2];
           if (Array.isArray(schema.items) && idx < schema.items.length) {
             schema.items[idx][key] = stockPhotos[stockIdx];
             schema.items[idx].source = "stock";
@@ -553,72 +671,12 @@ Generate 5-7 sections minimum. Always include content-rich items in every sectio
           }
         }
       }
-
-      // Pad gallery to minimum 6
-      for (const section of filteredSections) {
-        if (section.type !== "gallery") continue;
-        const schema = section.schema || {};
-        if (!Array.isArray(schema.items)) schema.items = [];
-        while (schema.items.length < MIN_IMAGES.gallery && stockIdx < stockPhotos.length) {
-          schema.items.push({
-            name: `Photo ${schema.items.length + 1}`,
-            src: stockPhotos[stockIdx],
-            source: "stock",
-          });
-          stockIdx++;
-        }
-      }
-
-      // Pad products/categories to minimum 4
-      for (const section of filteredSections) {
-        if (section.type !== "products" && section.type !== "categories" && section.type !== "collections") continue;
-        const schema = section.schema || {};
-        if (!Array.isArray(schema.items)) schema.items = [];
-        const min = MIN_IMAGES[section.type] || 4;
-        while (schema.items.length < min && stockIdx < stockPhotos.length) {
-          schema.items.push({
-            name: `Item ${schema.items.length + 1}`,
-            description: `Quality ${industry || "offering"} from ${businessName}`,
-            image_url: stockPhotos[stockIdx],
-            source: "stock",
-            ...(section.type === "products" ? { price: "" } : {}),
-          });
-          stockIdx++;
-        }
-      }
-
-      // If there's STILL no gallery and we have spare stock photos, create one
-      if (!filteredSections.some((s: { type: string }) => s.type === "gallery") && allowedTypes.includes("gallery") && stockIdx < stockPhotos.length) {
-        const items = [];
-        while (items.length < 6 && stockIdx < stockPhotos.length) {
-          items.push({ name: `Photo ${items.length + 1}`, src: stockPhotos[stockIdx], source: "stock" });
-          stockIdx++;
-        }
-        if (items.length > 0) {
-          const insertIdx = filteredSections.findIndex((s: { type: string }) => s.type === "footer" || s.type === "cta");
-          const gallerySection = { type: "gallery", schema: { heading: "Gallery", items } };
-          if (insertIdx >= 0) filteredSections.splice(insertIdx, 0, gallerySection);
-          else filteredSections.push(gallerySection);
-        }
-      }
-
-      console.log(`[builder-ai] Image completion done: used ${stockIdx} stock photos`);
     }
 
     // ────────────────────────────────────────────────
-    // PHASE 4: Final validation — no empty images
+    // PHASE 4: Final cleanup — keep items even without images
     // ────────────────────────────────────────────────
-    for (const section of filteredSections) {
-      const schema = section.schema || {};
-      // Remove items with completely empty images
-      if (Array.isArray(schema.items)) {
-        schema.items = schema.items.filter((item: any) => {
-          if (section.type === "gallery") return !isPlaceholderUrl(item.src);
-          if (section.type === "products" || section.type === "categories" || section.type === "collections") return !isPlaceholderUrl(item.image_url);
-          return true; // keep non-image items (offers, etc.)
-        });
-      }
-    }
+    // Don't strip items that lack images — they still have real text content
 
     return new Response(JSON.stringify({
       ok: true,
