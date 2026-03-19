@@ -1088,8 +1088,9 @@ function TestimonialsPreview({ schema, canvas }: { schema: Record<string, unknow
   );
 }
 
-function FaqPreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<{ question?: string; answer?: string }>) || [];
+function FaqPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
+  const rawItems = (schema.items as Array<Record<string, unknown>>) || [];
+  const items = rawItems.filter((it) => !it._hidden) as Array<{ question?: string; answer?: string }>;
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "FAQ"}</h3>
@@ -1097,12 +1098,17 @@ function FaqPreview({ schema }: { schema: Record<string, unknown> }) {
         <p className="text-sm text-muted-foreground/60 italic">No FAQ items added</p>
       ) : (
         <div className="space-y-2">
-          {items.map((item, i) => (
-             <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
-              <p className="text-sm font-medium">{item.question || "Question?"}</p>
-              {item.answer && <p className="text-xs text-muted-foreground mt-1">{item.answer}</p>}
-            </div>
-          ))}
+          {items.map((item, i) => {
+            const realIdx = rawItems.indexOf(item as unknown as Record<string, unknown>);
+            return (
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={realIdx}>
+                <div className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
+                  <p className="text-sm font-medium">{item.question || "Question?"}</p>
+                  {item.answer && <p className="text-xs text-muted-foreground mt-1">{item.answer}</p>}
+                </div>
+              </ItemCardWrapper>
+            );
+          })}
         </div>
       )}
     </div>
