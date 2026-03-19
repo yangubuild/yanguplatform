@@ -354,7 +354,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
     return (
       <div className="py-12 px-6 text-center rounded-lg relative overflow-hidden" style={{ backgroundColor: bgColor || "hsl(0 0% 8%)" }}>
         {mediaType !== "video" && resolvedMediaUrl && (
-          <img src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-40" />
+          <EditableImage src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-40" field="media.url" canvas={canvas} />
         )}
         <div className="relative z-10 max-w-2xl mx-auto">
           <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className={`font-bold text-white ${isBoldUppercase ? "text-2xl tracking-[0.15em] uppercase" : "text-2xl"}`} tag="h1" canvas={canvas} />
@@ -1297,11 +1297,9 @@ function CommunityFeedPreview({ schema, canvas }: { schema: Record<string, unkno
             return (
               <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={realIdx}>
                 <div className="rounded-lg border border-border bg-muted/50 overflow-hidden yangu-card" tabIndex={0}>
-                  {imgSrc && (
-                    <div className="aspect-video bg-muted">
-                      <img src={imgSrc} alt={item.name || item.title || ""} className="w-full h-full object-cover" />
-                    </div>
-                  )}
+                  <div className="aspect-video bg-muted">
+                    <EditableImage src={imgSrc} alt={item.name || item.title || ""} className="w-full h-full object-cover" field={`items.${realIdx}.image_url`} canvas={canvas} />
+                  </div>
                   <div className="p-3">
                     <div className="flex justify-between items-start">
                       <p className="text-sm font-medium">{item.name || item.title || "Item"}</p>

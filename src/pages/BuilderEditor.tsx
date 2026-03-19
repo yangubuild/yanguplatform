@@ -27,6 +27,7 @@ import { BuilderSettingsDrawer, getThemeFromMetadata } from "@/components/builde
 import { BuilderSectionEditor } from "@/components/builder/BuilderSectionEditor";
 import { BuilderPagesDropdown } from "@/components/builder/BuilderPagesDropdown";
 import { BuilderSetupAnswersPanel } from "@/components/builder/panels/BuilderSetupAnswersPanel";
+import { ImageCropDialog } from "@/components/builder/ImageCropDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -46,6 +47,12 @@ export default function BuilderEditor() {
   const [previewViewport, setPreviewViewport] = useState<PreviewViewport>("desktop");
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showLeaveWarning, setShowLeaveWarning] = useState(false);
+  const [cropState, setCropState] = useState<{
+    open: boolean;
+    imageSrc: string;
+    sectionId: string;
+    fieldPath: string;
+  } | null>(null);
   const pendingNavRef = useRef<string | null>(null);
 
   // Track unsaved changes
@@ -342,18 +349,15 @@ export default function BuilderEditor() {
             onImageReplace={async (sectionId, fieldPath, url, source) => {
               const section = sections.find((s) => s.id === sectionId);
               if (!section) return;
-              const newSchema = { ...section.schema } as Record<string, any>;
 
               const setNestedValue = (target: Record<string, any>, path: string[], value: string) => {
                 let cursor: any = target;
-
                 for (let i = 0; i < path.length; i += 1) {
                   const key = path[i];
                   const isIndex = /^\d+$/.test(key);
                   const nextKey = path[i + 1];
                   const nextIsIndex = /^\d+$/.test(nextKey || "");
                   const isLast = i === path.length - 1;
-
                   if (isLast) {
                     if (isIndex) {
                       const index = Number(key);
@@ -365,7 +369,6 @@ export default function BuilderEditor() {
                     }
                     return;
                   }
-
                   if (isIndex) {
                     const index = Number(key);
                     if (!Array.isArray(cursor)) return;
@@ -376,16 +379,36 @@ export default function BuilderEditor() {
                     cursor = cursor[index];
                     continue;
                   }
-
                   if (cursor[key] == null || typeof cursor[key] !== "object") {
                     cursor[key] = nextIsIndex ? [] : {};
                   } else if (nextIsIndex && !Array.isArray(cursor[key])) {
                     cursor[key] = [];
                   }
-
                   cursor = cursor[key];
                 }
               };
+
+              const applyUrlToSchema = (baseSchema: Record<string, any>, resolvedUrl: string) => {
+                const newSchema = { ...baseSchema };
+                if (fieldPath === "media.url") {
+                  const media = (newSchema.media as Record<string, unknown>) || {};
+                  newSchema.media = { ...media, url: resolvedUrl, type: "image" };
+                } else if (fieldPath.includes(".")) {
+                  const normalizedPath = fieldPath
+                    .split(".")
+                    .map((part, index, parts) => (
+                      parts[0] === "products" && index === 2 && part === "image" ? "image_url" : part
+                    ));
+                  setNestedValue(newSchema, normalizedPath, resolvedUrl);
+                } else {
+                  newSchema[fieldPath] = resolvedUrl;
+                }
+                return newSchema;
+              };
+
+              // ── Optimistic preview: show image immediately ──
+              const optimisticSchema = applyUrlToSchema({ ...section.schema } as Record<string, any>, url);
+              setLiveSchemaOverride({ sectionId, schema: optimisticSchema });
 
               let resolvedUrl = url;
 
@@ -394,6 +417,7 @@ export default function BuilderEditor() {
                   const { data: { session } } = await supabase.auth.getSession();
                   if (!session?.user?.id || !surfaceId) {
                     toast.error("Please sign in to upload images");
+                    setLiveSchemaOverride(null);
                     return;
                   }
 
@@ -418,27 +442,24 @@ export default function BuilderEditor() {
                   resolvedUrl = publicData.publicUrl;
                 } catch (error) {
                   toast.error(error instanceof Error ? error.message : "Image upload failed");
+                  setLiveSchemaOverride(null);
                   return;
                 }
               }
 
-              if (fieldPath === "media.url") {
-                const media = (newSchema.media as Record<string, unknown>) || {};
-                newSchema.media = { ...media, url: resolvedUrl, type: "image" };
-              } else if (fieldPath.includes(".")) {
-                const normalizedPath = fieldPath
-                  .split(".")
-                  .map((part, index, parts) => (
-                    parts[0] === "products" && index === 2 && part === "image" ? "image_url" : part
-                  ));
-
-                setNestedValue(newSchema, normalizedPath, resolvedUrl);
-              } else {
-                newSchema[fieldPath] = resolvedUrl;
-              }
-
-              await updateSectionSchema(sectionId, newSchema);
+              // Persist the uploaded image
+              const finalSchema = applyUrlToSchema({ ...section.schema } as Record<string, any>, resolvedUrl);
+              await updateSectionSchema(sectionId, finalSchema);
+              setLiveSchemaOverride(null);
               markDirty();
+
+              // Offer crop dialog after successful upload
+              setCropState({
+                open: true,
+                imageSrc: resolvedUrl,
+                sectionId,
+                fieldPath,
+              });
             }}
           />
           </div>
@@ -540,6 +561,74 @@ export default function BuilderEditor() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Image Crop Dialog — offered after every canvas upload */}
+      {cropState && (
+        <ImageCropDialog
+          open={cropState.open}
+          onOpenChange={(open) => {
+            if (!open) setCropState(null);
+          }}
+          imageSrc={cropState.imageSrc}
+          onCropComplete={async (croppedUrl: string) => {
+            const { sectionId, fieldPath } = cropState;
+            const section = sections.find((s) => s.id === sectionId);
+            if (!section) { setCropState(null); return; }
+
+            let resolvedUrl = croppedUrl;
+
+            // Upload cropped data URL to storage
+            if (croppedUrl.startsWith("data:")) {
+              try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session?.user?.id || !surfaceId) {
+                  setCropState(null);
+                  return;
+                }
+                const blob = await fetch(croppedUrl).then((r) => r.blob());
+                const ext = blob.type.split("/")[1] || "jpeg";
+                const safeFp = fieldPath.replace(/[^a-zA-Z0-9.-]/g, "_");
+                const path = `${session.user.id}/${surfaceId}/${sectionId}-${safeFp}-crop-${Date.now()}.${ext}`;
+                const { error: ue } = await supabase.storage.from("builder-media").upload(path, blob, { contentType: blob.type || "image/jpeg", upsert: false });
+                if (ue) throw ue;
+                const { data: pub } = supabase.storage.from("builder-media").getPublicUrl(path);
+                resolvedUrl = pub.publicUrl;
+              } catch {
+                toast.error("Cropped image upload failed");
+                setCropState(null);
+                return;
+              }
+            }
+
+            // Apply cropped URL to schema
+            const newSchema = { ...section.schema } as Record<string, any>;
+            const setNested = (target: any, parts: string[], val: string) => {
+              let cur = target;
+              for (let i = 0; i < parts.length; i++) {
+                const k = parts[i]; const isIdx = /^\d+$/.test(k); const isLast = i === parts.length - 1;
+                const nk = parts[i+1]; const nIsIdx = /^\d+$/.test(nk||"");
+                if (isLast) { if (isIdx) { cur[Number(k)] = val; } else { cur[k] = val; } return; }
+                if (isIdx) { cur = cur[Number(k)]; continue; }
+                if (!cur[k] || typeof cur[k] !== "object") cur[k] = nIsIdx ? [] : {};
+                cur = cur[k];
+              }
+            };
+            if (fieldPath === "media.url") {
+              const media = (newSchema.media as Record<string, unknown>) || {};
+              newSchema.media = { ...media, url: resolvedUrl, type: "image" };
+            } else if (fieldPath.includes(".")) {
+              const normalizedPath = fieldPath.split(".").map((p, i, a) => a[0]==="products"&&i===2&&p==="image"?"image_url":p);
+              setNested(newSchema, normalizedPath, resolvedUrl);
+            } else {
+              newSchema[fieldPath] = resolvedUrl;
+            }
+
+            await updateSectionSchema(sectionId, newSchema);
+            markDirty();
+            setCropState(null);
+          }}
+        />
       )}
     </div>
   );
