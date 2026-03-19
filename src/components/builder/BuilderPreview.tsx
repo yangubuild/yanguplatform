@@ -409,8 +409,9 @@ function BioPreview({ schema, canvas }: { schema: Record<string, unknown>; canva
   );
 }
 
-function LinksPreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<{ label?: string; url?: string }>) || [];
+function LinksPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
+  const rawItems = (schema.items as Array<Record<string, unknown>>) || [];
+  const items = rawItems.filter((it) => !it._hidden) as Array<{ label?: string; url?: string }>;
   const displayMode = (schema.display_mode as string) || "";
   const isLinkBio = displayMode === "link_buttons";
 
@@ -420,19 +421,23 @@ function LinksPreview({ schema }: { schema: Record<string, unknown> }) {
       {items.length === 0 ? (
         <p className="text-sm text-muted-foreground/60 italic">No links added yet</p>
       ) : (
-        items.map((item, i) => (
-          <div
-            key={i}
-            className={`block p-3 border text-sm text-center yangu-interactive font-medium transition-all ${
-              isLinkBio
-                ? "rounded-xl border-foreground/20 bg-card hover:bg-accent/10 hover:scale-[1.02] shadow-sm"
-                : "rounded-lg border-border bg-muted/50"
-            }`}
-            tabIndex={0}
-          >
-            {item.label || item.url || "Link"}
-          </div>
-        ))
+        items.map((item, i) => {
+          const realIdx = rawItems.indexOf(item as unknown as Record<string, unknown>);
+          return (
+            <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={realIdx}>
+              <div
+                className={`block p-3 border text-sm text-center yangu-interactive font-medium transition-all ${
+                  isLinkBio
+                    ? "rounded-xl border-foreground/20 bg-card hover:bg-accent/10 hover:scale-[1.02] shadow-sm"
+                    : "rounded-lg border-border bg-muted/50"
+                }`}
+                tabIndex={0}
+              >
+                {item.label || item.url || "Link"}
+              </div>
+            </ItemCardWrapper>
+          );
+        })
       )}
     </div>
   );
@@ -512,9 +517,14 @@ function ShowcasePreview({ schema, canvas }: { schema: Record<string, unknown>; 
       <div className="py-4 px-4">
         {heading && <h3 className="text-base font-semibold text-foreground mb-3 text-center">{heading}</h3>}
         <div className="rounded-xl border border-border bg-card/80 overflow-hidden divide-y divide-border">
-          {items.map((item, i) => (
-            <ShowcaseAccordionItem key={i} item={item} index={i} canvas={canvas} />
-          ))}
+          {items.map((item, i) => {
+            const realIdx = allRawItems.indexOf(item as unknown as Record<string, unknown>);
+            return (
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="showcase_items" items={allRawItems} index={realIdx}>
+                <ShowcaseAccordionItem item={item} index={i} canvas={canvas} />
+              </ItemCardWrapper>
+            );
+          })}
         </div>
       </div>
     );
@@ -1492,18 +1502,23 @@ function FooterPreview({ schema, canvas }: { schema: Record<string, unknown>; ca
           </div>
         </div>
       )}
-      {isMultiColumn && columns.length > 0 && (
-        <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${Math.min(columns.length, 3)}, 1fr)` }}>
-          {columns.map((col, i) => (
-            <div key={i}>
-              <p className="text-[10px] font-semibold mb-1">{col.title || "Links"}</p>
-              {(col.links || []).map((link, j) => (
-                <p key={j} className="text-[10px] text-muted-foreground leading-relaxed">{link}</p>
-              ))}
-            </div>
-          ))}
-        </div>
-      )}
+      {isMultiColumn && columns.length > 0 && (() => {
+        const rawColumns = (schema.columns as Array<Record<string, unknown>>) || [];
+        return (
+          <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${Math.min(columns.length, 3)}, 1fr)` }}>
+            {columns.map((col, i) => (
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="columns" items={rawColumns} index={i}>
+                <div>
+                  <p className="text-[10px] font-semibold mb-1">{col.title || "Links"}</p>
+                  {(col.links || []).map((link, j) => (
+                    <p key={j} className="text-[10px] text-muted-foreground leading-relaxed">{link}</p>
+                  ))}
+                </div>
+              </ItemCardWrapper>
+            ))}
+          </div>
+        );
+      })()}
       {!isMultiColumn && (
         <>
           <h3 className="text-sm font-semibold text-foreground mb-2">Footer</h3>
@@ -1521,16 +1536,21 @@ function FooterPreview({ schema, canvas }: { schema: Record<string, unknown>; ca
           ))}
         </div>
       )}
-      {hours.length > 0 && (
-        <div className="space-y-0.5">
-          {hours.map((h, i) => (
-            <div key={i} className="flex justify-between text-[10px] text-muted-foreground">
-              <span>{h.day || "Day"}</span>
-              <span>{h.hours || "Closed"}</span>
-            </div>
-          ))}
-        </div>
-      )}
+      {hours.length > 0 && (() => {
+        const rawHours = (schema.hours as Array<Record<string, unknown>>) || [];
+        return (
+          <div className="space-y-0.5">
+            {hours.map((h, i) => (
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="hours" items={rawHours} index={i}>
+                <div className="flex justify-between text-[10px] text-muted-foreground">
+                  <span>{h.day || "Day"}</span>
+                  <span>{h.hours || "Closed"}</span>
+                </div>
+              </ItemCardWrapper>
+            ))}
+          </div>
+        );
+      })()}
       {copyright && <p className="text-[9px] text-muted-foreground/60 text-center pt-2 border-t border-border">{copyright}</p>}
     </div>
   );
@@ -1546,6 +1566,7 @@ const CANVAS_AWARE_TYPES = new Set([
   "testimonials", "faq", "services", "services_list", "listings", "listing_grid",
   "plans", "rules", "schedule", "menu", "hours", "location",
   "properties", "booking_inventory", "community_feed",
+  "links", "links_grid",
 ]);
 
 export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<string, unknown>; canvas?: CanvasCallbacks }>> = {
