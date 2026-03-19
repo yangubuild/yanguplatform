@@ -254,27 +254,38 @@ Based on the user's business information, create a REAL branded page that looks 
 
 CRITICAL RULES:
 1. The business name must be "${businessName || "the provided name"}"
-2. Write compelling, specific copy that mentions what THIS business does — not generic placeholder text
-3. The primary_color must be a bold, appropriate color for a ${industry || "business"} brand
-4. Every section schema must have populated, specific content
-${businessDescription ? `5. Use this description as inspiration: "${businessDescription}"` : ""}
-${location ? `6. Reference the location: "${location}"` : ""}
+2. Write compelling, SPECIFIC copy — NEVER use "Lorem ipsum", "Sample", "Example", "Item 1", "Product 1", or any generic placeholder text.
+3. Product/item names MUST be realistic and specific (e.g. "Organic Shea Butter Moisturizer" not "Product 1", "Grilled Tilapia with Coconut Rice" not "Dish A").
+4. Descriptions MUST be detailed (2-3 sentences for items, 1-3 paragraphs for text sections) and mention specifics about the business.
+5. Prices MUST be realistic with proper currency formatting.
+6. The primary_color must be a bold, appropriate color for a ${industry || "business"} brand.
+7. Every section schema must have fully populated, specific content.
+${businessDescription ? `8. Use this description as inspiration: "${businessDescription}"` : ""}
+${location ? `9. Reference the location: "${location}"` : ""}
 
 SECTION SCHEMA REQUIREMENTS (use EXACTLY these field names):
-- hero section: "headline" (string), "subheadline" (string), "cta_text" (string), "media" object with { "type": "image", "url": "<image URL>", "fit": "cover" }
-- text/about section: "heading" (string), "body" (string)  
-- gallery section: "heading" (string), "items" array of {"name": string, "src": "<image URL>"}. MUST have at least 6 items.
-- products section: "heading" (string), "items" array of {"name": string, "price": string, "image_url": "<image URL>", "description": string}. MUST have at least 4 items.
-- collections/categories section: "heading" (string), "items" array of {"name": string, "image_url": "<image URL>"}
+- hero section: "headline" (string — brand-specific, compelling), "subheadline" (string — value proposition), "cta_text" (string — action-oriented), "media" object with { "type": "image", "url": "<image URL>", "fit": "cover" }
+- text/about section: "heading" (string), "body" (string — tell the business story, founding, mission, unique value)
+- gallery section: "heading" (string), "items" array of {"name": string (descriptive caption), "src": "<image URL>"}. MUST have at least 6 items.
+- products section: "heading" (string), "items" array of {"name": string (REAL product name), "price": string (realistic price), "image_url": "<image URL>", "description": string (2-3 sentences with features/materials)}. MUST have at least 4 items.
+- menu section: "heading" (string), "categories" array of {"name": string, "items": [{"name": string (REAL dish name), "price": string, "description": string (ingredients, cooking method)}]}. MUST have at least 3 categories with 3-5 items each.
+- services section: "heading" (string), "items" array of {"name": string (REAL service name), "price": string, "description": string, "icon": string (emoji)}
+- listings section: "heading" (string), "items" array of {"name": string, "price": string, "description": string, "image_url": string}
+- collections/categories section: "heading" (string), "items" array of {"name": string (specific category name), "image_url": "<image URL>"}
 - contact section: "heading" (string), "phone" (string), "address" (string), "email" (string)
 - offer section: "heading" (string), "description" (string), "items" array of {"title": string, "description": string, "price": string}
-- cta section: "label" (string), "url" (string)
+- cta section: "label" (string — specific action), "url" (string)
 - footer section: "heading" (string), "email" (string), "phone" (string), "address" (string)
+- testimonials section: "heading" (string), "items" array of {"name": string (realistic name), "quote": string (specific testimonial mentioning results)}
+- faq section: "heading" (string), "items" array of {"question": string, "answer": string (detailed answer)}
+- plans section: "heading" (string), "items" array of {"name": string (tier name), "price": string, "description": string (feature list)}
+- rules section: "heading" (string), "items" array of {"title": string, "description": string}
+- join section: "label" (string), "url" (string), "description" (string — compelling reason to join)
 ${photoInstruction}
 
 ALLOWED section types: ${allowedTypes.join(", ")}
 You MUST only use section types from the allowed list above.
-Generate 5-7 sections minimum. Always include a gallery section with at least 6 items.`;
+Generate 5-7 sections minimum. Always include content-rich items in every section.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
