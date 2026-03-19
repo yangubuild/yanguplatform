@@ -236,6 +236,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
     setPDimensions(p.dimensions); setPSpecs(p.specifications);
     setPAvailable(p.is_available);
     setPListedOnEshop(p.listed_on_eshop_connect || false);
+    setPCtaAction(p.cta_action || "add_to_cart");
     setPDraftMedia({ type: "none", source: "url", url: "", alt: "", fit: "cover" });
     setShowProductDialog(true);
   };
