@@ -8,12 +8,12 @@ const corsHeaders = {
 };
 
 const ENGINE_CONTEXTS: Record<string, string> = {
-  emenu: "a digital restaurant/food menu with menu categories and food items",
-  esite: "a professional business website with services and contact info",
-  eshop: "an online shop with product listings and collections",
-  estore: "a wholesale/trading store with catalog and bulk pricing",
-  influencer: "a creator bio-link page with social links and media showcase",
-  community: "a community landing page with member signup and events",
+  emenu: "a digital restaurant/food menu with menu categories and food items. Generate REAL appetizing dish names (e.g. 'Grilled Tilapia with Coconut Rice', 'Espresso Macchiato'), vivid descriptions mentioning ingredients and cooking methods, realistic prices (e.g. 'UGX 25,000'), and proper menu categories (Starters, Main Course, Beverages, Desserts). Never use generic names like 'Item 1' or 'Dish A'.",
+  esite: "a professional business website with services and contact info. Generate REAL service names (e.g. 'Brand Strategy Consulting', 'Residential Electrical Installation'), detailed benefit-driven descriptions, professional about copy with mission and values, and tiered pricing where applicable. Testimonials should reference specific results.",
+  eshop: "an online shop with product listings and collections. Generate REAL product names (e.g. 'Ankara Print Midi Dress', 'Wireless Bluetooth Earbuds'), specific descriptions with materials/features, plausible prices (e.g. 'UGX 45,000', '$29.99'), and commerce-oriented CTAs. Never use 'Product 1' or generic names.",
+  estore: "a wholesale/trading store with catalog and bulk pricing. Generate REAL wholesale product names (e.g. 'Premium Cement 50kg Bag', 'Refined Sunflower Oil 20L Jerrycan'), B2B descriptions with pack sizes and MOQs, bulk pricing (e.g. 'UGX 32,000/bag'), and trade-focused CTAs like 'Request Quote'.",
+  influencer: "a creator bio-link page with social links and media showcase. Generate personal, energetic bio copy, platform-specific links ('Watch My Latest YouTube Video', 'Shop My Favorites'), personality-driven headlines, creator merch or affiliate products with catchy names, and brand collaboration highlights.",
+  community: "a community landing page with member signup and events. Generate mission-driven headlines ('Join a Community That Empowers You'), membership tier descriptions, community guidelines, event listings ('Weekly Masterclass', 'Monthly Networking Mixer'), and member testimonials about community impact.",
 };
 
 /* ─── Image Completion Helpers ─── */
