@@ -332,7 +332,7 @@ export default function BuilderEditor() {
                 setRightPanel("page_edit");
               }
             }}
-            onImageReplace={async (sectionId, fieldPath, url) => {
+            onImageReplace={async (sectionId, fieldPath, url, source) => {
               const section = sections.find((s) => s.id === sectionId);
               if (!section) return;
               const newSchema = { ...section.schema } as Record<string, any>;
@@ -380,9 +380,44 @@ export default function BuilderEditor() {
                 }
               };
 
+              let resolvedUrl = url;
+
+              if (source === "upload" && url.startsWith("data:")) {
+                try {
+                  const { data: { session } } = await supabase.auth.getSession();
+                  if (!session?.user?.id || !surfaceId) {
+                    toast.error("Please sign in to upload images");
+                    return;
+                  }
+
+                  const uploadBlob = await fetch(url).then((response) => response.blob());
+                  const extension = uploadBlob.type.split("/")[1] || "png";
+                  const safeFieldPath = fieldPath.replace(/[^a-zA-Z0-9.-]/g, "_");
+                  const uploadPath = `${session.user.id}/${surfaceId}/${sectionId}-${safeFieldPath}-${Date.now()}.${extension}`;
+
+                  const { error: uploadError } = await supabase.storage
+                    .from("builder-media")
+                    .upload(uploadPath, uploadBlob, {
+                      contentType: uploadBlob.type || "image/png",
+                      upsert: false,
+                    });
+
+                  if (uploadError) throw uploadError;
+
+                  const { data: publicData } = supabase.storage
+                    .from("builder-media")
+                    .getPublicUrl(uploadPath);
+
+                  resolvedUrl = publicData.publicUrl;
+                } catch (error) {
+                  toast.error(error instanceof Error ? error.message : "Image upload failed");
+                  return;
+                }
+              }
+
               if (fieldPath === "media.url") {
                 const media = (newSchema.media as Record<string, unknown>) || {};
-                newSchema.media = { ...media, url, type: "image" };
+                newSchema.media = { ...media, url: resolvedUrl, type: "image" };
               } else if (fieldPath.includes(".")) {
                 const normalizedPath = fieldPath
                   .split(".")
@@ -390,9 +425,9 @@ export default function BuilderEditor() {
                     parts[0] === "products" && index === 2 && part === "image" ? "image_url" : part
                   ));
 
-                setNestedValue(newSchema, normalizedPath, url);
+                setNestedValue(newSchema, normalizedPath, resolvedUrl);
               } else {
-                newSchema[fieldPath] = url;
+                newSchema[fieldPath] = resolvedUrl;
               }
 
               await updateSectionSchema(sectionId, newSchema);
