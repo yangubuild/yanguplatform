@@ -562,6 +562,74 @@ export default function BuilderEditor() {
           </div>
         </div>
       )}
+
+      {/* Image Crop Dialog — offered after every canvas upload */}
+      {cropState && (
+        <ImageCropDialog
+          open={cropState.open}
+          onOpenChange={(open) => {
+            if (!open) setCropState(null);
+          }}
+          imageSrc={cropState.imageSrc}
+          onCropComplete={async (croppedUrl: string) => {
+            const { sectionId, fieldPath } = cropState;
+            const section = sections.find((s) => s.id === sectionId);
+            if (!section) { setCropState(null); return; }
+
+            let resolvedUrl = croppedUrl;
+
+            // Upload cropped data URL to storage
+            if (croppedUrl.startsWith("data:")) {
+              try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session?.user?.id || !surfaceId) {
+                  setCropState(null);
+                  return;
+                }
+                const blob = await fetch(croppedUrl).then((r) => r.blob());
+                const ext = blob.type.split("/")[1] || "jpeg";
+                const safeFp = fieldPath.replace(/[^a-zA-Z0-9.-]/g, "_");
+                const path = `${session.user.id}/${surfaceId}/${sectionId}-${safeFp}-crop-${Date.now()}.${ext}`;
+                const { error: ue } = await supabase.storage.from("builder-media").upload(path, blob, { contentType: blob.type || "image/jpeg", upsert: false });
+                if (ue) throw ue;
+                const { data: pub } = supabase.storage.from("builder-media").getPublicUrl(path);
+                resolvedUrl = pub.publicUrl;
+              } catch {
+                toast.error("Cropped image upload failed");
+                setCropState(null);
+                return;
+              }
+            }
+
+            // Apply cropped URL to schema
+            const newSchema = { ...section.schema } as Record<string, any>;
+            const setNested = (target: any, parts: string[], val: string) => {
+              let cur = target;
+              for (let i = 0; i < parts.length; i++) {
+                const k = parts[i]; const isIdx = /^\d+$/.test(k); const isLast = i === parts.length - 1;
+                const nk = parts[i+1]; const nIsIdx = /^\d+$/.test(nk||"");
+                if (isLast) { if (isIdx) { cur[Number(k)] = val; } else { cur[k] = val; } return; }
+                if (isIdx) { cur = cur[Number(k)]; continue; }
+                if (!cur[k] || typeof cur[k] !== "object") cur[k] = nIsIdx ? [] : {};
+                cur = cur[k];
+              }
+            };
+            if (fieldPath === "media.url") {
+              const media = (newSchema.media as Record<string, unknown>) || {};
+              newSchema.media = { ...media, url: resolvedUrl, type: "image" };
+            } else if (fieldPath.includes(".")) {
+              const normalizedPath = fieldPath.split(".").map((p, i, a) => a[0]==="products"&&i===2&&p==="image"?"image_url":p);
+              setNested(newSchema, normalizedPath, resolvedUrl);
+            } else {
+              newSchema[fieldPath] = resolvedUrl;
+            }
+
+            await updateSectionSchema(sectionId, newSchema);
+            markDirty();
+            setCropState(null);
+          }}
+        />
+      )}
     </div>
   );
 }
