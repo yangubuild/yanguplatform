@@ -187,9 +187,9 @@ export default function MyBusinessPage() {
                 return (
                   <Card key={s.id} className="p-4 flex flex-col gap-3 bg-card border-border min-w-[280px] max-w-[320px] shrink-0">
                     {/* Cover image if present */}
-                    {(s as any).cover_image_url && (
+                    {s.cover_image_url && (
                       <div className="rounded-lg overflow-hidden -mx-4 -mt-4 mb-1">
-                        <img src={(s as any).cover_image_url} alt="" className="w-full h-24 object-cover" />
+                        <img src={s.cover_image_url} alt="" className="w-full h-24 object-cover" />
                       </div>
                     )}
 
