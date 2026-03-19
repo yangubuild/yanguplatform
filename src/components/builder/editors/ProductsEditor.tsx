@@ -821,6 +821,9 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
             <div className="space-y-1.5">
               <Label className="text-sm font-bold">Specifications</Label>
               <Textarea value={pSpecs} onChange={(e) => setPSpecs(e.target.value)} placeholder="e.g., Storage: 256GB, Battery: 4000mAh" rows={3} />
+              <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={generateSpecifications} disabled={isGeneratingSpecs}>
+                {isGeneratingSpecs ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />} Generate Specifications
+              </Button>
             </div>
 
             {/* Available */}
