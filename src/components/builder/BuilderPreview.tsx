@@ -1299,7 +1299,7 @@ function CommunityFeedPreview({ schema, canvas }: { schema: Record<string, unkno
                 <div className="rounded-lg border border-border bg-muted/50 overflow-hidden yangu-card" tabIndex={0}>
                   {imgSrc && (
                     <div className="aspect-video bg-muted">
-                      <img src={imgSrc} alt={item.name || item.title || ""} className="w-full h-full object-cover" />
+                      <EditableImage src={imgSrc} alt={item.name || item.title || ""} className="w-full h-full object-cover" field={`items.${realIdx}.image_url`} canvas={canvas} />
                     </div>
                   )}
                   <div className="p-3">
