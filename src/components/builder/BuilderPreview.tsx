@@ -1380,11 +1380,15 @@ function HeaderPreview({
   schema,
   sections,
   onSelectSection,
+  pages,
+  onSwitchPage,
 }: {
   schema: Record<string, unknown>;
   canvas?: CanvasCallbacks;
   sections?: EditorSection[];
   onSelectSection?: (id: string) => void;
+  pages?: Array<{ id: string; slug: string; title: string }>;
+  onSwitchPage?: (pageId: string) => void;
 }) {
   const logoUrl = (schema.logo_url as string) || "";
   const logoPosition = (schema.logo_position as string) || "left";
@@ -1401,7 +1405,19 @@ function HeaderPreview({
   const isRightLogo = logoPosition === "right";
 
   const handleNavClick = (e: React.MouseEvent, label: string) => {
-    e.stopPropagation(); // always prevent header section select
+    e.stopPropagation();
+    // First check if this label matches a page title or slug
+    if (pages && pages.length > 1 && onSwitchPage) {
+      const labelLower = label.toLowerCase().trim();
+      const matchedPage = pages.find(
+        (p) => p.title.toLowerCase() === labelLower || p.slug.toLowerCase() === labelLower
+      );
+      if (matchedPage) {
+        onSwitchPage(matchedPage.id);
+        return;
+      }
+    }
+    // Fallback: jump to section on current page
     if (!sections || !onSelectSection) return;
     const target = findSectionForNavLabel(label, sections);
     if (target) {
