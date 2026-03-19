@@ -896,6 +896,7 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
               </div>
               <p className="text-xs text-muted-foreground">Choose AI generation or upload your own (min 800x600px, max 5MB)</p>
             </div>
+            <ItemCtaSelector value={itemCtaAction} onChange={setItemCtaAction} />
             <div className="flex items-center gap-2">
               <Checkbox
                 id="item-available"
