@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Trash2, GripVertical } from "lucide-react";
 import { MediaPicker, type MediaAsset } from "../media/MediaPicker";
 import { PaymentMethodsEditor } from "./PaymentMethodsEditor";
+import { ItemCtaSelector } from "./ItemCtaSelector";
 
 interface ShowcaseItem {
   title: string;
@@ -13,6 +14,7 @@ interface ShowcaseItem {
   image_url: string;
   link_url: string;
   price: string;
+  cta_action: string;
 }
 
 interface InfluencerShowcaseEditorProps {
