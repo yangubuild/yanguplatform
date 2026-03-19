@@ -226,11 +226,11 @@ export function SurfaceSettingsDialog({
             <Label className="text-sm font-medium">Surface Cover Image</Label>
             {coverImageUrl ? (
               <div className="relative rounded-lg overflow-hidden border border-border">
-                <img
-                  src={coverImageUrl}
-                  alt="Cover"
-                  className="w-full h-32 object-cover"
-                />
+                {/\.(mp4|webm|mov|ogg)(\?|$)/i.test(coverImageUrl) || coverImageUrl.startsWith("data:video/") ? (
+                  <video src={coverImageUrl} className="w-full h-32 object-cover" muted autoPlay loop playsInline />
+                ) : (
+                  <img src={coverImageUrl} alt="Cover" className="w-full h-32 object-cover" />
+                )}
                 <div className="absolute inset-0 bg-black/0 hover:bg-black/30 transition-all flex items-center justify-center gap-2 group cursor-pointer"
                   onClick={() => triggerFileInput("cover")}
                 >
