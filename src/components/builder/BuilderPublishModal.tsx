@@ -38,6 +38,7 @@ interface BuilderPublishModalProps {
   surfaceType: BuilderSurfaceType;
   surfaceTitle: string;
   defaultSlug?: string;
+  pages?: PublishPage[];
 }
 
 // Simple QR code generator using a public API
