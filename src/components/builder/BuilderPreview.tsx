@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { DEFAULT_PRIMARY_IDS, getPlatform, type SocialSlot } from "@/lib/socialPlatformRegistry";
 import type { EditorSection } from "@/hooks/useBuilderEditor";
+import { ctaLabel } from "./editors/ItemCtaSelector";
 import { Card } from "@/components/primitives";
 import type { BuilderTheme } from "./BuilderSettingsDrawer";
 import { DEFAULT_THEME } from "./BuilderSettingsDrawer";
