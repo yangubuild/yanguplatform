@@ -329,6 +329,8 @@ export default function BuilderEditor() {
             pageSettings={livePageSettings || pageSettings}
             liveSchemaOverride={liveSchemaOverride}
             previewViewport={previewViewport}
+            pages={editorState.pages}
+            onSwitchPage={setActivePageId}
             onUpdateSectionField={async (sectionId, fieldPath, value) => {
               const section = sections.find((s) => s.id === sectionId);
               if (!section) return;
