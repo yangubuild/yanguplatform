@@ -516,7 +516,18 @@ function ShowcasePreview({ schema }: { schema: Record<string, unknown> }) {
                   )}
                 </div>
               ) : (
-                <div className="aspect-square bg-muted flex items-center justify-center text-muted-foreground/40 text-2xl">📷</div>
+                <div
+                  className="aspect-square bg-muted flex items-center justify-center text-muted-foreground/40 text-2xl cursor-pointer hover:bg-muted/70 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const input = document.createElement("input");
+                    input.type = "file";
+                    input.accept = "image/*";
+                    input.onchange = () => {};
+                    input.click();
+                  }}
+                  title="Click to upload image"
+                >📷</div>
               )}
               <div className="p-3">
                 {item.title && <p className="text-sm font-medium truncate">{item.title}</p>}
