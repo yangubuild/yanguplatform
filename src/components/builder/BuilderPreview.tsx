@@ -1031,7 +1031,8 @@ function ServicesPreview({ schema, canvas }: { schema: Record<string, unknown>; 
 }
 
 function FeaturedPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
-  const items = (schema.items as Array<{ title?: string; description?: string; image_url?: string; href?: string }>) || [];
+  const rawItems = (schema.items as Array<Record<string, unknown>>) || [];
+  const items = rawItems.filter((it) => !it._hidden) as Array<{ title?: string; description?: string; image_url?: string; href?: string }>;
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.title as string) || "Featured"}</h3>
@@ -1039,16 +1040,21 @@ function FeaturedPreview({ schema, canvas }: { schema: Record<string, unknown>; 
         <p className="text-sm text-muted-foreground/60 italic">No featured items</p>
       ) : (
         <div className="space-y-2">
-          {items.map((item, i) => (
-            <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
-              <div className="aspect-video rounded overflow-hidden mb-2 bg-muted">
-                <EditableImage src={item.image_url || ""} alt={item.title || ""} className="w-full h-full object-cover" field={`items.${i}.image_url`} canvas={canvas} />
-              </div>
-              <p className="text-sm font-medium">{item.title || "Item"}</p>
-              {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
-              {item.href && <p className="text-xs text-primary mt-1 truncate">{item.href}</p>}
-            </div>
-          ))}
+          {items.map((item, i) => {
+            const realIdx = rawItems.indexOf(item as unknown as Record<string, unknown>);
+            return (
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={realIdx}>
+                <div className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
+                  <div className="aspect-video rounded overflow-hidden mb-2 bg-muted">
+                    <EditableImage src={item.image_url || ""} alt={item.title || ""} className="w-full h-full object-cover" field={`items.${realIdx}.image_url`} canvas={canvas} />
+                  </div>
+                  <p className="text-sm font-medium">{item.title || "Item"}</p>
+                  {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
+                  {item.href && <p className="text-xs text-primary mt-1 truncate">{item.href}</p>}
+                </div>
+              </ItemCardWrapper>
+            );
+          })}
         </div>
       )}
     </div>
