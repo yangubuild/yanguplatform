@@ -719,16 +719,20 @@ function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; can
 
       {!isTrustBadges && !isStoryBlock && items.length > 0 && (
         <div className="space-y-2">
-          {items.map((item, i) => (
-            <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={rawItems.indexOf(item as unknown as Record<string, unknown>)}>
-              <div className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
-                <div className="flex justify-between items-start">
-                  <p className="text-sm font-medium">{item.title || "Offer"}</p>
-                {item.price && <p className="text-xs font-medium text-primary shrink-0 ml-2">{item.price}</p>}
-              </div>
-              {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
-            </div>
-          ))}
+          {items.map((item, i) => {
+            const realIdx = rawItems.indexOf(item as unknown as Record<string, unknown>);
+            return (
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={realIdx}>
+                <div className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
+                  <div className="flex justify-between items-start">
+                    <p className="text-sm font-medium">{item.title || "Offer"}</p>
+                    {item.price && <p className="text-xs font-medium text-primary shrink-0 ml-2">{item.price}</p>}
+                  </div>
+                  {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
+                </div>
+              </ItemCardWrapper>
+            );
+          })}
         </div>
       )}
 
