@@ -1,11 +1,12 @@
 /**
  * MediaPickerList — manages an array of MediaAssets (for galleries, product images, etc.)
  * Each item is a full MediaPicker with add/remove/reorder.
+ * Supports bulk upload (multiple files at once) and both images & videos.
  */
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, GripVertical, Upload, Loader2 } from "lucide-react";
+import { Plus, Trash2, GripVertical, Loader2, Film } from "lucide-react";
 import { MediaPicker, type MediaAsset } from "./MediaPicker";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -19,6 +20,12 @@ interface MediaPickerListProps {
   max?: number;
 }
 
+const ACCEPTED_TYPES = "image/png,image/jpeg,image/webp,image/gif,video/mp4,video/webm,video/quicktime";
+
+function detectMediaType(file: File): "image" | "video" {
+  return file.type.startsWith("video/") ? "video" : "image";
+}
+
 export function MediaPickerList({
   items,
   onChange,
@@ -28,16 +35,29 @@ export function MediaPickerList({
 }: MediaPickerListProps) {
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadCount, setUploadCount] = useState(0);
+  const [uploadTotal, setUploadTotal] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const addItem = () => {
-    // Trigger file picker directly instead of adding empty slot
     fileInputRef.current?.click();
   };
 
-  const handleFileUpload = async (file: File) => {
-    if (items.length >= max) return;
+  const handleBulkUpload = async (files: File[]) => {
+    const remaining = max - items.length;
+    if (remaining <= 0) {
+      toast.error(`Maximum ${max} files allowed`);
+      return;
+    }
+    const batch = files.slice(0, remaining);
+    if (batch.length < files.length) {
+      toast.info(`Only uploading ${batch.length} of ${files.length} files (limit: ${max})`);
+    }
+
     setUploading(true);
+    setUploadTotal(batch.length);
+    setUploadCount(0);
+
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
@@ -45,20 +65,37 @@ export function MediaPickerList({
         return;
       }
       const userId = session.user.id;
-      const path = `${userId}/${surfaceId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-      const { error: uploadErr } = await supabase.storage
-        .from("builder-media")
-        .upload(path, file, { contentType: file.type, upsert: false });
-      if (uploadErr) throw uploadErr;
-      const { data: publicData } = supabase.storage.from("builder-media").getPublicUrl(path);
-      const newAsset: MediaAsset = { type: "image", src: publicData.publicUrl, provider: "upload" };
-      onChange([...items, newAsset]);
-      toast.success("Image uploaded!");
+      const newAssets: MediaAsset[] = [];
+
+      for (let i = 0; i < batch.length; i++) {
+        const file = batch[i];
+        setUploadCount(i + 1);
+        try {
+          const path = `${userId}/${surfaceId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+          const { error: uploadErr } = await supabase.storage
+            .from("builder-media")
+            .upload(path, file, { contentType: file.type, upsert: false });
+          if (uploadErr) throw uploadErr;
+          const { data: publicData } = supabase.storage.from("builder-media").getPublicUrl(path);
+          const mediaType = detectMediaType(file);
+          newAssets.push({ type: mediaType, src: publicData.publicUrl, provider: "upload" });
+        } catch (err) {
+          console.error(`Upload failed for ${file.name}:`, err);
+          toast.error(`Failed to upload ${file.name}`);
+        }
+      }
+
+      if (newAssets.length > 0) {
+        onChange([...items, ...newAssets]);
+        toast.success(`${newAssets.length} file${newAssets.length > 1 ? "s" : ""} uploaded!`);
+      }
     } catch (err) {
-      console.error("Upload error:", err);
+      console.error("Bulk upload error:", err);
       toast.error(err instanceof Error ? err.message : "Upload failed");
     } finally {
       setUploading(false);
+      setUploadCount(0);
+      setUploadTotal(0);
     }
   };
 
@@ -98,14 +135,20 @@ export function MediaPickerList({
           >
             <GripVertical className="h-3.5 w-3.5 text-muted-foreground shrink-0 cursor-grab" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); moveUp(idx); }} />
             {item.src ? (
-              <img src={item.thumb || item.src} alt="" className="h-8 w-8 rounded object-cover shrink-0" />
+              item.type === "video" ? (
+                <div className="h-8 w-8 rounded bg-muted flex items-center justify-center shrink-0">
+                  <Film className="h-4 w-4 text-muted-foreground" />
+                </div>
+              ) : (
+                <img src={item.thumb || item.src} alt="" className="h-8 w-8 rounded object-cover shrink-0" />
+              )
             ) : (
               <div className="h-8 w-8 rounded bg-muted flex items-center justify-center text-[10px] text-muted-foreground shrink-0">
                 {idx + 1}
               </div>
             )}
             <span className="flex-1 text-xs truncate text-muted-foreground">
-              {item.src ? (item.provider || "uploaded") : "empty — click to add"}
+              {item.src ? `${item.type === "video" ? "🎬 " : ""}${item.provider || "uploaded"}` : "empty — click to add"}
             </span>
             <Button
               variant="ghost"
@@ -130,15 +173,18 @@ export function MediaPickerList({
         </div>
       ))}
 
-      {/* Hidden file input for direct upload */}
+      {/* Hidden file input — supports multiple + images & videos */}
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/png,image/jpeg,image/webp"
+        accept={ACCEPTED_TYPES}
+        multiple
         className="hidden"
         onChange={(e) => {
-          const f = e.target.files?.[0];
-          if (f) handleFileUpload(f);
+          const fileList = e.target.files;
+          if (fileList && fileList.length > 0) {
+            handleBulkUpload(Array.from(fileList));
+          }
           e.target.value = "";
         }}
       />
@@ -151,7 +197,7 @@ export function MediaPickerList({
         disabled={items.length >= max || uploading}
       >
         {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
-        {uploading ? "Uploading..." : `Add ${label.replace(/s$/, "")}`}
+        {uploading ? `Uploading ${uploadCount}/${uploadTotal}...` : `Add ${label.replace(/s$/, "")} (images/videos)`}
       </Button>
     </div>
   );
