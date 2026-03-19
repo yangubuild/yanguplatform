@@ -148,7 +148,7 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
   }, []);
 
   return {
-    allDomains: allDomains || [],,
+    allDomains: allDomains || [],
     allowedDomains,
     domainsLoading,
     selectedDomainId,
