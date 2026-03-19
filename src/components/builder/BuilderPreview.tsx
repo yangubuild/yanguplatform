@@ -998,8 +998,9 @@ function FiltersPreview({ schema }: { schema: Record<string, unknown> }) {
   );
 }
 
-function ServicesPreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<{ name?: string; price?: string; description?: string; icon?: string; cta_action?: string }>) || [];
+function ServicesPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
+  const rawItems = (schema.items as Array<Record<string, unknown>>) || [];
+  const items = rawItems.filter((it) => !it._hidden) as Array<{ name?: string; price?: string; description?: string; icon?: string; cta_action?: string }>;
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Services"}</h3>
@@ -1009,15 +1010,18 @@ function ServicesPreview({ schema }: { schema: Record<string, unknown> }) {
         <div className="space-y-2">
           {items.map((item, i) => {
             const cta = ctaLabel(item.cta_action);
+            const realIdx = rawItems.indexOf(item as unknown as Record<string, unknown>);
             return (
-              <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
-                <div className="flex justify-between items-start">
-                  <p className="text-sm font-medium">{item.icon && <span className="mr-1.5">{item.icon}</span>}{item.name || "Service"}</p>
-                  {item.price && <p className="text-xs font-medium text-primary shrink-0 ml-2">{item.price}</p>}
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={realIdx}>
+                <div className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
+                  <div className="flex justify-between items-start">
+                    <p className="text-sm font-medium">{item.icon && <span className="mr-1.5">{item.icon}</span>}{item.name || "Service"}</p>
+                    {item.price && <p className="text-xs font-medium text-primary shrink-0 ml-2">{item.price}</p>}
+                  </div>
+                  {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
+                  {cta && <span className="mt-2 inline-block text-center text-[9px] font-medium py-1 px-3 rounded border border-border text-muted-foreground yangu-cta">{cta}</span>}
                 </div>
-                {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
-                {cta && <span className="mt-2 inline-block text-center text-[9px] font-medium py-1 px-3 rounded border border-border text-muted-foreground yangu-cta">{cta}</span>}
-              </div>
+              </ItemCardWrapper>
             );
           })}
         </div>
