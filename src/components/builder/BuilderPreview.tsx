@@ -638,11 +638,11 @@ function VideoPreview({ schema }: { schema: Record<string, unknown> }) {
 }
 
 function GalleryPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
-  const items = (schema.items as Array<{ src?: string; image_url?: string } | string>) || [];
-  const galleryItems = items.length > 0
-    ? items.slice(0, 6).map((item, i) => {
+  const rawItems = (schema.items as Array<Record<string, unknown>>) || [];
+  const items = rawItems.length > 0
+    ? rawItems.filter((it) => !it._hidden).slice(0, 6).map((item, i) => {
         if (typeof item === "string") return item;
-        return item.src || item.image_url || demoImage(i + 1);
+        return (item as Record<string, string>).src || (item as Record<string, string>).image_url || demoImage(i + 1);
       })
     : Array.from({ length: 6 }, (_, i) => demoImage(i + 1));
 
@@ -650,10 +650,12 @@ function GalleryPreview({ schema, canvas }: { schema: Record<string, unknown>; c
     <div className="py-4 px-6">
       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Gallery</p>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
-        {galleryItems.map((src, i) => (
-          <div key={i} className="aspect-square rounded bg-muted overflow-hidden">
-            <EditableImage src={src} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" field={`items.${i}.src`} canvas={canvas} />
-          </div>
+        {items.map((src, i) => (
+          <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={i}>
+            <div className="aspect-square rounded bg-muted overflow-hidden">
+              <EditableImage src={typeof src === "string" ? src : ""} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" field={`items.${i}.src`} canvas={canvas} />
+            </div>
+          </ItemCardWrapper>
         ))}
       </div>
     </div>
