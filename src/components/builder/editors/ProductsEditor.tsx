@@ -122,6 +122,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
     specifications: p.specifications || "",
     is_available: p.is_available !== false,
     listed_on_eshop_connect: p.listed_on_eshop_connect || false,
+    cta_action: p.cta_action || "add_to_cart",
   }}) as Product[];
 
   // Dialog state
