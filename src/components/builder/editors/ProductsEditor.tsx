@@ -339,20 +339,39 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
     try {
       const prompt = `Generate a professional ecommerce product photo for: ${pName}${pBrand ? ` by ${pBrand}` : ""}${pCategory ? ` in category ${pCategory}` : ""}. ${pDesc ? `Description: ${pDesc.slice(0, 100)}` : ""} Clean white background, studio lighting, high quality product photography.`;
 
-      const { data, error } = await supabase.functions.invoke("ada-chat", {
-        body: {
-          messages: [{ role: "user", content: prompt }],
-          model: "google/gemini-2.5-flash-image",
-          modalities: ["image", "text"],
-        },
+      const { data, error } = await supabase.functions.invoke("ada-generate-image", {
+        body: { prompt },
       });
 
       if (error) throw error;
 
-      const imageUrl = data?.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+      // Extract image URL from response
+      let imageUrl: string | null = data?.image_url || data?.url || data?.images?.[0]?.url || null;
+
+      // Handle base64 response - upload to storage
+      if (!imageUrl && data?.choices?.[0]?.message?.images?.[0]?.image_url?.url) {
+        const base64Url = data.choices[0].message.images[0].image_url.url;
+        const base64Data = base64Url.split(",")[1];
+        if (base64Data) {
+          const binaryStr = atob(base64Data);
+          const bytes = new Uint8Array(binaryStr.length);
+          for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
+          const blob = new Blob([bytes], { type: "image/png" });
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session) {
+            const path = `${session.user.id}/${surfaceId || "products"}/${Date.now()}-ai-product.png`;
+            const { error: uploadErr } = await supabase.storage.from("builder-media").upload(path, blob, { contentType: "image/png" });
+            if (!uploadErr) {
+              const { data: publicData } = supabase.storage.from("builder-media").getPublicUrl(path);
+              imageUrl = publicData.publicUrl;
+            }
+          }
+        }
+      }
+
       if (!imageUrl) throw new Error("No image generated");
 
-      const newAsset: MediaAsset = { type: "image", src: imageUrl, provider: "ai" as any };
+      const newAsset: MediaAsset = { type: "image", src: imageUrl, provider: "ai" };
       setPMedia((prev) => prev.length < 10 ? [...prev, newAsset] : prev);
       toast.success("Product image generated");
     } catch (err) {
