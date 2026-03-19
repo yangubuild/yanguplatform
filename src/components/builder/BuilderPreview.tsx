@@ -958,7 +958,7 @@ function ServicesPreview({ schema }: { schema: Record<string, unknown> }) {
   );
 }
 
-function FeaturedPreview({ schema }: { schema: Record<string, unknown> }) {
+function FeaturedPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
   const items = (schema.items as Array<{ title?: string; description?: string; image_url?: string; href?: string }>) || [];
   return (
     <div className="py-4 px-6">
@@ -969,11 +969,9 @@ function FeaturedPreview({ schema }: { schema: Record<string, unknown> }) {
         <div className="space-y-2">
           {items.map((item, i) => (
             <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
-              {item.image_url && (
-                <div className="aspect-video rounded overflow-hidden mb-2 bg-muted">
-                  <img src={item.image_url} alt={item.title || ""} className="w-full h-full object-cover" />
-                </div>
-              )}
+              <div className="aspect-video rounded overflow-hidden mb-2 bg-muted">
+                <EditableImage src={item.image_url || ""} alt={item.title || ""} className="w-full h-full object-cover" field={`items.${i}.image_url`} canvas={canvas} />
+              </div>
               <p className="text-sm font-medium">{item.title || "Item"}</p>
               {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
               {item.href && <p className="text-xs text-primary mt-1 truncate">{item.href}</p>}
