@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,6 +40,38 @@ export default function PublicSurfacePage() {
     staleTime: 60_000,
   });
 
+  // Extract metadata for document head (must be before early returns)
+  const surfaceData = (data?.published_schema?.surface || {}) as any;
+  const pageTitle = surfaceData.seo_title || surfaceData.title || "Untitled";
+  const seoDescription = surfaceData.seo_description || surfaceData.description || "";
+  const faviconUrl = surfaceData.favicon_url || "";
+
+  // Set document metadata (Block A — public page output)
+  useEffect(() => {
+    if (!data) return;
+    document.title = pageTitle;
+    
+    let metaDesc = document.querySelector('meta[name="description"]') as HTMLMetaElement;
+    if (!metaDesc) {
+      metaDesc = document.createElement("meta");
+      metaDesc.name = "description";
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.content = seoDescription;
+    
+    if (faviconUrl) {
+      let link = document.querySelector('link[rel="icon"]') as HTMLLinkElement;
+      if (!link) {
+        link = document.createElement("link");
+        link.rel = "icon";
+        document.head.appendChild(link);
+      }
+      link.href = faviconUrl;
+    }
+    
+    return () => { document.title = "YANGU"; };
+  }, [data, pageTitle, seoDescription, faviconUrl]);
+
   // Loading
   if (isLoading) {
     return (
@@ -55,12 +88,11 @@ export default function PublicSurfacePage() {
 
   // Render published schema
   const schema = data.published_schema;
-  const page = schema.pages?.[0]; // first page (home)
+  const page = schema.pages?.[0];
   const rawSections = page?.sections
     ?.slice()
     .sort((a, b) => a.position - b.position) ?? [];
   
-  // Deduplicate sections that share the same section_type + position
   const seen = new Set<string>();
   const sections = rawSections.filter((s) => {
     const key = `${s.section_type}::${s.position}`;
@@ -69,12 +101,12 @@ export default function PublicSurfacePage() {
     return true;
   });
   
-  const title = schema.surface?.title || "Untitled";
-  const surfaceType = schema.surface?.surface_type;
+  const title = pageTitle;
+  const surfaceType = surfaceData.surface_type;
   const isInfluencer = surfaceType === "live_bio";
   
   // Read theme from published schema
-  const rawTheme = (schema.surface?.theme as Partial<BuilderTheme>) || {};
+  const rawTheme = (surfaceData.theme as Partial<BuilderTheme>) || {};
   const surfaceTheme: BuilderTheme = { ...DEFAULT_THEME, ...rawTheme };
   const themeStyle: React.CSSProperties = {
     fontFamily: surfaceTheme.font_family,

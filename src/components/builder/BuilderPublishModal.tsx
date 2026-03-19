@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { useBuilderPublish, type ActiveDomain } from "@/hooks/useBuilderPublish";
 import type { BuilderSurfaceType } from "@/types/builder";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface BuilderPublishModalProps {
@@ -170,6 +171,14 @@ export function BuilderPublishModal({
     }
   }, [open, defaultSlug, customSlug, setCustomSlug]);
 
+  // Meta fields state (must be before any early returns)
+  const [seoTitle, setSeoTitle] = useState(surfaceTitle);
+  const [seoDescription, setSeoDescription] = useState("");
+  const [faviconUrl, setFaviconUrl] = useState("");
+  const [coverImageUrl, setCoverImageUrl] = useState("");
+  const [uploadingFavicon, setUploadingFavicon] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+
   const isSuccess = publishResult?.ok === true;
   const slugDisplay = customSlug || defaultSlug || "";
   const publishedUrl = selectedDomain
@@ -258,9 +267,62 @@ export function BuilderPublishModal({
   }
 
   // ─── Main State ───
+
+  const handleMetaUpload = async (file: File, type: "favicon" | "cover") => {
+    const setter = type === "favicon" ? setFaviconUrl : setCoverImageUrl;
+    const setUploading = type === "favicon" ? setUploadingFavicon : setUploadingCover;
+    setUploading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { toast.error("Please sign in"); return; }
+      const userId = session.user.id;
+      const ext = file.name.split(".").pop() || "png";
+      const path = `${userId}/${surfaceId}/${type}-${Date.now()}.${ext}`;
+      const { error: uploadErr } = await supabase.storage
+        .from("builder-media")
+        .upload(path, file, { contentType: file.type, upsert: false });
+      if (uploadErr) throw uploadErr;
+      const { data: publicData } = supabase.storage.from("builder-media").getPublicUrl(path);
+      setter(publicData.publicUrl);
+      toast.success(`${type === "favicon" ? "Favicon" : "Cover"} uploaded`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const triggerMetaUpload = (type: "favicon" | "cover") => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = (e) => {
+      const f = (e.target as HTMLInputElement).files?.[0];
+      if (f) handleMetaUpload(f, type);
+    };
+    input.click();
+  };
+
+  const handlePublishWithMeta = async () => {
+    // Save metadata to surface first
+    try {
+      await supabase
+        .from("builder_surfaces")
+        .update({
+          seo_title: seoTitle || null,
+          seo_description: seoDescription || null,
+          favicon_url: faviconUrl || null,
+          cover_image_url: coverImageUrl || null,
+        } as any)
+        .eq("id", surfaceId);
+    } catch {}
+    // Then publish
+    publish();
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Rocket className="h-5 w-5" />
@@ -272,6 +334,62 @@ export function BuilderPublishModal({
         </DialogHeader>
 
         <div className="space-y-6 py-4">
+          {/* Page Title */}
+          <div className="space-y-1.5">
+            <Label className="text-sm font-medium">Page Title</Label>
+            <Input
+              value={seoTitle}
+              onChange={(e) => setSeoTitle(e.target.value)}
+              placeholder={surfaceTitle || "My Page"}
+              className="text-sm"
+            />
+            <p className="text-[10px] text-muted-foreground">Shown in browser tab</p>
+          </div>
+
+          {/* SEO Description */}
+          <div className="space-y-1.5">
+            <Label className="text-sm font-medium">SEO Description</Label>
+            <Input
+              value={seoDescription}
+              onChange={(e) => setSeoDescription(e.target.value)}
+              placeholder="Describe your page..."
+              className="text-sm"
+            />
+          </div>
+
+          {/* Favicon */}
+          <div className="space-y-1.5">
+            <Label className="text-sm font-medium">Favicon</Label>
+            <div className="flex items-center gap-2">
+              {faviconUrl ? (
+                <img src={faviconUrl} alt="Favicon" className="w-6 h-6 rounded border border-border object-contain" />
+              ) : (
+                <div className="w-6 h-6 rounded border border-dashed border-border bg-muted" />
+              )}
+              <Button size="sm" variant="outline" className="text-xs gap-1" onClick={() => triggerMetaUpload("favicon")} disabled={uploadingFavicon}>
+                {uploadingFavicon ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
+                {faviconUrl ? "Change" : "Upload"}
+              </Button>
+            </div>
+          </div>
+
+          {/* Cover Image */}
+          <div className="space-y-1.5">
+            <Label className="text-sm font-medium">Cover Image</Label>
+            {coverImageUrl ? (
+              <div className="relative rounded overflow-hidden border border-border cursor-pointer" onClick={() => triggerMetaUpload("cover")}>
+                <img src={coverImageUrl} alt="Cover" className="w-full h-20 object-cover" />
+              </div>
+            ) : (
+              <div
+                className="w-full h-20 rounded border border-dashed border-border bg-muted flex items-center justify-center cursor-pointer hover:bg-muted/80"
+                onClick={() => triggerMetaUpload("cover")}
+              >
+                {uploadingCover ? <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /> : <span className="text-xs text-muted-foreground">Upload cover</span>}
+              </div>
+            )}
+          </div>
+
           {/* Domain Picker */}
           <div className="space-y-3">
             <label className="text-sm font-medium">Select Domain</label>
@@ -364,7 +482,7 @@ export function BuilderPublishModal({
             Cancel
           </Button>
           <Button
-            onClick={publish}
+            onClick={handlePublishWithMeta}
             disabled={!selectedDomainId || isPublishing}
             className="gap-2"
           >
