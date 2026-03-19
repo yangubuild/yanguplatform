@@ -1502,18 +1502,23 @@ function FooterPreview({ schema, canvas }: { schema: Record<string, unknown>; ca
           </div>
         </div>
       )}
-      {isMultiColumn && columns.length > 0 && (
-        <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${Math.min(columns.length, 3)}, 1fr)` }}>
-          {columns.map((col, i) => (
-            <div key={i}>
-              <p className="text-[10px] font-semibold mb-1">{col.title || "Links"}</p>
-              {(col.links || []).map((link, j) => (
-                <p key={j} className="text-[10px] text-muted-foreground leading-relaxed">{link}</p>
-              ))}
-            </div>
-          ))}
-        </div>
-      )}
+      {isMultiColumn && columns.length > 0 && (() => {
+        const rawColumns = (schema.columns as Array<Record<string, unknown>>) || [];
+        return (
+          <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${Math.min(columns.length, 3)}, 1fr)` }}>
+            {columns.map((col, i) => (
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="columns" items={rawColumns} index={i}>
+                <div>
+                  <p className="text-[10px] font-semibold mb-1">{col.title || "Links"}</p>
+                  {(col.links || []).map((link, j) => (
+                    <p key={j} className="text-[10px] text-muted-foreground leading-relaxed">{link}</p>
+                  ))}
+                </div>
+              </ItemCardWrapper>
+            ))}
+          </div>
+        );
+      })()}
       {!isMultiColumn && (
         <>
           <h3 className="text-sm font-semibold text-foreground mb-2">Footer</h3>
@@ -1531,16 +1536,21 @@ function FooterPreview({ schema, canvas }: { schema: Record<string, unknown>; ca
           ))}
         </div>
       )}
-      {hours.length > 0 && (
-        <div className="space-y-0.5">
-          {hours.map((h, i) => (
-            <div key={i} className="flex justify-between text-[10px] text-muted-foreground">
-              <span>{h.day || "Day"}</span>
-              <span>{h.hours || "Closed"}</span>
-            </div>
-          ))}
-        </div>
-      )}
+      {hours.length > 0 && (() => {
+        const rawHours = (schema.hours as Array<Record<string, unknown>>) || [];
+        return (
+          <div className="space-y-0.5">
+            {hours.map((h, i) => (
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="hours" items={rawHours} index={i}>
+                <div className="flex justify-between text-[10px] text-muted-foreground">
+                  <span>{h.day || "Day"}</span>
+                  <span>{h.hours || "Closed"}</span>
+                </div>
+              </ItemCardWrapper>
+            ))}
+          </div>
+        );
+      })()}
       {copyright && <p className="text-[9px] text-muted-foreground/60 text-center pt-2 border-t border-border">{copyright}</p>}
     </div>
   );
