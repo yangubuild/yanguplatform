@@ -95,36 +95,86 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
     })),
   })) as ProductCategory[];
 
-  const products = ((schema.products as any[]) || []).map((p: any) => {
-    // Migrate legacy images[] to media[]
-    const legacyImages: string[] = p.images || [];
-    const existingMedia: MediaAsset[] = p.media || [];
+  const rawProducts = Array.isArray(schema.products) ? (schema.products as any[]) : [];
+  const rawLegacyItems = Array.isArray(schema.items) ? (schema.items as any[]) : [];
+  const sourceProducts = rawProducts.length > 0 ? rawProducts : rawLegacyItems;
+  const isUsingLegacyItems = rawProducts.length === 0 && rawLegacyItems.length > 0;
+
+  const mapRawProduct = (p: any): Product => {
+    const legacyImages: string[] = Array.isArray(p.images)
+      ? p.images
+      : p.image_url
+        ? [p.image_url]
+        : [];
+    const existingMedia: MediaAsset[] = Array.isArray(p.media) ? p.media : [];
     const media: MediaAsset[] = existingMedia.length > 0
       ? existingMedia
       : legacyImages.filter(Boolean).map((url: string) => ({ type: "image" as const, src: url, provider: "url" as const }));
+
     return {
-    name: p.name || "",
-    brand: p.brand || "",
-    category: p.category || "",
-    description: p.description || "",
-    images: legacyImages,
-    media,
-    price: p.price || "",
-    compare_at_price: p.compare_at_price || "",
-    supplier_cost: p.supplier_cost || "",
-    stock_quantity: p.stock_quantity || "",
-    discount_percent: p.discount_percent || "",
-    discount_label: p.discount_label || "",
-    sizes: p.sizes || [],
-    colors: p.colors || [],
-    material: p.material || "",
-    weight: p.weight || "",
-    dimensions: p.dimensions || "",
-    specifications: p.specifications || "",
-    is_available: p.is_available !== false,
-    listed_on_eshop_connect: p.listed_on_eshop_connect || false,
-    cta_action: p.cta_action || "add_to_cart",
-  }}) as Product[];
+      name: p.name || p.title || "",
+      brand: p.brand || "",
+      category: p.category || "",
+      description: p.description || "",
+      images: legacyImages,
+      media,
+      price: p.price || "",
+      compare_at_price: p.compare_at_price || "",
+      supplier_cost: p.supplier_cost || "",
+      stock_quantity: p.stock_quantity || "",
+      discount_percent: p.discount_percent || "",
+      discount_label: p.discount_label || p.badge || "",
+      sizes: p.sizes || [],
+      colors: p.colors || [],
+      material: p.material || "",
+      weight: p.weight || "",
+      dimensions: p.dimensions || "",
+      specifications: p.specifications || "",
+      is_available: p.is_available !== false,
+      listed_on_eshop_connect: p.listed_on_eshop_connect || false,
+      cta_action: p.cta_action || "add_to_cart",
+    };
+  };
+
+  const buildLegacyItem = (product: Product) => ({
+    name: product.name,
+    title: product.name,
+    category: product.category,
+    description: product.description,
+    image_url: product.media[0]?.src || product.images[0] || "",
+    images: product.media.map((m) => m.src).filter(Boolean),
+    media: product.media,
+    price: product.price,
+    compare_at_price: product.compare_at_price,
+    supplier_cost: product.supplier_cost,
+    stock_quantity: product.stock_quantity,
+    discount_percent: product.discount_percent,
+    discount_label: product.discount_label,
+    badge: product.discount_label,
+    sizes: product.sizes,
+    colors: product.colors,
+    material: product.material,
+    weight: product.weight,
+    dimensions: product.dimensions,
+    specifications: product.specifications,
+    is_available: product.is_available,
+    listed_on_eshop_connect: product.listed_on_eshop_connect,
+    cta_action: product.cta_action,
+  });
+
+  const persistProducts = (updatedProducts: Product[]) => {
+    const nextProducts = updatedProducts.map((product) => ({
+      ...product,
+      images: product.media.map((m) => m.src).filter(Boolean),
+    }));
+
+    update({
+      products: nextProducts,
+      ...(isUsingLegacyItems ? { items: updatedProducts.map(buildLegacyItem) } : {}),
+    });
+  };
+
+  const products = sourceProducts.map(mapRawProduct) as Product[];
 
   // Dialog state
   const [showAddMethodDialog, setShowAddMethodDialog] = useState(false);
@@ -261,13 +311,13 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
     } else {
       updated.push(product);
     }
-    update({ products: updated });
+    persistProducts(updated);
     setShowProductDialog(false);
   };
 
   const deleteProduct = (i: number) => {
     if (!confirm(`Delete "${products[i].name}"?`)) return;
-    update({ products: products.filter((_, j) => j !== i) });
+    persistProducts(products.filter((_, j) => j !== i));
   };
 
   const addSize = () => {
