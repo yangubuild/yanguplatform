@@ -197,8 +197,8 @@ CRITICAL RULES:
 - Descriptions must be detailed and relevant (2-3 sentences minimum for items, 1-3 paragraphs for text/about sections).
 - Prices must be realistic with proper currency formatting where applicable.
 - CTA text must be action-oriented and context-appropriate.
-- For any image_url, src, or media.url fields, use https://picsum.photos/seed/<relevant-keyword>/WIDTH/HEIGHT where <relevant-keyword> is a specific word related to the content.
-- Each image should use a DIFFERENT seed keyword so images are visually distinct.
+- For any image_url, src, or media.url fields, leave them as empty strings "". AI images will be generated separately after text content is created.
+- Do NOT use picsum.photos, placeholder.com, or any placeholder image URLs.
 - If the user's prompt mentions a specific business or context, tailor ALL content to that business.`;
 
     const userPrompt = prompt?.trim()
