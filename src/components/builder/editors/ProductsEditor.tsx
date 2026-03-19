@@ -684,6 +684,9 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
                 label="Product Images"
                 max={10}
               />
+              <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={generateProductImage} disabled={isGeneratingImage || pMedia.length >= 10}>
+                {isGeneratingImage ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />} AI Generate Product Image
+              </Button>
             </div>
 
             {/* Pricing Section */}
