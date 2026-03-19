@@ -154,6 +154,8 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
   const [pListedOnEshop, setPListedOnEshop] = useState(false);
   const [pDraftMedia, setPDraftMedia] = useState<MediaValue>({ type: "none", source: "url", url: "", alt: "", fit: "cover" });
   const [isGeneratingDesc, setIsGeneratingDesc] = useState(false);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [isGeneratingSpecs, setIsGeneratingSpecs] = useState(false);
 
   // Category form state
   const [catName, setCatName] = useState("");
