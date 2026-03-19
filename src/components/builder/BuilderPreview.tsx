@@ -367,22 +367,16 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
       ) : null}
       {/* Overlay for text readability */}
       <div className="absolute inset-0 bg-black/40" />
-      {/* Text layer */}
-      <div className="relative z-10 py-12 px-6">
-        <CanvasDraggableOverlay
-          position={(schema.hero_text_position as { x: number; y: number }) || { x: 50, y: 50 }}
-          onPositionChange={canvas?.onUpdateField ? (pos) => canvas.onUpdateField!(canvas.sectionId, "hero_text_position", pos) : undefined}
-          className="max-w-2xl"
-        >
-          <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className="text-2xl font-bold text-white" tag="h1" canvas={canvas} />
-          {schema.subheadline && <EditableText value={schema.subheadline as string} field="subheadline" className="mt-2 text-white/70" tag="p" canvas={canvas} />}
-          {description && <EditableText value={description} field="description" className="mt-2 text-xs text-white/60" tag="p" canvas={canvas} />}
-          {ctaText && (
-            <div className="mt-4">
-              <EditableText value={ctaText} field="cta_text" className="inline-block px-6 py-2 rounded-full bg-white text-black text-sm font-medium yangu-cta" tag="span" canvas={canvas} />
-            </div>
-          )}
-        </CanvasDraggableOverlay>
+      {/* Text layer — centered inside hero */}
+      <div className="relative z-10 py-12 px-6 flex flex-col items-center justify-center" style={{ minHeight: "280px" }}>
+        <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className="text-2xl font-bold text-white" tag="h1" canvas={canvas} />
+        {schema.subheadline && <EditableText value={schema.subheadline as string} field="subheadline" className="mt-2 text-white/70" tag="p" canvas={canvas} />}
+        {description && <EditableText value={description} field="description" className="mt-2 text-xs text-white/60" tag="p" canvas={canvas} />}
+        {ctaText && (
+          <div className="mt-4">
+            <EditableText value={ctaText} field="cta_text" className="inline-block px-6 py-2 rounded-full bg-white text-black text-sm font-medium yangu-cta" tag="span" canvas={canvas} />
+          </div>
+        )}
       </div>
     </div>
   );
