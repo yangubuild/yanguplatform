@@ -80,6 +80,38 @@ const DEMO_IMAGES = [
 ];
 const demoImage = (index: number) => DEMO_IMAGES[index % DEMO_IMAGES.length];
 
+/** Remove item at index from an array field in schema via canvas */
+function removeItemAtIndex(canvas: CanvasCallbacks | undefined, fieldPath: string, items: unknown[], index: number) {
+  if (!canvas?.onUpdateField) return;
+  const updated = items.filter((_, i) => i !== index);
+  canvas.onUpdateField(canvas.sectionId, fieldPath, updated);
+}
+
+/** Hide item at index by setting hidden flag */
+function hideItemAtIndex(canvas: CanvasCallbacks | undefined, fieldPath: string, items: Array<Record<string, unknown>>, index: number) {
+  if (!canvas?.onUpdateField) return;
+  const updated = [...items];
+  updated[index] = { ...updated[index], _hidden: true };
+  canvas.onUpdateField(canvas.sectionId, fieldPath, updated);
+}
+
+/** Wrapper for item cards with controls */
+function ItemCardWrapper({ children, canvas, fieldPath, items, index, className }: {
+  children: React.ReactNode; canvas?: CanvasCallbacks; fieldPath: string;
+  items: Array<Record<string, unknown>>; index: number; className?: string;
+}) {
+  if (!canvas?.onUpdateField) return <>{children}</>;
+  return (
+    <div className={`relative group/item ${className || ""}`}>
+      <CanvasItemControls
+        onHide={() => hideItemAtIndex(canvas, fieldPath, items, index)}
+        onDelete={() => removeItemAtIndex(canvas, fieldPath, items, index)}
+      />
+      {children}
+    </div>
+  );
+}
+
 // ─── Inline-editable text helper ───
 function EditableText({
   value, field, placeholder, className, tag, canvas,
