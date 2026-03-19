@@ -1146,7 +1146,7 @@ function GenericPreview({ section }: { section: EditorSection }) {
 }
 
 // ─── Header preview ───
-function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
+function HeaderPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
   const logoUrl = (schema.logo_url as string) || "";
   const logoPosition = (schema.logo_position as string) || "left";
   const logoSize = (schema.logo_size as string) || "medium";
@@ -1160,30 +1160,58 @@ function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
   const sizeMap: Record<string, string> = { small: "h-8 w-8", medium: "h-10 w-10", large: "h-14 w-14" };
   const isCenterLogo = logoPosition === "center" || layoutVariant === "nav_split";
 
-  return (
-    <div className={`py-2.5 px-4 flex items-center gap-2 ${isDark ? "bg-foreground/90" : ""}`}>
-      {isCenterLogo && navItems.length > 0 && (
-        <div className="flex gap-2 flex-1">
-          {navItems.slice(0, 3).map((item, i) => (
-             <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
-          ))}
-        </div>
+  const logoBlock = (
+    <div className={`flex items-center gap-2 ${isCenterLogo ? "" : ""}`}>
+      {logoUrl ? (
+        <img src={logoUrl} alt="Logo" className={`${sizeMap[logoSize] || "h-10 w-10"} object-contain rounded`} />
+      ) : (
+        <div className={`${sizeMap[logoSize] || "h-10 w-10"} bg-muted rounded flex items-center justify-center text-[10px] text-muted-foreground`}>Logo</div>
       )}
-      <div className={`flex items-center gap-2 ${isCenterLogo ? "" : "flex-1"}`}>
-        {logoUrl ? (
-          <img src={logoUrl} alt="Logo" className={`${sizeMap[logoSize] || "h-10 w-10"} object-contain rounded`} />
-        ) : (
-          <div className={`${sizeMap[logoSize] || "h-10 w-10"} bg-muted rounded flex items-center justify-center text-[10px] text-muted-foreground`}>Logo</div>
-        )}
-        {showName && <span className={`text-xs font-semibold ${isDark ? "text-background" : "text-foreground"}`}>Store</span>}
+      {showName && <span className={`text-xs font-semibold ${isDark ? "text-background" : "text-foreground"}`}>Store</span>}
+    </div>
+  );
+
+  const renderNavItem = (item: string, i: number) => {
+    if (canvas?.onUpdateField) {
+      return (
+        <CanvasEditableText
+          key={i}
+          value={item}
+          placeholder="Nav"
+          className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}
+          onSave={(v) => {
+            const updated = [...navItems];
+            updated[i] = v;
+            canvas.onUpdateField!(canvas.sectionId, "nav_items", updated);
+          }}
+        />
+      );
+    }
+    return <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>;
+  };
+
+  if (isCenterLogo) {
+    return (
+      <div className={`py-2.5 px-4 flex items-center gap-2 ${isDark ? "bg-foreground/90" : ""}`}>
+        <div className="flex gap-2 flex-1">
+          {navItems.slice(0, 3).map((item, i) => renderNavItem(item, i))}
+        </div>
+        {logoBlock}
+        <div className="flex items-center gap-2 flex-1 justify-end">
+          {(schema.nav_items_right as string[] || []).slice(0, 2).map((item, i) => renderNavItem(item, navItems.length + i))}
+          {showSearch && <span className="text-sm">🔍</span>}
+          {showCart && <span className="text-sm">🛒</span>}
+        </div>
       </div>
-      <div className="flex items-center gap-2">
-        {!isCenterLogo && navItems.length > 0 && navItems.slice(0, 3).map((item, i) => (
-           <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
-        ))}
-        {isCenterLogo && (schema.nav_items_right as string[] || []).slice(0, 2).map((item, i) => (
-          <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
-        ))}
+    );
+  }
+
+  // Left logo (default)
+  return (
+    <div className={`py-2.5 px-4 flex items-center gap-3 ${isDark ? "bg-foreground/90" : ""}`}>
+      {logoBlock}
+      <div className="flex items-center gap-2 flex-1 justify-end">
+        {navItems.map((item, i) => renderNavItem(item, i))}
         {showSearch && <span className="text-sm">🔍</span>}
         {showCart && <span className="text-sm">🛒</span>}
       </div>
