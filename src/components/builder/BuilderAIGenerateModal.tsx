@@ -19,6 +19,7 @@ import { Loader2, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { getSectionPalette } from "@/config/builderSectionPalettes";
+import { enrichSchemaWithAiImages } from "@/lib/builder/aiImageEnrich";
 
 interface Props {
   open: boolean;
@@ -57,10 +58,21 @@ export function BuilderAIGenerateModal({ open, onOpenChange, surfaceType, onGene
       }
 
       await onGenerated(sectionType, data.schema);
-      toast.success(`${sectionType} section generated`);
+      toast.success(`${sectionType} section generated! Generating images…`);
       onOpenChange(false);
+      const savedType = sectionType;
       setSectionType("");
       setPrompt("");
+
+      // Enrich with AI images in background
+      enrichSchemaWithAiImages(data.schema, savedType, surfaceType, prompt)
+        .then((enriched) => {
+          onGenerated(savedType, enriched);
+          toast.success("AI images ready!");
+        })
+        .catch((err) => {
+          console.warn("[AI_GENERATE] Image enrichment failed:", err);
+        });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Generation failed");
     } finally {

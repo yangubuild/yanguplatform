@@ -13,23 +13,23 @@ const VALID_SECTION_TYPES = ["hero", "featured", "bio", "links", "social", "cta"
 // ─── Per-editor-type schema specs with REAL content guidance ───
 
 const SCHEMA_SPECS: Record<string, string> = {
-  hero: '{"headline": "string", "subheadline": "string", "cta_text": "string (button text)", "cta_href": "string (url)", "media": {"type": "image", "source": "url", "url": "string (use https://picsum.photos/seed/<relevant-word>/800/450 as placeholder)", "alt": "string", "fit": "cover"}}',
-  featured: '{"title": "string", "items": [{"title": "string", "description": "string", "image_url": "string (use https://picsum.photos/seed/<relevant-word>/400/300 as placeholder)", "href": "string"}]} (3-6 items)',
+  hero: '{"headline": "string", "subheadline": "string", "cta_text": "string (button text)", "cta_href": "string (url)", "media": {"type": "image", "source": "url", "url": "" (leave empty — AI images will be generated separately), "alt": "string", "fit": "cover"}}',
+  featured: '{"title": "string", "items": [{"title": "string", "description": "string", "image_url": "" (leave empty), "href": "string"}]} (3-6 items)',
   bio: '{"text": "string (1-3 paragraphs)"}',
   links: '{"items": [{"label": "string", "url": "string"}]} (2-5 items)',
   social: '{"handles": {"instagram": "string", "twitter": "string", "tiktok": "string", ...}} (include relevant ones)',
   cta: '{"label": "string (button text)", "href": "string (url)"}',
   video: '{"url": "string (youtube or similar url)"}',
-  gallery: '{"items": [{"src": "string (use https://picsum.photos/seed/<relevant-word>/600/400 as placeholder)", "alt": "string"}]} (3-6 items)',
+  gallery: '{"items": [{"src": "" (leave empty), "alt": "string", "name": "string (descriptive caption)"}]} (3-6 items)',
   text: '{"heading": "string", "body": "string (1-3 paragraphs)"}',
   about: '{"heading": "string", "body": "string (1-3 paragraphs)"}',
   offer: '{"heading": "string", "items": [{"title": "string", "price": "string", "description": "string"}]} (2-5 items)',
   plans: '{"heading": "string", "items": [{"name": "string", "price": "string", "description": "string"}]} (2-4 items)',
   rules: '{"heading": "string", "items": [{"title": "string", "description": "string"}]}',
   join: '{"label": "string", "url": "string", "description": "string"}',
-  products: '{"heading": "string", "items": [{"name": "string", "price": "string", "description": "string", "image_url": "string (use https://picsum.photos/seed/<relevant-word>/400/300)"}]} (3-6 items)',
+  products: '{"heading": "string", "items": [{"name": "string", "price": "string", "description": "string", "image_url": "" (leave empty)}]} (3-6 items)',
   categories: '{"heading": "string", "items": [{"name": "string", "description": "string", "icon": "string (emoji)"}]}',
-  listings: '{"heading": "string", "items": [{"name": "string", "price": "string", "description": "string", "image_url": "string (use https://picsum.photos/seed/<relevant-word>/400/300)"}]}',
+  listings: '{"heading": "string", "items": [{"name": "string", "price": "string", "description": "string", "image_url": "" (leave empty)}]}',
   filters: '{"heading": "string", "keys": ["string"]}',
   services: '{"heading": "string", "items": [{"name": "string", "price": "string", "description": "string", "icon": "string (emoji)"}]} (3-5 items)',
   testimonials: '{"heading": "string", "items": [{"name": "string", "quote": "string"}]} (2-4 items)',
@@ -197,8 +197,8 @@ CRITICAL RULES:
 - Descriptions must be detailed and relevant (2-3 sentences minimum for items, 1-3 paragraphs for text/about sections).
 - Prices must be realistic with proper currency formatting where applicable.
 - CTA text must be action-oriented and context-appropriate.
-- For any image_url, src, or media.url fields, use https://picsum.photos/seed/<relevant-keyword>/WIDTH/HEIGHT where <relevant-keyword> is a specific word related to the content.
-- Each image should use a DIFFERENT seed keyword so images are visually distinct.
+- For any image_url, src, or media.url fields, leave them as empty strings "". AI images will be generated separately after text content is created.
+- Do NOT use picsum.photos, placeholder.com, or any placeholder image URLs.
 - If the user's prompt mentions a specific business or context, tailor ALL content to that business.`;
 
     const userPrompt = prompt?.trim()
