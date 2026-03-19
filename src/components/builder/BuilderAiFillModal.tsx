@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { mergeIntoDefault } from "@/lib/builderDefaults";
-import {
+import { enrichSchemaWithAiImages } from "@/lib/builder/aiImageEnrich";
   Dialog,
   DialogContent,
   DialogHeader,
