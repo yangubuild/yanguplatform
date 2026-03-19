@@ -1468,7 +1468,7 @@ export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<st
   booking_inventory: ListingsPreview,
   showcase: ShowcasePreview,
   creator_showcase: ShowcasePreview,
-  community_feed: TextPreview,
+  community_feed: CommunityFeedPreview,
 };
 
 export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSelectSection, theme, pageSettings, liveSchemaOverride, onUpdateSectionField, onHideSection, onDeleteSection, onImageReplace, previewViewport }: BuilderPreviewProps) {
