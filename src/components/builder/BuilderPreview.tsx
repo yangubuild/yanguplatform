@@ -517,9 +517,14 @@ function ShowcasePreview({ schema, canvas }: { schema: Record<string, unknown>; 
       <div className="py-4 px-4">
         {heading && <h3 className="text-base font-semibold text-foreground mb-3 text-center">{heading}</h3>}
         <div className="rounded-xl border border-border bg-card/80 overflow-hidden divide-y divide-border">
-          {items.map((item, i) => (
-            <ShowcaseAccordionItem key={i} item={item} index={i} canvas={canvas} />
-          ))}
+          {items.map((item, i) => {
+            const realIdx = allRawItems.indexOf(item as unknown as Record<string, unknown>);
+            return (
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="showcase_items" items={allRawItems} index={realIdx}>
+                <ShowcaseAccordionItem item={item} index={i} canvas={canvas} />
+              </ItemCardWrapper>
+            );
+          })}
         </div>
       </div>
     );
