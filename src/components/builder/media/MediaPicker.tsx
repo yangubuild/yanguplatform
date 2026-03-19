@@ -72,6 +72,7 @@ export function MediaPicker({ value, onChange, label, surfaceId }: MediaPickerPr
         value={assetToMediaValue(value || null)}
         onChange={(mv) => onChange(mediaValueToAsset(mv))}
         surfaceId={surfaceId}
+        hideTypeSelector
       />
     </div>
   );
