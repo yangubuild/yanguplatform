@@ -510,24 +510,15 @@ function ShowcasePreview({ schema, canvas }: { schema: Record<string, unknown>; 
             >
               {item.image_url ? (
                 <div className="aspect-square bg-muted overflow-hidden relative">
-                  <img src={item.image_url} alt={item.title || ""} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  <EditableImage src={item.image_url} alt={item.title || ""} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" field={`showcase_items.${i}.image_url`} canvas={canvas} />
                   {item.price && (
                     <span className="absolute bottom-2 left-2 bg-black/70 text-white text-xs font-semibold px-2 py-0.5 rounded-md">{item.price}</span>
                   )}
                 </div>
               ) : (
-                <div
-                  className="aspect-square bg-muted flex items-center justify-center text-muted-foreground/40 text-2xl cursor-pointer hover:bg-muted/70 transition-colors"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    const input = document.createElement("input");
-                    input.type = "file";
-                    input.accept = "image/*";
-                    input.onchange = () => {};
-                    input.click();
-                  }}
-                  title="Click to upload image"
-                >📷</div>
+                <div className="aspect-square bg-muted overflow-hidden relative">
+                  <EditableImage src="" alt={item.title || "Showcase"} className="w-full h-full" field={`showcase_items.${i}.image_url`} canvas={canvas} />
+                </div>
               )}
               <div className="p-3">
                 {item.title && <p className="text-sm font-medium truncate">{item.title}</p>}
