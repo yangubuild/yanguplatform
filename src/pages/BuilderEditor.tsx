@@ -241,7 +241,7 @@ export default function BuilderEditor() {
         <Button size="sm" variant="outline" onClick={() => safeNavigate("/dashboard/my-business")} className="gap-2">
           <ClipboardList className="h-4 w-4" /> View Orders
         </Button>
-        <Button size="sm" onClick={() => { setPublishOpen(true); markClean(); }} className="gap-2">
+        <Button size="sm" onClick={() => setPublishOpen(true)} className="gap-2">
           <Rocket className="h-4 w-4" /> Publish
         </Button>
       </header>
