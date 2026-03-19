@@ -84,7 +84,7 @@ export default function MyBusinessPage() {
       const [surfaceRes, publishRes] = await Promise.all([
         supabase
           .from("builder_surfaces")
-          .select("id, title, slug, surface_type, description, created_at, updated_at, metadata")
+          .select("id, title, slug, surface_type, description, created_at, updated_at, metadata, cover_image_url")
           .eq("user_id", user.id)
           .order("updated_at", { ascending: false }),
         supabase
@@ -180,16 +180,16 @@ export default function MyBusinessPage() {
               <h2 className="text-lg font-semibold text-foreground">{meta.label}</h2>
               <span className="text-xs text-muted-foreground">({items.length})</span>
             </div>
-            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            <div className="flex gap-4 overflow-x-auto pb-2">
               {items.map((s) => {
                 const isPublished = !!publishMap[s.id];
                 const liveUrl = getLiveUrl(s);
                 return (
-                  <Card key={s.id} className="p-4 flex flex-col gap-3 bg-card border-border">
+                  <Card key={s.id} className="p-4 flex flex-col gap-3 bg-card border-border min-w-[280px] max-w-[320px] shrink-0">
                     {/* Cover image if present */}
-                    {(s as any).cover_image_url && (
+                    {s.cover_image_url && (
                       <div className="rounded-lg overflow-hidden -mx-4 -mt-4 mb-1">
-                        <img src={(s as any).cover_image_url} alt="" className="w-full h-24 object-cover" />
+                        <img src={s.cover_image_url} alt="" className="w-full h-24 object-cover" />
                       </div>
                     )}
 
