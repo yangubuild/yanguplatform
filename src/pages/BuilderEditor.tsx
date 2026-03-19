@@ -349,18 +349,15 @@ export default function BuilderEditor() {
             onImageReplace={async (sectionId, fieldPath, url, source) => {
               const section = sections.find((s) => s.id === sectionId);
               if (!section) return;
-              const newSchema = { ...section.schema } as Record<string, any>;
 
               const setNestedValue = (target: Record<string, any>, path: string[], value: string) => {
                 let cursor: any = target;
-
                 for (let i = 0; i < path.length; i += 1) {
                   const key = path[i];
                   const isIndex = /^\d+$/.test(key);
                   const nextKey = path[i + 1];
                   const nextIsIndex = /^\d+$/.test(nextKey || "");
                   const isLast = i === path.length - 1;
-
                   if (isLast) {
                     if (isIndex) {
                       const index = Number(key);
@@ -372,7 +369,6 @@ export default function BuilderEditor() {
                     }
                     return;
                   }
-
                   if (isIndex) {
                     const index = Number(key);
                     if (!Array.isArray(cursor)) return;
@@ -383,16 +379,36 @@ export default function BuilderEditor() {
                     cursor = cursor[index];
                     continue;
                   }
-
                   if (cursor[key] == null || typeof cursor[key] !== "object") {
                     cursor[key] = nextIsIndex ? [] : {};
                   } else if (nextIsIndex && !Array.isArray(cursor[key])) {
                     cursor[key] = [];
                   }
-
                   cursor = cursor[key];
                 }
               };
+
+              const applyUrlToSchema = (baseSchema: Record<string, any>, resolvedUrl: string) => {
+                const newSchema = { ...baseSchema };
+                if (fieldPath === "media.url") {
+                  const media = (newSchema.media as Record<string, unknown>) || {};
+                  newSchema.media = { ...media, url: resolvedUrl, type: "image" };
+                } else if (fieldPath.includes(".")) {
+                  const normalizedPath = fieldPath
+                    .split(".")
+                    .map((part, index, parts) => (
+                      parts[0] === "products" && index === 2 && part === "image" ? "image_url" : part
+                    ));
+                  setNestedValue(newSchema, normalizedPath, resolvedUrl);
+                } else {
+                  newSchema[fieldPath] = resolvedUrl;
+                }
+                return newSchema;
+              };
+
+              // ── Optimistic preview: show image immediately ──
+              const optimisticSchema = applyUrlToSchema({ ...section.schema } as Record<string, any>, url);
+              setLiveSchemaOverride({ sectionId, schema: optimisticSchema });
 
               let resolvedUrl = url;
 
@@ -401,6 +417,7 @@ export default function BuilderEditor() {
                   const { data: { session } } = await supabase.auth.getSession();
                   if (!session?.user?.id || !surfaceId) {
                     toast.error("Please sign in to upload images");
+                    setLiveSchemaOverride(null);
                     return;
                   }
 
@@ -425,27 +442,24 @@ export default function BuilderEditor() {
                   resolvedUrl = publicData.publicUrl;
                 } catch (error) {
                   toast.error(error instanceof Error ? error.message : "Image upload failed");
+                  setLiveSchemaOverride(null);
                   return;
                 }
               }
 
-              if (fieldPath === "media.url") {
-                const media = (newSchema.media as Record<string, unknown>) || {};
-                newSchema.media = { ...media, url: resolvedUrl, type: "image" };
-              } else if (fieldPath.includes(".")) {
-                const normalizedPath = fieldPath
-                  .split(".")
-                  .map((part, index, parts) => (
-                    parts[0] === "products" && index === 2 && part === "image" ? "image_url" : part
-                  ));
-
-                setNestedValue(newSchema, normalizedPath, resolvedUrl);
-              } else {
-                newSchema[fieldPath] = resolvedUrl;
-              }
-
-              await updateSectionSchema(sectionId, newSchema);
+              // Persist the uploaded image
+              const finalSchema = applyUrlToSchema({ ...section.schema } as Record<string, any>, resolvedUrl);
+              await updateSectionSchema(sectionId, finalSchema);
+              setLiveSchemaOverride(null);
               markDirty();
+
+              // Offer crop dialog after successful upload
+              setCropState({
+                open: true,
+                imageSrc: resolvedUrl,
+                sectionId,
+                fieldPath,
+              });
             }}
           />
           </div>
