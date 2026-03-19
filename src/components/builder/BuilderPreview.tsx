@@ -757,21 +757,30 @@ function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; can
         </div>
       )}
 
-      {testimonials?.enabled && (testimonials.items || []).length > 0 && (
-        <div className="border-t border-border pt-4">
-          {testimonials.subheading && <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{testimonials.subheading}</p>}
-          <h4 className="text-xs font-semibold mb-2">{testimonials.heading || "Reviews"}</h4>
-          <div className="space-y-2">
-            {(testimonials.items || []).map((t, i) => (
-              <div key={i} className="p-3 rounded-lg border border-border bg-muted/30 yangu-card" tabIndex={0}>
-                {t.label && <span className="text-[10px] font-medium text-primary">{t.label}</span>}
-                <p className="text-[11px] italic text-muted-foreground mt-1">"{t.quote || "..."}"</p>
-                <p className="text-[10px] font-medium mt-1">— {t.name || "Customer"}{t.location ? `, ${t.location}` : ""}</p>
-              </div>
-            ))}
+      {testimonials?.enabled && (testimonials.items || []).length > 0 && (() => {
+        const rawTestimonialItems = ((schema.testimonials as Record<string, unknown>)?.items as Array<Record<string, unknown>>) || [];
+        const visibleTestimonials = rawTestimonialItems.filter((it) => !it._hidden) as Array<{ name?: string; quote?: string; location?: string; label?: string }>;
+        return (
+          <div className="border-t border-border pt-4">
+            {testimonials.subheading && <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{testimonials.subheading}</p>}
+            <h4 className="text-xs font-semibold mb-2">{testimonials.heading || "Reviews"}</h4>
+            <div className="space-y-2">
+              {visibleTestimonials.map((t, i) => {
+                const realIdx = rawTestimonialItems.indexOf(t as unknown as Record<string, unknown>);
+                return (
+                  <ItemCardWrapper key={i} canvas={canvas} fieldPath="testimonials.items" items={rawTestimonialItems} index={realIdx}>
+                    <div className="p-3 rounded-lg border border-border bg-muted/30 yangu-card" tabIndex={0}>
+                      {t.label && <span className="text-[10px] font-medium text-primary">{t.label}</span>}
+                      <p className="text-[11px] italic text-muted-foreground mt-1">"{t.quote || "..."}"</p>
+                      <p className="text-[10px] font-medium mt-1">— {t.name || "Customer"}{t.location ? `, ${t.location}` : ""}</p>
+                    </div>
+                  </ItemCardWrapper>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {socialGallery?.enabled && (
         <div className="border-t border-border pt-4">
