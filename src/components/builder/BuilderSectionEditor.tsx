@@ -603,6 +603,7 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
       image_url: item.image_url || "",
       is_available: item.is_available !== false,
       category_index: i,
+      cta_action: item.cta_action || "order_now",
     })),
   })) as MenuCategory[];
 
