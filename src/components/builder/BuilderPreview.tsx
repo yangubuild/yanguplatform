@@ -1208,10 +1208,10 @@ function HeaderPreview({
   const isRightLogo = logoPosition === "right";
 
   const handleNavClick = (e: React.MouseEvent, label: string) => {
+    e.stopPropagation(); // always prevent header section select
     if (!sections || !onSelectSection) return;
     const target = findSectionForNavLabel(label, sections);
     if (target) {
-      e.stopPropagation(); // don't trigger header section select
       onSelectSection(target.id);
     }
   };
