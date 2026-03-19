@@ -537,36 +537,40 @@ function ShowcasePreview({ schema, canvas }: { schema: Record<string, unknown>; 
           className="flex gap-3 overflow-x-auto px-4 pb-2 snap-x snap-mandatory"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
         >
-          {items.map((item, i) => (
-            <div
-              key={i}
-              className="snap-start rounded-xl border border-border bg-card overflow-hidden yangu-interactive hover:shadow-lg transition-all group shrink-0"
-              style={{ width: "calc(50% - 6px)", minWidth: "160px" }}
-              tabIndex={0}
-            >
-              {item.image_url ? (
-                <div className="aspect-square bg-muted overflow-hidden relative">
-                  <EditableImage src={item.image_url} alt={item.title || ""} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" field={`showcase_items.${i}.image_url`} canvas={canvas} />
-                  {item.price && (
-                    <span className="absolute bottom-2 left-2 bg-black/70 text-white text-xs font-semibold px-2 py-0.5 rounded-md">{item.price}</span>
+          {items.map((item, i) => {
+            const realIdx = allRawItems.indexOf(item as unknown as Record<string, unknown>);
+            return (
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="showcase_items" items={allRawItems} index={realIdx} className="shrink-0" >
+                <div
+                  className="snap-start rounded-xl border border-border bg-card overflow-hidden yangu-interactive hover:shadow-lg transition-all group"
+                  style={{ width: "calc(50% - 6px)", minWidth: "160px" }}
+                  tabIndex={0}
+                >
+                  {item.image_url ? (
+                    <div className="aspect-square bg-muted overflow-hidden relative">
+                      <EditableImage src={item.image_url} alt={item.title || ""} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" field={`showcase_items.${realIdx}.image_url`} canvas={canvas} />
+                      {item.price && (
+                        <span className="absolute bottom-2 left-2 bg-black/70 text-white text-xs font-semibold px-2 py-0.5 rounded-md">{item.price}</span>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="aspect-square bg-muted overflow-hidden relative">
+                      <EditableImage src="" alt={item.title || "Showcase"} className="w-full h-full" field={`showcase_items.${realIdx}.image_url`} canvas={canvas} />
+                    </div>
                   )}
+                  <div className="p-3">
+                    {item.title && <p className="text-sm font-medium truncate">{item.title}</p>}
+                    {item.description && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{item.description}</p>}
+                    {item.link_url && (
+                      <a href={item.link_url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block w-full text-center py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium yangu-interactive hover:opacity-90 transition-opacity">
+                        {ctaLabel((item as any).cta_action) || "Buy Now"}
+                      </a>
+                    )}
+                  </div>
                 </div>
-              ) : (
-                <div className="aspect-square bg-muted overflow-hidden relative">
-                  <EditableImage src="" alt={item.title || "Showcase"} className="w-full h-full" field={`showcase_items.${i}.image_url`} canvas={canvas} />
-                </div>
-              )}
-              <div className="p-3">
-                {item.title && <p className="text-sm font-medium truncate">{item.title}</p>}
-                {item.description && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{item.description}</p>}
-                {item.link_url && (
-                  <a href={item.link_url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block w-full text-center py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium yangu-interactive hover:opacity-90 transition-opacity">
-                    {ctaLabel((item as any).cta_action) || "Buy Now"}
-                  </a>
-                )}
-              </div>
-            </div>
-          ))}
+              </ItemCardWrapper>
+            );
+          })}
         </div>
         {/* Right scroll arrow */}
         <button onClick={scrollRight} className="absolute right-1 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-background/80 border border-border shadow flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity yangu-interactive">
