@@ -295,7 +295,7 @@ export function BuilderPublishModal({
   const triggerMetaUpload = (type: "favicon" | "cover") => {
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = "image/*";
+    input.accept = type === "cover" ? "image/*,video/*,.gif" : "image/*";
     input.onchange = (e) => {
       const f = (e.target as HTMLInputElement).files?.[0];
       if (f) handleMetaUpload(f, type);
@@ -378,7 +378,11 @@ export function BuilderPublishModal({
             <Label className="text-sm font-medium">Cover Image</Label>
             {coverImageUrl ? (
               <div className="relative rounded overflow-hidden border border-border cursor-pointer" onClick={() => triggerMetaUpload("cover")}>
-                <img src={coverImageUrl} alt="Cover" className="w-full h-20 object-cover" />
+                {/\.(mp4|webm|mov|ogg)(\?|$)/i.test(coverImageUrl) || coverImageUrl.startsWith("data:video/") ? (
+                  <video src={coverImageUrl} className="w-full h-20 object-cover" muted autoPlay loop playsInline />
+                ) : (
+                  <img src={coverImageUrl} alt="Cover" className="w-full h-20 object-cover" />
+                )}
               </div>
             ) : (
               <div

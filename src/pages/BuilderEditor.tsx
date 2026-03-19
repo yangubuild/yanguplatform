@@ -337,7 +337,12 @@ export default function BuilderEditor() {
               const newSchema = { ...section.schema };
               if (fieldPath === "media.url") {
                 const media = (newSchema.media as Record<string, unknown>) || {};
-                newSchema.media = { ...media, url, type: "image" };
+                // Detect media type from data-uri or extension
+                let detectedType: string = "image";
+                if (url.startsWith("data:video/")) detectedType = "video";
+                else if (/\.(mp4|webm|mov|ogg)(\?|$)/i.test(url)) detectedType = "video";
+                else if (url.startsWith("data:image/gif") || /\.gif(\?|$)/i.test(url)) detectedType = "gif";
+                newSchema.media = { ...media, url, type: detectedType };
               } else if (fieldPath.startsWith("items.")) {
                 const idx = parseInt(fieldPath.split(".")[1], 10);
                 const items = [...((newSchema.items as any[]) || [])];

@@ -101,7 +101,14 @@ function EditableText({
   return <Tag className={className}>{value || placeholder}</Tag>;
 }
 
-// ─── Inline-editable image helper ───
+// ─── Media type detection helpers ───
+function isVideoUrl(url: string): boolean {
+  if (!url) return false;
+  if (url.startsWith("data:video/")) return true;
+  return /\.(mp4|webm|mov|ogg)(\?|$)/i.test(url);
+}
+
+// ─── Inline-editable image/video/gif helper ───
 function EditableImage({
   src, alt, className, field, canvas,
 }: {
@@ -116,6 +123,9 @@ function EditableImage({
         onReplace={(url, source) => canvas.onImageReplace!(canvas.sectionId, field, url, source)}
       />
     );
+  }
+  if (isVideoUrl(src)) {
+    return <video src={src} className={`${className || ""} w-full h-full object-cover`} muted autoPlay loop playsInline />;
   }
   return <img src={src} alt={alt || "Image"} className={`${className || ""} w-full h-full object-cover`} />;
 }
@@ -325,62 +335,71 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
   }
 
   if (isDark || layoutVariant === "fullwidth_center") {
+    const isHeroVid = mediaType === "video" || isVideoUrl(resolvedMediaUrl);
     return (
-      <div className="py-12 px-6 text-center rounded-lg relative overflow-hidden" style={{ backgroundColor: bgColor || "hsl(0 0% 8%)", minHeight: "280px" }}>
-        {mediaType !== "video" && resolvedMediaUrl && (
-          <EditableImage src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-40" field="media.url" canvas={canvas} />
-        )}
+      <div className="text-center rounded-lg relative overflow-hidden" style={{ backgroundColor: bgColor || "hsl(0 0% 8%)", minHeight: "280px" }}>
+        {isHeroVid && mediaUrl ? (
+          <video src={mediaUrl} className="absolute inset-0 w-full h-full object-cover opacity-60" muted autoPlay loop playsInline />
+        ) : resolvedMediaUrl ? (
+          <EditableImage src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-60" field="media.url" canvas={canvas} />
+        ) : null}
+        <div className="absolute inset-0 bg-black/30" />
+        <div className="relative z-10 py-12 px-6">
+          <CanvasDraggableOverlay
+            position={(schema.hero_text_position as { x: number; y: number }) || { x: 50, y: 50 }}
+            onPositionChange={canvas?.onUpdateField ? (pos) => canvas.onUpdateField!(canvas.sectionId, "hero_text_position", pos) : undefined}
+            className="max-w-2xl"
+          >
+            <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className={`font-bold text-white ${isBoldUppercase ? "text-2xl tracking-[0.15em] uppercase" : "text-2xl"}`} tag="h1" canvas={canvas} />
+            {schema.subheadline && (
+              <EditableText value={schema.subheadline as string} field="subheadline" className="mt-3 text-white/70 text-[10px] leading-relaxed max-w-[480px] mx-auto" tag="p" canvas={canvas} />
+            )}
+            {ctaText && (
+              <div className="mt-4">
+                <EditableText value={ctaText} field="cta_text" className="inline-block px-5 py-2 rounded-full bg-white text-black text-xs font-medium yangu-cta" tag="span" canvas={canvas} />
+              </div>
+            )}
+          </CanvasDraggableOverlay>
+        </div>
+      </div>
+    );
+  }
+
+  // Default hero — full-bleed media background
+  const isHeroVideo = mediaType === "video" || isVideoUrl(resolvedMediaUrl);
+  const ytId = mediaType === "video" && mediaUrl ? isYouTubeUrl(mediaUrl) : null;
+
+  return (
+    <div className="text-center rounded-lg relative overflow-hidden" style={{ minHeight: "280px", backgroundColor: bgColor || "hsl(0 0% 8%)" }}>
+      {/* Full-bleed background media */}
+      {ytId ? (
+        <div className="absolute inset-0">
+          <iframe src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&controls=0&playlist=${ytId}`} className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title="Video" style={{ border: 0 }} />
+        </div>
+      ) : isHeroVideo && mediaUrl ? (
+        <video src={mediaUrl} className="absolute inset-0 w-full h-full object-cover" muted autoPlay loop playsInline />
+      ) : resolvedMediaUrl ? (
+        <EditableImage src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover" field="media.url" canvas={canvas} />
+      ) : null}
+      {/* Overlay for text readability */}
+      <div className="absolute inset-0 bg-black/40" />
+      {/* Text layer */}
+      <div className="relative z-10 py-12 px-6">
         <CanvasDraggableOverlay
           position={(schema.hero_text_position as { x: number; y: number }) || { x: 50, y: 50 }}
           onPositionChange={canvas?.onUpdateField ? (pos) => canvas.onUpdateField!(canvas.sectionId, "hero_text_position", pos) : undefined}
           className="max-w-2xl"
         >
-          <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className={`font-bold text-white ${isBoldUppercase ? "text-2xl tracking-[0.15em] uppercase" : "text-2xl"}`} tag="h1" canvas={canvas} />
-          {schema.subheadline && (
-            <EditableText value={schema.subheadline as string} field="subheadline" className="mt-3 text-white/70 text-[10px] leading-relaxed max-w-[480px] mx-auto" tag="p" canvas={canvas} />
-          )}
+          <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className="text-2xl font-bold text-white" tag="h1" canvas={canvas} />
+          {schema.subheadline && <EditableText value={schema.subheadline as string} field="subheadline" className="mt-2 text-white/70" tag="p" canvas={canvas} />}
+          {description && <EditableText value={description} field="description" className="mt-2 text-xs text-white/60" tag="p" canvas={canvas} />}
           {ctaText && (
             <div className="mt-4">
-              <EditableText value={ctaText} field="cta_text" className="inline-block px-5 py-2 rounded-full bg-white text-black text-xs font-medium yangu-cta" tag="span" canvas={canvas} />
+              <EditableText value={ctaText} field="cta_text" className="inline-block px-6 py-2 rounded-full bg-white text-black text-sm font-medium yangu-cta" tag="span" canvas={canvas} />
             </div>
           )}
         </CanvasDraggableOverlay>
       </div>
-    );
-  }
-
-  // Default hero
-  return (
-    <div className="py-12 px-6 text-center bg-gradient-to-b from-accent/10 to-transparent rounded-lg relative">
-      {mediaType !== "video" && resolvedMediaUrl && (
-        <div className={`aspect-video rounded-lg mb-4 overflow-hidden ${mediaFit === "contain" ? "bg-muted" : ""}`}>
-          <EditableImage src={resolvedMediaUrl} alt="Hero visual" className={`w-full h-full ${mediaFit === "cover" ? "object-cover" : "object-contain"}`} field="media.url" canvas={canvas} />
-        </div>
-      )}
-      {mediaType === "video" && mediaUrl && (() => {
-        const ytId = isYouTubeUrl(mediaUrl);
-        return ytId ? (
-          <div className="aspect-video rounded-lg overflow-hidden mb-4">
-            <iframe src={`https://www.youtube.com/embed/${ytId}`} className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title="Video" />
-          </div>
-        ) : (
-          <video src={mediaUrl} controls className="w-full rounded-lg mb-4" />
-        );
-      })()}
-      <CanvasDraggableOverlay
-        position={(schema.hero_text_position as { x: number; y: number }) || { x: 50, y: 50 }}
-        onPositionChange={canvas?.onUpdateField ? (pos) => canvas.onUpdateField!(canvas.sectionId, "hero_text_position", pos) : undefined}
-        className="max-w-2xl"
-      >
-        <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className="text-2xl font-bold text-foreground" tag="h1" canvas={canvas} />
-        {schema.subheadline && <EditableText value={schema.subheadline as string} field="subheadline" className="mt-2 text-muted-foreground" tag="p" canvas={canvas} />}
-        {description && <EditableText value={description} field="description" className="mt-2 text-xs text-muted-foreground" tag="p" canvas={canvas} />}
-        {ctaText && (
-          <div className="mt-4">
-            <EditableText value={ctaText} field="cta_text" className="inline-block px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium yangu-cta" tag="span" canvas={canvas} />
-          </div>
-        )}
-      </CanvasDraggableOverlay>
     </div>
   );
 }
