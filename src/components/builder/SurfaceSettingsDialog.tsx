@@ -295,6 +295,14 @@ export function SurfaceSettingsDialog({
           </Button>
         </div>
       </DialogContent>
+
+      <ImageCropDialog
+        open={showCropDialog}
+        onOpenChange={setShowCropDialog}
+        imageSrc={cropImageSrc}
+        aspectRatio={1200 / 630}
+        onCropComplete={(croppedUrl) => setCoverImageUrl(croppedUrl)}
+      />
     </Dialog>
   );
 }
