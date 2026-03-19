@@ -903,21 +903,26 @@ function ProductsPreview({ schema, canvas }: { schema: Record<string, unknown>; 
         <EditableText value={schema.description as string} field="description" className="text-[10px] text-muted-foreground mb-3 leading-relaxed" tag="p" canvas={canvas} />
       )}
       <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3 xl:grid-cols-4" style={cols !== 2 && cols !== 3 && cols !== 4 ? { gridTemplateColumns: `repeat(${cols}, 1fr)` } : undefined}>
-        {renderedItems.map((item, i) => (
-          <div key={i} className="rounded-lg border border-border bg-card overflow-hidden group max-w-sm yangu-card" tabIndex={0}>
-            <div className={`bg-muted relative ${isPortrait ? "aspect-[3/4]" : isSquare ? "aspect-square" : "aspect-[4/3]"}`}>
-              <EditableImage src={usingSeedData ? item.image_url || demoImage(i) : item.image_url || ""} alt={item.name || "Product"} className="w-full h-full object-cover" field={`products.${i}.image`} canvas={canvas} />
-              {item.badge && cardSettings.badge_enabled !== false && (
-                <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded text-[9px] font-medium bg-primary text-primary-foreground">{item.badge}</span>
-              )}
-            </div>
-            <div className="p-3 lg:p-4">
-              <p className="text-[11px] font-medium truncate">{item.name || "Product"}</p>
-              {item.price && <p className="text-[10px] text-primary font-semibold mt-0.5">{item.price}</p>}
-              {showCta && <span className="mt-2 inline-block text-center text-[9px] font-medium py-1.5 px-4 rounded border border-border text-muted-foreground w-fit yangu-cta">Add to Cart</span>}
-            </div>
-          </div>
-        ))}
+        {renderedItems.map((item, i) => {
+          const rawProducts = (schema.products as Array<Record<string, unknown>>) || [];
+          return (
+            <ItemCardWrapper key={i} canvas={!usingSeedData ? canvas : undefined} fieldPath="products" items={rawProducts} index={i}>
+              <div className="rounded-lg border border-border bg-card overflow-hidden group max-w-sm yangu-card" tabIndex={0}>
+                <div className={`bg-muted relative ${isPortrait ? "aspect-[3/4]" : isSquare ? "aspect-square" : "aspect-[4/3]"}`}>
+                  <EditableImage src={usingSeedData ? item.image_url || demoImage(i) : item.image_url || ""} alt={item.name || "Product"} className="w-full h-full object-cover" field={`products.${i}.image`} canvas={canvas} />
+                  {item.badge && cardSettings.badge_enabled !== false && (
+                    <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded text-[9px] font-medium bg-primary text-primary-foreground">{item.badge}</span>
+                  )}
+                </div>
+                <div className="p-3 lg:p-4">
+                  <p className="text-[11px] font-medium truncate">{item.name || "Product"}</p>
+                  {item.price && <p className="text-[10px] text-primary font-semibold mt-0.5">{item.price}</p>}
+                  {showCta && <span className="mt-2 inline-block text-center text-[9px] font-medium py-1.5 px-4 rounded border border-border text-muted-foreground w-fit yangu-cta">Add to Cart</span>}
+                </div>
+              </div>
+            </ItemCardWrapper>
+          );
+        })}
       </div>
     </div>
   );
