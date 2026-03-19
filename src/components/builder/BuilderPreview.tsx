@@ -526,7 +526,7 @@ function ShowcasePreview({ schema, canvas }: { schema: Record<string, unknown>; 
                 {item.description && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{item.description}</p>}
                 {item.link_url && (
                   <a href={item.link_url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block w-full text-center py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium yangu-interactive hover:opacity-90 transition-opacity">
-                    Buy Now
+                    {ctaLabel((item as any).cta_action) || "Buy Now"}
                   </a>
                 )}
               </div>
