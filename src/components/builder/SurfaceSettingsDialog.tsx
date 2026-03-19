@@ -50,6 +50,8 @@ export function SurfaceSettingsDialog({
   const [saving, setSaving] = useState(false);
   const [uploadingFavicon, setUploadingFavicon] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
+  const [showCropDialog, setShowCropDialog] = useState(false);
+  const [cropImageSrc, setCropImageSrc] = useState("");
 
   // Reset on open
   useState(() => {
