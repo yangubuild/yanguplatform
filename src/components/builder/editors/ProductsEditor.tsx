@@ -220,7 +220,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
     setPDiscountPct(""); setPDiscountLabel("");
     setPSizes([]); setPSizeInput(""); setPColors([]);
     setPMaterial(""); setPWeight(""); setPDimensions("");
-    setPSpecs(""); setPAvailable(true); setPListedOnEshop(false);
+    setPSpecs(""); setPAvailable(true); setPListedOnEshop(false); setPCtaAction("add_to_cart");
     setPDraftMedia({ type: "none", source: "url", url: "", alt: "", fit: "cover" });
     setShowProductDialog(true);
   };
