@@ -328,7 +328,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
     return (
       <div className="py-12 px-6 text-center rounded-lg relative overflow-hidden" style={{ backgroundColor: bgColor || "hsl(0 0% 8%)", minHeight: "280px" }}>
         {mediaType !== "video" && resolvedMediaUrl && (
-          <img src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-40" />
+          <EditableImage src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-40" field="media.url" canvas={canvas} />
         )}
         <CanvasDraggableOverlay
           position={(schema.hero_text_position as { x: number; y: number }) || { x: 50, y: 50 }}
