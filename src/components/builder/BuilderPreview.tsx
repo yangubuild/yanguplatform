@@ -877,16 +877,17 @@ function ProductsPreview({ schema, canvas }: { schema: Record<string, unknown>; 
 
 function CategoriesPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
   const items = (schema.items as Array<{ name?: string; icon?: string; image_url?: string; media?: Array<{ src?: string }> }>) || [];
-  const seeded = items.length > 0
-    ? items
-    : ["Living", "Kitchen", "Office", "Wellness", "Outdoor", "Decor"].map((name, i) => ({ name, image_url: demoImage(i + 2) }));
+  const usingSeedData = items.length === 0;
+  const renderedItems = usingSeedData
+    ? ["Living", "Kitchen", "Office", "Wellness", "Outdoor", "Decor"].map((name, i) => ({ name, image_url: demoImage(i + 2) }))
+    : items;
 
   return (
     <div className="py-4 px-6">
       <EditableText value={(schema.heading as string) || ""} field="heading" placeholder="Categories" className="text-sm font-semibold text-foreground mb-2" tag="h3" canvas={canvas} />
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
-        {seeded.slice(0, 9).map((item, i) => {
-          const src = item.image_url || item.media?.[0]?.src || demoImage(i + 2);
+        {renderedItems.slice(0, 9).map((item, i) => {
+          const src = usingSeedData ? item.image_url || item.media?.[0]?.src || demoImage(i + 2) : item.image_url || item.media?.[0]?.src || "";
           return (
             <div key={i} className="rounded-lg overflow-hidden border border-border bg-card max-w-xs yangu-card" tabIndex={0}>
               <div className="aspect-square bg-muted">
