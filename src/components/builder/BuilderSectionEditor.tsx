@@ -24,6 +24,7 @@ import { BookingEditor } from "./editors/BookingEditor";
 import { AiTextField } from "./AiTextField";
 import { InfluencerLinksEditor } from "./editors/InfluencerLinksEditor";
 import { InfluencerShowcaseEditor } from "./editors/InfluencerShowcaseEditor";
+import { ItemCtaSelector } from "./editors/ItemCtaSelector";
 
 interface BuilderSectionEditorProps {
   section: EditorSection;
