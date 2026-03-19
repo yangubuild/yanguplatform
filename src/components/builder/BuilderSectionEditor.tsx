@@ -685,6 +685,7 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
     setItemPhoto(item.image_url);
     setItemAvailable(item.is_available);
     setItemCatSelect(catIdx);
+    setItemCtaAction(item.cta_action || "order_now");
     setShowItemDialog(true);
   };
 
