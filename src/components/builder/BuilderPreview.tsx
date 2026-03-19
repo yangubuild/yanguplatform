@@ -8,6 +8,7 @@ import { DEFAULT_THEME } from "./BuilderSettingsDrawer";
 import type { PageEditSettings } from "@/config/builderCoreSections";
 import { DEFAULT_PAGE_SETTINGS } from "@/config/builderCoreSections";
 import { CanvasSectionControls } from "./canvas/CanvasSectionControls";
+import { CanvasItemControls } from "./canvas/CanvasItemControls";
 import { CanvasHints } from "./canvas/CanvasHints";
 import { CanvasEditableText } from "./canvas/CanvasEditableText";
 import { CanvasImagePopover } from "./canvas/CanvasImagePopover";
