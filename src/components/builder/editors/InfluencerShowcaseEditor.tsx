@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Trash2, GripVertical } from "lucide-react";
 import { MediaPicker, type MediaAsset } from "../media/MediaPicker";
+import { MediaPickerList } from "../media/MediaPickerList";
 import { PaymentMethodsEditor } from "./PaymentMethodsEditor";
 import { ItemCtaSelector } from "./ItemCtaSelector";
 
@@ -12,6 +13,8 @@ interface ShowcaseItem {
   title: string;
   description: string;
   image_url: string;
+  images: string[];
+  media: MediaAsset[];
   link_url: string;
   price: string;
   cta_action: string;
@@ -23,24 +26,97 @@ interface InfluencerShowcaseEditorProps {
   surfaceId?: string;
 }
 
+const EMPTY_ITEM: ShowcaseItem = {
+  title: "",
+  description: "",
+  image_url: "",
+  images: [],
+  media: [],
+  link_url: "",
+  price: "",
+  cta_action: "buy_now",
+};
+
+/** Normalize a raw item from schema into ShowcaseItem */
+function mapRawItem(raw: any): ShowcaseItem {
+  const legacyImages: string[] = Array.isArray(raw.images)
+    ? raw.images
+    : raw.image_url
+      ? [raw.image_url]
+      : [];
+  const existingMedia: MediaAsset[] = Array.isArray(raw.media) ? raw.media : [];
+  const media: MediaAsset[] = existingMedia.length > 0
+    ? existingMedia
+    : legacyImages.filter(Boolean).map((url: string) => ({ type: "image" as const, src: url, provider: "url" as const }));
+
+  return {
+    ...EMPTY_ITEM,
+    title: raw.title || raw.name || "",
+    description: raw.description || "",
+    image_url: raw.image_url || legacyImages[0] || "",
+    images: legacyImages,
+    media,
+    link_url: raw.link_url || "",
+    price: raw.price || "",
+    cta_action: raw.cta_action || "buy_now",
+  };
+}
+
+/** Build a legacy-compatible item for dual-field persistence */
+function buildLegacyItem(item: ShowcaseItem) {
+  return {
+    title: item.title,
+    name: item.title,
+    description: item.description,
+    image_url: item.media[0]?.src || item.images[0] || "",
+    images: item.media.map((m) => m.src).filter(Boolean),
+    media: item.media,
+    link_url: item.link_url,
+    price: item.price,
+    cta_action: item.cta_action,
+  };
+}
+
 export function InfluencerShowcaseEditor({ schema, update, surfaceId }: InfluencerShowcaseEditorProps) {
-  const items = ((schema.showcase_items as ShowcaseItem[]) || []) as ShowcaseItem[];
+  // Read from showcase_items or items (legacy)
+  const rawShowcase = Array.isArray(schema.showcase_items) ? (schema.showcase_items as any[]) : [];
+  const rawLegacyItems = Array.isArray(schema.items) ? (schema.items as any[]) : [];
+  const sourceItems = rawShowcase.length > 0 ? rawShowcase : rawLegacyItems;
+  const isUsingLegacy = rawShowcase.length === 0 && rawLegacyItems.length > 0;
+
+  const items = sourceItems.map(mapRawItem);
   const displayMode = (schema.showcase_display as string) || "carousel";
+
+  /** Persist to both showcase_items and items (if legacy) */
+  const persistItems = (updated: ShowcaseItem[]) => {
+    const nextItems = updated.map((item) => ({
+      ...item,
+      images: item.media.map((m) => m.src).filter(Boolean),
+      image_url: item.media[0]?.src || "",
+    }));
+    update({
+      showcase_items: nextItems,
+      ...(isUsingLegacy ? { items: updated.map(buildLegacyItem) } : {}),
+    });
+  };
 
   const updateItem = (index: number, partial: Partial<ShowcaseItem>) => {
     const updated = [...items];
     updated[index] = { ...updated[index], ...partial };
-    update({ showcase_items: updated });
+    // Sync image_url from media if media changed
+    if (partial.media) {
+      updated[index].image_url = partial.media[0]?.src || "";
+      updated[index].images = partial.media.map((m) => m.src).filter(Boolean);
+    }
+    persistItems(updated);
   };
 
   const removeItem = (index: number) => {
-    update({ showcase_items: items.filter((_, i) => i !== index) });
+    persistItems(items.filter((_, i) => i !== index));
   };
 
   const addItem = () => {
-    update({
-      showcase_items: [...items, { title: "", description: "", image_url: "", link_url: "", price: "", cta_action: "buy_now" }],
-    });
+    persistItems([...items, { ...EMPTY_ITEM }]);
   };
 
   return (
@@ -73,11 +149,13 @@ export function InfluencerShowcaseEditor({ schema, update, surfaceId }: Influenc
                 <Trash2 className="h-3 w-3 text-muted-foreground" />
               </Button>
             </div>
-            <MediaPicker
-              label="Image"
-              value={item.image_url ? { type: "image", src: item.image_url, provider: "url" } : null}
-              onChange={(asset) => updateItem(i, { image_url: asset?.src || "" })}
+            {/* Multi-media support (images + videos, bulk upload) */}
+            <MediaPickerList
+              items={item.media}
+              onChange={(nextMedia) => updateItem(i, { media: nextMedia })}
               surfaceId={surfaceId || ""}
+              label="Media"
+              max={10}
             />
             <Input placeholder="Title" value={item.title} onChange={(e) => updateItem(i, { title: e.target.value })} className="text-sm" />
             <Textarea placeholder="Short description (2 lines max)" value={item.description} onChange={(e) => updateItem(i, { description: e.target.value })} rows={2} className="text-sm" />

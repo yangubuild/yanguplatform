@@ -14,7 +14,6 @@ import {
 import { X, Plus, Trash2, Home, DollarSign, MapPin, Star } from "lucide-react";
 import { MediaPickerList } from "../media/MediaPickerList";
 import type { MediaAsset } from "../media/MediaPicker";
-import { BuilderMediaPicker, type MediaValue } from "../BuilderMediaPicker";
 
 interface Property {
   title: string;
@@ -26,8 +25,9 @@ interface Property {
   bathrooms: string;
   size_sqft: string;
   description: string;
-  photos: MediaValue[];
   media: MediaAsset[];
+  images: string[];
+  image_url: string;
   amenities: string[];
   status: "active" | "draft";
 }
@@ -48,24 +48,59 @@ const EMPTY_PROPERTY: Property = {
   bathrooms: "",
   size_sqft: "",
   description: "",
-  photos: [],
   media: [],
+  images: [],
+  image_url: "",
   amenities: [],
   status: "active",
 };
 
 const CURRENCIES = ["USD", "EUR", "GBP", "KES", "UGX", "TZS", "NGN", "ZAR", "AED"];
 
+/** Normalize a raw property from schema */
+function mapRawProperty(p: any): Property {
+  const legacyPhotos: any[] = p.photos || [];
+  const legacyImages: string[] = Array.isArray(p.images)
+    ? p.images
+    : p.image_url
+      ? [p.image_url]
+      : legacyPhotos.filter((ph: any) => ph?.url).map((ph: any) => ph.url);
+  const existingMedia: MediaAsset[] = Array.isArray(p.media) ? p.media : [];
+  const media: MediaAsset[] = existingMedia.length > 0
+    ? existingMedia
+    : legacyImages.filter(Boolean).map((url: string) => ({ type: "image" as const, src: url, provider: "url" as const }));
+
+  return {
+    ...EMPTY_PROPERTY,
+    ...p,
+    media,
+    images: legacyImages,
+    image_url: media[0]?.src || legacyImages[0] || "",
+  };
+}
+
+/** Build legacy-compatible item for dual-field persistence */
+function buildLegacyItem(prop: Property) {
+  return {
+    ...prop,
+    title: prop.title,
+    name: prop.title,
+    image_url: prop.media[0]?.src || prop.images[0] || "",
+    images: prop.media.map((m) => m.src).filter(Boolean),
+    photos: prop.media.map((m) => ({ type: "image", source: "url", url: m.src })),
+    media: prop.media,
+  };
+}
+
 export function PropertiesEditor({ schema, update, surfaceId }: PropertiesFormProps) {
-  const items = ((schema.items as any[]) || []).map((p: any) => {
-    // Migrate legacy photos[] to media[]
-    const legacyPhotos: MediaValue[] = p.photos || [];
-    const existingMedia: MediaAsset[] = p.media || [];
-    const media: MediaAsset[] = existingMedia.length > 0
-      ? existingMedia
-      : legacyPhotos.filter((ph: any) => ph?.url).map((ph: any) => ({ type: "image" as const, src: ph.url, provider: "url" as const }));
-    return { ...EMPTY_PROPERTY, ...p, media } as Property;
-  });
+  // Read from properties or items (legacy)
+  const rawProperties = Array.isArray(schema.properties) ? (schema.properties as any[]) : [];
+  const rawLegacyItems = Array.isArray(schema.items) ? (schema.items as any[]) : [];
+  const sourceItems = rawProperties.length > 0 ? rawProperties : rawLegacyItems;
+  const isUsingLegacy = rawProperties.length === 0 && rawLegacyItems.length > 0;
+
+  const items = sourceItems.map(mapRawProperty);
+
   const [showDialog, setShowDialog] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [form, setForm] = useState<Property>({ ...EMPTY_PROPERTY });
@@ -75,6 +110,19 @@ export function PropertiesEditor({ schema, update, surfaceId }: PropertiesFormPr
   const totalProperties = items.length;
   const activeListings = items.filter((p) => p.status === "active").length;
   const totalValue = items.reduce((sum, p) => sum + (parseFloat(p.price) || 0), 0);
+
+  /** Persist to both properties and items (if legacy) */
+  const persistProperties = (updated: Property[]) => {
+    const nextProps = updated.map((prop) => ({
+      ...prop,
+      images: prop.media.map((m) => m.src).filter(Boolean),
+      image_url: prop.media[0]?.src || "",
+    }));
+    update({
+      properties: nextProps,
+      items: updated.map(buildLegacyItem),
+    });
+  };
 
   const openCreate = () => {
     setEditIndex(null);
@@ -97,13 +145,13 @@ export function PropertiesEditor({ schema, update, surfaceId }: PropertiesFormPr
     } else {
       updated.push({ ...form });
     }
-    update({ items: updated });
+    persistProperties(updated);
     setShowDialog(false);
   };
 
   const deleteProperty = (i: number) => {
     if (!confirm(`Delete "${items[i].title}"?`)) return;
-    update({ items: items.filter((_, j) => j !== i) });
+    persistProperties(items.filter((_, j) => j !== i));
   };
 
   const addAmenity = () => {
@@ -259,10 +307,10 @@ export function PropertiesEditor({ schema, update, surfaceId }: PropertiesFormPr
               <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Describe the property..." rows={3} />
             </div>
 
-            {/* Photos — MediaPickerList */}
+            {/* Photos — MediaPickerList with bulk + video support */}
             <div className="space-y-1.5">
-              <Label className="text-sm font-medium">Property Photos (max 15)</Label>
-              <p className="text-xs text-muted-foreground">First image is the cover photo</p>
+              <Label className="text-sm font-medium">Property Media (max 15)</Label>
+              <p className="text-xs text-muted-foreground">First image is the cover photo. Supports images & videos.</p>
               {form.media.length > 0 && form.media[0]?.src && (
                 <div className="flex items-center gap-1.5 text-xs text-primary mb-1">
                   <Star className="h-3 w-3 fill-primary" /> Primary
@@ -272,10 +320,15 @@ export function PropertiesEditor({ schema, update, surfaceId }: PropertiesFormPr
                 items={form.media}
                 onChange={(next) => {
                   if (next.length > 15) return;
-                  setForm({ ...form, media: next });
+                  setForm({
+                    ...form,
+                    media: next,
+                    images: next.map((m) => m.src).filter(Boolean),
+                    image_url: next[0]?.src || "",
+                  });
                 }}
                 surfaceId={surfaceId || ""}
-                label="Property Photos"
+                label="Property Media"
                 max={15}
               />
             </div>
