@@ -409,8 +409,9 @@ function BioPreview({ schema, canvas }: { schema: Record<string, unknown>; canva
   );
 }
 
-function LinksPreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<{ label?: string; url?: string }>) || [];
+function LinksPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
+  const rawItems = (schema.items as Array<Record<string, unknown>>) || [];
+  const items = rawItems.filter((it) => !it._hidden) as Array<{ label?: string; url?: string }>;
   const displayMode = (schema.display_mode as string) || "";
   const isLinkBio = displayMode === "link_buttons";
 
@@ -420,19 +421,23 @@ function LinksPreview({ schema }: { schema: Record<string, unknown> }) {
       {items.length === 0 ? (
         <p className="text-sm text-muted-foreground/60 italic">No links added yet</p>
       ) : (
-        items.map((item, i) => (
-          <div
-            key={i}
-            className={`block p-3 border text-sm text-center yangu-interactive font-medium transition-all ${
-              isLinkBio
-                ? "rounded-xl border-foreground/20 bg-card hover:bg-accent/10 hover:scale-[1.02] shadow-sm"
-                : "rounded-lg border-border bg-muted/50"
-            }`}
-            tabIndex={0}
-          >
-            {item.label || item.url || "Link"}
-          </div>
-        ))
+        items.map((item, i) => {
+          const realIdx = rawItems.indexOf(item as unknown as Record<string, unknown>);
+          return (
+            <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={realIdx}>
+              <div
+                className={`block p-3 border text-sm text-center yangu-interactive font-medium transition-all ${
+                  isLinkBio
+                    ? "rounded-xl border-foreground/20 bg-card hover:bg-accent/10 hover:scale-[1.02] shadow-sm"
+                    : "rounded-lg border-border bg-muted/50"
+                }`}
+                tabIndex={0}
+              >
+                {item.label || item.url || "Link"}
+              </div>
+            </ItemCardWrapper>
+          );
+        })
       )}
     </div>
   );
