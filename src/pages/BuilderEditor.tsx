@@ -47,6 +47,12 @@ export default function BuilderEditor() {
   const [previewViewport, setPreviewViewport] = useState<PreviewViewport>("desktop");
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showLeaveWarning, setShowLeaveWarning] = useState(false);
+  const [cropState, setCropState] = useState<{
+    open: boolean;
+    imageSrc: string;
+    sectionId: string;
+    fieldPath: string;
+  } | null>(null);
   const pendingNavRef = useRef<string | null>(null);
 
   // Track unsaved changes
