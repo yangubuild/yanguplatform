@@ -1169,14 +1169,14 @@ function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
   );
 
   return (
-    <div className={`py-2.5 px-4 flex items-center gap-2 ${isDark ? "bg-foreground/90" : ""}`}>
+    <div className={`w-full py-2.5 px-4 flex items-center ${isDark ? "bg-foreground/90" : ""}`}>
       {/* LEFT position: logo first, then nav, then icons */}
       {!isCenterLogo && !isRightLogo && (
         <>
-          <div className="flex items-center gap-2 flex-1">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
             {logoBlock}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             {navItems.length > 0 && navItems.slice(0, 3).map((item, i) => (
               <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
             ))}
@@ -1188,15 +1188,15 @@ function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
       {/* CENTER position: left nav, logo center, right nav/icons */}
       {isCenterLogo && (
         <>
-          <div className="flex gap-2 flex-1 justify-start">
+          <div className="flex gap-2 flex-1 justify-start min-w-0">
             {navItems.slice(0, 3).map((item, i) => (
               <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
             ))}
           </div>
-          <div className="flex items-center justify-center shrink-0">
+          <div className="flex items-center justify-center shrink-0 px-3">
             {logoBlock}
           </div>
-          <div className="flex items-center gap-2 flex-1 justify-end">
+          <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
             {(schema.nav_items_right as string[] || []).slice(0, 2).map((item, i) => (
               <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
             ))}
@@ -1205,19 +1205,17 @@ function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
           </div>
         </>
       )}
-      {/* RIGHT position: icons + nav on left, logo pinned to far right */}
+      {/* RIGHT position: nav/icons grouped left, logo forced to far right */}
       {isRightLogo && (
         <>
-          <div className="flex items-center gap-2">
-            {showSearch && <span className="text-sm">🔍</span>}
-            {showCart && <span className="text-sm">🛒</span>}
-          </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
             {navItems.length > 0 && navItems.slice(0, 3).map((item, i) => (
               <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
             ))}
+            {showSearch && <span className="text-sm">🔍</span>}
+            {showCart && <span className="text-sm">🛒</span>}
           </div>
-          <div className="flex items-center ml-auto shrink-0">
+          <div className="ml-auto flex items-center justify-end shrink-0 pl-3">
             {logoBlock}
           </div>
         </>
