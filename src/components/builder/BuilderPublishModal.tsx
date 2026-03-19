@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { useBuilderPublish, type ActiveDomain } from "@/hooks/useBuilderPublish";
 import type { BuilderSurfaceType } from "@/types/builder";
+import type { PublishPage } from "@/lib/builder/publishValidation";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -37,6 +38,7 @@ interface BuilderPublishModalProps {
   surfaceType: BuilderSurfaceType;
   surfaceTitle: string;
   defaultSlug?: string;
+  pages?: PublishPage[];
 }
 
 // Simple QR code generator using a public API
@@ -136,6 +138,7 @@ export function BuilderPublishModal({
   surfaceType,
   surfaceTitle,
   defaultSlug,
+  pages,
 }: BuilderPublishModalProps) {
   const {
     allowedDomains,
@@ -148,9 +151,10 @@ export function BuilderPublishModal({
     isPublishing,
     publishResult,
     publishError,
+    validationErrors,
     publish,
     reset,
-  } = useBuilderPublish(surfaceId, surfaceType);
+  } = useBuilderPublish(surfaceId, surfaceType, pages);
 
   // Reset state when modal closes
   useEffect(() => {
@@ -465,8 +469,25 @@ export function BuilderPublishModal({
             </div>
           )}
 
-          {/* Error */}
-          {publishError && (
+          {/* Validation Errors */}
+          {validationErrors.length > 0 && (
+            <Card className="p-4 border-destructive/50 bg-destructive/5">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-destructive">Please fix before publishing:</p>
+                  <ul className="list-disc list-inside text-sm text-destructive space-y-0.5">
+                    {validationErrors.map((e, i) => (
+                      <li key={i}>{e.message}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {/* Server Error */}
+          {publishError && validationErrors.length === 0 && (
             <Card className="p-4 border-destructive/50 bg-destructive/5">
               <div className="flex items-start gap-3">
                 <XCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
