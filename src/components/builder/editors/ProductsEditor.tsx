@@ -154,6 +154,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
   const [pSpecs, setPSpecs] = useState("");
   const [pAvailable, setPAvailable] = useState(true);
   const [pListedOnEshop, setPListedOnEshop] = useState(false);
+  const [pCtaAction, setPCtaAction] = useState("add_to_cart");
   const [pDraftMedia, setPDraftMedia] = useState<MediaValue>({ type: "none", source: "url", url: "", alt: "", fit: "cover" });
   const [isGeneratingDesc, setIsGeneratingDesc] = useState(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
