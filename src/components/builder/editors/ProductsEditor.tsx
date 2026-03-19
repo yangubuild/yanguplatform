@@ -19,6 +19,7 @@ import { MediaPickerList } from "../media/MediaPickerList";
 import type { MediaAsset } from "../media/MediaPicker";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { ItemCtaSelector } from "./ItemCtaSelector";
 
 interface FormProps {
   schema: Record<string, unknown>;

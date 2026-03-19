@@ -541,6 +541,15 @@ function ItemListWithMedia({ items, onChange, heading, surfaceId }: {
                 <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
               </Button>
             </div>
+            {/* CTA selector per item */}
+            <ItemCtaSelector
+              value={item.cta_action || "none"}
+              onChange={(v) => {
+                const updated = [...items];
+                updated[i] = { ...updated[i], cta_action: v };
+                onChange(updated);
+              }}
+            />
             {/* Multi-image picker per item */}
             <MediaPickerList
               items={media}
@@ -556,7 +565,7 @@ function ItemListWithMedia({ items, onChange, heading, surfaceId }: {
           </div>
         );
       })}
-      <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs" onClick={() => onChange([...items, { name: "", price: "", description: "", image_url: "", media: [] }])}>
+      <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs" onClick={() => onChange([...items, { name: "", price: "", description: "", image_url: "", media: [], cta_action: "none" }])}>
         <Plus className="h-3.5 w-3.5" /> Add
       </Button>
     </div>

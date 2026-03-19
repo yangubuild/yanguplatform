@@ -83,6 +83,7 @@ export function InfluencerShowcaseEditor({ schema, update, surfaceId }: Influenc
             <Textarea placeholder="Short description (2 lines max)" value={item.description} onChange={(e) => updateItem(i, { description: e.target.value })} rows={2} className="text-sm" />
             <Input placeholder="Price (optional, e.g. $29.99)" value={item.price || ""} onChange={(e) => updateItem(i, { price: e.target.value })} className="text-sm" />
             <Input placeholder="Link URL (optional)" value={item.link_url} onChange={(e) => updateItem(i, { link_url: e.target.value })} className="text-sm" />
+            <ItemCtaSelector value={item.cta_action || "buy_now"} onChange={(v) => updateItem(i, { cta_action: v })} />
           </div>
         ))}
       </div>
