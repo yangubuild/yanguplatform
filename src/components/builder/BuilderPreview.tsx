@@ -635,11 +635,12 @@ function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; can
   const items = (schema.items as Array<{ title?: string; price?: string; description?: string; icon?: string }>) || [];
   const displayMode = (schema.display_mode as string) || (schema.layout_variant as string) || "";
   const storyBlock = schema.story_block as { enabled?: boolean; eyebrow?: string; heading?: string; description?: string; cta_text?: string } | undefined;
-  const socialGallery = schema.social_gallery as { enabled?: boolean; platform?: string; heading?: string; subheading?: string; hashtag?: string; columns?: number } | undefined;
+  const socialGallery = schema.social_gallery as { enabled?: boolean; platform?: string; heading?: string; subheading?: string; hashtag?: string; columns?: number; items?: Array<{ image_url?: string }> } | undefined;
   const newsletter = schema.newsletter as { enabled?: boolean; heading?: string; description?: string; cta_text?: string } | undefined;
   const testimonials = schema.testimonials as { enabled?: boolean; heading?: string; subheading?: string; items?: Array<{ name?: string; quote?: string; location?: string; label?: string }> } | undefined;
   const isTrustBadges = displayMode === "trust_badges";
   const isStoryBlock = displayMode === "story_block";
+  const socialGalleryCount = Math.min(socialGallery?.columns || 4, 5);
 
   return (
     <div className="py-4 px-6 space-y-5">
@@ -726,10 +727,16 @@ function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; can
         <div className="border-t border-border pt-4">
           {socialGallery.subheading && <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{socialGallery.subheading}</p>}
           {socialGallery.heading && <h4 className="text-xs font-semibold mb-2">{socialGallery.heading}</h4>}
-          <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${Math.min(socialGallery.columns || 4, 5)}, 1fr)` }}>
-            {Array.from({ length: socialGallery.columns || 4 }).map((_, i) => (
-              <div key={i} className="aspect-square rounded bg-muted flex items-center justify-center">
-                <span className="text-muted-foreground/40 text-sm">📷</span>
+          <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${socialGalleryCount}, 1fr)` }}>
+            {Array.from({ length: socialGalleryCount }).map((_, i) => (
+              <div key={i} className="aspect-square rounded bg-muted overflow-hidden">
+                <EditableImage
+                  src={socialGallery.items?.[i]?.image_url || ""}
+                  alt={`Social gallery ${i + 1}`}
+                  className="w-full h-full object-cover"
+                  field={`social_gallery.items.${i}.image_url`}
+                  canvas={canvas}
+                />
               </div>
             ))}
           </div>
@@ -823,14 +830,15 @@ function ProductsPreview({ schema, canvas }: { schema: Record<string, unknown>; 
   }));
 
   const items = products.length > 0 ? products : legacyItems;
-  const seededItems = items.length > 0 ? items : [
+  const usingSeedData = items.length === 0;
+  const renderedItems = usingSeedData ? [
     { name: "Modern Chair", price: "$89", image_url: demoImage(0), badge: "New", description: "" },
     { name: "Stone Mug", price: "$24", image_url: demoImage(1), badge: "Hot", description: "" },
     { name: "Table Lamp", price: "$56", image_url: demoImage(2), badge: "", description: "" },
     { name: "Wall Mirror", price: "$112", image_url: demoImage(3), badge: "", description: "" },
     { name: "Linen Set", price: "$78", image_url: demoImage(4), badge: "", description: "" },
     { name: "Shelf Decor", price: "$34", image_url: demoImage(5), badge: "", description: "" },
-  ];
+  ] : items;
   const gridSettings = (schema.grid as { columns_desktop?: number; columns_mobile?: number; gap?: string }) || {};
   const cols = Math.min(gridSettings.columns_desktop || 2, 4);
   const cardSettings = (schema.cards as { style?: string; image_ratio?: string; show_price?: boolean; show_title?: boolean; show_cta?: boolean; card_style?: string; hover_effect?: string; badge_enabled?: boolean }) || {};
@@ -847,10 +855,10 @@ function ProductsPreview({ schema, canvas }: { schema: Record<string, unknown>; 
         <EditableText value={schema.description as string} field="description" className="text-[10px] text-muted-foreground mb-3 leading-relaxed" tag="p" canvas={canvas} />
       )}
       <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3 xl:grid-cols-4" style={cols !== 2 && cols !== 3 && cols !== 4 ? { gridTemplateColumns: `repeat(${cols}, 1fr)` } : undefined}>
-        {seededItems.map((item, i) => (
+        {renderedItems.map((item, i) => (
           <div key={i} className="rounded-lg border border-border bg-card overflow-hidden group max-w-sm yangu-card" tabIndex={0}>
             <div className={`bg-muted relative ${isPortrait ? "aspect-[3/4]" : isSquare ? "aspect-square" : "aspect-[4/3]"}`}>
-              <EditableImage src={item.image_url || demoImage(i)} alt={item.name || "Product"} className="w-full h-full object-cover" field={`products.${i}.image`} canvas={canvas} />
+              <EditableImage src={usingSeedData ? item.image_url || demoImage(i) : item.image_url || ""} alt={item.name || "Product"} className="w-full h-full object-cover" field={`products.${i}.image`} canvas={canvas} />
               {item.badge && cardSettings.badge_enabled !== false && (
                 <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded text-[9px] font-medium bg-primary text-primary-foreground">{item.badge}</span>
               )}
@@ -869,16 +877,17 @@ function ProductsPreview({ schema, canvas }: { schema: Record<string, unknown>; 
 
 function CategoriesPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
   const items = (schema.items as Array<{ name?: string; icon?: string; image_url?: string; media?: Array<{ src?: string }> }>) || [];
-  const seeded = items.length > 0
-    ? items
-    : ["Living", "Kitchen", "Office", "Wellness", "Outdoor", "Decor"].map((name, i) => ({ name, image_url: demoImage(i + 2) }));
+  const usingSeedData = items.length === 0;
+  const renderedItems = usingSeedData
+    ? ["Living", "Kitchen", "Office", "Wellness", "Outdoor", "Decor"].map((name, i) => ({ name, image_url: demoImage(i + 2) }))
+    : items;
 
   return (
     <div className="py-4 px-6">
       <EditableText value={(schema.heading as string) || ""} field="heading" placeholder="Categories" className="text-sm font-semibold text-foreground mb-2" tag="h3" canvas={canvas} />
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
-        {seeded.slice(0, 9).map((item, i) => {
-          const src = item.image_url || item.media?.[0]?.src || demoImage(i + 2);
+        {renderedItems.slice(0, 9).map((item, i) => {
+          const src = usingSeedData ? item.image_url || item.media?.[0]?.src || demoImage(i + 2) : item.image_url || item.media?.[0]?.src || "";
           return (
             <div key={i} className="rounded-lg overflow-hidden border border-border bg-card max-w-xs yangu-card" tabIndex={0}>
               <div className="aspect-square bg-muted">
@@ -1160,14 +1169,14 @@ function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
   );
 
   return (
-    <div className={`py-2.5 px-4 flex items-center gap-2 ${isDark ? "bg-foreground/90" : ""}`}>
+    <div className={`w-full py-2.5 px-4 flex items-center ${isDark ? "bg-foreground/90" : ""}`}>
       {/* LEFT position: logo first, then nav, then icons */}
       {!isCenterLogo && !isRightLogo && (
         <>
-          <div className="flex items-center gap-2 flex-1">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
             {logoBlock}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             {navItems.length > 0 && navItems.slice(0, 3).map((item, i) => (
               <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
             ))}
@@ -1179,15 +1188,15 @@ function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
       {/* CENTER position: left nav, logo center, right nav/icons */}
       {isCenterLogo && (
         <>
-          <div className="flex gap-2 flex-1 justify-start">
+          <div className="flex gap-2 flex-1 justify-start min-w-0">
             {navItems.slice(0, 3).map((item, i) => (
               <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
             ))}
           </div>
-          <div className="flex items-center justify-center shrink-0">
+          <div className="flex items-center justify-center shrink-0 px-3">
             {logoBlock}
           </div>
-          <div className="flex items-center gap-2 flex-1 justify-end">
+          <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
             {(schema.nav_items_right as string[] || []).slice(0, 2).map((item, i) => (
               <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
             ))}
@@ -1196,19 +1205,17 @@ function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
           </div>
         </>
       )}
-      {/* RIGHT position: icons + nav on left, logo pinned to far right */}
+      {/* RIGHT position: nav/icons grouped left, logo forced to far right */}
       {isRightLogo && (
         <>
-          <div className="flex items-center gap-2">
-            {showSearch && <span className="text-sm">🔍</span>}
-            {showCart && <span className="text-sm">🛒</span>}
-          </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
             {navItems.length > 0 && navItems.slice(0, 3).map((item, i) => (
               <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
             ))}
+            {showSearch && <span className="text-sm">🔍</span>}
+            {showCart && <span className="text-sm">🛒</span>}
           </div>
-          <div className="flex items-center ml-auto shrink-0">
+          <div className="ml-auto flex items-center justify-end shrink-0 pl-3">
             {logoBlock}
           </div>
         </>

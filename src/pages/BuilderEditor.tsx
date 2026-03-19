@@ -336,36 +336,60 @@ export default function BuilderEditor() {
               if (!section) return;
               const newSchema = { ...section.schema } as Record<string, any>;
 
+              const setNestedValue = (target: Record<string, any>, path: string[], value: string) => {
+                let cursor: any = target;
+
+                for (let i = 0; i < path.length; i += 1) {
+                  const key = path[i];
+                  const isIndex = /^\d+$/.test(key);
+                  const nextKey = path[i + 1];
+                  const nextIsIndex = /^\d+$/.test(nextKey || "");
+                  const isLast = i === path.length - 1;
+
+                  if (isLast) {
+                    if (isIndex) {
+                      const index = Number(key);
+                      if (!Array.isArray(cursor)) return;
+                      while (cursor.length <= index) cursor.push(null);
+                      cursor[index] = value;
+                    } else {
+                      cursor[key] = value;
+                    }
+                    return;
+                  }
+
+                  if (isIndex) {
+                    const index = Number(key);
+                    if (!Array.isArray(cursor)) return;
+                    while (cursor.length <= index) cursor.push(nextIsIndex ? [] : {});
+                    if (cursor[index] == null || typeof cursor[index] !== "object") {
+                      cursor[index] = nextIsIndex ? [] : {};
+                    }
+                    cursor = cursor[index];
+                    continue;
+                  }
+
+                  if (cursor[key] == null || typeof cursor[key] !== "object") {
+                    cursor[key] = nextIsIndex ? [] : {};
+                  } else if (nextIsIndex && !Array.isArray(cursor[key])) {
+                    cursor[key] = [];
+                  }
+
+                  cursor = cursor[key];
+                }
+              };
+
               if (fieldPath === "media.url") {
                 const media = (newSchema.media as Record<string, unknown>) || {};
                 newSchema.media = { ...media, url, type: "image" };
               } else if (fieldPath.includes(".")) {
-                const parts = fieldPath.split(".");
-                const rootKey = parts[0];
-                const maybeIndex = Number(parts[1]);
+                const normalizedPath = fieldPath
+                  .split(".")
+                  .map((part, index, parts) => (
+                    parts[0] === "products" && index === 2 && part === "image" ? "image_url" : part
+                  ));
 
-                if (!Number.isNaN(maybeIndex) && parts.length >= 3) {
-                  const prop = parts.slice(2).join(".");
-                  const normalizedProp = rootKey === "products" && prop === "image" ? "image_url" : prop;
-                  const items = Array.isArray(newSchema[rootKey]) ? [...newSchema[rootKey]] : [];
-
-                  while (items.length <= maybeIndex) {
-                    items.push({});
-                  }
-
-                  const currentItem = items[maybeIndex] && typeof items[maybeIndex] === "object"
-                    ? items[maybeIndex]
-                    : {};
-
-                  items[maybeIndex] = {
-                    ...currentItem,
-                    [normalizedProp]: url,
-                  };
-
-                  newSchema[rootKey] = items;
-                } else {
-                  newSchema[fieldPath] = url;
-                }
+                setNestedValue(newSchema, normalizedPath, url);
               } else {
                 newSchema[fieldPath] = url;
               }
