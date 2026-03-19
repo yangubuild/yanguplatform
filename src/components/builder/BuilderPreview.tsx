@@ -638,11 +638,11 @@ function VideoPreview({ schema }: { schema: Record<string, unknown> }) {
 }
 
 function GalleryPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
-  const items = (schema.items as Array<{ src?: string; image_url?: string } | string>) || [];
-  const galleryItems = items.length > 0
-    ? items.slice(0, 6).map((item, i) => {
+  const rawItems = (schema.items as Array<Record<string, unknown>>) || [];
+  const items = rawItems.length > 0
+    ? rawItems.filter((it) => !it._hidden).slice(0, 6).map((item, i) => {
         if (typeof item === "string") return item;
-        return item.src || item.image_url || demoImage(i + 1);
+        return (item as Record<string, string>).src || (item as Record<string, string>).image_url || demoImage(i + 1);
       })
     : Array.from({ length: 6 }, (_, i) => demoImage(i + 1));
 
@@ -650,10 +650,12 @@ function GalleryPreview({ schema, canvas }: { schema: Record<string, unknown>; c
     <div className="py-4 px-6">
       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Gallery</p>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
-        {galleryItems.map((src, i) => (
-          <div key={i} className="aspect-square rounded bg-muted overflow-hidden">
-            <EditableImage src={src} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" field={`items.${i}.src`} canvas={canvas} />
-          </div>
+        {items.map((src, i) => (
+          <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={i}>
+            <div className="aspect-square rounded bg-muted overflow-hidden">
+              <EditableImage src={typeof src === "string" ? src : ""} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" field={`items.${i}.src`} canvas={canvas} />
+            </div>
+          </ItemCardWrapper>
         ))}
       </div>
     </div>
@@ -755,42 +757,56 @@ function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; can
         </div>
       )}
 
-      {testimonials?.enabled && (testimonials.items || []).length > 0 && (
-        <div className="border-t border-border pt-4">
-          {testimonials.subheading && <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{testimonials.subheading}</p>}
-          <h4 className="text-xs font-semibold mb-2">{testimonials.heading || "Reviews"}</h4>
-          <div className="space-y-2">
-            {(testimonials.items || []).map((t, i) => (
-              <div key={i} className="p-3 rounded-lg border border-border bg-muted/30 yangu-card" tabIndex={0}>
-                {t.label && <span className="text-[10px] font-medium text-primary">{t.label}</span>}
-                <p className="text-[11px] italic text-muted-foreground mt-1">"{t.quote || "..."}"</p>
-                <p className="text-[10px] font-medium mt-1">— {t.name || "Customer"}{t.location ? `, ${t.location}` : ""}</p>
-              </div>
-            ))}
+      {testimonials?.enabled && (testimonials.items || []).length > 0 && (() => {
+        const rawTestimonialItems = ((schema.testimonials as Record<string, unknown>)?.items as Array<Record<string, unknown>>) || [];
+        const visibleTestimonials = rawTestimonialItems.filter((it) => !it._hidden) as Array<{ name?: string; quote?: string; location?: string; label?: string }>;
+        return (
+          <div className="border-t border-border pt-4">
+            {testimonials.subheading && <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{testimonials.subheading}</p>}
+            <h4 className="text-xs font-semibold mb-2">{testimonials.heading || "Reviews"}</h4>
+            <div className="space-y-2">
+              {visibleTestimonials.map((t, i) => {
+                const realIdx = rawTestimonialItems.indexOf(t as unknown as Record<string, unknown>);
+                return (
+                  <ItemCardWrapper key={i} canvas={canvas} fieldPath="testimonials.items" items={rawTestimonialItems} index={realIdx}>
+                    <div className="p-3 rounded-lg border border-border bg-muted/30 yangu-card" tabIndex={0}>
+                      {t.label && <span className="text-[10px] font-medium text-primary">{t.label}</span>}
+                      <p className="text-[11px] italic text-muted-foreground mt-1">"{t.quote || "..."}"</p>
+                      <p className="text-[10px] font-medium mt-1">— {t.name || "Customer"}{t.location ? `, ${t.location}` : ""}</p>
+                    </div>
+                  </ItemCardWrapper>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
-      {socialGallery?.enabled && (
-        <div className="border-t border-border pt-4">
-          {socialGallery.subheading && <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{socialGallery.subheading}</p>}
-          {socialGallery.heading && <h4 className="text-xs font-semibold mb-2">{socialGallery.heading}</h4>}
-          <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${socialGalleryCount}, 1fr)` }}>
-            {Array.from({ length: socialGalleryCount }).map((_, i) => (
-              <div key={i} className="aspect-square rounded bg-muted overflow-hidden">
-                <EditableImage
-                  src={socialGallery.items?.[i]?.image_url || ""}
-                  alt={`Social gallery ${i + 1}`}
-                  className="w-full h-full object-cover"
-                  field={`social_gallery.items.${i}.image_url`}
-                  canvas={canvas}
-                />
-              </div>
-            ))}
+      {socialGallery?.enabled && (() => {
+        const rawSocialItems = ((schema.social_gallery as Record<string, unknown>)?.items as Array<Record<string, unknown>>) || [];
+        return (
+          <div className="border-t border-border pt-4">
+            {socialGallery.subheading && <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{socialGallery.subheading}</p>}
+            {socialGallery.heading && <h4 className="text-xs font-semibold mb-2">{socialGallery.heading}</h4>}
+            <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${socialGalleryCount}, 1fr)` }}>
+              {Array.from({ length: socialGalleryCount }).map((_, i) => (
+                <ItemCardWrapper key={i} canvas={canvas} fieldPath="social_gallery.items" items={rawSocialItems} index={i}>
+                  <div className="aspect-square rounded bg-muted overflow-hidden">
+                    <EditableImage
+                      src={socialGallery.items?.[i]?.image_url || ""}
+                      alt={`Social gallery ${i + 1}`}
+                      className="w-full h-full object-cover"
+                      field={`social_gallery.items.${i}.image_url`}
+                      canvas={canvas}
+                    />
+                  </div>
+                </ItemCardWrapper>
+              ))}
+            </div>
+            {socialGallery.hashtag && <p className="text-[10px] text-muted-foreground mt-1 text-center">{socialGallery.hashtag}</p>}
           </div>
-          {socialGallery.hashtag && <p className="text-[10px] text-muted-foreground mt-1 text-center">{socialGallery.hashtag}</p>}
-        </div>
-      )}
+        );
+      })()}
 
       {newsletter?.enabled && (
         <div className="border-t border-border pt-4">
@@ -835,8 +851,9 @@ function PlansPreview({ schema, canvas }: { schema: Record<string, unknown>; can
   );
 }
 
-function RulesPreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<{ text?: string }>) || [];
+function RulesPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
+  const rawItems = (schema.items as Array<Record<string, unknown>>) || [];
+  const items = rawItems.filter((it) => !it._hidden) as Array<{ text?: string }>;
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Rules"}</h3>
@@ -844,9 +861,14 @@ function RulesPreview({ schema }: { schema: Record<string, unknown> }) {
         <p className="text-sm text-muted-foreground/60 italic">No rules defined</p>
       ) : (
         <ol className="space-y-1 list-decimal list-inside">
-          {items.map((item, i) => (
-            <li key={i} className="text-sm text-muted-foreground">{item.text || `Rule ${i + 1}`}</li>
-          ))}
+          {items.map((item, i) => {
+            const realIdx = rawItems.indexOf(item as unknown as Record<string, unknown>);
+            return (
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={realIdx}>
+                <li className="text-sm text-muted-foreground">{item.text || `Rule ${i + 1}`}</li>
+              </ItemCardWrapper>
+            );
+          })}
         </ol>
       )}
     </div>
@@ -1198,8 +1220,9 @@ function MenuPreview({ schema, canvas }: { schema: Record<string, unknown>; canv
   );
 }
 
-function HoursPreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<{ day?: string; hours?: string }>) || [];
+function HoursPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
+  const rawItems = (schema.items as Array<Record<string, unknown>>) || [];
+  const items = rawItems.filter((it) => !it._hidden) as Array<{ day?: string; hours?: string }>;
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Opening Hours"}</h3>
@@ -1207,12 +1230,17 @@ function HoursPreview({ schema }: { schema: Record<string, unknown> }) {
         <p className="text-sm text-muted-foreground/60 italic">No hours set</p>
       ) : (
         <div className="space-y-1">
-          {items.map((item, i) => (
-            <div key={i} className="flex justify-between text-sm">
-              <span className="font-medium">{item.day || "Day"}</span>
-              <span className="text-muted-foreground">{item.hours || "Closed"}</span>
-            </div>
-          ))}
+          {items.map((item, i) => {
+            const realIdx = rawItems.indexOf(item as unknown as Record<string, unknown>);
+            return (
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={realIdx}>
+                <div className="flex justify-between text-sm">
+                  <span className="font-medium">{item.day || "Day"}</span>
+                  <span className="text-muted-foreground">{item.hours || "Closed"}</span>
+                </div>
+              </ItemCardWrapper>
+            );
+          })}
         </div>
       )}
     </div>
