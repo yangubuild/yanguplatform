@@ -356,6 +356,21 @@ export default function BuilderEditor() {
                   items[idx] = { ...items[idx], image_url: url };
                 }
                 newSchema[key] = items;
+              } else if (fieldPath.includes(".")) {
+                // Handle nested paths like "showcase_items.0.image_url"
+                const parts = fieldPath.split(".");
+                const arrayKey = parts[0];
+                const idx = parseInt(parts[1], 10);
+                const prop = parts.slice(2).join(".");
+                if (!isNaN(idx) && Array.isArray(newSchema[arrayKey])) {
+                  const items = [...(newSchema[arrayKey] as any[])];
+                  if (idx < items.length) {
+                    items[idx] = { ...items[idx], [prop]: url };
+                  }
+                  newSchema[arrayKey] = items;
+                } else {
+                  (newSchema as any)[fieldPath] = url;
+                }
               } else {
                 (newSchema as any)[fieldPath] = url;
               }
