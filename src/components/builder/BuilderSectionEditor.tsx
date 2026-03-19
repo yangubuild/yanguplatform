@@ -625,6 +625,7 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
   const [itemPhoto, setItemPhoto] = useState("");
   const [itemAvailable, setItemAvailable] = useState(true);
   const [itemCatSelect, setItemCatSelect] = useState<number>(0);
+  const [itemCtaAction, setItemCtaAction] = useState("order_now");
 
   // ─── Category dialog helpers ───
   const openCreateCat = () => {
