@@ -337,7 +337,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
     }
     setIsGeneratingImage(true);
     try {
-      const prompt = `Generate a professional ecommerce product photo for: ${pName}${pBrand ? ` by ${pBrand}` : ""}${pCategory ? ` in category ${pCategory}` : ""}. ${pDesc ? `Description: ${pDesc.slice(0, 100)}` : ""} Clean white background, studio lighting, high quality product photography.`;
+      const prompt = `IMPORTANT: Generate EXACTLY a "${pName}" product photo — this is the SPECIFIC product, do NOT substitute with any other brand or model. ${pBrand ? `Brand: "${pBrand}" — show this exact brand, not a competitor.` : ""} ${pCategory ? `Category: ${pCategory}.` : ""} ${pDesc ? `Details: ${pDesc.slice(0, 150)}` : ""} Professional ecommerce product photography, clean white background, studio lighting, showing the actual "${pName}" product accurately with correct branding and design details.`;
 
       const { data, error } = await supabase.functions.invoke("ada-generate-image", {
         body: { prompt },
