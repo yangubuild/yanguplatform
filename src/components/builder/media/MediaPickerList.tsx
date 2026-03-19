@@ -3,10 +3,12 @@
  * Each item is a full MediaPicker with add/remove/reorder.
  */
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, GripVertical } from "lucide-react";
+import { Plus, Trash2, GripVertical, Upload, Loader2 } from "lucide-react";
 import { MediaPicker, type MediaAsset } from "./MediaPicker";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface MediaPickerListProps {
   items: MediaAsset[];
@@ -25,12 +27,39 @@ export function MediaPickerList({
   max = 20,
 }: MediaPickerListProps) {
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const addItem = () => {
+    // Trigger file picker directly instead of adding empty slot
+    fileInputRef.current?.click();
+  };
+
+  const handleFileUpload = async (file: File) => {
     if (items.length >= max) return;
-    const newItem: MediaAsset = { type: "image", src: "", provider: "url" };
-    onChange([...items, newItem]);
-    setExpandedIdx(items.length);
+    setUploading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error("Please sign in to upload files");
+        return;
+      }
+      const userId = session.user.id;
+      const path = `${userId}/${surfaceId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+      const { error: uploadErr } = await supabase.storage
+        .from("builder-media")
+        .upload(path, file, { contentType: file.type, upsert: false });
+      if (uploadErr) throw uploadErr;
+      const { data: publicData } = supabase.storage.from("builder-media").getPublicUrl(path);
+      const newAsset: MediaAsset = { type: "image", src: publicData.publicUrl, provider: "upload" };
+      onChange([...items, newAsset]);
+      toast.success("Image uploaded!");
+    } catch (err) {
+      console.error("Upload error:", err);
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
   };
 
   const removeItem = (idx: number) => {
@@ -76,7 +105,7 @@ export function MediaPickerList({
               </div>
             )}
             <span className="flex-1 text-xs truncate text-muted-foreground">
-              {item.src ? (item.provider || "url") : "empty — click to add"}
+              {item.src ? (item.provider || "uploaded") : "empty — click to add"}
             </span>
             <Button
               variant="ghost"
@@ -101,14 +130,28 @@ export function MediaPickerList({
         </div>
       ))}
 
+      {/* Hidden file input for direct upload */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) handleFileUpload(f);
+          e.target.value = "";
+        }}
+      />
+
       <Button
         variant="outline"
         size="sm"
         className="w-full gap-1.5 text-xs"
         onClick={addItem}
-        disabled={items.length >= max}
+        disabled={items.length >= max || uploading}
       >
-        <Plus className="h-3.5 w-3.5" /> Add {label.replace(/s$/, "")}
+        {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
+        {uploading ? "Uploading..." : `Add ${label.replace(/s$/, "")}`}
       </Button>
     </div>
   );
