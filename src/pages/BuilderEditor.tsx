@@ -27,6 +27,7 @@ import { BuilderSettingsDrawer, getThemeFromMetadata } from "@/components/builde
 import { BuilderSectionEditor } from "@/components/builder/BuilderSectionEditor";
 import { BuilderPagesDropdown } from "@/components/builder/BuilderPagesDropdown";
 import { BuilderSetupAnswersPanel } from "@/components/builder/panels/BuilderSetupAnswersPanel";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 type RightPanel = "none" | "page_edit" | "section" | "setup";
