@@ -351,7 +351,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
 
   // Default hero
   return (
-    <div className="py-12 px-6 text-center bg-gradient-to-b from-accent/10 to-transparent rounded-lg">
+    <div className="py-12 px-6 text-center bg-gradient-to-b from-accent/10 to-transparent rounded-lg relative">
       {mediaType !== "video" && resolvedMediaUrl && (
         <div className={`aspect-video rounded-lg mb-4 overflow-hidden ${mediaFit === "contain" ? "bg-muted" : ""}`}>
           <EditableImage src={resolvedMediaUrl} alt="Hero visual" className={`w-full h-full ${mediaFit === "cover" ? "object-cover" : "object-contain"}`} field="media.url" canvas={canvas} />
@@ -367,14 +367,20 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
           <video src={mediaUrl} controls className="w-full rounded-lg mb-4" />
         );
       })()}
-      <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className="text-2xl font-bold text-foreground" tag="h1" canvas={canvas} />
-      {schema.subheadline && <EditableText value={schema.subheadline as string} field="subheadline" className="mt-2 text-muted-foreground" tag="p" canvas={canvas} />}
-      {description && <EditableText value={description} field="description" className="mt-2 text-xs text-muted-foreground" tag="p" canvas={canvas} />}
-      {ctaText && (
-        <div className="mt-4">
-          <a href={ctaHref || "#"} className="inline-block px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium yangu-cta">{ctaText}</a>
-        </div>
-      )}
+      <CanvasDraggableOverlay
+        position={(schema.hero_text_position as { x: number; y: number }) || { x: 50, y: 50 }}
+        onPositionChange={canvas?.onUpdateField ? (pos) => canvas.onUpdateField!(canvas.sectionId, "hero_text_position", pos) : undefined}
+        className="max-w-2xl"
+      >
+        <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className="text-2xl font-bold text-foreground" tag="h1" canvas={canvas} />
+        {schema.subheadline && <EditableText value={schema.subheadline as string} field="subheadline" className="mt-2 text-muted-foreground" tag="p" canvas={canvas} />}
+        {description && <EditableText value={description} field="description" className="mt-2 text-xs text-muted-foreground" tag="p" canvas={canvas} />}
+        {ctaText && (
+          <div className="mt-4">
+            <EditableText value={ctaText} field="cta_text" className="inline-block px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium yangu-cta" tag="span" canvas={canvas} />
+          </div>
+        )}
+      </CanvasDraggableOverlay>
     </div>
   );
 }
