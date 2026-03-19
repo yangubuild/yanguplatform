@@ -477,7 +477,7 @@ function ShowcasePreview({ schema, canvas }: { schema: Record<string, unknown>; 
         {heading && <h3 className="text-base font-semibold text-foreground mb-3 text-center">{heading}</h3>}
         <div className="rounded-xl border border-border bg-card/80 overflow-hidden divide-y divide-border">
           {items.map((item, i) => (
-            <ShowcaseAccordionItem key={i} item={item} />
+            <ShowcaseAccordionItem key={i} item={item} index={i} canvas={canvas} />
           ))}
         </div>
       </div>
