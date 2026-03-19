@@ -1180,11 +1180,15 @@ export type Database = {
       }
       builder_surfaces: {
         Row: {
+          cover_image_url: string | null
           created_at: string
           description: string | null
+          favicon_url: string | null
           id: string
           metadata: Json
           org_id: string | null
+          seo_description: string | null
+          seo_title: string | null
           slug: string
           surface_type: Database["public"]["Enums"]["builder_surface_type"]
           theme: Json
@@ -1193,11 +1197,15 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          cover_image_url?: string | null
           created_at?: string
           description?: string | null
+          favicon_url?: string | null
           id?: string
           metadata?: Json
           org_id?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
           slug: string
           surface_type: Database["public"]["Enums"]["builder_surface_type"]
           theme?: Json
@@ -1206,11 +1214,15 @@ export type Database = {
           user_id: string
         }
         Update: {
+          cover_image_url?: string | null
           created_at?: string
           description?: string | null
+          favicon_url?: string | null
           id?: string
           metadata?: Json
           org_id?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
           slug?: string
           surface_type?: Database["public"]["Enums"]["builder_surface_type"]
           theme?: Json
