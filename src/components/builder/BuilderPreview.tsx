@@ -10,7 +10,7 @@ import { CanvasSectionControls } from "./canvas/CanvasSectionControls";
 import { CanvasHints } from "./canvas/CanvasHints";
 import { CanvasEditableText } from "./canvas/CanvasEditableText";
 import { CanvasImagePopover } from "./canvas/CanvasImagePopover";
-import { CanvasDraggableOverlay } from "./canvas/CanvasDraggableOverlay";
+// CanvasDraggableOverlay removed — drag disabled for stability
 
 interface CanvasCallbacks {
   sectionId: string;
@@ -207,11 +207,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
           <div className="aspect-[4/5] relative overflow-hidden">
             <EditableImage src={resolvedMediaUrl} alt="Creator" className="w-full h-full object-cover" field="media.url" canvas={canvas} />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-            <CanvasDraggableOverlay
-              position={(schema.hero_text_position as { x: number; y: number }) || { x: 30, y: 85 }}
-              onPositionChange={canvas?.onUpdateField ? (pos) => canvas.onUpdateField!(canvas.sectionId, "hero_text_position", pos) : undefined}
-              className="text-white max-w-[90%]"
-            >
+            <div className="absolute bottom-6 left-6 text-white max-w-[90%]">
               {headline && <EditableText value={headline} field="headline" className="text-2xl font-bold" tag="h1" canvas={canvas} />}
               {subheadline && <EditableText value={subheadline} field="subheadline" className="text-sm opacity-80 mt-1" tag="p" canvas={canvas} />}
               {socialRowEnabled && (
@@ -223,7 +219,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
                   ))}
                 </div>
               )}
-            </CanvasDraggableOverlay>
+            </div>
           </div>
           {searchEnabled && (
             <div className="px-5 py-4">
@@ -306,26 +302,20 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
   if (isSplit) {
     return (
       <div className="flex items-stretch overflow-hidden rounded-lg relative" style={{ backgroundColor: bgColor || "hsl(var(--accent) / 0.1)" }}>
-        <div className="flex-1 py-8 px-6 flex flex-col justify-center relative">
-          <CanvasDraggableOverlay
-            position={(schema.hero_text_position as { x: number; y: number }) || { x: 50, y: 50 }}
-            onPositionChange={canvas?.onUpdateField ? (pos) => canvas.onUpdateField!(canvas.sectionId, "hero_text_position", pos) : undefined}
-            className="max-w-[90%]"
-          >
-            {schema.subheadline && !isEditorialLarge && (
-              <EditableText value={schema.subheadline as string} field="subheadline" className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1" tag="p" canvas={canvas} />
-            )}
-            <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className={`font-bold text-foreground ${isEditorialLarge ? "text-xl leading-tight" : "text-lg"}`} tag="h1" canvas={canvas} />
-            {isEditorialLarge && schema.subheadline && (
-              <EditableText value={schema.subheadline as string} field="subheadline" className="text-xs text-muted-foreground mt-1" tag="p" canvas={canvas} />
-            )}
-            {description && <EditableText value={description} field="description" className="text-[11px] text-muted-foreground mt-2 leading-relaxed" tag="p" canvas={canvas} />}
-            {ctaText && (
-              <div className="mt-3">
-                <EditableText value={ctaText} field="cta_text" className="inline-block px-4 py-1.5 rounded-full bg-foreground text-background text-xs font-medium yangu-cta" tag="span" canvas={canvas} />
-              </div>
-            )}
-          </CanvasDraggableOverlay>
+        <div className="flex-1 py-8 px-6 flex flex-col justify-center">
+          {schema.subheadline && !isEditorialLarge && (
+            <EditableText value={schema.subheadline as string} field="subheadline" className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1" tag="p" canvas={canvas} />
+          )}
+          <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className={`font-bold text-foreground ${isEditorialLarge ? "text-xl leading-tight" : "text-lg"}`} tag="h1" canvas={canvas} />
+          {isEditorialLarge && schema.subheadline && (
+            <EditableText value={schema.subheadline as string} field="subheadline" className="text-xs text-muted-foreground mt-1" tag="p" canvas={canvas} />
+          )}
+          {description && <EditableText value={description} field="description" className="text-[11px] text-muted-foreground mt-2 leading-relaxed" tag="p" canvas={canvas} />}
+          {ctaText && (
+            <div className="mt-3">
+              <EditableText value={ctaText} field="cta_text" className="inline-block px-4 py-1.5 rounded-full bg-foreground text-background text-xs font-medium yangu-cta" tag="span" canvas={canvas} />
+            </div>
+          )}
         </div>
         <div className="w-2/5 bg-muted overflow-hidden">
           <EditableImage src={resolvedMediaUrl} alt="Hero visual" className="w-full h-full object-cover" field="media.url" canvas={canvas} />
@@ -344,22 +334,16 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
           <EditableImage src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-60" field="media.url" canvas={canvas} />
         ) : null}
         <div className="absolute inset-0 bg-black/30" />
-        <div className="relative z-10 py-12 px-6">
-          <CanvasDraggableOverlay
-            position={(schema.hero_text_position as { x: number; y: number }) || { x: 50, y: 50 }}
-            onPositionChange={canvas?.onUpdateField ? (pos) => canvas.onUpdateField!(canvas.sectionId, "hero_text_position", pos) : undefined}
-            className="max-w-2xl"
-          >
-            <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className={`font-bold text-white ${isBoldUppercase ? "text-2xl tracking-[0.15em] uppercase" : "text-2xl"}`} tag="h1" canvas={canvas} />
-            {schema.subheadline && (
-              <EditableText value={schema.subheadline as string} field="subheadline" className="mt-3 text-white/70 text-[10px] leading-relaxed max-w-[480px] mx-auto" tag="p" canvas={canvas} />
-            )}
-            {ctaText && (
-              <div className="mt-4">
-                <EditableText value={ctaText} field="cta_text" className="inline-block px-5 py-2 rounded-full bg-white text-black text-xs font-medium yangu-cta" tag="span" canvas={canvas} />
-              </div>
-            )}
-          </CanvasDraggableOverlay>
+        <div className="relative z-10 py-12 px-6 flex flex-col items-center justify-center" style={{ minHeight: "280px" }}>
+          <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className={`font-bold text-white ${isBoldUppercase ? "text-2xl tracking-[0.15em] uppercase" : "text-2xl"}`} tag="h1" canvas={canvas} />
+          {schema.subheadline && (
+            <EditableText value={schema.subheadline as string} field="subheadline" className="mt-3 text-white/70 text-[10px] leading-relaxed max-w-[480px] mx-auto" tag="p" canvas={canvas} />
+          )}
+          {ctaText && (
+            <div className="mt-4">
+              <EditableText value={ctaText} field="cta_text" className="inline-block px-5 py-2 rounded-full bg-white text-black text-xs font-medium yangu-cta" tag="span" canvas={canvas} />
+            </div>
+          )}
         </div>
       </div>
     );
@@ -383,22 +367,16 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
       ) : null}
       {/* Overlay for text readability */}
       <div className="absolute inset-0 bg-black/40" />
-      {/* Text layer */}
-      <div className="relative z-10 py-12 px-6">
-        <CanvasDraggableOverlay
-          position={(schema.hero_text_position as { x: number; y: number }) || { x: 50, y: 50 }}
-          onPositionChange={canvas?.onUpdateField ? (pos) => canvas.onUpdateField!(canvas.sectionId, "hero_text_position", pos) : undefined}
-          className="max-w-2xl"
-        >
-          <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className="text-2xl font-bold text-white" tag="h1" canvas={canvas} />
-          {schema.subheadline && <EditableText value={schema.subheadline as string} field="subheadline" className="mt-2 text-white/70" tag="p" canvas={canvas} />}
-          {description && <EditableText value={description} field="description" className="mt-2 text-xs text-white/60" tag="p" canvas={canvas} />}
-          {ctaText && (
-            <div className="mt-4">
-              <EditableText value={ctaText} field="cta_text" className="inline-block px-6 py-2 rounded-full bg-white text-black text-sm font-medium yangu-cta" tag="span" canvas={canvas} />
-            </div>
-          )}
-        </CanvasDraggableOverlay>
+      {/* Text layer — centered inside hero */}
+      <div className="relative z-10 py-12 px-6 flex flex-col items-center justify-center" style={{ minHeight: "280px" }}>
+        <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className="text-2xl font-bold text-white" tag="h1" canvas={canvas} />
+        {schema.subheadline && <EditableText value={schema.subheadline as string} field="subheadline" className="mt-2 text-white/70" tag="p" canvas={canvas} />}
+        {description && <EditableText value={description} field="description" className="mt-2 text-xs text-white/60" tag="p" canvas={canvas} />}
+        {ctaText && (
+          <div className="mt-4">
+            <EditableText value={ctaText} field="cta_text" className="inline-block px-6 py-2 rounded-full bg-white text-black text-sm font-medium yangu-cta" tag="span" canvas={canvas} />
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1168,7 +1146,7 @@ function GenericPreview({ section }: { section: EditorSection }) {
 }
 
 // ─── Header preview ───
-function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
+function HeaderPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
   const logoUrl = (schema.logo_url as string) || "";
   const logoPosition = (schema.logo_position as string) || "left";
   const logoSize = (schema.logo_size as string) || "medium";
@@ -1182,30 +1160,58 @@ function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
   const sizeMap: Record<string, string> = { small: "h-8 w-8", medium: "h-10 w-10", large: "h-14 w-14" };
   const isCenterLogo = logoPosition === "center" || layoutVariant === "nav_split";
 
-  return (
-    <div className={`py-2.5 px-4 flex items-center gap-2 ${isDark ? "bg-foreground/90" : ""}`}>
-      {isCenterLogo && navItems.length > 0 && (
-        <div className="flex gap-2 flex-1">
-          {navItems.slice(0, 3).map((item, i) => (
-             <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
-          ))}
-        </div>
+  const logoBlock = (
+    <div className={`flex items-center gap-2 ${isCenterLogo ? "" : ""}`}>
+      {logoUrl ? (
+        <img src={logoUrl} alt="Logo" className={`${sizeMap[logoSize] || "h-10 w-10"} object-contain rounded`} />
+      ) : (
+        <div className={`${sizeMap[logoSize] || "h-10 w-10"} bg-muted rounded flex items-center justify-center text-[10px] text-muted-foreground`}>Logo</div>
       )}
-      <div className={`flex items-center gap-2 ${isCenterLogo ? "" : "flex-1"}`}>
-        {logoUrl ? (
-          <img src={logoUrl} alt="Logo" className={`${sizeMap[logoSize] || "h-10 w-10"} object-contain rounded`} />
-        ) : (
-          <div className={`${sizeMap[logoSize] || "h-10 w-10"} bg-muted rounded flex items-center justify-center text-[10px] text-muted-foreground`}>Logo</div>
-        )}
-        {showName && <span className={`text-xs font-semibold ${isDark ? "text-background" : "text-foreground"}`}>Store</span>}
+      {showName && <span className={`text-xs font-semibold ${isDark ? "text-background" : "text-foreground"}`}>Store</span>}
+    </div>
+  );
+
+  const renderNavItem = (item: string, i: number) => {
+    if (canvas?.onUpdateField) {
+      return (
+        <CanvasEditableText
+          key={i}
+          value={item}
+          placeholder="Nav"
+          className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}
+          onSave={(v) => {
+            const updated = [...navItems];
+            updated[i] = v;
+            canvas.onUpdateField!(canvas.sectionId, "nav_items", updated);
+          }}
+        />
+      );
+    }
+    return <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>;
+  };
+
+  if (isCenterLogo) {
+    return (
+      <div className={`py-2.5 px-4 flex items-center gap-2 ${isDark ? "bg-foreground/90" : ""}`}>
+        <div className="flex gap-2 flex-1">
+          {navItems.slice(0, 3).map((item, i) => renderNavItem(item, i))}
+        </div>
+        {logoBlock}
+        <div className="flex items-center gap-2 flex-1 justify-end">
+          {(schema.nav_items_right as string[] || []).slice(0, 2).map((item, i) => renderNavItem(item, navItems.length + i))}
+          {showSearch && <span className="text-sm">🔍</span>}
+          {showCart && <span className="text-sm">🛒</span>}
+        </div>
       </div>
-      <div className="flex items-center gap-2">
-        {!isCenterLogo && navItems.length > 0 && navItems.slice(0, 3).map((item, i) => (
-           <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
-        ))}
-        {isCenterLogo && (schema.nav_items_right as string[] || []).slice(0, 2).map((item, i) => (
-          <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
-        ))}
+    );
+  }
+
+  // Left logo (default)
+  return (
+    <div className={`py-2.5 px-4 flex items-center gap-3 ${isDark ? "bg-foreground/90" : ""}`}>
+      {logoBlock}
+      <div className="flex items-center gap-2 flex-1 justify-end">
+        {navItems.map((item, i) => renderNavItem(item, i))}
         {showSearch && <span className="text-sm">🔍</span>}
         {showCart && <span className="text-sm">🛒</span>}
       </div>
@@ -1285,7 +1291,7 @@ function FooterPreview({ schema, canvas }: { schema: Record<string, unknown>; ca
 
 // ─── Preview map (canvas-aware renderers get canvas prop passed separately) ───
 const CANVAS_AWARE_TYPES = new Set([
-  "hero", "hero_banner", "bio", "text", "about", "offer", "offers", "promo", "promo_banner",
+  "hero", "hero_banner", "header", "header_logo", "bio", "text", "about", "offer", "offers", "promo", "promo_banner",
   "trust_badges", "cta", "cta_block", "newsletter", "products", "product_grid",
   "categories", "category_grid", "collections", "gallery", "instagram_gallery", "media_grid",
   "contact", "contact_section", "footer", "showcase", "creator_showcase",
