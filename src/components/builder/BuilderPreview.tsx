@@ -664,7 +664,8 @@ function TextPreview({ schema, canvas }: { schema: Record<string, unknown>; canv
 }
 
 function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
-  const items = (schema.items as Array<{ title?: string; price?: string; description?: string; icon?: string }>) || [];
+  const rawItems = (schema.items as Array<Record<string, unknown>>) || [];
+  const items = rawItems.filter((it) => !it._hidden) as Array<{ title?: string; price?: string; description?: string; icon?: string }>;
   const displayMode = (schema.display_mode as string) || (schema.layout_variant as string) || "";
   const storyBlock = schema.story_block as { enabled?: boolean; eyebrow?: string; heading?: string; description?: string; cta_text?: string } | undefined;
   const socialGallery = schema.social_gallery as { enabled?: boolean; platform?: string; heading?: string; subheading?: string; hashtag?: string; columns?: number; items?: Array<{ image_url?: string }> } | undefined;
@@ -684,13 +685,15 @@ function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; can
       {isTrustBadges && items.length > 0 && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
           {items.map((item, i) => (
-            <div key={i} className="p-3 sm:p-4 rounded-lg border border-border bg-muted/30 text-center yangu-card" tabIndex={0}>
-              <div className="text-lg mb-1">
-                {item.icon === "truck" ? "🚚" : item.icon === "headphones" ? "🎧" : item.icon === "credit-card" ? "💳" : item.icon === "map-pin" ? "📍" : "✨"}
+            <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={rawItems.indexOf(item as unknown as Record<string, unknown>)}>
+              <div className="p-3 sm:p-4 rounded-lg border border-border bg-muted/30 text-center yangu-card" tabIndex={0}>
+                <div className="text-lg mb-1">
+                  {item.icon === "truck" ? "🚚" : item.icon === "headphones" ? "🎧" : item.icon === "credit-card" ? "💳" : item.icon === "map-pin" ? "📍" : "✨"}
+                </div>
+                <p className="text-[11px] font-medium">{item.title || "Feature"}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{item.description || ""}</p>
               </div>
-              <p className="text-[11px] font-medium">{item.title || "Feature"}</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">{item.description || ""}</p>
-            </div>
+            </ItemCardWrapper>
           ))}
         </div>
       )}
@@ -698,13 +701,15 @@ function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; can
       {isStoryBlock && items.length > 0 && (
         <div className="space-y-3">
           {items.map((item, i) => (
-            <div key={i} className="flex gap-3 items-start">
-              <div className="w-1/3 aspect-square rounded-lg bg-muted flex items-center justify-center text-xl">🖼</div>
-              <div className="flex-1">
-                <p className="text-xs font-semibold">{item.title || "Story"}</p>
-                <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">{item.description || ""}</p>
+            <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={rawItems.indexOf(item as unknown as Record<string, unknown>)}>
+              <div className="flex gap-3 items-start">
+                <div className="w-1/3 aspect-square rounded-lg bg-muted flex items-center justify-center text-xl">🖼</div>
+                <div className="flex-1">
+                  <p className="text-xs font-semibold">{item.title || "Story"}</p>
+                  <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">{item.description || ""}</p>
+                </div>
               </div>
-            </div>
+            </ItemCardWrapper>
           ))}
           {schema.cta_text && (
             <span className="inline-block px-4 py-1.5 rounded-full border border-border text-xs font-medium">{schema.cta_text as string}</span>
@@ -715,9 +720,10 @@ function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; can
       {!isTrustBadges && !isStoryBlock && items.length > 0 && (
         <div className="space-y-2">
           {items.map((item, i) => (
-             <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
-              <div className="flex justify-between items-start">
-                <p className="text-sm font-medium">{item.title || "Offer"}</p>
+            <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={rawItems.indexOf(item as unknown as Record<string, unknown>)}>
+              <div className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
+                <div className="flex justify-between items-start">
+                  <p className="text-sm font-medium">{item.title || "Offer"}</p>
                 {item.price && <p className="text-xs font-medium text-primary shrink-0 ml-2">{item.price}</p>}
               </div>
               {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
