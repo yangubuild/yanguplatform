@@ -8,12 +8,12 @@ const corsHeaders = {
 };
 
 const ENGINE_CONTEXTS: Record<string, string> = {
-  emenu: "a digital restaurant/food menu with menu categories and food items",
-  esite: "a professional business website with services and contact info",
-  eshop: "an online shop with product listings and collections",
-  estore: "a wholesale/trading store with catalog and bulk pricing",
-  influencer: "a creator bio-link page with social links and media showcase",
-  community: "a community landing page with member signup and events",
+  emenu: "a digital restaurant/food menu with menu categories and food items. Generate REAL appetizing dish names (e.g. 'Grilled Tilapia with Coconut Rice', 'Espresso Macchiato'), vivid descriptions mentioning ingredients and cooking methods, realistic prices (e.g. 'UGX 25,000'), and proper menu categories (Starters, Main Course, Beverages, Desserts). Never use generic names like 'Item 1' or 'Dish A'.",
+  esite: "a professional business website with services and contact info. Generate REAL service names (e.g. 'Brand Strategy Consulting', 'Residential Electrical Installation'), detailed benefit-driven descriptions, professional about copy with mission and values, and tiered pricing where applicable. Testimonials should reference specific results.",
+  eshop: "an online shop with product listings and collections. Generate REAL product names (e.g. 'Ankara Print Midi Dress', 'Wireless Bluetooth Earbuds'), specific descriptions with materials/features, plausible prices (e.g. 'UGX 45,000', '$29.99'), and commerce-oriented CTAs. Never use 'Product 1' or generic names.",
+  estore: "a wholesale/trading store with catalog and bulk pricing. Generate REAL wholesale product names (e.g. 'Premium Cement 50kg Bag', 'Refined Sunflower Oil 20L Jerrycan'), B2B descriptions with pack sizes and MOQs, bulk pricing (e.g. 'UGX 32,000/bag'), and trade-focused CTAs like 'Request Quote'.",
+  influencer: "a creator bio-link page with social links and media showcase. Generate personal, energetic bio copy, platform-specific links ('Watch My Latest YouTube Video', 'Shop My Favorites'), personality-driven headlines, creator merch or affiliate products with catchy names, and brand collaboration highlights.",
+  community: "a community landing page with member signup and events. Generate mission-driven headlines ('Join a Community That Empowers You'), membership tier descriptions, community guidelines, event listings ('Weekly Masterclass', 'Monthly Networking Mixer'), and member testimonials about community impact.",
 };
 
 /* ─── Image Completion Helpers ─── */
@@ -254,27 +254,38 @@ Based on the user's business information, create a REAL branded page that looks 
 
 CRITICAL RULES:
 1. The business name must be "${businessName || "the provided name"}"
-2. Write compelling, specific copy that mentions what THIS business does — not generic placeholder text
-3. The primary_color must be a bold, appropriate color for a ${industry || "business"} brand
-4. Every section schema must have populated, specific content
-${businessDescription ? `5. Use this description as inspiration: "${businessDescription}"` : ""}
-${location ? `6. Reference the location: "${location}"` : ""}
+2. Write compelling, SPECIFIC copy — NEVER use "Lorem ipsum", "Sample", "Example", "Item 1", "Product 1", or any generic placeholder text.
+3. Product/item names MUST be realistic and specific (e.g. "Organic Shea Butter Moisturizer" not "Product 1", "Grilled Tilapia with Coconut Rice" not "Dish A").
+4. Descriptions MUST be detailed (2-3 sentences for items, 1-3 paragraphs for text sections) and mention specifics about the business.
+5. Prices MUST be realistic with proper currency formatting.
+6. The primary_color must be a bold, appropriate color for a ${industry || "business"} brand.
+7. Every section schema must have fully populated, specific content.
+${businessDescription ? `8. Use this description as inspiration: "${businessDescription}"` : ""}
+${location ? `9. Reference the location: "${location}"` : ""}
 
 SECTION SCHEMA REQUIREMENTS (use EXACTLY these field names):
-- hero section: "headline" (string), "subheadline" (string), "cta_text" (string), "media" object with { "type": "image", "url": "<image URL>", "fit": "cover" }
-- text/about section: "heading" (string), "body" (string)  
-- gallery section: "heading" (string), "items" array of {"name": string, "src": "<image URL>"}. MUST have at least 6 items.
-- products section: "heading" (string), "items" array of {"name": string, "price": string, "image_url": "<image URL>", "description": string}. MUST have at least 4 items.
-- collections/categories section: "heading" (string), "items" array of {"name": string, "image_url": "<image URL>"}
+- hero section: "headline" (string — brand-specific, compelling), "subheadline" (string — value proposition), "cta_text" (string — action-oriented), "media" object with { "type": "image", "url": "<image URL>", "fit": "cover" }
+- text/about section: "heading" (string), "body" (string — tell the business story, founding, mission, unique value)
+- gallery section: "heading" (string), "items" array of {"name": string (descriptive caption), "src": "<image URL>"}. MUST have at least 6 items.
+- products section: "heading" (string), "items" array of {"name": string (REAL product name), "price": string (realistic price), "image_url": "<image URL>", "description": string (2-3 sentences with features/materials)}. MUST have at least 4 items.
+- menu section: "heading" (string), "categories" array of {"name": string, "items": [{"name": string (REAL dish name), "price": string, "description": string (ingredients, cooking method)}]}. MUST have at least 3 categories with 3-5 items each.
+- services section: "heading" (string), "items" array of {"name": string (REAL service name), "price": string, "description": string, "icon": string (emoji)}
+- listings section: "heading" (string), "items" array of {"name": string, "price": string, "description": string, "image_url": string}
+- collections/categories section: "heading" (string), "items" array of {"name": string (specific category name), "image_url": "<image URL>"}
 - contact section: "heading" (string), "phone" (string), "address" (string), "email" (string)
 - offer section: "heading" (string), "description" (string), "items" array of {"title": string, "description": string, "price": string}
-- cta section: "label" (string), "url" (string)
+- cta section: "label" (string — specific action), "url" (string)
 - footer section: "heading" (string), "email" (string), "phone" (string), "address" (string)
+- testimonials section: "heading" (string), "items" array of {"name": string (realistic name), "quote": string (specific testimonial mentioning results)}
+- faq section: "heading" (string), "items" array of {"question": string, "answer": string (detailed answer)}
+- plans section: "heading" (string), "items" array of {"name": string (tier name), "price": string, "description": string (feature list)}
+- rules section: "heading" (string), "items" array of {"title": string, "description": string}
+- join section: "label" (string), "url" (string), "description" (string — compelling reason to join)
 ${photoInstruction}
 
 ALLOWED section types: ${allowedTypes.join(", ")}
 You MUST only use section types from the allowed list above.
-Generate 5-7 sections minimum. Always include a gallery section with at least 6 items.`;
+Generate 5-7 sections minimum. Always include content-rich items in every section.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -286,7 +297,7 @@ Generate 5-7 sections minimum. Always include a gallery section with at least 6 
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: `${answerLines}${sourceContext}\n\nGenerate a complete, branded page for this business. Make it feel real and specific to this brand.` },
+          { role: "user", content: `${answerLines}${sourceContext}\n\nGenerate a complete, branded page for this business. Every item must have a REAL specific name, detailed description, and realistic price. Make it feel like a real, established business — not a template.` },
         ],
         tools: [{
           type: "function",
