@@ -137,21 +137,21 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
   const mediaType = media.type || "none";
   const mediaUrl = media.url || "";
   const resolvedMediaUrl = mediaUrl || demoImage(0);
-  const mediaFit = media.fit || "contain";
+  const mediaFit = media.fit || "cover";
   const ctaText = (schema.cta_text as string) || "";
-  const ctaHref = (schema.cta_href as string) || "";
   const layoutVariant = (schema.layout_variant as string) || "";
   const bgStyle = (schema.background_style as string) || "";
   const bgColor = (schema.background_color as string) || "";
   const description = (schema.description as string) || "";
   const textColor = (schema.text_color as string) || "";
   const typographyStyle = (schema.typography_style as string) || "";
+  const overlayOpacity = typeof schema.overlay_opacity === "number" ? Math.max(0, Math.min(1, schema.overlay_opacity as number)) : 0;
+  const mediaObjectClass = mediaFit === "contain" ? "object-contain" : "object-cover";
   const isSplit = layoutVariant === "split";
   const isDark = bgStyle === "solid_dark" || textColor === "light";
   const isBoldUppercase = typographyStyle === "bold_uppercase";
   const isEditorialLarge = typographyStyle === "editorial_large";
 
-  // ─── Link-Bio Hero Variants ───
   const isLinkBioProfile = layoutVariant === "link_bio_profile";
   const isLinkBioMediaHero = layoutVariant === "link_bio_media_hero";
   const isLinkBioSplit = layoutVariant === "link_bio_split";
@@ -162,27 +162,28 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
   const socialRowEnabled = schema.social_row_enabled !== false;
   const searchEnabled = schema.search_enabled !== false;
 
-  // Resolve social icon images from the social section's active_social_links
-  const socialSection = sections?.find(s => s.section_type === "social");
+  const socialSection = sections?.find((s) => s.section_type === "social");
   const socialSchema = socialSection?.schema as Record<string, unknown> | undefined;
   const activeSlots = (socialSchema?.active_social_links as SocialSlot[]) || [];
   const iconStyleMode = (socialSchema?.icon_style as string) || "original";
 
   const socialIconImages: { key: string; src: string; url: string }[] = (() => {
     if (activeSlots.length === 6) {
-      return activeSlots.map(s => {
-        const p = getPlatform(s.platform);
-        return { key: s.platform, src: p?.icon || "", url: s.url || "" };
-      }).filter(x => x.src);
+      return activeSlots
+        .map((s) => {
+          const p = getPlatform(s.platform);
+          return { key: s.platform, src: p?.icon || "", url: s.url || "" };
+        })
+        .filter((x) => x.src);
     }
-    // Fallback to defaults
-    return DEFAULT_PRIMARY_IDS.map(id => {
-      const p = getPlatform(id);
-      return { key: id, src: p?.icon || "", url: "" };
-    }).filter(x => x.src);
+    return DEFAULT_PRIMARY_IDS
+      .map((id) => {
+        const p = getPlatform(id);
+        return { key: id, src: p?.icon || "", url: "" };
+      })
+      .filter((x) => x.src);
   })();
 
-  // White/Black: apply filter to glyph but ensure container bg keeps icon recognizable
   const iconStyleClass = iconStyleMode === "white"
     ? "brightness-0 invert drop-shadow-[0_0_1px_rgba(0,0,0,0.3)]"
     : iconStyleMode === "black"
@@ -200,21 +201,20 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
     const headline = (schema.headline as string) || "";
     const subheadline = (schema.subheadline as string) || "";
 
-    // Media hero: full-bleed image with name overlaid at bottom
     if (isLinkBioMediaHero) {
       return (
-        <div className="relative overflow-hidden" style={{ backgroundColor: bgColor || "hsl(220 15% 12%)" }}>
+        <div className="relative overflow-hidden" style={{ backgroundColor: bgColor || "hsl(var(--card))" }}>
           <div className="aspect-[4/5] relative overflow-hidden">
-            <EditableImage src={resolvedMediaUrl} alt="Creator" className="w-full h-full object-cover" field="media.url" canvas={canvas} />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-            <div className="absolute bottom-6 left-6 text-white max-w-[90%]">
+            <EditableImage src={resolvedMediaUrl} alt="Creator" className={`w-full h-full ${mediaObjectClass}`} field="media.url" canvas={canvas} />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent pointer-events-none" />
+            <div className="absolute bottom-6 left-6 z-10 max-w-[90%] text-white">
               {headline && <EditableText value={headline} field="headline" className="text-2xl font-bold" tag="h1" canvas={canvas} />}
-              {subheadline && <EditableText value={subheadline} field="subheadline" className="text-sm opacity-80 mt-1" tag="p" canvas={canvas} />}
+              {subheadline && <EditableText value={subheadline} field="subheadline" className="mt-1 text-sm opacity-80" tag="p" canvas={canvas} />}
               {socialRowEnabled && (
-                <div className="flex gap-3 mt-3">
+                <div className="mt-3 flex gap-3">
                   {socialIconImages.map(({ key, src, url }) => (
-                    <a key={key} href={url && url.startsWith("http") ? url : url ? `https://${url}` : "#"} target="_blank" rel="noopener noreferrer" onClick={(e) => { if (!url) { e.preventDefault(); handleSocialIconClick(e); } }} className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center yangu-interactive hover:scale-110 transition-transform cursor-pointer">
-                      <img src={src} alt={key} className={`w-full h-full object-cover ${iconStyleClass}`} />
+                    <a key={key} href={url && url.startsWith("http") ? url : url ? `https://${url}` : "#"} target="_blank" rel="noopener noreferrer" onClick={(e) => { if (!url) { e.preventDefault(); handleSocialIconClick(e); } }} className="flex h-8 w-8 cursor-pointer items-center justify-center overflow-hidden rounded-full transition-transform hover:scale-110">
+                      <img src={src} alt={key} className={`h-full w-full object-cover ${iconStyleClass}`} />
                     </a>
                   ))}
                 </div>
@@ -223,10 +223,10 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
           </div>
           {searchEnabled && (
             <div className="px-5 py-4">
-              <div className="flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3 py-2.5 yangu-search-row">
-                <span className="text-white/50 text-sm">🔍</span>
+              <div className="yangu-search-row flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3 py-2.5">
+                <span className="text-sm text-white/50">🔍</span>
                 <span className="flex-1 text-sm text-white/40">Search or type a keyword</span>
-                <span className="w-8 h-8 rounded-lg bg-foreground/80 text-background flex items-center justify-center text-sm yangu-interactive">→</span>
+                <span className="yangu-interactive flex h-8 w-8 items-center justify-center rounded-lg bg-foreground/80 text-sm text-background">→</span>
               </div>
             </div>
           )}
@@ -234,61 +234,59 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
       );
     }
 
-    // Profile centered: avatar + name + bio + social icons
     if (isLinkBioProfile || isLinkBioMinimal) {
       const isThemed = bgStyle === "themed";
       return (
-        <div className={`py-8 px-6 text-center ${isThemed ? "bg-gradient-to-b from-accent/15 to-transparent" : ""}`} style={bgColor ? { backgroundColor: bgColor } : undefined}>
+        <div className={`px-6 py-8 text-center ${isThemed ? "bg-gradient-to-b from-accent/15 to-transparent" : ""}`} style={bgColor ? { backgroundColor: bgColor } : undefined}>
           {headline && <EditableText value={headline} field="headline" className="text-xl font-bold text-foreground" tag="h1" canvas={canvas} />}
-          {subheadline && <EditableText value={subheadline} field="subheadline" className="text-sm text-muted-foreground mt-1 max-w-xs mx-auto" tag="p" canvas={canvas} />}
-          {description && <EditableText value={description} field="description" className="text-xs text-muted-foreground mt-2 max-w-sm mx-auto leading-relaxed" tag="p" canvas={canvas} />}
+          {subheadline && <EditableText value={subheadline} field="subheadline" className="mx-auto mt-1 max-w-xs text-sm text-muted-foreground" tag="p" canvas={canvas} />}
+          {description && <EditableText value={description} field="description" className="mx-auto mt-2 max-w-sm text-xs leading-relaxed text-muted-foreground" tag="p" canvas={canvas} />}
           {socialRowEnabled && (
-            <div className="flex justify-center gap-3 mt-4">
+            <div className="mt-4 flex justify-center gap-3">
               {socialIconImages.map(({ key, src, url }) => (
-                <a key={key} href={url && url.startsWith("http") ? url : url ? `https://${url}` : "#"} target="_blank" rel="noopener noreferrer" onClick={(e) => { if (!url) { e.preventDefault(); handleSocialIconClick(e); } }} className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center yangu-interactive hover:scale-110 hover:shadow-md transition-all cursor-pointer">
-                  <img src={src} alt={key} className={`w-full h-full object-cover ${iconStyleClass}`} />
+                <a key={key} href={url && url.startsWith("http") ? url : url ? `https://${url}` : "#"} target="_blank" rel="noopener noreferrer" onClick={(e) => { if (!url) { e.preventDefault(); handleSocialIconClick(e); } }} className="flex h-9 w-9 cursor-pointer items-center justify-center overflow-hidden rounded-full transition-all hover:scale-110 hover:shadow-md">
+                  <img src={src} alt={key} className={`h-full w-full object-cover ${iconStyleClass}`} />
                 </a>
               ))}
             </div>
           )}
           {avatarEnabled && resolvedMediaUrl && (
-            <div className="mt-5 mx-auto w-full max-w-sm rounded-xl overflow-hidden border border-border shadow-sm">
-              <EditableImage src={resolvedMediaUrl} alt="Creator" className="w-full aspect-[4/5] object-cover" field="media.url" canvas={canvas} />
+            <div className="mx-auto mt-5 w-full max-w-sm overflow-hidden rounded-xl border border-border shadow-sm">
+              <EditableImage src={resolvedMediaUrl} alt="Creator" className={`aspect-[4/5] w-full ${mediaObjectClass}`} field="media.url" canvas={canvas} />
             </div>
           )}
           {searchEnabled && (
-            <div className="mt-5 mx-auto max-w-sm">
-              <div className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2.5 yangu-search-row">
-                <span className="text-muted-foreground text-sm">🔍</span>
-                <span className="flex-1 text-sm text-muted-foreground/60 text-left">Search or type a keyword</span>
-                <span className="w-8 h-8 rounded-lg bg-foreground text-background flex items-center justify-center text-sm yangu-interactive">→</span>
+            <div className="mx-auto mt-5 max-w-sm">
+              <div className="yangu-search-row flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2.5">
+                <span className="text-sm text-muted-foreground">🔍</span>
+                <span className="flex-1 text-left text-sm text-muted-foreground/60">Search or type a keyword</span>
+                <span className="yangu-interactive flex h-8 w-8 items-center justify-center rounded-lg bg-foreground text-sm text-background">→</span>
               </div>
             </div>
           )}
           {ctaText && (
             <div className="mt-4">
-              <EditableText value={ctaText} field="cta_text" className="inline-block px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium yangu-cta" tag="span" canvas={canvas} />
+              <EditableText value={ctaText} field="cta_text" className="yangu-cta inline-block rounded-full bg-primary px-6 py-2 text-sm font-medium text-primary-foreground" tag="span" canvas={canvas} />
             </div>
           )}
         </div>
       );
     }
 
-    // Split layout
     if (isLinkBioSplit) {
       return (
         <div className="flex items-stretch overflow-hidden" style={bgColor ? { backgroundColor: bgColor } : undefined}>
-          <div className="w-2/5 bg-muted overflow-hidden">
-            <EditableImage src={resolvedMediaUrl} alt="Creator" className="w-full h-full object-cover" field="media.url" canvas={canvas} />
+          <div className="w-2/5 overflow-hidden bg-muted">
+            <EditableImage src={resolvedMediaUrl} alt="Creator" className={`h-full w-full ${mediaObjectClass}`} field="media.url" canvas={canvas} />
           </div>
-          <div className="flex-1 py-6 px-5 flex flex-col justify-center">
+          <div className="flex flex-1 flex-col justify-center px-5 py-6">
             {headline && <EditableText value={headline} field="headline" className="text-lg font-bold text-foreground" tag="h1" canvas={canvas} />}
-            {subheadline && <EditableText value={subheadline} field="subheadline" className="text-xs text-muted-foreground mt-1" tag="p" canvas={canvas} />}
+            {subheadline && <EditableText value={subheadline} field="subheadline" className="mt-1 text-xs text-muted-foreground" tag="p" canvas={canvas} />}
             {socialRowEnabled && (
-              <div className="flex gap-2 mt-3">
+              <div className="mt-3 flex gap-2">
                 {socialIconImages.slice(0, 4).map(({ key, src, url }) => (
-                  <a key={key} href={url && url.startsWith("http") ? url : url ? `https://${url}` : "#"} target="_blank" rel="noopener noreferrer" onClick={(e) => { if (!url) { e.preventDefault(); handleSocialIconClick(e); } }} className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center yangu-interactive hover:scale-110 transition-transform cursor-pointer">
-                    <img src={src} alt={key} className={`w-full h-full object-cover ${iconStyleClass}`} />
+                  <a key={key} href={url && url.startsWith("http") ? url : url ? `https://${url}` : "#"} target="_blank" rel="noopener noreferrer" onClick={(e) => { if (!url) { e.preventDefault(); handleSocialIconClick(e); } }} className="flex h-7 w-7 cursor-pointer items-center justify-center overflow-hidden rounded-full transition-transform hover:scale-110">
+                    <img src={src} alt={key} className={`h-full w-full object-cover ${iconStyleClass}`} />
                   </a>
                 ))}
               </div>
@@ -301,82 +299,63 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
 
   if (isSplit) {
     return (
-      <div className="flex items-stretch overflow-hidden rounded-lg relative" style={{ backgroundColor: bgColor || "hsl(var(--accent) / 0.1)" }}>
-        <div className="flex-1 py-8 px-6 flex flex-col justify-center">
+      <div className="relative flex items-stretch overflow-hidden rounded-lg" style={{ backgroundColor: bgColor || "hsl(var(--accent) / 0.1)" }}>
+        <div className="flex flex-1 flex-col justify-center px-6 py-8">
           {schema.subheadline && !isEditorialLarge && (
-            <EditableText value={schema.subheadline as string} field="subheadline" className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1" tag="p" canvas={canvas} />
+            <EditableText value={schema.subheadline as string} field="subheadline" className="mb-1 text-[10px] uppercase tracking-widest text-muted-foreground" tag="p" canvas={canvas} />
           )}
           <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className={`font-bold text-foreground ${isEditorialLarge ? "text-xl leading-tight" : "text-lg"}`} tag="h1" canvas={canvas} />
           {isEditorialLarge && schema.subheadline && (
-            <EditableText value={schema.subheadline as string} field="subheadline" className="text-xs text-muted-foreground mt-1" tag="p" canvas={canvas} />
+            <EditableText value={schema.subheadline as string} field="subheadline" className="mt-1 text-xs text-muted-foreground" tag="p" canvas={canvas} />
           )}
-          {description && <EditableText value={description} field="description" className="text-[11px] text-muted-foreground mt-2 leading-relaxed" tag="p" canvas={canvas} />}
+          {description && <EditableText value={description} field="description" className="mt-2 text-[11px] leading-relaxed text-muted-foreground" tag="p" canvas={canvas} />}
           {ctaText && (
             <div className="mt-3">
-              <EditableText value={ctaText} field="cta_text" className="inline-block px-4 py-1.5 rounded-full bg-foreground text-background text-xs font-medium yangu-cta" tag="span" canvas={canvas} />
+              <EditableText value={ctaText} field="cta_text" className="yangu-cta inline-block rounded-full bg-foreground px-4 py-1.5 text-xs font-medium text-background" tag="span" canvas={canvas} />
             </div>
           )}
         </div>
-        <div className="w-2/5 bg-muted overflow-hidden">
-          <EditableImage src={resolvedMediaUrl} alt="Hero visual" className="w-full h-full object-cover" field="media.url" canvas={canvas} />
+        <div className="w-2/5 overflow-hidden bg-muted">
+          <EditableImage src={resolvedMediaUrl} alt="Hero visual" className={`h-full w-full ${mediaObjectClass}`} field="media.url" canvas={canvas} />
         </div>
       </div>
     );
   }
 
-  if (isDark || layoutVariant === "fullwidth_center") {
-    const isHeroVid = mediaType === "video" || isVideoUrl(resolvedMediaUrl);
-    return (
-      <div className="text-center rounded-lg relative overflow-hidden" style={{ backgroundColor: bgColor || "hsl(0 0% 8%)", minHeight: "280px" }}>
-        {isHeroVid && mediaUrl ? (
-          <video src={mediaUrl} className="absolute inset-0 w-full h-full object-cover opacity-60" muted autoPlay loop playsInline />
-        ) : resolvedMediaUrl ? (
-          <EditableImage src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-60" field="media.url" canvas={canvas} />
-        ) : null}
-        <div className="absolute inset-0 bg-black/30" />
-        <div className="relative z-10 py-12 px-6 flex flex-col items-center justify-center" style={{ minHeight: "280px" }}>
-          <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className={`font-bold text-white ${isBoldUppercase ? "text-2xl tracking-[0.15em] uppercase" : "text-2xl"}`} tag="h1" canvas={canvas} />
-          {schema.subheadline && (
-            <EditableText value={schema.subheadline as string} field="subheadline" className="mt-3 text-white/70 text-[10px] leading-relaxed max-w-[480px] mx-auto" tag="p" canvas={canvas} />
-          )}
-          {ctaText && (
-            <div className="mt-4">
-              <EditableText value={ctaText} field="cta_text" className="inline-block px-5 py-2 rounded-full bg-white text-black text-xs font-medium yangu-cta" tag="span" canvas={canvas} />
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  // Default hero — full-bleed media background
   const isHeroVideo = mediaType === "video" || isVideoUrl(resolvedMediaUrl);
   const ytId = mediaType === "video" && mediaUrl ? isYouTubeUrl(mediaUrl) : null;
 
   return (
-    <div className="text-center rounded-lg relative overflow-hidden" style={{ minHeight: "280px", backgroundColor: bgColor || "hsl(0 0% 8%)" }}>
-      {/* Full-bleed background media */}
+    <div className="relative overflow-hidden rounded-lg text-center" style={{ minHeight: "280px", backgroundColor: bgColor || "hsl(var(--card))" }}>
       {ytId ? (
         <div className="absolute inset-0">
-          <iframe src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&controls=0&playlist=${ytId}`} className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title="Video" style={{ border: 0 }} />
+          <iframe src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&controls=0&playlist=${ytId}`} className="h-full w-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title="Video" style={{ border: 0 }} />
         </div>
       ) : isHeroVideo && mediaUrl ? (
-        <video src={mediaUrl} className="absolute inset-0 w-full h-full object-cover" muted autoPlay loop playsInline />
+        <video src={mediaUrl} className={`absolute inset-0 h-full w-full ${mediaObjectClass}`} muted autoPlay loop playsInline />
       ) : resolvedMediaUrl ? (
-        <EditableImage src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover" field="media.url" canvas={canvas} />
+        <EditableImage src={resolvedMediaUrl} alt="Hero visual" className={`absolute inset-0 h-full w-full ${mediaObjectClass}`} field="media.url" canvas={canvas} />
       ) : null}
-      {/* Overlay for text readability */}
-      <div className="absolute inset-0 bg-black/40" />
-      {/* Text layer — centered inside hero */}
-      <div className="relative z-10 py-12 px-6 flex flex-col items-center justify-center" style={{ minHeight: "280px" }}>
-        <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className="text-2xl font-bold text-white" tag="h1" canvas={canvas} />
-        {schema.subheadline && <EditableText value={schema.subheadline as string} field="subheadline" className="mt-2 text-white/70" tag="p" canvas={canvas} />}
-        {description && <EditableText value={description} field="description" className="mt-2 text-xs text-white/60" tag="p" canvas={canvas} />}
-        {ctaText && (
-          <div className="mt-4">
-            <EditableText value={ctaText} field="cta_text" className="inline-block px-6 py-2 rounded-full bg-white text-black text-sm font-medium yangu-cta" tag="span" canvas={canvas} />
-          </div>
-        )}
+
+      {overlayOpacity > 0 && <div className="pointer-events-none absolute inset-0 bg-black" style={{ opacity: overlayOpacity }} />}
+
+      <div className="relative z-10 flex min-h-[280px] flex-col items-center justify-center px-6 py-12 pointer-events-none">
+        <div className="pointer-events-auto flex max-w-[560px] flex-col items-center">
+          {!!(schema.headline as string) && (
+            <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className={`font-bold text-white ${isBoldUppercase ? "text-2xl tracking-[0.15em] uppercase" : "text-2xl"}`} tag="h1" canvas={canvas} />
+          )}
+          {!!(schema.subheadline as string) && (
+            <EditableText value={schema.subheadline as string} field="subheadline" className="mx-auto mt-3 max-w-[480px] text-[10px] leading-relaxed text-white/80" tag="p" canvas={canvas} />
+          )}
+          {!!description && (
+            <EditableText value={description} field="description" className="mt-2 text-xs text-white/70" tag="p" canvas={canvas} />
+          )}
+          {!!ctaText && (
+            <div className="mt-4">
+              <EditableText value={ctaText} field="cta_text" className="yangu-cta inline-block rounded-full bg-white px-6 py-2 text-sm font-medium text-black" tag="span" canvas={canvas} />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -1147,58 +1126,70 @@ function GenericPreview({ section }: { section: EditorSection }) {
 
 // ─── Header preview ───
 function HeaderPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
-  const logoUrl = (schema.logo_url as string) || "";
+  const logoMedia = (schema.logo_media as { url?: string; alt?: string }) || {};
+  const logoUrl = (schema.logo_url as string) || logoMedia.url || "";
+  const logoAlt = logoMedia.alt || "Logo";
   const logoPosition = (schema.logo_position as string) || "left";
   const logoSize = (schema.logo_size as string) || "medium";
   const showName = schema.show_name !== false;
   const showCart = schema.show_cart_icon as boolean;
   const showSearch = schema.show_search as boolean;
-  const navItems = (schema.nav_items as string[]) || (schema.nav_items_left as string[]) || [];
+  const navItems = (schema.nav_items as string[]) || [];
+  const leftNavItems = (schema.nav_items_left as string[]) || [];
+  const rightNavItems = (schema.nav_items_right as string[]) || [];
   const layoutVariant = (schema.layout_variant as string) || "";
   const bgStyle = (schema.background_style as string) || "";
   const isDark = bgStyle === "dark";
   const sizeMap: Record<string, string> = { small: "h-8 w-8", medium: "h-10 w-10", large: "h-14 w-14" };
-  const isCenterLogo = logoPosition === "center" || layoutVariant === "nav_split";
+  const isCenterLogo = logoPosition === "center" || (!schema.logo_position && layoutVariant === "nav_split");
+  const labelColorClass = isDark ? "text-background/70" : "text-muted-foreground";
+
+  const logoVisual = logoUrl
+    ? <EditableImage src={logoUrl} alt={logoAlt} className={`${sizeMap[logoSize] || "h-10 w-10"} rounded object-contain`} field="logo_url" canvas={canvas} />
+    : <div className={`${sizeMap[logoSize] || "h-10 w-10"} flex items-center justify-center rounded bg-muted text-[10px] text-muted-foreground`}>Logo</div>;
 
   const logoBlock = (
-    <div className={`flex items-center gap-2 ${isCenterLogo ? "" : ""}`}>
-      {logoUrl ? (
-        <img src={logoUrl} alt="Logo" className={`${sizeMap[logoSize] || "h-10 w-10"} object-contain rounded`} />
-      ) : (
-        <div className={`${sizeMap[logoSize] || "h-10 w-10"} bg-muted rounded flex items-center justify-center text-[10px] text-muted-foreground`}>Logo</div>
-      )}
+    <div className="flex shrink-0 items-center gap-2">
+      {logoVisual}
       {showName && <span className={`text-xs font-semibold ${isDark ? "text-background" : "text-foreground"}`}>Store</span>}
     </div>
   );
 
-  const renderNavItem = (item: string, i: number) => {
+  const renderNavItem = (item: string, i: number, field: "nav_items" | "nav_items_left" | "nav_items_right") => {
     if (canvas?.onUpdateField) {
+      const currentItems = field === "nav_items"
+        ? navItems
+        : field === "nav_items_left"
+          ? leftNavItems
+          : rightNavItems;
+
       return (
         <CanvasEditableText
-          key={i}
+          key={`${field}-${i}`}
           value={item}
           placeholder="Nav"
-          className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}
+          className={`yangu-nav-item text-[10px] ${labelColorClass}`}
           onSave={(v) => {
-            const updated = [...navItems];
+            const updated = [...currentItems];
             updated[i] = v;
-            canvas.onUpdateField!(canvas.sectionId, "nav_items", updated);
+            canvas.onUpdateField!(canvas.sectionId, field, updated);
           }}
         />
       );
     }
-    return <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>;
+
+    return <span key={`${field}-${i}`} className={`yangu-nav-item text-[10px] ${labelColorClass}`}>{item}</span>;
   };
 
   if (isCenterLogo) {
     return (
-      <div className={`py-2.5 px-4 flex items-center gap-2 ${isDark ? "bg-foreground/90" : ""}`}>
-        <div className="flex gap-2 flex-1">
-          {navItems.slice(0, 3).map((item, i) => renderNavItem(item, i))}
+      <div className={`flex items-center gap-3 px-4 py-2.5 ${isDark ? "bg-foreground/90" : ""}`}>
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+          {leftNavItems.map((item, i) => renderNavItem(item, i, "nav_items_left"))}
         </div>
         {logoBlock}
-        <div className="flex items-center gap-2 flex-1 justify-end">
-          {(schema.nav_items_right as string[] || []).slice(0, 2).map((item, i) => renderNavItem(item, navItems.length + i))}
+        <div className="flex min-w-0 flex-1 items-center justify-end gap-3">
+          {rightNavItems.map((item, i) => renderNavItem(item, i, "nav_items_right"))}
           {showSearch && <span className="text-sm">🔍</span>}
           {showCart && <span className="text-sm">🛒</span>}
         </div>
@@ -1206,12 +1197,11 @@ function HeaderPreview({ schema, canvas }: { schema: Record<string, unknown>; ca
     );
   }
 
-  // Left logo (default)
   return (
-    <div className={`py-2.5 px-4 flex items-center gap-3 ${isDark ? "bg-foreground/90" : ""}`}>
+    <div className={`flex items-center gap-3 px-4 py-2.5 ${isDark ? "bg-foreground/90" : ""}`}>
       {logoBlock}
-      <div className="flex items-center gap-2 flex-1 justify-end">
-        {navItems.map((item, i) => renderNavItem(item, i))}
+      <div className="flex min-w-0 flex-1 items-center justify-end gap-3">
+        {navItems.map((item, i) => renderNavItem(item, i, "nav_items"))}
         {showSearch && <span className="text-sm">🔍</span>}
         {showCart && <span className="text-sm">🛒</span>}
       </div>
