@@ -116,6 +116,9 @@ function EditableImage({
       />
     );
   }
+  if (!src) {
+    return <div className={`${className || ""} bg-muted flex items-center justify-center text-muted-foreground text-xs`}>No image</div>;
+  }
   return <img src={src} alt={alt || "Image"} className={`${className || ""} w-full h-full object-cover`} />;
 }
 
