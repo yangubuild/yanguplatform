@@ -1177,12 +1177,14 @@ function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
       {/* CENTER position: left nav, logo center, right nav/icons */}
       {isCenterLogo && (
         <>
-          <div className="flex gap-2 flex-1">
+          <div className="flex gap-2 flex-1 justify-start">
             {navItems.slice(0, 3).map((item, i) => (
               <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
             ))}
           </div>
-          {logoBlock}
+          <div className="flex items-center justify-center shrink-0">
+            {logoBlock}
+          </div>
           <div className="flex items-center gap-2 flex-1 justify-end">
             {(schema.nav_items_right as string[] || []).slice(0, 2).map((item, i) => (
               <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
@@ -1192,17 +1194,21 @@ function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
           </div>
         </>
       )}
-      {/* RIGHT position: nav/icons first, logo on the right */}
+      {/* RIGHT position: icons + nav on left, logo pinned to far right */}
       {isRightLogo && (
         <>
+          <div className="flex items-center gap-2">
+            {showSearch && <span className="text-sm">🔍</span>}
+            {showCart && <span className="text-sm">🛒</span>}
+          </div>
           <div className="flex items-center gap-2 flex-1">
             {navItems.length > 0 && navItems.slice(0, 3).map((item, i) => (
               <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
             ))}
-            {showSearch && <span className="text-sm">🔍</span>}
-            {showCart && <span className="text-sm">🛒</span>}
           </div>
-          {logoBlock}
+          <div className="flex items-center justify-end shrink-0">
+            {logoBlock}
+          </div>
         </>
       )}
     </div>
