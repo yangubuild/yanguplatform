@@ -1137,8 +1137,62 @@ function GenericPreview({ section }: { section: EditorSection }) {
   );
 }
 
+// ─── Header nav-label → section-type mapping ───
+const NAV_LABEL_SECTION_MAP: Record<string, string[]> = {
+  products: ["products", "product_grid", "listings", "listing_grid", "showcase", "creator_showcase"],
+  shop: ["products", "product_grid", "listings", "listing_grid"],
+  store: ["products", "product_grid", "listings", "listing_grid"],
+  catalog: ["products", "product_grid", "listings", "listing_grid", "categories", "category_grid"],
+  services: ["services", "services_list", "offer", "offers"],
+  menu: ["menu"],
+  gallery: ["gallery", "instagram_gallery", "media_grid"],
+  portfolio: ["gallery", "instagram_gallery", "media_grid", "showcase", "creator_showcase"],
+  about: ["about", "text", "bio"],
+  "about us": ["about", "text", "bio"],
+  story: ["about", "text"],
+  contact: ["contact", "contact_section", "footer"],
+  "contact us": ["contact", "contact_section", "footer"],
+  home: ["hero", "hero_banner"],
+  testimonials: ["testimonials", "reviews"],
+  reviews: ["reviews", "testimonials"],
+  pricing: ["plans"],
+  plans: ["plans"],
+  blog: ["article_feed", "text"],
+  featured: ["featured", "case_studies_grid"],
+  offers: ["offer", "offers", "promo", "promo_banner"],
+  categories: ["categories", "category_grid", "collections"],
+};
+
+function findSectionForNavLabel(
+  label: string,
+  sections: EditorSection[]
+): EditorSection | undefined {
+  const key = label.toLowerCase().trim();
+  const candidates = NAV_LABEL_SECTION_MAP[key];
+  if (!candidates) {
+    // Fuzzy: try startsWith match on keys
+    for (const [mapKey, types] of Object.entries(NAV_LABEL_SECTION_MAP)) {
+      if (key.startsWith(mapKey) || mapKey.startsWith(key)) {
+        const match = sections.find((s) => s.is_visible && types.includes(s.section_type));
+        if (match) return match;
+      }
+    }
+    return undefined;
+  }
+  return sections.find((s) => s.is_visible && candidates.includes(s.section_type));
+}
+
 // ─── Header preview ───
-function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
+function HeaderPreview({
+  schema,
+  sections,
+  onSelectSection,
+}: {
+  schema: Record<string, unknown>;
+  canvas?: CanvasCallbacks;
+  sections?: EditorSection[];
+  onSelectSection?: (id: string) => void;
+}) {
   const logoUrl = (schema.logo_url as string) || "";
   const logoPosition = (schema.logo_position as string) || "left";
   const logoSize = (schema.logo_size as string) || "medium";
@@ -1152,6 +1206,25 @@ function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
   const sizeMap: Record<string, string> = { small: "h-8 w-8", medium: "h-10 w-10", large: "h-14 w-14" };
   const isCenterLogo = logoPosition === "center" || layoutVariant === "nav_split";
   const isRightLogo = logoPosition === "right";
+
+  const handleNavClick = (e: React.MouseEvent, label: string) => {
+    if (!sections || !onSelectSection) return;
+    const target = findSectionForNavLabel(label, sections);
+    if (target) {
+      e.stopPropagation(); // don't trigger header section select
+      onSelectSection(target.id);
+    }
+  };
+
+  const renderNavItem = (item: string, i: number) => (
+    <span
+      key={i}
+      onClick={(e) => handleNavClick(e, item)}
+      className={`text-[10px] yangu-nav-item cursor-pointer hover:underline ${isDark ? "text-background/70" : "text-muted-foreground"}`}
+    >
+      {item}
+    </span>
+  );
 
   const logoBlock = (
     <div className="flex items-center gap-2">
@@ -1173,9 +1246,7 @@ function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
             {logoBlock}
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            {navItems.length > 0 && navItems.slice(0, 3).map((item, i) => (
-              <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
-            ))}
+            {navItems.length > 0 && navItems.slice(0, 3).map((item, i) => renderNavItem(item, i))}
             {showSearch && <span className="text-sm">🔍</span>}
             {showCart && <span className="text-sm">🛒</span>}
           </div>
@@ -1185,17 +1256,13 @@ function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
       {isCenterLogo && (
         <>
           <div className="flex gap-2 flex-1 justify-start min-w-0">
-            {navItems.slice(0, 3).map((item, i) => (
-              <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
-            ))}
+            {navItems.slice(0, 3).map((item, i) => renderNavItem(item, i))}
           </div>
           <div className="flex items-center justify-center shrink-0 px-3">
             {logoBlock}
           </div>
           <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
-            {(schema.nav_items_right as string[] || []).slice(0, 2).map((item, i) => (
-              <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
-            ))}
+            {(schema.nav_items_right as string[] || []).slice(0, 2).map((item, i) => renderNavItem(item, i))}
             {showSearch && <span className="text-sm">🔍</span>}
             {showCart && <span className="text-sm">🛒</span>}
           </div>
@@ -1205,9 +1272,7 @@ function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
       {isRightLogo && (
         <>
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            {navItems.length > 0 && navItems.slice(0, 3).map((item, i) => (
-              <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
-            ))}
+            {navItems.length > 0 && navItems.slice(0, 3).map((item, i) => renderNavItem(item, i))}
             {showSearch && <span className="text-sm">🔍</span>}
             {showCart && <span className="text-sm">🛒</span>}
           </div>
@@ -1460,9 +1525,11 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
                   {Preview ? (
                     (section.section_type === "hero" || section.section_type === "hero_banner")
                       ? <HeroPreview schema={displaySchema} canvas={canvas} sections={sections} onSelectSection={onSelectSection} />
-                      : CANVAS_AWARE_TYPES.has(section.section_type)
-                        ? <Preview schema={displaySchema} canvas={canvas} />
-                        : <Preview schema={displaySchema} />
+                      : (section.section_type === "header" || section.section_type === "header_logo")
+                        ? <HeaderPreview schema={displaySchema} sections={sections} onSelectSection={onSelectSection} />
+                        : CANVAS_AWARE_TYPES.has(section.section_type)
+                          ? <Preview schema={displaySchema} canvas={canvas} />
+                          : <Preview schema={displaySchema} />
                   ) : (
                     <GenericPreview section={section} />
                   )}
