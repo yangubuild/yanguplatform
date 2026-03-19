@@ -1509,6 +1509,9 @@ const CANVAS_AWARE_TYPES = new Set([
   "categories", "category_grid", "collections", "gallery", "instagram_gallery", "media_grid",
   "contact", "contact_section", "footer", "showcase", "creator_showcase",
   "featured", "case_studies_grid",
+  "testimonials", "faq", "services", "services_list", "listings", "listing_grid",
+  "plans", "rules", "schedule", "menu", "hours", "location",
+  "properties", "booking_inventory", "community_feed",
 ]);
 
 export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<string, unknown>; canvas?: CanvasCallbacks }>> = {
