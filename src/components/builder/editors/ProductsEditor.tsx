@@ -59,6 +59,7 @@ interface Product {
   specifications: string;
   is_available: boolean;
   listed_on_eshop_connect?: boolean;
+  cta_action: string;
 }
 
 interface ProductColor {
