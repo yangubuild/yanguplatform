@@ -297,7 +297,7 @@ Generate 5-7 sections minimum. Always include content-rich items in every sectio
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: `${answerLines}${sourceContext}\n\nGenerate a complete, branded page for this business. Make it feel real and specific to this brand.` },
+          { role: "user", content: `${answerLines}${sourceContext}\n\nGenerate a complete, branded page for this business. Every item must have a REAL specific name, detailed description, and realistic price. Make it feel like a real, established business — not a template.` },
         ],
         tools: [{
           type: "function",
