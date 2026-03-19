@@ -295,7 +295,7 @@ export function BuilderPublishModal({
   const triggerMetaUpload = (type: "favicon" | "cover") => {
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = "image/*";
+    input.accept = type === "cover" ? "image/*,video/*,.gif" : "image/*";
     input.onchange = (e) => {
       const f = (e.target as HTMLInputElement).files?.[0];
       if (f) handleMetaUpload(f, type);
