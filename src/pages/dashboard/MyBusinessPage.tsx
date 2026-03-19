@@ -84,7 +84,7 @@ export default function MyBusinessPage() {
       const [surfaceRes, publishRes] = await Promise.all([
         supabase
           .from("builder_surfaces")
-          .select("id, title, slug, surface_type, description, created_at, updated_at, metadata")
+          .select("id, title, slug, surface_type, description, created_at, updated_at, metadata, cover_image_url")
           .eq("user_id", user.id)
           .order("updated_at", { ascending: false }),
         supabase
