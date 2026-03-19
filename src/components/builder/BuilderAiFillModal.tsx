@@ -85,10 +85,21 @@ export function BuilderAiFillModal({ open, onOpenChange, sectionType, surfaceTyp
       // Merge AI result into default schema so no required keys are dropped
       const merged = mergeIntoDefault(sectionType, result.schema);
 
+      // Apply text content immediately so user sees it
       onGenerated(merged);
-      toast.success("AI content applied!");
+      toast.success("AI content applied! Generating images…");
       onOpenChange(false);
       setPrompt("");
+
+      // Enrich with AI images in background (non-blocking)
+      enrichSchemaWithAiImages(merged, sectionType, surfaceType, prompt.trim())
+        .then((enriched) => {
+          onGenerated(enriched);
+          toast.success("AI images ready!");
+        })
+        .catch((err) => {
+          console.warn("[AI_FILL] Image enrichment failed (text content preserved):", err);
+        });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "AI generation failed");
     } finally {
