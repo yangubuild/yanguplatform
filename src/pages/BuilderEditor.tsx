@@ -169,6 +169,13 @@ export default function BuilderEditor() {
   const handleSelectSection = (id: string) => {
     setSelectedSectionId(id);
     setRightPanel("section");
+    // Scroll the preview to show the selected section
+    requestAnimationFrame(() => {
+      const el = document.querySelector(`[data-section-id="${id}"]`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    });
   };
 
   const handleUpdateAnswers = (updated: Record<string, unknown>) => {

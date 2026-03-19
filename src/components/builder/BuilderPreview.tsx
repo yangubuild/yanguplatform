@@ -1506,6 +1506,7 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
               return (
                 <div
                   key={section.id}
+                  data-section-id={section.id}
                   onClick={() => onSelectSection?.(section.id)}
                   style={sectionStyle}
                   className={`relative group/section cursor-pointer transition-all ${
