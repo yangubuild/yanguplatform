@@ -104,19 +104,22 @@ export function useSurfaces(options: UseSurfacesOptions = {}) {
       // Fetch cover images from builder_surfaces
       const { data: builderSurfaces } = await supabase
         .from("builder_surfaces")
-        .select("slug, metadata")
+        .select("slug, metadata, cover_image_url")
         .in("slug", surfaces.map(s => (s as any).draft_slug).filter(Boolean));
 
       const coverBySurfaceSlug: Record<string, string | null> = {};
       if (builderSurfaces) {
         for (const bs of builderSurfaces) {
+          // Prioritize the dedicated cover_image_url column
+          if (bs.cover_image_url) {
+            if (bs.slug) coverBySurfaceSlug[bs.slug] = bs.cover_image_url;
+            continue;
+          }
           const meta = bs.metadata as any;
           let cover: string | null = null;
-          // Try photos array first
           if (meta?.photos && Array.isArray(meta.photos) && meta.photos.length > 0) {
             cover = meta.photos[0];
           }
-          // Try ai_profile avatar or generated hero
           if (!cover && meta?.ai_profile?.avatar_url) {
             cover = meta.ai_profile.avatar_url;
           }

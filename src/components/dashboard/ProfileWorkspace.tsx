@@ -165,6 +165,7 @@ export function ProfileWorkspace() {
             title: surface.title,
             surface_type: surface.surface_type,
             cover_image:
+              (surface as any).cover_image_url ||
               homeCoverBySurfaceId[surface.id] ||
               firstPhoto ||
               (typeof metadata["cover_image"] === "string" ? metadata["cover_image"] : null) ||
