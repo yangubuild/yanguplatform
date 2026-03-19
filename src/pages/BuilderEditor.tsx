@@ -549,6 +549,7 @@ export default function BuilderEditor() {
         surfaceType={surfaceType}
         surfaceTitle={surfaceTitle}
         defaultSlug={editorState.surface.slug}
+        pages={editorState.pages}
       />
 
       {/* Settings Drawer */}
