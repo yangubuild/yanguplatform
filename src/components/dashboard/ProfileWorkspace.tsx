@@ -110,7 +110,7 @@ export function ProfileWorkspace() {
 
       const { data: surfaces, error: surfacesError } = await supabase
         .from("builder_surfaces")
-        .select("id, title, surface_type, metadata, updated_at")
+        .select("id, title, surface_type, metadata, updated_at, cover_image_url")
         .eq("user_id", user.id)
         .order("updated_at", { ascending: false });
 
