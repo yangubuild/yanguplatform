@@ -24,6 +24,7 @@ import { BookingEditor } from "./editors/BookingEditor";
 import { AiTextField } from "./AiTextField";
 import { InfluencerLinksEditor } from "./editors/InfluencerLinksEditor";
 import { InfluencerShowcaseEditor } from "./editors/InfluencerShowcaseEditor";
+import { ItemCtaSelector } from "./editors/ItemCtaSelector";
 
 interface BuilderSectionEditorProps {
   section: EditorSection;
@@ -540,6 +541,15 @@ function ItemListWithMedia({ items, onChange, heading, surfaceId }: {
                 <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
               </Button>
             </div>
+            {/* CTA selector per item */}
+            <ItemCtaSelector
+              value={item.cta_action || "none"}
+              onChange={(v) => {
+                const updated = [...items];
+                updated[i] = { ...updated[i], cta_action: v };
+                onChange(updated);
+              }}
+            />
             {/* Multi-image picker per item */}
             <MediaPickerList
               items={media}
@@ -555,7 +565,7 @@ function ItemListWithMedia({ items, onChange, heading, surfaceId }: {
           </div>
         );
       })}
-      <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs" onClick={() => onChange([...items, { name: "", price: "", description: "", image_url: "", media: [] }])}>
+      <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs" onClick={() => onChange([...items, { name: "", price: "", description: "", image_url: "", media: [], cta_action: "none" }])}>
         <Plus className="h-3.5 w-3.5" /> Add
       </Button>
     </div>
@@ -578,6 +588,7 @@ interface MenuItem {
   image_url: string;
   is_available: boolean;
   category_index: number;
+  cta_action: string;
 }
 
 function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: string }) {
@@ -592,6 +603,7 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
       image_url: item.image_url || "",
       is_available: item.is_available !== false,
       category_index: i,
+      cta_action: item.cta_action || "order_now",
     })),
   })) as MenuCategory[];
 
@@ -613,6 +625,7 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
   const [itemPhoto, setItemPhoto] = useState("");
   const [itemAvailable, setItemAvailable] = useState(true);
   const [itemCatSelect, setItemCatSelect] = useState<number>(0);
+  const [itemCtaAction, setItemCtaAction] = useState("order_now");
 
   // ─── Category dialog helpers ───
   const openCreateCat = () => {
@@ -658,6 +671,7 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
     setItemPhoto("");
     setItemAvailable(true);
     setItemCatSelect(catIdx);
+    setItemCtaAction("order_now");
     setShowItemDialog(true);
   };
 
@@ -671,12 +685,13 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
     setItemPhoto(item.image_url);
     setItemAvailable(item.is_available);
     setItemCatSelect(catIdx);
+    setItemCtaAction(item.cta_action || "order_now");
     setShowItemDialog(true);
   };
 
   const saveItem = () => {
     const updated = [...categories];
-    const newItem = { name: itemName, description: itemDesc, price: itemPrice, image_url: itemPhoto, is_available: itemAvailable, category_index: itemCatSelect };
+    const newItem: MenuItem = { name: itemName, description: itemDesc, price: itemPrice, image_url: itemPhoto, is_available: itemAvailable, category_index: itemCatSelect, cta_action: itemCtaAction };
 
     // If category changed during edit, move the item
     if (editItemIndex !== null) {
@@ -881,6 +896,7 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
               </div>
               <p className="text-xs text-muted-foreground">Choose AI generation or upload your own (min 800x600px, max 5MB)</p>
             </div>
+            <ItemCtaSelector value={itemCtaAction} onChange={setItemCtaAction} />
             <div className="flex items-center gap-2">
               <Checkbox
                 id="item-available"

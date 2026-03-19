@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Trash2, GripVertical } from "lucide-react";
 import { MediaPicker, type MediaAsset } from "../media/MediaPicker";
 import { PaymentMethodsEditor } from "./PaymentMethodsEditor";
+import { ItemCtaSelector } from "./ItemCtaSelector";
 
 interface ShowcaseItem {
   title: string;
@@ -13,6 +14,7 @@ interface ShowcaseItem {
   image_url: string;
   link_url: string;
   price: string;
+  cta_action: string;
 }
 
 interface InfluencerShowcaseEditorProps {
@@ -37,7 +39,7 @@ export function InfluencerShowcaseEditor({ schema, update, surfaceId }: Influenc
 
   const addItem = () => {
     update({
-      showcase_items: [...items, { title: "", description: "", image_url: "", link_url: "", price: "" }],
+      showcase_items: [...items, { title: "", description: "", image_url: "", link_url: "", price: "", cta_action: "buy_now" }],
     });
   };
 
@@ -81,6 +83,7 @@ export function InfluencerShowcaseEditor({ schema, update, surfaceId }: Influenc
             <Textarea placeholder="Short description (2 lines max)" value={item.description} onChange={(e) => updateItem(i, { description: e.target.value })} rows={2} className="text-sm" />
             <Input placeholder="Price (optional, e.g. $29.99)" value={item.price || ""} onChange={(e) => updateItem(i, { price: e.target.value })} className="text-sm" />
             <Input placeholder="Link URL (optional)" value={item.link_url} onChange={(e) => updateItem(i, { link_url: e.target.value })} className="text-sm" />
+            <ItemCtaSelector value={item.cta_action || "buy_now"} onChange={(v) => updateItem(i, { cta_action: v })} />
           </div>
         ))}
       </div>

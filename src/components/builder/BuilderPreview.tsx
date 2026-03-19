@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { DEFAULT_PRIMARY_IDS, getPlatform, type SocialSlot } from "@/lib/socialPlatformRegistry";
 import type { EditorSection } from "@/hooks/useBuilderEditor";
+import { ctaLabel } from "./editors/ItemCtaSelector";
 import { Card } from "@/components/primitives";
 import type { BuilderTheme } from "./BuilderSettingsDrawer";
 import { DEFAULT_THEME } from "./BuilderSettingsDrawer";
@@ -525,7 +526,7 @@ function ShowcasePreview({ schema, canvas }: { schema: Record<string, unknown>; 
                 {item.description && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{item.description}</p>}
                 {item.link_url && (
                   <a href={item.link_url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block w-full text-center py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium yangu-interactive hover:opacity-90 transition-opacity">
-                    Buy Now
+                    {ctaLabel((item as any).cta_action) || "Buy Now"}
                   </a>
                 )}
               </div>
@@ -901,7 +902,7 @@ function CategoriesPreview({ schema, canvas }: { schema: Record<string, unknown>
 }
 
 function ListingsPreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<{ title?: string }>) || [];
+  const items = (schema.items as Array<{ title?: string; name?: string; price?: string; description?: string; cta_action?: string }>) || [];
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Listings"}</h3>
@@ -909,9 +910,19 @@ function ListingsPreview({ schema }: { schema: Record<string, unknown> }) {
         <p className="text-sm text-muted-foreground/60 italic">No listings added</p>
       ) : (
         <div className="space-y-2">
-          {items.map((item, i) => (
-            <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 text-sm">{item.title || "Listing"}</div>
-          ))}
+          {items.map((item, i) => {
+            const cta = ctaLabel(item.cta_action);
+            return (
+              <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
+                <div className="flex justify-between items-start">
+                  <p className="text-sm font-medium">{item.title || item.name || "Listing"}</p>
+                  {item.price && <p className="text-xs font-medium text-primary shrink-0 ml-2">{item.price}</p>}
+                </div>
+                {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
+                {cta && <span className="mt-2 inline-block text-center text-[9px] font-medium py-1 px-3 rounded border border-border text-muted-foreground yangu-cta">{cta}</span>}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
@@ -935,7 +946,7 @@ function FiltersPreview({ schema }: { schema: Record<string, unknown> }) {
 }
 
 function ServicesPreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<{ name?: string; price?: string; description?: string; icon?: string }>) || [];
+  const items = (schema.items as Array<{ name?: string; price?: string; description?: string; icon?: string; cta_action?: string }>) || [];
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Services"}</h3>
@@ -943,15 +954,19 @@ function ServicesPreview({ schema }: { schema: Record<string, unknown> }) {
         <p className="text-sm text-muted-foreground/60 italic">No services added</p>
       ) : (
         <div className="space-y-2">
-          {items.map((item, i) => (
-             <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
-              <div className="flex justify-between items-start">
-                <p className="text-sm font-medium">{item.icon && <span className="mr-1.5">{item.icon}</span>}{item.name || "Service"}</p>
-                {item.price && <p className="text-xs font-medium text-primary shrink-0 ml-2">{item.price}</p>}
+          {items.map((item, i) => {
+            const cta = ctaLabel(item.cta_action);
+            return (
+              <div key={i} className="p-3 rounded-lg border border-border bg-muted/50 yangu-card" tabIndex={0}>
+                <div className="flex justify-between items-start">
+                  <p className="text-sm font-medium">{item.icon && <span className="mr-1.5">{item.icon}</span>}{item.name || "Service"}</p>
+                  {item.price && <p className="text-xs font-medium text-primary shrink-0 ml-2">{item.price}</p>}
+                </div>
+                {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
+                {cta && <span className="mt-2 inline-block text-center text-[9px] font-medium py-1 px-3 rounded border border-border text-muted-foreground yangu-cta">{cta}</span>}
               </div>
-              {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
@@ -1125,6 +1140,42 @@ function AboutPreview({ schema, canvas }: { schema: Record<string, unknown>; can
     <div className="py-4 px-6">
       <EditableText value={(schema.heading as string) || ""} field="heading" placeholder="About Us" className="text-sm font-semibold text-foreground mb-1" tag="h3" canvas={canvas} />
       <EditableText value={(schema.body as string) || ""} field="body" placeholder="Tell people about your community..." className="text-sm text-muted-foreground" tag="p" canvas={canvas} />
+    </div>
+  );
+}
+
+function CommunityFeedPreview({ schema }: { schema: Record<string, unknown> }) {
+  const items = (schema.items as Array<{ name?: string; title?: string; price?: string; description?: string; image_url?: string; media?: Array<{ src?: string }>; cta_action?: string }>) || [];
+  return (
+    <div className="py-4 px-6">
+      <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Feed"}</h3>
+      {items.length === 0 ? (
+        <p className="text-sm text-muted-foreground/60 italic">No feed items added</p>
+      ) : (
+        <div className="space-y-2">
+          {items.map((item, i) => {
+            const imgSrc = item.image_url || item.media?.[0]?.src || "";
+            const cta = ctaLabel(item.cta_action);
+            return (
+              <div key={i} className="rounded-lg border border-border bg-muted/50 overflow-hidden yangu-card" tabIndex={0}>
+                {imgSrc && (
+                  <div className="aspect-video bg-muted">
+                    <img src={imgSrc} alt={item.name || item.title || ""} className="w-full h-full object-cover" />
+                  </div>
+                )}
+                <div className="p-3">
+                  <div className="flex justify-between items-start">
+                    <p className="text-sm font-medium">{item.name || item.title || "Item"}</p>
+                    {item.price && <p className="text-xs font-medium text-primary shrink-0 ml-2">{item.price}</p>}
+                  </div>
+                  {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
+                  {cta && <span className="mt-2 inline-block text-center text-[9px] font-medium py-1 px-3 rounded border border-border text-muted-foreground yangu-cta">{cta}</span>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
@@ -1417,7 +1468,7 @@ export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<st
   booking_inventory: ListingsPreview,
   showcase: ShowcasePreview,
   creator_showcase: ShowcasePreview,
-  community_feed: TextPreview,
+  community_feed: CommunityFeedPreview,
 };
 
 export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSelectSection, theme, pageSettings, liveSchemaOverride, onUpdateSectionField, onHideSection, onDeleteSection, onImageReplace, previewViewport }: BuilderPreviewProps) {

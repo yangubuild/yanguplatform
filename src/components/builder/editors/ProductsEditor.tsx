@@ -19,6 +19,7 @@ import { MediaPickerList } from "../media/MediaPickerList";
 import type { MediaAsset } from "../media/MediaPicker";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { ItemCtaSelector } from "./ItemCtaSelector";
 
 interface FormProps {
   schema: Record<string, unknown>;
@@ -59,6 +60,7 @@ interface Product {
   specifications: string;
   is_available: boolean;
   listed_on_eshop_connect?: boolean;
+  cta_action: string;
 }
 
 interface ProductColor {
@@ -121,6 +123,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
     specifications: p.specifications || "",
     is_available: p.is_available !== false,
     listed_on_eshop_connect: p.listed_on_eshop_connect || false,
+    cta_action: p.cta_action || "add_to_cart",
   }}) as Product[];
 
   // Dialog state
@@ -152,6 +155,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
   const [pSpecs, setPSpecs] = useState("");
   const [pAvailable, setPAvailable] = useState(true);
   const [pListedOnEshop, setPListedOnEshop] = useState(false);
+  const [pCtaAction, setPCtaAction] = useState("add_to_cart");
   const [pDraftMedia, setPDraftMedia] = useState<MediaValue>({ type: "none", source: "url", url: "", alt: "", fit: "cover" });
   const [isGeneratingDesc, setIsGeneratingDesc] = useState(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
@@ -217,7 +221,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
     setPDiscountPct(""); setPDiscountLabel("");
     setPSizes([]); setPSizeInput(""); setPColors([]);
     setPMaterial(""); setPWeight(""); setPDimensions("");
-    setPSpecs(""); setPAvailable(true); setPListedOnEshop(false);
+    setPSpecs(""); setPAvailable(true); setPListedOnEshop(false); setPCtaAction("add_to_cart");
     setPDraftMedia({ type: "none", source: "url", url: "", alt: "", fit: "cover" });
     setShowProductDialog(true);
   };
@@ -233,6 +237,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
     setPDimensions(p.dimensions); setPSpecs(p.specifications);
     setPAvailable(p.is_available);
     setPListedOnEshop(p.listed_on_eshop_connect || false);
+    setPCtaAction(p.cta_action || "add_to_cart");
     setPDraftMedia({ type: "none", source: "url", url: "", alt: "", fit: "cover" });
     setShowProductDialog(true);
   };
@@ -248,6 +253,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
       dimensions: pDimensions, specifications: pSpecs,
       is_available: pAvailable,
       listed_on_eshop_connect: pListedOnEshop,
+      cta_action: pCtaAction,
     };
     const updated = [...products];
     if (editProductIndex !== null) {
@@ -825,6 +831,9 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
                 {isGeneratingSpecs ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />} Generate Specifications
               </Button>
             </div>
+
+            {/* CTA Button */}
+            <ItemCtaSelector value={pCtaAction} onChange={setPCtaAction} />
 
             {/* Available */}
             <div className="flex items-center gap-2">
