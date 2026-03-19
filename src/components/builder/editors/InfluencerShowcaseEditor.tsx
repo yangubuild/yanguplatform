@@ -39,7 +39,7 @@ export function InfluencerShowcaseEditor({ schema, update, surfaceId }: Influenc
 
   const addItem = () => {
     update({
-      showcase_items: [...items, { title: "", description: "", image_url: "", link_url: "", price: "" }],
+      showcase_items: [...items, { title: "", description: "", image_url: "", link_url: "", price: "", cta_action: "buy_now" }],
     });
   };
 
