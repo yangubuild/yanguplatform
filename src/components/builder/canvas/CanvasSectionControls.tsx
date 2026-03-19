@@ -18,7 +18,7 @@ export function CanvasSectionControls({
 
   return (
     <div
-      className="absolute -left-10 top-1/2 -translate-y-1/2 flex flex-col gap-0.5 opacity-0 group-hover/section:opacity-100 transition-opacity z-10"
+      className="absolute right-2 top-2 flex gap-0.5 opacity-0 group-hover/section:opacity-100 transition-opacity z-10"
       onClick={(e) => e.stopPropagation()}
     >
       <button
