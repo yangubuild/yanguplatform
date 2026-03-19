@@ -58,10 +58,21 @@ export function BuilderAIGenerateModal({ open, onOpenChange, surfaceType, onGene
       }
 
       await onGenerated(sectionType, data.schema);
-      toast.success(`${sectionType} section generated`);
+      toast.success(`${sectionType} section generated! Generating images…`);
       onOpenChange(false);
+      const savedType = sectionType;
       setSectionType("");
       setPrompt("");
+
+      // Enrich with AI images in background
+      enrichSchemaWithAiImages(data.schema, savedType, surfaceType, prompt)
+        .then((enriched) => {
+          onGenerated(savedType, enriched);
+          toast.success("AI images ready!");
+        })
+        .catch((err) => {
+          console.warn("[AI_GENERATE] Image enrichment failed:", err);
+        });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Generation failed");
     } finally {
