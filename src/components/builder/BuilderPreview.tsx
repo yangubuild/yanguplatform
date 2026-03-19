@@ -635,11 +635,12 @@ function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; can
   const items = (schema.items as Array<{ title?: string; price?: string; description?: string; icon?: string }>) || [];
   const displayMode = (schema.display_mode as string) || (schema.layout_variant as string) || "";
   const storyBlock = schema.story_block as { enabled?: boolean; eyebrow?: string; heading?: string; description?: string; cta_text?: string } | undefined;
-  const socialGallery = schema.social_gallery as { enabled?: boolean; platform?: string; heading?: string; subheading?: string; hashtag?: string; columns?: number } | undefined;
+  const socialGallery = schema.social_gallery as { enabled?: boolean; platform?: string; heading?: string; subheading?: string; hashtag?: string; columns?: number; items?: Array<{ image_url?: string }> } | undefined;
   const newsletter = schema.newsletter as { enabled?: boolean; heading?: string; description?: string; cta_text?: string } | undefined;
   const testimonials = schema.testimonials as { enabled?: boolean; heading?: string; subheading?: string; items?: Array<{ name?: string; quote?: string; location?: string; label?: string }> } | undefined;
   const isTrustBadges = displayMode === "trust_badges";
   const isStoryBlock = displayMode === "story_block";
+  const socialGalleryCount = Math.min(socialGallery?.columns || 4, 5);
 
   return (
     <div className="py-4 px-6 space-y-5">
@@ -726,10 +727,16 @@ function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; can
         <div className="border-t border-border pt-4">
           {socialGallery.subheading && <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{socialGallery.subheading}</p>}
           {socialGallery.heading && <h4 className="text-xs font-semibold mb-2">{socialGallery.heading}</h4>}
-          <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${Math.min(socialGallery.columns || 4, 5)}, 1fr)` }}>
-            {Array.from({ length: socialGallery.columns || 4 }).map((_, i) => (
-              <div key={i} className="aspect-square rounded bg-muted flex items-center justify-center">
-                <span className="text-muted-foreground/40 text-sm">📷</span>
+          <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${socialGalleryCount}, 1fr)` }}>
+            {Array.from({ length: socialGalleryCount }).map((_, i) => (
+              <div key={i} className="aspect-square rounded bg-muted overflow-hidden">
+                <EditableImage
+                  src={socialGallery.items?.[i]?.image_url || ""}
+                  alt={`Social gallery ${i + 1}`}
+                  className="w-full h-full object-cover"
+                  field={`social_gallery.items.${i}.image_url`}
+                  canvas={canvas}
+                />
               </div>
             ))}
           </div>
