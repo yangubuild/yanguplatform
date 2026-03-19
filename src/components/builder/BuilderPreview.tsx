@@ -101,7 +101,14 @@ function EditableText({
   return <Tag className={className}>{value || placeholder}</Tag>;
 }
 
-// ─── Inline-editable image helper ───
+// ─── Media type detection helpers ───
+function isVideoUrl(url: string): boolean {
+  if (!url) return false;
+  if (url.startsWith("data:video/")) return true;
+  return /\.(mp4|webm|mov|ogg)(\?|$)/i.test(url);
+}
+
+// ─── Inline-editable image/video/gif helper ───
 function EditableImage({
   src, alt, className, field, canvas,
 }: {
@@ -116,6 +123,9 @@ function EditableImage({
         onReplace={(url, source) => canvas.onImageReplace!(canvas.sectionId, field, url, source)}
       />
     );
+  }
+  if (isVideoUrl(src)) {
+    return <video src={src} className={`${className || ""} w-full h-full object-cover`} muted autoPlay loop playsInline />;
   }
   return <img src={src} alt={alt || "Image"} className={`${className || ""} w-full h-full object-cover`} />;
 }
