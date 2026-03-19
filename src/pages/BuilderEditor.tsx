@@ -332,7 +332,27 @@ export default function BuilderEditor() {
             onUpdateSectionField={async (sectionId, fieldPath, value) => {
               const section = sections.find((s) => s.id === sectionId);
               if (!section) return;
-              const newSchema = { ...section.schema, [fieldPath]: value };
+
+              // Support nested dot-paths like "testimonials.items"
+              const parts = fieldPath.split(".");
+              let newSchema: Record<string, unknown>;
+              if (parts.length === 1) {
+                newSchema = { ...section.schema, [fieldPath]: value };
+              } else {
+                newSchema = JSON.parse(JSON.stringify(section.schema));
+                let cursor: any = newSchema;
+                for (let i = 0; i < parts.length - 1; i++) {
+                  const key = parts[i];
+                  if (cursor[key] === undefined || cursor[key] === null) {
+                    cursor[key] = {};
+                  } else {
+                    cursor[key] = Array.isArray(cursor[key]) ? [...cursor[key]] : { ...cursor[key] };
+                  }
+                  cursor = cursor[key];
+                }
+                cursor[parts[parts.length - 1]] = value;
+              }
+
               await updateSectionSchema(sectionId, newSchema);
               markDirty();
             }}
