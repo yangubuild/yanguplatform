@@ -1203,12 +1203,12 @@ function HeaderPreview({ schema }: { schema: Record<string, unknown> }) {
             {showSearch && <span className="text-sm">🔍</span>}
             {showCart && <span className="text-sm">🛒</span>}
           </div>
-          <div className="flex items-center gap-2 flex-1">
+          <div className="flex items-center gap-2">
             {navItems.length > 0 && navItems.slice(0, 3).map((item, i) => (
               <span key={i} className={`text-[10px] yangu-nav-item ${isDark ? "text-background/70" : "text-muted-foreground"}`}>{item}</span>
             ))}
           </div>
-          <div className="flex items-center justify-end shrink-0">
+          <div className="flex items-center ml-auto shrink-0">
             {logoBlock}
           </div>
         </>
