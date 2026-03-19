@@ -851,8 +851,9 @@ function PlansPreview({ schema, canvas }: { schema: Record<string, unknown>; can
   );
 }
 
-function RulesPreview({ schema }: { schema: Record<string, unknown> }) {
-  const items = (schema.items as Array<{ text?: string }>) || [];
+function RulesPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
+  const rawItems = (schema.items as Array<Record<string, unknown>>) || [];
+  const items = rawItems.filter((it) => !it._hidden) as Array<{ text?: string }>;
   return (
     <div className="py-4 px-6">
       <h3 className="text-sm font-semibold text-foreground mb-2">{(schema.heading as string) || "Rules"}</h3>
@@ -860,9 +861,14 @@ function RulesPreview({ schema }: { schema: Record<string, unknown> }) {
         <p className="text-sm text-muted-foreground/60 italic">No rules defined</p>
       ) : (
         <ol className="space-y-1 list-decimal list-inside">
-          {items.map((item, i) => (
-            <li key={i} className="text-sm text-muted-foreground">{item.text || `Rule ${i + 1}`}</li>
-          ))}
+          {items.map((item, i) => {
+            const realIdx = rawItems.indexOf(item as unknown as Record<string, unknown>);
+            return (
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={realIdx}>
+                <li className="text-sm text-muted-foreground">{item.text || `Rule ${i + 1}`}</li>
+              </ItemCardWrapper>
+            );
+          })}
         </ol>
       )}
     </div>
