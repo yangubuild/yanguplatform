@@ -1448,15 +1448,15 @@ function HeaderPreview({
   );
 
   return (
-    <div className={`w-full py-2.5 px-4 flex items-center ${isDark ? "bg-foreground/90" : ""}`}>
+    <div className={`w-full py-2.5 px-4 flex items-center overflow-hidden ${isDark ? "bg-foreground/90" : ""}`}>
       {/* LEFT position: logo first, then nav, then icons */}
       {!isCenterLogo && !isRightLogo && (
         <>
           <div className="flex items-center gap-2 flex-1 min-w-0">
             {logoBlock}
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            {navItems.length > 0 && navItems.slice(0, 3).map((item, i) => renderNavItem(item, i))}
+          <div className="flex items-center gap-2 shrink-0 overflow-hidden">
+            {navItems.length > 0 && navItems.slice(0, 4).map((item, i) => renderNavItem(item, i))}
             {showSearch && <span className="text-sm">🔍</span>}
             {showCart && <span className="text-sm">🛒</span>}
           </div>
@@ -1465,13 +1465,13 @@ function HeaderPreview({
       {/* CENTER position: left nav, logo center, right nav/icons */}
       {isCenterLogo && (
         <>
-          <div className="flex gap-2 flex-1 justify-start min-w-0">
+          <div className="flex gap-2 flex-1 justify-start min-w-0 overflow-hidden">
             {navItems.slice(0, 3).map((item, i) => renderNavItem(item, i))}
           </div>
           <div className="flex items-center justify-center shrink-0 px-3">
             {logoBlock}
           </div>
-          <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
+          <div className="flex items-center gap-2 flex-1 justify-end min-w-0 overflow-hidden">
             {(schema.nav_items_right as string[] || []).slice(0, 2).map((item, i) => renderNavItem(item, i))}
             {showSearch && <span className="text-sm">🔍</span>}
             {showCart && <span className="text-sm">🛒</span>}
@@ -1481,8 +1481,8 @@ function HeaderPreview({
       {/* RIGHT position: nav/icons grouped left, logo forced to far right */}
       {isRightLogo && (
         <>
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            {navItems.length > 0 && navItems.slice(0, 3).map((item, i) => renderNavItem(item, i))}
+          <div className="flex items-center gap-2 flex-1 min-w-0 overflow-hidden">
+            {navItems.length > 0 && navItems.slice(0, 4).map((item, i) => renderNavItem(item, i))}
             {showSearch && <span className="text-sm">🔍</span>}
             {showCart && <span className="text-sm">🛒</span>}
           </div>
