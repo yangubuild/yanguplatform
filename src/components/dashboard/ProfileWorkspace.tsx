@@ -23,6 +23,11 @@ import {
   ExternalLink,
   Check,
   X,
+  BadgeCheck,
+  Star,
+  MessageSquare,
+  Sparkles,
+  Info,
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import adaIcon from "@/assets/ada-icon.png";
