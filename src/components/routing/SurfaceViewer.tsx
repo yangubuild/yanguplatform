@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Layout } from "lucide-react";
 import { PREVIEW_MAP } from "@/components/builder/BuilderPreview";
 import { DEFAULT_THEME, type BuilderTheme } from "@/components/builder/BuilderSettingsDrawer";
+import { deduplicatePublishedSections } from "@/config/builderCoreSections";
 import type {
   BuilderPublicSchemaResult,
   BuilderPublishedSection,
@@ -14,19 +15,7 @@ interface SurfaceViewerProps {
   domainType?: string;
 }
 
-/**
- * Deduplicate sections that share the same section_type + position.
- * Keeps the first occurrence (by array order, which is already sorted by position).
- */
-function deduplicateSections(sections: BuilderPublishedSection[]): BuilderPublishedSection[] {
-  const seen = new Set<string>();
-  return sections.filter((s) => {
-    const key = `${s.section_type}::${s.position}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
+// Deduplication now handled by shared deduplicatePublishedSections from builderCoreSections
 
 export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProps) {
   const [data, setData] = useState<BuilderPublicSchemaResult | null>(null);
@@ -78,17 +67,17 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
     );
   }
 
-  // Render published schema
+  // Render published schema — use same normalization as editor canvas
   const schema = data.published_schema;
   const page = schema.pages?.[0];
+  const title = schema.surface?.title || "Untitled";
+  const surfaceType = schema.surface?.surface_type;
   const rawSections = page?.sections
     ?.slice()
     .sort((a: BuilderPublishedSection, b: BuilderPublishedSection) => a.position - b.position) ?? [];
   
-  // Deduplicate sections (fixes double-render from duplicate DB rows)
-  const sections = deduplicateSections(rawSections);
-  const title = schema.surface?.title || "Untitled";
-  const surfaceType = schema.surface?.surface_type;
+  // Deduplicate using shared normalizer (matches editor canvas logic)
+  const sections = deduplicatePublishedSections(rawSections, surfaceType || "quick_site");
 
   // Read theme
   const rawTheme = (schema.surface?.theme as Partial<BuilderTheme>) || {};
