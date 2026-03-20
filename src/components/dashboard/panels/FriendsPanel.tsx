@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Loader2 } from "lucide-react";
+import { Search, Loader2, Command } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { UserProfilePopup } from "./UserProfilePopup";
 
 interface UserRow {
   id: string;
@@ -13,6 +15,8 @@ interface UserRow {
 
 export function FriendsPanel() {
   const [search, setSearch] = useState("");
+  const [selectedUser, setSelectedUser] = useState<UserRow | null>(null);
+  const navigate = useNavigate();
 
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["friends-panel-users"],
@@ -28,6 +32,19 @@ export function FriendsPanel() {
     },
   });
 
+  // Real user count
+  const { data: totalCount = 0 } = useQuery({
+    queryKey: ["platform-user-count"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("profiles")
+        .select("id", { count: "exact", head: true })
+        .eq("account_status", "active");
+      if (error) throw error;
+      return count ?? 0;
+    },
+  });
+
   const filtered = search.trim()
     ? users.filter(
         (u) =>
@@ -38,32 +55,80 @@ export function FriendsPanel() {
 
   return (
     <div className="flex flex-col h-full" style={{ background: "#111820" }}>
-      <div
-        className="flex items-center justify-between px-4 py-3 shrink-0"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
-      >
-        <span className="text-sm font-semibold text-white">Friends</span>
-      </div>
-
-      {/* Search */}
-      <div className="px-3 py-2">
-        <div
-          className="flex items-center gap-2 rounded-lg px-3 py-2"
-          style={{ background: "rgba(255,255,255,0.06)" }}
-        >
-          <Search className="w-4 h-4" style={{ color: "rgba(255,255,255,0.3)" }} />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search people..."
-            className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-white/25"
-          />
+      {/* Search - fixed top */}
+      <div className="shrink-0">
+        <div className="p-3">
+          <div
+            className="flex items-center gap-2 rounded-lg px-3 py-2"
+            style={{ background: "rgba(255,255,255,0.06)" }}
+          >
+            <Search className="w-4 h-4" style={{ color: "rgba(255,255,255,0.3)" }} />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search people..."
+              className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-white/25"
+            />
+            <div className="flex items-center gap-0.5 text-[11px]" style={{ color: "rgba(255,255,255,0.25)" }}>
+              <Command className="w-3 h-3" />K
+            </div>
+          </div>
         </div>
+
+        {/* Affiliate promo card */}
+        <div className="px-3 pb-2">
+          <button
+            onClick={() => navigate("/dashboard/affiliates")}
+            className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 hover:opacity-90 transition-opacity"
+            style={{ background: "rgba(96,165,250,0.1)", border: "1px solid rgba(96,165,250,0.15)" }}
+          >
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+              style={{ background: "rgba(96,165,250,0.2)" }}
+            >
+              <span className="text-sm">💰</span>
+            </div>
+            <div className="flex-1 text-left min-w-0">
+              <p className="text-sm font-medium text-white">Affiliate dashboard</p>
+              <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.4)" }}>
+                Earn by referring others
+              </p>
+            </div>
+            <span
+              className="px-2 py-0.5 rounded text-[10px] font-bold shrink-0"
+              style={{ background: "rgba(96,165,250,0.3)", color: "#60a5fa" }}
+            >
+              New
+            </span>
+          </button>
+        </div>
+
+        {/* People count + See all */}
+        <div className="px-4 pb-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-semibold text-white">
+              People{" "}
+              <span style={{ color: "rgba(255,255,255,0.4)" }}>
+                {totalCount.toLocaleString()}
+              </span>
+            </span>
+            <button
+              className="text-xs font-medium"
+              style={{ color: "#60a5fa" }}
+              onClick={() => {/* Already showing full list */}}
+            >
+              See all
+            </button>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="h-px mx-4" style={{ background: "rgba(255,255,255,0.06)" }} />
       </div>
 
       {/* User list */}
-      <div className="flex-1 overflow-y-auto px-3 space-y-1">
+      <div className="flex-1 overflow-y-auto px-3 py-1 space-y-0.5">
         {isLoading ? (
           <div className="flex items-center justify-center py-10">
             <Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
@@ -76,9 +141,10 @@ export function FriendsPanel() {
           filtered.map((user) => {
             const initials = (user.display_name || user.username || "U").slice(0, 2).toUpperCase();
             return (
-              <div
+              <button
                 key={user.id}
-                className="flex items-center gap-3 py-2.5 px-2 rounded-lg hover:bg-white/5 transition-colors"
+                onClick={() => setSelectedUser(user)}
+                className="w-full flex items-center gap-3 py-2.5 px-2 rounded-lg hover:bg-white/5 transition-colors text-left"
               >
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
@@ -106,11 +172,19 @@ export function FriendsPanel() {
                 >
                   Follow
                 </span>
-              </div>
+              </button>
             );
           })
         )}
       </div>
+
+      {/* User popup */}
+      {selectedUser && (
+        <UserProfilePopup
+          user={selectedUser}
+          onClose={() => setSelectedUser(null)}
+        />
+      )}
     </div>
   );
 }
