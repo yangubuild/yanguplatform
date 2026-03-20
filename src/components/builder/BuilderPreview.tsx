@@ -33,6 +33,8 @@ interface BuilderPreviewProps {
   onDeleteSection?: (sectionId: string) => void;
   onImageReplace?: (sectionId: string, fieldPath: string, url: string, source: string) => void;
   previewViewport?: "desktop" | "mobile";
+  /** Surface type — used to enable engine-specific canvas features */
+  surfaceType?: string;
   /** All pages for the surface — used for page-based header nav links */
   pages?: Array<{ id: string; slug: string; title: string }>;
   /** Called when a header nav item targets a different page */
