@@ -733,8 +733,6 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                   })}
                 </div>
               )}
-            </>
-
               {/* Go Live bar */}
               <div
                 className="mt-6 rounded-xl flex items-center gap-3 px-4 py-3"
@@ -761,6 +759,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                   <Video className="w-4 h-4" /> Go live
                 </button>
               </div>
+            </>
           )}
 
           {activeTab === "KYC" && (

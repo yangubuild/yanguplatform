@@ -4,13 +4,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { Search, Loader2, Command } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { UserProfilePopup } from "./UserProfilePopup";
+import { resolveAvatarUrl } from "@/lib/avatarUtils";
 
 interface UserRow {
   id: string;
   display_name: string | null;
   username: string | null;
   avatar_url: string | null;
+  avatar_mode: string | null;
+  avatar_emoji_key: string | null;
   business_name: string | null;
+  cover_url: string | null;
 }
 
 export function FriendsPanel() {
@@ -23,7 +27,7 @@ export function FriendsPanel() {
     queryFn: async (): Promise<UserRow[]> => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, display_name, username, avatar_url, business_name")
+        .select("id, display_name, username, avatar_url, avatar_mode, avatar_emoji_key, business_name, cover_url")
         .eq("account_status", "active")
         .order("created_at", { ascending: false })
         .limit(50);
@@ -32,7 +36,6 @@ export function FriendsPanel() {
     },
   });
 
-  // Real user count
   const { data: totalCount = 0 } = useQuery({
     queryKey: ["platform-user-count"],
     queryFn: async () => {
@@ -81,11 +84,11 @@ export function FriendsPanel() {
           <button
             onClick={() => navigate("/dashboard/affiliates")}
             className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 hover:opacity-90 transition-opacity"
-            style={{ background: "rgba(96,165,250,0.1)", border: "1px solid rgba(96,165,250,0.15)" }}
+            style={{ background: "rgba(181,98,42,0.1)", border: "1px solid rgba(181,98,42,0.15)" }}
           >
             <div
               className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-              style={{ background: "rgba(96,165,250,0.2)" }}
+              style={{ background: "rgba(181,98,42,0.2)" }}
             >
               <span className="text-sm">💰</span>
             </div>
@@ -97,7 +100,7 @@ export function FriendsPanel() {
             </div>
             <span
               className="px-2 py-0.5 rounded text-[10px] font-bold shrink-0"
-              style={{ background: "rgba(96,165,250,0.3)", color: "#60a5fa" }}
+              style={{ background: "rgba(181,98,42,0.3)", color: "#E67E22" }}
             >
               New
             </span>
@@ -115,7 +118,7 @@ export function FriendsPanel() {
             </span>
             <button
               className="text-xs font-medium"
-              style={{ color: "#60a5fa" }}
+              style={{ color: "#E67E22" }}
               onClick={() => {/* Already showing full list */}}
             >
               See all
@@ -139,7 +142,8 @@ export function FriendsPanel() {
           </p>
         ) : (
           filtered.map((user) => {
-            const initials = (user.display_name || user.username || "U").slice(0, 2).toUpperCase();
+            const resolved = resolveAvatarUrl(user);
+            const fallbackInitials = (user.display_name || user.username || "U").slice(0, 2).toUpperCase();
             return (
               <button
                 key={user.id}
@@ -150,10 +154,10 @@ export function FriendsPanel() {
                   className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
                   style={{ background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)" }}
                 >
-                  {user.avatar_url ? (
-                    <img src={user.avatar_url} alt="" className="w-10 h-10 rounded-full object-cover" />
+                  {resolved ? (
+                    <img src={resolved} alt="" className="w-10 h-10 rounded-full object-cover" />
                   ) : (
-                    initials
+                    fallbackInitials
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
