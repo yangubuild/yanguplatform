@@ -414,10 +414,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
           src={resolvedMediaUrl}
           alt="Hero visual"
           className="absolute inset-0 w-full h-full opacity-70"
-          position={mediaPosition}
-          zoom={mediaZoom}
-          onPositionChange={(p) => canvas.onUpdateField!(canvas.sectionId, "media.position", p)}
-          onZoomChange={(z) => canvas.onUpdateField!(canvas.sectionId, "media.zoom", z)}
+          onImageChange={(url) => canvas.onUpdateField!(canvas.sectionId, "media.url", url)}
           onImageReplace={() => {
             const input = document.createElement("input");
             input.type = "file";
@@ -434,16 +431,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
           }}
         />
       ) : hasVisualMedia ? (
-        <img
-          src={resolvedMediaUrl}
-          alt="Hero visual"
-          className="absolute inset-0 w-full h-full object-cover opacity-70"
-          style={{
-            objectPosition: mediaPosition,
-            transform: mediaZoom > 1 ? `scale(${mediaZoom})` : undefined,
-            transformOrigin: mediaPosition,
-          }}
-        />
+        <img src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-70" />
       ) : null}
       {mediaType === "video" && mediaUrl && (() => {
         const ytId = isYouTubeUrl(mediaUrl);
