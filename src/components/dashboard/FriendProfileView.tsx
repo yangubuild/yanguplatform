@@ -116,22 +116,15 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
     },
   });
 
-  // Fetch reviews about this user
-  const { data: reviews = [], isLoading: reviewsLoading } = useQuery({
-    queryKey: ["friend-reviews", user.id],
-    queryFn: async (): Promise<ReviewRow[]> => {
-      const { data, error } = await supabase
-        .from("entity_reviews")
-        .select("id, rating, title, body, created_at, user_id")
-        .order("created_at", { ascending: false })
-        .limit(20);
-      if (error) throw error;
-      return (data ?? []).map((r: any) => ({
-        ...r,
-        reviewer_name: null,
-      }));
-    },
-  });
+  // Fetch reviews about this user using shared hook
+  const { data: reviewData, isLoading: reviewsLoading } = useProfileReviews(user.id);
+  const reviews = reviewData?.reviews ?? [];
+  const avgRating = reviewData?.avgRating ?? 0;
+
+  // Fetch posts using shared hook
+  const { data: posts = [], isLoading: postsLoading } = useUserPosts(user.id);
+  const toggleReaction = useToggleReaction();
+  const submitReview = useSubmitProfileReview();
 
   const handleTabChange = (tab: FriendTab) => {
     setActiveTab(tab);
