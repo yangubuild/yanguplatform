@@ -1,5 +1,13 @@
 import { X } from "lucide-react";
-import type { PopularUser } from "@/pages/dashboard/MessagesPage";
+
+interface PopularUser {
+  id: string;
+  name: string;
+  descriptor: string;
+  avatarUrl?: string;
+  online?: boolean;
+  onlineColor?: string;
+}
 
 interface Props {
   user: PopularUser;
