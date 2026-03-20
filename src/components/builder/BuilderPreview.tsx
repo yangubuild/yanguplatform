@@ -346,6 +346,57 @@ function HeroPreview({ schema, canvas, sections, onSelectSection, surfaceType }:
         </div>
       );
     }
+    }
+
+  // ─── Community Site-Banner Hero ───
+  // Compact rectangular banner: image as full background, text + CTA overlaid inside.
+  // Matches the live Community page hero contract.
+  if (isCommunity) {
+    const headline = (schema.headline as string) || "";
+    const subheadline = (schema.subheadline as string) || "";
+    const hasMedia = mediaType !== "video" && !!resolvedMediaUrl;
+
+    return (
+      <div className="relative overflow-hidden rounded-2xl" style={{ minHeight: "180px", maxHeight: "260px" }}>
+        {/* Background image */}
+        {hasMedia && canvas?.onUpdateField ? (
+          <HeroImagePositioner
+            src={resolvedMediaUrl}
+            alt="Community hero"
+            className="absolute inset-0 w-full h-full"
+            onImageChange={(url) => canvas.onUpdateField!(canvas.sectionId, "media.url", url)}
+            onImageReplace={() => {
+              const input = document.createElement("input");
+              input.type = "file"; input.accept = "image/*";
+              input.onchange = (ev) => { const file = (ev.target as HTMLInputElement).files?.[0]; if (file) { const reader = new FileReader(); reader.onload = () => canvas.onImageReplace?.(canvas.sectionId, "media.url", reader.result as string, "upload"); reader.readAsDataURL(file); } };
+              input.click();
+            }}
+          />
+        ) : hasMedia ? (
+          <EditableImage src={resolvedMediaUrl} alt="Community hero" className="absolute inset-0 w-full h-full object-cover" field="media.url" canvas={canvas} />
+        ) : (
+          <div className="absolute inset-0 bg-accent/20" />
+        )}
+
+        {/* Overlay for text legibility */}
+        <div className="absolute inset-0 bg-black/30" />
+
+        {/* Centered content */}
+        <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 py-10" style={{ minHeight: "180px" }}>
+          {headline && (
+            <EditableText value={headline} field="headline" placeholder="Your Headline" className="text-2xl font-bold text-white tracking-[0.12em] uppercase" tag="h1" canvas={canvas} />
+          )}
+          {subheadline && (
+            <EditableText value={subheadline} field="subheadline" className="mt-2 text-sm text-white/70" tag="p" canvas={canvas} />
+          )}
+          {ctaText && (
+            <div className="mt-4">
+              <a href={ctaHref || "#"} className="inline-block px-6 py-2 rounded-full bg-background text-foreground text-sm font-medium yangu-cta">{ctaText}</a>
+            </div>
+          )}
+        </div>
+      </div>
+    );
   }
 
   if (isSplit) {
