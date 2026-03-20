@@ -15,19 +15,7 @@ interface SurfaceViewerProps {
   domainType?: string;
 }
 
-/**
- * Deduplicate sections that share the same section_type + position.
- * Keeps the first occurrence (by array order, which is already sorted by position).
- */
-function deduplicateSections(sections: BuilderPublishedSection[]): BuilderPublishedSection[] {
-  const seen = new Set<string>();
-  return sections.filter((s) => {
-    const key = `${s.section_type}::${s.position}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
+// Deduplication now handled by shared deduplicatePublishedSections from builderCoreSections
 
 export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProps) {
   const [data, setData] = useState<BuilderPublicSchemaResult | null>(null);
