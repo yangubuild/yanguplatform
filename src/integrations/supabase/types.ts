@@ -3795,6 +3795,7 @@ export type Database = {
           social_links: Json | null
           updated_at: string
           username: string | null
+          verified_tick: string | null
           welcome_email_sent_at: string | null
         }
         Insert: {
@@ -3822,6 +3823,7 @@ export type Database = {
           social_links?: Json | null
           updated_at?: string
           username?: string | null
+          verified_tick?: string | null
           welcome_email_sent_at?: string | null
         }
         Update: {
@@ -3849,6 +3851,7 @@ export type Database = {
           social_links?: Json | null
           updated_at?: string
           username?: string | null
+          verified_tick?: string | null
           welcome_email_sent_at?: string | null
         }
         Relationships: []
@@ -4869,6 +4872,33 @@ export type Database = {
             referencedColumns: ["key"]
           },
         ]
+      }
+      verification_requests: {
+        Row: {
+          created_at: string
+          id: string
+          status: string
+          tick_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          status?: string
+          tick_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          status?: string
+          tick_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       visionaire_items: {
         Row: {

@@ -653,6 +653,12 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                 >
                   {displayName}
                 </h2>
+                {(() => {
+                  const vt = (profile as any)?.verified_tick as string | null;
+                  if (!vt) return null;
+                  const colorMap: Record<string, string> = { blue: "#3b82f6", orange: "#b5622a", green: "#16a34a" };
+                  return <BadgeCheck className="w-5 h-5 shrink-0" style={{ color: colorMap[vt] || "#3b82f6" }} />;
+                })()}
                 <Pencil className="w-3.5 h-3.5 opacity-0 group-hover/name:opacity-100 transition-opacity" style={{ color: "rgba(255,255,255,0.4)" }} />
               </div>
             )}

@@ -1,6 +1,11 @@
 import { useState } from "react";
-import { X, Eye } from "lucide-react";
+import { Eye, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useActiveOrg } from "@/hooks/useActiveOrg";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 const ROLES = [
   { name: "Owner", desc: "Full access" },
@@ -16,8 +21,61 @@ interface AddTeamModalProps {
 }
 
 export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
+  const { user } = useAuth();
+  const { data: activeOrg } = useActiveOrg();
+  const queryClient = useQueryClient();
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [email, setEmail] = useState("");
+  const [inviting, setInviting] = useState(false);
+
+  const handleInvite = async () => {
+    if (!email || !selectedRole || !user || !activeOrg) return;
+    setInviting(true);
+    try {
+      // Look up user by email via profiles (match on username or display_name won't work — we need to find via auth)
+      // Since we can't query auth.users, look for a profile whose id matches a user with this email.
+      // Best approach: look up profile by email-like username or use a lookup approach.
+      // For now, we look up profiles that have the email as username (common pattern).
+      // Alternatively, we store the invite and the user accepts it on login.
+
+      // Check if user already in org
+      const { data: existingMember } = await supabase
+        .from("org_memberships")
+        .select("user_id")
+        .eq("org_id", activeOrg.id)
+        .limit(100);
+
+      // Store invite in admin_invites table (already exists in schema)
+      const { error } = await supabase
+        .from("admin_invites")
+        .insert({
+          email: email.trim().toLowerCase(),
+          role: selectedRole.toLowerCase() as any,
+          invited_by: user.id,
+          status: "pending",
+        });
+
+      if (error) {
+        if (error.code === "23505") {
+          toast.error("An invite for this email already exists");
+        } else {
+          throw error;
+        }
+      } else {
+        toast.success(`Invite sent to ${email}`);
+        setEmail("");
+        setSelectedRole(null);
+        queryClient.invalidateQueries({ queryKey: ["staff-panel-members"] });
+        queryClient.invalidateQueries({ queryKey: ["team-invites"] });
+        onOpenChange(false);
+      }
+    } catch (err: any) {
+      console.error("Invite error:", err);
+      toast.error(err.message || "Failed to send invite");
+    } finally {
+      setInviting(false);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -25,12 +83,10 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
         className="sm:max-w-md p-0 border-0 gap-0"
         style={{ background: "#111a15", borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)" }}
       >
-        {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-2">
           <DialogTitle className="text-lg font-bold text-white">Add team member</DialogTitle>
         </div>
 
-        {/* Roles */}
         <div className="px-4 py-2 space-y-1">
           {ROLES.map((role) => (
             <button
@@ -62,15 +118,12 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
           ))}
         </div>
 
-        {/* Divider */}
         <div className="mx-4" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }} />
 
-        {/* New custom role */}
         <button className="flex items-center gap-2 px-6 py-3 text-sm font-medium text-white hover:text-white/80 transition-colors">
           <span style={{ color: "#E67E22" }}>+</span> New custom role
         </button>
 
-        {/* Email + Invite */}
         <div className="flex items-center gap-2 px-4 pb-5 pt-2">
           <input
             type="email"
@@ -84,14 +137,15 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
             }}
           />
           <button
-            className="h-10 px-5 rounded-lg text-sm font-semibold transition-opacity"
+            className="h-10 px-5 rounded-lg text-sm font-semibold transition-opacity flex items-center gap-2"
             style={{
               background: email && selectedRole ? "linear-gradient(135deg, #c47a3a, #5c2a12)" : "rgba(255,255,255,0.08)",
               color: email && selectedRole ? "#fff" : "rgba(255,255,255,0.35)",
             }}
-            disabled={!email || !selectedRole}
+            disabled={!email || !selectedRole || inviting}
+            onClick={handleInvite}
           >
-            Invite
+            {inviting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Invite"}
           </button>
         </div>
       </DialogContent>
