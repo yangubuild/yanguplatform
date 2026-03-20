@@ -165,7 +165,7 @@ function EditableImage({
 
 // ─── Section Renderers ───
 
-function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks; sections?: EditorSection[]; onSelectSection?: (id: string) => void }) {
+function HeroPreview({ schema, canvas, sections, onSelectSection, surfaceType }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks; sections?: EditorSection[]; onSelectSection?: (id: string) => void; surfaceType?: string }) {
   const media = (schema.media as { type?: string; url?: string; fit?: string }) || {};
   const mediaType = media.type || "none";
   const mediaUrl = media.url || "";
