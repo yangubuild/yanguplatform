@@ -1,16 +1,31 @@
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Star, Loader2, MessageSquare } from "lucide-react";
+import { Star, Loader2, MessageSquare, Copy, Check } from "lucide-react";
 import { useProfileReviews } from "@/hooks/useProfileReviews";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export function ReviewsPanel() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { data, isLoading } = useProfileReviews(user?.id);
+  const [copied, setCopied] = useState(false);
 
   const reviews = data?.reviews ?? [];
   const avgRating = data?.avgRating ?? 0;
   const totalCount = data?.totalCount ?? 0;
+
+  const handleRequestReview = () => {
+    const username = profile?.username;
+    if (!username) {
+      toast.error("Set up your username first");
+      return;
+    }
+    const link = `${window.location.origin}/u/${username}`;
+    navigator.clipboard.writeText(link).then(() => {
+      setCopied(true);
+      toast.success("Profile link copied! Share it to receive reviews.");
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(() => toast.error("Could not copy link"));
+  };
 
   const renderStars = (rating: number) => (
     <div className="flex items-center gap-0.5">
@@ -35,10 +50,12 @@ export function ReviewsPanel() {
       >
         <span className="text-sm font-semibold text-white">Reviews</span>
         <button
+          onClick={handleRequestReview}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
           style={{ background: "rgba(181,98,42,0.12)", color: "#E67E22" }}
         >
-          <MessageSquare className="w-3.5 h-3.5" /> Request Review
+          {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+          {copied ? "Copied!" : "Request Review"}
         </button>
       </div>
 
@@ -64,7 +81,7 @@ export function ReviewsPanel() {
             <Star className="w-8 h-8 mb-2" style={{ color: "rgba(255,255,255,0.2)" }} />
             <p className="text-sm text-white mb-1">No reviews yet</p>
             <p className="text-xs text-center" style={{ color: "rgba(255,255,255,0.4)" }}>
-              Request reviews from your clients to build trust.
+              Share your profile link to receive reviews from clients.
             </p>
           </div>
         ) : (
