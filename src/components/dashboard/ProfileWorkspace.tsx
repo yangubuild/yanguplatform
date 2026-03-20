@@ -870,6 +870,9 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
               </div>
             </div>
           )}
+        </div>
+
+        <div className="h-8" />
       </div>
       <AddTeamModal open={teamModalOpen} onOpenChange={setTeamModalOpen} />
       <NotificationPrefsModal open={notifModalOpen} onOpenChange={setNotifModalOpen} />
