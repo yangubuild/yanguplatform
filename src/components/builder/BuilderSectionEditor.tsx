@@ -1164,6 +1164,17 @@ export function BuilderSectionEditor({
     setDirty(true);
   }, [section.id, onLocalSchemaChange]);
 
+  // Deep-merge helper for nested objects like button_style — avoids stale closure bugs
+  const updateButtonStyle = useCallback((field: string, value: string) => {
+    setLocalSchema((prev) => {
+      const existing = (prev.button_style as Record<string, unknown>) || {};
+      const next = { ...prev, button_style: { ...existing, [field]: value } };
+      onLocalSchemaChange?.(section.id, next);
+      return next;
+    });
+    setDirty(true);
+  }, [section.id, onLocalSchemaChange]);
+
   const handleSave = async () => {
     await onSave(section.id, localSchema);
     setDirty(false);
