@@ -1,46 +1,37 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { MessagesDmList } from "@/components/messages/MessagesDmList";
 import { MessagesCenterPanel } from "@/components/messages/MessagesCenterPanel";
 import { MessagesDiscoverySidebar } from "@/components/messages/MessagesDiscoverySidebar";
-import { InfluencerProfilePopup } from "@/components/messages/InfluencerProfilePopup";
+import { DmThreadView } from "@/components/messages/DmThreadView";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Users, X } from "lucide-react";
 
 export type MessagesTab = "posts" | "chats" | "influencers" | "global";
 
-export interface PopularUser {
-  id: string;
-  name: string;
-  descriptor: string;
-  avatarUrl?: string;
-  online?: boolean;
-  onlineColor?: string;
-}
-
-const POPULAR_USERS: PopularUser[] = [
-  { id: "1", name: "Punkchainer", descriptor: "Creator of PunkChainer's + 1 more", online: true, onlineColor: "green" },
-  { id: "2", name: "Steven S", descriptor: "Creator of Steven's whop + 34 more", online: true, onlineColor: "green" },
-  { id: "3", name: "Vera", descriptor: "Creator of Vera Witty FX + 2 more", online: true, onlineColor: "green" },
-  { id: "4", name: "Melih", descriptor: "Creator of Ecomz Türkiye" },
-  { id: "5", name: "Alex", descriptor: "Creator of Virality + 8 more", online: true, onlineColor: "green" },
-  { id: "6", name: "zack0x01", descriptor: "Creator of zack0X01 BugBounty cour…" },
-  { id: "7", name: "Nathan Johnson", descriptor: "Creator of David Ghiyam Clipping Hu…", online: true, onlineColor: "green" },
-  { id: "8", name: "ddurz", descriptor: "Creator of DDURZCLIPS", online: true, onlineColor: "green" },
-  { id: "9", name: "Kéo", descriptor: "Creator of 6 Figure OFM + 1 more", online: true, onlineColor: "yellow" },
-  { id: "10", name: "Felix Prehn", descriptor: "Creator of Felix & Friends + 2 more", online: true, onlineColor: "yellow" },
-];
-
 export default function MessagesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get("tab") as MessagesTab | null;
-  const [activeTab, setActiveTab] = useState<MessagesTab>(tabParam && ["posts", "chats", "influencers", "global"].includes(tabParam) ? tabParam : "posts");
-  const [selectedDm, setSelectedDm] = useState<string | null>("team-yangu");
-  const [selectedUser, setSelectedUser] = useState<PopularUser | null>(null);
+  const userParam = searchParams.get("user");
+
+  const [activeTab, setActiveTab] = useState<MessagesTab>(
+    tabParam && ["posts", "chats", "influencers", "global"].includes(tabParam) ? tabParam : "posts"
+  );
+  const [activeConversationUserId, setActiveConversationUserId] = useState<string | null>(userParam || null);
   const [showUsersPanel, setShowUsersPanel] = useState(false);
   const isMobile = useIsMobile();
   const isTablet = useMediaQuery("(min-width: 768px) and (max-width: 1023px)");
+
+  // When user param changes (from popup/profile navigation), activate chats + that user
+  useEffect(() => {
+    if (userParam) {
+      setActiveTab("chats");
+      setActiveConversationUserId(userParam);
+    }
+  }, [userParam]);
 
   useEffect(() => {
     if (tabParam && ["posts", "chats", "influencers", "global"].includes(tabParam)) {
@@ -50,14 +41,29 @@ export default function MessagesPage() {
 
   const handleTabChange = (tab: MessagesTab) => {
     setActiveTab(tab);
+    if (tab !== "chats") {
+      setActiveConversationUserId(null);
+    }
     setSearchParams({ tab });
   };
 
-  // Mobile: single-column stacked layout
+  const handleSelectConversation = (userId: string) => {
+    setActiveConversationUserId(userId);
+    setActiveTab("chats");
+    setSearchParams({ tab: "chats", user: userId });
+  };
+
+  // Center content: if chats tab + active user, show thread; otherwise tabs
+  const centerContent =
+    activeTab === "chats" && activeConversationUserId ? (
+      <DmThreadView targetUserId={activeConversationUserId} />
+    ) : (
+      <MessagesCenterPanel activeTab={activeTab} onTabChange={handleTabChange} />
+    );
+
   if (isMobile) {
     return (
       <div className="h-[calc(100vh-64px)] flex flex-col overflow-hidden" style={{ background: "#0B0F14" }}>
-        {/* Users drawer toggle */}
         <div className="flex items-center justify-end px-3 py-2">
           <button
             onClick={() => setShowUsersPanel(!showUsersPanel)}
@@ -69,7 +75,6 @@ export default function MessagesPage() {
           </button>
         </div>
 
-        {/* Users drawer overlay */}
         {showUsersPanel && (
           <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "#0F141A" }}>
             <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
@@ -79,13 +84,13 @@ export default function MessagesPage() {
               </button>
             </div>
             <div className="flex-1 overflow-y-auto">
-              <MessagesDiscoverySidebar users={POPULAR_USERS} onUserClick={(u) => { setSelectedUser(u); setShowUsersPanel(false); }} />
+              <MessagesDiscoverySidebar onUserClick={(userId) => { handleSelectConversation(userId); setShowUsersPanel(false); }} />
             </div>
           </div>
         )}
 
-        {/* Center panel — full width */}
-        <div className="flex-1 min-h-0 overflow-hidden"
+        <div
+          className="flex-1 min-h-0 overflow-hidden"
           style={{
             background: "#0F141A",
             borderRadius: "14px",
@@ -93,135 +98,55 @@ export default function MessagesPage() {
             border: "1px solid rgba(255,255,255,0.06)",
           }}
         >
-          <MessagesCenterPanel activeTab={activeTab} onTabChange={handleTabChange} />
+          {centerContent}
         </div>
-
-        {selectedUser && (
-          <InfluencerProfilePopup user={selectedUser} onClose={() => setSelectedUser(null)} />
-        )}
       </div>
     );
   }
 
-  // Tablet: 2-column — DM List + Center, hide discovery sidebar
   if (isTablet) {
     return (
       <div
         className="h-[calc(100vh-64px)] overflow-hidden"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "280px 1fr",
-          gap: "0px",
-          background: "#0B0F14",
-        }}
+        style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: "0px", background: "#0B0F14" }}
       >
-        {/* LEFT — DM List */}
         <div className="h-full overflow-hidden p-2 pr-0" style={{ background: "#0B0F14" }}>
-          <div
-            className="h-full overflow-hidden flex flex-col"
-            style={{
-              background: "#0F141A",
-              borderRadius: "14px",
-              border: "1px solid rgba(255,255,255,0.06)",
-            }}
-          >
-            <MessagesDmList selectedId={selectedDm} onSelect={setSelectedDm} />
+          <div className="h-full overflow-hidden flex flex-col" style={{ background: "#0F141A", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.06)" }}>
+            <MessagesDmList selectedUserId={activeConversationUserId} onSelectUser={handleSelectConversation} />
           </div>
         </div>
-
-        {/* CENTER — Tabs + content */}
         <div className="h-full overflow-hidden p-2" style={{ background: "#0B0F14" }}>
-          <div
-            className="h-full overflow-hidden flex flex-col"
-            style={{
-              background: "#0F141A",
-              borderRadius: "14px",
-              border: "1px solid rgba(255,255,255,0.06)",
-            }}
-          >
-            <MessagesCenterPanel activeTab={activeTab} onTabChange={handleTabChange} />
+          <div className="h-full overflow-hidden flex flex-col" style={{ background: "#0F141A", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.06)" }}>
+            {centerContent}
           </div>
         </div>
-
-        {selectedUser && (
-          <InfluencerProfilePopup user={selectedUser} onClose={() => setSelectedUser(null)} />
-        )}
       </div>
     );
   }
 
-  // Desktop: full 3-column layout
+  // Desktop: 3-column
   return (
     <div
       className="h-[calc(100vh-64px)] overflow-hidden"
-      style={{
-        display: "grid",
-        gridTemplateColumns: "300px 1fr 340px",
-        gap: "0px",
-        background: "#0B0F14",
-      }}
+      style={{ display: "grid", gridTemplateColumns: "300px 1fr 340px", gap: "0px", background: "#0B0F14" }}
     >
-      {/* LEFT — DM List — floating card surface */}
-      <div
-        className="h-full overflow-hidden p-2 pr-0"
-        style={{ background: "#0B0F14" }}
-      >
-        <div
-          className="h-full overflow-hidden flex flex-col"
-          style={{
-            background: "#0F141A",
-            borderRadius: "14px",
-            border: "1px solid rgba(255,255,255,0.06)",
-          }}
-        >
-          <MessagesDmList selectedId={selectedDm} onSelect={setSelectedDm} />
+      <div className="h-full overflow-hidden p-2 pr-0" style={{ background: "#0B0F14" }}>
+        <div className="h-full overflow-hidden flex flex-col" style={{ background: "#0F141A", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.06)" }}>
+          <MessagesDmList selectedUserId={activeConversationUserId} onSelectUser={handleSelectConversation} />
         </div>
       </div>
 
-      {/* CENTER — Tabs + content — distinct canvas */}
-      <div
-        className="h-full overflow-hidden p-2"
-        style={{ background: "#0B0F14" }}
-      >
-        <div
-          className="h-full overflow-hidden flex flex-col"
-          style={{
-            background: "#0F141A",
-            borderRadius: "14px",
-            border: "1px solid rgba(255,255,255,0.06)",
-          }}
-        >
-          <MessagesCenterPanel activeTab={activeTab} onTabChange={handleTabChange} />
+      <div className="h-full overflow-hidden p-2" style={{ background: "#0B0F14" }}>
+        <div className="h-full overflow-hidden flex flex-col" style={{ background: "#0F141A", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.06)" }}>
+          {centerContent}
         </div>
       </div>
 
-      {/* RIGHT — Discovery sidebar — independent surface */}
-      <div
-        className="h-full overflow-hidden p-2 pl-0"
-        style={{ background: "#0B0F14" }}
-      >
-        <div
-          className="h-full overflow-hidden flex flex-col overflow-y-auto"
-          style={{
-            background: "#0F141A",
-            borderRadius: "14px",
-            border: "1px solid rgba(255,255,255,0.06)",
-          }}
-        >
-          <MessagesDiscoverySidebar
-            users={POPULAR_USERS}
-            onUserClick={setSelectedUser}
-          />
+      <div className="h-full overflow-hidden p-2 pl-0" style={{ background: "#0B0F14" }}>
+        <div className="h-full overflow-hidden flex flex-col overflow-y-auto" style={{ background: "#0F141A", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.06)" }}>
+          <MessagesDiscoverySidebar onUserClick={handleSelectConversation} />
         </div>
       </div>
-
-      {/* Influencer popup overlay */}
-      {selectedUser && (
-        <InfluencerProfilePopup
-          user={selectedUser}
-          onClose={() => setSelectedUser(null)}
-        />
-      )}
     </div>
   );
 }
