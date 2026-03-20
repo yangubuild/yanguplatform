@@ -160,6 +160,37 @@ export function normalizePublishedSections(
   ).map(({ is_visible: _isVisible, ...section }) => section);
 }
 
+/**
+ * Deduplicate and normalize published sections from the publish payload.
+ * Published sections lack `id` and `core_slot`, so we synthesize them.
+ * This ensures the live renderer matches the editor canvas exactly.
+ */
+export function deduplicatePublishedSections(
+  rawSections: Array<{
+    section_type: string;
+    schema: Record<string, unknown>;
+    position: number;
+  }>,
+  surfaceType: string
+): Array<{
+  section_type: string;
+  schema: Record<string, unknown>;
+  position: number;
+}> {
+  // Add synthetic id + core_slot so enforceCoreSectionOrder can process them
+  const withIds = rawSections.map((s, i) => ({
+    ...s,
+    id: `pub-${i}-${s.section_type}`,
+    core_slot: null as string | null,
+    is_visible: true,
+  }));
+
+  const normalized = enforceCoreSectionOrder(withIds, surfaceType);
+
+  // Strip synthetic fields
+  return normalized.map(({ id: _id, core_slot: _cs, is_visible: _v, isCore: _ic, isMissing: _im, ...rest }) => rest);
+}
+
 /** Layout presets — Layout A and Layout B simply control visual arrangement */
 export type LayoutPreset = "layout_a" | "layout_b";
 

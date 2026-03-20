@@ -87,20 +87,14 @@ export default function PublicSurfacePage() {
     return <PublicNotFound host={host} slug={pathSlug} />;
   }
 
-  // Render published schema
+  // Render published schema — use same normalization as editor canvas
   const schema = data.published_schema;
   const page = schema.pages?.[0];
   const rawSections = page?.sections
     ?.slice()
-    .sort((a, b) => a.position - b.position) ?? [];
+    .sort((a: BuilderPublishedSection, b: BuilderPublishedSection) => a.position - b.position) ?? [];
   
-  const seen = new Set<string>();
-  const sections = rawSections.filter((s) => {
-    const key = `${s.section_type}::${s.position}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+  const sections = deduplicatePublishedSections(rawSections, surfaceData.surface_type || "quick_site");
   
   const title = pageTitle;
   const surfaceType = surfaceData.surface_type;

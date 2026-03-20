@@ -67,15 +67,15 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
     );
   }
 
-  // Render published schema
+  // Render published schema — use same normalization as editor canvas
   const schema = data.published_schema;
   const page = schema.pages?.[0];
   const rawSections = page?.sections
     ?.slice()
     .sort((a: BuilderPublishedSection, b: BuilderPublishedSection) => a.position - b.position) ?? [];
   
-  // Deduplicate sections (fixes double-render from duplicate DB rows)
-  const sections = deduplicateSections(rawSections);
+  // Deduplicate using shared normalizer (matches editor canvas logic)
+  const sections = deduplicatePublishedSections(rawSections, surfaceType || "quick_site");
   const title = schema.surface?.title || "Untitled";
   const surfaceType = schema.surface?.surface_type;
 
