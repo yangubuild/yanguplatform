@@ -23,6 +23,11 @@ import {
   ExternalLink,
   Check,
   X,
+  BadgeCheck,
+  Star,
+  MessageSquare,
+  Sparkles,
+  Info,
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import adaIcon from "@/assets/ada-icon.png";
@@ -32,12 +37,13 @@ import AvatarPickerModal from "@/components/profile/AvatarPickerModal";
 import CoverCropModal, { type CropData } from "@/components/profile/CoverCropModal";
 import { useNavigate } from "react-router-dom";
 import { AddTeamModal } from "./AddTeamModal";
+import { VerifiedModal } from "./panels/VerifiedModal";
 import { NotificationPrefsModal } from "./NotificationPrefsModal";
 import { ShareBusinessPopover } from "./ShareBusinessPopover";
 import { DashboardMoreMenu } from "./DashboardMoreMenu";
 import { SocialLinksModal, SOCIAL_PLATFORMS, type SocialLinksData } from "./SocialLinksModal";
 
-const TABS = ["Home", "KYC", "About"] as const;
+const TABS = ["Home", "KYC", "Reviews", "Posts", "About"] as const;
 
 interface DashboardBusinessSurface {
   id: string;
@@ -46,9 +52,19 @@ interface DashboardBusinessSurface {
   cover_image: string | null;
 }
 
-export function ProfileWorkspace() {
+interface ProfileWorkspaceProps {
+  activeProfileTab?: string;
+  onProfileTabChange?: (tab: string) => void;
+}
+
+export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: ProfileWorkspaceProps) {
   const { user, profile, refreshProfile } = useAuth();
-  const [activeTab, setActiveTab] = useState<string>("Home");
+  const [internalTab, setInternalTab] = useState<string>("Home");
+  const activeTab = activeProfileTab ?? internalTab;
+  const setActiveTab = (tab: string) => {
+    if (onProfileTabChange) onProfileTabChange(tab);
+    else setInternalTab(tab);
+  };
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
@@ -71,6 +87,7 @@ export function ProfileWorkspace() {
   const [socialLinks, setSocialLinks] = useState<SocialLinksData>({});
   const [savingSocial, setSavingSocial] = useState(false);
   const [avatarPickerOpen, setAvatarPickerOpen] = useState(false);
+  const [verifiedOpen, setVerifiedOpen] = useState(false);
   // Fetch social links from profile
   useEffect(() => {
     if (profile) {
@@ -487,6 +504,16 @@ export function ProfileWorkspace() {
               >
                 Add team <Plus className="w-3.5 h-3.5" />
               </button>
+              <button
+                onClick={() => setVerifiedOpen(true)}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-semibold"
+                style={{
+                  background: "rgba(59,130,246,0.12)",
+                  color: "#3b82f6",
+                }}
+              >
+                <BadgeCheck className="w-3.5 h-3.5" /> Verified
+              </button>
           </div>
           </div>
 
@@ -807,152 +834,42 @@ export function ProfileWorkspace() {
             </div>
           )}
 
-          {activeTab === "Business" && (
-            <>
-              {surfacesLoading ? (
-                <div className="flex items-center justify-center py-10">
-                  <Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
-                </div>
-              ) : publishedSurfaces.length === 0 ? (
-                <div
-                  className="rounded-xl p-8 text-center"
-                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
-                >
-                  <p className="text-sm font-medium text-white mb-1">No published business</p>
-                  <p className="text-xs mb-4" style={{ color: "rgba(255,255,255,0.4)" }}>
-                    Go to My Business to publish your first surface.
-                  </p>
-                  <button
-                    onClick={() => navigate("/my-business")}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold"
-                    style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)", color: "#fff" }}
-                  >
-                    Go to My Business
-                  </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {publishedSurfaces.map((surface) => {
-                    const initials = (surface.title || "B").slice(0, 1).toUpperCase();
-                    const liveUrl = `/s/${surface.id}/preview`;
-                    return (
-                      <div
-                        key={surface.id}
-                        className="rounded-xl overflow-hidden"
-                        style={{ background: "#1a2129", border: "1px solid rgba(255,255,255,0.06)" }}
-                      >
-                        {surface.cover_image ? (
-                          <img
-                            src={surface.cover_image}
-                            alt={surface.title || "Business"}
-                            className="w-full h-24 object-cover"
-                          />
-                        ) : (
-                          <div
-                            className="h-24 flex items-center justify-center text-3xl font-bold"
-                            style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)", color: "rgba(255,255,255,0.3)" }}
-                          >
-                            {initials}
-                          </div>
-                        )}
-                        <div className="p-3">
-                          <p className="text-sm font-medium text-white">{surface.title || "Untitled"}</p>
-                          <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.45)" }}>
-                            {surface.surface_type}
-                          </p>
-                        </div>
-                        <div
-                          className="flex items-center justify-between px-3 py-2"
-                          style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
-                        >
-                          {liveUrl ? (
-                            <a href={liveUrl} target="_blank" rel="noopener noreferrer">
-                              <ExternalLink className="w-4 h-4" style={{ color: "#22c55e" }} />
-                            </a>
-                          ) : (
-                            <Eye className="w-4 h-4" style={{ color: "#22c55e" }} />
-                          )}
-                          <Pencil
-                            className="w-4 h-4 cursor-pointer"
-                            style={{ color: "rgba(255,255,255,0.35)" }}
-                            onClick={() => navigate("/my-business")}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </>
+          {activeTab === "Reviews" && (
+            <div className="flex flex-col items-center justify-center py-10">
+              <Star className="w-8 h-8 mb-2" style={{ color: "rgba(255,255,255,0.2)" }} />
+              <p className="text-sm font-semibold text-white mb-1">Your Reviews</p>
+              <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+                Reviews you've created will appear here.
+              </p>
+            </div>
           )}
-        </div>
 
-        {/* Composer bar — inside scroll flow, NOT sticky */}
-        <div className="px-5 pb-5">
-          <div
-            className="flex items-center gap-3 rounded-2xl px-3 py-3"
-            style={{
-              background: "#151b21",
-              border: "1px solid rgba(255,255,255,0.06)",
-            }}
-          >
-            <span
-              className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center overflow-hidden"
-              style={displayAvatar ? { background: "transparent" } : { background: "#f97316" }}
-            >
-              {displayAvatar ? (
-                <img src={displayAvatar} alt="" className="w-8 h-8 rounded-full object-cover" style={{ clipPath: "circle(50%)" }} />
-              ) : (
-                <span className="text-xs font-bold text-white">{initials.charAt(0)}</span>
-              )}
-            </span>
-            <span
-              className="flex-1 text-sm"
-              style={{ color: "rgba(255,255,255,0.3)" }}
-            >
-              Say something they'll screenshot...
-            </span>
-            <div
-              className="w-px h-5"
-              style={{ background: "rgba(255,255,255,0.08)" }}
-            />
-            <button
-              className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold shrink-0"
-              style={{ background: "rgba(180, 60, 60, 0.65)", color: "#f5bcbc" }}
-            >
-              <Video className="w-4 h-4" />
-              Go live
-            </button>
-          </div>
-        </div>
+          {activeTab === "Posts" && (
+            <div className="flex flex-col items-center justify-center py-10">
+              <MessageSquare className="w-8 h-8 mb-2" style={{ color: "rgba(255,255,255,0.2)" }} />
+              <p className="text-sm font-semibold text-white mb-1">Your Posts</p>
+              <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+                Posts you create will appear here as a feed.
+              </p>
+            </div>
+          )}
 
-        {/* Empty posts section */}
-        <div className="flex flex-col items-center justify-center py-16 px-6">
-          {/* Skeleton post card */}
-          <div
-            className="w-full max-w-md rounded-xl p-5 mb-6"
-            style={{ background: "rgba(255,255,255,0.04)" }}
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full" style={{ background: "rgba(255,255,255,0.08)" }} />
-              <div className="flex-1 space-y-2">
-                <div className="h-3 w-28 rounded" style={{ background: "rgba(255,255,255,0.1)" }} />
-                <div className="h-2 w-20 rounded" style={{ background: "rgba(255,255,255,0.06)" }} />
+          {activeTab === "About" && (
+            <div className="space-y-4">
+              <div>
+                <p className="text-xs font-semibold text-white mb-1">Bio</p>
+                <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
+                  {((profile as any)?.social_links as any)?.about_me || "No bio set yet. Use the About panel on the right to add one."}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-white mb-1">Business</p>
+                <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
+                  {((profile as any)?.social_links as any)?.about_business || "No business info set yet."}
+                </p>
               </div>
             </div>
-            <div className="space-y-2">
-              <div className="h-3 w-full rounded" style={{ background: "rgba(255,255,255,0.08)" }} />
-              <div className="h-3 w-4/5 rounded" style={{ background: "rgba(255,255,255,0.06)" }} />
-              <div className="h-3 w-3/5 rounded" style={{ background: "rgba(255,255,255,0.05)" }} />
-            </div>
-          </div>
-
-          <p className="text-sm font-semibold text-white">
-            Looks like there aren't any posts yet.
-          </p>
-          <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>
-            Be the first one to make a post!
-          </p>
+          )}
         </div>
 
         <div className="h-8" />
@@ -978,6 +895,7 @@ export function ProfileWorkspace() {
           onSave={handleSaveCoverCrop}
         />
       )}
+      <VerifiedModal open={verifiedOpen} onOpenChange={setVerifiedOpen} />
     </div>
   );
 }

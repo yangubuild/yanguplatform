@@ -6,10 +6,6 @@ import {
   Radio,
   GraduationCap,
   UserCog,
-  Star,
-  FileText,
-  Info,
-  BadgeCheck,
 } from "lucide-react";
 import chatIcon9 from "@/assets/chat_icon_9.png";
 
@@ -20,12 +16,8 @@ export type SidebarItem =
   | "friends"
   | "livestreaming"
   | "courses"
-  | "staff"
-  | "chat"
-  | "reviews"
-  | "posts"
-  | "about"
-  | "verified";
+  | "team"
+  | "chat";
 
 const NAV_ITEMS: { id: SidebarItem; label: string; icon?: any; customIcon?: boolean }[] = [
   { id: "home", label: "Home", icon: Home },
@@ -34,12 +26,8 @@ const NAV_ITEMS: { id: SidebarItem; label: string; icon?: any; customIcon?: bool
   { id: "friends", label: "Friends", icon: Users },
   { id: "livestreaming", label: "Livestreaming", icon: Radio },
   { id: "courses", label: "Courses", icon: GraduationCap },
-  { id: "staff", label: "Staff", icon: UserCog },
+  { id: "team", label: "Team", icon: UserCog },
   { id: "chat", label: "Chat", customIcon: true },
-  { id: "reviews", label: "Reviews", icon: Star },
-  { id: "posts", label: "Posts", icon: FileText },
-  { id: "about", label: "About", icon: Info },
-  { id: "verified", label: "Verified", icon: BadgeCheck },
 ];
 
 interface InnerPageSidebarProps {
