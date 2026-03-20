@@ -36,6 +36,8 @@ function getRightPanel(active: SidebarItem) {
       return <PostsPanel />;
     case "about":
       return <AboutPanel />;
+    case "courses":
+      return <CoursesPanel />;
     default:
       return <ClientChatPanel />;
   }
