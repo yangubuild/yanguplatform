@@ -1698,7 +1698,7 @@ export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<st
   community_feed: CommunityFeedPreview,
 };
 
-export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSelectSection, theme, pageSettings, liveSchemaOverride, onUpdateSectionField, onHideSection, onDeleteSection, onImageReplace, previewViewport, pages, onSwitchPage }: BuilderPreviewProps) {
+export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSelectSection, theme, pageSettings, liveSchemaOverride, onUpdateSectionField, onHideSection, onDeleteSection, onImageReplace, previewViewport, surfaceType, pages, onSwitchPage }: BuilderPreviewProps) {
   const t = theme || DEFAULT_THEME;
   const ps = pageSettings || DEFAULT_PAGE_SETTINGS;
   const isLayoutB = ps.layout === "layout_b";
