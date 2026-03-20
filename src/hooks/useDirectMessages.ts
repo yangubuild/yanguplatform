@@ -41,9 +41,9 @@ export function useConversationList() {
     enabled: !!user,
     queryFn: async () => {
       // Get latest message per conversation partner
-      const { data, error } = await supabase
+      const { data, error } = await (supabase
         .from("direct_messages" as any)
-        .select("*")
+        .select("*") as any)
         .or(`sender_id.eq.${user!.id},receiver_id.eq.${user!.id}`)
         .order("created_at", { ascending: false })
         .limit(200);
