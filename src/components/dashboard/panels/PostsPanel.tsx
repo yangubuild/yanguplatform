@@ -1,5 +1,6 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { ImagePlus, Video, Sparkles, Send, Heart, MessageSquare, ThumbsUp, Loader2, X } from "lucide-react";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import { useUserPosts, useCreatePost, useToggleReaction, uploadPostMedia, type Post } from "@/hooks/usePosts";
