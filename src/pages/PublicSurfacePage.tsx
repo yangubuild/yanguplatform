@@ -117,11 +117,14 @@ export default function PublicSurfacePage() {
       ) : (
         sections.map((section: BuilderPublishedSection, i: number) => {
           const Preview = PREVIEW_MAP[section.section_type];
+          const isHero = section.section_type === "hero" || section.section_type === "hero_banner";
           return (
             <div key={`${section.section_type}-${i}`} className="w-full">
               <div className={isInfluencer ? "px-4 py-4" : "max-w-[1200px] mx-auto px-4 sm:px-5 lg:px-6 xl:px-8 py-8 lg:py-12"}>
                 {Preview ? (
-                  <Preview schema={section.schema} />
+                  isHero
+                    ? <Preview schema={section.schema} {...({ surfaceType } as any)} />
+                    : <Preview schema={section.schema} />
                 ) : (
                   <div className="py-4 text-sm text-muted-foreground italic">
                     [{section.section_type}]

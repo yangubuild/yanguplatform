@@ -104,13 +104,15 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
         sections.map((section: BuilderPublishedSection, i: number) => {
           const Preview = PREVIEW_MAP[section.section_type];
           const fullBleed = isFullBleedSection(section.section_type);
+          const isHero = section.section_type === "hero" || section.section_type === "hero_banner";
+          const heroProps = isHero ? { surfaceType: surfaceType } as any : {};
 
-          if (fullBleed || section.section_type === "hero" || section.section_type === "hero_banner") {
+          if (fullBleed || isHero) {
             return (
               <div key={`${section.section_type}-${i}`} className="w-full">
                 <div className={isInfluencer ? "px-4" : "max-w-[1200px] mx-auto px-4 sm:px-5 lg:px-6 xl:px-8"}>
                   {Preview ? (
-                    <Preview schema={section.schema} />
+                    <Preview schema={section.schema} {...heroProps} />
                   ) : (
                     <div className="py-4 text-sm text-muted-foreground italic">
                       [{section.section_type}]

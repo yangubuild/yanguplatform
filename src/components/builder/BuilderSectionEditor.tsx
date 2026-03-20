@@ -1164,6 +1164,17 @@ export function BuilderSectionEditor({
     setDirty(true);
   }, [section.id, onLocalSchemaChange]);
 
+  // Deep-merge helper for nested objects like button_style — avoids stale closure bugs
+  const updateButtonStyle = useCallback((field: string, value: string) => {
+    setLocalSchema((prev) => {
+      const existing = (prev.button_style as Record<string, unknown>) || {};
+      const next = { ...prev, button_style: { ...existing, [field]: value } };
+      onLocalSchemaChange?.(section.id, next);
+      return next;
+    });
+    setDirty(true);
+  }, [section.id, onLocalSchemaChange]);
+
   const handleSave = async () => {
     await onSave(section.id, localSchema);
     setDirty(false);
@@ -1308,7 +1319,7 @@ export function BuilderSectionEditor({
               <input
                 type="color"
                 value={((localSchema.button_style as any)?.bg as string) || "#000000"}
-                onChange={(e) => update({ button_style: { ...((localSchema.button_style as any) || {}), bg: e.target.value } })}
+                onChange={(e) => updateButtonStyle("bg", e.target.value)}
                 className="h-9 w-full rounded-md border border-input bg-background px-1"
               />
             </div>
@@ -1317,7 +1328,7 @@ export function BuilderSectionEditor({
               <input
                 type="color"
                 value={((localSchema.button_style as any)?.text as string) || "#ffffff"}
-                onChange={(e) => update({ button_style: { ...((localSchema.button_style as any) || {}), text: e.target.value } })}
+                onChange={(e) => updateButtonStyle("text", e.target.value)}
                 className="h-9 w-full rounded-md border border-input bg-background px-1"
               />
             </div>
@@ -1328,7 +1339,7 @@ export function BuilderSectionEditor({
               <input
                 type="color"
                 value={((localSchema.button_style as any)?.border as string) || "#000000"}
-                onChange={(e) => update({ button_style: { ...((localSchema.button_style as any) || {}), border: e.target.value } })}
+                onChange={(e) => updateButtonStyle("border", e.target.value)}
                 className="h-9 w-full rounded-md border border-input bg-background px-1"
               />
             </div>
@@ -1336,7 +1347,7 @@ export function BuilderSectionEditor({
               <Label className="text-xs">Radius</Label>
               <Select
                 value={String(((localSchema.button_style as any)?.radius as string) || "8")}
-                onValueChange={(v) => update({ button_style: { ...((localSchema.button_style as any) || {}), radius: v } })}
+                onValueChange={(v) => updateButtonStyle("radius", v)}
               >
                 <SelectTrigger className="text-sm"><SelectValue /></SelectTrigger>
                 <SelectContent>
