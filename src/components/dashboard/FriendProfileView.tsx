@@ -401,13 +401,46 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
           {/* POSTS TAB */}
           {activeTab === "Posts" && (
             <div className="space-y-3">
-              <div className="flex flex-col items-center justify-center py-8">
-                <MessageSquare className="w-8 h-8 mb-2" style={{ color: "rgba(255,255,255,0.2)" }} />
-                <p className="text-sm font-semibold text-white mb-1">{name}'s Posts</p>
-                <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
-                  Posts from this user will appear here.
-                </p>
-              </div>
+              {postsLoading ? (
+                <div className="flex items-center justify-center py-10">
+                  <Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
+                </div>
+              ) : posts.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-8">
+                  <MessageSquare className="w-8 h-8 mb-2" style={{ color: "rgba(255,255,255,0.2)" }} />
+                  <p className="text-sm font-semibold text-white mb-1">{name}'s Posts</p>
+                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+                    No posts from this user yet.
+                  </p>
+                </div>
+              ) : (
+                posts.map((post) => (
+                  <div key={post.id} className="rounded-lg p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-7 h-7 rounded-full overflow-hidden shrink-0" style={{ background: "rgba(255,255,255,0.1)" }}>
+                        {post.author_avatar ? <img src={post.author_avatar} alt="" className="w-7 h-7 rounded-full object-cover" /> : <div className="w-7 h-7 flex items-center justify-center text-[10px] font-bold text-white/60">{(post.author_name||"U").slice(0,2).toUpperCase()}</div>}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-white truncate">{post.author_name}</p>
+                        {post.author_username && <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>@{post.author_username}</p>}
+                      </div>
+                      <span className="text-[10px] shrink-0" style={{ color: "rgba(255,255,255,0.3)" }}>{new Date(post.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <p className="text-sm text-white whitespace-pre-wrap mb-2">{post.content}</p>
+                    <div className="flex items-center gap-4">
+                      <button onClick={() => toggleReaction.mutate({ postId: post.id, reactionType: "like", isActive: !!post.user_liked })} className="flex items-center gap-1 text-[11px]" style={{ color: post.user_liked ? "#3b82f6" : "rgba(255,255,255,0.35)" }}>
+                        <ThumbsUp className="w-3.5 h-3.5" /> {post.like_count || ""}
+                      </button>
+                      <button onClick={() => toggleReaction.mutate({ postId: post.id, reactionType: "love", isActive: !!post.user_loved })} className="flex items-center gap-1 text-[11px]" style={{ color: post.user_loved ? "#ef4444" : "rgba(255,255,255,0.35)" }}>
+                        <Heart className="w-3.5 h-3.5" /> {post.love_count || ""}
+                      </button>
+                      <span className="flex items-center gap-1 text-[11px]" style={{ color: "rgba(255,255,255,0.35)" }}>
+                        <MessageSquare className="w-3.5 h-3.5" /> {post.comment_count || ""}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           )}
 
