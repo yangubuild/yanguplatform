@@ -27,7 +27,7 @@ export function useConversation(otherUserId: string | undefined) {
         .order("created_at", { ascending: true })
         .limit(100);
       if (error) throw error;
-      return (data ?? []) as any;
+      return (data ?? []) as unknown as DirectMessage[];
     },
     refetchInterval: 5000, // poll every 5s
   });
