@@ -9,6 +9,7 @@ import { ReviewsPanel } from "@/components/dashboard/panels/ReviewsPanel";
 import { PostsPanel } from "@/components/dashboard/panels/PostsPanel";
 import { AboutPanel } from "@/components/dashboard/panels/AboutPanel";
 import { GlobalChatPanel } from "@/components/dashboard/panels/GlobalChatPanel";
+import { CoursesPanel } from "@/components/dashboard/panels/CoursesPanel";
 import { ChatPanel } from "@/components/dashboard/panels/ChatPanel";
 import { VerifiedModal } from "@/components/dashboard/panels/VerifiedModal";
 import { useIsMobile } from "@/hooks/use-mobile";
