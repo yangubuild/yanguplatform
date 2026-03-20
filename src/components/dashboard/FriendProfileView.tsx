@@ -13,8 +13,11 @@ import {
   ExternalLink,
   Loader2,
   Users,
+  ThumbsUp,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useUserPosts, useToggleReaction } from "@/hooks/usePosts";
+import { useProfileReviews, useSubmitProfileReview } from "@/hooks/useProfileReviews";
 
 export interface FriendUser {
   id: string;
