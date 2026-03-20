@@ -1,5 +1,6 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { ImagePlus, Video, Sparkles, Send, Heart, MessageSquare, ThumbsUp, Loader2, X } from "lucide-react";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import { useUserPosts, useCreatePost, useToggleReaction, uploadPostMedia, type Post } from "@/hooks/usePosts";
@@ -11,6 +12,7 @@ export function PostsPanel() {
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [aiGenerating, setAiGenerating] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const { data: posts = [], isLoading } = useUserPosts(user?.id);
@@ -65,6 +67,27 @@ export function PostsPanel() {
       setUploading(false);
     }
   };
+
+  const handleAiGenerate = useCallback(async () => {
+    setAiGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("ada-chat", {
+        body: {
+          messages: [{ role: "user", content: "Write a short, engaging social media post for a business owner sharing an update, product, or service. Keep it under 40 words, casual but professional. Return ONLY the post text, no quotes." }],
+          model: "google/gemini-2.5-flash-lite",
+          max_tokens: 80,
+        },
+      });
+      if (error) throw error;
+      const reply = (data?.reply || data?.content || "").trim();
+      if (reply) setText(reply);
+      else toast.error("No text generated");
+    } catch {
+      toast.info("AI generation unavailable — type manually");
+    } finally {
+      setAiGenerating(false);
+    }
+  }, []);
 
   const isPosting = createPost.isPending || uploading;
   const canPost = text.trim() || mediaFiles.length > 0;
@@ -152,6 +175,15 @@ export function PostsPanel() {
                   title="Add video"
                 >
                   <Video className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={handleAiGenerate}
+                  disabled={aiGenerating}
+                  className="p-1.5 rounded-md hover:bg-warning/10 transition-colors disabled:opacity-50"
+                  style={{ color: "#f59e0b" }}
+                  title="Generate post text with AI"
+                >
+                  {aiGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                 </button>
               </div>
               <button
