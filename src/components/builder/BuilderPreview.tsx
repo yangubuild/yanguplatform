@@ -456,7 +456,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection, surfaceType }:
           )}
           {ctaText && (
             <div className="mt-4">
-              <EditableText value={ctaText} field="cta_text" className="inline-block px-5 py-2 rounded-full bg-white text-black text-xs font-medium yangu-cta" tag="span" canvas={canvas} />
+              <EditableText value={ctaText} field="cta_text" style={ctaInlineStyle} className={`inline-block px-5 py-2 text-xs font-medium yangu-cta ${hasCustomBtnStyle ? "" : "rounded-full bg-white text-black"}`} tag="span" canvas={canvas} />
             </div>
           )}
         </div>
