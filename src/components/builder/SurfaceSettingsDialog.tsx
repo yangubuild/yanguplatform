@@ -53,13 +53,15 @@ export function SurfaceSettingsDialog({
   const [showCropDialog, setShowCropDialog] = useState(false);
   const [cropImageSrc, setCropImageSrc] = useState("");
 
-  // Reset on open
-  useState(() => {
-    setSeoTitle(initial.seo_title || "");
-    setSeoDescription(initial.seo_description || "");
-    setFaviconUrl(initial.favicon_url || "");
-    setCoverImageUrl(initial.cover_image_url || "");
-  });
+  // Reset fields when dialog re-opens with new initial values
+  useEffect(() => {
+    if (open) {
+      setSeoTitle(initial.seo_title || "");
+      setSeoDescription(initial.seo_description || "");
+      setFaviconUrl(initial.favicon_url || "");
+      setCoverImageUrl(initial.cover_image_url || "");
+    }
+  }, [open, initial.seo_title, initial.seo_description, initial.favicon_url, initial.cover_image_url]);
 
   const handleUpload = useCallback(
     async (file: File, type: "favicon" | "cover") => {

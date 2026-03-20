@@ -182,6 +182,33 @@ export function BuilderPublishModal({
   const [coverImageUrl, setCoverImageUrl] = useState("");
   const [uploadingFavicon, setUploadingFavicon] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
+  const [metaLoaded, setMetaLoaded] = useState(false);
+
+  // Load existing surface metadata when modal opens
+  useEffect(() => {
+    if (!open || metaLoaded) return;
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from("builder_surfaces")
+          .select("seo_title, seo_description, favicon_url, cover_image_url")
+          .eq("id", surfaceId)
+          .single();
+        if (data) {
+          setSeoTitle((data as any).seo_title || surfaceTitle);
+          setSeoDescription((data as any).seo_description || "");
+          setFaviconUrl((data as any).favicon_url || "");
+          setCoverImageUrl((data as any).cover_image_url || "");
+        }
+        setMetaLoaded(true);
+      } catch {}
+    })();
+  }, [open, surfaceId, surfaceTitle, metaLoaded]);
+
+  // Reset metaLoaded when modal closes so it reloads next time
+  useEffect(() => {
+    if (!open) setMetaLoaded(false);
+  }, [open]);
 
   const isSuccess = publishResult?.ok === true;
   const slugDisplay = customSlug || defaultSlug || "";
