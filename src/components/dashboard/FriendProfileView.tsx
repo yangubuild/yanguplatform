@@ -386,6 +386,13 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
                     className="rounded-lg p-3"
                     style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
                   >
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <div className="w-5 h-5 rounded-full overflow-hidden shrink-0" style={{ background: "rgba(255,255,255,0.1)" }}>
+                        {review.reviewer_avatar ? <img src={review.reviewer_avatar} alt="" className="w-5 h-5 rounded-full object-cover" /> : <div className="w-5 h-5 flex items-center justify-center text-[8px] font-bold text-white/50">{(review.reviewer_name||"U").slice(0,2).toUpperCase()}</div>}
+                      </div>
+                      <span className="text-[11px] font-medium text-white">{review.reviewer_name}</span>
+                      {review.reviewer_username && <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.3)" }}>@{review.reviewer_username}</span>}
+                    </div>
                     {renderStars(review.rating)}
                     {review.title && <p className="text-sm font-medium text-white mt-1.5">{review.title}</p>}
                     {review.body && <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.5)" }}>{review.body}</p>}
