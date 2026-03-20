@@ -6,20 +6,20 @@ const TICK_OPTIONS = [
   {
     id: "blue",
     label: "Blue Tick",
-    description: "Verified identity — confirms you are who you say you are.",
+    description: "Verified Creator / Identity — confirms you are who you say you are.",
     color: "#3b82f6",
-  },
-  {
-    id: "green",
-    label: "Green Tick",
-    description: "Verified business — confirms your business is registered and operating.",
-    color: "#22c55e",
   },
   {
     id: "orange",
     label: "Orange Tick",
-    description: "Premium creator — for top-tier creators and influencers.",
-    color: "#f97316",
+    description: "Verified Business — confirms your business is registered and operating.",
+    color: "#b5622a",
+  },
+  {
+    id: "green",
+    label: "Green Tick",
+    description: "Verified Organization / Community — for registered organizations and communities.",
+    color: "#16a34a",
   },
 ];
 
