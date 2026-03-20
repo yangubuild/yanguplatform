@@ -185,6 +185,16 @@ function HeroPreview({ schema, canvas, sections, onSelectSection, surfaceType }:
   const isBoldUppercase = typographyStyle === "bold_uppercase";
   const isEditorialLarge = typographyStyle === "editorial_large";
 
+  // ─── Button Style from schema (single source of truth) ───
+  const btnStyle = (schema.button_style as { bg?: string; text?: string; border?: string; radius?: string }) || {};
+  const ctaInlineStyle: React.CSSProperties = {
+    ...(btnStyle.bg ? { backgroundColor: btnStyle.bg } : {}),
+    ...(btnStyle.text ? { color: btnStyle.text } : {}),
+    ...(btnStyle.border ? { borderColor: btnStyle.border, borderWidth: "1px", borderStyle: "solid" } : {}),
+    ...(btnStyle.radius != null ? { borderRadius: `${btnStyle.radius}px` } : {}),
+  };
+  const hasCustomBtnStyle = !!(btnStyle.bg || btnStyle.text || btnStyle.border || btnStyle.radius != null);
+
   // ─── Link-Bio Hero Variants ───
   const isLinkBioProfile = layoutVariant === "link_bio_profile";
   const isLinkBioMediaHero = layoutVariant === "link_bio_media_hero";
