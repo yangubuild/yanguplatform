@@ -12,6 +12,7 @@ import { CanvasItemControls } from "./canvas/CanvasItemControls";
 import { CanvasHints } from "./canvas/CanvasHints";
 import { CanvasEditableText } from "./canvas/CanvasEditableText";
 import { CanvasImagePopover } from "./canvas/CanvasImagePopover";
+import { HeroImagePositioner } from "./canvas/HeroImagePositioner";
 
 interface CanvasCallbacks {
   sectionId: string;
@@ -163,11 +164,13 @@ function EditableImage({
 // ─── Section Renderers ───
 
 function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks; sections?: EditorSection[]; onSelectSection?: (id: string) => void }) {
-  const media = (schema.media as { type?: string; url?: string; fit?: string }) || {};
+  const media = (schema.media as { type?: string; url?: string; fit?: string; position?: string; zoom?: number }) || {};
   const mediaType = media.type || "none";
   const mediaUrl = media.url || "";
   const resolvedMediaUrl = mediaUrl || demoImage(0);
   const mediaFit = media.fit || "contain";
+  const mediaPosition = media.position || "50% 50%";
+  const mediaZoom = media.zoom ?? 1;
   const ctaText = (schema.cta_text as string) || "";
   const ctaHref = (schema.cta_href as string) || "";
   const layoutVariant = (schema.layout_variant as string) || "";
@@ -235,7 +238,25 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
       return (
         <div className="relative overflow-hidden" style={{ backgroundColor: bgColor || "hsl(220 15% 12%)" }}>
           <div className="aspect-[4/5] relative overflow-hidden">
-            <EditableImage src={resolvedMediaUrl} alt="Creator" className="w-full h-full object-cover" field="media.url" canvas={canvas} />
+            {canvas?.onUpdateField ? (
+              <HeroImagePositioner
+                src={resolvedMediaUrl}
+                alt="Creator"
+                className="w-full h-full"
+                position={mediaPosition}
+                zoom={mediaZoom}
+                onPositionChange={(p) => canvas.onUpdateField!(canvas.sectionId, "media.position", p)}
+                onZoomChange={(z) => canvas.onUpdateField!(canvas.sectionId, "media.zoom", z)}
+                onImageReplace={() => {
+                  const input = document.createElement("input");
+                  input.type = "file"; input.accept = "image/*";
+                  input.onchange = (ev) => { const file = (ev.target as HTMLInputElement).files?.[0]; if (file) { const reader = new FileReader(); reader.onload = () => canvas.onImageReplace?.(canvas.sectionId, "media.url", reader.result as string, "upload"); reader.readAsDataURL(file); } };
+                  input.click();
+                }}
+              />
+            ) : (
+              <img src={resolvedMediaUrl} alt="Creator" className="w-full h-full object-cover" style={{ objectPosition: mediaPosition, transform: mediaZoom > 1 ? `scale(${mediaZoom})` : undefined, transformOrigin: mediaPosition }} />
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
               {headline && <EditableText value={headline} field="headline" className="text-2xl font-bold" tag="h1" canvas={canvas} />}
@@ -348,7 +369,25 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
           )}
         </div>
         <div className="w-2/5 bg-muted overflow-hidden">
-          <EditableImage src={resolvedMediaUrl} alt="Hero visual" className="w-full h-full object-cover" field="media.url" canvas={canvas} />
+          {canvas?.onUpdateField ? (
+            <HeroImagePositioner
+              src={resolvedMediaUrl}
+              alt="Hero visual"
+              className="w-full h-full"
+              position={mediaPosition}
+              zoom={mediaZoom}
+              onPositionChange={(p) => canvas.onUpdateField!(canvas.sectionId, "media.position", p)}
+              onZoomChange={(z) => canvas.onUpdateField!(canvas.sectionId, "media.zoom", z)}
+              onImageReplace={() => {
+                const input = document.createElement("input");
+                input.type = "file"; input.accept = "image/*";
+                input.onchange = (ev) => { const file = (ev.target as HTMLInputElement).files?.[0]; if (file) { const reader = new FileReader(); reader.onload = () => canvas.onImageReplace?.(canvas.sectionId, "media.url", reader.result as string, "upload"); reader.readAsDataURL(file); } };
+                input.click();
+              }}
+            />
+          ) : (
+            <img src={resolvedMediaUrl} alt="Hero visual" className="w-full h-full object-cover" style={{ objectPosition: mediaPosition, transform: mediaZoom > 1 ? `scale(${mediaZoom})` : undefined, transformOrigin: mediaPosition }} />
+          )}
         </div>
       </div>
     );
@@ -376,9 +415,42 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
 
   return (
     <div className="py-12 px-6 text-center rounded-lg relative overflow-hidden" style={{ minHeight: "260px", backgroundColor: bgColor || "hsl(var(--accent) / 0.08)" }}>
-      {hasVisualMedia && (
-        <EditableImage src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-70" field="media.url" canvas={canvas} />
-      )}
+      {hasVisualMedia && canvas?.onUpdateField ? (
+        <HeroImagePositioner
+          src={resolvedMediaUrl}
+          alt="Hero visual"
+          className="absolute inset-0 w-full h-full opacity-70"
+          position={mediaPosition}
+          zoom={mediaZoom}
+          onPositionChange={(p) => canvas.onUpdateField!(canvas.sectionId, "media.position", p)}
+          onZoomChange={(z) => canvas.onUpdateField!(canvas.sectionId, "media.zoom", z)}
+          onImageReplace={() => {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.accept = "image/*";
+            input.onchange = (ev) => {
+              const file = (ev.target as HTMLInputElement).files?.[0];
+              if (file) {
+                const reader = new FileReader();
+                reader.onload = () => canvas.onImageReplace?.(canvas.sectionId, "media.url", reader.result as string, "upload");
+                reader.readAsDataURL(file);
+              }
+            };
+            input.click();
+          }}
+        />
+      ) : hasVisualMedia ? (
+        <img
+          src={resolvedMediaUrl}
+          alt="Hero visual"
+          className="absolute inset-0 w-full h-full object-cover opacity-70"
+          style={{
+            objectPosition: mediaPosition,
+            transform: mediaZoom > 1 ? `scale(${mediaZoom})` : undefined,
+            transformOrigin: mediaPosition,
+          }}
+        />
+      ) : null}
       {mediaType === "video" && mediaUrl && (() => {
         const ytId = isYouTubeUrl(mediaUrl);
         return ytId ? (
