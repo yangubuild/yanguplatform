@@ -199,18 +199,18 @@ export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, 
                 <span className="text-[11px] text-muted-foreground truncate block">{secondary}</span>
               )}
             </div>
-            {/* Core badge */}
+            {/* Starter badge */}
             {isCore && !isMissing && (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded shrink-0">
-                    Core
+                    Starter
                   </span>
                 </TooltipTrigger>
                 <TooltipContent side="left" className="text-xs">
                   {isMainContent
-                    ? "Click to switch the main content type"
-                    : "Core sections can be hidden but not deleted"}
+                    ? "Default starter section — movable, deletable, and swappable"
+                    : "Default starter section — movable and deletable"}
                 </TooltipContent>
               </Tooltip>
             )}
@@ -242,8 +242,8 @@ export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, 
             {!isMissing && section.is_visible && (
               <Eye className="h-3.5 w-3.5 text-muted-foreground/50" />
             )}
-            {/* Delete button — only for non-core sections */}
-            {!isCore && !isMissing && onDelete && (
+            {/* Delete button — available for every persisted section */}
+            {!isMissing && onDelete && (
               <Button
                 variant="ghost"
                 size="icon"
