@@ -895,6 +895,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
           onSave={handleSaveCoverCrop}
         />
       )}
+      <VerifiedModal open={verifiedOpen} onOpenChange={setVerifiedOpen} />
     </div>
   );
 }
