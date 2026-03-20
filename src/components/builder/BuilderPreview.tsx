@@ -358,7 +358,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
     return (
       <div className="py-12 px-6 text-center rounded-lg relative overflow-hidden" style={{ backgroundColor: bgColor || "hsl(0 0% 8%)" }}>
         {mediaType !== "video" && resolvedMediaUrl && (
-          <EditableImage src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-40" field="media.url" canvas={canvas} />
+          <EditableImage src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-70" field="media.url" canvas={canvas} />
         )}
         <div className="relative z-10 max-w-2xl mx-auto">
           <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className={`font-bold text-white ${isBoldUppercase ? "text-2xl tracking-[0.15em] uppercase" : "text-2xl"}`} tag="h1" canvas={canvas} />
@@ -1400,9 +1400,10 @@ function HeaderPreview({
   const layoutVariant = (schema.layout_variant as string) || "";
   const bgStyle = (schema.background_style as string) || "";
   const isDark = bgStyle === "dark";
-  const sizeMap: Record<string, string> = { small: "h-8 w-8", medium: "h-10 w-10", large: "h-14 w-14" };
-  const isCenterLogo = logoPosition === "center" || layoutVariant === "nav_split";
+  const sizeMap: Record<string, string> = { small: "h-10 w-10", medium: "h-16 w-16", large: "h-24 w-24" };
+  // logo_position takes priority over layout_variant to prevent double rendering
   const isRightLogo = logoPosition === "right";
+  const isCenterLogo = !isRightLogo && (logoPosition === "center" || layoutVariant === "nav_split");
 
   const handleNavClick = (e: React.MouseEvent, label: string) => {
     e.stopPropagation();
@@ -1447,15 +1448,15 @@ function HeaderPreview({
   );
 
   return (
-    <div className={`w-full py-2.5 px-4 flex items-center ${isDark ? "bg-foreground/90" : ""}`}>
+    <div className={`w-full py-2.5 px-4 flex items-center overflow-hidden ${isDark ? "bg-foreground/90" : ""}`}>
       {/* LEFT position: logo first, then nav, then icons */}
       {!isCenterLogo && !isRightLogo && (
         <>
           <div className="flex items-center gap-2 flex-1 min-w-0">
             {logoBlock}
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            {navItems.length > 0 && navItems.slice(0, 3).map((item, i) => renderNavItem(item, i))}
+          <div className="flex items-center gap-2 shrink-0 overflow-hidden">
+            {navItems.length > 0 && navItems.slice(0, 4).map((item, i) => renderNavItem(item, i))}
             {showSearch && <span className="text-sm">🔍</span>}
             {showCart && <span className="text-sm">🛒</span>}
           </div>
@@ -1464,13 +1465,13 @@ function HeaderPreview({
       {/* CENTER position: left nav, logo center, right nav/icons */}
       {isCenterLogo && (
         <>
-          <div className="flex gap-2 flex-1 justify-start min-w-0">
+          <div className="flex gap-2 flex-1 justify-start min-w-0 overflow-hidden">
             {navItems.slice(0, 3).map((item, i) => renderNavItem(item, i))}
           </div>
           <div className="flex items-center justify-center shrink-0 px-3">
             {logoBlock}
           </div>
-          <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
+          <div className="flex items-center gap-2 flex-1 justify-end min-w-0 overflow-hidden">
             {(schema.nav_items_right as string[] || []).slice(0, 2).map((item, i) => renderNavItem(item, i))}
             {showSearch && <span className="text-sm">🔍</span>}
             {showCart && <span className="text-sm">🛒</span>}
@@ -1480,8 +1481,8 @@ function HeaderPreview({
       {/* RIGHT position: nav/icons grouped left, logo forced to far right */}
       {isRightLogo && (
         <>
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            {navItems.length > 0 && navItems.slice(0, 3).map((item, i) => renderNavItem(item, i))}
+          <div className="flex items-center gap-2 flex-1 min-w-0 overflow-hidden">
+            {navItems.length > 0 && navItems.slice(0, 4).map((item, i) => renderNavItem(item, i))}
             {showSearch && <span className="text-sm">🔍</span>}
             {showCart && <span className="text-sm">🛒</span>}
           </div>
