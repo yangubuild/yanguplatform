@@ -369,7 +369,25 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
           )}
         </div>
         <div className="w-2/5 bg-muted overflow-hidden">
-          <EditableImage src={resolvedMediaUrl} alt="Hero visual" className="w-full h-full object-cover" field="media.url" canvas={canvas} />
+          {canvas?.onUpdateField ? (
+            <HeroImagePositioner
+              src={resolvedMediaUrl}
+              alt="Hero visual"
+              className="w-full h-full"
+              position={mediaPosition}
+              zoom={mediaZoom}
+              onPositionChange={(p) => canvas.onUpdateField!(canvas.sectionId, "media.position", p)}
+              onZoomChange={(z) => canvas.onUpdateField!(canvas.sectionId, "media.zoom", z)}
+              onImageReplace={() => {
+                const input = document.createElement("input");
+                input.type = "file"; input.accept = "image/*";
+                input.onchange = (ev) => { const file = (ev.target as HTMLInputElement).files?.[0]; if (file) { const reader = new FileReader(); reader.onload = () => canvas.onImageReplace?.(canvas.sectionId, "media.url", reader.result as string, "upload"); reader.readAsDataURL(file); } };
+                input.click();
+              }}
+            />
+          ) : (
+            <img src={resolvedMediaUrl} alt="Hero visual" className="w-full h-full object-cover" style={{ objectPosition: mediaPosition, transform: mediaZoom > 1 ? `scale(${mediaZoom})` : undefined, transformOrigin: mediaPosition }} />
+          )}
         </div>
       </div>
     );
