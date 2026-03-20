@@ -90,6 +90,7 @@ export function CanvasEditableText({
         onClick={handleClick}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
+        style={style}
         className={`${className} outline-none transition-all ${
           editing
             ? "ring-1 ring-primary/50 rounded px-1 -mx-1 bg-primary/5"
