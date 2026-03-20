@@ -238,7 +238,25 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
       return (
         <div className="relative overflow-hidden" style={{ backgroundColor: bgColor || "hsl(220 15% 12%)" }}>
           <div className="aspect-[4/5] relative overflow-hidden">
-            <EditableImage src={resolvedMediaUrl} alt="Creator" className="w-full h-full object-cover" field="media.url" canvas={canvas} />
+            {canvas?.onUpdateField ? (
+              <HeroImagePositioner
+                src={resolvedMediaUrl}
+                alt="Creator"
+                className="w-full h-full"
+                position={mediaPosition}
+                zoom={mediaZoom}
+                onPositionChange={(p) => canvas.onUpdateField!(canvas.sectionId, "media.position", p)}
+                onZoomChange={(z) => canvas.onUpdateField!(canvas.sectionId, "media.zoom", z)}
+                onImageReplace={() => {
+                  const input = document.createElement("input");
+                  input.type = "file"; input.accept = "image/*";
+                  input.onchange = (ev) => { const file = (ev.target as HTMLInputElement).files?.[0]; if (file) { const reader = new FileReader(); reader.onload = () => canvas.onImageReplace?.(canvas.sectionId, "media.url", reader.result as string, "upload"); reader.readAsDataURL(file); } };
+                  input.click();
+                }}
+              />
+            ) : (
+              <img src={resolvedMediaUrl} alt="Creator" className="w-full h-full object-cover" style={{ objectPosition: mediaPosition, transform: mediaZoom > 1 ? `scale(${mediaZoom})` : undefined, transformOrigin: mediaPosition }} />
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
               {headline && <EditableText value={headline} field="headline" className="text-2xl font-bold" tag="h1" canvas={canvas} />}
