@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Star, Send } from "lucide-react";
+import { Star, Send, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
-import { toast } from "sonner";
+import { useProfileReviews, useSubmitProfileReview } from "@/hooks/useProfileReviews";
 import type { FriendUser } from "../FriendProfileView";
 
 interface Props {
@@ -12,16 +12,30 @@ interface Props {
 export function FriendReviewsRightPanel({ friend }: Props) {
   const { profile } = useAuth();
   const [rating, setRating] = useState(0);
+  const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const friendName = friend.display_name || friend.username || "Unnamed";
   const avatarUrl = profile ? resolveAvatarUrl(profile) : null;
   const reviewerName = profile?.display_name || profile?.username || "You";
 
+  const { data, isLoading } = useProfileReviews(friend.id);
+  const submitReview = useSubmitProfileReview();
+
+  const avgRating = data?.avgRating ?? 0;
+  const totalCount = data?.totalCount ?? 0;
+
   const handleSubmit = () => {
-    if (rating === 0) { toast.error("Please select a rating"); return; }
-    toast.success("Review submitted");
-    setRating(0);
-    setText("");
+    if (rating === 0) return;
+    submitReview.mutate(
+      { targetUserId: friend.id, rating, title, body: text },
+      {
+        onSuccess: () => {
+          setRating(0);
+          setTitle("");
+          setText("");
+        },
+      }
+    );
   };
 
   return (
@@ -43,10 +57,23 @@ export function FriendReviewsRightPanel({ friend }: Props) {
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-0.5">
               {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className="w-4 h-4" style={{ color: "rgba(255,255,255,0.15)", fill: "transparent" }} />
+                <Star
+                  key={i}
+                  className="w-4 h-4"
+                  style={{
+                    color: i < Math.round(avgRating) ? "#f59e0b" : "rgba(255,255,255,0.15)",
+                    fill: i < Math.round(avgRating) ? "#f59e0b" : "transparent",
+                  }}
+                />
               ))}
             </div>
-            <span className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>No ratings yet</span>
+            {isLoading ? (
+              <Loader2 className="w-3 h-3 animate-spin" style={{ color: "rgba(255,255,255,0.3)" }} />
+            ) : (
+              <span className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+                {totalCount > 0 ? `${avgRating.toFixed(1)} (${totalCount} review${totalCount !== 1 ? "s" : ""})` : "No ratings yet"}
+              </span>
+            )}
           </div>
         </div>
 
@@ -84,6 +111,15 @@ export function FriendReviewsRightPanel({ friend }: Props) {
             ))}
           </div>
 
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Review title (optional)"
+            className="w-full bg-transparent text-sm text-white placeholder:text-white/25 outline-none mb-2 rounded-lg px-3 py-2"
+            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
+          />
+
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -94,14 +130,14 @@ export function FriendReviewsRightPanel({ friend }: Props) {
 
           <button
             onClick={handleSubmit}
-            disabled={rating === 0}
+            disabled={rating === 0 || submitReview.isPending}
             className="mt-2 w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-semibold"
             style={{
               background: rating > 0 ? "linear-gradient(135deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.08)",
               color: rating > 0 ? "#fff" : "rgba(255,255,255,0.35)",
             }}
           >
-            <Send className="w-3.5 h-3.5" /> Submit Review
+            {submitReview.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />} Submit Review
           </button>
         </div>
       </div>
