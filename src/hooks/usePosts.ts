@@ -49,7 +49,6 @@ export function useUserPosts(userId: string | undefined) {
       const posts = (data ?? []) as Post[];
       if (posts.length === 0) return [];
 
-      // Fetch author profiles
       const { data: profiles } = await supabase
         .from("profiles")
         .select("id, display_name, avatar_url, username")
@@ -57,7 +56,6 @@ export function useUserPosts(userId: string | undefined) {
         .limit(1);
       const profile = profiles?.[0];
 
-      // Fetch reaction counts and comment counts
       const postIds = posts.map(p => p.id);
       const [commentsRes, reactionsRes] = await Promise.all([
         supabase.from("post_comments").select("post_id").in("post_id", postIds),
@@ -117,7 +115,6 @@ export function usePostComments(postId: string | undefined) {
       const comments = (data ?? []) as PostComment[];
       if (comments.length === 0) return [];
 
-      // Fetch author profiles
       const userIds = [...new Set(comments.map(c => c.user_id))];
       const { data: profiles } = await supabase
         .from("profiles")
@@ -133,6 +130,20 @@ export function usePostComments(postId: string | undefined) {
       }));
     },
   });
+}
+
+/**
+ * Upload a file to post-media bucket, returns public URL
+ */
+export async function uploadPostMedia(userId: string, file: File): Promise<string> {
+  const ext = file.name.split(".").pop() || "jpg";
+  const path = `${userId}/${Date.now()}.${ext}`;
+  const { error } = await supabase.storage
+    .from("post-media")
+    .upload(path, file, { cacheControl: "3600", upsert: false });
+  if (error) throw error;
+  const { data } = supabase.storage.from("post-media").getPublicUrl(path);
+  return data.publicUrl;
 }
 
 export function useCreatePost() {
@@ -159,7 +170,7 @@ export function useCreatePost() {
       queryClient.invalidateQueries({ queryKey: ["user-posts", user?.id] });
       toast.success("Post published!");
     },
-    onError: () => toast.error("Failed to create post"),
+    onError: (err: Error) => toast.error(err.message || "Failed to create post"),
   });
 }
 
@@ -181,6 +192,7 @@ export function useCreateComment() {
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: ["post-comments", vars.postId] });
       queryClient.invalidateQueries({ queryKey: ["user-posts"] });
+      toast.success("Comment added!");
     },
     onError: () => toast.error("Failed to add comment"),
   });
