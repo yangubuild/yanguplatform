@@ -33,6 +33,8 @@ interface BuilderPreviewProps {
   onDeleteSection?: (sectionId: string) => void;
   onImageReplace?: (sectionId: string, fieldPath: string, url: string, source: string) => void;
   previewViewport?: "desktop" | "mobile";
+  /** Surface type — used to enable engine-specific canvas features */
+  surfaceType?: string;
   /** All pages for the surface — used for page-based header nav links */
   pages?: Array<{ id: string; slug: string; title: string }>;
   /** Called when a header nav item targets a different page */
@@ -163,12 +165,13 @@ function EditableImage({
 
 // ─── Section Renderers ───
 
-function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks; sections?: EditorSection[]; onSelectSection?: (id: string) => void }) {
+function HeroPreview({ schema, canvas, sections, onSelectSection, surfaceType }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks; sections?: EditorSection[]; onSelectSection?: (id: string) => void; surfaceType?: string }) {
   const media = (schema.media as { type?: string; url?: string; fit?: string }) || {};
   const mediaType = media.type || "none";
   const mediaUrl = media.url || "";
   const resolvedMediaUrl = mediaUrl || demoImage(0);
   const mediaFit = media.fit || "contain";
+  const isCommunity = surfaceType === "community_group" || surfaceType === "community_listing";
   const ctaText = (schema.cta_text as string) || "";
   const ctaHref = (schema.cta_href as string) || "";
   const layoutVariant = (schema.layout_variant as string) || "";
@@ -236,7 +239,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
       return (
         <div className="relative overflow-hidden" style={{ backgroundColor: bgColor || "hsl(220 15% 12%)" }}>
           <div className="aspect-[4/5] relative overflow-hidden">
-            {canvas?.onUpdateField ? (
+            {isCommunity && canvas?.onUpdateField ? (
               <HeroImagePositioner
                 src={resolvedMediaUrl}
                 alt="Creator"
@@ -250,7 +253,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
                 }}
               />
             ) : (
-              <img src={resolvedMediaUrl} alt="Creator" className="w-full h-full object-cover" />
+              <EditableImage src={resolvedMediaUrl} alt="Creator" className="w-full h-full object-cover" field="media.url" canvas={canvas} />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
@@ -364,7 +367,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
           )}
         </div>
         <div className="w-2/5 bg-muted overflow-hidden">
-          {canvas?.onUpdateField ? (
+          {isCommunity && canvas?.onUpdateField ? (
             <HeroImagePositioner
               src={resolvedMediaUrl}
               alt="Hero visual"
@@ -378,7 +381,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
               }}
             />
           ) : (
-            <img src={resolvedMediaUrl} alt="Hero visual" className="w-full h-full object-cover" />
+            <EditableImage src={resolvedMediaUrl} alt="Hero visual" className="w-full h-full object-cover" field="media.url" canvas={canvas} />
           )}
         </div>
       </div>
@@ -407,7 +410,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
 
   return (
     <div className="py-12 px-6 text-center rounded-lg relative overflow-hidden" style={{ minHeight: "260px", backgroundColor: bgColor || "hsl(var(--accent) / 0.08)" }}>
-      {hasVisualMedia && canvas?.onUpdateField ? (
+      {hasVisualMedia && isCommunity && canvas?.onUpdateField ? (
         <HeroImagePositioner
           src={resolvedMediaUrl}
           alt="Hero visual"
@@ -429,7 +432,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
           }}
         />
       ) : hasVisualMedia ? (
-        <img src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-70" />
+        <EditableImage src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-70" field="media.url" canvas={canvas} />
       ) : null}
       {mediaType === "video" && mediaUrl && (() => {
         const ytId = isYouTubeUrl(mediaUrl);
@@ -1696,7 +1699,7 @@ export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<st
   community_feed: CommunityFeedPreview,
 };
 
-export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSelectSection, theme, pageSettings, liveSchemaOverride, onUpdateSectionField, onHideSection, onDeleteSection, onImageReplace, previewViewport, pages, onSwitchPage }: BuilderPreviewProps) {
+export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSelectSection, theme, pageSettings, liveSchemaOverride, onUpdateSectionField, onHideSection, onDeleteSection, onImageReplace, previewViewport, surfaceType, pages, onSwitchPage }: BuilderPreviewProps) {
   const t = theme || DEFAULT_THEME;
   const ps = pageSettings || DEFAULT_PAGE_SETTINGS;
   const isLayoutB = ps.layout === "layout_b";
@@ -1801,7 +1804,7 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
                   )}
                   {Preview ? (
                     (section.section_type === "hero" || section.section_type === "hero_banner")
-                      ? <HeroPreview schema={displaySchema} canvas={canvas} sections={sections} onSelectSection={onSelectSection} />
+                      ? <HeroPreview schema={displaySchema} canvas={canvas} sections={sections} onSelectSection={onSelectSection} surfaceType={surfaceType} />
                       : (section.section_type === "header" || section.section_type === "header_logo")
                         ? <HeaderPreview schema={displaySchema} sections={sections} onSelectSection={onSelectSection} pages={pages} onSwitchPage={onSwitchPage} />
                         : CANVAS_AWARE_TYPES.has(section.section_type)

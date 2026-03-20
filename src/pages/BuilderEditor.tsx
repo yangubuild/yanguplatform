@@ -329,6 +329,7 @@ export default function BuilderEditor() {
             pageSettings={livePageSettings || pageSettings}
             liveSchemaOverride={liveSchemaOverride}
             previewViewport={previewViewport}
+            surfaceType={surfaceType}
             pages={editorState.pages}
             onSwitchPage={setActivePageId}
             onUpdateSectionField={async (sectionId, fieldPath, value) => {
