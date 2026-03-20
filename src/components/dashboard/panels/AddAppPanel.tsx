@@ -139,7 +139,7 @@ export function AddAppPanel() {
           </p>
         ) : (
           filtered.map((app) => {
-            const initials = app.name.slice(0, 2).toUpperCase();
+            const icon = resolveIcon(app.slug) || (app.icon ?? null);
             return (
               <div
                 key={app.id}
@@ -149,12 +149,28 @@ export function AddAppPanel() {
                   className="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
                   style={{ background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)" }}
                 >
-                  {app.icon ? (
-                    <img src={app.icon} alt="" className="w-10 h-10 rounded-xl object-cover" />
+                  {icon ? (
+                    <img src={icon} alt={app.name} className="w-10 h-10 rounded-xl object-cover" />
                   ) : (
-                    initials
+                    app.name.slice(0, 2).toUpperCase()
                   )}
                 </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white truncate">{app.name}</p>
+                  {app.short_description && (
+                    <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.35)" }}>
+                      {app.short_description}
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={() => handleAddApp(app)}
+                  className="px-3 py-1 rounded-md text-xs font-semibold shrink-0"
+                  style={{ background: "#22c55e", color: "#fff" }}
+                >
+                  Add
+                </button>
+              </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-white truncate">{app.name}</p>
                   {app.short_description && (
