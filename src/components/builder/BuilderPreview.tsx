@@ -367,7 +367,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection, surfaceType }:
           )}
         </div>
         <div className="w-2/5 bg-muted overflow-hidden">
-          {canvas?.onUpdateField ? (
+          {isCommunity && canvas?.onUpdateField ? (
             <HeroImagePositioner
               src={resolvedMediaUrl}
               alt="Hero visual"
@@ -381,7 +381,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection, surfaceType }:
               }}
             />
           ) : (
-            <img src={resolvedMediaUrl} alt="Hero visual" className="w-full h-full object-cover" />
+            <EditableImage src={resolvedMediaUrl} alt="Hero visual" className="w-full h-full object-cover" field="media.url" canvas={canvas} />
           )}
         </div>
       </div>
