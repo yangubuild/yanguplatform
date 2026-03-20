@@ -121,10 +121,10 @@ function ItemCardWrapper({ children, canvas, fieldPath, items, index, className 
 
 // ─── Inline-editable text helper ───
 function EditableText({
-  value, field, placeholder, className, tag, canvas,
+  value, field, placeholder, className, tag, canvas, style,
 }: {
   value: string; field: string; placeholder?: string; className?: string;
-  tag?: "h1" | "h3" | "p" | "span"; canvas?: CanvasCallbacks;
+  tag?: "h1" | "h3" | "p" | "span"; canvas?: CanvasCallbacks; style?: React.CSSProperties;
 }) {
   if (canvas?.onUpdateField) {
     return (
@@ -133,12 +133,13 @@ function EditableText({
         placeholder={placeholder}
         className={className}
         tag={tag}
+        style={style}
         onSave={(v) => canvas.onUpdateField!(canvas.sectionId, field, v)}
       />
     );
   }
   const Tag = tag || "p";
-  return <Tag className={className}>{value || placeholder}</Tag>;
+  return <Tag className={className} style={style}>{value || placeholder}</Tag>;
 }
 
 // ─── Inline-editable image helper ───
