@@ -1401,9 +1401,9 @@ function HeaderPreview({
   const bgStyle = (schema.background_style as string) || "";
   const isDark = bgStyle === "dark";
   const sizeMap: Record<string, string> = { small: "h-10 w-10", medium: "h-16 w-16", large: "h-24 w-24" };
-  // logo_position takes priority over layout_variant to prevent double rendering
+  // logo_position takes strict priority over layout_variant
   const isRightLogo = logoPosition === "right";
-  const isCenterLogo = !isRightLogo && (logoPosition === "center" || layoutVariant === "nav_split");
+  const isCenterLogo = logoPosition === "center";
 
   const handleNavClick = (e: React.MouseEvent, label: string) => {
     e.stopPropagation();
