@@ -239,7 +239,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection, surfaceType }:
       return (
         <div className="relative overflow-hidden" style={{ backgroundColor: bgColor || "hsl(220 15% 12%)" }}>
           <div className="aspect-[4/5] relative overflow-hidden">
-            {canvas?.onUpdateField ? (
+            {isCommunity && canvas?.onUpdateField ? (
               <HeroImagePositioner
                 src={resolvedMediaUrl}
                 alt="Creator"
@@ -253,7 +253,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection, surfaceType }:
                 }}
               />
             ) : (
-              <img src={resolvedMediaUrl} alt="Creator" className="w-full h-full object-cover" />
+              <EditableImage src={resolvedMediaUrl} alt="Creator" className="w-full h-full object-cover" field="media.url" canvas={canvas} />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
