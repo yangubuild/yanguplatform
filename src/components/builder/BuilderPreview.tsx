@@ -375,29 +375,29 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
     );
   }
 
-  // Default hero
+  // Default hero — full-bleed background image, no inner box
   return (
-    <div className="py-12 px-6 text-center bg-gradient-to-b from-accent/10 to-transparent rounded-lg">
+    <div className="py-12 px-6 text-center rounded-lg relative overflow-hidden" style={{ minHeight: "260px", backgroundColor: bgColor || "hsl(var(--accent) / 0.08)" }}>
       {mediaType !== "video" && resolvedMediaUrl && (
-        <div className={`aspect-video rounded-lg mb-4 overflow-hidden ${mediaFit === "contain" ? "bg-muted" : ""}`}>
-          <EditableImage src={resolvedMediaUrl} alt="Hero visual" className={`w-full h-full ${mediaFit === "cover" ? "object-cover" : "object-contain"}`} field="media.url" canvas={canvas} />
-        </div>
+        <EditableImage src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-70" field="media.url" canvas={canvas} />
       )}
       {mediaType === "video" && mediaUrl && (() => {
         const ytId = isYouTubeUrl(mediaUrl);
         return ytId ? (
-          <div className="aspect-video rounded-lg overflow-hidden mb-4">
+          <div className="aspect-video rounded-lg overflow-hidden mb-4 relative z-10">
             <iframe src={`https://www.youtube.com/embed/${ytId}`} className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title="Video" />
           </div>
         ) : (
-          <video src={mediaUrl} controls className="w-full rounded-lg mb-4" />
+          <video src={mediaUrl} controls className="w-full rounded-lg mb-4 relative z-10" />
         );
       })()}
-      <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className="text-2xl font-bold text-foreground" tag="h1" canvas={canvas} />
-      {schema.subheadline && <EditableText value={schema.subheadline as string} field="subheadline" className="mt-2 text-muted-foreground" tag="p" canvas={canvas} />}
-      {description && <EditableText value={description} field="description" className="mt-2 text-xs text-muted-foreground" tag="p" canvas={canvas} />}
+      <div className="relative z-10">
+        <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className={`text-2xl font-bold ${resolvedMediaUrl && mediaType !== "video" ? "text-white" : "text-foreground"}`} tag="h1" canvas={canvas} />
+        {schema.subheadline && <EditableText value={schema.subheadline as string} field="subheadline" className={`mt-2 ${resolvedMediaUrl && mediaType !== "video" ? "text-white/70" : "text-muted-foreground"}`} tag="p" canvas={canvas} />}
+        {description && <EditableText value={description} field="description" className={`mt-2 text-xs ${resolvedMediaUrl && mediaType !== "video" ? "text-white/60" : "text-muted-foreground"}`} tag="p" canvas={canvas} />}
+      </div>
       {ctaText && (
-        <div className="mt-4">
+        <div className="mt-4 relative z-10">
           <a href={ctaHref || "#"} className="inline-block px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium yangu-cta">{ctaText}</a>
         </div>
       )}
