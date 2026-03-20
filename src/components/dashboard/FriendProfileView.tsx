@@ -225,19 +225,16 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
               )}
             </div>
             {/* Single visitor action button */}
-            <button
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold shrink-0"
-              style={{
-                background: isCommunityType ? "#22c55e" : "linear-gradient(135deg, #c47a3a, #5c2a12)",
-                color: "#fff",
-              }}
-            >
-              {isCommunityType ? (
-                <><Users className="w-3.5 h-3.5" /> Join</>
-              ) : (
-                "Follow"
-              )}
-            </button>
+            {isCommunityType ? (
+              <button
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold shrink-0"
+                style={{ background: "#22c55e", color: "#fff" }}
+              >
+                <Users className="w-3.5 h-3.5" /> Join
+              </button>
+            ) : (
+              <FollowButton targetUserId={user.id} />
+            )}
           </div>
 
           {/* Meta row */}
