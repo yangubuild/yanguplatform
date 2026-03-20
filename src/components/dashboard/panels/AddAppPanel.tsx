@@ -3,7 +3,29 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Search, Loader2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
+import { PLATFORM_REGISTRY } from "@/lib/socialPlatformRegistry";
+import { ICON_MAP } from "@/lib/app-store/icon-map";
 
+/**
+ * Resolve icon for a slug by checking socialPlatformRegistry first, then icon-map.
+ * Returns the imported asset path or null.
+ */
+function resolveIcon(slug: string): string | null {
+  // Normalize slug variants
+  const normalizedSlug = slug === "twitter" ? "x" : slug;
+
+  // 1. Check socialPlatformRegistry (source of truth for social icons)
+  const platform = PLATFORM_REGISTRY.find(
+    (p) => p.id === normalizedSlug || p.id === slug || p.aliases.includes(slug)
+  );
+  if (platform?.icon) return platform.icon;
+
+  // 2. Check app-store icon-map
+  if (ICON_MAP[slug]) return ICON_MAP[slug];
+  if (ICON_MAP[normalizedSlug]) return ICON_MAP[normalizedSlug];
+
+  return null;
+}
 const ALLOWED_SOCIAL_SLUGS = new Set([
   "zoom", "google-meet", "discord", "telegram", "whatsapp",
   "slack", "signal", "skype", "viber", "line",
@@ -117,7 +139,7 @@ export function AddAppPanel() {
           </p>
         ) : (
           filtered.map((app) => {
-            const initials = app.name.slice(0, 2).toUpperCase();
+            const icon = resolveIcon(app.slug) || (app.icon ?? null);
             return (
               <div
                 key={app.id}
@@ -127,10 +149,10 @@ export function AddAppPanel() {
                   className="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
                   style={{ background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)" }}
                 >
-                  {app.icon ? (
-                    <img src={app.icon} alt="" className="w-10 h-10 rounded-xl object-cover" />
+                  {icon ? (
+                    <img src={icon} alt={app.name} className="w-10 h-10 rounded-xl object-cover" />
                   ) : (
-                    initials
+                    app.name.slice(0, 2).toUpperCase()
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
