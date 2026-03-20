@@ -371,10 +371,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
               src={resolvedMediaUrl}
               alt="Hero visual"
               className="w-full h-full"
-              position={mediaPosition}
-              zoom={mediaZoom}
-              onPositionChange={(p) => canvas.onUpdateField!(canvas.sectionId, "media.position", p)}
-              onZoomChange={(z) => canvas.onUpdateField!(canvas.sectionId, "media.zoom", z)}
+              onImageChange={(url) => canvas.onUpdateField!(canvas.sectionId, "media.url", url)}
               onImageReplace={() => {
                 const input = document.createElement("input");
                 input.type = "file"; input.accept = "image/*";
@@ -383,7 +380,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
               }}
             />
           ) : (
-            <img src={resolvedMediaUrl} alt="Hero visual" className="w-full h-full object-cover" style={{ objectPosition: mediaPosition, transform: mediaZoom > 1 ? `scale(${mediaZoom})` : undefined, transformOrigin: mediaPosition }} />
+            <img src={resolvedMediaUrl} alt="Hero visual" className="w-full h-full object-cover" />
           )}
         </div>
       </div>
