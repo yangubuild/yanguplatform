@@ -1,6 +1,8 @@
-import { X, MessageSquare, ExternalLink, MapPin, Calendar, Users } from "lucide-react";
+import { X, MessageSquare, ExternalLink, MapPin, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
+import { useIsFollowing, useFollowCounts, useToggleFollow } from "@/hooks/useFollows";
+import { useAuth } from "@/hooks/useAuth";
 
 interface UserData {
   id: string;
@@ -17,16 +19,27 @@ interface Props {
   user: UserData;
   onClose: () => void;
   onViewProfile?: () => void;
+  onMessage?: (userId: string) => void;
 }
 
-export function UserProfilePopup({ user, onClose, onViewProfile }: Props) {
+export function UserProfilePopup({ user, onClose, onViewProfile, onMessage }: Props) {
   const navigate = useNavigate();
+  const { user: currentUser } = useAuth();
   const name = user.display_name || user.username || "Unnamed";
   const initials = name.slice(0, 2).toUpperCase();
   const resolvedAvatar = resolveAvatarUrl(user);
 
+  const { data: isFollowing = false } = useIsFollowing(user.id);
+  const { data: counts } = useFollowCounts(user.id);
+  const toggleFollow = useToggleFollow();
+  const isSelf = currentUser?.id === user.id;
+
   const handleMessage = () => {
-    navigate(`/dashboard/messages?tab=chats`);
+    if (onMessage) {
+      onMessage(user.id);
+    } else {
+      navigate(`/dashboard/messages?tab=chats&user=${user.id}`);
+    }
     onClose();
   };
 
@@ -34,10 +47,14 @@ export function UserProfilePopup({ user, onClose, onViewProfile }: Props) {
     if (onViewProfile) {
       onViewProfile();
     } else {
-      // Fallback: navigate internally (should not happen in dashboard context)
       navigate(`/dashboard/home`);
       onClose();
     }
+  };
+
+  const handleFollow = () => {
+    if (isSelf) return;
+    toggleFollow.mutate({ targetUserId: user.id, isCurrentlyFollowing: isFollowing });
   };
 
   return (
@@ -101,7 +118,7 @@ export function UserProfilePopup({ user, onClose, onViewProfile }: Props) {
               <MapPin className="w-2.5 h-2.5" /> Location
             </span>
             <span className="flex items-center gap-0.5">
-              <Users className="w-2.5 h-2.5" /> 0 followers
+              <Users className="w-2.5 h-2.5" /> {counts?.followers ?? 0} followers
             </span>
           </div>
 
@@ -136,12 +153,19 @@ export function UserProfilePopup({ user, onClose, onViewProfile }: Props) {
             >
               <MessageSquare className="w-3.5 h-3.5" /> Message
             </button>
-            <button
-              className="flex-1 py-2 rounded-lg text-sm font-semibold"
-              style={{ background: "#22c55e", color: "#fff" }}
-            >
-              Follow
-            </button>
+            {!isSelf && (
+              <button
+                onClick={handleFollow}
+                disabled={toggleFollow.isPending}
+                className="flex-1 py-2 rounded-lg text-sm font-semibold transition-colors"
+                style={{
+                  background: isFollowing ? "rgba(255,255,255,0.08)" : "#22c55e",
+                  color: "#fff",
+                }}
+              >
+                {isFollowing ? "Following" : "Follow"}
+              </button>
+            )}
           </div>
 
           <button

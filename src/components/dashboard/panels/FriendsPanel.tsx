@@ -5,6 +5,7 @@ import { Search, Loader2, Command } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { UserProfilePopup } from "./UserProfilePopup";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
+import { FollowButton } from "./FollowButton";
 
 interface UserRow {
   id: string;
@@ -174,12 +175,7 @@ export function FriendsPanel({ onViewProfile }: FriendsPanelProps) {
                     </p>
                   )}
                 </div>
-                <span
-                  className="px-3 py-1 rounded-md text-xs font-semibold shrink-0"
-                  style={{ background: "#22c55e", color: "#fff" }}
-                >
-                  Follow
-                </span>
+                <FollowButton targetUserId={user.id} compact />
               </button>
             );
           })
