@@ -136,9 +136,10 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
       toast.error("Please select a rating");
       return;
     }
-    toast.success("Review submitted");
-    setReviewRating(0);
-    setReviewText("");
+    submitReview.mutate(
+      { targetUserId: user.id, rating: reviewRating, title: reviewText ? undefined : undefined, body: reviewText },
+      { onSuccess: () => { setReviewRating(0); setReviewText(""); } }
+    );
   };
 
   const aboutData = (friendProfile as any)?.social_links as any;
