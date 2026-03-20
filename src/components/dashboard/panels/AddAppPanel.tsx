@@ -38,7 +38,7 @@ export function AddAppPanel() {
       const { data, error } = await supabase
         .from("app_registry")
         .select("id, name, slug, icon, short_description, category")
-        .eq("status", "published");
+        .eq("status", "active");
       if (error) throw error;
 
       const socialApps = (data ?? []).filter(
