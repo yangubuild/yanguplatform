@@ -357,7 +357,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection, surfaceType }:
     const hasMedia = mediaType !== "video" && !!resolvedMediaUrl;
 
     return (
-      <div className="relative overflow-hidden rounded-2xl" style={{ minHeight: "180px", maxHeight: "260px" }}>
+      <div className="relative overflow-hidden rounded-2xl" style={{ minHeight: "260px" }}>
         {/* Background image */}
         {hasMedia && canvas?.onUpdateField ? (
           <HeroImagePositioner
@@ -379,21 +379,15 @@ function HeroPreview({ schema, canvas, sections, onSelectSection, surfaceType }:
         )}
 
         {/* Overlay for text legibility */}
-        <div className="absolute inset-0 bg-black/30" />
+        <div className="absolute inset-0 bg-black/40" />
 
-        {/* Centered content */}
-        <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 py-10" style={{ minHeight: "180px" }}>
-          {headline && (
-            <EditableText value={headline} field="headline" placeholder="Your Headline" className="text-2xl font-bold text-white tracking-[0.12em] uppercase" tag="h1" canvas={canvas} />
-          )}
-          {subheadline && (
-            <EditableText value={subheadline} field="subheadline" className="mt-2 text-sm text-white/70" tag="p" canvas={canvas} />
-          )}
-          {ctaText && (
-            <div className="mt-4">
-              <a href={ctaHref || "#"} className="inline-block px-6 py-2 rounded-full bg-background text-foreground text-sm font-medium yangu-cta">{ctaText}</a>
-            </div>
-          )}
+        {/* Centered content — always visible, sits inside the banner */}
+        <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 py-12" style={{ minHeight: "260px" }}>
+          <EditableText value={headline} field="headline" placeholder="WELCOME" className="text-2xl font-bold text-white tracking-[0.12em] uppercase" tag="h1" canvas={canvas} />
+          <EditableText value={subheadline} field="subheadline" placeholder="Discover what we offer" className="mt-2 text-sm text-white/70" tag="p" canvas={canvas} />
+          <div className="mt-4">
+            <EditableText value={ctaText || "Join Now"} field="cta_text" className="inline-block px-6 py-2 rounded-full bg-background text-foreground text-sm font-medium yangu-cta" tag="span" canvas={canvas} />
+          </div>
         </div>
       </div>
     );
