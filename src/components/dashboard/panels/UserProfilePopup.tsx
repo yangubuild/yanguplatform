@@ -1,12 +1,16 @@
 import { X, MessageSquare, UserPlus, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { resolveAvatarUrl } from "@/lib/avatarUtils";
 
 interface UserData {
   id: string;
   display_name: string | null;
   username: string | null;
   avatar_url: string | null;
+  avatar_mode?: string | null;
+  avatar_emoji_key?: string | null;
   business_name: string | null;
+  cover_url?: string | null;
 }
 
 interface Props {
@@ -18,9 +22,9 @@ export function UserProfilePopup({ user, onClose }: Props) {
   const navigate = useNavigate();
   const name = user.display_name || user.username || "Unnamed";
   const initials = name.slice(0, 2).toUpperCase();
+  const resolvedAvatar = resolveAvatarUrl(user);
 
   const handleMessage = () => {
-    // Navigate to messages page — connects to real messaging system
     navigate(`/dashboard/messages?tab=chats`);
     onClose();
   };
@@ -35,29 +39,45 @@ export function UserProfilePopup({ user, onClose }: Props) {
       <div className="fixed inset-0 z-50 bg-black/60" onClick={onClose} />
 
       <div
-        className="fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] rounded-2xl p-5 shadow-2xl"
-        style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.08)" }}
+        className="fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] rounded-2xl overflow-hidden shadow-2xl"
+        style={{ background: "#111a15", border: "1px solid rgba(255,255,255,0.08)" }}
       >
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 p-1"
-          style={{ color: "rgba(255,255,255,0.4)" }}
+          className="absolute top-3 right-3 p-1 z-10"
+          style={{ color: "rgba(255,255,255,0.5)" }}
         >
           <X className="w-4 h-4" />
         </button>
 
-        <div className="flex flex-col items-center text-center">
+        {/* Mini cover image */}
+        <div
+          className="w-full h-[100px]"
+          style={{
+            background: user.cover_url
+              ? `url(${user.cover_url}) center/cover no-repeat`
+              : "linear-gradient(135deg, #0d3a27 0%, #061a12 100%)",
+          }}
+        />
+
+        {/* Avatar overlapping cover */}
+        <div className="flex flex-col items-center text-center -mt-10 relative z-10 px-5 pb-5">
           <div
-            className="w-16 h-16 rounded-full flex items-center justify-center text-lg font-bold mb-3 overflow-hidden"
-            style={{ background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.7)" }}
+            className="w-[72px] h-[72px] rounded-full flex items-center justify-center text-lg font-bold overflow-hidden"
+            style={{
+              background: resolvedAvatar ? "transparent" : "rgba(255,255,255,0.1)",
+              color: "rgba(255,255,255,0.7)",
+              border: "3px solid #111a15",
+            }}
           >
-            {user.avatar_url ? (
-              <img src={user.avatar_url} alt="" className="w-16 h-16 rounded-full object-cover" />
+            {resolvedAvatar ? (
+              <img src={resolvedAvatar} alt="" className="w-full h-full rounded-full object-cover" />
             ) : (
               initials
             )}
           </div>
-          <h3 className="text-base font-semibold text-white">{name}</h3>
+
+          <h3 className="text-base font-semibold text-white mt-2">{name}</h3>
           {user.username && (
             <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
               @{user.username}
@@ -68,31 +88,54 @@ export function UserProfilePopup({ user, onClose }: Props) {
               {user.business_name}
             </p>
           )}
-        </div>
 
-        <div className="flex items-center gap-2 mt-5">
-          <button
-            onClick={handleMessage}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-semibold"
-            style={{ background: "rgba(96,165,250,1)", color: "#fff" }}
+          {/* Message input bar */}
+          <div
+            className="w-full mt-4 flex items-center gap-2 rounded-xl px-3 py-2.5"
+            style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
           >
-            <MessageSquare className="w-3.5 h-3.5" /> Message
-          </button>
+            <input
+              type="text"
+              placeholder="Send message"
+              className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-white/30"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleMessage();
+              }}
+            />
+            <button
+              onClick={handleMessage}
+              className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
+              style={{ background: "rgba(255,255,255,0.08)" }}
+            >
+              <MessageSquare className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.5)" }} />
+            </button>
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex items-center gap-2 mt-3 w-full">
+            <button
+              onClick={handleMessage}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-semibold"
+              style={{ background: "rgba(181,98,42,0.9)", color: "#fff" }}
+            >
+              <MessageSquare className="w-3.5 h-3.5" /> Message
+            </button>
+            <button
+              className="flex-1 py-2 rounded-lg text-sm font-semibold"
+              style={{ background: "#22c55e", color: "#fff" }}
+            >
+              Follow
+            </button>
+          </div>
+
           <button
-            className="flex-1 py-2 rounded-lg text-sm font-semibold"
-            style={{ background: "#22c55e", color: "#fff" }}
+            onClick={handleViewProfile}
+            className="w-full flex items-center justify-center gap-1.5 py-2 mt-2 rounded-lg text-sm font-medium"
+            style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.6)" }}
           >
-            Follow
+            <ExternalLink className="w-3.5 h-3.5" /> View Profile
           </button>
         </div>
-
-        <button
-          onClick={handleViewProfile}
-          className="w-full flex items-center justify-center gap-1.5 py-2 mt-2 rounded-lg text-sm font-medium"
-          style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.6)" }}
-        >
-          <ExternalLink className="w-3.5 h-3.5" /> View Profile
-        </button>
       </div>
     </>
   );
