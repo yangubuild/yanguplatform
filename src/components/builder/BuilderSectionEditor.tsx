@@ -1319,7 +1319,7 @@ export function BuilderSectionEditor({
               <input
                 type="color"
                 value={((localSchema.button_style as any)?.bg as string) || "#000000"}
-                onChange={(e) => update({ button_style: { ...((localSchema.button_style as any) || {}), bg: e.target.value } })}
+                onChange={(e) => updateButtonStyle("bg", e.target.value)}
                 className="h-9 w-full rounded-md border border-input bg-background px-1"
               />
             </div>
