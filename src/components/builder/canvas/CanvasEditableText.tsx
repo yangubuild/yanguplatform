@@ -11,6 +11,7 @@ interface CanvasEditableTextProps {
   placeholder?: string;
   className?: string;
   tag?: "h1" | "h3" | "p" | "span";
+  style?: React.CSSProperties;
   onSave: (newValue: string) => void;
   onAiRewrite?: (instruction: string) => void;
 }
