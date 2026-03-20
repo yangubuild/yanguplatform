@@ -125,7 +125,7 @@ export default function DashboardHome() {
     setFriendTab(tab);
   };
 
-  const rightPanel = getRightPanel(activeItem, activeProfileTab, viewedFriend, friendTab);
+  const rightPanel = getRightPanel(activeItem, activeProfileTab, viewedFriend, friendTab, handleViewFriend);
 
   // Center content: either friend profile or own profile workspace
   const centerContent = viewedFriend ? (
