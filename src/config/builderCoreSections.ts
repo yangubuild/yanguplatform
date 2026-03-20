@@ -137,10 +137,23 @@ export function enforceCoreSectionOrder<T extends NormalizableSection>(
   return normalized;
 }
 
-export function normalizePublishedSections<T extends Omit<NormalizableSection, "is_visible">>(
-  rawSections: T[],
+export function normalizePublishedSections(
+  rawSections: Array<{
+    id: string;
+    section_type: string;
+    schema: Record<string, unknown>;
+    position: number;
+    core_slot?: string | null;
+  }>,
   surfaceType: string
-): Array<T & { isCore: boolean; core_slot?: string | null }> {
+): Array<{
+  id: string;
+  section_type: string;
+  schema: Record<string, unknown>;
+  position: number;
+  isCore: boolean;
+  core_slot?: string | null;
+}> {
   return enforceCoreSectionOrder(
     rawSections.map((section) => ({ ...section, is_visible: true })),
     surfaceType

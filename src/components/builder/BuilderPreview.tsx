@@ -1394,18 +1394,19 @@ function HeaderPreview({
   const showName = schema.show_name !== false;
   const showCart = schema.show_cart_icon as boolean;
   const showSearch = schema.show_search as boolean;
-  const navItems = (schema.nav_items as string[]) || (schema.nav_items_left as string[]) || [];
+  const navItems = (schema.nav_items as string[]) || [];
+  const navItemsLeft = (schema.nav_items_left as string[]) || navItems;
+  const navItemsRight = (schema.nav_items_right as string[]) || [];
   const layoutVariant = (schema.layout_variant as string) || "";
   const bgStyle = (schema.background_style as string) || "";
   const isDark = bgStyle === "dark";
+  const isSplitNav = layoutVariant === "nav_split";
   const sizeMap: Record<string, string> = { small: "h-10 w-10", medium: "h-16 w-16", large: "h-24 w-24" };
-  // logo_position takes strict priority over layout_variant
   const isRightLogo = logoPosition === "right";
   const isCenterLogo = logoPosition === "center";
 
   const handleNavClick = (e: React.MouseEvent, label: string) => {
     e.stopPropagation();
-    // First check if this label matches a page title or slug
     if (pages && pages.length > 1 && onSwitchPage) {
       const labelLower = label.toLowerCase().trim();
       const matchedPage = pages.find(
@@ -1416,7 +1417,6 @@ function HeaderPreview({
         return;
       }
     }
-    // Fallback: jump to section on current page
     if (!sections || !onSelectSection) return;
     const target = findSectionForNavLabel(label, sections);
     if (target) {
@@ -1426,7 +1426,7 @@ function HeaderPreview({
 
   const renderNavItem = (item: string, i: number) => (
     <span
-      key={i}
+      key={`${item}-${i}`}
       onClick={(e) => handleNavClick(e, item)}
       className={`text-[10px] yangu-nav-item cursor-pointer hover:underline ${isDark ? "text-background/70" : "text-muted-foreground"}`}
     >
@@ -1434,53 +1434,55 @@ function HeaderPreview({
     </span>
   );
 
+  const primaryNavItems = isSplitNav ? navItemsLeft : navItems;
+  const secondaryNavItems = isSplitNav ? navItemsRight : [];
+
   const logoBlock = (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 min-w-0">
       {logoUrl ? (
         <img src={logoUrl} alt="Logo" className={`${sizeMap[logoSize] || "h-10 w-10"} object-contain rounded`} />
       ) : (
         <div className={`${sizeMap[logoSize] || "h-10 w-10"} bg-muted rounded flex items-center justify-center text-[10px] text-muted-foreground`}>Logo</div>
       )}
-      {showName && <span className={`text-xs font-semibold ${isDark ? "text-background" : "text-foreground"}`}>Store</span>}
+      {showName && <span className={`text-xs font-semibold truncate ${isDark ? "text-background" : "text-foreground"}`}>Store</span>}
     </div>
   );
 
   return (
     <div className={`w-full py-2.5 px-4 flex items-center overflow-hidden ${isDark ? "bg-foreground/90" : ""}`}>
-      {/* LEFT position: logo first, then nav, then icons */}
       {!isCenterLogo && !isRightLogo && (
         <>
-          <div className="flex items-center gap-2 flex-1 min-w-0">
+          <div className="flex items-center gap-2 shrink-0 min-w-0">
             {logoBlock}
           </div>
-          <div className="flex items-center gap-2 shrink-0 overflow-hidden">
-            {navItems.length > 0 && navItems.slice(0, 4).map((item, i) => renderNavItem(item, i))}
+          <div className="flex items-center gap-2 flex-1 justify-end min-w-0 overflow-hidden pl-3">
+            {primaryNavItems.slice(0, 4).map((item, i) => renderNavItem(item, i))}
+            {secondaryNavItems.slice(0, 2).map((item, i) => renderNavItem(item, i + primaryNavItems.length))}
             {showSearch && <span className="text-sm">🔍</span>}
             {showCart && <span className="text-sm">🛒</span>}
           </div>
         </>
       )}
-      {/* CENTER position: left nav, logo center, right nav/icons */}
       {isCenterLogo && (
         <>
           <div className="flex gap-2 flex-1 justify-start min-w-0 overflow-hidden">
-            {navItems.slice(0, 3).map((item, i) => renderNavItem(item, i))}
+            {primaryNavItems.slice(0, 3).map((item, i) => renderNavItem(item, i))}
           </div>
           <div className="flex items-center justify-center shrink-0 px-3">
             {logoBlock}
           </div>
           <div className="flex items-center gap-2 flex-1 justify-end min-w-0 overflow-hidden">
-            {(schema.nav_items_right as string[] || []).slice(0, 2).map((item, i) => renderNavItem(item, i))}
+            {secondaryNavItems.slice(0, 2).map((item, i) => renderNavItem(item, i + primaryNavItems.length))}
             {showSearch && <span className="text-sm">🔍</span>}
             {showCart && <span className="text-sm">🛒</span>}
           </div>
         </>
       )}
-      {/* RIGHT position: nav/icons grouped left, logo forced to far right */}
       {isRightLogo && (
         <>
           <div className="flex items-center gap-2 flex-1 min-w-0 overflow-hidden">
-            {navItems.length > 0 && navItems.slice(0, 4).map((item, i) => renderNavItem(item, i))}
+            {primaryNavItems.slice(0, 4).map((item, i) => renderNavItem(item, i))}
+            {secondaryNavItems.slice(0, 2).map((item, i) => renderNavItem(item, i + primaryNavItems.length))}
             {showSearch && <span className="text-sm">🔍</span>}
             {showCart && <span className="text-sm">🛒</span>}
           </div>
