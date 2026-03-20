@@ -354,12 +354,11 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
     );
   }
 
-  if (isDark || layoutVariant === "fullwidth_center") {
+  const hasVisualMedia = mediaType !== "video" && !!resolvedMediaUrl;
+
+  if (isDark && !hasVisualMedia) {
     return (
       <div className="py-12 px-6 text-center rounded-lg relative overflow-hidden" style={{ backgroundColor: bgColor || "hsl(0 0% 8%)" }}>
-        {mediaType !== "video" && resolvedMediaUrl && (
-          <EditableImage src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-70" field="media.url" canvas={canvas} />
-        )}
         <div className="relative z-10 max-w-2xl mx-auto">
           <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className={`font-bold text-white ${isBoldUppercase ? "text-2xl tracking-[0.15em] uppercase" : "text-2xl"}`} tag="h1" canvas={canvas} />
           {schema.subheadline && (
@@ -375,10 +374,9 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
     );
   }
 
-  // Default hero — full-bleed background image, no inner box
   return (
     <div className="py-12 px-6 text-center rounded-lg relative overflow-hidden" style={{ minHeight: "260px", backgroundColor: bgColor || "hsl(var(--accent) / 0.08)" }}>
-      {mediaType !== "video" && resolvedMediaUrl && (
+      {hasVisualMedia && (
         <EditableImage src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-70" field="media.url" canvas={canvas} />
       )}
       {mediaType === "video" && mediaUrl && (() => {
@@ -391,16 +389,16 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
           <video src={mediaUrl} controls className="w-full rounded-lg mb-4 relative z-10" />
         );
       })()}
-      <div className="relative z-10">
-        <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className={`text-2xl font-bold ${resolvedMediaUrl && mediaType !== "video" ? "text-white" : "text-foreground"}`} tag="h1" canvas={canvas} />
-        {schema.subheadline && <EditableText value={schema.subheadline as string} field="subheadline" className={`mt-2 ${resolvedMediaUrl && mediaType !== "video" ? "text-white/70" : "text-muted-foreground"}`} tag="p" canvas={canvas} />}
-        {description && <EditableText value={description} field="description" className={`mt-2 text-xs ${resolvedMediaUrl && mediaType !== "video" ? "text-white/60" : "text-muted-foreground"}`} tag="p" canvas={canvas} />}
+      <div className="relative z-10 max-w-2xl mx-auto">
+        <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className={`font-bold ${hasVisualMedia ? "text-white" : "text-foreground"} ${isBoldUppercase ? "text-2xl tracking-[0.15em] uppercase" : "text-2xl"}`} tag="h1" canvas={canvas} />
+        {schema.subheadline && <EditableText value={schema.subheadline as string} field="subheadline" className={`mt-3 text-[10px] leading-relaxed max-w-[480px] mx-auto ${hasVisualMedia ? "text-white/70" : "text-muted-foreground"}`} tag="p" canvas={canvas} />}
+        {description && <EditableText value={description} field="description" className={`mt-2 text-xs ${hasVisualMedia ? "text-white/60" : "text-muted-foreground"}`} tag="p" canvas={canvas} />}
+        {ctaText && (
+          <div className="mt-4 relative z-10">
+            <a href={ctaHref || "#"} className={`inline-block px-6 py-2 rounded-full text-sm font-medium yangu-cta ${hasVisualMedia ? "bg-background text-foreground" : "bg-primary text-primary-foreground"}`}>{ctaText}</a>
+          </div>
+        )}
       </div>
-      {ctaText && (
-        <div className="mt-4 relative z-10">
-          <a href={ctaHref || "#"} className="inline-block px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium yangu-cta">{ctaText}</a>
-        </div>
-      )}
     </div>
   );
 }
