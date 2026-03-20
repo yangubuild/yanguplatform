@@ -164,13 +164,11 @@ function EditableImage({
 // ─── Section Renderers ───
 
 function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks; sections?: EditorSection[]; onSelectSection?: (id: string) => void }) {
-  const media = (schema.media as { type?: string; url?: string; fit?: string; position?: string; zoom?: number }) || {};
+  const media = (schema.media as { type?: string; url?: string; fit?: string }) || {};
   const mediaType = media.type || "none";
   const mediaUrl = media.url || "";
   const resolvedMediaUrl = mediaUrl || demoImage(0);
   const mediaFit = media.fit || "contain";
-  const mediaPosition = media.position || "50% 50%";
-  const mediaZoom = media.zoom ?? 1;
   const ctaText = (schema.cta_text as string) || "";
   const ctaHref = (schema.cta_href as string) || "";
   const layoutVariant = (schema.layout_variant as string) || "";
@@ -243,10 +241,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
                 src={resolvedMediaUrl}
                 alt="Creator"
                 className="w-full h-full"
-                position={mediaPosition}
-                zoom={mediaZoom}
-                onPositionChange={(p) => canvas.onUpdateField!(canvas.sectionId, "media.position", p)}
-                onZoomChange={(z) => canvas.onUpdateField!(canvas.sectionId, "media.zoom", z)}
+                onImageChange={(url) => canvas.onUpdateField!(canvas.sectionId, "media.url", url)}
                 onImageReplace={() => {
                   const input = document.createElement("input");
                   input.type = "file"; input.accept = "image/*";
@@ -255,7 +250,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
                 }}
               />
             ) : (
-              <img src={resolvedMediaUrl} alt="Creator" className="w-full h-full object-cover" style={{ objectPosition: mediaPosition, transform: mediaZoom > 1 ? `scale(${mediaZoom})` : undefined, transformOrigin: mediaPosition }} />
+              <img src={resolvedMediaUrl} alt="Creator" className="w-full h-full object-cover" />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
@@ -374,10 +369,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
               src={resolvedMediaUrl}
               alt="Hero visual"
               className="w-full h-full"
-              position={mediaPosition}
-              zoom={mediaZoom}
-              onPositionChange={(p) => canvas.onUpdateField!(canvas.sectionId, "media.position", p)}
-              onZoomChange={(z) => canvas.onUpdateField!(canvas.sectionId, "media.zoom", z)}
+              onImageChange={(url) => canvas.onUpdateField!(canvas.sectionId, "media.url", url)}
               onImageReplace={() => {
                 const input = document.createElement("input");
                 input.type = "file"; input.accept = "image/*";
@@ -386,7 +378,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
               }}
             />
           ) : (
-            <img src={resolvedMediaUrl} alt="Hero visual" className="w-full h-full object-cover" style={{ objectPosition: mediaPosition, transform: mediaZoom > 1 ? `scale(${mediaZoom})` : undefined, transformOrigin: mediaPosition }} />
+            <img src={resolvedMediaUrl} alt="Hero visual" className="w-full h-full object-cover" />
           )}
         </div>
       </div>
@@ -420,10 +412,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
           src={resolvedMediaUrl}
           alt="Hero visual"
           className="absolute inset-0 w-full h-full opacity-70"
-          position={mediaPosition}
-          zoom={mediaZoom}
-          onPositionChange={(p) => canvas.onUpdateField!(canvas.sectionId, "media.position", p)}
-          onZoomChange={(z) => canvas.onUpdateField!(canvas.sectionId, "media.zoom", z)}
+          onImageChange={(url) => canvas.onUpdateField!(canvas.sectionId, "media.url", url)}
           onImageReplace={() => {
             const input = document.createElement("input");
             input.type = "file";
@@ -440,16 +429,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
           }}
         />
       ) : hasVisualMedia ? (
-        <img
-          src={resolvedMediaUrl}
-          alt="Hero visual"
-          className="absolute inset-0 w-full h-full object-cover opacity-70"
-          style={{
-            objectPosition: mediaPosition,
-            transform: mediaZoom > 1 ? `scale(${mediaZoom})` : undefined,
-            transformOrigin: mediaPosition,
-          }}
-        />
+        <img src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-70" />
       ) : null}
       {mediaType === "video" && mediaUrl && (() => {
         const ytId = isYouTubeUrl(mediaUrl);
