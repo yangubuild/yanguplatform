@@ -176,6 +176,15 @@ export function PostsPanel() {
                 >
                   <Video className="w-4 h-4" />
                 </button>
+                <button
+                  onClick={handleAiGenerate}
+                  disabled={aiGenerating}
+                  className="p-1.5 rounded-md hover:bg-warning/10 transition-colors disabled:opacity-50"
+                  style={{ color: "#f59e0b" }}
+                  title="Generate post text with AI"
+                >
+                  {aiGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                </button>
               </div>
               <button
                 onClick={handlePost}
