@@ -253,6 +253,8 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
               </>
             )}
             <span style={{ color: "rgba(255,255,255,0.2)" }}>•</span>
+            <span>{followCounts?.followers ?? 0} followers · {followCounts?.following ?? 0} following</span>
+            <span style={{ color: "rgba(255,255,255,0.2)" }}>•</span>
             <span>{surfaces.length} surface{surfaces.length !== 1 ? "s" : ""}</span>
           </div>
         </div>
