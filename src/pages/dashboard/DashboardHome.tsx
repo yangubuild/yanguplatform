@@ -11,33 +11,40 @@ import { AboutPanel } from "@/components/dashboard/panels/AboutPanel";
 import { GlobalChatPanel } from "@/components/dashboard/panels/GlobalChatPanel";
 import { CoursesPanel } from "@/components/dashboard/panels/CoursesPanel";
 import { ChatPanel } from "@/components/dashboard/panels/ChatPanel";
-import { VerifiedModal } from "@/components/dashboard/panels/VerifiedModal";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useNavigate } from "react-router-dom";
 
+export type ProfileTab = "Home" | "KYC" | "Reviews" | "Posts" | "About";
+
 /**
- * Maps sidebar items to right-panel content.
- * Some items (home, add-app, livestreaming, courses) don't change the right panel.
+ * Maps sidebar items and profile tabs to right-panel content.
  */
-function getRightPanel(active: SidebarItem) {
-  switch (active) {
+function getRightPanel(sidebarItem: SidebarItem, profileTab: ProfileTab) {
+  // Sidebar-driven panels take priority when not on "home"
+  switch (sidebarItem) {
     case "global-chat":
       return <GlobalChatPanel />;
     case "friends":
       return <FriendsPanel />;
-    case "staff":
+    case "team":
       return <StaffPanel />;
     case "chat":
       return <ChatPanel />;
-    case "reviews":
-      return <ReviewsPanel />;
-    case "posts":
-      return <PostsPanel />;
-    case "about":
-      return <AboutPanel />;
     case "courses":
       return <CoursesPanel />;
+    default:
+      break;
+  }
+
+  // When sidebar is "home" (or livestreaming), right panel follows profile tab
+  switch (profileTab) {
+    case "Reviews":
+      return <ReviewsPanel />;
+    case "Posts":
+      return <PostsPanel />;
+    case "About":
+      return <AboutPanel />;
     default:
       return <ClientChatPanel />;
   }
@@ -45,46 +52,43 @@ function getRightPanel(active: SidebarItem) {
 
 /**
  * Dashboard Home — 3-column creator operating hub.
- * Mobile: single-column ProfileWorkspace
- * Tablet (md): 2-column — ProfileWorkspace + RightPanel
- * Desktop (lg+): 3-column — InnerPageSidebar + ProfileWorkspace + RightPanel
  */
 export default function DashboardHome() {
   const [activeItem, setActiveItem] = useState<SidebarItem>("home");
-  const [verifiedOpen, setVerifiedOpen] = useState(false);
+  const [activeProfileTab, setActiveProfileTab] = useState<ProfileTab>("Home");
   const isMobile = useIsMobile();
   const isTablet = useMediaQuery("(min-width: 768px) and (max-width: 1023px)");
   const navigate = useNavigate();
 
   const handleItemChange = (item: SidebarItem) => {
-    // Special cases that navigate or open modals instead of switching panels
     if (item === "add-app") {
       navigate("/dashboard/apps");
       return;
     }
-    if (item === "verified") {
-      setVerifiedOpen(true);
-      return;
-    }
-    if (item === "livestreaming") {
-      // Keep selected state, no panel change yet
-      setActiveItem(item);
-      return;
-    }
-    if (item === "courses") {
-      setActiveItem(item);
-      return;
-    }
     setActiveItem(item);
+    // Reset profile tab to Home when switching sidebar items
+    if (item !== "home" && item !== "livestreaming") {
+      setActiveProfileTab("Home");
+    }
   };
 
-  const rightPanel = getRightPanel(activeItem);
+  const handleProfileTabChange = (tab: ProfileTab) => {
+    setActiveProfileTab(tab);
+    // Ensure sidebar shows "home" when user clicks profile tabs
+    if (activeItem !== "home" && activeItem !== "livestreaming") {
+      setActiveItem("home");
+    }
+  };
+
+  const rightPanel = getRightPanel(activeItem, activeProfileTab);
 
   if (isMobile) {
     return (
       <div className="h-[calc(100vh-64px)] flex flex-col overflow-hidden">
-        <ProfileWorkspace />
-        <VerifiedModal open={verifiedOpen} onOpenChange={setVerifiedOpen} />
+        <ProfileWorkspace
+          activeProfileTab={activeProfileTab}
+          onProfileTabChange={handleProfileTabChange}
+        />
       </div>
     );
   }
@@ -102,11 +106,7 @@ export default function DashboardHome() {
             background: "#0B0F14",
           }}
         >
-          {/* Center — Profile workspace */}
-          <div
-            className="h-full overflow-hidden p-2"
-            style={{ background: "#0B0F14" }}
-          >
+          <div className="h-full overflow-hidden p-2" style={{ background: "#0B0F14" }}>
             <div
               className="h-full overflow-hidden"
               style={{
@@ -115,15 +115,13 @@ export default function DashboardHome() {
                 border: "1px solid rgba(255,255,255,0.06)",
               }}
             >
-              <ProfileWorkspace />
+              <ProfileWorkspace
+                activeProfileTab={activeProfileTab}
+                onProfileTabChange={handleProfileTabChange}
+              />
             </div>
           </div>
-
-          {/* Right panel */}
-          <div
-            className="h-full overflow-hidden p-2 pl-0"
-            style={{ background: "#0B0F14" }}
-          >
+          <div className="h-full overflow-hidden p-2 pl-0" style={{ background: "#0B0F14" }}>
             <div
               className="h-full overflow-hidden"
               style={{
@@ -136,7 +134,6 @@ export default function DashboardHome() {
             </div>
           </div>
         </div>
-        <VerifiedModal open={verifiedOpen} onOpenChange={setVerifiedOpen} />
       </>
     );
   }
@@ -153,11 +150,7 @@ export default function DashboardHome() {
           background: "#0B0F14",
         }}
       >
-        {/* Inner page sidebar — floating card surface */}
-        <div
-          className="h-full overflow-hidden flex flex-col p-2 pr-0"
-          style={{ background: "#0B0F14" }}
-        >
+        <div className="h-full overflow-hidden flex flex-col p-2 pr-0" style={{ background: "#0B0F14" }}>
           <div
             className="flex-1 overflow-hidden"
             style={{
@@ -170,11 +163,7 @@ export default function DashboardHome() {
           </div>
         </div>
 
-        {/* Center — Profile workspace — distinct canvas */}
-        <div
-          className="h-full overflow-hidden p-2"
-          style={{ background: "#0B0F14" }}
-        >
+        <div className="h-full overflow-hidden p-2" style={{ background: "#0B0F14" }}>
           <div
             className="h-full overflow-hidden"
             style={{
@@ -183,15 +172,14 @@ export default function DashboardHome() {
               border: "1px solid rgba(255,255,255,0.06)",
             }}
           >
-            <ProfileWorkspace />
+            <ProfileWorkspace
+              activeProfileTab={activeProfileTab}
+              onProfileTabChange={handleProfileTabChange}
+            />
           </div>
         </div>
 
-        {/* Right panel — content switches based on sidebar selection */}
-        <div
-          className="h-full overflow-hidden p-2 pl-0"
-          style={{ background: "#0B0F14" }}
-        >
+        <div className="h-full overflow-hidden p-2 pl-0" style={{ background: "#0B0F14" }}>
           <div
             className="h-full overflow-hidden"
             style={{
@@ -204,7 +192,6 @@ export default function DashboardHome() {
           </div>
         </div>
       </div>
-      <VerifiedModal open={verifiedOpen} onOpenChange={setVerifiedOpen} />
     </>
   );
 }
