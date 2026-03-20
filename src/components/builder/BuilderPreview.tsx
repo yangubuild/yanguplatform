@@ -121,10 +121,10 @@ function ItemCardWrapper({ children, canvas, fieldPath, items, index, className 
 
 // ─── Inline-editable text helper ───
 function EditableText({
-  value, field, placeholder, className, tag, canvas,
+  value, field, placeholder, className, tag, canvas, style,
 }: {
   value: string; field: string; placeholder?: string; className?: string;
-  tag?: "h1" | "h3" | "p" | "span"; canvas?: CanvasCallbacks;
+  tag?: "h1" | "h3" | "p" | "span"; canvas?: CanvasCallbacks; style?: React.CSSProperties;
 }) {
   if (canvas?.onUpdateField) {
     return (
@@ -133,12 +133,13 @@ function EditableText({
         placeholder={placeholder}
         className={className}
         tag={tag}
+        style={style}
         onSave={(v) => canvas.onUpdateField!(canvas.sectionId, field, v)}
       />
     );
   }
   const Tag = tag || "p";
-  return <Tag className={className}>{value || placeholder}</Tag>;
+  return <Tag className={className} style={style}>{value || placeholder}</Tag>;
 }
 
 // ─── Inline-editable image helper ───
@@ -184,6 +185,16 @@ function HeroPreview({ schema, canvas, sections, onSelectSection, surfaceType }:
   const isDark = bgStyle === "solid_dark" || textColor === "light";
   const isBoldUppercase = typographyStyle === "bold_uppercase";
   const isEditorialLarge = typographyStyle === "editorial_large";
+
+  // ─── Button Style from schema (single source of truth) ───
+  const btnStyle = (schema.button_style as { bg?: string; text?: string; border?: string; radius?: string }) || {};
+  const ctaInlineStyle: React.CSSProperties = {
+    ...(btnStyle.bg ? { backgroundColor: btnStyle.bg } : {}),
+    ...(btnStyle.text ? { color: btnStyle.text } : {}),
+    ...(btnStyle.border ? { borderColor: btnStyle.border, borderWidth: "1px", borderStyle: "solid" } : {}),
+    ...(btnStyle.radius != null ? { borderRadius: `${btnStyle.radius}px` } : {}),
+  };
+  const hasCustomBtnStyle = !!(btnStyle.bg || btnStyle.text || btnStyle.border || btnStyle.radius != null);
 
   // ─── Link-Bio Hero Variants ───
   const isLinkBioProfile = layoutVariant === "link_bio_profile";
@@ -316,7 +327,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection, surfaceType }:
           )}
           {ctaText && (
             <div className="mt-4">
-              <EditableText value={ctaText} field="cta_text" className="inline-block px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium yangu-cta" tag="span" canvas={canvas} />
+              <EditableText value={ctaText} field="cta_text" style={ctaInlineStyle} className={`inline-block px-6 py-2 text-sm font-medium yangu-cta ${hasCustomBtnStyle ? "" : "rounded-full bg-primary text-primary-foreground"}`} tag="span" canvas={canvas} />
             </div>
           )}
         </div>
@@ -386,7 +397,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection, surfaceType }:
           <EditableText value={headline} field="headline" placeholder="WELCOME" className="text-2xl font-bold text-white tracking-[0.12em] uppercase" tag="h1" canvas={canvas} />
           <EditableText value={subheadline} field="subheadline" placeholder="Discover what we offer" className="mt-2 text-sm text-white/70" tag="p" canvas={canvas} />
           <div className="mt-4">
-            <EditableText value={ctaText || "Join Now"} field="cta_text" className="inline-block px-6 py-2 rounded-full bg-background text-foreground text-sm font-medium yangu-cta" tag="span" canvas={canvas} />
+            <EditableText value={ctaText || "Join Now"} field="cta_text" style={ctaInlineStyle} className={`inline-block px-6 py-2 text-sm font-medium yangu-cta ${hasCustomBtnStyle ? "" : "rounded-full bg-background text-foreground"}`} tag="span" canvas={canvas} />
           </div>
         </div>
       </div>
@@ -407,7 +418,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection, surfaceType }:
           {description && <EditableText value={description} field="description" className="text-[11px] text-muted-foreground mt-2 leading-relaxed" tag="p" canvas={canvas} />}
           {ctaText && (
             <div className="mt-3">
-              <EditableText value={ctaText} field="cta_text" className="inline-block px-4 py-1.5 rounded-full bg-foreground text-background text-xs font-medium yangu-cta" tag="span" canvas={canvas} />
+              <EditableText value={ctaText} field="cta_text" style={ctaInlineStyle} className={`inline-block px-4 py-1.5 text-xs font-medium yangu-cta ${hasCustomBtnStyle ? "" : "rounded-full bg-foreground text-background"}`} tag="span" canvas={canvas} />
             </div>
           )}
         </div>
@@ -445,7 +456,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection, surfaceType }:
           )}
           {ctaText && (
             <div className="mt-4">
-              <EditableText value={ctaText} field="cta_text" className="inline-block px-5 py-2 rounded-full bg-white text-black text-xs font-medium yangu-cta" tag="span" canvas={canvas} />
+              <EditableText value={ctaText} field="cta_text" style={ctaInlineStyle} className={`inline-block px-5 py-2 text-xs font-medium yangu-cta ${hasCustomBtnStyle ? "" : "rounded-full bg-white text-black"}`} tag="span" canvas={canvas} />
             </div>
           )}
         </div>
@@ -495,7 +506,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection, surfaceType }:
         {description && <EditableText value={description} field="description" className={`mt-2 text-xs ${hasVisualMedia ? "text-white/60" : "text-muted-foreground"}`} tag="p" canvas={canvas} />}
         {ctaText && (
           <div className="mt-4 relative z-10">
-            <EditableText value={ctaText} field="cta_text" className={`inline-block px-6 py-2 rounded-full text-sm font-medium yangu-cta ${hasVisualMedia ? "bg-background text-foreground" : "bg-primary text-primary-foreground"}`} tag="span" canvas={canvas} />
+            <EditableText value={ctaText} field="cta_text" style={ctaInlineStyle} className={`inline-block px-6 py-2 text-sm font-medium yangu-cta ${hasCustomBtnStyle ? "" : `rounded-full ${hasVisualMedia ? "bg-background text-foreground" : "bg-primary text-primary-foreground"}`}`} tag="span" canvas={canvas} />
           </div>
         )}
       </div>

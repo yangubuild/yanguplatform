@@ -11,6 +11,7 @@ interface CanvasEditableTextProps {
   placeholder?: string;
   className?: string;
   tag?: "h1" | "h3" | "p" | "span";
+  style?: React.CSSProperties;
   onSave: (newValue: string) => void;
   onAiRewrite?: (instruction: string) => void;
 }
@@ -27,6 +28,7 @@ export function CanvasEditableText({
   placeholder = "Click to edit",
   className = "",
   tag: Tag = "p",
+  style,
   onSave,
   onAiRewrite,
 }: CanvasEditableTextProps) {
@@ -88,6 +90,7 @@ export function CanvasEditableText({
         onClick={handleClick}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
+        style={style}
         className={`${className} outline-none transition-all ${
           editing
             ? "ring-1 ring-primary/50 rounded px-1 -mx-1 bg-primary/5"
