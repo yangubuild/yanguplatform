@@ -32,6 +32,7 @@ import AvatarPickerModal from "@/components/profile/AvatarPickerModal";
 import CoverCropModal, { type CropData } from "@/components/profile/CoverCropModal";
 import { useNavigate } from "react-router-dom";
 import { AddTeamModal } from "./AddTeamModal";
+import { VerifiedModal } from "./panels/VerifiedModal";
 import { NotificationPrefsModal } from "./NotificationPrefsModal";
 import { ShareBusinessPopover } from "./ShareBusinessPopover";
 import { DashboardMoreMenu } from "./DashboardMoreMenu";
@@ -81,6 +82,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
   const [socialLinks, setSocialLinks] = useState<SocialLinksData>({});
   const [savingSocial, setSavingSocial] = useState(false);
   const [avatarPickerOpen, setAvatarPickerOpen] = useState(false);
+  const [verifiedOpen, setVerifiedOpen] = useState(false);
   // Fetch social links from profile
   useEffect(() => {
     if (profile) {
