@@ -410,7 +410,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection, surfaceType }:
 
   return (
     <div className="py-12 px-6 text-center rounded-lg relative overflow-hidden" style={{ minHeight: "260px", backgroundColor: bgColor || "hsl(var(--accent) / 0.08)" }}>
-      {hasVisualMedia && canvas?.onUpdateField ? (
+      {hasVisualMedia && isCommunity && canvas?.onUpdateField ? (
         <HeroImagePositioner
           src={resolvedMediaUrl}
           alt="Hero visual"
@@ -432,7 +432,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection, surfaceType }:
           }}
         />
       ) : hasVisualMedia ? (
-        <img src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-70" />
+        <EditableImage src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-70" field="media.url" canvas={canvas} />
       ) : null}
       {mediaType === "video" && mediaUrl && (() => {
         const ytId = isYouTubeUrl(mediaUrl);
