@@ -55,6 +55,118 @@ interface DashboardBusinessSurface {
   cover_image: string | null;
 }
 
+function OwnReviewsTab() {
+  const { user } = useAuth();
+  const { data, isLoading } = useProfileReviews(user?.id);
+  const reviews = data?.reviews ?? [];
+  const avgRating = data?.avgRating ?? 0;
+  const totalCount = data?.totalCount ?? 0;
+  if (isLoading) return <div className="flex items-center justify-center py-10"><Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} /></div>;
+  return (
+    <div className="space-y-4">
+      {totalCount > 0 && (
+        <div className="rounded-xl p-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-0.5">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Star key={i} className="w-4 h-4" style={{ color: i < Math.round(avgRating) ? "#f59e0b" : "rgba(255,255,255,0.15)", fill: i < Math.round(avgRating) ? "#f59e0b" : "transparent" }} />
+              ))}
+            </div>
+            <span className="text-sm font-semibold text-white">{avgRating.toFixed(1)}</span>
+            <span className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>({totalCount} review{totalCount !== 1 ? "s" : ""})</span>
+          </div>
+        </div>
+      )}
+      {reviews.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-10">
+          <Star className="w-8 h-8 mb-2" style={{ color: "rgba(255,255,255,0.2)" }} />
+          <p className="text-sm font-semibold text-white mb-1">No reviews yet</p>
+          <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Reviews from clients will appear here.</p>
+        </div>
+      ) : (
+        reviews.map((r) => (
+          <div key={r.id} className="rounded-lg p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="w-6 h-6 rounded-full overflow-hidden shrink-0" style={{ background: "rgba(255,255,255,0.1)" }}>
+                {r.reviewer_avatar ? <img src={r.reviewer_avatar} alt="" className="w-6 h-6 rounded-full object-cover" /> : <div className="w-6 h-6 flex items-center justify-center text-[9px] font-bold text-white/50">{(r.reviewer_name||"U").slice(0,2).toUpperCase()}</div>}
+              </div>
+              <span className="text-xs font-medium text-white">{r.reviewer_name}</span>
+              {r.reviewer_username && <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.3)" }}>@{r.reviewer_username}</span>}
+            </div>
+            <div className="flex items-center gap-0.5">
+              {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="w-3 h-3" style={{ color: i < r.rating ? "#f59e0b" : "rgba(255,255,255,0.15)", fill: i < r.rating ? "#f59e0b" : "transparent" }} />)}
+            </div>
+            {r.title && <p className="text-sm font-medium text-white mt-1.5">{r.title}</p>}
+            {r.body && <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.5)" }}>{r.body}</p>}
+            <p className="text-[10px] mt-2" style={{ color: "rgba(255,255,255,0.3)" }}>{new Date(r.created_at).toLocaleDateString()}</p>
+          </div>
+        ))
+      )}
+    </div>
+  );
+}
+
+function OwnPostsTab() {
+  const { user, profile } = useAuth();
+  const { data: posts = [], isLoading } = useUserPosts(user?.id);
+  const createPost = useCreatePost();
+  const toggleReaction = useToggleReaction();
+  const [text, setText] = useState("");
+  const avatarUrl = profile ? resolveAvatarUrl(profile) : null;
+  const initials = (profile?.display_name || "U").slice(0, 2).toUpperCase();
+  const handlePost = () => { if (!text.trim()) return; createPost.mutate({ content: text.trim() }); setText(""); };
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-xl p-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+        <div className="flex items-start gap-3">
+          <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden" style={{ background: "rgba(255,255,255,0.1)" }}>
+            {avatarUrl ? <img src={avatarUrl} alt="" className="w-9 h-9 rounded-full object-cover" /> : <span className="text-white/60">{initials}</span>}
+          </div>
+          <div className="flex-1">
+            <textarea value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && e.metaKey) handlePost(); }} placeholder="Share an update..." className="w-full bg-transparent text-sm text-white placeholder:text-white/25 outline-none resize-none min-h-[50px]" />
+            <div className="flex justify-end mt-2">
+              <button onClick={handlePost} disabled={!text.trim() || createPost.isPending} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold" style={{ background: text.trim() ? "linear-gradient(135deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.08)", color: text.trim() ? "#fff" : "rgba(255,255,255,0.35)" }}>
+                {createPost.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />} Post
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {isLoading ? (
+        <div className="flex items-center justify-center py-10"><Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} /></div>
+      ) : posts.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-10">
+          <MessageSquare className="w-8 h-8 mb-2" style={{ color: "rgba(255,255,255,0.2)" }} />
+          <p className="text-sm font-semibold text-white mb-1">No posts yet</p>
+          <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Share your first update above!</p>
+        </div>
+      ) : (
+        posts.map((post) => (
+          <div key={post.id} className="rounded-lg p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-7 h-7 rounded-full overflow-hidden shrink-0" style={{ background: "rgba(255,255,255,0.1)" }}>
+                {post.author_avatar ? <img src={post.author_avatar} alt="" className="w-7 h-7 rounded-full object-cover" /> : <div className="w-7 h-7 flex items-center justify-center text-[10px] font-bold text-white/60">{(post.author_name||"U").slice(0,2).toUpperCase()}</div>}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-white truncate">{post.author_name}</p>
+                {post.author_username && <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>@{post.author_username}</p>}
+              </div>
+              <span className="text-[10px] shrink-0" style={{ color: "rgba(255,255,255,0.3)" }}>{new Date(post.created_at).toLocaleDateString()}</span>
+            </div>
+            <p className="text-sm text-white whitespace-pre-wrap mb-2">{post.content}</p>
+            <div className="flex items-center gap-4">
+              <button onClick={() => toggleReaction.mutate({ postId: post.id, reactionType: "like", isActive: !!post.user_liked })} className="flex items-center gap-1 text-[11px]" style={{ color: post.user_liked ? "#3b82f6" : "rgba(255,255,255,0.35)" }}><ThumbsUp className="w-3.5 h-3.5" /> {post.like_count || ""}</button>
+              <button onClick={() => toggleReaction.mutate({ postId: post.id, reactionType: "love", isActive: !!post.user_loved })} className="flex items-center gap-1 text-[11px]" style={{ color: post.user_loved ? "#ef4444" : "rgba(255,255,255,0.35)" }}><Heart className="w-3.5 h-3.5" /> {post.love_count || ""}</button>
+              <span className="flex items-center gap-1 text-[11px]" style={{ color: "rgba(255,255,255,0.35)" }}><MessageSquare className="w-3.5 h-3.5" /> {post.comment_count || ""}</span>
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  );
+}
+
 interface ProfileWorkspaceProps {
   activeProfileTab?: string;
   onProfileTabChange?: (tab: string) => void;
