@@ -2,7 +2,7 @@
  * Surface Settings Dialog — Edit SEO/branding metadata per surface.
  * Used in My Business surface cards and publish flow.
  */
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
