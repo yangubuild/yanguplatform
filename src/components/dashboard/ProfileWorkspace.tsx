@@ -860,25 +860,9 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
             </div>
           )}
 
-          {activeTab === "Reviews" && (
-            <div className="flex flex-col items-center justify-center py-10">
-              <Star className="w-8 h-8 mb-2" style={{ color: "rgba(255,255,255,0.2)" }} />
-              <p className="text-sm font-semibold text-white mb-1">Your Reviews</p>
-              <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
-                Reviews you've created will appear here.
-              </p>
-            </div>
-          )}
+          {activeTab === "Reviews" && <OwnReviewsTab />}
 
-          {activeTab === "Posts" && (
-            <div className="flex flex-col items-center justify-center py-10">
-              <MessageSquare className="w-8 h-8 mb-2" style={{ color: "rgba(255,255,255,0.2)" }} />
-              <p className="text-sm font-semibold text-white mb-1">Your Posts</p>
-              <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
-                Posts you create will appear here as a feed.
-              </p>
-            </div>
-          )}
+          {activeTab === "Posts" && <OwnPostsTab />}
 
           {activeTab === "About" && (
             <div className="space-y-4">
