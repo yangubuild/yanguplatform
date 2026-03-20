@@ -12,6 +12,7 @@ import { CanvasItemControls } from "./canvas/CanvasItemControls";
 import { CanvasHints } from "./canvas/CanvasHints";
 import { CanvasEditableText } from "./canvas/CanvasEditableText";
 import { CanvasImagePopover } from "./canvas/CanvasImagePopover";
+import { HeroImagePositioner } from "./canvas/HeroImagePositioner";
 
 interface CanvasCallbacks {
   sectionId: string;
