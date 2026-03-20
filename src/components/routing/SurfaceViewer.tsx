@@ -70,14 +70,14 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
   // Render published schema — use same normalization as editor canvas
   const schema = data.published_schema;
   const page = schema.pages?.[0];
+  const title = schema.surface?.title || "Untitled";
+  const surfaceType = schema.surface?.surface_type;
   const rawSections = page?.sections
     ?.slice()
     .sort((a: BuilderPublishedSection, b: BuilderPublishedSection) => a.position - b.position) ?? [];
   
   // Deduplicate using shared normalizer (matches editor canvas logic)
   const sections = deduplicatePublishedSections(rawSections, surfaceType || "quick_site");
-  const title = schema.surface?.title || "Untitled";
-  const surfaceType = schema.surface?.surface_type;
 
   // Read theme
   const rawTheme = (schema.surface?.theme as Partial<BuilderTheme>) || {};
