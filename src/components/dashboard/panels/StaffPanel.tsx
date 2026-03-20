@@ -68,13 +68,13 @@ export function StaffPanel() {
         className="flex items-center justify-between px-4 py-3 shrink-0"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
-        <span className="text-sm font-semibold text-white">Staff</span>
+        <span className="text-sm font-semibold text-white">Team</span>
         <button
           onClick={() => setTeamModalOpen(true)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
           style={{ background: "rgba(181,98,42,0.12)", color: "#E67E22" }}
         >
-          <Plus className="w-3.5 h-3.5" /> Add Staff
+          <Plus className="w-3.5 h-3.5" /> Add Team
         </button>
       </div>
 
@@ -86,7 +86,7 @@ export function StaffPanel() {
         ) : members.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10">
             <UserCog className="w-8 h-8 mb-2" style={{ color: "rgba(255,255,255,0.2)" }} />
-            <p className="text-sm text-white mb-1">No staff members yet</p>
+            <p className="text-sm text-white mb-1">No team members yet</p>
             <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
               Add team members to help manage your business.
             </p>
