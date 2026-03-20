@@ -164,13 +164,11 @@ function EditableImage({
 // ─── Section Renderers ───
 
 function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks; sections?: EditorSection[]; onSelectSection?: (id: string) => void }) {
-  const media = (schema.media as { type?: string; url?: string; fit?: string; position?: string; zoom?: number }) || {};
+  const media = (schema.media as { type?: string; url?: string; fit?: string }) || {};
   const mediaType = media.type || "none";
   const mediaUrl = media.url || "";
   const resolvedMediaUrl = mediaUrl || demoImage(0);
   const mediaFit = media.fit || "contain";
-  const mediaPosition = media.position || "50% 50%";
-  const mediaZoom = media.zoom ?? 1;
   const ctaText = (schema.cta_text as string) || "";
   const ctaHref = (schema.cta_href as string) || "";
   const layoutVariant = (schema.layout_variant as string) || "";
