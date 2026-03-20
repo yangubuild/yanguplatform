@@ -23,7 +23,7 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className="sm:max-w-md p-0 border-0 gap-0"
-        style={{ background: "#1a2129", borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)" }}
+        style={{ background: "#111a15", borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)" }}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-2">
@@ -80,14 +80,14 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
             className="flex-1 h-10 rounded-lg px-3 text-sm text-white outline-none"
             style={{
               background: "rgba(255,255,255,0.04)",
-              border: "1.5px solid rgba(100,140,255,0.4)",
+              border: "1.5px solid rgba(181,98,42,0.4)",
             }}
           />
           <button
             className="h-10 px-5 rounded-lg text-sm font-semibold transition-opacity"
             style={{
-              background: "rgba(255,255,255,0.08)",
-              color: "rgba(255,255,255,0.35)",
+              background: email && selectedRole ? "linear-gradient(135deg, #c47a3a, #5c2a12)" : "rgba(255,255,255,0.08)",
+              color: email && selectedRole ? "#fff" : "rgba(255,255,255,0.35)",
             }}
             disabled={!email || !selectedRole}
           >
