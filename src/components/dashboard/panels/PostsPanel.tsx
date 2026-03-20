@@ -68,6 +68,27 @@ export function PostsPanel() {
     }
   };
 
+  const handleAiGenerate = useCallback(async () => {
+    setAiGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("ada-chat", {
+        body: {
+          messages: [{ role: "user", content: "Write a short, engaging social media post for a business owner sharing an update, product, or service. Keep it under 40 words, casual but professional. Return ONLY the post text, no quotes." }],
+          model: "google/gemini-2.5-flash-lite",
+          max_tokens: 80,
+        },
+      });
+      if (error) throw error;
+      const reply = (data?.reply || data?.content || "").trim();
+      if (reply) setText(reply);
+      else toast.error("No text generated");
+    } catch {
+      toast.info("AI generation unavailable — type manually");
+    } finally {
+      setAiGenerating(false);
+    }
+  }, []);
+
   const isPosting = createPost.isPending || uploading;
   const canPost = text.trim() || mediaFiles.length > 0;
 
