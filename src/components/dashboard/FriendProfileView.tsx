@@ -1,0 +1,454 @@
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { resolveAvatarUrl } from "@/lib/avatarUtils";
+import {
+  ArrowLeft,
+  MapPin,
+  Star,
+  MessageSquare,
+  Heart,
+  Send,
+  ExternalLink,
+  Loader2,
+  Users,
+} from "lucide-react";
+import { toast } from "sonner";
+
+export interface FriendUser {
+  id: string;
+  display_name: string | null;
+  username: string | null;
+  avatar_url: string | null;
+  avatar_mode?: string | null;
+  avatar_emoji_key?: string | null;
+  business_name: string | null;
+  cover_url?: string | null;
+}
+
+const FRIEND_TABS = ["Home", "Reviews", "Posts", "About"] as const;
+type FriendTab = (typeof FRIEND_TABS)[number];
+
+interface FriendProfileViewProps {
+  user: FriendUser;
+  onBack: () => void;
+  onTabChange?: (tab: string) => void;
+}
+
+interface FriendSurface {
+  id: string;
+  title: string | null;
+  surface_type: string;
+  cover_image: string | null;
+}
+
+interface ReviewRow {
+  id: string;
+  rating: number;
+  title: string | null;
+  body: string | null;
+  created_at: string;
+  reviewer_name: string | null;
+}
+
+export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileViewProps) {
+  const { user: currentUser, profile: currentProfile } = useAuth();
+  const [activeTab, setActiveTab] = useState<FriendTab>("Home");
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewText, setReviewText] = useState("");
+  const [postComment, setPostComment] = useState("");
+
+  const name = user.display_name || user.username || "Unnamed";
+  const initials = name.slice(0, 2).toUpperCase();
+  const resolvedAvatar = resolveAvatarUrl(user);
+  const username = user.username;
+
+  // Fetch friend's profile for about data
+  const { data: friendProfile } = useQuery({
+    queryKey: ["friend-profile", user.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Determine account type for Follow vs Join
+  const accountType = (friendProfile as any)?.account_type as string | null;
+  const isCommunityType = accountType === "community";
+
+  // Fetch friend's published surfaces
+  const { data: surfaces = [], isLoading: surfacesLoading } = useQuery({
+    queryKey: ["friend-surfaces", user.id],
+    queryFn: async (): Promise<FriendSurface[]> => {
+      const { data: builderSurfaces, error } = await supabase
+        .from("builder_surfaces")
+        .select("id, title, surface_type, cover_image_url, metadata")
+        .eq("user_id", user.id)
+        .order("updated_at", { ascending: false });
+      if (error) throw error;
+      if (!builderSurfaces?.length) return [];
+
+      const surfaceIds = builderSurfaces.map((s) => s.id);
+      const { data: publishes } = await supabase
+        .from("builder_publishes")
+        .select("surface_id")
+        .in("surface_id", surfaceIds)
+        .eq("state", "published");
+
+      const publishedIds = new Set((publishes ?? []).map((p) => p.surface_id));
+      return builderSurfaces
+        .filter((s) => publishedIds.has(s.id))
+        .map((s) => ({
+          id: s.id,
+          title: s.title,
+          surface_type: s.surface_type,
+          cover_image: (s as any).cover_image_url || null,
+        }));
+    },
+  });
+
+  // Fetch reviews about this user
+  const { data: reviews = [], isLoading: reviewsLoading } = useQuery({
+    queryKey: ["friend-reviews", user.id],
+    queryFn: async (): Promise<ReviewRow[]> => {
+      const { data, error } = await supabase
+        .from("entity_reviews")
+        .select("id, rating, title, body, created_at, user_id")
+        .order("created_at", { ascending: false })
+        .limit(20);
+      if (error) throw error;
+      return (data ?? []).map((r: any) => ({
+        ...r,
+        reviewer_name: null,
+      }));
+    },
+  });
+
+  const handleTabChange = (tab: FriendTab) => {
+    setActiveTab(tab);
+    onTabChange?.(tab);
+  };
+
+  const handleSubmitReview = async () => {
+    if (!currentUser || reviewRating === 0) {
+      toast.error("Please select a rating");
+      return;
+    }
+    toast.success("Review submitted");
+    setReviewRating(0);
+    setReviewText("");
+  };
+
+  const aboutData = (friendProfile as any)?.social_links as any;
+  const createdAt = friendProfile?.created_at
+    ? new Date(friendProfile.created_at).toLocaleDateString("en-US", { month: "short", year: "numeric" })
+    : null;
+
+  const renderStars = (rating: number, interactive = false) => (
+    <div className="flex items-center gap-0.5">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Star
+          key={i}
+          className={`w-4 h-4 ${interactive ? "cursor-pointer" : ""}`}
+          onClick={interactive ? () => setReviewRating(i + 1) : undefined}
+          style={{
+            color: i < rating ? "#f59e0b" : "rgba(255,255,255,0.15)",
+            fill: i < rating ? "#f59e0b" : "transparent",
+          }}
+        />
+      ))}
+    </div>
+  );
+
+  return (
+    <div className="flex flex-col h-full" style={{ background: "#0f141a" }}>
+      {/* Top bar with back */}
+      <div
+        className="flex items-center gap-3 px-5 py-2.5 shrink-0"
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
+      >
+        <button onClick={onBack} className="p-1 rounded-md hover:bg-white/5" style={{ color: "rgba(255,255,255,0.5)" }}>
+          <ArrowLeft className="w-4 h-4" />
+        </button>
+        <span className="text-sm font-semibold text-white">{name}</span>
+      </div>
+
+      <div className="flex-1 min-h-0 overflow-y-auto">
+        {/* Cover */}
+        <div
+          className="w-full h-[180px] relative overflow-hidden"
+          style={{
+            background: user.cover_url
+              ? `url(${user.cover_url}) center/cover no-repeat`
+              : "linear-gradient(135deg, #0d3a27 0%, #061a12 100%)",
+          }}
+        />
+
+        {/* Profile header */}
+        <div className="px-5 -mt-10 relative z-10">
+          <div
+            className="w-[80px] h-[80px] rounded-full flex items-center justify-center text-xl font-bold overflow-hidden"
+            style={{
+              background: resolvedAvatar ? "transparent" : "#1e293b",
+              border: "4px solid #0f141a",
+              color: "rgba(255,255,255,0.7)",
+            }}
+          >
+            {resolvedAvatar ? (
+              <img src={resolvedAvatar} alt="" className="w-full h-full rounded-full object-cover" />
+            ) : (
+              initials
+            )}
+          </div>
+
+          {/* Name + action button row */}
+          <div className="flex items-start justify-between mt-3 gap-4">
+            <div>
+              <h2 className="text-[24px] leading-[1.15] font-bold text-white">{name}</h2>
+              {username && (
+                <p className="text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  @{username}
+                </p>
+              )}
+              {user.business_name && (
+                <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.35)" }}>
+                  {user.business_name}
+                </p>
+              )}
+            </div>
+            {/* Single visitor action button */}
+            <button
+              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold shrink-0"
+              style={{
+                background: isCommunityType ? "#22c55e" : "linear-gradient(135deg, #c47a3a, #5c2a12)",
+                color: "#fff",
+              }}
+            >
+              {isCommunityType ? (
+                <><Users className="w-3.5 h-3.5" /> Join</>
+              ) : (
+                "Follow"
+              )}
+            </button>
+          </div>
+
+          {/* Meta row */}
+          <div
+            className="flex items-center gap-2.5 mt-2.5 text-xs flex-wrap"
+            style={{ color: "rgba(255,255,255,0.45)" }}
+          >
+            <span className="flex items-center gap-1">
+              <MapPin className="w-3 h-3" />
+              {(friendProfile as any)?.location || "Location"}
+            </span>
+            {createdAt && (
+              <>
+                <span style={{ color: "rgba(255,255,255,0.2)" }}>•</span>
+                <span>Joined {createdAt}</span>
+              </>
+            )}
+            <span style={{ color: "rgba(255,255,255,0.2)" }}>•</span>
+            <span>{surfaces.length} surface{surfaces.length !== 1 ? "s" : ""}</span>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="px-5 mt-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+          <div className="flex gap-6">
+            {FRIEND_TABS.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => handleTabChange(tab)}
+                className="relative pb-2.5 text-sm font-medium transition-colors"
+                style={{ color: activeTab === tab ? "#E67E22" : "rgba(255,255,255,0.45)" }}
+              >
+                {tab}
+                {activeTab === tab && (
+                  <span
+                    className="absolute bottom-0 left-0 right-0 h-[2px] rounded-full"
+                    style={{ background: "#b5622a" }}
+                  />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Tab content */}
+        <div className="px-5 py-4">
+          {/* HOME TAB */}
+          {activeTab === "Home" && (
+            <>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-semibold text-white">
+                  Surfaces <span style={{ color: "rgba(255,255,255,0.4)" }}>{surfaces.length}</span>
+                </span>
+              </div>
+              {surfacesLoading ? (
+                <div className="flex items-center justify-center py-10">
+                  <Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
+                </div>
+              ) : surfaces.length === 0 ? (
+                <div
+                  className="rounded-xl p-8 text-center"
+                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
+                >
+                  <p className="text-sm text-white mb-1">No published surfaces</p>
+                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+                    This user has no public offerings yet.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {surfaces.map((surface) => (
+                    <a
+                      key={surface.id}
+                      href={`/s/${surface.id}/preview`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-xl overflow-hidden hover:ring-1 hover:ring-white/10 transition-all"
+                      style={{ background: "#1a2129", border: "1px solid rgba(255,255,255,0.06)" }}
+                    >
+                      {surface.cover_image ? (
+                        <img src={surface.cover_image} alt={surface.title || ""} className="w-full h-24 object-cover" />
+                      ) : (
+                        <div
+                          className="h-24 flex items-center justify-center text-3xl font-bold"
+                          style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)", color: "rgba(255,255,255,0.3)" }}
+                        >
+                          {(surface.title || "S").charAt(0)}
+                        </div>
+                      )}
+                      <div className="p-3">
+                        <p className="text-sm font-medium text-white">{surface.title || "Untitled"}</p>
+                        <p className="text-xs mt-1 flex items-center gap-1" style={{ color: "rgba(255,255,255,0.45)" }}>
+                          {surface.surface_type}
+                          <ExternalLink className="w-3 h-3 ml-auto" style={{ color: "#22c55e" }} />
+                        </p>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {/* REVIEWS TAB */}
+          {activeTab === "Reviews" && (
+            <div className="space-y-4">
+              {/* Submit review form */}
+              <div
+                className="rounded-xl p-4"
+                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
+              >
+                <p className="text-sm font-semibold text-white mb-2">Leave a review</p>
+                {renderStars(reviewRating, true)}
+                <textarea
+                  value={reviewText}
+                  onChange={(e) => setReviewText(e.target.value)}
+                  placeholder="Write your review..."
+                  className="w-full mt-3 bg-transparent text-sm text-white placeholder:text-white/25 outline-none resize-none min-h-[60px] rounded-lg px-3 py-2"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
+                />
+                <button
+                  onClick={handleSubmitReview}
+                  disabled={reviewRating === 0}
+                  className="mt-2 flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold"
+                  style={{
+                    background: reviewRating > 0 ? "linear-gradient(135deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.08)",
+                    color: reviewRating > 0 ? "#fff" : "rgba(255,255,255,0.35)",
+                  }}
+                >
+                  <Send className="w-3.5 h-3.5" /> Submit
+                </button>
+              </div>
+
+              {/* Existing reviews */}
+              {reviewsLoading ? (
+                <div className="flex items-center justify-center py-10">
+                  <Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
+                </div>
+              ) : reviews.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-8">
+                  <Star className="w-8 h-8 mb-2" style={{ color: "rgba(255,255,255,0.2)" }} />
+                  <p className="text-sm text-white mb-1">No reviews yet</p>
+                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+                    Be the first to review {name}.
+                  </p>
+                </div>
+              ) : (
+                reviews.map((review) => (
+                  <div
+                    key={review.id}
+                    className="rounded-lg p-3"
+                    style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+                  >
+                    {renderStars(review.rating)}
+                    {review.title && <p className="text-sm font-medium text-white mt-1.5">{review.title}</p>}
+                    {review.body && <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.5)" }}>{review.body}</p>}
+                    <p className="text-[10px] mt-2" style={{ color: "rgba(255,255,255,0.3)" }}>
+                      {new Date(review.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
+          {/* POSTS TAB */}
+          {activeTab === "Posts" && (
+            <div className="space-y-3">
+              <div className="flex flex-col items-center justify-center py-8">
+                <MessageSquare className="w-8 h-8 mb-2" style={{ color: "rgba(255,255,255,0.2)" }} />
+                <p className="text-sm font-semibold text-white mb-1">{name}'s Posts</p>
+                <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  Posts from this user will appear here.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* ABOUT TAB */}
+          {activeTab === "About" && (
+            <div className="space-y-4">
+              <div>
+                <p className="text-xs font-semibold text-white mb-1">Bio</p>
+                <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
+                  {aboutData?.about_me || "No bio available."}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-white mb-1">Business</p>
+                <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
+                  {aboutData?.about_business || user.business_name || "No business info available."}
+                </p>
+              </div>
+              {(friendProfile as any)?.location && (
+                <div>
+                  <p className="text-xs font-semibold text-white mb-1">Location</p>
+                  <p className="text-sm flex items-center gap-1" style={{ color: "rgba(255,255,255,0.5)" }}>
+                    <MapPin className="w-3 h-3" /> {(friendProfile as any).location}
+                  </p>
+                </div>
+              )}
+              {createdAt && (
+                <div>
+                  <p className="text-xs font-semibold text-white mb-1">Joined</p>
+                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>{createdAt}</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="h-8" />
+      </div>
+    </div>
+  );
+}

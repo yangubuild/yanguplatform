@@ -13,6 +13,10 @@ import { CoursesPanel } from "@/components/dashboard/panels/CoursesPanel";
 import { ChatPanel } from "@/components/dashboard/panels/ChatPanel";
 import { AddAppPanel } from "@/components/dashboard/panels/AddAppPanel";
 import { LivestreamingPanel } from "@/components/dashboard/panels/LivestreamingPanel";
+import { FriendProfileView, type FriendUser } from "@/components/dashboard/FriendProfileView";
+import { FriendReviewsRightPanel } from "@/components/dashboard/panels/FriendReviewsRightPanel";
+import { FriendPostsRightPanel } from "@/components/dashboard/panels/FriendPostsRightPanel";
+import { FriendChatRightPanel } from "@/components/dashboard/panels/FriendChatRightPanel";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useNavigate } from "react-router-dom";
@@ -21,18 +25,30 @@ export type ProfileTab = "Home" | "KYC" | "Reviews" | "Posts" | "About";
 
 /**
  * Maps sidebar items and profile tabs to right-panel content.
+ * When viewing a friend, context-sensitive right panels are shown.
  */
-function getRightPanel(sidebarItem: SidebarItem, profileTab: ProfileTab) {
+function getRightPanel(
+  sidebarItem: SidebarItem,
+  profileTab: ProfileTab,
+  viewedFriend: FriendUser | null,
+  friendTab: string,
+  onViewProfile: (user: FriendUser) => void,
+) {
+  // If viewing a friend and sidebar is "chat", show friend chat
+  if (viewedFriend && sidebarItem === "chat") {
+    return <FriendChatRightPanel friend={viewedFriend} />;
+  }
+
   // Sidebar-driven panels take priority when not on "home"
   switch (sidebarItem) {
     case "global-chat":
       return <GlobalChatPanel />;
     case "friends":
-      return <FriendsPanel />;
+      return <FriendsPanel onViewProfile={onViewProfile} />;
     case "team":
       return <StaffPanel />;
     case "chat":
-      return <ChatPanel />;
+      return viewedFriend ? <FriendChatRightPanel friend={viewedFriend} /> : <ChatPanel />;
     case "courses":
       return <CoursesPanel />;
     case "add-app":
@@ -41,6 +57,18 @@ function getRightPanel(sidebarItem: SidebarItem, profileTab: ProfileTab) {
       return <LivestreamingPanel />;
     default:
       break;
+  }
+
+  // When viewing a friend profile, right panel follows friend's active tab
+  if (viewedFriend) {
+    switch (friendTab) {
+      case "Reviews":
+        return <FriendReviewsRightPanel friend={viewedFriend} />;
+      case "Posts":
+        return <FriendPostsRightPanel friend={viewedFriend} />;
+      default:
+        return <FriendsPanel onViewProfile={onViewProfile} />;
+    }
   }
 
   // When sidebar is "home", right panel follows profile tab
@@ -52,7 +80,7 @@ function getRightPanel(sidebarItem: SidebarItem, profileTab: ProfileTab) {
     case "About":
       return <AboutPanel />;
     default:
-      return <FriendsPanel />;
+      return <FriendsPanel onViewProfile={onViewProfile} />;
   }
 }
 
@@ -62,14 +90,14 @@ function getRightPanel(sidebarItem: SidebarItem, profileTab: ProfileTab) {
 export default function DashboardHome() {
   const [activeItem, setActiveItem] = useState<SidebarItem>("home");
   const [activeProfileTab, setActiveProfileTab] = useState<ProfileTab>("Home");
+  const [viewedFriend, setViewedFriend] = useState<FriendUser | null>(null);
+  const [friendTab, setFriendTab] = useState<string>("Home");
   const isMobile = useIsMobile();
   const isTablet = useMediaQuery("(min-width: 768px) and (max-width: 1023px)");
   const navigate = useNavigate();
 
   const handleItemChange = (item: SidebarItem) => {
-    // Add App now opens in right panel instead of navigating away
     setActiveItem(item);
-    // Reset profile tab to Home when switching sidebar items
     if (item !== "home") {
       setActiveProfileTab("Home");
     }
@@ -77,21 +105,46 @@ export default function DashboardHome() {
 
   const handleProfileTabChange = (tab: ProfileTab) => {
     setActiveProfileTab(tab);
-    // Ensure sidebar shows "home" when user clicks profile tabs
     if (activeItem !== "home") {
       setActiveItem("home");
     }
   };
 
-  const rightPanel = getRightPanel(activeItem, activeProfileTab);
+  const handleViewFriend = (friend: FriendUser) => {
+    setViewedFriend(friend);
+    setFriendTab("Home");
+    setActiveItem("home");
+  };
+
+  const handleBackFromFriend = () => {
+    setViewedFriend(null);
+    setFriendTab("Home");
+  };
+
+  const handleFriendTabChange = (tab: string) => {
+    setFriendTab(tab);
+  };
+
+  const rightPanel = getRightPanel(activeItem, activeProfileTab, viewedFriend, friendTab, handleViewFriend);
+
+  // Center content: either friend profile or own profile workspace
+  const centerContent = viewedFriend ? (
+    <FriendProfileView
+      user={viewedFriend}
+      onBack={handleBackFromFriend}
+      onTabChange={handleFriendTabChange}
+    />
+  ) : (
+    <ProfileWorkspace
+      activeProfileTab={activeProfileTab}
+      onProfileTabChange={handleProfileTabChange}
+    />
+  );
 
   if (isMobile) {
     return (
       <div className="h-[calc(100vh-64px)] flex flex-col overflow-hidden">
-        <ProfileWorkspace
-          activeProfileTab={activeProfileTab}
-          onProfileTabChange={handleProfileTabChange}
-        />
+        {centerContent}
       </div>
     );
   }
@@ -118,10 +171,7 @@ export default function DashboardHome() {
                 border: "1px solid rgba(255,255,255,0.06)",
               }}
             >
-              <ProfileWorkspace
-                activeProfileTab={activeProfileTab}
-                onProfileTabChange={handleProfileTabChange}
-              />
+              {centerContent}
             </div>
           </div>
           <div className="h-full overflow-hidden p-2 pl-0" style={{ background: "#0B0F14" }}>
@@ -175,10 +225,7 @@ export default function DashboardHome() {
               border: "1px solid rgba(255,255,255,0.06)",
             }}
           >
-            <ProfileWorkspace
-              activeProfileTab={activeProfileTab}
-              onProfileTabChange={handleProfileTabChange}
-            />
+            {centerContent}
           </div>
         </div>
 

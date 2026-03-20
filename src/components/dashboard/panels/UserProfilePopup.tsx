@@ -1,4 +1,4 @@
-import { X, MessageSquare, UserPlus, ExternalLink } from "lucide-react";
+import { X, MessageSquare, ExternalLink, MapPin, Calendar, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
 
@@ -16,9 +16,10 @@ interface UserData {
 interface Props {
   user: UserData;
   onClose: () => void;
+  onViewProfile?: () => void;
 }
 
-export function UserProfilePopup({ user, onClose }: Props) {
+export function UserProfilePopup({ user, onClose, onViewProfile }: Props) {
   const navigate = useNavigate();
   const name = user.display_name || user.username || "Unnamed";
   const initials = name.slice(0, 2).toUpperCase();
@@ -30,8 +31,13 @@ export function UserProfilePopup({ user, onClose }: Props) {
   };
 
   const handleViewProfile = () => {
-    navigate(`/user/${user.username || user.id}`);
-    onClose();
+    if (onViewProfile) {
+      onViewProfile();
+    } else {
+      // Fallback: navigate internally (should not happen in dashboard context)
+      navigate(`/dashboard/home`);
+      onClose();
+    }
   };
 
   return (
@@ -89,9 +95,19 @@ export function UserProfilePopup({ user, onClose }: Props) {
             </p>
           )}
 
+          {/* Mini metadata row */}
+          <div className="flex items-center gap-3 mt-2 text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>
+            <span className="flex items-center gap-0.5">
+              <MapPin className="w-2.5 h-2.5" /> Location
+            </span>
+            <span className="flex items-center gap-0.5">
+              <Users className="w-2.5 h-2.5" /> 0 followers
+            </span>
+          </div>
+
           {/* Message input bar */}
           <div
-            className="w-full mt-4 flex items-center gap-2 rounded-xl px-3 py-2.5"
+            className="w-full mt-3 flex items-center gap-2 rounded-xl px-3 py-2.5"
             style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
           >
             <input

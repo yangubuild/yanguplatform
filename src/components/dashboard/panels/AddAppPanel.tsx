@@ -7,6 +7,8 @@ import { toast } from "sonner";
 const ALLOWED_SOCIAL_SLUGS = new Set([
   "zoom", "google-meet", "discord", "telegram", "whatsapp",
   "slack", "signal", "skype", "viber", "line",
+  "twitter", "x", "facebook", "instagram", "linkedin",
+  "tiktok", "youtube", "snapchat", "reddit", "twitch",
 ]);
 
 const SOCIAL_CATEGORY = "communication";
@@ -22,11 +24,16 @@ interface AppRow {
 
 // Fallback static list when no matching apps exist in app_registry
 const FALLBACK_APPS: AppRow[] = [
+  { id: "whatsapp", name: "WhatsApp", slug: "whatsapp", icon: null, short_description: "End-to-end encrypted messaging", category: "communication" },
+  { id: "twitter", name: "Twitter / X", slug: "twitter", icon: null, short_description: "Social media & broadcasting", category: "communication" },
+  { id: "telegram", name: "Telegram", slug: "telegram", icon: null, short_description: "Cloud-based messaging", category: "communication" },
+  { id: "discord", name: "Discord", slug: "discord", icon: null, short_description: "Community voice & text chat", category: "communication" },
   { id: "zoom", name: "Zoom", slug: "zoom", icon: null, short_description: "Video meetings & calls", category: "communication" },
   { id: "google-meet", name: "Google Meet", slug: "google-meet", icon: null, short_description: "Video conferencing by Google", category: "communication" },
-  { id: "discord", name: "Discord", slug: "discord", icon: null, short_description: "Community voice & text chat", category: "communication" },
-  { id: "telegram", name: "Telegram", slug: "telegram", icon: null, short_description: "Cloud-based messaging", category: "communication" },
-  { id: "whatsapp", name: "WhatsApp", slug: "whatsapp", icon: null, short_description: "End-to-end encrypted messaging", category: "communication" },
+  { id: "instagram", name: "Instagram", slug: "instagram", icon: null, short_description: "Photo & video sharing", category: "communication" },
+  { id: "tiktok", name: "TikTok", slug: "tiktok", icon: null, short_description: "Short-form video platform", category: "communication" },
+  { id: "youtube", name: "YouTube", slug: "youtube", icon: null, short_description: "Video hosting & streaming", category: "communication" },
+  { id: "linkedin", name: "LinkedIn", slug: "linkedin", icon: null, short_description: "Professional networking", category: "communication" },
 ];
 
 export function AddAppPanel() {

@@ -17,7 +17,11 @@ interface UserRow {
   cover_url: string | null;
 }
 
-export function FriendsPanel() {
+interface FriendsPanelProps {
+  onViewProfile?: (user: UserRow) => void;
+}
+
+export function FriendsPanel({ onViewProfile }: FriendsPanelProps) {
   const [search, setSearch] = useState("");
   const [selectedUser, setSelectedUser] = useState<UserRow | null>(null);
   const navigate = useNavigate();
@@ -164,9 +168,9 @@ export function FriendsPanel() {
                   <p className="text-sm font-medium text-white truncate">
                     {user.display_name || user.username || "Unnamed"}
                   </p>
-                  {user.business_name && (
-                    <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.35)" }}>
-                      {user.business_name}
+                  {user.username && (
+                    <p className="text-[11px] truncate" style={{ color: "rgba(255,255,255,0.35)" }}>
+                      @{user.username}
                     </p>
                   )}
                 </div>
@@ -187,6 +191,10 @@ export function FriendsPanel() {
         <UserProfilePopup
           user={selectedUser}
           onClose={() => setSelectedUser(null)}
+          onViewProfile={onViewProfile ? () => {
+            onViewProfile(selectedUser);
+            setSelectedUser(null);
+          } : undefined}
         />
       )}
     </div>
