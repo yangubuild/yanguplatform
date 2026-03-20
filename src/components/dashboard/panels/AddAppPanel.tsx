@@ -171,22 +171,6 @@ export function AddAppPanel() {
                   Add
                 </button>
               </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white truncate">{app.name}</p>
-                  {app.short_description && (
-                    <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.35)" }}>
-                      {app.short_description}
-                    </p>
-                  )}
-                </div>
-                <button
-                  onClick={() => handleAddApp(app)}
-                  className="px-3 py-1 rounded-md text-xs font-semibold shrink-0"
-                  style={{ background: "#22c55e", color: "#fff" }}
-                >
-                  Add
-                </button>
-              </div>
             );
           })
         )}
