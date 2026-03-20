@@ -499,6 +499,16 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
               >
                 Add team <Plus className="w-3.5 h-3.5" />
               </button>
+              <button
+                onClick={() => setVerifiedOpen(true)}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-semibold"
+                style={{
+                  background: "rgba(59,130,246,0.12)",
+                  color: "#3b82f6",
+                }}
+              >
+                <BadgeCheck className="w-3.5 h-3.5" /> Verified
+              </button>
           </div>
           </div>
 
