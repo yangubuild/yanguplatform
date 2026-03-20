@@ -18,6 +18,8 @@ import {
 import { toast } from "sonner";
 import { useUserPosts, useToggleReaction } from "@/hooks/usePosts";
 import { useProfileReviews, useSubmitProfileReview } from "@/hooks/useProfileReviews";
+import { useFollowCounts } from "@/hooks/useFollows";
+import { FollowButton } from "./panels/FollowButton";
 
 export interface FriendUser {
   id: string;
@@ -80,6 +82,9 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
       return data;
     },
   });
+
+  // Follow counts
+  const { data: followCounts } = useFollowCounts(user.id);
 
   // Determine account type for Follow vs Join
   const accountType = (friendProfile as any)?.account_type as string | null;
@@ -220,19 +225,16 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
               )}
             </div>
             {/* Single visitor action button */}
-            <button
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold shrink-0"
-              style={{
-                background: isCommunityType ? "#22c55e" : "linear-gradient(135deg, #c47a3a, #5c2a12)",
-                color: "#fff",
-              }}
-            >
-              {isCommunityType ? (
-                <><Users className="w-3.5 h-3.5" /> Join</>
-              ) : (
-                "Follow"
-              )}
-            </button>
+            {isCommunityType ? (
+              <button
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold shrink-0"
+                style={{ background: "#22c55e", color: "#fff" }}
+              >
+                <Users className="w-3.5 h-3.5" /> Join
+              </button>
+            ) : (
+              <FollowButton targetUserId={user.id} />
+            )}
           </div>
 
           {/* Meta row */}
@@ -250,6 +252,8 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
                 <span>Joined {createdAt}</span>
               </>
             )}
+            <span style={{ color: "rgba(255,255,255,0.2)" }}>•</span>
+            <span>{followCounts?.followers ?? 0} followers · {followCounts?.following ?? 0} following</span>
             <span style={{ color: "rgba(255,255,255,0.2)" }}>•</span>
             <span>{surfaces.length} surface{surfaces.length !== 1 ? "s" : ""}</span>
           </div>
