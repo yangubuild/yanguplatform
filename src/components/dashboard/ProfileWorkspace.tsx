@@ -734,6 +734,33 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                 </div>
               )}
             </>
+
+              {/* Go Live bar */}
+              <div
+                className="mt-6 rounded-xl flex items-center gap-3 px-4 py-3"
+                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+              >
+                <div
+                  className="w-9 h-9 rounded-full flex items-center justify-center overflow-hidden shrink-0"
+                  style={displayAvatar ? {} : { background: "#f97316" }}
+                >
+                  {displayAvatar ? (
+                    <img src={displayAvatar} alt="" className="w-9 h-9 rounded-full object-cover" />
+                  ) : (
+                    <span className="text-xs font-bold text-white">{initials.charAt(0)}</span>
+                  )}
+                </div>
+                <span className="flex-1 text-sm" style={{ color: "rgba(255,255,255,0.35)" }}>
+                  Say something they'll screenshot...
+                </span>
+                <button
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold shrink-0"
+                  style={{ background: "rgba(239,68,68,0.15)", color: "#ef4444" }}
+                  onClick={() => navigate("/live")}
+                >
+                  <Video className="w-4 h-4" /> Go live
+                </button>
+              </div>
           )}
 
           {activeTab === "KYC" && (
