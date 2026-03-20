@@ -171,6 +171,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection, surfaceType }:
   const mediaUrl = media.url || "";
   const resolvedMediaUrl = mediaUrl || demoImage(0);
   const mediaFit = media.fit || "contain";
+  const isCommunity = surfaceType === "community_group" || surfaceType === "community_listing";
   const ctaText = (schema.cta_text as string) || "";
   const ctaHref = (schema.cta_href as string) || "";
   const layoutVariant = (schema.layout_variant as string) || "";
