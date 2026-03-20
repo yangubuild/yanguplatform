@@ -76,7 +76,14 @@ export function AddAppPanel() {
           app.category === SOCIAL_CATEGORY
       );
 
-      return socialApps.length > 0 ? (socialApps as AppRow[]) : FALLBACK_APPS;
+      // Always include fallback social apps, merging with any DB matches
+      const slugsFromDb = new Set(socialApps.map((a) => a.slug));
+      const merged = [
+        ...socialApps,
+        ...FALLBACK_APPS.filter((f) => !slugsFromDb.has(f.slug)),
+      ];
+
+      return merged as AppRow[];
     },
   });
 
