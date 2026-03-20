@@ -1,4 +1,7 @@
 import { useState, useRef, useEffect } from "react";
+import { useUserPosts, useCreatePost, useToggleReaction, type Post } from "@/hooks/usePosts";
+import { useProfileReviews } from "@/hooks/useProfileReviews";
+import { Heart, ThumbsUp } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
