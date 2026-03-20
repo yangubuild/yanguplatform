@@ -18,9 +18,9 @@ export function useConversation(otherUserId: string | undefined) {
     queryKey: ["conversation", user?.id, otherUserId],
     enabled: !!user && !!otherUserId,
     queryFn: async (): Promise<DirectMessage[]> => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase
         .from("direct_messages" as any)
-        .select("*")
+        .select("*") as any)
         .or(
           `and(sender_id.eq.${user!.id},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${user!.id})`
         )
