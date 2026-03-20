@@ -1452,12 +1452,17 @@ function HeaderPreview({
     <div className={`w-full py-2.5 px-4 flex items-center overflow-hidden ${isDark ? "bg-foreground/90" : ""}`}>
       {!isCenterLogo && !isRightLogo && (
         <>
-          <div className="flex items-center gap-2 shrink-0 min-w-0">
+          <div className="flex items-center shrink-0 min-w-0">
             {logoBlock}
           </div>
-          <div className="flex items-center gap-3 flex-1 justify-end min-w-0 overflow-hidden pl-4">
+          <div className="flex items-center gap-4 flex-1 justify-end min-w-0 overflow-hidden pl-6">
             {primaryNavItems.slice(0, 4).map((item, i) => renderNavItem(item, i))}
-            {secondaryNavItems.slice(0, 2).map((item, i) => renderNavItem(item, i + primaryNavItems.length))}
+            {secondaryNavItems.length > 0 && (
+              <>
+                <span className={`text-[8px] ${isDark ? "text-background/30" : "text-muted-foreground/30"}`}>|</span>
+                {secondaryNavItems.slice(0, 3).map((item, i) => renderNavItem(item, i + primaryNavItems.length))}
+              </>
+            )}
             {showSearch && <span className="text-sm">🔍</span>}
             {showCart && <span className="text-sm">🛒</span>}
           </div>
