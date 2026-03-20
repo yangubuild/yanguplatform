@@ -32,6 +32,7 @@ function getRightPanel(
   profileTab: ProfileTab,
   viewedFriend: FriendUser | null,
   friendTab: string,
+  onViewProfile: (user: FriendUser) => void,
 ) {
   // If viewing a friend and sidebar is "chat", show friend chat
   if (viewedFriend && sidebarItem === "chat") {
@@ -43,7 +44,7 @@ function getRightPanel(
     case "global-chat":
       return <GlobalChatPanel />;
     case "friends":
-      return <FriendsPanel />;
+      return <FriendsPanel onViewProfile={onViewProfile} />;
     case "team":
       return <StaffPanel />;
     case "chat":
@@ -66,7 +67,7 @@ function getRightPanel(
       case "Posts":
         return <FriendPostsRightPanel friend={viewedFriend} />;
       default:
-        return <FriendsPanel />;
+        return <FriendsPanel onViewProfile={onViewProfile} />;
     }
   }
 
@@ -79,7 +80,7 @@ function getRightPanel(
     case "About":
       return <AboutPanel />;
     default:
-      return <FriendsPanel />;
+      return <FriendsPanel onViewProfile={onViewProfile} />;
   }
 }
 
