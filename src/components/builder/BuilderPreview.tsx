@@ -1400,9 +1400,10 @@ function HeaderPreview({
   const layoutVariant = (schema.layout_variant as string) || "";
   const bgStyle = (schema.background_style as string) || "";
   const isDark = bgStyle === "dark";
-  const sizeMap: Record<string, string> = { small: "h-8 w-8", medium: "h-10 w-10", large: "h-14 w-14" };
-  const isCenterLogo = logoPosition === "center" || layoutVariant === "nav_split";
+  const sizeMap: Record<string, string> = { small: "h-10 w-10", medium: "h-16 w-16", large: "h-24 w-24" };
+  // logo_position takes priority over layout_variant to prevent double rendering
   const isRightLogo = logoPosition === "right";
+  const isCenterLogo = !isRightLogo && (logoPosition === "center" || layoutVariant === "nav_split");
 
   const handleNavClick = (e: React.MouseEvent, label: string) => {
     e.stopPropagation();
