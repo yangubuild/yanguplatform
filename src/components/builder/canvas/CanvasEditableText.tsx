@@ -28,6 +28,7 @@ export function CanvasEditableText({
   placeholder = "Click to edit",
   className = "",
   tag: Tag = "p",
+  style,
   onSave,
   onAiRewrite,
 }: CanvasEditableTextProps) {
