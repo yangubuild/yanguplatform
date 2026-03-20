@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { PREVIEW_MAP } from "@/components/builder/BuilderPreview";
 import { DEFAULT_THEME, type BuilderTheme } from "@/components/builder/BuilderSettingsDrawer";
+import { deduplicatePublishedSections } from "@/config/builderCoreSections";
 import type {
   BuilderPublicSchemaResult,
   BuilderPublishedSection,
