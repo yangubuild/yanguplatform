@@ -46,9 +46,19 @@ interface DashboardBusinessSurface {
   cover_image: string | null;
 }
 
-export function ProfileWorkspace() {
+interface ProfileWorkspaceProps {
+  activeProfileTab?: string;
+  onProfileTabChange?: (tab: string) => void;
+}
+
+export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: ProfileWorkspaceProps) {
   const { user, profile, refreshProfile } = useAuth();
-  const [activeTab, setActiveTab] = useState<string>("Home");
+  const [internalTab, setInternalTab] = useState<string>("Home");
+  const activeTab = activeProfileTab ?? internalTab;
+  const setActiveTab = (tab: string) => {
+    if (onProfileTabChange) onProfileTabChange(tab);
+    else setInternalTab(tab);
+  };
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
