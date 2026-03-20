@@ -1455,7 +1455,7 @@ function HeaderPreview({
           <div className="flex items-center gap-2 shrink-0 min-w-0">
             {logoBlock}
           </div>
-          <div className="flex items-center gap-2 flex-1 justify-end min-w-0 overflow-hidden pl-3">
+          <div className="flex items-center gap-3 flex-1 justify-end min-w-0 overflow-hidden pl-4">
             {primaryNavItems.slice(0, 4).map((item, i) => renderNavItem(item, i))}
             {secondaryNavItems.slice(0, 2).map((item, i) => renderNavItem(item, i + primaryNavItems.length))}
             {showSearch && <span className="text-sm">🔍</span>}
