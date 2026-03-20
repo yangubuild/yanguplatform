@@ -18,6 +18,8 @@ import {
 import { toast } from "sonner";
 import { useUserPosts, useToggleReaction } from "@/hooks/usePosts";
 import { useProfileReviews, useSubmitProfileReview } from "@/hooks/useProfileReviews";
+import { useFollowCounts } from "@/hooks/useFollows";
+import { FollowButton } from "./panels/FollowButton";
 
 export interface FriendUser {
   id: string;
@@ -80,6 +82,9 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
       return data;
     },
   });
+
+  // Follow counts
+  const { data: followCounts } = useFollowCounts(user.id);
 
   // Determine account type for Follow vs Join
   const accountType = (friendProfile as any)?.account_type as string | null;
