@@ -2,35 +2,15 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Star, Loader2, MessageSquare } from "lucide-react";
-
-interface ReviewRow {
-  id: string;
-  rating: number;
-  title: string | null;
-  body: string | null;
-  created_at: string;
-  user_id: string;
-}
+import { useProfileReviews } from "@/hooks/useProfileReviews";
 
 export function ReviewsPanel() {
   const { user } = useAuth();
+  const { data, isLoading } = useProfileReviews(user?.id);
 
-  // Fetch reviews for user's surfaces (entity_reviews where entity_id = user's searchable_entity)
-  const { data: reviews = [], isLoading } = useQuery({
-    queryKey: ["reviews-panel", user?.id],
-    enabled: !!user,
-    queryFn: async (): Promise<ReviewRow[]> => {
-      if (!user) return [];
-      // Get reviews where the entity belongs to the user
-      const { data, error } = await supabase
-        .from("entity_reviews")
-        .select("id, rating, title, body, created_at, user_id")
-        .order("created_at", { ascending: false })
-        .limit(20);
-      if (error) throw error;
-      return (data ?? []) as ReviewRow[];
-    },
-  });
+  const reviews = data?.reviews ?? [];
+  const avgRating = data?.avgRating ?? 0;
+  const totalCount = data?.totalCount ?? 0;
 
   const renderStars = (rating: number) => (
     <div className="flex items-center gap-0.5">
@@ -62,6 +42,18 @@ export function ReviewsPanel() {
         </button>
       </div>
 
+      {/* Summary bar */}
+      {totalCount > 0 && (
+        <div className="px-4 py-2 shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+          <div className="flex items-center gap-2">
+            {renderStars(Math.round(avgRating))}
+            <span className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>
+              {avgRating.toFixed(1)} avg · {totalCount} review{totalCount !== 1 ? "s" : ""}
+            </span>
+          </div>
+        </div>
+      )}
+
       <div className="flex-1 overflow-y-auto px-3 py-2 space-y-2">
         {isLoading ? (
           <div className="flex items-center justify-center py-10">
@@ -82,6 +74,21 @@ export function ReviewsPanel() {
               className="rounded-lg p-3"
               style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
             >
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className="w-5 h-5 rounded-full overflow-hidden shrink-0" style={{ background: "rgba(255,255,255,0.1)" }}>
+                  {review.reviewer_avatar ? (
+                    <img src={review.reviewer_avatar} alt="" className="w-5 h-5 rounded-full object-cover" />
+                  ) : (
+                    <div className="w-5 h-5 flex items-center justify-center text-[8px] font-bold text-white/50">
+                      {(review.reviewer_name || "U").slice(0, 2).toUpperCase()}
+                    </div>
+                  )}
+                </div>
+                <span className="text-[11px] font-medium text-white">{review.reviewer_name}</span>
+                {review.reviewer_username && (
+                  <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.3)" }}>@{review.reviewer_username}</span>
+                )}
+              </div>
               {renderStars(review.rating)}
               {review.title && (
                 <p className="text-sm font-medium text-white mt-1.5">{review.title}</p>
