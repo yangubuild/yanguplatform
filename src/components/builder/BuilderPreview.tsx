@@ -495,7 +495,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection, surfaceType }:
         {description && <EditableText value={description} field="description" className={`mt-2 text-xs ${hasVisualMedia ? "text-white/60" : "text-muted-foreground"}`} tag="p" canvas={canvas} />}
         {ctaText && (
           <div className="mt-4 relative z-10">
-            <a href={ctaHref || "#"} className={`inline-block px-6 py-2 rounded-full text-sm font-medium yangu-cta ${hasVisualMedia ? "bg-background text-foreground" : "bg-primary text-primary-foreground"}`}>{ctaText}</a>
+            <EditableText value={ctaText} field="cta_text" className={`inline-block px-6 py-2 rounded-full text-sm font-medium yangu-cta ${hasVisualMedia ? "bg-background text-foreground" : "bg-primary text-primary-foreground"}`} tag="span" canvas={canvas} />
           </div>
         )}
       </div>
