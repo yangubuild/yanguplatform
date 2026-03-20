@@ -1347,7 +1347,7 @@ export function BuilderSectionEditor({
               <Label className="text-xs">Radius</Label>
               <Select
                 value={String(((localSchema.button_style as any)?.radius as string) || "8")}
-                onValueChange={(v) => update({ button_style: { ...((localSchema.button_style as any) || {}), radius: v } })}
+                onValueChange={(v) => updateButtonStyle("radius", v)}
               >
                 <SelectTrigger className="text-sm"><SelectValue /></SelectTrigger>
                 <SelectContent>
