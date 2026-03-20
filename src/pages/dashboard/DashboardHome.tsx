@@ -11,6 +11,8 @@ import { AboutPanel } from "@/components/dashboard/panels/AboutPanel";
 import { GlobalChatPanel } from "@/components/dashboard/panels/GlobalChatPanel";
 import { CoursesPanel } from "@/components/dashboard/panels/CoursesPanel";
 import { ChatPanel } from "@/components/dashboard/panels/ChatPanel";
+import { AddAppPanel } from "@/components/dashboard/panels/AddAppPanel";
+import { LivestreamingPanel } from "@/components/dashboard/panels/LivestreamingPanel";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useNavigate } from "react-router-dom";
@@ -33,11 +35,15 @@ function getRightPanel(sidebarItem: SidebarItem, profileTab: ProfileTab) {
       return <ChatPanel />;
     case "courses":
       return <CoursesPanel />;
+    case "add-app":
+      return <AddAppPanel />;
+    case "livestreaming":
+      return <LivestreamingPanel />;
     default:
       break;
   }
 
-  // When sidebar is "home" (or livestreaming), right panel follows profile tab
+  // When sidebar is "home", right panel follows profile tab
   switch (profileTab) {
     case "Reviews":
       return <ReviewsPanel />;
@@ -46,7 +52,7 @@ function getRightPanel(sidebarItem: SidebarItem, profileTab: ProfileTab) {
     case "About":
       return <AboutPanel />;
     default:
-      return <ClientChatPanel />;
+      return <FriendsPanel />;
   }
 }
 
@@ -61,13 +67,10 @@ export default function DashboardHome() {
   const navigate = useNavigate();
 
   const handleItemChange = (item: SidebarItem) => {
-    if (item === "add-app") {
-      navigate("/dashboard/apps");
-      return;
-    }
+    // Add App now opens in right panel instead of navigating away
     setActiveItem(item);
     // Reset profile tab to Home when switching sidebar items
-    if (item !== "home" && item !== "livestreaming") {
+    if (item !== "home") {
       setActiveProfileTab("Home");
     }
   };
@@ -75,7 +78,7 @@ export default function DashboardHome() {
   const handleProfileTabChange = (tab: ProfileTab) => {
     setActiveProfileTab(tab);
     // Ensure sidebar shows "home" when user clicks profile tabs
-    if (activeItem !== "home" && activeItem !== "livestreaming") {
+    if (activeItem !== "home") {
       setActiveItem("home");
     }
   };
