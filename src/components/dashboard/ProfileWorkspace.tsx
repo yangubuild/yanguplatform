@@ -37,7 +37,7 @@ import { ShareBusinessPopover } from "./ShareBusinessPopover";
 import { DashboardMoreMenu } from "./DashboardMoreMenu";
 import { SocialLinksModal, SOCIAL_PLATFORMS, type SocialLinksData } from "./SocialLinksModal";
 
-const TABS = ["Home", "KYC", "About"] as const;
+const TABS = ["Home", "KYC", "Reviews", "Posts", "About"] as const;
 
 interface DashboardBusinessSurface {
   id: string;
