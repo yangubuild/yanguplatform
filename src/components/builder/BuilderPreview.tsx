@@ -379,9 +379,42 @@ function HeroPreview({ schema, canvas, sections, onSelectSection }: { schema: Re
 
   return (
     <div className="py-12 px-6 text-center rounded-lg relative overflow-hidden" style={{ minHeight: "260px", backgroundColor: bgColor || "hsl(var(--accent) / 0.08)" }}>
-      {hasVisualMedia && (
-        <EditableImage src={resolvedMediaUrl} alt="Hero visual" className="absolute inset-0 w-full h-full object-cover opacity-70" field="media.url" canvas={canvas} />
-      )}
+      {hasVisualMedia && canvas?.onUpdateField ? (
+        <HeroImagePositioner
+          src={resolvedMediaUrl}
+          alt="Hero visual"
+          className="absolute inset-0 w-full h-full opacity-70"
+          position={mediaPosition}
+          zoom={mediaZoom}
+          onPositionChange={(p) => canvas.onUpdateField!(canvas.sectionId, "media.position", p)}
+          onZoomChange={(z) => canvas.onUpdateField!(canvas.sectionId, "media.zoom", z)}
+          onImageReplace={() => {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.accept = "image/*";
+            input.onchange = (ev) => {
+              const file = (ev.target as HTMLInputElement).files?.[0];
+              if (file) {
+                const reader = new FileReader();
+                reader.onload = () => canvas.onImageReplace?.(canvas.sectionId, "media.url", reader.result as string, "upload");
+                reader.readAsDataURL(file);
+              }
+            };
+            input.click();
+          }}
+        />
+      ) : hasVisualMedia ? (
+        <img
+          src={resolvedMediaUrl}
+          alt="Hero visual"
+          className="absolute inset-0 w-full h-full object-cover opacity-70"
+          style={{
+            objectPosition: mediaPosition,
+            transform: mediaZoom > 1 ? `scale(${mediaZoom})` : undefined,
+            transformOrigin: mediaPosition,
+          }}
+        />
+      ) : null}
       {mediaType === "video" && mediaUrl && (() => {
         const ytId = isYouTubeUrl(mediaUrl);
         return ytId ? (
