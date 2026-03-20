@@ -8,11 +8,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 const ROLES = [
-  { name: "Owner", desc: "Full access" },
-  { name: "Operations", desc: "Manage products, members, settings & payments" },
-  { name: "Sales", desc: "Members, plans, payments & promo codes" },
-  { name: "Support", desc: "Chat, forums, support tickets & content moderation" },
-  { name: "Advertiser", desc: "Create & manage ad campaigns and spend company budget" },
+  { name: "Owner", desc: "Full access", dbRole: "owner" },
+  { name: "Manager", desc: "Manage products, members, settings & payments", dbRole: "manager" },
+  { name: "Designer", desc: "Design and content editing access", dbRole: "designer" },
+  { name: "Admin", desc: "Administrative access to all features", dbRole: "admin" },
+  { name: "Member", desc: "Basic team member access", dbRole: "user" },
 ];
 
 interface AddTeamModalProps {
@@ -45,12 +45,15 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
         .eq("org_id", activeOrg.id)
         .limit(100);
 
-      // Store invite in admin_invites table (already exists in schema)
+      // Find the db role for the selected role
+      const selectedRoleObj = ROLES.find(r => r.name === selectedRole);
+      if (!selectedRoleObj) return;
+
       const { error } = await supabase
         .from("admin_invites")
         .insert({
           email: email.trim().toLowerCase(),
-          role: selectedRole.toLowerCase() as any,
+          role: selectedRoleObj.dbRole as any,
           invited_by: user.id,
           status: "pending",
         });
