@@ -1,12 +1,18 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { ImagePlus, Video, Sparkles, Send, Heart, MessageSquare, ThumbsUp, Loader2 } from "lucide-react";
+import { ImagePlus, Video, Sparkles, Send, Heart, MessageSquare, ThumbsUp, Loader2, X } from "lucide-react";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
-import { useUserPosts, useCreatePost, useToggleReaction, type Post } from "@/hooks/usePosts";
+import { useUserPosts, useCreatePost, useToggleReaction, uploadPostMedia, type Post } from "@/hooks/usePosts";
+import { toast } from "sonner";
 
 export function PostsPanel() {
   const { user, profile } = useAuth();
   const [text, setText] = useState("");
+  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
   const { data: posts = [], isLoading } = useUserPosts(user?.id);
   const createPost = useCreatePost();
   const toggleReaction = useToggleReaction();
@@ -14,11 +20,54 @@ export function PostsPanel() {
   const avatarUrl = profile ? resolveAvatarUrl(profile) : null;
   const initials = (profile?.display_name || "U").slice(0, 2).toUpperCase();
 
-  const handlePost = () => {
-    if (!text.trim()) return;
-    createPost.mutate({ content: text.trim() });
-    setText("");
+  const handleFileSelect = (files: FileList | null, type: "image" | "video") => {
+    if (!files || files.length === 0) return;
+    const file = files[0];
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast.error("File too large. Max 5MB.");
+      return;
+    }
+    setMediaFiles(prev => [...prev, file]);
+    setMediaPreviews(prev => [...prev, URL.createObjectURL(file)]);
   };
+
+  const removeMedia = (idx: number) => {
+    URL.revokeObjectURL(mediaPreviews[idx]);
+    setMediaFiles(prev => prev.filter((_, i) => i !== idx));
+    setMediaPreviews(prev => prev.filter((_, i) => i !== idx));
+  };
+
+  const handlePost = async () => {
+    if (!text.trim() && mediaFiles.length === 0) return;
+    if (!user) return;
+    
+    setUploading(true);
+    try {
+      let mediaUrls: string[] = [];
+      let mediaType = "text";
+      
+      if (mediaFiles.length > 0) {
+        mediaUrls = await Promise.all(
+          mediaFiles.map(f => uploadPostMedia(user.id, f))
+        );
+        mediaType = mediaFiles[0].type.startsWith("video") ? "video" : "image";
+      }
+
+      await createPost.mutateAsync({ content: text.trim() || "📷", mediaUrls, mediaType });
+      setText("");
+      mediaPreviews.forEach(url => URL.revokeObjectURL(url));
+      setMediaFiles([]);
+      setMediaPreviews([]);
+    } catch {
+      // error handled in hook
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const isPosting = createPost.isPending || uploading;
+  const canPost = text.trim() || mediaFiles.length > 0;
 
   return (
     <div className="flex flex-col h-full" style={{ background: "#111820" }}>
@@ -50,28 +99,71 @@ export function PostsPanel() {
               className="w-full bg-transparent text-sm text-white placeholder:text-white/25 outline-none resize-none min-h-[60px]"
               onKeyDown={(e) => { if (e.key === "Enter" && e.metaKey) handlePost(); }}
             />
+            
+            {/* Media previews */}
+            {mediaPreviews.length > 0 && (
+              <div className="flex gap-2 mt-2 flex-wrap">
+                {mediaPreviews.map((url, idx) => (
+                  <div key={idx} className="relative w-16 h-16 rounded-lg overflow-hidden">
+                    {mediaFiles[idx]?.type.startsWith("video") ? (
+                      <video src={url} className="w-16 h-16 object-cover" />
+                    ) : (
+                      <img src={url} alt="" className="w-16 h-16 object-cover" />
+                    )}
+                    <button
+                      onClick={() => removeMedia(idx)}
+                      className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-black/70 flex items-center justify-center"
+                    >
+                      <X className="w-2.5 h-2.5 text-white" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div className="flex items-center justify-between mt-2">
               <div className="flex items-center gap-2">
-                <button className="p-1.5 rounded-md hover:bg-white/5" style={{ color: "rgba(255,255,255,0.4)" }}>
+                <input
+                  ref={imageInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  className="hidden"
+                  onChange={(e) => { handleFileSelect(e.target.files, "image"); e.target.value = ""; }}
+                />
+                <button
+                  onClick={() => imageInputRef.current?.click()}
+                  className="p-1.5 rounded-md hover:bg-white/5"
+                  style={{ color: "rgba(255,255,255,0.4)" }}
+                  title="Add image"
+                >
                   <ImagePlus className="w-4 h-4" />
                 </button>
-                <button className="p-1.5 rounded-md hover:bg-white/5" style={{ color: "rgba(255,255,255,0.4)" }}>
+                <input
+                  ref={videoInputRef}
+                  type="file"
+                  accept="video/mp4,video/webm"
+                  className="hidden"
+                  onChange={(e) => { handleFileSelect(e.target.files, "video"); e.target.value = ""; }}
+                />
+                <button
+                  onClick={() => videoInputRef.current?.click()}
+                  className="p-1.5 rounded-md hover:bg-white/5"
+                  style={{ color: "rgba(255,255,255,0.4)" }}
+                  title="Add video"
+                >
                   <Video className="w-4 h-4" />
-                </button>
-                <button className="p-1.5 rounded-md hover:bg-white/5" style={{ color: "#E67E22" }} title="AI Generate">
-                  <Sparkles className="w-4 h-4" />
                 </button>
               </div>
               <button
                 onClick={handlePost}
-                disabled={!text.trim() || createPost.isPending}
+                disabled={!canPost || isPosting}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-opacity"
                 style={{
-                  background: text.trim() ? "linear-gradient(135deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.08)",
-                  color: text.trim() ? "#fff" : "rgba(255,255,255,0.35)",
+                  background: canPost ? "linear-gradient(135deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.08)",
+                  color: canPost ? "#fff" : "rgba(255,255,255,0.35)",
                 }}
               >
-                {createPost.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />} Post
+                {isPosting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />} Post
               </button>
             </div>
           </div>
@@ -86,10 +178,7 @@ export function PostsPanel() {
           </div>
         ) : posts.length === 0 ? (
           <div className="flex flex-col items-center justify-center px-4 py-10">
-            <div
-              className="w-full max-w-sm rounded-xl p-5 mb-4"
-              style={{ background: "rgba(255,255,255,0.04)" }}
-            >
+            <div className="w-full max-w-sm rounded-xl p-5 mb-4" style={{ background: "rgba(255,255,255,0.04)" }}>
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-full" style={{ background: "rgba(255,255,255,0.08)" }} />
                 <div className="flex-1 space-y-2">
@@ -146,6 +235,22 @@ function PostCard({ post, onReact }: { post: Post; onReact: (type: "like" | "lov
         </span>
       </div>
       <p className="text-sm text-white whitespace-pre-wrap mb-2">{post.content}</p>
+
+      {/* Media display */}
+      {post.media_urls && post.media_urls.length > 0 && (
+        <div className="mb-2 rounded-lg overflow-hidden">
+          {post.media_type === "video" ? (
+            <video src={post.media_urls[0]} controls className="w-full max-h-48 object-cover rounded-lg" />
+          ) : (
+            <div className="flex gap-1 flex-wrap">
+              {post.media_urls.map((url, i) => (
+                <img key={i} src={url} alt="" className="rounded-lg object-cover max-h-48" style={{ maxWidth: post.media_urls.length > 1 ? "48%" : "100%" }} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="flex items-center gap-4">
         <button
           onClick={() => onReact("like", !!post.user_liked)}
