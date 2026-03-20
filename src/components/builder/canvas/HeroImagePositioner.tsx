@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import { Move, ZoomIn, ZoomOut, Check } from "lucide-react";
+import { Move, Upload, Check } from "lucide-react";
 
 interface HeroImagePositionerProps {
   src: string;
@@ -16,7 +16,6 @@ interface HeroImagePositionerProps {
 
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 3;
-const ZOOM_STEP = 0.1;
 
 function parsePosition(pos: string | undefined): { x: number; y: number } {
   if (!pos) return { x: 50, y: 50 };
@@ -27,6 +26,11 @@ function parsePosition(pos: string | undefined): { x: number; y: number } {
   };
 }
 
+/**
+ * Hero image with click-to-show two options:
+ *   1. Resize / Reposition  (enters drag + zoom mode)
+ *   2. Replace Image        (opens file picker)
+ */
 export function HeroImagePositioner({
   src,
   alt = "Hero image",
@@ -37,6 +41,7 @@ export function HeroImagePositioner({
   onZoomChange,
   onImageReplace,
 }: HeroImagePositionerProps) {
+  const [showOptions, setShowOptions] = useState(false);
   const [isRepositioning, setIsRepositioning] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -45,25 +50,20 @@ export function HeroImagePositioner({
   const pos = parsePosition(position);
   const effectiveZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom));
 
+  /* ── Drag logic (only active in reposition mode) ── */
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
       if (!isRepositioning) return;
       e.preventDefault();
       e.stopPropagation();
       setIsDragging(true);
-      dragStart.current = {
-        x: e.clientX,
-        y: e.clientY,
-        startPos: parsePosition(position),
-      };
+      dragStart.current = { x: e.clientX, y: e.clientY, startPos: parsePosition(position) };
 
       const handleMouseMove = (ev: MouseEvent) => {
         if (!dragStart.current || !containerRef.current) return;
         const rect = containerRef.current.getBoundingClientRect();
-        // Moving mouse right → image pans left → decrease x%
         const dx = ((ev.clientX - dragStart.current.x) / rect.width) * 100;
         const dy = ((ev.clientY - dragStart.current.y) / rect.height) * 100;
-        // Sensitivity scales with zoom
         const sensitivity = effectiveZoom;
         const newX = Math.max(0, Math.min(100, dragStart.current.startPos.x - dx * sensitivity));
         const newY = Math.max(0, Math.min(100, dragStart.current.startPos.y - dy * sensitivity));
@@ -83,31 +83,53 @@ export function HeroImagePositioner({
     [isRepositioning, position, effectiveZoom, onPositionChange]
   );
 
-  const handleZoomIn = (e: React.MouseEvent) => {
+  /* ── Click on image: show the two-option menu ── */
+  const handleImageClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onZoomChange(Math.min(MAX_ZOOM, effectiveZoom + ZOOM_STEP));
+    if (isRepositioning) return; // clicks in reposition mode are for dragging
+    setShowOptions((prev) => !prev);
   };
 
-  const handleZoomOut = (e: React.MouseEvent) => {
+  /* ── Option 1: Enter reposition mode ── */
+  const enterReposition = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onZoomChange(Math.max(MIN_ZOOM, effectiveZoom - ZOOM_STEP));
+    setShowOptions(false);
+    setIsRepositioning(true);
   };
 
-  const toggleReposition = (e: React.MouseEvent) => {
+  /* ── Done repositioning ── */
+  const finishReposition = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsRepositioning((prev) => !prev);
+    setIsRepositioning(false);
+  };
+
+  /* ── Zoom via scroll wheel in reposition mode ── */
+  const handleWheel = useCallback(
+    (e: React.WheelEvent) => {
+      if (!isRepositioning) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const delta = e.deltaY > 0 ? -0.1 : 0.1;
+      onZoomChange(Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, effectiveZoom + delta)));
+    },
+    [isRepositioning, effectiveZoom, onZoomChange]
+  );
+
+  /* ── Option 2: Replace image ── */
+  const handleReplace = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowOptions(false);
+    onImageReplace?.();
   };
 
   if (!src) {
     return (
       <div
-        className={`bg-muted flex items-center justify-center text-muted-foreground text-xs ${className}`}
-        onClick={(e) => {
-          e.stopPropagation();
-          onImageReplace?.();
-        }}
+        className={`bg-muted flex items-center justify-center text-muted-foreground text-xs cursor-pointer ${className}`}
+        onClick={(e) => { e.stopPropagation(); onImageReplace?.(); }}
       >
-        No image
+        <Upload className="h-5 w-5 mr-1.5" />
+        Click to upload
       </div>
     );
   }
@@ -115,9 +137,11 @@ export function HeroImagePositioner({
   return (
     <div
       ref={containerRef}
-      className={`relative group/hero-img overflow-hidden ${className}`}
+      className={`relative overflow-hidden ${className}`}
+      onClick={handleImageClick}
       onMouseDown={handleMouseDown}
-      style={{ cursor: isRepositioning ? (isDragging ? "grabbing" : "grab") : undefined }}
+      onWheel={handleWheel}
+      style={{ cursor: isRepositioning ? (isDragging ? "grabbing" : "grab") : "pointer" }}
     >
       <img
         src={src}
@@ -132,77 +156,64 @@ export function HeroImagePositioner({
         }}
       />
 
-      {/* Controls toolbar — visible on hover or when repositioning */}
-      <div
-        className={`absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 rounded-full bg-black/60 backdrop-blur-sm px-2 py-1 z-20 transition-opacity ${
-          isRepositioning ? "opacity-100" : "opacity-0 group-hover/hero-img:opacity-100"
-        }`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Reposition toggle */}
-        <button
-          type="button"
-          onClick={toggleReposition}
-          className={`p-1.5 rounded-full transition-colors ${
-            isRepositioning
-              ? "bg-primary text-primary-foreground"
-              : "text-white hover:bg-white/20"
-          }`}
-          title={isRepositioning ? "Done repositioning" : "Reposition image"}
+      {/* ── Two-option popover (shown on click) ── */}
+      {showOptions && !isRepositioning && (
+        <div
+          className="absolute inset-0 z-20 flex items-center justify-center bg-black/40"
+          onClick={(e) => { e.stopPropagation(); setShowOptions(false); }}
         >
-          {isRepositioning ? <Check className="h-3.5 w-3.5" /> : <Move className="h-3.5 w-3.5" />}
-        </button>
-
-        {/* Zoom controls */}
-        <div className="w-px h-4 bg-white/30" />
-        <button
-          type="button"
-          onClick={handleZoomOut}
-          className="p-1.5 rounded-full text-white hover:bg-white/20 transition-colors disabled:opacity-30"
-          disabled={effectiveZoom <= MIN_ZOOM}
-          title="Zoom out"
-        >
-          <ZoomOut className="h-3.5 w-3.5" />
-        </button>
-        <span className="text-white text-[10px] font-medium min-w-[2rem] text-center tabular-nums">
-          {Math.round(effectiveZoom * 100)}%
-        </span>
-        <button
-          type="button"
-          onClick={handleZoomIn}
-          className="p-1.5 rounded-full text-white hover:bg-white/20 transition-colors disabled:opacity-30"
-          disabled={effectiveZoom >= MAX_ZOOM}
-          title="Zoom in"
-        >
-          <ZoomIn className="h-3.5 w-3.5" />
-        </button>
-
-        {/* Replace image */}
-        {onImageReplace && (
-          <>
-            <div className="w-px h-4 bg-white/30" />
+          <div
+            className="flex flex-col gap-2 bg-background/95 backdrop-blur-md rounded-xl shadow-lg border border-border p-3 min-w-[180px]"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onImageReplace();
-              }}
-              className="px-2 py-1 rounded-full text-white text-[10px] font-medium hover:bg-white/20 transition-colors"
-              title="Replace image"
+              onClick={enterReposition}
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-accent transition-colors text-left"
             >
-              Replace
+              <Move className="h-4 w-4 text-muted-foreground shrink-0" />
+              <span className="text-sm font-medium text-foreground">Resize / Reposition</span>
             </button>
-          </>
-        )}
-      </div>
-
-      {/* Reposition guide overlay */}
-      {isRepositioning && (
-        <div className="absolute inset-0 border-2 border-dashed border-primary/60 pointer-events-none z-10">
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[10px] font-medium px-2 py-0.5 rounded-full">
-            Drag to reposition
+            {onImageReplace && (
+              <button
+                type="button"
+                onClick={handleReplace}
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-accent transition-colors text-left"
+              >
+                <Upload className="h-4 w-4 text-muted-foreground shrink-0" />
+                <span className="text-sm font-medium text-foreground">Replace Image</span>
+              </button>
+            )}
           </div>
         </div>
+      )}
+
+      {/* ── Reposition mode overlay ── */}
+      {isRepositioning && (
+        <>
+          <div className="absolute inset-0 border-2 border-dashed border-primary/60 pointer-events-none z-10" />
+          {/* Top instructions */}
+          <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 bg-primary text-primary-foreground text-[11px] font-medium px-3 py-1 rounded-full pointer-events-none shadow-md">
+            Drag to reposition · Scroll to zoom
+          </div>
+          {/* Bottom toolbar */}
+          <div
+            className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-black/70 backdrop-blur-sm rounded-full px-3 py-1.5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span className="text-white text-[11px] tabular-nums font-medium">
+              {Math.round(effectiveZoom * 100)}%
+            </span>
+            <button
+              type="button"
+              onClick={finishReposition}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary text-primary-foreground text-[11px] font-medium hover:bg-primary/90 transition-colors"
+            >
+              <Check className="h-3 w-3" />
+              Done
+            </button>
+          </div>
+        </>
       )}
     </div>
   );
