@@ -5,14 +5,15 @@ import { useAuth } from "@/hooks/useAuth";
 import { useConversationList } from "@/hooks/useDirectMessages";
 import { useUnreadDmPerPartner } from "@/hooks/useUnreadMessages";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
-import { Search, Loader2 } from "lucide-react";
+import { Search, Loader2, Plus } from "lucide-react";
 
 interface Props {
   selectedUserId: string | null;
   onSelectUser: (userId: string) => void;
+  onOpenCreateMenu?: () => void;
 }
 
-export function MessagesDmList({ selectedUserId, onSelectUser }: Props) {
+export function MessagesDmList({ selectedUserId, onSelectUser, onOpenCreateMenu }: Props) {
   const [search, setSearch] = useState("");
   const { data: conversations = [], isLoading: loadingDms } = useConversationList();
   const { data: unreadMap } = useUnreadDmPerPartner();
@@ -58,6 +59,14 @@ export function MessagesDmList({ selectedUserId, onSelectUser }: Props) {
             style={{ color: "rgba(255,255,255,0.8)" }}
           />
         </div>
+        <button
+          onClick={onOpenCreateMenu}
+          className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-opacity hover:opacity-80"
+          style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.8)" }}
+          aria-label="Create chat"
+        >
+          <Plus className="w-4 h-4" />
+        </button>
       </div>
 
       {/* Thread list */}

@@ -8,6 +8,7 @@ import { Send, Loader2, MoreVertical, Reply, Forward, Trash2, Image, Video, X, S
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useMarkDmsRead } from "@/hooks/useUnreadMessages";
 
 interface Props {
   targetUserId: string;
@@ -25,6 +26,7 @@ export function DmThreadView({ targetUserId }: Props) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const markDmsRead = useMarkDmsRead();
 
   const { data: targetProfile } = useQuery({
     queryKey: ["dm-target-profile", targetUserId],
@@ -70,6 +72,11 @@ export function DmThreadView({ targetUserId }: Props) {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages.length]);
+
+  useEffect(() => {
+    if (!user || !targetUserId) return;
+    void markDmsRead(targetUserId);
+  }, [markDmsRead, messages.length, targetUserId, user]);
 
   // Delete single message
   const deleteMsg = useMutation({
