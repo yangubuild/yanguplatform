@@ -52,7 +52,7 @@ export function useUserPosts(userId: string | undefined) {
 
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("id, display_name, avatar_url, username")
+        .select("id, display_name, avatar_url, avatar_mode, avatar_emoji_key, username")
         .eq("id", userId)
         .limit(1);
       const profile = profiles?.[0];
@@ -84,17 +84,20 @@ export function useUserPosts(userId: string | undefined) {
         }
       });
 
-      return posts.map(p => ({
-        ...p,
-        author_name: profile?.display_name || profile?.username || "Unknown",
-        author_avatar: profile?.avatar_url || undefined,
-        author_username: profile?.username || undefined,
+      return posts.map(p => {
+        const resolvedAvatar = profile ? resolveAvatarUrl(profile) : null;
+        return {
+          ...p,
+          author_name: profile?.display_name || profile?.username || "Unknown",
+          author_avatar: resolvedAvatar || undefined,
+          author_username: profile?.username || undefined,
         comment_count: commentCounts[p.id] || 0,
         like_count: likeCounts[p.id] || 0,
         love_count: loveCounts[p.id] || 0,
-        user_liked: !!userLiked[p.id],
-        user_loved: !!userLoved[p.id],
-      }));
+          user_liked: !!userLiked[p.id],
+          user_loved: !!userLoved[p.id],
+        };
+      });
     },
   });
 }
