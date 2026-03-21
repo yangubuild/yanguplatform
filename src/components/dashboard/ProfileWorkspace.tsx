@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useUserPosts, useCreatePost, useToggleReaction, uploadPostMedia, type Post } from "@/hooks/usePosts";
+import { useFeedPosts } from "@/hooks/useFeedPosts";
 import { useProfileReviews } from "@/hooks/useProfileReviews";
 import { Heart, ThumbsUp } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -108,7 +109,7 @@ function OwnReviewsTab() {
 
 function OwnPostsTab() {
   const { user, profile } = useAuth();
-  const { data: posts = [], isLoading } = useUserPosts(user?.id);
+  const { data: posts = [], isLoading } = useFeedPosts();
   const createPost = useCreatePost();
   const toggleReaction = useToggleReaction();
   const [text, setText] = useState("");
