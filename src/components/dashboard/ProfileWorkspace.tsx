@@ -321,59 +321,27 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
 
       const surfaceIds = surfaces.map((surface) => surface.id);
 
-      const [publishesResult, homePagesResult] = await Promise.all([
-        supabase
-          .from("builder_publishes")
-          .select("surface_id")
-          .in("surface_id", surfaceIds)
-          .eq("state", "published"),
-        supabase
-          .from("builder_pages")
-          .select("surface_id, metadata")
-          .in("surface_id", surfaceIds)
-          .eq("slug", "home"),
-      ]);
+      const { data: publishesData, error: publishesError } = await supabase
+        .from("builder_publishes")
+        .select("surface_id")
+        .in("surface_id", surfaceIds)
+        .eq("state", "published");
 
-      if (publishesResult.error) throw publishesResult.error;
-      if (homePagesResult.error) throw homePagesResult.error;
+      if (publishesError) throw publishesError;
 
-      const publishedIds = new Set((publishesResult.data ?? []).map((publish) => publish.surface_id));
-      const homeCoverBySurfaceId: Record<string, string | null> = {};
-
-      for (const page of homePagesResult.data ?? []) {
-        const pageMetadata = (page.metadata ?? {}) as Record<string, unknown>;
-        const pagePhotos = Array.isArray(pageMetadata["photos"]) ? pageMetadata["photos"] : [];
-        const firstPagePhoto = pagePhotos.find(
-          (photo): photo is string => typeof photo === "string" && photo.length > 0
-        ) ?? null;
-
-        homeCoverBySurfaceId[page.surface_id] =
-          firstPagePhoto ||
-          (typeof pageMetadata["cover_image"] === "string" ? pageMetadata["cover_image"] : null) ||
-          (typeof pageMetadata["hero_image"] === "string" ? pageMetadata["hero_image"] : null);
-      }
+      const publishedIds = new Set((publishesData ?? []).map((publish) => publish.surface_id));
 
       return surfaces
         .filter((surface) => publishedIds.has(surface.id))
-        .map((surface) => {
-          const metadata = (surface.metadata ?? {}) as Record<string, unknown>;
-          const photos = Array.isArray(metadata["photos"]) ? metadata["photos"] : [];
-          const firstPhoto = photos.find(
-            (photo): photo is string => typeof photo === "string" && photo.length > 0
-          ) ?? null;
-
-          return {
-            id: surface.id,
-            title: surface.title,
-            surface_type: surface.surface_type,
-            cover_image:
-              (surface as any).cover_image_url ||
-              homeCoverBySurfaceId[surface.id] ||
-              firstPhoto ||
-              (typeof metadata["cover_image"] === "string" ? metadata["cover_image"] : null) ||
-              (typeof metadata["hero_image"] === "string" ? metadata["hero_image"] : null),
-          };
-        });
+        .map((surface) => ({
+          id: surface.id,
+          title: surface.title,
+          surface_type: surface.surface_type,
+          cover_image:
+            typeof (surface as any).cover_image_url === "string" && (surface as any).cover_image_url.trim() !== ""
+              ? (surface as any).cover_image_url
+              : null,
+        }));
     },
   });
 

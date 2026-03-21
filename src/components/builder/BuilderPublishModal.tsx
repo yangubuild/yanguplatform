@@ -337,13 +337,40 @@ export function BuilderPublishModal({
   const handlePublishWithMeta = async () => {
     // Save metadata to surface first
     try {
+      let resolvedCoverImageUrl = coverImageUrl || null;
+
+      if (resolvedCoverImageUrl?.startsWith("data:")) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user?.id) {
+          toast.error("Please sign in");
+          return;
+        }
+
+        const blob = await fetch(resolvedCoverImageUrl).then((response) => response.blob());
+        const ext = blob.type.split("/")[1] || "jpeg";
+        const path = `${session.user.id}/${surfaceId}/cover-publish-crop-${Date.now()}.${ext}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("builder-media")
+          .upload(path, blob, { contentType: blob.type || "image/jpeg", upsert: false });
+
+        if (uploadError) throw uploadError;
+
+        const { data: publicData } = supabase.storage
+          .from("builder-media")
+          .getPublicUrl(path);
+
+        resolvedCoverImageUrl = publicData.publicUrl;
+        setCoverImageUrl(publicData.publicUrl);
+      }
+
       await supabase
         .from("builder_surfaces")
         .update({
           seo_title: seoTitle || null,
           seo_description: seoDescription || null,
           favicon_url: faviconUrl || null,
-          cover_image_url: coverImageUrl || null,
+          cover_image_url: resolvedCoverImageUrl,
         } as any)
         .eq("id", surfaceId);
     } catch {}
