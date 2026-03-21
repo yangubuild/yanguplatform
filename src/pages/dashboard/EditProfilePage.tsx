@@ -118,7 +118,7 @@ export default function EditProfilePage() {
       <div className="mb-8">
         <h2 className="text-base font-bold text-white mb-1">More details</h2>
         <p className="text-sm mb-5" style={{ color: "rgba(255,255,255,0.45)" }}>
-          Choose what appears on your profile and other discovery surfaces.
+          Choose what appears on your profile and other explore surfaces.
         </p>
 
         <div className="space-y-4">

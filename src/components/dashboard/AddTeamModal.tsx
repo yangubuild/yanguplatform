@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Eye, Loader2 } from "lucide-react";
+import { Eye, Loader2, Search } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveOrg } from "@/hooks/useActiveOrg";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 const ROLES = [
@@ -25,53 +25,118 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
   const { data: activeOrg } = useActiveOrg();
   const queryClient = useQueryClient();
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
-  const [email, setEmail] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [selectedUser, setSelectedUser] = useState<{ id: string; email?: string; username?: string; display_name?: string } | null>(null);
   const [inviting, setInviting] = useState(false);
 
+  // Search for existing YANGU accounts by username or display_name
+  const { data: searchResults = [] } = useQuery({
+    queryKey: ["team-user-search", searchInput],
+    enabled: searchInput.trim().length >= 2 && !selectedUser,
+    queryFn: async () => {
+      const term = searchInput.trim().toLowerCase();
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, username, display_name, avatar_url")
+        .eq("account_status", "active")
+        .or(`username.ilike.%${term}%,display_name.ilike.%${term}%`)
+        .neq("id", user?.id ?? "")
+        .limit(8);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const handleSelectUser = (u: typeof searchResults[0]) => {
+    setSelectedUser({ id: u.id, username: u.username ?? undefined, display_name: u.display_name ?? undefined });
+    setSearchInput(u.display_name || u.username || "");
+  };
+
+  const handleClearUser = () => {
+    setSelectedUser(null);
+    setSearchInput("");
+  };
+
   const handleInvite = async () => {
-    if (!email || !selectedRole || !user || !activeOrg) return;
+    if (!selectedRole || !user || !activeOrg) return;
+    
+    // Must have selected a valid existing user
+    if (!selectedUser) {
+      toast.error("Please select an existing YANGU account to invite.");
+      return;
+    }
+
     setInviting(true);
     try {
-      // Look up user by email via profiles (match on username or display_name won't work — we need to find via auth)
-      // Since we can't query auth.users, look for a profile whose id matches a user with this email.
-      // Best approach: look up profile by email-like username or use a lookup approach.
-      // For now, we look up profiles that have the email as username (common pattern).
-      // Alternatively, we store the invite and the user accepts it on login.
+      const selectedRoleObj = ROLES.find(r => r.name === selectedRole);
+      if (!selectedRoleObj) return;
 
       // Check if user already in org
       const { data: existingMember } = await supabase
         .from("org_memberships")
         .select("user_id")
         .eq("org_id", activeOrg.id)
-        .limit(100);
+        .eq("user_id", selectedUser.id)
+        .maybeSingle();
 
-      // Find the db role for the selected role
-      const selectedRoleObj = ROLES.find(r => r.name === selectedRole);
-      if (!selectedRoleObj) return;
+      if (existingMember) {
+        toast.error("This user is already a team member.");
+        setInviting(false);
+        return;
+      }
 
-      const { error } = await supabase
+      // Save invite to database
+      const { data: invite, error } = await supabase
         .from("admin_invites")
         .insert({
-          email: email.trim().toLowerCase(),
+          email: (selectedUser.username ?? selectedUser.id) + "@yangu.internal",
           role: selectedRoleObj.dbRole as any,
           invited_by: user.id,
           status: "pending",
-        });
+        })
+        .select("id")
+        .single();
 
       if (error) {
         if (error.code === "23505") {
-          toast.error("An invite for this email already exists");
+          toast.error("An invite for this user already exists");
         } else {
           throw error;
         }
-      } else {
-        toast.success(`Invite sent to ${email}`);
-        setEmail("");
-        setSelectedRole(null);
-        queryClient.invalidateQueries({ queryKey: ["staff-panel-members"] });
-        queryClient.invalidateQueries({ queryKey: ["team-invites"] });
-        onOpenChange(false);
+        setInviting(false);
+        return;
       }
+
+      // Create notification for the invited user
+      await supabase.from("notifications").insert({
+        user_id: selectedUser.id,
+        type: "team_invite",
+        title: "Team Invitation",
+        body: `You've been invited to join as ${selectedRoleObj.name}. Accept to become a team member.`,
+        link: `/dashboard/home?accept_invite=${invite.id}`,
+        metadata: {
+          invite_id: invite.id,
+          role: selectedRoleObj.dbRole,
+          invited_by: user.id,
+          org_id: activeOrg.id,
+        },
+      });
+
+      // Send a DM system message from inviter
+      await supabase.from("direct_messages").insert({
+        sender_id: user.id,
+        receiver_id: selectedUser.id,
+        content: `🤝 You've been invited to join the team as **${selectedRoleObj.name}**. Check your notifications to accept.`,
+      });
+
+      toast.success(`Invite sent to ${selectedUser.display_name || selectedUser.username}`);
+      setSearchInput("");
+      setSelectedUser(null);
+      setSelectedRole(null);
+      queryClient.invalidateQueries({ queryKey: ["staff-panel-members"] });
+      queryClient.invalidateQueries({ queryKey: ["team-invites"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      onOpenChange(false);
     } catch (err: any) {
       console.error("Invite error:", err);
       toast.error(err.message || "Failed to send invite");
@@ -79,6 +144,9 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
       setInviting(false);
     }
   };
+
+  const isEmailLike = searchInput.includes("@") && !selectedUser;
+  const noResultsAndSearching = searchInput.trim().length >= 2 && searchResults.length === 0 && !selectedUser;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -123,29 +191,82 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
 
         <div className="mx-4" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }} />
 
-        <button className="flex items-center gap-2 px-6 py-3 text-sm font-medium text-white hover:text-white/80 transition-colors">
-          <span style={{ color: "#E67E22" }}>+</span> New custom role
-        </button>
+        {/* Search input */}
+        <div className="px-4 pt-3 relative">
+          <div className="flex items-center gap-2 rounded-lg px-3 h-10"
+            style={{ background: "rgba(255,255,255,0.04)", border: "1.5px solid rgba(181,98,42,0.4)" }}>
+            <Search className="w-4 h-4 shrink-0" style={{ color: "rgba(255,255,255,0.3)" }} />
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => {
+                setSearchInput(e.target.value);
+                if (selectedUser) setSelectedUser(null);
+              }}
+              placeholder="Search by name or username..."
+              className="flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/25"
+            />
+            {selectedUser && (
+              <button onClick={handleClearUser} className="text-xs text-white/40 hover:text-white/60">✕</button>
+            )}
+          </div>
 
-        <div className="flex items-center gap-2 px-4 pb-5 pt-2">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="email@company.com"
-            className="flex-1 h-10 rounded-lg px-3 text-sm text-white outline-none"
-            style={{
-              background: "rgba(255,255,255,0.04)",
-              border: "1.5px solid rgba(181,98,42,0.4)",
-            }}
-          />
+          {/* Search results dropdown */}
+          {searchInput.trim().length >= 2 && !selectedUser && searchResults.length > 0 && (
+            <div className="absolute left-4 right-4 top-full mt-1 z-50 rounded-lg overflow-hidden"
+              style={{ background: "#1a2420", border: "1px solid rgba(255,255,255,0.1)" }}>
+              {searchResults.map((u) => (
+                <button
+                  key={u.id}
+                  onClick={() => handleSelectUser(u)}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-white/5 transition-colors text-left"
+                >
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
+                    style={{ background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)" }}>
+                    {u.avatar_url ? (
+                      <img src={u.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
+                    ) : (
+                      (u.display_name || u.username || "?").slice(0, 2).toUpperCase()
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-white truncate">{u.display_name || u.username}</p>
+                    {u.username && <p className="text-xs text-white/35 truncate">@{u.username}</p>}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Warning messages */}
+        {(noResultsAndSearching || isEmailLike) && (
+          <div className="px-4 pt-2">
+            <p className="text-xs px-1" style={{ color: "#E67E22" }}>
+              {isEmailLike
+                ? "Search by name or username instead of email. The user must have an active YANGU account."
+                : "No matching accounts found. The user must sign up first before being added to a team."}
+            </p>
+          </div>
+        )}
+
+        {/* Selected user indicator */}
+        {selectedUser && (
+          <div className="px-4 pt-1">
+            <p className="text-xs text-green-400 px-1">
+              ✓ {selectedUser.display_name || selectedUser.username} selected
+            </p>
+          </div>
+        )}
+
+        <div className="flex items-center justify-end gap-2 px-4 pb-5 pt-3">
           <button
             className="h-10 px-5 rounded-lg text-sm font-semibold transition-opacity flex items-center gap-2"
             style={{
-              background: email && selectedRole ? "linear-gradient(135deg, #c47a3a, #5c2a12)" : "rgba(255,255,255,0.08)",
-              color: email && selectedRole ? "#fff" : "rgba(255,255,255,0.35)",
+              background: selectedUser && selectedRole ? "linear-gradient(135deg, #c47a3a, #5c2a12)" : "rgba(255,255,255,0.08)",
+              color: selectedUser && selectedRole ? "#fff" : "rgba(255,255,255,0.35)",
             }}
-            disabled={!email || !selectedRole || inviting}
+            disabled={!selectedUser || !selectedRole || inviting}
             onClick={handleInvite}
           >
             {inviting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Invite"}
