@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useActiveOrg } from "@/hooks/useActiveOrg";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { resolveAvatarUrl } from "@/lib/avatarUtils";
 
 const ROLES = [
   { name: "Owner", desc: "Full access", dbRole: "owner" },
