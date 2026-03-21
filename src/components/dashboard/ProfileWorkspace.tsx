@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useUserPosts, useCreatePost, useToggleReaction, uploadPostMedia, type Post } from "@/hooks/usePosts";
-// useFeedPosts removed - center shows owner-only posts via useUserPosts
+import { PostInteractions } from "@/components/dashboard/PostInteractions";
 import { useProfileReviews } from "@/hooks/useProfileReviews";
 import { Heart, ThumbsUp } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
