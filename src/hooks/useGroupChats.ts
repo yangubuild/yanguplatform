@@ -7,10 +7,23 @@ import { useEffect, useRef } from "react";
 export interface ChatGroup {
   id: string;
   name: string;
+  description?: string | null;
   created_by: string;
   avatar_url: string | null;
   created_at: string;
+  updated_at: string;
   member_count?: number;
+}
+
+export interface GroupMember {
+  id: string;
+  group_id: string;
+  user_id: string;
+  role: string;
+  joined_at: string;
+  display_name?: string;
+  username?: string;
+  avatar?: string | null;
 }
 
 export interface GroupMessage {
@@ -27,6 +40,13 @@ export interface GroupMessage {
   author_username?: string;
 }
 
+/* ─── Invalidation helper ─── */
+function invalidateGroupQueries(qc: ReturnType<typeof useQueryClient>, userId?: string) {
+  qc.invalidateQueries({ queryKey: ["my-groups"] });
+  if (userId) qc.invalidateQueries({ queryKey: ["my-groups", userId] });
+}
+
+/* ─── My groups ─── */
 export function useMyGroups() {
   const { user } = useAuth();
   return useQuery({
@@ -34,21 +54,32 @@ export function useMyGroups() {
     enabled: !!user,
     queryFn: async (): Promise<ChatGroup[]> => {
       const { data: memberships } = await supabase
-        .from("chat_group_members" as any)
+        .from("chat_group_members")
         .select("group_id")
         .eq("user_id", user!.id);
       if (!memberships || memberships.length === 0) return [];
       const groupIds = memberships.map((m: any) => m.group_id);
       const { data: groups } = await (supabase
-        .from("chat_groups" as any)
+        .from("chat_groups")
         .select("*") as any)
         .in("id", groupIds)
         .order("updated_at", { ascending: false });
-      return (groups ?? []) as ChatGroup[];
+
+      // Fetch member counts
+      const enriched: ChatGroup[] = [];
+      for (const g of (groups ?? [])) {
+        const { count } = await supabase
+          .from("chat_group_members")
+          .select("id", { count: "exact", head: true })
+          .eq("group_id", g.id);
+        enriched.push({ ...g, member_count: count ?? 0 });
+      }
+      return enriched;
     },
   });
 }
 
+/* ─── Group messages with realtime ─── */
 export function useGroupMessages(groupId: string | undefined) {
   const qc = useQueryClient();
 
@@ -71,7 +102,7 @@ export function useGroupMessages(groupId: string | undefined) {
     enabled: !!groupId,
     queryFn: async (): Promise<GroupMessage[]> => {
       const { data, error } = await (supabase
-        .from("chat_group_messages" as any)
+        .from("chat_group_messages")
         .select("*") as any)
         .eq("group_id", groupId)
         .order("created_at", { ascending: true })
@@ -102,6 +133,7 @@ export function useGroupMessages(groupId: string | undefined) {
   });
 }
 
+/* ─── Send group message (with inflight guard) ─── */
 export function useSendGroupMessage() {
   const { user } = useAuth();
   const qc = useQueryClient();
@@ -120,7 +152,7 @@ export function useSendGroupMessage() {
       inflightRef.current = true;
       try {
         const { error } = await supabase
-          .from("chat_group_messages" as any)
+          .from("chat_group_messages")
           .insert({
             group_id: groupId,
             user_id: user.id,
@@ -140,16 +172,21 @@ export function useSendGroupMessage() {
   });
 }
 
+/* ─── Create group ─── */
 export function useCreateGroup() {
   const { user } = useAuth();
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ name, memberIds }: { name: string; memberIds: string[] }) => {
+    mutationFn: async ({ name, description, memberIds }: {
+      name: string;
+      description?: string;
+      memberIds: string[];
+    }) => {
       if (!user) throw new Error("Not authenticated");
       const { data: group, error } = await supabase
-        .from("chat_groups" as any)
-        .insert({ name, created_by: user.id } as any)
+        .from("chat_groups")
+        .insert({ name, description: description || null, created_by: user.id } as any)
         .select("id")
         .single();
       if (error) throw error;
@@ -159,13 +196,141 @@ export function useCreateGroup() {
       const memberRows = allMembers.map(uid => ({
         group_id: groupId,
         user_id: uid,
-        role: uid === user.id ? "admin" : "member",
+        role: uid === user.id ? "owner" : "member",
       }));
-      await supabase.from("chat_group_members" as any).insert(memberRows as any);
-      return groupId;
+      await supabase.from("chat_group_members").insert(memberRows as any);
+      return groupId as string;
     },
     onSuccess: () => {
+      invalidateGroupQueries(qc, user?.id);
+    },
+  });
+}
+
+/* ─── Group members ─── */
+export function useGroupMembers(groupId: string | undefined) {
+  return useQuery({
+    queryKey: ["group-members", groupId],
+    enabled: !!groupId,
+    queryFn: async (): Promise<GroupMember[]> => {
+      const { data, error } = await supabase
+        .from("chat_group_members")
+        .select("*")
+        .eq("group_id", groupId!);
+      if (error) throw error;
+      const members = (data ?? []) as any[];
+      if (members.length === 0) return [];
+
+      const userIds = members.map(m => m.user_id);
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, display_name, username, avatar_url, avatar_mode, avatar_emoji_key")
+        .in("id", userIds);
+      const profileMap = Object.fromEntries((profiles ?? []).map((p: any) => [p.id, p]));
+
+      return members.map(m => {
+        const prof = profileMap[m.user_id];
+        return {
+          ...m,
+          display_name: prof?.display_name || prof?.username || "Unknown",
+          username: prof?.username,
+          avatar: prof ? resolveAvatarUrl(prof) : null,
+        };
+      });
+    },
+  });
+}
+
+/* ─── Leave group ─── */
+export function useLeaveGroup() {
+  const { user } = useAuth();
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (groupId: string) => {
+      if (!user) throw new Error("Not authenticated");
+      const { error } = await supabase
+        .from("chat_group_members")
+        .delete()
+        .eq("group_id", groupId)
+        .eq("user_id", user.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      invalidateGroupQueries(qc, user?.id);
+    },
+  });
+}
+
+/* ─── Add member (admin/owner only — enforced by RLS) ─── */
+export function useAddGroupMember() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ groupId, userId }: { groupId: string; userId: string }) => {
+      // Prevent duplicate — check first
+      const { data: existing } = await supabase
+        .from("chat_group_members")
+        .select("id")
+        .eq("group_id", groupId)
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (existing) return; // already a member
+
+      const { error } = await supabase
+        .from("chat_group_members")
+        .insert({ group_id: groupId, user_id: userId, role: "member" } as any);
+      if (error) throw error;
+    },
+    onSuccess: (_, { groupId }) => {
+      qc.invalidateQueries({ queryKey: ["group-members", groupId] });
       qc.invalidateQueries({ queryKey: ["my-groups"] });
+    },
+  });
+}
+
+/* ─── Remove member (admin/owner only — enforced by RLS) ─── */
+export function useRemoveGroupMember() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ groupId, userId }: { groupId: string; userId: string }) => {
+      const { error } = await supabase
+        .from("chat_group_members")
+        .delete()
+        .eq("group_id", groupId)
+        .eq("user_id", userId);
+      if (error) throw error;
+    },
+    onSuccess: (_, { groupId }) => {
+      qc.invalidateQueries({ queryKey: ["group-members", groupId] });
+      qc.invalidateQueries({ queryKey: ["my-groups"] });
+    },
+  });
+}
+
+/* ─── Update group info (admin/owner) ─── */
+export function useUpdateGroup() {
+  const qc = useQueryClient();
+  const { user } = useAuth();
+
+  return useMutation({
+    mutationFn: async ({ groupId, name, description }: {
+      groupId: string;
+      name?: string;
+      description?: string;
+    }) => {
+      const updates: any = {};
+      if (name !== undefined) updates.name = name;
+      if (description !== undefined) updates.description = description;
+      const { error } = await supabase
+        .from("chat_groups")
+        .update(updates)
+        .eq("id", groupId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      invalidateGroupQueries(qc, user?.id);
     },
   });
 }
