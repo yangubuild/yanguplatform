@@ -3,7 +3,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { ImagePlus, Video, Sparkles, Send, Heart, MessageSquare, ThumbsUp, Loader2, X } from "lucide-react";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
-import { useUserPosts, useCreatePost, useToggleReaction, uploadPostMedia, type Post } from "@/hooks/usePosts";
+import { useCreatePost, useToggleReaction, uploadPostMedia, type Post } from "@/hooks/usePosts";
+import { useFeedPosts } from "@/hooks/useFeedPosts";
 import { toast } from "sonner";
 
 export function PostsPanel() {
@@ -15,7 +16,7 @@ export function PostsPanel() {
   const [aiGenerating, setAiGenerating] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
-  const { data: posts = [], isLoading } = useUserPosts(user?.id);
+  const { data: posts = [], isLoading } = useFeedPosts();
   const createPost = useCreatePost();
   const toggleReaction = useToggleReaction();
 
