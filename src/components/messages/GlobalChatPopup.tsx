@@ -1,11 +1,11 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronDown, X, Smile, Send, ImagePlus, Video, MapPin, AtSign, Hash, ShoppingCart, Tag, Loader2 } from "lucide-react";
+import { ChevronDown, X, Smile, Send, ImagePlus, Video, MapPin, AtSign, Hash, ShoppingCart, Tag, Loader2, Trophy } from "lucide-react";
 import { useGlobalChatMessages, useSendGlobalMessage } from "@/hooks/useGlobalChat";
 import { useAuth } from "@/hooks/useAuth";
-import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import { uploadPostMedia } from "@/hooks/usePosts";
 import { toast } from "sonner";
+import { buildChatPresenceMap } from "@/lib/chatPresence";
 
 interface GlobalChatPopupProps {
   onClose: () => void;
@@ -23,6 +23,7 @@ export function GlobalChatPopup({ onClose }: GlobalChatPopupProps) {
   const feedRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLInputElement>(null);
+  const presenceMap = useMemo(() => buildChatPresenceMap(messages, user?.id), [messages, user?.id]);
 
   useEffect(() => {
     if (feedRef.current) feedRef.current.scrollTop = feedRef.current.scrollHeight;
@@ -83,6 +84,9 @@ export function GlobalChatPopup({ onClose }: GlobalChatPopupProps) {
           Global <ChevronDown className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.4)" }} />
         </button>
         <div className="flex items-center gap-2">
+          <button className="p-1 rounded-md" style={{ color: "#facc15" }} title="Weekly and monthly product awards">
+            <Trophy className="w-4 h-4" />
+          </button>
           <button onClick={() => { onClose(); navigate("/dashboard/messages?tab=global"); }}
             className="text-[10px] font-medium px-2 py-1 rounded"
             style={{ color: "rgba(255,255,255,0.5)", background: "rgba(255,255,255,0.06)" }}>
@@ -106,12 +110,21 @@ export function GlobalChatPopup({ onClose }: GlobalChatPopupProps) {
         ) : (
           messages.map((msg) => (
             <div key={msg.id} className="flex items-start gap-2.5">
-              <div className="w-7 h-7 rounded-full shrink-0 overflow-hidden flex items-center justify-center" style={{ background: "rgba(255,255,255,0.1)" }}>
-                {msg.author_avatar ? (
-                  <img src={msg.author_avatar} alt="" className="w-7 h-7 rounded-full object-cover" />
-                ) : (
-                  <span className="text-[8px] font-bold text-white/50">{(msg.author_name || "U").slice(0, 2).toUpperCase()}</span>
-                )}
+              <div className="relative w-7 h-7 shrink-0">
+                <div className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center" style={{ background: "rgba(255,255,255,0.1)" }}>
+                  {msg.author_avatar ? (
+                    <img src={msg.author_avatar} alt="" className="w-7 h-7 rounded-full object-cover" />
+                  ) : (
+                    <span className="text-[8px] font-bold text-white/50">{(msg.author_name || "U").slice(0, 2).toUpperCase()}</span>
+                  )}
+                </div>
+                <span
+                  className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border"
+                  style={{
+                    background: presenceMap[msg.user_id] === "live" ? "#22c55e" : "#6b7280",
+                    borderColor: "#1a2026",
+                  }}
+                />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">

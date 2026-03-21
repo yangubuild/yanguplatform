@@ -1,10 +1,11 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { ChevronDown, Info, Trophy, X, Smile, Plus, ImagePlus, Video, MapPin, Hash, AtSign, Send, Loader2, ShoppingCart, Tag } from "lucide-react";
 import { useGlobalChatMessages, useSendGlobalMessage } from "@/hooks/useGlobalChat";
 import { useAuth } from "@/hooks/useAuth";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import { uploadPostMedia } from "@/hooks/usePosts";
 import { toast } from "sonner";
+import { buildChatPresenceMap } from "@/lib/chatPresence";
 
 export function MessagesGlobalChatTab() {
   const { user, profile } = useAuth();
@@ -67,6 +68,7 @@ export function MessagesGlobalChatTab() {
 
   const insertTag = (tag: string) => setMessage(prev => prev + tag);
   const avatarUrl = profile ? resolveAvatarUrl(profile) : null;
+  const presenceMap = useMemo(() => buildChatPresenceMap(messages, user?.id), [messages, user?.id]);
 
   return (
     <div className="flex flex-col h-full">
@@ -102,7 +104,8 @@ export function MessagesGlobalChatTab() {
         ) : (
           messages.map((msg) => (
             <div key={msg.id} className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full shrink-0 overflow-hidden flex items-center justify-center" style={{ background: "rgba(255,255,255,0.1)" }}>
+              <div className="relative w-8 h-8 shrink-0">
+              <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center" style={{ background: "rgba(255,255,255,0.1)" }}>
                 {msg.author_avatar ? (
                   <img src={msg.author_avatar} alt="" className="w-8 h-8 rounded-full object-cover" />
                 ) : (
@@ -110,6 +113,14 @@ export function MessagesGlobalChatTab() {
                     {(msg.author_name || "U").slice(0, 2).toUpperCase()}
                   </span>
                 )}
+              </div>
+                <span
+                  className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border"
+                  style={{
+                    background: presenceMap[msg.user_id] === "live" ? "#22c55e" : "#6b7280",
+                    borderColor: "#111820",
+                  }}
+                />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">

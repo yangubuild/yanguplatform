@@ -6,6 +6,7 @@ import { useActiveOrg } from "@/hooks/useActiveOrg";
 import { Plus, Loader2, UserCog, Trash2, Mail, Clock } from "lucide-react";
 import { AddTeamModal } from "../AddTeamModal";
 import { toast } from "sonner";
+import { resolveAvatarUrl } from "@/lib/avatarUtils";
 
 interface OrgMember {
   user_id: string;
@@ -14,6 +15,8 @@ interface OrgMember {
   profile?: {
     display_name: string | null;
     avatar_url: string | null;
+    avatar_mode: string | null;
+    avatar_emoji_key: string | null;
     username: string | null;
   };
 }
@@ -55,7 +58,7 @@ export function StaffPanel() {
       const userIds = [...new Set(allMembers.map((m) => m.user_id))];
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("id, display_name, avatar_url, username")
+        .select("id, display_name, avatar_url, avatar_mode, avatar_emoji_key, username")
         .in("id", userIds);
 
       const profileMap = new Map((profiles ?? []).map((p) => [p.id, p]));
@@ -136,6 +139,7 @@ export function StaffPanel() {
             {members.map((member, i) => {
               const name = member.profile?.display_name || member.profile?.username || "Member";
               const initials = name.slice(0, 2).toUpperCase();
+              const avatarUrl = member.profile ? resolveAvatarUrl(member.profile) : null;
               const isOwner = member.user_id === user?.id;
               return (
                 <div
@@ -146,8 +150,8 @@ export function StaffPanel() {
                     className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
                     style={{ background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)" }}
                   >
-                    {member.profile?.avatar_url ? (
-                      <img src={member.profile.avatar_url} alt="" className="w-10 h-10 rounded-full object-cover" />
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt={name} className="w-10 h-10 rounded-full object-cover" />
                     ) : (
                       initials
                     )}
