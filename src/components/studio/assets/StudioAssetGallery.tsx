@@ -75,7 +75,7 @@ export default function StudioAssetGallery() {
             <button
               key={f.key}
               onClick={() => setTypeFilter(f.key)}
-              className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-medium transition-colors whitespace-nowrap border ${
+              className={`inline-flex items-center gap-1.5 rounded-lg px-4 py-1.5 text-xs font-medium transition-colors whitespace-nowrap border ${
                 active
                   ? "bg-accent/15 text-accent border-accent/30"
                   : "bg-card text-muted-foreground border-border/40 hover:bg-muted/60"

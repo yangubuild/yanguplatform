@@ -121,7 +121,7 @@ export default function BookTitleGenerator() {
                   <button
                     key={key}
                     onClick={() => setTitleLength(key)}
-                    className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
+                    className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
                       titleLength === key
                         ? "bg-foreground text-background border-foreground"
                         : "bg-background text-foreground border-border hover:bg-muted/50"

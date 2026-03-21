@@ -108,7 +108,7 @@ export function BoxMockupGallery({ onUse }: BoxMockupGalleryProps) {
             {/* Use button */}
             <button
               onClick={() => onUse(mockup)}
-              className="flex items-center gap-1.5 px-5 py-2 rounded-full bg-foreground text-background text-sm font-medium hover:bg-foreground/90 transition-colors shadow-lg"
+              className="flex items-center gap-1.5 px-5 py-2 rounded-lg bg-foreground text-background text-sm font-medium hover:bg-foreground/90 transition-colors shadow-lg"
             >
               <Sparkles className="h-3.5 w-3.5" />
               Use
