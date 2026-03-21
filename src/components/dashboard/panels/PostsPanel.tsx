@@ -1,13 +1,18 @@
 import { useState, useRef, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { ImagePlus, Video, Sparkles, Send, Heart, MessageSquare, ThumbsUp, Loader2, X } from "lucide-react";
+import { ImagePlus, Video, Sparkles, Send, Heart, MessageSquare, ThumbsUp, Loader2, X, ExternalLink } from "lucide-react";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import { useCreatePost, useToggleReaction, uploadPostMedia, type Post } from "@/hooks/usePosts";
 import { useFeedPosts } from "@/hooks/useFeedPosts";
 import { toast } from "sonner";
+import type { FriendUser } from "@/components/dashboard/FriendProfileView";
 
-export function PostsPanel() {
+interface PostsPanelProps {
+  onViewProfile?: (user: FriendUser) => void;
+}
+
+export function PostsPanel({ onViewProfile }: PostsPanelProps) {
   const { user, profile } = useAuth();
   const [text, setText] = useState("");
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
@@ -232,7 +237,16 @@ export function PostsPanel() {
         ) : (
           <div className="px-3 py-2 space-y-2">
             {posts.map((post) => (
-              <PostCard key={post.id} post={post} onReact={(type, active) => toggleReaction.mutate({ postId: post.id, reactionType: type, isActive: active })} />
+              <PostCard key={post.id} post={post} onReact={(type, active) => toggleReaction.mutate({ postId: post.id, reactionType: type, isActive: active })} onClickUser={onViewProfile ? () => {
+                if (post.user_id !== user?.id) {
+                  onViewProfile({
+                    id: post.user_id,
+                    display_name: post.author_name || "Unknown",
+                    avatar_url: post.author_avatar || null,
+                    username: post.author_username || null,
+                  } as FriendUser);
+                }
+              } : undefined} />
             ))}
           </div>
         )}
@@ -241,13 +255,13 @@ export function PostsPanel() {
   );
 }
 
-function PostCard({ post, onReact }: { post: Post; onReact: (type: "like" | "love", active: boolean) => void }) {
+function PostCard({ post, onReact, onClickUser }: { post: Post; onReact: (type: "like" | "love", active: boolean) => void; onClickUser?: () => void }) {
   return (
     <div
       className="rounded-lg p-3"
       style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
     >
-      <div className="flex items-center gap-2 mb-2">
+      <div className={`flex items-center gap-2 mb-2 ${onClickUser ? "cursor-pointer" : ""}`} onClick={onClickUser}>
         <div className="w-7 h-7 rounded-full overflow-hidden shrink-0" style={{ background: "rgba(255,255,255,0.1)" }}>
           {post.author_avatar ? (
             <img src={post.author_avatar} alt="" className="w-7 h-7 rounded-full object-cover" />
@@ -302,6 +316,7 @@ function PostCard({ post, onReact }: { post: Post; onReact: (type: "like" | "lov
         <span className="flex items-center gap-1 text-[11px]" style={{ color: "rgba(255,255,255,0.35)" }}>
           <MessageSquare className="w-3.5 h-3.5" /> {post.comment_count || ""}
         </span>
+        <button className="flex items-center gap-1 text-[11px] ml-auto" style={{ color: "rgba(255,255,255,0.35)" }} title="Share"><ExternalLink className="w-3.5 h-3.5" /></button>
       </div>
     </div>
   );

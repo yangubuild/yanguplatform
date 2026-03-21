@@ -116,6 +116,7 @@ function OwnPostsTab() {
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [aiGenerating, setAiGenerating] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const avatarUrl = profile ? resolveAvatarUrl(profile) : null;
@@ -154,6 +155,27 @@ function OwnPostsTab() {
     } catch { /* handled in hook */ } finally { setUploading(false); }
   };
 
+  const handleAiGenerate = async () => {
+    setAiGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("ada-chat", {
+        body: {
+          messages: [{ role: "user", content: "Write a short, engaging social media post for a business owner sharing an update, product, or service. Keep it under 40 words, casual but professional. Return ONLY the post text, no quotes." }],
+          model: "google/gemini-2.5-flash-lite",
+          max_tokens: 80,
+        },
+      });
+      if (error) throw error;
+      const reply = (data?.reply || data?.content || "").trim();
+      if (reply) setText(reply);
+      else toast.error("No text generated");
+    } catch {
+      toast.info("AI generation unavailable — type manually");
+    } finally {
+      setAiGenerating(false);
+    }
+  };
+
   const isPosting = createPost.isPending || uploading;
   const canPost = text.trim() || mediaFiles.length > 0;
 
@@ -182,6 +204,9 @@ function OwnPostsTab() {
                 <button onClick={() => imageInputRef.current?.click()} className="p-1.5 rounded-md hover:bg-white/5" style={{ color: "rgba(255,255,255,0.4)" }} title="Add image"><ImagePlus className="w-4 h-4" /></button>
                 <input ref={videoInputRef} type="file" accept="video/mp4,video/webm" className="hidden" onChange={(e) => { handleFileSelect(e.target.files); e.target.value = ""; }} />
                 <button onClick={() => videoInputRef.current?.click()} className="p-1.5 rounded-md hover:bg-white/5" style={{ color: "rgba(255,255,255,0.4)" }} title="Add video"><Video className="w-4 h-4" /></button>
+                <button onClick={handleAiGenerate} disabled={aiGenerating} className="p-1.5 rounded-md hover:bg-amber-500/10 transition-colors disabled:opacity-50" style={{ color: "#f59e0b" }} title="Generate post with AI">
+                  {aiGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                </button>
               </div>
               <button onClick={handlePost} disabled={!canPost || isPosting} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold" style={{ background: canPost ? "linear-gradient(135deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.08)", color: canPost ? "#fff" : "rgba(255,255,255,0.35)" }}>
                 {isPosting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />} Post
@@ -229,6 +254,7 @@ function OwnPostsTab() {
               <button onClick={() => toggleReaction.mutate({ postId: post.id, reactionType: "like", isActive: !!post.user_liked })} className="flex items-center gap-1 text-[11px]" style={{ color: post.user_liked ? "#3b82f6" : "rgba(255,255,255,0.35)" }}><ThumbsUp className="w-3.5 h-3.5" /> {post.like_count || ""}</button>
               <button onClick={() => toggleReaction.mutate({ postId: post.id, reactionType: "love", isActive: !!post.user_loved })} className="flex items-center gap-1 text-[11px]" style={{ color: post.user_loved ? "#ef4444" : "rgba(255,255,255,0.35)" }}><Heart className="w-3.5 h-3.5" /> {post.love_count || ""}</button>
               <span className="flex items-center gap-1 text-[11px]" style={{ color: "rgba(255,255,255,0.35)" }}><MessageSquare className="w-3.5 h-3.5" /> {post.comment_count || ""}</span>
+              <button className="flex items-center gap-1 text-[11px] ml-auto" style={{ color: "rgba(255,255,255,0.35)" }} title="Share"><ExternalLink className="w-3.5 h-3.5" /></button>
             </div>
           </div>
         ))

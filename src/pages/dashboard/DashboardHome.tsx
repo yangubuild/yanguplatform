@@ -77,7 +77,7 @@ function getRightPanel(
     case "Reviews":
       return <ReviewsPanel />;
     case "Posts":
-      return <PostsPanel />;
+      return <PostsPanel onViewProfile={onViewProfile} />;
     case "About":
       return <AboutPanel />;
     default:
