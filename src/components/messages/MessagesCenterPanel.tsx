@@ -1,11 +1,9 @@
 import type { MessagesTab } from "@/pages/dashboard/MessagesPage";
-import { MessagesPostsTab } from "./tabs/MessagesPostsTab";
 import { MessagesChatsTab } from "./tabs/MessagesChatsTab";
 import { MessagesInfluencersTab } from "./tabs/MessagesInfluencersTab";
 import { MessagesSupportTab } from "./tabs/MessagesSupportTab";
 
 const TABS: { key: MessagesTab; label: string }[] = [
-  { key: "posts", label: "Posts" },
   { key: "chats", label: "Chats" },
   { key: "influencers", label: "Influencers" },
   { key: "support", label: "Support" },
@@ -49,7 +47,6 @@ export function MessagesCenterPanel({ activeTab, onTabChange, onSelectDm }: Prop
 
       {/* Tab content */}
       <div className="flex-1 overflow-y-auto">
-        {activeTab === "posts" && <MessagesPostsTab />}
         {activeTab === "chats" && <MessagesChatsTab onSelectDm={onSelectDm} />}
         {activeTab === "influencers" && <MessagesInfluencersTab onSelectCreator={onSelectDm} />}
         {activeTab === "support" && <MessagesSupportTab />}
