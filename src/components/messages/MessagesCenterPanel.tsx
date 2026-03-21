@@ -14,6 +14,8 @@ const TABS: { key: MessagesTab; label: string }[] = [
 interface Props {
   activeTab: MessagesTab;
   onTabChange: (tab: MessagesTab) => void;
+  onSelectDm?: (userId: string) => void;
+  onSelectGroup?: (groupId: string) => void;
 }
 
 export function MessagesCenterPanel({ activeTab, onTabChange }: Props) {
