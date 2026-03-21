@@ -51,7 +51,7 @@ export function Hero() {
         return {
           badge: "Your own corner of the internet",
           heading: ["Own Your", "Digital Presence"],
-          subheading: "Create independent public surfaces—shops, communities, portfolios, and more. You own the URL. Discovery is optional.",
+          subheading: "Create independent public surfaces—shops, communities, portfolios, and more. You own the URL. Explore is optional.",
         };
     }
   };
