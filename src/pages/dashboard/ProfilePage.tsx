@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -39,6 +39,7 @@ import { toast } from "@/hooks/use-toast";
 import { useRef } from "react";
 import { ImagePlus, Loader2 } from "lucide-react";
 import CoverCropModal, { type CropData } from "@/components/profile/CoverCropModal";
+import ProfileCommerceSection from "@/components/commerce/ProfileCommerceSection";
 
 import xIcon from "@/assets/icons/x-3.png";
 import instagramIcon from "@/assets/icons/instagram-3.png";
@@ -115,7 +116,7 @@ const mockJoined = [
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { user, profile, refreshProfile } = useAuth();
-  const [activeTab, setActiveTab] = useState<"created" | "joined" | "apps" | "reviews">("created");
+  const [activeTab, setActiveTab] = useState<"created" | "joined" | "apps" | "reviews" | "commerce">("created");
   const [avatarModalOpen, setAvatarModalOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
@@ -664,15 +665,15 @@ export default function ProfilePage() {
 
           {/* Tabs */}
           <div className="mt-6 border-b" style={{ borderColor: "rgba(255,255,255,0.1)" }}>
-            <div className="flex">
-              {(["created", "joined", "apps", "reviews"] as const).map((tab) => (
+            <div className="flex overflow-x-auto scrollbar-hide">
+              {(["created", "joined", "commerce", "apps", "reviews"] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className="flex-1 py-3 text-sm font-medium text-center capitalize transition-colors relative"
+                  className="flex-1 py-3 text-sm font-medium text-center capitalize transition-colors relative whitespace-nowrap px-2"
                   style={{ color: activeTab === tab ? "#fff" : "rgba(255,255,255,0.45)" }}
                 >
-                  {tab}
+                  {tab === "commerce" ? "Products" : tab}
                   {activeTab === tab && (
                     <div className="absolute bottom-0 left-1/4 right-1/4 h-0.5 rounded-full" style={{ background: "#b5622a" }} />
                   )}
@@ -683,7 +684,14 @@ export default function ProfilePage() {
 
           {/* Tab content */}
           <div className="mt-4 space-y-1">
-            {activeTab === "apps" ? (
+            {activeTab === "commerce" ? (
+              <Suspense fallback={<div className="py-8 flex justify-center"><div className="w-5 h-5 border-2 border-white/20 border-t-accent rounded-full animate-spin" /></div>}>
+                <ProfileCommerceSection
+                  userId={user?.id || ""}
+                  onMessageSeller={() => navigate("/dashboard/messages")}
+                />
+              </Suspense>
+            ) : activeTab === "apps" ? (
               !installedApps || installedApps.length === 0 ? (
                 <p className="text-center py-12 text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
                   No apps installed yet.
