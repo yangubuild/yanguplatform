@@ -443,6 +443,8 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
         if (profileErr) throw profileErr;
         setAvatarUrl(url);
         await refreshProfile();
+        queryClient.invalidateQueries({ queryKey: ["friends-panel-users"] });
+        queryClient.invalidateQueries({ queryKey: ["staff-panel-members"] });
         toast.success("Profile image updated");
       }
     } catch (err: any) {
