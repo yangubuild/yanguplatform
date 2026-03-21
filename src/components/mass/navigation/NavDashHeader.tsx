@@ -8,6 +8,8 @@ import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { GlobalChatPopup } from "@/components/messages/GlobalChatPopup";
 import yanguLogo from "@/assets/yangu-logo-full.png";
+import { useNotifications, useUnreadCount, useMarkRead, useMarkAllRead } from "@/hooks/useNotifications";
+import { formatDistanceToNow } from "date-fns";
 
 const CURRENCIES = [
   { code: "AED", symbol: "د.إ", name: "UAE Dirham" },
