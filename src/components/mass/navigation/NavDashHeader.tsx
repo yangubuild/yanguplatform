@@ -409,54 +409,8 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
             <img src={chatIcon1} alt="Chat" className="w-7 h-7 object-contain transition-transform hover:scale-105" style={{ filter: globalChatOpen ? 'drop-shadow(0 0 6px rgba(249,115,22,0.4))' : 'none' }} />
           </button>
 
-          {/* Notifications */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <button
-                className="w-9 h-9 rounded-lg flex items-center justify-center relative"
-                style={{ color: "rgba(255,255,255,0.5)" }}
-              >
-                <Bell className="w-4 h-4" />
-                {MOCK_NOTIFICATIONS.some((n) => !n.read) && (
-                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style={{ background: "#ef4444" }} />
-                )}
-              </button>
-            </PopoverTrigger>
-            <PopoverContent
-              align="end"
-              className="w-72 p-0 border-0"
-              style={{
-                background: "#2a3038",
-                border: "1px solid rgba(255,255,255,0.08)",
-                boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
-              }}
-            >
-              <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                <span className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.85)" }}>Notifications</span>
-                <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>
-                  {MOCK_NOTIFICATIONS.filter((n) => !n.read).length} new
-                </span>
-              </div>
-              <div className="max-h-64 overflow-y-auto">
-                {MOCK_NOTIFICATIONS.map((notif) => (
-                  <button
-                    key={notif.id}
-                    onClick={() => navigate(notifRouteMap[notif.type] || "/dashboard")}
-                    className="w-full flex items-start gap-3 px-4 py-2.5 text-left transition-colors"
-                    style={{ background: notif.read ? "transparent" : "rgba(74,222,128,0.04)" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = notif.read ? "transparent" : "rgba(74,222,128,0.04)")}
-                  >
-                    {!notif.read && <span className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#4ade80" }} />}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[11px] truncate" style={{ color: "rgba(255,255,255,0.8)" }}>{notif.title}</p>
-                      <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>{notif.time}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </PopoverContent>
-          </Popover>
+          {/* Notifications — real data */}
+          <NotificationBell />
 
           {/* Profile avatar */}
           <Popover>
