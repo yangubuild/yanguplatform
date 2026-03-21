@@ -12,7 +12,7 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Users, X, Plus, Loader2 } from "lucide-react";
 
-export type MessagesTab = "posts" | "chats" | "influencers" | "support";
+export type MessagesTab = "chats" | "influencers" | "support";
 
 export default function MessagesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -21,7 +21,7 @@ export default function MessagesPage() {
   const groupParam = searchParams.get("group");
 
   const [activeTab, setActiveTab] = useState<MessagesTab>(
-    tabParam && ["posts", "chats", "influencers", "support"].includes(tabParam) ? tabParam : "posts"
+    tabParam && ["chats", "influencers", "support"].includes(tabParam) ? tabParam as MessagesTab : "chats"
   );
   const [activeConversationUserId, setActiveConversationUserId] = useState<string | null>(userParam || null);
   const [activeGroupId, setActiveGroupId] = useState<string | null>(groupParam || null);
@@ -61,7 +61,7 @@ export default function MessagesPage() {
   }, [groupParam]);
 
   useEffect(() => {
-    if (tabParam && ["posts", "chats", "influencers", "support"].includes(tabParam)) {
+    if (tabParam && ["chats", "influencers", "support"].includes(tabParam)) {
       setActiveTab(tabParam as MessagesTab);
     }
   }, [tabParam]);
