@@ -64,13 +64,7 @@ const LANGUAGES = [
   { code: "hi", name: "हिन्दी", flag: "🇮🇳" },
 ];
 
-const MOCK_NOTIFICATIONS = [
-  { id: "1", type: "message" as const, title: "New message from Team yangu", time: "2m ago", read: false },
-  { id: "2", type: "offer" as const, title: "Flash sale: 30% off premium", time: "1h ago", read: false },
-  { id: "3", type: "order" as const, title: "Order #4821 confirmed", time: "3h ago", read: true },
-  { id: "4", type: "message" as const, title: "Ada replied to your thread", time: "5h ago", read: true },
-  { id: "5", type: "offer" as const, title: "New partnership offer received", time: "1d ago", read: true },
-];
+// Notifications are now loaded from real data via useNotifications hook
 
 const MOCK_OFFERS = [
   { id: "1", title: "Premium Partnership", snippet: "New collaboration opportunity from Brand X", time: "30m ago" },
