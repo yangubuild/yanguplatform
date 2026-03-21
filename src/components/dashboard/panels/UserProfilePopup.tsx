@@ -54,6 +54,10 @@ export function UserProfilePopup({ user, onClose, onViewProfile, onMessage }: Pr
 
   const handleFollow = () => {
     if (isSelf) return;
+    if (!currentUser) {
+      navigate("/auth/login");
+      return;
+    }
     toggleFollow.mutate({ targetUserId: user.id, isCurrentlyFollowing: isFollowing });
   };
 

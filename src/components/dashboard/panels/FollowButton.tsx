@@ -1,5 +1,6 @@
 import { useIsFollowing, useToggleFollow } from "@/hooks/useFollows";
 import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   targetUserId: string;
@@ -10,12 +11,17 @@ export function FollowButton({ targetUserId, compact }: Props) {
   const { user } = useAuth();
   const { data: isFollowing = false } = useIsFollowing(targetUserId);
   const toggleFollow = useToggleFollow();
+  const navigate = useNavigate();
   const isSelf = user?.id === targetUserId;
 
   if (isSelf) return null;
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!user) {
+      navigate("/auth/login");
+      return;
+    }
     toggleFollow.mutate({ targetUserId, isCurrentlyFollowing: isFollowing });
   };
 
