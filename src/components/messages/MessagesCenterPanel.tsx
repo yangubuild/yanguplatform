@@ -51,7 +51,7 @@ export function MessagesCenterPanel({ activeTab, onTabChange, onSelectDm, onSele
       {/* Tab content */}
       <div className="flex-1 overflow-y-auto">
         {activeTab === "posts" && <MessagesPostsTab />}
-        {activeTab === "chats" && <MessagesChatsTab />}
+        {activeTab === "chats" && <MessagesChatsTab onSelectDm={onSelectDm} onSelectGroup={onSelectGroup} />}
         {activeTab === "influencers" && <MessagesInfluencersTab />}
         {activeTab === "support" && <MessagesSupportTab />}
       </div>
