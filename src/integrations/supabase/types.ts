@@ -3282,6 +3282,7 @@ export type Database = {
           media_type: string | null
           media_url: string | null
           metadata: Json | null
+          reply_to: string | null
           user_id: string
         }
         Insert: {
@@ -3291,6 +3292,7 @@ export type Database = {
           media_type?: string | null
           media_url?: string | null
           metadata?: Json | null
+          reply_to?: string | null
           user_id: string
         }
         Update: {
@@ -3300,9 +3302,50 @@ export type Database = {
           media_type?: string | null
           media_url?: string | null
           metadata?: Json | null
+          reply_to?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "global_chat_messages_reply_to_fkey"
+            columns: ["reply_to"]
+            isOneToOne: false
+            referencedRelation: "global_chat_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      global_chat_reactions: {
+        Row: {
+          created_at: string | null
+          emoji: string
+          id: string
+          message_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          emoji: string
+          id?: string
+          message_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          emoji?: string
+          id?: string
+          message_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "global_chat_reactions_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "global_chat_messages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       knowledge_chunks: {
         Row: {
