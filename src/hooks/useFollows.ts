@@ -2,6 +2,27 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { useRef, useCallback } from "react";
+
+/** All query keys that depend on follow relationships */
+const FOLLOW_QUERY_KEYS = [
+  "is-following",
+  "follow-counts",
+  "following-posts",
+  "feed-posts",
+] as const;
+
+function invalidateAllFollowQueries(
+  qc: ReturnType<typeof useQueryClient>,
+  currentUserId: string | undefined,
+  targetUserId: string,
+) {
+  qc.invalidateQueries({ queryKey: ["is-following", currentUserId, targetUserId] });
+  qc.invalidateQueries({ queryKey: ["follow-counts", targetUserId] });
+  qc.invalidateQueries({ queryKey: ["follow-counts", currentUserId] });
+  qc.invalidateQueries({ queryKey: ["following-posts"] });
+  qc.invalidateQueries({ queryKey: ["feed-posts"] });
+}
 
 export function useIsFollowing(targetUserId: string | undefined) {
   const { user } = useAuth();
@@ -36,8 +57,8 @@ export function useFollowCounts(userId: string | undefined) {
           .eq("follower_id", userId!),
       ]);
       return {
-        followers: followersRes.count ?? 0,
-        following: followingRes.count ?? 0,
+        followers: Math.max(0, followersRes.count ?? 0),
+        following: Math.max(0, followingRes.count ?? 0),
       };
     },
   });
@@ -46,49 +67,64 @@ export function useFollowCounts(userId: string | undefined) {
 export function useToggleFollow() {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const inflightRef = useRef(false);
 
   return useMutation({
-    mutationFn: async ({ targetUserId, isCurrentlyFollowing }: { targetUserId: string; isCurrentlyFollowing: boolean }) => {
+    mutationFn: async ({
+      targetUserId,
+      isCurrentlyFollowing,
+    }: {
+      targetUserId: string;
+      isCurrentlyFollowing: boolean;
+    }) => {
       if (!user) throw new Error("Not logged in");
-      if (isCurrentlyFollowing) {
-        const { error } = await supabase
-          .from("follows" as any)
-          .delete()
-          .eq("follower_id", user.id)
-          .eq("following_id", targetUserId);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from("follows" as any)
-          .insert({ follower_id: user.id, following_id: targetUserId } as any);
-        if (error) throw error;
+      if (user.id === targetUserId) throw new Error("Cannot follow yourself");
+      if (inflightRef.current) return; // drop rapid duplicate clicks
+      inflightRef.current = true;
 
-        // Send follow notification to the target user
-        const { data: myProfile } = await supabase
-          .from("profiles")
-          .select("display_name, username")
-          .eq("id", user.id)
-          .single();
-        const name = myProfile?.display_name || myProfile?.username || "Someone";
-        const uname = myProfile?.username ? `@${myProfile.username}` : "";
-        await supabase.from("notifications").insert({
-          user_id: targetUserId,
-          type: "follow",
-          title: `${name} followed you`,
-          body: `${name} ${uname} started following you on YANGU. Follow them back to stay connected!`,
-          link: `/dashboard/home`,
-          is_read: false,
-        } as any);
+      try {
+        if (isCurrentlyFollowing) {
+          const { error } = await supabase
+            .from("follows" as any)
+            .delete()
+            .eq("follower_id", user.id)
+            .eq("following_id", targetUserId);
+          if (error) throw error;
+        } else {
+          const { error } = await supabase
+            .from("follows" as any)
+            .insert({ follower_id: user.id, following_id: targetUserId } as any);
+          // Ignore unique constraint violation (duplicate follow)
+          if (error && !error.message?.includes("duplicate key")) throw error;
+
+          // Send follow notification to the target user
+          const { data: myProfile } = await supabase
+            .from("profiles")
+            .select("display_name, username")
+            .eq("id", user.id)
+            .single();
+          const name = myProfile?.display_name || myProfile?.username || "Someone";
+          const uname = myProfile?.username ? `@${myProfile.username}` : "";
+          await supabase.from("notifications").insert({
+            user_id: targetUserId,
+            type: "follow",
+            title: `${name} followed you`,
+            body: `${name} ${uname} started following you on YANGU. Follow them back to stay connected!`,
+            link: `/dashboard/home`,
+            is_read: false,
+          } as any);
+        }
+      } finally {
+        inflightRef.current = false;
       }
     },
     onSuccess: (_, { targetUserId, isCurrentlyFollowing }) => {
-      qc.invalidateQueries({ queryKey: ["is-following", user?.id, targetUserId] });
-      qc.invalidateQueries({ queryKey: ["follow-counts", targetUserId] });
-      qc.invalidateQueries({ queryKey: ["follow-counts", user?.id] });
-      qc.invalidateQueries({ queryKey: ["following-posts"] });
-      qc.invalidateQueries({ queryKey: ["feed-posts"] });
+      invalidateAllFollowQueries(qc, user?.id, targetUserId);
       toast.success(isCurrentlyFollowing ? "Unfollowed" : "Following");
     },
-    onError: () => toast.error("Action failed"),
+    onError: (err) => {
+      if ((err as Error).message === "Cannot follow yourself") return;
+      toast.error("Action failed");
+    },
   });
 }
