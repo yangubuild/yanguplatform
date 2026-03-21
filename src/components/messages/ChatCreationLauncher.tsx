@@ -215,7 +215,6 @@ export function ChatCreationLauncher({ open, onOpenChange, onSelectUser, onOpenG
         </div>
       </div>
     </div>
-    </div>
   );
 
   return (
