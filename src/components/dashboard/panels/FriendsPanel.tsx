@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { UserProfilePopup } from "./UserProfilePopup";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import { FollowButton } from "./FollowButton";
+import { useAuth } from "@/hooks/useAuth";
 
 interface UserRow {
   id: string;
@@ -26,6 +27,7 @@ export function FriendsPanel({ onViewProfile }: FriendsPanelProps) {
   const [search, setSearch] = useState("");
   const [selectedUser, setSelectedUser] = useState<UserRow | null>(null);
   const navigate = useNavigate();
+  const { user: currentUser } = useAuth();
 
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["friends-panel-users"],
@@ -53,13 +55,16 @@ export function FriendsPanel({ onViewProfile }: FriendsPanelProps) {
     },
   });
 
+  // Always exclude the current user from the people list
+  const excludeSelf = (list: UserRow[]) => list.filter((u) => u.id !== currentUser?.id);
+
   const filtered = search.trim()
-    ? users.filter(
+    ? excludeSelf(users).filter(
         (u) =>
           u.display_name?.toLowerCase().includes(search.toLowerCase()) ||
           u.username?.toLowerCase().includes(search.toLowerCase())
       )
-    : users;
+    : excludeSelf(users);
 
   return (
     <div className="flex flex-col h-full" style={{ background: "#111820" }}>
