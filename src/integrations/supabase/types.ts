@@ -6136,67 +6136,36 @@ export type Database = {
       rotate_app_key: { Args: { p_key_id: string }; Returns: Json }
       rotate_webhook_secret: { Args: { p_webhook_id: string }; Returns: string }
       run_auto_review: { Args: { p_listing_id: string }; Returns: string }
-      search_entities:
-        | {
-            Args: {
-              p_category?: string
-              p_entity_subtype?: Database["public"]["Enums"]["entity_subtype"]
-              p_entity_type?: Database["public"]["Enums"]["searchable_entity_type"]
-              p_limit?: number
-              p_offset?: number
-              p_query?: string
-              p_verified_only?: boolean
-              p_visibility_tier?: Database["public"]["Enums"]["visibility_tier"]
-            }
-            Returns: {
-              cover_image_url: string
-              domain_host: string
-              entity_subtype: Database["public"]["Enums"]["entity_subtype"]
-              entity_type: Database["public"]["Enums"]["searchable_entity_type"]
-              id: string
-              industry: string
-              is_verified: boolean
-              primary_category: string
-              published_at: string
-              relevance_score: number
-              short_description: string
-              slug: string
-              surface_type: string
-              tags: string[]
-              title: string
-              visibility_tier: Database["public"]["Enums"]["visibility_tier"]
-            }[]
-          }
-        | {
-            Args: {
-              p_category?: string
-              p_entity_subtype?: string
-              p_entity_type?: string
-              p_limit?: number
-              p_offset?: number
-              p_query?: string
-              p_verified_only?: boolean
-              p_visibility_tier?: string
-            }
-            Returns: {
-              cover_image_url: string
-              domain_host: string
-              entity_subtype: string
-              entity_type: string
-              id: string
-              industry: string
-              is_verified: boolean
-              primary_category: string
-              published_at: string
-              relevance_score: number
-              short_description: string
-              slug: string
-              surface_type: string
-              tags: string[]
-              title: string
-              visibility_tier: string
-            }[]
-          }
+      search_entities: {
+        Args: {
+          p_category?: string
+          p_entity_subtype?: string
+          p_entity_type?: string
+          p_limit?: number
+          p_offset?: number
+          p_query?: string
+          p_verified_only?: boolean
+          p_visibility_tier?: string
+        }
+        Returns: {
+          cover_image_url: string
+          domain_host: string
+          entity_subtype: string
+          entity_type: string
+          id: string
+          industry: string
+          is_verified: boolean
+          primary_category: string
+          published_at: string
+          relevance_score: number
+          short_description: string
+          slug: string
+          surface_type: string
+          tags: string[]
+          title: string
+          visibility_tier: string
+        }[]
+      }
       send_admin_invite: {
         Args: {
           p_email: string
