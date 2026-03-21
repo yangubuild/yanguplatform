@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
+import { useRef, useCallback } from "react";
 
 export interface Post {
   id: string;
@@ -33,6 +34,48 @@ export interface PostComment {
   author_username?: string;
 }
 
+/** Canonical profile fields needed for post identity */
+const PROFILE_AVATAR_SELECT = "id, display_name, avatar_url, avatar_mode, avatar_emoji_key, username";
+
+/** Shared helper: aggregate comment counts & reaction state for a list of posts */
+function aggregateInteractions(
+  posts: Post[],
+  commentsData: any[],
+  reactionsData: any[],
+  currentUserId: string | undefined
+) {
+  const commentCounts: Record<string, number> = {};
+  commentsData.forEach((c: any) => {
+    commentCounts[c.post_id] = (commentCounts[c.post_id] || 0) + 1;
+  });
+
+  const likeCounts: Record<string, number> = {};
+  const loveCounts: Record<string, number> = {};
+  const userLiked: Record<string, boolean> = {};
+  const userLoved: Record<string, boolean> = {};
+
+  reactionsData.forEach((r: any) => {
+    if (r.reaction_type === "like") {
+      likeCounts[r.post_id] = (likeCounts[r.post_id] || 0) + 1;
+      if (currentUserId && r.user_id === currentUserId) userLiked[r.post_id] = true;
+    } else if (r.reaction_type === "love") {
+      loveCounts[r.post_id] = (loveCounts[r.post_id] || 0) + 1;
+      if (currentUserId && r.user_id === currentUserId) userLoved[r.post_id] = true;
+    }
+  });
+
+  return { commentCounts, likeCounts, loveCounts, userLiked, userLoved };
+}
+
+/** All query keys that contain posts — used for global invalidation */
+const ALL_POST_QUERY_KEYS = ["user-posts", "feed-posts", "following-posts"] as const;
+
+function invalidateAllPosts(queryClient: ReturnType<typeof useQueryClient>) {
+  ALL_POST_QUERY_KEYS.forEach(key => {
+    queryClient.invalidateQueries({ queryKey: [key] });
+  });
+}
+
 export function useUserPosts(userId: string | undefined) {
   return useQuery({
     queryKey: ["user-posts", userId],
@@ -52,7 +95,7 @@ export function useUserPosts(userId: string | undefined) {
 
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("id, display_name, avatar_url, avatar_mode, avatar_emoji_key, username")
+        .select(PROFILE_AVATAR_SELECT)
         .eq("id", userId)
         .limit(1);
       const profile = profiles?.[0];
@@ -63,41 +106,23 @@ export function useUserPosts(userId: string | undefined) {
         supabase.from("post_reactions").select("post_id, reaction_type, user_id").in("post_id", postIds),
       ]);
 
-      const commentCounts: Record<string, number> = {};
-      (commentsRes.data ?? []).forEach((c: any) => {
-        commentCounts[c.post_id] = (commentCounts[c.post_id] || 0) + 1;
-      });
-
-      const likeCounts: Record<string, number> = {};
-      const loveCounts: Record<string, number> = {};
-      const userLiked: Record<string, boolean> = {};
-      const userLoved: Record<string, boolean> = {};
       const { data: { user: currentUser } } = await supabase.auth.getUser();
+      const { commentCounts, likeCounts, loveCounts, userLiked, userLoved } = aggregateInteractions(
+        posts, commentsRes.data ?? [], reactionsRes.data ?? [], currentUser?.id
+      );
 
-      (reactionsRes.data ?? []).forEach((r: any) => {
-        if (r.reaction_type === "like") {
-          likeCounts[r.post_id] = (likeCounts[r.post_id] || 0) + 1;
-          if (currentUser && r.user_id === currentUser.id) userLiked[r.post_id] = true;
-        } else if (r.reaction_type === "love") {
-          loveCounts[r.post_id] = (loveCounts[r.post_id] || 0) + 1;
-          if (currentUser && r.user_id === currentUser.id) userLoved[r.post_id] = true;
-        }
-      });
-
-      return posts.map(p => {
-        const resolvedAvatar = profile ? resolveAvatarUrl(profile) : null;
-        return {
-          ...p,
-          author_name: profile?.display_name || profile?.username || "Unknown",
-          author_avatar: resolvedAvatar || undefined,
-          author_username: profile?.username || undefined,
+      const resolvedAvatar = profile ? resolveAvatarUrl(profile) : null;
+      return posts.map(p => ({
+        ...p,
+        author_name: profile?.display_name || profile?.username || "Unknown",
+        author_avatar: resolvedAvatar || undefined,
+        author_username: profile?.username || undefined,
         comment_count: commentCounts[p.id] || 0,
         like_count: likeCounts[p.id] || 0,
         love_count: loveCounts[p.id] || 0,
-          user_liked: !!userLiked[p.id],
-          user_loved: !!userLoved[p.id],
-        };
-      });
+        user_liked: !!userLiked[p.id],
+        user_loved: !!userLoved[p.id],
+      }));
     },
   });
 }
@@ -122,7 +147,7 @@ export function usePostComments(postId: string | undefined) {
       const userIds = [...new Set(comments.map(c => c.user_id))];
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("id, display_name, avatar_url, avatar_mode, avatar_emoji_key, username")
+        .select(PROFILE_AVATAR_SELECT)
         .in("id", userIds);
       const profileMap = Object.fromEntries((profiles ?? []).map(p => [p.id, p]));
 
@@ -161,11 +186,13 @@ export function useCreatePost() {
   return useMutation({
     mutationFn: async ({ content, mediaUrls, mediaType }: { content: string; mediaUrls?: string[]; mediaType?: string }) => {
       if (!user) throw new Error("Not authenticated");
+      const trimmed = content.trim();
+      if (!trimmed && (!mediaUrls || mediaUrls.length === 0)) throw new Error("Post cannot be empty");
       const { data, error } = await supabase
         .from("user_posts")
         .insert({
           user_id: user.id,
-          content,
+          content: trimmed,
           media_urls: mediaUrls || [],
           media_type: mediaType || "text",
         })
@@ -175,8 +202,7 @@ export function useCreatePost() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user-posts", user?.id] });
-      queryClient.invalidateQueries({ queryKey: ["feed-posts"] });
+      invalidateAllPosts(queryClient);
       toast.success("Post published!");
     },
     onError: (err: Error) => toast.error(err.message || "Failed to create post"),
@@ -190,9 +216,11 @@ export function useCreateComment() {
   return useMutation({
     mutationFn: async ({ postId, content }: { postId: string; content: string }) => {
       if (!user) throw new Error("Not authenticated");
+      const trimmed = content.trim();
+      if (!trimmed) throw new Error("Comment cannot be empty");
       const { data, error } = await supabase
         .from("post_comments")
-        .insert({ post_id: postId, user_id: user.id, content })
+        .insert({ post_id: postId, user_id: user.id, content: trimmed })
         .select()
         .single();
       if (error) throw error;
@@ -200,21 +228,26 @@ export function useCreateComment() {
     },
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: ["post-comments", vars.postId] });
-      queryClient.invalidateQueries({ queryKey: ["user-posts"] });
-      queryClient.invalidateQueries({ queryKey: ["feed-posts"] });
-      toast.success("Comment added!");
+      invalidateAllPosts(queryClient);
     },
-    onError: () => toast.error("Failed to add comment"),
+    onError: (err: Error) => toast.error(err.message || "Failed to add comment"),
   });
 }
 
 export function useToggleReaction() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const inflightRef = useRef<Set<string>>(new Set());
 
-  return useMutation({
-    mutationFn: async ({ postId, reactionType, isActive }: { postId: string; reactionType: "like" | "love"; isActive: boolean }) => {
-      if (!user) throw new Error("Not authenticated");
+  const mutationFn = useCallback(async ({ postId, reactionType, isActive }: { postId: string; reactionType: "like" | "love"; isActive: boolean }) => {
+    if (!user) throw new Error("Not authenticated");
+
+    // Idempotency: prevent duplicate in-flight requests for same post+type
+    const key = `${postId}:${reactionType}`;
+    if (inflightRef.current.has(key)) return;
+    inflightRef.current.add(key);
+
+    try {
       if (isActive) {
         await supabase
           .from("post_reactions")
@@ -223,14 +256,26 @@ export function useToggleReaction() {
           .eq("user_id", user.id)
           .eq("reaction_type", reactionType);
       } else {
+        // Upsert-like: delete first to prevent unique constraint violations on rapid clicks
+        await supabase
+          .from("post_reactions")
+          .delete()
+          .eq("post_id", postId)
+          .eq("user_id", user.id)
+          .eq("reaction_type", reactionType);
         await supabase
           .from("post_reactions")
           .insert({ post_id: postId, user_id: user.id, reaction_type: reactionType });
       }
-    },
+    } finally {
+      inflightRef.current.delete(key);
+    }
+  }, [user]);
+
+  return useMutation({
+    mutationFn,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user-posts"] });
-      queryClient.invalidateQueries({ queryKey: ["feed-posts"] });
+      invalidateAllPosts(queryClient);
     },
   });
 }

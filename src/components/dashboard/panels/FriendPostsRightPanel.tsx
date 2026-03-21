@@ -26,8 +26,10 @@ export function FriendPostsRightPanel({ friend }: Props) {
   const activeComments = selectedPostId ? comments : [];
 
   const handleSendComment = () => {
-    if (!comment.trim() || !activePostId) return;
-    createComment.mutate({ postId: activePostId, content: comment.trim() });
+    const trimmed = comment.trim();
+    if (!trimmed || !activePostId) return;
+    if (createComment.isPending) return; // prevent double submit
+    createComment.mutate({ postId: activePostId, content: trimmed });
     setComment("");
   };
 

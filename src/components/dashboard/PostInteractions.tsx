@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Heart, ThumbsUp, MessageSquare, ExternalLink, Loader2, X, ImagePlus, Video, Smile, Sparkles, Search, Send } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,6 +6,7 @@ import { usePostComments, useCreateComment, uploadPostMedia, type Post } from "@
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface PostInteractionsProps {
   post: Post;
@@ -40,6 +41,7 @@ function useReactionUsers(postId: string, reactionType: "like" | "love", enabled
 
 export function PostInteractions({ post, toggleReaction }: PostInteractionsProps) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [showComments, setShowComments] = useState(false);
   const [showLikers, setShowLikers] = useState(false);
   const [showLovers, setShowLovers] = useState(false);
@@ -70,17 +72,28 @@ export function PostInteractions({ post, toggleReaction }: PostInteractionsProps
   const { data: likers = [] } = useReactionUsers(post.id, "like", showLikers);
   const { data: lovers = [] } = useReactionUsers(post.id, "love", showLovers);
 
+  // Auth gate: redirect to login if not authenticated
+  const requireAuth = useCallback(() => {
+    if (!user) {
+      navigate("/auth/login");
+      return false;
+    }
+    return true;
+  }, [user, navigate]);
+
   const handleLike = () => {
+    if (!requireAuth()) return;
     const wasLiked = optimisticLiked;
     setOptimisticLiked(!wasLiked);
-    setOptimisticLikeCount(prev => wasLiked ? prev - 1 : prev + 1);
+    setOptimisticLikeCount(prev => Math.max(0, wasLiked ? prev - 1 : prev + 1));
     toggleReaction.mutate({ postId: post.id, reactionType: "like", isActive: wasLiked });
   };
 
   const handleLove = () => {
+    if (!requireAuth()) return;
     const wasLoved = optimisticLoved;
     setOptimisticLoved(!wasLoved);
-    setOptimisticLoveCount(prev => wasLoved ? prev - 1 : prev + 1);
+    setOptimisticLoveCount(prev => Math.max(0, wasLoved ? prev - 1 : prev + 1));
     toggleReaction.mutate({ postId: post.id, reactionType: "love", isActive: wasLoved });
   };
 
@@ -92,22 +105,31 @@ export function PostInteractions({ post, toggleReaction }: PostInteractionsProps
     setCommentMediaPreview(URL.createObjectURL(file));
   };
 
+  const [submittingComment, setSubmittingComment] = useState(false);
+
   const handleComment = async () => {
-    if (!commentText.trim() && !commentMediaFile) return;
-    if (!user) return;
+    if (!requireAuth()) return;
+    const trimmedText = commentText.trim();
+    if (!trimmedText && !commentMediaFile) return;
+    if (submittingComment) return; // prevent double submit
+    setSubmittingComment(true);
     setUploadingComment(true);
     try {
-      let content = commentText.trim();
+      let content = trimmedText;
       if (commentMediaFile) {
-        const url = await uploadPostMedia(user.id, commentMediaFile);
+        const url = await uploadPostMedia(user!.id, commentMediaFile);
         content = content ? `${content}\n${url}` : url;
       }
-      createComment.mutate({ postId: post.id, content });
+      if (!content) return;
+      await createComment.mutateAsync({ postId: post.id, content });
       setCommentText("");
       if (commentMediaPreview) URL.revokeObjectURL(commentMediaPreview);
       setCommentMediaFile(null);
       setCommentMediaPreview(null);
-    } catch { /* handled */ } finally { setUploadingComment(false); }
+    } catch { /* handled by mutation onError */ } finally {
+      setUploadingComment(false);
+      setSubmittingComment(false);
+    }
   };
 
   return (
