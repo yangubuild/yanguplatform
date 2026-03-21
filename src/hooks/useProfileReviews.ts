@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { resolveAvatarUrl } from "@/lib/avatarUtils";
 
 export interface ProfileReview {
   id: string;
@@ -52,16 +53,19 @@ export function useProfileReviews(userId: string | undefined) {
       const reviewerIds = [...new Set(reviews.map(r => r.user_id))];
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("id, display_name, avatar_url, username")
+        .select("id, display_name, avatar_url, avatar_mode, avatar_emoji_key, username")
         .in("id", reviewerIds);
       const profileMap = Object.fromEntries((profiles ?? []).map(p => [p.id, p]));
 
-      const mapped: ProfileReview[] = reviews.map(r => ({
-        ...r,
-        reviewer_name: profileMap[r.user_id]?.display_name || profileMap[r.user_id]?.username || "Anonymous",
-        reviewer_avatar: profileMap[r.user_id]?.avatar_url || undefined,
-        reviewer_username: profileMap[r.user_id]?.username || undefined,
-      }));
+      const mapped: ProfileReview[] = reviews.map(r => {
+        const p = profileMap[r.user_id];
+        return {
+          ...r,
+          reviewer_name: p?.display_name || p?.username || "Anonymous",
+          reviewer_avatar: p ? (resolveAvatarUrl(p) ?? undefined) : undefined,
+          reviewer_username: p?.username || undefined,
+        };
+      });
 
       const avg = mapped.length > 0
         ? mapped.reduce((sum, r) => sum + r.rating, 0) / mapped.length
