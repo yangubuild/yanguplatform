@@ -40,6 +40,30 @@ const TYPE_ICONS: Record<string, React.FC<{ className?: string; style?: React.CS
   project: Palette,
 };
 
+/** Maps builder_surface_type to a user-facing label */
+const BST_LABELS: Record<string, string> = {
+  eshop: "shop",
+  emenu: "shop",
+  esite: "services",
+  estore: "store",
+  store_listing: "store",
+  live_bio: "influencer",
+  live_selling: "creator",
+  community_group: "community",
+  community_listing: "community",
+  studio_showcase: "studio",
+};
+
+function getPublicTypeLabel(entity: SearchEntityResult): string {
+  // Use primary_category if set (industry or derived), else map from builder_surface_type
+  if (entity.primary_category) return entity.primary_category;
+  if (entity.builder_surface_type && BST_LABELS[entity.builder_surface_type]) {
+    return BST_LABELS[entity.builder_surface_type];
+  }
+  const config = ENTITY_TYPE_CONFIG[entity.entity_type];
+  return config?.label || entity.entity_type;
+}
+
 function EntityCard({ entity, onClickTrack }: { entity: SearchEntityResult; onClickTrack?: (e: SearchEntityResult) => void }) {
   const navigate = useNavigate();
   const route = getEntityRoute(entity);
@@ -47,6 +71,7 @@ function EntityCard({ entity, onClickTrack }: { entity: SearchEntityResult; onCl
   const badge = getVerifiedBadgeColor(entity);
   const Icon = TYPE_ICONS[entity.entity_type] || Building2;
   const config = ENTITY_TYPE_CONFIG[entity.entity_type];
+  const typeLabel = getPublicTypeLabel(entity);
 
   return (
     <div
@@ -64,7 +89,7 @@ function EntityCard({ entity, onClickTrack }: { entity: SearchEntityResult; onCl
         )}
       </div>
       <div className="p-4">
-        <div className="flex items-center gap-3 mb-2">
+        <div className="flex items-center gap-3 mb-1">
           {entity.avatar_url ? (
             <img src={entity.avatar_url} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />
           ) : (
@@ -72,28 +97,33 @@ function EntityCard({ entity, onClickTrack }: { entity: SearchEntityResult; onCl
               <Icon className="w-5 h-5" style={{ color: 'rgba(255,255,255,0.3)' }} />
             </div>
           )}
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
               <span className={`text-white ${T.body} font-semibold truncate`}>{entity.title}</span>
               {badge === "blue" && <span className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center text-[8px] text-white shrink-0">✓</span>}
               {badge === "orange" && <span className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] text-white shrink-0" style={{ background: '#b5622a' }}>✓</span>}
               {badge === "green" && <span className="w-4 h-4 rounded-full bg-green-600 flex items-center justify-center text-[8px] text-white shrink-0">✓</span>}
             </div>
-            {entity.primary_category && (
-              <span className={T.bodyCompact} style={{ color: 'rgba(255,255,255,0.35)' }}>{entity.primary_category}</span>
-            )}
+            <span className={T.bodyCompact} style={{ color: 'rgba(255,255,255,0.35)' }}>{typeLabel}</span>
           </div>
+          {/* Review stars on the right if reviews exist */}
+          {(entity.review_count ?? 0) >= 1 && entity.avg_rating != null && (
+            <div className="flex items-center gap-1 shrink-0">
+              <Star className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />
+              <span className="text-[11px] text-yellow-500 font-medium">{entity.avg_rating.toFixed(1)}</span>
+            </div>
+          )}
         </div>
         {entity.short_description && (
           <p className={`${T.bodyCompact} mb-3 line-clamp-2`} style={{ color: 'rgba(255,255,255,0.45)' }}>{entity.short_description}</p>
         )}
-        <div className={`flex items-center gap-3 ${T.bodyCompact}`} style={{ color: 'rgba(255,255,255,0.35)' }}>
+        <div className={`flex items-center gap-2 ${T.bodyCompact}`} style={{ color: 'rgba(255,255,255,0.35)' }}>
           <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }}>
             {config?.label || entity.entity_type}
           </span>
-          {entity.visibility_tier !== 'free' && (
+          {entity.is_verified && (
             <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(181,98,42,0.15)', color: '#b5622a' }}>
-              {entity.visibility_tier}
+              verified
             </span>
           )}
         </div>

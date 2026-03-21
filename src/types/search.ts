@@ -105,7 +105,10 @@ export interface SearchEntityResult {
   avatar_url?: string | null;
   published_at: string | null;
   relevance_score: number;
+  builder_surface_type?: string | null;
   trust_score?: number | null;
+  avg_rating?: number | null;
+  review_count?: number | null;
 }
 
 // ── Search params (mirrors search_entities RPC args) ──
