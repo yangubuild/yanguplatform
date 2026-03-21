@@ -1346,6 +1346,72 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_list_members: {
+        Row: {
+          added_at: string
+          id: string
+          list_id: string
+          member_group_id: string | null
+          member_user_id: string | null
+        }
+        Insert: {
+          added_at?: string
+          id?: string
+          list_id: string
+          member_group_id?: string | null
+          member_user_id?: string | null
+        }
+        Update: {
+          added_at?: string
+          id?: string
+          list_id?: string
+          member_group_id?: string | null
+          member_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_list_members_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "chat_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_list_members_member_group_id_fkey"
+            columns: ["member_group_id"]
+            isOneToOne: false
+            referencedRelation: "chat_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_lists: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       community_listings: {
         Row: {
           id: string
