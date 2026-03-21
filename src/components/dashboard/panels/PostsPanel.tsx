@@ -1,11 +1,12 @@
 import { useState, useRef, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { ImagePlus, Video, Sparkles, Send, Heart, MessageSquare, ThumbsUp, Loader2, X } from "lucide-react";
+import { ImagePlus, Video, Sparkles, Send, Heart, MessageSquare, ThumbsUp, Loader2, X, ExternalLink } from "lucide-react";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import { useCreatePost, useToggleReaction, uploadPostMedia, type Post } from "@/hooks/usePosts";
 import { useFeedPosts } from "@/hooks/useFeedPosts";
 import { toast } from "sonner";
+import type { FriendUser } from "@/components/dashboard/FriendProfileView";
 
 export function PostsPanel() {
   const { user, profile } = useAuth();
