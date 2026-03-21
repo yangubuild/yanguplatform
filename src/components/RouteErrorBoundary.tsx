@@ -7,26 +7,60 @@ interface Props {
 interface State {
   hasError: boolean;
   error: Error | null;
+  retryCount: number;
+}
+
+const MAX_AUTO_RETRY = 1;
+
+function isChunkError(error: Error | null): boolean {
+  if (!error) return false;
+  const msg = error.message || "";
+  return (
+    msg.includes("Failed to fetch dynamically imported module") ||
+    msg.includes("Importing a module script failed") ||
+    msg.includes("error loading dynamically imported module") ||
+    msg.includes("Loading chunk") ||
+    msg.includes("Loading CSS chunk")
+  );
 }
 
 /**
- * Catches lazy-import failures and render errors so the app
- * never shows a blank white screen.
+ * Catches lazy-import failures and render errors.
+ * For chunk-load errors it auto-retries once before showing UI.
  */
 export class RouteErrorBoundary extends Component<Props, State> {
-  state: State = { hasError: false, error: null };
+  state: State = { hasError: false, error: null, retryCount: 0 };
 
-  static getDerivedStateFromError(error: Error) {
+  static getDerivedStateFromError(error: Error): Partial<State> {
     return { hasError: true, error };
   }
 
-  handleRetry = () => {
-    this.setState({ hasError: false, error: null });
+  componentDidUpdate(_: Props, prevState: State) {
+    // Auto-retry chunk errors once without user interaction
+    if (
+      this.state.hasError &&
+      isChunkError(this.state.error) &&
+      this.state.retryCount < MAX_AUTO_RETRY &&
+      prevState.retryCount === this.state.retryCount
+    ) {
+      setTimeout(() => {
+        this.setState((s) => ({ hasError: false, error: null, retryCount: s.retryCount + 1 }));
+      }, 1000);
+    }
+  }
+
+  handleReload = () => {
     window.location.reload();
+  };
+
+  handleSoftRetry = () => {
+    this.setState({ hasError: false, error: null, retryCount: 0 });
   };
 
   render() {
     if (this.state.hasError) {
+      const isChunk = isChunkError(this.state.error);
+
       return (
         <div
           style={{
@@ -43,12 +77,14 @@ export class RouteErrorBoundary extends Component<Props, State> {
           }}
         >
           <h1 style={{ fontSize: "1.5rem", marginBottom: "0.75rem" }}>
-            Something went wrong
+            {isChunk ? "New version available" : "Something went wrong"}
           </h1>
           <p style={{ color: "#94a3b8", maxWidth: 420, marginBottom: "1.5rem", fontSize: "0.95rem" }}>
-            A module failed to load. This is usually temporary — try refreshing.
+            {isChunk
+              ? "A newer version of the app was deployed. Please reload to continue."
+              : "An unexpected error occurred. Try refreshing the page."}
           </p>
-          {this.state.error && (
+          {this.state.error && !isChunk && (
             <pre
               style={{
                 background: "#0f1a14",
@@ -65,7 +101,7 @@ export class RouteErrorBoundary extends Component<Props, State> {
             </pre>
           )}
           <button
-            onClick={this.handleRetry}
+            onClick={this.handleReload}
             style={{
               padding: "0.625rem 1.5rem",
               borderRadius: 8,
@@ -80,24 +116,23 @@ export class RouteErrorBoundary extends Component<Props, State> {
           >
             Reload Page
           </button>
-          <button
-            onClick={() => {
-              this.setState({ hasError: false, error: null });
-              window.location.href = window.location.href;
-            }}
-            style={{
-              padding: "0.5rem 1.25rem",
-              borderRadius: 8,
-              border: "1px solid #334155",
-              background: "transparent",
-              color: "#94a3b8",
-              fontWeight: 500,
-              cursor: "pointer",
-              fontSize: "0.85rem",
-            }}
-          >
-            Try again without full reload
-          </button>
+          {!isChunk && (
+            <button
+              onClick={this.handleSoftRetry}
+              style={{
+                padding: "0.5rem 1.25rem",
+                borderRadius: 8,
+                border: "1px solid #334155",
+                background: "transparent",
+                color: "#94a3b8",
+                fontWeight: 500,
+                cursor: "pointer",
+                fontSize: "0.85rem",
+              }}
+            >
+              Try again without reload
+            </button>
+          )}
         </div>
       );
     }
