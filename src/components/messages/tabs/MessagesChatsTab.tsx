@@ -1,19 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useConversationList } from "@/hooks/useDirectMessages";
-import { useMyGroups } from "@/hooks/useGroupChats";
+import { useUnreadDmPerPartner } from "@/hooks/useUnreadMessages";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
-import { Loader2, Users } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import chatIcon8 from "@/assets/chat_icon_8.png";
 
 interface Props {
   onSelectDm?: (userId: string) => void;
-  onSelectGroup?: (groupId: string) => void;
 }
 
-export function MessagesChatsTab({ onSelectDm, onSelectGroup }: Props) {
+export function MessagesChatsTab({ onSelectDm }: Props) {
   const { data: conversations = [], isLoading: loadingDms } = useConversationList();
-  const { data: groups = [], isLoading: loadingGroups } = useMyGroups();
+  const { data: unreadMap } = useUnreadDmPerPartner();
   const partnerIds = conversations.map((c) => c.partnerId);
 
   const { data: profiles = [] } = useQuery({
@@ -30,9 +29,8 @@ export function MessagesChatsTab({ onSelectDm, onSelectGroup }: Props) {
   });
 
   const profileMap = new Map(profiles.map((p) => [p.id, p]));
-  const isLoading = loadingDms || loadingGroups;
 
-  if (isLoading) {
+  if (loadingDms) {
     return (
       <div className="flex items-center justify-center h-full">
         <Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
@@ -40,7 +38,7 @@ export function MessagesChatsTab({ onSelectDm, onSelectGroup }: Props) {
     );
   }
 
-  if (conversations.length === 0 && groups.length === 0) {
+  if (conversations.length === 0) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center gap-3 h-full">
         <div className="rounded-2xl p-8 text-center max-w-xs" style={{ background: "rgba(255,255,255,0.03)" }}>
@@ -57,37 +55,7 @@ export function MessagesChatsTab({ onSelectDm, onSelectGroup }: Props) {
   return (
     <div className="flex flex-col h-full">
       <div className="p-3 space-y-1">
-        {/* Groups */}
-        {groups.map((group) => (
-          <button
-            key={`group-${group.id}`}
-            onClick={() => onSelectGroup?.(group.id)}
-            className="w-full rounded-xl p-3 flex items-start gap-3 text-left"
-            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
-          >
-            <div
-              className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
-              style={{ background: "rgba(96,165,250,0.2)", color: "rgba(96,165,250,0.9)" }}
-            >
-              {group.avatar_url ? (
-                <img src={group.avatar_url} alt="" className="w-9 h-9 rounded-full object-cover" />
-              ) : (
-                <Users className="w-4 h-4" />
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate">{group.name}</p>
-              <p className="text-xs mt-0.5 truncate" style={{ color: "rgba(255,255,255,0.4)" }}>
-                {group.member_count ?? 0} member{(group.member_count ?? 0) !== 1 ? "s" : ""}
-              </p>
-            </div>
-            <span className="text-[9px] px-1.5 py-0.5 rounded shrink-0" style={{ background: "rgba(96,165,250,0.15)", color: "rgba(96,165,250,0.8)" }}>
-              Group
-            </span>
-          </button>
-        ))}
-
-        {/* DMs */}
+        {/* DMs only — group chats removed from UI */}
         {conversations.map((conv) => {
           const profile = profileMap.get(conv.partnerId);
           const name = profile?.display_name || profile?.username || "User";
@@ -98,6 +66,7 @@ export function MessagesChatsTab({ onSelectDm, onSelectGroup }: Props) {
             month: "numeric",
             day: "numeric",
           });
+          const unreadCount = unreadMap?.get(conv.partnerId) || 0;
 
           return (
             <button
@@ -122,9 +91,19 @@ export function MessagesChatsTab({ onSelectDm, onSelectGroup }: Props) {
                   {preview}
                 </p>
               </div>
-              <span className="text-[11px] shrink-0" style={{ color: "rgba(255,255,255,0.3)" }}>
-                {date}
-              </span>
+              <div className="flex flex-col items-end gap-1 shrink-0">
+                <span className="text-[11px]" style={{ color: "rgba(255,255,255,0.3)" }}>
+                  {date}
+                </span>
+                {unreadCount > 0 && (
+                  <span
+                    className="min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-[9px] font-bold text-white px-1"
+                    style={{ background: "#ef4444" }}
+                  >
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+              </div>
             </button>
           );
         })}
