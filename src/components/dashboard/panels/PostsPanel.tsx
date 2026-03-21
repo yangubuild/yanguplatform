@@ -237,7 +237,16 @@ export function PostsPanel({ onViewProfile }: PostsPanelProps) {
         ) : (
           <div className="px-3 py-2 space-y-2">
             {posts.map((post) => (
-              <PostCard key={post.id} post={post} onReact={(type, active) => toggleReaction.mutate({ postId: post.id, reactionType: type, isActive: active })} />
+              <PostCard key={post.id} post={post} onReact={(type, active) => toggleReaction.mutate({ postId: post.id, reactionType: type, isActive: active })} onClickUser={onViewProfile ? () => {
+                if (post.user_id !== user?.id) {
+                  onViewProfile({
+                    id: post.user_id,
+                    display_name: post.author_name || "Unknown",
+                    avatar_url: post.author_avatar || null,
+                    username: post.author_username || null,
+                  } as FriendUser);
+                }
+              } : undefined} />
             ))}
           </div>
         )}
