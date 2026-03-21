@@ -113,13 +113,13 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
         return;
       }
 
-      // Create notification for the invited user
+      // Create notification for the invited user — link to messages thread with sender
       await supabase.from("notifications").insert({
         user_id: selectedUser.id,
         type: "team_invite",
         title: "Team Invitation",
         body: `You've been invited to join as ${selectedRoleObj.name}. Accept to become a team member.`,
-        link: `/dashboard/home?accept_invite=${invite.id}`,
+        link: `/dashboard/messages?tab=chats&user=${user.id}`,
         metadata: {
           invite_id: invite.id,
           role: selectedRoleObj.dbRole,
@@ -128,20 +128,15 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
         },
       });
 
-      // Send a DM system message to invitee
+      // Send a DM to invitee with accept link
       await supabase.from("direct_messages").insert({
         sender_id: user.id,
         receiver_id: selectedUser.id,
-        content: `🤝 You've been invited to join the team as **${selectedRoleObj.name}**. Check your notifications to accept.`,
+        content: `🤝 You've been invited to join the team as **${selectedRoleObj.name}**.\n\n[Accept Invite](/dashboard/home?accept_invite=${invite.id})`,
       });
 
-      // Send sender confirmation DM (system message to self)
+      // Send sender confirmation notification (no fake DM from invited user)
       const handle = selectedUser.username ? `@${selectedUser.username}` : (selectedUser.display_name || "user");
-      await supabase.from("direct_messages").insert({
-        sender_id: selectedUser.id, // appears as incoming system message
-        receiver_id: user.id,
-        content: `📋 You invited ${selectedUser.display_name || selectedUser.username || "a user"} (${handle}) to join your team as **${selectedRoleObj.name}**. Status: Pending acceptance.`,
-      });
 
       // Create sender notification
       await supabase.from("notifications").insert({
@@ -149,7 +144,7 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
         type: "team_invite_sent",
         title: "Team Invite Sent",
         body: `You invited ${handle} to join your team. Waiting for acceptance.`,
-        link: `/dashboard/home`,
+        link: `/dashboard/messages?tab=chats&user=${selectedUser.id}`,
         metadata: {
           invite_id: invite.id,
           target_user_id: selectedUser.id,

@@ -5,6 +5,7 @@ import { useConversation, useSendMessage } from "@/hooks/useDirectMessages";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import { Send, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   targetUserId: string;
@@ -14,9 +15,10 @@ export function DmThreadView({ targetUserId }: Props) {
   const [message, setMessage] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
+  const navigate = useNavigate();
 
-  // Fetch target profile
-  const { data: profile } = useQuery({
+  // Fetch target user profile (the other person)
+  const { data: targetProfile } = useQuery({
     queryKey: ["dm-target-profile", targetUserId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -29,12 +31,31 @@ export function DmThreadView({ targetUserId }: Props) {
     },
   });
 
+  // Fetch own profile (for showing own avatar on sent messages)
+  const { data: myProfile } = useQuery({
+    queryKey: ["dm-my-profile", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, display_name, username, avatar_url, avatar_mode, avatar_emoji_key")
+        .eq("id", user!.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const { data: messages = [], isLoading } = useConversation(targetUserId);
   const sendMessage = useSendMessage();
 
-  const name = profile?.display_name || profile?.username || "User";
-  const resolved = profile ? resolveAvatarUrl(profile) : null;
-  const initials = name.slice(0, 2).toUpperCase();
+  const targetName = targetProfile?.display_name || targetProfile?.username || "User";
+  const targetAvatar = targetProfile ? resolveAvatarUrl(targetProfile) : null;
+  const targetInitials = targetName.slice(0, 2).toUpperCase();
+
+  const myName = myProfile?.display_name || myProfile?.username || "Me";
+  const myAvatar = myProfile ? resolveAvatarUrl(myProfile) : null;
+  const myInitials = myName.slice(0, 2).toUpperCase();
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -44,6 +65,30 @@ export function DmThreadView({ targetUserId }: Props) {
     if (!message.trim()) return;
     sendMessage.mutate({ receiverId: targetUserId, content: message.trim() });
     setMessage("");
+  };
+
+  // Parse accept_invite links in message content
+  const renderContent = (content: string) => {
+    const acceptMatch = content.match(/\[Accept Invite\]\(([^)]+)\)/);
+    if (acceptMatch) {
+      const link = acceptMatch[1];
+      const textBefore = content.slice(0, acceptMatch.index);
+      const textAfter = content.slice((acceptMatch.index ?? 0) + acceptMatch[0].length);
+      return (
+        <>
+          {textBefore}
+          <button
+            onClick={() => navigate(link)}
+            className="inline-block mt-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white"
+            style={{ background: "linear-gradient(135deg, #4ade80, #22c55e)" }}
+          >
+            ✅ Accept Invite
+          </button>
+          {textAfter}
+        </>
+      );
+    }
+    return content;
   };
 
   return (
@@ -57,17 +102,17 @@ export function DmThreadView({ targetUserId }: Props) {
           className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold overflow-hidden"
           style={{ background: "rgba(255,255,255,0.1)" }}
         >
-          {resolved ? (
-            <img src={resolved} alt="" className="w-8 h-8 rounded-full object-cover" />
+          {targetAvatar ? (
+            <img src={targetAvatar} alt="" className="w-8 h-8 rounded-full object-cover" />
           ) : (
-            <span className="text-white/60">{initials}</span>
+            <span className="text-white/60">{targetInitials}</span>
           )}
         </div>
         <div>
-          <span className="text-sm font-semibold text-white">{name}</span>
-          {profile?.username && (
+          <span className="text-sm font-semibold text-white">{targetName}</span>
+          {targetProfile?.username && (
             <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>
-              @{profile.username}
+              @{targetProfile.username}
             </p>
           )}
         </div>
@@ -83,14 +128,29 @@ export function DmThreadView({ targetUserId }: Props) {
           <div className="flex-1 flex flex-col items-center justify-center">
             <p className="text-sm text-white mb-1">Start a conversation</p>
             <p className="text-xs text-center" style={{ color: "rgba(255,255,255,0.4)" }}>
-              Send a message to {name}
+              Send a message to {targetName}
             </p>
           </div>
         ) : (
           messages.map((msg) => {
             const isMine = msg.sender_id === user?.id;
+            const avatar = isMine ? myAvatar : targetAvatar;
+            const initials = isMine ? myInitials : targetInitials;
             return (
-              <div key={msg.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
+              <div key={msg.id} className={`flex gap-2 ${isMine ? "justify-end" : "justify-start"}`}>
+                {/* Other person's avatar on left */}
+                {!isMine && (
+                  <div
+                    className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold overflow-hidden shrink-0 mt-1"
+                    style={{ background: "rgba(255,255,255,0.1)" }}
+                  >
+                    {avatar ? (
+                      <img src={avatar} alt="" className="w-7 h-7 rounded-full object-cover" />
+                    ) : (
+                      <span className="text-white/60">{initials}</span>
+                    )}
+                  </div>
+                )}
                 <div
                   className="max-w-[75%] px-3 py-2 rounded-xl text-sm"
                   style={{
@@ -98,11 +158,24 @@ export function DmThreadView({ targetUserId }: Props) {
                     color: "#fff",
                   }}
                 >
-                  {msg.content}
+                  {renderContent(msg.content)}
                   <p className="text-[9px] mt-1" style={{ color: "rgba(255,255,255,0.3)" }}>
                     {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                   </p>
                 </div>
+                {/* Own avatar on right */}
+                {isMine && (
+                  <div
+                    className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold overflow-hidden shrink-0 mt-1"
+                    style={{ background: "rgba(255,255,255,0.1)" }}
+                  >
+                    {avatar ? (
+                      <img src={avatar} alt="" className="w-7 h-7 rounded-full object-cover" />
+                    ) : (
+                      <span className="text-white/60">{initials}</span>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })
