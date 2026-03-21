@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { InnerPageSidebar, type SidebarItem } from "@/components/dashboard/InnerPageSidebar";
+import { useAcceptInvite } from "@/hooks/useAcceptInvite";
 import { ProfileWorkspace } from "@/components/dashboard/ProfileWorkspace";
 import { ClientChatPanel } from "@/components/dashboard/ClientChatPanel";
 import { DashboardCreditPromo } from "@/components/dashboard/DashboardCreditPromo";
@@ -88,6 +89,7 @@ function getRightPanel(
  * Dashboard Home — 3-column creator operating hub.
  */
 export default function DashboardHome() {
+  useAcceptInvite();
   const [activeItem, setActiveItem] = useState<SidebarItem>("home");
   const [activeProfileTab, setActiveProfileTab] = useState<ProfileTab>("Home");
   const [viewedFriend, setViewedFriend] = useState<FriendUser | null>(null);
