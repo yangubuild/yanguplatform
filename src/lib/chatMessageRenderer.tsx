@@ -1,26 +1,11 @@
 import React from "react";
+import { detectLinkType, getLinkDisplayInfo, safeHostname } from "@/lib/commerceLinkDetector";
 
 /**
  * Canonical message content renderer shared across all chat types.
  * Handles: plain text, URLs/links, payment links, media embeds, [buynow]/[sellnow] tags,
  * product/service/payment link cards, offer CTAs.
  */
-
-// Payment platform patterns
-const PAYMENT_LINK_PATTERNS = [
-  /paypal\.me/i, /stripe\.com\/pay/i, /buy\.stripe\.com/i,
-  /cash\.app/i, /venmo\.com/i, /pay\.google\.com/i,
-  /mpesa/i, /flutterwave/i, /paystack/i, /mtn.*momo/i,
-  /checkout\.link/i, /invoice\.link/i,
-];
-
-function isPaymentLink(url: string): boolean {
-  return PAYMENT_LINK_PATTERNS.some(p => p.test(url));
-}
-
-function isProductLink(url: string): boolean {
-  return /\/(product|item|listing|shop|store|service)/i.test(url);
-}
 
 export function renderChatContent(content: string, navigate?: (path: string) => void): React.ReactNode {
   if (!content) return null;
@@ -81,7 +66,7 @@ export function renderChatContent(content: string, navigate?: (path: string) => 
     );
   }
 
-  // Auto-link URLs with enhanced rendering for payment/product links
+  // Auto-link URLs with enhanced rendering for payment/product/service links
   const urlRegex = /(https?:\/\/[^\s]+)/g;
   const parts = content.split(urlRegex);
   if (parts.length > 1) {
@@ -94,41 +79,38 @@ export function renderChatContent(content: string, navigate?: (path: string) => 
           // Reset regex
           urlRegex.lastIndex = 0;
 
-          if (isPaymentLink(part)) {
+          const linkType = detectLinkType(part);
+          const hostname = safeHostname(part);
+
+          if (linkType === "external" || linkType === "unknown") {
             return (
-              <a
-                key={i}
-                href={part}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 mt-1 mb-1 px-3 py-2 rounded-lg text-[11px] font-medium text-white no-underline break-all"
-                style={{ background: "linear-gradient(135deg, #10b981, #047857)", border: "1px solid rgba(16,185,129,0.3)" }}
-              >
-                💳 Payment Link
-                <span className="text-[10px] opacity-70 truncate max-w-[180px]">{new URL(part).hostname}</span>
+              <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="underline break-all" style={{ color: "#60a5fa" }}>
+                {part}
               </a>
             );
           }
 
-          if (isProductLink(part)) {
-            return (
-              <a
-                key={i}
-                href={part}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 mt-1 mb-1 px-3 py-2 rounded-lg text-[11px] font-medium text-white no-underline break-all"
-                style={{ background: "rgba(96,165,250,0.15)", border: "1px solid rgba(96,165,250,0.25)" }}
-              >
-                🛍️ View Product
-                <span className="text-[10px] opacity-70 truncate max-w-[180px]">{new URL(part).hostname}</span>
-              </a>
-            );
-          }
+          const info = getLinkDisplayInfo(linkType);
 
           return (
-            <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="underline break-all" style={{ color: "#60a5fa" }}>
-              {part}
+            <a
+              key={i}
+              href={part}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 mt-1 mb-1 px-3 py-2.5 rounded-xl text-[11px] font-medium text-white no-underline break-all"
+              style={{
+                background: info.bgGradient,
+                border: `1px solid ${info.borderColor}`,
+              }}
+            >
+              <span className="text-base">{info.icon}</span>
+              <div className="flex flex-col min-w-0">
+                <span className="font-semibold">{info.label}</span>
+                {hostname && (
+                  <span className="text-[10px] opacity-60 truncate max-w-[200px]">{hostname}</span>
+                )}
+              </div>
             </a>
           );
         })}
@@ -154,7 +136,6 @@ export async function shareMessageExternal(content: string, url?: string) {
       // User cancelled
     }
   } else {
-    // Fallback: copy to clipboard
     try {
       await navigator.clipboard.writeText(url || content);
     } catch {
