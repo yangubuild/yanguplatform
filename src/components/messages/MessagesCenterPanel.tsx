@@ -18,7 +18,7 @@ interface Props {
   onSelectGroup?: (groupId: string) => void;
 }
 
-export function MessagesCenterPanel({ activeTab, onTabChange }: Props) {
+export function MessagesCenterPanel({ activeTab, onTabChange, onSelectDm, onSelectGroup }: Props) {
   return (
     <div className="flex flex-col h-full">
       {/* Tab bar */}
