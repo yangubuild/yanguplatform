@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { resolveAvatarUrl } from "@/lib/avatarUtils";
 
 export interface Post {
   id: string;
@@ -51,7 +52,7 @@ export function useUserPosts(userId: string | undefined) {
 
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("id, display_name, avatar_url, username")
+        .select("id, display_name, avatar_url, avatar_mode, avatar_emoji_key, username")
         .eq("id", userId)
         .limit(1);
       const profile = profiles?.[0];
@@ -83,17 +84,20 @@ export function useUserPosts(userId: string | undefined) {
         }
       });
 
-      return posts.map(p => ({
-        ...p,
-        author_name: profile?.display_name || profile?.username || "Unknown",
-        author_avatar: profile?.avatar_url || undefined,
-        author_username: profile?.username || undefined,
+      return posts.map(p => {
+        const resolvedAvatar = profile ? resolveAvatarUrl(profile) : null;
+        return {
+          ...p,
+          author_name: profile?.display_name || profile?.username || "Unknown",
+          author_avatar: resolvedAvatar || undefined,
+          author_username: profile?.username || undefined,
         comment_count: commentCounts[p.id] || 0,
         like_count: likeCounts[p.id] || 0,
         love_count: loveCounts[p.id] || 0,
-        user_liked: !!userLiked[p.id],
-        user_loved: !!userLoved[p.id],
-      }));
+          user_liked: !!userLiked[p.id],
+          user_loved: !!userLoved[p.id],
+        };
+      });
     },
   });
 }
@@ -118,16 +122,20 @@ export function usePostComments(postId: string | undefined) {
       const userIds = [...new Set(comments.map(c => c.user_id))];
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("id, display_name, avatar_url, username")
+        .select("id, display_name, avatar_url, avatar_mode, avatar_emoji_key, username")
         .in("id", userIds);
       const profileMap = Object.fromEntries((profiles ?? []).map(p => [p.id, p]));
 
-      return comments.map(c => ({
-        ...c,
-        author_name: profileMap[c.user_id]?.display_name || profileMap[c.user_id]?.username || "Unknown",
-        author_avatar: profileMap[c.user_id]?.avatar_url || undefined,
-        author_username: profileMap[c.user_id]?.username || undefined,
-      }));
+      return comments.map(c => {
+        const prof = profileMap[c.user_id];
+        const resolvedAvatar = prof ? resolveAvatarUrl(prof) : null;
+        return {
+          ...c,
+          author_name: prof?.display_name || prof?.username || "Unknown",
+          author_avatar: resolvedAvatar || undefined,
+          author_username: prof?.username || undefined,
+        };
+      });
     },
   });
 }
@@ -168,6 +176,7 @@ export function useCreatePost() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-posts", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["feed-posts"] });
       toast.success("Post published!");
     },
     onError: (err: Error) => toast.error(err.message || "Failed to create post"),
@@ -192,6 +201,7 @@ export function useCreateComment() {
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: ["post-comments", vars.postId] });
       queryClient.invalidateQueries({ queryKey: ["user-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["feed-posts"] });
       toast.success("Comment added!");
     },
     onError: () => toast.error("Failed to add comment"),
@@ -220,6 +230,7 @@ export function useToggleReaction() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["feed-posts"] });
     },
   });
 }
