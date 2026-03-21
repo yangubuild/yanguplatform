@@ -494,15 +494,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
           </Popover>
 
           {/* Global Chat overlay trigger — hidden on mobile */}
-          <button
-            onClick={() => setGlobalChatOpen(!globalChatOpen)}
-            className="w-9 h-9 hidden sm:flex items-center justify-center"
-            style={{
-              background: "transparent",
-            }}
-            title="Global Chat"
-          >
-            <img src={chatIcon1} alt="Chat" className="w-7 h-7 object-contain transition-transform hover:scale-105" style={{ filter: globalChatOpen ? 'drop-shadow(0 0 6px rgba(249,115,22,0.4))' : 'none' }} />
+          <MessagesBadgeButton globalChatOpen={globalChatOpen} onToggle={() => setGlobalChatOpen(!globalChatOpen)} />
           </button>
 
           {/* Notifications — real data */}
