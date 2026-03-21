@@ -480,6 +480,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
       const { error } = await supabase.from("profiles").update({ display_name: nameValue.trim() }).eq("id", user.id);
       if (error) throw error;
       await refreshProfile();
+      queryClient.invalidateQueries({ queryKey: ["friends-panel-users"] });
       setEditingName(false);
       toast.success("Name updated");
     } catch (err: any) {
@@ -496,6 +497,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
       const { error } = await supabase.from("profiles").update({ business_name: descValue.trim() || null }).eq("id", user.id);
       if (error) throw error;
       await refreshProfile();
+      queryClient.invalidateQueries({ queryKey: ["friends-panel-users"] });
       setEditingDesc(false);
       toast.success("Description updated");
     } catch (err: any) {
