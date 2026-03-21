@@ -16,9 +16,9 @@ export function useUnreadDmCount() {
     const channel = supabase
       .channel("unread-dm-counter")
       .on("postgres_changes", {
-        event: "INSERT", schema: "public", table: "direct_messages",
+        event: "*", schema: "public", table: "direct_messages",
       }, (payload: any) => {
-        if (payload.new?.receiver_id === user.id) {
+        if (payload.new?.receiver_id === user.id || payload.old?.receiver_id === user.id) {
           qc.invalidateQueries({ queryKey: ["unread-dm-count", user.id] });
         }
       })
@@ -47,6 +47,23 @@ export function useUnreadDmCount() {
  */
 export function useUnreadDmPerPartner() {
   const { user } = useAuth();
+  const qc = useQueryClient();
+
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel("unread-dm-per-partner")
+      .on("postgres_changes", {
+        event: "*", schema: "public", table: "direct_messages",
+      }, (payload: any) => {
+        if (payload.new?.receiver_id === user.id || payload.old?.receiver_id === user.id) {
+          qc.invalidateQueries({ queryKey: ["unread-dm-per-partner", user.id] });
+        }
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [qc, user]);
 
   return useQuery({
     queryKey: ["unread-dm-per-partner", user?.id],
@@ -85,5 +102,6 @@ export function useMarkDmsRead() {
       .is("read_at", null);
     qc.invalidateQueries({ queryKey: ["unread-dm-count", user.id] });
     qc.invalidateQueries({ queryKey: ["unread-dm-per-partner", user.id] });
+    qc.invalidateQueries({ queryKey: ["conversation-list", user.id] });
   };
 }

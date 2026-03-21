@@ -186,22 +186,48 @@ export function useCreateGroup() {
       if (!user) throw new Error("Not authenticated");
 
       const groupId = crypto.randomUUID();
+      const uniqueMemberIds = Array.from(new Set(memberIds.filter((id) => id && id !== user.id)));
+
       const { error: groupError } = await supabase
         .from("chat_groups")
         .insert({ id: groupId, name, description: description || null, created_by: user.id } as any);
-      if (groupError) throw groupError;
+      if (groupError) {
+        throw new Error(`Failed to create group record: ${groupError.message}`);
+      }
 
-      const allMembers = [user.id, ...memberIds.filter(id => id !== user.id)];
-      const memberRows = allMembers.map(uid => ({
+      const rollbackGroup = async () => {
+        await supabase.from("chat_group_members").delete().eq("group_id", groupId);
+        await supabase.from("chat_groups").delete().eq("id", groupId).eq("created_by", user.id);
+      };
+
+      const { error: ownerError } = await supabase
+        .from("chat_group_members")
+        .insert({
+          group_id: groupId,
+          user_id: user.id,
+          role: "owner",
+        } as any);
+
+      if (ownerError) {
+        await rollbackGroup();
+        throw new Error(`Failed to assign group owner: ${ownerError.message}`);
+      }
+
+      const memberRows = uniqueMemberIds.map((uid) => ({
         group_id: groupId,
         user_id: uid,
-        role: uid === user.id ? "owner" : "member",
+        role: "member",
       }));
 
-      const { error: membersError } = await supabase
-        .from("chat_group_members")
-        .insert(memberRows as any);
-      if (membersError) throw membersError;
+      if (memberRows.length > 0) {
+        const { error: membersError } = await supabase
+          .from("chat_group_members")
+          .insert(memberRows as any);
+        if (membersError) {
+          await rollbackGroup();
+          throw new Error(`Failed to add selected members: ${membersError.message}`);
+        }
+      }
 
       return groupId;
     },
