@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useUserPosts, useCreatePost, useToggleReaction, uploadPostMedia, type Post } from "@/hooks/usePosts";
 import { useProfileReviews } from "@/hooks/useProfileReviews";
 import { Heart, ThumbsUp } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -243,6 +243,7 @@ interface ProfileWorkspaceProps {
 
 export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: ProfileWorkspaceProps) {
   const { user, profile, refreshProfile } = useAuth();
+  const queryClient = useQueryClient();
   const [internalTab, setInternalTab] = useState<string>("Home");
   const activeTab = activeProfileTab ?? internalTab;
   const setActiveTab = (tab: string) => {
@@ -442,6 +443,8 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
         if (profileErr) throw profileErr;
         setAvatarUrl(url);
         await refreshProfile();
+        queryClient.invalidateQueries({ queryKey: ["friends-panel-users"] });
+        queryClient.invalidateQueries({ queryKey: ["staff-panel-members"] });
         toast.success("Profile image updated");
       }
     } catch (err: any) {
@@ -460,6 +463,8 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
     if (profileErr) throw profileErr;
     setCoverUrl(pendingCoverUrl);
     await refreshProfile();
+    queryClient.invalidateQueries({ queryKey: ["friends-panel-users"] });
+    queryClient.invalidateQueries({ queryKey: ["staff-panel-members"] });
     toast.success("Cover image updated");
     setPendingCoverUrl(null);
   };
@@ -475,6 +480,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
       const { error } = await supabase.from("profiles").update({ display_name: nameValue.trim() }).eq("id", user.id);
       if (error) throw error;
       await refreshProfile();
+      queryClient.invalidateQueries({ queryKey: ["friends-panel-users"] });
       setEditingName(false);
       toast.success("Name updated");
     } catch (err: any) {
@@ -491,6 +497,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
       const { error } = await supabase.from("profiles").update({ business_name: descValue.trim() || null }).eq("id", user.id);
       if (error) throw error;
       await refreshProfile();
+      queryClient.invalidateQueries({ queryKey: ["friends-panel-users"] });
       setEditingDesc(false);
       toast.success("Description updated");
     } catch (err: any) {
