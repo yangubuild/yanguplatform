@@ -132,7 +132,7 @@ export default function EvergreenProblemDetail() {
         </Link>
 
         {/* Category badge */}
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-card/50 text-xs text-muted-foreground">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-card/50 text-xs text-muted-foreground">
           <TrendingUp className="h-3.5 w-3.5" />
           {problem.category}
         </div>

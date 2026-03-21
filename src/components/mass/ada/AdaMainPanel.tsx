@@ -1932,7 +1932,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
             {userScrolledUp && hasMessages && (
               <button
                 onClick={jumpToLatest}
-                className="mb-2 px-3 py-1 rounded-full text-xs font-medium text-white/70 hover:text-white transition-colors"
+                className="mb-2 px-3 py-1 rounded-lg text-xs font-medium text-white/70 hover:text-white transition-colors"
                 style={{ background: "rgba(244,168,61,0.15)", border: "1px solid rgba(244,168,61,0.25)" }}
               >
                 ↓ Jump to latest
