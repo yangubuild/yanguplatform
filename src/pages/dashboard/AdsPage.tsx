@@ -61,7 +61,7 @@ export default function AdsPage() {
             Reach millions through YANGU ads
           </h2>
           <p className="text-white/40 text-sm text-center max-w-md mb-8">
-            Target high intent users via search, discovery, and platform surfaces
+            Target high intent users via search, explore, and platform surfaces
           </p>
 
           <Button
