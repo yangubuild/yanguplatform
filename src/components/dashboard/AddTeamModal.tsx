@@ -113,12 +113,22 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
         return;
       }
 
-      // Create notification for the invited user — link to messages thread with sender
+      const handle = selectedUser.username ? `@${selectedUser.username}` : (selectedUser.display_name || "user");
+
+      // Get sender's profile for the invite DM identity
+      const { data: senderProfile } = await supabase
+        .from("profiles")
+        .select("username, display_name")
+        .eq("id", user.id)
+        .single();
+      const senderHandle = senderProfile?.username ? `@${senderProfile.username}` : (senderProfile?.display_name || "Someone");
+
+      // 1. Notification for the INVITEE — links to messages chats tab to see the DM
       await supabase.from("notifications").insert({
         user_id: selectedUser.id,
         type: "team_invite",
         title: "Team Invitation",
-        body: `You've been invited to join as ${selectedRoleObj.name}. Accept to become a team member.`,
+        body: `${senderHandle} invited you to join as ${selectedRoleObj.name}. Check your messages to accept.`,
         link: `/dashboard/messages?tab=chats&user=${user.id}`,
         metadata: {
           invite_id: invite.id,
@@ -128,23 +138,20 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
         },
       });
 
-      // Send a DM to invitee with accept link
+      // 2. DM to INVITEE from sender — contains accept link
       await supabase.from("direct_messages").insert({
         sender_id: user.id,
         receiver_id: selectedUser.id,
-        content: `🤝 You've been invited to join the team as **${selectedRoleObj.name}**.\n\n[Accept Invite](/dashboard/home?accept_invite=${invite.id})`,
+        content: `🤝 Hey! I'm inviting you to join my team as **${selectedRoleObj.name}**.\n\n[Accept Invite](/dashboard/home?accept_invite=${invite.id})`,
       });
 
-      // Send sender confirmation notification (no fake DM from invited user)
-      const handle = selectedUser.username ? `@${selectedUser.username}` : (selectedUser.display_name || "user");
-
-      // Create sender notification
+      // 3. SENDER notification — routes to Support tab (system confirmation)
       await supabase.from("notifications").insert({
         user_id: user.id,
         type: "team_invite_sent",
         title: "Team Invite Sent",
-        body: `You invited ${handle} to join your team. Waiting for acceptance.`,
-        link: `/dashboard/messages?tab=chats&user=${selectedUser.id}`,
+        body: `You invited ${handle} to join your team as ${selectedRoleObj.name}. Status: Pending acceptance.`,
+        link: `/dashboard/messages?tab=support`,
         metadata: {
           invite_id: invite.id,
           target_user_id: selectedUser.id,

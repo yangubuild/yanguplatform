@@ -2,13 +2,13 @@ import type { MessagesTab } from "@/pages/dashboard/MessagesPage";
 import { MessagesPostsTab } from "./tabs/MessagesPostsTab";
 import { MessagesChatsTab } from "./tabs/MessagesChatsTab";
 import { MessagesInfluencersTab } from "./tabs/MessagesInfluencersTab";
-import { MessagesGlobalChatTab } from "./tabs/MessagesGlobalChatTab";
+import { MessagesSupportTab } from "./tabs/MessagesSupportTab";
 
 const TABS: { key: MessagesTab; label: string }[] = [
   { key: "posts", label: "Posts" },
   { key: "chats", label: "Chats" },
-  { key: "influencers", label: "influencers" },
-  { key: "global", label: "Global chat" },
+  { key: "influencers", label: "Influencers" },
+  { key: "support", label: "Support" },
 ];
 
 interface Props {
@@ -51,7 +51,7 @@ export function MessagesCenterPanel({ activeTab, onTabChange }: Props) {
         {activeTab === "posts" && <MessagesPostsTab />}
         {activeTab === "chats" && <MessagesChatsTab />}
         {activeTab === "influencers" && <MessagesInfluencersTab />}
-        {activeTab === "global" && <MessagesGlobalChatTab />}
+        {activeTab === "support" && <MessagesSupportTab />}
       </div>
     </div>
   );
