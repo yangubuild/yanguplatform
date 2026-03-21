@@ -63,7 +63,7 @@ export function CreateGroupModal({ open, onClose, onCreated }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.6)" }}>
-      <div className="w-full max-w-md mx-4 rounded-2xl p-6" style={{ background: "#141a22", border: "1px solid rgba(255,255,255,0.08)" }}>
+      <div className="w-full max-w-md mx-4 rounded-2xl p-6" style={{ background: "#111a15", border: "1px solid rgba(255,255,255,0.08)" }}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-base font-semibold text-white">Create Group</h3>
           <button onClick={onClose}><X className="w-5 h-5 text-white/40" /></button>
