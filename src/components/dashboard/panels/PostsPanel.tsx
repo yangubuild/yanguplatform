@@ -255,7 +255,7 @@ export function PostsPanel({ onViewProfile }: PostsPanelProps) {
   );
 }
 
-function PostCard({ post, onReact }: { post: Post; onReact: (type: "like" | "love", active: boolean) => void }) {
+function PostCard({ post, onReact, onClickUser }: { post: Post; onReact: (type: "like" | "love", active: boolean) => void; onClickUser?: () => void }) {
   return (
     <div
       className="rounded-lg p-3"
