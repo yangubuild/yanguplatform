@@ -6148,6 +6148,9 @@ export type Database = {
           p_visibility_tier?: string
         }
         Returns: {
+          avatar_url: string
+          avg_rating: number
+          builder_surface_type: string
           cover_image_url: string
           domain_host: string
           entity_subtype: string
@@ -6158,11 +6161,13 @@ export type Database = {
           primary_category: string
           published_at: string
           relevance_score: number
+          review_count: number
           short_description: string
           slug: string
           surface_type: string
           tags: string[]
           title: string
+          trust_score: number
           visibility_tier: string
         }[]
       }
