@@ -6111,6 +6111,14 @@ export type Database = {
         Args: { p_provider_key: string }
         Returns: boolean
       }
+      is_group_admin: {
+        Args: { _group_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_group_member: {
+        Args: { _group_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_owner: { Args: { _user_id: string }; Returns: boolean }
       is_slug_available: {
         Args: { _domain_id: string; _slug: string }
