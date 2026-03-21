@@ -1,12 +1,6 @@
 import { Radio, Video, Users, Settings, MessageCircle, Send } from "lucide-react";
 import { useState } from "react";
 
-const MOCK_MESSAGES = [
-  { id: "1", username: "viewer_anna", text: "Love this stream! 🔥", time: "2m ago" },
-  { id: "2", username: "shop_fan_23", text: "How much is the red one?", time: "1m ago" },
-  { id: "3", username: "daily_deals", text: "Just joined, what did I miss?", time: "30s ago" },
-];
-
 export function LivestreamingPanel() {
   const [chatInput, setChatInput] = useState("");
 
@@ -76,7 +70,7 @@ export function LivestreamingPanel() {
           </p>
         </div>
 
-        {/* Live Chat */}
+        {/* Live Chat — real empty state, no mock data */}
         <div
           className="rounded-xl p-4 flex flex-col"
           style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
@@ -96,31 +90,15 @@ export function LivestreamingPanel() {
             </div>
           </div>
 
-          {/* Chat messages */}
-          <div className="space-y-2.5 mb-3 max-h-48 overflow-y-auto">
-            {MOCK_MESSAGES.map((msg) => (
-              <div key={msg.id} className="flex items-start gap-2">
-                <div
-                  className="w-6 h-6 rounded-full shrink-0 flex items-center justify-center text-[10px] font-bold"
-                  style={{ background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)" }}
-                >
-                  {msg.username[0].toUpperCase()}
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.6)" }}>
-                      {msg.username}
-                    </span>
-                    <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.25)" }}>
-                      {msg.time}
-                    </span>
-                  </div>
-                  <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.8)" }}>
-                    {msg.text}
-                  </p>
-                </div>
-              </div>
-            ))}
+          {/* Empty state — no messages until stream is live */}
+          <div className="flex flex-col items-center justify-center py-6">
+            <MessageCircle className="w-8 h-8 mb-2" style={{ color: "rgba(255,255,255,0.1)" }} />
+            <p className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>
+              No messages yet
+            </p>
+            <p className="text-[10px] mt-1" style={{ color: "rgba(255,255,255,0.2)" }}>
+              Messages will appear here when you go live
+            </p>
           </div>
 
           {/* Chat input */}
