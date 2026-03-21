@@ -8,7 +8,11 @@ import { useFeedPosts } from "@/hooks/useFeedPosts";
 import { toast } from "sonner";
 import type { FriendUser } from "@/components/dashboard/FriendProfileView";
 
-export function PostsPanel() {
+interface PostsPanelProps {
+  onViewProfile?: (user: FriendUser) => void;
+}
+
+export function PostsPanel({ onViewProfile }: PostsPanelProps) {
   const { user, profile } = useAuth();
   const [text, setText] = useState("");
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
