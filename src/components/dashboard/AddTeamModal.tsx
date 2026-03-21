@@ -91,15 +91,16 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
         return;
       }
 
-      // Save invite to database
+      // Save invite to database with real user ID for acceptance matching
       const { data: invite, error } = await supabase
         .from("admin_invites")
         .insert({
           email: (selectedUser.username ?? selectedUser.id) + "@yangu.internal",
           role: selectedRoleObj.dbRole as any,
           invited_by: user.id,
+          invited_user_id: selectedUser.id,
           status: "pending",
-        })
+        } as any)
         .select("id")
         .single();
 
