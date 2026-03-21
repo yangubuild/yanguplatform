@@ -316,6 +316,7 @@ function PostCard({ post, onReact, onClickUser }: { post: Post; onReact: (type: 
         <span className="flex items-center gap-1 text-[11px]" style={{ color: "rgba(255,255,255,0.35)" }}>
           <MessageSquare className="w-3.5 h-3.5" /> {post.comment_count || ""}
         </span>
+        <button className="flex items-center gap-1 text-[11px] ml-auto" style={{ color: "rgba(255,255,255,0.35)" }} title="Share"><ExternalLink className="w-3.5 h-3.5" /></button>
       </div>
     </div>
   );
