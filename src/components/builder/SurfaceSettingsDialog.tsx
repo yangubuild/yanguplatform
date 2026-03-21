@@ -111,13 +111,39 @@ export function SurfaceSettingsDialog({
   const handleSave = async () => {
     setSaving(true);
     try {
+      let resolvedCoverImageUrl = coverImageUrl || null;
+
+      if (resolvedCoverImageUrl?.startsWith("data:")) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user?.id) {
+          throw new Error("Please sign in");
+        }
+
+        const blob = await fetch(resolvedCoverImageUrl).then((response) => response.blob());
+        const ext = blob.type.split("/")[1] || "jpeg";
+        const path = `${session.user.id}/${surfaceId}/cover-crop-${Date.now()}.${ext}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("builder-media")
+          .upload(path, blob, { contentType: blob.type || "image/jpeg", upsert: false });
+
+        if (uploadError) throw uploadError;
+
+        const { data: publicData } = supabase.storage
+          .from("builder-media")
+          .getPublicUrl(path);
+
+        resolvedCoverImageUrl = publicData.publicUrl;
+        setCoverImageUrl(publicData.publicUrl);
+      }
+
       const { error } = await supabase
         .from("builder_surfaces")
         .update({
           seo_title: seoTitle || null,
           seo_description: seoDescription || null,
           favicon_url: faviconUrl || null,
-          cover_image_url: coverImageUrl || null,
+          cover_image_url: resolvedCoverImageUrl,
         } as any)
         .eq("id", surfaceId);
 
@@ -128,7 +154,7 @@ export function SurfaceSettingsDialog({
         seo_title: seoTitle,
         seo_description: seoDescription,
         favicon_url: faviconUrl,
-        cover_image_url: coverImageUrl,
+        cover_image_url: resolvedCoverImageUrl || "",
       });
       onOpenChange(false);
     } catch (err) {
