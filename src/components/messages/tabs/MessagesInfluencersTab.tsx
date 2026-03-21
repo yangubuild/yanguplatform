@@ -118,7 +118,7 @@ export function MessagesInfluencersTab({ onSelectCreator }: Props) {
             <button
               key={cat}
               onClick={() => handleCategoryClick(cat)}
-              className="px-2.5 py-1 rounded-full text-[10px] font-medium transition-colors"
+              className="px-3 py-1.5 rounded-lg text-[11px] font-medium transition-colors"
               style={{
                 background: activeQuery.toLowerCase() === cat.toLowerCase()
                   ? "rgba(181,98,42,0.3)"
