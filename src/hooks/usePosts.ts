@@ -201,6 +201,7 @@ export function useCreateComment() {
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: ["post-comments", vars.postId] });
       queryClient.invalidateQueries({ queryKey: ["user-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["feed-posts"] });
       toast.success("Comment added!");
     },
     onError: () => toast.error("Failed to add comment"),
