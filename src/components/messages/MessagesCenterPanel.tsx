@@ -15,10 +15,9 @@ interface Props {
   activeTab: MessagesTab;
   onTabChange: (tab: MessagesTab) => void;
   onSelectDm?: (userId: string) => void;
-  onSelectGroup?: (groupId: string) => void;
 }
 
-export function MessagesCenterPanel({ activeTab, onTabChange, onSelectDm, onSelectGroup }: Props) {
+export function MessagesCenterPanel({ activeTab, onTabChange, onSelectDm }: Props) {
   return (
     <div className="flex flex-col h-full">
       {/* Tab bar */}
@@ -51,8 +50,8 @@ export function MessagesCenterPanel({ activeTab, onTabChange, onSelectDm, onSele
       {/* Tab content */}
       <div className="flex-1 overflow-y-auto">
         {activeTab === "posts" && <MessagesPostsTab />}
-        {activeTab === "chats" && <MessagesChatsTab onSelectDm={onSelectDm} onSelectGroup={onSelectGroup} />}
-        {activeTab === "influencers" && <MessagesInfluencersTab />}
+        {activeTab === "chats" && <MessagesChatsTab onSelectDm={onSelectDm} />}
+        {activeTab === "influencers" && <MessagesInfluencersTab onSelectCreator={onSelectDm} />}
         {activeTab === "support" && <MessagesSupportTab />}
       </div>
     </div>

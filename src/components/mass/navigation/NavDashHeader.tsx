@@ -9,6 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { GlobalChatPopup } from "@/components/messages/GlobalChatPopup";
 import yanguLogo from "@/assets/yangu-logo-full.png";
 import { useNotifications, useUnreadCount, useMarkRead, useMarkAllRead } from "@/hooks/useNotifications";
+import { useUnreadDmCount } from "@/hooks/useUnreadMessages";
 import { formatDistanceToNow } from "date-fns";
 
 const CURRENCIES = [
@@ -186,6 +187,33 @@ function NotificationBell() {
         </div>
       </PopoverContent>
     </Popover>
+  );
+}
+function MessagesBadgeButton({ globalChatOpen, onToggle }: { globalChatOpen: boolean; onToggle: () => void }) {
+  const { data: unreadDmCount = 0 } = useUnreadDmCount();
+
+  return (
+    <button
+      onClick={onToggle}
+      className="w-9 h-9 hidden sm:flex items-center justify-center relative"
+      style={{ background: "transparent" }}
+      title="Global Chat"
+    >
+      <img
+        src={chatIcon1}
+        alt="Chat"
+        className="w-7 h-7 object-contain transition-transform hover:scale-105"
+        style={{ filter: globalChatOpen ? "drop-shadow(0 0 6px rgba(249,115,22,0.4))" : "none" }}
+      />
+      {unreadDmCount > 0 && (
+        <span
+          className="absolute top-0.5 right-0 min-w-[16px] h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white px-1"
+          style={{ background: "#ef4444" }}
+        >
+          {unreadDmCount > 9 ? "9+" : unreadDmCount}
+        </span>
+      )}
+    </button>
   );
 }
 
@@ -493,16 +521,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
           </Popover>
 
           {/* Global Chat overlay trigger — hidden on mobile */}
-          <button
-            onClick={() => setGlobalChatOpen(!globalChatOpen)}
-            className="w-9 h-9 hidden sm:flex items-center justify-center"
-            style={{
-              background: "transparent",
-            }}
-            title="Global Chat"
-          >
-            <img src={chatIcon1} alt="Chat" className="w-7 h-7 object-contain transition-transform hover:scale-105" style={{ filter: globalChatOpen ? 'drop-shadow(0 0 6px rgba(249,115,22,0.4))' : 'none' }} />
-          </button>
+          <MessagesBadgeButton globalChatOpen={globalChatOpen} onToggle={() => setGlobalChatOpen(!globalChatOpen)} />
 
           {/* Notifications — real data */}
           <NotificationBell />

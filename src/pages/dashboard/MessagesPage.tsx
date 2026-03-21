@@ -4,9 +4,6 @@ import { MessagesDmList } from "@/components/messages/MessagesDmList";
 import { MessagesCenterPanel } from "@/components/messages/MessagesCenterPanel";
 import { MessagesDiscoverySidebar } from "@/components/messages/MessagesDiscoverySidebar";
 import { DmThreadView } from "@/components/messages/DmThreadView";
-import { GroupChatThreadView } from "@/components/messages/GroupChatThreadView";
-import { CreateGroupModal } from "@/components/messages/CreateGroupModal";
-import { useMyGroups, type ChatGroup } from "@/hooks/useGroupChats";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Users, X } from "lucide-react";
@@ -17,33 +14,21 @@ export default function MessagesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get("tab") as MessagesTab | null;
   const userParam = searchParams.get("user");
-  const groupParam = searchParams.get("group");
 
   const [activeTab, setActiveTab] = useState<MessagesTab>(
     tabParam && ["posts", "chats", "influencers", "support"].includes(tabParam) ? tabParam : "posts"
   );
   const [activeConversationUserId, setActiveConversationUserId] = useState<string | null>(userParam || null);
-  const [activeGroupId, setActiveGroupId] = useState<string | null>(groupParam || null);
   const [showUsersPanel, setShowUsersPanel] = useState(false);
-  const [showCreateGroup, setShowCreateGroup] = useState(false);
   const isMobile = useIsMobile();
   const isTablet = useMediaQuery("(min-width: 768px) and (max-width: 1023px)");
-
-  const { data: groups = [] } = useMyGroups();
-  const activeGroup = groups.find(g => g.id === activeGroupId) || null;
 
   useEffect(() => {
     if (userParam) {
       setActiveTab("chats");
       setActiveConversationUserId(userParam);
-      setActiveGroupId(null);
     }
-    if (groupParam) {
-      setActiveTab("chats");
-      setActiveGroupId(groupParam);
-      setActiveConversationUserId(null);
-    }
-  }, [userParam, groupParam]);
+  }, [userParam]);
 
   useEffect(() => {
     if (tabParam && ["posts", "chats", "influencers", "support"].includes(tabParam)) {
@@ -55,39 +40,21 @@ export default function MessagesPage() {
     setActiveTab(tab);
     if (tab !== "chats") {
       setActiveConversationUserId(null);
-      setActiveGroupId(null);
     }
     setSearchParams({ tab });
   };
 
   const handleSelectConversation = (userId: string) => {
     setActiveConversationUserId(userId);
-    setActiveGroupId(null);
     setActiveTab("chats");
     setSearchParams({ tab: "chats", user: userId });
   };
 
-  const handleSelectGroup = (groupId: string) => {
-    setActiveGroupId(groupId);
-    setActiveConversationUserId(null);
-    setActiveTab("chats");
-    setSearchParams({ tab: "chats", group: groupId });
-  };
-
-  const handleGroupCreated = (groupId: string) => {
-    handleSelectGroup(groupId);
-  };
-
   const centerContent =
-    activeTab === "chats" && activeGroupId && activeGroup ? (
-      <GroupChatThreadView
-        group={activeGroup}
-        onBack={() => { setActiveGroupId(null); setSearchParams({ tab: "chats" }); }}
-      />
-    ) : activeTab === "chats" && activeConversationUserId ? (
+    activeTab === "chats" && activeConversationUserId ? (
       <DmThreadView targetUserId={activeConversationUserId} />
     ) : (
-      <MessagesCenterPanel activeTab={activeTab} onTabChange={handleTabChange} />
+      <MessagesCenterPanel activeTab={activeTab} onTabChange={handleTabChange} onSelectDm={handleSelectConversation} />
     );
 
   if (isMobile) {
@@ -129,8 +96,6 @@ export default function MessagesPage() {
         >
           {centerContent}
         </div>
-
-        <CreateGroupModal open={showCreateGroup} onClose={() => setShowCreateGroup(false)} onCreated={handleGroupCreated} />
       </div>
     );
   }
@@ -145,10 +110,7 @@ export default function MessagesPage() {
           <div className="h-full overflow-hidden flex flex-col" style={{ background: "#0F141A", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.06)" }}>
             <MessagesDmList
               selectedUserId={activeConversationUserId}
-              selectedGroupId={activeGroupId}
               onSelectUser={handleSelectConversation}
-              onSelectGroup={handleSelectGroup}
-              onCreateGroup={() => setShowCreateGroup(true)}
             />
           </div>
         </div>
@@ -157,8 +119,6 @@ export default function MessagesPage() {
             {centerContent}
           </div>
         </div>
-
-        <CreateGroupModal open={showCreateGroup} onClose={() => setShowCreateGroup(false)} onCreated={handleGroupCreated} />
       </div>
     );
   }
@@ -172,10 +132,7 @@ export default function MessagesPage() {
         <div className="h-full overflow-hidden flex flex-col" style={{ background: "#0F141A", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.06)" }}>
           <MessagesDmList
             selectedUserId={activeConversationUserId}
-            selectedGroupId={activeGroupId}
             onSelectUser={handleSelectConversation}
-            onSelectGroup={handleSelectGroup}
-            onCreateGroup={() => setShowCreateGroup(true)}
           />
         </div>
       </div>
@@ -191,8 +148,6 @@ export default function MessagesPage() {
           <MessagesDiscoverySidebar onUserClick={handleSelectConversation} />
         </div>
       </div>
-
-      <CreateGroupModal open={showCreateGroup} onClose={() => setShowCreateGroup(false)} onCreated={handleGroupCreated} />
     </div>
   );
 }
