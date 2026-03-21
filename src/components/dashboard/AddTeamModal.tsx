@@ -291,12 +291,22 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
           </div>
         )}
 
+        {/* Hint for missing steps */}
+        {selectedUser && !selectedRole && (
+          <div className="px-4 pt-1">
+            <p className="text-xs px-1" style={{ color: "#E67E22" }}>
+              Select a role above to continue
+            </p>
+          </div>
+        )}
+
         <div className="flex items-center justify-end gap-2 px-4 pb-5 pt-3">
           <button
             className="h-10 px-5 rounded-lg text-sm font-semibold transition-opacity flex items-center gap-2"
             style={{
               background: selectedUser && selectedRole && activeOrg ? "linear-gradient(135deg, #c47a3a, #5c2a12)" : "rgba(255,255,255,0.08)",
               color: selectedUser && selectedRole && activeOrg ? "#fff" : "rgba(255,255,255,0.35)",
+              cursor: selectedUser && selectedRole && activeOrg ? "pointer" : "not-allowed",
             }}
             disabled={!selectedUser || !selectedRole || inviting || !activeOrg}
             onClick={handleInvite}
