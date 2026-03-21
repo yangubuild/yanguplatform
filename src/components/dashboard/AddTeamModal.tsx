@@ -295,8 +295,8 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
           <button
             className="h-10 px-5 rounded-lg text-sm font-semibold transition-opacity flex items-center gap-2"
             style={{
-              background: selectedUser && selectedRole ? "linear-gradient(135deg, #c47a3a, #5c2a12)" : "rgba(255,255,255,0.08)",
-              color: selectedUser && selectedRole ? "#fff" : "rgba(255,255,255,0.35)",
+              background: selectedUser && selectedRole && activeOrg ? "linear-gradient(135deg, #c47a3a, #5c2a12)" : "rgba(255,255,255,0.08)",
+              color: selectedUser && selectedRole && activeOrg ? "#fff" : "rgba(255,255,255,0.35)",
             }}
             disabled={!selectedUser || !selectedRole || inviting || !activeOrg}
             onClick={handleInvite}
