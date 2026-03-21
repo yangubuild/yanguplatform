@@ -6158,6 +6158,7 @@ export type Database = {
           id: string
           industry: string
           is_verified: boolean
+          owner_display_name: string
           primary_category: string
           published_at: string
           relevance_score: number

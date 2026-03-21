@@ -109,6 +109,7 @@ export interface SearchEntityResult {
   trust_score?: number | null;
   avg_rating?: number | null;
   review_count?: number | null;
+  owner_display_name?: string | null;
 }
 
 // ── Search params (mirrors search_entities RPC args) ──
