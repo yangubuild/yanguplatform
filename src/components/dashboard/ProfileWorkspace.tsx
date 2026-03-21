@@ -243,6 +243,7 @@ interface ProfileWorkspaceProps {
 
 export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: ProfileWorkspaceProps) {
   const { user, profile, refreshProfile } = useAuth();
+  const queryClient = useQueryClient();
   const [internalTab, setInternalTab] = useState<string>("Home");
   const activeTab = activeProfileTab ?? internalTab;
   const setActiveTab = (tab: string) => {
