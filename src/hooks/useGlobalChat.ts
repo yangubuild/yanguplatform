@@ -4,6 +4,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import { useEffect } from "react";
 
+export interface GlobalChatReaction {
+  emoji: string;
+  count: number;
+  userIds: string[];
+}
+
 export interface GlobalChatMessage {
   id: string;
   user_id: string;
@@ -12,19 +18,24 @@ export interface GlobalChatMessage {
   media_type: string;
   metadata: any;
   created_at: string;
+  reply_to: string | null;
   author_name?: string;
   author_avatar?: string;
   author_username?: string;
+  reactions: GlobalChatReaction[];
+  replyMessage?: { author_name: string; content: string } | null;
 }
 
 export function useGlobalChatMessages() {
   const qc = useQueryClient();
 
-  // Subscribe to realtime
   useEffect(() => {
     const channel = supabase
       .channel("global-chat-realtime")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "global_chat_messages" }, () => {
+      .on("postgres_changes", { event: "*", schema: "public", table: "global_chat_messages" }, () => {
+        qc.invalidateQueries({ queryKey: ["global-chat-messages"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "global_chat_reactions" }, () => {
         qc.invalidateQueries({ queryKey: ["global-chat-messages"] });
       })
       .subscribe();
@@ -50,14 +61,47 @@ export function useGlobalChatMessages() {
         .in("id", userIds);
       const profileMap = Object.fromEntries((profiles ?? []).map((p: any) => [p.id, p]));
 
+      // Fetch all reactions for these messages
+      const msgIds = msgs.map(m => m.id);
+      const { data: reactionsData } = await supabase
+        .from("global_chat_reactions" as any)
+        .select("*")
+        .in("message_id", msgIds);
+
+      const reactionsByMsg: Record<string, GlobalChatReaction[]> = {};
+      for (const r of (reactionsData ?? []) as any[]) {
+        if (!reactionsByMsg[r.message_id]) reactionsByMsg[r.message_id] = [];
+        const existing = reactionsByMsg[r.message_id].find(x => x.emoji === r.emoji);
+        if (existing) {
+          existing.count++;
+          existing.userIds.push(r.user_id);
+        } else {
+          reactionsByMsg[r.message_id].push({ emoji: r.emoji, count: 1, userIds: [r.user_id] });
+        }
+      }
+
+      // Build a quick lookup for reply references
+      const msgMap = Object.fromEntries(msgs.map(m => [m.id, m]));
+
       return msgs.map(m => {
         const prof = profileMap[m.user_id];
         const resolvedAvatar = prof ? resolveAvatarUrl(prof) : null;
+        let replyMessage = null;
+        if (m.reply_to && msgMap[m.reply_to]) {
+          const rp = msgMap[m.reply_to];
+          const rpProf = profileMap[rp.user_id];
+          replyMessage = {
+            author_name: rpProf?.display_name || rpProf?.username || "Unknown",
+            content: rp.content?.slice(0, 80) || "📷",
+          };
+        }
         return {
           ...m,
           author_name: prof?.display_name || prof?.username || "Unknown",
           author_avatar: resolvedAvatar || undefined,
           author_username: prof?.username || undefined,
+          reactions: reactionsByMsg[m.id] || [],
+          replyMessage,
         };
       });
     },
@@ -70,11 +114,12 @@ export function useSendGlobalMessage() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ content, mediaUrl, mediaType, metadata }: {
+    mutationFn: async ({ content, mediaUrl, mediaType, metadata, replyTo }: {
       content: string;
       mediaUrl?: string;
       mediaType?: string;
       metadata?: any;
+      replyTo?: string | null;
     }) => {
       if (!user) throw new Error("Not authenticated");
       const { error } = await supabase
@@ -85,8 +130,41 @@ export function useSendGlobalMessage() {
           media_url: mediaUrl || null,
           media_type: mediaType || "text",
           metadata: metadata || {},
+          reply_to: replyTo || null,
         } as any);
       if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["global-chat-messages"] });
+    },
+  });
+}
+
+export function useToggleGlobalReaction() {
+  const { user } = useAuth();
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ messageId, emoji }: { messageId: string; emoji: string }) => {
+      if (!user) throw new Error("Not authenticated");
+      // Check if already reacted
+      const { data: existing } = await supabase
+        .from("global_chat_reactions" as any)
+        .select("id")
+        .eq("message_id", messageId)
+        .eq("user_id", user.id)
+        .eq("emoji", emoji)
+        .maybeSingle();
+
+      if (existing) {
+        await supabase.from("global_chat_reactions" as any).delete().eq("id", (existing as any).id);
+      } else {
+        await supabase.from("global_chat_reactions" as any).insert({
+          message_id: messageId,
+          user_id: user.id,
+          emoji,
+        } as any);
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["global-chat-messages"] });
