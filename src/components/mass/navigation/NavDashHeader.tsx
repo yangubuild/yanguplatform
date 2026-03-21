@@ -495,7 +495,6 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
 
           {/* Global Chat overlay trigger — hidden on mobile */}
           <MessagesBadgeButton globalChatOpen={globalChatOpen} onToggle={() => setGlobalChatOpen(!globalChatOpen)} />
-          </button>
 
           {/* Notifications — real data */}
           <NotificationBell />
