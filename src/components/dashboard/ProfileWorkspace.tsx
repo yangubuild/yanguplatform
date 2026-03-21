@@ -463,6 +463,8 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
     if (profileErr) throw profileErr;
     setCoverUrl(pendingCoverUrl);
     await refreshProfile();
+    queryClient.invalidateQueries({ queryKey: ["friends-panel-users"] });
+    queryClient.invalidateQueries({ queryKey: ["staff-panel-members"] });
     toast.success("Cover image updated");
     setPendingCoverUrl(null);
   };
