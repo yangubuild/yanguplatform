@@ -152,7 +152,7 @@ export default function ProductIdeas() {
                   <button
                     key={f}
                     onClick={() => toggleFormat(f)}
-                    className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
+                    className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
                       selectedFormats.includes(f)
                         ? "bg-foreground text-background border-foreground"
                         : "bg-background text-foreground border-border hover:bg-muted/50"

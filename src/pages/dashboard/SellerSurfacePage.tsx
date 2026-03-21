@@ -177,7 +177,7 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
     const aiProfile = isRecord(answers._ai_profile) ? answers._ai_profile : {};
     const photos = Array.isArray(answers.photos) ? answers.photos : [];
 
-    console.log("AI_BUILD_START", {
+    if (import.meta.env.DEV) console.log("AI_BUILD_START", {
       surfaceId: null,
       surfaceType: engine.surfaceType,
       _ai_source: aiSource,

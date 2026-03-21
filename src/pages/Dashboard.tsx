@@ -30,7 +30,7 @@ export default function Dashboard() {
   const activeSurfacesCount = surfaces?.filter((s) => s.activePublishes.length > 0).length || 0;
 
   const handleCreateSurface = () => {
-    console.log("[Dashboard] Navigating to /onboarding?new=1");
+    if (import.meta.env.DEV) console.log("[Dashboard] Navigating to /onboarding?new=1");
     navigate("/onboarding?new=1");
   };
 

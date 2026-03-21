@@ -48,7 +48,7 @@ export function AiBuildingProgress({ engineLabel, isComplete, onAnimationDone, e
 
     const t = setTimeout(() => {
       setShowCompletion(true);
-      console.log("AI_PROGRESS_COMPLETE_FIRING_CALLBACK");
+      if (import.meta.env.DEV) console.log("AI_PROGRESS_COMPLETE_FIRING_CALLBACK");
       void Promise.resolve(onDoneRef.current()).catch((error) => {
         console.error("[AiBuildingProgress] Auto-route failed", error);
       });

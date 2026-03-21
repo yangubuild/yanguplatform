@@ -304,7 +304,7 @@ function ViewAssetsPage({ programName, onClose }: { programName: string; onClose
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <h3 className="text-base font-semibold text-white">Your affiliate links — {programName}</h3>
-            <button className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-dashed border-white/20 text-xs text-white/50">
+            <button className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-dashed border-white/20 text-xs text-white/50">
               <span className="text-white/30">⊕</span> Link type
             </button>
           </div>

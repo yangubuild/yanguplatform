@@ -98,7 +98,7 @@ export default function AppStorePage() {
             <button
               key={chip}
               onClick={() => setPrompt(chip)}
-              className="px-4 py-1.5 rounded-full text-xs text-white/60 transition-colors hover:text-white/80 hover:border-white/20"
+              className="px-4 py-1.5 rounded-lg text-xs text-white/60 transition-colors hover:text-white/80 hover:border-white/20"
               style={{ border: "1px solid rgba(255,255,255,0.10)" }}
             >
               {chip}

@@ -1761,7 +1761,7 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
   const isLayoutB = ps.layout === "layout_b";
 
   useEffect(() => {
-    console.log("BUILDER_LAYOUT_SWITCHED", { layout: isLayoutB ? "B" : "A", wireframeId: ps.layout });
+    if (import.meta.env.DEV) console.log("BUILDER_LAYOUT_SWITCHED", { layout: isLayoutB ? "B" : "A", wireframeId: ps.layout });
   }, [ps.layout, isLayoutB]);
 
   const selectedColor = (ps.background_color || "").trim();
