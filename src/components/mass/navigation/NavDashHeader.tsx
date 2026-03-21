@@ -217,7 +217,7 @@ function MessagesBadgeButton({ globalChatOpen, onToggle }: { globalChatOpen: boo
   );
 }
 
-
+interface NavDashHeaderProps {
   onMenuToggle?: () => void;
 }
 
