@@ -5341,6 +5341,7 @@ export type Database = {
         }[]
       }
       accept_pending_invite: { Args: never; Returns: undefined }
+      accept_team_invite: { Args: { p_invite_id: string }; Returns: undefined }
       add_credits: {
         Args: {
           _amount: number
