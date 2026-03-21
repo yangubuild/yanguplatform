@@ -176,7 +176,7 @@ export function useCreatePost() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-posts", user?.id] });
-      toast.success("Post published!");
+      queryClient.invalidateQueries({ queryKey: ["feed-posts"] });
     },
     onError: (err: Error) => toast.error(err.message || "Failed to create post"),
   });
