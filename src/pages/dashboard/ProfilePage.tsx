@@ -39,6 +39,7 @@ import { toast } from "@/hooks/use-toast";
 import { useRef } from "react";
 import { ImagePlus, Loader2 } from "lucide-react";
 import CoverCropModal, { type CropData } from "@/components/profile/CoverCropModal";
+import ProfileCommerceSection from "@/components/commerce/ProfileCommerceSection";
 
 import xIcon from "@/assets/icons/x-3.png";
 import instagramIcon from "@/assets/icons/instagram-3.png";
