@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Search, Command, Loader2 } from "lucide-react";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import { FollowButton } from "@/components/dashboard/panels/FollowButton";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Props {
   onUserClick: (userId: string) => void;
@@ -11,6 +12,7 @@ interface Props {
 
 export function MessagesDiscoverySidebar({ onUserClick }: Props) {
   const [search, setSearch] = useState("");
+  const { user: currentUser } = useAuth();
 
   // Use same real user source as FriendsPanel
   const { data: users = [], isLoading } = useQuery({
@@ -27,13 +29,16 @@ export function MessagesDiscoverySidebar({ onUserClick }: Props) {
     },
   });
 
+  // Always exclude current user from people list
+  const excludeSelf = (list: typeof users) => list.filter((u) => u.id !== currentUser?.id);
+
   const filtered = search.trim()
-    ? users.filter(
+    ? excludeSelf(users).filter(
         (u) =>
           u.display_name?.toLowerCase().includes(search.toLowerCase()) ||
           u.username?.toLowerCase().includes(search.toLowerCase())
       )
-    : users;
+    : excludeSelf(users);
 
   return (
     <div className="flex flex-col h-full">
