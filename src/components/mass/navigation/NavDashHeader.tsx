@@ -94,6 +94,101 @@ function getStoredLanguage() {
   return LANGUAGES[0];
 }
 
+function NotificationBell() {
+  const navigate = useNavigate();
+  const { data: notifications = [] } = useNotifications();
+  const unreadCount = useUnreadCount();
+  const markRead = useMarkRead();
+  const markAllRead = useMarkAllRead();
+
+  const handleClick = (notif: any) => {
+    if (!notif.is_read) {
+      markRead.mutate(notif.id);
+    }
+    if (notif.link) {
+      navigate(notif.link);
+    }
+  };
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          className="w-9 h-9 rounded-lg flex items-center justify-center relative"
+          style={{ color: "rgba(255,255,255,0.5)" }}
+        >
+          <Bell className="w-4 h-4" />
+          {unreadCount > 0 && (
+            <span
+              className="absolute top-1 right-1 min-w-[16px] h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white px-1"
+              style={{ background: "#ef4444" }}
+            >
+              {unreadCount > 9 ? "9+" : unreadCount}
+            </span>
+          )}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="end"
+        className="w-80 p-0 border-0"
+        style={{
+          background: "#2a3038",
+          border: "1px solid rgba(255,255,255,0.08)",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+        }}
+      >
+        <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+          <span className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.85)" }}>Notifications</span>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>
+              {unreadCount} new
+            </span>
+            {unreadCount > 0 && (
+              <button
+                onClick={() => markAllRead.mutate()}
+                className="text-[10px] font-medium"
+                style={{ color: "#4ade80" }}
+              >
+                Mark all read
+              </button>
+            )}
+          </div>
+        </div>
+        <div className="max-h-72 overflow-y-auto">
+          {notifications.length === 0 ? (
+            <div className="px-4 py-8 text-center">
+              <Bell className="w-5 h-5 mx-auto mb-2" style={{ color: "rgba(255,255,255,0.2)" }} />
+              <span className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>No notifications yet</span>
+            </div>
+          ) : (
+            notifications.map((notif: any) => (
+              <button
+                key={notif.id}
+                onClick={() => handleClick(notif)}
+                className="w-full flex items-start gap-3 px-4 py-2.5 text-left transition-colors"
+                style={{ background: notif.is_read ? "transparent" : "rgba(74,222,128,0.04)" }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
+                onMouseLeave={(e) => (e.currentTarget.style.background = notif.is_read ? "transparent" : "rgba(74,222,128,0.04)")}
+              >
+                {!notif.is_read && <span className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#4ade80" }} />}
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] font-medium truncate" style={{ color: "rgba(255,255,255,0.85)" }}>{notif.title}</p>
+                  {notif.body && (
+                    <p className="text-[10px] mt-0.5 truncate" style={{ color: "rgba(255,255,255,0.5)" }}>{notif.body}</p>
+                  )}
+                  <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>
+                    {formatDistanceToNow(new Date(notif.created_at), { addSuffix: true })}
+                  </p>
+                </div>
+              </button>
+            ))
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 interface NavDashHeaderProps {
   onMenuToggle?: () => void;
 }
