@@ -89,6 +89,7 @@ function getRightPanel(
  * Dashboard Home — 3-column creator operating hub.
  */
 export default function DashboardHome() {
+  useAcceptInvite();
   const [activeItem, setActiveItem] = useState<SidebarItem>("home");
   const [activeProfileTab, setActiveProfileTab] = useState<ProfileTab>("Home");
   const [viewedFriend, setViewedFriend] = useState<FriendUser | null>(null);
