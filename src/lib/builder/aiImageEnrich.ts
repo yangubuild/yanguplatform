@@ -89,7 +89,7 @@ export async function enrichSchemaWithAiImages(
 
   if (slots.length === 0) return schema;
 
-  console.log(`[AI_IMAGE_ENRICH] Generating ${slots.length} images for ${sectionType}`);
+  if (import.meta.env.DEV) console.log(`[AI_IMAGE_ENRICH] Generating ${slots.length} images for ${sectionType}`);
 
   // Get session for auth
   const { data: { session } } = await supabase.auth.getSession();
@@ -178,7 +178,7 @@ export async function enrichSchemaWithAiImages(
   }
 
   const successCount = results.filter(r => r.status === "fulfilled" && r.value).length;
-  console.log(`[AI_IMAGE_ENRICH] ${successCount}/${slots.length} images generated successfully`);
+  if (import.meta.env.DEV) console.log(`[AI_IMAGE_ENRICH] ${successCount}/${slots.length} images generated successfully`);
 
   return schema;
 }
