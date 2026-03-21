@@ -122,16 +122,20 @@ export function usePostComments(postId: string | undefined) {
       const userIds = [...new Set(comments.map(c => c.user_id))];
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("id, display_name, avatar_url, username")
+        .select("id, display_name, avatar_url, avatar_mode, avatar_emoji_key, username")
         .in("id", userIds);
       const profileMap = Object.fromEntries((profiles ?? []).map(p => [p.id, p]));
 
-      return comments.map(c => ({
-        ...c,
-        author_name: profileMap[c.user_id]?.display_name || profileMap[c.user_id]?.username || "Unknown",
-        author_avatar: profileMap[c.user_id]?.avatar_url || undefined,
-        author_username: profileMap[c.user_id]?.username || undefined,
-      }));
+      return comments.map(c => {
+        const prof = profileMap[c.user_id];
+        const resolvedAvatar = prof ? resolveAvatarUrl(prof) : null;
+        return {
+          ...c,
+          author_name: prof?.display_name || prof?.username || "Unknown",
+          author_avatar: resolvedAvatar || undefined,
+          author_username: prof?.username || undefined,
+        };
+      });
     },
   });
 }
