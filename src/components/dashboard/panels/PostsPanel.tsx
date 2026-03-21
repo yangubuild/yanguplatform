@@ -261,7 +261,7 @@ function PostCard({ post, onReact, onClickUser }: { post: Post; onReact: (type: 
       className="rounded-lg p-3"
       style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
     >
-      <div className="flex items-center gap-2 mb-2">
+      <div className={`flex items-center gap-2 mb-2 ${onClickUser ? "cursor-pointer" : ""}`} onClick={onClickUser}>
         <div className="w-7 h-7 rounded-full overflow-hidden shrink-0" style={{ background: "rgba(255,255,255,0.1)" }}>
           {post.author_avatar ? (
             <img src={post.author_avatar} alt="" className="w-7 h-7 rounded-full object-cover" />
