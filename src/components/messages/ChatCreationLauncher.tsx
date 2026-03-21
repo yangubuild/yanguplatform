@@ -122,7 +122,7 @@ export function ChatCreationLauncher({ open, onOpenChange, onSelectUser, onOpenG
   };
 
   const content = view === "actions" ? (
-    <div className="space-y-2 px-4 pb-4 sm:px-6 sm:pb-6">
+    <div className="space-y-1.5 px-3 pb-3 sm:px-4 sm:pb-4">
       {ACTIONS.map((action) => {
         const Icon = action.icon;
         return (
@@ -130,54 +130,54 @@ export function ChatCreationLauncher({ open, onOpenChange, onSelectUser, onOpenG
             key={action.key}
             type="button"
             onClick={() => handleAction(action.key)}
-            className="flex w-full items-center gap-4 rounded-2xl border px-4 py-4 text-left transition-opacity hover:opacity-85"
+            className="flex w-full items-center gap-3 rounded-xl border px-3 py-3 text-left transition-opacity hover:opacity-85"
             style={{ background: "hsl(var(--background))", borderColor: "hsl(var(--border))" }}
           >
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl" style={{ background: "hsl(var(--secondary))" }}>
-              <Icon className="h-5 w-5" style={{ color: "hsl(var(--accent))" }} />
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl" style={{ background: "hsl(var(--secondary))" }}>
+              <Icon className="h-4 w-4" style={{ color: "hsl(var(--accent))" }} />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-foreground">{action.title}</p>
-              <p className="mt-1 text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>{action.description}</p>
+              <p className="text-[13px] font-semibold text-foreground">{action.title}</p>
+              <p className="mt-0.5 text-[11px] leading-tight" style={{ color: "hsl(var(--muted-foreground))" }}>{action.description}</p>
             </div>
-            <ChevronRight className="h-4 w-4 shrink-0" style={{ color: "hsl(var(--muted-foreground))" }} />
+            <ChevronRight className="h-3.5 w-3.5 shrink-0" style={{ color: "hsl(var(--muted-foreground))" }} />
           </button>
         );
       })}
     </div>
   ) : (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-3 border-b px-4 py-4 sm:px-6" style={{ borderColor: "hsl(var(--border))" }}>
-        <Button variant="ghost" size="icon" onClick={() => setView("actions")} aria-label="Back">
-          <ArrowLeft className="h-4 w-4" />
+      <div className="flex items-center gap-2 border-b px-3 py-3 sm:px-4" style={{ borderColor: "hsl(var(--border))" }}>
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setView("actions")} aria-label="Back">
+          <ArrowLeft className="h-3.5 w-3.5" />
         </Button>
         <div className="min-w-0 flex-1">
-          <h3 className="text-base font-semibold text-foreground">New contact / New chat</h3>
-          <p className="text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>Search and open the DM instantly.</p>
+          <h3 className="text-[13px] font-semibold text-foreground">New contact / New chat</h3>
+          <p className="text-[11px]" style={{ color: "hsl(var(--muted-foreground))" }}>Search and open the DM instantly.</p>
         </div>
-        <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} aria-label="Close">
-          <X className="h-4 w-4" />
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onOpenChange(false)} aria-label="Close">
+          <X className="h-3.5 w-3.5" />
         </Button>
       </div>
 
-      <div className="space-y-4 px-4 py-4 sm:px-6 sm:py-5">
-        <div className="flex items-center gap-3 rounded-xl border px-4 py-3" style={{ background: "hsl(var(--background))", borderColor: "hsl(var(--border))" }}>
-          <Search className="h-4 w-4 shrink-0" style={{ color: "hsl(var(--muted-foreground))" }} />
+      <div className="space-y-3 px-3 py-3 sm:px-4">
+        <div className="flex items-center gap-2 rounded-lg border px-3 py-2" style={{ background: "hsl(var(--background))", borderColor: "hsl(var(--border))" }}>
+          <Search className="h-3.5 w-3.5 shrink-0" style={{ color: "hsl(var(--muted-foreground))" }} />
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Search people or business name"
-            className="flex-1 bg-transparent text-sm outline-none text-foreground"
+            className="flex-1 bg-transparent text-[13px] outline-none text-foreground"
           />
         </div>
 
-        <div className="overflow-hidden rounded-2xl border" style={{ background: "hsl(var(--background))", borderColor: "hsl(var(--border))" }}>
+        <div className="overflow-hidden rounded-xl border max-h-[280px] overflow-y-auto" style={{ background: "hsl(var(--background))", borderColor: "hsl(var(--border))" }}>
           {isLoading ? (
-            <div className="flex items-center justify-center gap-2 px-4 py-10 text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>
-              <Loader2 className="h-4 w-4 animate-spin" /> Loading people...
+            <div className="flex items-center justify-center gap-2 px-3 py-8 text-[13px]" style={{ color: "hsl(var(--muted-foreground))" }}>
+              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading people...
             </div>
           ) : people.length === 0 ? (
-            <div className="px-4 py-10 text-center text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>
+            <div className="px-3 py-8 text-center text-[13px]" style={{ color: "hsl(var(--muted-foreground))" }}>
               {normalizedSearch.length >= 2 ? "No matching people found." : "Start typing to search or pick from recent people."}
             </div>
           ) : (
@@ -195,18 +195,18 @@ export function ChatCreationLauncher({ open, onOpenChange, onSelectUser, onOpenG
                       onOpenChange(false);
                       onSelectUser(person.id);
                     }}
-                    className="flex w-full items-center gap-3 px-4 py-3 text-left transition-opacity hover:opacity-80"
+                    className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left transition-opacity hover:opacity-80"
                   >
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full text-xs font-semibold" style={{ background: "hsl(var(--secondary))", color: "hsl(var(--foreground))" }}>
-                      {avatar ? <img src={avatar} alt="" className="h-11 w-11 rounded-full object-cover" /> : initials}
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full text-[10px] font-semibold" style={{ background: "hsl(var(--secondary))", color: "hsl(var(--foreground))" }}>
+                      {avatar ? <img src={avatar} alt="" className="h-9 w-9 rounded-full object-cover" /> : initials}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-foreground">{label}</p>
-                      <p className="truncate text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>
+                      <p className="truncate text-[13px] font-semibold text-foreground">{label}</p>
+                      <p className="truncate text-[11px]" style={{ color: "hsl(var(--muted-foreground))" }}>
                         {person.business_name || (person.username ? `@${person.username}` : "Start direct outreach")}
                       </p>
                     </div>
-                    <MessageCircle className="h-4 w-4 shrink-0" style={{ color: "hsl(var(--accent))" }} />
+                    <MessageCircle className="h-3.5 w-3.5 shrink-0" style={{ color: "hsl(var(--accent))" }} />
                   </button>
                 );
               })}
@@ -221,11 +221,11 @@ export function ChatCreationLauncher({ open, onOpenChange, onSelectUser, onOpenG
     <>
       {isMobile ? (
         <Drawer open={open} onOpenChange={onOpenChange}>
-          <DrawerContent className="max-h-[88vh] border-t p-0" style={{ background: "hsl(var(--surface-elevated))", borderColor: "hsl(var(--border))" }}>
+          <DrawerContent className="max-h-[80vh] border-t p-0" style={{ background: "hsl(var(--surface-elevated))", borderColor: "hsl(var(--border))" }}>
             {view === "actions" && (
-              <DrawerHeader className="border-b px-4 pb-4 pt-5" style={{ borderColor: "hsl(var(--border))" }}>
-                <DrawerTitle>New chat</DrawerTitle>
-                <DrawerDescription>Choose how you want to start the conversation.</DrawerDescription>
+              <DrawerHeader className="border-b px-3 pb-3 pt-4" style={{ borderColor: "hsl(var(--border))" }}>
+                <DrawerTitle className="text-sm">New chat</DrawerTitle>
+                <DrawerDescription className="text-xs">Choose how you want to start the conversation.</DrawerDescription>
               </DrawerHeader>
             )}
             {content}
@@ -233,11 +233,11 @@ export function ChatCreationLauncher({ open, onOpenChange, onSelectUser, onOpenG
         </Drawer>
       ) : (
         <Dialog open={open} onOpenChange={onOpenChange}>
-          <DialogContent className="overflow-hidden border p-0 sm:max-w-xl" style={{ background: "hsl(var(--surface-elevated))", borderColor: "hsl(var(--border))" }}>
+          <DialogContent className="overflow-hidden border p-0 sm:max-w-md" style={{ background: "hsl(var(--surface-elevated))", borderColor: "hsl(var(--border))" }}>
             {view === "actions" && (
-              <DialogHeader className="border-b px-6 py-5" style={{ borderColor: "hsl(var(--border))" }}>
-                <DialogTitle>New chat</DialogTitle>
-                <DialogDescription>Choose how you want to start the conversation.</DialogDescription>
+              <DialogHeader className="border-b px-4 py-3" style={{ borderColor: "hsl(var(--border))" }}>
+                <DialogTitle className="text-sm">New chat</DialogTitle>
+                <DialogDescription className="text-xs">Choose how you want to start.</DialogDescription>
               </DialogHeader>
             )}
             {content}
