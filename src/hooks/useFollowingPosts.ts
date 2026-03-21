@@ -1,19 +1,26 @@
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import type { Post } from "@/hooks/usePosts";
 
+const PAGE_SIZE = 20;
+
 /**
- * Fetches posts ONLY from followed accounts (excludes self).
+ * Fetches posts ONLY from followed accounts (excludes self) with infinite scroll.
  */
 export function useFollowingPosts() {
   const { user } = useAuth();
 
-  return useQuery({
+  const query = useInfiniteQuery({
     queryKey: ["following-posts", user?.id],
     enabled: !!user,
-    queryFn: async (): Promise<Post[]> => {
+    initialPageParam: 0,
+    getNextPageParam: (lastPage: Post[], allPages) => {
+      if (lastPage.length < PAGE_SIZE) return undefined;
+      return allPages.length * PAGE_SIZE;
+    },
+    queryFn: async ({ pageParam = 0 }): Promise<Post[]> => {
       if (!user) return [];
 
       const { data: followRows } = await supabase
@@ -29,7 +36,7 @@ export function useFollowingPosts() {
         .select("*")
         .in("user_id", followedIds)
         .order("created_at", { ascending: false })
-        .limit(100);
+        .range(pageParam, pageParam + PAGE_SIZE - 1);
       if (error) throw error;
 
       const posts = (data ?? []) as Post[];
@@ -85,4 +92,15 @@ export function useFollowingPosts() {
       });
     },
   });
+
+  // Flatten pages for backward compatibility
+  const allPosts = query.data?.pages.flat() ?? [];
+
+  return {
+    data: allPosts,
+    isLoading: query.isLoading,
+    fetchNextPage: query.fetchNextPage,
+    hasNextPage: query.hasNextPage,
+    isFetchingNextPage: query.isFetchingNextPage,
+  };
 }

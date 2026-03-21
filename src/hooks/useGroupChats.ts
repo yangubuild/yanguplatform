@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export interface ChatGroup {
   id: string;
@@ -105,6 +105,7 @@ export function useGroupMessages(groupId: string | undefined) {
 export function useSendGroupMessage() {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const inflightRef = useRef(false);
 
   return useMutation({
     mutationFn: async ({ groupId, content, mediaUrl, mediaType, metadata }: {
@@ -115,17 +116,23 @@ export function useSendGroupMessage() {
       metadata?: any;
     }) => {
       if (!user) throw new Error("Not authenticated");
-      const { error } = await supabase
-        .from("chat_group_messages" as any)
-        .insert({
-          group_id: groupId,
-          user_id: user.id,
-          content,
-          media_url: mediaUrl || null,
-          media_type: mediaType || "text",
-          metadata: metadata || {},
-        } as any);
-      if (error) throw error;
+      if (inflightRef.current) return;
+      inflightRef.current = true;
+      try {
+        const { error } = await supabase
+          .from("chat_group_messages" as any)
+          .insert({
+            group_id: groupId,
+            user_id: user.id,
+            content,
+            media_url: mediaUrl || null,
+            media_type: mediaType || "text",
+            metadata: metadata || {},
+          } as any);
+        if (error) throw error;
+      } finally {
+        inflightRef.current = false;
+      }
     },
     onSuccess: (_, { groupId }) => {
       qc.invalidateQueries({ queryKey: ["group-messages", groupId] });
@@ -140,7 +147,6 @@ export function useCreateGroup() {
   return useMutation({
     mutationFn: async ({ name, memberIds }: { name: string; memberIds: string[] }) => {
       if (!user) throw new Error("Not authenticated");
-      // Create group
       const { data: group, error } = await supabase
         .from("chat_groups" as any)
         .insert({ name, created_by: user.id } as any)
@@ -149,7 +155,6 @@ export function useCreateGroup() {
       if (error) throw error;
       const groupId = (group as any).id;
 
-      // Add creator + members
       const allMembers = [user.id, ...memberIds.filter(id => id !== user.id)];
       const memberRows = allMembers.map(uid => ({
         group_id: groupId,
