@@ -189,7 +189,7 @@ export function ImageAdsGeneratedPage({
               <div className="flex items-center gap-2 flex-wrap">
                 <button
                   onClick={selectAll}
-                  className="rounded-full border border-border/40 bg-card px-3 py-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  className="rounded-lg border border-border/40 bg-card px-3 py-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Select all
                 </button>

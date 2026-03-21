@@ -154,7 +154,7 @@ export default function Studio() {
                 {/* badge */}
                 {card.badge && (
                   <div className="absolute top-4 left-1/2 -translate-x-1/2">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/90 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-accent-foreground">
+                    <span className="inline-flex items-center gap-1.5 rounded-lg bg-accent/90 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-accent-foreground">
                       <Sparkles className="h-3 w-3" />
                       {card.badge}
                     </span>

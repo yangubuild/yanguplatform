@@ -69,7 +69,7 @@ export default function ImageAdsFlow() {
             <span className="text-lg font-bold text-foreground">Image Ads</span>
           </div>
           <div className="flex items-center gap-3">
-            <button className="inline-flex items-center gap-1.5 rounded-full border border-border/40 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+            <button className="inline-flex items-center gap-1.5 rounded-lg border border-border/40 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
               <MessageSquare className="h-3.5 w-3.5" />
               Feedback
             </button>

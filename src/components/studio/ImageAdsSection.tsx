@@ -65,7 +65,7 @@ export function ImageAdsSection() {
           <button
             key={chip}
             onClick={() => setActiveFilter(activeFilter === chip ? null : chip)}
-            className={`rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors ${
+            className={`rounded-lg border px-3.5 py-1.5 text-xs font-medium transition-colors ${
               activeFilter === chip
                 ? "border-accent bg-accent/20 text-accent"
                 : "border-border/50 bg-transparent text-muted-foreground hover:border-border hover:text-foreground"
