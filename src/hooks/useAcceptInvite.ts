@@ -17,6 +17,13 @@ export function useAcceptInvite() {
 
   const mutation = useMutation({
     mutationFn: async (inviteId: string) => {
+      // Get invite details before accepting (for confirmation messages)
+      const { data: inviteData } = await supabase
+        .from("admin_invites")
+        .select("invited_by, role, email")
+        .eq("id", inviteId)
+        .single();
+
       const { error } = await (supabase.rpc as any)("accept_team_invite", {
         p_invite_id: inviteId,
       });
@@ -29,6 +36,34 @@ export function useAcceptInvite() {
         .eq("user_id", user!.id)
         .eq("type", "team_invite")
         .filter("metadata->>invite_id", "eq", inviteId);
+
+      // Get current user's profile for the confirmation message
+      const { data: myProfile } = await supabase
+        .from("profiles")
+        .select("username, display_name")
+        .eq("id", user!.id)
+        .single();
+
+      const myHandle = myProfile?.username ? `@${myProfile.username}` : (myProfile?.display_name || "A user");
+
+      // Notify the original inviter that the invite was accepted
+      if (inviteData?.invited_by) {
+        await supabase.from("notifications").insert({
+          user_id: inviteData.invited_by,
+          type: "team_invite_accepted",
+          title: "Invite Accepted",
+          body: `${myHandle} accepted your team invite.`,
+          link: `/dashboard/home`,
+          metadata: { invite_id: inviteId, accepted_by: user!.id },
+        });
+
+        // Send DM to inviter confirming acceptance
+        await supabase.from("direct_messages").insert({
+          sender_id: user!.id,
+          receiver_id: inviteData.invited_by,
+          content: `✅ ${myProfile?.display_name || myHandle} (${myHandle}) accepted your team invite.`,
+        });
+      }
     },
     onSuccess: () => {
       toast.success("Invite accepted! You've been added to the team.");

@@ -122,11 +122,33 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
         },
       });
 
-      // Send a DM system message from inviter
+      // Send a DM system message to invitee
       await supabase.from("direct_messages").insert({
         sender_id: user.id,
         receiver_id: selectedUser.id,
         content: `🤝 You've been invited to join the team as **${selectedRoleObj.name}**. Check your notifications to accept.`,
+      });
+
+      // Send sender confirmation DM (system message to self)
+      const handle = selectedUser.username ? `@${selectedUser.username}` : (selectedUser.display_name || "user");
+      await supabase.from("direct_messages").insert({
+        sender_id: selectedUser.id, // appears as incoming system message
+        receiver_id: user.id,
+        content: `📋 You invited ${selectedUser.display_name || selectedUser.username || "a user"} (${handle}) to join your team as **${selectedRoleObj.name}**. Status: Pending acceptance.`,
+      });
+
+      // Create sender notification
+      await supabase.from("notifications").insert({
+        user_id: user.id,
+        type: "team_invite_sent",
+        title: "Team Invite Sent",
+        body: `You invited ${handle} to join your team. Waiting for acceptance.`,
+        link: `/dashboard/home`,
+        metadata: {
+          invite_id: invite.id,
+          target_user_id: selectedUser.id,
+          role: selectedRoleObj.dbRole,
+        },
       });
 
       toast.success(`Invite sent to ${selectedUser.display_name || selectedUser.username}`);
