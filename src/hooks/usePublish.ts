@@ -45,7 +45,7 @@ export function useOrgDomains(orgId: string | null) {
         return [];
       }
 
-      console.log("[useOrgDomains] Fetching domains for org:", orgId);
+      if (import.meta.env.DEV) console.log("[useOrgDomains] Fetching domains for org:", orgId);
       
       const { data, error } = await supabase
         .from("domains")

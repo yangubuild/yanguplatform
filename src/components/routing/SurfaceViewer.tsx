@@ -29,7 +29,7 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
       const currentHost = host ?? window.location.hostname.replace(/^www\./, "");
       const pathSlug = window.location.pathname.replace(/^\/+/, "").split("/")[0] || "home";
 
-      console.log("[SurfaceViewer] Loading published content", { currentHost, pathSlug, publishId });
+      if (import.meta.env.DEV) console.log("[SurfaceViewer] Loading published content", { currentHost, pathSlug, publishId });
 
       const { data: result, error: err } = await supabase.rpc("builder_get_public_schema", {
         p_host: currentHost,
