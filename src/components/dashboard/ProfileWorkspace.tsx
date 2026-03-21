@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useUserPosts, useCreatePost, useToggleReaction, uploadPostMedia, type Post } from "@/hooks/usePosts";
-import { useFeedPosts } from "@/hooks/useFeedPosts";
+// useFeedPosts removed - center shows owner-only posts via useUserPosts
 import { useProfileReviews } from "@/hooks/useProfileReviews";
 import { Heart, ThumbsUp } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -109,7 +109,7 @@ function OwnReviewsTab() {
 
 function OwnPostsTab() {
   const { user, profile } = useAuth();
-  const { data: posts = [], isLoading } = useFeedPosts();
+  const { data: posts = [], isLoading } = useUserPosts(user?.id);
   const createPost = useCreatePost();
   const toggleReaction = useToggleReaction();
   const [text, setText] = useState("");
@@ -250,12 +250,7 @@ function OwnPostsTab() {
                 )}
               </div>
             )}
-            <div className="flex items-center gap-4">
-              <button onClick={() => toggleReaction.mutate({ postId: post.id, reactionType: "like", isActive: !!post.user_liked })} className="flex items-center gap-1 text-[11px]" style={{ color: post.user_liked ? "#3b82f6" : "rgba(255,255,255,0.35)" }}><ThumbsUp className="w-3.5 h-3.5" /> {post.like_count || ""}</button>
-              <button onClick={() => toggleReaction.mutate({ postId: post.id, reactionType: "love", isActive: !!post.user_loved })} className="flex items-center gap-1 text-[11px]" style={{ color: post.user_loved ? "#ef4444" : "rgba(255,255,255,0.35)" }}><Heart className="w-3.5 h-3.5" /> {post.love_count || ""}</button>
-              <span className="flex items-center gap-1 text-[11px]" style={{ color: "rgba(255,255,255,0.35)" }}><MessageSquare className="w-3.5 h-3.5" /> {post.comment_count || ""}</span>
-              <button className="flex items-center gap-1 text-[11px] ml-auto" style={{ color: "rgba(255,255,255,0.35)" }} title="Share"><ExternalLink className="w-3.5 h-3.5" /></button>
-            </div>
+            <PostInteractions post={post} toggleReaction={toggleReaction} />
           </div>
         ))
       )}

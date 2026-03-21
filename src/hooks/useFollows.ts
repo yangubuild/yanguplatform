@@ -62,12 +62,31 @@ export function useToggleFollow() {
           .from("follows" as any)
           .insert({ follower_id: user.id, following_id: targetUserId } as any);
         if (error) throw error;
+
+        // Send follow notification to the target user
+        const { data: myProfile } = await supabase
+          .from("profiles")
+          .select("display_name, username")
+          .eq("id", user.id)
+          .single();
+        const name = myProfile?.display_name || myProfile?.username || "Someone";
+        const uname = myProfile?.username ? `@${myProfile.username}` : "";
+        await supabase.from("notifications").insert({
+          user_id: targetUserId,
+          type: "follow",
+          title: `${name} followed you`,
+          body: `${name} ${uname} started following you on YANGU. Follow them back to stay connected!`,
+          link: `/dashboard/home`,
+          is_read: false,
+        } as any);
       }
     },
     onSuccess: (_, { targetUserId, isCurrentlyFollowing }) => {
       qc.invalidateQueries({ queryKey: ["is-following", user?.id, targetUserId] });
       qc.invalidateQueries({ queryKey: ["follow-counts", targetUserId] });
       qc.invalidateQueries({ queryKey: ["follow-counts", user?.id] });
+      qc.invalidateQueries({ queryKey: ["following-posts"] });
+      qc.invalidateQueries({ queryKey: ["feed-posts"] });
       toast.success(isCurrentlyFollowing ? "Unfollowed" : "Following");
     },
     onError: () => toast.error("Action failed"),
