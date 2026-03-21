@@ -57,11 +57,11 @@ export function useAcceptInvite() {
           metadata: { invite_id: inviteId, accepted_by: user!.id },
         });
 
-        // Send DM to inviter confirming acceptance
+        // Send DM to inviter confirming acceptance (from the accepting user)
         await supabase.from("direct_messages").insert({
           sender_id: user!.id,
           receiver_id: inviteData.invited_by,
-          content: `✅ ${myProfile?.display_name || myHandle} (${myHandle}) accepted your team invite.`,
+          content: `✅ I've accepted your team invite! Happy to be on the team.`,
         });
       }
     },
