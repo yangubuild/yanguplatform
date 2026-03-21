@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { InnerPageSidebar, type SidebarItem } from "@/components/dashboard/InnerPageSidebar";
+import { useAcceptInvite } from "@/hooks/useAcceptInvite";
 import { ProfileWorkspace } from "@/components/dashboard/ProfileWorkspace";
 import { ClientChatPanel } from "@/components/dashboard/ClientChatPanel";
 import { DashboardCreditPromo } from "@/components/dashboard/DashboardCreditPromo";
