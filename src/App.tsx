@@ -88,7 +88,7 @@ const VisionaireBundles = lazy(() => lazyRetry(() => import("./pages/dashboard/v
 const VisionaireBundleDetail = lazy(() => lazyRetry(() => import("./pages/dashboard/visionaire/VisionaireBundleDetail")));
 
 // Developer platform (lazy)
-const DevelopersLayout = lazy(() => lazyRetry(() => import("./components/developers/DevelopersLayout").then(m => ({ default: m.DevelopersLayout })));
+const DevelopersLayout = lazy(() => lazyRetry(() => import("./components/developers/DevelopersLayout").then(m => ({ default: m.DevelopersLayout }))));
 const DevelopersHome = lazy(() => lazyRetry(() => import("./pages/developers/DevelopersHome")));
 const DocsQuickstart = lazy(() => lazyRetry(() => import("./pages/developers/DocsQuickstart")));
 const DocsPlaceholder = lazy(() => lazyRetry(() => import("./pages/developers/DocsPlaceholder")));
@@ -111,7 +111,7 @@ const ManageReports = lazy(() => lazyRetry(() => import("./pages/manage/ManageRe
 const EntityDetailPage = lazy(() => lazyRetry(() => import("./pages/EntityDetailPage")));
 
 // Developer Portal (lazy)
-const PortalLayoutModule = lazy(() => lazyRetry(() => import("./components/developers/portal/PortalLayout").then(m => ({ default: m.PortalLayout })));
+const PortalLayoutModule = lazy(() => lazyRetry(() => import("./components/developers/portal/PortalLayout").then(m => ({ default: m.PortalLayout }))));
 const PortalOverview = lazy(() => lazyRetry(() => import("./pages/developers/portal/PortalOverview")));
 const PortalApps = lazy(() => lazyRetry(() => import("./pages/developers/portal/PortalApps")));
 const PortalApiKeys = lazy(() => lazyRetry(() => import("./pages/developers/portal/PortalApiKeys")));
