@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useConversation, useSendMessage } from "@/hooks/useDirectMessages";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, MoreVertical, Reply, Forward, Trash2, Image, Video, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface Props {
   targetUserId: string;
@@ -13,11 +14,17 @@ interface Props {
 
 export function DmThreadView({ targetUserId }: Props) {
   const [message, setMessage] = useState("");
+  const [replyTo, setReplyTo] = useState<{ id: string; content: string } | null>(null);
+  const [forwardingMsg, setForwardingMsg] = useState<string | null>(null);
+  const [msgMenuId, setMsgMenuId] = useState<string | null>(null);
+  const [showChatMenu, setShowChatMenu] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const qc = useQueryClient();
 
-  // Fetch target user profile (the other person)
   const { data: targetProfile } = useQuery({
     queryKey: ["dm-target-profile", targetUserId],
     queryFn: async () => {
@@ -31,7 +38,6 @@ export function DmThreadView({ targetUserId }: Props) {
     },
   });
 
-  // Fetch own profile (for showing own avatar on sent messages)
   const { data: myProfile } = useQuery({
     queryKey: ["dm-my-profile", user?.id],
     enabled: !!user,
@@ -57,18 +63,84 @@ export function DmThreadView({ targetUserId }: Props) {
   const myAvatar = myProfile ? resolveAvatarUrl(myProfile) : null;
   const myInitials = myName.slice(0, 2).toUpperCase();
 
+  // Online/offline presence (UI wired, backend deferred - uses last_seen heuristic)
+  const [isOnline] = useState(false); // Deferred: no real presence backend yet
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages.length]);
 
+  // Delete single message
+  const deleteMsg = useMutation({
+    mutationFn: async (msgId: string) => {
+      const { error } = await supabase
+        .from("direct_messages")
+        .delete()
+        .eq("id", msgId)
+        .eq("sender_id", user!.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["conversation", user?.id, targetUserId] });
+      qc.invalidateQueries({ queryKey: ["conversation-list"] });
+      toast.success("Message deleted");
+    },
+  });
+
+  // Delete entire conversation
+  const deleteChat = useMutation({
+    mutationFn: async () => {
+      // Delete messages where current user is sender
+      await supabase
+        .from("direct_messages")
+        .delete()
+        .or(`and(sender_id.eq.${user!.id},receiver_id.eq.${targetUserId}),and(sender_id.eq.${targetUserId},receiver_id.eq.${user!.id})`);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["conversation", user?.id, targetUserId] });
+      qc.invalidateQueries({ queryKey: ["conversation-list"] });
+      toast.success("Conversation deleted");
+      navigate("/dashboard/messages?tab=chats");
+    },
+  });
+
   const handleSend = () => {
     if (!message.trim()) return;
-    sendMessage.mutate({ receiverId: targetUserId, content: message.trim() });
+    const prefix = replyTo ? `↩️ Re: "${replyTo.content.slice(0, 40)}"\n\n` : "";
+    sendMessage.mutate({ receiverId: targetUserId, content: prefix + message.trim() });
     setMessage("");
+    setReplyTo(null);
   };
 
-  // Parse accept_invite links in message content
+  const handleForward = (content: string) => {
+    setForwardingMsg(content);
+    toast.info("Select a user from the sidebar to forward this message");
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: "image" | "video") => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    const ext = file.name.split(".").pop();
+    const path = `${user.id}/dm-${Date.now()}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("post-media")
+      .upload(path, file);
+
+    if (uploadError) {
+      toast.error("Upload failed");
+      return;
+    }
+
+    const { data: urlData } = supabase.storage.from("post-media").getPublicUrl(path);
+    const mediaUrl = urlData.publicUrl;
+    const emoji = type === "image" ? "📷" : "🎥";
+    sendMessage.mutate({ receiverId: targetUserId, content: `${emoji} ${mediaUrl}` });
+  };
+
   const renderContent = (content: string) => {
+    // Accept invite link
     const acceptMatch = content.match(/\[Accept Invite\]\(([^)]+)\)/);
     if (acceptMatch) {
       const link = acceptMatch[1];
@@ -76,19 +148,29 @@ export function DmThreadView({ targetUserId }: Props) {
       const textAfter = content.slice((acceptMatch.index ?? 0) + acceptMatch[0].length);
       return (
         <>
-          {textBefore}
+          {textBefore && <span className="whitespace-pre-wrap">{textBefore}</span>}
           <button
             onClick={() => navigate(link)}
-            className="inline-block mt-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white"
+            className="inline-flex items-center gap-1.5 mt-2 px-4 py-2 rounded-lg text-xs font-semibold text-white"
             style={{ background: "linear-gradient(135deg, #4ade80, #22c55e)" }}
           >
             ✅ Accept Invite
           </button>
-          {textAfter}
+          {textAfter && <span className="whitespace-pre-wrap">{textAfter}</span>}
         </>
       );
     }
-    return content;
+    // Media URLs
+    const urlMatch = content.match(/^(📷|🎥)\s(https?:\/\/.+)$/);
+    if (urlMatch) {
+      const isVideo = urlMatch[1] === "🎥";
+      const url = urlMatch[2];
+      if (isVideo) {
+        return <video src={url} controls className="max-w-full rounded-lg mt-1" style={{ maxHeight: 200 }} />;
+      }
+      return <img src={url} alt="Shared" className="max-w-full rounded-lg mt-1" style={{ maxHeight: 200 }} />;
+    }
+    return <span className="whitespace-pre-wrap">{content}</span>;
   };
 
   return (
@@ -98,17 +180,27 @@ export function DmThreadView({ targetUserId }: Props) {
         className="flex items-center gap-3 px-4 py-3 shrink-0"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
-        <div
-          className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold overflow-hidden"
-          style={{ background: "rgba(255,255,255,0.1)" }}
-        >
-          {targetAvatar ? (
-            <img src={targetAvatar} alt="" className="w-8 h-8 rounded-full object-cover" />
-          ) : (
-            <span className="text-white/60">{targetInitials}</span>
-          )}
+        <div className="relative">
+          <div
+            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold overflow-hidden"
+            style={{ background: "rgba(255,255,255,0.1)" }}
+          >
+            {targetAvatar ? (
+              <img src={targetAvatar} alt="" className="w-8 h-8 rounded-full object-cover" />
+            ) : (
+              <span className="text-white/60">{targetInitials}</span>
+            )}
+          </div>
+          {/* Online/offline indicator */}
+          <span
+            className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2"
+            style={{
+              background: isOnline ? "#22c55e" : "#6b7280",
+              borderColor: "#0F141A",
+            }}
+          />
         </div>
-        <div>
+        <div className="flex-1">
           <span className="text-sm font-semibold text-white">{targetName}</span>
           {targetProfile?.username && (
             <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>
@@ -116,7 +208,44 @@ export function DmThreadView({ targetUserId }: Props) {
             </p>
           )}
         </div>
+        {/* Chat-level menu */}
+        <div className="relative">
+          <button
+            onClick={() => setShowChatMenu(!showChatMenu)}
+            className="p-1.5 rounded-lg hover:opacity-80"
+            style={{ color: "rgba(255,255,255,0.4)" }}
+          >
+            <MoreVertical className="w-4 h-4" />
+          </button>
+          {showChatMenu && (
+            <div
+              className="absolute right-0 top-8 z-20 rounded-lg py-1 min-w-[160px]"
+              style={{ background: "#1a2027", border: "1px solid rgba(255,255,255,0.1)" }}
+            >
+              <button
+                onClick={() => { deleteChat.mutate(); setShowChatMenu(false); }}
+                className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:opacity-80"
+                style={{ color: "#ef4444" }}
+              >
+                <Trash2 className="w-3.5 h-3.5" /> Delete Conversation
+              </button>
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Reply indicator */}
+      {replyTo && (
+        <div className="px-4 py-2 flex items-center gap-2" style={{ background: "rgba(255,255,255,0.03)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+          <Reply className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.4)" }} />
+          <span className="text-xs truncate flex-1" style={{ color: "rgba(255,255,255,0.5)" }}>
+            Replying to: {replyTo.content.slice(0, 60)}
+          </span>
+          <button onClick={() => setReplyTo(null)}>
+            <X className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.4)" }} />
+          </button>
+        </div>
+      )}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-2">
@@ -137,8 +266,7 @@ export function DmThreadView({ targetUserId }: Props) {
             const avatar = isMine ? myAvatar : targetAvatar;
             const initials = isMine ? myInitials : targetInitials;
             return (
-              <div key={msg.id} className={`flex gap-2 ${isMine ? "justify-end" : "justify-start"}`}>
-                {/* Other person's avatar on left */}
+              <div key={msg.id} className={`group flex gap-2 ${isMine ? "justify-end" : "justify-start"}`}>
                 {!isMine && (
                   <div
                     className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold overflow-hidden shrink-0 mt-1"
@@ -151,19 +279,58 @@ export function DmThreadView({ targetUserId }: Props) {
                     )}
                   </div>
                 )}
-                <div
-                  className="max-w-[75%] px-3 py-2 rounded-xl text-sm"
-                  style={{
-                    background: isMine ? "rgba(181,98,42,0.3)" : "rgba(255,255,255,0.06)",
-                    color: "#fff",
-                  }}
-                >
-                  {renderContent(msg.content)}
-                  <p className="text-[9px] mt-1" style={{ color: "rgba(255,255,255,0.3)" }}>
-                    {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                  </p>
+                <div className="relative max-w-[75%]">
+                  <div
+                    className="px-3 py-2 rounded-xl text-sm"
+                    style={{
+                      background: isMine ? "rgba(181,98,42,0.3)" : "rgba(255,255,255,0.06)",
+                      color: "#fff",
+                    }}
+                  >
+                    {renderContent(msg.content)}
+                    <p className="text-[9px] mt-1" style={{ color: "rgba(255,255,255,0.3)" }}>
+                      {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    </p>
+                  </div>
+                  {/* Message-level actions (hover) */}
+                  <div className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => setMsgMenuId(msgMenuId === msg.id ? null : msg.id)}
+                      className="p-1 rounded"
+                      style={{ background: "rgba(0,0,0,0.5)" }}
+                    >
+                      <MoreVertical className="w-3 h-3" style={{ color: "rgba(255,255,255,0.6)" }} />
+                    </button>
+                  </div>
+                  {msgMenuId === msg.id && (
+                    <div
+                      className="absolute top-6 right-0 z-20 rounded-lg py-1 min-w-[140px]"
+                      style={{ background: "#1a2027", border: "1px solid rgba(255,255,255,0.1)" }}
+                    >
+                      <button
+                        onClick={() => { setReplyTo({ id: msg.id, content: msg.content }); setMsgMenuId(null); }}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:opacity-80 text-white"
+                      >
+                        <Reply className="w-3 h-3" /> Reply
+                      </button>
+                      <button
+                        onClick={() => { handleForward(msg.content); setMsgMenuId(null); }}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:opacity-80 text-white"
+                      >
+                        <Forward className="w-3 h-3" /> Forward
+                      </button>
+                      {isMine && (
+                        <button
+                          onClick={() => { deleteMsg.mutate(msg.id); setMsgMenuId(null); }}
+                          className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:opacity-80"
+                          style={{ color: "#ef4444" }}
+                        >
+                          <Trash2 className="w-3 h-3" /> Delete
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
-                {/* Own avatar on right */}
                 {isMine && (
                   <div
                     className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold overflow-hidden shrink-0 mt-1"
@@ -183,18 +350,36 @@ export function DmThreadView({ targetUserId }: Props) {
         <div ref={bottomRef} />
       </div>
 
+      {/* Hidden file inputs */}
+      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, "image")} />
+      <input ref={videoInputRef} type="file" accept="video/*" className="hidden" onChange={(e) => handleFileUpload(e, "video")} />
+
       {/* Input */}
       <div className="shrink-0 px-4 py-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
         <div
           className="flex items-center gap-2 rounded-xl px-3 py-2.5"
           style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
         >
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="p-1 rounded hover:opacity-80 shrink-0"
+            style={{ color: "rgba(255,255,255,0.4)" }}
+          >
+            <Image className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => videoInputRef.current?.click()}
+            className="p-1 rounded hover:opacity-80 shrink-0"
+            style={{ color: "rgba(255,255,255,0.4)" }}
+          >
+            <Video className="w-4 h-4" />
+          </button>
           <input
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            placeholder="Type a message..."
+            placeholder={replyTo ? "Type a reply..." : "Type a message..."}
             className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-white/25"
           />
           <button

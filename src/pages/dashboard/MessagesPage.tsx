@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { MessagesDmList } from "@/components/messages/MessagesDmList";
 import { MessagesCenterPanel } from "@/components/messages/MessagesCenterPanel";
 import { MessagesDiscoverySidebar } from "@/components/messages/MessagesDiscoverySidebar";
@@ -10,7 +8,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Users, X } from "lucide-react";
 
-export type MessagesTab = "posts" | "chats" | "influencers" | "global";
+export type MessagesTab = "posts" | "chats" | "influencers" | "support";
 
 export default function MessagesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -18,14 +16,13 @@ export default function MessagesPage() {
   const userParam = searchParams.get("user");
 
   const [activeTab, setActiveTab] = useState<MessagesTab>(
-    tabParam && ["posts", "chats", "influencers", "global"].includes(tabParam) ? tabParam : "posts"
+    tabParam && ["posts", "chats", "influencers", "support"].includes(tabParam) ? tabParam : "posts"
   );
   const [activeConversationUserId, setActiveConversationUserId] = useState<string | null>(userParam || null);
   const [showUsersPanel, setShowUsersPanel] = useState(false);
   const isMobile = useIsMobile();
   const isTablet = useMediaQuery("(min-width: 768px) and (max-width: 1023px)");
 
-  // When user param changes (from popup/profile navigation), activate chats + that user
   useEffect(() => {
     if (userParam) {
       setActiveTab("chats");
@@ -34,8 +31,8 @@ export default function MessagesPage() {
   }, [userParam]);
 
   useEffect(() => {
-    if (tabParam && ["posts", "chats", "influencers", "global"].includes(tabParam)) {
-      setActiveTab(tabParam);
+    if (tabParam && ["posts", "chats", "influencers", "support"].includes(tabParam)) {
+      setActiveTab(tabParam as MessagesTab);
     }
   }, [tabParam]);
 
@@ -53,7 +50,6 @@ export default function MessagesPage() {
     setSearchParams({ tab: "chats", user: userId });
   };
 
-  // Center content: if chats tab + active user, show thread; otherwise tabs
   const centerContent =
     activeTab === "chats" && activeConversationUserId ? (
       <DmThreadView targetUserId={activeConversationUserId} />
@@ -124,7 +120,6 @@ export default function MessagesPage() {
     );
   }
 
-  // Desktop: 3-column
   return (
     <div
       className="h-[calc(100vh-64px)] overflow-hidden"
