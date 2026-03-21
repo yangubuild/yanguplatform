@@ -1,17 +1,18 @@
+import { lazyRetry } from "@/lib/lazyRetry";
 import { useEffect, useState, ReactNode, lazy, Suspense } from "react";
 import { useLocation } from "react-router-dom";
 import { resolveRoute, isDevEnvironment, normalizeHostname, type ResolvedRoute, type RouteDebugInfo } from "@/lib/routing/resolveRoute";
 import { resolveAppMode } from "@/lib/routing/appMode";
 
-const DomainHome = lazy(() => import("./DomainHome").then((m) => ({ default: m.DomainHome })));
-const Index = lazy(() => import("@/pages/Index"));
-const Community = lazy(() => import("@/pages/Community"));
-const StudioLanding = lazy(() => import("./StudioLanding").then((m) => ({ default: m.StudioLanding })));
-const LiveLanding = lazy(() => import("./LiveLanding").then((m) => ({ default: m.LiveLanding })));
-const PublishContainerLanding = lazy(() => import("./PublishContainerLanding").then((m) => ({ default: m.PublishContainerLanding })));
-const IdentityHub = lazy(() => import("./IdentityHub").then((m) => ({ default: m.IdentityHub })));
-const SurfaceViewer = lazy(() => import("./SurfaceViewer").then((m) => ({ default: m.SurfaceViewer })));
-const NotFound = lazy(() => import("@/pages/NotFound"));
+const DomainHome = lazy(() => lazyRetry(() => import("./DomainHome").then((m) => ({ default: m.DomainHome }))));
+const Index = lazy(() => lazyRetry(() => import("@/pages/Index")));
+const Community = lazy(() => lazyRetry(() => import("@/pages/Community")));
+const StudioLanding = lazy(() => lazyRetry(() => import("./StudioLanding").then((m) => ({ default: m.StudioLanding }))));
+const LiveLanding = lazy(() => lazyRetry(() => import("./LiveLanding").then((m) => ({ default: m.LiveLanding }))));
+const PublishContainerLanding = lazy(() => lazyRetry(() => import("./PublishContainerLanding").then((m) => ({ default: m.PublishContainerLanding }))));
+const IdentityHub = lazy(() => lazyRetry(() => import("./IdentityHub").then((m) => ({ default: m.IdentityHub }))));
+const SurfaceViewer = lazy(() => lazyRetry(() => import("./SurfaceViewer").then((m) => ({ default: m.SurfaceViewer }))));
+const NotFound = lazy(() => lazyRetry(() => import("@/pages/NotFound")));
 
 
 interface PublicRouteResolverProps {

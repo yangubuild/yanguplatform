@@ -1,42 +1,43 @@
+import { lazyRetry } from "@/lib/lazyRetry";
 import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { ManagementGuard } from "./ManagementGuard";
 import { AdminShell } from "./AdminShell";
 import { ManageRoleGate } from "./ManageRoleGate";
 
-const ManageDashboard = lazy(() => import("@/pages/manage/ManageDashboard"));
-const ManageExploreDashboard = lazy(() => import("@/pages/manage/ManageExploreDashboard"));
-const ManageAlertsSecurity = lazy(() => import("@/pages/manage/ManageAlertsSecurity"));
-const ManageAnalytics = lazy(() => import("@/pages/manage/ManageAnalytics"));
-const ManageUsers = lazy(() => import("@/pages/manage/ManageUsers"));
-const ManagePlaceholder = lazy(() => import("@/pages/manage/ManagePlaceholder"));
-const ManageAgents = lazy(() => import("@/pages/manage/ManageAgents"));
-const ManageIntegrations = lazy(() => import("@/pages/manage/ManageIntegrations"));
-const ManagePages = lazy(() => import("@/pages/manage/ManagePages"));
-const ManageBranding = lazy(() => import("@/pages/manage/ManageBranding"));
-const ManageResearchTesting = lazy(() => import("@/pages/manage/ManageResearchTesting"));
-const ManageAuditLogs = lazy(() => import("@/pages/manage/ManageAuditLogs"));
-const ManageSettings = lazy(() => import("@/pages/manage/ManageSettings"));
-const ManageNotFound = lazy(() => import("@/pages/manage/ManageNotFound"));
-const ManageSurfaces = lazy(() => import("@/pages/manage/ManageSurfaces"));
-const ManageDomains = lazy(() => import("@/pages/manage/ManageDomains"));
-const ManageNavigation = lazy(() => import("@/pages/manage/ManageNavigation"));
-const ManageCommunity = lazy(() => import("@/pages/manage/ManageCommunity"));
-const ManageBlog = lazy(() => import("@/pages/manage/ManageBlog"));
-const ManageAda = lazy(() => import("@/pages/manage/ManageAda"));
-const ManageMessages = lazy(() => import("@/pages/manage/ManageMessages"));
-const ManageNews = lazy(() => import("@/pages/manage/ManageNews"));
-const ManageEvents = lazy(() => import("@/pages/manage/ManageEvents"));
-const ManageContentHome = lazy(() => import("@/pages/manage/ManageContentHome"));
-const ManagePricing = lazy(() => import("@/pages/manage/ManagePricing"));
-const ManagePromos = lazy(() => import("@/pages/manage/ManagePromos"));
-const ManageTeam = lazy(() => import("@/pages/manage/ManageTeam"));
-const ManageAppReview = lazy(() => import("@/pages/manage/ManageAppReview"));
-const ManageEntities = lazy(() => import("@/pages/manage/ManageEntities"));
+const ManageDashboard = lazy(() => lazyRetry(() => import("@/pages/manage/ManageDashboard")));
+const ManageExploreDashboard = lazy(() => lazyRetry(() => import("@/pages/manage/ManageExploreDashboard")));
+const ManageAlertsSecurity = lazy(() => lazyRetry(() => import("@/pages/manage/ManageAlertsSecurity")));
+const ManageAnalytics = lazy(() => lazyRetry(() => import("@/pages/manage/ManageAnalytics")));
+const ManageUsers = lazy(() => lazyRetry(() => import("@/pages/manage/ManageUsers")));
+const ManagePlaceholder = lazy(() => lazyRetry(() => import("@/pages/manage/ManagePlaceholder")));
+const ManageAgents = lazy(() => lazyRetry(() => import("@/pages/manage/ManageAgents")));
+const ManageIntegrations = lazy(() => lazyRetry(() => import("@/pages/manage/ManageIntegrations")));
+const ManagePages = lazy(() => lazyRetry(() => import("@/pages/manage/ManagePages")));
+const ManageBranding = lazy(() => lazyRetry(() => import("@/pages/manage/ManageBranding")));
+const ManageResearchTesting = lazy(() => lazyRetry(() => import("@/pages/manage/ManageResearchTesting")));
+const ManageAuditLogs = lazy(() => lazyRetry(() => import("@/pages/manage/ManageAuditLogs")));
+const ManageSettings = lazy(() => lazyRetry(() => import("@/pages/manage/ManageSettings")));
+const ManageNotFound = lazy(() => lazyRetry(() => import("@/pages/manage/ManageNotFound")));
+const ManageSurfaces = lazy(() => lazyRetry(() => import("@/pages/manage/ManageSurfaces")));
+const ManageDomains = lazy(() => lazyRetry(() => import("@/pages/manage/ManageDomains")));
+const ManageNavigation = lazy(() => lazyRetry(() => import("@/pages/manage/ManageNavigation")));
+const ManageCommunity = lazy(() => lazyRetry(() => import("@/pages/manage/ManageCommunity")));
+const ManageBlog = lazy(() => lazyRetry(() => import("@/pages/manage/ManageBlog")));
+const ManageAda = lazy(() => lazyRetry(() => import("@/pages/manage/ManageAda")));
+const ManageMessages = lazy(() => lazyRetry(() => import("@/pages/manage/ManageMessages")));
+const ManageNews = lazy(() => lazyRetry(() => import("@/pages/manage/ManageNews")));
+const ManageEvents = lazy(() => lazyRetry(() => import("@/pages/manage/ManageEvents")));
+const ManageContentHome = lazy(() => lazyRetry(() => import("@/pages/manage/ManageContentHome")));
+const ManagePricing = lazy(() => lazyRetry(() => import("@/pages/manage/ManagePricing")));
+const ManagePromos = lazy(() => lazyRetry(() => import("@/pages/manage/ManagePromos")));
+const ManageTeam = lazy(() => lazyRetry(() => import("@/pages/manage/ManageTeam")));
+const ManageAppReview = lazy(() => lazyRetry(() => import("@/pages/manage/ManageAppReview")));
+const ManageEntities = lazy(() => lazyRetry(() => import("@/pages/manage/ManageEntities")));
 
 // Auth — login only, no signup
-const Login = lazy(() => import("@/pages/auth/Login"));
-const AuthCallback = lazy(() => import("@/pages/auth/AuthCallback"));
+const Login = lazy(() => lazyRetry(() => import("@/pages/auth/Login")));
+const AuthCallback = lazy(() => lazyRetry(() => import("@/pages/auth/AuthCallback")));
 
 /**
  * Routes for the management subdomain (manage.yangu.studio).
