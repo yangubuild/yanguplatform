@@ -184,13 +184,12 @@ export function useCreateGroup() {
       memberIds: string[];
     }) => {
       if (!user) throw new Error("Not authenticated");
-      const { data: group, error } = await supabase
+
+      const groupId = crypto.randomUUID();
+      const { error: groupError } = await supabase
         .from("chat_groups")
-        .insert({ name, description: description || null, created_by: user.id } as any)
-        .select("id")
-        .single();
-      if (error) throw error;
-      const groupId = (group as any).id;
+        .insert({ id: groupId, name, description: description || null, created_by: user.id } as any);
+      if (groupError) throw groupError;
 
       const allMembers = [user.id, ...memberIds.filter(id => id !== user.id)];
       const memberRows = allMembers.map(uid => ({
@@ -198,8 +197,13 @@ export function useCreateGroup() {
         user_id: uid,
         role: uid === user.id ? "owner" : "member",
       }));
-      await supabase.from("chat_group_members").insert(memberRows as any);
-      return groupId as string;
+
+      const { error: membersError } = await supabase
+        .from("chat_group_members")
+        .insert(memberRows as any);
+      if (membersError) throw membersError;
+
+      return groupId;
     },
     onSuccess: () => {
       invalidateGroupQueries(qc, user?.id);
