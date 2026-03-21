@@ -38,7 +38,7 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
       const term = searchInput.trim().toLowerCase();
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, username, display_name, avatar_url")
+        .select("id, username, display_name, avatar_url, avatar_mode, avatar_emoji_key")
         .eq("account_status", "active")
         .or(`username.ilike.%${term}%,display_name.ilike.%${term}%`)
         .neq("id", user?.id ?? "")
@@ -59,7 +59,12 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
   };
 
   const handleInvite = async () => {
-    if (!selectedRole || !user || !activeOrg) return;
+    if (!selectedRole || !user) return;
+
+    if (!activeOrg) {
+      toast.error("No team/organization found. Please create or join one first.");
+      return;
+    }
     
     // Must have selected a valid existing user
     if (!selectedUser) {
@@ -238,26 +243,30 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
           {searchInput.trim().length >= 2 && !selectedUser && searchResults.length > 0 && (
             <div className="absolute left-4 right-4 top-full mt-1 z-50 rounded-lg overflow-hidden"
               style={{ background: "#1a2420", border: "1px solid rgba(255,255,255,0.1)" }}>
-              {searchResults.map((u) => (
-                <button
-                  key={u.id}
-                  onClick={() => handleSelectUser(u)}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-white/5 transition-colors text-left"
-                >
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
-                    style={{ background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)" }}>
-                    {u.avatar_url ? (
-                      <img src={u.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
-                    ) : (
-                      (u.display_name || u.username || "?").slice(0, 2).toUpperCase()
-                    )}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-white truncate">{u.display_name || u.username}</p>
-                    {u.username && <p className="text-xs text-white/35 truncate">@{u.username}</p>}
-                  </div>
-                </button>
-              ))}
+              {searchResults.map((u) => {
+                const resolved = resolveAvatarUrl(u);
+                const fallbackInitials = (u.display_name || u.username || "?").slice(0, 2).toUpperCase();
+                return (
+                  <button
+                    key={u.id}
+                    onClick={() => handleSelectUser(u)}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-white/5 transition-colors text-left"
+                  >
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
+                      style={{ background: resolved ? "transparent" : "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)" }}>
+                      {resolved ? (
+                        <img src={resolved} alt="" className="w-8 h-8 rounded-full object-cover" />
+                      ) : (
+                        fallbackInitials
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-white truncate">{u.display_name || u.username}</p>
+                      {u.username && <p className="text-xs text-white/35 truncate">@{u.username}</p>}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
@@ -289,7 +298,7 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
               background: selectedUser && selectedRole ? "linear-gradient(135deg, #c47a3a, #5c2a12)" : "rgba(255,255,255,0.08)",
               color: selectedUser && selectedRole ? "#fff" : "rgba(255,255,255,0.35)",
             }}
-            disabled={!selectedUser || !selectedRole || inviting}
+            disabled={!selectedUser || !selectedRole || inviting || !activeOrg}
             onClick={handleInvite}
           >
             {inviting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Invite"}
