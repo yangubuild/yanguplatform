@@ -229,6 +229,7 @@ export function useToggleReaction() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["feed-posts"] });
     },
   });
 }
