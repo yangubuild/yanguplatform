@@ -3,7 +3,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useConversation, useSendMessage } from "@/hooks/useDirectMessages";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
-import { Send, Loader2, MoreVertical, Reply, Forward, Trash2, Image, Video, X } from "lucide-react";
+import { renderChatContent, shareMessageExternal } from "@/lib/chatMessageRenderer";
+import { Send, Loader2, MoreVertical, Reply, Forward, Trash2, Image, Video, X, Share2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -139,39 +140,7 @@ export function DmThreadView({ targetUserId }: Props) {
     sendMessage.mutate({ receiverId: targetUserId, content: `${emoji} ${mediaUrl}` });
   };
 
-  const renderContent = (content: string) => {
-    // Accept invite link
-    const acceptMatch = content.match(/\[Accept Invite\]\(([^)]+)\)/);
-    if (acceptMatch) {
-      const link = acceptMatch[1];
-      const textBefore = content.slice(0, acceptMatch.index);
-      const textAfter = content.slice((acceptMatch.index ?? 0) + acceptMatch[0].length);
-      return (
-        <>
-          {textBefore && <span className="whitespace-pre-wrap">{textBefore}</span>}
-          <button
-            onClick={() => navigate(link)}
-            className="inline-flex items-center gap-1.5 mt-2 px-4 py-2 rounded-lg text-xs font-semibold text-white"
-            style={{ background: "linear-gradient(135deg, #4ade80, #22c55e)" }}
-          >
-            ✅ Accept Invite
-          </button>
-          {textAfter && <span className="whitespace-pre-wrap">{textAfter}</span>}
-        </>
-      );
-    }
-    // Media URLs
-    const urlMatch = content.match(/^(📷|🎥)\s(https?:\/\/.+)$/);
-    if (urlMatch) {
-      const isVideo = urlMatch[1] === "🎥";
-      const url = urlMatch[2];
-      if (isVideo) {
-        return <video src={url} controls className="max-w-full rounded-lg mt-1" style={{ maxHeight: 200 }} />;
-      }
-      return <img src={url} alt="Shared" className="max-w-full rounded-lg mt-1" style={{ maxHeight: 200 }} />;
-    }
-    return <span className="whitespace-pre-wrap">{content}</span>;
-  };
+  const renderContent = (content: string) => renderChatContent(content, navigate);
 
   return (
     <div className="flex flex-col h-full">
@@ -318,6 +287,12 @@ export function DmThreadView({ targetUserId }: Props) {
                         className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:opacity-80 text-white"
                       >
                         <Forward className="w-3 h-3" /> Forward
+                      </button>
+                      <button
+                        onClick={() => { shareMessageExternal(msg.content); setMsgMenuId(null); toast.success("Shared"); }}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:opacity-80 text-white"
+                      >
+                        <Share2 className="w-3 h-3" /> Share
                       </button>
                       {isMine && (
                         <button

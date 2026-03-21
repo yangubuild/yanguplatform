@@ -15,8 +15,17 @@ interface PostsPanelProps {
 
 export function PostsPanel({ onViewProfile }: PostsPanelProps) {
   const { user, profile } = useAuth();
-  const { data: posts = [], isLoading } = useFollowingPosts();
+  const { data: posts = [], isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useFollowingPosts();
   const toggleReaction = useToggleReaction();
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el || !hasNextPage || isFetchingNextPage) return;
+    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 200) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <div className="flex flex-col h-full" style={{ background: "#111820" }}>
@@ -28,7 +37,7 @@ export function PostsPanel({ onViewProfile }: PostsPanelProps) {
       </div>
 
       {/* Posts list — followed accounts only */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto" ref={scrollRef} onScroll={handleScroll}>
         {isLoading ? (
           <div className="flex items-center justify-center py-10">
             <Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
@@ -97,6 +106,11 @@ export function PostsPanel({ onViewProfile }: PostsPanelProps) {
                 <PostInteractions post={post} toggleReaction={toggleReaction} />
               </div>
             ))}
+            {isFetchingNextPage && (
+              <div className="flex justify-center py-4">
+                <Loader2 className="w-4 h-4 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
+              </div>
+            )}
           </div>
         )}
       </div>

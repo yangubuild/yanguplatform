@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export interface GlobalChatReaction {
   emoji: string;
@@ -61,7 +61,6 @@ export function useGlobalChatMessages() {
         .in("id", userIds);
       const profileMap = Object.fromEntries((profiles ?? []).map((p: any) => [p.id, p]));
 
-      // Fetch all reactions for these messages
       const msgIds = msgs.map(m => m.id);
       const { data: reactionsData } = await supabase
         .from("global_chat_reactions" as any)
@@ -80,7 +79,6 @@ export function useGlobalChatMessages() {
         }
       }
 
-      // Build a quick lookup for reply references
       const msgMap = Object.fromEntries(msgs.map(m => [m.id, m]));
 
       return msgs.map(m => {
@@ -112,6 +110,7 @@ export function useGlobalChatMessages() {
 export function useSendGlobalMessage() {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const inflightRef = useRef(false);
 
   return useMutation({
     mutationFn: async ({ content, mediaUrl, mediaType, metadata, replyTo }: {
@@ -122,17 +121,23 @@ export function useSendGlobalMessage() {
       replyTo?: string | null;
     }) => {
       if (!user) throw new Error("Not authenticated");
-      const { error } = await supabase
-        .from("global_chat_messages" as any)
-        .insert({
-          user_id: user.id,
-          content,
-          media_url: mediaUrl || null,
-          media_type: mediaType || "text",
-          metadata: metadata || {},
-          reply_to: replyTo || null,
-        } as any);
-      if (error) throw error;
+      if (inflightRef.current) return;
+      inflightRef.current = true;
+      try {
+        const { error } = await supabase
+          .from("global_chat_messages" as any)
+          .insert({
+            user_id: user.id,
+            content,
+            media_url: mediaUrl || null,
+            media_type: mediaType || "text",
+            metadata: metadata || {},
+            reply_to: replyTo || null,
+          } as any);
+        if (error) throw error;
+      } finally {
+        inflightRef.current = false;
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["global-chat-messages"] });
@@ -147,7 +152,6 @@ export function useToggleGlobalReaction() {
   return useMutation({
     mutationFn: async ({ messageId, emoji }: { messageId: string; emoji: string }) => {
       if (!user) throw new Error("Not authenticated");
-      // Check if already reacted
       const { data: existing } = await supabase
         .from("global_chat_reactions" as any)
         .select("id")
