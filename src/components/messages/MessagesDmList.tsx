@@ -112,7 +112,7 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
       return list.filter(t => t.name.toLowerCase().includes(lowerSearch));
     }
     return list;
-  }, [conversations, groups, profileMap, unreadMap, search, lowerSearch]);
+  }, [conversations, groups, profileMap, unreadMap, unreadGroupMap, search, lowerSearch]);
 
   const isLoading = loadingDms || loadingGroups;
 

@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useConversationList } from "@/hooks/useDirectMessages";
 import { useUnreadDmPerPartner } from "@/hooks/useUnreadMessages";
+import { useUnreadGroupPerGroup } from "@/hooks/useGroupUnread";
 import { useMyGroups } from "@/hooks/useGroupChats";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import { Loader2, Users } from "lucide-react";
