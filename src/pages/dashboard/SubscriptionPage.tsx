@@ -45,14 +45,14 @@ export default function SubscriptionPage() {
   return (
     <div className="max-w-4xl mx-auto py-6 px-4 min-h-screen bg-background">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-8">
         <h1 className="text-lg font-semibold text-foreground">Choose a plan that works for you</h1>
-        <div className="flex rounded-lg overflow-hidden border border-border">
+        <div className="flex rounded-lg overflow-hidden border border-border shrink-0">
           {(["personal", "business"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setBillingType(t)}
-              className={`px-4 py-1.5 text-sm font-medium capitalize transition-colors ${
+              className={`px-4 py-1.5 text-sm font-medium capitalize transition-colors whitespace-nowrap ${
                 billingType === t ? "bg-muted text-foreground" : "text-muted-foreground"
               }`}>
               {t}
@@ -100,7 +100,7 @@ export default function SubscriptionPage() {
               className={`w-full py-2.5 rounded-lg text-sm font-semibold mt-auto transition-colors ${
                 plan.current
                   ? "bg-transparent border border-border text-muted-foreground"
-                  : "bg-primary text-primary-foreground"
+                  : "text-foreground shadow-md hover:shadow-lg hover:brightness-110 [background:linear-gradient(135deg,#c47a3a_0%,#b5622a_50%,#5c2a12_100%)]"
               }`}>
               {plan.current ? "Current Plan" : "Get Started"}
             </button>
