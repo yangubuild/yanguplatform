@@ -45,14 +45,14 @@ export default function Dashboard() {
           {/* Welcome Banner */}
           <Banner variant="accent">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-3 mb-1">
-                  <h1 className="text-2xl font-bold">
+              <div className="min-w-0">
+                <div className="flex items-center gap-3 mb-1 flex-wrap">
+                  <h1 className="text-xl sm:text-2xl font-bold truncate">
                     Welcome back, {profile?.display_name || `@${profile?.username}`}!
                   </h1>
                   {domainType !== "io" && <DomainBadge size="sm" />}
                 </div>
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground text-sm sm:text-base">
                   {routeConfig.primaryCta.replace(/^(Open|Claim|Build|Start|Showcase|Go)/, "Ready to $1").toLowerCase()}?
                 </p>
               </div>
@@ -116,9 +116,9 @@ export default function Dashboard() {
             </Card>
           ) : hasSurfaces ? (
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <h2 className="text-xl font-semibold">Your Surfaces</h2>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
+                  <h2 className="text-lg sm:text-xl font-semibold">Your Surfaces</h2>
                   <div className="flex items-center gap-2">
                     <Switch
                       id="show-archived"

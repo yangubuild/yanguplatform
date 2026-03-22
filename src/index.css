@@ -641,6 +641,34 @@ body {
   [data-radix-popper-content-wrapper] {
     max-width: calc(100vw - 16px) !important;
   }
+
+  /* 11. Minimum touch target — buttons & interactive elements */
+  button:not([class*="w-"]):not([class*="h-"]),
+  a[role="button"],
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  /* Exclude icon-only micro buttons that are explicitly sized small */
+  button[class*="h-6"],
+  button[class*="h-5"],
+  button[class*="h-4"],
+  button[class*="w-6"],
+  button[class*="w-5"],
+  button[class*="w-4"] {
+    min-height: unset;
+    min-width: unset;
+  }
+
+  /* 12. Prevent text overflow on truncated elements */
+  .truncate, [class*="line-clamp"] {
+    max-width: 100%;
+  }
+
+  /* 13. Card internal consistency */
+  .rounded-2xl > .p-4 {
+    padding: 12px;
+  }
 }
 
 /* ── Tablet (768px–1023px) ── */

@@ -56,7 +56,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
           <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none" style={{ zIndex: 0 }} />
 
           {/* Left text block */}
-          <div className="relative z-10 p-10 md:p-14 flex items-center" style={{ minHeight: BANNER_CONTRACT.minHeight }}>
+          <div className="relative z-10 p-6 sm:p-10 md:p-14 flex items-center" style={{ minHeight: BANNER_CONTRACT.minHeight }}>
             <div className="max-w-md">
               <h2
                 className="text-white mb-3"
@@ -152,7 +152,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
             style={{ minHeight: BANNER_CONTRACT.minHeight }}
           />
           {data.headline && (
-            <div className="relative z-10 p-10 md:p-14 flex items-center" style={{ minHeight: BANNER_CONTRACT.minHeight }}>
+            <div className="relative z-10 p-6 sm:p-10 md:p-14 flex items-center" style={{ minHeight: BANNER_CONTRACT.minHeight }}>
               <div className="max-w-md">
                 <h2 className={`${T.header} text-white mb-3`}>{data.headline}</h2>
                 {data.subheadline && (
@@ -186,7 +186,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
         }}
       >
         {/* Left text block — unchanged */}
-        <div className="relative z-10 p-8 md:p-10 lg:p-14 flex items-center" style={{ minHeight: BANNER_CONTRACT.minHeight }}>
+        <div className="relative z-10 p-6 sm:p-8 md:p-10 lg:p-14 flex items-center" style={{ minHeight: BANNER_CONTRACT.minHeight }}>
           <div className="flex-1 max-w-md">
             <h2 className={`${T.header} text-white mb-3`}>
               {data.headline ?? "Meet yangu Treasury"}
