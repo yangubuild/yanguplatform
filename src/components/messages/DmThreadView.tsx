@@ -382,6 +382,8 @@ export function DmThreadView({ targetUserId }: Props) {
         </div>
       )}
 
+      <TypingIndicator names={typingUsers.map(u => u.name)} />
+
       {/* Input */}
       <div className="shrink-0 px-4 py-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
         <div
