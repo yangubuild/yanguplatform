@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { createPortal } from "react-dom";
-import { X, Upload, Image as ImageIcon } from "lucide-react";
+import { X, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -11,11 +11,47 @@ interface Props {
   onClose: () => void;
 }
 
-const DURATION_OPTIONS = [
-  { value: "day", label: "1 Day", price: "AED 5" },
-  { value: "week", label: "1 Week", price: "AED 25" },
-  { value: "month", label: "1 Month", price: "AED 80" },
-];
+const CURRENCIES: Record<string, string> = {
+  AED: "د.إ", USD: "$", EUR: "€", GBP: "£", JPY: "¥", CNY: "¥", INR: "₹",
+  SAR: "﷼", CHF: "Fr", CAD: "C$", AUD: "A$", SGD: "S$", HKD: "HK$",
+  KRW: "₩", BRL: "R$", ZAR: "R", NGN: "₦", KES: "KSh", EGP: "E£",
+  TRY: "₺", MXN: "Mex$", THB: "฿", MYR: "RM", IDR: "Rp", PHP: "₱",
+  SEK: "kr", NOK: "kr", DKK: "kr", PLN: "zł", CZK: "Kč", RUB: "₽",
+  NZD: "NZ$", QAR: "﷼", KWD: "د.ك", BHD: "BD", OMR: "OMR", UGX: "UGX",
+  TZS: "TZS", GHS: "GH₵",
+};
+
+// Base prices in USD cents
+const BASE_PRICES_USD = { day: 500, week: 2500, month: 8000 };
+
+// Approximate exchange rates from USD
+const RATES: Record<string, number> = {
+  USD: 1, AED: 3.67, EUR: 0.92, GBP: 0.79, JPY: 149, CNY: 7.24, INR: 83,
+  SAR: 3.75, CHF: 0.88, CAD: 1.36, AUD: 1.53, SGD: 1.34, HKD: 7.82,
+  KRW: 1320, BRL: 4.97, ZAR: 18.5, NGN: 1550, KES: 153, EGP: 30.9,
+  TRY: 30.2, MXN: 17.1, THB: 35.5, MYR: 4.72, IDR: 15600, PHP: 56.2,
+  SEK: 10.5, NOK: 10.7, DKK: 6.87, PLN: 4.02, CZK: 23.1, RUB: 92,
+  NZD: 1.63, QAR: 3.64, KWD: 0.31, BHD: 0.38, OMR: 0.38, UGX: 3780,
+  TZS: 2520, GHS: 12.5,
+};
+
+function getUserCurrency(): { code: string; symbol: string } {
+  try {
+    const stored = localStorage.getItem("yangu_currency");
+    if (stored && CURRENCIES[stored]) {
+      return { code: stored, symbol: CURRENCIES[stored] };
+    }
+  } catch {}
+  return { code: "AED", symbol: "د.إ" };
+}
+
+function convertPrice(usdCents: number, currencyCode: string): string {
+  const rate = RATES[currencyCode] || 1;
+  const amount = (usdCents / 100) * rate;
+  // Round nicely
+  const rounded = amount >= 100 ? Math.round(amount) : Math.round(amount * 100) / 100;
+  return rounded.toLocaleString();
+}
 
 export function CreateOfferModal({ open, onClose }: Props) {
   const { user } = useAuth();
@@ -27,6 +63,14 @@ export function CreateOfferModal({ open, onClose }: Props) {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const currency = useMemo(() => getUserCurrency(), []);
+
+  const durationOptions = useMemo(() => [
+    { value: "day", label: "1 Day", price: `${currency.symbol} ${convertPrice(BASE_PRICES_USD.day, currency.code)}` },
+    { value: "week", label: "1 Week", price: `${currency.symbol} ${convertPrice(BASE_PRICES_USD.week, currency.code)}` },
+    { value: "month", label: "1 Month", price: `${currency.symbol} ${convertPrice(BASE_PRICES_USD.month, currency.code)}` },
+  ], [currency]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -64,7 +108,7 @@ export function CreateOfferModal({ open, onClose }: Props) {
       else if (durationType === "week") expiresAt = new Date(now.getTime() + 604800000).toISOString();
       else expiresAt = new Date(now.getTime() + 2592000000).toISOString();
 
-      const feeMap: Record<string, number> = { day: 500, week: 2500, month: 8000 };
+      const feeCents = BASE_PRICES_USD[durationType as keyof typeof BASE_PRICES_USD] || 2500;
 
       const { error } = await supabase
         .from("merchant_offers" as any)
@@ -76,7 +120,7 @@ export function CreateOfferModal({ open, onClose }: Props) {
           description: description.trim() || null,
           destination_url: destinationUrl.trim() || null,
           duration_type: durationType,
-          fee_cents: feeMap[durationType] || 2500,
+          fee_cents: feeCents,
           expires_at: expiresAt,
         } as any);
 
@@ -94,7 +138,7 @@ export function CreateOfferModal({ open, onClose }: Props) {
 
   if (!open) return null;
 
-  const selectedDuration = DURATION_OPTIONS.find((d) => d.value === durationType)!;
+  const selectedDuration = durationOptions.find((d) => d.value === durationType)!;
 
   return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center">
@@ -168,7 +212,7 @@ export function CreateOfferModal({ open, onClose }: Props) {
           <div className="space-y-2">
             <label className="text-sm font-medium text-white/80">Duration</label>
             <div className="grid grid-cols-3 gap-2">
-              {DURATION_OPTIONS.map((opt) => (
+              {durationOptions.map((opt) => (
                 <button
                   key={opt.value}
                   type="button"
