@@ -77,8 +77,7 @@ export function DevelopersSidebar() {
         <span className={DocsTypography.sidebarHeader}>Developers</span>
         <button
           onClick={() => navigate("/why-yangu")}
-          className="text-muted-foreground hover:text-muted-foreground transition-colors"
-        >
+          className="text-muted-foreground hover:text-muted-foreground transition-colors">
           <ChevronLeft className="w-4 h-4" />
         </button>
       </div>
@@ -100,8 +99,7 @@ export function DevelopersSidebar() {
                     className={DocsTypography.sidebarLink}
                     style={{
                       color: isActive ? "#F46D2A" : "rgba(255,255,255,0.55)",
-                      background: isActive ? "rgba(244,109,42,0.08)" : "transparent" }}
-                  >
+                      background: isActive ? "rgba(244,109,42,0.08)" : "transparent" }}>
                     {item.label}
                   </button>
                 </li>

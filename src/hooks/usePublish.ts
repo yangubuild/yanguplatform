@@ -68,7 +68,7 @@ export function useOrgDomains(orgId: string | null) {
       return publishableDomains;
     },
     // CRITICAL: Only run when we have a valid orgId
-    enabled: !!orgId && orgId.length > 0,
+    enabled: !!orgId && orgId.length> 0,
     // Don't retry on error to avoid spamming the server
     retry: false,
   });
@@ -114,7 +114,7 @@ export function usePublishEligibility() {
       }
 
       // RPC returns: { eligible: boolean, reasons: string[] }[]
-      const row = Array.isArray(data) && data.length > 0 ? data[0] : null;
+      const row = Array.isArray(data) && data.length> 0 ? data[0] : null;
       const result: EligibilityResult = row
         ? { eligible: Boolean(row.eligible), reasons: row.reasons || [] }
         : { eligible: false, reasons: ["Unable to check eligibility"] };

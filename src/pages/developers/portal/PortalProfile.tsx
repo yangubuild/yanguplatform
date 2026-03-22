@@ -50,7 +50,7 @@ export default function PortalProfile() {
       toast.error("Please select an image file");
       return;
     }
-    if (file.size > 2 * 1024 * 1024) {
+    if (file.size> 2 * 1024 * 1024) {
       toast.error("Image must be under 2MB");
       return;
     }
@@ -111,8 +111,7 @@ export default function PortalProfile() {
     <DocsPage breadcrumb="Portal" title="Profile" subtitle="Manage your developer profile.">
       <div
         className="rounded-xl p-6 space-y-6"
-        style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}
-      >
+        style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
         <div className="flex items-center gap-3">
           <User className="w-5 h-5" style={{ color: "#F46D2A" }} />
           <h3 className="text-foreground font-semibold text-sm">Your Profile</h3>
@@ -128,8 +127,7 @@ export default function PortalProfile() {
             <button
               onClick={() => fileRef.current?.click()}
               disabled={uploading}
-              className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-accent flex items-center justify-center hover:brightness-110 transition-all"
-            >
+              className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-accent flex items-center justify-center hover:brightness-110 transition-all">
               {uploading ? <Loader2 className="w-3.5 h-3.5 text-foreground animate-spin" /> : <Camera className="w-3.5 h-3.5 text-foreground" />}
             </button>
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />

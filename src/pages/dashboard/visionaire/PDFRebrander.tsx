@@ -85,8 +85,7 @@ export default function PDFRebrander() {
           size="sm"
           className="bg-[hsl(var(--foreground))] text-[hsl(var(--background))] hover:bg-[hsl(var(--foreground))]/90 rounded-full px-5 text-xs font-medium"
           onClick={handleExport}
-          disabled={!pdfFile}
-        >
+          disabled={!pdfFile}>
           Download PDF
         </Button>
       </div>
@@ -102,8 +101,7 @@ export default function PDFRebrander() {
           <div className="border-b border-border">
             <button
               onClick={() => setBookFileOpen(!bookFileOpen)}
-              className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors"
-            >
+              className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors">
               Book File
               {bookFileOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
             </button>
@@ -140,8 +138,7 @@ export default function PDFRebrander() {
           <div className="border-b border-border">
             <button
               onClick={() => setCoverOpen(!coverOpen)}
-              className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors"
-            >
+              className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors">
               Cover
               {coverOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
             </button>
@@ -156,8 +153,7 @@ export default function PDFRebrander() {
           <div className="border-b border-border">
             <button
               onClick={() => setCoverLogoOpen(!coverLogoOpen)}
-              className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors"
-            >
+              className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors">
               Cover Logo
               {coverLogoOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
             </button>
@@ -189,8 +185,7 @@ export default function PDFRebrander() {
           className="flex-1 relative overflow-hidden"
           style={{
             backgroundImage: "radial-gradient(circle, hsl(var(--border)) 1px, transparent 1px)",
-            backgroundSize: "20px 20px" }}
-        >
+            backgroundSize: "20px 20px" }}>
           {pdfFile ? (
             <div className="flex items-center justify-center h-full p-8">
               <div className="w-[400px] aspect-[3/4] rounded-lg shadow-lg overflow-hidden" style={{ background: "#1a1a2e" }}>
@@ -224,8 +219,7 @@ export default function PDFRebrander() {
               <Button
                 size="sm"
                 className="bg-[hsl(var(--foreground))] text-[hsl(var(--background))] hover:bg-[hsl(var(--foreground))]/90 rounded-md px-5 text-xs font-medium mt-1"
-                onClick={() => pdfInputRef.current?.click()}
-              >
+                onClick={() => pdfInputRef.current?.click()}>
                 Upload PDF
               </Button>
             </div>

@@ -86,8 +86,7 @@ export default function PortalAppDetail() {
         variant="ghost"
         size="sm"
         onClick={() => navigate("/developers/portal/apps")}
-        className="text-muted-foreground mb-4"
-      >
+        className="text-muted-foreground mb-4">
         <ArrowLeft className="w-4 h-4" /> Back to Apps
       </Button>
 
@@ -112,8 +111,7 @@ export default function PortalAppDetail() {
               activeTab === id
                 ? "text-accent bg-accent/8 border-b-2 border-accent"
                 : "text-muted-foreground bg-transparent border-b-2 border-transparent"
-            }`}
-          >
+            }`}>
             <Icon className="w-4 h-4" />
             {label}
           </button>
@@ -193,7 +191,7 @@ function OverviewTab({ app }: { app: any }) {
             <p className="text-[10px] text-muted-foreground">Monthly</p>
           </div>
           <div className="rounded-xl p-4 bg-white/[0.02] border border-white/10">
-            <AlertTriangle className="w-4 h-4 mb-2" style={{ color: usage.error_rate_24h > 10 ? "#ef4444" : "#F46D2A" }} />
+            <AlertTriangle className="w-4 h-4 mb-2" style={{ color: usage.error_rate_24h> 10 ? "#ef4444" : "#F46D2A" }} />
             <p className="text-lg font-bold text-foreground">{usage.error_rate_24h.toFixed(1)}%</p>
             <p className="text-[10px] text-muted-foreground">Error Rate</p>
           </div>
@@ -206,7 +204,7 @@ function OverviewTab({ app }: { app: any }) {
       )}
 
       {/* Usage chart (last 14 days) */}
-      {chartDays.length > 0 && (
+      {chartDays.length> 0 && (
         <div className="rounded-xl p-5 bg-white/[0.02] border border-white/10">
           <h3 className="text-foreground font-semibold text-sm mb-4">API Calls (Last 14 Days)</h3>
           <div className="flex items-end gap-1 h-24">
@@ -227,7 +225,7 @@ function OverviewTab({ app }: { app: any }) {
       )}
 
       {/* Quota progress bars */}
-      {usage && (usage.daily_limit > 0 || usage.monthly_limit > 0) && (
+      {usage && (usage.daily_limit> 0 || usage.monthly_limit> 0) && (
         <div className="rounded-xl p-5 bg-white/[0.02] border border-white/10">
           <h3 className="text-foreground font-semibold text-sm mb-4">Quota Usage</h3>
           <div className="space-y-4">
@@ -236,14 +234,14 @@ function OverviewTab({ app }: { app: any }) {
                 <span className="text-muted-foreground">Daily</span>
                 <span className="text-muted-foreground">{usage.daily_used} / {usage.daily_limit}</span>
               </div>
-              <Progress value={usage.daily_limit > 0 ? (usage.daily_used / usage.daily_limit) * 100 : 0} className="h-2" />
+              <Progress value={usage.daily_limit> 0 ? (usage.daily_used / usage.daily_limit) * 100 : 0} className="h-2" />
             </div>
             <div>
               <div className="flex justify-between text-xs mb-1">
                 <span className="text-muted-foreground">Monthly</span>
                 <span className="text-muted-foreground">{usage.monthly_used} / {usage.monthly_limit}</span>
               </div>
-              <Progress value={usage.monthly_limit > 0 ? (usage.monthly_used / usage.monthly_limit) * 100 : 0} className="h-2" />
+              <Progress value={usage.monthly_limit> 0 ? (usage.monthly_used / usage.monthly_limit) * 100 : 0} className="h-2" />
             </div>
           </div>
         </div>
@@ -390,7 +388,7 @@ function OAuthTab({ appId }: { appId: string }) {
         </Button>
       </div>
 
-      {oauth?.scopes && oauth.scopes.length > 0 && (
+      {oauth?.scopes && oauth.scopes.length> 0 && (
         <div className="mt-6 pt-4 border-t border-white/10">
           <Label className="text-muted-foreground text-xs block mb-2">Granted Scopes</Label>
           <div className="flex flex-wrap gap-1">
@@ -816,7 +814,7 @@ function PermissionsTab({ appId }: { appId: string }) {
     <div className="space-y-6">
       <div className="rounded-xl p-5 bg-white/[0.02] border border-white/10">
         <h3 className="text-foreground font-semibold text-sm mb-3">App Scopes</h3>
-        {scopes && scopes.length > 0 ? (
+        {scopes && scopes.length> 0 ? (
           <div className="space-y-2">
             {scopes.map((s) => (
               <div key={s.scope_key} className="flex items-center justify-between px-3 py-2 rounded-lg bg-white/[0.02]">
@@ -832,7 +830,7 @@ function PermissionsTab({ appId }: { appId: string }) {
 
       <div className="rounded-xl p-5 bg-white/[0.02] border border-white/10">
         <h3 className="text-foreground font-semibold text-sm mb-3">Provider Permissions</h3>
-        {providers && providers.length > 0 ? (
+        {providers && providers.length> 0 ? (
           <div className="space-y-2">
             {providers.map((p) => (
               <div key={p.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-white/[0.02]">

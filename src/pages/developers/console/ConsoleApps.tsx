@@ -99,8 +99,7 @@ export default function ConsoleApps() {
             <Button
               variant="accent"
               onClick={() => createApp.mutate()}
-              disabled={!newName || !newSlug || createApp.isPending}
-            >
+              disabled={!newName || !newSlug || createApp.isPending}>
               {createApp.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create"}
             </Button>
             <Button variant="ghost" onClick={() => setShowCreate(false)} className="text-muted-foreground">
@@ -114,15 +113,14 @@ export default function ConsoleApps() {
         <div className="flex items-center justify-center py-16">
           <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
         </div>
-      ) : apps && apps.length > 0 ? (
+      ) : apps && apps.length> 0 ? (
         <div className="space-y-3">
           {apps.map((app) => (
             <button
               key={app.id}
               onClick={() => navigate(`/developers/console/apps/${app.id}`)}
               className="w-full text-left rounded-xl p-5 transition-colors hover:border-white/20"
-              style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}
-            >
+              style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
               <div className="flex items-center gap-3">
                 <Code className="w-5 h-5" style={{ color: "#F46D2A" }} />
                 <div>

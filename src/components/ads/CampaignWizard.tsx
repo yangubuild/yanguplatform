@@ -59,7 +59,7 @@ export function CampaignWizard({ onClose }: CampaignWizardProps) {
     if (stepIndex < STEPS.length - 1) setCurrentStep(STEPS[stepIndex + 1]);
   };
   const goBack = () => {
-    if (stepIndex > 0) setCurrentStep(STEPS[stepIndex - 1]);
+    if (stepIndex> 0) setCurrentStep(STEPS[stepIndex - 1]);
   };
 
   const handleLaunch = () => {
@@ -67,12 +67,10 @@ export function CampaignWizard({ onClose }: CampaignWizardProps) {
   };
 
   return (
-    <div className="min-h-screen bg-background" >
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <div
-        className="sticky top-0 z-20 border-b border-white/10"
-        
-      >
+        className="sticky top-0 z-20 border-b border-white/10">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
@@ -89,16 +87,14 @@ export function CampaignWizard({ onClose }: CampaignWizardProps) {
                   const budgetStep = document.querySelector('[data-launch-campaign]') as HTMLButtonElement;
                   budgetStep?.click();
                 }}
-                className="rounded-xl px-5 h-9"
-              >
+                className="rounded-xl px-5 h-9">
                 Launch campaign
               </Button>
             ) : (
               <Button
                 variant="accent"
                 onClick={goNext}
-                className="rounded-xl px-5 h-9"
-              >
+                className="rounded-xl px-5 h-9">
                 Next
               </Button>
             )}
@@ -124,8 +120,7 @@ export function CampaignWizard({ onClose }: CampaignWizardProps) {
                       : i < stepIndex
                       ? "rgba(255,255,255,0.7)"
                       : "rgba(255,255,255,0.3)",
-                    cursor: i <= stepIndex ? "pointer" : "default" }}
-                >
+                    cursor: i <= stepIndex ? "pointer" : "default" }}>
                   {step}
                 </button>
                 {i < STEPS.length - 1 && (

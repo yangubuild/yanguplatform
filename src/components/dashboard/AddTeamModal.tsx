@@ -33,7 +33,7 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
   // Search for existing YANGU accounts by username or display_name
   const { data: searchResults = [] } = useQuery({
     queryKey: ["team-user-search", searchInput],
-    enabled: searchInput.trim().length >= 2 && !selectedUser,
+    enabled: searchInput.trim().length>= 2 && !selectedUser,
     queryFn: async () => {
       const term = searchInput.trim().toLowerCase();
       const { data, error } = await supabase
@@ -177,14 +177,13 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
   };
 
   const isEmailLike = searchInput.includes("@") && !selectedUser;
-  const noResultsAndSearching = searchInput.trim().length >= 2 && searchResults.length === 0 && !selectedUser;
+  const noResultsAndSearching = searchInput.trim().length>= 2 && searchResults.length === 0 && !selectedUser;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className="sm:max-w-md p-0 border-0 gap-0"
-        style={{ background: "#111a15", borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)" }}
-      >
+        style={{ background: "#111a15", borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)" }}>
         <div className="flex items-center justify-between px-6 pt-6 pb-2">
           <DialogTitle className="text-lg font-bold text-foreground">Add team member</DialogTitle>
         </div>
@@ -196,14 +195,12 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
               onClick={() => setSelectedRole(role.name)}
               className="w-full flex items-center justify-between px-3 py-4 rounded-lg transition-colors"
               style={{
-                background: selectedRole === role.name ? "rgba(181,98,42,0.12)" : "transparent" }}
-            >
+                background: selectedRole === role.name ? "rgba(181,98,42,0.12)" : "transparent" }}>
               <div className="flex items-center gap-3">
                 <div
                   className="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0"
                   style={{
-                    borderColor: selectedRole === role.name ? "#E67E22" : "rgba(255,255,255,0.2)" }}
-                >
+                    borderColor: selectedRole === role.name ? "#E67E22" : "rgba(255,255,255,0.2)" }}>
                   {selectedRole === role.name && (
                     <div className="w-2.5 h-2.5 rounded-full" style={{ background: "#E67E22" }} />
                   )}
@@ -241,7 +238,7 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
           </div>
 
           {/* Search results dropdown */}
-          {searchInput.trim().length >= 2 && !selectedUser && searchResults.length > 0 && (
+          {searchInput.trim().length>= 2 && !selectedUser && searchResults.length> 0 && (
             <div className="absolute left-4 right-4 top-full mt-1 z-50 rounded-lg overflow-hidden"
               style={{ background: "#1a2420", border: "1px solid rgba(255,255,255,0.1)" }}>
               {searchResults.map((u) => {
@@ -251,8 +248,7 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
                   <button
                     key={u.id}
                     onClick={() => handleSelectUser(u)}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-white/5 transition-colors text-left"
-                  >
+                    className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-white/5 transition-colors text-left">
                     <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
                       style={{ background: resolved ? "transparent" : "rgba(255,255,255,0.1)" }}>
                       {resolved ? (
@@ -309,8 +305,7 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
               color: selectedUser && selectedRole && activeOrg ? "#fff" : "rgba(255,255,255,0.35)",
               cursor: selectedUser && selectedRole && activeOrg ? "pointer" : "not-allowed" }}
             disabled={!selectedUser || !selectedRole || inviting || !activeOrg}
-            onClick={handleInvite}
-          >
+            onClick={handleInvite}>
             {inviting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Invite"}
           </button>
         </div>

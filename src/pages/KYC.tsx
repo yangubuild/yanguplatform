@@ -44,7 +44,7 @@ function mapToUiStatus(status: KycDbStatus): KycUiStatus {
 function getDiditUrl(metadata: Record<string, unknown> | null): string | null {
   if (!metadata) return null;
   const url = metadata["didit_verification_url"];
-  return typeof url === "string" && url.length > 0 ? url : null;
+  return typeof url === "string" && url.length> 0 ? url : null;
 }
 
 export default function KYC() {
@@ -122,7 +122,7 @@ export default function KYC() {
         try {
           const cloned = errorWithContext.context.clone();
           const contextJson = (await cloned.json()) as DiditResponse;
-          if (typeof contextJson?.error === "string" && contextJson.error.length > 0) {
+          if (typeof contextJson?.error === "string" && contextJson.error.length> 0) {
             backendMessage = contextJson.error;
           }
         } catch {

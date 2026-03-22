@@ -27,8 +27,7 @@ export function MassHeader({ hideTrends, showLogo }: { hideTrends?: boolean; sho
             type="button"
             onClick={() => navigate("/")}
             className="shrink-0"
-            aria-label="Go to home page"
-          >
+            aria-label="Go to home page">
             <img src={yanguLogo} alt="yangu" className="h-12 w-auto" />
           </button>
         )}
@@ -39,23 +38,20 @@ export function MassHeader({ hideTrends, showLogo }: { hideTrends?: boolean; sho
             type="button"
             onClick={() => setDrawerOpen(true)}
             className="lg:hidden flex items-center justify-center h-10 w-10 rounded-lg text-foreground/70 hover:bg-muted/40 transition-colors"
-            aria-label="Open navigation menu"
-          >
+            aria-label="Open navigation menu">
             <Menu size={22} />
           </button>
 
           <Button
             variant="solid"
             size="default"
-            onClick={() => navigate("/auth/login")}
-          >
+            onClick={() => navigate("/auth/login")}>
             Sign in
           </Button>
           <Button
             variant="accent"
             size="default"
-            onClick={() => navigate("/auth/signup")}
-          >
+            onClick={() => navigate("/auth/signup")}>
             Start selling
           </Button>
         </div>
@@ -82,8 +78,7 @@ export function MassHeader({ hideTrends, showLogo }: { hideTrends?: boolean; sho
                   to={link.to}
                   onClick={() => setDrawerOpen(false)}
                   className="px-3 py-2.5 rounded-lg text-[15px] font-medium text-foreground/70 hover:bg-muted/40 hover:text-foreground transition-colors"
-                  activeClassName="bg-muted/50 text-foreground"
-                >
+                  activeClassName="bg-muted/50 text-foreground">
                   {link.label}
                 </NavLink>
               ))}
@@ -95,16 +90,14 @@ export function MassHeader({ hideTrends, showLogo }: { hideTrends?: boolean; sho
                 variant="solid"
                 size="default"
                 className="w-full"
-                onClick={() => { setDrawerOpen(false); navigate("/auth/login"); }}
-              >
+                onClick={() => { setDrawerOpen(false); navigate("/auth/login"); }}>
                 Sign in
               </Button>
               <Button
                 variant="accent"
                 size="default"
                 className="w-full"
-                onClick={() => { setDrawerOpen(false); navigate("/auth/signup"); }}
-              >
+                onClick={() => { setDrawerOpen(false); navigate("/auth/signup"); }}>
                 Start selling
               </Button>
             </div>

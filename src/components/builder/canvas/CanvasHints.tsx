@@ -59,8 +59,7 @@ export function CanvasHints() {
         </div>
         <button
           onClick={dismiss}
-          className="p-0.5 rounded hover:bg-background/20 transition-colors ml-2"
-        >
+          className="p-0.5 rounded hover:bg-background/20 transition-colors ml-2">
           <X className="h-3.5 w-3.5" />
         </button>
       </div>

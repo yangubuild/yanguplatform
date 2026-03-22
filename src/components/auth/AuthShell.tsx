@@ -40,8 +40,7 @@ export function AuthShell({
           variant="ghost"
           size="icon"
           onClick={toggleTheme}
-          aria-label="Toggle theme"
-        >
+          aria-label="Toggle theme">
           {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </Button>
       </header>
@@ -53,8 +52,7 @@ export function AuthShell({
           {showBackLink && (
             <Link
               to={backLinkHref}
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
+              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
               <ArrowLeft className="h-4 w-4" />
               {backLinkLabel}
             </Link>

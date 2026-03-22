@@ -65,7 +65,7 @@ export function useUnreadGroupPerGroup() {
           query = query.gt("created_at", lastRead);
         }
         const { count } = await query;
-        if (count && count > 0) counts.set(gid, count);
+        if (count && count> 0) counts.set(gid, count);
       }));
 
       return counts;

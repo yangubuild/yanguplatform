@@ -129,8 +129,7 @@ export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, 
               selectedId === section.id && !isMissing && "ring-2 ring-primary border-primary",
               dragIndex === index && "opacity-40",
               overIndex === index && dragIndex !== index && "border-accent border-dashed"
-            )}
-          >
+            )}>
             <GripVertical className="h-4 w-4 text-muted-foreground shrink-0" />
             <div className={cn("flex-1 min-w-0", isMissing && "italic text-muted-foreground")}>
               <span className="text-sm font-medium truncate block">
@@ -197,8 +196,7 @@ export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, 
                   await onDelete(section.id);
                   setDeletingId(null);
                 }}
-                disabled={deletingId === section.id}
-              >
+                disabled={deletingId === section.id}>
                 {deletingId === section.id ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 ) : (

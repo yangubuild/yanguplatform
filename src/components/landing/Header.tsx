@@ -50,8 +50,7 @@ export function Header() {
             size="icon"
             onClick={toggleTheme}
             className="hidden sm:flex"
-            aria-label="Toggle theme"
-          >
+            aria-label="Toggle theme">
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
           
@@ -93,8 +92,7 @@ export function Header() {
             variant="ghost"
             size="icon"
             className="md:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
         </div>

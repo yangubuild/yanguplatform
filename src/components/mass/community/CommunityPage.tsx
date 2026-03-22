@@ -104,8 +104,7 @@ function CommunityPageInner() {
   return (
     <div
       className="min-h-screen"
-      style={{ background: '#08120D' }}
-    >
+      style={{ background: '#08120D' }}>
       <main className="min-h-screen">
         <SecondaryPageHeaderShell />
 
@@ -133,7 +132,7 @@ function CommunityPageInner() {
               <SubscribeCta />
               <CommunitySection title="Be more productive" items={productiveItems} linkMap={productiveLinks} seeAllHref="/community/see-all?section=category&category_key=be_more_productive" />
               <CommunitySection title="Start and scale my business" items={businessItems} linkMap={businessLinks} seeAllHref="/community/see-all?section=category&category_key=start_scale_business" />
-              {builderItems.length > 0 && (
+              {builderItems.length> 0 && (
                 <CommunitySection title="Community Listings" items={builderItems} linkMap={builderLinks} showSeeAll={false} />
               )}
               <BottomCta />

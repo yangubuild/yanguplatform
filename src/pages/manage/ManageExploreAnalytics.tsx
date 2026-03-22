@@ -44,7 +44,7 @@ function SurfaceTable({ data }: { data: ExploreAnalyticsData["impressions_by_sur
           </thead>
           <tbody>
             {data.map((row) => {
-              const ctr = row.impressions > 0 ? ((row.clicks / row.impressions) * 100).toFixed(2) : "0.00";
+              const ctr = row.impressions> 0 ? ((row.clicks / row.impressions) * 100).toFixed(2) : "0.00";
               return (
                 <tr key={row.surface} className="border-b border-[hsl(var(--admin-border)/0.1)]">
                   <td className="py-2 pr-4 text-[hsl(var(--admin-text))]">{row.surface}</td>
@@ -97,7 +97,7 @@ function RotationFairnessCard({ data }: { data: ExploreAnalyticsData["rotation_f
           <p className="text-lg font-semibold text-[hsl(var(--admin-text))]">{data.paid_impression_share}%</p>
         </div>
       </div>
-      {data.top_overexposed?.length > 0 && (
+      {data.top_overexposed?.length> 0 && (
         <>
           <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-2">Top Overexposed</p>
           <div className="space-y-1">
@@ -158,7 +158,7 @@ export default function ManageExploreAnalytics() {
 
   const totalImpressions = data?.impressions_by_surface?.reduce((s, r) => s + r.impressions, 0) ?? 0;
   const totalClicks = data?.impressions_by_surface?.reduce((s, r) => s + r.clicks, 0) ?? 0;
-  const overallCTR = totalImpressions > 0 ? ((totalClicks / totalImpressions) * 100).toFixed(2) : "0.00";
+  const overallCTR = totalImpressions> 0 ? ((totalClicks / totalImpressions) * 100).toFixed(2) : "0.00";
 
   return (
     <div className="space-y-6">
@@ -182,8 +182,7 @@ export default function ManageExploreAnalytics() {
                 days === opt.value
                   ? "bg-[hsl(var(--admin-accent))] text-[hsl(var(--admin-bg))]"
                   : "text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text))]"
-              }`}
-            >
+              }`}>
               {opt.label}
             </button>
           ))}
@@ -224,7 +223,7 @@ export default function ManageExploreAnalytics() {
           {/* Rotation fairness + Tier performance */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <RotationFairnessCard data={data.rotation_fairness} />
-            {data.visibility_tier_performance?.length > 0 && (
+            {data.visibility_tier_performance?.length> 0 && (
               <AdminGlassCard className="p-4">
                 <p className="text-sm font-medium text-[hsl(var(--admin-text))] mb-3">Paid vs Free Performance</p>
                 <div className="space-y-2">
@@ -244,7 +243,7 @@ export default function ManageExploreAnalytics() {
           </div>
 
           {/* Banner performance */}
-          {data.banner_performance?.length > 0 && (
+          {data.banner_performance?.length> 0 && (
             <AdminGlassCard className="p-4">
               <div className="flex items-center gap-2 mb-3">
                 <Image className="h-4 w-4 text-[hsl(var(--admin-accent))]" />
@@ -266,7 +265,7 @@ export default function ManageExploreAnalytics() {
           )}
 
           {/* Top entities */}
-          {data.top_entities?.length > 0 && (
+          {data.top_entities?.length> 0 && (
             <AdminGlassCard className="p-4">
               <p className="text-sm font-medium text-[hsl(var(--admin-text))] mb-3">Top Entities by Impressions</p>
               <div className="overflow-x-auto">

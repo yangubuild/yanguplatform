@@ -298,8 +298,7 @@ const App = () => (
                     <DeveloperPortalGuard>
                       <PortalLayoutModule />
                     </DeveloperPortalGuard>
-                  }
-                >
+                  }>
                   <Route index element={<Navigate to="/developers/portal/overview" replace />} />
                   <Route path="overview" element={<PortalOverview />} />
                   <Route path="apps" element={<PortalApps />} />
@@ -365,8 +364,7 @@ const App = () => (
                     <ProtectedRoute>
                       <NavigationDashboardPage />
                     </ProtectedRoute>
-                  }
-                >
+                  }>
                   <Route index element={<Navigate to="/dashboard/offers" replace />} />
                   <Route path="home" element={<DashboardHome />} />
                   <Route path="explore" element={<DashboardExplore />} />
@@ -501,8 +499,7 @@ const App = () => (
                     <AdminRoute>
                       <AdminShell />
                     </AdminRoute>
-                  }
-                >
+                  }>
                   <Route index element={<ManageDashboard />} />
                   <Route path="ada" element={<ManageAda />} />
                   <Route path="messages" element={<ManageMessages />} />

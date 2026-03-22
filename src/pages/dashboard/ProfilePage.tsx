@@ -167,7 +167,7 @@ export default function ProfilePage() {
       toast({ title: "Please select an image file", variant: "destructive" });
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size> 5 * 1024 * 1024) {
       toast({ title: "Cover image must be under 5MB", variant: "destructive" });
       return;
     }
@@ -294,7 +294,7 @@ export default function ProfilePage() {
   });
 
   return (
-    <div className="max-w-2xl mx-auto py-6 px-4 min-h-screen pb-20 bg-background" >
+    <div className="max-w-2xl mx-auto py-6 px-4 min-h-screen pb-20 bg-background">
       {/* Banner */}
       <div
         className="relative rounded-2xl overflow-hidden group cursor-pointer"
@@ -305,8 +305,7 @@ export default function ProfilePage() {
             : !coverUrl ? "#2a3038" : undefined,
           overflow: "hidden",
           position: "relative" }}
-        onClick={() => coverInputRef.current?.click()}
-      >
+        onClick={() => coverInputRef.current?.click()}>
         {/* Positioned cover image with crop data */}
         {coverUrl && coverCrop && (
           <img
@@ -348,8 +347,7 @@ export default function ProfilePage() {
             <DropdownMenuTrigger asChild>
               <button
                 className="w-9 h-9 rounded-full flex items-center justify-center"
-                style={{ background: "rgba(0,0,0,0.5)" }}
-              >
+                style={{ background: "rgba(0,0,0,0.5)" }}>
                 <MoreHorizontal className="w-5 h-5 text-foreground" />
               </button>
             </DropdownMenuTrigger>
@@ -381,8 +379,7 @@ export default function ProfilePage() {
             ? { background: "transparent" }
             : { borderWidth: 4, borderStyle: "solid", borderColor: "#1a2025", }
           }
-          title="Change avatar"
-        >
+          title="Change avatar">
           {avatarSrc ? (
             <img src={avatarSrc} alt="Avatar" className="w-24 h-24 rounded-full object-cover" style={{ clipPath: "circle(50%)" }} />
           ) : (
@@ -402,16 +399,14 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={() => setEditing(false)}
-              className="flex items-center gap-2 text-sm font-medium text-muted-foreground"
-            >
+              className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
               <ArrowLeft className="w-4 h-4" /> Back to profile
             </button>
             <button
               onClick={handleSave}
               disabled={saving}
               className="px-5 py-2 rounded-xl text-sm font-semibold transition-opacity"
-              style={{ background: "rgba(255,255,255,0.12)" }}
-            >
+              style={{ background: "rgba(255,255,255,0.12)" }}>
               {saving ? "Saving..." : "Save changes"}
             </button>
           </div>
@@ -484,8 +479,7 @@ export default function ProfilePage() {
                         ? "2px solid rgba(255,255,255,0.3)"
                         : "1px solid rgba(255,255,255,0.12)",
                       opacity: hasLink || isExpanded ? 1 : 0.5 }}
-                    title={s.name}
-                  >
+                    title={s.name}>
                     <img src={s.icon} alt={s.name} className="w-6 h-6 object-contain" />
                     {hasLink && (
                       <div className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-green-500 border border-[#1a2025]" />
@@ -499,8 +493,7 @@ export default function ProfilePage() {
                 onClick={() => setMoreSocialsOpen(true)}
                 className="w-11 h-11 rounded-full flex items-center justify-center transition-all"
                 style={{ border: "1px dashed rgba(255,255,255,0.2)" }}
-                title="More socials"
-              >
+                title="More socials">
                 <Plus className="w-5 h-5 text-muted-foreground" />
               </button>
             </div>
@@ -512,8 +505,7 @@ export default function ProfilePage() {
               return (
                 <div
                   className="mt-4 flex items-center gap-3 rounded-xl px-4 py-3"
-                  style={{ border: "1px solid rgba(255,255,255,0.1)" }}
-                >
+                  style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
                   <img src={platform.icon} alt={platform.name} className="w-6 h-6 object-contain shrink-0" />
                   <input
                     autoFocus
@@ -535,8 +527,7 @@ export default function ProfilePage() {
                         handleSaveSocialLink(platform.id, "");
                         setExpandedSocial(null);
                       }}
-                      className="shrink-0"
-                    >
+                      className="shrink-0">
                       <X className="w-4 h-4 text-muted-foreground" />
                     </button>
                   )}
@@ -565,8 +556,7 @@ export default function ProfilePage() {
           <Dialog open={moreSocialsOpen} onOpenChange={setMoreSocialsOpen}>
             <DialogContent
               className="sm:max-w-sm"
-              style={{ background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)" }}
-            >
+              style={{ background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)" }}>
               <DialogHeader>
                 <DialogTitle className="text-foreground">More socials</DialogTitle>
               </DialogHeader>
@@ -581,8 +571,7 @@ export default function ProfilePage() {
                         onClick={() => {
                           setMoreSocialsOpen(false);
                           setExpandedSocial(s.id);
-                        }}
-                      >
+                        }}>
                         <img src={s.icon} alt={s.name} className="w-8 h-8 object-contain shrink-0" />
                         <div className="flex-1">
                           <p className="text-sm font-medium text-foreground">{s.name}</p>
@@ -619,7 +608,7 @@ export default function ProfilePage() {
             </div>
 
             {/* Public social icons — only those with links, max 6 */}
-            {publicSocials.length > 0 && (
+            {publicSocials.length> 0 && (
               <div className="flex items-center gap-2 mt-3">
                 {publicSocials.map((s) => (
                   <a
@@ -628,8 +617,7 @@ export default function ProfilePage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-8 h-8 rounded-full flex items-center justify-center transition-opacity hover:opacity-80"
-                    title={s.name}
-                  >
+                    title={s.name}>
                     <img src={s.icon} alt={s.name} className="w-6 h-6 object-contain" />
                   </a>
                 ))}
@@ -645,15 +633,13 @@ export default function ProfilePage() {
               <button
                 onClick={handleStartEditing}
                 className="flex-1 py-2.5 rounded-xl text-sm font-semibold border transition-colors"
-                style={{ borderColor: "rgba(255,255,255,0.15)", background: "transparent" }}
-              >
+                style={{ borderColor: "rgba(255,255,255,0.15)", background: "transparent" }}>
                 Edit profile
               </button>
               <button
                 onClick={() => navigate("/dashboard/profile/subscription")}
                 className="flex-1 py-2.5 rounded-xl text-sm font-semibold border transition-colors"
-                style={{ borderColor: "rgba(255,255,255,0.15)", background: "transparent" }}
-              >
+                style={{ borderColor: "rgba(255,255,255,0.15)", background: "transparent" }}>
                 Manage subscriptions
               </button>
             </div>
@@ -667,8 +653,7 @@ export default function ProfilePage() {
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className="flex-1 py-3 text-sm font-medium text-center capitalize transition-colors relative whitespace-nowrap px-2"
-                  style={{ color: activeTab === tab ? "#fff" : "rgba(255,255,255,0.45)" }}
-                >
+                  style={{ color: activeTab === tab ? "#fff" : "rgba(255,255,255,0.45)" }}>
                   {tab === "commerce" ? "Products" : tab}
                   {activeTab === tab && (
                     <div className="absolute bottom-0 left-1/4 right-1/4 h-0.5 rounded-full" style={{ background: "#b5622a" }} />
@@ -711,11 +696,9 @@ export default function ProfilePage() {
                   className="flex items-center gap-3 px-3 py-4 rounded-xl transition-colors cursor-pointer"
                   style={{ background: "transparent" }}
                   onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-                >
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
                   <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center text-sm font-bold shrink-0"
-                  >
+                    className="w-12 h-12 rounded-xl flex items-center justify-center text-sm font-bold shrink-0">
                     {item.initials}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -777,8 +760,7 @@ function ProfileAppRow({ item, appIcon, navigate }: { item: any; appIcon: string
       className="flex items-center gap-3 px-3 py-4 rounded-xl transition-colors cursor-pointer"
       style={{ background: "transparent" }}
       onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
-      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-    >
+      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
       <img src={appIcon} alt={item.app.name} className="w-12 h-12 rounded-xl object-cover shrink-0" />
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-foreground truncate">{item.app.name}</p>
@@ -790,8 +772,7 @@ function ProfileAppRow({ item, appIcon, navigate }: { item: any; appIcon: string
             onClick={handleConnect}
             disabled={connecting}
             className="px-3 py-1 rounded-lg text-xs font-medium text-foreground flex items-center gap-1"
-            style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}
-          >
+            style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}>
             {connecting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Link2 className="w-3 h-3" />}
             Connect
           </button>
@@ -800,8 +781,7 @@ function ProfileAppRow({ item, appIcon, navigate }: { item: any; appIcon: string
           <button
             onClick={() => navigate(item.app.launch_route)}
             className="px-3 py-1 rounded-lg text-xs font-medium text-foreground"
-            style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
-          >
+            style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}>
             Open
           </button>
         )}
@@ -809,8 +789,7 @@ function ProfileAppRow({ item, appIcon, navigate }: { item: any; appIcon: string
           className="text-[11px] px-2 py-0.5 rounded-md"
           style={{
             background: item.status === "connected" ? "rgba(74,222,128,0.1)" : "rgba(255,255,255,0.06)",
-            color: item.status === "connected" ? "rgb(74,222,128)" : "rgba(255,255,255,0.5)" }}
-        >
+            color: item.status === "connected" ? "rgb(74,222,128)" : "rgba(255,255,255,0.5)" }}>
           {item.status === "connected" ? "✓ Connected" : "Installed"}
         </span>
       </div>
@@ -833,9 +812,7 @@ function ToggleRow({
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
         <div
-          className="w-10 h-10 rounded-full flex items-center justify-center"
-          
-        >
+          className="w-10 h-10 rounded-full flex items-center justify-center">
           <Icon className="w-5 h-5 text-muted-foreground" />
         </div>
         <span className="text-sm font-medium text-foreground">{label}</span>

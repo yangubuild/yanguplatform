@@ -28,7 +28,7 @@ export function GroupAvatarUpload({ groupId, currentUrl, groupName, size = 40, e
       toast.error("Please select an image file");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size> 5 * 1024 * 1024) {
       toast.error("Image must be under 5MB");
       return;
     }
@@ -76,8 +76,7 @@ export function GroupAvatarUpload({ groupId, currentUrl, groupName, size = 40, e
           background: "rgba(168,85,247,0.2)",
           color: "rgba(168,85,247,0.9)",
           fontSize: size * 0.3,
-          fontWeight: 700 }}
-      >
+          fontWeight: 700 }}>
         {uploading ? (
           <Loader2 className="animate-spin" style={{ width: size * 0.4, height: size * 0.4 }} />
         ) : showImage ? (
@@ -96,8 +95,7 @@ export function GroupAvatarUpload({ groupId, currentUrl, groupName, size = 40, e
           <button
             onClick={() => fileRef.current?.click()}
             className="absolute inset-0 rounded-full flex items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity"
-            style={{ background: "rgba(0,0,0,0.5)" }}
-          >
+            style={{ background: "rgba(0,0,0,0.5)" }}>
             <Camera className="w-4 h-4 text-foreground" />
           </button>
           <input

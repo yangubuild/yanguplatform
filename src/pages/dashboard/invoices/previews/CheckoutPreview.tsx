@@ -15,8 +15,7 @@ export function CheckoutPreview({ form }: Props) {
         style={{
           background: "#1a1a1a",
           border: "8px solid #2a2a2a",
-          boxShadow: "0 20px 60px rgba(0,0,0,0.6)" }}
-      >
+          boxShadow: "0 20px 60px rgba(0,0,0,0.6)" }}>
         {/* Notch */}
         <div className="flex justify-center pt-2 pb-1">
           <div className="w-24 h-5 rounded-full" style={{ background: "#222" }} />
@@ -57,8 +56,7 @@ export function CheckoutPreview({ form }: Props) {
                 className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs"
                 style={{
                   background: "rgba(255,255,255,0.04)",
-                  border: i === 0 ? "1px solid rgba(255,255,255,0.15)" : "1px solid rgba(255,255,255,0.06)" }}
-              >
+                  border: i === 0 ? "1px solid rgba(255,255,255,0.15)" : "1px solid rgba(255,255,255,0.06)" }}>
                 <div className="w-3.5 h-3.5 rounded-full border-2" style={{ borderColor: i === 0 ? "white" : "rgba(255,255,255,0.2)" }}>
                   {i === 0 && <div className="w-1.5 h-1.5 rounded-full bg-white m-[2px]" />}
                 </div>

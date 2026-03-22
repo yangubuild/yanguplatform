@@ -242,7 +242,7 @@ export function useCreateGroup() {
         role: "member",
       }));
 
-      if (memberRows.length > 0) {
+      if (memberRows.length> 0) {
         const { error: membersError } = await supabase
           .from("chat_group_members")
           .insert(memberRows as any);

@@ -159,7 +159,7 @@ async function readSSEStream(
       const words = token.split(/(\s+)/);
       let i = 0;
       const emitWord = () => {
-        if (i >= words.length) {
+        if (i>= words.length) {
           // Small delay between tokens
           setTimeout(processNext, 10);
           return;
@@ -349,7 +349,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
     for (const p of taskPatterns) {
       if (p.re.test(content)) detected.push(p.label);
     }
-    if (detected.length > 0) {
+    if (detected.length> 0) {
       setActiveTasks(prev => {
         const merged = [...new Set([...prev, ...detected])].slice(0, 4);
         return merged;
@@ -560,17 +560,17 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
       let searchContext = "";
       let found = false;
 
-      if (sources && sources.length > 0) {
+      if (sources && sources.length> 0) {
         found = true;
         searchContext += `Knowledge Sources:\n`;
         sources.forEach(s => { searchContext += `- ${s.title} (${s.source_type})${s.url ? ` — ${s.url}` : ""}\n`; });
       }
-      if (chunks && chunks.length > 0) {
+      if (chunks && chunks.length> 0) {
         found = true;
         searchContext += `Knowledge Chunks:\n`;
         chunks.forEach(c => { searchContext += `- ${c.content.slice(0, 120)}…\n`; });
       }
-      if (listings && listings.length > 0) {
+      if (listings && listings.length> 0) {
         found = true;
         searchContext += `Platform Listings:\n`;
         listings.forEach(l => { searchContext += `- ${l.title} (${l.surface_type})\n`; });
@@ -660,7 +660,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
       let lastScrollTime = 0;
       const throttledScroll = () => {
         const now = Date.now();
-        if (now - lastScrollTime > 300) {
+        if (now - lastScrollTime> 300) {
           lastScrollTime = now;
           smartScroll();
         }
@@ -813,7 +813,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
       await new Promise(r => setTimeout(r, 500));
 
       // Done!
-      const caption = prompt.length > 50 ? prompt.slice(0, 47) + "…" : prompt;
+      const caption = prompt.length> 50 ? prompt.slice(0, 47) + "…" : prompt;
       setMessages(prev => prev.map(m => m.id === mediaMsgId ? {
         ...m,
         content: `![Generated image](${img.url})`,
@@ -989,9 +989,9 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
 
         const statusData = await statusRes.json().catch(() => null);
 
-        if (statusData?.status === "done" && statusData?.videos?.length > 0) {
+        if (statusData?.status === "done" && statusData?.videos?.length> 0) {
           const assetUrl = statusData.videos[0].url;
-          const caption = prompt.length > 50 ? prompt.slice(0, 47) + "…" : prompt;
+          const caption = prompt.length> 50 ? prompt.slice(0, 47) + "…" : prompt;
           setMessages(prev => prev.map(m => m.id === mediaMsgId ? {
             ...m,
             content: `🎬 Video generated: ${assetUrl}`,
@@ -1112,7 +1112,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
       id: `msg_${Date.now()}`,
       role: "user",
       content: text,
-      metadata: pendingAttachments.length > 0 ? { attachments: pendingAttachments } : undefined,
+      metadata: pendingAttachments.length> 0 ? { attachments: pendingAttachments } : undefined,
       created_at: new Date().toISOString(),
     };
 
@@ -1503,7 +1503,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
         let i = currentWord.length;
         const eraseStep = () => {
           i--;
-          if (i > 0) {
+          if (i> 0) {
             setDisplayText(currentWord.slice(0, i));
             timeout = setTimeout(eraseStep, 45);
           } else {
@@ -1534,7 +1534,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
 
    // Welcome message removed — info now covered by the 1-4 steps section below
 
-  const hasMessages = messages.length > 0;
+  const hasMessages = messages.length> 0;
   const placeholder = intent === "search"
     ? "Search yangu (products, services, tools)…"
     : intent === "discuss"
@@ -1713,8 +1713,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
 
   return (
     <main
-      className="flex-1 flex flex-col min-h-0 overflow-hidden"
-    >
+      className="flex-1 flex flex-col min-h-0 overflow-hidden">
       {/* Hidden file input */}
       <input
         ref={fileInputRef}
@@ -1730,8 +1729,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
       <div className="flex items-center justify-between px-6 pt-6 pb-4">
         <button
           onClick={() => window.dispatchEvent(new CustomEvent("ada-new-chat"))}
-          className="text-sm text-muted-foreground hover:text-[#F4A83D] transition-colors"
-        >
+          className="text-sm text-muted-foreground hover:text-[#F4A83D] transition-colors">
           + New Chat
         </button>
         <div className="flex items-center gap-3">
@@ -1743,8 +1741,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
             onClick={toggleMobilePreview}
             className={`p-2 rounded-lg border transition-colors ${mobilePreviewEnabled ? "text-[#F4A83D] border-[#F4A83D]/30 bg-[#F4A83D]/10" : "text-muted-foreground hover:text-muted-foreground border-white/10"}`}
             style={!mobilePreviewEnabled ? { background: "linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.08))" } : undefined}
-            title={mobilePreviewEnabled ? "Mobile preview ON" : "Mobile preview OFF"}
-          >
+            title={mobilePreviewEnabled ? "Mobile preview ON" : "Mobile preview OFF"}>
             <Smartphone className="w-4 h-4" />
           </button>
 
@@ -1753,8 +1750,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
             <button
               onClick={() => setShowExtensionsDropdown(prev => !prev)}
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 text-muted-foreground text-sm hover:text-muted-foreground"
-              style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.08))" }}
-            >
+              style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.08))" }}>
               <Settings className="w-3.5 h-3.5" />
               Extensions
               <ChevronDown className="w-3 h-3" />
@@ -1762,8 +1758,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
             {showExtensionsDropdown && (
               <div
                 className="absolute right-0 top-full mt-2 w-56 rounded-xl py-2 z-50 shadow-xl"
-                style={{ background: "#111", border: "1px solid rgba(255,255,255,0.1)" }}
-              >
+                style={{ background: "#111", border: "1px solid rgba(255,255,255,0.1)" }}>
                 <p className="px-3 py-1 text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Provider Toggles</p>
                 {[
                   { key: "openai_reasoning", label: "OpenAI (Reasoning)", color: "emerald" },
@@ -1777,8 +1772,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                   <button
                     key={p.key}
                     onClick={() => toggleProvider(p.key)}
-                    className="w-full flex items-center justify-between px-3 py-2 text-sm text-muted-foreground hover:bg-white/5 transition-colors"
-                  >
+                    className="w-full flex items-center justify-between px-3 py-2 text-sm text-muted-foreground hover:bg-white/5 transition-colors">
                     <span>{p.label}</span>
                     <span className={`w-2 h-2 rounded-full ${enabledProviders[p.key] !== false ? "bg-emerald-400" : "bg-white/20"}`} />
                   </button>
@@ -1804,8 +1798,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
               <svg
                 viewBox="0 0 280 280"
                 className="w-full h-full animate-spin"
-                style={{ animationDuration: "40s" }}
-              >
+                style={{ animationDuration: "40s" }}>
                 {Array.from({ length: 300 }).map((_, i) => {
                   const angle = (i / 300) * Math.PI * 2;
                   const radius = 100 + Math.random() * 30;
@@ -1836,8 +1829,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
             <div className="flex items-center gap-4 mb-8">
               <button
                 onClick={cancelVoice}
-                className="w-12 h-12 rounded-full border border-white/15 flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-white/30 transition-colors"
-              >
+                className="w-12 h-12 rounded-full border border-white/15 flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-white/30 transition-colors">
                 <X className="w-5 h-5" />
               </button>
               <button
@@ -1847,8 +1839,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                   background: isRecording
                     ? "linear-gradient(135deg, #dc2626, #ef4444)"
                     : "linear-gradient(135deg, #D4952B, #F4A83D)",
-                  boxShadow: isRecording ? "0 0 20px rgba(220,38,38,0.4)" : "0 0 20px rgba(212,149,43,0.2)" }}
-              >
+                  boxShadow: isRecording ? "0 0 20px rgba(220,38,38,0.4)" : "0 0 20px rgba(212,149,43,0.2)" }}>
                 {isRecording ? <Mic className="w-6 h-6 animate-pulse" /> : <ArrowUp className="w-6 h-6" />}
               </button>
             </div>
@@ -1869,8 +1860,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                   }
                 }
               }}
-              className="w-full max-w-2xl flex-1 min-h-0 overflow-y-auto mb-4 space-y-4 py-4"
-            >
+              className="w-full max-w-2xl flex-1 min-h-0 overflow-y-auto mb-4 space-y-4 py-4">
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>
                   {/* Routing pill */}
@@ -1891,8 +1881,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                       background: msg.role === "assistant"
                         ? "rgba(255,255,255,0.03)"
                         : "transparent",
-                      borderRadius: "12px" }}
-                  >
+                      borderRadius: "12px" }}>
                     {renderMessageContent(msg)}
                     {msg.metadata && (msg.metadata as any).attachments && (
                       <div className="flex flex-wrap gap-1 mt-2">
@@ -1931,8 +1920,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
               <button
                 onClick={jumpToLatest}
                 className="mb-2 px-3 py-1 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-                style={{ background: "rgba(244,168,61,0.15)", border: "1px solid rgba(244,168,61,0.25)" }}
-              >
+                style={{ background: "rgba(244,168,61,0.15)", border: "1px solid rgba(244,168,61,0.25)" }}>
                 ↓ Jump to latest
               </button>
             )}
@@ -1944,15 +1932,13 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                 <div className="inline-flex rounded-lg overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
                   {(["auto", "standard", "cinema", "motion"] as AdaMode[]).map(m => (
                     <button key={m} onClick={() => updateMode(m)}
-                      className={`px-2.5 py-1 text-[11px] font-medium capitalize transition-colors ${adaMode === m ? "text-[#F4A83D] bg-[#F4A83D]/10" : "text-muted-foreground hover:text-muted-foreground"}`}
-                    >{m === "motion" ? "Motion Pro" : m}</button>
+                      className={`px-2.5 py-1 text-[11px] font-medium capitalize transition-colors ${adaMode === m ? "text-[#F4A83D] bg-[#F4A83D]/10" : "text-muted-foreground hover:text-muted-foreground"}`}>{m === "motion" ? "Motion Pro" : m}</button>
                   ))}
                 </div>
                 {/* Skill dropdown */}
                 <select value={adaSkill} onChange={e => updateSkill(e.target.value as AdaSkill)}
                   className="px-2.5 py-1 rounded-lg text-[11px] font-medium text-muted-foreground outline-none capitalize cursor-pointer"
-                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
-                >
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                   <option value="starter">Starter</option>
                   <option value="creator">Creator</option>
                   <option value="agency">Agency</option>
@@ -1962,7 +1948,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
 
             {/* Input area */}
             <div className="w-full max-w-2xl mb-8">
-              {pendingAttachments.length > 0 && (
+              {pendingAttachments.length> 0 && (
                 <div className="flex flex-wrap gap-1 mb-2">
                   {pendingAttachments.map((a, i) => (
                     <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs text-muted-foreground bg-white/5 border border-white/10">
@@ -1998,14 +1984,12 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setIntent(prev => prev === "search" ? null : "search")}
-                      className={`px-2 py-1 text-xs font-medium transition-colors ${intent === "search" ? "text-[#F4A83D]" : "text-muted-foreground hover:text-muted-foreground"}`}
-                    >
+                      className={`px-2 py-1 text-xs font-medium transition-colors ${intent === "search" ? "text-[#F4A83D]" : "text-muted-foreground hover:text-muted-foreground"}`}>
                       Search
                     </button>
                     <button
                       onClick={() => setIntent(prev => prev === "discuss" ? null : "discuss")}
-                      className={`px-2 py-1 text-xs font-medium transition-colors ${intent === "discuss" ? "text-[#F4A83D]" : "text-muted-foreground hover:text-muted-foreground"}`}
-                    >
+                      className={`px-2 py-1 text-xs font-medium transition-colors ${intent === "discuss" ? "text-[#F4A83D]" : "text-muted-foreground hover:text-muted-foreground"}`}>
                       Discuss
                     </button>
                     <button onClick={startVoice} className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground hover:text-muted-foreground transition-colors">
@@ -2015,8 +1999,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                       onClick={() => handleSend()}
                       disabled={!inputValue.trim() && pendingAttachments.length === 0}
                       className="w-9 h-9 rounded-full flex items-center justify-center transition-colors disabled:opacity-30"
-                      style={{ background: (inputValue.trim() || pendingAttachments.length > 0) ? "linear-gradient(135deg, #D4952B, #F4A83D)" : "rgba(255,255,255,0.1)" }}
-                    >
+                      style={{ background: (inputValue.trim() || pendingAttachments.length> 0) ? "linear-gradient(135deg, #D4952B, #F4A83D)" : "rgba(255,255,255,0.1)" }}>
                       <ArrowUp className="w-5 h-5 text-foreground" />
                     </button>
                   </div>
@@ -2051,14 +2034,12 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                 <div className="inline-flex rounded-lg overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
                   {(["auto", "standard", "cinema", "motion"] as AdaMode[]).map(m => (
                     <button key={m} onClick={() => updateMode(m)}
-                      className={`px-2.5 py-1 text-[11px] font-medium capitalize transition-colors ${adaMode === m ? "text-[#F4A83D] bg-[#F4A83D]/10" : "text-muted-foreground hover:text-muted-foreground"}`}
-                    >{m === "motion" ? "Motion Pro" : m}</button>
+                      className={`px-2.5 py-1 text-[11px] font-medium capitalize transition-colors ${adaMode === m ? "text-[#F4A83D] bg-[#F4A83D]/10" : "text-muted-foreground hover:text-muted-foreground"}`}>{m === "motion" ? "Motion Pro" : m}</button>
                   ))}
                 </div>
                 <select value={adaSkill} onChange={e => updateSkill(e.target.value as AdaSkill)}
                   className="px-2.5 py-1 rounded-lg text-[11px] font-medium text-muted-foreground outline-none capitalize cursor-pointer"
-                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
-                >
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                   <option value="starter">Starter</option>
                   <option value="creator">Creator</option>
                   <option value="agency">Agency</option>
@@ -2068,7 +2049,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
 
             {/* Chat input box */}
             <div className="w-full max-w-2xl mb-8">
-              {pendingAttachments.length > 0 && (
+              {pendingAttachments.length> 0 && (
                 <div className="flex flex-wrap gap-1 mb-2">
                   {pendingAttachments.map((a, i) => (
                     <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs text-muted-foreground bg-white/5 border border-white/10">
@@ -2115,28 +2096,24 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setIntent(prev => prev === "search" ? null : "search")}
-                        className={`px-2 py-1 text-xs font-medium transition-colors ${intent === "search" ? "text-[#F4A83D]" : "text-muted-foreground hover:text-muted-foreground"}`}
-                      >
+                        className={`px-2 py-1 text-xs font-medium transition-colors ${intent === "search" ? "text-[#F4A83D]" : "text-muted-foreground hover:text-muted-foreground"}`}>
                         Search
                       </button>
                       <button
                         onClick={() => setIntent(prev => prev === "discuss" ? null : "discuss")}
-                        className={`px-2 py-1 text-xs font-medium transition-colors ${intent === "discuss" ? "text-[#F4A83D]" : "text-muted-foreground hover:text-muted-foreground"}`}
-                      >
+                        className={`px-2 py-1 text-xs font-medium transition-colors ${intent === "discuss" ? "text-[#F4A83D]" : "text-muted-foreground hover:text-muted-foreground"}`}>
                         Discuss
                       </button>
                       <button
                         onClick={startVoice}
-                        className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground hover:text-muted-foreground transition-colors"
-                      >
+                        className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground hover:text-muted-foreground transition-colors">
                         <AudioLines className="w-5 h-5" />
                       </button>
                       <button
                         onClick={() => handleSend()}
                         disabled={!inputValue.trim() && pendingAttachments.length === 0}
                         className="w-9 h-9 rounded-full flex items-center justify-center transition-colors disabled:opacity-30"
-                        style={{ background: (inputValue.trim() || pendingAttachments.length > 0) ? "linear-gradient(135deg, #D4952B, #F4A83D)" : "rgba(255,255,255,0.1)" }}
-                      >
+                        style={{ background: (inputValue.trim() || pendingAttachments.length> 0) ? "linear-gradient(135deg, #D4952B, #F4A83D)" : "rgba(255,255,255,0.1)" }}>
                         <ArrowUp className="w-5 h-5 text-foreground" />
                       </button>
                     </div>
@@ -2170,8 +2147,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-[#F4A83D] transition-all duration-200 hover:scale-[1.03]"
                     style={{
                       background: "rgba(255,255,255,0.03)",
-                      border: "1px solid rgba(255,255,255,0.07)" }}
-                  >
+                      border: "1px solid rgba(255,255,255,0.07)" }}>
                     <Icon className="w-3.5 h-3.5" />
                     {action.label}
                   </button>
@@ -2197,8 +2173,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                   style={{
                     color: mod.connected ? "rgba(244,168,61,0.7)" : "rgba(255,255,255,0.25)",
                     background: mod.connected ? "rgba(244,168,61,0.06)" : "rgba(255,255,255,0.02)",
-                    border: `1px solid ${mod.connected ? "rgba(244,168,61,0.12)" : "rgba(255,255,255,0.05)"}` }}
-                >
+                    border: `1px solid ${mod.connected ? "rgba(244,168,61,0.12)" : "rgba(255,255,255,0.05)"}` }}>
                   <span className={`w-1.5 h-1.5 rounded-full ${mod.connected ? "bg-[#F4A83D]/60" : "bg-white/15"}`} />
                   {mod.connected ? "Connected" : "Coming"} • {mod.label}
                 </span>
@@ -2208,7 +2183,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
         )}
 
         {/* ── Active Tasks Panel (appears during conversation) ── */}
-        {hasMessages && activeTasks.length > 0 && (
+        {hasMessages && activeTasks.length> 0 && (
           <div className="w-full max-w-2xl mb-3 animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div className="flex items-center gap-2 mb-2">
               <Activity className="w-3.5 h-3.5 text-[#F4A83D]/60" />
@@ -2222,8 +2197,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                   style={{
                     background: "rgba(244,168,61,0.04)",
                     border: "1px solid rgba(244,168,61,0.1)",
-                    animationDelay: `${i * 100}ms` }}
-                >
+                    animationDelay: `${i * 100}ms` }}>
                   <Zap className="w-3 h-3 text-[#F4A83D]/50" />
                   {task}
                 </span>
@@ -2247,8 +2221,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                 textareaRef.current?.focus();
               }}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-[#F4A83D]/70 hover:text-[#F4A83D] transition-all"
-              style={{ background: "rgba(244,168,61,0.05)", border: "1px solid rgba(244,168,61,0.1)" }}
-            >
+              style={{ background: "rgba(244,168,61,0.05)", border: "1px solid rgba(244,168,61,0.1)" }}>
               <Zap className="w-3 h-3" />
               💡 {suggestedNextAction}
             </button>
@@ -2285,8 +2258,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                   value={selectedProvider}
                   onChange={e => updateProvider(e.target.value)}
                   className="w-full mt-1 px-3 py-2 rounded-lg text-sm text-muted-foreground outline-none"
-                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
-                >
+                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
                   <option value="openai">OpenAI (Reasoning / Chat)</option>
                   <option value="ideogram">Ideogram (Images)</option>
                   <option value="qwen">Qwen (Images)</option>
@@ -2299,8 +2271,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                   value={selectedAspectRatio}
                   onChange={e => updateAspectRatio(e.target.value)}
                   className="w-full mt-1 px-3 py-2 rounded-lg text-sm text-muted-foreground outline-none"
-                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
-                >
+                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
                   <option value="1:1">1:1</option>
                   <option value="16:9">16:9</option>
                   <option value="9:16">9:16</option>
@@ -2347,8 +2318,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                 key={style}
                 onClick={() => { setInputValue(prev => prev ? `${prev}, ${style.toLowerCase()} style` : `/image ${style.toLowerCase()} style `); setShowStylesDrawer(false); }}
                 className="w-full text-left px-4 py-3 rounded-xl text-sm text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors"
-                style={{ border: "1px solid rgba(255,255,255,0.06)" }}
-              >
+                style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
                 {style}
               </button>
             ))}

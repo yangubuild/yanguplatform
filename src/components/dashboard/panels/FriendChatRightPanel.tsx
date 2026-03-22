@@ -34,13 +34,11 @@ export function FriendChatRightPanel({ friend }: Props) {
       {/* Header with online status */}
       <div
         className="flex items-center gap-3 px-4 py-3 shrink-0"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
-      >
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         <div className="relative">
           <div
             className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold overflow-hidden"
-            style={{ background: "rgba(255,255,255,0.1)" }}
-          >
+            style={{ background: "rgba(255,255,255,0.1)" }}>
             {resolvedAvatar ? (
               <img src={resolvedAvatar} alt="" className="w-8 h-8 rounded-full object-cover" />
             ) : (
@@ -84,8 +82,7 @@ export function FriendChatRightPanel({ friend }: Props) {
                     background: isMine ? "rgba(255, 255, 255, 0.12)" : "rgba(255, 255, 255, 0.06)",
                     backdropFilter: "blur(16px)",
                     WebkitBackdropFilter: "blur(16px)",
-                    border: isMine ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(255,255,255,0.07)" }}
-                >
+                    border: isMine ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(255,255,255,0.07)" }}>
                   {msg.content}
                   <p className="text-[9px] mt-1 text-muted-foreground">
                     {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
@@ -102,8 +99,7 @@ export function FriendChatRightPanel({ friend }: Props) {
       <div className="shrink-0 px-4 py-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
         <div
           className="flex items-center gap-2 rounded-xl px-3 py-2.5"
-          style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
-        >
+          style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
           <input
             type="text"
             value={message}
@@ -117,8 +113,7 @@ export function FriendChatRightPanel({ friend }: Props) {
             disabled={!message.trim()}
             className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
             style={{
-              background: message.trim() ? "linear-gradient(135deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.08)" }}
-          >
+              background: message.trim() ? "linear-gradient(135deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.08)" }}>
             <Send className="w-3.5 h-3.5" style={{ color: message.trim() ? "#fff" : "rgba(255,255,255,0.3)" }} />
           </button>
         </div>

@@ -132,8 +132,7 @@ export default function PortalWebhooks() {
       {showCreate && (
         <div
           className="rounded-xl p-5 mb-6 space-y-4"
-          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}
-        >
+          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
           <h4 className="text-foreground font-semibold text-sm flex items-center gap-2">
             <Webhook className="w-4 h-4" style={{ color: "#F46D2A" }} />
             New Webhook
@@ -195,8 +194,7 @@ export default function PortalWebhooks() {
       {/* Webhooks list */}
       <div
         className="rounded-xl overflow-hidden"
-        style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}
-      >
+        style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
         {isLoading ? (
           <div className="flex justify-center py-12">
             <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />

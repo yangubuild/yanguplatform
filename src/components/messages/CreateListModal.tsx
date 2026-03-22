@@ -69,7 +69,7 @@ export function CreateListModal({ open, onClose, onCreated }: Props) {
 
   const { data: results = [], isLoading } = useQuery({
     queryKey: ["list-search-users", user?.id, normalized],
-    enabled: !!user && normalized.length >= 2,
+    enabled: !!user && normalized.length>= 2,
     queryFn: async (): Promise<SearchProfile[]> => {
       const filter = buildCategoryFilter(normalized);
       const { data, error } = await supabase
@@ -119,7 +119,7 @@ export function CreateListModal({ open, onClose, onCreated }: Props) {
               <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name, business, or category" className="flex-1 bg-transparent text-xs outline-none text-foreground" />
             </div>
 
-            {selected.length > 0 && (
+            {selected.length> 0 && (
               <div className="flex flex-wrap gap-1.5">
                 {selected.map((p) => (
                   <span key={p.id} className="inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[10px]" style={{ background: "hsl(var(--secondary))", borderColor: "hsl(var(--border))" }}>

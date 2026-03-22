@@ -177,7 +177,7 @@ export function applyPatchPlan(
     }
   }
 
-  if (rejected.length > 0) {
+  if (rejected.length> 0) {
     warnings.push(`${rejected.length} operation(s) were rejected due to category boundaries.`);
   }
 

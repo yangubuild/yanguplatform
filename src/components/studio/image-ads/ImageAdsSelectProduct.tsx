@@ -73,8 +73,7 @@ export function ImageAdsSelectProduct({ onCancel, onSelect, onManualSetup, onSyn
             variant="accent"
             size="sm"
             className="rounded-lg text-xs font-semibold gap-1.5"
-            onClick={() => setAddModalOpen(true)}
-          >
+            onClick={() => setAddModalOpen(true)}>
             <Plus className="h-3.5 w-3.5" />
             New products
           </Button>
@@ -92,8 +91,7 @@ export function ImageAdsSelectProduct({ onCancel, onSelect, onManualSetup, onSyn
                 selected === product.id
                   ? "border-accent/60"
                   : "border-transparent hover:border-border/40"
-              }`}
-            >
+              }`}>
               {/* Checkbox */}
               <div className={`absolute top-3 left-3 z-10 h-4 w-4 rounded border border-border/60 flex items-center justify-center ${
                 selected === product.id ? "bg-accent border-accent" : "bg-card/60"
@@ -125,7 +123,7 @@ export function ImageAdsSelectProduct({ onCancel, onSelect, onManualSetup, onSyn
 
               {/* Thumbnail collage */}
               <div className="w-full aspect-square rounded-lg overflow-hidden bg-muted/30">
-                {product.thumbs.length >= 6 ? (
+                {product.thumbs.length>= 6 ? (
                   <div className="grid grid-cols-3 grid-rows-2 h-full w-full gap-0.5">
                     {product.thumbs.slice(0, 6).map((t, i) => (
                       <img key={i} src={t} alt="" className="w-full h-full object-cover" />
@@ -157,8 +155,7 @@ export function ImageAdsSelectProduct({ onCancel, onSelect, onManualSetup, onSyn
           variant="accent"
           disabled={!selected}
           onClick={() => selected && onSelect(selected)}
-          className="rounded-lg"
-        >
+          className="rounded-lg">
           Use this product
         </Button>
       </div>

@@ -31,8 +31,7 @@ export default function UniversityCourseDetail() {
         {/* Back link */}
         <Link
           to="/dashboard/visionaire/university"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="h-4 w-4" /> Back to University
         </Link>
 
@@ -85,8 +84,7 @@ export default function UniversityCourseDetail() {
                 }
                 className={`group rounded-xl border border-border bg-card overflow-hidden transition-all hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 ${
                   course.comingSoon ? "opacity-60 pointer-events-none" : ""
-                }`}
-              >
+                }`}>
                 {/* Course Image */}
                 <div className="relative w-full aspect-[16/10] bg-muted overflow-hidden">
                   <img

@@ -90,8 +90,7 @@ export function BoxMockupEditor({ mockup, onBack }: BoxMockupEditorProps) {
                 mode === "angles"
                   ? "bg-foreground text-background border-foreground"
                   : "bg-background text-foreground border-border hover:bg-muted"
-              }`}
-            >
+              }`}>
               <RotateCcw className="h-3.5 w-3.5" />
               New Angles
             </button>
@@ -101,8 +100,7 @@ export function BoxMockupEditor({ mockup, onBack }: BoxMockupEditorProps) {
                 mode === "design"
                   ? "bg-foreground text-background border-foreground"
                   : "bg-background text-foreground border-border hover:bg-muted"
-              }`}
-            >
+              }`}>
               <Paintbrush className="h-3.5 w-3.5" />
               Apply Design
             </button>
@@ -121,8 +119,7 @@ export function BoxMockupEditor({ mockup, onBack }: BoxMockupEditorProps) {
 
           <Button
             onClick={handleGenerate}
-            disabled={isGenerating || (mode === "design" && !designPrompt.trim())}
-          >
+            disabled={isGenerating || (mode === "design" && !designPrompt.trim())}>
             {isGenerating ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -139,7 +136,7 @@ export function BoxMockupEditor({ mockup, onBack }: BoxMockupEditorProps) {
       </div>
 
       {/* Generated images */}
-      {generatedImages.length > 0 && (
+      {generatedImages.length> 0 && (
         <div className="space-y-3">
           <h2 className="text-sm font-medium text-muted-foreground">
             Generated Variations ({generatedImages.length})
@@ -148,8 +145,7 @@ export function BoxMockupEditor({ mockup, onBack }: BoxMockupEditorProps) {
             {generatedImages.map((src, i) => (
               <div
                 key={i}
-                className="group relative rounded-xl border border-border overflow-hidden bg-muted aspect-square"
-              >
+                className="group relative rounded-xl border border-border overflow-hidden bg-muted aspect-square">
                 <img src={src} alt={`Variation ${i + 1}`} className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-background/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <Button size="sm" variant="secondary" onClick={() => handleDownload(src, i)}>

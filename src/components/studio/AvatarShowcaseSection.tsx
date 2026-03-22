@@ -51,8 +51,7 @@ export function AvatarShowcaseSection() {
       <div>
         <h2
           className="text-xl md:text-2xl font-black uppercase tracking-tight text-foreground flex items-center gap-2"
-          style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}
-        >
+          style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>
           AVATAR SHOWCASE
           <span className="inline-flex items-center rounded bg-accent/15 px-1.5 py-0.5 text-[11px] font-bold text-accent">
             AI

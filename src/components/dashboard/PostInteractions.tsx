@@ -107,7 +107,7 @@ export function PostInteractions({ post, toggleReaction }: PostInteractionsProps
   const handleCommentMedia = (files: FileList | null) => {
     if (!files || !files[0]) return;
     const file = files[0];
-    if (file.size > 5 * 1024 * 1024) { toast.error("Max 5MB"); return; }
+    if (file.size> 5 * 1024 * 1024) { toast.error("Max 5MB"); return; }
     setCommentMediaFile(file);
     setCommentMediaPreview(URL.createObjectURL(file));
   };
@@ -146,34 +146,31 @@ export function PostInteractions({ post, toggleReaction }: PostInteractionsProps
         <div className="relative">
           <button
             onClick={handleLike}
-            onMouseEnter={() => (optimisticLikeCount > 0) && setShowLikers(true)}
+            onMouseEnter={() => (optimisticLikeCount> 0) && setShowLikers(true)}
             onMouseLeave={() => setShowLikers(false)}
             className={`flex items-center gap-1.5 text-[11px] transition-colors min-h-[36px] px-1 ${optimisticLiked ? "font-semibold" : ""}`}
-            style={{ color: optimisticLiked ? "#3b82f6" : "rgba(255,255,255,0.35)" }}
-          >
+            style={{ color: optimisticLiked ? "#3b82f6" : "rgba(255,255,255,0.35)" }}>
             <ThumbsUp className="w-4 h-4 sm:w-3.5 sm:h-3.5" fill={optimisticLiked ? "#3b82f6" : "none"} /> {optimisticLikeCount || ""}
           </button>
-          {showLikers && likers.length > 0 && <ReactionPopover users={likers} />}
+          {showLikers && likers.length> 0 && <ReactionPopover users={likers} />}
         </div>
         {/* Love */}
         <div className="relative">
           <button
             onClick={handleLove}
-            onMouseEnter={() => (optimisticLoveCount > 0) && setShowLovers(true)}
+            onMouseEnter={() => (optimisticLoveCount> 0) && setShowLovers(true)}
             onMouseLeave={() => setShowLovers(false)}
             className={`flex items-center gap-1.5 text-[11px] transition-colors min-h-[36px] px-1 ${optimisticLoved ? "font-semibold" : ""}`}
-            style={{ color: optimisticLoved ? "#ef4444" : "rgba(255,255,255,0.35)" }}
-          >
+            style={{ color: optimisticLoved ? "#ef4444" : "rgba(255,255,255,0.35)" }}>
             <Heart className="w-4 h-4 sm:w-3.5 sm:h-3.5" fill={optimisticLoved ? "#ef4444" : "none"} /> {optimisticLoveCount || ""}
           </button>
-          {showLovers && lovers.length > 0 && <ReactionPopover users={lovers} />}
+          {showLovers && lovers.length> 0 && <ReactionPopover users={lovers} />}
         </div>
         {/* Comment */}
         <button
           onClick={() => setShowComments(!showComments)}
           className="flex items-center gap-1.5 text-[11px] min-h-[36px] px-1"
-          style={{ color: showComments ? "#a78bfa" : "rgba(255,255,255,0.35)" }}
-        >
+          style={{ color: showComments ? "#a78bfa" : "rgba(255,255,255,0.35)" }}>
           <MessageSquare className="w-4 h-4 sm:w-3.5 sm:h-3.5" /> {optimisticCommentCount || ""}
         </button>
         {/* Share */}
@@ -190,7 +187,7 @@ export function PostInteractions({ post, toggleReaction }: PostInteractionsProps
         <div className="mt-3 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
           {commentsLoading ? (
             <div className="flex justify-center py-2"><Loader2 className="w-4 h-4 animate-spin text-muted-foreground" /></div>
-          ) : comments.length > 0 ? (
+          ) : comments.length> 0 ? (
             <div className="space-y-2 mb-3 max-h-40 overflow-y-auto">
               {comments.map((c) => (
                 <div key={c.id} className="flex items-start gap-2">
@@ -250,8 +247,7 @@ export function PostInteractions({ post, toggleReaction }: PostInteractionsProps
                 onClick={handleComment}
                 disabled={(!commentText.trim() && !commentMediaFile) || createComment.isPending || uploadingComment}
                 className="text-[10px] font-semibold px-3 py-1.5 rounded-md min-h-[32px]"
-                style={{ color: (commentText.trim() || commentMediaFile) ? "#a78bfa" : "rgba(255,255,255,0.2)" }}
-              >
+                style={{ color: (commentText.trim() || commentMediaFile) ? "#a78bfa" : "rgba(255,255,255,0.2)" }}>
                 {(createComment.isPending || uploadingComment) ? <Loader2 className="w-3 h-3 animate-spin" /> : "Post"}
               </button>
             </div>
@@ -310,7 +306,7 @@ function SharePanel({ postId, postContent, onClose }: { postId: string; postCont
       let query = supabase.from("profiles").select("id, display_name, username, avatar_url, avatar_mode, avatar_emoji_key");
       if (search.trim()) {
         query = query.or(`username.ilike.%${search}%,display_name.ilike.%${search}%`);
-      } else if (followedIds.length > 0) {
+      } else if (followedIds.length> 0) {
         query = query.in("id", followedIds);
       }
       query = query.neq("id", user!.id).limit(10);
@@ -329,7 +325,7 @@ function SharePanel({ postId, postContent, onClose }: { postId: string; postCont
     if (!user) return;
     setSending(receiverId);
     try {
-      const msg = `📎 Shared a post: "${postContent.slice(0, 80)}${postContent.length > 80 ? "…" : ""}"`;
+      const msg = `📎 Shared a post: "${postContent.slice(0, 80)}${postContent.length> 80 ? "…" : ""}"`;
       await supabase.from("direct_messages" as any).insert({ sender_id: user.id, receiver_id: receiverId, content: msg } as any);
       toast.success("Post shared!");
       onClose();
@@ -340,8 +336,7 @@ function SharePanel({ postId, postContent, onClose }: { postId: string; postCont
     <div
       ref={panelRef}
       className="absolute bottom-full right-0 mb-2 z-50 rounded-lg p-3 w-[220px] shadow-xl"
-      style={{ background: "#1a1f28", border: "1px solid rgba(255,255,255,0.1)" }}
-    >
+      style={{ background: "#1a1f28", border: "1px solid rgba(255,255,255,0.1)" }}>
       <p className="text-[10px] font-semibold text-muted-foreground mb-2">Share with…</p>
       <div className="flex items-center gap-1.5 mb-2 rounded-md px-2 py-1" style={{ background: "rgba(255,255,255,0.05)" }}>
         <Search className="w-3 h-3 text-muted-foreground" />
@@ -360,8 +355,7 @@ function SharePanel({ postId, postContent, onClose }: { postId: string; postCont
             key={u.id}
             onClick={() => sendToUser(u.id)}
             disabled={sending === u.id}
-            className="flex items-center gap-2 w-full p-1.5 rounded-md hover:bg-white/5 transition-colors"
-          >
+            className="flex items-center gap-2 w-full p-1.5 rounded-md hover:bg-white/5 transition-colors">
             <div className="w-5 h-5 rounded-full overflow-hidden shrink-0" style={{ background: "rgba(255,255,255,0.1)" }}>
               {u.avatar ? <img src={u.avatar} alt="" className="w-5 h-5 rounded-full object-cover" /> : <div className="w-5 h-5 flex items-center justify-center text-[8px] font-bold text-muted-foreground">{u.name.slice(0, 2).toUpperCase()}</div>}
             </div>
@@ -381,8 +375,7 @@ function ReactionPopover({ users }: { users: { id: string; name: string; usernam
   return (
     <div
       className="absolute bottom-full left-0 mb-1 z-50 rounded-lg p-2 min-w-[140px] max-w-[200px] shadow-xl"
-      style={{ background: "#1a1f28", border: "1px solid rgba(255,255,255,0.1)" }}
-    >
+      style={{ background: "#1a1f28", border: "1px solid rgba(255,255,255,0.1)" }}>
       {users.slice(0, 10).map((u) => (
         <div key={u.id} className="flex items-center gap-2 py-1">
           <div className="w-5 h-5 rounded-full overflow-hidden shrink-0" style={{ background: "rgba(255,255,255,0.1)" }}>
@@ -398,7 +391,7 @@ function ReactionPopover({ users }: { users: { id: string; name: string; usernam
           </div>
         </div>
       ))}
-      {users.length > 10 && <p className="text-[9px] text-muted-foreground mt-1">+{users.length - 10} more</p>}
+      {users.length> 10 && <p className="text-[9px] text-muted-foreground mt-1">+{users.length - 10} more</p>}
     </div>
   );
 }

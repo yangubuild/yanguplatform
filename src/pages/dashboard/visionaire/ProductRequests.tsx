@@ -154,8 +154,7 @@ export default function ProductRequests() {
                 <Button
                   className="w-full"
                   disabled={!newTitle.trim() || submitMutation.isPending}
-                  onClick={() => submitMutation.mutate()}
-                >
+                  onClick={() => submitMutation.mutate()}>
                   <Send className="h-4 w-4 mr-2" />
                   {submitMutation.isPending ? "Submitting..." : "Submit Request"}
                 </Button>
@@ -178,8 +177,7 @@ export default function ProductRequests() {
                     activeTab === tab.key
                       ? "text-foreground"
                       : "text-muted-foreground hover:text-foreground/70"
-                  }`}
-                >
+                  }`}>
                   {tab.label} ({tabCounts[tab.key] ?? 0})
                   {activeTab === tab.key && (
                     <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground rounded-t" />
@@ -202,8 +200,7 @@ export default function ProductRequests() {
                     return (
                       <div
                         key={req.id}
-                        className="flex gap-4 rounded-xl border border-border bg-card p-4 hover:border-primary/20 transition-colors"
-                      >
+                        className="flex gap-4 rounded-xl border border-border bg-card p-4 hover:border-primary/20 transition-colors">
                         {/* Vote Block */}
                         <button
                           onClick={() => voteMutation.mutate(req.id)}
@@ -211,8 +208,7 @@ export default function ProductRequests() {
                             hasVoted
                               ? "border-primary bg-primary/10 text-primary"
                               : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
-                          }`}
-                        >
+                          }`}>
                           <ChevronUp className="h-4 w-4" />
                           <span className="text-sm font-bold leading-tight">{req.votes_count}</span>
                         </button>
@@ -266,8 +262,7 @@ export default function ProductRequests() {
               ].map((feature) => (
                 <div
                   key={feature.text}
-                  className="flex items-center gap-3 rounded-xl border border-border bg-card p-3.5"
-                >
+                  className="flex items-center gap-3 rounded-xl border border-border bg-card p-3.5">
                   <feature.icon className="h-4 w-4 text-muted-foreground shrink-0" />
                   <span className="text-sm text-foreground">{feature.text}</span>
                 </div>

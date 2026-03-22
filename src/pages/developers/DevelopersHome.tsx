@@ -43,8 +43,7 @@ export default function DevelopersHome() {
     <DocsPage
       breadcrumb="Overview"
       title="Build on yangu"
-      subtitle="Everything you need to build, integrate, and scale on the yangu platform."
-    >
+      subtitle="Everything you need to build, integrate, and scale on the yangu platform.">
       {/* CTA Buttons */}
       <div className="flex flex-wrap gap-3 mb-10">
         <Button variant="accent" onClick={handleAddApp}>
@@ -53,8 +52,7 @@ export default function DevelopersHome() {
         <Button
           variant="ghost"
           className="text-muted-foreground border border-white/12 hover:bg-white/5"
-          onClick={() => navigate("/developers/apis/rest-graphql")}
-        >
+          onClick={() => navigate("/developers/apis/rest-graphql")}>
           View API Reference
         </Button>
       </div>

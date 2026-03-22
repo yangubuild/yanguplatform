@@ -81,7 +81,7 @@ export default function ConsoleAppPermissions({ appId }: { appId: string }) {
         <h3 className="text-foreground text-sm font-semibold mb-3 flex items-center gap-2">
           <Check className="w-4 h-4 text-green-400" /> Granted ({granted.length})
         </h3>
-        {granted.length > 0 ? (
+        {granted.length> 0 ? (
           <div className="space-y-2">
             {granted.map((s) => {
               const reg = registry?.find((r) => r.scope_key === s.scope_key);
@@ -96,7 +96,7 @@ export default function ConsoleAppPermissions({ appId }: { appId: string }) {
       </div>
 
       {/* Requested scopes */}
-      {requested.length > 0 && (
+      {requested.length> 0 && (
         <div className="mb-8">
           <h3 className="text-foreground text-sm font-semibold mb-3 flex items-center gap-2">
             <Loader2 className="w-4 h-4 text-blue-400" /> Pending ({requested.length})
@@ -113,7 +113,7 @@ export default function ConsoleAppPermissions({ appId }: { appId: string }) {
       )}
 
       {/* Denied scopes */}
-      {denied.length > 0 && (
+      {denied.length> 0 && (
         <div className="mb-8">
           <h3 className="text-foreground text-sm font-semibold mb-3 flex items-center gap-2">
             <X className="w-4 h-4 text-red-400" /> Denied ({denied.length})
@@ -134,8 +134,7 @@ export default function ConsoleAppPermissions({ appId }: { appId: string }) {
         <button
           onClick={() => setShowScopeList(!showScopeList)}
           className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold text-foreground"
-          style={{ background: "rgba(255,255,255,0.08)" }}
-        >
+          style={{ background: "rgba(255,255,255,0.08)" }}>
           <Plus className="w-3 h-3" /> Request Scopes
         </button>
 
@@ -151,8 +150,7 @@ export default function ConsoleAppPermissions({ appId }: { appId: string }) {
                       <div
                         key={scope.scope_key}
                         className="flex items-center justify-between px-3 py-2 rounded-lg"
-                        style={{ background: "rgba(255,255,255,0.02)" }}
-                      >
+                        style={{ background: "rgba(255,255,255,0.02)" }}>
                         <div className="flex-1">
                           <code className="text-xs text-muted-foreground font-mono">{scope.scope_key}</code>
                           <p className="text-xs text-muted-foreground mt-0.5">{scope.description}</p>
@@ -174,8 +172,7 @@ export default function ConsoleAppPermissions({ appId }: { appId: string }) {
                             onClick={() => requestScope.mutate(scope.scope_key)}
                             disabled={requestScope.isPending}
                             className="text-xs px-2 py-1 rounded text-muted-foreground hover:text-foreground"
-                            style={{ background: "rgba(255,255,255,0.06)" }}
-                          >
+                            style={{ background: "rgba(255,255,255,0.06)" }}>
                             Request
                           </button>
                         )}

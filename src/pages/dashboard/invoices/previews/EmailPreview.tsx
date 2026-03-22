@@ -19,8 +19,7 @@ export function EmailPreview({ form }: Props) {
       <div className="flex items-center gap-2.5">
         <div
           className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-foreground"
-          style={{ background: "#2563eb" }}
-        >
+          style={{ background: "#2563eb" }}>
           {companyName.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()}
         </div>
         <span className="text-sm text-foreground font-medium">{companyName}</span>

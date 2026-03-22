@@ -77,8 +77,7 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
         } : {
           background: 'transparent',
           color: 'rgba(255,255,255,0.65)',
-        }}
-      >
+        }}>
         <div className="flex items-center gap-3">
           {item.customIcon ? (
             <img 
@@ -115,14 +114,12 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
         }`}
         style={{
           background: 'transparent',
-        }}
-      >
+        }}>
         
         {/* Close button for mobile */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-foreground lg:hidden"
-        >
+          className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-foreground lg:hidden">
           <X className="w-5 h-5" />
         </button>
 

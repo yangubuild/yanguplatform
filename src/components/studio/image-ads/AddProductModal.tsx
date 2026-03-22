@@ -58,8 +58,7 @@ export function AddProductModal({ open, onClose, onEnterManually, onSyncBusiness
             <button
               key={opt.key}
               onClick={() => handleClick(opt.key)}
-              className="flex items-center gap-4 w-full rounded-xl border border-border/40 px-4 py-4 text-left transition-colors hover:border-border bg-card/60 hover:bg-muted/30 cursor-pointer"
-            >
+              className="flex items-center gap-4 w-full rounded-xl border border-border/40 px-4 py-4 text-left transition-colors hover:border-border bg-card/60 hover:bg-muted/30 cursor-pointer">
               <opt.icon className="h-5 w-5 text-muted-foreground shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-foreground">{opt.title}</p>

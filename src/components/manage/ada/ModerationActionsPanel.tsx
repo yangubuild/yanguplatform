@@ -72,8 +72,7 @@ export function ModerationActionsPanel() {
               <div key={inc.id}>
                 <div
                   className="flex items-center gap-3 px-3 py-2.5 hover:bg-[hsl(var(--admin-surface-elevated)/0.3)] transition-colors cursor-pointer"
-                  onClick={() => setExpandedId(isExpanded ? null : inc.id)}
-                >
+                  onClick={() => setExpandedId(isExpanded ? null : inc.id)}>
                   <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md ${s.bg} ${s.text}`}>{s.label}</span>
                   <span className="text-xs text-[hsl(var(--admin-text))] flex-1 truncate">{inc.message}</span>
                   <span className={`text-[10px] px-1.5 py-0.5 rounded ${inc.status === "open" ? "bg-[hsl(38,92%,50%/0.1)] text-[hsl(38,92%,50%)]" : inc.status === "escalated" ? "bg-[hsl(0,72%,51%/0.1)] text-[hsl(0,72%,51%)]" : "bg-[hsl(160,84%,39%/0.1)] text-[hsl(160,84%,39%)]"}`}>

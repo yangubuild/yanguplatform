@@ -69,7 +69,7 @@ export default function CreateAvatarPage() {
         )}
 
         {/* Previous jobs */}
-        {jobs.length > 0 && (
+        {jobs.length> 0 && (
           <div className="mt-6 space-y-2">
             <p className="text-sm font-semibold text-foreground">Training History</p>
             {jobs.slice(0, 5).map((job) => (

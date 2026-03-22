@@ -40,8 +40,7 @@ export function MessagesSupportTab() {
       <div className="flex flex-col items-center justify-center h-full gap-4">
         <div
           className="flex h-16 w-16 items-center justify-center rounded-2xl"
-          style={{ background: "rgba(255,255,255,0.05)" }}
-        >
+          style={{ background: "rgba(255,255,255,0.05)" }}>
           <Shield className="h-8 w-8 text-muted-foreground" />
         </div>
         <p className="text-sm font-medium text-foreground">YANGU Support</p>
@@ -59,12 +58,10 @@ export function MessagesSupportTab() {
           <div
             key={notif.id}
             className="rounded-xl p-4 flex items-start gap-3"
-            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
-          >
+            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
             <div
               className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
-              style={{ background: "rgba(74,222,128,0.15)" }}
-            >
+              style={{ background: "rgba(74,222,128,0.15)" }}>
               <Bell className="w-4 h-4" style={{ color: "#4ade80" }} />
             </div>
             <div className="flex-1 min-w-0">

@@ -6,9 +6,7 @@ export function OffersSearchBar() {
       <div
         className="flex items-center gap-3 rounded-xl px-4 h-11"
         style={{
-
-          border: "1px solid rgba(255,255,255,0.06)" }}
-      >
+          border: "1px solid rgba(255,255,255,0.06)" }}>
         <Search className="w-4 h-4 text-muted-foreground" />
         <input
           type="text"

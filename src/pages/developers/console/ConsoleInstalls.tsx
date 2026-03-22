@@ -284,8 +284,7 @@ export default function ConsoleInstalls() {
                   variant="ghost"
                   size="icon"
                   onClick={copyToken}
-                  className="text-muted-foreground hover:text-foreground shrink-0"
-                >
+                  className="text-muted-foreground hover:text-foreground shrink-0">
                   {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
                 </Button>
               </div>

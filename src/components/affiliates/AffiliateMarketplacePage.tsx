@@ -56,14 +56,12 @@ export function AffiliateMarketplacePage({ onBack, onSwitchToCreator, onApplyPar
         <div className="flex items-center gap-2">
           <button
             onClick={onApplyPartner}
-            className="px-4 py-2 rounded-xl text-sm font-medium border border-accent/40 text-accent"
-          >
+            className="px-4 py-2 rounded-xl text-sm font-medium border border-accent/40 text-accent">
             Apply to be a partner
           </button>
           <button
             onClick={onSwitchToCreator}
-            className="px-4 py-2 rounded-xl text-sm font-medium border border-white/10 text-muted-foreground hover:text-foreground transition-colors"
-          >
+            className="px-4 py-2 rounded-xl text-sm font-medium border border-white/10 text-muted-foreground hover:text-foreground transition-colors">
             Creator dashboard
           </button>
         </div>
@@ -122,8 +120,7 @@ export function AffiliateMarketplacePage({ onBack, onSwitchToCreator, onApplyPar
                   <td className="px-4 py-3">
                     <button
                       onClick={() => handleCompanyClick(listing)}
-                      className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-                    >
+                      className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                       <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0">
                         <img src={listing.avatarUrl} alt="" className="w-full h-full object-cover" />
                       </div>
@@ -140,15 +137,13 @@ export function AffiliateMarketplacePage({ onBack, onSwitchToCreator, onApplyPar
                     {isJoined(listing.id) ? (
                       <button
                         onClick={() => setViewAssetsId(listing.id)}
-                        className="px-3 py-1.5 rounded-lg text-xs font-medium text-green-400 border border-green-500/30 hover:bg-green-500/10 transition-colors"
-                      >
+                        className="px-3 py-1.5 rounded-lg text-xs font-medium text-green-400 border border-green-500/30 hover:bg-green-500/10 transition-colors">
                         View assets
                       </button>
                     ) : (
                       <button
                         onClick={() => handleDirectJoin(listing.id)}
-                        className="px-3 py-1.5 rounded-lg text-xs font-medium text-foreground border border-white/[0.08] hover:bg-white/[0.04] transition-colors"
-                      >
+                        className="px-3 py-1.5 rounded-lg text-xs font-medium text-foreground border border-white/[0.08] hover:bg-white/[0.04] transition-colors">
                         Become affiliate
                       </button>
                     )}

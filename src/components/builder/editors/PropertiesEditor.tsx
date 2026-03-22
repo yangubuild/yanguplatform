@@ -66,7 +66,7 @@ function mapRawProperty(p: any): Property {
       ? [p.image_url]
       : legacyPhotos.filter((ph: any) => ph?.url).map((ph: any) => ph.url);
   const existingMedia: MediaAsset[] = Array.isArray(p.media) ? p.media : [];
-  const media: MediaAsset[] = existingMedia.length > 0
+  const media: MediaAsset[] = existingMedia.length> 0
     ? existingMedia
     : legacyImages.filter(Boolean).map((url: string) => ({ type: "image" as const, src: url, provider: "url" as const }));
 
@@ -96,8 +96,8 @@ export function PropertiesEditor({ schema, update, surfaceId }: PropertiesFormPr
   // Read from properties or items (legacy)
   const rawProperties = Array.isArray(schema.properties) ? (schema.properties as any[]) : [];
   const rawLegacyItems = Array.isArray(schema.items) ? (schema.items as any[]) : [];
-  const sourceItems = rawProperties.length > 0 ? rawProperties : rawLegacyItems;
-  const isUsingLegacy = rawProperties.length === 0 && rawLegacyItems.length > 0;
+  const sourceItems = rawProperties.length> 0 ? rawProperties : rawLegacyItems;
+  const isUsingLegacy = rawProperties.length === 0 && rawLegacyItems.length> 0;
 
   const items = sourceItems.map(mapRawProperty);
 
@@ -190,7 +190,7 @@ export function PropertiesEditor({ schema, update, surfaceId }: PropertiesFormPr
           <p className="text-[10px] text-muted-foreground">Active</p>
         </div>
         <div className="bg-muted/50 rounded-lg p-2 text-center">
-          <p className="text-xs font-bold truncate">{totalValue > 0 ? totalValue.toLocaleString() : "—"}</p>
+          <p className="text-xs font-bold truncate">{totalValue> 0 ? totalValue.toLocaleString() : "—"}</p>
           <p className="text-[10px] text-muted-foreground">Value</p>
         </div>
       </div>
@@ -200,8 +200,7 @@ export function PropertiesEditor({ schema, update, surfaceId }: PropertiesFormPr
         <div
           key={i}
           className="border border-border rounded-lg p-3 cursor-pointer hover:bg-muted/30 transition-colors"
-          onClick={() => openEdit(i)}
-        >
+          onClick={() => openEdit(i)}>
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium truncate">{prop.title || "Untitled"}</p>
@@ -311,7 +310,7 @@ export function PropertiesEditor({ schema, update, surfaceId }: PropertiesFormPr
             <div className="space-y-1.5">
               <Label className="text-sm font-medium">Property Media (max 15)</Label>
               <p className="text-xs text-muted-foreground">First image is the cover photo. Supports images & videos.</p>
-              {form.media.length > 0 && form.media[0]?.src && (
+              {form.media.length> 0 && form.media[0]?.src && (
                 <div className="flex items-center gap-1.5 text-xs text-primary mb-1">
                   <Star className="h-3 w-3 fill-primary" /> Primary
                 </div>
@@ -319,7 +318,7 @@ export function PropertiesEditor({ schema, update, surfaceId }: PropertiesFormPr
               <MediaPickerList
                 items={form.media}
                 onChange={(next) => {
-                  if (next.length > 15) return;
+                  if (next.length> 15) return;
                   setForm({
                     ...form,
                     media: next,

@@ -4,8 +4,7 @@ export function BlogFooter() {
       <div className="mx-auto flex flex-col md:flex-row items-center justify-between gap-4" style={{ maxWidth: 1100 }}>
         <span
           className="text-sm"
-          style={{ fontFamily: "'Lufga', sans-serif" }}
-        >
+          style={{ fontFamily: "'Lufga', sans-serif" }}>
           EVERY
         </span>
         <span className="text-xs text-muted-foreground">

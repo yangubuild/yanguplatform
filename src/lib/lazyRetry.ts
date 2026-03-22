@@ -22,7 +22,7 @@ export function lazyRetry<T>(
             msg.includes("Loading chunk") ||
             msg.includes("Loading CSS chunk");
 
-          if (isChunkError && remaining > 0) {
+          if (isChunkError && remaining> 0) {
             // Small delay then retry — the browser may resolve the
             // new chunk URL once DNS / CDN propagation settles.
             setTimeout(() => attempt(remaining - 1), 1500);
@@ -55,7 +55,7 @@ export function lazyRetry<T>(
  * build was deployed while the tab was in the background).
  *
  * Previous implementation compared a runtime `Date.now()` against the
- * build-time value, which always differed by >30 s and caused an
+ * build-time value, which always differed by>30 s and caused an
  * infinite reload loop.
  */
 

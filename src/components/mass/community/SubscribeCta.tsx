@@ -9,8 +9,7 @@ export function SubscribeCta() {
     <section className="w-full px-4 sm:px-6 lg:px-10 transition-colors duration-300" style={{ backgroundColor: c.bg }}>
       <div
         className="mx-auto my-10 flex max-w-[1100px] items-center justify-between overflow-hidden rounded-2xl px-10 py-16"
-        style={{ background: "radial-gradient(ellipse at 40% 60%, #1a5c3a 0%, #0f3d2a 30%, #0a2e1e 50%, #0d1f15 70%, #0a1710 100%)" }}
-      >
+        style={{ background: "radial-gradient(ellipse at 40% 60%, #1a5c3a 0%, #0f3d2a 30%, #0a2e1e 50%, #0d1f15 70%, #0a1710 100%)" }}>
         <div>
           <h2 className={`max-w-[360px] ${T.header} text-foreground`}>
             Be the first to<br />know about new creators<br />and communities

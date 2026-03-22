@@ -37,7 +37,7 @@ export default function InfluencerPage() {
 
     // Inject links into the links section
     const linksSection = seedSections.find((s) => s.type === "links");
-    if (linksSection && linkItems.length > 0) {
+    if (linksSection && linkItems.length> 0) {
       linksSection.schema.items = linkItems;
     }
 
@@ -55,5 +55,5 @@ export default function InfluencerPage() {
     });
   }, [user, engine, initAndNavigate]);
 
-  return <div className="min-h-screen bg-background" ><BuilderEntryScreen engine={engine} onComplete={handleComplete} /></div>;
+  return <div className="min-h-screen bg-background"><BuilderEntryScreen engine={engine} onComplete={handleComplete} /></div>;
 }

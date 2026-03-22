@@ -118,14 +118,14 @@ export default function PromoCodesPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full min-h-[60vh] min-h-screen bg-background" >
+      <div className="flex items-center justify-center h-full min-h-[60vh] min-h-screen bg-background">
         <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="h-full min-h-screen bg-background" >
+    <div className="h-full min-h-screen bg-background">
       {promoCodes.length === 0 ? (
         <PromoEmptyState
           onCreateClick={() => setShowCreate(true)}
@@ -148,8 +148,7 @@ export default function PromoCodesPage() {
                 <Button
                   variant="accent"
                   onClick={() => setShowCreateOffer(true)}
-                  className="rounded-xl px-4 h-9 gap-2 text-sm"
-                >
+                  className="rounded-xl px-4 h-9 gap-2 text-sm">
                   <Send className="w-4 h-4" />
                   Create Offer
                 </Button>

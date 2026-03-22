@@ -31,8 +31,7 @@ function DarkSelect({
         <button
           type="button"
           onClick={() => setOpen(!open)}
-          className="w-full flex items-center justify-between rounded-xl px-4 h-11 text-sm text-muted-foreground border border-white/10 bg-white/[0.04] hover:bg-white/[0.06] transition-colors"
-        >
+          className="w-full flex items-center justify-between rounded-xl px-4 h-11 text-sm text-muted-foreground border border-white/10 bg-white/[0.04] hover:bg-white/[0.06] transition-colors">
           <span>{options.find((o) => o.value === value)?.label || value}</span>
           <ChevronDown className="w-4 h-4 text-muted-foreground" />
         </button>
@@ -47,8 +46,7 @@ function DarkSelect({
                   onClick={() => { onChange(opt.value); setOpen(false); }}
                   className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-left transition-colors ${
                     value === opt.value ? "bg-white/[0.08] text-foreground" : "text-muted-foreground hover:bg-white/[0.04]"
-                  }`}
-                >
+                  }`}>
                   {value === opt.value && <Check className="w-4 h-4 text-muted-foreground" />}
                   {value !== opt.value && <span className="w-4" />}
                   {opt.label}
@@ -75,14 +73,12 @@ function DarkCheckbox({
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className="flex items-center gap-3 py-2 group"
-    >
+      className="flex items-center gap-3 py-2 group">
       <div
         className="w-5 h-5 rounded flex items-center justify-center border transition-all shrink-0"
         style={{
           background: checked ? "#3b82f6" : "transparent",
-          borderColor: checked ? "#3b82f6" : "rgba(255,255,255,0.2)" }}
-      >
+          borderColor: checked ? "#3b82f6" : "rgba(255,255,255,0.2)" }}>
         {checked && <Check className="w-3.5 h-3.5 text-foreground" />}
       </div>
       <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">{label}</span>
@@ -112,7 +108,7 @@ export function CreatePromoModal({ open, onClose, onSubmit, isSubmitting }: Prop
     setForm((prev) => ({ ...prev, [key]: val }));
 
   const publishedSurfaces = surfaces.filter(
-    (s) => s.activePublishes && s.activePublishes.length > 0
+    (s) => s.activePublishes && s.activePublishes.length> 0
   );
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -131,15 +127,13 @@ export function CreatePromoModal({ open, onClose, onSubmit, isSubmitting }: Prop
       {/* Modal */}
       <div
         className="relative z-10 w-full max-w-md mx-auto rounded-2xl border border-white/10 flex flex-col"
-        style={{ background: "#111a15", maxHeight: "90vh" }}
-      >
+        style={{ background: "#111a15", maxHeight: "90vh" }}>
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-3">
           <h2 className="text-base font-semibold text-foreground">Create promo code</h2>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg hover:bg-white/[0.06] transition-colors"
-          >
+            className="p-1 rounded-lg hover:bg-white/[0.06] transition-colors">
             <X className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
@@ -241,8 +235,7 @@ export function CreatePromoModal({ open, onClose, onSubmit, isSubmitting }: Prop
               <button
                 type="button"
                 onClick={() => setAffiliateOpen(!affiliateOpen)}
-                className="w-full flex items-center justify-between rounded-xl px-4 h-11 text-sm text-muted-foreground border border-white/10 bg-white/[0.04] hover:bg-white/[0.06] transition-colors"
-              >
+                className="w-full flex items-center justify-between rounded-xl px-4 h-11 text-sm text-muted-foreground border border-white/10 bg-white/[0.04] hover:bg-white/[0.06] transition-colors">
                 <span>Search for affiliate</span>
                 <ChevronDown className="w-4 h-4 text-muted-foreground" />
               </button>
@@ -321,7 +314,7 @@ export function CreatePromoModal({ open, onClose, onSubmit, isSubmitting }: Prop
               onChange={(v) => update("applyToSpecificProducts", v)}
               label="Apply to specific products"
             />
-            {form.applyToSpecificProducts && publishedSurfaces.length > 0 && (
+            {form.applyToSpecificProducts && publishedSurfaces.length> 0 && (
               <div className="ml-8 mt-1 mb-2 space-y-2">
                 {publishedSurfaces.map((s) => {
                   const selected = form.applicableProductIds.includes(s.id);
@@ -342,8 +335,7 @@ export function CreatePromoModal({ open, onClose, onSubmit, isSubmitting }: Prop
                         selected
                           ? "border-accent/40 bg-accent/10 text-foreground"
                           : "border-white/10 bg-white/[0.04] text-muted-foreground hover:bg-white/[0.06]"
-                      }`}
-                    >
+                      }`}>
                       <ChevronDown className="w-4 h-4" />
                       <span className="uppercase tracking-wide text-xs font-medium truncate">
                         {s.title || "Untitled"}
@@ -368,8 +360,7 @@ export function CreatePromoModal({ open, onClose, onSubmit, isSubmitting }: Prop
             disabled={isSubmitting || !form.code.trim()}
             onClick={handleSubmit as any}
             className="w-full h-12 rounded-xl text-sm font-semibold text-foreground transition-all disabled:opacity-40"
-            style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
-          >
+            style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}>
             {isSubmitting ? "Creating…" : "Create"}
           </button>
         </div>

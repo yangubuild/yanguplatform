@@ -88,16 +88,14 @@ export function SocialLinksModal({ open, onOpenChange, initialData, onSave, savi
           <Button
             variant="ghost"
             onClick={() => onOpenChange(false)}
-            className="text-muted-foreground hover:text-foreground hover:bg-white/10"
-          >
+            className="text-muted-foreground hover:text-foreground hover:bg-white/10">
             Cancel
           </Button>
           <Button
             onClick={handleSave}
             disabled={saving}
             style={{ background: "#E67E22" }}
-            className="text-foreground hover:opacity-90"
-          >
+            className="text-foreground hover:opacity-90">
             {saving ? "Saving…" : "Save"}
           </Button>
         </DialogFooter>

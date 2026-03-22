@@ -122,21 +122,21 @@ function OperationalAlerts() {
 
   const alerts = data?.manual_alerts ?? [];
   const auto = data?.auto_detected ?? { email_dlq_24h: 0, failed_publishes: 0, failed_webhooks_24h: 0, stuck_jobs: 0 };
-  const hasCritical = alerts.some((a) => a.severity === "critical") || auto.email_dlq_24h > 0 || auto.failed_publishes > 0 || auto.failed_webhooks_24h > 0;
+  const hasCritical = alerts.some((a) => a.severity === "critical") || auto.email_dlq_24h> 0 || auto.failed_publishes> 0 || auto.failed_webhooks_24h> 0;
 
   // Build unified list
   const items: Array<{ id: string; severity: string; title: string; detail: string; icon: typeof AlertTriangle }> = [];
 
-  if (auto.email_dlq_24h > 0) {
+  if (auto.email_dlq_24h> 0) {
     items.push({ id: "auto-dlq", severity: "critical", title: "Email DLQ failures", detail: `${auto.email_dlq_24h} email(s) failed delivery in last 24h`, icon: Mail });
   }
-  if (auto.failed_publishes > 0) {
+  if (auto.failed_publishes> 0) {
     items.push({ id: "auto-pub", severity: "critical", title: "Publish failures", detail: `${auto.failed_publishes} surface publish(es) in failed state`, icon: Globe });
   }
-  if (auto.failed_webhooks_24h > 0) {
+  if (auto.failed_webhooks_24h> 0) {
     items.push({ id: "auto-whk", severity: "critical", title: "Webhook failures", detail: `${auto.failed_webhooks_24h} webhook delivery failure(s) in last 24h`, icon: Globe });
   }
-  if (auto.stuck_jobs > 0) {
+  if (auto.stuck_jobs> 0) {
     items.push({ id: "auto-jobs", severity: "warning", title: "Stuck jobs", detail: `${auto.stuck_jobs} job(s) stuck for over 1 hour`, icon: FileWarning });
   }
   alerts.forEach((a) => {
@@ -182,8 +182,7 @@ function OperationalAlerts() {
           <button
             key={item.id}
             className="flex w-full items-center justify-between rounded-lg border border-[hsl(var(--admin-border)/0.4)] px-3 py-2 text-sm hover:bg-[hsl(var(--admin-surface-elevated)/0.3)] transition-colors"
-            onClick={() => navigate(manageLink("alerts-security"))}
-          >
+            onClick={() => navigate(manageLink("alerts-security"))}>
             <span className="flex items-center gap-2 text-[hsl(var(--admin-text))]">
               <item.icon className={`h-4 w-4 ${item.severity === "critical" ? "text-[hsl(0,72%,51%)]" : "text-[hsl(38,92%,55%)]"}`} />
               {item.title}

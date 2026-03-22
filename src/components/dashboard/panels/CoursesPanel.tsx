@@ -73,8 +73,7 @@ function LevelBadge({ level }: { level: string }) {
   return (
     <span
       className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
-      style={{ background: color, color: text }}
-    >
+      style={{ background: color, color: text }}>
       {level}
     </span>
   );
@@ -119,8 +118,7 @@ export function CoursesPanel() {
             <button
               onClick={() => navigate("/dashboard/visionaire/university")}
               className="text-[11px] font-medium flex items-center gap-1 transition-colors hover:text-foreground"
-              style={{ color: "#E67E22" }}
-            >
+              style={{ color: "#E67E22" }}>
               View All <ArrowRight className="w-3 h-3" />
             </button>
           </div>
@@ -133,12 +131,10 @@ export function CoursesPanel() {
                 className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition-colors hover:bg-white/[0.04]"
                 style={{
                   background: "rgba(255,255,255,0.02)",
-                  border: "1px solid rgba(255,255,255,0.05)" }}
-              >
+                  border: "1px solid rgba(255,255,255,0.05)" }}>
                 <div
                   className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
-                  style={{ background: "rgba(230,126,34,0.12)" }}
-                >
+                  style={{ background: "rgba(230,126,34,0.12)" }}>
                   <GraduationCap className="w-4 h-4" style={{ color: "#E67E22" }} />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -177,8 +173,7 @@ export function CoursesPanel() {
               className="rounded-lg px-4 py-6 text-center"
               style={{
                 background: "rgba(255,255,255,0.02)",
-                border: "1px solid rgba(255,255,255,0.05)" }}
-            >
+                border: "1px solid rgba(255,255,255,0.05)" }}>
               <Bookmark className="w-5 h-5 mx-auto mb-2 text-muted-foreground" />
               <p className="text-xs text-muted-foreground">
                 No saved learning materials yet.
@@ -186,8 +181,7 @@ export function CoursesPanel() {
               <button
                 onClick={() => navigate("/dashboard/visionaire")}
                 className="text-xs font-medium mt-2 inline-flex items-center gap-1"
-                style={{ color: "#E67E22" }}
-              >
+                style={{ color: "#E67E22" }}>
                 Browse Visionaire <ExternalLink className="w-3 h-3" />
               </button>
             </div>
@@ -200,8 +194,7 @@ export function CoursesPanel() {
                   className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition-colors hover:bg-white/[0.04]"
                   style={{
                     background: "rgba(255,255,255,0.02)",
-                    border: "1px solid rgba(255,255,255,0.05)" }}
-                >
+                    border: "1px solid rgba(255,255,255,0.05)" }}>
                   {item.thumbnail_url ? (
                     <img
                       src={item.thumbnail_url}
@@ -211,8 +204,7 @@ export function CoursesPanel() {
                   ) : (
                     <div
                       className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
-                      style={{ background: "rgba(255,255,255,0.06)" }}
-                    >
+                      style={{ background: "rgba(255,255,255,0.06)" }}>
                       <BookOpen className="w-4 h-4 text-muted-foreground" />
                     </div>
                   )}
@@ -240,8 +232,7 @@ export function CoursesPanel() {
             className="rounded-lg px-4 py-6 text-center"
             style={{
               background: "rgba(255,255,255,0.02)",
-              border: "1px solid rgba(255,255,255,0.05)" }}
-          >
+              border: "1px solid rgba(255,255,255,0.05)" }}>
             <GraduationCap className="w-5 h-5 mx-auto mb-2 text-muted-foreground" />
             <p className="text-xs text-muted-foreground">
               Community course creation is coming soon.

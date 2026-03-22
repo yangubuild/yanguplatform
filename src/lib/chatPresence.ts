@@ -17,7 +17,7 @@ export function buildChatPresenceMap<T extends PresenceMessage>(
     const timestamp = new Date(message.created_at).getTime();
     if (!Number.isFinite(timestamp)) continue;
     const existing = latestByUser.get(message.user_id) ?? 0;
-    if (timestamp > existing) latestByUser.set(message.user_id, timestamp);
+    if (timestamp> existing) latestByUser.set(message.user_id, timestamp);
   }
 
   const now = Date.now();

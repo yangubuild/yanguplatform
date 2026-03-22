@@ -117,8 +117,7 @@ export default function ProductDescriptions() {
           <div className="border-b border-border">
             <button
               onClick={() => setDetailsOpen(!detailsOpen)}
-              className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors"
-            >
+              className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors">
               Product Details
               {detailsOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
             </button>
@@ -128,14 +127,12 @@ export default function ProductDescriptions() {
                 <div className="flex rounded-md border border-border overflow-hidden">
                   <button
                     onClick={() => setMode("library")}
-                    className={`flex-1 text-xs py-1.5 font-medium transition-colors ${mode === "library" ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/50"}`}
-                  >
+                    className={`flex-1 text-xs py-1.5 font-medium transition-colors ${mode === "library" ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/50"}`}>
                     Library
                   </button>
                   <button
                     onClick={() => setMode("custom")}
-                    className={`flex-1 text-xs py-1.5 font-medium transition-colors ${mode === "custom" ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/50"}`}
-                  >
+                    className={`flex-1 text-xs py-1.5 font-medium transition-colors ${mode === "custom" ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/50"}`}>
                     Custom
                   </button>
                 </div>
@@ -165,8 +162,7 @@ export default function ProductDescriptions() {
                               selectedProduct?.id === fp.id
                                 ? "ring-2 ring-primary bg-muted/60"
                                 : "hover:bg-muted/40"
-                            }`}
-                          >
+                            }`}>
                             <img
                               src={fp.image}
                               alt={fp.title}
@@ -186,8 +182,7 @@ export default function ProductDescriptions() {
                               selectedProduct?.id === item.id
                                 ? "ring-2 ring-primary bg-muted/60"
                                 : "hover:bg-muted/40"
-                            }`}
-                          >
+                            }`}>
                             {item.preview_image_url ? (
                               <img
                                 src={item.preview_image_url}
@@ -241,8 +236,7 @@ export default function ProductDescriptions() {
           <div className="border-b border-border">
             <button
               onClick={() => setCustomizationOpen(!customizationOpen)}
-              className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors"
-            >
+              className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors">
               Customization
               {customizationOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
             </button>
@@ -263,8 +257,7 @@ export default function ProductDescriptions() {
                   <select
                     value={tone}
                     onChange={(e) => setTone(e.target.value)}
-                    className="mt-1 w-full h-8 rounded-md border border-border bg-background px-2 text-xs text-foreground"
-                  >
+                    className="mt-1 w-full h-8 rounded-md border border-border bg-background px-2 text-xs text-foreground">
                     <option value="">Select tone</option>
                     <option value="professional">Professional</option>
                     <option value="casual">Casual</option>
@@ -288,8 +281,7 @@ export default function ProductDescriptions() {
                   <select
                     value={ctaStyle}
                     onChange={(e) => setCtaStyle(e.target.value)}
-                    className="mt-1 w-full h-8 rounded-md border border-border bg-background px-2 text-xs text-foreground"
-                  >
+                    className="mt-1 w-full h-8 rounded-md border border-border bg-background px-2 text-xs text-foreground">
                     <option value="">Select CTA style</option>
                     <option value="direct">Direct</option>
                     <option value="soft">Soft</option>
@@ -306,8 +298,7 @@ export default function ProductDescriptions() {
             <Button
               className="w-full bg-[hsl(var(--accent))] hover:bg-[hsl(var(--accent))]/90 text-foreground text-xs font-medium"
               onClick={handleGenerate}
-              disabled={loading}
-            >
+              disabled={loading}>
               {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : null}
               Generate Description
             </Button>
@@ -330,8 +321,7 @@ export default function ProductDescriptions() {
                   activeTab === key
                     ? "border-foreground text-foreground"
                     : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
-              >
+                }`}>
                 <Icon className="h-3.5 w-3.5" />
                 {label}
               </button>
@@ -343,8 +333,7 @@ export default function ProductDescriptions() {
             className="flex-1 overflow-y-auto"
             style={{
               backgroundImage: "radial-gradient(circle, hsl(var(--border)) 1px, transparent 1px)",
-              backgroundSize: "20px 20px" }}
-          >
+              backgroundSize: "20px 20px" }}>
             {activeTab === "logs" && (
               <div className="p-5 space-y-1 font-mono text-xs">
                 {logs.map((log, i) => (
@@ -356,8 +345,7 @@ export default function ProductDescriptions() {
                           : log.level === "warn"
                           ? "text-amber-500"
                           : "text-red-500"
-                      }
-                    >
+                      }>
                       {log.level === "info" ? "ℹ" : log.level === "warn" ? "⚠" : "✕"}
                     </span>
                     <span className="text-muted-foreground">[{log.time}]</span>
@@ -393,8 +381,7 @@ export default function ProductDescriptions() {
                       onClick={() => {
                         setOutput(run.output || "");
                         setActiveTab("output");
-                      }}
-                    >
+                      }}>
                       <p className="text-xs font-medium text-foreground truncate">
                         {(run.input as any)?.productName || "Untitled"}
                       </p>

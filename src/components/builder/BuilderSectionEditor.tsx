@@ -515,7 +515,7 @@ function ItemListWithMedia({ items, onChange, heading, surfaceId }: {
         // Migrate legacy image_url to media[]
         const legacyUrl = item.image_url as string | undefined;
         const existingMedia: MediaAsset[] = (item.media as MediaAsset[]) || [];
-        const media: MediaAsset[] = existingMedia.length > 0
+        const media: MediaAsset[] = existingMedia.length> 0
           ? existingMedia
           : legacyUrl ? [{ type: "image" as const, src: legacyUrl, provider: "url" as const }] : [];
 
@@ -754,8 +754,7 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
         <div key={ci} className="border border-border rounded-lg overflow-hidden">
           <div
             className="flex items-center gap-2 px-3 py-2.5 bg-muted/30 cursor-pointer hover:bg-muted/50"
-            onClick={() => openEditCat(ci)}
-          >
+            onClick={() => openEditCat(ci)}>
             <span className="text-base">{cat.icon}</span>
             <span className="flex-1 text-sm font-medium truncate">{cat.name || "Untitled"}</span>
             <span className="text-xs text-muted-foreground">{cat.items.length} items</span>
@@ -763,14 +762,13 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
               <Trash2 className="h-3 w-3 text-muted-foreground" />
             </Button>
           </div>
-          {cat.items.length > 0 && (
+          {cat.items.length> 0 && (
             <div className="divide-y divide-border">
               {cat.items.map((item, ii) => (
                 <div
                   key={ii}
                   className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent/5"
-                  onClick={() => openEditItem(ci, ii)}
-                >
+                  onClick={() => openEditItem(ci, ii)}>
                   {item.image_url && (
                     <img src={item.image_url} alt={item.name} className="h-8 w-8 rounded object-cover shrink-0" />
                   )}
@@ -790,8 +788,7 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
             variant="ghost"
             size="sm"
             className="w-full text-xs gap-1 rounded-none border-t border-border"
-            onClick={() => openCreateItem(ci)}
-          >
+            onClick={() => openCreateItem(ci)}>
             <Plus className="h-3 w-3" /> Add Item
           </Button>
         </div>
@@ -1347,8 +1344,7 @@ export function BuilderSectionEditor({
               <Label className="text-xs">Radius</Label>
               <Select
                 value={String(((localSchema.button_style as any)?.radius as string) || "8")}
-                onValueChange={(v) => updateButtonStyle("radius", v)}
-              >
+                onValueChange={(v) => updateButtonStyle("radius", v)}>
                 <SelectTrigger className="text-sm"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="0">Square</SelectItem>
@@ -1367,8 +1363,7 @@ export function BuilderSectionEditor({
         <Button
           className="w-full gap-2"
           disabled={!dirty || isSaving}
-          onClick={handleSave}
-        >
+          onClick={handleSave}>
           {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           Save changes
         </Button>

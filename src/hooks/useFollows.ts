@@ -37,7 +37,7 @@ export function useIsFollowing(targetUserId: string | undefined) {
         .eq("follower_id", user!.id)
         .eq("following_id", targetUserId!);
       if (error) throw error;
-      return (count ?? 0) > 0;
+      return (count ?? 0)> 0;
     },
   });
 }

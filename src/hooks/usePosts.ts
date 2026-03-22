@@ -146,7 +146,7 @@ function updateReactionInCache(
  * Helper: returns true if a post has a valid cover image
  */
 export function postHasCover(post: { media_urls?: string[] | null }): boolean {
-  return !!(post.media_urls && post.media_urls.length > 0 && post.media_urls[0]);
+  return !!(post.media_urls && post.media_urls.length> 0 && post.media_urls[0]);
 }
 
 export function useUserPosts(userId: string | undefined) {

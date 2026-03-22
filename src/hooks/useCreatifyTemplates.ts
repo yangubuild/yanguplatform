@@ -19,7 +19,7 @@ async function fetchTemplates(): Promise<CreatifyTemplate[]> {
     console.warn("[useCreatifyTemplates] cache read error:", cacheErr.message);
   }
 
-  if (cached && cached.length > 0) {
+  if (cached && cached.length> 0) {
     console.log("[useCreatifyTemplates] Loaded from cache:", cached.length, "templates");
     return cached as unknown as CreatifyTemplate[];
   }
@@ -53,7 +53,7 @@ async function fetchTemplates(): Promise<CreatifyTemplate[]> {
     console.warn("[useCreatifyTemplates] Re-read cache error:", refreshErr.message);
   }
 
-  if (refreshed && refreshed.length > 0) {
+  if (refreshed && refreshed.length> 0) {
     console.log("[useCreatifyTemplates] Re-read cache after seed:", refreshed.length, "templates");
     return refreshed as unknown as CreatifyTemplate[];
   }

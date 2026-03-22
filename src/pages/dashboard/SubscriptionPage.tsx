@@ -43,7 +43,7 @@ export default function SubscriptionPage() {
   const balance = typeof credits === "number" ? credits : 1;
 
   return (
-    <div className="max-w-4xl mx-auto py-6 px-4 min-h-screen bg-background" >
+    <div className="max-w-4xl mx-auto py-6 px-4 min-h-screen bg-background">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-lg font-semibold text-foreground">Choose a plan that works for you</h1>
@@ -55,8 +55,7 @@ export default function SubscriptionPage() {
               className="px-4 py-1.5 text-sm font-medium capitalize transition-colors"
               style={{
                 background: billingType === t ? "rgba(255,255,255,0.1)" : "transparent",
-                color: billingType === t ? "#fff" : "rgba(255,255,255,0.5)" }}
-            >
+                color: billingType === t ? "#fff" : "rgba(255,255,255,0.5)" }}>
               {t}
             </button>
           ))}
@@ -71,21 +70,18 @@ export default function SubscriptionPage() {
             className="rounded-2xl p-6 flex flex-col relative"
             style={{
               background: plan.current ? "#1a2025" : "#232a30",
-              border: plan.popular ? "2px solid #2d5a3d" : "1px solid rgba(255,255,255,0.08)" }}
-          >
+              border: plan.popular ? "2px solid #2d5a3d" : "1px solid rgba(255,255,255,0.08)" }}>
             {plan.popular && (
               <span
                 className="absolute -top-3 left-1/2 -translate-x-1/2 text-[11px] font-bold px-3 py-1 rounded-full"
-                style={{ border: "1px solid rgba(255,255,255,0.15)" }}
-              >
+                style={{ border: "1px solid rgba(255,255,255,0.15)" }}>
                 Most Popular
               </span>
             )}
             {plan.highValue && (
               <span
                 className="absolute -top-3 left-1/2 -translate-x-1/2 text-[11px] font-bold px-3 py-1 rounded-full"
-                style={{ border: "1px solid rgba(255,255,255,0.15)" }}
-              >
+                style={{ border: "1px solid rgba(255,255,255,0.15)" }}>
                 Highest Value
               </span>
             )}
@@ -109,8 +105,7 @@ export default function SubscriptionPage() {
               style={{
                 background: plan.current ? "transparent" : "#2d5a3d",
                 border: plan.current ? "1px solid rgba(255,255,255,0.15)" : "none",
-                color: plan.current ? "rgba(255,255,255,0.5)" : "#fff" }}
-            >
+                color: plan.current ? "rgba(255,255,255,0.5)" : "#fff" }}>
               {plan.current ? "Current Plan" : "Get Started"}
             </button>
 
@@ -140,8 +135,7 @@ export default function SubscriptionPage() {
           <button
             onClick={() => navigate("/dashboard/profile/subscription")}
             className="flex items-center gap-2 w-full justify-center py-2 rounded-xl text-sm"
-            style={{ border: "1px solid rgba(255,255,255,0.12)" }}
-          >
+            style={{ border: "1px solid rgba(255,255,255,0.12)" }}>
             <Settings className="w-4 h-4" /> Manage Subscription
           </button>
         </div>

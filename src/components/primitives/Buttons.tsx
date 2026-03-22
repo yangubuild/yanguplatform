@@ -31,8 +31,7 @@ const sizeClasses = {
  */
 export const PrimaryButton = React.forwardRef<
   HTMLButtonElement,
-  PrimaryButtonProps
->(({ className, size = "md", asChild = false, ...props }, ref) => {
+  PrimaryButtonProps>(({ className, size = "md", asChild = false, ...props }, ref) => {
   const Comp = asChild ? Slot : "button";
   return (
     <Comp
@@ -66,8 +65,7 @@ interface SecondaryButtonProps
  */
 export const SecondaryButton = React.forwardRef<
   HTMLButtonElement,
-  SecondaryButtonProps
->(({ className, size = "md", variant = "default", asChild = false, ...props }, ref) => {
+  SecondaryButtonProps>(({ className, size = "md", variant = "default", asChild = false, ...props }, ref) => {
   const Comp = asChild ? Slot : "button";
 
   const variantClasses = {

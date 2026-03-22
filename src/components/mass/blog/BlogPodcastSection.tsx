@@ -28,15 +28,13 @@ export function BlogPodcastSection() {
       className="px-6 py-10 transition-all duration-[400ms] ease-out"
       style={{
         opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(8px)" }}
-    >
+        transform: visible ? "translateY(0)" : "translateY(8px)" }}>
       <div className="mx-auto" style={{ maxWidth: 1100 }}>
         {/* Header */}
         <div className="flex items-center justify-between mb-2">
           <h2
             className="text-xs font-semibold uppercase tracking-widest"
-            style={{ letterSpacing: "0.15em" }}
-          >
+            style={{ letterSpacing: "0.15em" }}>
             yangu Podcast
           </h2>
           <ArrowRight className="w-4 h-4 text-muted-foreground" />
@@ -75,8 +73,7 @@ export function BlogPodcastSection() {
               </span>
               <h4
                 className="font-medium leading-snug group-hover:text-foreground transition-colors"
-                style={{ fontFamily: "'Lufga', sans-serif", fontSize: 18 }}
-              >
+                style={{ fontFamily: "'Lufga', sans-serif", fontSize: 18 }}>
                 {ep.title}
               </h4>
               <p className="text-sm mt-2 leading-relaxed text-muted-foreground">

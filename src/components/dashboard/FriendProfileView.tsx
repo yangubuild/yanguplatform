@@ -168,12 +168,11 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
   );
 
   return (
-    <div className="flex flex-col h-full bg-card" >
+    <div className="flex flex-col h-full bg-card">
       {/* Top bar with back */}
       <div
         className="flex items-center gap-3 px-5 py-2.5 shrink-0"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
-      >
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         <button onClick={onBack} className="p-1 rounded-md hover:bg-white/5 text-muted-foreground">
           <ArrowLeft className="w-4 h-4" />
         </button>
@@ -196,8 +195,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
             className="w-[80px] h-[80px] rounded-full flex items-center justify-center text-xl font-bold overflow-hidden"
             style={{
               background: resolvedAvatar ? "transparent" : "#1e293b",
-              border: "4px solid #0f141a" }}
-          >
+              border: "4px solid #0f141a" }}>
             {resolvedAvatar ? (
               <img src={resolvedAvatar} alt="" className="w-full h-full rounded-full object-cover" />
             ) : (
@@ -224,8 +222,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
             {isCommunityType ? (
               <button
                 className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold shrink-0"
-                style={{ background: "#22c55e" }}
-              >
+                style={{ background: "#22c55e" }}>
                 <Users className="w-3.5 h-3.5" /> Join
               </button>
             ) : (
@@ -235,8 +232,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
 
           {/* Meta row */}
           <div
-            className="flex items-center gap-2.5 mt-2.5 text-xs flex-wrap text-muted-foreground"
-          >
+            className="flex items-center gap-2.5 mt-2.5 text-xs flex-wrap text-muted-foreground">
             <span className="flex items-center gap-1">
               <MapPin className="w-3 h-3" />
               {(friendProfile as any)?.location || "Location"}
@@ -262,8 +258,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
                 key={tab}
                 onClick={() => handleTabChange(tab)}
                 className="relative pb-2.5 text-sm font-medium transition-colors"
-                style={{ color: activeTab === tab ? "#E67E22" : "rgba(255,255,255,0.45)" }}
-              >
+                style={{ color: activeTab === tab ? "#E67E22" : "rgba(255,255,255,0.45)" }}>
                 {tab}
                 {activeTab === tab && (
                   <span
@@ -293,8 +288,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
               ) : surfaces.length === 0 ? (
                 <div
                   className="rounded-xl p-8 text-center"
-                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
-                >
+                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
                   <p className="text-sm text-foreground mb-1">No published surfaces</p>
                   <p className="text-xs text-muted-foreground">
                     This user has no public offerings yet.
@@ -309,15 +303,13 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
                       target="_blank"
                       rel="noopener noreferrer"
                       className="rounded-xl overflow-hidden hover:ring-1 hover:ring-white/10 transition-all"
-                      style={{ background: "#1a2129", border: "1px solid rgba(255,255,255,0.06)" }}
-                    >
+                      style={{ background: "#1a2129", border: "1px solid rgba(255,255,255,0.06)" }}>
                       {surface.cover_image ? (
                         <img src={surface.cover_image} alt={surface.title || ""} className="w-full h-24 object-cover" />
                       ) : (
                         <div
                           className="h-24 flex items-center justify-center text-3xl font-bold"
-                          style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)" }}
-                        >
+                          style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)" }}>
                           {(surface.title || "S").charAt(0)}
                         </div>
                       )}
@@ -341,8 +333,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
               {/* Submit review form */}
               <div
                 className="rounded-xl p-4"
-                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
-              >
+                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
                 <p className="text-sm font-semibold text-foreground mb-2">Leave a review</p>
                 {renderStars(reviewRating, true)}
                 <textarea
@@ -357,9 +348,8 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
                   disabled={reviewRating === 0}
                   className="mt-2 flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold"
                   style={{
-                    background: reviewRating > 0 ? "linear-gradient(135deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.08)",
-                    color: reviewRating > 0 ? "#fff" : "rgba(255,255,255,0.35)" }}
-                >
+                    background: reviewRating> 0 ? "linear-gradient(135deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.08)",
+                    color: reviewRating> 0 ? "#fff" : "rgba(255,255,255,0.35)" }}>
                   <Send className="w-3.5 h-3.5" /> Submit
                 </button>
               </div>
@@ -382,8 +372,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
                   <div
                     key={review.id}
                     className="rounded-lg p-3"
-                    style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
-                  >
+                    style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
                     <div className="flex items-center gap-2 mb-1.5">
                       <div className="w-5 h-5 rounded-full overflow-hidden shrink-0" style={{ background: "rgba(255,255,255,0.1)" }}>
                         {review.reviewer_avatar ? <img src={review.reviewer_avatar} alt="" className="w-5 h-5 rounded-full object-cover" /> : <div className="w-5 h-5 flex items-center justify-center text-[8px] font-bold text-muted-foreground">{(review.reviewer_name||"U").slice(0,2).toUpperCase()}</div>}

@@ -39,9 +39,9 @@ interface TrackableEntity {
 
 function getTrustBand(score: number | null | undefined): string | null {
   if (score == null) return null;
-  if (score >= 65) return "high";
-  if (score >= 40) return "moderate";
-  if (score >= 20) return "emerging";
+  if (score>= 65) return "high";
+  if (score>= 40) return "moderate";
+  if (score>= 20) return "emerging";
   return "low";
 }
 

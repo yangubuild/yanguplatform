@@ -74,8 +74,7 @@ export function ConsoleDataTable<T extends { id?: string }>({
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="h-9 rounded-md border border-white/10 bg-white/5 text-foreground text-sm px-3"
-          >
+            className="h-9 rounded-md border border-white/10 bg-white/5 text-foreground text-sm px-3">
             <option value="all">All statuses</option>
             {statusFilter.options.map((opt) => (
               <option key={opt} value={opt}>{opt}</option>
@@ -87,8 +86,7 @@ export function ConsoleDataTable<T extends { id?: string }>({
             onClick={onCreateClick}
             size="sm"
             variant="accent"
-            className="ml-auto gap-1.5"
-          >
+            className="ml-auto gap-1.5">
             <Plus className="w-4 h-4" />
             {createLabel}
           </Button>
@@ -99,8 +97,7 @@ export function ConsoleDataTable<T extends { id?: string }>({
         className="rounded-xl overflow-hidden"
         style={{
           background: "rgba(255,255,255,0.03)",
-          border: "1px solid rgba(255,255,255,0.10)" }}
-      >
+          border: "1px solid rgba(255,255,255,0.10)" }}>
         {isLoading ? (
           <div className="p-8 text-center text-muted-foreground text-sm">Loading…</div>
         ) : filtered.length === 0 ? (
@@ -114,7 +111,7 @@ export function ConsoleDataTable<T extends { id?: string }>({
                     {col.header}
                   </th>
                 ))}
-                {rowActions && rowActions.length > 0 && <th className="w-10" />}
+                {rowActions && rowActions.length> 0 && <th className="w-10" />}
               </tr>
             </thead>
             <tbody>
@@ -127,7 +124,7 @@ export function ConsoleDataTable<T extends { id?: string }>({
                         : String(row[col.accessor] ?? "—")}
                     </td>
                   ))}
-                  {rowActions && rowActions.length > 0 && (
+                  {rowActions && rowActions.length> 0 && (
                     <td className="px-2 py-3">
                       {canWrite ? (
                         <DropdownMenu>
@@ -141,8 +138,7 @@ export function ConsoleDataTable<T extends { id?: string }>({
                               <DropdownMenuItem
                                 key={action.label}
                                 onClick={() => action.onClick(row)}
-                                className={`text-sm ${action.destructive ? "text-red-400" : "text-muted-foreground"}`}
-                              >
+                                className={`text-sm ${action.destructive ? "text-red-400" : "text-muted-foreground"}`}>
                                 {action.label}
                               </DropdownMenuItem>
                             ))}

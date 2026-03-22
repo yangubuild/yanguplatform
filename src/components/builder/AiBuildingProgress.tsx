@@ -67,7 +67,7 @@ export function AiBuildingProgress({ engineLabel, isComplete, onAnimationDone, e
 
   // Step animation — only runs while NOT complete
   useEffect(() => {
-    if (isComplete || currentStep >= STEPS.length) return;
+    if (isComplete || currentStep>= STEPS.length) return;
 
     const targetPercent = ((currentStep + 1) / STEPS.length) * 85;
     const startPercent = (currentStep / STEPS.length) * 85;
@@ -75,7 +75,7 @@ export function AiBuildingProgress({ engineLabel, isComplete, onAnimationDone, e
     setProgress(startPercent);
 
     const interval = setInterval(() => {
-      setProgress((prev) => (prev >= targetPercent ? prev : prev + 0.4));
+      setProgress((prev) => (prev>= targetPercent ? prev : prev + 0.4));
     }, 30);
 
     const timer = setTimeout(() => {
@@ -124,8 +124,7 @@ export function AiBuildingProgress({ engineLabel, isComplete, onAnimationDone, e
                   isActive && "bg-muted/50 text-foreground font-medium",
                   isDone && "text-muted-foreground",
                   !isDone && !isActive && "text-muted-foreground/50"
-                )}
-              >
+                )}>
                 {isDone ? (
                   <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
                 ) : isActive ? (
@@ -146,8 +145,7 @@ export function AiBuildingProgress({ engineLabel, isComplete, onAnimationDone, e
               <Button
                 variant="secondary"
                 className="flex-1"
-                onClick={() => window.history.back()}
-              >
+                onClick={() => window.history.back()}>
                 Back
               </Button>
               <Button
@@ -160,8 +158,7 @@ export function AiBuildingProgress({ engineLabel, isComplete, onAnimationDone, e
                   void Promise.resolve(onAnimationDone()).catch((error) => {
                     console.error("[AiBuildingProgress] Open editor fallback failed", error);
                   });
-                }}
-              >
+                }}>
                 Open editor
               </Button>
             </div>

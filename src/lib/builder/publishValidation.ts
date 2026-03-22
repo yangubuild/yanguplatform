@@ -163,6 +163,6 @@ export function filterEmptyOptionalPages(
     const contentSections = page.sections.filter(
       (s) => s.section_type !== "header" && s.section_type !== "footer"
     );
-    return contentSections.length > 0;
+    return contentSections.length> 0;
   });
 }

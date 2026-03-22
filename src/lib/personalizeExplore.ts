@@ -53,7 +53,7 @@ function computeBoost(
   let bestTagW = 0;
   for (const tag of entity.tags ?? []) {
     const w = prefs.tagWeights[tag.toLowerCase()] ?? 0;
-    if (w > bestTagW) bestTagW = w;
+    if (w> bestTagW) bestTagW = w;
   }
   boost += bestTagW * 1.0;
 
@@ -74,8 +74,8 @@ export function personalizeResults<T extends Personalizable>(items: T[]): T[] {
 
   // If no session history, return unchanged
   const hasSignals =
-    Object.keys(prefs.typeWeights).length > 0 ||
-    Object.keys(prefs.categoryWeights).length > 0;
+    Object.keys(prefs.typeWeights).length> 0 ||
+    Object.keys(prefs.categoryWeights).length> 0;
   if (!hasSignals) return items;
 
   // Compute effective score = server score + personalization boost

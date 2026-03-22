@@ -108,16 +108,14 @@ export function AddAppPanel() {
     <div className="flex flex-col h-full" style={{ background: "#111820" }}>
       <div
         className="flex items-center justify-between px-4 py-3 shrink-0"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
-      >
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         <span className="text-sm font-semibold text-foreground">Add App</span>
       </div>
 
       <div className="px-3 py-2">
         <div
           className="flex items-center gap-2 rounded-lg px-3 py-2"
-          style={{ background: "rgba(255,255,255,0.06)" }}
-        >
+          style={{ background: "rgba(255,255,255,0.06)" }}>
           <Search className="w-4 h-4 text-muted-foreground" />
           <input
             type="text"
@@ -150,12 +148,10 @@ export function AddAppPanel() {
             return (
               <div
                 key={app.id}
-                className="flex items-center gap-3 py-2.5 px-2 rounded-lg hover:bg-white/5 transition-colors"
-              >
+                className="flex items-center gap-3 py-2.5 px-2 rounded-lg hover:bg-white/5 transition-colors">
                 <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold shrink-0 overflow-hidden"
-                  style={{ background: "rgba(255,255,255,0.1)" }}
-                >
+                  style={{ background: "rgba(255,255,255,0.1)" }}>
                   {icon ? (
                     <img src={icon} alt={app.name} className="w-8 h-8 rounded-lg object-cover" />
                   ) : (
@@ -173,8 +169,7 @@ export function AddAppPanel() {
                 <button
                   onClick={() => handleAddApp(app)}
                   className="px-3 py-1 rounded-md text-xs font-semibold shrink-0"
-                  style={{ background: "#22c55e" }}
-                >
+                  style={{ background: "#22c55e" }}>
                   Add
                 </button>
               </div>

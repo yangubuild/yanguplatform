@@ -85,7 +85,7 @@ export function GroupChatThreadView({ group, onBack }: Props) {
   };
 
   const handleLeave = () => {
-    if (myMembership?.role === "owner" && members.length > 1) {
+    if (myMembership?.role === "owner" && members.length> 1) {
       toast.error("Transfer ownership before leaving");
       return;
     }

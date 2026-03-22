@@ -28,13 +28,11 @@ export function BlogColumnistBlock() {
       className="px-6 py-10 transition-all duration-[400ms] ease-out"
       style={{
         opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(8px)" }}
-    >
+        transform: visible ? "translateY(0)" : "translateY(8px)" }}>
       <div className="mx-auto" style={{ maxWidth: 1100 }}>
         <h2
           className="text-xs font-semibold uppercase tracking-widest mb-8"
-          style={{ letterSpacing: "0.15em" }}
-        >
+          style={{ letterSpacing: "0.15em" }}>
           From Our Columnists
         </h2>
 
@@ -48,8 +46,7 @@ export function BlogColumnistBlock() {
           <div>
             <h3
               className="text-lg font-medium mb-1"
-              style={{ fontFamily: "'Lufga', sans-serif" }}
-            >
+              style={{ fontFamily: "'Lufga', sans-serif" }}>
               Dan Shipper
             </h3>
             <p className="text-sm leading-relaxed mb-3 text-muted-foreground">
@@ -57,8 +54,7 @@ export function BlogColumnistBlock() {
             </p>
             <a
               href="#"
-              className="text-xs font-medium transition-colors hover:text-foreground text-muted-foreground"
-            >
+              className="text-xs font-medium transition-colors hover:text-foreground text-muted-foreground">
               Read more →
             </a>
           </div>

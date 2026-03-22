@@ -147,8 +147,7 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
       <div className="min-h-screen bg-muted/30 flex justify-center">
         <div
           className="w-full max-w-[420px] min-h-screen bg-background yangu-live shadow-xl"
-          style={themeStyle}
-        >
+          style={themeStyle}>
           {pageContent}
         </div>
       </div>

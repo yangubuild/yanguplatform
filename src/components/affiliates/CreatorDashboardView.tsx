@@ -24,8 +24,7 @@ export function CreatorDashboardView({ onBack }: Props) {
         <button
           type="button"
           onClick={handleBack}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-white/10 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-        >
+          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-white/10 text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
           <ArrowLeft className="w-4 h-4" />
           Affiliate dashboard
         </button>
@@ -39,8 +38,7 @@ export function CreatorDashboardView({ onBack }: Props) {
             onClick={() => setActiveTab(tab)}
             className={`pb-3 text-sm font-medium transition-colors relative ${
               activeTab === tab ? "text-foreground" : "text-muted-foreground hover:text-muted-foreground"
-            }`}
-          >
+            }`}>
             {tab}
             {activeTab === tab && (
               <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-accent rounded-full" />

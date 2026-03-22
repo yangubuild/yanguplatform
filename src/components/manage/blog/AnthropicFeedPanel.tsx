@@ -40,7 +40,7 @@ export function AnthropicFeedPanel() {
         </Button>
       </div>
 
-      {publications && publications.length > 0 && (
+      {publications && publications.length> 0 && (
         <div className="space-y-1 max-h-48 overflow-y-auto">
           {publications.map((pub) => (
             <div key={pub.id} className="flex items-center gap-2 text-xs py-1 border-b border-border/50 last:border-0">

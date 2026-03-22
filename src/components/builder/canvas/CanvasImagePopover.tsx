@@ -43,8 +43,7 @@ export function CanvasImagePopover({
     return (
       <div
         className={`relative group/img cursor-pointer flex items-center justify-center bg-muted ${className}`}
-        onClick={(e) => { e.stopPropagation(); triggerUpload(); }}
-      >
+        onClick={(e) => { e.stopPropagation(); triggerUpload(); }}>
         <div className="flex flex-col items-center gap-1 text-muted-foreground">
           <Upload className="h-5 w-5" />
           <span className="text-[10px] font-medium">Click to upload</span>
@@ -57,8 +56,7 @@ export function CanvasImagePopover({
   return (
     <div
       className={`relative group/img cursor-pointer ${className}`}
-      onClick={(e) => { e.stopPropagation(); triggerUpload(); }}
-    >
+      onClick={(e) => { e.stopPropagation(); triggerUpload(); }}>
       <img src={src} alt={alt} className="w-full h-full object-cover" />
       <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/30 transition-all flex items-center justify-center">
         <span className="opacity-0 group-hover/img:opacity-100 transition-opacity text-foreground text-xs font-medium bg-black/50 px-2.5 py-1 rounded-full">

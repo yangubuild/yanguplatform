@@ -17,8 +17,7 @@ export function MassSearchBar() {
           className="absolute right-3 w-8 h-8 flex items-center justify-center rounded-full transition-colors hover:bg-white/10 active:scale-95"
           style={{
             background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(255,255,255,0.1)' }}
-        >
+            border: '1px solid rgba(255,255,255,0.1)' }}>
           <Mic className="w-4 h-4 text-muted-foreground" />
         </button>
       </div>

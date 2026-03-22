@@ -49,8 +49,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
             background: BANNER_CONTRACT.defaultBg,
             border: BANNER_CONTRACT.borderStyle,
             minHeight: BANNER_CONTRACT.minHeight,
-            overflow: "visible" }}
-        >
+            overflow: "visible" }}>
           {/* Clip inner content for left/right edges but allow vertical overflow */}
           <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none" style={{ zIndex: 0 }} />
 
@@ -59,8 +58,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
             <div className="max-w-md">
               <h2
                 className="text-foreground mb-3"
-                style={{ fontSize: "36px", fontWeight: 700, lineHeight: 1.15, letterSpacing: "-0.01em" }}
-              >
+                style={{ fontSize: "36px", fontWeight: 700, lineHeight: 1.15, letterSpacing: "-0.01em" }}>
                 {data.headline ?? "yangu for enterprise"}
               </h2>
               <p className={`${T.subheader} mb-8`} style={{ maxWidth: "340px" }}>
@@ -70,8 +68,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
                 className="px-7 py-2.5 rounded-lg text-foreground text-sm font-medium transition-all hover:brightness-110"
                 style={{
                    background: "linear-gradient(135deg, #c47a3a 0%, #a0622e 50%, #5c2a12 100%)",
-                   border: "none" }}
-              >
+                   border: "none" }}>
                 {data.cta_text ?? "Learn more"}
               </button>
             </div>
@@ -86,8 +83,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
               transform: "translateY(-48%)",
               width: "400px",
               height: "440px",
-              zIndex: 20 }}
-          >
+              zIndex: 20 }}>
             <img
               src={enterpriseMachine}
               alt=""
@@ -105,8 +101,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
               top: "42%",
               width: "44px",
               height: "44px",
-              zIndex: 25 }}
-          >
+              zIndex: 25 }}>
             <img src={enterpriseCoin} alt="" className="w-full h-full object-contain" />
           </div>
 
@@ -119,8 +114,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
               transform: "translateX(-50%)",
               width: "100px",
               height: "100px",
-              zIndex: 25 }}
-          >
+              zIndex: 25 }}>
             <img src={enterpriseCoin} alt="" className="w-full h-full object-contain" />
           </div>
         </div>
@@ -137,8 +131,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
           style={{
             minHeight: BANNER_CONTRACT.minHeight,
             border: BANNER_CONTRACT.borderStyle }}
-          onClick={handleBannerClick}
-        >
+          onClick={handleBannerClick}>
           <img
             src={data.image_url}
             alt={data.headline ?? `yangu ${slot} banner`}
@@ -176,8 +169,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
           background: BANNER_CONTRACT.defaultBg,
           border: BANNER_CONTRACT.borderStyle,
           minHeight: BANNER_CONTRACT.minHeight,
-          overflow: "visible" }}
-      >
+          overflow: "visible" }}>
         {/* Left text block — unchanged */}
         <div className="relative z-10 p-6 sm:p-8 md:p-10 lg:p-14 flex items-center" style={{ minHeight: BANNER_CONTRACT.minHeight }}>
           <div className="flex-1 max-w-md">
@@ -201,8 +193,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
             top: "-60px",
             width: "480px",
             height: "380px",
-            zIndex: 15 }}
-        >
+            zIndex: 15 }}>
           <img
             src={treasuryWallet}
             alt=""
@@ -220,8 +211,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
             transform: "translateX(-50%)",
             width: "130px",
             height: "200px",
-            zIndex: 25 }}
-        >
+            zIndex: 25 }}>
           <img
             src={treasuryLight}
             alt=""

@@ -20,7 +20,7 @@ export default function BusinessUsersPage() {
   }, [businessId]);
 
   return (
-    <div className="p-6 space-y-6 max-w-6xl min-h-screen bg-background" >
+    <div className="p-6 space-y-6 max-w-6xl min-h-screen bg-background">
       <button onClick={() => navigate("/dashboard/my-business")} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
         <ArrowLeft className="h-4 w-4" /> Back to My Business
       </button>
@@ -35,8 +35,7 @@ export default function BusinessUsersPage() {
             onClick={() => setTab(t)}
             className={`pb-2 text-sm font-medium capitalize transition-colors ${
               tab === t ? "text-primary border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
+            }`}>
             {t}
           </button>
         ))}

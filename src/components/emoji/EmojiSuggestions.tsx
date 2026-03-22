@@ -19,23 +19,21 @@ export function EmojiSuggestions({ currentWord, onSelect }: EmojiSuggestionsProp
   if (!currentWord || currentWord.length < 2) return null;
 
   const { custom, system } = getSuggestions(currentWord);
-  const hasResults = custom.length > 0 || system.length > 0;
+  const hasResults = custom.length> 0 || system.length> 0;
 
   if (!hasResults) return null;
 
   return (
     <div
       className="flex items-center gap-1 px-2 py-1.5 overflow-x-auto scrollbar-none rounded-lg"
-      style={{ background: "rgba(17,26,21,0.95)", border: "1px solid rgba(255,255,255,0.08)" }}
-    >
+      style={{ background: "rgba(17,26,21,0.95)", border: "1px solid rgba(255,255,255,0.08)" }}>
       {/* Custom emojis first */}
       {custom.map((emoji) => (
         <button
           key={emoji.id}
           onClick={() => onSelect(emoji, currentWord)}
           className="shrink-0 flex items-center gap-1 px-2 py-1 rounded-md hover:bg-white/10 transition-colors"
-          title={`:${emoji.keyword}:`}
-        >
+          title={`:${emoji.keyword}:`}>
           <img
             src={emoji.thumbnailUrl}
             alt={emoji.keyword}
@@ -50,8 +48,7 @@ export function EmojiSuggestions({ currentWord, onSelect }: EmojiSuggestionsProp
         <button
           key={emoji}
           onClick={() => onSelect(emoji, currentWord)}
-          className="shrink-0 text-base px-1.5 py-0.5 rounded hover:bg-white/10 transition-colors hover:scale-110"
-        >
+          className="shrink-0 text-base px-1.5 py-0.5 rounded hover:bg-white/10 transition-colors hover:scale-110">
           {emoji}
         </button>
       ))}

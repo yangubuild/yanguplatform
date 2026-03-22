@@ -107,8 +107,7 @@ export function BlogOrganizeTab() {
             className={cn(
               "flex items-center gap-3 rounded-lg border border-border bg-card p-3 transition-colors cursor-grab active:cursor-grabbing",
               !section.visible && "opacity-50"
-            )}
-          >
+            )}>
             <GripVertical className="h-4 w-4 text-muted-foreground shrink-0" />
             <section.icon className="h-4 w-4 text-muted-foreground shrink-0" />
             <span className="text-sm font-medium flex-1">{section.title}</span>
@@ -128,16 +127,14 @@ export function BlogOrganizeTab() {
                 section.adaReview
                   ? "text-primary bg-primary/10"
                   : "text-muted-foreground/40 hover:text-muted-foreground"
-              )}
-            >
+              )}>
               <Shield className="h-3.5 w-3.5" />
             </button>
             <Button
               variant="ghost"
               size="icon"
               className="h-7 w-7"
-              onClick={() => setEditingSection(editingSection === section.id ? null : section.id)}
-            >
+              onClick={() => setEditingSection(editingSection === section.id ? null : section.id)}>
               <Pencil className="h-3.5 w-3.5" />
             </Button>
           </div>

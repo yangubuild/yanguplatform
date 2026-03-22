@@ -23,8 +23,7 @@ export function LandingTestGettingStarted() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
           <button
             onClick={() => navigate("/auth/login")}
-            className="absolute bottom-4 left-4 flex flex-col gap-0.5 text-left"
-          >
+            className="absolute bottom-4 left-4 flex flex-col gap-0.5 text-left">
             <span className="flex items-center gap-2">
               <img src={iconVisionaire} alt="" className="w-7 h-7 rounded-lg" />
               <span className={`text-foreground ${T.cardTitle} flex items-center gap-1`}>
@@ -48,8 +47,7 @@ export function LandingTestGettingStarted() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
           <button
             onClick={() => navigate("/auth/login")}
-            className="absolute bottom-4 left-4 flex flex-col gap-0.5 text-left"
-          >
+            className="absolute bottom-4 left-4 flex flex-col gap-0.5 text-left">
             <span className="flex items-center gap-2">
               <img src={iconYangu} alt="" className="w-7 h-7 rounded-lg" />
               <span className={`text-foreground ${T.cardTitle} flex items-center gap-1`}>

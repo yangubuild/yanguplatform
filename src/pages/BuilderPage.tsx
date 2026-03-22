@@ -12,8 +12,7 @@ export default function BuilderPage() {
       <button
         onClick={() => navigate(-1)}
         className="px-6 py-3 rounded-xl text-sm font-medium text-foreground transition-opacity hover:opacity-90"
-        style={{ background: 'rgba(255,255,255,0.08)' }}
-      >
+        style={{ background: 'rgba(255,255,255,0.08)' }}>
         Go back
       </button>
     </div>

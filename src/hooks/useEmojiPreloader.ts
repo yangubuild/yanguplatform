@@ -69,7 +69,7 @@ export function useEmojiPreloader() {
     };
   }, []);
 
-  return { loadedKeys, allLoaded: loadedKeys.size >= YANGU_EMOJIS.length };
+  return { loadedKeys, allLoaded: loadedKeys.size>= YANGU_EMOJIS.length };
 }
 
 /** Call this early (e.g. on hover) to start background preloading */

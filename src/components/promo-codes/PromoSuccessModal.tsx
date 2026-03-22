@@ -65,8 +65,7 @@ export function PromoSuccessModal({ open, onClose, promo }: Props) {
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
       <div
         className="relative z-10 w-full max-w-md mx-4 rounded-2xl border border-white/10 overflow-hidden"
-        style={{ background: "#111a15" }}
-      >
+        style={{ background: "#111a15" }}>
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-3">
           <div className="flex items-center gap-2">
@@ -105,22 +104,19 @@ export function PromoSuccessModal({ open, onClose, promo }: Props) {
           <div className="grid grid-cols-3 gap-2">
             <button
               onClick={copyCode}
-              className="flex flex-col items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.06] p-3 transition-colors"
-            >
+              className="flex flex-col items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.06] p-3 transition-colors">
               <Copy className="w-4 h-4 text-muted-foreground" />
               <span className="text-[11px] text-muted-foreground">Copy Code</span>
             </button>
             <button
               onClick={copyLink}
-              className="flex flex-col items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.06] p-3 transition-colors"
-            >
+              className="flex flex-col items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.06] p-3 transition-colors">
               <LinkIcon className="w-4 h-4 text-muted-foreground" />
               <span className="text-[11px] text-muted-foreground">Copy Link</span>
             </button>
             <button
               onClick={downloadQR}
-              className="flex flex-col items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.06] p-3 transition-colors"
-            >
+              className="flex flex-col items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.06] p-3 transition-colors">
               <Download className="w-4 h-4 text-muted-foreground" />
               <span className="text-[11px] text-muted-foreground">Download QR</span>
             </button>

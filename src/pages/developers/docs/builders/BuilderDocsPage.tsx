@@ -108,8 +108,7 @@ export default function BuilderDocsPage() {
       <Button
         variant="ghost"
         className="text-muted-foreground gap-2 mb-6 hover:text-muted-foreground"
-        onClick={() => navigate("/why-yangu?audience=builders")}
-      >
+        onClick={() => navigate("/why-yangu?audience=builders")}>
         <ArrowLeft className="w-4 h-4" /> Back to Builders
       </Button>
 

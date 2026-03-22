@@ -69,8 +69,7 @@ export function AiImportSourcePicker({ onSelect, categoryLabel }: Props) {
               "group relative flex min-h-[116px] items-center justify-center rounded-xl border border-border/70 bg-[hsl(0_0%_100%)] p-5 text-left transition-all",
               "hover:border-border hover:shadow-md active:shadow-sm",
               source.key === "manual" && "col-span-1"
-            )}
-          >
+            )}>
             <div className="flex w-full flex-col items-center justify-center gap-2 text-center">
               {source.logo ? (
                 <img

@@ -54,8 +54,7 @@ export function AdaContentSections() {
               {/* Step number */}
               <div
                 className="w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold text-foreground mb-4"
-                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
-              >
+                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
                 {s.num}
               </div>
               {/* Connector line (hidden on last) */}
@@ -78,8 +77,7 @@ export function AdaContentSections() {
       <section className="px-6 py-20 max-w-5xl mx-auto">
         <h2
           className="text-foreground text-3xl md:text-4xl font-bold text-center mb-16"
-          style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}
-        >
+          style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>
           A Superhuman AI Command System
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -89,8 +87,7 @@ export function AdaContentSections() {
               <div key={f.title} className="flex flex-col items-center text-center">
                 <div
                   className="w-11 h-11 rounded-lg flex items-center justify-center mb-4"
-                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
-                >
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                   <Icon className="w-5 h-5 text-muted-foreground" />
                 </div>
                 <h3 className="text-foreground text-base font-semibold mb-2" style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>
@@ -108,8 +105,7 @@ export function AdaContentSections() {
               <div key={f.title} className="flex flex-col items-center text-center">
                 <div
                   className="w-11 h-11 rounded-lg flex items-center justify-center mb-4"
-                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
-                >
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                   <Icon className="w-5 h-5 text-muted-foreground" />
                 </div>
                 <h3 className="text-foreground text-base font-semibold mb-2" style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>
@@ -126,13 +122,11 @@ export function AdaContentSections() {
       <section
         className="px-6 py-20"
         style={{
-          background: "radial-gradient(ellipse at 50% 0%, rgba(212,149,43,0.12) 0%, transparent 60%)" }}
-      >
+          background: "radial-gradient(ellipse at 50% 0%, rgba(212,149,43,0.12) 0%, transparent 60%)" }}>
         <div className="max-w-5xl mx-auto">
           <h2
             className="text-foreground text-3xl md:text-4xl font-bold text-center mb-14"
-            style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}
-          >
+            style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>
             Loved by creators worldwide
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 auto-rows-auto">
@@ -161,8 +155,7 @@ export function AdaContentSections() {
         <div className="mb-16" />
         <h2
           className="text-foreground text-3xl md:text-4xl font-bold text-center mb-14"
-          style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}
-        >
+          style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>
           Frequently Asked<br />Questions
         </h2>
         <div className="space-y-0">
@@ -170,8 +163,7 @@ export function AdaContentSections() {
             <div key={i}>
               <button
                 onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                className="w-full flex items-center justify-between py-5 text-left group"
-              >
+                className="w-full flex items-center justify-between py-5 text-left group">
                 <span className="text-foreground text-sm md:text-base font-medium pr-4">{faq.q}</span>
                 <ChevronRight
                   className={`w-5 h-5 text-muted-foreground flex-shrink-0 transition-transform duration-200 ${openFaq === i ? "rotate-90" : ""}`}
@@ -202,8 +194,7 @@ function ReviewCard({ name, text }: { name: string; text: string }) {
       className="rounded-xl p-5"
       style={{
         background: "rgba(255,255,255,0.03)",
-        border: "1px solid rgba(255,255,255,0.07)" }}
-    >
+        border: "1px solid rgba(255,255,255,0.07)" }}>
       <p className="text-muted-foreground text-sm leading-relaxed mb-3">"{text}"</p>
       <p className="text-muted-foreground text-xs font-medium">{name}</p>
     </div>

@@ -46,8 +46,7 @@ function ProblemCard({
       </div>
       <Link
         to={`/dashboard/visionaire/evergreen/${slug}`}
-        className="text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground flex items-center gap-1.5 pt-1 font-medium transition-colors"
-      >
+        className="text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground flex items-center gap-1.5 pt-1 font-medium transition-colors">
         Explore Idea <ArrowRight className="h-3 w-3" />
       </Link>
     </div>

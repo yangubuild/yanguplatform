@@ -78,8 +78,7 @@ export function BuilderPageEditPanel({ settings, onSave, onClose, isSaving, onLo
                 local.layout === "layout_a"
                   ? "border-primary bg-primary/5"
                   : "border-border hover:border-muted-foreground/30"
-              }`}
-            >
+              }`}>
               <div className="space-y-1 mx-auto w-full max-w-[80px]">
                 <div className="h-2 bg-muted-foreground/20 rounded-sm" />
                 <div className="h-6 bg-muted-foreground/10 rounded-sm" />
@@ -95,8 +94,7 @@ export function BuilderPageEditPanel({ settings, onSave, onClose, isSaving, onLo
                 local.layout === "layout_b"
                   ? "border-primary bg-primary/5"
                   : "border-border hover:border-muted-foreground/30"
-              }`}
-            >
+              }`}>
               <div className="space-y-1 mx-auto w-full max-w-[80px]">
                 <div className="flex gap-1">
                   <div className="h-2 bg-muted-foreground/20 rounded-sm flex-1" />
@@ -225,8 +223,7 @@ export function BuilderPageEditPanel({ settings, onSave, onClose, isSaving, onLo
               <Label className="text-xs font-medium">Chat Channel</Label>
               <Select
                 value={local.floating_cta_channel || "whatsapp"}
-                onValueChange={(v) => update({ floating_cta_channel: v as any })}
-              >
+                onValueChange={(v) => update({ floating_cta_channel: v as any })}>
                 <SelectTrigger className="text-sm">
                   <SelectValue />
                 </SelectTrigger>

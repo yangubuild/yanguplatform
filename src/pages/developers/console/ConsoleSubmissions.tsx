@@ -58,7 +58,7 @@ export default function ConsoleSubmissions() {
 
       {isLoading ? (
         <div className="flex justify-center py-16"><Loader2 className="w-6 h-6 text-muted-foreground animate-spin" /></div>
-      ) : listings && listings.length > 0 ? (
+      ) : listings && listings.length> 0 ? (
         <div className="space-y-3">
           {listings.map((listing) => (
             <SubmissionCard key={listing.id} listing={listing} />
@@ -116,8 +116,7 @@ function SubmissionCard({ listing }: { listing: any }) {
             variant="ghost"
             size="sm"
             onClick={() => setShowAppeal(!showAppeal)}
-            className="text-purple-400 hover:text-purple-300 text-xs"
-          >
+            className="text-purple-400 hover:text-purple-300 text-xs">
             {showAppeal ? "Cancel" : "Appeal"}
           </Button>
         )}
@@ -135,8 +134,7 @@ function ReviewReasonsButton({ listingId, showReasons, setShowReasons }: { listi
       variant="ghost"
       size="sm"
       onClick={() => setShowReasons(!showReasons)}
-      className="text-muted-foreground text-xs"
-    >
+      className="text-muted-foreground text-xs">
       {showReasons ? "Hide Details" : "View Review Details"}
     </Button>
   );
@@ -173,7 +171,7 @@ function ReviewReasons({ listingId }: { listingId: string }) {
           {statusLabels[latest.decision] || latest.decision}
         </span>
       </div>
-      {reasons.length > 0 ? (
+      {reasons.length> 0 ? (
         <div className="space-y-2">
           {reasons.map((r: any, i: number) => (
             <div key={i} className="flex items-start gap-2">
@@ -242,8 +240,7 @@ function AppealForm({ listingId, onSubmitted }: { listingId: string; onSubmitted
         variant="accent"
         size="sm"
         onClick={() => submitAppeal.mutate()}
-        disabled={!message.trim() || submitAppeal.isPending}
-      >
+        disabled={!message.trim() || submitAppeal.isPending}>
         {submitAppeal.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : "Submit Appeal"}
       </Button>
     </div>

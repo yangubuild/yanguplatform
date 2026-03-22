@@ -52,8 +52,7 @@ export function DomainCta({
       asChild
       variant={variant === "primary" ? "accent" : "outline"}
       size={size}
-      className={cn(className)}
-    >
+      className={cn(className)}>
       <Link to={destination}>
         {ctaText}
       </Link>

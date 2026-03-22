@@ -23,7 +23,7 @@ export function MessagesChatsTab({ onSelectDm, onSelectGroup }: Props) {
 
   const { data: profiles = [] } = useQuery({
     queryKey: ["dm-partner-profiles-chats-tab", partnerIds.join(",")],
-    enabled: partnerIds.length > 0,
+    enabled: partnerIds.length> 0,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
@@ -109,15 +109,13 @@ export function MessagesChatsTab({ onSelectDm, onSelectGroup }: Props) {
               else onSelectGroup?.(thread.id);
             }}
             className="w-full rounded-xl p-3 flex items-center gap-3 text-left min-h-[56px] transition-colors hover:bg-white/[0.04]"
-            style={{ background: "transparent" }}
-          >
+            style={{ background: "transparent" }}>
             {/* Avatar — consistent 40px */}
             <div
               className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
               style={{
                 background: thread.type === "group" ? "rgba(168,85,247,0.2)" : "rgba(96,165,250,0.2)",
-                color: thread.type === "group" ? "rgba(168,85,247,0.9)" : "rgba(96,165,250,0.9)" }}
-            >
+                color: thread.type === "group" ? "rgba(168,85,247,0.9)" : "rgba(96,165,250,0.9)" }}>
               {thread.avatar ? (
                 <img src={thread.avatar} alt="" className="w-10 h-10 rounded-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
               ) : thread.type === "group" ? (
@@ -137,7 +135,7 @@ export function MessagesChatsTab({ onSelectDm, onSelectGroup }: Props) {
                 )}
               </div>
               <p className="text-xs mt-0.5 truncate text-muted-foreground">
-                {thread.preview.length > 50 ? thread.preview.slice(0, 50) + "…" : thread.preview}
+                {thread.preview.length> 50 ? thread.preview.slice(0, 50) + "…" : thread.preview}
               </p>
             </div>
             {/* Meta */}
@@ -145,12 +143,11 @@ export function MessagesChatsTab({ onSelectDm, onSelectGroup }: Props) {
               <span className="text-[11px] text-muted-foreground">
                 {thread.date}
               </span>
-              {thread.unreadCount > 0 && (
+              {thread.unreadCount> 0 && (
                 <span
                   className="min-w-[20px] h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-foreground px-1.5"
-                  style={{ background: thread.type === "group" ? "#a855f7" : "#ef4444" }}
-                >
-                  {thread.unreadCount > 99 ? "99+" : thread.unreadCount}
+                  style={{ background: thread.type === "group" ? "#a855f7" : "#ef4444" }}>
+                  {thread.unreadCount> 99 ? "99+" : thread.unreadCount}
                 </span>
               )}
             </div>

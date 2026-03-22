@@ -77,8 +77,7 @@ export function VoiceLibraryModal({ open, onClose, onSelect }: VoiceLibraryModal
                 tab === t
                   ? "text-primary border-primary"
                   : "text-muted-foreground border-transparent hover:text-foreground"
-              }`}
-            >
+              }`}>
               {t === "library" ? "Voice Library" : t === "my" ? "My Voices" : "Integration"}
             </button>
           ))}
@@ -96,8 +95,7 @@ export function VoiceLibraryModal({ open, onClose, onSelect }: VoiceLibraryModal
           {["English", "Accents", "Gender"].map((f) => (
             <button
               key={f}
-              className="flex items-center gap-1 px-3 py-2 rounded-lg bg-muted/20 border border-border/30 text-sm text-foreground hover:bg-muted/30 transition-colors"
-            >
+              className="flex items-center gap-1 px-3 py-2 rounded-lg bg-muted/20 border border-border/30 text-sm text-foreground hover:bg-muted/30 transition-colors">
               {f}
               <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
@@ -119,8 +117,7 @@ export function VoiceLibraryModal({ open, onClose, onSelect }: VoiceLibraryModal
                   selectedId === v.id
                     ? "border-primary bg-primary/5"
                     : "border-border/30 bg-card/50 hover:border-border/60"
-                }`}
-              >
+                }`}>
                 <div className="h-10 w-10 rounded-full bg-muted/30 flex items-center justify-center shrink-0">
                   <AudioLines className="h-4 w-4 text-muted-foreground" />
                 </div>
@@ -150,8 +147,7 @@ export function VoiceLibraryModal({ open, onClose, onSelect }: VoiceLibraryModal
                 onSelect({ id: selected.id, name: selected.name });
                 onClose();
               }
-            }}
-          >
+            }}>
             Use this voice
           </Button>
         </div>

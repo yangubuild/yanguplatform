@@ -61,8 +61,7 @@ export default function ImageAdsFlow() {
           <div className="flex items-center gap-3">
             <button
               onClick={handleBack}
-              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
+              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
               <ArrowLeft className="h-4 w-4" />
               {step === "link" ? "Studio" : "Back"}
             </button>

@@ -64,8 +64,7 @@ export function ManagementRoutes() {
             <ManagementGuard>
               <AdminShell />
             </ManagementGuard>
-          }
-        >
+          }>
           <Route index element={<ManageDashboard />} />
           <Route path="explore-dashboard" element={<ManageRoleGate allowedRoles={["admin"]}><ManageExploreDashboard /></ManageRoleGate>} />
           <Route path="ada" element={<ManageAda />} />

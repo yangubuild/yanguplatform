@@ -163,8 +163,7 @@ function StyleSelectorModal({ open, onClose }: { open: boolean; onClose: () => v
             <button
               key={s.label}
               onClick={() => setSelected(s.label)}
-              className={`flex flex-col items-center gap-2 rounded-xl border p-2 transition-colors ${selected === s.label ? "border-accent ring-2 ring-accent" : "border-border/30 hover:border-border/60"}`}
-            >
+              className={`flex flex-col items-center gap-2 rounded-xl border p-2 transition-colors ${selected === s.label ? "border-accent ring-2 ring-accent" : "border-border/30 hover:border-border/60"}`}>
               <div className="w-full aspect-square rounded-lg bg-muted/10 overflow-hidden relative">
                 {s.image ? (
                   <img src={s.image} alt={s.label} className="w-full h-full object-cover" />
@@ -231,8 +230,7 @@ function TemplateSelectionModal({ open, onClose, selected, onSelect }: { open: b
                   : activeCategory === cat
                     ? "bg-accent/20 text-accent border border-accent/40"
                     : "border border-border/30 text-foreground hover:bg-muted/20"
-              }`}
-            >
+              }`}>
               {cat}
             </button>
           ))}
@@ -245,8 +243,7 @@ function TemplateSelectionModal({ open, onClose, selected, onSelect }: { open: b
               onClick={() => onSelect(i)}
               className={`relative rounded-xl overflow-hidden border-2 aspect-[3/4] transition-colors ${
                 selected === i ? "border-accent ring-2 ring-accent" : "border-transparent hover:border-border/50"
-              }`}
-            >
+              }`}>
               {selected === i && (
                 <div className="absolute top-2 left-2 z-10 w-6 h-6 rounded-full bg-accent flex items-center justify-center">
                   <Check className="h-3.5 w-3.5 text-accent-foreground" />
@@ -310,8 +307,7 @@ function ChooseAvatarModal({ open, onClose }: { open: boolean; onClose: () => vo
                     activeTab === t.key
                       ? "text-foreground border-accent font-medium"
                       : "text-muted-foreground border-transparent hover:text-foreground"
-                  }`}
-                >
+                  }`}>
                   {t.label}
                 </button>
               ))}
@@ -332,8 +328,7 @@ function ChooseAvatarModal({ open, onClose }: { open: boolean; onClose: () => vo
           {filters.map((f) => (
             <button
               key={f}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border/30 text-xs text-muted-foreground hover:bg-muted/20 transition-colors"
-            >
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border/30 text-xs text-muted-foreground hover:bg-muted/20 transition-colors">
               {f} <ChevronDown className="h-3 w-3" />
             </button>
           ))}
@@ -353,15 +348,13 @@ function ChooseAvatarModal({ open, onClose }: { open: boolean; onClose: () => vo
             <button
               key={av.name}
               onClick={() => setSelected(av.name)}
-              className="flex flex-col gap-2 group"
-            >
+              className="flex flex-col gap-2 group">
               <div
                 className={`aspect-[3/4] rounded-xl border overflow-hidden bg-muted/10 transition-colors relative ${
                   selected === av.name
                     ? "border-accent ring-2 ring-accent"
                     : "border-border/20 hover:border-border/50"
-                }`}
-              >
+                }`}>
                 {/* Placeholder gradient for avatar image */}
                 <div className="w-full h-full bg-gradient-to-b from-muted/30 to-muted/10 flex items-center justify-center">
                   <UserPlus className="h-8 w-8 text-muted-foreground/30" />
@@ -412,15 +405,13 @@ function UploadBox({ onSmartAssets, onFileSelected, onSampleSelected }: { onSmar
   return (
     <div
       className="rounded-xl border-2 border-dashed border-border/40 p-6 flex flex-col items-center gap-2 relative cursor-pointer"
-      onClick={() => !selectedSample && uploadRef.current?.click()}
-    >
+      onClick={() => !selectedSample && uploadRef.current?.click()}>
       <input ref={uploadRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
       {selectedSample ? (
         <div className="w-full relative">
           <button
             onClick={(e) => { e.stopPropagation(); setSelectedSample(null); }}
-            className="absolute top-2 right-2 z-10 p-1.5 rounded-lg bg-card/80 hover:bg-destructive/80 transition-colors"
-          >
+            className="absolute top-2 right-2 z-10 p-1.5 rounded-lg bg-card/80 hover:bg-destructive/80 transition-colors">
             <X className="h-4 w-4 text-foreground" />
           </button>
           <img src={selectedSample} alt="Selected sample" className="w-full rounded-lg object-contain max-h-[280px]" />
@@ -430,8 +421,7 @@ function UploadBox({ onSmartAssets, onFileSelected, onSampleSelected }: { onSmar
           <div className="absolute top-3 right-3 z-20">
             <button
               onClick={(e) => { e.stopPropagation(); setShowTips(!showTips); }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/20 text-xs text-foreground hover:bg-muted/30 transition-colors"
-            >
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/20 text-xs text-foreground hover:bg-muted/30 transition-colors">
               <Lightbulb className="h-3.5 w-3.5 text-accent" /> Tips
             </button>
             {showTips && (
@@ -467,8 +457,7 @@ function UploadBox({ onSmartAssets, onFileSelected, onSampleSelected }: { onSmar
               <button
                 key={i}
                 onClick={(e) => { e.stopPropagation(); handleSampleClick(src); }}
-                className="w-10 h-10 rounded-full overflow-hidden border border-border/20 hover:border-accent transition-colors"
-              >
+                className="w-10 h-10 rounded-full overflow-hidden border border-border/20 hover:border-accent transition-colors">
                 <img src={src} alt={`Sample ${i + 1}`} className="w-full h-full object-cover" />
               </button>
             ))}
@@ -537,8 +526,7 @@ function VideoClipsTab({ onGenerated }: { onGenerated: (result: VideoGenerateRes
                  selectedType === vt.key
                    ? "border-accent ring-2 ring-accent"
                    : "border-border/30 hover:border-border/60"
-               }`}
-             >
+               }`}>
                <video src={vt.video} muted autoPlay loop playsInline className="absolute inset-0 w-full h-full object-cover" />
                <span className="relative z-10 text-xs font-medium text-foreground m-2 drop-shadow-lg">{vt.label}</span>
              </button>
@@ -560,28 +548,24 @@ function VideoClipsTab({ onGenerated }: { onGenerated: (result: VideoGenerateRes
           <div className="relative">
             <button
               onClick={() => setShowAvatarPopover(!showAvatarPopover)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-muted/20 border border-border/20 text-sm text-foreground hover:bg-muted/30 transition-colors"
-            >
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-muted/20 border border-border/20 text-sm text-foreground hover:bg-muted/30 transition-colors">
               <UserPlus className="h-4 w-4" /> Avatar
             </button>
             {showAvatarPopover && (
               <div className="absolute top-full left-0 mt-1 w-60 rounded-xl bg-card border border-border/30 shadow-xl z-50 py-1.5">
                 <button
                   onClick={() => { setShowAvatarPopover(false); setShowChooseAvatar(true); }}
-                  className="flex items-center gap-3 w-full px-4 py-3 text-sm text-foreground hover:bg-muted/20 transition-colors"
-                >
+                  className="flex items-center gap-3 w-full px-4 py-3 text-sm text-foreground hover:bg-muted/20 transition-colors">
                   <UserPlus className="h-4 w-4 text-muted-foreground" /> Choose avatar
                 </button>
                 <button
                   onClick={() => { setShowAvatarPopover(false); setShowSmartAssets(true); }}
-                  className="flex items-center gap-3 w-full px-4 py-3 text-sm text-foreground hover:bg-muted/20 transition-colors"
-                >
+                  className="flex items-center gap-3 w-full px-4 py-3 text-sm text-foreground hover:bg-muted/20 transition-colors">
                   <ImagePlus className="h-4 w-4 text-muted-foreground" /> Select from smart assets
                 </button>
                 <button
                   onClick={() => setShowAvatarPopover(false)}
-                  className="flex items-center gap-3 w-full px-4 py-3 text-sm text-foreground hover:bg-muted/20 transition-colors"
-                >
+                  className="flex items-center gap-3 w-full px-4 py-3 text-sm text-foreground hover:bg-muted/20 transition-colors">
                   <Image className="h-4 w-4 text-muted-foreground" /> Upload an image
                 </button>
               </div>
@@ -593,8 +577,7 @@ function VideoClipsTab({ onGenerated }: { onGenerated: (result: VideoGenerateRes
         <div className="relative">
           <button
             onClick={() => setShowAspectDropdown(!showAspectDropdown)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-muted/20 border border-border/20 text-sm text-foreground hover:bg-muted/30 transition-colors"
-          >
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-muted/20 border border-border/20 text-sm text-foreground hover:bg-muted/30 transition-colors">
             <Square className="h-4 w-4" />
             {aspectRatios.find((a) => a.key === aspectRatio)?.label}
             <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
@@ -605,8 +588,7 @@ function VideoClipsTab({ onGenerated }: { onGenerated: (result: VideoGenerateRes
                 <button
                   key={ar.key}
                   onClick={() => { setAspectRatio(ar.key); setShowAspectDropdown(false); }}
-                  className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-foreground hover:bg-muted/20 transition-colors"
-                >
+                  className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-foreground hover:bg-muted/20 transition-colors">
                   <Square className="h-4 w-4 text-muted-foreground" />
                   {ar.label}
                   {ar.key === aspectRatio && <Check className="h-4 w-4 text-accent ml-auto" />}
@@ -621,30 +603,26 @@ function VideoClipsTab({ onGenerated }: { onGenerated: (result: VideoGenerateRes
           <>
             <button
               onClick={() => setShowStyleModal(true)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-muted/20 border border-border/20 text-sm text-foreground hover:bg-muted/30 transition-colors"
-            >
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-muted/20 border border-border/20 text-sm text-foreground hover:bg-muted/30 transition-colors">
               Auto match
               <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
             <div className="relative">
               <button
                 onClick={() => setShowSmartAssetsPopover(!showSmartAssetsPopover)}
-                className="p-2.5 rounded-xl bg-muted/20 border border-border/20 hover:bg-muted/30 transition-colors"
-              >
+                className="p-2.5 rounded-xl bg-muted/20 border border-border/20 hover:bg-muted/30 transition-colors">
                 <ImagePlus className="h-4 w-4 text-foreground" />
               </button>
               {showSmartAssetsPopover && (
                 <div className="absolute top-full right-0 mt-1 w-56 rounded-xl bg-card border border-border/30 shadow-xl z-50 py-1.5">
                   <button
                     onClick={() => setShowSmartAssetsPopover(false)}
-                    className="flex items-center gap-3 w-full px-4 py-3 text-sm text-foreground hover:bg-muted/20 transition-colors"
-                  >
+                    className="flex items-center gap-3 w-full px-4 py-3 text-sm text-foreground hover:bg-muted/20 transition-colors">
                     <Upload className="h-4 w-4 text-muted-foreground" /> Upload from local
                   </button>
                   <button
                     onClick={() => { setShowSmartAssetsPopover(false); setShowSmartAssets(true); }}
-                    className="flex items-center gap-3 w-full px-4 py-3 text-sm text-foreground hover:bg-muted/20 transition-colors"
-                  >
+                    className="flex items-center gap-3 w-full px-4 py-3 text-sm text-foreground hover:bg-muted/20 transition-colors">
                     <ImagePlus className="h-4 w-4 text-muted-foreground" /> Select from Smart Assets
                   </button>
                 </div>
@@ -680,8 +658,7 @@ function VideoClipsTab({ onGenerated }: { onGenerated: (result: VideoGenerateRes
               toast.error("Upgrade your plan to generate product videos.");
             }
           }
-        }}
-      >
+        }}>
         {videoGenerate.isPending ? (
           <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Generating...</span>
         ) : (
@@ -725,8 +702,7 @@ function VideoTemplatesTab() {
             onClick={() => setShowTemplateModal(true)}
             onMouseEnter={() => setHoveringPreview(true)}
             onMouseLeave={() => setHoveringPreview(false)}
-            className="relative w-full aspect-[4/3] rounded-lg overflow-hidden group"
-          >
+            className="relative w-full aspect-[4/3] rounded-lg overflow-hidden group">
             {currentTemplate.type === "video" ? (
               <video src={currentTemplate.src} muted autoPlay loop playsInline className="w-full h-full object-cover" />
             ) : (
@@ -785,14 +761,13 @@ export default function ProductVideoPage() {
   const [generatedResult, setGeneratedResult] = useState<VideoGenerateResult | null>(null);
 
   return (
-    <div className="h-full flex flex-col overflow-hidden bg-background" >
+    <div className="h-full flex flex-col overflow-hidden bg-background">
       {/* ── Top bar ── */}
       <div className="h-12 flex items-center justify-between px-4 border-b border-border/20 shrink-0">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate("/dashboard/studio")}
-            className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-muted/20 transition-colors text-sm text-muted-foreground"
-          >
+            className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-muted/20 transition-colors text-sm text-muted-foreground">
             <ArrowLeft className="h-4 w-4" /> Studio
           </button>
           <span className="text-lg font-bold text-foreground">Product Video</span>
@@ -816,8 +791,7 @@ export default function ProductVideoPage() {
                 activeTab === "clips"
                   ? "text-foreground border-accent"
                   : "text-muted-foreground border-transparent hover:text-foreground"
-              }`}
-            >
+              }`}>
               Video Clips
             </button>
             <button
@@ -826,8 +800,7 @@ export default function ProductVideoPage() {
                 activeTab === "templates"
                   ? "text-foreground border-accent"
                   : "text-muted-foreground border-transparent hover:text-foreground"
-              }`}
-            >
+              }`}>
               Video Templates
             </button>
           </div>

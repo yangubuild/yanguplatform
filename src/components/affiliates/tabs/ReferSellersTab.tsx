@@ -25,8 +25,7 @@ export function ReferSellersTab() {
         variant="accent"
         size="lg"
         className="w-full max-w-lg mb-12"
-        onClick={() => setShowPartnerPage(true)}
-      >
+        onClick={() => setShowPartnerPage(true)}>
         Apply to be a partner
       </Button>
 
@@ -221,8 +220,7 @@ function PartnerDetailPage({ onBack }: { onBack: () => void }) {
             <Button
               variant="accent"
               className="w-full"
-              onClick={() => setShowApplyForm(true)}
-            >
+              onClick={() => setShowApplyForm(true)}>
               Join the waitlist
             </Button>
             <p className="text-xs text-muted-foreground text-center mt-3">Powered by yangu</p>
@@ -307,8 +305,7 @@ function ApplyPartnerForm({ onClose }: { onClose: () => void }) {
             type="submit"
             variant="accent"
             className="w-full h-11"
-            disabled={loading}
-          >
+            disabled={loading}>
             {loading ? "Submitting..." : "Submit application"}
           </Button>
           <p className="text-[11px] text-muted-foreground text-center">Your application will be sent to partners@yangu.io</p>

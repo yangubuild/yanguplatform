@@ -222,8 +222,7 @@ export default function BuilderEditor() {
       <header className="sticky top-0 z-40 h-14 border-b border-border bg-background/80 backdrop-blur-sm flex items-center px-3 lg:px-4 gap-2 lg:gap-4">
         <button
           onClick={() => safeNavigate("/dashboard")}
-          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0"
-        >
+          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0">
           <ArrowLeft className="h-4 w-4" /> <span className="hidden sm:inline">Dashboard</span>
         </button>
         <div className="h-6 w-px bg-border hidden sm:block" />
@@ -245,16 +244,14 @@ export default function BuilderEditor() {
             onClick={() => setPreviewViewport("desktop")}
             className={`flex items-center gap-1 px-2.5 py-1.5 text-xs transition-colors ${
               previewViewport === "desktop" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
+            }`}>
             <Monitor className="h-3.5 w-3.5" /> Desktop
           </button>
           <button
             onClick={() => setPreviewViewport("mobile")}
             className={`flex items-center gap-1 px-2.5 py-1.5 text-xs transition-colors ${
               previewViewport === "mobile" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
+            }`}>
             <Smartphone className="h-3.5 w-3.5" /> Mobile
           </button>
         </div>
@@ -287,8 +284,7 @@ export default function BuilderEditor() {
               rightPanel === "page_edit"
                 ? "ring-2 ring-primary border-primary bg-primary/5"
                 : "border-border hover:border-muted-foreground/30 bg-card"
-            }`}
-          >
+            }`}>
             <Layout className="h-4 w-4 text-primary" />
             <span className="text-sm font-semibold">Page Edit</span>
           </button>
@@ -576,8 +572,7 @@ export default function BuilderEditor() {
           <MobileBuilderSheet
             open={mobilePanel === "sections"}
             onClose={() => setMobilePanel("none")}
-            title="Sections"
-          >
+            title="Sections">
             <div className="p-3">
               <BuilderSectionList
                 sections={sections}
@@ -615,8 +610,7 @@ export default function BuilderEditor() {
           <MobileBuilderSheet
             open={mobilePanel === "editor"}
             onClose={() => setMobilePanel("none")}
-            title={selectedSectionId ? (() => { const t = sections.find((s) => s.id === selectedSectionId)?.section_type; return t ? (SECTION_TYPE_LABELS[t] || t) : "Edit Section"; })() : "Page Edit"}
-          >
+            title={selectedSectionId ? (() => { const t = sections.find((s) => s.id === selectedSectionId)?.section_type; return t ? (SECTION_TYPE_LABELS[t] || t) : "Edit Section"; })() : "Page Edit"}>
             {selectedSectionId ? (() => {
               const sec = sections.find((s) => s.id === selectedSectionId);
               if (!sec || sec.isMissing) return <div className="p-4 text-sm text-muted-foreground">Select a section to edit</div>;

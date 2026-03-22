@@ -49,8 +49,7 @@ function FeatureFlagsSection() {
           {flags.map((flag) => (
             <div
               key={flag.key}
-              className="flex items-center justify-between rounded-xl border border-[hsl(var(--admin-border)/0.3)] px-4 py-3"
-            >
+              className="flex items-center justify-between rounded-xl border border-[hsl(var(--admin-border)/0.3)] px-4 py-3">
               <div>
                 <p className="text-sm text-[hsl(var(--admin-text))]">{humanize(flag.key)}</p>
                 <p className="text-[11px] text-[hsl(var(--admin-text-muted))] font-mono">{flag.key}</p>
@@ -58,8 +57,7 @@ function FeatureFlagsSection() {
               <button
                 onClick={() => handleToggle(flag)}
                 disabled={toggleMut.isPending}
-                className="flex items-center gap-2 text-sm disabled:opacity-50"
-              >
+                className="flex items-center gap-2 text-sm disabled:opacity-50">
                 {flag.enabled ? (
                   <ToggleRight className="h-6 w-6 text-[hsl(160,84%,45%)]" />
                 ) : (
@@ -71,8 +69,7 @@ function FeatureFlagsSection() {
                     flag.enabled
                       ? "border-[hsl(160,84%,45%/0.3)] text-[hsl(160,84%,45%)]"
                       : "border-[hsl(var(--admin-border)/0.3)] text-[hsl(var(--admin-text-muted))]"
-                  }`}
-                >
+                  }`}>
                   {flag.enabled ? "On" : "Off"}
                 </Badge>
               </button>
@@ -113,8 +110,7 @@ function QuotaConfigSection() {
           {quotas.map((q) => (
             <div
               key={q.key}
-              className="grid grid-cols-[1fr_80px_80px_80px_60px_60px] gap-0 items-center px-4 py-3 border-b border-[hsl(var(--admin-border)/0.15)] last:border-0 hover:bg-[hsl(var(--admin-surface-elevated)/0.2)]"
-            >
+              className="grid grid-cols-[1fr_80px_80px_80px_60px_60px] gap-0 items-center px-4 py-3 border-b border-[hsl(var(--admin-border)/0.15)] last:border-0 hover:bg-[hsl(var(--admin-surface-elevated)/0.2)]">
               <div>
                 <p className="text-sm text-[hsl(var(--admin-text))]">{humanize(q.key)}</p>
                 <p className="text-[11px] text-[hsl(var(--admin-text-muted))] font-mono">{q.key}</p>
@@ -130,8 +126,7 @@ function QuotaConfigSection() {
                     q.is_enabled
                       ? "border-[hsl(160,84%,45%/0.3)] text-[hsl(160,84%,45%)]"
                       : "border-[hsl(0,72%,51%/0.3)] text-[hsl(0,72%,51%)]"
-                  }`}
-                >
+                  }`}>
                   {q.is_enabled ? "On" : "Off"}
                 </Badge>
               </span>

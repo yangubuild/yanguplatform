@@ -47,7 +47,7 @@ export function BlogSubscribeModal() {
     // Scroll trigger
     const onScroll = () => {
       const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight);
-      if (pct >= 0.35 && !triggered.current) {
+      if (pct>= 0.35 && !triggered.current) {
         triggered.current = true;
         setOpen(true);
       }
@@ -76,7 +76,7 @@ export function BlogSubscribeModal() {
     const el = modalRef.current;
     if (el) {
       const focusable = el.querySelectorAll<HTMLElement>("button, input, a, [tabindex]");
-      if (focusable.length > 0) focusable[0].focus();
+      if (focusable.length> 0) focusable[0].focus();
     }
   }, [open]);
 
@@ -86,22 +86,19 @@ export function BlogSubscribeModal() {
     <div
       className="fixed inset-0 z-[60] flex items-center justify-center p-4"
       style={{ background: "rgba(0,0,0,0.7)" }}
-      onClick={(e) => { if (e.target === e.currentTarget) close(); }}
-    >
+      onClick={(e) => { if (e.target === e.currentTarget) close(); }}>
       <div
         ref={modalRef}
         className="relative w-full rounded-2xl overflow-hidden flex flex-col md:flex-row"
         style={{
           maxWidth: 820,
-          animation: "scale-in 0.28s ease-out" }}
-      >
+          animation: "scale-in 0.28s ease-out" }}>
         {/* Close */}
         <button
           onClick={close}
           className="absolute top-4 right-4 z-10 p-1 rounded-full transition-colors hover:bg-black/10"
           style={{ color: "#666" }}
-          aria-label="Close"
-        >
+          aria-label="Close">
           <X className="w-5 h-5" />
         </button>
 
@@ -109,8 +106,7 @@ export function BlogSubscribeModal() {
         <div className="flex-1 p-8 md:p-10" style={{ background: "#FFFFFF" }}>
           <h2
             className="text-xl md:text-2xl font-medium leading-tight mb-2"
-            style={{ fontFamily: "'Lufga', sans-serif", color: "#111" }}
-          >
+            style={{ fontFamily: "'Lufga', sans-serif", color: "#111" }}>
             The Only Subscription You Need to Stay at the Edge of AI
           </h2>
           <p className="text-sm mb-6" style={{ color: "#666" }}>
@@ -134,15 +130,13 @@ export function BlogSubscribeModal() {
           />
           <button
             className="w-full rounded-lg py-2.5 text-sm font-medium transition-all hover:brightness-95"
-            style={{ background: "#111" }}
-          >
+            style={{ background: "#111" }}>
             Unlock the Every universe
           </button>
           <button
             onClick={close}
             className="w-full mt-3 text-xs text-center transition-colors hover:text-black"
-            style={{ color: "#999" }}
-          >
+            style={{ color: "#999" }}>
             Maybe later
           </button>
         </div>
@@ -150,18 +144,15 @@ export function BlogSubscribeModal() {
         {/* Right — warm bg */}
         <div
           className="hidden md:flex flex-col items-center justify-center p-8"
-          style={{ background: "#F5E6D3", width: "45%" }}
-        >
+          style={{ background: "#F5E6D3", width: "45%" }}>
           <span
             className="text-xs font-medium px-3 py-1 rounded-full mb-6"
-            style={{ background: "rgba(0,0,0,0.08)", color: "#555" }}
-          >
+            style={{ background: "rgba(0,0,0,0.08)", color: "#555" }}>
             Included in your subscription
           </span>
           <div
             className="w-full rounded-xl overflow-hidden"
-            style={{ background: "#e8d5c0", aspectRatio: "4/3" }}
-          >
+            style={{ background: "#e8d5c0", aspectRatio: "4/3" }}>
             <img src="/placeholder.svg" alt="Products" className="w-full h-full object-cover" />
           </div>
         </div>

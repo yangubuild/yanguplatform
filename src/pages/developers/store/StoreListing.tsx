@@ -63,7 +63,7 @@ export default function StoreListing() {
         </div>
       </div>
 
-      {listing.screenshots && listing.screenshots.length > 0 && (
+      {listing.screenshots && listing.screenshots.length> 0 && (
         <div className="mb-8">
           <h3 className="text-muted-foreground text-sm font-semibold mb-3">Screenshots</h3>
           <div className="flex gap-3 overflow-x-auto pb-2">

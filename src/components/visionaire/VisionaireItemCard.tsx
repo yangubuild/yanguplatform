@@ -52,8 +52,7 @@ export function VisionaireItemCard({ item, isSaved, onOpen, onSave, onUnsave, ea
   return (
     <div
       className="group rounded-xl border border-border bg-card overflow-hidden transition-all hover:shadow-lg hover:-translate-y-0.5 cursor-pointer flex flex-col"
-      onClick={onOpen}
-    >
+      onClick={onOpen}>
       {thumbnail && !imgError ? (
         <div className="aspect-[4/3] overflow-hidden bg-muted">
           <img
@@ -90,8 +89,7 @@ export function VisionaireItemCard({ item, isSaved, onOpen, onSave, onUnsave, ea
             variant="outline"
             size="sm"
             className="h-8 text-xs flex-1"
-            onClick={(e) => { e.stopPropagation(); onOpen(); }}
-          >
+            onClick={(e) => { e.stopPropagation(); onOpen(); }}>
             Open
           </Button>
           {item.download_url ? (
@@ -103,8 +101,7 @@ export function VisionaireItemCard({ item, isSaved, onOpen, onSave, onUnsave, ea
                 e.stopPropagation();
                 handleDriveDownload(item.download_url);
               }}
-              title="Download"
-            >
+              title="Download">
               <Download className="h-4 w-4" />
             </Button>
           ) : null}
@@ -113,8 +110,7 @@ export function VisionaireItemCard({ item, isSaved, onOpen, onSave, onUnsave, ea
             size="icon"
             className="h-8 w-8"
             onClick={isSaved ? onUnsave : onSave}
-            title={isSaved ? "Unsave" : "Save"}
-          >
+            title={isSaved ? "Unsave" : "Save"}>
             {isSaved ? (
               <BookmarkCheck className="h-4 w-4 text-accent" />
             ) : (

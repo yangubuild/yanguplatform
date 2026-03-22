@@ -77,8 +77,7 @@ export function UserMessagingPanel() {
         <button onClick={() => setShowCreate(!showCreate)} className="flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium bg-[hsl(25,85%,45%/0.12)] text-[hsl(25,85%,45%)] border border-[hsl(25,85%,45%/0.25)] hover:bg-[hsl(25,85%,45%/0.2)] transition-colors">
           <Plus className="h-3 w-3" /> Create Popup
         </button>
-      }
-    >
+      }>
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3 mb-4">
         <KpiCard label="Total Seen" value={totalSeen} icon={Eye} />

@@ -32,7 +32,7 @@ export function GlobalChatPopup({ onClose }: GlobalChatPopupProps) {
   const handleFile = (files: FileList | null) => {
     if (!files?.[0]) return;
     const f = files[0];
-    if (f.size > 5 * 1024 * 1024) { toast.error("Max 5MB"); return; }
+    if (f.size> 5 * 1024 * 1024) { toast.error("Max 5MB"); return; }
     setMediaFile(f);
     setMediaPreview(URL.createObjectURL(f));
   };
@@ -75,8 +75,7 @@ export function GlobalChatPopup({ onClose }: GlobalChatPopupProps) {
         background: "#1a2026",
         border: "1px solid rgba(255,255,255,0.08)",
         borderRadius: 16,
-        boxShadow: "0 12px 48px rgba(0,0,0,0.6)" }}
-    >
+        boxShadow: "0 12px 48px rgba(0,0,0,0.6)" }}>
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 flex-shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
         <button className="flex items-center gap-1.5 text-sm font-semibold text-foreground">

@@ -21,7 +21,7 @@ function generateChartData(days: number) {
   if (days <= 2) {
     // 48h: show hourly (48 points)
     const points: typeof data = [];
-    for (let i = 47; i >= 0; i--) {
+    for (let i = 47; i>= 0; i--) {
       const d = new Date(now.getTime() - i * 3600000);
       const label = d.toLocaleTimeString("en-US", { hour: "numeric", hour12: true });
       const datePart = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
@@ -44,7 +44,7 @@ function generateChartData(days: number) {
     formatOpts = { month: "short", year: "2-digit" };
   }
 
-  for (let i = Math.floor(days / step) - 1; i >= 0; i--) {
+  for (let i = Math.floor(days / step) - 1; i>= 0; i--) {
     const d = new Date(now);
     d.setDate(d.getDate() - i * step);
     const scale = days <= 30 ? 1 : days <= 180 ? 7 : 30;
@@ -166,8 +166,7 @@ export function CreatorDashboardTab() {
         <div className="relative" ref={periodRef}>
           <button
             onClick={() => setPeriodOpen(!periodOpen)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-muted-foreground border border-white/[0.06]"
-          >
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-muted-foreground border border-white/[0.06]">
             <Calendar className="w-3.5 h-3.5" />
             {period.label}
             <ChevronDown className="w-3.5 h-3.5" />
@@ -178,8 +177,7 @@ export function CreatorDashboardTab() {
                 <button
                   key={opt.label}
                   onClick={() => { setPeriodIdx(i); setPeriodOpen(false); }}
-                  className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-white/5 transition-colors"
-                >
+                  className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-white/5 transition-colors">
                   {i === periodIdx && <Check className="w-4 h-4 text-foreground" />}
                   {i !== periodIdx && <span className="w-4" />}
                   {opt.label}
@@ -350,8 +348,7 @@ function CommissionPanel({ onBack }: { onBack: () => void }) {
           </div>
           <button
             onClick={() => setFeaturedEnabled(!featuredEnabled)}
-            className={`w-11 h-6 rounded-full transition-colors flex items-center px-0.5 ${featuredEnabled ? "bg-accent" : "bg-white/20"}`}
-          >
+            className={`w-11 h-6 rounded-full transition-colors flex items-center px-0.5 ${featuredEnabled ? "bg-accent" : "bg-white/20"}`}>
             <span className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${featuredEnabled ? "translate-x-5" : "translate-x-0"}`} />
           </button>
         </div>
@@ -429,8 +426,7 @@ function CommissionPanel({ onBack }: { onBack: () => void }) {
       <Button
         variant="accent"
         className="w-full"
-        onClick={() => { toast.success("Commission settings saved"); onBack(); }}
-      >
+        onClick={() => { toast.success("Commission settings saved"); onBack(); }}>
         Save
       </Button>
     </div>
@@ -526,8 +522,7 @@ function InviteAffiliatePanel({ onBack, onInvited }: { onBack: () => void; onInv
             value={rewardType}
             onChange={(e) => setRewardType(e.target.value)}
             className="rounded-lg border border-white/10 bg-transparent text-sm text-foreground px-3 py-1.5 focus:outline-none"
-            style={{ background: "#0d1510" }}
-          >
+            style={{ background: "#0d1510" }}>
             <option value="Percent">Percent</option>
             <option value="Fixed">Fixed</option>
           </select>
@@ -537,8 +532,7 @@ function InviteAffiliatePanel({ onBack, onInvited }: { onBack: () => void; onInv
           value={paymentType}
           onChange={(e) => setPaymentType(e.target.value)}
           className="w-full rounded-lg border border-white/10 bg-transparent text-sm text-foreground px-3 py-2.5 mb-5 focus:outline-none"
-          style={{ background: "#0d1510" }}
-        >
+          style={{ background: "#0d1510" }}>
           <option value="Recurring payments">Recurring payments</option>
           <option value="One-time payment">One-time payment</option>
         </select>
@@ -564,8 +558,7 @@ function InviteAffiliatePanel({ onBack, onInvited }: { onBack: () => void; onInv
           variant="accent"
           className="w-full"
           disabled={!email.trim()}
-          onClick={() => email.trim() && onInvited(email.trim())}
-        >
+          onClick={() => email.trim() && onInvited(email.trim())}>
           Invite
         </Button>
       </div>
@@ -594,8 +587,7 @@ function ExternalLinksPanel({ onBack }: { onBack: () => void }) {
         <Button
           variant="accent"
           size="default"
-          onClick={() => setShowCreate(true)}
-        >
+          onClick={() => setShowCreate(true)}>
           Create
         </Button>
       </div>
@@ -670,8 +662,7 @@ function ExternalLinksPanel({ onBack }: { onBack: () => void }) {
                   setNewUrl("");
                   setShowCreate(false);
                   toast.success("External link created");
-                }}
-              >
+                }}>
                 Create
               </Button>
             </div>

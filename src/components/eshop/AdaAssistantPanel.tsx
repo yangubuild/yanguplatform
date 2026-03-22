@@ -24,8 +24,7 @@ export default function AdaAssistantPanel({ onSuggestionClick }: Props) {
         <button
           key={s}
           onClick={() => onSuggestionClick(s)}
-          className="w-full text-left px-3 py-2.5 rounded-lg border border-border/60 bg-muted/30 hover:bg-accent/10 hover:border-accent/30 text-sm text-foreground transition-colors"
-        >
+          className="w-full text-left px-3 py-2.5 rounded-lg border border-border/60 bg-muted/30 hover:bg-accent/10 hover:border-accent/30 text-sm text-foreground transition-colors">
           {s}
         </button>
       ))}

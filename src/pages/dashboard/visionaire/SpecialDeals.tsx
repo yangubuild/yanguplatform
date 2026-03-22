@@ -86,8 +86,7 @@ export default function SpecialDeals() {
                       } else {
                         saveItem.mutate(deal.id, { onSuccess: () => toast.success("Saved"), onError: () => toast.error("Error") });
                       }
-                    }}
-                  >
+                    }}>
                     {isSaved ? <BookmarkCheck className="h-4 w-4 text-accent" /> : <Bookmark className="h-4 w-4" />}
                   </Button>
                 </div>

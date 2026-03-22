@@ -32,16 +32,16 @@ function AdaAlertsButton() {
 
   // Build display items
   const items: Array<{ id: string; icon: typeof AlertTriangle; label: string; detail: string; severity: "error" | "warning" }> = [];
-  if (auto.email_dlq_24h > 0) {
+  if (auto.email_dlq_24h> 0) {
     items.push({ id: "dlq", icon: Mail, label: "Email DLQ", detail: `${auto.email_dlq_24h} failed in 24h`, severity: "error" });
   }
-  if (auto.failed_publishes > 0) {
+  if (auto.failed_publishes> 0) {
     items.push({ id: "pub", icon: Globe, label: "Publish failure", detail: `${auto.failed_publishes} failed`, severity: "error" });
   }
-  if ((auto as any).failed_webhooks_24h > 0) {
+  if ((auto as any).failed_webhooks_24h> 0) {
     items.push({ id: "whk", icon: Webhook, label: "Webhook failures", detail: `${(auto as any).failed_webhooks_24h} failed in 24h`, severity: "error" });
   }
-  if ((auto as any).stuck_jobs > 0) {
+  if ((auto as any).stuck_jobs> 0) {
     items.push({ id: "jobs", icon: Clock, label: "Stuck jobs", detail: `${(auto as any).stuck_jobs} stuck`, severity: "warning" });
   }
   manualAlerts.slice(0, 5).forEach((a) => {
@@ -55,7 +55,7 @@ function AdaAlertsButton() {
   });
 
   const totalCount = items.length;
-  const hasCritical = criticalCount > 0;
+  const hasCritical = criticalCount> 0;
 
   return (
     <Popover>
@@ -66,7 +66,7 @@ function AdaAlertsButton() {
           ) : (
             <Bell className="h-5 w-5 text-[hsl(var(--admin-text-muted))]" />
           )}
-          {totalCount > 0 && (
+          {totalCount> 0 && (
             <span className={`absolute -top-0.5 -right-0.5 h-4 min-w-[16px] px-0.5 rounded-full text-[10px] font-bold flex items-center justify-center ring-2 ring-[hsl(var(--admin-bg))] ${hasCritical ? "bg-[hsl(0,72%,51%)] text-foreground" : "bg-[hsl(24,95%,53%)] text-foreground"}`}>
               {totalCount}
             </span>
@@ -76,7 +76,7 @@ function AdaAlertsButton() {
       <PopoverContent align="end" className="w-80 p-0 admin-glass-card border-[hsl(var(--admin-border)/0.5)]">
         <div className="px-4 py-3 border-b border-[hsl(var(--admin-border)/0.4)] flex items-center justify-between">
           <p className="text-sm font-semibold text-[hsl(var(--admin-text))]" style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>Platform Alerts</p>
-          {totalCount > 0 && (
+          {totalCount> 0 && (
             <Badge variant="outline" className={`text-[10px] border-[hsl(var(--admin-border)/0.5)] ${hasCritical ? "text-[hsl(0,72%,51%)]" : "text-[hsl(24,95%,53%)]"}`}>
               {totalCount}
             </Badge>
@@ -93,8 +93,7 @@ function AdaAlertsButton() {
               <button
                 key={a.id}
                 className="w-full px-4 py-2.5 flex items-start gap-3 hover:bg-[hsl(var(--admin-surface-elevated)/0.3)] transition-colors text-left"
-                onClick={() => navigate(manageLink("alerts-security"))}
-              >
+                onClick={() => navigate(manageLink("alerts-security"))}>
                 <div className={`p-1.5 rounded-md shrink-0 ${a.severity === "error" ? "bg-[hsl(0,72%,51%,0.12)]" : "bg-[hsl(38,92%,50%,0.12)]"}`}>
                   <a.icon className={`h-4 w-4 ${a.severity === "error" ? "text-[hsl(0,72%,51%)]" : "text-[hsl(38,92%,55%)]"}`} />
                 </div>
@@ -146,7 +145,7 @@ export function AdminShell() {
               <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem>
-                    {segments.length > 0 ? (
+                    {segments.length> 0 ? (
                       <BreadcrumbLink asChild>
                         <Link to={manageLink("")} className="text-[hsl(var(--admin-text-muted))] hover:text-[hsl(24,95%,53%)] transition-colors text-sm">Management</Link>
                       </BreadcrumbLink>
@@ -154,7 +153,7 @@ export function AdminShell() {
                       <BreadcrumbPage className="text-[hsl(var(--admin-text))] text-sm">Management</BreadcrumbPage>
                     )}
                   </BreadcrumbItem>
-                  {segments.length > 0 && (
+                  {segments.length> 0 && (
                     <>
                       <BreadcrumbSeparator className="text-[hsl(var(--admin-text-muted))]" />
                       <BreadcrumbItem>

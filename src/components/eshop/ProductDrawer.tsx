@@ -106,7 +106,7 @@ export default function ProductDrawer({ open, onClose, product, providerKey, sho
           ) : (
             <>
               {/* Images */}
-              {images.length > 0 && (
+              {images.length> 0 && (
                 <div className="grid grid-cols-3 gap-2">
                   {images.slice(0, 6).map((img, i) => (
                     <img key={i} src={img} alt="" className="w-full aspect-square object-cover rounded-md border border-border" loading="lazy" />
@@ -131,7 +131,7 @@ export default function ProductDrawer({ open, onClose, product, providerKey, sho
               </div>
 
               {/* Variants */}
-              {variants.length > 0 && (
+              {variants.length> 0 && (
                 <div>
                   <p className="text-xs font-medium text-muted-foreground mb-2">Variants ({variants.length})</p>
                   <div className="space-y-1.5 max-h-48 overflow-y-auto">
@@ -169,8 +169,7 @@ export default function ProductDrawer({ open, onClose, product, providerKey, sho
             size="sm"
             onClick={handleImport}
             disabled={importing || imported || !shopSurfaceId}
-            className="flex-1 text-xs bg-accent text-accent-foreground hover:bg-accent/90 gap-1.5"
-          >
+            className="flex-1 text-xs bg-accent text-accent-foreground hover:bg-accent/90 gap-1.5">
             {imported ? "✓ Imported" : importing ? <><Loader2 className="w-3 h-3 animate-spin" /> Importing…</> : <><Download className="w-3 h-3" /> Import to Store</>}
           </Button>
         </div>

@@ -49,8 +49,7 @@ export default function AiModePopup({ onClose, onTryAiMode }: Props) {
             }
             onClose();
           }}
-          className="w-full bg-accent text-accent-foreground hover:bg-accent/90 rounded-full font-semibold"
-        >
+          className="w-full bg-accent text-accent-foreground hover:bg-accent/90 rounded-full font-semibold">
           Try it now
         </Button>
       </div>

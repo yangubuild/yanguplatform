@@ -77,8 +77,7 @@ function EntityCard({ entity, onClickTrack }: { entity: SearchEntityResult; onCl
     <div
       onClick={() => { onClickTrack?.(entity); ext ? window.open(route, "_blank") : navigate(route); }}
       className="shrink-0 w-[260px] sm:w-[290px] rounded-2xl overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
-      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', scrollSnapAlign: 'start' }}
-    >
+      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', scrollSnapAlign: 'start' }}>
       <div className="h-[170px] overflow-hidden">
         {entity.cover_image_url ? (
           <img src={entity.cover_image_url} alt={entity.title} className="w-full h-full object-cover" />
@@ -107,7 +106,7 @@ function EntityCard({ entity, onClickTrack }: { entity: SearchEntityResult; onCl
             <span className={T.bodyCompact} style={{ color: 'rgba(255,255,255,0.35)' }}>{typeLabel}</span>
           </div>
           {/* Review stars on the right if reviews exist */}
-          {(entity.review_count ?? 0) >= 1 && entity.avg_rating != null && (
+          {(entity.review_count ?? 0)>= 1 && entity.avg_rating != null && (
             <div className="flex items-center gap-1 shrink-0">
               <Star className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />
               <span className="text-[11px] text-yellow-500 font-medium">{entity.avg_rating.toFixed(1)}</span>
@@ -150,7 +149,7 @@ export function PremiumBusinessRow({ title, subtitle, businesses, entities, trac
     scrollRef.current.scrollBy({ left: dir === "left" ? -320 : 320, behavior: "smooth" });
   };
 
-  const hasLive = entities && entities.length > 0;
+  const hasLive = entities && entities.length> 0;
 
   return (
     <section className="mb-12" ref={trackRef}>

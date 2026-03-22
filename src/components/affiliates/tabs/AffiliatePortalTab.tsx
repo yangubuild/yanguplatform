@@ -30,8 +30,7 @@ export function AffiliatePortalTab() {
           <button
             onClick={handleCopyLink}
             className="px-4 py-1.5 rounded-lg text-sm font-medium text-foreground"
-            style={{ background: "rgba(255,255,255,0.08)" }}
-          >
+            style={{ background: "rgba(255,255,255,0.08)" }}>
             Copy link
           </button>
         </div>

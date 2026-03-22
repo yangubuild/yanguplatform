@@ -36,18 +36,15 @@ export function BlogExplorePanel() {
           style={{
             background: "linear-gradient(180deg, #0f1f17 0%, #0a1710 100%)",
             border: "1px solid rgba(255,255,255,0.08)",
-            borderRadius: 8 }}
-        >
+            borderRadius: 8 }}>
           {/* Header */}
           <button
             onClick={() => setOpen(false)}
             className="w-full flex items-center justify-between px-6 py-5"
-            style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}
-          >
+            style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
             <span
               className="text-xs font-semibold uppercase tracking-widest"
-              style={{ letterSpacing: "0.14em" }}
-            >
+              style={{ letterSpacing: "0.14em" }}>
               Explore the Every Universe
             </span>
             <ChevronDown className="w-4 h-4 text-muted-foreground" />
@@ -71,8 +68,7 @@ export function BlogExplorePanel() {
                 onMouseLeave={(e) => {
                   e.currentTarget.style.background = "transparent";
                   e.currentTarget.style.color = (item as any).muted ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.75)";
-                }}
-              >
+                }}>
                 <div className="flex items-center gap-4">
                   <span className="text-base w-6 text-center">{item.icon}</span>
                   <span className="text-sm">{item.label}</span>
@@ -88,8 +84,7 @@ export function BlogExplorePanel() {
               className="w-full py-3.5 text-[14px] font-medium flex items-center justify-center gap-2 transition-all hover:brightness-110"
               style={{
                 background: "transparent", border: "1px solid rgba(255,255,255,0.15)",
-                borderRadius: 8 }}
-            >
+                borderRadius: 8 }}>
               Create your free account <span style={{ fontSize: 16 }}>→</span>
             </button>
           </div>
@@ -104,8 +99,7 @@ export function BlogExplorePanel() {
           style={{
             background: "linear-gradient(180deg, #0f1f17 0%, #0a1710 100%)", border: "1px solid rgba(255,255,255,0.08)",
             borderRadius: 6,
-            letterSpacing: "0.1em" }}
-        >
+            letterSpacing: "0.1em" }}>
           Explore
         </button>
       )}

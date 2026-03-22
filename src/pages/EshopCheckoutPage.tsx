@@ -187,8 +187,7 @@ export default function EshopCheckoutPage() {
               onClick={async () => {
                 await supabase.from("orders").update({ status: "awaiting_confirmation" }).eq("id", orderPlaced.id);
                 toast.success("Payment noted — the seller will confirm shortly.");
-              }}
-            >
+              }}>
               I have paid
             </Button>
           )}
@@ -254,8 +253,7 @@ export default function EshopCheckoutPage() {
                       isSelected
                         ? "border-primary bg-primary/5"
                         : "border-border hover:border-primary/40"
-                    }`}
-                  >
+                    }`}>
                     <Icon className={`h-4 w-4 ${isSelected ? "text-primary" : "text-muted-foreground"}`} />
                     <span className={`text-sm font-medium ${isSelected ? "text-foreground" : "text-muted-foreground"}`}>
                       {meta.label}
@@ -271,8 +269,7 @@ export default function EshopCheckoutPage() {
           variant="accent"
           className="w-full"
           disabled={submitting || !selectedMethod || !buyerName.trim() || !buyerEmail.trim()}
-          onClick={handlePlaceOrder}
-        >
+          onClick={handlePlaceOrder}>
           {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
           Place Order
         </Button>

@@ -64,12 +64,12 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
   // Calculate reach dynamically
   const MAX_REACH = 265;
   let activeReach = 0;
-  if (videoCreatives.length > 0) activeReach += 100;
-  if (imageCreatives.length > 0) activeReach += 100;
+  if (videoCreatives.length> 0) activeReach += 100;
+  if (imageCreatives.length> 0) activeReach += 100;
   if (data.searchAd) activeReach += 5;
-  const reachPercent = MAX_REACH > 0 ? (activeReach / MAX_REACH) * 100 : 0;
-  const totalReach = activeReach > 0 ? `${activeReach}M` : "0";
-  const hasCreatives = data.creatives.length > 0;
+  const reachPercent = MAX_REACH> 0 ? (activeReach / MAX_REACH) * 100 : 0;
+  const totalReach = activeReach> 0 ? `${activeReach}M` : "0";
+  const hasCreatives = data.creatives.length> 0;
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -143,7 +143,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
 
       if (error) throw error;
 
-      if (aiData?.captions && Array.isArray(aiData.captions) && aiData.captions.length > 0) {
+      if (aiData?.captions && Array.isArray(aiData.captions) && aiData.captions.length> 0) {
         setAiCaptions(aiData.captions);
         setSelectedCaptionIdx(0);
       } else {
@@ -226,8 +226,8 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
 
   // Determine highlighted reach stats based on creatives
   const getReachHighlight = (label: string) => {
-    if (label === "Display ads" && imageCreatives.length > 0) return true;
-    if (label === "Vertical video" && videoCreatives.length > 0) return true;
+    if (label === "Display ads" && imageCreatives.length> 0) return true;
+    if (label === "Vertical video" && videoCreatives.length> 0) return true;
     if (label === "Search ads" && data.searchAd) return true;
     return false;
   };
@@ -280,8 +280,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
       <div
         onClick={() => setModal({ type: "bulk-upload" })}
         className="flex items-center gap-4 px-5 py-4 rounded-xl cursor-pointer transition-colors"
-        style={{ background: "rgba(30, 64, 120, 0.5)", border: "1px solid rgba(60, 100, 170, 0.3)" }}
-      >
+        style={{ background: "rgba(30, 64, 120, 0.5)", border: "1px solid rgba(60, 100, 170, 0.3)" }}>
         <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "rgba(50, 90, 160, 0.6)" }}>
           <Grid2x2 className="w-5 h-5 text-muted-foreground" />
         </div>
@@ -304,7 +303,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className={`text-xs px-3 py-1.5 rounded-lg ${videoCreatives.length > 0 ? "text-green-400 bg-green-400/10 border border-green-400/20" : "text-muted-foreground"}`} style={videoCreatives.length === 0 ? { background: "rgba(255,255,255,0.06)" } : {}}>
+            <span className={`text-xs px-3 py-1.5 rounded-lg ${videoCreatives.length> 0 ? "text-green-400 bg-green-400/10 border border-green-400/20" : "text-muted-foreground"}`} style={videoCreatives.length === 0 ? { background: "rgba(255,255,255,0.06)" } : {}}>
               +100M reach/mo
             </span>
             <Button variant="accent" className="rounded-xl px-4 h-8 text-xs" onClick={() => setModal({ type: "upload-video" })}>
@@ -312,7 +311,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
             </Button>
           </div>
         </div>
-        {videoCreatives.length > 0 && (
+        {videoCreatives.length> 0 && (
           <div className="px-5 pb-4 flex items-center gap-3">
             {videoCreatives.map((c) => (
               <div key={c.id} className="relative w-16 h-16 rounded-lg bg-white/10 flex items-center justify-center overflow-hidden group">
@@ -324,8 +323,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
             ))}
             <div
               onClick={() => setModal({ type: "upload-video" })}
-              className="w-16 h-16 rounded-lg border-2 border-dashed border-white/15 flex flex-col items-center justify-center cursor-pointer hover:border-white/25 transition-colors"
-            >
+              className="w-16 h-16 rounded-lg border-2 border-dashed border-white/15 flex flex-col items-center justify-center cursor-pointer hover:border-white/25 transition-colors">
               <Plus className="w-4 h-4 text-muted-foreground" />
               <span className="text-[8px] text-muted-foreground mt-0.5 text-center leading-tight">Upload another set</span>
             </div>
@@ -346,7 +344,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className={`text-xs px-3 py-1.5 rounded-lg ${imageCreatives.length > 0 ? "text-green-400 bg-green-400/10 border border-green-400/20" : "text-muted-foreground"}`} style={imageCreatives.length === 0 ? { background: "rgba(255,255,255,0.06)" } : {}}>
+            <span className={`text-xs px-3 py-1.5 rounded-lg ${imageCreatives.length> 0 ? "text-green-400 bg-green-400/10 border border-green-400/20" : "text-muted-foreground"}`} style={imageCreatives.length === 0 ? { background: "rgba(255,255,255,0.06)" } : {}}>
               +100M reach/mo
             </span>
             <Button variant="accent" className="rounded-xl px-4 h-8 text-xs" onClick={() => setModal({ type: "upload-image" })}>
@@ -354,7 +352,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
             </Button>
           </div>
         </div>
-        {imageCreatives.length > 0 && (
+        {imageCreatives.length> 0 && (
           <div className="px-5 pb-4 flex items-center gap-3">
             {imageCreatives.map((c) => (
               <div key={c.id} className="relative w-16 h-16 rounded-lg overflow-hidden group">
@@ -366,8 +364,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
             ))}
             <div
               onClick={() => setModal({ type: "upload-image" })}
-              className="w-16 h-16 rounded-lg border-2 border-dashed border-white/15 flex flex-col items-center justify-center cursor-pointer hover:border-white/25 transition-colors"
-            >
+              className="w-16 h-16 rounded-lg border-2 border-dashed border-white/15 flex flex-col items-center justify-center cursor-pointer hover:border-white/25 transition-colors">
               <Plus className="w-4 h-4 text-muted-foreground" />
               <span className="text-[8px] text-muted-foreground mt-0.5 text-center leading-tight">Upload another set</span>
             </div>
@@ -394,8 +391,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
             <Button
               variant="accent"
               className="rounded-xl px-4 h-8 text-xs"
-              onClick={() => { fetchPublishedSurfaces(); setModal({ type: "search-ads" }); }}
-            >
+              onClick={() => { fetchPublishedSurfaces(); setModal({ type: "search-ads" }); }}>
               Add your business
             </Button>
           </div>
@@ -526,8 +522,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
                   style={{
                     background: selectedRatio === i ? "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" : "rgba(255,255,255,0.04)",
                     color: selectedRatio === i ? "#fff" : "rgba(255,255,255,0.5)",
-                    border: selectedRatio === i ? "none" : "1px solid rgba(255,255,255,0.1)" }}
-                >
+                    border: selectedRatio === i ? "none" : "1px solid rgba(255,255,255,0.1)" }}>
                   <div className="font-medium">{r.label}</div>
                   <div className="text-[10px] mt-0.5 opacity-60">{r.size}</div>
                 </button>
@@ -573,8 +568,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
                 {/* Write your own from scratch */}
                 <button
                   onClick={() => setWriteOwn(true)}
-                  className="w-full p-4 rounded-xl border-2 border-dashed border-white/15 text-sm text-muted-foreground hover:border-white/25 transition-colors mb-4 shrink-0"
-                >
+                  className="w-full p-4 rounded-xl border-2 border-dashed border-white/15 text-sm text-muted-foreground hover:border-white/25 transition-colors mb-4 shrink-0">
                   + Write your own from scratch
                 </button>
 
@@ -609,7 +603,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
                 )}
 
                 {/* AI captions results — scrollable */}
-                {!aiLoading && aiCaptions.length > 0 && (
+                {!aiLoading && aiCaptions.length> 0 && (
                   <div className="flex-1 overflow-y-auto space-y-3 pr-1 min-h-0">
                     {aiCaptions.map((c, i) => (
                       <button
@@ -618,15 +612,13 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
                         className="w-full text-left p-4 rounded-xl text-sm transition-colors"
                         style={{
                           background: selectedCaptionIdx === i ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.02)",
-                          border: selectedCaptionIdx === i ? "2px solid #3b82f6" : "1px solid rgba(255,255,255,0.06)" }}
-                      >
+                          border: selectedCaptionIdx === i ? "2px solid #3b82f6" : "1px solid rgba(255,255,255,0.06)" }}>
                         <div className="flex items-start gap-3">
                           <div
                             className="w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 shrink-0"
                             style={{
                               borderColor: selectedCaptionIdx === i ? "#3b82f6" : "rgba(255,255,255,0.2)",
-                              background: selectedCaptionIdx === i ? "#3b82f6" : "transparent" }}
-                          >
+                              background: selectedCaptionIdx === i ? "#3b82f6" : "transparent" }}>
                             {selectedCaptionIdx === i && <div className="w-2 h-2 rounded-full bg-white" />}
                           </div>
                           <p className="text-muted-foreground whitespace-pre-line leading-relaxed">{c}</p>
@@ -643,16 +635,14 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
               <Button
                 variant="outline"
                 onClick={() => setModal({ type: "none" })}
-                className="flex-1 rounded-xl border-white/10 text-muted-foreground h-12"
-              >
+                className="flex-1 rounded-xl border-white/10 text-muted-foreground h-12">
                 Cancel
               </Button>
               <Button
                 variant="accent"
                 onClick={handleConfirmSave}
                 disabled={aiLoading && !writeOwn}
-                className="flex-1 rounded-xl h-12"
-              >
+                className="flex-1 rounded-xl h-12">
                 Save & Continue
               </Button>
             </div>
@@ -687,8 +677,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
                       key={s.id}
                       onClick={() => setModal({ type: "search-ads-form", surface: s })}
                       className="w-full flex items-center gap-3 p-3 rounded-xl text-left transition-colors hover:bg-white/[0.06]"
-                      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
-                    >
+                      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
                       {s.coverImage ? (
                         <img src={s.coverImage} alt="" className="w-10 h-10 rounded-lg object-cover" />
                       ) : (
@@ -773,8 +762,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
                 variant="accent"
                 onClick={handleSearchAdSave}
                 disabled={!searchAdForm.productType || !searchAdForm.category || !searchAdForm.description}
-                className="flex-1 rounded-xl"
-              >
+                className="flex-1 rounded-xl">
                 Save
               </Button>
             </div>

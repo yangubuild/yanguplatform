@@ -105,10 +105,10 @@ export function AdaBottomSection() {
     }
 
     const [uploadSigned, generatedSigned] = await Promise.all([
-      uploadPaths.length > 0
+      uploadPaths.length> 0
         ? supabase.storage.from("ada-uploads").createSignedUrls(uploadPaths, 3600)
         : Promise.resolve({ data: [] as any[] }),
-      generatedPaths.length > 0
+      generatedPaths.length> 0
         ? supabase.storage.from("ai-generated").createSignedUrls(generatedPaths, 3600)
         : Promise.resolve({ data: [] as any[] }),
     ]);
@@ -181,7 +181,7 @@ export function AdaBottomSection() {
             results.push({
               type: "chat",
               id: msg.chat_id,
-              title: msg.content.slice(0, 60) + (msg.content.length > 60 ? "…" : ""),
+              title: msg.content.slice(0, 60) + (msg.content.length> 60 ? "…" : ""),
               subtitle: msg.role === "user" ? "Your message" : "ADA response",
             });
           }
@@ -196,7 +196,7 @@ export function AdaBottomSection() {
         .ilike("metadata->>prompt_text", `%${q}%`)
         .order("created_at", { ascending: false })
         .limit(4);
-      if (imgResults && imgResults.length > 0) {
+      if (imgResults && imgResults.length> 0) {
         for (const img of imgResults) {
           const bucket = img.provider === "upload" ? "ada-uploads" : "ai-generated";
           const { data: signedData } = await supabase.storage
@@ -241,8 +241,7 @@ export function AdaBottomSection() {
     <>
       <div
         className="border-t border-white/5 px-6 py-6"
-        style={{ background: "rgba(5,10,7,0.6)" }}
-      >
+        style={{ background: "rgba(5,10,7,0.6)" }}>
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-6">
           {/* Left: ALL CHAT */}
           <div>
@@ -269,8 +268,7 @@ export function AdaBottomSection() {
                       openSearch();
                     }
                   }}
-                  className="text-muted-foreground hover:text-muted-foreground transition-colors p-1"
-                >
+                  className="text-muted-foreground hover:text-muted-foreground transition-colors p-1">
                   {showSearch && !searchQuery.trim() ? <X className="w-4 h-4" /> : <Search className="w-4 h-4" />}
                 </button>
               </div>
@@ -286,8 +284,7 @@ export function AdaBottomSection() {
                       if (result.type === "chat") { handleLoadChat(result.id); }
                       else if (result.image_url) { setSelectedImage(result.image_url); setShowSearch(false); setSearchQuery(""); }
                     }}
-                    className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left hover:bg-white/5 transition-colors"
-                  >
+                    className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left hover:bg-white/5 transition-colors">
                     {result.type === "chat" ? (
                       <MessageCircle className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
                     ) : result.image_url ? (
@@ -313,8 +310,7 @@ export function AdaBottomSection() {
                     <button
                       key={chat.id}
                       onClick={() => handleLoadChat(chat.id)}
-                      className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left hover:bg-white/5 transition-colors group"
-                    >
+                      className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left hover:bg-white/5 transition-colors group">
                       <MessageCircle className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
                       <span className="text-muted-foreground text-xs truncate flex-1">{chat.title}</span>
                       <MoreHorizontal className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 flex-shrink-0" />
@@ -340,8 +336,7 @@ export function AdaBottomSection() {
                   key={img.id}
                   className="relative aspect-square rounded-lg overflow-hidden cursor-pointer hover:ring-1 hover:ring-white/20 transition-all group"
                   style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
-                  onClick={() => setSelectedImage(img.signed_url || null)}
-                >
+                  onClick={() => setSelectedImage(img.signed_url || null)}>
                   <ImageWithFallback src={img.signed_url} alt={img.prompt_text || ""} />
                   <ImageTileActions
                     imageId={img.id}
@@ -366,8 +361,7 @@ export function AdaBottomSection() {
                   onClick={() => handleIconAction(item.id)}
                   className="w-10 h-10 rounded-lg flex items-center justify-center text-muted-foreground hover:text-muted-foreground hover:bg-white/5 transition-all"
                   title={item.label}
-                  style={{ border: "1px solid rgba(255,255,255,0.06)" }}
-                >
+                  style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
                   <Icon className="w-4 h-4" />
                 </button>
               );
@@ -380,12 +374,10 @@ export function AdaBottomSection() {
       {selectedImage && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
-          onClick={() => setSelectedImage(null)}
-        >
+          onClick={() => setSelectedImage(null)}>
           <button
             onClick={() => setSelectedImage(null)}
-            className="absolute top-4 right-4 text-muted-foreground hover:text-foreground z-10"
-          >
+            className="absolute top-4 right-4 text-muted-foreground hover:text-foreground z-10">
             <X className="w-6 h-6" />
           </button>
           <img
@@ -417,8 +409,7 @@ function ImageWithFallback({ src, alt }: { src?: string; alt: string }) {
         <span className="text-[10px] text-muted-foreground text-center">Failed to load</span>
         <button
           onClick={(e) => { e.stopPropagation(); setError(false); setRetryCount(c => c + 1); }}
-          className="text-[10px] text-[#F4A83D]/70 hover:text-[#F4A83D] transition-colors"
-        >
+          className="text-[10px] text-[#F4A83D]/70 hover:text-[#F4A83D] transition-colors">
           Retry
         </button>
       </div>

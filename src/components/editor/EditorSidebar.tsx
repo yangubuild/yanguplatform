@@ -80,8 +80,7 @@ export function EditorSidebar({ activeSection, onSectionChange, surfaceTitle }: 
       <SidebarHeader className="border-b border-border p-4">
         <button
           onClick={() => navigate("/dashboard")}
-          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="h-4 w-4" />
           <span>Back to Dashboard</span>
         </button>
@@ -103,8 +102,7 @@ export function EditorSidebar({ activeSection, onSectionChange, surfaceTitle }: 
                     className={cn(
                       section.comingSoon && "opacity-50 cursor-not-allowed"
                     )}
-                    disabled={section.comingSoon}
-                  >
+                    disabled={section.comingSoon}>
                     <section.icon className="h-4 w-4" />
                     <span>{section.label}</span>
                     {section.comingSoon && (
@@ -124,8 +122,7 @@ export function EditorSidebar({ activeSection, onSectionChange, surfaceTitle }: 
               variant="outline"
               size="sm"
               onClick={handlePreview}
-              className="w-full justify-start gap-2"
-            >
+              className="w-full justify-start gap-2">
               <Eye className="h-4 w-4" />
               Preview Surface
             </Button>

@@ -109,11 +109,10 @@ export default function GoogleMeetPage() {
   }, [startDate]);
 
   return (
-    <div className="w-full min-h-screen px-6 py-6 bg-background" >
+    <div className="w-full min-h-screen px-6 py-6 bg-background">
       <button
         onClick={() => navigate("/dashboard/my-apps")}
-        className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm mb-6 transition-colors"
-      >
+        className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm mb-6 transition-colors">
         <ArrowLeft className="w-4 h-4" /> Back to My Apps
       </button>
 
@@ -128,8 +127,7 @@ export default function GoogleMeetPage() {
             <button
               onClick={() => { setShowCreate(!showCreate); setCreatedMeetLink(null); }}
               className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-foreground transition-colors"
-              style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
-            >
+              style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}>
               <Plus className="w-4 h-4" />
               New Meeting
             </button>
@@ -137,8 +135,7 @@ export default function GoogleMeetPage() {
               onClick={fetchEvents}
               disabled={loading}
               className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground transition-colors"
-              style={{ background: "rgba(255,255,255,0.06)" }}
-            >
+              style={{ background: "rgba(255,255,255,0.06)" }}>
               <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             </button>
           </div>
@@ -194,8 +191,7 @@ export default function GoogleMeetPage() {
                 onClick={handleCreate}
                 disabled={creating || !title.trim() || !startDate || !endDate}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-foreground transition-colors disabled:opacity-40"
-                style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
-              >
+                style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}>
                 {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Video className="w-4 h-4" />}
                 Create with Meet Link
               </button>
@@ -237,18 +233,17 @@ export default function GoogleMeetPage() {
               <div
                 key={event.id}
                 className="rounded-xl p-4 group"
-                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
-              >
+                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground">{event.summary}</p>
                     <p className="text-xs text-muted-foreground mt-1">
                       {formatEventTime(event.start)} — {formatEventTime(event.end)}
                     </p>
-                    {event.attendees.length > 0 && (
+                    {event.attendees.length> 0 && (
                       <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
                         <Users className="w-3 h-3" />
-                        {event.attendees.length} attendee{event.attendees.length > 1 ? "s" : ""}
+                        {event.attendees.length} attendee{event.attendees.length> 1 ? "s" : ""}
                       </div>
                     )}
                   </div>

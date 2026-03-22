@@ -182,8 +182,7 @@ export default function ManageTeam() {
                 variant="ghost"
                 size="sm"
                 onClick={() => handleRevoke(r.id)}
-                className="text-destructive hover:text-destructive/80 h-7 px-2"
-              >
+                className="text-destructive hover:text-destructive/80 h-7 px-2">
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
             ) : null,
@@ -234,8 +233,7 @@ export default function ManageTeam() {
             <Button
               onClick={handleSendInvite}
               disabled={sending || !email.trim()}
-              className="bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent)/0.85)] text-foreground shrink-0"
-            >
+              className="bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent)/0.85)] text-foreground shrink-0">
               {sending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (

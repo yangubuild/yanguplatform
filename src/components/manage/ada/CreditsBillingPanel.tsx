@@ -132,8 +132,7 @@ export function CreditsBillingPanel() {
         <button
           onClick={handleSearch}
           disabled={isSearching}
-          className="px-4 py-2 rounded-md text-xs font-medium bg-[hsl(25,85%,45%/0.15)] text-[hsl(25,85%,45%)] border border-[hsl(25,85%,45%/0.25)] hover:bg-[hsl(25,85%,45%/0.25)] transition-colors disabled:opacity-50"
-        >
+          className="px-4 py-2 rounded-md text-xs font-medium bg-[hsl(25,85%,45%/0.15)] text-[hsl(25,85%,45%)] border border-[hsl(25,85%,45%/0.25)] hover:bg-[hsl(25,85%,45%/0.25)] transition-colors disabled:opacity-50">
           {isSearching ? "Searching..." : "Search"}
         </button>
 
@@ -173,8 +172,7 @@ export function CreditsBillingPanel() {
                     <button
                       key={p}
                       onClick={() => setGrantAmount(String(p))}
-                      className="px-3 py-1 rounded text-xs font-medium border border-border text-muted-foreground hover:bg-accent/10 hover:text-accent transition-colors"
-                    >
+                      className="px-3 py-1 rounded text-xs font-medium border border-border text-muted-foreground hover:bg-accent/10 hover:text-accent transition-colors">
                       +{p}
                     </button>
                   ))}
@@ -192,8 +190,7 @@ export function CreditsBillingPanel() {
               <button
                 onClick={handleGrantCredits}
                 disabled={isGranting}
-                className="w-full flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium bg-accent text-accent-foreground hover:bg-accent/90 transition-colors disabled:opacity-50"
-              >
+                className="w-full flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium bg-accent text-accent-foreground hover:bg-accent/90 transition-colors disabled:opacity-50">
                 <Send className="h-3.5 w-3.5" />
                 {isGranting ? "Granting..." : "Grant Credits"}
               </button>

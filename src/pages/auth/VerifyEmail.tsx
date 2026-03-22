@@ -44,8 +44,7 @@ export default function VerifyEmail() {
     <AuthShell
       title="Verify your email"
       subtitle="We've sent you a verification link"
-      showBackLink={false}
-    >
+      showBackLink={false}>
       <div className="space-y-6 text-center">
         <div className="mx-auto w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center">
           <Mail className="h-8 w-8 text-accent" />
@@ -84,8 +83,7 @@ export default function VerifyEmail() {
               <button
                 onClick={handleResend}
                 disabled={resending}
-                className="text-accent hover:underline font-medium inline-flex items-center gap-1"
-              >
+                className="text-accent hover:underline font-medium inline-flex items-center gap-1">
                 {resending && <Loader2 className="h-3 w-3 animate-spin" />}
                 {resending ? "Sending..." : "Resend verification"}
               </button>

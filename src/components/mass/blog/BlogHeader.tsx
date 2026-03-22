@@ -14,7 +14,7 @@ export function BlogHeader({ onSubscribeClick }: BlogHeaderProps) {
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 200);
+      setScrolled(window.scrollY> 200);
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
@@ -22,13 +22,11 @@ export function BlogHeader({ onSubscribeClick }: BlogHeaderProps) {
 
   return (
     <header
-      className="sticky top-0 z-50 w-full"
-    >
+      className="sticky top-0 z-50 w-full">
       <div
         className="mx-auto grid items-center px-4 sm:px-6 lg:px-10 py-4 max-w-[1320px]"
         style={{
-          gridTemplateColumns: "1fr auto 1fr" }}
-      >
+          gridTemplateColumns: "1fr auto 1fr" }}>
         {/* Left: yangu logo */}
         <div className="flex items-center">
           <img
@@ -45,8 +43,7 @@ export function BlogHeader({ onSubscribeClick }: BlogHeaderProps) {
           style={{
             opacity: scrolled ? 1 : 0,
             transform: scrolled ? "translateY(0)" : "translateY(6px)",
-            pointerEvents: scrolled ? "auto" : "none" }}
-        >
+            pointerEvents: scrolled ? "auto" : "none" }}>
           <div style={{ width: 80, height: 1, background: "rgba(255,255,255,0.2)" }} />
           <img src={yanguLogo} alt="yangu" className="h-6 w-auto px-4 cursor-pointer" onClick={() => navigate("/")} />
           <div style={{ width: 80, height: 1, background: "rgba(255,255,255,0.2)" }} />
@@ -56,15 +53,13 @@ export function BlogHeader({ onSubscribeClick }: BlogHeaderProps) {
         <div className="flex items-center gap-3 justify-end">
           <Button
             variant="dark-green"
-            size="default"
-          >
+            size="default">
             Sign in
           </Button>
           <Button
             variant="accent"
             size="default"
-            onClick={onSubscribeClick}
-          >
+            onClick={onSubscribeClick}>
             Subscribe
           </Button>
         </div>

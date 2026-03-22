@@ -86,8 +86,7 @@ export default function WorldwideTab({ selectedCountry, onCountryChange, results
             onClick={() => onCountryChange(c.key)}
             className={`flex flex-col items-center gap-1.5 shrink-0 min-w-[64px] ${
               selectedCountry === c.key ? "opacity-100" : "opacity-60 hover:opacity-80"
-            }`}
-          >
+            }`}>
             <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center text-xl ${
               selectedCountry === c.key ? "border-accent bg-accent/10" : "border-border bg-card"
             }`}>
@@ -111,7 +110,7 @@ export default function WorldwideTab({ selectedCountry, onCountryChange, results
         </div>
       )}
 
-      {filteredResults.length > 0 ? (
+      {filteredResults.length> 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredResults.map((item) => (
             <ProductCard

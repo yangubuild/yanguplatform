@@ -117,7 +117,7 @@ export default function ManageAuditLogs() {
   const [page, setPage] = useState(0);
   const limit = 50;
 
-  const debouncedSearch = search.length >= 2 ? search : null;
+  const debouncedSearch = search.length>= 2 ? search : null;
   const { data: logs, isLoading, isFetching, refetch } = useAuditLogsList({
     action,
     entityType,
@@ -171,8 +171,7 @@ export default function ManageAuditLogs() {
           </div>
           <button
             onClick={() => refetch()}
-            className="p-1.5 rounded-lg hover:bg-[hsl(var(--admin-surface-elevated)/0.5)] transition-colors text-[hsl(var(--admin-text-muted))]"
-          >
+            className="p-1.5 rounded-lg hover:bg-[hsl(var(--admin-surface-elevated)/0.5)] transition-colors text-[hsl(var(--admin-text-muted))]">
             <RefreshCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
           </button>
         </div>
@@ -214,15 +213,13 @@ export default function ManageAuditLogs() {
                 <button
                   disabled={page === 0}
                   onClick={() => setPage((p) => Math.max(0, p - 1))}
-                  className="text-xs px-3 py-1 rounded-md border border-[hsl(var(--admin-border)/0.4)] text-[hsl(var(--admin-text-muted))] hover:bg-[hsl(var(--admin-surface-elevated)/0.5)] disabled:opacity-40"
-                >
+                  className="text-xs px-3 py-1 rounded-md border border-[hsl(var(--admin-border)/0.4)] text-[hsl(var(--admin-text-muted))] hover:bg-[hsl(var(--admin-surface-elevated)/0.5)] disabled:opacity-40">
                   Previous
                 </button>
                 <button
                   disabled={logs.length < limit}
                   onClick={() => setPage((p) => p + 1)}
-                  className="text-xs px-3 py-1 rounded-md border border-[hsl(var(--admin-border)/0.4)] text-[hsl(var(--admin-text-muted))] hover:bg-[hsl(var(--admin-surface-elevated)/0.5)] disabled:opacity-40"
-                >
+                  className="text-xs px-3 py-1 rounded-md border border-[hsl(var(--admin-border)/0.4)] text-[hsl(var(--admin-text-muted))] hover:bg-[hsl(var(--admin-surface-elevated)/0.5)] disabled:opacity-40">
                   Next
                 </button>
               </div>

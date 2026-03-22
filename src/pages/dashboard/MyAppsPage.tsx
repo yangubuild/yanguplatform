@@ -108,14 +108,13 @@ export default function MyAppsPage() {
   };
 
   return (
-    <div className="w-full min-h-screen px-6 py-6 bg-background" >
+    <div className="w-full min-h-screen px-6 py-6 bg-background">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-semibold text-foreground">My Apps</h1>
         <Button
           variant="accent"
           size="default"
-          onClick={() => navigate("/dashboard/app-store")}
-        >
+          onClick={() => navigate("/dashboard/app-store")}>
           <Plus className="w-4 h-4" />
           Add App
         </Button>
@@ -129,8 +128,7 @@ export default function MyAppsPage() {
         <div className="flex flex-col items-center justify-center py-20">
           <div
             className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-            style={{ background: "rgba(255,255,255,0.05)" }}
-          >
+            style={{ background: "rgba(255,255,255,0.05)" }}>
             <Grid3X3 className="w-8 h-8 text-muted-foreground" />
           </div>
           <h2 className="text-lg font-semibold text-foreground mb-1">No apps yet</h2>
@@ -138,8 +136,7 @@ export default function MyAppsPage() {
           <Button
             variant="accent"
             size="default"
-            onClick={() => navigate("/dashboard/app-store")}
-          >
+            onClick={() => navigate("/dashboard/app-store")}>
             Browse App Store
           </Button>
         </div>
@@ -159,8 +156,7 @@ export default function MyAppsPage() {
                 className="rounded-xl p-4 flex flex-col gap-3"
                 style={{
                   background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.06)" }}
-              >
+                  border: "1px solid rgba(255,255,255,0.06)" }}>
                 <div className="flex items-start gap-3">
                   <img
                     src={icon}
@@ -188,8 +184,7 @@ export default function MyAppsPage() {
                       <Button
                         variant="accent"
                         size="sm"
-                        onClick={() => navigate(item.app.launch_route!)}
-                      >
+                        onClick={() => navigate(item.app.launch_route!)}>
                         Open
                       </Button>
                     )}
@@ -200,8 +195,7 @@ export default function MyAppsPage() {
                     )}
                     <button
                       onClick={() => handleRemove(item.app_id, item.app.name)}
-                      className="p-1.5 rounded-lg hover:bg-white/5 transition-colors text-muted-foreground hover:text-red-400"
-                    >
+                      className="p-1.5 rounded-lg hover:bg-white/5 transition-colors text-muted-foreground hover:text-red-400">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -248,8 +242,7 @@ function ConnectButton({ app }: { app: AppRegistryEntry }) {
       variant="dark-green"
       size="sm"
       onClick={handleConnect}
-      disabled={connecting}
-    >
+      disabled={connecting}>
       {connecting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Link2 className="w-3 h-3" />}
       Connect
     </Button>

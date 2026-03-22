@@ -13,7 +13,7 @@ function getStoredValue(): number {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const n = parseFloat(raw);
-      if (!isNaN(n) && n > 0) return n;
+      if (!isNaN(n) && n> 0) return n;
     }
   } catch {}
   return DEFAULT_START;

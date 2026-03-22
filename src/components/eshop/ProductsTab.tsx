@@ -111,10 +111,9 @@ export default function ProductsTab({
               onClick={() => setSelectedCategory(null)}
               className={`block w-full text-left text-sm py-1 px-2 rounded transition-colors ${
                 !selectedCategory ? "text-accent bg-accent/5 font-medium" : "text-foreground hover:text-accent hover:bg-accent/5"
-              }`}
-            >
+              }`}>
               All categories
-              {results.length > 0 && <span className="text-xs text-muted-foreground ml-1">({results.length})</span>}
+              {results.length> 0 && <span className="text-xs text-muted-foreground ml-1">({results.length})</span>}
             </button>
             {categories.map((c) => (
               <button
@@ -122,8 +121,7 @@ export default function ProductsTab({
                 onClick={() => setSelectedCategory(c.name === selectedCategory ? null : c.name)}
                 className={`block w-full text-left text-sm py-1 px-2 rounded transition-colors ${
                   selectedCategory === c.name ? "text-accent bg-accent/5 font-medium" : "text-foreground hover:text-accent hover:bg-accent/5"
-                }`}
-              >
+                }`}>
                 {c.name}
                 <span className="text-xs text-muted-foreground ml-1">({c.count})</span>
               </button>
@@ -146,8 +144,7 @@ export default function ProductsTab({
               onClick={() => setSelectedCountry(null)}
               className={`block w-full text-left text-sm py-1 px-2 rounded transition-colors ${
                 !selectedCountry ? "text-accent bg-accent/5 font-medium" : "text-foreground hover:text-accent hover:bg-accent/5"
-              }`}
-            >
+              }`}>
               All countries
             </button>
             {countries.map((c) => (
@@ -156,8 +153,7 @@ export default function ProductsTab({
                 onClick={() => setSelectedCountry(c.name === selectedCountry ? null : c.name)}
                 className={`block w-full text-left text-sm py-1 px-2 rounded transition-colors ${
                   selectedCountry === c.name ? "text-accent bg-accent/5 font-medium" : "text-foreground hover:text-accent hover:bg-accent/5"
-                }`}
-              >
+                }`}>
                 {c.name}
                 <span className="text-xs text-muted-foreground ml-1">({c.count})</span>
               </button>
@@ -180,7 +176,7 @@ export default function ProductsTab({
           </div>
         )}
 
-        {providerWarnings.length > 0 && (
+        {providerWarnings.length> 0 && (
           <div className="mb-3 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive">
             {Array.from(new Set(providerWarnings)).join(" · ")}
           </div>
@@ -200,8 +196,7 @@ export default function ProductsTab({
             <div className="flex justify-center gap-3">
               <Button
                 onClick={onGoToManufacturers}
-                className="bg-accent text-accent-foreground hover:bg-accent/90 gap-1.5"
-              >
+                className="bg-accent text-accent-foreground hover:bg-accent/90 gap-1.5">
                 <Plug className="w-4 h-4" />
                 Connect a Supplier
               </Button>
@@ -220,7 +215,7 @@ export default function ProductsTab({
               </div>
             ))}
           </div>
-        ) : filteredResults.length > 0 ? (
+        ) : filteredResults.length> 0 ? (
           <>
             {(selectedCategory || selectedCountry) && (
               <div className="mb-3 flex items-center gap-2 flex-wrap">
@@ -237,8 +232,7 @@ export default function ProductsTab({
                 )}
                 <button
                   onClick={() => { setSelectedCategory(null); setSelectedCountry(null); }}
-                  className="text-xs text-accent hover:underline"
-                >
+                  className="text-xs text-accent hover:underline">
                   Clear all
                 </button>
               </div>
@@ -254,7 +248,7 @@ export default function ProductsTab({
               ))}
             </div>
           </>
-        ) : results.length > 0 && (selectedCategory || selectedCountry) ? (
+        ) : results.length> 0 && (selectedCategory || selectedCountry) ? (
           <div className="text-center py-12">
             <p className="text-sm text-muted-foreground">No products matching current filters</p>
             <button onClick={() => { setSelectedCategory(null); setSelectedCountry(null); }} className="text-sm text-accent hover:underline mt-2">Clear all filters</button>
@@ -353,8 +347,7 @@ export default function ProductsTab({
                       <Button
                         onClick={onConnectAliExpress}
                         disabled={aliexpressConnecting}
-                        className="bg-accent text-accent-foreground hover:bg-accent/90 gap-1.5"
-                      >
+                        className="bg-accent text-accent-foreground hover:bg-accent/90 gap-1.5">
                         <ExternalLink className="w-4 h-4" />
                         {aliexpressConnecting ? "Connecting…" : "Connect AliExpress Account"}
                       </Button>
@@ -400,8 +393,7 @@ export default function ProductsTab({
                 <button
                   key={s}
                   onClick={() => onSearch(s)}
-                  className="px-4 py-2 rounded-xl border border-border/60 bg-card/60 text-sm text-muted-foreground hover:border-accent/40 hover:bg-accent/5 hover:text-foreground transition-colors"
-                >
+                  className="px-4 py-2 rounded-xl border border-border/60 bg-card/60 text-sm text-muted-foreground hover:border-accent/40 hover:bg-accent/5 hover:text-foreground transition-colors">
                   {s}
                 </button>
               ))}

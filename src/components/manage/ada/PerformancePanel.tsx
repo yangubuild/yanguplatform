@@ -114,8 +114,7 @@ export function PerformancePanel({ isAdmin }: PerformancePanelProps) {
             {isAdmin && (
               <button
                 onClick={addFeature}
-                className="p-1 rounded-md hover:bg-[hsl(25,85%,45%/0.1)] transition-colors"
-              >
+                className="p-1 rounded-md hover:bg-[hsl(25,85%,45%/0.1)] transition-colors">
                 <Plus className="h-3.5 w-3.5 text-[hsl(25,85%,45%)]" />
               </button>
             )}
@@ -130,8 +129,7 @@ export function PerformancePanel({ isAdmin }: PerformancePanelProps) {
                       <button
                         onClick={() => handleKillSwitch(t.id)}
                         className="text-[9px] px-1.5 py-0.5 rounded bg-[hsl(0,72%,51%/0.1)] text-[hsl(0,72%,51%)] hover:bg-[hsl(0,72%,51%/0.2)] transition-colors font-medium"
-                        title="Kill Switch — disable immediately"
-                      >
+                        title="Kill Switch — disable immediately">
                         <Zap className="h-2.5 w-2.5 inline mr-0.5" />Kill
                       </button>
                     )}
@@ -149,8 +147,7 @@ export function PerformancePanel({ isAdmin }: PerformancePanelProps) {
                     <select
                       value={t.segment}
                       onChange={(e) => handleSegment(t.id, e.target.value as Segment)}
-                      className="text-[10px] px-1.5 py-0.5 rounded bg-[hsl(var(--admin-surface)/0.5)] border border-[hsl(var(--admin-border)/0.3)] text-[hsl(var(--admin-text-muted))] outline-none"
-                    >
+                      className="text-[10px] px-1.5 py-0.5 rounded bg-[hsl(var(--admin-surface)/0.5)] border border-[hsl(var(--admin-border)/0.3)] text-[hsl(var(--admin-text-muted))] outline-none">
                       {segments.map((s) => (
                         <option key={s.value} value={s.value}>{s.label}</option>
                       ))}

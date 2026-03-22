@@ -98,8 +98,7 @@ export default function PortalLogs() {
         </h3>
         <div
           className="rounded-xl overflow-hidden"
-          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}
-        >
+          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
           {isLoading ? (
             <div className="flex justify-center py-12">
               <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
@@ -152,8 +151,7 @@ export default function PortalLogs() {
         </h3>
         <div
           className="rounded-xl overflow-hidden"
-          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}
-        >
+          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
           {!deliveries?.length ? (
             <div className="text-center py-12">
               <FileText className="w-8 h-8 text-muted-foreground mx-auto mb-3" />

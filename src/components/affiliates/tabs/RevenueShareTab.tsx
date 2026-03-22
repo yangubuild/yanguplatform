@@ -14,8 +14,7 @@ export function RevenueShareTab() {
       <div className="rounded-xl border border-white/[0.04] mb-6" style={{ background: "#111a15" }}>
         <button
           onClick={() => setShowDrawer(true)}
-          className="w-full flex items-center gap-4 p-4 text-left hover:bg-white/[0.02] transition-colors"
-        >
+          className="w-full flex items-center gap-4 p-4 text-left hover:bg-white/[0.02] transition-colors">
           <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
             <BarChart3 className="w-5 h-5 text-muted-foreground" />
           </div>
@@ -74,8 +73,7 @@ function ShareRevenueDrawer({ onClose }: { onClose: () => void }) {
               <select
                 value={shareType}
                 onChange={(e) => setShareType(e.target.value)}
-                className="w-full h-10 px-3 rounded-lg bg-white/5 border border-white/[0.06] text-sm text-foreground appearance-none focus:outline-none focus:border-accent/40"
-              >
+                className="w-full h-10 px-3 rounded-lg bg-white/5 border border-white/[0.06] text-sm text-foreground appearance-none focus:outline-none focus:border-accent/40">
                 <option value="Post fee">Post fee</option>
                 <option value="Pre fee">Pre fee</option>
               </select>
@@ -118,8 +116,7 @@ function ShareRevenueDrawer({ onClose }: { onClose: () => void }) {
         <div className="p-5 border-t border-white/[0.04]">
           <Button
             variant="accent"
-            className="w-full h-11"
-          >
+            className="w-full h-11">
             Invite
           </Button>
         </div>

@@ -57,8 +57,7 @@ export function ConsoleFormModal({
                 <select
                   value={String(values[f.key] ?? "")}
                   onChange={(e) => onChange(f.key, e.target.value)}
-                  className="w-full h-9 rounded-md border border-white/10 bg-white/5 text-foreground text-sm px-3"
-                >
+                  className="w-full h-9 rounded-md border border-white/10 bg-white/5 text-foreground text-sm px-3">
                   <option value="">Select…</option>
                   {f.options?.map((o) => (
                     <option key={o.value} value={o.value}>{o.label}</option>

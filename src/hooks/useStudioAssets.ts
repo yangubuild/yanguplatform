@@ -87,7 +87,7 @@ export function useDownloadAsset() {
         document.body.removeChild(a);
       }
       const cost = result.cost ?? 0;
-      toast.success(cost > 0 ? `Downloaded (${cost} credit${cost > 1 ? "s" : ""} used)` : "Downloaded");
+      toast.success(cost> 0 ? `Downloaded (${cost} credit${cost> 1 ? "s" : ""} used)` : "Downloaded");
     },
     onError: (err: Error) => {
       toast.error(err.message || "Download failed");

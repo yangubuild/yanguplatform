@@ -25,8 +25,7 @@ export function NavDashPromoCards() {
       <div
         className="rounded-2xl overflow-hidden relative h-[160px] sm:h-[200px] md:h-[240px]"
         onMouseEnter={() => setPaused(true)}
-        onMouseLeave={() => setPaused(false)}
-      >
+        onMouseLeave={() => setPaused(false)}>
         {banners.map((src, i) => (
           <img
             key={i}
@@ -56,9 +55,7 @@ export function NavDashPromoCards() {
       <div
         className="mt-4 flex items-center gap-3 rounded-xl px-4 h-11"
         style={{
-
-          border: "1px solid rgba(255,255,255,0.06)" }}
-      >
+          border: "1px solid rgba(255,255,255,0.06)" }}>
         <Search className="w-4 h-4 text-muted-foreground" />
         <input
           type="text"

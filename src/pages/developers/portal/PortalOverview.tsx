@@ -51,8 +51,7 @@ export default function PortalOverview() {
               key={card.label}
               onClick={() => navigate(card.route)}
               className="rounded-xl p-5 cursor-pointer hover:border-white/20 transition-colors"
-              style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}
-            >
+              style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
               <card.icon className="w-5 h-5 mb-3" strokeWidth={1.5} style={{ color: "#F46D2A" }} />
               <p className="text-2xl font-bold text-foreground mb-1">{card.value}</p>
               <p className="text-xs text-muted-foreground">{card.label}</p>
@@ -75,7 +74,7 @@ export default function PortalOverview() {
             <p className="text-xs text-muted-foreground">Monthly API Calls</p>
           </div>
           <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
-            <AlertTriangle className="w-5 h-5 mb-3" strokeWidth={1.5} style={{ color: usage.error_rate_24h > 10 ? "#ef4444" : "#F46D2A" }} />
+            <AlertTriangle className="w-5 h-5 mb-3" strokeWidth={1.5} style={{ color: usage.error_rate_24h> 10 ? "#ef4444" : "#F46D2A" }} />
             <p className="text-2xl font-bold text-foreground mb-1">{usage.error_rate_24h.toFixed(1)}%</p>
             <p className="text-xs text-muted-foreground">Error Rate (24h)</p>
           </div>
@@ -95,8 +94,7 @@ export default function PortalOverview() {
         <Button
           variant="outline"
           className="border-white/20 text-muted-foreground hover:bg-white/5"
-          onClick={() => navigate("/developers")}
-        >
+          onClick={() => navigate("/developers")}>
           <BookOpen className="w-4 h-4" /> View API Docs
         </Button>
       </div>

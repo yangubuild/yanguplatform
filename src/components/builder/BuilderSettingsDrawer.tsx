@@ -265,8 +265,7 @@ export function BuilderSettingsDrawer({
           <Button
             onClick={handleSave}
             disabled={isSaving || !title.trim()}
-            className="w-full"
-          >
+            className="w-full">
             {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Save Settings
           </Button>

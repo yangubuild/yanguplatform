@@ -16,8 +16,7 @@ export function ClientChatPanel() {
       {/* Header */}
       <div
         className="flex items-center justify-between px-4 py-3 shrink-0"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
-      >
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         <span className="text-sm font-semibold text-foreground">New chat</span>
         <button className="p-1 text-muted-foreground">
           <X className="w-4 h-4" />
@@ -29,8 +28,7 @@ export function ClientChatPanel() {
         {/* Suggestions label */}
         <div className="flex items-center gap-1.5 mb-4">
           <span
-            className="text-xs text-muted-foreground"
-          >
+            className="text-xs text-muted-foreground">
             🏷️ Click a suggestion to send
           </span>
         </div>
@@ -44,8 +42,7 @@ export function ClientChatPanel() {
               style={{
                 background: "rgba(255,255,255,0.03)",
                 border: "1px solid rgba(255,255,255,0.06)" }}
-              onClick={() => setMessage(s)}
-            >
+              onClick={() => setMessage(s)}>
               {s}
             </button>
           ))}
@@ -55,19 +52,16 @@ export function ClientChatPanel() {
       {/* Input — pinned to bottom */}
       <div
         className="px-3 py-3 shrink-0 flex items-center gap-2"
-        style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
-      >
+        style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
         <button
-          className="p-1.5 text-muted-foreground"
-        >
+          className="p-1.5 text-muted-foreground">
           <Plus className="w-4 h-4" />
         </button>
         <div
           className="flex-1 flex items-center rounded-xl px-3 h-9"
           style={{
             background: "rgba(255,255,255,0.04)",
-            border: "1px solid rgba(255,255,255,0.06)" }}
-        >
+            border: "1px solid rgba(255,255,255,0.06)" }}>
           <input
             type="text"
             value={message}
@@ -79,13 +73,11 @@ export function ClientChatPanel() {
         <div className="flex items-center gap-1">
           <span
             className="flex items-center gap-0.5 text-xs"
-            style={{ color: "#f97316" }}
-          >
+            style={{ color: "#f97316" }}>
             <Zap className="w-3 h-3" /> 313K
           </span>
           <button
-            className="p-1.5 text-muted-foreground"
-          >
+            className="p-1.5 text-muted-foreground">
             <Mic className="w-4 h-4" />
           </button>
         </div>

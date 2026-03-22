@@ -8,8 +8,7 @@ export function LivestreamingPanel() {
     <div className="flex flex-col h-full" style={{ background: "#111820" }}>
       <div
         className="flex items-center justify-between px-4 py-3 shrink-0"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
-      >
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         <span className="text-sm font-semibold text-foreground">Livestreaming</span>
       </div>
 
@@ -17,13 +16,11 @@ export function LivestreamingPanel() {
         {/* Stream settings */}
         <div
           className="rounded-xl p-4"
-          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
-        >
+          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
           <div className="flex items-center gap-3 mb-3">
             <div
               className="w-9 h-9 rounded-lg flex items-center justify-center"
-              style={{ background: "rgba(239,68,68,0.15)" }}
-            >
+              style={{ background: "rgba(239,68,68,0.15)" }}>
               <Radio className="w-4 h-4" style={{ color: "#ef4444" }} />
             </div>
             <div>
@@ -36,20 +33,17 @@ export function LivestreamingPanel() {
 
           <div className="space-y-2">
             <button
-              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-left hover:bg-white/5 transition-colors text-muted-foreground"
-            >
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-left hover:bg-white/5 transition-colors text-muted-foreground">
               <Video className="w-4 h-4 text-muted-foreground" />
               Camera & Audio settings
             </button>
             <button
-              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-left hover:bg-white/5 transition-colors text-muted-foreground"
-            >
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-left hover:bg-white/5 transition-colors text-muted-foreground">
               <Users className="w-4 h-4 text-muted-foreground" />
               Audience settings
             </button>
             <button
-              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-left hover:bg-white/5 transition-colors text-muted-foreground"
-            >
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-left hover:bg-white/5 transition-colors text-muted-foreground">
               <Settings className="w-4 h-4 text-muted-foreground" />
               Stream quality
             </button>
@@ -59,8 +53,7 @@ export function LivestreamingPanel() {
         {/* Recent streams */}
         <div
           className="rounded-xl p-4"
-          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
-        >
+          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
           <p className="text-xs font-semibold text-foreground mb-2">Recent Streams</p>
           <p className="text-xs text-muted-foreground">
             No streams yet. Use Go Live on your profile to start.
@@ -70,13 +63,11 @@ export function LivestreamingPanel() {
         {/* Live Chat — real empty state, no mock data */}
         <div
           className="rounded-xl p-4 flex flex-col"
-          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
-        >
+          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
           <div className="flex items-center gap-3 mb-3">
             <div
               className="w-9 h-9 rounded-lg flex items-center justify-center"
-              style={{ background: "rgba(239,68,68,0.15)" }}
-            >
+              style={{ background: "rgba(239,68,68,0.15)" }}>
               <MessageCircle className="w-4 h-4" style={{ color: "#ef4444" }} />
             </div>
             <div>
@@ -101,8 +92,7 @@ export function LivestreamingPanel() {
           {/* Chat input */}
           <div
             className="flex items-center gap-2 rounded-lg px-3 py-2"
-            style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
-          >
+            style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
             <input
               type="text"
               placeholder="Type a message..."
@@ -112,8 +102,7 @@ export function LivestreamingPanel() {
             />
             <button
               className="shrink-0 p-1 rounded hover:bg-white/10 transition-colors"
-              style={{ color: chatInput.trim() ? "#ef4444" : "rgba(255,255,255,0.25)" }}
-            >
+              style={{ color: chatInput.trim() ? "#ef4444" : "rgba(255,255,255,0.25)" }}>
               <Send className="w-3.5 h-3.5" />
             </button>
           </div>

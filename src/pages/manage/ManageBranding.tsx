@@ -12,7 +12,7 @@ const columns: AdminColumn<ManagedBrandingSurface>[] = [
     const t = r.theme as Record<string, unknown> | null;
     if (!t || Object.keys(t).length === 0) return <span className="text-xs text-muted-foreground">Default</span>;
     const keys = Object.keys(t).slice(0, 3).join(", ");
-    return <span className="text-xs text-muted-foreground">{keys}{Object.keys(t).length > 3 ? "…" : ""}</span>;
+    return <span className="text-xs text-muted-foreground">{keys}{Object.keys(t).length> 3 ? "…" : ""}</span>;
   }},
   { key: "updated_at", header: "Last Updated", render: (r) => <span className="text-xs text-muted-foreground">{new Date(r.updated_at).toLocaleDateString()}</span> },
 ];

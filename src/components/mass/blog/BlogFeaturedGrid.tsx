@@ -56,7 +56,7 @@ export function BlogFeaturedGrid() {
   const { data: slotMap } = useBlogSlotImages("anthropic_research");
   const slots = slotMap || {};
 
-  const hasPubs = publications && publications.length >= 3;
+  const hasPubs = publications && publications.length>= 3;
 
   // Slot mapping: slot1=left-top, slot2=center-big, slot3=left-bottom, slot4-7=right list
   const topCards = hasPubs
@@ -88,15 +88,13 @@ export function BlogFeaturedGrid() {
           display: "grid",
           gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1.6fr) 320px",
           gridTemplateRows: "1fr 1fr",
-          gap: "28px 28px" }}
-      >
+          gap: "28px 28px" }}>
         {/* Left col — 2 stacked cards, each in its own row */}
         {topCards.map((a, i) => (
           <div
             key={a.id}
             data-slot={i === 0 ? "slot1" : "slot3"}
-            style={{ gridColumn: 1, gridRow: i + 1, display: "flex", flexDirection: "column", overflow: "hidden" }}
-          >
+            style={{ gridColumn: 1, gridRow: i + 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
             <BlogArticleCard article={a} size="default" fillImage titleClamp={2} excerptClamp={1} />
           </div>
         ))}
@@ -111,8 +109,7 @@ export function BlogFeaturedGrid() {
           <div className="flex items-center justify-between mb-4">
             <h3
               className="text-xs font-semibold uppercase tracking-widest"
-              style={{ letterSpacing: "0.15em" }}
-            >
+              style={{ letterSpacing: "0.15em" }}>
               Recent Publications
             </h3>
             <ArrowRight className="w-4 h-4 transition-transform duration-200 hover:translate-x-0.5 text-muted-foreground" />

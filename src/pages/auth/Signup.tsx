@@ -74,8 +74,7 @@ export default function Signup() {
   return (
     <AuthShell
       title="Create your account"
-      subtitle="Start building your presence on yangu"
-    >
+      subtitle="Start building your presence on yangu">
       <div className="space-y-6">
         <SocialAuthButtons disabled={isLoading} />
 
@@ -131,8 +130,7 @@ export default function Signup() {
             type="submit"
             variant="accent"
             className="w-full h-11 mt-2"
-            disabled={isLoading}
-          >
+            disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Create account
           </Button>

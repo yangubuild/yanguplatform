@@ -36,8 +36,7 @@ export function YanguLoader({
     <div
       className={`${
         fullScreen ? "fixed" : "absolute"
-      } inset-0 z-50 flex flex-col items-center justify-center bg-background ${className ?? ""}`}
-    >
+      } inset-0 z-50 flex flex-col items-center justify-center bg-background ${className ?? ""}`}>
       {/* Animated Y logo with glow */}
       <div className="relative mb-8">
         <div className="h-20 w-20 animate-yangu-spin">

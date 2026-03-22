@@ -57,7 +57,7 @@ export function ChatCreationLauncher({ open, onOpenChange, onSelectUser, onOpenG
 
   const { data: people = [], isLoading } = useQuery({
     queryKey: ["chat-creation-people", user?.id, normalizedSearch],
-    enabled: open && view === "people" && !!user && normalizedSearch.length >= 2,
+    enabled: open && view === "people" && !!user && normalizedSearch.length>= 2,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")

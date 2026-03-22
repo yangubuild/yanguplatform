@@ -78,8 +78,7 @@ export function ImageAdsBottomBar({
 
         <Button
           onClick={onGenerate}
-          className="h-9 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 text-sm font-semibold gap-1.5 px-6"
-        >
+          className="h-9 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 text-sm font-semibold gap-1.5 px-6">
           <Sparkles className="h-4 w-4" />
           Generate
         </Button>

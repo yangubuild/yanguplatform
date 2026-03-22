@@ -28,8 +28,7 @@ export function BlogArticleCard({ article, size = "default", fillImage, titleCla
       target={article.url ? "_blank" : undefined}
       rel={article.url ? "noopener noreferrer" : undefined}
       className="group flex flex-col transition-all duration-200 hover:-translate-y-0.5"
-      style={{ textDecoration: "none", height: "100%", minHeight: 0 }}
-    >
+      style={{ textDecoration: "none", height: "100%", minHeight: 0 }}>
       {/* Image container */}
       <div
         className="overflow-hidden rounded-lg"
@@ -37,8 +36,7 @@ export function BlogArticleCard({ article, size = "default", fillImage, titleCla
           background: "#1a1a1a",
           ...(fillImage
             ? { flex: "1 1 0%", minHeight: 0 }
-            : { flexShrink: 0, aspectRatio: isLarge ? "4/5" : "3/4" }) }}
-      >
+            : { flexShrink: 0, aspectRatio: isLarge ? "4/5" : "3/4" }) }}>
         {article.image ? (
           <img
             src={article.image}
@@ -58,8 +56,7 @@ export function BlogArticleCard({ article, size = "default", fillImage, titleCla
         <div className="mb-1 flex items-center gap-1.5">
           <span
             className="text-[11px] uppercase tracking-wide"
-            style={{ letterSpacing: "0.06em" }}
-          >
+            style={{ letterSpacing: "0.06em" }}>
             {article.date || article.author}
           </span>
           {article.column && (
@@ -67,8 +64,7 @@ export function BlogArticleCard({ article, size = "default", fillImage, titleCla
               <span className="text-muted-foreground text-[11px]">IN</span>
               <span
                 className="text-[11px] uppercase tracking-wide font-semibold"
-                style={{ letterSpacing: "0.06em" }}
-              >
+                style={{ letterSpacing: "0.06em" }}>
                 {article.column}
               </span>
             </>
@@ -80,8 +76,7 @@ export function BlogArticleCard({ article, size = "default", fillImage, titleCla
           className="font-medium leading-snug transition-colors duration-200 group-hover:text-foreground"
           style={{
             fontFamily: "'Lufga', sans-serif",
-            fontSize: isLarge ? 28 : 18, ...(titleClamp ? clampStyle(titleClamp) : {}) }}
-        >
+            fontSize: isLarge ? 28 : 18, ...(titleClamp ? clampStyle(titleClamp) : {}) }}>
           {article.title}
         </h3>
 
@@ -89,8 +84,7 @@ export function BlogArticleCard({ article, size = "default", fillImage, titleCla
         {article.subtitle && (
           <p
             className="mt-1.5 text-sm leading-relaxed"
-            style={{ ...(excerptClamp ? clampStyle(excerptClamp) : {}) }}
-          >
+            style={{ ...(excerptClamp ? clampStyle(excerptClamp) : {}) }}>
             {article.subtitle}
           </p>
         )}
@@ -99,8 +93,7 @@ export function BlogArticleCard({ article, size = "default", fillImage, titleCla
         <div className="flex items-center gap-2 mt-2.5">
           <span
             className="text-[11px] font-semibold uppercase tracking-wider"
-            style={{ letterSpacing: "0.08em" }}
-          >
+            style={{ letterSpacing: "0.08em" }}>
             {article.author}
           </span>
         </div>

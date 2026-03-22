@@ -121,8 +121,7 @@ export default function VisionaireBundleDetail() {
         {/* Back */}
         <button
           onClick={() => navigate("/dashboard/visionaire/bundles")}
-          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="h-4 w-4" /> Back to Bundles
         </button>
 
@@ -142,7 +141,7 @@ export default function VisionaireBundleDetail() {
           {/* Details */}
           <div className="lg:col-span-3 space-y-6">
             {/* Tags */}
-            {tags.length > 0 && (
+            {tags.length> 0 && (
               <div className="flex flex-wrap gap-1.5">
                 {tags.map((tag) => (
                   <Badge key={tag} variant="secondary" className="text-xs">
@@ -194,8 +193,7 @@ export default function VisionaireBundleDetail() {
                     } else {
                       toast.error("Download link not available");
                     }
-                  }}
-                >
+                  }}>
                   <Download className="h-4 w-4 mr-2" /> Download Bundle
                 </Button>
               ) : null}
@@ -216,8 +214,7 @@ export default function VisionaireBundleDetail() {
                     });
                   }
                 }}
-                title={isSaved ? "Saved" : "Save"}
-              >
+                title={isSaved ? "Saved" : "Save"}>
                 {isSaved ? (
                   <BookmarkCheck className="h-4 w-4 text-primary" />
                 ) : (
@@ -236,15 +233,14 @@ export default function VisionaireBundleDetail() {
               <div className="flex items-center gap-2 text-muted-foreground text-sm py-4">
                 <Loader2 className="h-4 w-4 animate-spin" /> Loading files…
               </div>
-            ) : folderFiles && folderFiles.length > 0 ? (
+            ) : folderFiles && folderFiles.length> 0 ? (
               <div className="space-y-2">
                 {folderFiles
                   .filter((f) => !f.mimeType.includes("folder"))
                   .map((file) => (
                     <div
                       key={file.id}
-                      className="flex items-center justify-between gap-3 p-3 rounded-lg border border-border bg-card"
-                    >
+                      className="flex items-center justify-between gap-3 p-3 rounded-lg border border-border bg-card">
                       <div className="flex items-center gap-3 min-w-0">
                         <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
                         <span className="text-sm text-foreground truncate">{file.name}</span>
@@ -258,8 +254,7 @@ export default function VisionaireBundleDetail() {
                           setDownloading(file.id);
                           await proxyDownload(file.id, file.name);
                           setDownloading(null);
-                        }}
-                      >
+                        }}>
                         {downloading === file.id ? (
                           <Loader2 className="h-3.5 w-3.5 animate-spin" />
                         ) : (
@@ -277,7 +272,7 @@ export default function VisionaireBundleDetail() {
         )}
 
         {/* Related Items */}
-        {related.length > 0 && (
+        {related.length> 0 && (
           <div className="space-y-4 pt-4">
             <h2 className="text-lg font-semibold text-foreground">Related Products</h2>
             <VisionaireGrid items={related} />

@@ -68,8 +68,7 @@ export function ReviewForm({ entityId, onSuccess }: ReviewFormProps) {
             key={n}
             onMouseEnter={() => setHoverRating(n)}
             onMouseLeave={() => setHoverRating(0)}
-            onClick={() => setRating(n)}
-          >
+            onClick={() => setRating(n)}>
             <Star className={`w-5 h-5 transition-colors ${n <= (hoverRating || rating) ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground"}`} />
           </button>
         ))}

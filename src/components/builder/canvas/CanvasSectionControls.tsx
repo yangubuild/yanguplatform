@@ -26,21 +26,18 @@ export function CanvasSectionControls({
   return (
     <div
       className="absolute right-2 top-2 flex gap-0.5 opacity-0 group-hover/section:opacity-100 transition-opacity z-10"
-      onClick={(e) => e.stopPropagation()}
-    >
+      onClick={(e) => e.stopPropagation()}>
       <button
         type="button"
         className="p-1 rounded bg-background border border-border shadow-sm hover:bg-accent transition-colors cursor-grab"
-        title={`Drag to reorder ${sectionType} section`}
-      >
+        title={`Drag to reorder ${sectionType} section`}>
         <GripVertical className="h-3.5 w-3.5 text-muted-foreground" />
       </button>
       <button
         type="button"
         onClick={() => onHide(sectionId)}
         className="p-1 rounded bg-background border border-border shadow-sm hover:bg-accent transition-colors"
-        title="Hide section"
-      >
+        title="Hide section">
         <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
       </button>
       <button
@@ -58,8 +55,7 @@ export function CanvasSectionControls({
           : "p-1 rounded bg-background border border-border shadow-sm hover:bg-destructive/10 transition-colors"
         }
         title={confirmDelete ? "Click again to confirm delete" : "Delete section"}
-        aria-label={confirmDelete ? "Confirm delete section" : "Delete section"}
-      >
+        aria-label={confirmDelete ? "Confirm delete section" : "Delete section"}>
         <Trash2 className={confirmDelete ? "h-3.5 w-3.5 text-destructive-foreground" : "h-3.5 w-3.5 text-muted-foreground"} />
       </button>
     </div>

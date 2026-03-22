@@ -40,7 +40,7 @@ export default function EditProfilePage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto py-6 px-4 min-h-screen pb-20 bg-background" >
+    <div className="max-w-2xl mx-auto py-6 px-4 min-h-screen pb-20 bg-background">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold text-foreground">Edit profile</h1>
@@ -50,8 +50,7 @@ export default function EditProfilePage() {
           className="px-5 py-2 rounded-xl text-sm font-semibold transition-opacity"
           style={{
             background: hasChanges ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.06)",
-            color: hasChanges ? "#fff" : "rgba(255,255,255,0.3)" }}
-        >
+            color: hasChanges ? "#fff" : "rgba(255,255,255,0.3)" }}>
           Save changes
         </button>
       </div>
@@ -63,8 +62,7 @@ export default function EditProfilePage() {
         <div className="absolute -bottom-10 left-4">
           <div
             className="w-20 h-20 rounded-full border-4 flex items-center justify-center text-xl font-bold"
-            style={{ borderColor: "#1a2025" }}
-          >
+            style={{ borderColor: "#1a2025" }}>
             {(name || "U").charAt(0).toUpperCase()}
           </div>
         </div>
@@ -145,8 +143,7 @@ export default function EditProfilePage() {
               key={s.name}
               className="w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold transition-colors"
               style={{ border: "1px solid rgba(255,255,255,0.15)", color: s.color }}
-              onClick={() => toast({ title: `${s.name} link — coming soon` })}
-            >
+              onClick={() => toast({ title: `${s.name} link — coming soon` })}>
               {s.name}
             </button>
           ))}
@@ -171,9 +168,7 @@ function ToggleRow({
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
         <div
-          className="w-10 h-10 rounded-full flex items-center justify-center"
-          
-        >
+          className="w-10 h-10 rounded-full flex items-center justify-center">
           <Icon className="w-5 h-5 text-muted-foreground" />
         </div>
         <span className="text-sm font-medium text-foreground">{label}</span>

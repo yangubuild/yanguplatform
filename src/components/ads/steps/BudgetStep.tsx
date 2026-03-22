@@ -33,13 +33,13 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
   );
 
   const reachPercent = Math.min(((data.dailyBudget || 0) / 500) * 100, 100);
-  const isValid = data.dailyBudget >= MIN_BUDGET;
+  const isValid = data.dailyBudget>= MIN_BUDGET;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/[^0-9.]/g, "");
     // Prevent multiple dots
     const parts = raw.split(".");
-    const sanitized = parts.length > 2 ? parts[0] + "." + parts.slice(1).join("") : raw;
+    const sanitized = parts.length> 2 ? parts[0] + "." + parts.slice(1).join("") : raw;
     setInputValue(sanitized);
     const num = parseFloat(sanitized);
     onChange({ ...data, dailyBudget: isNaN(num) ? 0 : num });
@@ -47,7 +47,7 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
 
   const handleInputBlur = () => {
     const num = parseFloat(inputValue);
-    if (!isNaN(num) && num > 0) {
+    if (!isNaN(num) && num> 0) {
       setInputValue(num.toFixed(2));
     } else {
       setInputValue("");
@@ -84,8 +84,7 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
           <div className="flex items-baseline gap-2 mb-3">
             <span
               className="text-4xl font-bold"
-              style={{ color: "#b5622a" }}
-            >
+              style={{ color: "#b5622a" }}>
               95M - 105M
             </span>
             <span className="text-base text-muted-foreground">/ 265M</span>
@@ -102,8 +101,7 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
             <Button
               variant="outline"
               size="sm"
-              className="border-white/20 text-muted-foreground hover:text-foreground hover:bg-white/5 rounded-xl text-xs px-4 h-8 shrink-0"
-            >
+              className="border-white/20 text-muted-foreground hover:text-foreground hover:bg-white/5 rounded-xl text-xs px-4 h-8 shrink-0">
               Add more media
             </Button>
           </div>
@@ -133,7 +131,7 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
           </div>
 
           {/* Validation */}
-          {!isValid && data.dailyBudget > 0 && (
+          {!isValid && data.dailyBudget> 0 && (
             <div className="flex items-center gap-2 mt-2 text-red-400 text-sm">
               <AlertCircle className="w-4 h-4" />
               <span>Daily budgets start at $50</span>
@@ -157,8 +155,7 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
                   border:
                     data.dailyBudget === b
                       ? "none"
-                      : "1px solid rgba(255,255,255,0.1)" }}
-              >
+                      : "1px solid rgba(255,255,255,0.1)" }}>
                 ${b}/day
               </button>
             ))}
@@ -171,8 +168,7 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
           <a
             href="#"
             className="underline hover:text-muted-foreground"
-            style={{ color: "#b5622a" }}
-          >
+            style={{ color: "#b5622a" }}>
             YANGU Ads Terms
           </a>{" "}
           and allow us to charge your payment method for your campaign.
@@ -191,16 +187,14 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div
             className="rounded-2xl w-full max-w-md mx-4 shadow-2xl overflow-hidden border border-white/10"
-            style={{ background: "#0e1a14" }}
-          >
+            style={{ background: "#0e1a14" }}>
             {/* Header */}
             <div className="p-6 pb-4">
               <div className="flex items-center justify-between mb-4">
                 <img src={yanguLogo} alt="yangu" className="h-7 w-auto" />
                 <button
                   onClick={() => setShowPayment(false)}
-                  className="text-muted-foreground hover:text-muted-foreground transition-colors"
-                >
+                  className="text-muted-foreground hover:text-muted-foreground transition-colors">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -272,8 +266,7 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
                 onClick={handlePayConfirm}
                 className="w-full py-3 rounded-xl text-foreground font-semibold text-base transition-opacity hover:opacity-90"
                 style={{
-                  background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
-              >
+                  background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}>
                 Pay ${data.dailyBudget.toFixed(2)}
               </button>
             </div>

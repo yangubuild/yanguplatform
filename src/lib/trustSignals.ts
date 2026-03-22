@@ -74,11 +74,11 @@ export interface TrustTierInfo {
 export function getTrustTier(trustScore: number | null | undefined): TrustTierInfo | null {
   if (trustScore == null) return null;
 
-  if (trustScore >= 65)
+  if (trustScore>= 65)
     return { tier: "high", label: "Highly Trusted", color: "rgb(74,222,128)", bg: "rgba(74,222,128,0.1)" };
-  if (trustScore >= 40)
+  if (trustScore>= 40)
     return { tier: "moderate", label: "Trusted", color: "rgb(74,222,128)", bg: "rgba(74,222,128,0.08)" };
-  if (trustScore >= 20)
+  if (trustScore>= 20)
     return { tier: "emerging", label: "Emerging", color: "rgba(255,255,255,0.4)", bg: "rgba(255,255,255,0.05)" };
   return { tier: "low", label: "", color: "", bg: "" }; // hidden — low trust entities get no badge
 }
@@ -108,21 +108,21 @@ export function getReviewConfidence(
   if (count === 0 || rating === 0)
     return { confidence: "none", label: "", showRating: false };
 
-  if (count >= 10)
+  if (count>= 10)
     return { confidence: "strong", label: `${count} reviews`, showRating: true };
 
-  if (count >= 3)
+  if (count>= 3)
     return { confidence: "growing", label: `${count} reviews`, showRating: true };
 
   // 1-2 reviews: show count but don't emphasize the rating
-  return { confidence: "early", label: `${count} review${count > 1 ? "s" : ""}`, showRating: false };
+  return { confidence: "early", label: `${count} review${count> 1 ? "s" : ""}`, showRating: false };
 }
 
 // ── Badge priority ──
 // When rendering badges, components should follow this order:
 // 1. Verification badge (highest priority, most meaningful)
 // 2. Trust tier badge (only "Trusted" or "Highly Trusted")
-// 3. Rating confidence (stars + count when confidence >= growing)
+// 3. Rating confidence (stars + count when confidence>= growing)
 //
 // Max 2 visible badges to prevent clutter.
 

@@ -42,8 +42,7 @@ export function FriendReviewsRightPanel({ friend }: Props) {
     <div className="flex flex-col h-full" style={{ background: "#111820" }}>
       <div
         className="flex items-center justify-between px-4 py-3 shrink-0"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
-      >
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         <span className="text-sm font-semibold text-foreground">Review {friendName}</span>
       </div>
 
@@ -51,8 +50,7 @@ export function FriendReviewsRightPanel({ friend }: Props) {
         {/* Review summary */}
         <div
           className="rounded-xl p-4"
-          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
-        >
+          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
           <p className="text-xs font-semibold text-foreground mb-1">Average Rating</p>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-0.5">
@@ -70,7 +68,7 @@ export function FriendReviewsRightPanel({ friend }: Props) {
               <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
             ) : (
               <span className="text-xs text-muted-foreground">
-                {totalCount > 0 ? `${avgRating.toFixed(1)} (${totalCount} review${totalCount !== 1 ? "s" : ""})` : "No ratings yet"}
+                {totalCount> 0 ? `${avgRating.toFixed(1)} (${totalCount} review${totalCount !== 1 ? "s" : ""})` : "No ratings yet"}
               </span>
             )}
           </div>
@@ -79,14 +77,12 @@ export function FriendReviewsRightPanel({ friend }: Props) {
         {/* Review form */}
         <div
           className="rounded-xl p-4"
-          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
-        >
+          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
           <p className="text-xs font-semibold text-foreground mb-2">Your Review</p>
           <div className="flex items-center gap-2 mb-3">
             <div
               className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold overflow-hidden shrink-0"
-              style={{ background: "rgba(255,255,255,0.1)" }}
-            >
+              style={{ background: "rgba(255,255,255,0.1)" }}>
               {avatarUrl ? (
                 <img src={avatarUrl} alt="" className="w-7 h-7 rounded-full object-cover" />
               ) : (
@@ -131,9 +127,8 @@ export function FriendReviewsRightPanel({ friend }: Props) {
             disabled={rating === 0 || submitReview.isPending}
             className="mt-2 w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-semibold"
             style={{
-              background: rating > 0 ? "linear-gradient(135deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.08)",
-              color: rating > 0 ? "#fff" : "rgba(255,255,255,0.35)" }}
-          >
+              background: rating> 0 ? "linear-gradient(135deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.08)",
+              color: rating> 0 ? "#fff" : "rgba(255,255,255,0.35)" }}>
             {submitReview.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />} Submit Review
           </button>
         </div>

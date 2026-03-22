@@ -59,7 +59,7 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
 
   // Auto-select first eligible surface
   useEffect(() => {
-    if (!localShopId && surfaces.length > 0) {
+    if (!localShopId && surfaces.length> 0) {
       const firstEligible = surfaces.find(isSurfaceEligible);
       if (firstEligible) {
         setLocalShopId(firstEligible.id);
@@ -99,14 +99,14 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
 
   // Pricing — use detail if available, fall back to search-level data, or min variant price
   const detailVariants: any[] = detail?.variants || [];
-  const variantMinCents = detailVariants.length > 0
-    ? Math.min(...detailVariants.map((v: any) => v.provider_price_cents || 0).filter((c: number) => c > 0))
+  const variantMinCents = detailVariants.length> 0
+    ? Math.min(...detailVariants.map((v: any) => v.provider_price_cents || 0).filter((c: number) => c> 0))
     : 0;
-  const supplierCostCents = (detail?.provider_base_price_cents && detail.provider_base_price_cents > 0)
+  const supplierCostCents = (detail?.provider_base_price_cents && detail.provider_base_price_cents> 0)
     ? detail.provider_base_price_cents
-    : (product.provider_min_price_cents && product.provider_min_price_cents > 0)
+    : (product.provider_min_price_cents && product.provider_min_price_cents> 0)
       ? product.provider_min_price_cents
-      : (variantMinCents > 0 ? variantMinCents : 0);
+      : (variantMinCents> 0 ? variantMinCents : 0);
   const supplierCurrency = detail?.provider_currency ?? product.provider_currency ?? "USD";
   const sellingPriceCents = Math.round(supplierCostCents * (1 + markupPercent / 100));
   const displayCurrency = detail?.display_currency ?? product.display_currency ?? supplierCurrency;
@@ -132,9 +132,9 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
           selling_price_cents: sellingPriceCents,
           // Pass search-level data as fallback for providers with stub getProduct
           fallback_title: product.title,
-          fallback_price: supplierCostCents > 0 ? supplierCostCents / 100 : (product.provider_min_price_cents ? product.provider_min_price_cents / 100 : 0),
+          fallback_price: supplierCostCents> 0 ? supplierCostCents / 100 : (product.provider_min_price_cents ? product.provider_min_price_cents / 100 : 0),
           fallback_currency: supplierCurrency || "USD",
-          fallback_images: detail?.images?.length > 0 ? detail.images : (product.images || [product.thumbnail].filter(Boolean)),
+          fallback_images: detail?.images?.length> 0 ? detail.images : (product.images || [product.thumbnail].filter(Boolean)),
         },
       });
       if (res.error) throw new Error(res.error.message);
@@ -149,12 +149,12 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
     }
   };
 
-  const images: string[] = detail?.images?.length > 0 ? detail.images : (product?.images?.length > 0 ? product.images : [product.thumbnail].filter(Boolean));
+  const images: string[] = detail?.images?.length> 0 ? detail.images : (product?.images?.length> 0 ? product.images : [product.thumbnail].filter(Boolean));
   const variants: any[] = detail?.variants || [];
 
   // Auto-select all variants when they load
   useEffect(() => {
-    if (variants.length > 0 && selectedVariants.size === 0) {
+    if (variants.length> 0 && selectedVariants.size === 0) {
       setSelectedVariants(new Set(variants.map((_, i) => i)));
     }
   }, [variants.length]);
@@ -176,11 +176,11 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
     }
   };
 
-  const displayPrice = supplierCostCents > 0
+  const displayPrice = supplierCostCents> 0
     ? formatPrice(sellingPriceCents, displayCurrency)
     : "$0.00";
 
-  const providerPrice = supplierCostCents > 0
+  const providerPrice = supplierCostCents> 0
     ? formatPrice(supplierCostCents, supplierCurrency)
     : null;
 
@@ -224,8 +224,7 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
                   <button
                     key={i}
                     onClick={() => setMainImage(img)}
-                    className={`w-14 h-14 rounded-md border overflow-hidden shrink-0 ${mainImage === img ? "border-accent" : "border-border"}`}
-                  >
+                    className={`w-14 h-14 rounded-md border overflow-hidden shrink-0 ${mainImage === img ? "border-accent" : "border-border"}`}>
                     <img src={img} alt="" className="w-full h-full object-cover" loading="lazy" />
                   </button>
                 ))}
@@ -251,7 +250,7 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
                 </div>
 
                 {/* Variants */}
-                {variants.length > 0 && (
+                {variants.length> 0 && (
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
@@ -259,8 +258,7 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
                       </p>
                       <button
                         onClick={toggleAllVariants}
-                        className="text-xs text-accent hover:underline"
-                      >
+                        className="text-xs text-accent hover:underline">
                         {selectedVariants.size === variants.length ? "Deselect all" : "Select all"}
                       </button>
                     </div>
@@ -275,8 +273,7 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
                               isSelected
                                 ? "border-accent bg-accent/15 text-foreground"
                                 : "border-border/50 bg-muted/20 text-muted-foreground"
-                            }`}
-                          >
+                            }`}>
                             <span className={`w-3.5 h-3.5 rounded-sm border flex items-center justify-center shrink-0 ${
                               isSelected ? "bg-accent border-accent" : "border-muted-foreground/40"
                             }`}>
@@ -355,7 +352,7 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
                 <div className="rounded-xl border border-border bg-card p-4 space-y-3">
                   <h4 className="text-sm font-semibold text-foreground">Import to your shop</h4>
 
-                  {surfaces.length > 0 ? (
+                  {surfaces.length> 0 ? (
                     <div className="space-y-2">
                       <label className="text-xs text-muted-foreground">Destination shop</label>
                       <div className="relative">
@@ -365,8 +362,7 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
                             setLocalShopId(e.target.value);
                             onShopSurfaceChange?.(e.target.value);
                           }}
-                          className="w-full appearance-none px-3 py-2 pr-8 text-sm rounded-lg border border-border bg-card text-foreground focus:outline-none focus:border-accent/60"
-                        >
+                          className="w-full appearance-none px-3 py-2 pr-8 text-sm rounded-lg border border-border bg-card text-foreground focus:outline-none focus:border-accent/60">
                           <option value="">Select a shop…</option>
                           {Object.entries(groupedSurfaces).map(([groupLabel, items]) => (
                             <optgroup key={groupLabel} label={groupLabel}>
@@ -392,8 +388,7 @@ export default function ProductDetailView({ product, providerKey, shopSurfaceId,
                     <Button
                       onClick={handleImport}
                       disabled={importing || imported || !localShopId}
-                      className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-xl px-6 gap-1.5"
-                    >
+                      className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-xl px-6 gap-1.5">
                       {imported ? "✓ Imported" : importing ? (
                         <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Importing…</>
                       ) : (

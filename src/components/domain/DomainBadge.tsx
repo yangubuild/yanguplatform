@@ -63,8 +63,7 @@ export function DomainBadge({
         colorClass,
         size === "sm" && "text-xs px-2 py-0",
         className
-      )}
-    >
+      )}>
       {showIcon && IconComponent && (
         <IconComponent className={cn(
           "mr-1",

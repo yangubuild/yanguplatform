@@ -77,8 +77,7 @@ export default function UpdatePassword() {
       <AuthShell
         title="Verifying..."
         subtitle="Please wait while we verify your reset link"
-        showBackLink={false}
-      >
+        showBackLink={false}>
         <div className="flex justify-center py-8">
           <Loader2 className="h-8 w-8 animate-spin text-accent" />
         </div>
@@ -90,8 +89,7 @@ export default function UpdatePassword() {
     <AuthShell
       title="Set new password"
       subtitle="Enter your new password below"
-      showBackLink={false}
-    >
+      showBackLink={false}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="password">New Password</Label>
@@ -127,8 +125,7 @@ export default function UpdatePassword() {
           type="submit"
           variant="accent"
           className="w-full h-11"
-          disabled={isLoading}
-        >
+          disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Update password
         </Button>

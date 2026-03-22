@@ -22,8 +22,7 @@ export function MessagesCenterPanel({ activeTab, onTabChange, onSelectDm, onSele
       {/* Tab bar */}
       <div
         className="flex items-center gap-6 px-6 border-b"
-        style={{ borderColor: "rgba(255,255,255,0.07)", height: 48 }}
-      >
+        style={{ borderColor: "rgba(255,255,255,0.07)", height: 48 }}>
         {TABS.map((t) => (
           <button
             key={t.key}
@@ -33,8 +32,7 @@ export function MessagesCenterPanel({ activeTab, onTabChange, onSelectDm, onSele
               activeTab === t.key
                 ? { }
                 : { }
-            }
-          >
+            }>
             {t.label}
             {activeTab === t.key && (
               <span

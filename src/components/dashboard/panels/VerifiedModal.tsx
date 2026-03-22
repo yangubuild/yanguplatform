@@ -90,8 +90,7 @@ export function VerifiedModal({ open, onOpenChange }: VerifiedModalProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className="sm:max-w-md p-0 border-0 gap-0"
-        style={{ background: "#111a15", borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)" }}
-      >
+        style={{ background: "#111a15", borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)" }}>
         <div className="flex items-center gap-3 px-6 pt-6 pb-2">
           <BadgeCheck className="w-5 h-5" style={{ color: "#E67E22" }} />
           <DialogTitle className="text-lg font-bold text-foreground">Get Verified</DialogTitle>
@@ -134,12 +133,10 @@ export function VerifiedModal({ open, onOpenChange }: VerifiedModalProps) {
                 style={{
                   background: selected === opt.id ? "rgba(181,98,42,0.12)" : "rgba(255,255,255,0.03)",
                   border: `1px solid ${selected === opt.id ? "rgba(181,98,42,0.3)" : "rgba(255,255,255,0.06)"}`,
-                  opacity: isApproved && opt.id !== (currentVerified || existingRequest?.tick_type) ? 0.4 : 1 }}
-              >
+                  opacity: isApproved && opt.id !== (currentVerified || existingRequest?.tick_type) ? 0.4 : 1 }}>
                 <div
                   className="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0"
-                  style={{ borderColor: selected === opt.id ? opt.color : "rgba(255,255,255,0.2)" }}
-                >
+                  style={{ borderColor: selected === opt.id ? opt.color : "rgba(255,255,255,0.2)" }}>
                   {selected === opt.id && (
                     <div className="w-2.5 h-2.5 rounded-full" style={{ background: opt.color }} />
                   )}
@@ -163,8 +160,7 @@ export function VerifiedModal({ open, onOpenChange }: VerifiedModalProps) {
             <button
               className="w-full py-2.5 rounded-lg text-sm font-semibold"
               style={{ background: "rgba(22,163,106,0.15)", color: "#16a34a" }}
-              disabled
-            >
+              disabled>
               Verified ✓
             </button>
           ) : (
@@ -174,8 +170,7 @@ export function VerifiedModal({ open, onOpenChange }: VerifiedModalProps) {
               className="w-full py-2.5 rounded-lg text-sm font-semibold transition-opacity flex items-center justify-center gap-2"
               style={{
                 background: selected && !isPending ? "linear-gradient(135deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.08)",
-                color: selected && !isPending ? "#fff" : "rgba(255,255,255,0.35)" }}
-            >
+                color: selected && !isPending ? "#fff" : "rgba(255,255,255,0.35)" }}>
               {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
               {isPending ? "Request Pending" : "Submit Verification Request"}
             </button>

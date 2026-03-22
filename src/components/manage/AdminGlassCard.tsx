@@ -27,8 +27,7 @@ export function AdminPageHeader({ title, description, actions }: AdminPageHeader
       <div>
         <h1
           className="text-2xl font-bold tracking-tight text-[hsl(var(--admin-text))]"
-          style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}
-        >
+          style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>
           {title}
         </h1>
         {description && (
@@ -58,8 +57,7 @@ export function AdminMetricCard({ label, value, icon, trend }: AdminMetricCardPr
       <div className="flex items-end gap-2">
         <span
           className="text-2xl font-bold text-[hsl(var(--admin-text))]"
-          style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}
-        >
+          style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>
           {value}
         </span>
         {trend}

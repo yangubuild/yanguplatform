@@ -26,8 +26,7 @@ export function CommunityCard({ item, href }: CommunityCardProps) {
       )}
       <p
         className={`${item.price ? "mt-1" : "mt-2.5"} ${T.bodyCompact} leading-[1.5] line-clamp-2`}
-        style={{ color: c.descText }}
-      >
+        style={{ color: c.descText }}>
         {item.description}
       </p>
       <p className="mt-0.5 text-[11px] font-medium" style={{ color: c.nameText }}>{item.title}</p>

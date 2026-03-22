@@ -60,8 +60,7 @@ export function OrgSelector({
             key={membership.org_id}
             variant="outline"
             className="w-full h-auto p-4 justify-start gap-4"
-            onClick={() => onSelect(membership.org_id)}
-          >
+            onClick={() => onSelect(membership.org_id)}>
             <div className="p-2 rounded-lg bg-accent/10">
               <Users className="h-5 w-5 text-accent" />
             </div>

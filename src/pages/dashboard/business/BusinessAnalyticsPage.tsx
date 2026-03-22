@@ -10,7 +10,7 @@ const GRANULARITY = ["Daily", "Weekly", "Monthly"] as const;
 function generateDummyChart(days: number) {
   const data = [];
   const now = new Date();
-  for (let i = days; i >= 0; i--) {
+  for (let i = days; i>= 0; i--) {
     const d = new Date(now);
     d.setDate(d.getDate() - i);
     data.push({
@@ -43,7 +43,7 @@ export default function BusinessAnalyticsPage() {
   const chartData = generateDummyChart(7);
 
   return (
-    <div className="p-6 space-y-8 max-w-6xl min-h-screen bg-background" >
+    <div className="p-6 space-y-8 max-w-6xl min-h-screen bg-background">
       <button onClick={() => navigate("/dashboard/my-business")} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
         <ArrowLeft className="h-4 w-4" /> Back to My Business
       </button>

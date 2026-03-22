@@ -46,11 +46,11 @@ export async function getFreeUsageState(): Promise<FreeUsageState> {
 }
 
 export function canUseFreeImage(state: FreeUsageState): boolean {
-  return state.claimed && state.imagesLeft > 0;
+  return state.claimed && state.imagesLeft> 0;
 }
 
 export function canUseFreeVideo(state: FreeUsageState): boolean {
-  return state.claimed && state.videosLeft > 0;
+  return state.claimed && state.videosLeft> 0;
 }
 
 export type ConsumeResult = { ok: boolean; code?: string; used?: number; limit?: number };

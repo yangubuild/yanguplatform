@@ -106,8 +106,7 @@ export function ReportDialog({ entityId, entityTitle, open, onOpenChange }: Repo
                       style={{
                         background: reason === r ? "rgba(181,98,42,0.15)" : "rgba(255,255,255,0.03)",
                         color: reason === r ? "#b5622a" : "rgba(255,255,255,0.5)",
-                        border: `1px solid ${reason === r ? "rgba(181,98,42,0.3)" : "rgba(255,255,255,0.06)"}` }}
-                    >
+                        border: `1px solid ${reason === r ? "rgba(181,98,42,0.3)" : "rgba(255,255,255,0.06)"}` }}>
                       {r}
                     </button>
                   ))}

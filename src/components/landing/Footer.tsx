@@ -45,8 +45,7 @@ export function Footer() {
                 <li key={link.label}>
                   <a
                     href={link.href}
-                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                  >
+                    className="text-sm text-muted-foreground transition-colors hover:text-foreground">
                     {link.label}
                   </a>
                 </li>
@@ -62,8 +61,7 @@ export function Footer() {
                 <li key={link.label}>
                   <a
                     href={link.href}
-                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                  >
+                    className="text-sm text-muted-foreground transition-colors hover:text-foreground">
                     {link.label}
                   </a>
                 </li>
@@ -79,15 +77,13 @@ export function Footer() {
                   {link.href.startsWith("/") ? (
                     <Link
                       to={link.href}
-                      className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
+                      className="text-sm text-muted-foreground transition-colors hover:text-foreground">
                       {link.label}
                     </Link>
                   ) : (
                     <a
                       href={link.href}
-                      className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
+                      className="text-sm text-muted-foreground transition-colors hover:text-foreground">
                       {link.label}
                     </a>
                   )}

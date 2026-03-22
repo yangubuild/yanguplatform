@@ -46,7 +46,7 @@ export function MessagesGlobalChatTab() {
   const handleFile = (files: FileList | null) => {
     if (!files?.[0]) return;
     const f = files[0];
-    if (f.size > 5 * 1024 * 1024) { toast.error("Max 5MB"); return; }
+    if (f.size> 5 * 1024 * 1024) { toast.error("Max 5MB"); return; }
     setMediaFile(f);
     setMediaPreview(URL.createObjectURL(f));
   };
@@ -275,7 +275,7 @@ function MessageBubble({ msg, presenceMap, currentUserId, onReply, onReaction, e
           )}
 
           {/* Existing reactions */}
-          {msg.reactions.length > 0 && (
+          {msg.reactions.length> 0 && (
             <div className="flex flex-wrap gap-1 mt-1">
               {msg.reactions.map(r => {
                 const isMine = currentUserId && r.userIds.includes(currentUserId);

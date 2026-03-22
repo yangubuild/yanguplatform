@@ -39,8 +39,7 @@ export default function ManageBlog() {
               <TabsTrigger
                 key={t.value}
                 value={t.value}
-                className="gap-1.5 data-[state=active]:bg-background px-3 py-2 text-xs"
-              >
+                className="gap-1.5 data-[state=active]:bg-background px-3 py-2 text-xs">
                 <t.icon className="h-3.5 w-3.5" />
                 {t.label}
               </TabsTrigger>

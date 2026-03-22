@@ -117,14 +117,13 @@ export default function MessagesPage() {
 
   if (isMobile) {
     return (
-      <div className="h-[calc(100vh-64px)] flex flex-col overflow-hidden pb-14 bg-background" >
+      <div className="h-[calc(100vh-64px)] flex flex-col overflow-hidden pb-14 bg-background">
         <div className="flex items-center justify-end px-3 py-2">
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowUsersPanel(!showUsersPanel)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium"
-              style={{ background: "rgba(255,255,255,0.06)" }}
-            >
+              style={{ background: "rgba(255,255,255,0.06)" }}>
               <Users className="w-3.5 h-3.5" />
               People
             </button>
@@ -132,15 +131,14 @@ export default function MessagesPage() {
               onClick={() => setShowCreateLauncher(true)}
               className="w-9 h-9 rounded-lg flex items-center justify-center"
               style={{ background: "rgba(255,255,255,0.06)" }}
-              aria-label="Create chat"
-            >
+              aria-label="Create chat">
               <Plus className="w-4 h-4" />
             </button>
           </div>
         </div>
 
         {showUsersPanel && (
-          <div className="fixed inset-0 z-50 flex flex-col bg-card" >
+          <div className="fixed inset-0 z-50 flex flex-col bg-card">
             <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
               <span className="text-sm font-semibold text-foreground">People</span>
               <button onClick={() => setShowUsersPanel(false)} className="text-muted-foreground">
@@ -156,11 +154,9 @@ export default function MessagesPage() {
         <div
           className="flex-1 min-h-0 overflow-hidden"
           style={{
-
             borderRadius: "14px",
             margin: "0 8px 8px",
-            border: "1px solid rgba(255,255,255,0.06)" }}
-        >
+            border: "1px solid rgba(255,255,255,0.06)" }}>
           {centerContent}
         </div>
 
@@ -178,9 +174,8 @@ export default function MessagesPage() {
     return (
       <div
         className="h-[calc(100vh-64px)] overflow-hidden"
-        style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: "0px" }}
-      >
-        <div className="h-full overflow-hidden p-2 pr-0 bg-background" >
+        style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: "0px" }}>
+        <div className="h-full overflow-hidden p-2 pr-0 bg-background">
           <div className="h-full overflow-hidden flex flex-col" style={{ borderRadius: "14px", border: "1px solid rgba(255,255,255,0.06)" }}>
             <MessagesDmList
               selectedUserId={activeConversationUserId}
@@ -191,7 +186,7 @@ export default function MessagesPage() {
             />
           </div>
         </div>
-        <div className="h-full overflow-hidden p-2 bg-background" >
+        <div className="h-full overflow-hidden p-2 bg-background">
           <div className="h-full overflow-hidden flex flex-col" style={{ borderRadius: "14px", border: "1px solid rgba(255,255,255,0.06)" }}>
             {centerContent}
           </div>
@@ -210,9 +205,8 @@ export default function MessagesPage() {
   return (
     <div
       className="h-[calc(100vh-64px)] overflow-hidden"
-      style={{ display: "grid", gridTemplateColumns: "300px 1fr 340px", gap: "0px" }}
-    >
-      <div className="h-full overflow-hidden p-2 pr-0 bg-background" >
+      style={{ display: "grid", gridTemplateColumns: "300px 1fr 340px", gap: "0px" }}>
+      <div className="h-full overflow-hidden p-2 pr-0 bg-background">
         <div className="h-full overflow-hidden flex flex-col" style={{ borderRadius: "14px", border: "1px solid rgba(255,255,255,0.06)" }}>
           <MessagesDmList
             selectedUserId={activeConversationUserId}
@@ -224,13 +218,13 @@ export default function MessagesPage() {
         </div>
       </div>
 
-      <div className="h-full overflow-hidden p-2 bg-background" >
+      <div className="h-full overflow-hidden p-2 bg-background">
         <div className="h-full overflow-hidden flex flex-col" style={{ borderRadius: "14px", border: "1px solid rgba(255,255,255,0.06)" }}>
           {centerContent}
         </div>
       </div>
 
-      <div className="h-full overflow-hidden p-2 pl-0 bg-background" >
+      <div className="h-full overflow-hidden p-2 pl-0 bg-background">
         <div className="h-full overflow-hidden flex flex-col overflow-y-auto" style={{ borderRadius: "14px", border: "1px solid rgba(255,255,255,0.06)" }}>
           <MessagesDiscoverySidebar onUserClick={handleSelectConversation} />
         </div>

@@ -120,8 +120,7 @@ function CoverRow({ images, rowIndex }: { images: readonly string[]; rowIndex: n
     <div className="relative overflow-hidden">
       <div
         className="flex gap-2 w-max"
-        style={{ animation: `${reverse ? "scroll-right" : "scroll-left"} 25s linear infinite` }}
-      >
+        style={{ animation: `${reverse ? "scroll-right" : "scroll-left"} 25s linear infinite` }}>
         {[...images, ...images].map((src, index) => (
           <img
             key={`${src}-${index}`}
@@ -156,8 +155,7 @@ export function CustomProductOffer() {
               <button
                 onClick={() => navigate("/dashboard/offers/custom-product")}
                 className="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-foreground transition-opacity hover:opacity-90"
-                style={{ background: YANGU_GRADIENT }}
-              >
+                style={{ background: YANGU_GRADIENT }}>
                 Get Your Own Product
                 <ArrowRight className="h-3.5 w-3.5" />
               </button>
@@ -201,8 +199,7 @@ export function CustomProductOffer() {
           <div className="shrink-0">
             <span
               className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-semibold"
-              style={{ color: YANGU_ORANGE, backgroundColor: YANGU_ORANGE_LIGHT, borderWidth: 1, borderColor: YANGU_ORANGE_BORDER }}
-            >
+              style={{ color: YANGU_ORANGE, backgroundColor: YANGU_ORANGE_LIGHT, borderWidth: 1, borderColor: YANGU_ORANGE_BORDER }}>
               <Zap className="h-2.5 w-2.5" />
               ZERO WORK
             </span>
@@ -228,7 +225,7 @@ export function CustomProductOffer() {
 
       <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
         {STATS.map((stat) => {
-          const isLongValue = stat.value.length > 7;
+          const isLongValue = stat.value.length> 7;
 
           return (
             <div
@@ -236,14 +233,12 @@ export function CustomProductOffer() {
               className={`h-[82px] rounded-2xl border px-4 py-3 sm:h-[88px]`}
               style={{
                 background: "#ffffff",
-                borderColor: stat.highlight ? YANGU_ORANGE_BORDER_35 : "rgba(0,0,0,0.08)" }}
-            >
+                borderColor: stat.highlight ? YANGU_ORANGE_BORDER_35 : "rgba(0,0,0,0.08)" }}>
               <div className="flex h-full items-center justify-between gap-2">
                 <div>
                   <p
                     className={`font-bold leading-none ${isLongValue ? "text-2xl" : "text-3xl"}`}
-                    style={{ color: stat.highlight ? YANGU_ORANGE : "#1a1a1a" }}
-                  >
+                    style={{ color: stat.highlight ? YANGU_ORANGE : "#1a1a1a" }}>
                     {stat.value}
                   </p>
                   <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: "#888" }}>
@@ -288,8 +283,7 @@ export function CustomProductOffer() {
         <div className="relative h-[200px] rounded-2xl border border-border bg-foreground px-6 py-5 text-background sm:h-[210px] lg:h-[220px]">
           <span
             className="absolute right-4 top-4 rounded-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-foreground"
-            style={{ background: YANGU_GRADIENT }}
-          >
+            style={{ background: YANGU_GRADIENT }}>
             Limited Offer
           </span>
 
@@ -303,8 +297,7 @@ export function CustomProductOffer() {
                 {["Strategy", "Copywriting", "Design", "Launch"].map((tag) => (
                   <span
                     key={tag}
-                    className="rounded-full border border-background/20 px-2.5 py-0.5 text-[10px] font-medium text-background/80"
-                  >
+                    className="rounded-full border border-background/20 px-2.5 py-0.5 text-[10px] font-medium text-background/80">
                     {tag}
                   </span>
                 ))}
@@ -322,8 +315,7 @@ export function CustomProductOffer() {
               <button
                 onClick={() => navigate("/dashboard/offers/custom-product")}
                 className="inline-flex items-center gap-1.5 rounded-xl px-5 py-2.5 text-sm font-semibold text-foreground transition-opacity hover:opacity-90"
-                style={{ background: YANGU_GRADIENT }}
-              >
+                style={{ background: YANGU_GRADIENT }}>
                 Get Started
                 <ArrowRight className="h-4 w-4" />
               </button>

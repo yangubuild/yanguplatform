@@ -179,8 +179,7 @@ export default function AuthCallback() {
     <AuthShell
       title={errorMsg ? "Sign in failed" : "Signing you in..."}
       subtitle={errorMsg ? undefined : "Please wait while we complete your authentication"}
-      showBackLink={false}
-    >
+      showBackLink={false}>
       <div className="flex flex-col items-center gap-4 py-8">
         {errorMsg ? (
           <>
@@ -190,16 +189,14 @@ export default function AuthCallback() {
                 variant="accent"
                 className="w-full"
                 onClick={handleRetry}
-                disabled={isRetrying}
-              >
+                disabled={isRetrying}>
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Retry login
               </Button>
               <Button
                 variant="outline"
                 className="w-full"
-                onClick={clearAuthCache}
-              >
+                onClick={clearAuthCache}>
                 <Trash2 className="mr-2 h-4 w-4" />
                 Clear auth cache & retry
               </Button>

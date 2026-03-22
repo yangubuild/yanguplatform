@@ -40,8 +40,7 @@ export function TopPerformingAdsSection() {
         <div>
           <h2
             className="text-xl md:text-2xl font-black uppercase tracking-tight text-foreground flex items-center gap-2"
-            style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}
-          >
+            style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>
             PRODUCT VISUAL EFFECTS
             <span className="inline-flex items-center rounded bg-accent/15 px-1.5 py-0.5 text-[11px] font-bold text-accent">
               AI
@@ -67,8 +66,7 @@ export function TopPerformingAdsSection() {
               activeFilter === chip
                 ? "border-accent bg-accent/20 text-accent"
                 : "border-border/50 bg-transparent text-muted-foreground hover:border-border hover:text-foreground"
-            }`}
-          >
+            }`}>
             {chip}
           </button>
         ))}
@@ -80,8 +78,7 @@ export function TopPerformingAdsSection() {
           <div
             key={card.id}
             className={`relative rounded-xl overflow-hidden bg-muted/30 cursor-pointer group ${card.span ?? ""}`}
-            style={{ aspectRatio: card.span?.includes("col-span-2") ? "16/9" : "3/4" }}
-          >
+            style={{ aspectRatio: card.span?.includes("col-span-2") ? "16/9" : "3/4" }}>
             <video
               src={card.video}
               className="absolute inset-0 w-full h-full object-cover"

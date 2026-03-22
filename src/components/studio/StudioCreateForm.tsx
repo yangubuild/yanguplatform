@@ -100,7 +100,7 @@ export function StudioCreateForm({ onSubmit, isLoading, creditCost = 1 }: Studio
     });
   };
 
-  const isValid = productUrl.trim() && contentTypes.length > 0 && platforms.length > 0;
+  const isValid = productUrl.trim() && contentTypes.length> 0 && platforms.length> 0;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -181,8 +181,7 @@ export function StudioCreateForm({ onSubmit, isLoading, creditCost = 1 }: Studio
             {CONTENT_TYPES.map((type) => (
               <label
                 key={type.id}
-                className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-surface-elevated cursor-pointer transition-colors"
-              >
+                className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-surface-elevated cursor-pointer transition-colors">
                 <Checkbox
                   checked={contentTypes.includes(type.id)}
                   onCheckedChange={() => handleContentTypeToggle(type.id)}
@@ -223,8 +222,7 @@ export function StudioCreateForm({ onSubmit, isLoading, creditCost = 1 }: Studio
             {PLATFORMS.map((platform) => (
               <label
                 key={platform.id}
-                className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-surface-elevated cursor-pointer transition-colors"
-              >
+                className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-surface-elevated cursor-pointer transition-colors">
                 <Checkbox
                   checked={platforms.includes(platform.id)}
                   onCheckedChange={() => handlePlatformToggle(platform.id)}
@@ -243,8 +241,7 @@ export function StudioCreateForm({ onSubmit, isLoading, creditCost = 1 }: Studio
             type="submit"
             size="lg"
             disabled={!isValid || isLoading}
-            className="w-full sm:w-auto"
-          >
+            className="w-full sm:w-auto">
             <Sparkles className="mr-2 h-5 w-5" />
             {isLoading ? "Generating..." : "Generate Content"}
           </PrimaryButton>

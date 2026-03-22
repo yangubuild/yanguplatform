@@ -45,21 +45,19 @@ export function ReviewsPanel() {
     <div className="flex flex-col h-full" style={{ background: "#111820" }}>
       <div
         className="flex items-center justify-between px-4 py-3 shrink-0"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
-      >
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         <span className="text-sm font-semibold text-foreground">Reviews</span>
         <button
           onClick={handleRequestReview}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
-          style={{ background: "rgba(181,98,42,0.12)", color: "#E67E22" }}
-        >
+          style={{ background: "rgba(181,98,42,0.12)", color: "#E67E22" }}>
           {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
           {copied ? "Copied!" : "Request Review"}
         </button>
       </div>
 
       {/* Summary bar */}
-      {totalCount > 0 && (
+      {totalCount> 0 && (
         <div className="px-4 py-2 shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
           <div className="flex items-center gap-2">
             {renderStars(Math.round(avgRating))}
@@ -88,8 +86,7 @@ export function ReviewsPanel() {
             <div
               key={review.id}
               className="rounded-lg p-3"
-              style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
-            >
+              style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
               <div className="flex items-center gap-2 mb-1.5">
                 <div className="w-5 h-5 rounded-full overflow-hidden shrink-0" style={{ background: "rgba(255,255,255,0.1)" }}>
                   {review.reviewer_avatar ? (

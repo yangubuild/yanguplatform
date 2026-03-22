@@ -110,7 +110,7 @@ export default function PortalApps() {
       .select("id")
       .eq("slug", s)
       .limit(1);
-    if (data && data.length > 0) {
+    if (data && data.length> 0) {
       setSlugError("This app key is already taken");
     } else {
       setSlugError("");
@@ -186,7 +186,7 @@ export default function PortalApps() {
     setSlugError("");
   };
 
-  const canSubmit = name.trim().length > 0 && slug.length > 0 && SLUG_RE.test(slug) && !slugError && !createApp.isPending;
+  const canSubmit = name.trim().length> 0 && slug.length> 0 && SLUG_RE.test(slug) && !slugError && !createApp.isPending;
 
   const filteredApps = apps?.filter((a) =>
     !search || a.name.toLowerCase().includes(search.toLowerCase()) || a.slug.toLowerCase().includes(search.toLowerCase())
@@ -229,8 +229,7 @@ export default function PortalApps() {
                   toast.error("Setup failed. Please try again.");
                 }
               }}
-              disabled={orgBootstrapping}
-            >
+              disabled={orgBootstrapping}>
               {orgBootstrapping ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
               Complete Setup
             </Button>
@@ -239,7 +238,7 @@ export default function PortalApps() {
       )}
 
       {/* Search */}
-      {apps && apps.length > 0 && (
+      {apps && apps.length> 0 && (
         <div className="relative mb-4 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
           <Input
@@ -256,7 +255,7 @@ export default function PortalApps() {
         <div className="flex items-center justify-center py-16">
           <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
         </div>
-      ) : filteredApps && filteredApps.length > 0 ? (
+      ) : filteredApps && filteredApps.length> 0 ? (
         <div className="rounded-xl overflow-hidden border border-white/10">
           <table className="w-full text-sm">
             <thead>
@@ -272,8 +271,7 @@ export default function PortalApps() {
                 <tr
                   key={app.id}
                   onClick={() => navigate(`/developers/portal/apps/${app.id}`)}
-                  className="border-b border-white/5 last:border-0 cursor-pointer transition-colors hover:bg-white/[0.03]"
-                >
+                  className="border-b border-white/5 last:border-0 cursor-pointer transition-colors hover:bg-white/[0.03]">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2.5">
                       <Code className="w-4 h-4 text-accent shrink-0" />
@@ -352,8 +350,7 @@ export default function PortalApps() {
               variant="accent"
               onClick={() => createApp.mutate()}
               disabled={!canSubmit}
-              className="gap-1.5"
-            >
+              className="gap-1.5">
               {createApp.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
               Create App
             </Button>

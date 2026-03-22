@@ -78,8 +78,7 @@ export default function ConsoleOverview() {
             className="rounded-xl p-5 cursor-pointer hover:border-white/20 transition-colors"
             style={{
               background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.10)" }}
-          >
+              border: "1px solid rgba(255,255,255,0.10)" }}>
             <card.icon className="w-5 h-5 mb-3" strokeWidth={1.5} style={{ color: "#F46D2A" }} />
             <p className="text-2xl font-bold text-foreground mb-1">{card.value}</p>
             <p className="text-xs text-muted-foreground">{card.title}</p>

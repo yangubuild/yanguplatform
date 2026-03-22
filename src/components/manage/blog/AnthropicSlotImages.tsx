@@ -124,8 +124,7 @@ export function AnthropicSlotImages() {
           return (
             <div
               key={slot}
-              className="rounded-md border border-border bg-muted/30 p-2 space-y-2"
-            >
+              className="rounded-md border border-border bg-muted/30 p-2 space-y-2">
               <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
                 {slot}
               </span>
@@ -141,8 +140,7 @@ export function AnthropicSlotImages() {
               ) : (
                 <div
                   className="flex items-center justify-center rounded bg-muted/50 text-muted-foreground"
-                  style={{ aspectRatio: "4/3" }}
-                >
+                  style={{ aspectRatio: "4/3" }}>
                   <ImageIcon className="h-6 w-6" />
                 </div>
               )}
@@ -165,8 +163,7 @@ export function AnthropicSlotImages() {
                     variant="outline"
                     className="w-full gap-1 text-[11px] h-7"
                     disabled={isUploading}
-                    asChild
-                  >
+                    asChild>
                     <span>
                       <Upload className="h-3 w-3" />
                       {isUploading ? "…" : "Upload"}
@@ -179,8 +176,7 @@ export function AnthropicSlotImages() {
                     size="sm"
                     variant="ghost"
                     className="h-7 w-7 p-0 text-destructive"
-                    onClick={() => handleRemove(slot)}
-                  >
+                    onClick={() => handleRemove(slot)}>
                     <Trash2 className="h-3 w-3" />
                   </Button>
                 )}

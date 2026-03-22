@@ -25,15 +25,14 @@ export default function StoreBrowse() {
     <DocsPage breadcrumb="Developers" title="App Store" subtitle="Browse apps built by the community and verified by yangu.">
       {isLoading ? (
         <div className="flex justify-center py-16"><Loader2 className="w-6 h-6 text-muted-foreground animate-spin" /></div>
-      ) : listings && listings.length > 0 ? (
+      ) : listings && listings.length> 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {listings.map((listing) => (
             <button
               key={listing.id}
               onClick={() => navigate(`/developers/store/${listing.slug}`)}
               className="text-left rounded-xl p-5 transition-colors hover:border-white/20"
-              style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}
-            >
+              style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
               {listing.icon_url ? (
                 <img src={listing.icon_url} alt="" className="w-10 h-10 rounded-lg mb-3" />
               ) : (

@@ -30,8 +30,7 @@ function AppChip({ icon: Icon, label, active, onClick }: { icon: any; label: str
           ? "text-foreground" 
           : "bg-[#152A20] text-muted-foreground hover:bg-[#1a3528] hover:text-foreground"
       }`}
-      style={active ? { background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" } : undefined}
-    >
+      style={active ? { background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" } : undefined}>
       <Icon className="w-4 h-4" />
       {label}
     </button>
@@ -45,8 +44,7 @@ function BusinessModelCard({ icon: Icon, title, description }: { icon: any; titl
       className="rounded-2xl p-6 transition-all hover:scale-[1.02] cursor-pointer"
       style={{
         background: "linear-gradient(135deg, #152A20 0%, #0f1f17 100%)",
-        border: "1px solid rgba(255,255,255,0.06)" }}
-    >
+        border: "1px solid rgba(255,255,255,0.06)" }}>
       <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(244, 109, 42, 0.15)" }}>
         <Icon className="w-5 h-5 text-[#F46D2A]" />
       </div>
@@ -65,8 +63,7 @@ function ToolCard({ icon: Icon, title, description, highlight }: { icon: any; ti
         background: highlight 
           ? "linear-gradient(135deg, rgba(244,109,42,0.12) 0%, rgba(15,31,23,1) 100%)" 
           : "linear-gradient(135deg, #152A20 0%, #0f1f17 100%)",
-        border: highlight ? "1px solid rgba(244,109,42,0.2)" : "1px solid rgba(255,255,255,0.06)" }}
-    >
+        border: highlight ? "1px solid rgba(244,109,42,0.2)" : "1px solid rgba(255,255,255,0.06)" }}>
       <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: highlight ? "rgba(244,109,42,0.2)" : "rgba(255,255,255,0.06)" }}>
         <Icon className={`w-5 h-5 ${highlight ? "text-[#F46D2A]" : "text-muted-foreground"}`} />
       </div>
@@ -82,8 +79,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
   return (
     <div 
       className="border-b border-white/8 py-5 cursor-pointer"
-      onClick={() => setOpen(!open)}
-    >
+      onClick={() => setOpen(!open)}>
       <div className="flex items-center justify-between">
         <h3 className={`text-foreground font-medium ${T.body}`}>{question}</h3>
         {open ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
@@ -149,8 +145,7 @@ export function DiscoverYanguPage() {
           <a 
             href="/auth/signup"
             className="inline-block px-6 py-2.5 rounded-lg text-[14px] font-medium text-foreground transition-all hover:brightness-110"
-            style={{ background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" }}
-          >
+            style={{ background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" }}>
             Start selling
           </a>
           <p className="text-muted-foreground text-sm mt-4">No subscription required</p>
@@ -200,8 +195,7 @@ export function DiscoverYanguPage() {
           className="rounded-2xl p-8 md:p-12 max-w-[800px] mx-auto"
           style={{
             background: "linear-gradient(135deg, #152A20 0%, #0f1f17 100%)",
-            border: "1px solid rgba(255,255,255,0.06)" }}
-        >
+            border: "1px solid rgba(255,255,255,0.06)" }}>
           <div className="flex items-start gap-4 mb-6">
             <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: "rgba(244,109,42,0.15)" }}>
               {(() => { const Icon = apps[activeApp].icon; return <Icon className="w-6 h-6 text-[#F46D2A]" />; })()}
@@ -222,8 +216,7 @@ export function DiscoverYanguPage() {
           <a 
             href="/auth/signup"
             className="inline-block px-6 py-2.5 rounded-lg text-[14px] font-medium text-foreground transition-all hover:brightness-110"
-            style={{ background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" }}
-          >
+            style={{ background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" }}>
             Get started
           </a>
         </div>
@@ -256,8 +249,7 @@ export function DiscoverYanguPage() {
           className="rounded-2xl p-10 text-center"
           style={{
             background: "linear-gradient(135deg, #152A20 0%, #0f1f17 100%)",
-            border: "1px solid rgba(255,255,255,0.08)" }}
-        >
+            border: "1px solid rgba(255,255,255,0.08)" }}>
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6" style={{ background: "rgba(244,109,42,0.12)" }}>
             <Sparkles className="w-8 h-8 text-[#F46D2A]" />
           </div>
@@ -268,8 +260,7 @@ export function DiscoverYanguPage() {
           <a 
             href="/auth/signup"
             className="inline-block px-6 py-2.5 rounded-lg text-[14px] font-medium text-foreground w-full transition-all hover:brightness-110"
-            style={{ background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" }}
-          >
+            style={{ background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" }}>
             Start selling for free
           </a>
 
@@ -307,16 +298,14 @@ export function DiscoverYanguPage() {
         <div 
           className="max-w-[900px] mx-auto rounded-2xl py-20 px-8 text-center"
           style={{
-            background: "radial-gradient(ellipse at 40% 60%, #1a5c3a 0%, #0f3d2a 30%, #0a2e1e 50%, #0d1f15 70%, #0a1710 100%)" }}
-        >
+            background: "radial-gradient(ellipse at 40% 60%, #1a5c3a 0%, #0f3d2a 30%, #0a2e1e 50%, #0d1f15 70%, #0a1710 100%)" }}>
           <h2 className={`${T.header} text-foreground mb-8`}>
             Start selling with yangu.
           </h2>
           <a 
             href="/auth/signup"
             className="inline-block px-6 py-2.5 rounded-lg text-[14px] font-medium text-foreground transition-all hover:brightness-110"
-            style={{ background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" }}
-          >
+            style={{ background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" }}>
             Get started
           </a>
         </div>
@@ -336,11 +325,10 @@ export function DiscoverYanguShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-background" >
+    <div className="min-h-screen bg-background">
       <button
         onClick={() => setSidebarOpen(true)}
-        className="fixed top-4 left-4 z-30 p-2 rounded-lg bg-[#1c1c1c] text-foreground lg:hidden"
-      >
+        className="fixed top-4 left-4 z-30 p-2 rounded-lg bg-[#1c1c1c] text-foreground lg:hidden">
         <Menu className="w-6 h-6" />
       </button>
       <MassSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />

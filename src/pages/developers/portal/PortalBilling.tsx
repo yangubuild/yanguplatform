@@ -12,8 +12,7 @@ function StatusBadge({ status }: { status: keyof typeof STATUS_STYLES }) {
   return (
     <span
       className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
-      style={{ background: s.bg, border: `1px solid ${s.border}`, color: s.color }}
-    >
+      style={{ background: s.bg, border: `1px solid ${s.border}`, color: s.color }}>
       {status === "live" && <CheckCircle2 className="w-3 h-3" />}
       {status === "partial" && <Clock className="w-3 h-3" />}
       {status === "planned" && <AlertTriangle className="w-3 h-3" />}
@@ -32,8 +31,7 @@ function FeatureRow({ title, description, status }: FeatureRowProps) {
   return (
     <div
       className="flex items-start justify-between gap-4 p-4 rounded-lg"
-      style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}
-    >
+      style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}>
       <div className="min-w-0">
         <p className="text-foreground text-sm font-medium">{title}</p>
         <p className="text-muted-foreground text-xs mt-1">{description}</p>
@@ -50,8 +48,7 @@ export default function PortalBilling() {
       {/* Developer API billing status */}
       <div
         className="rounded-xl p-6 mb-10"
-        style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}
-      >
+        style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
         <div className="flex items-center gap-3 mb-4">
           <div className="p-2 rounded-lg" style={{ background: "rgba(244,109,42,0.10)" }}>
             <Sparkles className="w-5 h-5" style={{ color: "#F46D2A" }} />
@@ -122,8 +119,7 @@ export default function PortalBilling() {
       <DocsSection title="Billing API" description="Database tables and RPCs related to billing.">
         <div
           className="rounded-lg p-4 mb-4"
-          style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}
-        >
+          style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}>
           <h4 className="text-foreground text-sm font-medium mb-3">Core tables</h4>
           <div className="grid grid-cols-2 gap-2">
             {[
@@ -139,8 +135,7 @@ export default function PortalBilling() {
               <code
                 key={t}
                 className="text-xs px-2 py-1.5 rounded"
-                style={{ background: "rgba(255,255,255,0.05)" }}
-              >
+                style={{ background: "rgba(255,255,255,0.05)" }}>
                 {t}
               </code>
             ))}
@@ -148,8 +143,7 @@ export default function PortalBilling() {
         </div>
         <div
           className="rounded-lg p-4"
-          style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}
-        >
+          style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}>
           <h4 className="text-foreground text-sm font-medium mb-3">Key RPCs & edge functions</h4>
           <div className="space-y-1.5">
             {[
@@ -163,8 +157,7 @@ export default function PortalBilling() {
               <div key={r.name} className="flex items-start gap-2">
                 <code
                   className="text-xs px-2 py-1 rounded shrink-0"
-                  style={{ background: "rgba(244,109,42,0.10)", color: "#F46D2A" }}
-                >
+                  style={{ background: "rgba(244,109,42,0.10)", color: "#F46D2A" }}>
                   {r.name}
                 </code>
                 <span className="text-muted-foreground text-xs">{r.desc}</span>

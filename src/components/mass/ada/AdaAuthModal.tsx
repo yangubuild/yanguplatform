@@ -105,8 +105,7 @@ export function AdaAuthModal({ open, onOpenChange, onSuccess }: AdaAuthModalProp
             <DialogTitle className="text-lg font-bold">Sign in to continue</DialogTitle>
             <button
               onClick={() => onOpenChange(false)}
-              className="p-1 rounded-md text-muted-foreground hover:text-foreground transition-colors"
-            >
+              className="p-1 rounded-md text-muted-foreground hover:text-foreground transition-colors">
               <X className="h-4 w-4" />
             </button>
           </div>

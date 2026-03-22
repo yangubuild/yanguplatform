@@ -123,8 +123,7 @@ export default function PortalApiKeys() {
         <select
           value={selectedAppId}
           onChange={(e) => setSelectedAppId(e.target.value)}
-          className="h-9 rounded-md border border-white/10 bg-white/5 text-foreground text-sm px-3 focus:outline-none focus:ring-2 focus:ring-accent"
-        >
+          className="h-9 rounded-md border border-white/10 bg-white/5 text-foreground text-sm px-3 focus:outline-none focus:ring-2 focus:ring-accent">
           <option value="all">All Apps</option>
           {(apps ?? []).map((a: any) => (
             <option key={a.id} value={a.id}>{a.name}</option>
@@ -158,7 +157,7 @@ export default function PortalApiKeys() {
         <div className="flex items-center justify-center py-16">
           <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
         </div>
-      ) : filteredKeys.length > 0 ? (
+      ) : filteredKeys.length> 0 ? (
         <div className="rounded-xl overflow-hidden border border-white/10">
           <Table>
             <TableHeader>
@@ -208,8 +207,7 @@ export default function PortalApiKeys() {
                           variant="ghost"
                           size="sm"
                           className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                          onClick={() => setRevokeTarget(k.id)}
-                        >
+                          onClick={() => setRevokeTarget(k.id)}>
                           Revoke
                         </Button>
                       )}
@@ -243,8 +241,7 @@ export default function PortalApiKeys() {
               <select
                 value={createAppId}
                 onChange={(e) => setCreateAppSelected(e.target.value)}
-                className="mt-1 w-full h-10 rounded-md border border-white/10 bg-white/5 text-foreground text-sm px-3 focus:outline-none focus:ring-2 focus:ring-accent"
-              >
+                className="mt-1 w-full h-10 rounded-md border border-white/10 bg-white/5 text-foreground text-sm px-3 focus:outline-none focus:ring-2 focus:ring-accent">
                 <option value="">Select app…</option>
                 {(apps ?? []).map((a: any) => (
                   <option key={a.id} value={a.id}>{a.name}</option>
@@ -264,8 +261,7 @@ export default function PortalApiKeys() {
                       keyEnv === env
                         ? "bg-accent/20 text-accent border border-accent/40"
                         : "bg-white/5 text-muted-foreground border border-white/10 hover:bg-white/10"
-                    }`}
-                  >
+                    }`}>
                     {env === "dev" ? "Development" : "Production"}
                   </button>
                 ))}
@@ -278,8 +274,7 @@ export default function PortalApiKeys() {
             <Button
               variant="accent"
               disabled={!createAppId || createMut.isPending}
-              onClick={() => createMut.mutate()}
-            >
+              onClick={() => createMut.mutate()}>
               {createMut.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Generate Key"}
             </Button>
           </DialogFooter>
@@ -335,8 +330,7 @@ export default function PortalApiKeys() {
             <Button
               variant="destructive"
               disabled={revokeMut.isPending}
-              onClick={() => revokeTarget && revokeMut.mutate(revokeTarget)}
-            >
+              onClick={() => revokeTarget && revokeMut.mutate(revokeTarget)}>
               {revokeMut.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Revoke Key"}
             </Button>
           </DialogFooter>

@@ -163,7 +163,7 @@ export function BuilderPublishModal({
 
   // Auto-select first allowed domain on open
   useEffect(() => {
-    if (open && allowedDomains.length > 0 && !selectedDomainId) {
+    if (open && allowedDomains.length> 0 && !selectedDomainId) {
       setSelectedDomainId(allowedDomains[0].id);
     }
   }, [open, allowedDomains, selectedDomainId, setSelectedDomainId]);
@@ -277,8 +277,7 @@ export function BuilderPublishModal({
               {publishedUrl && (
                 <Button
                   className="w-full gap-2"
-                  onClick={() => window.open(publishedUrl, "_blank")}
-                >
+                  onClick={() => window.open(publishedUrl, "_blank")}>
                   <ExternalLink className="h-4 w-4" />
                   View Live Page
                 </Button>
@@ -286,8 +285,7 @@ export function BuilderPublishModal({
               <Button
                 variant="outline"
                 className="w-full"
-                onClick={() => onOpenChange(false)}
-              >
+                onClick={() => onOpenChange(false)}>
                 Done
               </Button>
             </div>
@@ -441,8 +439,7 @@ export function BuilderPublishModal({
             ) : (
               <div
                 className="w-full h-20 rounded border border-dashed border-border bg-muted flex items-center justify-center cursor-pointer hover:bg-muted/80"
-                onClick={() => triggerMetaUpload("cover")}
-              >
+                onClick={() => triggerMetaUpload("cover")}>
                 {uploadingCover ? <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /> : <span className="text-xs text-muted-foreground">Upload cover</span>}
               </div>
             )}
@@ -473,13 +470,11 @@ export function BuilderPublishModal({
                       selectedDomainId === domain.id
                         ? "border-accent bg-accent/5"
                         : "border-border hover:border-muted-foreground/50 hover:bg-muted/50"
-                    }`}
-                  >
+                    }`}>
                     <div
                       className={`p-2 rounded-full ${
                         selectedDomainId === domain.id ? "bg-accent/10" : "bg-muted"
-                      }`}
-                    >
+                      }`}>
                       <Globe
                         className={`h-4 w-4 ${
                           selectedDomainId === domain.id
@@ -524,7 +519,7 @@ export function BuilderPublishModal({
           )}
 
           {/* Validation Errors */}
-          {validationErrors.length > 0 && (
+          {validationErrors.length> 0 && (
             <Card className="p-4 border-destructive/50 bg-destructive/5">
               <div className="flex items-start gap-3">
                 <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
@@ -559,8 +554,7 @@ export function BuilderPublishModal({
           <Button
             onClick={handlePublishWithMeta}
             disabled={!selectedDomainId || isPublishing}
-            className="gap-2"
-          >
+            className="gap-2">
             {isPublishing ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (

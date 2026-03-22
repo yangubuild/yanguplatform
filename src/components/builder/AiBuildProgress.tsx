@@ -43,7 +43,7 @@ export function AiBuildProgress({ engineLabel, isComplete, onAnimationDone }: Pr
       return;
     }
 
-    if (currentStep >= STEPS.length) return;
+    if (currentStep>= STEPS.length) return;
 
     const stepPercent = ((currentStep + 1) / STEPS.length) * 85; // Cap at 85% until complete
     const startPercent = (currentStep / STEPS.length) * 85;
@@ -51,7 +51,7 @@ export function AiBuildProgress({ engineLabel, isComplete, onAnimationDone }: Pr
     // Animate progress within step
     const interval = setInterval(() => {
       setProgress((prev) => {
-        if (prev >= stepPercent) return prev;
+        if (prev>= stepPercent) return prev;
         return prev + 0.5;
       });
     }, 30);
@@ -115,8 +115,7 @@ export function AiBuildProgress({ engineLabel, isComplete, onAnimationDone }: Pr
                   "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-300",
                   isDone && "opacity-60",
                   isActive && "bg-primary/5"
-                )}
-              >
+                )}>
                 {isDone ? (
                   <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
                 ) : isActive ? (
@@ -128,8 +127,7 @@ export function AiBuildProgress({ engineLabel, isComplete, onAnimationDone }: Pr
                   className={cn(
                     "text-sm",
                     isDone ? "text-muted-foreground" : isActive ? "text-foreground font-medium" : "text-muted-foreground/50"
-                  )}
-                >
+                  )}>
                   {step.label}
                 </span>
               </div>

@@ -65,8 +65,7 @@ export function StudioOutputOptions({
           <PrimaryButton 
             onClick={onDownload} 
             disabled={isDownloading}
-            className="w-full"
-          >
+            className="w-full">
             <Download className="mr-2 h-4 w-4" />
             {isDownloading ? "Downloading..." : `Download (${downloadCredits} credits)`}
           </PrimaryButton>
@@ -105,15 +104,13 @@ export function StudioOutputOptions({
                   href={`https://${albumUrl}`} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="shrink-0 hover:text-foreground"
-                >
+                  className="shrink-0 hover:text-foreground">
                   <ExternalLink className="h-3 w-3" />
                 </a>
               </div>
               <SecondaryButton 
                 onClick={handleCopyLink}
-                className="w-full"
-              >
+                className="w-full">
                 <Link2 className="mr-2 h-4 w-4" />
                 Copy Link (Free)
               </SecondaryButton>
@@ -122,8 +119,7 @@ export function StudioOutputOptions({
             <SecondaryButton 
               onClick={onGenerateLink} 
               disabled={isGeneratingLink}
-              className="w-full border-success/50 hover:bg-success/10"
-            >
+              className="w-full border-success/50 hover:bg-success/10">
               <Link2 className="mr-2 h-4 w-4" />
               {isGeneratingLink ? "Generating..." : "Generate Free Link"}
             </SecondaryButton>

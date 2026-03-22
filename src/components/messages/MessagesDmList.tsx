@@ -41,7 +41,7 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
 
   const { data: profiles = [] } = useQuery({
     queryKey: ["dm-partner-profiles", partnerIds.join(",")],
-    enabled: partnerIds.length > 0,
+    enabled: partnerIds.length> 0,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
@@ -118,8 +118,7 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
           onClick={onOpenCreateMenu}
           className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-opacity hover:opacity-80"
           style={{ background: "rgba(255,255,255,0.06)" }}
-          aria-label="Create chat"
-        >
+          aria-label="Create chat">
           <Plus className="w-4 h-4" />
         </button>
       </div>
@@ -154,15 +153,13 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
                   else onSelectGroup?.(thread.id);
                 }}
                 className="w-full flex items-center gap-3 p-3 rounded-xl text-left transition-colors min-h-[60px]"
-                style={isSelected ? { background: "rgba(255,255,255,0.08)" } : {}}
-              >
+                style={isSelected ? { background: "rgba(255,255,255,0.08)" } : {}}>
                 {/* Avatar — consistent 40px */}
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 overflow-hidden"
                   style={{
                     background: thread.type === "group" ? "rgba(168,85,247,0.2)" : "rgba(255,255,255,0.1)",
-                    color: thread.type === "group" ? "rgba(168,85,247,0.9)" : "rgba(255,255,255,0.6)" }}
-                >
+                    color: thread.type === "group" ? "rgba(168,85,247,0.9)" : "rgba(255,255,255,0.6)" }}>
                   {thread.avatar ? (
                     <img src={thread.avatar} alt="" className="w-10 h-10 rounded-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                   ) : thread.type === "group" ? (
@@ -182,7 +179,7 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
                     )}
                   </div>
                   <p className="text-xs truncate mt-0.5 text-muted-foreground">
-                    {thread.preview.length > 50 ? thread.preview.slice(0, 50) + "…" : thread.preview}
+                    {thread.preview.length> 50 ? thread.preview.slice(0, 50) + "…" : thread.preview}
                   </p>
                 </div>
                 {/* Meta */}
@@ -190,12 +187,11 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
                   <span className="text-[11px] text-muted-foreground">
                     {thread.date}
                   </span>
-                  {thread.unreadCount > 0 && (
+                  {thread.unreadCount> 0 && (
                     <span
                       className="min-w-[20px] h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-foreground px-1.5"
-                      style={{ background: thread.type === "group" ? "#a855f7" : "#ef4444" }}
-                    >
-                      {thread.unreadCount > 99 ? "99+" : thread.unreadCount}
+                      style={{ background: thread.type === "group" ? "#a855f7" : "#ef4444" }}>
+                      {thread.unreadCount> 99 ? "99+" : thread.unreadCount}
                     </span>
                   )}
                   {thread.type === "group" && thread.unreadCount === 0 && (

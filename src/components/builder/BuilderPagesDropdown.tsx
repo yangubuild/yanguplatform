@@ -108,7 +108,7 @@ export function BuilderPagesDropdown({ pages, activePageId, surfaceId, onSwitch,
       if (!result.ok) throw new Error(result.error || "Failed");
       toast.success("Page deleted");
       const remaining = pages.filter((p) => p.id !== targetPage.id);
-      if (remaining.length > 0) onSwitch(remaining[0].id);
+      if (remaining.length> 0) onSwitch(remaining[0].id);
       onRefresh();
       close();
     } catch (err) {
@@ -145,7 +145,7 @@ export function BuilderPagesDropdown({ pages, activePageId, surfaceId, onSwitch,
     const idx = pages.findIndex((p) => p.id === pageId);
     if (idx < 0) return;
     const swapIdx = direction === "up" ? idx - 1 : idx + 1;
-    if (swapIdx < 0 || swapIdx >= pages.length) return;
+    if (swapIdx < 0 || swapIdx>= pages.length) return;
 
     const newOrder = pages.map((p) => p.id);
     [newOrder[idx], newOrder[swapIdx]] = [newOrder[swapIdx], newOrder[idx]];
@@ -179,14 +179,13 @@ export function BuilderPagesDropdown({ pages, activePageId, surfaceId, onSwitch,
             <DropdownMenuItem
               key={page.id}
               className="flex items-center justify-between group"
-              onClick={() => onSwitch(page.id)}
-            >
+              onClick={() => onSwitch(page.id)}>
               <span className={page.id === activePageId ? "font-semibold" : ""}>
                 {page.title}
                 <span className="ml-1.5 text-muted-foreground text-[10px]">/{page.slug}</span>
               </span>
               <span className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                {idx > 0 && (
+                {idx> 0 && (
                   <Button variant="ghost" size="icon" className="h-5 w-5" onClick={(e) => { e.stopPropagation(); handleMove(page.id, "up"); }}>
                     <ArrowUp className="h-3 w-3" />
                   </Button>
@@ -202,7 +201,7 @@ export function BuilderPagesDropdown({ pages, activePageId, surfaceId, onSwitch,
                 <Button variant="ghost" size="icon" className="h-5 w-5" onClick={(e) => { e.stopPropagation(); openRename(page); }}>
                   <Pencil className="h-3 w-3" />
                 </Button>
-                {pages.length > 1 && (
+                {pages.length> 1 && (
                   <Button variant="ghost" size="icon" className="h-5 w-5 text-destructive" onClick={(e) => { e.stopPropagation(); openDelete(page); }}>
                     <Trash2 className="h-3 w-3" />
                   </Button>

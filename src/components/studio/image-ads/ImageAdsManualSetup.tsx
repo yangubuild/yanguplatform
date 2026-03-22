@@ -27,7 +27,7 @@ export function ImageAdsManualSetup({ onBack }: Props) {
   };
 
   const removeUsp = (idx: number) => {
-    if (usps.length > 1) setUsps(usps.filter((_, i) => i !== idx));
+    if (usps.length> 1) setUsps(usps.filter((_, i) => i !== idx));
   };
 
   return (
@@ -37,16 +37,14 @@ export function ImageAdsManualSetup({ onBack }: Props) {
         <div className="flex items-center gap-3">
           <button
             onClick={onBack}
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
+            className="text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="h-5 w-5" />
           </button>
           <h2 className="text-lg font-bold text-foreground">Setup your product</h2>
         </div>
         <button
           onClick={onBack}
-          className="text-muted-foreground hover:text-foreground transition-colors"
-        >
+          className="text-muted-foreground hover:text-foreground transition-colors">
           <X className="h-5 w-5" />
         </button>
       </div>
@@ -119,8 +117,7 @@ export function ImageAdsManualSetup({ onBack }: Props) {
                 <button
                   onClick={() => removeUsp(idx)}
                   disabled={usps.length <= 1}
-                  className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"
-                >
+                  className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors">
                   <Minus className="h-4 w-4" />
                 </button>
               </div>
@@ -128,8 +125,7 @@ export function ImageAdsManualSetup({ onBack }: Props) {
             {usps.length < 6 && (
               <button
                 onClick={addUsp}
-                className="inline-flex items-center gap-1.5 text-sm text-accent font-medium hover:underline"
-              >
+                className="inline-flex items-center gap-1.5 text-sm text-accent font-medium hover:underline">
                 <Plus className="h-3.5 w-3.5" />
                 Add selling point
               </button>

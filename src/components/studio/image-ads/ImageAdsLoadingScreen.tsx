@@ -12,7 +12,7 @@ export function ImageAdsLoadingScreen({ onComplete }: Props) {
   useEffect(() => {
     const interval = setInterval(() => {
       setProgress((prev) => {
-        if (prev >= 99) {
+        if (prev>= 99) {
           clearInterval(interval);
           return 99;
         }
@@ -24,8 +24,8 @@ export function ImageAdsLoadingScreen({ onComplete }: Props) {
   }, []);
 
   useEffect(() => {
-    if (progress >= 50) setStatusText("Analyzing your product info...");
-    if (progress >= 99) {
+    if (progress>= 50) setStatusText("Analyzing your product info...");
+    if (progress>= 99) {
       const timer = setTimeout(onComplete, 600);
       return () => clearTimeout(timer);
     }

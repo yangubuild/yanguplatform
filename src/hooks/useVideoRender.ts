@@ -73,7 +73,7 @@ export function useVideoRender() {
         }
 
         // Timeout after 5 minutes
-        if (pollCount > 60) {
+        if (pollCount> 60) {
           setStatus("failed");
           setError("Render timed out");
           stopPolling();

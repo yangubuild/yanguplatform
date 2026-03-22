@@ -66,8 +66,7 @@ export default function ConsoleNewSubmission() {
               if (app) { setName(app.name); setSlug(app.slug); }
             }}
             className="w-full px-3 py-2 rounded-lg text-sm text-muted-foreground"
-            style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)" }}
-          >
+            style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)" }}>
             <option value="">Choose an app...</option>
             {apps?.map((app) => (
               <option key={app.id} value={app.id}>{app.name}</option>
@@ -99,8 +98,7 @@ export default function ConsoleNewSubmission() {
           <Button
             variant="accent"
             onClick={() => createListing.mutate()}
-            disabled={!selectedAppId || !name || !slug || createListing.isPending}
-          >
+            disabled={!selectedAppId || !name || !slug || createListing.isPending}>
             {createListing.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Submit for Review"}
           </Button>
           <Button variant="ghost" onClick={() => navigate(-1)} className="text-muted-foreground">Cancel</Button>

@@ -45,8 +45,7 @@ export function SurfaceCard({ surface, index }: SurfaceCardProps) {
         "group relative flex flex-col rounded-2xl border bg-gradient-to-b p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg cursor-pointer",
         gradientClasses
       )}
-      style={{ animationDelay: `${index * 0.1}s` }}
-    >
+      style={{ animationDelay: `${index * 0.1}s` }}>
       {/* Icon */}
       <div className={cn("mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-card", iconClasses)}>
         <Icon className="h-6 w-6" />

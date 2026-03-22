@@ -97,7 +97,7 @@ export default function MyBusinessPage() {
 
       // Build publish map with domain info
       const pubs = publishRes.data ?? [];
-      if (pubs.length > 0) {
+      if (pubs.length> 0) {
         const domainIds = [...new Set(pubs.map((p: any) => p.domain_id))];
         const { data: domains } = await supabase
           .from("domains")
@@ -151,7 +151,7 @@ export default function MyBusinessPage() {
 
   if (surfaces.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 gap-4 text-center min-h-screen bg-background" >
+      <div className="flex flex-col items-center justify-center py-24 gap-4 text-center min-h-screen bg-background">
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
           <Building2 className="h-8 w-8 text-muted-foreground" />
         </div>
@@ -164,7 +164,7 @@ export default function MyBusinessPage() {
   }
 
   return (
-    <div className="p-6 space-y-8 max-w-6xl min-h-screen bg-background" >
+    <div className="p-6 space-y-8 max-w-6xl min-h-screen bg-background">
       <div>
         <h1 className="text-2xl font-bold text-foreground">My Business</h1>
         <p className="text-sm text-muted-foreground mt-1">Manage all your published pages</p>
@@ -231,8 +231,7 @@ export default function MyBusinessPage() {
                           } else {
                             toast.info("This surface hasn't been published yet");
                           }
-                        }}
-                      >
+                        }}>
                         <ExternalLink className="h-3.5 w-3.5" />
                       </Button>
                       <AlertDialog>
@@ -324,8 +323,7 @@ export default function MyBusinessPage() {
                 style={{
                   background: "rgba(255,255,255,0.03)",
                   border: "1px solid rgba(255,255,255,0.06)" }}
-                onClick={() => navigate("/dashboard/app-store")}
-              >
+                onClick={() => navigate("/dashboard/app-store")}>
                 <div className="flex items-start gap-3">
                   {icon && (
                     <img src={icon} alt={app.name} className="w-11 h-11 rounded-xl object-cover shrink-0" />
@@ -340,8 +338,7 @@ export default function MyBusinessPage() {
                   <Button
                     variant="accent"
                     size="sm"
-                    onClick={(e) => { e.stopPropagation(); navigate("/dashboard/app-store"); }}
-                  >
+                    onClick={(e) => { e.stopPropagation(); navigate("/dashboard/app-store"); }}>
                     Add
                   </Button>
                 </div>

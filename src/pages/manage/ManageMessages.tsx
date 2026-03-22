@@ -244,8 +244,7 @@ function TicketDetail({
               {ticket.messages.map((msg) => (
                 <div
                   key={msg.id}
-                  className={`rounded-lg border p-3 ${msg.isAdmin ? "bg-accent/5 border-accent/20 ml-6" : "bg-muted/30 border-border mr-6"}`}
-                >
+                  className={`rounded-lg border p-3 ${msg.isAdmin ? "bg-accent/5 border-accent/20 ml-6" : "bg-muted/30 border-border mr-6"}`}>
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs font-semibold flex items-center gap-1.5">
                       {msg.isAdmin && <Badge variant="secondary" className="text-[9px] px-1.5 py-0">Staff</Badge>}
@@ -379,8 +378,7 @@ function TicketDetail({
                   size="sm"
                   className="w-full gap-1.5"
                   onClick={handleEscalate}
-                  disabled={status === "escalated"}
-                >
+                  disabled={status === "escalated"}>
                   <Flag className="h-3.5 w-3.5" />
                   {status === "escalated" ? "Already Escalated" : "Escalate"}
                 </Button>
@@ -470,8 +468,7 @@ export default function ManageMessages() {
                     size="sm"
                     variant={statusFilter === s ? "default" : "outline"}
                     className="text-xs h-7 capitalize"
-                    onClick={() => setStatusFilter(s)}
-                  >
+                    onClick={() => setStatusFilter(s)}>
                     {s === "all" ? "All" : statusConfig[s].label}
                   </Button>
                 ))}
@@ -484,8 +481,7 @@ export default function ManageMessages() {
                 size="sm"
                 variant={categoryFilter === "all" ? "secondary" : "ghost"}
                 className="text-xs h-6 px-2"
-                onClick={() => setCategoryFilter("all")}
-              >
+                onClick={() => setCategoryFilter("all")}>
                 All Categories
               </Button>
               {categories.map((c) => (
@@ -494,8 +490,7 @@ export default function ManageMessages() {
                   size="sm"
                   variant={categoryFilter === c ? "secondary" : "ghost"}
                   className="text-xs h-6 px-2"
-                  onClick={() => setCategoryFilter(c)}
-                >
+                  onClick={() => setCategoryFilter(c)}>
                   {categoryLabels[c]}
                 </Button>
               ))}
@@ -519,8 +514,7 @@ export default function ManageMessages() {
                 <button
                   key={t.id}
                   className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-muted/50 transition-colors"
-                  onClick={() => setSelectedTicket(t)}
-                >
+                  onClick={() => setSelectedTicket(t)}>
                   <div className="hidden md:grid grid-cols-[100px_80px_120px_1fr_140px_100px] gap-2 items-center w-full">
                     <Badge variant="outline" className={`text-[10px] w-fit ${statusConfig[t.status].color}`}>
                       {statusConfig[t.status].label}

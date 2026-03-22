@@ -57,8 +57,7 @@ export function DocsCard({ icon: Icon, title, description, onClick }: DocsCardPr
       className="rounded-xl p-5 transition-colors cursor-pointer hover:border-white/20"
       style={{
         background: "rgba(255,255,255,0.03)",
-        border: "1px solid rgba(255,255,255,0.10)" }}
-    >
+        border: "1px solid rgba(255,255,255,0.10)" }}>
       <Icon className="w-6 h-6 mb-4" strokeWidth={1.5} style={{ color: "#F46D2A" }} />
       <h3 className="text-foreground font-semibold text-sm mb-2">{title}</h3>
       <p className="text-xs leading-relaxed text-muted-foreground">
@@ -79,8 +78,7 @@ export function PlaceholderBlock({ title, items }: PlaceholderBlockProps) {
       className="rounded-xl p-6 mb-6"
       style={{
         background: "rgba(255,255,255,0.02)",
-        border: "1px dashed rgba(255,255,255,0.10)" }}
-    >
+        border: "1px dashed rgba(255,255,255,0.10)" }}>
       <h3 className="text-muted-foreground text-sm font-semibold mb-3">{title}</h3>
       <ul className="space-y-2">
         {items.map((item) => (

@@ -119,7 +119,7 @@ export default function EmenuOrdersPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto py-6 space-y-6 min-h-screen bg-background" >
+    <div className="max-w-5xl mx-auto py-6 space-y-6 min-h-screen bg-background">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Orders</h1>
@@ -234,8 +234,7 @@ export default function EmenuOrdersPage() {
                       size="sm"
                       variant="outline"
                       className="gap-1.5 shrink-0 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
-                      onClick={() => markAsPaid(order.id)}
-                    >
+                      onClick={() => markAsPaid(order.id)}>
                       <CheckCircle2 className="h-3.5 w-3.5" /> Mark Paid
                     </Button>
                   )}

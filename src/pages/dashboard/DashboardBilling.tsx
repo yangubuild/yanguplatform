@@ -61,8 +61,8 @@ const PLANS = [
 ];
 
 function QuotaBar({ label, icon: Icon, used, limit }: { label: string; icon: any; used: number; limit: number; }) {
-  const pct = limit > 0 ? Math.min((used / limit) * 100, 100) : 0;
-  const isUnlimited = limit >= 9999;
+  const pct = limit> 0 ? Math.min((used / limit) * 100, 100) : 0;
+  const isUnlimited = limit>= 9999;
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between text-sm">
@@ -73,7 +73,7 @@ function QuotaBar({ label, icon: Icon, used, limit }: { label: string; icon: any
           {isUnlimited ? "Unlimited" : `${used} / ${limit}`}
         </span>
       </div>
-      {!isUnlimited && limit > 0 && (
+      {!isUnlimited && limit> 0 && (
         <Progress value={pct} className="h-1.5" />
       )}
       {limit === 0 && (
@@ -107,7 +107,7 @@ export default function DashboardBilling() {
   const currentPlan = ent?.plan_id || "free";
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 space-y-8 min-h-screen bg-background" >
+    <div className="max-w-5xl mx-auto px-4 py-8 space-y-8 min-h-screen bg-background">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold">Billing & Plan</h1>
@@ -173,8 +173,7 @@ export default function DashboardBilling() {
                 key={plan.id}
                 className={`rounded-lg border p-5 flex flex-col relative ${
                   plan.popular ? "border-primary border-2" : "border-border"
-                } bg-card`}
-              >
+                } bg-card`}>
                 {plan.popular && (
                   <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[10px] font-semibold px-2.5 py-0.5 rounded-full">
                     Popular
@@ -197,8 +196,7 @@ export default function DashboardBilling() {
                 <Button
                   className="w-full mt-4"
                   variant={isCurrent ? "outline" : "default"}
-                  disabled
-                >
+                  disabled>
                   {isCurrent ? "Current Plan" : "Coming Soon"}
                 </Button>
               </div>
