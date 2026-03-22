@@ -28,8 +28,7 @@ const TILES = [
 const MASONRY_HEIGHTS = [
   "210px", "210px", "260px",
   "260px", "260px", "280px",
-  "260px", "310px", "210px",
-  "260px", "210px", "280px",
+  "310px", "260px", "280px",
 ];
 
 interface Tile {
