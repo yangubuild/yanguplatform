@@ -139,7 +139,7 @@ export default function PromoCodesPage() {
           />
           {/* Create Offer section below promo codes list */}
           <div className="px-4 md:px-6 pb-6">
-            <div className="border-t border-white/[0.06] pt-4">
+            <div className="border-t border-border pt-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-sm font-semibold text-foreground">Offers</h3>
@@ -148,7 +148,7 @@ export default function PromoCodesPage() {
                 <Button
                   variant="accent"
                   onClick={() => setShowCreateOffer(true)}
-                  className="rounded-xl px-4 h-9 gap-2 text-sm">
+                  className="px-4 h-9 gap-2 text-sm">
                   <Send className="w-4 h-4" />
                   Create Offer
                 </Button>
