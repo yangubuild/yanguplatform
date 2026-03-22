@@ -89,7 +89,7 @@ export default function AgencyHomePage() {
   ];
 
   return (
-    <div className="p-6 max-w-[1200px] mx-auto space-y-8">
+    <div className="p-6 max-w-[1200px] mx-auto space-y-8 min-h-screen" style={{ background: "#08120D" }}>
       <div>
         <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>
           Agency Management

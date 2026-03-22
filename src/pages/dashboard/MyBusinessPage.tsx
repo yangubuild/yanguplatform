@@ -164,7 +164,7 @@ export default function MyBusinessPage() {
   }
 
   return (
-    <div className="p-6 space-y-8 max-w-6xl">
+    <div className="p-6 space-y-8 max-w-6xl min-h-screen" style={{ background: "#08120D" }}>
       <div>
         <h1 className="text-2xl font-bold text-foreground">My Business</h1>
         <p className="text-sm text-muted-foreground mt-1">Manage all your published pages</p>

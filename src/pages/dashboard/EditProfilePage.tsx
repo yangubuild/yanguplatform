@@ -40,7 +40,7 @@ export default function EditProfilePage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto py-6 px-4">
+    <div className="max-w-2xl mx-auto py-6 px-4 min-h-screen" style={{ background: "#08120D" }}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold text-white">Edit profile</h1>

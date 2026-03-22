@@ -125,7 +125,7 @@ export default function PromoCodesPage() {
   }
 
   return (
-    <div className="h-full">
+    <div className="h-full min-h-screen" style={{ background: "#08120D" }}>
       {promoCodes.length === 0 ? (
         <PromoEmptyState
           onCreateClick={() => setShowCreate(true)}

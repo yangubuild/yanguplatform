@@ -44,7 +44,7 @@ export default function AgencyAnalyticsPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="p-6 max-w-[1200px] mx-auto space-y-6">
+    <div className="p-6 max-w-[1200px] mx-auto space-y-6 min-h-screen" style={{ background: "#08120D" }}>
       {/* Back */}
       <button
         onClick={() => navigate("/dashboard/agency")}
