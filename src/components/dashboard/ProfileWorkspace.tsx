@@ -689,14 +689,22 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
               </div>
             )}
             <div className="flex items-center gap-2 shrink-0 flex-wrap">
-              <ShareBusinessPopover avatarUrl={displayAvatar} initials={initials}>
+              {isMobileView ? (
                 <button
+                  onClick={() => setPeopleSheetOpen(true)}
                   className="p-2 rounded-lg"
-                  style={{
-                    background: "rgba(255,255,255,0.05)" }}>
+                  style={{ background: "rgba(255,255,255,0.05)" }}>
                   <UserPlus className="w-4 h-4" />
                 </button>
-              </ShareBusinessPopover>
+              ) : (
+                <ShareBusinessPopover avatarUrl={displayAvatar} initials={initials}>
+                  <button
+                    className="p-2 rounded-lg"
+                    style={{ background: "rgba(255,255,255,0.05)" }}>
+                    <UserPlus className="w-4 h-4" />
+                  </button>
+                </ShareBusinessPopover>
+              )}
               <button
                 onClick={() => setNotifModalOpen(true)}
                 className="p-2 rounded-lg"
