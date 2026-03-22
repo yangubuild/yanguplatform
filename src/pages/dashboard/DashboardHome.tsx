@@ -117,23 +117,25 @@ export default function DashboardHome() {
     }
 
     if (viewProfileId) {
-      // Load the profile and switch to friend view
       (async () => {
         try {
           const { data: prof } = await supabase
             .from("profiles")
-            .select("id, display_name, username, avatar_url, avatar_mode, avatar_emoji_key, bio")
+            .select("id, display_name, username, avatar_url, avatar_mode, avatar_emoji_key, business_name, cover_url")
             .eq("id", viewProfileId)
             .single();
           if (prof) {
             const avatar = resolveAvatarUrl(prof);
             handleViewFriend({
               id: prof.id,
-              display_name: prof.display_name || prof.username || "Unknown",
-              username: prof.username || undefined,
-              avatar_url: avatar || undefined,
-              bio: prof.bio || undefined,
-            } as FriendUser);
+              display_name: prof.display_name,
+              username: prof.username,
+              avatar_url: avatar || prof.avatar_url,
+              avatar_mode: prof.avatar_mode,
+              avatar_emoji_key: prof.avatar_emoji_key,
+              business_name: prof.business_name,
+              cover_url: prof.cover_url,
+            });
           }
         } catch { /* ignore */ }
       })();
@@ -141,7 +143,7 @@ export default function DashboardHome() {
       next.delete("view_profile");
       setSearchParams(next, { replace: true });
     }
-  }, []); // Run once on mount
+  }, []);
 
   const handleItemChange = (item: SidebarItem) => {
     setActiveItem(item);
