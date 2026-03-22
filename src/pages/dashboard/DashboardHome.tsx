@@ -97,9 +97,51 @@ export default function DashboardHome() {
   const [activeProfileTab, setActiveProfileTab] = useState<ProfileTab>("Home");
   const [viewedFriend, setViewedFriend] = useState<FriendUser | null>(null);
   const [friendTab, setFriendTab] = useState<string>("Home");
+  const [postModalId, setPostModalId] = useState<string | null>(null);
   const isMobile = useIsMobile();
   const isTablet = useMediaQuery("(min-width: 768px) and (max-width: 1023px)");
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Handle deep-link query params: ?post=ID, ?view_profile=ID
+  useEffect(() => {
+    const postId = searchParams.get("post");
+    const viewProfileId = searchParams.get("view_profile");
+
+    if (postId) {
+      setPostModalId(postId);
+      // Clean the param so modal doesn't reopen on re-render
+      const next = new URLSearchParams(searchParams);
+      next.delete("post");
+      setSearchParams(next, { replace: true });
+    }
+
+    if (viewProfileId) {
+      // Load the profile and switch to friend view
+      (async () => {
+        try {
+          const { data: prof } = await supabase
+            .from("profiles")
+            .select("id, display_name, username, avatar_url, avatar_mode, avatar_emoji_key, bio")
+            .eq("id", viewProfileId)
+            .single();
+          if (prof) {
+            const avatar = resolveAvatarUrl(prof);
+            handleViewFriend({
+              id: prof.id,
+              display_name: prof.display_name || prof.username || "Unknown",
+              username: prof.username || undefined,
+              avatar_url: avatar || undefined,
+              bio: prof.bio || undefined,
+            } as FriendUser);
+          }
+        } catch { /* ignore */ }
+      })();
+      const next = new URLSearchParams(searchParams);
+      next.delete("view_profile");
+      setSearchParams(next, { replace: true });
+    }
+  }, []); // Run once on mount
 
   const handleItemChange = (item: SidebarItem) => {
     setActiveItem(item);
