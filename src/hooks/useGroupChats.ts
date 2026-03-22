@@ -13,6 +13,8 @@ export interface ChatGroup {
   created_at: string;
   updated_at: string;
   member_count?: number;
+  last_message?: string | null;
+  last_message_at?: string | null;
 }
 
 export interface GroupMember {
@@ -46,12 +48,14 @@ function invalidateGroupQueries(qc: ReturnType<typeof useQueryClient>, userId?: 
   if (userId) qc.invalidateQueries({ queryKey: ["my-groups", userId] });
 }
 
-/* ─── My groups ─── */
+/* ─── My groups (with latest message preview) ─── */
 export function useMyGroups() {
   const { user } = useAuth();
   return useQuery({
     queryKey: ["my-groups", user?.id],
     enabled: !!user,
+    staleTime: 5000,
+    refetchOnMount: false,
     queryFn: async (): Promise<ChatGroup[]> => {
       const { data: memberships } = await supabase
         .from("chat_group_members")
@@ -65,17 +69,32 @@ export function useMyGroups() {
         .in("id", groupIds)
         .order("updated_at", { ascending: false });
 
-      // Fetch member counts
+      // Fetch member counts + latest message per group in parallel
       const enriched: ChatGroup[] = [];
       for (const g of (groups ?? [])) {
-        const { count } = await supabase
-          .from("chat_group_members")
-          .select("id", { count: "exact", head: true })
-          .eq("group_id", g.id);
-        enriched.push({ ...g, member_count: count ?? 0 });
+        const [countRes, lastMsgRes] = await Promise.all([
+          supabase
+            .from("chat_group_members")
+            .select("id", { count: "exact", head: true })
+            .eq("group_id", g.id),
+          (supabase
+            .from("chat_group_messages")
+            .select("content, created_at") as any)
+            .eq("group_id", g.id)
+            .order("created_at", { ascending: false })
+            .limit(1),
+        ]);
+        const lastMsg = lastMsgRes.data?.[0];
+        enriched.push({
+          ...g,
+          member_count: countRes.count ?? 0,
+          last_message: lastMsg?.content ?? null,
+          last_message_at: lastMsg?.created_at ?? g.created_at,
+        });
       }
       return enriched;
     },
+    refetchInterval: 15000,
   });
 }
 
@@ -100,6 +119,8 @@ export function useGroupMessages(groupId: string | undefined) {
   return useQuery({
     queryKey: ["group-messages", groupId],
     enabled: !!groupId,
+    staleTime: 5000,
+    refetchOnMount: false,
     queryFn: async (): Promise<GroupMessage[]> => {
       const { data, error } = await (supabase
         .from("chat_group_messages")
@@ -168,6 +189,8 @@ export function useSendGroupMessage() {
     },
     onSuccess: (_, { groupId }) => {
       qc.invalidateQueries({ queryKey: ["group-messages", groupId] });
+      // Also update group list to show latest message preview
+      qc.invalidateQueries({ queryKey: ["my-groups"] });
     },
   });
 }
@@ -242,6 +265,7 @@ export function useGroupMembers(groupId: string | undefined) {
   return useQuery({
     queryKey: ["group-members", groupId],
     enabled: !!groupId,
+    staleTime: 10000,
     queryFn: async (): Promise<GroupMember[]> => {
       const { data, error } = await supabase
         .from("chat_group_members")
