@@ -556,6 +556,7 @@ const App = () => (
           </DomainProvider>
         </BrowserRouter>
       </TooltipProvider>
+      </EmojiProvider>
     </AuthProvider>
   </ThemeProvider>
 );
