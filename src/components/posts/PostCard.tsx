@@ -32,7 +32,7 @@ export function PostCard({ post, toggleReaction, onAuthorClick, compact }: PostC
         onClick={onAuthorClick ? () => onAuthorClick(post) : undefined}
       >
         <div
-          className="w-8 h-8 sm:w-7 sm:h-7 rounded-full overflow-hidden shrink-0"
+          className="w-8 h-8 rounded-full overflow-hidden shrink-0"
           style={{ background: "rgba(255,255,255,0.1)" }}
         >
           {post.author_avatar ? (

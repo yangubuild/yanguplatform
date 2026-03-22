@@ -195,7 +195,7 @@ export default function DashboardHome() {
 
   if (isMobile) {
     return (
-      <div className="h-[calc(100vh-64px)] flex flex-col overflow-hidden" style={{ background: "#08120D" }}>
+      <div className="h-[calc(100vh-64px)] flex flex-col overflow-hidden pb-14" style={{ background: "#08120D" }}>
         {centerContent}
         {postModal}
       </div>

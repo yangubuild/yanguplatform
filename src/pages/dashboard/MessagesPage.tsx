@@ -117,7 +117,7 @@ export default function MessagesPage() {
 
   if (isMobile) {
     return (
-      <div className="h-[calc(100vh-64px)] flex flex-col overflow-hidden" style={{ background: "#08120D" }}>
+      <div className="h-[calc(100vh-64px)] flex flex-col overflow-hidden pb-14" style={{ background: "#08120D" }}>
         <div className="flex items-center justify-end px-3 py-2">
           <div className="flex items-center gap-2">
             <button
