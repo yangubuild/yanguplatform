@@ -16,6 +16,15 @@ export interface YanguEmoji {
   thumbnailUrl: string;
 }
 
+export function normalizeEmojiKeyword(value: string): string {
+  return value
+    .replace(/\.[^.]+$/, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .replace(/_{2,}/g, "_");
+}
+
 // Common system emojis for fallback / quick access
 export const SYSTEM_EMOJIS = [
   "😀", "😂", "😍", "🥺", "😎", "🤔", "👍", "👎",
@@ -59,7 +68,12 @@ export async function fetchCustomEmojis(): Promise<YanguEmoji[]> {
       }
 
       const data = await res.json();
-      cachedEmojis = data.emojis || [];
+      cachedEmojis = (data.emojis || [])
+        .map((emoji: YanguEmoji) => ({
+          ...emoji,
+          keyword: normalizeEmojiKeyword(emoji.keyword || emoji.name),
+        }))
+        .filter((emoji: YanguEmoji) => emoji.keyword.length > 0);
       return cachedEmojis!;
     } catch (err) {
       console.error("Error fetching custom emojis:", err);
@@ -81,11 +95,12 @@ export function searchCustomEmojis(
   query: string
 ): YanguEmoji[] {
   if (!query.trim()) return emojis;
-  const q = query.toLowerCase().trim();
+  const q = normalizeEmojiKeyword(query.trim());
   return emojis.filter(
     (e) =>
       e.keyword.includes(q) ||
-      e.name.toLowerCase().includes(q)
+      normalizeEmojiKeyword(e.name).includes(q) ||
+      e.name.toLowerCase().includes(query.toLowerCase().trim())
   );
 }
 

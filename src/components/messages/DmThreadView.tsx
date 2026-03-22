@@ -4,11 +4,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useConversation, useSendMessage } from "@/hooks/useDirectMessages";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import { renderChatContent, shareMessageExternal } from "@/lib/chatMessageRenderer";
-import { Send, Loader2, MoreVertical, Reply, Forward, Trash2, Image, Video, X, Share2 } from "lucide-react";
+import { Send, Loader2, MoreVertical, Reply, Forward, Trash2, Image, Video, X, Share2, Smile } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useMarkDmsRead } from "@/hooks/useUnreadMessages";
+import { YanguEmojiPicker } from "@/components/emoji/YanguEmojiPicker";
+import { EmojiSuggestions } from "@/components/emoji/EmojiSuggestions";
+import { useEmojiInput } from "@/hooks/useEmojiInput";
+import type { YanguEmoji } from "@/lib/emojiSystem";
 
 interface Props {
   targetUserId: string;
@@ -20,6 +24,7 @@ export function DmThreadView({ targetUserId }: Props) {
   const [forwardingMsg, setForwardingMsg] = useState<string | null>(null);
   const [msgMenuId, setMsgMenuId] = useState<string | null>(null);
   const [showChatMenu, setShowChatMenu] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
@@ -57,6 +62,12 @@ export function DmThreadView({ targetUserId }: Props) {
 
   const { data: messages = [], isLoading } = useConversation(targetUserId);
   const sendMessage = useSendMessage();
+  const {
+    currentWord,
+    handleInputChange,
+    insertEmoji,
+    replaceCurrentWord,
+  } = useEmojiInput(message, setMessage);
 
   const targetName = targetProfile?.display_name || targetProfile?.username || "User";
   const targetAvatar = targetProfile ? resolveAvatarUrl(targetProfile) : null;
@@ -148,6 +159,11 @@ export function DmThreadView({ targetUserId }: Props) {
   };
 
   const renderContent = (content: string) => renderChatContent(content, navigate);
+
+  const handleEmojiSelect = (value: string | YanguEmoji) => {
+    insertEmoji(value);
+    setShowEmojiPicker(false);
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -336,6 +352,21 @@ export function DmThreadView({ targetUserId }: Props) {
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, "image")} />
       <input ref={videoInputRef} type="file" accept="video/*" className="hidden" onChange={(e) => handleFileUpload(e, "video")} />
 
+      {currentWord && (
+        <div className="px-4 pb-1">
+          <EmojiSuggestions
+            currentWord={currentWord}
+            onSelect={(value, keyword) => replaceCurrentWord(value, keyword)}
+          />
+        </div>
+      )}
+
+      {showEmojiPicker && (
+        <div className="px-4 pb-1">
+          <YanguEmojiPicker onSelect={handleEmojiSelect} onClose={() => setShowEmojiPicker(false)} />
+        </div>
+      )}
+
       {/* Input */}
       <div className="shrink-0 px-4 py-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
         <div
@@ -356,10 +387,17 @@ export function DmThreadView({ targetUserId }: Props) {
           >
             <Video className="w-4 h-4" />
           </button>
+          <button
+            onClick={() => setShowEmojiPicker((prev) => !prev)}
+            className="p-1 rounded hover:opacity-80 shrink-0"
+            style={{ color: showEmojiPicker ? "#facc15" : "rgba(255,255,255,0.4)" }}
+          >
+            <Smile className="w-4 h-4" />
+          </button>
           <input
             type="text"
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={(e) => handleInputChange(e.target.value, e.target.selectionStart ?? undefined)}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
             placeholder={replyTo ? "Type a reply..." : "Type a message..."}
             className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-white/25"

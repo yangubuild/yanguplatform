@@ -1,5 +1,6 @@
 import React from "react";
 import { detectLinkType, getLinkDisplayInfo, safeHostname } from "@/lib/commerceLinkDetector";
+import { EmojiRenderer } from "@/components/emoji/EmojiRenderer";
 
 /**
  * Canonical message content renderer shared across all chat types.
@@ -18,7 +19,7 @@ export function renderChatContent(content: string, navigate?: (path: string) => 
     const textAfter = content.slice((acceptMatch.index ?? 0) + acceptMatch[0].length);
     return (
       <>
-        {textBefore && <span className="whitespace-pre-wrap">{textBefore}</span>}
+        {textBefore && <EmojiRenderer text={textBefore} className="whitespace-pre-wrap" />}
         <button
           onClick={() => navigate?.(link)}
           className="inline-flex items-center gap-1.5 mt-2 px-4 py-2 rounded-lg text-xs font-semibold text-white"
@@ -26,7 +27,7 @@ export function renderChatContent(content: string, navigate?: (path: string) => 
         >
           ✅ Accept Invite
         </button>
-        {textAfter && <span className="whitespace-pre-wrap">{textAfter}</span>}
+        {textAfter && <EmojiRenderer text={textAfter} className="whitespace-pre-wrap" />}
       </>
     );
   }
@@ -49,7 +50,7 @@ export function renderChatContent(content: string, navigate?: (path: string) => 
     const cleaned = content.replace(/\[buynow\]/g, "").replace(/\[sellnow\]/g, "").trim();
     return (
       <>
-        {cleaned && <span className="whitespace-pre-wrap">{cleaned}</span>}
+        {cleaned && <EmojiRenderer text={cleaned} className="whitespace-pre-wrap" />}
         <div className="flex flex-wrap gap-1.5 mt-1.5">
           {hasBuyNow && (
             <button className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #10b981, #059669)" }}>
@@ -74,7 +75,7 @@ export function renderChatContent(content: string, navigate?: (path: string) => 
       <span className="whitespace-pre-wrap">
         {parts.map((part, i) => {
           if (!urlRegex.test(part)) {
-            return <React.Fragment key={i}>{part}</React.Fragment>;
+            return <EmojiRenderer key={i} text={part} className="whitespace-pre-wrap" />;
           }
           // Reset regex
           urlRegex.lastIndex = 0;
@@ -118,7 +119,7 @@ export function renderChatContent(content: string, navigate?: (path: string) => 
     );
   }
 
-  return <span className="whitespace-pre-wrap">{content}</span>;
+  return <EmojiRenderer text={content} className="whitespace-pre-wrap" />;
 }
 
 /**
