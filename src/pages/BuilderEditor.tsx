@@ -501,8 +501,8 @@ export default function BuilderEditor() {
           </div>
         </main>
 
-        {/* Right panel */}
-        {rightPanel === "page_edit" && (
+        {/* Right panel — desktop only */}
+        {!isMobile && rightPanel === "page_edit" && (
           <BuilderPageEditPanel
             settings={pageSettings}
             onSave={async (s) => {
@@ -525,7 +525,7 @@ export default function BuilderEditor() {
             }}
           />
         )}
-        {rightPanel === "setup" && hasAiSetup && (
+        {!isMobile && rightPanel === "setup" && hasAiSetup && (
           <BuilderSetupAnswersPanel
             answers={aiAnswers}
             source={aiSource}
@@ -533,7 +533,7 @@ export default function BuilderEditor() {
             onUpdate={handleUpdateAnswers}
           />
         )}
-        {rightPanel === "section" && selectedSectionId && (() => {
+        {!isMobile && rightPanel === "section" && selectedSectionId && (() => {
           const sec = sections.find((s) => s.id === selectedSectionId);
           if (!sec || sec.isMissing) return null;
           return (
@@ -554,6 +554,117 @@ export default function BuilderEditor() {
           );
         })()}
       </div>
+
+      {/* Mobile bottom toolbar + sheets */}
+      {isMobile && (
+        <>
+          <MobileBuilderToolbar
+            activePanel={mobilePanel}
+            onOpenPanel={(panel) => {
+              if (panel === "publish") {
+                setPublishOpen(true);
+              } else if (panel === "settings") {
+                setSettingsOpen(true);
+              } else {
+                setMobilePanel(panel === mobilePanel ? "none" : panel);
+              }
+            }}
+          />
+
+          {/* Sections sheet */}
+          <MobileBuilderSheet
+            open={mobilePanel === "sections"}
+            onClose={() => setMobilePanel("none")}
+            title="Sections"
+          >
+            <div className="p-3">
+              <BuilderSectionList
+                sections={sections}
+                onReorder={reorderSections}
+                selectedId={selectedSectionId}
+                surfaceType={surfaceType}
+                onSelect={(id) => {
+                  handleSelectSection(id);
+                  setMobilePanel("editor");
+                }}
+                onSwitchMainContent={switchMainContent}
+                currentMainContentType={currentMainContentType}
+                industry={industry}
+                onVariantChange={async (sectionId, displayMode) => {
+                  const section = sections.find((s) => s.id === sectionId);
+                  if (!section) return;
+                  const newSchema = { ...section.schema, display_mode: displayMode };
+                  await updateSectionSchema(sectionId, newSchema);
+                }}
+                onDelete={async (id) => {
+                  const ok = await deleteSection(id);
+                  if (ok && selectedSectionId === id) {
+                    setSelectedSectionId(null);
+                  }
+                  return ok;
+                }}
+              />
+            </div>
+            <div className="p-3 border-t border-border">
+              <BuilderAddSection onAdd={addSection} onAddWithSchema={addSectionWithSchema} isAdding={isAdding || isSwitching} surfaceType={surfaceType} />
+            </div>
+          </MobileBuilderSheet>
+
+          {/* Editor sheet */}
+          <MobileBuilderSheet
+            open={mobilePanel === "editor"}
+            onClose={() => setMobilePanel("none")}
+            title={selectedSectionId ? (sections.find((s) => s.id === selectedSectionId)?.section_type || "Edit Section") : "Page Edit"}
+          >
+            {selectedSectionId ? (() => {
+              const sec = sections.find((s) => s.id === selectedSectionId);
+              if (!sec || sec.isMissing) return <div className="p-4 text-sm text-muted-foreground">Select a section to edit</div>;
+              return (
+                <div className="[&>aside]:w-full [&>aside]:border-0">
+                  <BuilderSectionEditor
+                    key={sec.id}
+                    section={sec}
+                    onClose={() => { setSelectedSectionId(null); setMobilePanel("none"); setLiveSchemaOverride(null); }}
+                    onSave={async (id, schema) => {
+                      await updateSectionSchema(id, schema);
+                      setLiveSchemaOverride(null);
+                    }}
+                    onToggleVisibility={toggleSectionVisibility}
+                    onLocalSchemaChange={(id, schema) => setLiveSchemaOverride({ sectionId: id, schema })}
+                    isSaving={isSavingSection}
+                    surfaceType={surfaceType}
+                    surfaceId={editorState.surface.id}
+                  />
+                </div>
+              );
+            })() : (
+              <div className="[&>aside]:w-full [&>aside]:border-0">
+                <BuilderPageEditPanel
+                  settings={pageSettings}
+                  onSave={async (s) => {
+                    await savePageSettings(s);
+                    setLivePageSettings(null);
+                  }}
+                  onClose={() => setMobilePanel("none")}
+                  isSaving={isSavingPageSettings}
+                  onLocalChange={setLivePageSettings}
+                  surfaceType={surfaceType}
+                  sections={sections}
+                  onApplyTemplate={async (sectionId, schema) => {
+                    await updateSectionSchema(sectionId, schema);
+                  }}
+                  onToggleVisible={async (sectionId) => {
+                    await toggleSectionVisibility(sectionId, true);
+                  }}
+                  onCreateSection={async (sectionType, schema, coreSlot) => {
+                    await addSectionWithSchema(sectionType, schema, { coreSlot });
+                  }}
+                />
+              </div>
+            )}
+          </MobileBuilderSheet>
+        </>
+      )}
 
       {/* Publish Modal */}
       <BuilderPublishModal
