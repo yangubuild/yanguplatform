@@ -80,11 +80,14 @@ export function FriendChatRightPanel({ friend }: Props) {
             return (
               <div key={msg.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
                 <div
-                  className={`max-w-[75%] px-3 py-2 rounded-xl text-sm yg-glass-chat ${isMine ? "yg-sender" : ""}`}
-                  style={{ color: "#fff" }}
+                  className="max-w-[75%] px-3 py-2 rounded-xl text-sm"
+                  style={{
+                    background: isMine ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.06)",
+                    color: "#fff",
+                  }}
                 >
-                  <span className="relative z-[1]">{msg.content}</span>
-                  <p className="relative z-[1] text-[9px] mt-1" style={{ color: "rgba(255,255,255,0.3)" }}>
+                  {msg.content}
+                  <p className="text-[9px] mt-1" style={{ color: "rgba(255,255,255,0.3)" }}>
                     {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                   </p>
                 </div>
