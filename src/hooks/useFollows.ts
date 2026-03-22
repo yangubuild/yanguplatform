@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useRef, useCallback } from "react";
+import { resolveAvatarUrl } from "@/lib/avatarUtils";
 
 /** All query keys that depend on follow relationships */
 const FOLLOW_QUERY_KEYS = [
@@ -100,11 +101,12 @@ export function useToggleFollow() {
           // Send follow notification to the target user
           const { data: myProfile } = await supabase
             .from("profiles")
-            .select("display_name, username")
+            .select("display_name, username, avatar_url, avatar_mode, avatar_emoji_key")
             .eq("id", user.id)
             .single();
           const name = myProfile?.display_name || myProfile?.username || "Someone";
           const uname = myProfile?.username ? `@${myProfile.username}` : "";
+          const avatarUrl = myProfile ? resolveAvatarUrl(myProfile) : null;
           await supabase.from("notifications").insert({
             user_id: targetUserId,
             type: "follow",
@@ -112,6 +114,7 @@ export function useToggleFollow() {
             body: `${name} ${uname} started following you on YANGU. Follow them back to stay connected!`,
             link: `/dashboard/home`,
             is_read: false,
+            metadata: { actor_id: user.id, actor_avatar: avatarUrl } as any,
           } as any);
         }
       } finally {

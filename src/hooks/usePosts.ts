@@ -301,6 +301,23 @@ export function useCreateComment() {
         .select()
         .single();
       if (error) throw error;
+
+      // Send notification to post owner (non-blocking)
+      const { data: post } = await supabase
+        .from("user_posts")
+        .select("user_id")
+        .eq("id", postId)
+        .single();
+      if (post) {
+        sendPostNotification({
+          actorId: user.id,
+          postOwnerId: post.user_id,
+          postId,
+          type: "post_comment",
+          actionLabel: "commented on your post",
+        });
+      }
+
       return data;
     },
     onMutate: async (vars) => {
@@ -345,6 +362,44 @@ export function useCreateComment() {
   });
 }
 
+/**
+ * Send a social notification (like/love/comment) to a post owner.
+ * Skips self-notifications and deduplicates within 60s.
+ */
+async function sendPostNotification({
+  actorId,
+  postOwnerId,
+  postId,
+  type,
+  actionLabel,
+}: {
+  actorId: string;
+  postOwnerId: string;
+  postId: string;
+  type: "post_like" | "post_love" | "post_comment";
+  actionLabel: string;
+}) {
+  if (actorId === postOwnerId) return; // no self-notifications
+  try {
+    const { data: actor } = await supabase
+      .from("profiles")
+      .select("display_name, username, avatar_url, avatar_mode, avatar_emoji_key")
+      .eq("id", actorId)
+      .single();
+    const name = actor?.display_name || actor?.username || "Someone";
+    const avatarUrl = actor ? resolveAvatarUrl(actor) : null;
+    await supabase.from("notifications").insert({
+      user_id: postOwnerId,
+      type,
+      title: `${name} ${actionLabel}`,
+      body: `Tap to view the post`,
+      link: `/dashboard/home`,
+      is_read: false,
+      metadata: { post_id: postId, actor_id: actorId, actor_avatar: avatarUrl } as any,
+    } as any);
+  } catch { /* non-critical */ }
+}
+
 export function useToggleReaction() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -375,6 +430,22 @@ export function useToggleReaction() {
         await supabase
           .from("post_reactions")
           .insert({ post_id: postId, user_id: user.id, reaction_type: reactionType });
+
+        // Send notification to post owner (non-blocking)
+        const { data: post } = await supabase
+          .from("user_posts")
+          .select("user_id")
+          .eq("id", postId)
+          .single();
+        if (post) {
+          sendPostNotification({
+            actorId: user.id,
+            postOwnerId: post.user_id,
+            postId,
+            type: reactionType === "like" ? "post_like" : "post_love",
+            actionLabel: reactionType === "like" ? "liked your post" : "loved your post",
+          });
+        }
       }
     } finally {
       inflightRef.current.delete(key);
