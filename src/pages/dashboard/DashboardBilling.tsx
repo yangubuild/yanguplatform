@@ -110,7 +110,7 @@ export default function DashboardBilling() {
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-8 min-h-screen bg-background">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold">Billing & Plan</h1>
+        <h1 className="text-lg font-semibold">Billing & Plan</h1>
         <p className="text-muted-foreground text-sm mt-1">
           Manage your subscription and usage quotas
         </p>

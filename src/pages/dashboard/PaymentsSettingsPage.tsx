@@ -77,7 +77,7 @@ export default function PaymentsSettingsPage() {
     <div className="max-w-2xl mx-auto py-6 px-4 space-y-6 min-h-screen bg-background">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Payment settings</h1>
+          <h1 className="text-lg font-semibold text-foreground">Payment settings</h1>
           <p className="text-sm text-muted-foreground mt-1">Choose how customers pay you directly.</p>
         </div>
         <Button variant="accent" onClick={handleSave} disabled={saving} className="gap-2">

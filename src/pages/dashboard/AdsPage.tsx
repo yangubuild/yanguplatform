@@ -18,17 +18,17 @@ export default function AdsPage() {
       <div className="max-w-5xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-foreground">Ads</h1>
+          <h1 className="text-lg font-semibold text-foreground">Ads</h1>
           <Button
             variant="accent"
             onClick={() => setShowWizard(true)}
-            className="rounded-xl px-5 h-10">
+            className="px-5 h-10">
             Launch new campaign
           </Button>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 mb-10 border-b border-white/10 pb-0">
+        <div className="flex gap-1 mb-10 border-b border-border pb-0">
           {TABS.map((tab) => (
             <button
               key={tab}
@@ -40,7 +40,7 @@ export default function AdsPage() {
               }`}>
               {tab}
               {activeTab === tab && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full" style={{ background: "#b5622a" }} />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full bg-accent" />
               )}
             </button>
           ))}
@@ -49,12 +49,11 @@ export default function AdsPage() {
         {/* Empty state */}
         <div className="flex flex-col items-center justify-center py-24">
           <div
-            className="w-32 h-32 rounded-2xl flex items-center justify-center mb-8"
-            style={{ background: "rgba(181,98,42,0.1)" }}>
-            <Megaphone className="w-16 h-16" style={{ color: "rgba(181,98,42,0.6)" }} />
+            className="w-32 h-32 rounded-2xl flex items-center justify-center mb-8 bg-accent/10">
+            <Megaphone className="w-16 h-16 text-accent/60" />
           </div>
 
-          <h2 className="text-xl font-semibold text-foreground mb-3">
+          <h2 className="text-lg font-semibold text-foreground mb-3">
             Reach millions through YANGU ads
           </h2>
           <p className="text-muted-foreground text-sm text-center max-w-md mb-8">
@@ -64,7 +63,7 @@ export default function AdsPage() {
           <Button
             variant="accent"
             onClick={() => setShowWizard(true)}
-            className="rounded-xl px-6 h-11">
+            className="px-6 h-11">
             Launch new campaign
           </Button>
         </div>

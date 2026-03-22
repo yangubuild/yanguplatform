@@ -122,7 +122,7 @@ export default function EmenuOrdersPage() {
     <div className="max-w-5xl mx-auto py-6 space-y-6 min-h-screen bg-background">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Orders</h1>
+          <h1 className="text-lg font-semibold">Orders</h1>
           <p className="text-sm text-muted-foreground mt-1">Manage incoming orders and payments</p>
         </div>
         <Button variant="outline" size="sm" className="gap-2" onClick={fetchOrders}>
