@@ -93,7 +93,7 @@ function SmartAssetsModal({ open, onClose }: { open: boolean; onClose: () => voi
               <Settings2 className="h-3.5 w-3.5" /> All status
             </button>
             <div className="ml-auto">
-              <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-accent/40 text-xs text-accent hover:bg-accent/10 transition-colors">
+              <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg border border-accent/40 text-xs text-accent hover:bg-accent/10 transition-colors">
                 <Sparkles className="h-3.5 w-3.5" /> AI Search
               </button>
             </div>

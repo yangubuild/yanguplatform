@@ -78,7 +78,7 @@ export function AvatarShowcaseSection() {
 
       {/* bottom CTA */}
       <div className="flex justify-center pt-2">
-        <button className="inline-flex items-center gap-2 rounded-full border border-border/50 bg-card px-6 py-2.5 text-sm font-medium text-foreground hover:bg-muted/60 transition-colors">
+        <button className="inline-flex items-center gap-2 rounded-lg border border-border/50 bg-card px-6 py-2.5 text-sm font-medium text-foreground hover:bg-muted/60 transition-colors">
           Create <span className="font-semibold">Avatar Video</span>
           <ChevronRight className="h-4 w-4" />
         </button>

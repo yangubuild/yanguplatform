@@ -402,13 +402,9 @@ export default function ProfilePage() {
               className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
               <ArrowLeft className="w-4 h-4" /> Back to profile
             </button>
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="px-5 py-2 rounded-xl text-sm font-semibold transition-opacity"
-              style={{ background: "rgba(255,255,255,0.12)" }}>
+            <Button variant="outline" size="sm" onClick={handleSave} disabled={saving}>
               {saving ? "Saving..." : "Save changes"}
-            </button>
+            </Button>
           </div>
 
           <div className="h-px mb-5" style={{ background: "rgba(255,255,255,0.08)" }} />
@@ -630,18 +626,12 @@ export default function ProfilePage() {
             </div>
 
             <div className="flex gap-3 mt-5">
-              <button
-                onClick={handleStartEditing}
-                className="flex-1 py-2.5 rounded-xl text-sm font-semibold border transition-colors"
-                style={{ borderColor: "rgba(255,255,255,0.15)", background: "transparent" }}>
+              <Button variant="outline" onClick={handleStartEditing} className="flex-1">
                 Edit profile
-              </button>
-              <button
-                onClick={() => navigate("/dashboard/profile/subscription")}
-                className="flex-1 py-2.5 rounded-xl text-sm font-semibold border transition-colors"
-                style={{ borderColor: "rgba(255,255,255,0.15)", background: "transparent" }}>
+              </Button>
+              <Button variant="outline" onClick={() => navigate("/dashboard/profile/subscription")} className="flex-1">
                 Manage subscriptions
-              </button>
+              </Button>
             </div>
           </div>
 

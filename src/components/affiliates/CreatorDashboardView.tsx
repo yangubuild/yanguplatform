@@ -21,13 +21,10 @@ export function CreatorDashboardView({ onBack }: Props) {
     <div>
       <div className="flex items-center justify-between mb-1">
         <h1 className="text-xl font-semibold text-foreground">Affiliates</h1>
-        <button
-          type="button"
-          onClick={handleBack}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-white/10 text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+        <Button variant="outline" size="sm" onClick={handleBack}>
           <ArrowLeft className="w-4 h-4" />
           Affiliate dashboard
-        </button>
+        </Button>
       </div>
 
       {/* Tabs */}

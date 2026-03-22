@@ -49,38 +49,26 @@ export function AffiliateDashboardView({ isAuthenticated, onSwitchToCreator, isL
             <div className="flex items-center gap-2">
               {isAuthenticated && !isLandingPage ? (
                 <>
-                  <button
-                    onClick={() => setShowMarketplace(true)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-foreground"
-                    style={{ background: "rgba(255,255,255,0.08)" }}>
+                  <Button variant="outline" size="sm" onClick={() => setShowMarketplace(true)}>
                     <Gift className="w-4 h-4 text-accent" />
                     Affiliate marketplace
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("Refer sellers")}
-                    className="px-4 py-2 rounded-xl text-sm font-medium border border-accent/40 text-accent">
+                  </Button>
+                  <Button variant="accent-light" size="sm" onClick={() => setActiveTab("Refer sellers")}>
                     Apply to be a partner
-                  </button>
-                  <button
-                    onClick={onSwitchToCreator}
-                    className="px-4 py-2 rounded-xl text-sm font-medium border border-white/10 text-muted-foreground hover:text-foreground transition-colors">
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={onSwitchToCreator}>
                     Creator dashboard
-                  </button>
+                  </Button>
                 </>
               ) : (
                 <>
-                  <button
-                    onClick={handlePublicGatedAction}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-foreground"
-                    style={{ background: "rgba(255,255,255,0.08)" }}>
+                  <Button variant="outline" size="sm" onClick={handlePublicGatedAction}>
                     <Gift className="w-4 h-4 text-accent" />
                     Affiliate marketplace
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("Refer sellers")}
-                    className="px-4 py-2 rounded-xl text-sm font-medium border border-accent/40 text-accent">
+                  </Button>
+                  <Button variant="accent-light" size="sm" onClick={() => setActiveTab("Refer sellers")}>
                     Apply to be a partner
-                  </button>
+                  </Button>
                 </>
               )}
             </div>

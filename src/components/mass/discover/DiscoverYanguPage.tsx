@@ -27,10 +27,9 @@ function AppChip({ icon: Icon, label, active, onClick }: { icon: any; label: str
       onClick={onClick}
       className={`flex items-center gap-2 px-4 py-2.5 rounded-lg ${T.body} font-medium transition-all ${
         active 
-          ? "text-foreground" 
-          : "bg-[#152A20] text-muted-foreground hover:bg-[#1a3528] hover:text-foreground"
-      }`}
-      style={active ? { background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" } : undefined}>
+          ? "text-foreground [background:linear-gradient(135deg,#c47a3a_0%,#b5622a_50%,#5c2a12_100%)]" 
+          : "bg-secondary text-muted-foreground hover:bg-secondary/80 hover:text-foreground"
+      }`}>
       <Icon className="w-4 h-4" />
       {label}
     </button>

@@ -92,16 +92,14 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
           <div className="flex items-center gap-4">
             <div className="flex-1 h-3 rounded-full bg-white/[0.08] overflow-hidden">
               <div
-                className="h-full rounded-full transition-all duration-300"
-                style={{
-                  width: `${reachPercent}%`,
-                  background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
+                className="h-full rounded-full transition-all duration-300 [background:linear-gradient(90deg,hsl(var(--accent))_0%,hsl(var(--accent)/0.6)_100%)]"
+                style={{ width: `${reachPercent}%` }}
               />
             </div>
             <Button
               variant="outline"
               size="sm"
-              className="border-white/20 text-muted-foreground hover:text-foreground hover:bg-white/5 rounded-xl text-xs px-4 h-8 shrink-0">
+              className="border-white/20 text-muted-foreground hover:text-foreground hover:bg-white/5 rounded-lg text-xs px-4 h-8 shrink-0">
               Add more media
             </Button>
           </div>
@@ -144,18 +142,11 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
               <button
                 key={b}
                 onClick={() => handleQuickBudget(b)}
-                className="px-4 py-2 rounded-xl text-sm font-medium transition-colors"
-                style={{
-                  background:
-                    data.dailyBudget === b
-                      ? "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)"
-                      : "rgba(255,255,255,0.04)",
-                  color:
-                    data.dailyBudget === b ? "#fff" : "rgba(255,255,255,0.5)",
-                  border:
-                    data.dailyBudget === b
-                      ? "none"
-                      : "1px solid rgba(255,255,255,0.1)" }}>
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  data.dailyBudget === b
+                    ? "[background:linear-gradient(90deg,#b5622a_0%,#5c2a12_100%)] text-foreground border-0"
+                    : "bg-muted/30 text-muted-foreground border border-border"
+                }`}>
                 ${b}/day
               </button>
             ))}
@@ -262,11 +253,7 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
               </div>
 
               {/* Pay button */}
-              <button
-                onClick={handlePayConfirm}
-                className="w-full py-3 rounded-xl text-foreground font-semibold text-base transition-opacity hover:opacity-90"
-                style={{
-                  background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}>
+              <Button variant="accent" size="lg" onClick={handlePayConfirm} className="w-full">
                 Pay ${data.dailyBudget.toFixed(2)}
               </button>
             </div>
