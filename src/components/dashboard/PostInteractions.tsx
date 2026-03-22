@@ -141,17 +141,17 @@ export function PostInteractions({ post, toggleReaction }: PostInteractionsProps
 
   return (
     <div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3 sm:gap-4">
         {/* Like */}
         <div className="relative">
           <button
             onClick={handleLike}
             onMouseEnter={() => (optimisticLikeCount > 0) && setShowLikers(true)}
             onMouseLeave={() => setShowLikers(false)}
-            className={`flex items-center gap-1 text-[11px] transition-colors ${optimisticLiked ? "font-semibold" : ""}`}
+            className={`flex items-center gap-1.5 text-[11px] transition-colors min-h-[36px] px-1 ${optimisticLiked ? "font-semibold" : ""}`}
             style={{ color: optimisticLiked ? "#3b82f6" : "rgba(255,255,255,0.35)" }}
           >
-            <ThumbsUp className="w-3.5 h-3.5" fill={optimisticLiked ? "#3b82f6" : "none"} /> {optimisticLikeCount || ""}
+            <ThumbsUp className="w-4 h-4 sm:w-3.5 sm:h-3.5" fill={optimisticLiked ? "#3b82f6" : "none"} /> {optimisticLikeCount || ""}
           </button>
           {showLikers && likers.length > 0 && <ReactionPopover users={likers} />}
         </div>
@@ -161,25 +161,25 @@ export function PostInteractions({ post, toggleReaction }: PostInteractionsProps
             onClick={handleLove}
             onMouseEnter={() => (optimisticLoveCount > 0) && setShowLovers(true)}
             onMouseLeave={() => setShowLovers(false)}
-            className={`flex items-center gap-1 text-[11px] transition-colors ${optimisticLoved ? "font-semibold" : ""}`}
+            className={`flex items-center gap-1.5 text-[11px] transition-colors min-h-[36px] px-1 ${optimisticLoved ? "font-semibold" : ""}`}
             style={{ color: optimisticLoved ? "#ef4444" : "rgba(255,255,255,0.35)" }}
           >
-            <Heart className="w-3.5 h-3.5" fill={optimisticLoved ? "#ef4444" : "none"} /> {optimisticLoveCount || ""}
+            <Heart className="w-4 h-4 sm:w-3.5 sm:h-3.5" fill={optimisticLoved ? "#ef4444" : "none"} /> {optimisticLoveCount || ""}
           </button>
           {showLovers && lovers.length > 0 && <ReactionPopover users={lovers} />}
         </div>
         {/* Comment */}
         <button
           onClick={() => setShowComments(!showComments)}
-          className="flex items-center gap-1 text-[11px]"
+          className="flex items-center gap-1.5 text-[11px] min-h-[36px] px-1"
           style={{ color: showComments ? "#a78bfa" : "rgba(255,255,255,0.35)" }}
         >
-          <MessageSquare className="w-3.5 h-3.5" /> {optimisticCommentCount || ""}
+          <MessageSquare className="w-4 h-4 sm:w-3.5 sm:h-3.5" /> {optimisticCommentCount || ""}
         </button>
         {/* Share */}
         <div className="relative ml-auto">
-          <button onClick={() => setShowShare(!showShare)} className="flex items-center gap-1 text-[11px]" style={{ color: showShare ? "#a78bfa" : "rgba(255,255,255,0.35)" }} title="Share">
-            <ExternalLink className="w-3.5 h-3.5" />
+          <button onClick={() => setShowShare(!showShare)} className="flex items-center gap-1.5 text-[11px] min-h-[36px] px-1" style={{ color: showShare ? "#a78bfa" : "rgba(255,255,255,0.35)" }} title="Share">
+            <ExternalLink className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
           </button>
           {showShare && <SharePanel postId={post.id} postContent={post.content} onClose={() => setShowShare(false)} />}
         </div>
@@ -234,22 +234,22 @@ export function PostInteractions({ post, toggleReaction }: PostInteractionsProps
                 onChange={(e) => setCommentText(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleComment(); } }}
                 placeholder="Write a comment..."
-                className="flex-1 bg-transparent text-xs text-white placeholder:text-white/25 outline-none px-2 py-1.5 rounded-md"
+                className="flex-1 bg-transparent text-xs text-white placeholder:text-white/25 outline-none px-2 py-2 rounded-md min-h-[36px]"
                 style={{ background: "rgba(255,255,255,0.05)" }}
               />
             </div>
-            <div className="flex items-center gap-1 mt-1.5">
+            <div className="flex items-center gap-0.5 mt-1.5">
               <input ref={commentImageRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => { handleCommentMedia(e.target.files); e.target.value = ""; }} />
-              <button onClick={() => commentImageRef.current?.click()} className="p-1 rounded hover:bg-white/5" style={{ color: "rgba(255,255,255,0.35)" }} title="Image"><ImagePlus className="w-3.5 h-3.5" /></button>
+              <button onClick={() => commentImageRef.current?.click()} className="p-1.5 rounded hover:bg-white/5 min-w-[32px] min-h-[32px] flex items-center justify-center" style={{ color: "rgba(255,255,255,0.35)" }} title="Image"><ImagePlus className="w-3.5 h-3.5" /></button>
               <input ref={commentVideoRef} type="file" accept="video/mp4,video/webm" className="hidden" onChange={(e) => { handleCommentMedia(e.target.files); e.target.value = ""; }} />
-              <button onClick={() => commentVideoRef.current?.click()} className="p-1 rounded hover:bg-white/5" style={{ color: "rgba(255,255,255,0.35)" }} title="Video"><Video className="w-3.5 h-3.5" /></button>
-              <button className="p-1 rounded hover:bg-white/5" style={{ color: "rgba(255,255,255,0.35)" }} title="Emoji"><Smile className="w-3.5 h-3.5" /></button>
-              <button className="p-1 rounded hover:bg-white/5" style={{ color: "rgba(255,255,255,0.25)" }} title="AI"><Sparkles className="w-3.5 h-3.5" /></button>
+              <button onClick={() => commentVideoRef.current?.click()} className="p-1.5 rounded hover:bg-white/5 min-w-[32px] min-h-[32px] flex items-center justify-center" style={{ color: "rgba(255,255,255,0.35)" }} title="Video"><Video className="w-3.5 h-3.5" /></button>
+              <button className="p-1.5 rounded hover:bg-white/5 min-w-[32px] min-h-[32px] flex items-center justify-center" style={{ color: "rgba(255,255,255,0.35)" }} title="Emoji"><Smile className="w-3.5 h-3.5" /></button>
+              <button className="p-1.5 rounded hover:bg-white/5 min-w-[32px] min-h-[32px] flex items-center justify-center" style={{ color: "rgba(255,255,255,0.25)" }} title="AI"><Sparkles className="w-3.5 h-3.5" /></button>
               <div className="flex-1" />
               <button
                 onClick={handleComment}
                 disabled={(!commentText.trim() && !commentMediaFile) || createComment.isPending || uploadingComment}
-                className="text-[10px] font-semibold px-2 py-1 rounded-md"
+                className="text-[10px] font-semibold px-3 py-1.5 rounded-md min-h-[32px]"
                 style={{ color: (commentText.trim() || commentMediaFile) ? "#a78bfa" : "rgba(255,255,255,0.2)" }}
               >
                 {(createComment.isPending || uploadingComment) ? <Loader2 className="w-3 h-3 animate-spin" /> : "Post"}
