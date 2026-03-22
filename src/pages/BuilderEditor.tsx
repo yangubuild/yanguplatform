@@ -273,9 +273,9 @@ export default function BuilderEditor() {
         </Button>
       </header>
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left panel: Sections */}
-        <aside className="w-72 border-r border-border flex flex-col bg-sidebar overflow-y-auto">
+      <div className="flex flex-1 overflow-hidden" style={{ paddingBottom: isMobile ? 56 : 0 }}>
+        {/* Left panel: Sections — hidden on mobile */}
+        <aside className="w-72 border-r border-border flex-col bg-sidebar overflow-y-auto hidden lg:flex">
           {/* Page Edit trigger */}
           <button
             onClick={() => {
