@@ -49,34 +49,48 @@ export function lazyRetry<T>(
 
 /**
  * Build-version guard.
- * Embeds the build timestamp at build time; on visibility change (tab
- * refocus) it checks a lightweight version endpoint. If the deployed
- * version differs, it reloads to pick up fresh chunks.
+ * On first load, fetches `/build-meta.json` and remembers the deployed
+ * timestamp.  On subsequent tab-refocus events it re-fetches the file and
+ * reloads **only** if the deployed timestamp has *changed* (i.e. a new
+ * build was deployed while the tab was in the background).
  *
- * The endpoint is simply `/build-meta.json` which Vite writes at build
- * time via the plugin below.
+ * Previous implementation compared a runtime `Date.now()` against the
+ * build-time value, which always differed by >30 s and caused an
+ * infinite reload loop.
  */
-const BUILD_TS = Date.now(); // snapshot at module-eval time
 
+let knownBuildTs: number | null = null;
 let checking = false;
+
+function fetchBuildMeta(): Promise<number | null> {
+  return fetch("/build-meta.json?_=" + Date.now(), { cache: "no-store" })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((meta) => (meta?.ts as number) ?? null)
+    .catch(() => null);
+}
 
 export function startBuildVersionGuard() {
   if (typeof document === "undefined") return;
+
+  // Capture the current deployment's timestamp on first load
+  fetchBuildMeta().then((ts) => {
+    knownBuildTs = ts;
+  });
 
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState !== "visible" || checking) return;
     checking = true;
 
-    fetch("/build-meta.json?_=" + Date.now(), { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((meta) => {
-        if (meta?.ts && Math.abs(meta.ts - BUILD_TS) > 30_000) {
-          // Deployed build is newer (or significantly different) — reload
+    fetchBuildMeta()
+      .then((ts) => {
+        if (
+          ts !== null &&
+          knownBuildTs !== null &&
+          ts !== knownBuildTs
+        ) {
+          // A different build is now deployed — reload to pick up fresh chunks
           window.location.reload();
         }
-      })
-      .catch(() => {
-        /* network hiccup — ignore */
       })
       .finally(() => {
         checking = false;
