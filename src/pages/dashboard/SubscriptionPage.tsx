@@ -100,8 +100,9 @@ export default function SubscriptionPage() {
               className={`w-full py-2.5 rounded-lg text-sm font-semibold mt-auto transition-colors ${
                 plan.current
                   ? "bg-transparent border border-border text-muted-foreground"
-                  : "text-foreground shadow-md hover:shadow-lg hover:brightness-110 [background:linear-gradient(135deg,#c47a3a_0%,#b5622a_50%,#5c2a12_100%)]"
-              }`}>
+                  : "text-foreground shadow-md hover:shadow-lg hover:brightness-110"
+              }`}
+              style={!plan.current ? { background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" } : undefined}>
               {plan.current ? "Current Plan" : "Get Started"}
             </button>
 

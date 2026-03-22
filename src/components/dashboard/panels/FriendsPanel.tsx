@@ -36,6 +36,7 @@ export function FriendsPanel({ onViewProfile }: FriendsPanelProps) {
         .from("profiles")
         .select("id, display_name, username, avatar_url, avatar_mode, avatar_emoji_key, business_name, cover_url")
         .eq("account_status", "active")
+        .not("username", "is", null)
         .order("created_at", { ascending: false })
         .limit(50);
       if (error) throw error;

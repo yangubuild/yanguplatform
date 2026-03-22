@@ -1726,13 +1726,13 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
 
       {/* Top bar */}
       {!isLanding && (
-      <div className="flex items-center justify-between px-6 pt-6 pb-4">
+      <div className="flex items-center justify-between px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 w-full max-w-full overflow-hidden">
         <button
           onClick={() => window.dispatchEvent(new CustomEvent("ada-new-chat"))}
           className="text-sm text-muted-foreground hover:text-[#F4A83D] transition-colors">
           + New Chat
         </button>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           {/* Export chat menu */}
           <ExportChatMenu chatId={activeChatId} onDriveConnect={() => setShowDriveConnect(true)} />
 
@@ -1749,7 +1749,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
           <div className="relative" ref={extensionsRef}>
             <button
               onClick={() => setShowExtensionsDropdown(prev => !prev)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 text-muted-foreground text-sm hover:text-muted-foreground"
+              className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 text-muted-foreground text-sm hover:text-muted-foreground"
               style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.08))" }}>
               <Settings className="w-3.5 h-3.5" />
               Extensions
@@ -2011,7 +2011,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
           <>
             {/* Welcome / hero state */}
             <img src={adaLogo} alt="Ada AI" className="h-10 mb-4 object-contain" />
-            <h1 className="text-foreground text-xl sm:text-4xl md:text-5xl font-bold text-center mb-2 flex flex-wrap items-center justify-center gap-1 sm:gap-3 px-4 max-w-full overflow-hidden box-border">
+            <h1 className="text-foreground text-lg sm:text-4xl md:text-5xl font-bold text-center mb-2 flex flex-wrap items-center justify-center gap-1 sm:gap-3 px-4 max-w-full overflow-hidden box-border">
               <span>Build your</span>
               <span className="inline-flex min-w-0">
                 <span className="text-[#F4A83D]">
