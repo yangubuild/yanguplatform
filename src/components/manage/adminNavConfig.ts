@@ -19,6 +19,7 @@ import {
   ShieldAlert,
   CreditCard,
   UserPlus,
+  Headset,
   type LucideIcon,
 } from "lucide-react";
 import { ManageRole } from "@/hooks/useRoles";
@@ -67,6 +68,7 @@ export const adminNavGroups: AdminNavGroup[] = [
       { title: "Navigation", slug: "navigation", icon: Layers, allowedRoles: ["admin"] },
       { title: "Community", slug: "community", icon: Megaphone, allowedRoles: ["admin", "moderator"] },
       { title: "Messages", slug: "messages", icon: MessageSquare, allowedRoles: ["admin", "content_editor"] },
+      { title: "Support Queue", slug: "support", icon: Headset, allowedRoles: ["admin"] },
       { title: "Agents", slug: "agents", icon: Bot, allowedRoles: ["admin"] },
       { title: "Domains", slug: "domains", icon: Globe, allowedRoles: ["admin"] },
     ],
