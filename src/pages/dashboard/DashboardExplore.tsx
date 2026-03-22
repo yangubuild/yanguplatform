@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { ExploreFeedPosts } from "@/components/posts/ExploreFeedPosts";
 import { LandingTestPromptArea } from "@/components/landing-test/LandingTestPromptArea";
 import { LandingTestGettingStarted } from "@/components/landing-test/LandingTestGettingStarted";
 import { PremiumBusinessRow } from "@/components/landing-test/PremiumBusinessRow";
@@ -90,7 +89,7 @@ export default function DashboardExplore() {
           businesses={weightLossCoachingBusinesses}
         />
         <LandingTestDynamicBanner slot="lower" bannerData={banners?.lower} />
-        <ExploreFeedPosts />
+        
         <PopularBusinessGrid
           entities={popularSlotted.length > 0 ? popularSlotted : undefined}
           businesses={popularBusinesses}

@@ -30,13 +30,13 @@ export function WhyYanguDevelopersContent() {
 
   return (
     <div>
-      <p className={DocsTypography.pageKicker} className="text-muted-foreground">
+      <p className={`${DocsTypography.pageKicker} text-muted-foreground`}>
         Overview
       </p>
 
       <h1 className={DocsTypography.h1}>Build on yangu</h1>
 
-      <p className={DocsTypography.subtitle} className="text-muted-foreground">
+      <p className={`${DocsTypography.subtitle} text-muted-foreground`}>
         Everything you need to build, integrate, and scale on the yangu platform.
       </p>
 
@@ -51,7 +51,7 @@ export function WhyYanguDevelopersContent() {
 
       <div id="for-developers" className="mb-6">
         <h2 className={DocsTypography.h2}>For developers</h2>
-        <p className={DocsTypography.sectionDesc} className="text-muted-foreground">
+        <p className={`${DocsTypography.sectionDesc} text-muted-foreground`}>
           Explore tools and APIs to build on yangu:
         </p>
       </div>

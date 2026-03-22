@@ -48,12 +48,12 @@ export function WhyYanguContent() {
 
   return (
     <div>
-      <p className={DocsTypography.pageKicker} className="text-muted-foreground">
+      <p className={`${DocsTypography.pageKicker} text-muted-foreground`}>
         Overview
       </p>
 
       <h1 className={DocsTypography.h1}>Build your business on yangu</h1>
-      <p className={DocsTypography.subtitle} className="text-muted-foreground">
+      <p className={`${DocsTypography.subtitle} text-muted-foreground`}>
         No code required. Pick the features you need, and we'll set everything up for you.
       </p>
 
