@@ -140,6 +140,7 @@ export function DmThreadView({ targetUserId }: Props) {
     sendMessage.mutate({ receiverId: targetUserId, content: prefix + message.trim() });
     setMessage("");
     setReplyTo(null);
+    stopTyping();
   };
 
   const handleForward = (content: string) => {
