@@ -72,6 +72,10 @@ function fetchBuildMeta(): Promise<number | null> {
 export function startBuildVersionGuard() {
   if (typeof document === "undefined") return;
 
+  // Only activate in production — in dev/preview environments, builds change
+  // frequently and cause unwanted reloads while the user is actively testing.
+  if (import.meta.env.DEV) return;
+
   // Capture the current deployment's timestamp on first load
   fetchBuildMeta().then((ts) => {
     knownBuildTs = ts;
