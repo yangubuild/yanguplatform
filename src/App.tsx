@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/hooks/useAuth";
+import { EmojiProvider } from "@/contexts/EmojiContext";
 import { DomainProvider } from "@/contexts/DomainContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { DomainGate } from "@/components/domain/DomainGate";
