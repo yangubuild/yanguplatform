@@ -350,7 +350,7 @@ export default function EshopConnectPage() {
   const hasAnyProvider = connectedProviders().filter((p) => p !== "estores").length > 0;
 
   return (
-    <div className="flex flex-col h-full min-h-0 overflow-hidden">
+    <div className="flex flex-col h-full min-h-0 overflow-hidden min-h-screen" style={{ background: "#08120D" }}>
       {/* AI Mode Popup */}
       {showPopup && (
         <AiModePopup
