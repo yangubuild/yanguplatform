@@ -38,16 +38,14 @@ export function BlogEssayItem({ essay, titleClamp }: Props) {
         <h4
           className="text-[15px] leading-snug font-medium transition-colors duration-200 group-hover:text-foreground"
           style={{
-            fontFamily: "'Lufga', sans-serif",
-            color: "rgba(255,255,255,0.85)",
-            ...(titleClamp ? clampStyle(titleClamp) : {}),
+            fontFamily: "'Lufga', sans-serif", ...(titleClamp ? clampStyle(titleClamp) : {}),
           }}
         >
           {essay.title}
         </h4>
         <span
           className="text-[11px] mt-1.5 block font-semibold uppercase tracking-wider"
-          style={{ color: "rgba(255,255,255,0.45)", letterSpacing: "0.08em" }}
+          style={{ letterSpacing: "0.08em" }}
         >
           {essay.author}
         </span>

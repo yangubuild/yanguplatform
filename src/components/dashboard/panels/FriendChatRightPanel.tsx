@@ -70,7 +70,7 @@ export function FriendChatRightPanel({ friend }: Props) {
         {messages.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center">
             <p className="text-sm text-foreground mb-1">Start a conversation</p>
-            <p className="text-xs text-center" style={{ color: "rgba(255,255,255,0.4)" }}>
+            <p className="text-xs text-center" className="text-muted-foreground">
               Send a message to {name}
             </p>
           </div>
@@ -85,12 +85,10 @@ export function FriendChatRightPanel({ friend }: Props) {
                     background: isMine ? "rgba(255, 255, 255, 0.12)" : "rgba(255, 255, 255, 0.06)",
                     backdropFilter: "blur(16px)",
                     WebkitBackdropFilter: "blur(16px)",
-                    border: isMine ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(255,255,255,0.07)",
-                    color: "#fff",
-                  }}
+                    border: isMine ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(255,255,255,0.07)", }}
                 >
                   {msg.content}
-                  <p className="text-[9px] mt-1" style={{ color: "rgba(255,255,255,0.3)" }}>
+                  <p className="text-[9px] mt-1" className="text-muted-foreground">
                     {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                   </p>
                 </div>

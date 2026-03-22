@@ -41,9 +41,7 @@ export function StarGlassChip({ className = "" }: StarGlassChipProps) {
         className="relative z-10"
         style={{
           fontSize: "10px",
-          lineHeight: 1,
-          color: "rgba(255,255,255,0.80)",
-        }}
+          lineHeight: 1, }}
       >
         ★
       </span>

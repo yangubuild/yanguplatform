@@ -59,16 +59,16 @@ export function BlogArticleCard({ article, size = "default", fillImage, titleCla
         <div className="mb-1 flex items-center gap-1.5">
           <span
             className="text-[11px] uppercase tracking-wide"
-            style={{ color: "rgba(255,255,255,0.45)", letterSpacing: "0.06em" }}
+            style={{ letterSpacing: "0.06em" }}
           >
             {article.date || article.author}
           </span>
           {article.column && (
             <>
-              <span style={{ color: "rgba(255,255,255,0.25)" }} className="text-[11px]">IN</span>
+              <span className="text-muted-foreground" className="text-[11px]">IN</span>
               <span
                 className="text-[11px] uppercase tracking-wide font-semibold"
-                style={{ color: "rgba(255,255,255,0.65)", letterSpacing: "0.06em" }}
+                style={{ letterSpacing: "0.06em" }}
               >
                 {article.column}
               </span>
@@ -81,9 +81,7 @@ export function BlogArticleCard({ article, size = "default", fillImage, titleCla
           className="font-medium leading-snug transition-colors duration-200 group-hover:text-foreground"
           style={{
             fontFamily: "'Lufga', sans-serif",
-            fontSize: isLarge ? 28 : 18,
-            color: "rgba(255,255,255,0.9)",
-            ...(titleClamp ? clampStyle(titleClamp) : {}),
+            fontSize: isLarge ? 28 : 18, ...(titleClamp ? clampStyle(titleClamp) : {}),
           }}
         >
           {article.title}
@@ -93,9 +91,7 @@ export function BlogArticleCard({ article, size = "default", fillImage, titleCla
         {article.subtitle && (
           <p
             className="mt-1.5 text-sm leading-relaxed"
-            style={{
-              color: "rgba(255,255,255,0.45)",
-              ...(excerptClamp ? clampStyle(excerptClamp) : {}),
+            style={{ ...(excerptClamp ? clampStyle(excerptClamp) : {}),
             }}
           >
             {article.subtitle}
@@ -106,7 +102,7 @@ export function BlogArticleCard({ article, size = "default", fillImage, titleCla
         <div className="flex items-center gap-2 mt-2.5">
           <span
             className="text-[11px] font-semibold uppercase tracking-wider"
-            style={{ color: "rgba(255,255,255,0.55)", letterSpacing: "0.08em" }}
+            style={{ letterSpacing: "0.08em" }}
           >
             {article.author}
           </span>

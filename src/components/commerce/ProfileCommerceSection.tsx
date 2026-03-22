@@ -62,8 +62,8 @@ export default function ProfileCommerceSection({ userId, onMessageSeller }: Prop
   if (!items || items.length === 0) {
     return (
       <div className="py-12 text-center">
-        <Package className="w-8 h-8 mx-auto mb-2" style={{ color: "rgba(255,255,255,0.15)" }} />
-        <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
+        <Package className="w-8 h-8 mx-auto mb-2" className="text-muted-foreground" />
+        <p className="text-sm" className="text-muted-foreground">
           No products or services yet
         </p>
       </div>

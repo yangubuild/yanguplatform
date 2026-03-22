@@ -7,7 +7,7 @@ function CodeBlock({ code }: CodeBlockProps) {
   return (
     <pre
       className="rounded-lg p-4 text-xs leading-relaxed overflow-x-auto mb-4"
-      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.65)" }}
+      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", }}
     >
       <code>{code}</code>
     </pre>
@@ -15,7 +15,7 @@ function CodeBlock({ code }: CodeBlockProps) {
 }
 
 function Paragraph({ children }: { children: React.ReactNode }) {
-  return <p className="text-sm mb-4" style={{ color: "rgba(255,255,255,0.55)" }}>{children}</p>;
+  return <p className="text-sm mb-4" className="text-muted-foreground">{children}</p>;
 }
 
 function Badge({ children }: { children: React.ReactNode }) {

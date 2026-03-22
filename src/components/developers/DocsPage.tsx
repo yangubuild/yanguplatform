@@ -10,11 +10,11 @@ interface DocsPageProps {
 export function DocsPage({ breadcrumb, title, subtitle, children }: DocsPageProps) {
   return (
     <div>
-      <p className="text-sm mb-2" style={{ color: "rgba(255,255,255,0.4)" }}>
+      <p className="text-sm mb-2" className="text-muted-foreground">
         {breadcrumb}
       </p>
       <h1 className="text-3xl font-bold text-foreground mb-3">{title}</h1>
-      <p className="text-base mb-10" style={{ color: "rgba(255,255,255,0.5)" }}>
+      <p className="text-base mb-10" className="text-muted-foreground">
         {subtitle}
       </p>
       {children}
@@ -34,7 +34,7 @@ export function DocsSection({ id, title, description, children }: DocsSectionPro
     <div id={id} className="mb-10">
       <h2 className="text-xl font-semibold text-foreground mb-2">{title}</h2>
       {description && (
-        <p className="text-sm mb-6" style={{ color: "rgba(255,255,255,0.5)" }}>
+        <p className="text-sm mb-6" className="text-muted-foreground">
           {description}
         </p>
       )}
@@ -62,7 +62,7 @@ export function DocsCard({ icon: Icon, title, description, onClick }: DocsCardPr
     >
       <Icon className="w-6 h-6 mb-4" strokeWidth={1.5} style={{ color: "#F46D2A" }} />
       <h3 className="text-foreground font-semibold text-sm mb-2">{title}</h3>
-      <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}>
+      <p className="text-xs leading-relaxed" className="text-muted-foreground">
         {description}
       </p>
     </div>

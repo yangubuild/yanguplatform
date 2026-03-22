@@ -12,12 +12,12 @@ import {
 
 // Social icon placeholders
 const socialIcons = [
-  { name: "X", color: "#fff" },
+  { name: "X", },
   { name: "IG", color: "#E4405F" },
   { name: "DC", color: "#5865F2" },
   { name: "TG", color: "#26A5E4" },
   { name: "YT", color: "#FF0000" },
-  { name: "TK", color: "#fff" },
+  { name: "TK", },
 ];
 
 export default function EditProfilePage() {
@@ -64,7 +64,7 @@ export default function EditProfilePage() {
         <div className="absolute -bottom-10 left-4">
           <div
             className="w-20 h-20 rounded-full border-4 flex items-center justify-center text-xl font-bold"
-            style={{ borderColor: "#1a2025", background: "#2a3038", color: "rgba(255,255,255,0.6)" }}
+            style={{ borderColor: "#1a2025", background: "#2a3038", }}
           >
             {(name || "U").charAt(0).toUpperCase()}
           </div>
@@ -81,7 +81,7 @@ export default function EditProfilePage() {
             className="w-full rounded-xl px-4 py-3 text-sm text-foreground outline-none"
             style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.1)" }}
           />
-          <p className="text-right text-xs mt-1" style={{ color: "rgba(255,255,255,0.35)" }}>{name.length}/100</p>
+          <p className="text-right text-xs mt-1" className="text-muted-foreground">{name.length}/100</p>
         </div>
 
         {/* Username */}
@@ -93,7 +93,7 @@ export default function EditProfilePage() {
             className="w-full rounded-xl px-4 py-3 text-sm text-foreground outline-none"
             style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.1)" }}
           />
-          <p className="text-right text-xs mt-1" style={{ color: "rgba(255,255,255,0.35)" }}>{username.length}/42</p>
+          <p className="text-right text-xs mt-1" className="text-muted-foreground">{username.length}/42</p>
         </div>
 
         {/* Bio */}
@@ -107,7 +107,7 @@ export default function EditProfilePage() {
             className="w-full rounded-xl px-4 py-3 text-sm text-foreground outline-none resize-none"
             style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.1)" }}
           />
-          <p className="text-right text-xs mt-1" style={{ color: "rgba(255,255,255,0.35)" }}>{bio.length}/200</p>
+          <p className="text-right text-xs mt-1" className="text-muted-foreground">{bio.length}/200</p>
         </div>
       </div>
 
@@ -117,7 +117,7 @@ export default function EditProfilePage() {
       {/* More details */}
       <div className="mb-8">
         <h2 className="text-base font-bold text-foreground mb-1">More details</h2>
-        <p className="text-sm mb-5" style={{ color: "rgba(255,255,255,0.45)" }}>
+        <p className="text-sm mb-5" className="text-muted-foreground">
           Choose what appears on your profile and other explore surfaces.
         </p>
 
@@ -135,12 +135,12 @@ export default function EditProfilePage() {
       {/* Social links */}
       <div>
         <h2 className="text-base font-bold text-foreground mb-1">Social links</h2>
-        <p className="text-sm mb-5" style={{ color: "rgba(255,255,255,0.45)" }}>
+        <p className="text-sm mb-5" className="text-muted-foreground">
           Connect your other accounts to let people know where to find you.
         </p>
 
         <div className="flex items-center gap-2">
-          <span className="text-sm mr-1" style={{ color: "rgba(255,255,255,0.5)" }}>Add:</span>
+          <span className="text-sm mr-1" className="text-muted-foreground">Add:</span>
           {socialIcons.map((s) => (
             <button
               key={s.name}
@@ -175,7 +175,7 @@ function ToggleRow({
           className="w-10 h-10 rounded-full flex items-center justify-center"
           style={{ background: "#232a30" }}
         >
-          <Icon className="w-5 h-5" style={{ color: "rgba(255,255,255,0.6)" }} />
+          <Icon className="w-5 h-5" className="text-muted-foreground" />
         </div>
         <span className="text-sm font-medium text-foreground">{label}</span>
       </div>

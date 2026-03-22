@@ -142,7 +142,7 @@ export default function CoverCropModal({
       >
         <DialogHeader className="px-5 pt-5 pb-3">
           <DialogTitle className="text-foreground text-base">Adjust cover image</DialogTitle>
-          <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+          <p className="text-xs" className="text-muted-foreground">
             Drag to reposition. Zoom to adjust framing.
           </p>
         </DialogHeader>
@@ -181,14 +181,14 @@ export default function CoverCropModal({
           />
           {!imageLoaded && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <Loader2 className="w-6 h-6 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
+              <Loader2 className="w-6 h-6 animate-spin" className="text-muted-foreground" />
             </div>
           )}
         </div>
 
         {/* Zoom controls */}
         <div className="flex items-center gap-3 px-5 py-3">
-          <ZoomOut className="w-4 h-4 shrink-0" style={{ color: "rgba(255,255,255,0.4)" }} />
+          <ZoomOut className="w-4 h-4 shrink-0" className="text-muted-foreground" />
           <Slider
             value={[scale]}
             onValueChange={handleScaleChange}
@@ -197,7 +197,7 @@ export default function CoverCropModal({
             step={0.05}
             className="flex-1"
           />
-          <ZoomIn className="w-4 h-4 shrink-0" style={{ color: "rgba(255,255,255,0.4)" }} />
+          <ZoomIn className="w-4 h-4 shrink-0" className="text-muted-foreground" />
         </div>
 
         {/* Actions */}
@@ -209,8 +209,7 @@ export default function CoverCropModal({
             variant="ghost"
             size="sm"
             onClick={handleReset}
-            className="text-xs"
-            style={{ color: "rgba(255,255,255,0.5)" }}
+            className="text-xs" className="text-muted-foreground"
           >
             <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
             Reset
@@ -220,8 +219,7 @@ export default function CoverCropModal({
               variant="ghost"
               size="sm"
               onClick={() => onOpenChange(false)}
-              className="text-xs"
-              style={{ color: "rgba(255,255,255,0.5)" }}
+              className="text-xs" className="text-muted-foreground"
             >
               Cancel
             </Button>
@@ -230,7 +228,7 @@ export default function CoverCropModal({
               onClick={handleSave}
               disabled={saving}
               className="text-xs font-semibold"
-              style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)", color: "#fff" }}
+              style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)", }}
             >
               {saving && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
               Save cover

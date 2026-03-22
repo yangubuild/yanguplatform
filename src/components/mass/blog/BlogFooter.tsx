@@ -4,11 +4,11 @@ export function BlogFooter() {
       <div className="mx-auto flex flex-col md:flex-row items-center justify-between gap-4" style={{ maxWidth: 1100 }}>
         <span
           className="text-sm"
-          style={{ fontFamily: "'Lufga', sans-serif", color: "rgba(255,255,255,0.4)" }}
+          style={{ fontFamily: "'Lufga', sans-serif", }}
         >
           EVERY
         </span>
-        <span className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>
+        <span className="text-xs" className="text-muted-foreground">
           © 2026 Every. All rights reserved.
         </span>
       </div>

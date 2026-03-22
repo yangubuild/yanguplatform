@@ -79,7 +79,7 @@ export function getTrustTier(trustScore: number | null | undefined): TrustTierIn
   if (trustScore >= 40)
     return { tier: "moderate", label: "Trusted", color: "rgb(74,222,128)", bg: "rgba(74,222,128,0.08)" };
   if (trustScore >= 20)
-    return { tier: "emerging", label: "Emerging", color: "rgba(255,255,255,0.45)", bg: "rgba(255,255,255,0.05)" };
+    return { tier: "emerging", label: "Emerging", bg: "rgba(255,255,255,0.05)" };
   return { tier: "low", label: "", color: "", bg: "" }; // hidden — low trust entities get no badge
 }
 

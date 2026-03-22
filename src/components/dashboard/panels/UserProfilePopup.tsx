@@ -71,8 +71,7 @@ export function UserProfilePopup({ user, onClose, onViewProfile, onMessage }: Pr
       >
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 p-1 z-10"
-          style={{ color: "rgba(255,255,255,0.5)" }}
+          className="absolute top-3 right-3 p-1 z-10" className="text-muted-foreground"
         >
           <X className="w-4 h-4" />
         </button>
@@ -92,9 +91,7 @@ export function UserProfilePopup({ user, onClose, onViewProfile, onMessage }: Pr
           <div
             className="w-[72px] h-[72px] rounded-full flex items-center justify-center text-lg font-bold overflow-hidden"
             style={{
-              background: resolvedAvatar ? "transparent" : "rgba(255,255,255,0.1)",
-              color: "rgba(255,255,255,0.7)",
-              border: "3px solid #111a15",
+              background: resolvedAvatar ? "transparent" : "rgba(255,255,255,0.1)", border: "3px solid #111a15",
             }}
           >
             {resolvedAvatar ? (
@@ -106,18 +103,18 @@ export function UserProfilePopup({ user, onClose, onViewProfile, onMessage }: Pr
 
           <h3 className="text-base font-semibold text-foreground mt-2">{name}</h3>
           {user.username && (
-            <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
+            <p className="text-xs mt-0.5" className="text-muted-foreground">
               @{user.username}
             </p>
           )}
           {user.business_name && (
-            <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.35)" }}>
+            <p className="text-xs mt-1" className="text-muted-foreground">
               {user.business_name}
             </p>
           )}
 
           {/* Mini metadata row */}
-          <div className="flex items-center gap-3 mt-2 text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>
+          <div className="flex items-center gap-3 mt-2 text-[10px]" className="text-muted-foreground">
             <span className="flex items-center gap-0.5">
               <MapPin className="w-2.5 h-2.5" /> Location
             </span>
@@ -144,7 +141,7 @@ export function UserProfilePopup({ user, onClose, onViewProfile, onMessage }: Pr
               className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
               style={{ background: "rgba(255,255,255,0.08)" }}
             >
-              <MessageSquare className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.5)" }} />
+              <MessageSquare className="w-3.5 h-3.5" className="text-muted-foreground" />
             </button>
           </div>
 
@@ -153,7 +150,7 @@ export function UserProfilePopup({ user, onClose, onViewProfile, onMessage }: Pr
             <button
               onClick={handleMessage}
               className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-semibold"
-              style={{ background: "rgba(181,98,42,0.9)", color: "#fff" }}
+              style={{ background: "rgba(181,98,42,0.9)", }}
             >
               <MessageSquare className="w-3.5 h-3.5" /> Message
             </button>
@@ -163,9 +160,7 @@ export function UserProfilePopup({ user, onClose, onViewProfile, onMessage }: Pr
                 disabled={toggleFollow.isPending}
                 className="flex-1 py-2 rounded-lg text-sm font-semibold transition-colors"
                 style={{
-                  background: isFollowing ? "rgba(255,255,255,0.08)" : "#22c55e",
-                  color: "#fff",
-                }}
+                  background: isFollowing ? "rgba(255,255,255,0.08)" : "#22c55e", }}
               >
                 {isFollowing ? "Following" : "Follow"}
               </button>
@@ -175,7 +170,7 @@ export function UserProfilePopup({ user, onClose, onViewProfile, onMessage }: Pr
           <button
             onClick={handleViewProfile}
             className="w-full flex items-center justify-center gap-1.5 py-2 mt-2 rounded-lg text-sm font-medium"
-            style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.6)" }}
+            style={{ background: "rgba(255,255,255,0.06)", }}
           >
             <ExternalLink className="w-3.5 h-3.5" /> View Profile
           </button>

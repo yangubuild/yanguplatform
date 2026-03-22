@@ -99,7 +99,7 @@ export default function MessagesPage() {
     activeTab === "chats" && activeGroupId ? (
       loadingActiveGroup ? (
         <div className="flex h-full items-center justify-center">
-          <Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
+          <Loader2 className="w-5 h-5 animate-spin" className="text-muted-foreground" />
         </div>
       ) : activeGroup ? (
         <GroupChatThreadView group={activeGroup as any} onBack={handleCloseThread} />
@@ -123,7 +123,7 @@ export default function MessagesPage() {
             <button
               onClick={() => setShowUsersPanel(!showUsersPanel)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium"
-              style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.6)" }}
+              style={{ background: "rgba(255,255,255,0.06)", }}
             >
               <Users className="w-3.5 h-3.5" />
               People
@@ -131,7 +131,7 @@ export default function MessagesPage() {
             <button
               onClick={() => setShowCreateLauncher(true)}
               className="w-9 h-9 rounded-lg flex items-center justify-center"
-              style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.8)" }}
+              style={{ background: "rgba(255,255,255,0.06)", }}
               aria-label="Create chat"
             >
               <Plus className="w-4 h-4" />
@@ -143,7 +143,7 @@ export default function MessagesPage() {
           <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "#0F141A" }}>
             <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
               <span className="text-sm font-semibold text-foreground">People</span>
-              <button onClick={() => setShowUsersPanel(false)} style={{ color: "rgba(255,255,255,0.5)" }}>
+              <button onClick={() => setShowUsersPanel(false)} className="text-muted-foreground">
                 <X className="w-5 h-5" />
               </button>
             </div>

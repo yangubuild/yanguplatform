@@ -106,8 +106,7 @@ export function DashboardCreditPromo() {
 
             {/* Description */}
             <p
-              className="text-center text-sm mb-8 leading-relaxed max-w-[320px]"
-              style={{ color: "rgba(255,255,255,0.55)" }}
+              className="text-center text-sm mb-8 leading-relaxed max-w-[320px]" className="text-muted-foreground"
             >
               We built a powerful AI agent that can help you run your business or
               create a new one. Try it out.
@@ -119,9 +118,7 @@ export function DashboardCreditPromo() {
               disabled={claiming}
               className="w-full h-12 text-base font-semibold rounded-xl"
               style={{
-                background: "linear-gradient(135deg, #F97316 0%, #FB923C 100%)",
-                color: "#fff",
-                border: "none",
+                background: "linear-gradient(135deg, #F97316 0%, #FB923C 100%)", border: "none",
                 boxShadow: "0 4px 20px rgba(249,115,22,0.3)",
               }}
             >
@@ -170,8 +167,7 @@ export function DashboardCreditPromo() {
 
             {/* Subtext */}
             <p
-              className="text-sm mb-8"
-              style={{ color: "rgba(255,255,255,0.45)" }}
+              className="text-sm mb-8" className="text-muted-foreground"
             >
               New token balance
             </p>
@@ -181,9 +177,7 @@ export function DashboardCreditPromo() {
               onClick={handleContinue}
               className="w-full h-12 text-base font-semibold rounded-xl"
               style={{
-                background: "linear-gradient(135deg, #F97316 0%, #FB923C 100%)",
-                color: "#fff",
-                border: "none",
+                background: "linear-gradient(135deg, #F97316 0%, #FB923C 100%)", border: "none",
                 boxShadow: "0 4px 20px rgba(249,115,22,0.3)",
               }}
             >

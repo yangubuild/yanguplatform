@@ -31,8 +31,8 @@ export function MessagesCenterPanel({ activeTab, onTabChange, onSelectDm, onSele
             className="relative text-sm font-medium pb-3 pt-3 transition-colors"
             style={
               activeTab === t.key
-                ? { color: "#fff" }
-                : { color: "rgba(255,255,255,0.45)" }
+                ? { }
+                : { }
             }
           >
             {t.label}

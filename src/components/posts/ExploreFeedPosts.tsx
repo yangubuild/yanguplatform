@@ -20,7 +20,7 @@ export function ExploreFeedPosts() {
       <div className="mt-8">
         <h2 className="text-base font-bold text-foreground mb-4">Recent Posts</h2>
         <div className="flex items-center justify-center py-8">
-          <Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
+          <Loader2 className="w-5 h-5 animate-spin" className="text-muted-foreground" />
         </div>
       </div>
     );

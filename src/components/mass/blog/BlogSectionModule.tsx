@@ -47,18 +47,17 @@ export function BlogSectionModule({ title, subtitle, children, dashedBorder }: P
         <div className="flex items-center justify-between mb-2">
           <h2
             className="text-xs font-semibold uppercase tracking-widest"
-            style={{ color: "rgba(255,255,255,0.55)", letterSpacing: "0.15em" }}
+            style={{ letterSpacing: "0.15em" }}
           >
             {title}
           </h2>
           <ArrowRight
-            className="w-4 h-4 transition-transform duration-200 hover:translate-x-0.5 cursor-pointer"
-            style={{ color: "rgba(255,255,255,0.35)" }}
+            className="w-4 h-4 transition-transform duration-200 hover:translate-x-0.5 cursor-pointer" className="text-muted-foreground"
           />
         </div>
 
         {subtitle && (
-          <p className="text-sm mb-8" style={{ color: "rgba(255,255,255,0.45)" }}>
+          <p className="text-sm mb-8" className="text-muted-foreground">
             {subtitle}
           </p>
         )}

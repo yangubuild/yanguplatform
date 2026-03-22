@@ -30,22 +30,22 @@ export function EmailPreview({ form }: Props) {
       <div className="w-full max-w-md rounded-xl overflow-hidden" style={{ background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.08)" }}>
         <div className="px-6 pt-6 pb-4">
           <p className="text-3xl font-bold text-foreground">{formatted}</p>
-          <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.45)" }}>Due {dueDate()}</p>
+          <p className="text-sm mt-1" className="text-muted-foreground">Due {dueDate()}</p>
         </div>
 
         <div className="px-6 pb-3">
-          <button className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.6)" }}>
+          <button className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", }}>
             ↓ Download invoice
           </button>
         </div>
 
         <div className="px-6 py-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-          <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Invoice number</p>
+          <p className="text-xs" className="text-muted-foreground">Invoice number</p>
           <p className="text-sm text-foreground font-medium">#00000001</p>
         </div>
 
         <div className="px-6 py-3">
-          <button className="w-full py-3 rounded-lg text-sm font-medium" style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.3)" }}>
+          <button className="w-full py-3 rounded-lg text-sm font-medium" style={{ background: "rgba(255,255,255,0.08)", }}>
             Pay now
           </button>
         </div>
@@ -54,7 +54,7 @@ export function EmailPreview({ form }: Props) {
       {/* Line items */}
       <div className="w-full max-w-md rounded-xl overflow-hidden" style={{ background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.08)" }}>
         <div className="px-6 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-          <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{today()}</p>
+          <p className="text-xs" className="text-muted-foreground">{today()}</p>
         </div>
         <div className="px-6 py-3 flex items-center justify-between">
           <span className="text-sm text-foreground">{form.product}</span>
@@ -67,7 +67,7 @@ export function EmailPreview({ form }: Props) {
       </div>
 
       {/* Support */}
-      <p className="text-xs max-w-md text-center" style={{ color: "rgba(255,255,255,0.35)" }}>
+      <p className="text-xs max-w-md text-center" className="text-muted-foreground">
         If you need any help, please reach out to support <span className="underline cursor-pointer" style={{ color: "#60a5fa" }}>here</span>.
       </p>
     </div>

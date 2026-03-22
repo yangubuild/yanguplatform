@@ -115,7 +115,7 @@ export default function BuilderDocsPage() {
 
       {doc.sections.map((s) => (
         <DocsSection key={s.heading} id={s.heading.toLowerCase().replace(/\s+/g, "-")} title={s.heading}>
-          <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.6)" }}>
+          <p className="text-sm leading-relaxed" className="text-muted-foreground">
             {s.body}
           </p>
         </DocsSection>

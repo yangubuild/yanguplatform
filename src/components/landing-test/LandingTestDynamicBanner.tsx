@@ -64,7 +64,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
               >
                 {data.headline ?? "yangu for enterprise"}
               </h2>
-              <p className={`${T.subheader} mb-8`} style={{ color: "rgba(255,255,255,0.45)", maxWidth: "340px" }}>
+              <p className={`${T.subheader} mb-8`} style={{ maxWidth: "340px" }}>
                 {data.subheadline ?? "yangu isn't just for the best solo entrepreneurs, it's also effective for enterprises."}
               </p>
               <button
@@ -156,7 +156,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
               <div className="max-w-md">
                 <h2 className={`${T.header} text-foreground mb-3`}>{data.headline}</h2>
                 {data.subheadline && (
-                  <p className={`${T.subheader} mb-6`} style={{ color: "rgba(255,255,255,0.7)" }}>
+                  <p className={`${T.subheader} mb-6`} className="text-muted-foreground">
                     {data.subheadline}
                   </p>
                 )}
@@ -191,7 +191,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
             <h2 className={`${T.header} text-foreground mb-3`}>
               {data.headline ?? "Meet yangu Treasury"}
             </h2>
-            <p className={`${T.subheader} mb-6`} style={{ color: "rgba(255,255,255,0.45)" }}>
+            <p className={`${T.subheader} mb-6`} className="text-muted-foreground">
               {data.subheadline ?? "Earn up to 6% yield on your cash."}
             </p>
             <Button variant="accent" size="default">

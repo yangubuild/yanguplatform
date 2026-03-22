@@ -46,12 +46,12 @@ export function PostCard({ post, toggleReaction, onAuthorClick, compact }: PostC
         <div className="flex-1 min-w-0">
           <p className="text-xs font-semibold text-foreground truncate">{post.author_name}</p>
           {post.author_username && (
-            <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>
+            <p className="text-[10px]" className="text-muted-foreground">
               @{post.author_username}
             </p>
           )}
         </div>
-        <span className="text-[10px] shrink-0" style={{ color: "rgba(255,255,255,0.3)" }}>
+        <span className="text-[10px] shrink-0" className="text-muted-foreground">
           {formatRelativeTime(post.created_at)}
         </span>
       </div>

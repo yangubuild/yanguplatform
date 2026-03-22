@@ -60,19 +60,13 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
 
   const inputStyle: React.CSSProperties = {
     background: "rgba(255,255,255,0.06)",
-    border: "1px solid rgba(255,255,255,0.1)",
-    color: "white",
-  };
+    border: "1px solid rgba(255,255,255,0.1)", };
 
-  const labelStyle: React.CSSProperties = {
-    color: "rgba(255,255,255,0.85)",
-    fontWeight: 600,
+  const labelStyle: React.CSSProperties = { fontWeight: 600,
     fontSize: "14px",
   };
 
-  const mutedStyle: React.CSSProperties = {
-    color: "rgba(255,255,255,0.4)",
-  };
+  const mutedStyle: React.CSSProperties = { };
 
   return (
     <div
@@ -128,7 +122,7 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
 
           {/* Payment collection */}
           <Section label="Payment collection">
-            <p className="text-xs font-medium mb-2" style={{ color: "rgba(255,255,255,0.6)" }}>
+            <p className="text-xs font-medium mb-2" className="text-muted-foreground">
               Due date
             </p>
             <div
@@ -200,8 +194,7 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
                 <div className="flex items-center gap-1 pr-1">
                   <span className="text-muted-foreground text-sm">/</span>
                   <div
-                    className="flex items-center gap-1 px-2 py-1 rounded text-sm cursor-pointer"
-                    style={{ color: "white" }}
+                    className="flex items-center gap-1 px-2 py-1 rounded text-sm cursor-pointer" className="text-foreground"
                   >
                     {form.recurringCadence}
                     <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
@@ -227,9 +220,7 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
                 className="px-3 py-1 rounded-md text-xs font-medium"
                 style={{
                   background: "rgba(255,255,255,0.06)",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  color: "rgba(255,255,255,0.7)",
-                }}
+                  border: "1px solid rgba(255,255,255,0.1)", }}
               >
                 ${c}
               </button>

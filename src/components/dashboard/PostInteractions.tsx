@@ -206,7 +206,7 @@ export function PostInteractions({ post, toggleReaction }: PostInteractionsProps
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline gap-1.5">
                       <span className="text-[10px] font-semibold text-foreground">{c.author_name}</span>
-                      {c.author_username && <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.3)" }}>@{c.author_username}</span>}
+                      {c.author_username && <span className="text-[9px]" className="text-muted-foreground">@{c.author_username}</span>}
                     </div>
                     <CommentContent content={c.content} />
                   </div>
@@ -240,11 +240,11 @@ export function PostInteractions({ post, toggleReaction }: PostInteractionsProps
             </div>
             <div className="flex items-center gap-0.5 mt-1.5">
               <input ref={commentImageRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => { handleCommentMedia(e.target.files); e.target.value = ""; }} />
-              <button onClick={() => commentImageRef.current?.click()} className="p-1.5 rounded hover:bg-white/5 min-w-[32px] min-h-[32px] flex items-center justify-center" style={{ color: "rgba(255,255,255,0.35)" }} title="Image"><ImagePlus className="w-3.5 h-3.5" /></button>
+              <button onClick={() => commentImageRef.current?.click()} className="p-1.5 rounded hover:bg-white/5 min-w-[32px] min-h-[32px] flex items-center justify-center" className="text-muted-foreground" title="Image"><ImagePlus className="w-3.5 h-3.5" /></button>
               <input ref={commentVideoRef} type="file" accept="video/mp4,video/webm" className="hidden" onChange={(e) => { handleCommentMedia(e.target.files); e.target.value = ""; }} />
-              <button onClick={() => commentVideoRef.current?.click()} className="p-1.5 rounded hover:bg-white/5 min-w-[32px] min-h-[32px] flex items-center justify-center" style={{ color: "rgba(255,255,255,0.35)" }} title="Video"><Video className="w-3.5 h-3.5" /></button>
-              <button className="p-1.5 rounded hover:bg-white/5 min-w-[32px] min-h-[32px] flex items-center justify-center" style={{ color: "rgba(255,255,255,0.35)" }} title="Emoji"><Smile className="w-3.5 h-3.5" /></button>
-              <button className="p-1.5 rounded hover:bg-white/5 min-w-[32px] min-h-[32px] flex items-center justify-center" style={{ color: "rgba(255,255,255,0.25)" }} title="AI"><Sparkles className="w-3.5 h-3.5" /></button>
+              <button onClick={() => commentVideoRef.current?.click()} className="p-1.5 rounded hover:bg-white/5 min-w-[32px] min-h-[32px] flex items-center justify-center" className="text-muted-foreground" title="Video"><Video className="w-3.5 h-3.5" /></button>
+              <button className="p-1.5 rounded hover:bg-white/5 min-w-[32px] min-h-[32px] flex items-center justify-center" className="text-muted-foreground" title="Emoji"><Smile className="w-3.5 h-3.5" /></button>
+              <button className="p-1.5 rounded hover:bg-white/5 min-w-[32px] min-h-[32px] flex items-center justify-center" className="text-muted-foreground" title="AI"><Sparkles className="w-3.5 h-3.5" /></button>
               <div className="flex-1" />
               <button
                 onClick={handleComment}
@@ -367,7 +367,7 @@ function SharePanel({ postId, postContent, onClose }: { postId: string; postCont
             </div>
             <div className="flex-1 min-w-0 text-left">
               <p className="text-[10px] font-medium text-foreground truncate">{u.name}</p>
-              {u.username && <p className="text-[9px]" style={{ color: "rgba(255,255,255,0.35)" }}>@{u.username}</p>}
+              {u.username && <p className="text-[9px]" className="text-muted-foreground">@{u.username}</p>}
             </div>
             {sending === u.id ? <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" /> : <Send className="w-3 h-3 text-muted-foreground" />}
           </button>
@@ -394,7 +394,7 @@ function ReactionPopover({ users }: { users: { id: string; name: string; usernam
           </div>
           <div className="min-w-0">
             <p className="text-[10px] font-medium text-foreground truncate">{u.name}</p>
-            {u.username && <p className="text-[9px]" style={{ color: "rgba(255,255,255,0.35)" }}>@{u.username}</p>}
+            {u.username && <p className="text-[9px]" className="text-muted-foreground">@{u.username}</p>}
           </div>
         </div>
       ))}

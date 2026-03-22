@@ -42,9 +42,7 @@ export function BlogInterstitialBanner() {
             className="text-center leading-tight"
             style={{
               fontFamily: "'Georgia', 'Times New Roman', serif",
-              fontSize: "clamp(26px, 4vw, 42px)",
-              color: "#fff",
-              fontWeight: 400,
+              fontSize: "clamp(26px, 4vw, 42px)", fontWeight: 400,
             }}
           >
             Ideas and <span style={{ fontStyle: "italic" }}>A</span>pps to Thrive in the AI Age

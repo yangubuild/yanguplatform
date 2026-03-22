@@ -34,9 +34,7 @@ export function AudienceToggle({ value, onChange }: AudienceToggleProps) {
         className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
         style={{
           background: "rgba(255,255,255,0.06)",
-          border: "1px solid rgba(255,255,255,0.12)",
-          color: "rgba(255,255,255,0.7)",
-        }}
+          border: "1px solid rgba(255,255,255,0.12)", }}
       >
         {current.label}
         <ChevronUp

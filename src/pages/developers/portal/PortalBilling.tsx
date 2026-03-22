@@ -4,7 +4,7 @@ import { CreditCard, Sparkles, CheckCircle2, Clock, AlertTriangle, Webhook, Zap,
 const STATUS_STYLES = {
   live: { bg: "rgba(34,197,94,0.10)", border: "rgba(34,197,94,0.25)", color: "#22c55e", label: "Live" },
   partial: { bg: "rgba(250,204,21,0.10)", border: "rgba(250,204,21,0.25)", color: "#facc15", label: "Partial" },
-  planned: { bg: "rgba(255,255,255,0.05)", border: "rgba(255,255,255,0.10)", color: "rgba(255,255,255,0.4)", label: "Planned" },
+  planned: { bg: "rgba(255,255,255,0.05)", border: "rgba(255,255,255,0.10)", label: "Planned" },
 } as const;
 
 function StatusBadge({ status }: { status: keyof typeof STATUS_STYLES }) {
@@ -139,7 +139,7 @@ export default function PortalBilling() {
               <code
                 key={t}
                 className="text-xs px-2 py-1.5 rounded"
-                style={{ background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.6)" }}
+                style={{ background: "rgba(255,255,255,0.05)", }}
               >
                 {t}
               </code>

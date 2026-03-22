@@ -46,7 +46,7 @@ export function BuilderSetupDrawer({ open, onOpenChange, selectedKeys }: Builder
       >
         <SheetHeader className="mb-6">
           <SheetTitle className="text-foreground text-xl">Your yangu setup</SheetTitle>
-          <SheetDescription style={{ color: "rgba(255,255,255,0.5)" }}>
+          <SheetDescription className="text-muted-foreground">
             You'll finish setup inside your yangu account.
           </SheetDescription>
         </SheetHeader>
@@ -69,7 +69,7 @@ export function BuilderSetupDrawer({ open, onOpenChange, selectedKeys }: Builder
               </div>
               <div>
                 <p className="text-foreground text-sm font-medium">{f.title}</p>
-                <p className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
+                <p className="text-xs" className="text-muted-foreground">
                   {f.description}
                 </p>
               </div>

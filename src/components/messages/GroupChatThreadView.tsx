@@ -169,15 +169,15 @@ export function GroupChatThreadView({ group, onBack }: Props) {
         />
         <div className="flex-1 min-w-0">
           <span className="text-sm font-semibold text-foreground truncate block">{group.name}</span>
-          <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>
+          <span className="text-[10px]" className="text-muted-foreground">
             {members.length} member{members.length !== 1 ? "s" : ""}
           </span>
         </div>
-        <button onClick={() => setShowMembers(!showMembers)} className="p-2 rounded-lg hover:opacity-80 min-w-[36px] min-h-[36px] flex items-center justify-center" style={{ color: "rgba(255,255,255,0.4)" }}>
+        <button onClick={() => setShowMembers(!showMembers)} className="p-2 rounded-lg hover:opacity-80 min-w-[36px] min-h-[36px] flex items-center justify-center" className="text-muted-foreground">
           <Users className="w-4 h-4" />
         </button>
         <div className="relative">
-          <button onClick={() => setShowGroupMenu(!showGroupMenu)} className="p-2 rounded-lg hover:opacity-80 min-w-[36px] min-h-[36px] flex items-center justify-center" style={{ color: "rgba(255,255,255,0.4)" }}>
+          <button onClick={() => setShowGroupMenu(!showGroupMenu)} className="p-2 rounded-lg hover:opacity-80 min-w-[36px] min-h-[36px] flex items-center justify-center" className="text-muted-foreground">
             <MoreVertical className="w-4 h-4" />
           </button>
           {showGroupMenu && (
@@ -203,7 +203,7 @@ export function GroupChatThreadView({ group, onBack }: Props) {
                 {m.avatar ? <img src={m.avatar} alt="" className="w-7 h-7 rounded-full object-cover" /> : (m.display_name?.slice(0, 2).toUpperCase() || "?")}
               </div>
               <span className="text-xs text-foreground flex-1 truncate">{m.display_name}</span>
-              <span className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.4)" }}>{m.role}</span>
+              <span className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)", }}>{m.role}</span>
               {isAdmin && m.user_id !== user?.id && (
                 <button onClick={() => handleRemoveMember(m.user_id)} className="text-[10px] px-2 py-1 rounded hover:opacity-80 min-h-[28px]" style={{ color: "#ef4444" }}>Remove</button>
               )}
@@ -234,11 +234,11 @@ export function GroupChatThreadView({ group, onBack }: Props) {
       {/* Reply indicator */}
       {replyTo && (
         <div className="px-4 py-2 flex items-center gap-2" style={{ background: "rgba(255,255,255,0.03)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-          <Reply className="w-3.5 h-3.5 shrink-0" style={{ color: "rgba(255,255,255,0.4)" }} />
-          <span className="text-xs truncate flex-1" style={{ color: "rgba(255,255,255,0.5)" }}>
+          <Reply className="w-3.5 h-3.5 shrink-0" className="text-muted-foreground" />
+          <span className="text-xs truncate flex-1" className="text-muted-foreground">
             Replying to: {replyTo.content.slice(0, 60)}
           </span>
-          <button onClick={() => setReplyTo(null)} className="min-w-[28px] min-h-[28px] flex items-center justify-center"><X className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.4)" }} /></button>
+          <button onClick={() => setReplyTo(null)} className="min-w-[28px] min-h-[28px] flex items-center justify-center"><X className="w-3.5 h-3.5" className="text-muted-foreground" /></button>
         </div>
       )}
 
@@ -246,7 +246,7 @@ export function GroupChatThreadView({ group, onBack }: Props) {
       <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-2">
         {isLoading ? (
           <div className="flex-1 flex items-center justify-center">
-            <Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
+            <Loader2 className="w-5 h-5 animate-spin" className="text-muted-foreground" />
           </div>
         ) : messages.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-2">
@@ -254,7 +254,7 @@ export function GroupChatThreadView({ group, onBack }: Props) {
               <Users className="w-5 h-5" style={{ color: "rgba(168,85,247,0.7)" }} />
             </div>
             <p className="text-sm font-medium text-foreground">No messages yet</p>
-            <p className="text-xs text-center max-w-[200px]" style={{ color: "rgba(255,255,255,0.4)" }}>
+            <p className="text-xs text-center max-w-[200px]" className="text-muted-foreground">
               Start the conversation in {group.name}
             </p>
           </div>
@@ -272,15 +272,15 @@ export function GroupChatThreadView({ group, onBack }: Props) {
                   {!isMine && (
                     <p className="text-[10px] mb-0.5 font-medium" style={{ color: "rgba(96,165,250,0.8)" }}>{msg.author_name}</p>
                   )}
-                  <div className="px-3 py-2 rounded-xl text-sm" style={{ background: isMine ? "rgba(255, 255, 255, 0.12)" : "rgba(255, 255, 255, 0.06)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: isMine ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(255,255,255,0.07)", color: "#fff" }}>
+                  <div className="px-3 py-2 rounded-xl text-sm" style={{ background: isMine ? "rgba(255, 255, 255, 0.12)" : "rgba(255, 255, 255, 0.06)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: isMine ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(255,255,255,0.07)", }}>
                     {renderContent(msg.content)}
-                    <p className="text-[9px] mt-1" style={{ color: "rgba(255,255,255,0.3)" }}>
+                    <p className="text-[9px] mt-1" className="text-muted-foreground">
                       {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                     </p>
                   </div>
                   <div className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button onClick={() => setMsgMenuId(msgMenuId === msg.id ? null : msg.id)} className="p-1 rounded" style={{ background: "rgba(0,0,0,0.5)" }}>
-                      <MoreVertical className="w-3 h-3" style={{ color: "rgba(255,255,255,0.6)" }} />
+                      <MoreVertical className="w-3 h-3" className="text-muted-foreground" />
                     </button>
                   </div>
                   {msgMenuId === msg.id && (
@@ -331,10 +331,10 @@ export function GroupChatThreadView({ group, onBack }: Props) {
       {myMembership ? (
         <div className="shrink-0 px-3 py-2.5" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
           <div className="flex items-center gap-1.5 rounded-xl px-3 py-2.5" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
-            <button onClick={() => fileInputRef.current?.click()} className="p-1.5 rounded hover:opacity-80 shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center" style={{ color: "rgba(255,255,255,0.4)" }}>
+            <button onClick={() => fileInputRef.current?.click()} className="p-1.5 rounded hover:opacity-80 shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center" className="text-muted-foreground">
               <Image className="w-4 h-4" />
             </button>
-            <button onClick={() => videoInputRef.current?.click()} className="p-1.5 rounded hover:opacity-80 shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center" style={{ color: "rgba(255,255,255,0.4)" }}>
+            <button onClick={() => videoInputRef.current?.click()} className="p-1.5 rounded hover:opacity-80 shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center" className="text-muted-foreground">
               <Video className="w-4 h-4" />
             </button>
             <button onClick={() => setShowEmojiPicker((prev) => !prev)} className="p-1.5 rounded hover:opacity-80 shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center" style={{ color: showEmojiPicker ? "#facc15" : "rgba(255,255,255,0.4)" }}>
@@ -355,7 +355,7 @@ export function GroupChatThreadView({ group, onBack }: Props) {
         </div>
       ) : (
         <div className="shrink-0 px-4 py-4 text-center" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-          <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>You are not a member of this group</p>
+          <p className="text-xs" className="text-muted-foreground">You are not a member of this group</p>
         </div>
       )}
     </div>

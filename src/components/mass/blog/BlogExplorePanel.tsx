@@ -47,11 +47,11 @@ export function BlogExplorePanel() {
           >
             <span
               className="text-xs font-semibold uppercase tracking-widest"
-              style={{ color: "rgba(255,255,255,0.45)", letterSpacing: "0.14em" }}
+              style={{ letterSpacing: "0.14em" }}
             >
               Explore the Every Universe
             </span>
-            <ChevronDown className="w-4 h-4" style={{ color: "rgba(255,255,255,0.4)" }} />
+            <ChevronDown className="w-4 h-4" className="text-muted-foreground" />
           </button>
 
           {/* Items */}
@@ -89,9 +89,7 @@ export function BlogExplorePanel() {
             <button
               className="w-full py-3.5 text-[14px] font-medium flex items-center justify-center gap-2 transition-all hover:brightness-110"
               style={{
-                background: "transparent",
-                color: "rgba(255,255,255,0.7)",
-                border: "1px solid rgba(255,255,255,0.15)",
+                background: "transparent", border: "1px solid rgba(255,255,255,0.15)",
                 borderRadius: 8,
               }}
             >
@@ -107,9 +105,7 @@ export function BlogExplorePanel() {
           onClick={() => setOpen(true)}
           className="flex items-center gap-2 px-5 py-3 text-xs font-medium uppercase tracking-wider transition-all hover:brightness-110"
           style={{
-            background: "linear-gradient(180deg, #0f1f17 0%, #0a1710 100%)",
-            color: "rgba(255,255,255,0.6)",
-            border: "1px solid rgba(255,255,255,0.08)",
+            background: "linear-gradient(180deg, #0f1f17 0%, #0a1710 100%)", border: "1px solid rgba(255,255,255,0.08)",
             borderRadius: 6,
             letterSpacing: "0.1em",
           }}

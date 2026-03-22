@@ -124,13 +124,13 @@ export function StaffPanel() {
       <div className="flex-1 overflow-y-auto px-3 py-2 space-y-1">
         {isLoading ? (
           <div className="flex items-center justify-center py-10">
-            <Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
+            <Loader2 className="w-5 h-5 animate-spin" className="text-muted-foreground" />
           </div>
         ) : members.length === 0 && invites.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10">
-            <UserCog className="w-8 h-8 mb-2" style={{ color: "rgba(255,255,255,0.2)" }} />
+            <UserCog className="w-8 h-8 mb-2" className="text-muted-foreground" />
             <p className="text-sm text-foreground mb-1">No team members yet</p>
-            <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+            <p className="text-xs" className="text-muted-foreground">
               Add team members to help manage your business.
             </p>
           </div>
@@ -148,7 +148,7 @@ export function StaffPanel() {
                 >
                   <div
                     className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
-                    style={{ background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)" }}
+                    style={{ background: "rgba(255,255,255,0.1)", }}
                   >
                     {avatarUrl ? (
                       <img src={avatarUrl} alt={name} className="w-10 h-10 rounded-full object-cover" />
@@ -158,15 +158,14 @@ export function StaffPanel() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground truncate">{name}</p>
-                    <p className="text-xs truncate capitalize" style={{ color: "rgba(255,255,255,0.35)" }}>
+                    <p className="text-xs truncate capitalize" className="text-muted-foreground">
                       {member.role}
                     </p>
                   </div>
                   {!isOwner && (
                     <button
                       onClick={() => handleRemoveMember(member)}
-                      className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg transition-opacity"
-                      style={{ color: "rgba(255,255,255,0.3)" }}
+                      className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg transition-opacity" className="text-muted-foreground"
                       title="Remove member"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -180,7 +179,7 @@ export function StaffPanel() {
             {invites.length > 0 && (
               <>
                 <div className="pt-2 pb-1 px-2">
-                  <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.25)" }}>
+                  <p className="text-xs font-semibold uppercase tracking-wider" className="text-muted-foreground">
                     Pending Invites
                   </p>
                 </div>
@@ -194,13 +193,13 @@ export function StaffPanel() {
                       className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
                       style={{ background: "rgba(255,255,255,0.06)" }}
                     >
-                      <Mail className="w-4 h-4" style={{ color: "rgba(255,255,255,0.3)" }} />
+                      <Mail className="w-4 h-4" className="text-muted-foreground" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">{inv.email}</p>
                       <div className="flex items-center gap-1.5">
-                        <Clock className="w-3 h-3" style={{ color: "rgba(255,255,255,0.25)" }} />
-                        <p className="text-xs capitalize" style={{ color: "rgba(255,255,255,0.35)" }}>
+                        <Clock className="w-3 h-3" className="text-muted-foreground" />
+                        <p className="text-xs capitalize" className="text-muted-foreground">
                           {inv.role} · pending
                         </p>
                       </div>

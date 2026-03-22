@@ -20,7 +20,7 @@ export function DashboardRoleGate({ children, requiredRole }: DashboardRoleGateP
   if (authLoading || rolesLoading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-8 w-8 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
+        <Loader2 className="h-8 w-8 animate-spin" className="text-muted-foreground" />
       </div>
     );
   }

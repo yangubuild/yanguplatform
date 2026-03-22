@@ -24,7 +24,7 @@ export function ReviewForm({ entityId, onSuccess }: ReviewFormProps) {
   if (!user) {
     return (
       <div className="rounded-xl p-4 text-center" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-        <p className="text-sm mb-2" style={{ color: "rgba(255,255,255,0.5)" }}>Sign in to write a review</p>
+        <p className="text-sm mb-2" className="text-muted-foreground">Sign in to write a review</p>
         <button onClick={() => navigate("/auth/login")} className="text-xs px-4 py-1.5 rounded-lg font-medium" style={{ background: "rgba(181,98,42,0.2)", color: "#b5622a" }}>
           Sign in
         </button>
@@ -91,7 +91,7 @@ export function ReviewForm({ entityId, onSuccess }: ReviewFormProps) {
         style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
       />
       <div className="flex justify-end">
-        <button onClick={handleSubmit} disabled={submitting} className="text-xs px-4 py-2 rounded-lg font-medium disabled:opacity-50" style={{ background: "linear-gradient(135deg, #c47a3a, #b5622a)", color: "#fff" }}>
+        <button onClick={handleSubmit} disabled={submitting} className="text-xs px-4 py-2 rounded-lg font-medium disabled:opacity-50" style={{ background: "linear-gradient(135deg, #c47a3a, #b5622a)", }}>
           {submitting ? "Submitting..." : "Submit Review"}
         </button>
       </div>

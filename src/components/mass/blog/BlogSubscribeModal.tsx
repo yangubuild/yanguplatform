@@ -135,7 +135,7 @@ export function BlogSubscribeModal() {
           />
           <button
             className="w-full rounded-lg py-2.5 text-sm font-medium transition-all hover:brightness-95"
-            style={{ background: "#111", color: "#fff" }}
+            style={{ background: "#111", }}
           >
             Unlock the Every universe
           </button>

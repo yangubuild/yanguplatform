@@ -381,7 +381,7 @@ export default function ProfilePage() {
           className="w-24 h-24 rounded-full flex items-center justify-center text-2xl font-bold overflow-hidden group relative"
           style={avatarSrc
             ? { background: "transparent" }
-            : { borderWidth: 4, borderStyle: "solid", borderColor: "#1a2025", background: "#2a3038", color: "rgba(255,255,255,0.6)" }
+            : { borderWidth: 4, borderStyle: "solid", borderColor: "#1a2025", background: "#2a3038", }
           }
           title="Change avatar"
         >
@@ -404,8 +404,7 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={() => setEditing(false)}
-              className="flex items-center gap-2 text-sm font-medium"
-              style={{ color: "rgba(255,255,255,0.7)" }}
+              className="flex items-center gap-2 text-sm font-medium" className="text-muted-foreground"
             >
               <ArrowLeft className="w-4 h-4" /> Back to profile
             </button>
@@ -413,7 +412,7 @@ export default function ProfilePage() {
               onClick={handleSave}
               disabled={saving}
               className="px-5 py-2 rounded-xl text-sm font-semibold transition-opacity"
-              style={{ background: "rgba(255,255,255,0.12)", color: "#fff" }}
+              style={{ background: "rgba(255,255,255,0.12)", }}
             >
               {saving ? "Saving..." : "Save changes"}
             </button>
@@ -431,7 +430,7 @@ export default function ProfilePage() {
                 className="w-full rounded-xl px-4 py-3 text-sm text-foreground outline-none"
                 style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.1)" }}
               />
-              <p className="text-right text-xs mt-1" style={{ color: "rgba(255,255,255,0.35)" }}>{name.length}/100</p>
+              <p className="text-right text-xs mt-1" className="text-muted-foreground">{name.length}/100</p>
             </div>
 
             {/* Username */}
@@ -443,7 +442,7 @@ export default function ProfilePage() {
                 className="w-full rounded-xl px-4 py-3 text-sm text-foreground outline-none"
                 style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.1)" }}
               />
-              <p className="text-right text-xs mt-1" style={{ color: "rgba(255,255,255,0.35)" }}>{username.length}/42</p>
+              <p className="text-right text-xs mt-1" className="text-muted-foreground">{username.length}/42</p>
             </div>
 
             {/* Bio */}
@@ -457,7 +456,7 @@ export default function ProfilePage() {
                 className="w-full rounded-xl px-4 py-3 text-sm text-foreground outline-none resize-none"
                 style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.1)" }}
               />
-              <p className="text-right text-xs mt-1" style={{ color: "rgba(255,255,255,0.35)" }}>{bio.length}/200</p>
+              <p className="text-right text-xs mt-1" className="text-muted-foreground">{bio.length}/200</p>
             </div>
           </div>
 
@@ -466,7 +465,7 @@ export default function ProfilePage() {
           {/* Social links section */}
           <div className="mb-8">
             <h2 className="text-base font-bold text-foreground mb-1">Social links</h2>
-            <p className="text-sm mb-5" style={{ color: "rgba(255,255,255,0.45)" }}>
+            <p className="text-sm mb-5" className="text-muted-foreground">
               Tap an icon to add your link. Only linked socials appear on your profile.
             </p>
 
@@ -505,7 +504,7 @@ export default function ProfilePage() {
                 style={{ border: "1px dashed rgba(255,255,255,0.2)" }}
                 title="More socials"
               >
-                <Plus className="w-5 h-5" style={{ color: "rgba(255,255,255,0.5)" }} />
+                <Plus className="w-5 h-5" className="text-muted-foreground" />
               </button>
             </div>
 
@@ -541,7 +540,7 @@ export default function ProfilePage() {
                       }}
                       className="shrink-0"
                     >
-                      <X className="w-4 h-4" style={{ color: "rgba(255,255,255,0.4)" }} />
+                      <X className="w-4 h-4" className="text-muted-foreground" />
                     </button>
                   )}
                 </div>
@@ -554,7 +553,7 @@ export default function ProfilePage() {
           {/* More details */}
           <div className="mb-8">
             <h2 className="text-base font-bold text-foreground mb-1">More details</h2>
-            <p className="text-sm mb-5" style={{ color: "rgba(255,255,255,0.45)" }}>
+            <p className="text-sm mb-5" className="text-muted-foreground">
               Choose what appears on your profile and other discovery surfaces.
             </p>
             <div className="space-y-4">
@@ -591,7 +590,7 @@ export default function ProfilePage() {
                         <div className="flex-1">
                           <p className="text-sm font-medium text-foreground">{s.name}</p>
                           {hasLink && (
-                            <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.4)" }}>
+                            <p className="text-xs truncate" className="text-muted-foreground">
                               {socialLinks[s.id]}
                             </p>
                           )}
@@ -599,7 +598,7 @@ export default function ProfilePage() {
                         {hasLink ? (
                           <div className="w-3 h-3 rounded-full bg-green-500" />
                         ) : (
-                          <Plus className="w-4 h-4" style={{ color: "rgba(255,255,255,0.35)" }} />
+                          <Plus className="w-4 h-4" className="text-muted-foreground" />
                         )}
                       </div>
                     </div>
@@ -614,9 +613,9 @@ export default function ProfilePage() {
           {/* === VIEW MODE === */}
           <div className="px-1">
             <h1 className="text-xl font-bold text-foreground">{displayName}</h1>
-            <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>@{usernameDisplay}</p>
+            <p className="text-sm" className="text-muted-foreground">@{usernameDisplay}</p>
 
-            <div className="flex items-center gap-3 mt-2 text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
+            <div className="flex items-center gap-3 mt-2 text-xs" className="text-muted-foreground">
               <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> Dubai, AE</span>
               <span>•</span>
               <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> Joined {joinDate}</span>
@@ -641,22 +640,22 @@ export default function ProfilePage() {
             )}
 
             <div className="flex items-center gap-4 mt-3">
-              <span className="text-sm text-foreground"><strong>0</strong> <span style={{ color: "rgba(255,255,255,0.5)" }}>Followers</span></span>
-              <span className="text-sm text-foreground"><strong>0</strong> <span style={{ color: "rgba(255,255,255,0.5)" }}>Following</span></span>
+              <span className="text-sm text-foreground"><strong>0</strong> <span className="text-muted-foreground">Followers</span></span>
+              <span className="text-sm text-foreground"><strong>0</strong> <span className="text-muted-foreground">Following</span></span>
             </div>
 
             <div className="flex gap-3 mt-5">
               <button
                 onClick={handleStartEditing}
                 className="flex-1 py-2.5 rounded-xl text-sm font-semibold border transition-colors"
-                style={{ borderColor: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.85)", background: "transparent" }}
+                style={{ borderColor: "rgba(255,255,255,0.15)", background: "transparent" }}
               >
                 Edit profile
               </button>
               <button
                 onClick={() => navigate("/dashboard/profile/subscription")}
                 className="flex-1 py-2.5 rounded-xl text-sm font-semibold border transition-colors"
-                style={{ borderColor: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.85)", background: "transparent" }}
+                style={{ borderColor: "rgba(255,255,255,0.15)", background: "transparent" }}
               >
                 Manage subscriptions
               </button>
@@ -693,7 +692,7 @@ export default function ProfilePage() {
               </Suspense>
             ) : activeTab === "apps" ? (
               !installedApps || installedApps.length === 0 ? (
-                <p className="text-center py-12 text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
+                <p className="text-center py-12 text-sm" className="text-muted-foreground">
                   No apps installed yet.
                 </p>
               ) : (
@@ -705,7 +704,7 @@ export default function ProfilePage() {
                 })
               )
             ) : tabData.length === 0 ? (
-              <p className="text-center py-12 text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
+              <p className="text-center py-12 text-sm" className="text-muted-foreground">
                 Nothing here yet.
               </p>
             ) : (
@@ -719,20 +718,20 @@ export default function ProfilePage() {
                 >
                   <div
                     className="w-12 h-12 rounded-xl flex items-center justify-center text-sm font-bold shrink-0"
-                    style={{ background: "#2a3038", color: "rgba(255,255,255,0.6)" }}
+                    style={{ background: "#2a3038", }}
                   >
                     {item.initials}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-foreground truncate">{item.title}</p>
-                    <p className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>{item.category}</p>
-                    <p className="text-xs flex items-center gap-1" style={{ color: "rgba(255,255,255,0.35)" }}>
+                    <p className="text-xs" className="text-muted-foreground">{item.category}</p>
+                    <p className="text-xs flex items-center gap-1" className="text-muted-foreground">
                       <Users className="w-3 h-3" /> {item.members}
                     </p>
                   </div>
                   <div className="text-right shrink-0">
                     <p className="text-base font-bold text-foreground">{item.earnings}</p>
-                    <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.4)" }}>all-time · {item.age}</p>
+                    <p className="text-[11px]" className="text-muted-foreground">all-time · {item.age}</p>
                   </div>
                 </div>
               ))
@@ -787,7 +786,7 @@ function ProfileAppRow({ item, appIcon, navigate }: { item: any; appIcon: string
       <img src={appIcon} alt={item.app.name} className="w-12 h-12 rounded-xl object-cover shrink-0" />
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-foreground truncate">{item.app.name}</p>
-        <p className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>{item.app.provider_name}</p>
+        <p className="text-xs" className="text-muted-foreground">{item.app.provider_name}</p>
       </div>
       <div className="flex items-center gap-2">
         {item.app.supports_oauth && item.status !== "connected" && (
@@ -842,7 +841,7 @@ function ToggleRow({
           className="w-10 h-10 rounded-full flex items-center justify-center"
           style={{ background: "#232a30" }}
         >
-          <Icon className="w-5 h-5" style={{ color: "rgba(255,255,255,0.6)" }} />
+          <Icon className="w-5 h-5" className="text-muted-foreground" />
         </div>
         <span className="text-sm font-medium text-foreground">{label}</span>
       </div>

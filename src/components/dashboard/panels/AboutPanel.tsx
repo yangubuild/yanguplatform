@@ -108,7 +108,7 @@ export function AboutPanel() {
               <button
                 key={label}
                 className="flex items-center gap-1.5 px-3 py-2.5 rounded-lg text-xs font-medium transition-colors hover:bg-white/5"
-                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.6)" }}
+                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", }}
               >
                 <Sparkles className="w-3 h-3" style={{ color: "#E67E22" }} />
                 {label}

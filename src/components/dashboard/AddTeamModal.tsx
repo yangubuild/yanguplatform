@@ -212,10 +212,10 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
                 </div>
                 <div className="text-left">
                   <p className="text-sm font-semibold text-foreground">{role.name}</p>
-                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{role.desc}</p>
+                  <p className="text-xs" className="text-muted-foreground">{role.desc}</p>
                 </div>
               </div>
-              <Eye className="w-4 h-4 shrink-0" style={{ color: "rgba(255,255,255,0.3)" }} />
+              <Eye className="w-4 h-4 shrink-0" className="text-muted-foreground" />
             </button>
           ))}
         </div>
@@ -226,7 +226,7 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
         <div className="px-4 pt-3 relative">
           <div className="flex items-center gap-2 rounded-lg px-3 h-10"
             style={{ background: "rgba(255,255,255,0.04)", border: "1.5px solid rgba(181,98,42,0.4)" }}>
-            <Search className="w-4 h-4 shrink-0" style={{ color: "rgba(255,255,255,0.3)" }} />
+            <Search className="w-4 h-4 shrink-0" className="text-muted-foreground" />
             <input
               type="text"
               value={searchInput}
@@ -256,7 +256,7 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
                     className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-white/5 transition-colors text-left"
                   >
                     <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
-                      style={{ background: resolved ? "transparent" : "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)" }}>
+                      style={{ background: resolved ? "transparent" : "rgba(255,255,255,0.1)", }}>
                       {resolved ? (
                         <img src={resolved} alt="" className="w-8 h-8 rounded-full object-cover" />
                       ) : (

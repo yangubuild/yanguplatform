@@ -112,11 +112,11 @@ export function BlogFeaturedGrid() {
           <div className="flex items-center justify-between mb-4">
             <h3
               className="text-xs font-semibold uppercase tracking-widest"
-              style={{ color: "rgba(255,255,255,0.5)", letterSpacing: "0.15em" }}
+              style={{ letterSpacing: "0.15em" }}
             >
               Recent Publications
             </h3>
-            <ArrowRight className="w-4 h-4 transition-transform duration-200 hover:translate-x-0.5" style={{ color: "rgba(255,255,255,0.4)" }} />
+            <ArrowRight className="w-4 h-4 transition-transform duration-200 hover:translate-x-0.5" className="text-muted-foreground" />
           </div>
           <div className="flex-1 flex flex-col">
             {essayList.map((essay, i) => (

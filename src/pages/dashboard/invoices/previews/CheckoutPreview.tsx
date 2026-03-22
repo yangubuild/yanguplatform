@@ -33,7 +33,7 @@ export function CheckoutPreview({ form }: Props) {
             <span className="text-xs text-foreground font-medium">{companyName}</span>
           </div>
 
-          <p className="text-[11px] mb-3" style={{ color: "rgba(255,255,255,0.4)" }}>
+          <p className="text-[11px] mb-3" className="text-muted-foreground">
             {form.description || "Transform Your Weekly Meals While Cutting Grocery Bills in Half"}
           </p>
 
@@ -45,7 +45,7 @@ export function CheckoutPreview({ form }: Props) {
 
           {/* Email */}
           <label className="text-[11px] font-medium text-muted-foreground mb-1 block">Email</label>
-          <div className="rounded-lg px-3 py-2 mb-4 text-xs" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)" }}>
+          <div className="rounded-lg px-3 py-2 mb-4 text-xs" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", }}>
             johnappleseed@gmail.com
           </div>
 
@@ -58,9 +58,7 @@ export function CheckoutPreview({ form }: Props) {
                 className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs"
                 style={{
                   background: "rgba(255,255,255,0.04)",
-                  border: i === 0 ? "1px solid rgba(255,255,255,0.15)" : "1px solid rgba(255,255,255,0.06)",
-                  color: "white",
-                }}
+                  border: i === 0 ? "1px solid rgba(255,255,255,0.15)" : "1px solid rgba(255,255,255,0.06)", }}
               >
                 <div className="w-3.5 h-3.5 rounded-full border-2" style={{ borderColor: i === 0 ? "white" : "rgba(255,255,255,0.2)" }}>
                   {i === 0 && <div className="w-1.5 h-1.5 rounded-full bg-white m-[2px]" />}
@@ -73,12 +71,12 @@ export function CheckoutPreview({ form }: Props) {
           {/* Billing address */}
           <p className="text-[11px] font-medium text-muted-foreground mb-2">Billing address</p>
           <div className="flex flex-col gap-2">
-            <div className="rounded-lg px-3 py-2 text-xs" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.35)" }}>Name</div>
-            <div className="rounded-lg px-3 py-2 text-xs flex justify-between items-center" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "white" }}>
+            <div className="rounded-lg px-3 py-2 text-xs" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", }}>Name</div>
+            <div className="rounded-lg px-3 py-2 text-xs flex justify-between items-center" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", }}>
               <span>United States</span>
               <span className="text-muted-foreground">▾</span>
             </div>
-            <div className="rounded-lg px-3 py-2 text-xs" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.35)" }}>Address line 1</div>
+            <div className="rounded-lg px-3 py-2 text-xs" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", }}>Address line 1</div>
           </div>
         </div>
       </div>
