@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { InnerPageSidebar, type SidebarItem } from "@/components/dashboard/InnerPageSidebar";
 import { useAcceptInvite } from "@/hooks/useAcceptInvite";
 import { ProfileWorkspace } from "@/components/dashboard/ProfileWorkspace";
@@ -18,9 +18,12 @@ import { FriendProfileView, type FriendUser } from "@/components/dashboard/Frien
 import { FriendReviewsRightPanel } from "@/components/dashboard/panels/FriendReviewsRightPanel";
 import { FriendPostsRightPanel } from "@/components/dashboard/panels/FriendPostsRightPanel";
 import { FriendChatRightPanel } from "@/components/dashboard/panels/FriendChatRightPanel";
+import { PostDetailModal } from "@/components/posts/PostDetailModal";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { resolveAvatarUrl } from "@/lib/avatarUtils";
 
 export type ProfileTab = "Home" | "KYC" | "Reviews" | "Posts" | "About";
 
