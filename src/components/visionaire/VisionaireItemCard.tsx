@@ -27,7 +27,6 @@ async function handleDriveDownload(downloadUrl: string) {
       body: { file_id: fileId },
     });
     if (error) throw error;
-    // data is a Blob when responseType isn't json
     const blob = data instanceof Blob ? data : new Blob([data]);
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -40,7 +39,6 @@ async function handleDriveDownload(downloadUrl: string) {
     toast.success("Download complete!");
   } catch (err) {
     console.error("Download error:", err);
-    // Fallback: open Google Drive link directly
     window.open(downloadUrl, "_blank");
   }
 }
@@ -54,17 +52,17 @@ export function VisionaireItemCard({ item, isSaved, onOpen, onSave, onUnsave, ea
       className="group rounded-xl border border-border bg-card overflow-hidden transition-all hover:shadow-lg hover:-translate-y-0.5 cursor-pointer flex flex-col min-w-0"
       onClick={onOpen}>
       {thumbnail && !imgError ? (
-        <div className="aspect-[3/4] overflow-hidden bg-muted flex-shrink-0">
+        <div className="aspect-video overflow-hidden bg-muted flex items-center justify-center flex-shrink-0">
           <img
             src={thumbnail}
             alt={item.title}
-            className="w-full h-full object-cover transition-transform group-hover:scale-105"
+            className="w-full h-full object-contain"
             loading={eagerLoad ? "eager" : "lazy"}
             onError={() => setImgError(true)}
           />
         </div>
       ) : (
-        <div className="aspect-[3/4] bg-muted flex items-center justify-center">
+        <div className="aspect-video bg-muted flex items-center justify-center">
           {item.type === "video" ? (
             <Play className="h-10 w-10 text-muted-foreground/40" />
           ) : item.type === "audio" || item.type === "podcast" ? (
@@ -76,7 +74,7 @@ export function VisionaireItemCard({ item, isSaved, onOpen, onSave, onUnsave, ea
       )}
       <div className="p-4 space-y-2 flex-1 flex flex-col">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="text-sm font-semibold text-foreground line-clamp-2 leading-tight">{item.title}</h3>
+          <h3 className="text-sm font-semibold text-foreground line-clamp-2 leading-tight min-h-[2.5rem]">{item.title}</h3>
           <Badge variant="secondary" className="shrink-0 text-[10px]">
             {item.type}
           </Badge>

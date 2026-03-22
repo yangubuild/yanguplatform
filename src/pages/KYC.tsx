@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, useRef, type ReactNode } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -12,13 +12,14 @@ import {
   XCircle,
   ExternalLink,
   AlertCircle,
+  RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 
 type KycDbStatus = "pending" | "submitted" | "approved" | "rejected" | null;
-type KycUiStatus = "not_started" | "pending" | "verified" | "rejected";
+type KycUiStatus = "not_started" | "in_progress" | "pending_review" | "verified" | "rejected";
 
 interface KycRecord {
   status: KycDbStatus;
@@ -34,17 +35,40 @@ interface DiditResponse {
   error?: string;
 }
 
-function mapToUiStatus(status: KycDbStatus): KycUiStatus {
-  if (!status) return "not_started";
-  if (status === "approved") return "verified";
-  if (status === "rejected") return "rejected";
-  return "pending";
+function mapToUiStatus(record: KycRecord | null): KycUiStatus {
+  if (!record || !record.status) return "not_started";
+  if (record.status === "approved") return "verified";
+  if (record.status === "rejected") return "rejected";
+
+  // Distinguish between "has a verification URL to continue" vs "submitted and awaiting review"
+  const hasVerificationUrl =
+    record.metadata &&
+    typeof record.metadata["didit_verification_url"] === "string" &&
+    record.metadata["didit_verification_url"].length > 0;
+
+  const lastProviderStatus =
+    record.metadata && typeof record.metadata["didit_last_status"] === "string"
+      ? (record.metadata["didit_last_status"] as string).toLowerCase()
+      : null;
+
+  // If provider says "Approved" / "Completed" but DB hasn't caught up yet
+  if (lastProviderStatus && ["approved", "verified", "completed"].includes(lastProviderStatus)) {
+    return "verified";
+  }
+
+  // If the user has submitted to the provider (no active URL or status indicates submission)
+  if (record.status === "submitted" || (record.status === "pending" && !hasVerificationUrl)) {
+    return "pending_review";
+  }
+
+  // Has a URL to continue — still in progress
+  return "in_progress";
 }
 
 function getDiditUrl(metadata: Record<string, unknown> | null): string | null {
   if (!metadata) return null;
   const url = metadata["didit_verification_url"];
-  return typeof url === "string" && url.length> 0 ? url : null;
+  return typeof url === "string" && url.length > 0 ? url : null;
 }
 
 export default function KYC() {
@@ -57,6 +81,7 @@ export default function KYC() {
   const [isLoading, setIsLoading] = useState(true);
   const [isStarting, setIsStarting] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const hasSyncedCallback = useRef(false);
 
   const callbackSessionId = searchParams.get("verificationSessionId");
   const callbackStatus = searchParams.get("status");
@@ -122,7 +147,7 @@ export default function KYC() {
         try {
           const cloned = errorWithContext.context.clone();
           const contextJson = (await cloned.json()) as DiditResponse;
-          if (typeof contextJson?.error === "string" && contextJson.error.length> 0) {
+          if (typeof contextJson?.error === "string" && contextJson.error.length > 0) {
             backendMessage = contextJson.error;
           }
         } catch {
@@ -148,13 +173,21 @@ export default function KYC() {
 
     setIsSyncing(true);
     try {
-      await invokeDidit("sync_status", opts);
+      const result = await invokeDidit("sync_status", opts);
       await fetchKycStatus();
+
+      // If the sync resolved to approved, show success toast
+      if (result.mapped_status === "approved") {
+        toast({
+          title: "Verification complete!",
+          description: "Your identity has been verified. You can now publish.",
+        });
+      }
     } catch (err) {
       console.error("Error syncing KYC status:", err);
       toast({
-        title: "Status sync failed",
-        description: err instanceof Error ? err.message : "Could not sync verification status.",
+        title: "Status not available yet",
+        description: "Verification may still be processing. Please try again in a few moments.",
         variant: "destructive",
       });
     } finally {
@@ -162,13 +195,16 @@ export default function KYC() {
     }
   };
 
+  // Handle callback from provider — only once
   useEffect(() => {
-    if (!user || (!callbackSessionId && !callbackStatus)) return;
+    if (!user || (!callbackSessionId && !callbackStatus) || hasSyncedCallback.current) return;
+    hasSyncedCallback.current = true;
 
     syncStatus({
       verificationSessionId: callbackSessionId ?? undefined,
       statusHint: callbackStatus ?? undefined,
     }).finally(() => {
+      // Strip callback params from URL
       navigate("/kyc", { replace: true });
     });
   }, [user?.id, callbackSessionId, callbackStatus]);
@@ -202,7 +238,7 @@ export default function KYC() {
     }
   };
 
-  const uiStatus = useMemo(() => mapToUiStatus(kyc?.status ?? null), [kyc?.status]);
+  const uiStatus = useMemo(() => mapToUiStatus(kyc), [kyc]);
   const verificationUrl = useMemo(() => getDiditUrl(kyc?.metadata ?? null), [kyc?.metadata]);
 
   const statusConfig: Record<KycUiStatus, { label: string; description: string; badgeVariant: "default" | "secondary" | "destructive"; icon: ReactNode }> = {
@@ -212,9 +248,15 @@ export default function KYC() {
       badgeVariant: "secondary",
       icon: <Shield className="h-5 w-5 text-muted-foreground" />,
     },
-    pending: {
-      label: "Pending",
-      description: "Your verification is in progress. Publishing stays locked until approval.",
+    in_progress: {
+      label: "In Progress",
+      description: "You've started verification. Continue where you left off.",
+      badgeVariant: "secondary",
+      icon: <Clock3 className="h-5 w-5 text-accent" />,
+    },
+    pending_review: {
+      label: "Pending Review",
+      description: "Your verification has been submitted and is under review. This usually takes a few minutes.",
       badgeVariant: "secondary",
       icon: <Clock3 className="h-5 w-5 text-muted-foreground" />,
     },
@@ -231,17 +273,6 @@ export default function KYC() {
       icon: <XCircle className="h-5 w-5 text-destructive" />,
     },
   };
-
-  const ctaLabel =
-    uiStatus === "verified"
-      ? "Verified"
-      : uiStatus === "pending"
-      ? verificationUrl
-        ? "Continue KYC"
-        : "Start KYC"
-      : uiStatus === "rejected"
-      ? "Retry KYC"
-      : "Start KYC";
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -275,28 +306,45 @@ export default function KYC() {
               ) : null}
             </div>
 
-            <div className="mb-8 space-y-3 p-4 rounded-lg border border-border bg-muted/30">
-              <h3 className="text-sm font-medium">What you&apos;ll need</h3>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• Government-issued ID</li>
-                <li>• Proof of address</li>
-                <li>• A few minutes to complete verification</li>
-              </ul>
-            </div>
+            {uiStatus !== "verified" && (
+              <div className="mb-8 space-y-3 p-4 rounded-lg border border-border bg-muted/30">
+                <h3 className="text-sm font-medium">What you&apos;ll need</h3>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• Government-issued ID</li>
+                  <li>• Proof of address</li>
+                  <li>• A few minutes to complete verification</li>
+                </ul>
+              </div>
+            )}
 
             <div className="grid gap-3">
-              {uiStatus !== "verified" && (
-                <Button onClick={handleStartOrContinue} disabled={isStarting || isSyncing}>
+              {/* Primary CTA based on state */}
+              {uiStatus === "not_started" && (
+                <Button onClick={handleStartOrContinue} disabled={isStarting}>
                   {isStarting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-                  {ctaLabel}
-                  {verificationUrl ? <ExternalLink className="h-4 w-4 ml-2" /> : null}
+                  Start KYC
                 </Button>
               )}
 
-              {uiStatus === "pending" && (
-                <Button variant="outline" onClick={() => syncStatus()} disabled={isSyncing || isStarting}>
-                  {isSyncing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+              {uiStatus === "in_progress" && (
+                <Button onClick={handleStartOrContinue} disabled={isStarting}>
+                  {isStarting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+                  Continue KYC
+                  <ExternalLink className="h-4 w-4 ml-2" />
+                </Button>
+              )}
+
+              {uiStatus === "pending_review" && (
+                <Button variant="outline" onClick={() => syncStatus()} disabled={isSyncing}>
+                  {isSyncing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
                   Refresh verification status
+                </Button>
+              )}
+
+              {uiStatus === "rejected" && (
+                <Button onClick={handleStartOrContinue} disabled={isStarting}>
+                  {isStarting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+                  Retry KYC
                 </Button>
               )}
 
@@ -307,9 +355,18 @@ export default function KYC() {
                 </Button>
               )}
 
-              <SecondaryButton onClick={() => navigate(-1)}>
+              {/* Secondary: Refresh for in_progress too */}
+              {uiStatus === "in_progress" && (
+                <Button variant="outline" onClick={() => syncStatus()} disabled={isSyncing}>
+                  {isSyncing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
+                  Refresh verification status
+                </Button>
+              )}
+
+              {/* Always show back to dashboard */}
+              <SecondaryButton onClick={() => navigate("/dashboard")}>
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Go Back
+                Back to Dashboard
               </SecondaryButton>
             </div>
           </>
