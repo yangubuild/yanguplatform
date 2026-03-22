@@ -614,7 +614,7 @@ export default function BuilderEditor() {
           <MobileBuilderSheet
             open={mobilePanel === "editor"}
             onClose={() => setMobilePanel("none")}
-            title={selectedSectionId ? (sections.find((s) => s.id === selectedSectionId)?.section_type || "Edit Section") : "Page Edit"}
+            title={selectedSectionId ? (() => { const t = sections.find((s) => s.id === selectedSectionId)?.section_type; return t ? (SECTION_TYPE_LABELS[t] || t) : "Edit Section"; })() : "Page Edit"}
           >
             {selectedSectionId ? (() => {
               const sec = sections.find((s) => s.id === selectedSectionId);
