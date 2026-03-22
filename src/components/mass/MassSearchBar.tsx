@@ -8,10 +8,7 @@ export function MassSearchBar() {
         <input
           type="text"
           placeholder="Search yangu to buy, learn, create or sell ..."
-          className="w-full pl-11 pr-12 py-3 rounded-full text-foreground placeholder:text-muted-foreground focus:outline-none text-base"
-          style={{
-            background: '#152A20',
-            border: '1px solid rgba(255,255,255,0.08)' }}
+          className="w-full pl-11 pr-12 py-3 rounded-full text-foreground placeholder:text-muted-foreground focus:outline-none text-base bg-muted border border-border"
         />
         <button 
           className="absolute right-3 w-8 h-8 flex items-center justify-center rounded-full transition-colors hover:bg-white/10 active:scale-95"
