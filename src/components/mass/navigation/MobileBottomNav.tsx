@@ -50,7 +50,7 @@ export function MobileBottomNav({ onMenuToggle }: MobileBottomNavProps) {
           <button
             key={item.key}
             onClick={handleTap}
-            className="flex flex-col items-center justify-center gap-0.5 flex-1 h-full relative"
+            className="flex flex-col items-center justify-center gap-0.5 flex-1 h-full relative min-w-[48px]"
             style={{ color: active ? "hsl(var(--accent))" : "rgba(255,255,255,0.4)" }}
           >
             {item.key === "ada" ? (
