@@ -418,17 +418,18 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
             )}
           </div>
 
-          {/* Earnings button — icon-only on narrow phones, label on wider */}
+          {/* Earnings button — icon-only below 360px, label on wider screens */}
           <Popover>
             <PopoverTrigger asChild>
               <button
-                className="h-8 sm:h-9 px-2 xs:px-2.5 sm:px-5 rounded-lg text-[10px] sm:text-xs font-bold text-white whitespace-nowrap shrink-0 flex items-center justify-center gap-1.5"
+                className="h-8 sm:h-9 rounded-lg text-[10px] sm:text-xs font-bold text-white whitespace-nowrap shrink-0 flex items-center justify-center"
                 style={{
                   background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)",
+                  padding: "0 10px",
                 }}
               >
-                <TrendingUp className="w-3.5 h-3.5 xs:hidden sm:hidden" />
-                <span className="hidden xs:inline">Earnings</span>
+                <TrendingUp className="w-3.5 h-3.5 min-[360px]:hidden" />
+                <span className="hidden min-[360px]:inline">Earnings</span>
               </button>
             </PopoverTrigger>
             <PopoverContent
