@@ -61,12 +61,9 @@ export default function AppStorePage() {
 
         {/* AI Prompt Section */}
         <div className="text-center mb-4">
-          <h2 className="text-foreground text-2xl font-bold mb-5">Create your own</h2>
+          <h2 className="text-foreground text-xl font-bold mb-5">Create your own</h2>
           <div
-            className="mx-auto max-w-[640px] rounded-2xl p-4 relative"
-            style={{
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.08)" }}>
+            className="mx-auto max-w-[640px] rounded-xl p-4 relative bg-card border border-border">
             <textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
@@ -93,18 +90,14 @@ export default function AppStorePage() {
             <button
               key={chip}
               onClick={() => setPrompt(chip)}
-              className="px-4 py-1.5 rounded-lg text-xs text-muted-foreground transition-colors hover:text-muted-foreground hover:border-white/20"
-              style={{ border: "1px solid rgba(255,255,255,0.10)" }}>
+              className="px-4 py-1.5 rounded-lg text-xs text-muted-foreground transition-colors hover:text-muted-foreground border border-border hover:border-border/80">
               {chip}
             </button>
           ))}
         </div>
 
         {/* Divider + Title */}
-        <div
-          className="mb-6"
-          style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
-        />
+        <div className="mb-6 border-t border-border" />
         <h3 className="text-muted-foreground text-sm font-medium mb-5">
           Or choose from the app store
         </h3>
@@ -221,10 +214,7 @@ function AppCard({ app, index, userId, queryClient }: { app: AppRegistryEntry; i
 
   return (
     <div
-      className="rounded-xl p-4 flex flex-col gap-3"
-      style={{
-        background: "rgba(255,255,255,0.03)",
-        border: "1px solid rgba(255,255,255,0.06)" }}>
+      className="rounded-xl p-4 flex flex-col gap-3 bg-card border border-border">
       <div className="flex items-start gap-3">
         <img
           src={icon}

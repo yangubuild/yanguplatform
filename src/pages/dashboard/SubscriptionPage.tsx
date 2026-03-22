@@ -47,15 +47,14 @@ export default function SubscriptionPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-lg font-semibold text-foreground">Choose a plan that works for you</h1>
-        <div className="flex rounded-lg overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.15)" }}>
+        <div className="flex rounded-lg overflow-hidden border border-border">
           {(["personal", "business"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setBillingType(t)}
-              className="px-4 py-1.5 text-sm font-medium capitalize transition-colors"
-              style={{
-                background: billingType === t ? "rgba(255,255,255,0.1)" : "transparent",
-                color: billingType === t ? "#fff" : "rgba(255,255,255,0.5)" }}>
+              className={`px-4 py-1.5 text-sm font-medium capitalize transition-colors ${
+                billingType === t ? "bg-muted text-foreground" : "text-muted-foreground"
+              }`}>
               {t}
             </button>
           ))}
@@ -69,18 +68,16 @@ export default function SubscriptionPage() {
             key={plan.name}
             className={`rounded-2xl p-6 flex flex-col relative ${plan.current ? 'bg-card' : 'bg-muted'}`}
             style={{
-              border: plan.popular ? "2px solid #2d5a3d" : "1px solid rgba(255,255,255,0.08)" }}>
+              border: plan.popular ? "2px solid hsl(var(--primary))" : "1px solid hsl(var(--border))" }}>
             {plan.popular && (
               <span
-                className="absolute -top-3 left-1/2 -translate-x-1/2 text-[11px] font-bold px-3 py-1 rounded-full"
-                style={{ border: "1px solid rgba(255,255,255,0.15)" }}>
+                className="absolute -top-3 left-1/2 -translate-x-1/2 text-[11px] font-bold px-3 py-1 rounded-full border border-border">
                 Most Popular
               </span>
             )}
             {plan.highValue && (
               <span
-                className="absolute -top-3 left-1/2 -translate-x-1/2 text-[11px] font-bold px-3 py-1 rounded-full"
-                style={{ border: "1px solid rgba(255,255,255,0.15)" }}>
+                className="absolute -top-3 left-1/2 -translate-x-1/2 text-[11px] font-bold px-3 py-1 rounded-full border border-border">
                 Highest Value
               </span>
             )}
@@ -91,7 +88,7 @@ export default function SubscriptionPage() {
               {plan.price}<span className="text-sm font-normal text-muted-foreground">/mo</span>
             </p>
 
-            <div className="h-px my-3" style={{ background: "rgba(255,255,255,0.08)" }} />
+            <div className="h-px my-3 bg-border" />
 
             <div className="space-y-1 mb-4">
               {plan.highlights.map((h) => (
@@ -100,11 +97,11 @@ export default function SubscriptionPage() {
             </div>
 
             <button
-              className="w-full py-2.5 rounded-xl text-sm font-semibold mt-auto transition-colors"
-              style={{
-                background: plan.current ? "transparent" : "#2d5a3d",
-                border: plan.current ? "1px solid rgba(255,255,255,0.15)" : "none",
-                color: plan.current ? "rgba(255,255,255,0.5)" : "#fff" }}>
+              className={`w-full py-2.5 rounded-lg text-sm font-semibold mt-auto transition-colors ${
+                plan.current
+                  ? "bg-transparent border border-border text-muted-foreground"
+                  : "bg-primary text-primary-foreground"
+              }`}>
               {plan.current ? "Current Plan" : "Get Started"}
             </button>
 
@@ -124,23 +121,22 @@ export default function SubscriptionPage() {
       {/* Bottom cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Current plan */}
-        <div className="rounded-2xl p-5" style={{ border: "1px solid rgba(255,255,255,0.08)" }}>
+        <div className="rounded-2xl p-5 border border-border bg-card">
           <div className="flex items-center justify-between mb-1">
             <p className="text-xs font-medium text-muted-foreground">Your Current Plan</p>
             <Star className="w-4 h-4 text-muted-foreground" />
           </div>
           <p className="text-lg font-bold text-foreground mb-0.5">Free</p>
           <p className="text-xs mb-4 text-muted-foreground">Member since Dec 25, 2025</p>
-          <button
-            onClick={() => navigate("/dashboard/profile/subscription")}
-            className="flex items-center gap-2 w-full justify-center py-2 rounded-xl text-sm"
-            style={{ border: "1px solid rgba(255,255,255,0.12)" }}>
+            <button
+              onClick={() => navigate("/dashboard/profile/subscription")}
+              className="flex items-center gap-2 w-full justify-center py-2 rounded-lg text-sm border border-border hover:bg-muted transition-colors">
             <Settings className="w-4 h-4" /> Manage Subscription
           </button>
         </div>
 
         {/* Credits */}
-        <div className="rounded-2xl p-5" style={{ border: "1px solid rgba(255,255,255,0.08)" }}>
+        <div className="rounded-2xl p-5 border border-border bg-card">
           <div className="flex items-center justify-between mb-1">
             <p className="text-xs font-medium text-muted-foreground">Credits Remaining</p>
             <CreditCard className="w-4 h-4 text-muted-foreground" />
@@ -149,8 +145,8 @@ export default function SubscriptionPage() {
             <p className="text-2xl font-bold text-foreground">{balance}</p>
             <p className="text-xs text-muted-foreground">of 1</p>
           </div>
-          <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
-            <div className="h-full rounded-full" style={{ width: `${Math.min(balance * 100, 100)}%`, background: "#2d5a3d" }} />
+          <div className="w-full h-2 rounded-full overflow-hidden bg-muted">
+            <div className="h-full rounded-full bg-primary" style={{ width: `${Math.min(balance * 100, 100)}%` }} />
           </div>
           <p className="text-xs mt-2 text-muted-foreground">
             You get 1 credit per month, this will refresh monthly.

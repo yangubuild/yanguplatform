@@ -108,9 +108,9 @@ export default function MyAppsPage() {
   };
 
   return (
-    <div className="w-full min-h-screen px-6 py-6 bg-background">
+    <div className="w-full min-h-screen px-6 py-6 bg-background max-w-5xl">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-semibold text-foreground">My Apps</h1>
+        <h1 className="text-lg font-semibold text-foreground">My Apps</h1>
         <Button
           variant="accent"
           size="default"
@@ -126,9 +126,7 @@ export default function MyAppsPage() {
         </div>
       ) : !installs || installs.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20">
-          <div
-            className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-            style={{ background: "rgba(255,255,255,0.05)" }}>
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 bg-muted">
             <Grid3X3 className="w-8 h-8 text-muted-foreground" />
           </div>
           <h2 className="text-lg font-semibold text-foreground mb-1">No apps yet</h2>
@@ -153,10 +151,7 @@ export default function MyAppsPage() {
             return (
               <div
                 key={item.id}
-                className="rounded-xl p-4 flex flex-col gap-3"
-                style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.06)" }}>
+                className="rounded-xl p-4 flex flex-col gap-3 bg-card border border-border">
                 <div className="flex items-start gap-3">
                   <img
                     src={icon}
@@ -189,7 +184,7 @@ export default function MyAppsPage() {
                       </Button>
                     )}
                     {item.status === "connected" && (
-                      <span className="px-2 py-1 rounded-lg text-[10px] font-medium text-green-400" style={{ background: "rgba(74,222,128,0.1)" }}>
+                      <span className="px-2 py-1 rounded-lg text-[10px] font-medium text-green-400 bg-emerald-500/10">
                         ✓ Connected
                       </span>
                     )}

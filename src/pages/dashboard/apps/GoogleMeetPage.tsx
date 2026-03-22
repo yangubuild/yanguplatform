@@ -5,6 +5,7 @@ import { useGoogleApi } from "@/hooks/useGoogleApi";
 import { ArrowLeft, RefreshCw, Plus, Loader2, Video, Calendar, ExternalLink, Copy, Users } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 type CalendarEvent = {
@@ -26,7 +27,6 @@ export default function GoogleMeetPage() {
   const [hasLoaded, setHasLoaded] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
 
-  // Create form state
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -75,7 +75,6 @@ export default function GoogleMeetPage() {
         setCreatedMeetLink(result.meetLink);
       }
       fetchEvents();
-      // Reset form after a moment
       setTitle("");
       setDescription("");
       setAttendeesInput("");
@@ -99,7 +98,6 @@ export default function GoogleMeetPage() {
     });
   };
 
-  // Set default dates
   useEffect(() => {
     if (!startDate) {
       const today = new Date().toISOString().split("T")[0];
@@ -120,64 +118,64 @@ export default function GoogleMeetPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-xl font-semibold text-foreground">Google Meet</h1>
+            <h1 className="text-lg font-semibold text-foreground">Google Meet</h1>
             <p className="text-sm text-muted-foreground mt-1">Schedule meetings and generate links inside YANGU</p>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => { setShowCreate(!showCreate); setCreatedMeetLink(null); }}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-foreground transition-colors"
-              style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}>
+            <Button
+              variant="accent"
+              size="sm"
+              onClick={() => { setShowCreate(!showCreate); setCreatedMeetLink(null); }}>
               <Plus className="w-4 h-4" />
               New Meeting
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
               onClick={fetchEvents}
-              disabled={loading}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground transition-colors"
-              style={{ background: "rgba(255,255,255,0.06)" }}>
+              disabled={loading}>
               <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-            </button>
+            </Button>
           </div>
         </div>
 
         {error && (
-          <div className="rounded-xl p-4 mb-4 text-sm text-red-300" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}>
+          <div className="rounded-lg p-4 mb-4 text-sm text-red-300 bg-red-500/10 border border-red-500/20">
             {error}
           </div>
         )}
 
         {/* Create meeting form */}
         {showCreate && (
-          <div className="rounded-xl p-5 mb-6" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+          <div className="rounded-xl p-5 mb-6 bg-card border border-border">
             <h2 className="text-sm font-medium text-foreground mb-4">Schedule a Meeting</h2>
             <div className="space-y-3">
               <Input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Meeting title"
-                className="bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground"
+                className="bg-muted border-border text-foreground placeholder:text-muted-foreground"
               />
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Description (optional)"
                 rows={2}
-                className="bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground resize-none"
+                className="bg-muted border-border text-foreground placeholder:text-muted-foreground resize-none"
               />
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-muted-foreground mb-1 block">Start</label>
                   <div className="flex gap-2">
-                    <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="bg-white/5 border-white/10 text-foreground" />
-                    <Input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="bg-white/5 border-white/10 text-foreground w-28" />
+                    <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="bg-muted border-border text-foreground" />
+                    <Input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="bg-muted border-border text-foreground w-28" />
                   </div>
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground mb-1 block">End</label>
                   <div className="flex gap-2">
-                    <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="bg-white/5 border-white/10 text-foreground" />
-                    <Input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className="bg-white/5 border-white/10 text-foreground w-28" />
+                    <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="bg-muted border-border text-foreground" />
+                    <Input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className="bg-muted border-border text-foreground w-28" />
                   </div>
                 </div>
               </div>
@@ -185,21 +183,21 @@ export default function GoogleMeetPage() {
                 value={attendeesInput}
                 onChange={(e) => setAttendeesInput(e.target.value)}
                 placeholder="Attendee emails (comma separated)"
-                className="bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground"
+                className="bg-muted border-border text-foreground placeholder:text-muted-foreground"
               />
-              <button
+              <Button
+                variant="accent"
+                size="default"
                 onClick={handleCreate}
-                disabled={creating || !title.trim() || !startDate || !endDate}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-foreground transition-colors disabled:opacity-40"
-                style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}>
+                disabled={creating || !title.trim() || !startDate || !endDate}>
                 {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Video className="w-4 h-4" />}
                 Create with Meet Link
-              </button>
+              </Button>
             </div>
 
             {/* Show created link */}
             {createdMeetLink && (
-              <div className="mt-4 p-3 rounded-lg flex items-center gap-3" style={{ background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.2)" }}>
+              <div className="mt-4 p-3 rounded-lg flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20">
                 <Video className="w-5 h-5 text-green-400 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-green-300 font-medium">Meet link generated!</p>
@@ -232,28 +230,27 @@ export default function GoogleMeetPage() {
             {events.map((event) => (
               <div
                 key={event.id}
-                className="rounded-xl p-4 group"
-                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                className="rounded-xl p-4 group bg-card border border-border">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground">{event.summary}</p>
                     <p className="text-xs text-muted-foreground mt-1">
                       {formatEventTime(event.start)} — {formatEventTime(event.end)}
                     </p>
-                    {event.attendees.length> 0 && (
+                    {event.attendees.length > 0 && (
                       <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
                         <Users className="w-3 h-3" />
-                        {event.attendees.length} attendee{event.attendees.length> 1 ? "s" : ""}
+                        {event.attendees.length} attendee{event.attendees.length > 1 ? "s" : ""}
                       </div>
                     )}
                   </div>
                   <div className="flex items-center gap-1">
                     {event.meetLink && (
                       <>
-                        <button onClick={() => copyLink(event.meetLink!)} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/10 transition-colors" title="Copy Meet link">
+                        <button onClick={() => copyLink(event.meetLink!)} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Copy Meet link">
                           <Copy className="w-4 h-4" />
                         </button>
-                        <a href={event.meetLink} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/10 transition-colors" title="Join meeting">
+                        <a href={event.meetLink} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Join meeting">
                           <Video className="w-4 h-4" />
                         </a>
                       </>

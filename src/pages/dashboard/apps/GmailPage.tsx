@@ -28,14 +28,12 @@ export default function GmailPage() {
   const { user } = useAuth();
   const { callApi, loading, error } = useGoogleApi();
 
-  // Views: "inbox" | "detail" | "compose"
   const [view, setView] = useState<"inbox" | "detail" | "compose">("inbox");
   const [messages, setMessages] = useState<GmailMessage[]>([]);
   const [selectedMessage, setSelectedMessage] = useState<GmailDetail | null>(null);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [nextPageToken, setNextPageToken] = useState<string | null>(null);
 
-  // Compose state
   const [composeTo, setComposeTo] = useState("");
   const [composeSubject, setComposeSubject] = useState("");
   const [composeBody, setComposeBody] = useState("");
@@ -105,7 +103,7 @@ export default function GmailPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-xl font-semibold text-foreground">Gmail</h1>
+            <h1 className="text-lg font-semibold text-foreground">Gmail</h1>
             <p className="text-sm text-muted-foreground mt-1">Manage your inbox inside YANGU</p>
           </div>
           <div className="flex items-center gap-2">
@@ -117,26 +115,26 @@ export default function GmailPage() {
                 Compose
               </Button>
             {view === "inbox" && (
-              <button
+              <Button
+                variant="outline"
+                size="icon"
                 onClick={() => fetchInbox()}
-                disabled={loading}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground transition-colors"
-                style={{ background: "rgba(255,255,255,0.06)" }}>
+                disabled={loading}>
                 <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-              </button>
+              </Button>
             )}
           </div>
         </div>
 
         {error && (
-          <div className="rounded-xl p-4 mb-4 text-sm text-red-300" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}>
+          <div className="rounded-lg p-4 mb-4 text-sm text-red-300 bg-red-500/10 border border-red-500/20">
             {error}
           </div>
         )}
 
         {/* COMPOSE VIEW */}
         {view === "compose" && (
-          <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+          <div className="rounded-xl p-5 bg-card border border-border">
             <button onClick={() => setView("inbox")} className="flex items-center gap-1 text-muted-foreground hover:text-foreground text-sm mb-4">
               <ChevronLeft className="w-4 h-4" /> Back to inbox
             </button>
@@ -145,20 +143,20 @@ export default function GmailPage() {
                 value={composeTo}
                 onChange={(e) => setComposeTo(e.target.value)}
                 placeholder="To (email)"
-                className="bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground"
+                className="bg-muted border-border text-foreground placeholder:text-muted-foreground"
               />
               <Input
                 value={composeSubject}
                 onChange={(e) => setComposeSubject(e.target.value)}
                 placeholder="Subject"
-                className="bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground"
+                className="bg-muted border-border text-foreground placeholder:text-muted-foreground"
               />
               <Textarea
                 value={composeBody}
                 onChange={(e) => setComposeBody(e.target.value)}
                 placeholder="Write your message..."
                 rows={8}
-                className="bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground resize-none"
+                className="bg-muted border-border text-foreground placeholder:text-muted-foreground resize-none"
               />
               <Button
                 variant="accent"
@@ -174,11 +172,11 @@ export default function GmailPage() {
 
         {/* DETAIL VIEW */}
         {view === "detail" && selectedMessage && (
-          <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+          <div className="rounded-xl p-5 bg-card border border-border">
             <button onClick={() => { setView("inbox"); setSelectedMessage(null); }} className="flex items-center gap-1 text-muted-foreground hover:text-foreground text-sm mb-4">
               <ChevronLeft className="w-4 h-4" /> Back to inbox
             </button>
-            <h2 className="text-lg font-medium text-foreground mb-1">{selectedMessage.subject || "(no subject)"}</h2>
+            <h2 className="text-base font-medium text-foreground mb-1">{selectedMessage.subject || "(no subject)"}</h2>
             <p className="text-sm text-muted-foreground mb-1">From: {selectedMessage.from}</p>
             <p className="text-sm text-muted-foreground mb-4">To: {selectedMessage.to}</p>
             <div
@@ -201,23 +199,23 @@ export default function GmailPage() {
                 <p className="text-muted-foreground text-sm">Your inbox is empty</p>
               </div>
             ) : (
-              <div className="space-y-0.5">
+              <div className="rounded-xl bg-card border border-border divide-y divide-border">
                 {messages.map((msg) => (
                   <button
                     key={msg.id}
                     onClick={() => openMessage(msg)}
-                    className="w-full flex items-start gap-3 p-3 rounded-xl hover:bg-white/[0.04] transition-colors text-left">
-                    <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{ background: msg.isUnread ? "#b5622a" : "transparent" }} />
+                    className="w-full flex items-start gap-3 p-3 hover:bg-muted/50 transition-colors text-left first:rounded-t-xl last:rounded-b-xl">
+                    <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{ background: msg.isUnread ? "hsl(var(--accent))" : "transparent" }} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
                         <p className={`text-sm truncate ${msg.isUnread ? "text-foreground font-medium" : "text-muted-foreground"}`}>
                           {formatSender(msg.from)}
                         </p>
-                        <span className="text-[11px] text-muted-foreground flex-shrink-0">
+                        <span className="text-xs text-muted-foreground flex-shrink-0">
                           {msg.date ? new Date(msg.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : ""}
                         </span>
                       </div>
-                      <p className={`text-sm truncate ${msg.isUnread ? "text-muted-foreground" : "text-muted-foreground"}`}>{msg.subject || "(no subject)"}</p>
+                      <p className="text-sm truncate text-muted-foreground">{msg.subject || "(no subject)"}</p>
                       <p className="text-xs text-muted-foreground truncate mt-0.5">{msg.snippet}</p>
                     </div>
                   </button>
