@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { Button } from "@/components/ui/button";
 import { createPortal } from "react-dom";
 import { X, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
