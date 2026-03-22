@@ -309,7 +309,7 @@ function PostCard({ post, toggleReaction }: { post: Post; toggleReaction: any })
         </div>
         <span className="text-[10px] shrink-0" style={{ color: "rgba(255,255,255,0.3)" }}>{new Date(post.created_at).toLocaleDateString()}</span>
       </div>
-      <p className="text-sm text-white whitespace-pre-wrap mb-2">{displayContent}</p>
+      <div className="text-sm text-white whitespace-pre-wrap mb-2"><EmojiRenderer text={displayContent} /></div>
       {post.media_urls && post.media_urls.length > 0 && (
         <div className="mb-2 rounded-lg overflow-hidden">
           {post.media_type === "video" ? (
