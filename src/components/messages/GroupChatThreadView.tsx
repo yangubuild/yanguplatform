@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useGroupMessages, useSendGroupMessage, useGroupMembers, useLeaveGroup, useRemoveGroupMember, useAddGroupMember, type ChatGroup } from "@/hooks/useGroupChats";
 import { renderChatContent, shareMessageExternal } from "@/lib/chatMessageRenderer";
 import { Send, Loader2, MoreVertical, Reply, Share2, Trash2, Users, LogOut, UserPlus, Image, Video, X, Smile } from "lucide-react";
@@ -11,6 +11,9 @@ import { YanguEmojiPicker } from "@/components/emoji/YanguEmojiPicker";
 import { EmojiSuggestions } from "@/components/emoji/EmojiSuggestions";
 import { useEmojiInput } from "@/hooks/useEmojiInput";
 import type { YanguEmoji } from "@/lib/emojiSystem";
+import { useTypingIndicator } from "@/hooks/useTypingIndicator";
+import { TypingIndicator } from "@/components/messages/TypingIndicator";
+import { useMarkGroupRead } from "@/hooks/useGroupUnread";
 
 interface Props {
   group: ChatGroup;
