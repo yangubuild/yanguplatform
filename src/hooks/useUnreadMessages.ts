@@ -108,5 +108,6 @@ export function useMarkDmsRead() {
     qc.invalidateQueries({ queryKey: ["unread-dm-count", user.id] });
     qc.invalidateQueries({ queryKey: ["unread-dm-per-partner", user.id] });
     // Don't invalidate conversation-list here — realtime handles it
-  }, [user, qc]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, qc]);
 }
