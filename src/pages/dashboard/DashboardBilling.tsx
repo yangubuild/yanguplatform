@@ -107,7 +107,7 @@ export default function DashboardBilling() {
   const currentPlan = ent?.plan_id || "free";
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
+    <div className="max-w-5xl mx-auto px-4 py-8 space-y-8 min-h-screen" style={{ background: "#08120D" }}>
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold">Billing & Plan</h1>

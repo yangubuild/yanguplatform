@@ -43,7 +43,7 @@ export default function SubscriptionPage() {
   const balance = typeof credits === "number" ? credits : 1;
 
   return (
-    <div className="max-w-4xl mx-auto py-6 px-4">
+    <div className="max-w-4xl mx-auto py-6 px-4 min-h-screen" style={{ background: "#08120D" }}>
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-lg font-semibold text-white">Choose a plan that works for you</h1>

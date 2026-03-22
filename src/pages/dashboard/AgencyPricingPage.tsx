@@ -75,7 +75,7 @@ export default function AgencyPricingPage() {
   const [createOpen, setCreateOpen] = useState(false);
 
   return (
-    <div className="p-6 max-w-[1200px] mx-auto space-y-6">
+    <div className="p-6 max-w-[1200px] mx-auto space-y-6 min-h-screen" style={{ background: "#08120D" }}>
       <button
         onClick={() => navigate("/dashboard/agency")}
         className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"

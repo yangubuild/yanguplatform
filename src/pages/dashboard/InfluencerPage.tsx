@@ -55,5 +55,5 @@ export default function InfluencerPage() {
     });
   }, [user, engine, initAndNavigate]);
 
-  return <BuilderEntryScreen engine={engine} onComplete={handleComplete} />;
+  return <div className="min-h-screen" style={{ background: "#08120D" }}><BuilderEntryScreen engine={engine} onComplete={handleComplete} /></div>;
 }

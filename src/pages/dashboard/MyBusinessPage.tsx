@@ -151,7 +151,7 @@ export default function MyBusinessPage() {
 
   if (surfaces.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
+      <div className="flex flex-col items-center justify-center py-24 gap-4 text-center min-h-screen" style={{ background: "#08120D" }}>
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
           <Building2 className="h-8 w-8 text-muted-foreground" />
         </div>
@@ -164,7 +164,7 @@ export default function MyBusinessPage() {
   }
 
   return (
-    <div className="p-6 space-y-8 max-w-6xl">
+    <div className="p-6 space-y-8 max-w-6xl min-h-screen" style={{ background: "#08120D" }}>
       <div>
         <h1 className="text-2xl font-bold text-foreground">My Business</h1>
         <p className="text-sm text-muted-foreground mt-1">Manage all your published pages</p>
