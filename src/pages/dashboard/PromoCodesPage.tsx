@@ -6,7 +6,10 @@ import { PromoEmptyState } from "@/components/promo-codes/PromoEmptyState";
 import { CreatePromoModal } from "@/components/promo-codes/CreatePromoModal";
 import { PromoSuccessModal } from "@/components/promo-codes/PromoSuccessModal";
 import { PromoCodesList } from "@/components/promo-codes/PromoCodesList";
+import { CreateOfferModal } from "@/components/promo-codes/CreateOfferModal";
 import { toast } from "sonner";
+import { Plus, Megaphone } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export interface PromoCodeFormData {
   code: string;
@@ -40,6 +43,7 @@ export default function PromoCodesPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [showCreate, setShowCreate] = useState(false);
+  const [showCreateOffer, setShowCreateOffer] = useState(false);
   const [createdPromo, setCreatedPromo] = useState<CreatedPromo | null>(null);
 
   const { data: promoCodes = [], isLoading } = useQuery({
@@ -123,12 +127,49 @@ export default function PromoCodesPage() {
   return (
     <div className="h-full">
       {promoCodes.length === 0 ? (
-        <PromoEmptyState onCreateClick={() => setShowCreate(true)} />
+        <div className="flex flex-col items-center justify-center h-full min-h-[70vh] gap-6">
+          <PromoEmptyState onCreateClick={() => setShowCreate(true)} />
+          {/* Create Offer CTA below promo empty state */}
+          <div className="border-t border-white/[0.06] pt-6 w-full max-w-sm mx-auto text-center">
+            <Button
+              variant="accent"
+              onClick={() => setShowCreateOffer(true)}
+              className="rounded-xl px-6 h-10 gap-2"
+            >
+              <Megaphone className="w-4 h-4" />
+              Create Offer
+            </Button>
+            <p className="text-xs text-muted-foreground mt-2">
+              Promote your business with visual offer ads
+            </p>
+          </div>
+        </div>
       ) : (
-        <PromoCodesList
-          promoCodes={promoCodes}
-          onCreateClick={() => setShowCreate(true)}
-        />
+        <div>
+          <PromoCodesList
+            promoCodes={promoCodes}
+            onCreateClick={() => setShowCreate(true)}
+          />
+          {/* Create Offer section below promo codes list */}
+          <div className="px-4 md:px-6 pb-6">
+            <div className="border-t border-white/[0.06] pt-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">Offers</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">Create visual offer ads to promote your business</p>
+                </div>
+                <Button
+                  variant="accent"
+                  onClick={() => setShowCreateOffer(true)}
+                  className="rounded-xl px-4 h-9 gap-2 text-sm"
+                >
+                  <Megaphone className="w-4 h-4" />
+                  Create Offer
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {showCreate && (
@@ -137,6 +178,13 @@ export default function PromoCodesPage() {
           onClose={() => setShowCreate(false)}
           onSubmit={(form) => createMutation.mutate(form)}
           isSubmitting={createMutation.isPending}
+        />
+      )}
+
+      {showCreateOffer && (
+        <CreateOfferModal
+          open={showCreateOffer}
+          onClose={() => setShowCreateOffer(false)}
         />
       )}
 

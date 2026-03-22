@@ -3559,6 +3559,60 @@ export type Database = {
         }
         Relationships: []
       }
+      merchant_offers: {
+        Row: {
+          comment_count: number
+          created_at: string
+          description: string | null
+          destination_url: string | null
+          duration_type: string
+          expires_at: string | null
+          fee_cents: number
+          header: string
+          id: string
+          image_url: string | null
+          is_active: boolean
+          love_count: number
+          owner_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          comment_count?: number
+          created_at?: string
+          description?: string | null
+          destination_url?: string | null
+          duration_type?: string
+          expires_at?: string | null
+          fee_cents?: number
+          header: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          love_count?: number
+          owner_type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          comment_count?: number
+          created_at?: string
+          description?: string | null
+          destination_url?: string | null
+          duration_type?: string
+          expires_at?: string | null
+          fee_cents?: number
+          header?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          love_count?: number
+          owner_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       merchant_promo_codes: {
         Row: {
           affiliate_id: string | null
@@ -3706,6 +3760,54 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      offer_comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          like_count: number
+          love_count: number
+          offer_id: string
+          parent_id: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          like_count?: number
+          love_count?: number
+          offer_id: string
+          parent_id?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          like_count?: number
+          love_count?: number
+          offer_id?: string
+          parent_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offer_comments_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "merchant_offers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "offer_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "offer_comments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       order_items: {
         Row: {
