@@ -6,6 +6,7 @@ import { BuilderPreview } from "@/components/builder/BuilderPreview";
 import { BuilderPublishModal } from "@/components/builder/BuilderPublishModal";
 import { BuilderPageEditPanel } from "@/components/builder/BuilderPageEditPanel";
 import { Card } from "@/components/primitives";
+import { SECTION_TYPE_LABELS } from "@/config/builderSectionLabels";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
