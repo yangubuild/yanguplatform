@@ -42,48 +42,42 @@ export default function AgencyHomePage() {
       icon: UserPlus,
       title: "Get Invite Link",
       desc: "Invite new members to join",
-      color: "hsl(210 80% 55%)",
-      bg: "hsl(210 80% 96%)",
+      bgClass: "bg-muted",
       onClick: () => {},
     },
     {
       icon: BarChart3,
       title: "User Analytics",
       desc: "View member insights and data",
-      color: "hsl(142 71% 45%)",
-      bg: "hsl(142 71% 95%)",
+      bgClass: "bg-muted",
       onClick: () => navigate("/dashboard/agency/analytics"),
     },
     {
       icon: Palette,
       title: "Organization Branding",
       desc: "✓ Customized",
-      color: "hsl(330 80% 55%)",
-      bg: "hsl(330 80% 96%)",
+      bgClass: "bg-muted",
       onClick: () => setBrandingOpen(true),
     },
     {
       icon: Link2,
       title: "Set Community Link",
       desc: "Your org's community access link",
-      color: "hsl(270 70% 55%)",
-      bg: "hsl(270 70% 96%)",
+      bgClass: "bg-muted",
       onClick: () => setCommunityLinkOpen(true),
     },
     {
       icon: HeadphonesIcon,
       title: "Member Support",
       desc: "View and respond to member issues",
-      color: "hsl(142 71% 45%)",
-      bg: "hsl(142 71% 95%)",
+      bgClass: "bg-muted",
       onClick: () => navigate("/dashboard/agency/support"),
     },
     {
       icon: DollarSign,
       title: "Pricing & Packages",
       desc: "Set up subscription plans",
-      color: "hsl(38 92% 50%)",
-      bg: "hsl(38 92% 95%)",
+      bgClass: "bg-muted",
       onClick: () => navigate("/dashboard/agency/pricing"),
     },
   ];
@@ -106,9 +100,8 @@ export default function AgencyHomePage() {
             onClick={card.onClick}>
             <CardContent className="p-5 flex flex-col items-center text-center gap-3">
               <div
-                className="w-12 h-12 rounded-full flex items-center justify-center"
-                style={{ background: card.bg }}>
-                <card.icon className="w-5 h-5" style={{ color: card.color }} />
+                className={`w-12 h-12 rounded-full flex items-center justify-center ${card.bgClass}`}>
+                <card.icon className="w-5 h-5 text-foreground" />
               </div>
               <div>
                 <p className="font-semibold text-sm text-foreground">{card.title}</p>
@@ -149,8 +142,8 @@ export default function AgencyHomePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Card className="border border-border">
             <CardContent className="p-5 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center bg-accent/10">
-                <ShieldCheck className="w-5 h-5 text-accent" />
+              <div className="w-10 h-10 rounded-full flex items-center justify-center bg-muted">
+                <ShieldCheck className="w-5 h-5 text-foreground" />
               </div>
               <div>
                 <p className="font-semibold text-sm text-foreground">Activity Log & Backups</p>
@@ -160,8 +153,8 @@ export default function AgencyHomePage() {
           </Card>
           <Card className="border border-border">
             <CardContent className="p-5 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "hsl(142 71% 95%)" }}>
-                <MessageSquare className="w-5 h-5" style={{ color: "hsl(142 71% 45%)" }} />
+              <div className="w-10 h-10 rounded-full flex items-center justify-center bg-muted">
+                <MessageSquare className="w-5 h-5 text-foreground" />
               </div>
               <div>
                 <p className="font-semibold text-sm text-foreground">Marketplace Support</p>
