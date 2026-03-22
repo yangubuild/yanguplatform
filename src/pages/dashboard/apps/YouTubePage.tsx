@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Loader2, RefreshCw, Users, Eye, Video, Youtube } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useGoogleApi } from "@/hooks/useGoogleApi";
+import { Button } from "@/components/ui/button";
 
 type YouTubeChannel = {
   id: string;
@@ -56,21 +57,21 @@ export default function YouTubePage() {
       <div className="max-w-3xl">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-xl font-semibold text-foreground">YouTube</h1>
+            <h1 className="text-lg font-semibold text-foreground">YouTube</h1>
             <p className="text-sm text-muted-foreground mt-1">Manage your channel connection inside YANGU</p>
           </div>
-          <button
+          <Button
+            variant="outline"
+            size="sm"
             onClick={fetchChannel}
-            disabled={loading}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground transition-colors"
-            style={{ background: "rgba(255,255,255,0.06)" }}>
+            disabled={loading}>
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             Refresh
-          </button>
+          </Button>
         </div>
 
         {error && (
-          <div className="rounded-xl p-4 mb-4 text-sm text-red-300" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}>
+          <div className="rounded-lg p-4 mb-4 text-sm text-red-300 bg-red-500/10 border border-red-500/20">
             {error}
           </div>
         )}
@@ -80,21 +81,21 @@ export default function YouTubePage() {
             <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
           </div>
         ) : !channel && hasLoaded ? (
-          <div className="rounded-xl p-6 text-center" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+          <div className="rounded-xl p-6 text-center bg-card border border-border">
             <Youtube className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
             <p className="text-muted-foreground text-sm">No YouTube channel was found for this connected Google account.</p>
             <p className="text-muted-foreground text-xs mt-2">Reconnect YouTube with the correct Google account if needed.</p>
           </div>
         ) : channel ? (
-          <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+          <div className="rounded-xl p-5 bg-card border border-border">
             <div className="flex items-start gap-4 mb-4">
               <img
                 src={channel.thumbnails?.high?.url || channel.thumbnails?.medium?.url || channel.thumbnails?.default?.url || ""}
                 alt={channel.title || "YouTube channel"}
-                className="w-14 h-14 rounded-full object-cover bg-white/10"
+                className="w-14 h-14 rounded-full object-cover bg-muted"
               />
               <div className="min-w-0">
-                <h2 className="text-lg font-semibold text-foreground truncate">{channel.title}</h2>
+                <h2 className="text-base font-semibold text-foreground truncate">{channel.title}</h2>
                 {channel.customUrl ? <p className="text-xs text-muted-foreground mt-1">@{channel.customUrl}</p> : null}
                 {channel.country ? <p className="text-xs text-muted-foreground mt-1">Country: {channel.country}</p> : null}
               </div>
@@ -105,19 +106,19 @@ export default function YouTubePage() {
             ) : null}
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="rounded-lg p-3" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <div className="rounded-lg p-3 bg-muted border border-border">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                   <Users className="w-3.5 h-3.5" /> Subscribers
                 </div>
                 <p className="text-foreground font-medium">{formatNumber(channel.subscriberCount)}</p>
               </div>
-              <div className="rounded-lg p-3" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <div className="rounded-lg p-3 bg-muted border border-border">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                   <Video className="w-3.5 h-3.5" /> Videos
                 </div>
                 <p className="text-foreground font-medium">{formatNumber(channel.videoCount)}</p>
               </div>
-              <div className="rounded-lg p-3" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <div className="rounded-lg p-3 bg-muted border border-border">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                   <Eye className="w-3.5 h-3.5" /> Views
                 </div>

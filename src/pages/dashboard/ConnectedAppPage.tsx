@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { ICON_MAP } from "@/lib/app-store/icon-map";
 import { ArrowLeft, ExternalLink, Loader2, CheckCircle2, XCircle, Settings } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const EXTERNAL_URLS: Record<string, string> = {
   "google-drive": "https://drive.google.com",
@@ -81,15 +82,13 @@ export default function ConnectedAppPage() {
         <div className="flex items-center gap-4 mb-6">
           <img src={icon} alt={app.name} className="w-14 h-14 rounded-2xl object-cover" />
           <div>
-            <h1 className="text-xl font-semibold text-foreground">{app.name}</h1>
+            <h1 className="text-lg font-semibold text-foreground">{app.name}</h1>
             <p className="text-sm text-muted-foreground">{app.provider_name}</p>
           </div>
         </div>
 
         {/* Status card */}
-        <div
-          className="rounded-xl p-5 mb-4"
-          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="rounded-xl p-5 mb-4 bg-card border border-border">
           <div className="flex items-center gap-2 mb-3">
             {isConnected ? (
               <CheckCircle2 className="w-5 h-5 text-green-400" />
@@ -104,7 +103,7 @@ export default function ConnectedAppPage() {
             {app.short_description || app.long_description || "No description available."}
           </p>
           {install?.installed_at && (
-            <p className="text-[11px] text-muted-foreground mt-3">
+            <p className="text-xs text-muted-foreground mt-3">
               Added {new Date(install.installed_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
             </p>
           )}
@@ -113,23 +112,23 @@ export default function ConnectedAppPage() {
         {/* Actions */}
         <div className="flex flex-wrap gap-3">
           {MANAGEMENT_LINKS[app.slug] && (
-            <button
-              onClick={() => navigate(MANAGEMENT_LINKS[app.slug].route)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-foreground transition-colors hover:opacity-90"
-              style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}>
+            <Button
+              variant="accent"
+              size="default"
+              onClick={() => navigate(MANAGEMENT_LINKS[app.slug].route)}>
               <Settings className="w-4 h-4" />
               {MANAGEMENT_LINKS[app.slug].label}
-            </button>
+            </Button>
           )}
           {externalUrl && (
             <a
               href={externalUrl}
               target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-foreground transition-colors hover:opacity-90"
-              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
-              <ExternalLink className="w-4 h-4" />
-              Open {app.name}
+              rel="noopener noreferrer">
+              <Button variant="outline" size="default">
+                <ExternalLink className="w-4 h-4" />
+                Open {app.name}
+              </Button>
             </a>
           )}
         </div>
