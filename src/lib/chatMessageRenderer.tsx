@@ -23,7 +23,7 @@ export function renderChatContent(content: string, navigate?: (path: string) => 
         <button
           onClick={() => navigate?.(link)}
           className="inline-flex items-center gap-1.5 mt-2 px-4 py-2 rounded-lg text-xs font-semibold text-white"
-          style={{ background: "linear-gradient(135deg, #4ade80, #22c55e)" }}
+          style={{ background: "linear-gradient(135deg, #c47a3a, #5c2a12)" }}
         >
           ✅ Accept Invite
         </button>
