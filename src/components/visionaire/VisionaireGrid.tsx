@@ -42,11 +42,12 @@ export function VisionaireGrid({ items, isLoading }: VisionaireGridProps) {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-      {items.map((item) => (
+      {items.map((item, index) => (
         <VisionaireItemCard
           key={item.id}
           item={item}
           isSaved={savedIds.has(item.id)}
+          eagerLoad={index < 8}
           onOpen={() => navigate(`/dashboard/visionaire/item/${item.id}`)}
           onSave={(e) => {
             e.stopPropagation();

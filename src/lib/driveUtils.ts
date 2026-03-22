@@ -12,7 +12,7 @@ export function extractDriveFileId(url: string | null | undefined): string | nul
  * Generate a Google Drive thumbnail URL from a file ID.
  * Works for publicly shared files.
  */
-export function getDriveThumbnailUrl(fileId: string, size = 800): string {
+export function getDriveThumbnailUrl(fileId: string, size = 400): string {
   return `https://drive.google.com/thumbnail?id=${fileId}&sz=w${size}`;
 }
 

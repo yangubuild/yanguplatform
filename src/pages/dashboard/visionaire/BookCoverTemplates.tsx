@@ -49,7 +49,7 @@ export default function BookCoverTemplates() {
           {filtered.map((cover) => (
             <div key={cover.id} className="group rounded-xl border border-border bg-card overflow-hidden">
               <div className="aspect-[3/4] overflow-hidden bg-muted">
-                <img src={cover.url} alt={cover.label} className="w-full h-full object-cover" loading="lazy" />
+                <img src={cover.url} alt={cover.label} className="w-full h-full object-cover" loading={index < 6 ? "eager" : "lazy"} />
               </div>
               <div className="p-2 sm:p-3 flex items-center justify-between">
                 <span className="text-xs sm:text-sm font-medium text-muted-foreground truncate">{cover.label}</span>
