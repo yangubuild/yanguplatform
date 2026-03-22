@@ -252,9 +252,9 @@ export function GroupChatThreadView({ group, onBack }: Props) {
                   {!isMine && (
                     <p className="text-[10px] mb-0.5 font-medium" style={{ color: "rgba(96,165,250,0.8)" }}>{msg.author_name}</p>
                   )}
-                  <div className="px-3 py-2 rounded-xl text-sm" style={{ background: isMine ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.06)", color: "#fff" }}>
-                    {renderContent(msg.content)}
-                    <p className="text-[9px] mt-1" style={{ color: "rgba(255,255,255,0.3)" }}>
+                  <div className={`px-3 py-2 rounded-xl text-sm yg-glass-chat ${isMine ? "yg-sender" : ""}`} style={{ color: "#fff" }}>
+                    <span className="relative z-[1]">{renderContent(msg.content)}</span>
+                    <p className="relative z-[1] text-[9px] mt-1" style={{ color: "rgba(255,255,255,0.3)" }}>
                       {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                     </p>
                   </div>
