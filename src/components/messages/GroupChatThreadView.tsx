@@ -80,6 +80,7 @@ export function GroupChatThreadView({ group, onBack }: Props) {
     sendMessage.mutate({ groupId: group.id, content: prefix + trimmed });
     setMessage("");
     setReplyTo(null);
+    stopTyping();
   };
 
   const handleLeave = () => {
@@ -321,6 +322,8 @@ export function GroupChatThreadView({ group, onBack }: Props) {
         </div>
       )}
 
+      <TypingIndicator names={typingUsers.map(u => u.name)} />
+
       {/* Input */}
       {myMembership ? (
         <div className="shrink-0 px-4 py-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
@@ -337,7 +340,7 @@ export function GroupChatThreadView({ group, onBack }: Props) {
             <input
               type="text"
               value={message}
-              onChange={e => handleInputChange(e.target.value, e.target.selectionStart ?? undefined)}
+              onChange={e => { handleInputChange(e.target.value, e.target.selectionStart ?? undefined); startTyping(); }}
               onKeyDown={e => e.key === "Enter" && handleSend()}
               placeholder={replyTo ? "Type a reply..." : "Type a message..."}
               className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-white/25"
