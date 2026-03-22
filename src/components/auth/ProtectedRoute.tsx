@@ -11,7 +11,7 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children, requireOnboarding = true }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading, needsOnboarding, profile } = useAuth();
+  const { isAuthenticated, isLoading: authLoading, needsOnboarding, profile } = useAuth();
   const { data: activeOrg, isLoading: orgLoading } = useActiveOrg();
   const location = useLocation();
 
@@ -20,7 +20,8 @@ export function ProtectedRoute({ children, requireOnboarding = true }: Protected
     if (isAuthenticated) setActiveContext("platform");
   }, [isAuthenticated]);
 
-  if (isLoading || orgLoading) {
+  // Auth is still resolving — show spinner (blocks everything)
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-accent" />
@@ -33,7 +34,18 @@ export function ProtectedRoute({ children, requireOnboarding = true }: Protected
     return <Navigate to={loginUrl} replace />;
   }
 
+  // Profile must be loaded before evaluating onboarding gates
+  // But org can load in parallel — only block if we actually need it for the gate check
   if (requireOnboarding) {
+    // If profile isn't loaded yet, wait (shouldn't happen since authLoading covers it)
+    if (!profile) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <Loader2 className="h-8 w-8 animate-spin text-accent" />
+        </div>
+      );
+    }
+
     // If the user is actually in developer context, don't force platform onboarding
     const ctx = getActiveContext(location.pathname);
     if (ctx === "developer") {
@@ -41,7 +53,7 @@ export function ProtectedRoute({ children, requireOnboarding = true }: Protected
     }
 
     // Suspended users cannot access the app
-    if (profile && (profile as any).account_status === 'suspended') {
+    if ((profile as any).account_status === 'suspended') {
       return (
         <div className="min-h-screen flex items-center justify-center bg-background p-4">
           <div className="text-center max-w-md">
@@ -54,7 +66,17 @@ export function ProtectedRoute({ children, requireOnboarding = true }: Protected
 
     if (needsOnboarding) return <Navigate to="/onboarding" replace />;
     if (!profile?.username) return <Navigate to="/onboarding" replace />;
+
+    // Org check — only block here if org is still loading
+    if (orgLoading) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <Loader2 className="h-8 w-8 animate-spin text-accent" />
+        </div>
+      );
+    }
     if (!activeOrg) return <Navigate to="/onboarding" replace />;
+
     if (!(profile as any)?.country || !(profile as any)?.business_name) {
       return <Navigate to="/onboarding" replace />;
     }

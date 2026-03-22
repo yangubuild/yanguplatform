@@ -1,5 +1,5 @@
 import { lazyRetry } from "@/lib/lazyRetry";
-import { useEffect, useState, ReactNode, lazy, Suspense } from "react";
+import { useEffect, useState, ReactNode, lazy, Suspense, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { resolveRoute, isDevEnvironment, normalizeHostname, type ResolvedRoute, type RouteDebugInfo } from "@/lib/routing/resolveRoute";
 import { resolveAppMode } from "@/lib/routing/appMode";
@@ -18,8 +18,6 @@ const NotFound = lazy(() => lazyRetry(() => import("@/pages/NotFound")));
 interface PublicRouteResolverProps {
   children: ReactNode;
 }
-
-// Removed REDIRECT_DOMAINS — root path behavior is now handled by resolveAppMode()
 
 // Routes that should always use internal React Router handling
 const INTERNAL_ROUTES = [
@@ -45,6 +43,9 @@ const INTERNAL_ROUTES = [
 ];
 
 const resolverFallback = <div className="min-h-screen" style={{ backgroundColor: "#08120D" }} />;
+
+// Session-level cache for route resolution to eliminate blank frames on revisit
+const routeCache = new Map<string, { route: ResolvedRoute; debug: RouteDebugInfo }>();
 
 /**
  * Debug bar component - temporary for debugging route resolution
@@ -111,12 +112,28 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
   const location = useLocation();
   const [resolvedRoute, setResolvedRoute] = useState<ResolvedRoute | null>(null);
   const [debugInfo, setDebugInfo] = useState<RouteDebugInfo | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [shouldUseInternalRouting, setShouldUseInternalRouting] = useState(false);
   const [appModeResult, setAppModeResult] = useState<ReturnType<typeof resolveAppMode>>(null);
 
+  // Compute synchronous fast-path: determine if we can skip loading entirely
+  const fastPathRef = useRef<boolean | null>(null);
+  if (fastPathRef.current === null) {
+    const path = location.pathname;
+    const isDev = isDevEnvironment();
+    const isInternal = INTERNAL_ROUTES.some((route) => path.startsWith(route));
+    const isCommunity = path.startsWith("/community");
+    if (isDev || isInternal || isCommunity) {
+      fastPathRef.current = true;
+    } else {
+      fastPathRef.current = false;
+    }
+  }
+
+  // If fast-path determined we're internal, start with isLoading=false
+  const [isLoading, setIsLoading] = useState(!fastPathRef.current);
+
   useEffect(() => {
-    // Once internal routing is determined, never re-resolve — prevents white flash on navigation
+    // Once internal routing is determined, never re-resolve
     if (shouldUseInternalRouting) return;
 
     async function resolve() {
@@ -145,13 +162,11 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
       // Enterprise domain mode switch for root path
       const appMode = resolveAppMode(window.location.hostname);
       if (appMode && appMode !== "platform") {
-        // On community domain, allow /community/* paths to fall through to React Router
         if (appMode === "community" && path.startsWith("/community")) {
           setShouldUseInternalRouting(true);
           setIsLoading(false);
           return;
         }
-        // Root path on non-platform domains renders mode-specific landing
         if (path === "/") {
           setAppModeResult(appMode);
           setIsLoading(false);
@@ -159,11 +174,32 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
         }
       }
 
+      // Check in-memory cache first to eliminate blank frame on revisit
+      const cacheKey = `${normalizeHostname(window.location.hostname)}::${path}`;
+      const cached = routeCache.get(cacheKey);
+      if (cached) {
+        setResolvedRoute(cached.route);
+        setDebugInfo(cached.debug);
+        if (cached.route.route_kind === "not_found" && cached.route.reason === "unknown_host") {
+          setShouldUseInternalRouting(true);
+        }
+        setIsLoading(false);
+        // Still refresh in background (stale-while-revalidate)
+        resolveRoute().then(({ route, debug }) => {
+          routeCache.set(cacheKey, { route, debug });
+          setResolvedRoute(route);
+          setDebugInfo(debug);
+        }).catch(() => {});
+        return;
+      }
+
       // Resolve via database for production platform domains
       try {
         const { route, debug } = await resolveRoute();
         
-        // Debug logging — dev only
+        // Cache result
+        routeCache.set(cacheKey, { route, debug });
+
         if (import.meta.env.DEV) {
           console.log("[PUBLIC ROUTE RESOLVED]", {
             canonicalHost: debug.canonicalHost,
@@ -175,7 +211,6 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
         setResolvedRoute(route);
         setDebugInfo(debug);
         
-        // If route_kind is not_found with unknown_host, fall through to internal routing
         if (route.route_kind === "not_found" && route.reason === "unknown_host") {
           setShouldUseInternalRouting(true);
         }
@@ -195,10 +230,7 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
     return resolverFallback;
   }
 
-  // Use internal React Router routing ONLY for:
-  // 1. Dev environment
-  // 2. Internal routes (/auth, /dashboard, etc.)
-  // 3. Unknown hosts (localhost, preview domains)
+  // Use internal React Router routing
   if (shouldUseInternalRouting) {
     return <>{children}</>;
   }
@@ -219,11 +251,6 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
     );
   }
 
-  // *** CRITICAL: From here on, we are on a PRODUCTION PLATFORM DOMAIN ***
-  // We must NEVER fall through to React Router for public paths.
-  // The RPC response fully determines what to render.
-
-  // If somehow resolvedRoute is null (shouldn't happen), show NotFound instead of falling through
   if (!resolvedRoute) {
     console.error("[PublicRouteResolver] No route resolved on production domain, showing NotFound");
     return (
@@ -234,7 +261,7 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
     );
   }
 
-  // Content based on route_kind - NO default fallthrough to React Router
+  // Content based on route_kind
   let content: ReactNode;
   
   switch (resolvedRoute.route_kind) {
@@ -253,11 +280,9 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
       break;
 
     case "platform_home":
-      // For the primary domain (io), show the public landing page
       if (resolvedRoute.domain_type === "io") {
         content = <Index />;
       } else if (resolvedRoute.domain_type === "community") {
-        // yangu.community root → show Community homepage
         content = <Community />;
       } else {
         content = (
@@ -281,8 +306,6 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
 
     case "not_found":
     default:
-      // CRITICAL: Treat any unknown route_kind as not_found
-      // Never fall through to React Router on production platform domains
       content = <NotFound />;
       break;
   }
