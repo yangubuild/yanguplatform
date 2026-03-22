@@ -1,11 +1,12 @@
-import { Plus, Tag, Gift, Percent } from "lucide-react";
+import { Plus, Tag, Gift, Percent, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface PromoEmptyStateProps {
   onCreateClick: () => void;
+  onCreateOfferClick: () => void;
 }
 
-export function PromoEmptyState({ onCreateClick }: PromoEmptyStateProps) {
+export function PromoEmptyState({ onCreateClick, onCreateOfferClick }: PromoEmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center h-full min-h-[70vh] gap-5">
       {/* Illustration area */}
@@ -23,17 +24,23 @@ export function PromoEmptyState({ onCreateClick }: PromoEmptyStateProps) {
 
       <div className="text-center space-y-2">
         <h2 className="text-xl font-semibold text-foreground">
-          Create your <span className="text-accent">first</span> promo code
+          Create your <span className="text-accent">first</span> promo code or offer
         </h2>
         <p className="text-sm text-muted-foreground max-w-sm">
-          Get more sales by creating your first promo code to share with users!
+          Get more sales by creating promo codes or visual offer ads to share with users!
         </p>
       </div>
 
-      <Button variant="accent" onClick={onCreateClick} className="rounded-xl px-6 h-10 gap-2">
-        <Plus className="w-4 h-4" />
-        Create promo code
-      </Button>
+      <div className="flex items-center gap-3">
+        <Button variant="accent" onClick={onCreateClick} className="rounded-xl px-6 h-10 gap-2">
+          <Plus className="w-4 h-4" />
+          Create promo code
+        </Button>
+        <Button variant="accent" onClick={onCreateOfferClick} className="rounded-xl px-6 h-10 gap-2">
+          <Send className="w-4 h-4" />
+          Create Offer
+        </Button>
+      </div>
     </div>
   );
 }
