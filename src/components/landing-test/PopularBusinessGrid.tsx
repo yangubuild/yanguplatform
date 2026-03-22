@@ -58,9 +58,9 @@ function EntityGridCard({ entity, onClickTrack }: { entity: SearchEntityResult; 
             <Icon className="w-5 h-5" style={{ color: 'rgba(255,255,255,0.2)' }} />
           </div>
         )}
-        <div className="min-w-0">
-          <div className="flex items-center gap-1.5">
-            <span className="text-white text-sm font-semibold truncate">{entity.title}</span>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="text-white text-sm font-semibold truncate min-w-0 flex-1">{entity.title}</span>
             {badge === "blue" && <span className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center text-[8px] text-white shrink-0">✓</span>}
             {badge === "orange" && <span className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] text-white shrink-0" style={{ background: '#b5622a' }}>✓</span>}
             {badge === "green" && <span className="w-4 h-4 rounded-full bg-green-600 flex items-center justify-center text-[8px] text-white shrink-0">✓</span>}

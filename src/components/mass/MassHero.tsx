@@ -3,7 +3,7 @@ import { T } from "@/lib/typography";
 export function MassHero() {
   return (
     <div 
-      className="relative overflow-hidden rounded-2xl p-10 md:p-12 mb-0 min-h-[200px]"
+      className="relative overflow-hidden rounded-2xl p-6 sm:p-10 md:p-12 mb-0 min-h-[180px] sm:min-h-[200px]"
       style={{
         backgroundColor: '#0A1710',
         backgroundImage: `

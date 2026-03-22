@@ -76,7 +76,7 @@ function EntityCard({ entity, onClickTrack }: { entity: SearchEntityResult; onCl
   return (
     <div
       onClick={() => { onClickTrack?.(entity); ext ? window.open(route, "_blank") : navigate(route); }}
-      className="shrink-0 w-[290px] rounded-2xl overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+      className="shrink-0 w-[260px] sm:w-[290px] rounded-2xl overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
       style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', scrollSnapAlign: 'start' }}
     >
       <div className="h-[170px] overflow-hidden">
@@ -98,8 +98,8 @@ function EntityCard({ entity, onClickTrack }: { entity: SearchEntityResult; onCl
             </div>
           )}
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1.5">
-              <span className={`text-white ${T.body} font-semibold truncate`}>{entity.title}</span>
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className={`text-white ${T.body} font-semibold truncate min-w-0 flex-1`}>{entity.title}</span>
               {badge === "blue" && <span className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center text-[8px] text-white shrink-0">✓</span>}
               {badge === "orange" && <span className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] text-white shrink-0" style={{ background: '#b5622a' }}>✓</span>}
               {badge === "green" && <span className="w-4 h-4 rounded-full bg-green-600 flex items-center justify-center text-[8px] text-white shrink-0">✓</span>}
@@ -154,16 +154,16 @@ export function PremiumBusinessRow({ title, subtitle, businesses, entities, trac
 
   return (
     <section className="mb-12" ref={trackRef}>
-      <div className="flex items-center justify-between mb-1">
-        <div>
-          <h2 className={`text-white ${T.sectionH2}`}>{title}</h2>
-          {subtitle && <p className={`${T.body} mt-1`} style={{ color: 'rgba(255,255,255,0.35)' }}>{subtitle}</p>}
+      <div className="flex items-center justify-between mb-1 gap-2">
+        <div className="min-w-0 flex-1">
+          <h2 className={`text-white ${T.sectionH2} truncate`}>{title}</h2>
+          {subtitle && <p className={`${T.body} mt-1 line-clamp-2`} style={{ color: 'rgba(255,255,255,0.35)' }}>{subtitle}</p>}
         </div>
-        <div className="flex items-center gap-2">
-          <button onClick={() => scroll("left")} className="w-8 h-8 flex items-center justify-center rounded-lg border transition-colors" style={{ borderColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.3)' }}>
+        <div className="flex items-center gap-2 shrink-0">
+          <button onClick={() => scroll("left")} className="w-10 h-10 flex items-center justify-center rounded-lg border transition-colors" style={{ borderColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.3)' }}>
             <ChevronLeft className="w-4 h-4" />
           </button>
-          <button onClick={() => scroll("right")} className="w-8 h-8 flex items-center justify-center rounded-lg border transition-colors" style={{ borderColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.3)' }}>
+          <button onClick={() => scroll("right")} className="w-10 h-10 flex items-center justify-center rounded-lg border transition-colors" style={{ borderColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.3)' }}>
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
@@ -173,7 +173,7 @@ export function PremiumBusinessRow({ title, subtitle, businesses, entities, trac
         {hasLive
           ? entities.map((entity) => <EntityCard key={entity.id} entity={entity} onClickTrack={handleClick} />)
           : businesses?.map((biz, i) => (
-            <div key={i} className="shrink-0 w-[290px] rounded-2xl overflow-hidden cursor-pointer hover:opacity-90 transition-opacity" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', scrollSnapAlign: 'start' }}>
+            <div key={i} className="shrink-0 w-[260px] sm:w-[290px] rounded-2xl overflow-hidden cursor-pointer hover:opacity-90 transition-opacity" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', scrollSnapAlign: 'start' }}>
               <div className="h-[170px] overflow-hidden">
                 <img src={biz.coverImage} alt={biz.name} className="w-full h-full object-cover" />
               </div>
