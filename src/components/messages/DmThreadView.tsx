@@ -258,9 +258,16 @@ export function DmThreadView({ targetUserId }: Props) {
             <Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
           </div>
         ) : messages.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center">
-            <p className="text-sm text-white mb-1">Start a conversation</p>
-            <p className="text-xs text-center" style={{ color: "rgba(255,255,255,0.4)" }}>
+          <div className="flex-1 flex flex-col items-center justify-center gap-2">
+            <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.06)" }}>
+              {targetAvatar ? (
+                <img src={targetAvatar} alt="" className="w-12 h-12 rounded-full object-cover" />
+              ) : (
+                <span className="text-white/40 text-sm font-bold">{targetInitials}</span>
+              )}
+            </div>
+            <p className="text-sm font-medium text-white">Start a conversation</p>
+            <p className="text-xs text-center max-w-[200px]" style={{ color: "rgba(255,255,255,0.4)" }}>
               Send a message to {targetName}
             </p>
           </div>
@@ -385,28 +392,28 @@ export function DmThreadView({ targetUserId }: Props) {
       <TypingIndicator names={typingUsers.map(u => u.name)} />
 
       {/* Input */}
-      <div className="shrink-0 px-4 py-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="shrink-0 px-3 py-2.5" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
         <div
-          className="flex items-center gap-2 rounded-xl px-3 py-2.5"
+          className="flex items-center gap-1.5 rounded-xl px-3 py-2.5"
           style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
         >
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="p-1 rounded hover:opacity-80 shrink-0"
+            className="p-1.5 rounded hover:opacity-80 shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center"
             style={{ color: "rgba(255,255,255,0.4)" }}
           >
             <Image className="w-4 h-4" />
           </button>
           <button
             onClick={() => videoInputRef.current?.click()}
-            className="p-1 rounded hover:opacity-80 shrink-0"
+            className="p-1.5 rounded hover:opacity-80 shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center"
             style={{ color: "rgba(255,255,255,0.4)" }}
           >
             <Video className="w-4 h-4" />
           </button>
           <button
             onClick={() => setShowEmojiPicker((prev) => !prev)}
-            className="p-1 rounded hover:opacity-80 shrink-0"
+            className="p-1.5 rounded hover:opacity-80 shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center"
             style={{ color: showEmojiPicker ? "#facc15" : "rgba(255,255,255,0.4)" }}
           >
             <Smile className="w-4 h-4" />
@@ -417,12 +424,12 @@ export function DmThreadView({ targetUserId }: Props) {
             onChange={(e) => { handleInputChange(e.target.value, e.target.selectionStart ?? undefined); startTyping(); }}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
             placeholder={replyTo ? "Type a reply..." : "Type a message..."}
-            className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-white/25"
+            className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-white/25 min-w-0"
           />
           <button
             onClick={handleSend}
             disabled={!message.trim()}
-            className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
+            className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
             style={{
               background: message.trim() ? "linear-gradient(135deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.08)",
             }}
