@@ -17,6 +17,7 @@ interface Props {
 export function MessagesChatsTab({ onSelectDm, onSelectGroup }: Props) {
   const { data: conversations = [], isLoading: loadingDms } = useConversationList();
   const { data: unreadMap } = useUnreadDmPerPartner();
+  const { data: unreadGroupMap } = useUnreadGroupPerGroup();
   const { data: groups = [], isLoading: loadingGroups } = useMyGroups();
   const partnerIds = conversations.map((c) => c.partnerId);
 
@@ -67,12 +68,13 @@ export function MessagesChatsTab({ onSelectDm, onSelectGroup }: Props) {
         date: new Date(ts).toLocaleDateString(undefined, { month: "numeric", day: "numeric" }),
         timestamp: ts,
         memberCount: g.member_count ?? 0,
+        unreadCount: unreadGroupMap?.get(g.id) || 0,
       });
     }
 
     list.sort((a, b) => b.timestamp - a.timestamp);
     return list;
-  }, [conversations, groups, profileMap, unreadMap]);
+  }, [conversations, groups, profileMap, unreadMap, unreadGroupMap]);
 
   if (loadingDms || loadingGroups) {
     return (
