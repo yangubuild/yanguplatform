@@ -147,6 +147,7 @@ const ManageCommunity = lazy(() => lazyRetry(() => import("./pages/manage/Manage
 const ManageBlog = lazy(() => lazyRetry(() => import("./pages/manage/ManageBlog")));
 const ManageAda = lazy(() => lazyRetry(() => import("./pages/manage/ManageAda")));
 const ManageMessages = lazy(() => lazyRetry(() => import("./pages/manage/ManageMessages")));
+const ManageSupportQueue = lazy(() => lazyRetry(() => import("./pages/manage/ManageSupportQueue")));
 const ManageNews = lazy(() => lazyRetry(() => import("./pages/manage/ManageNews")));
 const ManageEvents = lazy(() => lazyRetry(() => import("./pages/manage/ManageEvents")));
 const ManageContentHome = lazy(() => lazyRetry(() => import("./pages/manage/ManageContentHome")));
@@ -503,6 +504,7 @@ const App = () => (
                   <Route index element={<ManageDashboard />} />
                   <Route path="ada" element={<ManageAda />} />
                   <Route path="messages" element={<ManageMessages />} />
+                  <Route path="support" element={<ManageRoleGate allowedRoles={["admin"]}><ManageSupportQueue /></ManageRoleGate>} />
                   {/* Platform */}
                   <Route path="users" element={<ManageUsers />} />
                   <Route path="team" element={<ManageTeam />} />
