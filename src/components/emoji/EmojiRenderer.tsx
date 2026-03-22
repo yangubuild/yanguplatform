@@ -1,4 +1,5 @@
 import { useEmojis } from "@/contexts/EmojiContext";
+import { normalizeEmojiKeyword } from "@/lib/emojiSystem";
 
 interface EmojiRendererProps {
   /** Text that may contain :keyword: shortcodes */
@@ -18,14 +19,14 @@ export function EmojiRenderer({ text, className }: EmojiRendererProps) {
   if (!text) return null;
 
   // Match :keyword: patterns
-  const parts = text.split(/(:[\w]+:)/g);
+  const parts = text.split(/(:[a-z0-9_-]+:)/gi);
 
   return (
     <span className={className}>
       {parts.map((part, i) => {
-        const match = part.match(/^:([\w]+):$/);
+        const match = part.match(/^:([a-z0-9_-]+):$/i);
         if (match) {
-          const keyword = match[1].toLowerCase();
+          const keyword = normalizeEmojiKeyword(match[1]);
           const emoji = customEmojis.find((e) => e.keyword === keyword);
           if (emoji) {
             return (

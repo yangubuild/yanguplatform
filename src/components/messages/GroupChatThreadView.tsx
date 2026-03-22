@@ -1,12 +1,16 @@
 import { useState, useRef, useEffect } from "react";
 import { useGroupMessages, useSendGroupMessage, useGroupMembers, useLeaveGroup, useRemoveGroupMember, useAddGroupMember, type ChatGroup } from "@/hooks/useGroupChats";
 import { renderChatContent, shareMessageExternal } from "@/lib/chatMessageRenderer";
-import { Send, Loader2, MoreVertical, Reply, Share2, Trash2, Users, LogOut, UserPlus, Image, Video, X } from "lucide-react";
+import { Send, Loader2, MoreVertical, Reply, Share2, Trash2, Users, LogOut, UserPlus, Image, Video, X, Smile } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
+import { YanguEmojiPicker } from "@/components/emoji/YanguEmojiPicker";
+import { EmojiSuggestions } from "@/components/emoji/EmojiSuggestions";
+import { useEmojiInput } from "@/hooks/useEmojiInput";
+import type { YanguEmoji } from "@/lib/emojiSystem";
 
 interface Props {
   group: ChatGroup;
@@ -19,6 +23,7 @@ export function GroupChatThreadView({ group, onBack }: Props) {
   const [msgMenuId, setMsgMenuId] = useState<string | null>(null);
   const [showMembers, setShowMembers] = useState(false);
   const [showGroupMenu, setShowGroupMenu] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [addUserSearch, setAddUserSearch] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -34,6 +39,12 @@ export function GroupChatThreadView({ group, onBack }: Props) {
   const leaveGroup = useLeaveGroup();
   const removeMember = useRemoveGroupMember();
   const addMember = useAddGroupMember();
+  const {
+    currentWord,
+    handleInputChange,
+    insertEmoji,
+    replaceCurrentWord,
+  } = useEmojiInput(message, setMessage);
 
   const myMembership = members.find(m => m.user_id === user?.id);
   const isAdmin = myMembership?.role === "admin" || myMembership?.role === "owner";
@@ -118,6 +129,11 @@ export function GroupChatThreadView({ group, onBack }: Props) {
   };
 
   const renderContent = (content: string) => renderChatContent(content, navigate);
+
+  const handleEmojiSelect = (value: string | YanguEmoji) => {
+    insertEmoji(value);
+    setShowEmojiPicker(false);
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -274,6 +290,21 @@ export function GroupChatThreadView({ group, onBack }: Props) {
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={e => handleFileUpload(e, "image")} />
       <input ref={videoInputRef} type="file" accept="video/*" className="hidden" onChange={e => handleFileUpload(e, "video")} />
 
+      {currentWord && myMembership && (
+        <div className="px-4 pb-1">
+          <EmojiSuggestions
+            currentWord={currentWord}
+            onSelect={(value, keyword) => replaceCurrentWord(value, keyword)}
+          />
+        </div>
+      )}
+
+      {showEmojiPicker && myMembership && (
+        <div className="px-4 pb-1">
+          <YanguEmojiPicker onSelect={handleEmojiSelect} onClose={() => setShowEmojiPicker(false)} />
+        </div>
+      )}
+
       {/* Input */}
       {myMembership ? (
         <div className="shrink-0 px-4 py-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
@@ -284,10 +315,13 @@ export function GroupChatThreadView({ group, onBack }: Props) {
             <button onClick={() => videoInputRef.current?.click()} className="p-1 rounded hover:opacity-80 shrink-0" style={{ color: "rgba(255,255,255,0.4)" }}>
               <Video className="w-4 h-4" />
             </button>
+            <button onClick={() => setShowEmojiPicker((prev) => !prev)} className="p-1 rounded hover:opacity-80 shrink-0" style={{ color: showEmojiPicker ? "#facc15" : "rgba(255,255,255,0.4)" }}>
+              <Smile className="w-4 h-4" />
+            </button>
             <input
               type="text"
               value={message}
-              onChange={e => setMessage(e.target.value)}
+              onChange={e => handleInputChange(e.target.value, e.target.selectionStart ?? undefined)}
               onKeyDown={e => e.key === "Enter" && handleSend()}
               placeholder={replyTo ? "Type a reply..." : "Type a message..."}
               className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-white/25"
