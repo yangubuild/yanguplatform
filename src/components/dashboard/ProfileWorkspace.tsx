@@ -1,4 +1,10 @@
 import { useState, useRef, useEffect } from "react";
+import { Smile } from "lucide-react";
+import { useEmojiInput } from "@/hooks/useEmojiInput";
+import { EmojiSuggestions } from "@/components/emoji/EmojiSuggestions";
+import { EmojiRenderer } from "@/components/emoji/EmojiRenderer";
+import { YanguEmojiPicker } from "@/components/emoji/YanguEmojiPicker";
+import type { YanguEmoji } from "@/lib/emojiSystem";
 import { useUserPosts, useCreatePost, useToggleReaction, uploadPostMedia, type Post } from "@/hooks/usePosts";
 import { PostInteractions } from "@/components/dashboard/PostInteractions";
 import { useProfileReviews } from "@/hooks/useProfileReviews";
@@ -119,10 +125,19 @@ function OwnPostsTab() {
   const [aiGenerating, setAiGenerating] = useState(false);
   const [buyNowEnabled, setBuyNowEnabled] = useState(false);
   const [joinNowEnabled, setJoinNowEnabled] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const avatarUrl = profile ? resolveAvatarUrl(profile) : null;
   const initials = (profile?.display_name || "U").slice(0, 2).toUpperCase();
+
+  // Emoji input hook for type-to-suggest
+  const {
+    currentWord,
+    handleInputChange: handleEmojiInputChange,
+    insertEmoji,
+    replaceCurrentWord,
+  } = useEmojiInput(text, setText);
 
   const handleFileSelect = (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -195,7 +210,7 @@ function OwnPostsTab() {
             {avatarUrl ? <img src={avatarUrl} alt="" className="w-9 h-9 rounded-full object-cover" /> : <span className="text-white/60">{initials}</span>}
           </div>
           <div className="flex-1">
-            <textarea value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && e.metaKey) handlePost(); }} placeholder="Share an update..." className="w-full bg-transparent text-sm text-white placeholder:text-white/25 outline-none resize-none min-h-[50px]" />
+            <textarea value={text} onChange={(e) => handleEmojiInputChange(e.target.value, e.target.selectionStart ?? undefined)} onKeyDown={(e) => { if (e.key === "Enter" && e.metaKey) handlePost(); }} placeholder="Share an update..." className="w-full bg-transparent text-sm text-white placeholder:text-white/25 outline-none resize-none min-h-[50px]" />
             {mediaPreviews.length > 0 && (
               <div className="flex gap-2 mt-2 flex-wrap">
                 {mediaPreviews.map((url, idx) => (
@@ -232,11 +247,30 @@ function OwnPostsTab() {
                 <button onClick={handleAiGenerate} disabled={aiGenerating} className="p-1.5 rounded-md hover:bg-amber-500/10 transition-colors disabled:opacity-50" style={{ color: "#f59e0b" }} title="Generate post with AI">
                   {aiGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                 </button>
+                <button onClick={() => setShowEmojiPicker(p => !p)} className="p-1.5 rounded-md hover:bg-white/5" style={{ color: showEmojiPicker ? "#facc15" : "rgba(255,255,255,0.4)" }} title="Emoji"><Smile className="w-4 h-4" /></button>
               </div>
               <button onClick={handlePost} disabled={!canPost || isPosting} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold" style={{ background: canPost ? "linear-gradient(135deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.08)", color: canPost ? "#fff" : "rgba(255,255,255,0.35)" }}>
                 {isPosting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />} Post
               </button>
             </div>
+            {/* Type-to-suggest emoji suggestions */}
+            {currentWord && (
+              <div className="mt-1">
+                <EmojiSuggestions
+                  currentWord={currentWord}
+                  onSelect={(value, keyword) => replaceCurrentWord(value, keyword)}
+                />
+              </div>
+            )}
+            {/* Emoji picker */}
+            {showEmojiPicker && (
+              <div className="mt-1">
+                <YanguEmojiPicker
+                  onSelect={(value) => { insertEmoji(value); setShowEmojiPicker(false); }}
+                  onClose={() => setShowEmojiPicker(false)}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -275,7 +309,7 @@ function PostCard({ post, toggleReaction }: { post: Post; toggleReaction: any })
         </div>
         <span className="text-[10px] shrink-0" style={{ color: "rgba(255,255,255,0.3)" }}>{new Date(post.created_at).toLocaleDateString()}</span>
       </div>
-      <p className="text-sm text-white whitespace-pre-wrap mb-2">{displayContent}</p>
+      <div className="text-sm text-white whitespace-pre-wrap mb-2"><EmojiRenderer text={displayContent} /></div>
       {post.media_urls && post.media_urls.length > 0 && (
         <div className="mb-2 rounded-lg overflow-hidden">
           {post.media_type === "video" ? (
