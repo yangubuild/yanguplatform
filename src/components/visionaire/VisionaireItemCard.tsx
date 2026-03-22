@@ -54,7 +54,7 @@ export function VisionaireItemCard({ item, isSaved, onOpen, onSave, onUnsave, ea
       className="group rounded-xl border border-border bg-card overflow-hidden transition-all hover:shadow-lg hover:-translate-y-0.5 cursor-pointer flex flex-col min-w-0"
       onClick={onOpen}>
       {thumbnail && !imgError ? (
-        <div className="aspect-[4/3] overflow-hidden bg-muted flex-shrink-0">
+        <div className="aspect-[3/4] overflow-hidden bg-muted flex-shrink-0">
           <img
             src={thumbnail}
             alt={item.title}
@@ -64,7 +64,7 @@ export function VisionaireItemCard({ item, isSaved, onOpen, onSave, onUnsave, ea
           />
         </div>
       ) : (
-        <div className="aspect-[4/3] bg-muted flex items-center justify-center">
+        <div className="aspect-[3/4] bg-muted flex items-center justify-center">
           {item.type === "video" ? (
             <Play className="h-10 w-10 text-muted-foreground/40" />
           ) : item.type === "audio" || item.type === "podcast" ? (
