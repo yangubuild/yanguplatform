@@ -70,8 +70,8 @@ export function MassLandingPage() {
 
   return (
     <div 
-      className="min-h-screen"
-      style={{ background: '#08120D' }}>
+      className="bg-background min-h-screen"
+      >
       {/* Mobile menu button */}
       <button
         onClick={() => setSidebarOpen(true)}
@@ -81,7 +81,7 @@ export function MassLandingPage() {
 
       <MassSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <main className="lg:ml-[240px] min-h-screen">
+      <main className="bg-background lg:ml-[240px] min-h-screen">
         <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-10 py-6 pt-16 lg:pt-8">
           <MassHeader />
           <MassHero />

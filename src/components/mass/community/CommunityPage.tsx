@@ -103,9 +103,9 @@ function CommunityPageInner() {
 
   return (
     <div
-      className="min-h-screen"
-      style={{ background: '#08120D' }}>
-      <main className="min-h-screen">
+      className="bg-background min-h-screen"
+      >
+      <main className="bg-background min-h-screen">
         <SecondaryPageHeaderShell />
 
         {/* Community content */}

@@ -42,7 +42,7 @@ const INTERNAL_ROUTES = [
   "/builder",
 ];
 
-const resolverFallback = <div className="min-h-screen" style={{ backgroundColor: "#08120D" }} />;
+const resolverFallback = <div className="bg-background min-h-screen"  />;
 
 // Session-level cache for route resolution to eliminate blank frames on revisit
 const routeCache = new Map<string, { route: ResolvedRoute; debug: RouteDebugInfo }>();

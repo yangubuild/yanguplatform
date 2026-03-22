@@ -8,7 +8,7 @@ export default function PrivacyPolicy() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen" style={{ background: '#08120D' }}>
+    <div className="bg-background min-h-screen" >
       <button
         onClick={() => setSidebarOpen(true)}
         className="fixed top-4 left-4 z-30 p-2 rounded-lg bg-[#1c1c1c] text-foreground lg:hidden">
@@ -17,7 +17,7 @@ export default function PrivacyPolicy() {
 
       <MassSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <main className="lg:ml-[240px] min-h-screen flex flex-col">
+      <main className="bg-background lg:ml-[240px] min-h-screen flex flex-col">
         <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-10 py-6 pt-16 lg:pt-8 flex-1 w-full">
           <MassHeader hideTrends />
 

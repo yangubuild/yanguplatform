@@ -5,7 +5,7 @@ export default function BuilderPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center" style={{ background: '#08120D' }}>
+    <div className="bg-background min-h-screen flex flex-col items-center justify-center" >
       <img src={yanguLogo} alt="yangu" className="h-10 w-auto mb-8 opacity-60" />
       <h1 className="text-2xl font-bold text-foreground mb-3">Builder</h1>
       <p className="text-sm mb-8" style={{ color: 'rgba(255,255,255,0.4)' }}>Full builder page coming soon.</p>

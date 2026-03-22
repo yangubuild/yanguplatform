@@ -59,7 +59,7 @@ export default function DashboardExplore() {
   }, [verifiedEntities, productEntities, serviceEntities, communityEntities, popularEntities]);
 
   return (
-    <div className="min-h-full" style={{ background: '#08120D' }}>
+    <div className="min-h-full" >
       <div className="px-4 sm:px-6 lg:px-10 py-6 max-w-[1100px] mx-auto">
         <LandingTestPromptArea />
         <LandingTestGettingStarted />
