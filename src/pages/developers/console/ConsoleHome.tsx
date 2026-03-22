@@ -12,7 +12,7 @@ export default function ConsoleHome() {
         <DocsCard icon={Send} title="Submissions" description="Track and manage your App Store submissions." onClick={() => navigate("/developers/console/submissions")} />
         <DocsCard icon={Store} title="App Store" description="Browse published apps in the marketplace." onClick={() => navigate("/developers/store")} />
       </div>
-      <h2 className="text-lg font-semibold text-white mb-4">Runtime Management</h2>
+      <h2 className="text-lg font-semibold text-foreground mb-4">Runtime Management</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <DocsCard icon={Shield} title="Permissions" description="Scopes and provider access." onClick={() => navigate("/developers/console/permissions")} />
         <DocsCard icon={Activity} title="Runtime" description="Rate limit rules." onClick={() => navigate("/developers/console/runtime")} />

@@ -32,7 +32,7 @@ export function PromoEmptyState({ onCreateClick, onCreateOfferClick }: PromoEmpt
       </div>
 
       <div className="flex items-center gap-3">
-        <Button onClick={onCreateClick} className="rounded-lg px-5 h-10 gap-2 bg-[#152A20] text-white hover:bg-[#1a3528]">
+        <Button onClick={onCreateClick} className="rounded-lg px-5 h-10 gap-2 bg-[#152A20] text-foreground hover:bg-[#1a3528]">
           <Plus className="w-4 h-4" />
           Create promo code
         </Button>

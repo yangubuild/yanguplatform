@@ -26,7 +26,7 @@ export function TypingIndicator({ names }: Props) {
           />
         ))}
       </div>
-      <span className="text-[11px]" style={{ color: "rgba(255,255,255,0.4)" }}>
+      <span className="text-[11px] text-muted-foreground">
         {text}
       </span>
       <style>{`

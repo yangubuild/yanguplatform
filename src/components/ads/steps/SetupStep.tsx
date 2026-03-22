@@ -222,20 +222,20 @@ export function SetupStep({ data, onChange }: SetupStepProps) {
     <div className="space-y-8 max-w-2xl">
       {/* Campaign name */}
       <div>
-        <label className="block text-sm font-medium text-white mb-2">
+        <label className="block text-sm font-medium text-foreground mb-2">
           Campaign name
         </label>
         <input
           value={data.name}
           onChange={(e) => onChange({ ...data, name: e.target.value })}
           placeholder="e.g. Summer 2026 promo"
-          className="w-full bg-white/[0.04] border border-white/10 rounded-xl text-white px-4 py-3 text-sm outline-none transition-colors focus:border-[#b5622a] placeholder:text-white/30"
+          className="w-full bg-white/[0.04] border border-white/10 rounded-xl text-foreground px-4 py-3 text-sm outline-none transition-colors focus:border-[#b5622a] placeholder:text-muted-foreground"
         />
       </div>
 
       {/* Select product */}
       <div>
-        <label className="block text-sm font-medium text-white mb-3">
+        <label className="block text-sm font-medium text-foreground mb-3">
           Select a product
         </label>
         <div className="grid grid-cols-2 gap-3">
@@ -260,11 +260,11 @@ export function SetupStep({ data, onChange }: SetupStepProps) {
                 className="w-12 h-12 rounded-lg object-cover"
               />
               <div className="min-w-0">
-                <p className="text-sm font-medium text-white truncate">
+                <p className="text-sm font-medium text-foreground truncate">
                   {p.title}
                 </p>
-                <p className="text-xs text-white/40">{p.price}</p>
-                <p className="text-xs text-white/30">{p.members}</p>
+                <p className="text-xs text-muted-foreground">{p.price}</p>
+                <p className="text-xs text-muted-foreground">{p.members}</p>
               </div>
             </div>
           ))}
@@ -273,7 +273,7 @@ export function SetupStep({ data, onChange }: SetupStepProps) {
 
       {/* Target location */}
       <div>
-        <label className="block text-sm font-medium text-white mb-3">
+        <label className="block text-sm font-medium text-foreground mb-3">
           Target location
         </label>
 
@@ -288,8 +288,8 @@ export function SetupStep({ data, onChange }: SetupStepProps) {
         >
           <Globe className="w-5 h-5" style={{ color: "#b5622a" }} />
           <div>
-            <span className="text-sm font-medium text-white">Global reach</span>
-            <p className="text-xs text-white/40">
+            <span className="text-sm font-medium text-foreground">Global reach</span>
+            <p className="text-xs text-muted-foreground">
               Show your ads to users worldwide
             </p>
           </div>
@@ -307,21 +307,21 @@ export function SetupStep({ data, onChange }: SetupStepProps) {
         {!data.globalReach && (
           <div className="space-y-3">
             {/* Location label */}
-            <p className="text-sm font-medium text-white">Location</p>
+            <p className="text-sm font-medium text-foreground">Location</p>
 
             {/* Search bar with Include dropdown */}
             <div className="flex items-center border border-white/15 rounded-xl overflow-hidden bg-white/[0.03]">
-              <button className="flex items-center gap-1.5 px-4 py-2.5 text-sm text-white/60 border-r border-white/10 shrink-0">
+              <button className="flex items-center gap-1.5 px-4 py-2.5 text-sm text-muted-foreground border-r border-white/10 shrink-0">
                 {includeMode === "include" ? "Include" : "Exclude"}
                 <ChevronDown className="w-3.5 h-3.5" />
               </button>
               <div className="flex items-center flex-1 px-3 gap-2">
-                <Search className="w-4 h-4 text-white/30 shrink-0" />
+                <Search className="w-4 h-4 text-muted-foreground shrink-0" />
                 <input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search for continents or countries"
-                  className="w-full bg-transparent text-sm text-white placeholder:text-white/30 outline-none py-2.5"
+                  className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none py-2.5"
                 />
               </div>
             </div>
@@ -346,17 +346,17 @@ export function SetupStep({ data, onChange }: SetupStepProps) {
                       }`}
                       style={{ width: 18, height: 18 }}
                     >
-                      {selected && <Check className="w-3 h-3 text-white" />}
+                      {selected && <Check className="w-3 h-3 text-foreground" />}
                     </div>
-                    <span className="text-sm text-white/60">
+                    <span className="text-sm text-muted-foreground">
                       {g.type === "continent" ? "Continent" : "Country"} –{" "}
-                      <span className="text-white font-medium">{g.name}</span>
+                      <span className="text-foreground font-medium">{g.name}</span>
                     </span>
                   </div>
                 );
               })}
               {filtered.length === 0 && (
-                <div className="px-4 py-6 text-center text-sm text-white/30">
+                <div className="px-4 py-6 text-center text-sm text-muted-foreground">
                   No locations found
                 </div>
               )}

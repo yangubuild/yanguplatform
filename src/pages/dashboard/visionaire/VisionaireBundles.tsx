@@ -107,12 +107,12 @@ export default function VisionaireBundles() {
                         className="w-full h-full flex items-center justify-center"
                         style={{ background: titleToGradient(bundle.title) }}
                       >
-                        <Package className="h-12 w-12 text-white/20" />
+                        <Package className="h-12 w-12 text-muted-foreground" />
                       </div>
                     )}
                     {/* Item count badge */}
                     {content?.item_count && (
-                      <div className="absolute top-3 right-3 bg-black/70 text-white text-xs font-medium px-2 py-1 rounded-md backdrop-blur-sm">
+                      <div className="absolute top-3 right-3 bg-black/70 text-foreground text-xs font-medium px-2 py-1 rounded-md backdrop-blur-sm">
                         {content.item_count} items
                       </div>
                     )}

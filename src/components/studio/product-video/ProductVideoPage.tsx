@@ -368,7 +368,7 @@ function ChooseAvatarModal({ open, onClose }: { open: boolean; onClose: () => vo
                 </div>
                 {/* Styles badge */}
                 <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-black/50 backdrop-blur-sm rounded-full px-2 py-0.5">
-                  <span className="text-[10px] text-white">{av.styles} styles</span>
+                  <span className="text-[10px] text-foreground">{av.styles} styles</span>
                 </div>
               </div>
               <div className="flex items-center gap-1.5">
@@ -540,7 +540,7 @@ function VideoClipsTab({ onGenerated }: { onGenerated: (result: VideoGenerateRes
                }`}
              >
                <video src={vt.video} muted autoPlay loop playsInline className="absolute inset-0 w-full h-full object-cover" />
-               <span className="relative z-10 text-xs font-medium text-white m-2 drop-shadow-lg">{vt.label}</span>
+               <span className="relative z-10 text-xs font-medium text-foreground m-2 drop-shadow-lg">{vt.label}</span>
              </button>
            ))}
          </div>
@@ -734,7 +734,7 @@ function VideoTemplatesTab() {
             )}
             {/* Hover overlay */}
             <div className={`absolute inset-0 bg-black/50 flex items-center justify-center transition-opacity ${hoveringPreview ? "opacity-100" : "opacity-0"}`}>
-              <span className="text-sm font-semibold text-white flex items-center gap-1.5">
+              <span className="text-sm font-semibold text-foreground flex items-center gap-1.5">
                 Change template <ChevronDown className="h-4 w-4 -rotate-90" />
               </span>
             </div>

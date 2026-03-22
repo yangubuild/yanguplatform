@@ -93,7 +93,7 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
           <span className="font-normal">{item.label}</span>
         </div>
         {showArrow && (
-          <ChevronRight className="w-4 h-4 text-white/30" />
+          <ChevronRight className="w-4 h-4 text-muted-foreground" />
         )}
       </button>
     );
@@ -121,7 +121,7 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
         {/* Close button for mobile */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-white/40 hover:text-white lg:hidden"
+          className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-foreground lg:hidden"
         >
           <X className="w-5 h-5" />
         </button>
@@ -144,13 +144,13 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
           
           {/* Social icons */}
           <div className="px-4 pt-6 flex items-center gap-4">
-            <a href="#" className="text-white/40 hover:text-white/70 transition-colors">
+            <a href="#" className="text-muted-foreground hover:text-muted-foreground transition-colors">
               <Youtube className="w-5 h-5" />
             </a>
-            <a href="#" className="text-white/40 hover:text-white/70 transition-colors">
+            <a href="#" className="text-muted-foreground hover:text-muted-foreground transition-colors">
               <Twitter className="w-5 h-5" />
             </a>
-            <a href="#" className="text-white/40 hover:text-white/70 transition-colors">
+            <a href="#" className="text-muted-foreground hover:text-muted-foreground transition-colors">
               <Instagram className="w-5 h-5" />
             </a>
           </div>

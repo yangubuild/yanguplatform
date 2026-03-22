@@ -26,32 +26,28 @@ export function BlogEventCard({ event }: Props) {
 
       {/* Title */}
       <h3
-        className="font-medium leading-snug transition-colors duration-200 group-hover:text-white"
+        className="font-medium leading-snug transition-colors duration-200 group-hover:text-foreground"
         style={{
           fontFamily: "'Lufga', sans-serif",
-          fontSize: 18,
-          color: "rgba(255,255,255,0.9)",
-        }}
+          fontSize: 18, }}
       >
         {event.title}
       </h3>
 
       {/* Date */}
-      <p className="mt-2 text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>
+      <p className="mt-2 text-sm text-muted-foreground">
         {event.date}
       </p>
 
       {/* Register Now link */}
       <div className="flex items-center justify-between mt-4">
         <span
-          className="text-sm font-medium"
-          style={{ color: "rgba(255,255,255,0.7)" }}
+          className="text-sm font-medium text-muted-foreground"
         >
           Register Now
         </span>
         <ArrowUpRight
-          className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-          style={{ color: "rgba(255,255,255,0.5)" }}
+          className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 text-muted-foreground"
         />
       </div>
     </a>

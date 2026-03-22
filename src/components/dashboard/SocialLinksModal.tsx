@@ -63,7 +63,7 @@ export function SocialLinksModal({ open, onOpenChange, initialData, onSave, savi
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md" style={{ background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)" }}>
         <DialogHeader>
-          <DialogTitle className="text-white">Social icons</DialogTitle>
+          <DialogTitle className="text-foreground">Social icons</DialogTitle>
         </DialogHeader>
 
         <div className="flex flex-col gap-3 py-2 max-h-[60vh] overflow-y-auto">
@@ -78,7 +78,7 @@ export function SocialLinksModal({ open, onOpenChange, initialData, onSave, savi
                 value={values[platform.id] || ""}
                 onChange={e => setValues(prev => ({ ...prev, [platform.id]: e.target.value }))}
                 placeholder={platform.placeholder}
-                className="flex-1 bg-white/5 border-white/10 text-white placeholder:text-white/30 text-sm"
+                className="flex-1 bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground text-sm"
               />
             </div>
           ))}
@@ -88,7 +88,7 @@ export function SocialLinksModal({ open, onOpenChange, initialData, onSave, savi
           <Button
             variant="ghost"
             onClick={() => onOpenChange(false)}
-            className="text-white/60 hover:text-white hover:bg-white/10"
+            className="text-muted-foreground hover:text-foreground hover:bg-white/10"
           >
             Cancel
           </Button>
@@ -96,7 +96,7 @@ export function SocialLinksModal({ open, onOpenChange, initialData, onSave, savi
             onClick={handleSave}
             disabled={saving}
             style={{ background: "#E67E22" }}
-            className="text-white hover:opacity-90"
+            className="text-foreground hover:opacity-90"
           >
             {saving ? "Saving…" : "Save"}
           </Button>

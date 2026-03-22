@@ -49,19 +49,17 @@ export function BlogConsultingBanner() {
         <div className="flex-1 relative z-10 p-10">
           <h2
             className="text-2xl font-medium mb-3 leading-tight"
-            style={{ fontFamily: "'Lufga', sans-serif", color: "#fff" }}
+            style={{ fontFamily: "'Lufga', sans-serif", }}
           >
             Stop Planning Your AI Strategy. Start <span style={{ fontStyle: "italic" }}>E</span>xecuting It.
           </h2>
-          <p className="text-sm mb-6" style={{ color: "rgba(255,255,255,0.55)" }}>
+          <p className="text-sm mb-6 text-muted-foreground">
             Work with our team to build and ship AI-powered products and workflows for your organization.
           </p>
           <button
             className="rounded-lg px-6 py-2.5 text-sm font-semibold transition-all hover:brightness-110"
             style={{
-              background: "linear-gradient(90deg, #b5622a, #5c2a12)",
-              color: "#fff",
-            }}
+              background: "linear-gradient(90deg, #b5622a, #5c2a12)", }}
           >
             Learn more
           </button>

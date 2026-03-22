@@ -96,13 +96,13 @@ export function PostDetailModal({ postId, onClose }: PostDetailModalProps) {
       >
         {/* Header */}
         <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3" style={{ background: "#0F141A", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-          <span className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.85)" }}>Post</span>
+          <span className="text-xs font-semibold text-foreground">Post</span>
           <button
             onClick={onClose}
             className="w-7 h-7 rounded-full flex items-center justify-center"
             style={{ background: "rgba(255,255,255,0.06)" }}
           >
-            <X className="w-3.5 h-3.5 text-white/60" />
+            <X className="w-3.5 h-3.5 text-muted-foreground" />
           </button>
         </div>
 
@@ -116,7 +116,7 @@ export function PostDetailModal({ postId, onClose }: PostDetailModalProps) {
             <PostCard post={post} toggleReaction={toggleReaction} />
           ) : (
             <div className="text-center py-12">
-              <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Post not found</p>
+              <p className="text-xs text-muted-foreground">Post not found</p>
             </div>
           )}
         </div>

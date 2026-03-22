@@ -110,7 +110,7 @@ export default function MyAppsPage() {
   return (
     <div className="w-full min-h-screen px-6 py-6" style={{ background: "#08120D" }}>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-semibold text-white">My Apps</h1>
+        <h1 className="text-xl font-semibold text-foreground">My Apps</h1>
         <Button
           variant="accent"
           size="default"
@@ -123,7 +123,7 @@ export default function MyAppsPage() {
 
       {isLoading ? (
         <div className="flex justify-center py-20">
-          <Loader2 className="w-6 h-6 text-white/20 animate-spin" />
+          <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
         </div>
       ) : !installs || installs.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20">
@@ -131,10 +131,10 @@ export default function MyAppsPage() {
             className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
             style={{ background: "rgba(255,255,255,0.05)" }}
           >
-            <Grid3X3 className="w-8 h-8 text-white/20" />
+            <Grid3X3 className="w-8 h-8 text-muted-foreground" />
           </div>
-          <h2 className="text-lg font-semibold text-white mb-1">No apps yet</h2>
-          <p className="text-sm text-white/40 mb-6">Browse the app store to add apps to your dashboard.</p>
+          <h2 className="text-lg font-semibold text-foreground mb-1">No apps yet</h2>
+          <p className="text-sm text-muted-foreground mb-6">Browse the app store to add apps to your dashboard.</p>
           <Button
             variant="accent"
             size="default"
@@ -169,17 +169,17 @@ export default function MyAppsPage() {
                     className="w-11 h-11 rounded-xl object-cover shrink-0"
                   />
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-white font-semibold text-sm leading-tight">{item.app.name}</h4>
-                    <span className="text-[11px] text-white/35">
+                    <h4 className="text-foreground font-semibold text-sm leading-tight">{item.app.name}</h4>
+                    <span className="text-[11px] text-muted-foreground">
                       {item.app.provider_name} • {item.status === "connected" ? "Connected" : "Installed"}
                     </span>
                   </div>
                 </div>
-                <p className="text-xs text-white/40 leading-relaxed line-clamp-1">
+                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-1">
                   {item.app.short_description || "No description."}
                 </p>
                 <div className="flex items-center justify-between mt-auto pt-1">
-                  <span className="text-[10px] text-white/25">Added {installedDate}</span>
+                  <span className="text-[10px] text-muted-foreground">Added {installedDate}</span>
                   <div className="flex items-center gap-1.5">
                     {/* Show Connect button for OAuth apps not yet connected */}
                     {item.app.supports_oauth && item.status !== "connected" && (
@@ -201,7 +201,7 @@ export default function MyAppsPage() {
                     )}
                     <button
                       onClick={() => handleRemove(item.app_id, item.app.name)}
-                      className="p-1.5 rounded-lg hover:bg-white/5 transition-colors text-white/30 hover:text-red-400"
+                      className="p-1.5 rounded-lg hover:bg-white/5 transition-colors text-muted-foreground hover:text-red-400"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>

@@ -49,7 +49,7 @@ export function BlogPage() {
         {/* Source label */}
         <div className="px-6">
           <div className="mx-auto" style={{ maxWidth: 1100 }}>
-            <p className="text-xs uppercase tracking-widest mt-2 mb-4" style={{ color: "rgba(255,255,255,0.35)", letterSpacing: "0.12em" }}>
+            <p className="text-xs uppercase tracking-widest mt-2 mb-4" style={{ letterSpacing: "0.12em" }}>
               Anthropic AI Research Publication
             </p>
           </div>

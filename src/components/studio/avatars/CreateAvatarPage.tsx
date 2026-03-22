@@ -299,7 +299,7 @@ function VideoToAvatarTab() {
               <div key={i} className="flex flex-col items-center">
                 <div className="relative w-full aspect-[4/3] rounded-lg bg-muted/20 border border-border/20">
                   <div className={`absolute top-1 left-1 h-5 w-5 rounded-full flex items-center justify-center ${t.ok ? "bg-emerald-500" : "bg-red-500"}`}>
-                    {t.ok ? <CheckCircle2 className="h-3.5 w-3.5 text-white" /> : <XCircle className="h-3.5 w-3.5 text-white" />}
+                    {t.ok ? <CheckCircle2 className="h-3.5 w-3.5 text-foreground" /> : <XCircle className="h-3.5 w-3.5 text-foreground" />}
                   </div>
                 </div>
                 <span className="text-xs text-muted-foreground mt-1">{t.label}</span>

@@ -52,7 +52,7 @@ export function AffiliateMarketplacePage({ onBack, onSwitchToCreator, onApplyPar
     <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-1">
-        <h1 className="text-xl font-semibold text-white">Affiliates</h1>
+        <h1 className="text-xl font-semibold text-foreground">Affiliates</h1>
         <div className="flex items-center gap-2">
           <button
             onClick={onApplyPartner}
@@ -62,7 +62,7 @@ export function AffiliateMarketplacePage({ onBack, onSwitchToCreator, onApplyPar
           </button>
           <button
             onClick={onSwitchToCreator}
-            className="px-4 py-2 rounded-xl text-sm font-medium border border-white/10 text-white/70 hover:text-white transition-colors"
+            className="px-4 py-2 rounded-xl text-sm font-medium border border-white/10 text-muted-foreground hover:text-foreground transition-colors"
           >
             Creator dashboard
           </button>
@@ -71,30 +71,30 @@ export function AffiliateMarketplacePage({ onBack, onSwitchToCreator, onApplyPar
 
       {/* Tabs */}
       <div className="flex gap-6 border-b border-white/[0.06] mt-2 mb-6">
-        <button className="pb-3 text-sm font-medium text-white/40">Dashboard</button>
-        <button className="pb-3 text-sm font-medium text-white relative">
+        <button className="pb-3 text-sm font-medium text-muted-foreground">Dashboard</button>
+        <button className="pb-3 text-sm font-medium text-foreground relative">
           Refer buyers
           <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-accent rounded-full" />
         </button>
-        <button className="pb-3 text-sm font-medium text-white/40">Refer sellers</button>
+        <button className="pb-3 text-sm font-medium text-muted-foreground">Refer sellers</button>
       </div>
 
       {/* Back + Title */}
-      <button onClick={onBack} className="flex items-center gap-1 text-sm text-white/50 hover:text-white mb-4">
+      <button onClick={onBack} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4">
         <ChevronLeft className="w-4 h-4" /> Back
       </button>
 
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <h3 className="text-base font-semibold text-white">Affiliate marketplace</h3>
+          <h3 className="text-base font-semibold text-foreground">Affiliate marketplace</h3>
           <IndustryTypeFilter value={industryFilter} onChange={setIndustryFilter} />
         </div>
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/[0.06] w-56">
-          <Search className="w-4 h-4 text-white/30" />
+          <Search className="w-4 h-4 text-muted-foreground" />
           <input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="bg-transparent text-sm text-white placeholder:text-white/30 focus:outline-none w-full"
+            className="bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none w-full"
             placeholder="Search"
           />
         </div>
@@ -106,14 +106,14 @@ export function AffiliateMarketplacePage({ onBack, onSwitchToCreator, onApplyPar
           <table className="w-full">
             <thead>
               <tr className="border-b border-white/[0.04]">
-                <th className="text-left text-xs text-white/30 font-medium px-4 py-3">Company</th>
-                <th className="text-left text-xs text-white/30 font-medium px-4 py-3">Industry type</th>
-                <th className="text-left text-xs text-white/30 font-medium px-4 py-3">Commission rate</th>
-                <th className="text-left text-xs text-white/30 font-medium px-4 py-3">Affiliate earnings</th>
-                <th className="text-left text-xs text-white/30 font-medium px-4 py-3">Conversions</th>
-                <th className="text-left text-xs text-white/30 font-medium px-4 py-3">Earnings per click</th>
-                <th className="text-left text-xs text-white/30 font-medium px-4 py-3">Conversion rate</th>
-                <th className="text-right text-xs text-white/30 font-medium px-4 py-3">Actions</th>
+                <th className="text-left text-xs text-muted-foreground font-medium px-4 py-3">Company</th>
+                <th className="text-left text-xs text-muted-foreground font-medium px-4 py-3">Industry type</th>
+                <th className="text-left text-xs text-muted-foreground font-medium px-4 py-3">Commission rate</th>
+                <th className="text-left text-xs text-muted-foreground font-medium px-4 py-3">Affiliate earnings</th>
+                <th className="text-left text-xs text-muted-foreground font-medium px-4 py-3">Conversions</th>
+                <th className="text-left text-xs text-muted-foreground font-medium px-4 py-3">Earnings per click</th>
+                <th className="text-left text-xs text-muted-foreground font-medium px-4 py-3">Conversion rate</th>
+                <th className="text-right text-xs text-muted-foreground font-medium px-4 py-3">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -127,15 +127,15 @@ export function AffiliateMarketplacePage({ onBack, onSwitchToCreator, onApplyPar
                       <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0">
                         <img src={listing.avatarUrl} alt="" className="w-full h-full object-cover" />
                       </div>
-                      <span className="text-sm text-white font-medium">{listing.company}</span>
+                      <span className="text-sm text-foreground font-medium">{listing.company}</span>
                     </button>
                   </td>
-                  <td className="px-4 py-3 text-sm text-white/60">{listing.industryType}</td>
-                  <td className="px-4 py-3 text-sm text-white/60">{listing.commissionRate}</td>
-                  <td className="px-4 py-3 text-sm text-white/60">{listing.affiliateEarnings}</td>
-                  <td className="px-4 py-3 text-sm text-white/60">{listing.conversions}</td>
-                  <td className="px-4 py-3 text-sm text-white/60">{listing.earningsPerClick}</td>
-                  <td className="px-4 py-3 text-sm text-white/60">{listing.conversionRate}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">{listing.industryType}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">{listing.commissionRate}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">{listing.affiliateEarnings}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">{listing.conversions}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">{listing.earningsPerClick}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">{listing.conversionRate}</td>
                   <td className="px-4 py-3 text-right">
                     {isJoined(listing.id) ? (
                       <button
@@ -147,7 +147,7 @@ export function AffiliateMarketplacePage({ onBack, onSwitchToCreator, onApplyPar
                     ) : (
                       <button
                         onClick={() => handleDirectJoin(listing.id)}
-                        className="px-3 py-1.5 rounded-lg text-xs font-medium text-white border border-white/[0.08] hover:bg-white/[0.04] transition-colors"
+                        className="px-3 py-1.5 rounded-lg text-xs font-medium text-foreground border border-white/[0.08] hover:bg-white/[0.04] transition-colors"
                       >
                         Become affiliate
                       </button>
@@ -159,16 +159,16 @@ export function AffiliateMarketplacePage({ onBack, onSwitchToCreator, onApplyPar
           </table>
         </div>
 
-        <div className="flex items-center justify-between px-4 py-3 text-xs text-white/30 border-t border-white/[0.04]">
+        <div className="flex items-center justify-between px-4 py-3 text-xs text-muted-foreground border-t border-white/[0.04]">
           <span>Showing 1 to {filtered.length} of {filtered.length}</span>
           <div className="flex items-center gap-2">
-            <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-white/30">‹</button>
-            <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-white bg-white/[0.06]">1</button>
-            <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-white/30">›</button>
+            <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-muted-foreground">‹</button>
+            <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-foreground bg-white/[0.06]">1</button>
+            <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-muted-foreground">›</button>
           </div>
           <div className="flex items-center gap-2">
             <span>Show</span>
-            <div className="flex items-center gap-1 px-2 py-1 rounded-lg border border-white/[0.06] text-white/60">
+            <div className="flex items-center gap-1 px-2 py-1 rounded-lg border border-white/[0.06] text-muted-foreground">
               10 <ChevronDown className="w-3 h-3" />
             </div>
           </div>
@@ -203,20 +203,20 @@ function MarketplaceViewAssets({ companyName, onBack }: { companyName: string; o
 
   return (
     <div>
-      <button onClick={onBack} className="flex items-center gap-1 text-sm text-white/50 hover:text-white mb-4">
+      <button onClick={onBack} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4">
         <ChevronLeft className="w-4 h-4" /> Back to marketplace
       </button>
 
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <h3 className="text-base font-semibold text-white">Your affiliate links — {companyName}</h3>
-          <button className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-dashed border-white/20 text-xs text-white/50">
-            <Plus className="w-3 h-3 text-white/30" /> Link type
+          <h3 className="text-base font-semibold text-foreground">Your affiliate links — {companyName}</h3>
+          <button className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-dashed border-white/20 text-xs text-muted-foreground">
+            <Plus className="w-3 h-3 text-muted-foreground" /> Link type
           </button>
         </div>
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/[0.06] w-56">
-          <Search className="w-4 h-4 text-white/30" />
-          <input className="bg-transparent text-sm text-white placeholder:text-white/30 focus:outline-none w-full" placeholder="Search" />
+          <Search className="w-4 h-4 text-muted-foreground" />
+          <input className="bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none w-full" placeholder="Search" />
         </div>
       </div>
 
@@ -225,15 +225,15 @@ function MarketplaceViewAssets({ companyName, onBack }: { companyName: string; o
           <table className="w-full">
             <thead>
               <tr className="border-b border-white/[0.04]">
-                <th className="text-left text-xs text-white/30 font-medium px-4 py-3">Type</th>
-                <th className="text-left text-xs text-white/30 font-medium px-4 py-3">Name</th>
-                <th className="text-left text-xs text-white/30 font-medium px-4 py-3">Price</th>
-                <th className="text-left text-xs text-white/30 font-medium px-4 py-3">Affiliate rate</th>
-                <th className="text-left text-xs text-white/30 font-medium px-4 py-3">Affiliate link</th>
-                <th className="text-right text-xs text-white/30 font-medium px-4 py-3">Earned</th>
-                <th className="text-center text-xs text-white/30 font-medium px-4 py-3">Clicks</th>
-                <th className="text-center text-xs text-white/30 font-medium px-4 py-3">Users</th>
-                <th className="text-center text-xs text-white/30 font-medium px-4 py-3">Conversion rate</th>
+                <th className="text-left text-xs text-muted-foreground font-medium px-4 py-3">Type</th>
+                <th className="text-left text-xs text-muted-foreground font-medium px-4 py-3">Name</th>
+                <th className="text-left text-xs text-muted-foreground font-medium px-4 py-3">Price</th>
+                <th className="text-left text-xs text-muted-foreground font-medium px-4 py-3">Affiliate rate</th>
+                <th className="text-left text-xs text-muted-foreground font-medium px-4 py-3">Affiliate link</th>
+                <th className="text-right text-xs text-muted-foreground font-medium px-4 py-3">Earned</th>
+                <th className="text-center text-xs text-muted-foreground font-medium px-4 py-3">Clicks</th>
+                <th className="text-center text-xs text-muted-foreground font-medium px-4 py-3">Users</th>
+                <th className="text-center text-xs text-muted-foreground font-medium px-4 py-3">Conversion rate</th>
               </tr>
             </thead>
             <tbody>
@@ -244,37 +244,37 @@ function MarketplaceViewAssets({ companyName, onBack }: { companyName: string; o
                       {link.type}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-sm text-white">{link.name}</td>
-                  <td className="px-4 py-3 text-sm text-white/60">{link.price}</td>
-                  <td className="px-4 py-3 text-sm text-white/60">{link.rate}</td>
+                  <td className="px-4 py-3 text-sm text-foreground">{link.name}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">{link.price}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">{link.rate}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-white/60 truncate max-w-[240px]">{link.link}</span>
-                      <button onClick={() => handleCopy(link.link)} className="text-white/30 hover:text-white flex-shrink-0">
+                      <span className="text-sm text-muted-foreground truncate max-w-[240px]">{link.link}</span>
+                      <button onClick={() => handleCopy(link.link)} className="text-muted-foreground hover:text-foreground flex-shrink-0">
                         <Copy className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-white/60 text-right">{link.earned}</td>
-                  <td className="px-4 py-3 text-sm text-white/60 text-center">{link.clicks}</td>
-                  <td className="px-4 py-3 text-sm text-white/60 text-center">{link.users}</td>
-                  <td className="px-4 py-3 text-sm text-white/60 text-center">{link.conversionRate}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground text-right">{link.earned}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground text-center">{link.clicks}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground text-center">{link.users}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground text-center">{link.conversionRate}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
 
-        <div className="flex items-center justify-between px-4 py-3 text-xs text-white/30 border-t border-white/[0.04]">
+        <div className="flex items-center justify-between px-4 py-3 text-xs text-muted-foreground border-t border-white/[0.04]">
           <span>Showing 1 to 2 of 2</span>
           <div className="flex items-center gap-2">
-            <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-white/30">‹</button>
-            <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-white bg-white/[0.06]">1</button>
-            <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-white/30">›</button>
+            <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-muted-foreground">‹</button>
+            <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-foreground bg-white/[0.06]">1</button>
+            <button className="w-7 h-7 rounded-lg border border-white/[0.06] flex items-center justify-center text-muted-foreground">›</button>
           </div>
           <div className="flex items-center gap-2">
             <span>Show</span>
-            <div className="flex items-center gap-1 px-2 py-1 rounded-lg border border-white/[0.06] text-white/60">
+            <div className="flex items-center gap-1 px-2 py-1 rounded-lg border border-white/[0.06] text-muted-foreground">
               10 <ChevronDown className="w-3 h-3" />
             </div>
           </div>

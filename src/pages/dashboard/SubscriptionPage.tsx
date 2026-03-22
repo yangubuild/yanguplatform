@@ -46,7 +46,7 @@ export default function SubscriptionPage() {
     <div className="max-w-4xl mx-auto py-6 px-4 min-h-screen" style={{ background: "#08120D" }}>
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-lg font-semibold text-white">Choose a plan that works for you</h1>
+        <h1 className="text-lg font-semibold text-foreground">Choose a plan that works for you</h1>
         <div className="flex rounded-lg overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.15)" }}>
           {(["personal", "business"] as const).map((t) => (
             <button
@@ -78,7 +78,7 @@ export default function SubscriptionPage() {
             {plan.popular && (
               <span
                 className="absolute -top-3 left-1/2 -translate-x-1/2 text-[11px] font-bold px-3 py-1 rounded-full"
-                style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.15)", color: "#fff" }}
+                style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.15)", }}
               >
                 Most Popular
               </span>
@@ -86,23 +86,23 @@ export default function SubscriptionPage() {
             {plan.highValue && (
               <span
                 className="absolute -top-3 left-1/2 -translate-x-1/2 text-[11px] font-bold px-3 py-1 rounded-full"
-                style={{ background: "#1a2025", border: "1px solid rgba(255,255,255,0.15)", color: "#fff" }}
+                style={{ background: "#1a2025", border: "1px solid rgba(255,255,255,0.15)", }}
               >
                 Highest Value
               </span>
             )}
 
-            <h3 className="text-lg font-bold text-white">{plan.name}</h3>
-            <p className="text-xs mb-3" style={{ color: "rgba(255,255,255,0.45)" }}>{plan.description}</p>
-            <p className="text-3xl font-bold text-white mb-1">
-              {plan.price}<span className="text-sm font-normal" style={{ color: "rgba(255,255,255,0.45)" }}>/mo</span>
+            <h3 className="text-lg font-bold text-foreground">{plan.name}</h3>
+            <p className="text-xs mb-3 text-muted-foreground">{plan.description}</p>
+            <p className="text-3xl font-bold text-foreground mb-1">
+              {plan.price}<span className="text-sm font-normal text-muted-foreground">/mo</span>
             </p>
 
             <div className="h-px my-3" style={{ background: "rgba(255,255,255,0.08)" }} />
 
             <div className="space-y-1 mb-4">
               {plan.highlights.map((h) => (
-                <p key={h} className="text-sm" style={{ color: "rgba(255,255,255,0.6)" }}>{h}</p>
+                <p key={h} className="text-sm text-muted-foreground">{h}</p>
               ))}
             </div>
 
@@ -118,11 +118,11 @@ export default function SubscriptionPage() {
             </button>
 
             <div className="mt-4">
-              <p className="text-xs font-bold mb-2" style={{ color: "rgba(255,255,255,0.6)" }}>Plan highlights:</p>
+              <p className="text-xs font-bold mb-2 text-muted-foreground">Plan highlights:</p>
               {plan.features.map((f) => (
                 <div key={f} className="flex items-center gap-2 mb-1">
                   <Check className="w-3.5 h-3.5" style={{ color: "#4ade80" }} />
-                  <span className="text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>{f}</span>
+                  <span className="text-xs text-muted-foreground">{f}</span>
                 </div>
               ))}
             </div>
@@ -135,15 +135,15 @@ export default function SubscriptionPage() {
         {/* Current plan */}
         <div className="rounded-2xl p-5" style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.08)" }}>
           <div className="flex items-center justify-between mb-1">
-            <p className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.5)" }}>Your Current Plan</p>
-            <Star className="w-4 h-4" style={{ color: "rgba(255,255,255,0.3)" }} />
+            <p className="text-xs font-medium text-muted-foreground">Your Current Plan</p>
+            <Star className="w-4 h-4 text-muted-foreground" />
           </div>
-          <p className="text-lg font-bold text-white mb-0.5">Free</p>
-          <p className="text-xs mb-4" style={{ color: "rgba(255,255,255,0.4)" }}>Member since Dec 25, 2025</p>
+          <p className="text-lg font-bold text-foreground mb-0.5">Free</p>
+          <p className="text-xs mb-4 text-muted-foreground">Member since Dec 25, 2025</p>
           <button
             onClick={() => navigate("/dashboard/profile/subscription")}
             className="flex items-center gap-2 w-full justify-center py-2 rounded-xl text-sm"
-            style={{ border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.6)" }}
+            style={{ border: "1px solid rgba(255,255,255,0.12)", }}
           >
             <Settings className="w-4 h-4" /> Manage Subscription
           </button>
@@ -152,17 +152,17 @@ export default function SubscriptionPage() {
         {/* Credits */}
         <div className="rounded-2xl p-5" style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.08)" }}>
           <div className="flex items-center justify-between mb-1">
-            <p className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.5)" }}>Credits Remaining</p>
-            <CreditCard className="w-4 h-4" style={{ color: "rgba(255,255,255,0.3)" }} />
+            <p className="text-xs font-medium text-muted-foreground">Credits Remaining</p>
+            <CreditCard className="w-4 h-4 text-muted-foreground" />
           </div>
           <div className="flex items-baseline gap-2 mb-2">
-            <p className="text-2xl font-bold text-white">{balance}</p>
-            <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>of 1</p>
+            <p className="text-2xl font-bold text-foreground">{balance}</p>
+            <p className="text-xs text-muted-foreground">of 1</p>
           </div>
           <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
             <div className="h-full rounded-full" style={{ width: `${Math.min(balance * 100, 100)}%`, background: "#2d5a3d" }} />
           </div>
-          <p className="text-xs mt-2" style={{ color: "rgba(255,255,255,0.35)" }}>
+          <p className="text-xs mt-2 text-muted-foreground">
             You get 1 credit per month, this will refresh monthly.
           </p>
         </div>

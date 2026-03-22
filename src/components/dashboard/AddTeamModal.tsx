@@ -186,7 +186,7 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
         style={{ background: "#111a15", borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)" }}
       >
         <div className="flex items-center justify-between px-6 pt-6 pb-2">
-          <DialogTitle className="text-lg font-bold text-white">Add team member</DialogTitle>
+          <DialogTitle className="text-lg font-bold text-foreground">Add team member</DialogTitle>
         </div>
 
         <div className="px-4 py-2 space-y-1">
@@ -211,11 +211,11 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
                   )}
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-semibold text-white">{role.name}</p>
-                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{role.desc}</p>
+                  <p className="text-sm font-semibold text-foreground">{role.name}</p>
+                  <p className="text-xs text-muted-foreground">{role.desc}</p>
                 </div>
               </div>
-              <Eye className="w-4 h-4 shrink-0" style={{ color: "rgba(255,255,255,0.3)" }} />
+              <Eye className="w-4 h-4 shrink-0 text-muted-foreground" />
             </button>
           ))}
         </div>
@@ -226,7 +226,7 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
         <div className="px-4 pt-3 relative">
           <div className="flex items-center gap-2 rounded-lg px-3 h-10"
             style={{ background: "rgba(255,255,255,0.04)", border: "1.5px solid rgba(181,98,42,0.4)" }}>
-            <Search className="w-4 h-4 shrink-0" style={{ color: "rgba(255,255,255,0.3)" }} />
+            <Search className="w-4 h-4 shrink-0 text-muted-foreground" />
             <input
               type="text"
               value={searchInput}
@@ -235,10 +235,10 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
                 if (selectedUser) setSelectedUser(null);
               }}
               placeholder="Search by name or username..."
-              className="flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/25"
+              className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
             />
             {selectedUser && (
-              <button onClick={handleClearUser} className="text-xs text-white/40 hover:text-white/60">✕</button>
+              <button onClick={handleClearUser} className="text-xs text-muted-foreground hover:text-muted-foreground">✕</button>
             )}
           </div>
 
@@ -256,7 +256,7 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
                     className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-white/5 transition-colors text-left"
                   >
                     <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
-                      style={{ background: resolved ? "transparent" : "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)" }}>
+                      style={{ background: resolved ? "transparent" : "rgba(255,255,255,0.1)", }}>
                       {resolved ? (
                         <img src={resolved} alt="" className="w-8 h-8 rounded-full object-cover" />
                       ) : (
@@ -264,8 +264,8 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
                       )}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-white truncate">{u.display_name || u.username}</p>
-                      {u.username && <p className="text-xs text-white/35 truncate">@{u.username}</p>}
+                      <p className="text-sm font-medium text-foreground truncate">{u.display_name || u.username}</p>
+                      {u.username && <p className="text-xs text-muted-foreground truncate">@{u.username}</p>}
                     </div>
                   </button>
                 );

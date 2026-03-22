@@ -134,7 +134,7 @@ export default function AgencyAnalyticsPage() {
                 </TableCell>
                 <TableCell>
                   <Badge
-                    className="text-xs text-white"
+                    className="text-xs text-foreground"
                     style={{ background: phaseColors[m.phase] || "hsl(var(--muted))" }}
                   >
                     {m.phase}

@@ -149,21 +149,21 @@ export function CreateOfferModal({ open, onClose }: Props) {
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-3">
-          <h2 className="text-base font-semibold text-white">Create offer</h2>
+          <h2 className="text-base font-semibold text-foreground">Create offer</h2>
           <button onClick={onClose} className="p-1 rounded-lg hover:bg-white/[0.06] transition-colors">
-            <X className="w-5 h-5 text-white/50" />
+            <X className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-5 pb-3 space-y-5">
           {/* Image upload */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-white/80">Offer Image</label>
+            <label className="text-sm font-medium text-muted-foreground">Offer Image</label>
             <label className="flex flex-col items-center justify-center h-40 rounded-xl border border-dashed border-white/20 bg-white/[0.02] cursor-pointer hover:bg-white/[0.04] transition-colors overflow-hidden">
               {imagePreview ? (
                 <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
               ) : (
-                <div className="flex flex-col items-center gap-2 text-white/40">
+                <div className="flex flex-col items-center gap-2 text-muted-foreground">
                   <Upload className="w-8 h-8" />
                   <span className="text-sm">Upload image</span>
                 </div>
@@ -174,43 +174,43 @@ export function CreateOfferModal({ open, onClose }: Props) {
 
           {/* Header */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-white/80">Offer Header</label>
+            <label className="text-sm font-medium text-muted-foreground">Offer Header</label>
             <input
               type="text"
               placeholder="Summer Sale"
               value={header}
               onChange={(e) => setHeader(e.target.value)}
-              className="w-full rounded-xl px-4 h-11 text-sm text-white placeholder:text-white/30 border border-white/10 bg-white/[0.04] focus:outline-none focus:border-white/20 transition-colors"
+              className="w-full rounded-xl px-4 h-11 text-sm text-foreground placeholder:text-muted-foreground border border-white/10 bg-white/[0.04] focus:outline-none focus:border-white/20 transition-colors"
             />
           </div>
 
           {/* Description */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-white/80">Offer Description</label>
+            <label className="text-sm font-medium text-muted-foreground">Offer Description</label>
             <textarea
               placeholder="Describe your offer..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              className="w-full rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 border border-white/10 bg-white/[0.04] focus:outline-none focus:border-white/20 transition-colors resize-none"
+              className="w-full rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground border border-white/10 bg-white/[0.04] focus:outline-none focus:border-white/20 transition-colors resize-none"
             />
           </div>
 
           {/* Destination link */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-white/80">Destination Link</label>
+            <label className="text-sm font-medium text-muted-foreground">Destination Link</label>
             <input
               type="url"
               placeholder="https://..."
               value={destinationUrl}
               onChange={(e) => setDestinationUrl(e.target.value)}
-              className="w-full rounded-xl px-4 h-11 text-sm text-white placeholder:text-white/30 border border-white/10 bg-white/[0.04] focus:outline-none focus:border-white/20 transition-colors"
+              className="w-full rounded-xl px-4 h-11 text-sm text-foreground placeholder:text-muted-foreground border border-white/10 bg-white/[0.04] focus:outline-none focus:border-white/20 transition-colors"
             />
           </div>
 
           {/* Duration selector */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-white/80">Duration</label>
+            <label className="text-sm font-medium text-muted-foreground">Duration</label>
             <div className="grid grid-cols-3 gap-2">
               {durationOptions.map((opt) => (
                 <button
@@ -219,12 +219,12 @@ export function CreateOfferModal({ open, onClose }: Props) {
                   onClick={() => setDurationType(opt.value)}
                   className={`rounded-xl px-3 py-3 text-center border transition-colors ${
                     durationType === opt.value
-                      ? "border-accent/50 bg-accent/10 text-white"
-                      : "border-white/10 bg-white/[0.04] text-white/50 hover:bg-white/[0.06]"
+                      ? "border-accent/50 bg-accent/10 text-foreground"
+                      : "border-white/10 bg-white/[0.04] text-muted-foreground hover:bg-white/[0.06]"
                   }`}
                 >
                   <p className="text-sm font-semibold">{opt.label}</p>
-                  <p className="text-xs text-white/40 mt-0.5">{opt.price}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{opt.price}</p>
                 </button>
               ))}
             </div>
@@ -232,8 +232,8 @@ export function CreateOfferModal({ open, onClose }: Props) {
 
           {/* Fee summary */}
           <div className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3">
-            <span className="text-sm text-white/60">Offer fee</span>
-            <span className="text-sm font-semibold text-white">{selectedDuration.price}</span>
+            <span className="text-sm text-muted-foreground">Offer fee</span>
+            <span className="text-sm font-semibold text-foreground">{selectedDuration.price}</span>
           </div>
         </form>
 
@@ -243,7 +243,7 @@ export function CreateOfferModal({ open, onClose }: Props) {
             type="submit"
             disabled={isSubmitting || !header.trim()}
             onClick={handleSubmit as any}
-            className="w-full h-12 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-40"
+            className="w-full h-12 rounded-xl text-sm font-semibold text-foreground transition-all disabled:opacity-40"
             style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
           >
             {isSubmitting ? "Publishing…" : "Publish Offer"}

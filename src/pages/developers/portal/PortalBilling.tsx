@@ -4,7 +4,7 @@ import { CreditCard, Sparkles, CheckCircle2, Clock, AlertTriangle, Webhook, Zap,
 const STATUS_STYLES = {
   live: { bg: "rgba(34,197,94,0.10)", border: "rgba(34,197,94,0.25)", color: "#22c55e", label: "Live" },
   partial: { bg: "rgba(250,204,21,0.10)", border: "rgba(250,204,21,0.25)", color: "#facc15", label: "Partial" },
-  planned: { bg: "rgba(255,255,255,0.05)", border: "rgba(255,255,255,0.10)", color: "rgba(255,255,255,0.4)", label: "Planned" },
+  planned: { bg: "rgba(255,255,255,0.05)", border: "rgba(255,255,255,0.10)", label: "Planned" },
 } as const;
 
 function StatusBadge({ status }: { status: keyof typeof STATUS_STYLES }) {
@@ -35,8 +35,8 @@ function FeatureRow({ title, description, status }: FeatureRowProps) {
       style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}
     >
       <div className="min-w-0">
-        <p className="text-white text-sm font-medium">{title}</p>
-        <p className="text-white/40 text-xs mt-1">{description}</p>
+        <p className="text-foreground text-sm font-medium">{title}</p>
+        <p className="text-muted-foreground text-xs mt-1">{description}</p>
       </div>
       <StatusBadge status={status} />
     </div>
@@ -57,8 +57,8 @@ export default function PortalBilling() {
             <Sparkles className="w-5 h-5" style={{ color: "#F46D2A" }} />
           </div>
           <div>
-            <h3 className="text-white font-semibold text-sm">Developer API — Free during beta</h3>
-            <p className="text-white/40 text-xs">API calls, apps, and webhooks are unlimited. No credit card required.</p>
+            <h3 className="text-foreground font-semibold text-sm">Developer API — Free during beta</h3>
+            <p className="text-muted-foreground text-xs">API calls, apps, and webhooks are unlimited. No credit card required.</p>
           </div>
         </div>
         <div className="grid grid-cols-3 gap-3">
@@ -68,8 +68,8 @@ export default function PortalBilling() {
             { label: "Webhooks", value: "Unlimited" },
           ].map((item) => (
             <div key={item.label} className="rounded-lg p-3 text-center" style={{ background: "rgba(255,255,255,0.03)" }}>
-              <p className="text-white/40 text-xs mb-0.5">{item.label}</p>
-              <p className="text-white font-semibold text-sm">{item.value}</p>
+              <p className="text-muted-foreground text-xs mb-0.5">{item.label}</p>
+              <p className="text-foreground font-semibold text-sm">{item.value}</p>
             </div>
           ))}
         </div>
@@ -90,7 +90,7 @@ export default function PortalBilling() {
 
       {/* Payment flows */}
       <DocsSection title="Payment Flows" description="How payments are processed on the YANGU platform.">
-        <h4 className="text-white/70 text-xs font-semibold uppercase tracking-wider mb-3 mt-2">Creator commerce (live)</h4>
+        <h4 className="text-muted-foreground text-xs font-semibold uppercase tracking-wider mb-3 mt-2">Creator commerce (live)</h4>
         <div className="space-y-2 mb-6">
           <FeatureRow title="Manual payment methods" description="Bank transfer, Mobile Money, Cash on Delivery, PayPal link. Configured per creator in payment settings." status="live" />
           <FeatureRow title="Checkout flow" description="Buyer sees creator's enabled payment instructions → confirms via 'I have paid' → creator marks paid in orders dashboard." status="live" />
@@ -99,7 +99,7 @@ export default function PortalBilling() {
           <FeatureRow title="Order tracking" description="Anonymous order lookup via track_order RPC using tracking code + email. Rate-limited to 10 per 60s." status="live" />
         </div>
 
-        <h4 className="text-white/70 text-xs font-semibold uppercase tracking-wider mb-3">Platform subscriptions (partial)</h4>
+        <h4 className="text-muted-foreground text-xs font-semibold uppercase tracking-wider mb-3">Platform subscriptions (partial)</h4>
         <div className="space-y-2">
           <FeatureRow title="Stripe checkout session" description="Edge function stripe-create-checkout implemented. Creates checkout sessions server-side." status="partial" />
           <FeatureRow title="Stripe webhook handler" description="stripe-webhook edge function with idempotency via billing_events. Manages subscription lifecycle and quota resets." status="partial" />
@@ -124,7 +124,7 @@ export default function PortalBilling() {
           className="rounded-lg p-4 mb-4"
           style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}
         >
-          <h4 className="text-white text-sm font-medium mb-3">Core tables</h4>
+          <h4 className="text-foreground text-sm font-medium mb-3">Core tables</h4>
           <div className="grid grid-cols-2 gap-2">
             {[
               "billing_customers",
@@ -139,7 +139,7 @@ export default function PortalBilling() {
               <code
                 key={t}
                 className="text-xs px-2 py-1.5 rounded"
-                style={{ background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.6)" }}
+                style={{ background: "rgba(255,255,255,0.05)", }}
               >
                 {t}
               </code>
@@ -150,7 +150,7 @@ export default function PortalBilling() {
           className="rounded-lg p-4"
           style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}
         >
-          <h4 className="text-white text-sm font-medium mb-3">Key RPCs & edge functions</h4>
+          <h4 className="text-foreground text-sm font-medium mb-3">Key RPCs & edge functions</h4>
           <div className="space-y-1.5">
             {[
               { name: "admin_set_user_entitlements", desc: "Admin-only plan provisioning with usage reset" },
@@ -167,7 +167,7 @@ export default function PortalBilling() {
                 >
                   {r.name}
                 </code>
-                <span className="text-white/40 text-xs">{r.desc}</span>
+                <span className="text-muted-foreground text-xs">{r.desc}</span>
               </div>
             ))}
           </div>

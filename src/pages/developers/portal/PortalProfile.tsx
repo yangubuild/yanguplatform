@@ -115,7 +115,7 @@ export default function PortalProfile() {
       >
         <div className="flex items-center gap-3">
           <User className="w-5 h-5" style={{ color: "#F46D2A" }} />
-          <h3 className="text-white font-semibold text-sm">Your Profile</h3>
+          <h3 className="text-foreground font-semibold text-sm">Your Profile</h3>
         </div>
 
         {/* Avatar */}
@@ -123,49 +123,49 @@ export default function PortalProfile() {
           <div className="relative">
             <Avatar className="w-16 h-16">
               <AvatarImage src={avatarUrl || undefined} />
-              <AvatarFallback className="bg-white/10 text-white text-lg">{initials}</AvatarFallback>
+              <AvatarFallback className="bg-white/10 text-foreground text-lg">{initials}</AvatarFallback>
             </Avatar>
             <button
               onClick={() => fileRef.current?.click()}
               disabled={uploading}
               className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-accent flex items-center justify-center hover:brightness-110 transition-all"
             >
-              {uploading ? <Loader2 className="w-3.5 h-3.5 text-white animate-spin" /> : <Camera className="w-3.5 h-3.5 text-white" />}
+              {uploading ? <Loader2 className="w-3.5 h-3.5 text-foreground animate-spin" /> : <Camera className="w-3.5 h-3.5 text-foreground" />}
             </button>
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
           </div>
           <div>
-            <p className="text-white text-sm font-medium">{displayName || "Developer"}</p>
-            <p className="text-white/40 text-xs">{user?.email}</p>
+            <p className="text-foreground text-sm font-medium">{displayName || "Developer"}</p>
+            <p className="text-muted-foreground text-xs">{user?.email}</p>
           </div>
         </div>
 
         <div className="grid gap-4 max-w-md">
           <div>
-            <Label className="text-white/40 text-xs">Display Name</Label>
+            <Label className="text-muted-foreground text-xs">Display Name</Label>
             <Input
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="Your name"
-              className="mt-1 bg-white/5 border-white/10 text-white"
+              className="mt-1 bg-white/5 border-white/10 text-foreground"
             />
           </div>
 
           <div>
-            <Label className="text-white/40 text-xs">Email</Label>
-            <p className="text-white/60 text-sm mt-1 font-mono">{user?.email ?? "—"}</p>
+            <Label className="text-muted-foreground text-xs">Email</Label>
+            <p className="text-muted-foreground text-sm mt-1 font-mono">{user?.email ?? "—"}</p>
           </div>
 
           <div>
-            <Label className="text-white/40 text-xs">Organization</Label>
-            <p className="text-white/60 text-sm mt-1">{orgName ?? "—"}</p>
+            <Label className="text-muted-foreground text-xs">Organization</Label>
+            <p className="text-muted-foreground text-sm mt-1">{orgName ?? "—"}</p>
           </div>
 
           <div className="border-t border-white/10 pt-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white/80 text-sm font-medium">Developer Updates</p>
-                <p className="text-white/40 text-xs">Email me about new APIs and developer features</p>
+                <p className="text-muted-foreground text-sm font-medium">Developer Updates</p>
+                <p className="text-muted-foreground text-xs">Email me about new APIs and developer features</p>
               </div>
               <Switch checked={devOptIn} onCheckedChange={setDevOptIn} />
             </div>

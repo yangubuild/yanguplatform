@@ -58,10 +58,10 @@ export function PromoCodesList({ promoCodes, onCreateClick }: Props) {
               </p>
             </div>
             <button onClick={() => copyCode(p.code)} className="p-2 rounded-lg hover:bg-white/[0.06]">
-              <Copy className="w-4 h-4 text-white/40" />
+              <Copy className="w-4 h-4 text-muted-foreground" />
             </button>
             <button onClick={() => handleDelete(p.id)} className="p-2 rounded-lg hover:bg-white/[0.06]">
-              <Trash2 className="w-4 h-4 text-white/40" />
+              <Trash2 className="w-4 h-4 text-muted-foreground" />
             </button>
           </div>
         ))}

@@ -17,7 +17,7 @@ const SLUG_RE = /^[a-z0-9][a-z0-9-]*[a-z0-9]$|^[a-z0-9]$/;
 const statusColors: Record<string, string> = {
   active: "bg-green-500/20 text-green-400 border-green-500/30",
   draft: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-  disabled: "bg-white/10 text-white/50 border-white/20",
+  disabled: "bg-white/10 text-muted-foreground border-white/20",
 };
 
 /** Ensure the current user has an org + membership; returns org_id or null */
@@ -199,8 +199,8 @@ export default function PortalApps() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-lg font-semibold text-white">My Apps</h2>
-          <p className="text-sm text-white/40">Create and manage your developer applications.</p>
+          <h2 className="text-lg font-semibold text-foreground">My Apps</h2>
+          <p className="text-sm text-muted-foreground">Create and manage your developer applications.</p>
         </div>
         <Button variant="accent" onClick={handleCreateClick} disabled={orgBootstrapping}>
           {orgBootstrapping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} Create App
@@ -246,7 +246,7 @@ export default function PortalApps() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search apps…"
-            className="pl-9 h-9 bg-white/5 border-white/10 text-white placeholder:text-white/30"
+            className="pl-9 h-9 bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground"
           />
         </div>
       )}
@@ -254,17 +254,17 @@ export default function PortalApps() {
       {/* Apps list */}
       {isLoading ? (
         <div className="flex items-center justify-center py-16">
-          <Loader2 className="w-6 h-6 text-white/30 animate-spin" />
+          <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
         </div>
       ) : filteredApps && filteredApps.length > 0 ? (
         <div className="rounded-xl overflow-hidden border border-white/10">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/10 bg-white/[0.02]">
-                <th className="text-left text-white/50 font-medium px-4 py-3">Name</th>
-                <th className="text-left text-white/50 font-medium px-4 py-3 hidden sm:table-cell">App Key</th>
-                <th className="text-left text-white/50 font-medium px-4 py-3 hidden md:table-cell">Status</th>
-                <th className="text-left text-white/50 font-medium px-4 py-3 hidden lg:table-cell">Created</th>
+                <th className="text-left text-muted-foreground font-medium px-4 py-3">Name</th>
+                <th className="text-left text-muted-foreground font-medium px-4 py-3 hidden sm:table-cell">App Key</th>
+                <th className="text-left text-muted-foreground font-medium px-4 py-3 hidden md:table-cell">Status</th>
+                <th className="text-left text-muted-foreground font-medium px-4 py-3 hidden lg:table-cell">Created</th>
               </tr>
             </thead>
             <tbody>
@@ -277,16 +277,16 @@ export default function PortalApps() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2.5">
                       <Code className="w-4 h-4 text-accent shrink-0" />
-                      <span className="text-white font-medium">{app.name}</span>
+                      <span className="text-foreground font-medium">{app.name}</span>
                     </div>
                   </td>
                   <td className="px-4 py-3 hidden sm:table-cell">
-                    <code className="text-xs text-white/40 font-mono">{app.slug}</code>
+                    <code className="text-xs text-muted-foreground font-mono">{app.slug}</code>
                   </td>
                   <td className="px-4 py-3 hidden md:table-cell">
                     <Badge className={`text-xs ${statusColors[app.status] || statusColors.draft}`}>{app.status}</Badge>
                   </td>
-                  <td className="px-4 py-3 hidden lg:table-cell text-white/40 text-xs">
+                  <td className="px-4 py-3 hidden lg:table-cell text-muted-foreground text-xs">
                     {new Date(app.created_at).toLocaleDateString()}
                   </td>
                 </tr>
@@ -296,8 +296,8 @@ export default function PortalApps() {
         </div>
       ) : (
         <div className="rounded-xl p-12 text-center bg-white/[0.02] border border-white/10">
-          <Code className="w-10 h-10 text-white/20 mx-auto mb-3" />
-          <p className="text-white/40 text-sm mb-4">No apps yet. Create your first one.</p>
+          <Code className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+          <p className="text-muted-foreground text-sm mb-4">No apps yet. Create your first one.</p>
           <Button variant="accent" onClick={handleCreateClick} disabled={orgBootstrapping}>
             {orgBootstrapping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} Create App
           </Button>
@@ -306,28 +306,28 @@ export default function PortalApps() {
 
       {/* Create App Modal */}
       <Dialog open={showCreate} onOpenChange={(o) => !o && resetForm()}>
-        <DialogContent className="bg-[#111a14] border-white/10 text-white sm:max-w-md">
+        <DialogContent className="bg-[#111a14] border-white/10 text-foreground sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-white">Create a new app</DialogTitle>
+            <DialogTitle className="text-foreground">Create a new app</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
-              <Label className="text-white/70 text-xs mb-1.5 block">App Name *</Label>
+              <Label className="text-muted-foreground text-xs mb-1.5 block">App Name *</Label>
               <Input
                 value={name}
                 onChange={(e) => handleNameChange(e.target.value)}
                 placeholder="My Awesome App"
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
+                className="bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground"
                 maxLength={100}
               />
             </div>
             <div>
-              <Label className="text-white/70 text-xs mb-1.5 block">App Key (slug) *</Label>
+              <Label className="text-muted-foreground text-xs mb-1.5 block">App Key (slug) *</Label>
               <Input
                 value={slug}
                 onChange={(e) => handleSlugChange(e.target.value)}
                 placeholder="my-awesome-app"
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 font-mono"
+                className="bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground font-mono"
                 maxLength={60}
               />
               {slugError && <p className="text-red-400 text-xs mt-1">{slugError}</p>}
@@ -336,18 +336,18 @@ export default function PortalApps() {
               )}
             </div>
             <div>
-              <Label className="text-white/70 text-xs mb-1.5 block">Description</Label>
+              <Label className="text-muted-foreground text-xs mb-1.5 block">Description</Label>
               <Input
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="A short description of your app"
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
+                className="bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground"
                 maxLength={500}
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={resetForm} className="text-white/60">Cancel</Button>
+            <Button variant="ghost" onClick={resetForm} className="text-muted-foreground">Cancel</Button>
             <Button
               variant="accent"
               onClick={() => createApp.mutate()}

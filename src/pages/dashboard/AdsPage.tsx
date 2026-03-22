@@ -18,7 +18,7 @@ export default function AdsPage() {
       <div className="max-w-5xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-white">Ads</h1>
+          <h1 className="text-2xl font-bold text-foreground">Ads</h1>
           <Button
             variant="accent"
             onClick={() => setShowWizard(true)}
@@ -36,8 +36,8 @@ export default function AdsPage() {
               onClick={() => setActiveTab(tab)}
               className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
                 activeTab === tab
-                  ? "text-white"
-                  : "text-white/40 hover:text-white/60"
+                  ? "text-foreground"
+                  : "text-muted-foreground hover:text-muted-foreground"
               }`}
             >
               {tab}
@@ -57,10 +57,10 @@ export default function AdsPage() {
             <Megaphone className="w-16 h-16" style={{ color: "rgba(181,98,42,0.6)" }} />
           </div>
 
-          <h2 className="text-xl font-semibold text-white mb-3">
+          <h2 className="text-xl font-semibold text-foreground mb-3">
             Reach millions through YANGU ads
           </h2>
-          <p className="text-white/40 text-sm text-center max-w-md mb-8">
+          <p className="text-muted-foreground text-sm text-center max-w-md mb-8">
             Target high intent users via search, explore, and platform surfaces
           </p>
 

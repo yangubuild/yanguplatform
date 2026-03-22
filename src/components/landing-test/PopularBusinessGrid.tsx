@@ -60,10 +60,10 @@ function EntityGridCard({ entity, onClickTrack }: { entity: SearchEntityResult; 
         )}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5 min-w-0">
-            <span className="text-white text-sm font-semibold truncate min-w-0 flex-1">{entity.title}</span>
-            {badge === "blue" && <span className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center text-[8px] text-white shrink-0">✓</span>}
-            {badge === "orange" && <span className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] text-white shrink-0" style={{ background: '#b5622a' }}>✓</span>}
-            {badge === "green" && <span className="w-4 h-4 rounded-full bg-green-600 flex items-center justify-center text-[8px] text-white shrink-0">✓</span>}
+            <span className="text-foreground text-sm font-semibold truncate min-w-0 flex-1">{entity.title}</span>
+            {badge === "blue" && <span className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center text-[8px] text-foreground shrink-0">✓</span>}
+            {badge === "orange" && <span className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] text-foreground shrink-0" style={{ background: '#b5622a' }}>✓</span>}
+            {badge === "green" && <span className="w-4 h-4 rounded-full bg-green-600 flex items-center justify-center text-[8px] text-foreground shrink-0">✓</span>}
           </div>
           {entity.primary_category && (
             <span className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>{entity.primary_category}</span>
@@ -94,7 +94,7 @@ export function PopularBusinessGrid({ businesses, entities }: Props) {
   return (
     <section className="mb-12" ref={trackRef}>
       <div className="flex items-center justify-between mb-5">
-        <h2 className="text-white text-xl font-bold">Popular businesses</h2>
+        <h2 className="text-foreground text-xl font-bold">Popular businesses</h2>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -106,9 +106,9 @@ export function PopularBusinessGrid({ businesses, entities }: Props) {
                 <img src={biz.profileImage} alt={biz.name} className="w-10 h-10 rounded-full object-cover" />
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-white text-sm font-semibold truncate">{biz.name}</span>
-                    {biz.verified === "blue" && <span className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center text-[8px] text-white shrink-0">✓</span>}
-                    {biz.verified === "orange" && <span className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] text-white shrink-0" style={{ background: '#b5622a' }}>✓</span>}
+                    <span className="text-foreground text-sm font-semibold truncate">{biz.name}</span>
+                    {biz.verified === "blue" && <span className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center text-[8px] text-foreground shrink-0">✓</span>}
+                    {biz.verified === "orange" && <span className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] text-foreground shrink-0" style={{ background: '#b5622a' }}>✓</span>}
                   </div>
                   <span className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>by {biz.creator}</span>
                 </div>

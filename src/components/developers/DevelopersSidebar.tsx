@@ -77,7 +77,7 @@ export function DevelopersSidebar() {
         <span className={DocsTypography.sidebarHeader}>Developers</span>
         <button
           onClick={() => navigate("/why-yangu")}
-          className="text-white/40 hover:text-white/70 transition-colors"
+          className="text-muted-foreground hover:text-muted-foreground transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>

@@ -98,14 +98,14 @@ export function SocialUgcAdsSection() {
             )}
 
             {/* vote badge */}
-            <div className="absolute top-2 left-2 z-10 inline-flex items-center gap-1 rounded-full bg-black/50 backdrop-blur-sm px-2 py-0.5 text-[11px] font-semibold text-white">
+            <div className="absolute top-2 left-2 z-10 inline-flex items-center gap-1 rounded-full bg-black/50 backdrop-blur-sm px-2 py-0.5 text-[11px] font-semibold text-foreground">
               <ThumbsUp className="h-3 w-3" />
               {card.votes}
             </div>
 
             {/* PRO badge */}
             {card.isPro && (
-              <div className="absolute top-2 right-2 z-10 rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold uppercase text-white">
+              <div className="absolute top-2 right-2 z-10 rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold uppercase text-foreground">
                 PRO
               </div>
             )}
@@ -113,13 +113,13 @@ export function SocialUgcAdsSection() {
             {/* caption overlay */}
             {card.caption && (
               <div className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-black/70 to-transparent p-3 pt-8 group-hover:bottom-8 transition-all duration-300">
-                <p className="text-xs text-white/90 line-clamp-2">{card.caption}</p>
+                <p className="text-xs text-muted-foreground line-clamp-2">{card.caption}</p>
               </div>
             )}
 
             {/* Recreate button – absolute at bottom, slides up on hover */}
             <div className="absolute bottom-0 left-0 right-0 z-20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-accent/20 to-accent/5 px-2 py-1.5">
-              <button className="w-full py-1.5 text-xs font-semibold text-black bg-white border border-border/40 rounded-md hover:bg-accent hover:text-white hover:border-accent transition-colors">
+              <button className="w-full py-1.5 text-xs font-semibold text-black bg-white border border-border/40 rounded-md hover:bg-accent hover:text-foreground hover:border-accent transition-colors">
                 Recreate
               </button>
             </div>

@@ -41,7 +41,7 @@ export function EmojiSuggestions({ currentWord, onSelect }: EmojiSuggestionsProp
             alt={emoji.keyword}
             className="w-5 h-5 object-contain"
           />
-          <span className="text-[10px] text-white/50">{emoji.keyword}</span>
+          <span className="text-[10px] text-muted-foreground">{emoji.keyword}</span>
         </button>
       ))}
 

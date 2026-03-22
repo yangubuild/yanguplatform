@@ -498,7 +498,7 @@ export function EmenuWizard({ open, onOpenChange, onComplete }: Props) {
                           className="relative rounded overflow-hidden border border-border hover:ring-2 hover:ring-primary"
                         >
                           <img src={r.thumbUrl} alt={r.author} className="w-full h-14 object-cover" />
-                          <span className="absolute bottom-0 inset-x-0 bg-black/60 text-[8px] text-white truncate px-1">{r.author}</span>
+                          <span className="absolute bottom-0 inset-x-0 bg-black/60 text-[8px] text-foreground truncate px-1">{r.author}</span>
                         </button>
                       ))}
                     </div>

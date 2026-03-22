@@ -304,7 +304,7 @@ export default function ProductDescriptions() {
           {/* Generate Button */}
           <div className="p-4">
             <Button
-              className="w-full bg-[hsl(var(--accent))] hover:bg-[hsl(var(--accent))]/90 text-white text-xs font-medium"
+              className="w-full bg-[hsl(var(--accent))] hover:bg-[hsl(var(--accent))]/90 text-foreground text-xs font-medium"
               onClick={handleGenerate}
               disabled={loading}
             >

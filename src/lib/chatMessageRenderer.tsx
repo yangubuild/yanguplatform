@@ -22,7 +22,7 @@ export function renderChatContent(content: string, navigate?: (path: string) => 
         {textBefore && <EmojiRenderer text={textBefore} className="whitespace-pre-wrap" />}
         <button
           onClick={() => navigate?.(link)}
-          className="inline-flex items-center gap-1.5 mt-2 px-4 py-2 rounded-lg text-xs font-semibold text-white"
+          className="inline-flex items-center gap-1.5 mt-2 px-4 py-2 rounded-lg text-xs font-semibold text-foreground"
           style={{ background: "linear-gradient(135deg, #c47a3a, #5c2a12)" }}
         >
           ✅ Accept Invite
@@ -53,12 +53,12 @@ export function renderChatContent(content: string, navigate?: (path: string) => 
         {cleaned && <EmojiRenderer text={cleaned} className="whitespace-pre-wrap" />}
         <div className="flex flex-wrap gap-1.5 mt-1.5">
           {hasBuyNow && (
-            <button className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #10b981, #059669)" }}>
+            <button className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-semibold text-foreground" style={{ background: "linear-gradient(135deg, #10b981, #059669)" }}>
               🛒 Buy Now
             </button>
           )}
           {hasSellNow && (
-            <button className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #f97316, #ea580c)" }}>
+            <button className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-semibold text-foreground" style={{ background: "linear-gradient(135deg, #f97316, #ea580c)" }}>
               🏷️ Sell Now
             </button>
           )}
@@ -99,7 +99,7 @@ export function renderChatContent(content: string, navigate?: (path: string) => 
               href={part}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 mt-1 mb-1 px-3 py-2.5 rounded-xl text-[11px] font-medium text-white no-underline break-all"
+              className="inline-flex items-center gap-2 mt-1 mb-1 px-3 py-2.5 rounded-xl text-[11px] font-medium text-foreground no-underline break-all"
               style={{
                 background: info.bgGradient,
                 border: `1px solid ${info.borderColor}`,

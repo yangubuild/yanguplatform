@@ -71,33 +71,33 @@ export function PromoSuccessModal({ open, onClose, promo }: Props) {
         <div className="flex items-center justify-between px-5 pt-5 pb-3">
           <div className="flex items-center gap-2">
             <CheckCircle className="w-5 h-5 text-green-400" />
-            <h2 className="text-base font-semibold text-white">Promo code created!</h2>
+            <h2 className="text-base font-semibold text-foreground">Promo code created!</h2>
           </div>
           <button onClick={onClose} className="p-1 rounded-lg hover:bg-white/[0.06]">
-            <X className="w-5 h-5 text-white/50" />
+            <X className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
 
         <div className="px-5 pb-5 space-y-4">
           {/* Code display */}
           <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4 text-center">
-            <p className="text-xs text-white/40 mb-1">Promo Code</p>
-            <p className="text-xl font-bold text-white tracking-wider">{promo.code}</p>
+            <p className="text-xs text-muted-foreground mb-1">Promo Code</p>
+            <p className="text-xl font-bold text-foreground tracking-wider">{promo.code}</p>
             <p className="text-sm text-accent mt-1">{discount}</p>
           </div>
 
           {/* QR Code */}
           <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4 flex flex-col items-center gap-3">
-            <p className="text-xs text-white/40">QR Code</p>
+            <p className="text-xs text-muted-foreground">QR Code</p>
             <img src={qrUrl} alt="QR Code" className="w-32 h-32 rounded-lg" />
           </div>
 
           {/* Promo Link */}
           <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
-            <p className="text-xs text-white/40 mb-2">Promo Link</p>
+            <p className="text-xs text-muted-foreground mb-2">Promo Link</p>
             <div className="flex items-center gap-2">
-              <LinkIcon className="w-4 h-4 text-white/30 shrink-0" />
-              <span className="text-sm text-white/70 truncate flex-1">{promo.promoLink}</span>
+              <LinkIcon className="w-4 h-4 text-muted-foreground shrink-0" />
+              <span className="text-sm text-muted-foreground truncate flex-1">{promo.promoLink}</span>
             </div>
           </div>
 
@@ -107,22 +107,22 @@ export function PromoSuccessModal({ open, onClose, promo }: Props) {
               onClick={copyCode}
               className="flex flex-col items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.06] p-3 transition-colors"
             >
-              <Copy className="w-4 h-4 text-white/60" />
-              <span className="text-[11px] text-white/50">Copy Code</span>
+              <Copy className="w-4 h-4 text-muted-foreground" />
+              <span className="text-[11px] text-muted-foreground">Copy Code</span>
             </button>
             <button
               onClick={copyLink}
               className="flex flex-col items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.06] p-3 transition-colors"
             >
-              <LinkIcon className="w-4 h-4 text-white/60" />
-              <span className="text-[11px] text-white/50">Copy Link</span>
+              <LinkIcon className="w-4 h-4 text-muted-foreground" />
+              <span className="text-[11px] text-muted-foreground">Copy Link</span>
             </button>
             <button
               onClick={downloadQR}
               className="flex flex-col items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.06] p-3 transition-colors"
             >
-              <Download className="w-4 h-4 text-white/60" />
-              <span className="text-[11px] text-white/50">Download QR</span>
+              <Download className="w-4 h-4 text-muted-foreground" />
+              <span className="text-[11px] text-muted-foreground">Download QR</span>
             </button>
           </div>
 
@@ -130,8 +130,8 @@ export function PromoSuccessModal({ open, onClose, promo }: Props) {
           <div className="rounded-xl border border-accent/20 bg-accent/5 p-3 flex items-center gap-3">
             <Eye className="w-5 h-5 text-accent shrink-0" />
             <div>
-              <p className="text-xs font-medium text-white/80">Popup ad generated</p>
-              <p className="text-[11px] text-white/40">
+              <p className="text-xs font-medium text-muted-foreground">Popup ad generated</p>
+              <p className="text-[11px] text-muted-foreground">
                 A promo popup will appear on your published business page for visitors.
               </p>
             </div>

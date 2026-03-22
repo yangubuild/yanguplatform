@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 const statusColors: Record<string, string> = {
-  draft: "bg-white/10 text-white/50",
+  draft: "bg-white/10 text-muted-foreground",
   submitted: "bg-blue-500/10 text-blue-400",
   in_review: "bg-yellow-500/10 text-yellow-400",
   auto_approved: "bg-emerald-500/10 text-emerald-400",
@@ -57,7 +57,7 @@ export default function ConsoleSubmissions() {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center py-16"><Loader2 className="w-6 h-6 text-white/30 animate-spin" /></div>
+        <div className="flex justify-center py-16"><Loader2 className="w-6 h-6 text-muted-foreground animate-spin" /></div>
       ) : listings && listings.length > 0 ? (
         <div className="space-y-3">
           {listings.map((listing) => (
@@ -66,8 +66,8 @@ export default function ConsoleSubmissions() {
         </div>
       ) : (
         <div className="text-center py-16">
-          <Send className="w-10 h-10 text-white/20 mx-auto mb-3" />
-          <p className="text-white/40 text-sm">No submissions yet. Submit your first app.</p>
+          <Send className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+          <p className="text-muted-foreground text-sm">No submissions yet. Submit your first app.</p>
         </div>
       )}
     </DocsPage>
@@ -83,10 +83,10 @@ function SubmissionCard({ listing }: { listing: any }) {
     <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-white font-semibold text-sm">{listing.name}</h3>
-          <p className="text-xs text-white/40 mt-1">{listing.summary || "No summary"}</p>
+          <h3 className="text-foreground font-semibold text-sm">{listing.name}</h3>
+          <p className="text-xs text-muted-foreground mt-1">{listing.summary || "No summary"}</p>
         </div>
-        <span className={`text-xs px-2 py-0.5 rounded-full ${statusColors[listing.status] || "bg-white/10 text-white/40"}`}>
+        <span className={`text-xs px-2 py-0.5 rounded-full ${statusColors[listing.status] || "bg-white/10 text-muted-foreground"}`}>
           {statusLabels[listing.status] || listing.status}
         </span>
       </div>
@@ -106,7 +106,7 @@ function SubmissionCard({ listing }: { listing: any }) {
       )}
 
       {listing.review_notes && (
-        <p className="text-xs text-white/40 mt-3 italic border-t border-white/5 pt-3">Review: {listing.review_notes}</p>
+        <p className="text-xs text-muted-foreground mt-3 italic border-t border-white/5 pt-3">Review: {listing.review_notes}</p>
       )}
 
       <div className="flex items-center gap-2 mt-3">
@@ -135,7 +135,7 @@ function ReviewReasonsButton({ listingId, showReasons, setShowReasons }: { listi
       variant="ghost"
       size="sm"
       onClick={() => setShowReasons(!showReasons)}
-      className="text-white/50 text-xs"
+      className="text-muted-foreground text-xs"
     >
       {showReasons ? "Hide Details" : "View Review Details"}
     </Button>
@@ -157,8 +157,8 @@ function ReviewReasons({ listingId }: { listingId: string }) {
     },
   });
 
-  if (isLoading) return <Loader2 className="w-4 h-4 text-white/30 animate-spin mt-3" />;
-  if (!runs || runs.length === 0) return <p className="text-xs text-white/30 mt-3">No review data yet.</p>;
+  if (isLoading) return <Loader2 className="w-4 h-4 text-muted-foreground animate-spin mt-3" />;
+  if (!runs || runs.length === 0) return <p className="text-xs text-muted-foreground mt-3">No review data yet.</p>;
 
   const latest = runs[0];
   const reasons = (latest.reasons as any[]) || [];
@@ -166,10 +166,10 @@ function ReviewReasons({ listingId }: { listingId: string }) {
   return (
     <div className="mt-3 rounded-lg p-4" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs text-white/50">
+        <span className="text-xs text-muted-foreground">
           {latest.mode === "auto" ? "Automated Review" : "Manual Review"} • Score: {latest.score}/100
         </span>
-        <span className={`text-xs px-2 py-0.5 rounded-full ${statusColors[latest.decision] || "bg-white/10 text-white/40"}`}>
+        <span className={`text-xs px-2 py-0.5 rounded-full ${statusColors[latest.decision] || "bg-white/10 text-muted-foreground"}`}>
           {statusLabels[latest.decision] || latest.decision}
         </span>
       </div>
@@ -183,14 +183,14 @@ function ReviewReasons({ listingId }: { listingId: string }) {
                 "bg-yellow-500/10 text-yellow-400"
               }`}>{r.severity}</span>
               <div>
-                <p className="text-xs text-white/70 font-medium">{r.title}</p>
-                <p className="text-xs text-white/40">{r.detail}</p>
+                <p className="text-xs text-muted-foreground font-medium">{r.title}</p>
+                <p className="text-xs text-muted-foreground">{r.detail}</p>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-xs text-white/30">No issues found.</p>
+        <p className="text-xs text-muted-foreground">No issues found.</p>
       )}
     </div>
   );
@@ -221,13 +221,13 @@ function AppealForm({ listingId, onSubmitted }: { listingId: string; onSubmitted
 
   return (
     <div className="mt-3 rounded-lg p-4" style={{ background: "rgba(168,85,247,0.04)", border: "1px solid rgba(168,85,247,0.12)" }}>
-      <h4 className="text-xs text-white/70 font-semibold mb-2">Submit Appeal</h4>
+      <h4 className="text-xs text-muted-foreground font-semibold mb-2">Submit Appeal</h4>
       <textarea
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         placeholder="Explain why you believe this decision should be reconsidered..."
         rows={3}
-        className="w-full px-3 py-2 rounded-lg text-sm text-white/90 mb-2"
+        className="w-full px-3 py-2 rounded-lg text-sm text-muted-foreground mb-2"
         style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)" }}
       />
       <textarea
@@ -235,7 +235,7 @@ function AppealForm({ listingId, onSubmitted }: { listingId: string; onSubmitted
         onChange={(e) => setLinks(e.target.value)}
         placeholder="Supporting links (one per line, optional)"
         rows={2}
-        className="w-full px-3 py-2 rounded-lg text-sm text-white/90 mb-3 font-mono"
+        className="w-full px-3 py-2 rounded-lg text-sm text-muted-foreground mb-3 font-mono"
         style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)" }}
       />
       <Button

@@ -30,10 +30,10 @@ export function MassResourceCard({ image, title, category, featured = false, url
       </div>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-white font-medium text-sm">{title}</span>
+          <span className="text-foreground font-medium text-sm">{title}</span>
           {featured && <StarGlassChip />}
         </div>
-        <span className="text-white/40 text-xs">{category}</span>
+        <span className="text-muted-foreground text-xs">{category}</span>
       </div>
     </a>
   );

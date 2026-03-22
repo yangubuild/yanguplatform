@@ -267,7 +267,7 @@ function HeroPreview({ schema, canvas, sections, onSelectSection, surfaceType }:
               <EditableImage src={resolvedMediaUrl} alt="Creator" className="w-full h-full object-cover" field="media.url" canvas={canvas} />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+            <div className="absolute bottom-0 left-0 right-0 p-6 text-foreground">
               {headline && <EditableText value={headline} field="headline" className="text-2xl font-bold" tag="h1" canvas={canvas} />}
               {subheadline && <EditableText value={subheadline} field="subheadline" className="text-sm opacity-80 mt-1" tag="p" canvas={canvas} />}
               {socialRowEnabled && (
@@ -284,8 +284,8 @@ function HeroPreview({ schema, canvas, sections, onSelectSection, surfaceType }:
           {searchEnabled && (
             <div className="px-5 py-4">
               <div className="flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3 py-2.5 yangu-search-row">
-                <span className="text-white/50 text-sm">🔍</span>
-                <span className="flex-1 text-sm text-white/40">Search or type a keyword</span>
+                <span className="text-muted-foreground text-sm">🔍</span>
+                <span className="flex-1 text-sm text-muted-foreground">Search or type a keyword</span>
                 <span className="w-8 h-8 rounded-lg bg-foreground/80 text-background flex items-center justify-center text-sm yangu-interactive">→</span>
               </div>
             </div>
@@ -394,8 +394,8 @@ function HeroPreview({ schema, canvas, sections, onSelectSection, surfaceType }:
 
         {/* Centered content — always visible, sits inside the banner */}
         <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 py-12" style={{ minHeight: "260px" }}>
-          <EditableText value={headline} field="headline" placeholder="WELCOME" className="text-2xl font-bold text-white tracking-[0.12em] uppercase" tag="h1" canvas={canvas} />
-          <EditableText value={subheadline} field="subheadline" placeholder="Discover what we offer" className="mt-2 text-sm text-white/70" tag="p" canvas={canvas} />
+          <EditableText value={headline} field="headline" placeholder="WELCOME" className="text-2xl font-bold text-foreground tracking-[0.12em] uppercase" tag="h1" canvas={canvas} />
+          <EditableText value={subheadline} field="subheadline" placeholder="Discover what we offer" className="mt-2 text-sm text-muted-foreground" tag="p" canvas={canvas} />
           <div className="mt-4">
             <EditableText value={ctaText || "Join Now"} field="cta_text" style={ctaInlineStyle} className={`inline-block px-6 py-2 text-sm font-medium yangu-cta ${hasCustomBtnStyle ? "" : "rounded-full bg-background text-foreground"}`} tag="span" canvas={canvas} />
           </div>
@@ -450,9 +450,9 @@ function HeroPreview({ schema, canvas, sections, onSelectSection, surfaceType }:
     return (
       <div className="py-12 px-6 text-center rounded-lg relative overflow-hidden" style={{ backgroundColor: bgColor || "hsl(0 0% 8%)" }}>
         <div className="relative z-10 max-w-2xl mx-auto">
-          <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className={`font-bold text-white ${isBoldUppercase ? "text-2xl tracking-[0.15em] uppercase" : "text-2xl"}`} tag="h1" canvas={canvas} />
+          <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className={`font-bold text-foreground ${isBoldUppercase ? "text-2xl tracking-[0.15em] uppercase" : "text-2xl"}`} tag="h1" canvas={canvas} />
           {schema.subheadline && (
-            <EditableText value={schema.subheadline as string} field="subheadline" className="mt-3 text-white/70 text-[10px] leading-relaxed max-w-[480px] mx-auto" tag="p" canvas={canvas} />
+            <EditableText value={schema.subheadline as string} field="subheadline" className="mt-3 text-muted-foreground text-[10px] leading-relaxed max-w-[480px] mx-auto" tag="p" canvas={canvas} />
           )}
           {ctaText && (
             <div className="mt-4">
@@ -501,9 +501,9 @@ function HeroPreview({ schema, canvas, sections, onSelectSection, surfaceType }:
         );
       })()}
       <div className="relative z-10 max-w-2xl mx-auto">
-        <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className={`font-bold ${hasVisualMedia ? "text-white" : "text-foreground"} ${isBoldUppercase ? "text-2xl tracking-[0.15em] uppercase" : "text-2xl"}`} tag="h1" canvas={canvas} />
-        {schema.subheadline && <EditableText value={schema.subheadline as string} field="subheadline" className={`mt-3 text-[10px] leading-relaxed max-w-[480px] mx-auto ${hasVisualMedia ? "text-white/70" : "text-muted-foreground"}`} tag="p" canvas={canvas} />}
-        {description && <EditableText value={description} field="description" className={`mt-2 text-xs ${hasVisualMedia ? "text-white/60" : "text-muted-foreground"}`} tag="p" canvas={canvas} />}
+        <EditableText value={(schema.headline as string) || ""} field="headline" placeholder="Your Headline" className={`font-bold ${hasVisualMedia ? "text-foreground" : "text-foreground"} ${isBoldUppercase ? "text-2xl tracking-[0.15em] uppercase" : "text-2xl"}`} tag="h1" canvas={canvas} />
+        {schema.subheadline && <EditableText value={schema.subheadline as string} field="subheadline" className={`mt-3 text-[10px] leading-relaxed max-w-[480px] mx-auto ${hasVisualMedia ? "text-muted-foreground" : "text-muted-foreground"}`} tag="p" canvas={canvas} />}
+        {description && <EditableText value={description} field="description" className={`mt-2 text-xs ${hasVisualMedia ? "text-muted-foreground" : "text-muted-foreground"}`} tag="p" canvas={canvas} />}
         {ctaText && (
           <div className="mt-4 relative z-10">
             <EditableText value={ctaText} field="cta_text" style={ctaInlineStyle} className={`inline-block px-6 py-2 text-sm font-medium yangu-cta ${hasCustomBtnStyle ? "" : `rounded-full ${hasVisualMedia ? "bg-background text-foreground" : "bg-primary text-primary-foreground"}`}`} tag="span" canvas={canvas} />
@@ -673,7 +673,7 @@ function ShowcasePreview({ schema, canvas }: { schema: Record<string, unknown>; 
                     <div className="aspect-square bg-muted overflow-hidden relative">
                       <EditableImage src={item.image_url} alt={item.title || ""} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" field={`showcase_items.${realIdx}.image_url`} canvas={canvas} />
                       {item.price && (
-                        <span className="absolute bottom-2 left-2 bg-black/70 text-white text-xs font-semibold px-2 py-0.5 rounded-md">{item.price}</span>
+                        <span className="absolute bottom-2 left-2 bg-black/70 text-foreground text-xs font-semibold px-2 py-0.5 rounded-md">{item.price}</span>
                       )}
                     </div>
                   ) : (

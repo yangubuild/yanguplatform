@@ -123,7 +123,7 @@ export default function ConsoleRuntime() {
   if (orgLoading) {
     return (
       <DocsPage breadcrumb="Console › Runtime" title="Runtime" subtitle="">
-        <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-white/40" /></div>
+        <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
       </DocsPage>
     );
   }
@@ -132,7 +132,7 @@ export default function ConsoleRuntime() {
     return (
       <DocsPage breadcrumb="Console › Runtime" title="Runtime" subtitle="">
         <div className="rounded-xl p-8 text-center" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
-          <p className="text-white/50 text-sm">You don't have permission to access this page.</p>
+          <p className="text-muted-foreground text-sm">You don't have permission to access this page.</p>
         </div>
       </DocsPage>
     );

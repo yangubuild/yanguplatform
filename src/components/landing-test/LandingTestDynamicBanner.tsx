@@ -59,16 +59,16 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
           <div className="relative z-10 p-6 sm:p-10 md:p-14 flex items-center" style={{ minHeight: BANNER_CONTRACT.minHeight }}>
             <div className="max-w-md">
               <h2
-                className="text-white mb-3"
+                className="text-foreground mb-3"
                 style={{ fontSize: "36px", fontWeight: 700, lineHeight: 1.15, letterSpacing: "-0.01em" }}
               >
                 {data.headline ?? "yangu for enterprise"}
               </h2>
-              <p className={`${T.subheader} mb-8`} style={{ color: "rgba(255,255,255,0.45)", maxWidth: "340px" }}>
+              <p className={`${T.subheader} mb-8`} style={{ maxWidth: "340px" }}>
                 {data.subheadline ?? "yangu isn't just for the best solo entrepreneurs, it's also effective for enterprises."}
               </p>
               <button
-                className="px-7 py-2.5 rounded-lg text-white text-sm font-medium transition-all hover:brightness-110"
+                className="px-7 py-2.5 rounded-lg text-foreground text-sm font-medium transition-all hover:brightness-110"
                 style={{
                    background: "linear-gradient(135deg, #c47a3a 0%, #a0622e 50%, #5c2a12 100%)",
                    border: "none",
@@ -154,9 +154,9 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
           {data.headline && (
             <div className="relative z-10 p-6 sm:p-10 md:p-14 flex items-center" style={{ minHeight: BANNER_CONTRACT.minHeight }}>
               <div className="max-w-md">
-                <h2 className={`${T.header} text-white mb-3`}>{data.headline}</h2>
+                <h2 className={`${T.header} text-foreground mb-3`}>{data.headline}</h2>
                 {data.subheadline && (
-                  <p className={`${T.subheader} mb-6`} style={{ color: "rgba(255,255,255,0.7)" }}>
+                  <p className={`${T.subheader} mb-6`} className="text-muted-foreground">
                     {data.subheadline}
                   </p>
                 )}
@@ -188,10 +188,10 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
         {/* Left text block — unchanged */}
         <div className="relative z-10 p-6 sm:p-8 md:p-10 lg:p-14 flex items-center" style={{ minHeight: BANNER_CONTRACT.minHeight }}>
           <div className="flex-1 max-w-md">
-            <h2 className={`${T.header} text-white mb-3`}>
+            <h2 className={`${T.header} text-foreground mb-3`}>
               {data.headline ?? "Meet yangu Treasury"}
             </h2>
-            <p className={`${T.subheader} mb-6`} style={{ color: "rgba(255,255,255,0.45)" }}>
+            <p className={`${T.subheader} mb-6`} className="text-muted-foreground">
               {data.subheadline ?? "Earn up to 6% yield on your cash."}
             </p>
             <Button variant="accent" size="default">

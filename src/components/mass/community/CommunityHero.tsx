@@ -10,10 +10,10 @@ export function CommunityHero() {
         <div className="flex justify-center mb-4">
           <img src={chatIcon2} alt="Community" className="w-8 h-8 object-contain" />
         </div>
-        <h1 className={`${T.hero} text-white`}>
+        <h1 className={`${T.hero} text-foreground`}>
           Build and run your community
         </h1>
-        <p className={`mt-2 ${T.subheader} text-white/50`}>
+        <p className={`mt-2 ${T.subheader} text-muted-foreground`}>
           Find communities, creators, and products that transform your life
         </p>
       </div>
@@ -23,11 +23,11 @@ export function CommunityHero() {
         <div
           className="relative flex items-center w-full max-w-md"
         >
-          <Search className="absolute left-4 w-4 h-4 text-white/40" />
+          <Search className="absolute left-4 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
             placeholder="Search"
-            className="w-full pl-11 pr-4 py-3 rounded-xl text-white placeholder:text-white/40 focus:outline-none text-sm"
+            className="w-full pl-11 pr-4 py-3 rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none text-sm"
             style={{
               background: '#152A20',
               border: '1px solid rgba(255,255,255,0.12)',

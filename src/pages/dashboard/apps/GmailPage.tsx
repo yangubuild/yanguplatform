@@ -97,7 +97,7 @@ export default function GmailPage() {
     <div className="w-full min-h-screen px-6 py-6" style={{ background: "#08120D" }}>
       <button
         onClick={() => navigate("/dashboard/my-apps")}
-        className="flex items-center gap-2 text-white/50 hover:text-white text-sm mb-6 transition-colors"
+        className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm mb-6 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" /> Back to My Apps
       </button>
@@ -106,8 +106,8 @@ export default function GmailPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-xl font-semibold text-white">Gmail</h1>
-            <p className="text-sm text-white/40 mt-1">Manage your inbox inside YANGU</p>
+            <h1 className="text-xl font-semibold text-foreground">Gmail</h1>
+            <p className="text-sm text-muted-foreground mt-1">Manage your inbox inside YANGU</p>
           </div>
           <div className="flex items-center gap-2">
               <Button
@@ -122,7 +122,7 @@ export default function GmailPage() {
               <button
                 onClick={() => fetchInbox()}
                 disabled={loading}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-white/60 hover:text-white transition-colors"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground transition-colors"
                 style={{ background: "rgba(255,255,255,0.06)" }}
               >
                 <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
@@ -140,7 +140,7 @@ export default function GmailPage() {
         {/* COMPOSE VIEW */}
         {view === "compose" && (
           <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-            <button onClick={() => setView("inbox")} className="flex items-center gap-1 text-white/40 hover:text-white text-sm mb-4">
+            <button onClick={() => setView("inbox")} className="flex items-center gap-1 text-muted-foreground hover:text-foreground text-sm mb-4">
               <ChevronLeft className="w-4 h-4" /> Back to inbox
             </button>
             <div className="space-y-3">
@@ -148,20 +148,20 @@ export default function GmailPage() {
                 value={composeTo}
                 onChange={(e) => setComposeTo(e.target.value)}
                 placeholder="To (email)"
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
+                className="bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground"
               />
               <Input
                 value={composeSubject}
                 onChange={(e) => setComposeSubject(e.target.value)}
                 placeholder="Subject"
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
+                className="bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground"
               />
               <Textarea
                 value={composeBody}
                 onChange={(e) => setComposeBody(e.target.value)}
                 placeholder="Write your message..."
                 rows={8}
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 resize-none"
+                className="bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground resize-none"
               />
               <Button
                 variant="accent"
@@ -179,14 +179,14 @@ export default function GmailPage() {
         {/* DETAIL VIEW */}
         {view === "detail" && selectedMessage && (
           <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-            <button onClick={() => { setView("inbox"); setSelectedMessage(null); }} className="flex items-center gap-1 text-white/40 hover:text-white text-sm mb-4">
+            <button onClick={() => { setView("inbox"); setSelectedMessage(null); }} className="flex items-center gap-1 text-muted-foreground hover:text-foreground text-sm mb-4">
               <ChevronLeft className="w-4 h-4" /> Back to inbox
             </button>
-            <h2 className="text-lg font-medium text-white mb-1">{selectedMessage.subject || "(no subject)"}</h2>
-            <p className="text-sm text-white/40 mb-1">From: {selectedMessage.from}</p>
-            <p className="text-sm text-white/40 mb-4">To: {selectedMessage.to}</p>
+            <h2 className="text-lg font-medium text-foreground mb-1">{selectedMessage.subject || "(no subject)"}</h2>
+            <p className="text-sm text-muted-foreground mb-1">From: {selectedMessage.from}</p>
+            <p className="text-sm text-muted-foreground mb-4">To: {selectedMessage.to}</p>
             <div
-              className="text-sm text-white/70 leading-relaxed whitespace-pre-wrap"
+              className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap"
               dangerouslySetInnerHTML={{ __html: selectedMessage.body }}
             />
           </div>
@@ -197,12 +197,12 @@ export default function GmailPage() {
           <>
             {loading && !hasLoaded ? (
               <div className="flex items-center justify-center py-20">
-                <Loader2 className="w-6 h-6 text-white/20 animate-spin" />
+                <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
               </div>
             ) : messages.length === 0 && hasLoaded ? (
               <div className="text-center py-20">
-                <Inbox className="w-10 h-10 text-white/10 mx-auto mb-3" />
-                <p className="text-white/30 text-sm">Your inbox is empty</p>
+                <Inbox className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                <p className="text-muted-foreground text-sm">Your inbox is empty</p>
               </div>
             ) : (
               <div className="space-y-0.5">
@@ -215,15 +215,15 @@ export default function GmailPage() {
                     <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{ background: msg.isUnread ? "#b5622a" : "transparent" }} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
-                        <p className={`text-sm truncate ${msg.isUnread ? "text-white font-medium" : "text-white/70"}`}>
+                        <p className={`text-sm truncate ${msg.isUnread ? "text-foreground font-medium" : "text-muted-foreground"}`}>
                           {formatSender(msg.from)}
                         </p>
-                        <span className="text-[11px] text-white/25 flex-shrink-0">
+                        <span className="text-[11px] text-muted-foreground flex-shrink-0">
                           {msg.date ? new Date(msg.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : ""}
                         </span>
                       </div>
-                      <p className={`text-sm truncate ${msg.isUnread ? "text-white/60" : "text-white/40"}`}>{msg.subject || "(no subject)"}</p>
-                      <p className="text-xs text-white/25 truncate mt-0.5">{msg.snippet}</p>
+                      <p className={`text-sm truncate ${msg.isUnread ? "text-muted-foreground" : "text-muted-foreground"}`}>{msg.subject || "(no subject)"}</p>
+                      <p className="text-xs text-muted-foreground truncate mt-0.5">{msg.snippet}</p>
                     </div>
                   </button>
                 ))}

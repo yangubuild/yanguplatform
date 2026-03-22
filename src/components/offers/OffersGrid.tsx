@@ -167,7 +167,7 @@ export function OffersGrid() {
                 <ChevronDown className="h-4 w-4 text-foreground" />
                 <button
                   onClick={handleGetOffer}
-                  className="ml-2 rounded-lg px-4 py-1.5 text-sm font-bold text-white"
+                  className="ml-2 rounded-lg px-4 py-1.5 text-sm font-bold text-foreground"
                   style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)" }}
                 >
                   Get Offer

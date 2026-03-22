@@ -69,7 +69,7 @@ function OwnReviewsTab() {
   const reviews = data?.reviews ?? [];
   const avgRating = data?.avgRating ?? 0;
   const totalCount = data?.totalCount ?? 0;
-  if (isLoading) return <div className="flex items-center justify-center py-10"><Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} /></div>;
+  if (isLoading) return <div className="flex items-center justify-center py-10"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>;
   return (
     <div className="space-y-4">
       {totalCount > 0 && (
@@ -80,33 +80,33 @@ function OwnReviewsTab() {
                 <Star key={i} className="w-4 h-4" style={{ color: i < Math.round(avgRating) ? "#f59e0b" : "rgba(255,255,255,0.15)", fill: i < Math.round(avgRating) ? "#f59e0b" : "transparent" }} />
               ))}
             </div>
-            <span className="text-sm font-semibold text-white">{avgRating.toFixed(1)}</span>
-            <span className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>({totalCount} review{totalCount !== 1 ? "s" : ""})</span>
+            <span className="text-sm font-semibold text-foreground">{avgRating.toFixed(1)}</span>
+            <span className="text-xs text-muted-foreground">({totalCount} review{totalCount !== 1 ? "s" : ""})</span>
           </div>
         </div>
       )}
       {reviews.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-10">
-          <Star className="w-8 h-8 mb-2" style={{ color: "rgba(255,255,255,0.2)" }} />
-          <p className="text-sm font-semibold text-white mb-1">No reviews yet</p>
-          <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Reviews from clients will appear here.</p>
+          <Star className="w-8 h-8 mb-2 text-muted-foreground" />
+          <p className="text-sm font-semibold text-foreground mb-1">No reviews yet</p>
+          <p className="text-xs text-muted-foreground">Reviews from clients will appear here.</p>
         </div>
       ) : (
         reviews.map((r) => (
           <div key={r.id} className="rounded-lg p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
             <div className="flex items-center gap-2 mb-1.5">
               <div className="w-6 h-6 rounded-full overflow-hidden shrink-0" style={{ background: "rgba(255,255,255,0.1)" }}>
-                {r.reviewer_avatar ? <img src={r.reviewer_avatar} alt="" className="w-6 h-6 rounded-full object-cover" /> : <div className="w-6 h-6 flex items-center justify-center text-[9px] font-bold text-white/50">{(r.reviewer_name||"U").slice(0,2).toUpperCase()}</div>}
+                {r.reviewer_avatar ? <img src={r.reviewer_avatar} alt="" className="w-6 h-6 rounded-full object-cover" /> : <div className="w-6 h-6 flex items-center justify-center text-[9px] font-bold text-muted-foreground">{(r.reviewer_name||"U").slice(0,2).toUpperCase()}</div>}
               </div>
-              <span className="text-xs font-medium text-white">{r.reviewer_name}</span>
-              {r.reviewer_username && <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.3)" }}>@{r.reviewer_username}</span>}
+              <span className="text-xs font-medium text-foreground">{r.reviewer_name}</span>
+              {r.reviewer_username && <span className="text-[10px] text-muted-foreground">@{r.reviewer_username}</span>}
             </div>
             <div className="flex items-center gap-0.5">
               {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="w-3 h-3" style={{ color: i < r.rating ? "#f59e0b" : "rgba(255,255,255,0.15)", fill: i < r.rating ? "#f59e0b" : "transparent" }} />)}
             </div>
-            {r.title && <p className="text-sm font-medium text-white mt-1.5">{r.title}</p>}
-            {r.body && <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.5)" }}>{r.body}</p>}
-            <p className="text-[10px] mt-2" style={{ color: "rgba(255,255,255,0.3)" }}>{new Date(r.created_at).toLocaleDateString()}</p>
+            {r.title && <p className="text-sm font-medium text-foreground mt-1.5">{r.title}</p>}
+            {r.body && <p className="text-xs mt-1 text-muted-foreground">{r.body}</p>}
+            <p className="text-[10px] mt-2 text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</p>
           </div>
         ))
       )}
@@ -208,16 +208,16 @@ function OwnPostsTab() {
       <div className="rounded-xl p-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
         <div className="flex items-start gap-3">
           <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden" style={{ background: "rgba(255,255,255,0.1)" }}>
-            {avatarUrl ? <img src={avatarUrl} alt="" className="w-9 h-9 rounded-full object-cover" /> : <span className="text-white/60">{initials}</span>}
+            {avatarUrl ? <img src={avatarUrl} alt="" className="w-9 h-9 rounded-full object-cover" /> : <span className="text-muted-foreground">{initials}</span>}
           </div>
           <div className="flex-1">
-            <textarea value={text} onChange={(e) => handleEmojiInputChange(e.target.value, e.target.selectionStart ?? undefined)} onKeyDown={(e) => { if (e.key === "Enter" && e.metaKey) handlePost(); }} placeholder="Share an update..." className="w-full bg-transparent text-sm text-white placeholder:text-white/25 outline-none resize-none min-h-[50px]" />
+            <textarea value={text} onChange={(e) => handleEmojiInputChange(e.target.value, e.target.selectionStart ?? undefined)} onKeyDown={(e) => { if (e.key === "Enter" && e.metaKey) handlePost(); }} placeholder="Share an update..." className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none resize-none min-h-[50px]" />
             {mediaPreviews.length > 0 && (
               <div className="flex gap-2 mt-2 flex-wrap">
                 {mediaPreviews.map((url, idx) => (
                   <div key={idx} className="relative w-16 h-16 rounded-lg overflow-hidden">
                     {mediaFiles[idx]?.type.startsWith("video") ? <video src={url} className="w-16 h-16 object-cover" /> : <img src={url} alt="" className="w-16 h-16 object-cover" />}
-                    <button onClick={() => removeMedia(idx)} className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-black/70 flex items-center justify-center"><X className="w-2.5 h-2.5 text-white" /></button>
+                    <button onClick={() => removeMedia(idx)} className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-black/70 flex items-center justify-center"><X className="w-2.5 h-2.5 text-foreground" /></button>
                   </div>
                 ))}
               </div>
@@ -226,14 +226,14 @@ function OwnPostsTab() {
             <div className="flex items-center gap-2 mt-2">
               <button
                 onClick={() => setBuyNowEnabled(!buyNowEnabled)}
-                className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border transition-colors ${buyNowEnabled ? "border-emerald-500/50 text-emerald-400" : "border-white/10 text-white/30 hover:text-white/50"}`}
+                className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border transition-colors ${buyNowEnabled ? "border-emerald-500/50 text-emerald-400" : "border-white/10 text-muted-foreground hover:text-muted-foreground"}`}
                 style={buyNowEnabled ? { background: "rgba(16,185,129,0.1)" } : {}}
               >
                 🟢 Buy Now {buyNowEnabled ? "✓" : ""}
               </button>
               <button
                 onClick={() => setJoinNowEnabled(!joinNowEnabled)}
-                className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border transition-colors ${joinNowEnabled ? "border-blue-500/50 text-blue-400" : "border-white/10 text-white/30 hover:text-white/50"}`}
+                className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border transition-colors ${joinNowEnabled ? "border-blue-500/50 text-blue-400" : "border-white/10 text-muted-foreground hover:text-muted-foreground"}`}
                 style={joinNowEnabled ? { background: "rgba(59,130,246,0.1)" } : {}}
               >
                 🔵 Join Now {joinNowEnabled ? "✓" : ""}
@@ -242,9 +242,9 @@ function OwnPostsTab() {
             <div className="flex items-center justify-between mt-2">
               <div className="flex items-center gap-2">
                 <input ref={imageInputRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => { handleFileSelect(e.target.files); e.target.value = ""; }} />
-                <button onClick={() => imageInputRef.current?.click()} className="p-1.5 rounded-md hover:bg-white/5" style={{ color: "rgba(255,255,255,0.4)" }} title="Add image"><ImagePlus className="w-4 h-4" /></button>
+                <button onClick={() => imageInputRef.current?.click()} className="p-1.5 rounded-md hover:bg-white/5 text-muted-foreground" title="Add image"><ImagePlus className="w-4 h-4" /></button>
                 <input ref={videoInputRef} type="file" accept="video/mp4,video/webm" className="hidden" onChange={(e) => { handleFileSelect(e.target.files); e.target.value = ""; }} />
-                <button onClick={() => videoInputRef.current?.click()} className="p-1.5 rounded-md hover:bg-white/5" style={{ color: "rgba(255,255,255,0.4)" }} title="Add video"><Video className="w-4 h-4" /></button>
+                <button onClick={() => videoInputRef.current?.click()} className="p-1.5 rounded-md hover:bg-white/5 text-muted-foreground" title="Add video"><Video className="w-4 h-4" /></button>
                 <button onClick={handleAiGenerate} disabled={aiGenerating} className="p-1.5 rounded-md hover:bg-amber-500/10 transition-colors disabled:opacity-50" style={{ color: "#f59e0b" }} title="Generate post with AI">
                   {aiGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                 </button>
@@ -276,12 +276,12 @@ function OwnPostsTab() {
         </div>
       </div>
       {isLoading ? (
-        <div className="flex items-center justify-center py-10"><Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} /></div>
+        <div className="flex items-center justify-center py-10"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
       ) : posts.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-10">
-          <MessageSquare className="w-8 h-8 mb-2" style={{ color: "rgba(255,255,255,0.2)" }} />
-          <p className="text-sm font-semibold text-white mb-1">No posts yet</p>
-          <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Share your first update above!</p>
+          <MessageSquare className="w-8 h-8 mb-2 text-muted-foreground" />
+          <p className="text-sm font-semibold text-foreground mb-1">No posts yet</p>
+          <p className="text-xs text-muted-foreground">Share your first update above!</p>
         </div>
       ) : (
         posts.map((post) => <PostCard key={post.id} post={post} toggleReaction={toggleReaction} />)
@@ -540,18 +540,16 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
         className="flex items-center justify-between px-5 py-2.5 shrink-0"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
-        <span className="text-sm font-semibold text-white">Home</span>
+        <span className="text-sm font-semibold text-foreground">Home</span>
         <div className="flex items-center gap-1.5">
           <button
-            className="p-1.5 rounded-md"
-            style={{ color: "rgba(255,255,255,0.45)" }}
+            className="p-1.5 rounded-md text-muted-foreground"
           >
             <Search className="w-4 h-4" />
           </button>
           <DashboardMoreMenu userId={user?.id}>
             <button
-              className="p-1.5 rounded-md"
-              style={{ color: "rgba(255,255,255,0.45)" }}
+              className="p-1.5 rounded-md text-muted-foreground"
             >
               <MoreHorizontal className="w-4 h-4" />
             </button>
@@ -597,18 +595,18 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
               />
               <div className="absolute inset-0 flex items-center justify-center gap-3">
                 <img src={adaIcon} alt="Ada AI" className="w-14 h-14" />
-                <span className="text-5xl font-bold text-white tracking-tight">Ada AI</span>
+                <span className="text-5xl font-bold text-foreground tracking-tight">Ada AI</span>
               </div>
             </>
           )}
           {/* Hover overlay */}
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
             {uploadingCover ? (
-              <Loader2 className="w-8 h-8 text-white animate-spin" />
+              <Loader2 className="w-8 h-8 text-foreground animate-spin" />
             ) : (
               <div className="flex flex-col items-center gap-1">
-                <ImagePlus className="w-6 h-6 text-white" />
-                <span className="text-xs text-white/80 font-medium">Change cover</span>
+                <ImagePlus className="w-6 h-6 text-foreground" />
+                <span className="text-xs text-muted-foreground font-medium">Change cover</span>
               </div>
             )}
           </div>
@@ -630,7 +628,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
           {/* Avatar */}
           <div className="relative w-[88px] h-[88px] group">
             <div
-              className="w-full h-full rounded-full flex items-center justify-center text-2xl font-bold text-white cursor-pointer overflow-hidden"
+              className="w-full h-full rounded-full flex items-center justify-center text-2xl font-bold text-foreground cursor-pointer overflow-hidden"
               onClick={() => setAvatarPickerOpen(true)}
               onMouseEnter={triggerEmojiPreload}
               style={displayAvatar
@@ -651,9 +649,9 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
               {/* Hover overlay */}
               <div className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 {uploadingAvatar ? (
-                  <Loader2 className="w-5 h-5 text-white animate-spin" />
+                  <Loader2 className="w-5 h-5 text-foreground animate-spin" />
                 ) : (
-                  <Camera className="w-5 h-5 text-white" />
+                  <Camera className="w-5 h-5 text-foreground" />
                 )}
               </div>
             </div>
@@ -668,20 +666,20 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                   value={nameValue}
                   onChange={(e) => setNameValue(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter") handleSaveName(); if (e.key === "Escape") setEditingName(false); }}
-                  className="text-[22px] leading-[1.15] font-bold text-white bg-transparent border-b-2 outline-none flex-1"
+                  className="text-[22px] leading-[1.15] font-bold text-foreground bg-transparent border-b-2 outline-none flex-1"
                   style={{ borderColor: "#b5622a" }}
                 />
                 <button onClick={handleSaveName} disabled={savingName} className="p-1 rounded" style={{ color: "#22c55e" }}>
                   {savingName ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                 </button>
-                <button onClick={() => setEditingName(false)} className="p-1 rounded" style={{ color: "rgba(255,255,255,0.4)" }}>
+                <button onClick={() => setEditingName(false)} className="p-1 rounded text-muted-foreground">
                   <X className="w-4 h-4" />
                 </button>
               </div>
             ) : (
               <div className="flex items-center gap-2 group/name cursor-pointer" onClick={() => { setNameValue(displayName); setEditingName(true); }}>
                 <h2
-                  className="text-[28px] leading-[1.15] font-bold text-white"
+                  className="text-[28px] leading-[1.15] font-bold text-foreground"
                   style={{ maxWidth: "420px" }}
                 >
                   {displayName}
@@ -692,7 +690,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                   const colorMap: Record<string, string> = { blue: "#3b82f6", orange: "#b5622a", green: "#16a34a" };
                   return <BadgeCheck className="w-5 h-5 shrink-0" style={{ color: colorMap[vt] || "#3b82f6" }} />;
                 })()}
-                <Pencil className="w-3.5 h-3.5 opacity-0 group-hover/name:opacity-100 transition-opacity" style={{ color: "rgba(255,255,255,0.4)" }} />
+                <Pencil className="w-3.5 h-3.5 opacity-0 group-hover/name:opacity-100 transition-opacity text-muted-foreground" />
               </div>
             )}
             <div className="flex items-center gap-2 shrink-0 mt-1">
@@ -700,9 +698,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                 <button
                   className="p-2 rounded-lg"
                   style={{
-                    background: "rgba(255,255,255,0.05)",
-                    color: "rgba(255,255,255,0.5)",
-                  }}
+                    background: "rgba(255,255,255,0.05)", }}
                 >
                   <UserPlus className="w-4 h-4" />
                 </button>
@@ -711,9 +707,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                 onClick={() => setNotifModalOpen(true)}
                 className="p-2 rounded-lg"
                 style={{
-                  background: "rgba(255,255,255,0.05)",
-                  color: "rgba(255,255,255,0.5)",
-                }}
+                  background: "rgba(255,255,255,0.05)", }}
               >
                 <Bell className="w-4 h-4" />
               </button>
@@ -748,21 +742,21 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                 value={descValue}
                 onChange={(e) => setDescValue(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSaveDesc(); } if (e.key === "Escape") setEditingDesc(false); }}
-                className="text-sm bg-transparent border-0 border-b-2 rounded-none p-0 min-h-[32px] resize-none text-white focus-visible:ring-0"
+                className="text-sm bg-transparent border-0 border-b-2 rounded-none p-0 min-h-[32px] resize-none text-foreground focus-visible:ring-0"
                 style={{ borderColor: "#b5622a" }}
                 placeholder="Write a description..."
               />
               <button onClick={handleSaveDesc} disabled={savingDesc} className="p-1 rounded shrink-0" style={{ color: "#22c55e" }}>
                 {savingDesc ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
               </button>
-              <button onClick={() => setEditingDesc(false)} className="p-1 rounded shrink-0" style={{ color: "rgba(255,255,255,0.4)" }}>
+              <button onClick={() => setEditingDesc(false)} className="p-1 rounded shrink-0 text-muted-foreground">
                 <X className="w-3.5 h-3.5" />
               </button>
             </div>
           ) : (
             <p
-              className="text-sm mt-1.5 cursor-pointer group/desc inline-flex items-center gap-1.5 hover:text-white/50 transition-colors"
-              style={{ color: "rgba(255,255,255,0.35)", fontStyle: displayDescription ? "normal" : "italic" }}
+              className="text-sm mt-1.5 cursor-pointer group/desc inline-flex items-center gap-1.5 hover:text-muted-foreground transition-colors"
+              style={{ fontStyle: displayDescription ? "normal" : "italic" }}
               onClick={() => { setDescValue(displayDescription); setEditingDesc(true); }}
             >
               {displayDescription || "Set a description..."}
@@ -772,16 +766,15 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
 
           {/* Meta row */}
           <div
-            className="flex items-center gap-2.5 mt-2 text-xs flex-wrap"
-            style={{ color: "rgba(255,255,255,0.45)" }}
+            className="flex items-center gap-2.5 mt-2 text-xs flex-wrap text-muted-foreground"
           >
             <span className="flex items-center gap-1">
               <MapPin className="w-3 h-3" />
               Dubai, AE
             </span>
-            <span style={{ color: "rgba(255,255,255,0.2)" }}>•</span>
+            <span className="text-muted-foreground">•</span>
             <button
-              className="flex items-center gap-1 hover:text-white/70 transition-colors"
+              className="flex items-center gap-1 hover:text-muted-foreground transition-colors"
               onClick={() => setSocialModalOpen(true)}
             >
               <Plus className="w-3 h-3" />
@@ -803,7 +796,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                 ))}
               </span>
             )}
-            <span style={{ color: "rgba(255,255,255,0.2)" }}>•</span>
+            <span className="text-muted-foreground">•</span>
             <span className="flex items-center gap-1">
               Created by
               <span
@@ -821,8 +814,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
           </div>
 
           <p
-            className="text-xs mt-1.5"
-            style={{ color: "rgba(255,255,255,0.35)" }}
+            className="text-xs mt-1.5 text-muted-foreground"
           >
             1 members
           </p>
@@ -863,13 +855,13 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
               {/* Businesses header */}
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-white">Business</span>
+                  <span className="text-sm font-semibold text-foreground">Business</span>
                   <button
                     className="w-6 h-6 rounded-md flex items-center justify-center"
                     style={{ background: "#b5622a" }}
                     onClick={() => navigate("/my-business")}
                   >
-                    <Plus className="w-3.5 h-3.5 text-white" />
+                    <Plus className="w-3.5 h-3.5 text-foreground" />
                   </button>
                 </div>
                 <button
@@ -884,21 +876,21 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
               {/* Published surfaces list */}
               {surfacesLoading ? (
                 <div className="flex items-center justify-center py-10">
-                  <Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
+                  <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
                 </div>
               ) : publishedSurfaces.length === 0 ? (
                 <div
                   className="rounded-xl p-8 text-center"
                   style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
                 >
-                  <p className="text-sm font-medium text-white mb-1">No published business yet</p>
-                  <p className="text-xs mb-4" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  <p className="text-sm font-medium text-foreground mb-1">No published business yet</p>
+                  <p className="text-xs mb-4 text-muted-foreground">
                     Publish your first business to see it here.
                   </p>
                   <button
                     onClick={() => navigate("/my-business")}
                     className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold"
-                    style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)", color: "#fff" }}
+                    style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)", }}
                   >
                     Publish your business
                   </button>
@@ -923,14 +915,14 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                         ) : (
                           <div
                             className="h-24 flex items-center justify-center text-3xl font-bold"
-                            style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)", color: "rgba(255,255,255,0.3)" }}
+                            style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)", }}
                           >
                             {initials}
                           </div>
                         )}
                         <div className="p-3">
-                          <p className="text-sm font-medium text-white">{surface.title || "Untitled"}</p>
-                          <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.45)" }}>
+                          <p className="text-sm font-medium text-foreground">{surface.title || "Untitled"}</p>
+                          <p className="text-xs mt-1 text-muted-foreground">
                             {surface.surface_type}
                           </p>
                         </div>
@@ -946,8 +938,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                             <Eye className="w-4 h-4" style={{ color: "#22c55e" }} />
                           )}
                           <Pencil
-                            className="w-4 h-4 cursor-pointer"
-                            style={{ color: "rgba(255,255,255,0.35)" }}
+                            className="w-4 h-4 cursor-pointer text-muted-foreground"
                             onClick={() => navigate("/my-business")}
                           />
                         </div>
@@ -968,10 +959,10 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                   {displayAvatar ? (
                     <img src={displayAvatar} alt="" className="w-9 h-9 rounded-full object-cover" />
                   ) : (
-                    <span className="text-xs font-bold text-white">{initials.charAt(0)}</span>
+                    <span className="text-xs font-bold text-foreground">{initials.charAt(0)}</span>
                   )}
                 </div>
-                <span className="flex-1 text-sm" style={{ color: "rgba(255,255,255,0.35)" }}>
+                <span className="flex-1 text-sm text-muted-foreground">
                   Say something they'll screenshot...
                 </span>
                 <button
@@ -995,8 +986,8 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                   <Shield className="w-5 h-5" style={{ color: "#E67E22" }} />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-white">Identity Verification</h3>
-                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  <h3 className="text-sm font-semibold text-foreground">Identity Verification</h3>
+                  <p className="text-xs text-muted-foreground">
                     Complete KYC to unlock full publishing
                   </p>
                 </div>
@@ -1004,7 +995,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
 
               {kycLoading ? (
                 <div className="flex items-center justify-center py-8">
-                  <Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
+                  <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
                 </div>
               ) : (
                 <>
@@ -1034,9 +1025,9 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                       ) : kycStatus === "pending" || kycStatus === "submitted" ? (
                         <Clock className="w-4 h-4" style={{ color: "#f59e0b" }} />
                       ) : (
-                        <Shield className="w-4 h-4" style={{ color: "rgba(255,255,255,0.4)" }} />
+                        <Shield className="w-4 h-4 text-muted-foreground" />
                       )}
-                      <span className="text-sm font-medium text-white">
+                      <span className="text-sm font-medium text-foreground">
                         Status: {kycStatus
                           ? kycStatus.charAt(0).toUpperCase() + kycStatus.slice(1)
                           : "Not started"}
@@ -1049,8 +1040,8 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                     className="rounded-lg p-4 mb-4"
                     style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
                   >
-                    <p className="text-xs font-medium text-white mb-2">What you'll need:</p>
-                    <ul className="text-xs space-y-1" style={{ color: "rgba(255,255,255,0.45)" }}>
+                    <p className="text-xs font-medium text-foreground mb-2">What you'll need:</p>
+                    <ul className="text-xs space-y-1 text-muted-foreground">
                       <li>• Government-issued ID</li>
                       <li>• Proof of address</li>
                       <li>• A few minutes to complete</li>
@@ -1090,14 +1081,14 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
           {activeTab === "About" && (
             <div className="space-y-4">
               <div>
-                <p className="text-xs font-semibold text-white mb-1">Bio</p>
-                <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
+                <p className="text-xs font-semibold text-foreground mb-1">Bio</p>
+                <p className="text-sm text-muted-foreground">
                   {((profile as any)?.social_links as any)?.about_me || "No bio set yet. Use the About panel on the right to add one."}
                 </p>
               </div>
               <div>
-                <p className="text-xs font-semibold text-white mb-1">Business</p>
-                <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
+                <p className="text-xs font-semibold text-foreground mb-1">Business</p>
+                <p className="text-sm text-muted-foreground">
                   {((profile as any)?.social_links as any)?.about_business || "No business info set yet."}
                 </p>
               </div>

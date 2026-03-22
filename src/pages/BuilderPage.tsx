@@ -7,11 +7,11 @@ export default function BuilderPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center" style={{ background: '#08120D' }}>
       <img src={yanguLogo} alt="yangu" className="h-10 w-auto mb-8 opacity-60" />
-      <h1 className="text-2xl font-bold text-white mb-3">Builder</h1>
+      <h1 className="text-2xl font-bold text-foreground mb-3">Builder</h1>
       <p className="text-sm mb-8" style={{ color: 'rgba(255,255,255,0.4)' }}>Full builder page coming soon.</p>
       <button
         onClick={() => navigate(-1)}
-        className="px-6 py-3 rounded-xl text-sm font-medium text-white transition-opacity hover:opacity-90"
+        className="px-6 py-3 rounded-xl text-sm font-medium text-foreground transition-opacity hover:opacity-90"
         style={{ background: 'rgba(255,255,255,0.08)' }}
       >
         Go back

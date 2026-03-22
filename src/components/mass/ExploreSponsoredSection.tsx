@@ -84,7 +84,7 @@ export function ExploreSponsoredSection() {
     <section className="mb-12">
       <div className="flex items-center gap-2 mb-5">
         <Sparkles className="w-4 h-4" style={{ color: "#b5622a" }} />
-        <h2 className="text-white/40 text-sm font-medium tracking-wide">Sponsored</h2>
+        <h2 className="text-muted-foreground text-sm font-medium tracking-wide">Sponsored</h2>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {businesses.map((biz) => (
@@ -105,24 +105,24 @@ export function ExploreSponsoredSection() {
                 />
               ) : (
                 <div className="w-full aspect-[4/3] flex items-center justify-center">
-                  <Store className="w-12 h-12 text-white/15" />
+                  <Store className="w-12 h-12 text-muted-foreground" />
                 </div>
               )}
               <div
                 className="absolute top-2 right-2 px-2 py-0.5 rounded-lg text-[10px] font-medium"
-                style={{ background: "rgba(181, 98, 42, 0.8)", color: "#fff" }}
+                style={{ background: "rgba(181, 98, 42, 0.8)", }}
               >
                 Sponsored
               </div>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-white font-medium text-sm truncate">{biz.title}</span>
+              <span className="text-foreground font-medium text-sm truncate">{biz.title}</span>
               {biz.category && (
-                <span className="text-white/40 text-xs shrink-0">{biz.category}</span>
+                <span className="text-muted-foreground text-xs shrink-0">{biz.category}</span>
               )}
             </div>
             {biz.description && (
-              <p className="text-xs text-white/30 mt-1 line-clamp-2">{biz.description}</p>
+              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{biz.description}</p>
             )}
           </a>
         ))}

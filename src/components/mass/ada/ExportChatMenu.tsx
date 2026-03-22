@@ -99,7 +99,7 @@ export function ExportChatMenu({ chatId, onDriveConnect }: ExportChatMenuProps) 
       <button
         onClick={() => setOpen(!open)}
         disabled={!!exporting}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs text-white/40 hover:text-white/70 transition-colors"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs text-muted-foreground hover:text-muted-foreground transition-colors"
         style={{ border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)" }}
         title="Export chat"
       >
@@ -119,14 +119,14 @@ export function ExportChatMenu({ chatId, onDriveConnect }: ExportChatMenuProps) 
         >
           <button
             onClick={() => handleExport("pdf")}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:bg-white/5 transition-colors"
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:bg-white/5 transition-colors"
           >
             <FileText className="w-3.5 h-3.5" />
             Export as PDF
           </button>
           <button
             onClick={() => handleExport("docx")}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:bg-white/5 transition-colors"
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:bg-white/5 transition-colors"
           >
             <FileText className="w-3.5 h-3.5" />
             Export as DOCX
@@ -135,17 +135,17 @@ export function ExportChatMenu({ chatId, onDriveConnect }: ExportChatMenuProps) 
           {lastExport && (
             <>
               <div className="border-t border-white/5 my-1" />
-              <p className="px-3 py-1 text-[10px] text-white/30">Last export: {lastExport.format.toUpperCase()}</p>
+              <p className="px-3 py-1 text-[10px] text-muted-foreground">Last export: {lastExport.format.toUpperCase()}</p>
               <button
                 onClick={handleDownloadExport}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:bg-white/5 transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:bg-white/5 transition-colors"
               >
                 <Download className="w-3.5 h-3.5" />
                 Download
               </button>
               <button
                 onClick={handleSaveExportToDrive}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:bg-white/5 transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:bg-white/5 transition-colors"
               >
                 <HardDrive className="w-3.5 h-3.5" />
                 Save to Google Drive

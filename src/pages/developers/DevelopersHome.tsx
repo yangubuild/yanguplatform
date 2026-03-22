@@ -52,7 +52,7 @@ export default function DevelopersHome() {
         </Button>
         <Button
           variant="ghost"
-          className="text-white/80 border border-white/12 hover:bg-white/5"
+          className="text-muted-foreground border border-white/12 hover:bg-white/5"
           onClick={() => navigate("/developers/apis/rest-graphql")}
         >
           View API Reference

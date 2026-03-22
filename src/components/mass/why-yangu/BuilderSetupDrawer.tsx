@@ -45,8 +45,8 @@ export function BuilderSetupDrawer({ open, onOpenChange, selectedKeys }: Builder
         }}
       >
         <SheetHeader className="mb-6">
-          <SheetTitle className="text-white text-xl">Your yangu setup</SheetTitle>
-          <SheetDescription style={{ color: "rgba(255,255,255,0.5)" }}>
+          <SheetTitle className="text-foreground text-xl">Your yangu setup</SheetTitle>
+          <SheetDescription className="text-muted-foreground">
             You'll finish setup inside your yangu account.
           </SheetDescription>
         </SheetHeader>
@@ -65,11 +65,11 @@ export function BuilderSetupDrawer({ open, onOpenChange, selectedKeys }: Builder
                 className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
                 style={{ background: "#F46D2A" }}
               >
-                <Check className="w-3.5 h-3.5 text-white" />
+                <Check className="w-3.5 h-3.5 text-foreground" />
               </div>
               <div>
-                <p className="text-white text-sm font-medium">{f.title}</p>
-                <p className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
+                <p className="text-foreground text-sm font-medium">{f.title}</p>
+                <p className="text-xs text-muted-foreground">
                   {f.description}
                 </p>
               </div>
@@ -83,7 +83,7 @@ export function BuilderSetupDrawer({ open, onOpenChange, selectedKeys }: Builder
           </Button>
           <Button
             variant="ghost"
-            className="w-full gap-2 text-white/60 hover:text-white/80 border border-white/10 hover:bg-white/5"
+            className="w-full gap-2 text-muted-foreground hover:text-muted-foreground border border-white/10 hover:bg-white/5"
             onClick={handleSaveForLater}
           >
             <Bookmark className="w-4 h-4" /> Save for later

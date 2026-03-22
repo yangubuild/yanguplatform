@@ -55,14 +55,14 @@ export default function AppStorePage() {
             onClick={() => navigate(-1)}
             className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
           >
-            <ArrowLeft className="w-5 h-5 text-white/60" />
+            <ArrowLeft className="w-5 h-5 text-muted-foreground" />
           </button>
-          <h1 className="text-white text-lg font-semibold">Add app</h1>
+          <h1 className="text-foreground text-lg font-semibold">Add app</h1>
         </div>
 
         {/* AI Prompt Section */}
         <div className="text-center mb-4">
-          <h2 className="text-white text-2xl font-bold mb-5">Create your own</h2>
+          <h2 className="text-foreground text-2xl font-bold mb-5">Create your own</h2>
           <div
             className="mx-auto max-w-[640px] rounded-2xl p-4 relative"
             style={{
@@ -75,7 +75,7 @@ export default function AppStorePage() {
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="Tell YANGU to build an app for your work"
               rows={4}
-              className="w-full bg-transparent text-white/80 text-sm placeholder:text-white/30 resize-none focus:outline-none"
+              className="w-full bg-transparent text-muted-foreground text-sm placeholder:text-muted-foreground resize-none focus:outline-none"
             />
             <div className="flex justify-end">
               <button
@@ -86,7 +86,7 @@ export default function AppStorePage() {
                     : "rgba(255,255,255,0.08)",
                 }}
               >
-                <ArrowUp className="w-4 h-4 text-white" />
+                <ArrowUp className="w-4 h-4 text-foreground" />
               </button>
             </div>
           </div>
@@ -98,7 +98,7 @@ export default function AppStorePage() {
             <button
               key={chip}
               onClick={() => setPrompt(chip)}
-              className="px-4 py-1.5 rounded-lg text-xs text-white/60 transition-colors hover:text-white/80 hover:border-white/20"
+              className="px-4 py-1.5 rounded-lg text-xs text-muted-foreground transition-colors hover:text-muted-foreground hover:border-white/20"
               style={{ border: "1px solid rgba(255,255,255,0.10)" }}
             >
               {chip}
@@ -111,7 +111,7 @@ export default function AppStorePage() {
           className="mb-6"
           style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
         />
-        <h3 className="text-white/50 text-sm font-medium mb-5">
+        <h3 className="text-muted-foreground text-sm font-medium mb-5">
           Or choose from the app store
         </h3>
 
@@ -141,7 +141,7 @@ export default function AppStorePage() {
         {/* App Grid */}
         {isLoading ? (
           <div className="flex justify-center py-16">
-            <Loader2 className="w-6 h-6 text-white/20 animate-spin" />
+            <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -242,18 +242,18 @@ function AppCard({ app, index, userId, queryClient }: { app: AppRegistryEntry; i
           className="w-11 h-11 rounded-xl object-cover shrink-0"
         />
         <div className="flex-1 min-w-0">
-          <h4 className="text-white font-semibold text-sm leading-tight">{app.name}</h4>
+          <h4 className="text-foreground font-semibold text-sm leading-tight">{app.name}</h4>
           <div className="flex items-center gap-1.5 mt-0.5">
             {app.is_native_yangu && (
               <img src={yanguBadge} alt="YANGU" className="w-3.5 h-3.5 object-contain" />
             )}
-            <span className="text-[11px] text-white/35">{providerLine}</span>
+            <span className="text-[11px] text-muted-foreground">{providerLine}</span>
           </div>
         </div>
         <button
           onClick={handleAdd}
           disabled={isInstalled || installing}
-          className="shrink-0 px-5 py-1.5 rounded-lg text-xs font-semibold text-white transition-opacity hover:opacity-80 disabled:opacity-60 flex items-center gap-1.5"
+          className="shrink-0 px-5 py-1.5 rounded-lg text-xs font-semibold text-foreground transition-opacity hover:opacity-80 disabled:opacity-60 flex items-center gap-1.5"
           style={{
             background: isInstalled
               ? "rgba(255,255,255,0.08)"
@@ -271,10 +271,10 @@ function AppCard({ app, index, userId, queryClient }: { app: AppRegistryEntry; i
           )}
         </button>
       </div>
-      <p className="text-xs text-white/40 leading-relaxed line-clamp-1">
+      <p className="text-xs text-muted-foreground leading-relaxed line-clamp-1">
         {app.short_description || "No description yet."}
       </p>
-      <span className="text-[10px] text-white/25">
+      <span className="text-[10px] text-muted-foreground">
         {stats.amount} installs in last {stats.period}
       </span>
     </div>

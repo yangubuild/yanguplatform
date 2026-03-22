@@ -99,11 +99,11 @@ export function MessagesGlobalChatTab() {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b shrink-0" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
-        <button className="flex items-center gap-1.5 text-sm font-medium text-white">
-          Global <ChevronDown className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.4)" }} />
+        <button className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+          Global <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
         </button>
         <div className="flex items-center gap-2">
-          <button className="p-1.5 rounded-lg hover:opacity-80" style={{ color: "rgba(255,255,255,0.4)" }}><Info className="w-4 h-4" /></button>
+          <button className="p-1.5 rounded-lg hover:opacity-80 text-muted-foreground"><Info className="w-4 h-4" /></button>
           <button className="p-1.5 rounded-lg hover:opacity-80" style={{ color: "#facc15" }}><Trophy className="w-4 h-4" /></button>
         </div>
       </div>
@@ -111,11 +111,11 @@ export function MessagesGlobalChatTab() {
       {/* Messages feed */}
       <div ref={feedRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
         {isLoading ? (
-          <div className="flex items-center justify-center py-10"><Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} /></div>
+          <div className="flex items-center justify-center py-10"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
         ) : messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10">
-            <p className="text-sm font-semibold text-white">Welcome to Global Chat</p>
-            <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>Be the first to say something!</p>
+            <p className="text-sm font-semibold text-foreground">Welcome to Global Chat</p>
+            <p className="text-xs mt-1 text-muted-foreground">Be the first to say something!</p>
           </div>
         ) : (
           messages.map((msg) => (
@@ -136,12 +136,12 @@ export function MessagesGlobalChatTab() {
       {/* Reply banner */}
       {replyTo && (
         <div className="px-4 py-1.5 flex items-center gap-2 shrink-0" style={{ background: "rgba(255,255,255,0.04)", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-          <CornerDownRight className="w-3.5 h-3.5 shrink-0" style={{ color: "rgba(255,255,255,0.4)" }} />
+          <CornerDownRight className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
           <div className="flex-1 min-w-0">
             <span className="text-[10px] font-semibold" style={{ color: "#60a5fa" }}>{replyTo.author_name}</span>
-            <p className="text-[10px] truncate" style={{ color: "rgba(255,255,255,0.4)" }}>{replyTo.content}</p>
+            <p className="text-[10px] truncate text-muted-foreground">{replyTo.content}</p>
           </div>
-          <button onClick={() => setReplyTo(null)} className="p-0.5"><X className="w-3 h-3" style={{ color: "rgba(255,255,255,0.3)" }} /></button>
+          <button onClick={() => setReplyTo(null)} className="p-0.5"><X className="w-3 h-3 text-muted-foreground" /></button>
         </div>
       )}
 
@@ -153,7 +153,7 @@ export function MessagesGlobalChatTab() {
               ? <video src={mediaPreview} className="h-14 rounded-lg" />
               : <img src={mediaPreview} alt="" className="h-14 rounded-lg object-cover" />}
             <button onClick={() => { if (mediaPreview) URL.revokeObjectURL(mediaPreview); setMediaFile(null); setMediaPreview(null); }}
-              className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-black/70 flex items-center justify-center"><X className="w-2.5 h-2.5 text-white" /></button>
+              className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-black/70 flex items-center justify-center"><X className="w-2.5 h-2.5 text-foreground" /></button>
           </div>
         </div>
       )}
@@ -188,24 +188,23 @@ export function MessagesGlobalChatTab() {
               onChange={(e) => handleInputChange(e.target.value, e.target.selectionStart ?? undefined)}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
               placeholder={replyTo ? `Reply to ${replyTo.author_name}...` : "Your message..."}
-              className="flex-1 bg-transparent text-sm outline-none"
-              style={{ color: "rgba(255,255,255,0.8)" }}
+              className="flex-1 bg-transparent text-sm outline-none text-muted-foreground"
             />
             <button onClick={handleSend} disabled={(!message.trim() && !mediaFile) || uploading}
               className="p-1.5 rounded-lg transition-colors" style={{ background: (message.trim() || mediaFile) ? "#22c55e" : "rgba(255,255,255,0.08)" }}>
-              {uploading ? <Loader2 className="w-3.5 h-3.5 text-white animate-spin" /> : <Send className="w-3.5 h-3.5 text-white" />}
+              {uploading ? <Loader2 className="w-3.5 h-3.5 text-foreground animate-spin" /> : <Send className="w-3.5 h-3.5 text-foreground" />}
             </button>
           </div>
           <div className="flex items-center gap-1 mt-1.5 -mb-0.5">
             <input ref={imageRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif" className="hidden" onChange={(e) => { handleFile(e.target.files); e.target.value = ""; }} />
-            <button onClick={() => imageRef.current?.click()} className="p-1 rounded hover:bg-white/5" style={{ color: "rgba(255,255,255,0.35)" }} title="Image"><ImagePlus className="w-3.5 h-3.5" /></button>
+            <button onClick={() => imageRef.current?.click()} className="p-1 rounded hover:bg-white/5 text-muted-foreground" title="Image"><ImagePlus className="w-3.5 h-3.5" /></button>
             <input ref={videoRef} type="file" accept="video/mp4,video/webm" className="hidden" onChange={(e) => { handleFile(e.target.files); e.target.value = ""; }} />
-            <button onClick={() => videoRef.current?.click()} className="p-1 rounded hover:bg-white/5" style={{ color: "rgba(255,255,255,0.35)" }} title="Video"><Video className="w-3.5 h-3.5" /></button>
-            <button className="p-1 rounded hover:bg-white/5" style={{ color: "rgba(255,255,255,0.35)" }} title="GIF" onClick={() => imageRef.current?.click()}><span className="text-[9px] font-bold">GIF</span></button>
+            <button onClick={() => videoRef.current?.click()} className="p-1 rounded hover:bg-white/5 text-muted-foreground" title="Video"><Video className="w-3.5 h-3.5" /></button>
+            <button className="p-1 rounded hover:bg-white/5 text-muted-foreground" title="GIF" onClick={() => imageRef.current?.click()}><span className="text-[9px] font-bold">GIF</span></button>
             <button onClick={() => setShowComposerEmoji(p => !p)} className="p-1 rounded hover:bg-white/5" style={{ color: showComposerEmoji ? "#facc15" : "rgba(255,255,255,0.35)" }} title="Emoji"><Smile className="w-3.5 h-3.5" /></button>
-            <button onClick={() => insertTag("[location:📍 My Location]")} className="p-1 rounded hover:bg-white/5" style={{ color: "rgba(255,255,255,0.35)" }} title="Location"><MapPin className="w-3.5 h-3.5" /></button>
-            <button onClick={() => insertTag("@")} className="p-1 rounded hover:bg-white/5" style={{ color: "rgba(255,255,255,0.35)" }} title="Tag user"><AtSign className="w-3.5 h-3.5" /></button>
-            <button onClick={() => insertTag("#")} className="p-1 rounded hover:bg-white/5" style={{ color: "rgba(255,255,255,0.35)" }} title="Hashtag"><Hash className="w-3.5 h-3.5" /></button>
+            <button onClick={() => insertTag("[location:📍 My Location]")} className="p-1 rounded hover:bg-white/5 text-muted-foreground" title="Location"><MapPin className="w-3.5 h-3.5" /></button>
+            <button onClick={() => insertTag("@")} className="p-1 rounded hover:bg-white/5 text-muted-foreground" title="Tag user"><AtSign className="w-3.5 h-3.5" /></button>
+            <button onClick={() => insertTag("#")} className="p-1 rounded hover:bg-white/5 text-muted-foreground" title="Hashtag"><Hash className="w-3.5 h-3.5" /></button>
             <div className="flex-1" />
             <button onClick={() => insertTag(" [buynow]")} className="p-1 rounded hover:bg-white/5" style={{ color: "rgba(16,185,129,0.6)" }} title="Buy Now"><ShoppingCart className="w-3.5 h-3.5" /></button>
             <button onClick={() => insertTag(" [sellnow]")} className="p-1 rounded hover:bg-white/5" style={{ color: "rgba(251,146,60,0.6)" }} title="Sell Now"><Tag className="w-3.5 h-3.5" /></button>
@@ -237,7 +236,7 @@ function MessageBubble({ msg, presenceMap, currentUserId, onReply, onReaction, e
             {msg.author_avatar ? (
               <img src={msg.author_avatar} alt="" className="w-8 h-8 rounded-full object-cover" />
             ) : (
-              <span className="text-[9px] font-bold text-white/50">{(msg.author_name || "U").slice(0, 2).toUpperCase()}</span>
+              <span className="text-[9px] font-bold text-muted-foreground">{(msg.author_name || "U").slice(0, 2).toUpperCase()}</span>
             )}
           </div>
           <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border" style={{ background: presenceMap[msg.user_id] === "live" ? "#22c55e" : "#6b7280", borderColor: "#111820" }} />
@@ -246,9 +245,9 @@ function MessageBubble({ msg, presenceMap, currentUserId, onReply, onReaction, e
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-white">{msg.author_name}</span>
-            {msg.author_username && <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.3)" }}>@{msg.author_username}</span>}
-            <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.2)" }}>
+            <span className="text-xs font-semibold text-foreground">{msg.author_name}</span>
+            {msg.author_username && <span className="text-[10px] text-muted-foreground">@{msg.author_username}</span>}
+            <span className="text-[10px] text-muted-foreground">
               {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
             </span>
           </div>
@@ -257,11 +256,11 @@ function MessageBubble({ msg, presenceMap, currentUserId, onReply, onReaction, e
           {msg.replyMessage && (
             <div className="flex items-center gap-1.5 mt-0.5 mb-0.5 pl-2" style={{ borderLeft: "2px solid rgba(96,165,250,0.4)" }}>
               <span className="text-[10px] font-semibold" style={{ color: "#60a5fa" }}>{msg.replyMessage.author_name}</span>
-              <span className="text-[10px] truncate max-w-[180px]" style={{ color: "rgba(255,255,255,0.35)" }}>{msg.replyMessage.content}</span>
+              <span className="text-[10px] truncate max-w-[180px] text-muted-foreground">{msg.replyMessage.content}</span>
             </div>
           )}
 
-          <div className="mt-1 inline-block rounded-xl px-3 py-2 text-xs max-w-[280px]" style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.85)" }}>
+          <div className="mt-1 inline-block rounded-xl px-3 py-2 text-xs max-w-[280px]" style={{ background: "rgba(255,255,255,0.07)", }}>
             <ChatContent content={msg.content} metadata={msg.metadata} />
           </div>
 
@@ -299,8 +298,8 @@ function MessageBubble({ msg, presenceMap, currentUserId, onReply, onReaction, e
         {/* Hover actions: reply + react */}
         {hovered && (
           <div className="absolute -top-2 right-0 flex items-center gap-0.5 rounded-lg px-1 py-0.5" style={{ background: "rgba(17,24,32,0.95)", border: "1px solid rgba(255,255,255,0.1)" }}>
-            <button onClick={onReply} className="p-1 rounded hover:bg-white/10" title="Reply"><Reply className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.5)" }} /></button>
-            <button onClick={onToggleEmojiPicker} className="p-1 rounded hover:bg-white/10" title="React"><Smile className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.5)" }} /></button>
+            <button onClick={onReply} className="p-1 rounded hover:bg-white/10" title="Reply"><Reply className="w-3.5 h-3.5 text-muted-foreground" /></button>
+            <button onClick={onToggleEmojiPicker} className="p-1 rounded hover:bg-white/10" title="React"><Smile className="w-3.5 h-3.5 text-muted-foreground" /></button>
           </div>
         )}
       </div>
@@ -331,7 +330,7 @@ function ChatContent({ content, metadata }: { content: string; metadata?: any })
         })}
       </span>
       {metadata?.location && (
-        <div className="flex items-center gap-1 mt-1" style={{ color: "rgba(255,255,255,0.5)" }}>
+        <div className="flex items-center gap-1 mt-1 text-muted-foreground">
           <MapPin className="w-3 h-3" /> <span className="text-[10px]">{metadata.location}</span>
         </div>
       )}

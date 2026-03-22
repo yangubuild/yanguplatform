@@ -234,7 +234,7 @@ export default function ManageTeam() {
             <Button
               onClick={handleSendInvite}
               disabled={sending || !email.trim()}
-              className="bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent)/0.85)] text-white shrink-0"
+              className="bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent)/0.85)] text-foreground shrink-0"
             >
               {sending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

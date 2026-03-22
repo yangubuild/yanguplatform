@@ -23,7 +23,7 @@ export function BlogHero({ onSubscribeClick }: BlogHeroProps) {
       </h2>
 
       {/* Subtext */}
-      <p className="mt-6 text-base" style={{ color: "rgba(255,255,255,0.5)", letterSpacing: "0.02em" }}>
+      <p className="mt-6 text-base" style={{ letterSpacing: "0.02em" }}>
         Trusted by 100,000 builders
       </p>
 

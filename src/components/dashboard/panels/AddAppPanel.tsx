@@ -110,7 +110,7 @@ export function AddAppPanel() {
         className="flex items-center justify-between px-4 py-3 shrink-0"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
-        <span className="text-sm font-semibold text-white">Add App</span>
+        <span className="text-sm font-semibold text-foreground">Add App</span>
       </div>
 
       <div className="px-3 py-2">
@@ -118,19 +118,19 @@ export function AddAppPanel() {
           className="flex items-center gap-2 rounded-lg px-3 py-2"
           style={{ background: "rgba(255,255,255,0.06)" }}
         >
-          <Search className="w-4 h-4" style={{ color: "rgba(255,255,255,0.3)" }} />
+          <Search className="w-4 h-4 text-muted-foreground" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search networking apps..."
-            className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-white/25"
+            className="flex-1 bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground"
           />
         </div>
       </div>
 
       <div className="px-4 py-2">
-        <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.35)" }}>
+        <p className="text-[11px] text-muted-foreground">
           Only networking & social apps can be added to your profile page.
         </p>
       </div>
@@ -138,10 +138,10 @@ export function AddAppPanel() {
       <div className="flex-1 overflow-y-auto px-3 space-y-1">
         {isLoading ? (
           <div className="flex items-center justify-center py-10">
-            <Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
+            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
           </div>
         ) : filtered.length === 0 ? (
-          <p className="text-center text-xs py-8" style={{ color: "rgba(255,255,255,0.4)" }}>
+          <p className="text-center text-xs py-8 text-muted-foreground">
             No apps found
           </p>
         ) : (
@@ -154,7 +154,7 @@ export function AddAppPanel() {
               >
                 <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold shrink-0 overflow-hidden"
-                  style={{ background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)" }}
+                  style={{ background: "rgba(255,255,255,0.1)", }}
                 >
                   {icon ? (
                     <img src={icon} alt={app.name} className="w-8 h-8 rounded-lg object-cover" />
@@ -163,9 +163,9 @@ export function AddAppPanel() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white truncate">{app.name}</p>
+                  <p className="text-sm font-medium text-foreground truncate">{app.name}</p>
                   {app.short_description && (
-                    <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.35)" }}>
+                    <p className="text-xs truncate text-muted-foreground">
                       {app.short_description}
                     </p>
                   )}
@@ -173,7 +173,7 @@ export function AddAppPanel() {
                 <button
                   onClick={() => handleAddApp(app)}
                   className="px-3 py-1 rounded-md text-xs font-semibold shrink-0"
-                  style={{ background: "#22c55e", color: "#fff" }}
+                  style={{ background: "#22c55e", }}
                 >
                   Add
                 </button>

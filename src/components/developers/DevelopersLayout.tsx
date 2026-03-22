@@ -14,7 +14,7 @@ export function DevelopersLayout() {
     <div className="min-h-screen" style={{ background: "#08120D" }}>
       <button
         onClick={() => setSidebarOpen(true)}
-        className="fixed top-4 left-4 z-30 p-2 rounded-lg bg-[#1c1c1c] text-white lg:hidden"
+        className="fixed top-4 left-4 z-30 p-2 rounded-lg bg-[#1c1c1c] text-foreground lg:hidden"
       >
         <Menu className="w-6 h-6" />
       </button>

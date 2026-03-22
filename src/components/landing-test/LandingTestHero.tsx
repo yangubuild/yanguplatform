@@ -15,7 +15,7 @@ export function LandingTestHero() {
     >
       <div className="relative z-10 max-w-md">
         <h1 className={`${T.hero} mb-4`}>
-          <span className="text-white block">Build and.</span>
+          <span className="text-foreground block">Build and.</span>
           <span className="block" style={{ color: 'rgba(255,255,255,0.45)' }}>Sell Online.</span>
         </h1>
         <p className={`${T.subheader} max-w-xs`} style={{ color: 'rgba(255,255,255,0.35)' }}>

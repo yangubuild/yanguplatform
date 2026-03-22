@@ -23,7 +23,7 @@ export function RequireRole({ allowed, children, redirectTo = "/dashboard/profil
   if (authLoading || rolesLoading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-8 w-8 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }

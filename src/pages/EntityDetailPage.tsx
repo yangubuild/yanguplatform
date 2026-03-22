@@ -43,10 +43,10 @@ function TypeMetaBlock({ entity }: { entity: any }) {
       {items.map((item) => (
         <div key={item.label} className="rounded-xl px-4 py-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
           <div className="flex items-center gap-1.5 mb-1">
-            <item.icon className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.25)" }} />
-            <span className="text-[10px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>{item.label}</span>
+            <item.icon className="w-3.5 h-3.5 text-muted-foreground" />
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{item.label}</span>
           </div>
-          <span className="text-white text-sm font-medium">{item.value}</span>
+          <span className="text-foreground text-sm font-medium">{item.value}</span>
         </div>
       ))}
     </div>
@@ -58,7 +58,7 @@ function RelatedEntitiesTracked({ related, entity, navigate }: { related: any[];
 
   return (
     <div className="max-w-4xl mx-auto px-4 mb-12" ref={trackRef}>
-      <h2 className="text-white text-lg font-bold mb-4">You might also like</h2>
+      <h2 className="text-foreground text-lg font-bold mb-4">You might also like</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {related.slice(0, 6).map((r: any) => {
           const route = getEntityRoute(r);
@@ -76,11 +76,11 @@ function RelatedEntitiesTracked({ related, entity, navigate }: { related: any[];
               style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
             >
               <div className="flex items-center gap-2 mb-1">
-                <RelIcon className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.25)" }} />
-                <span className="text-white text-sm font-semibold truncate">{r.title}</span>
+                <RelIcon className="w-3.5 h-3.5 text-muted-foreground" />
+                <span className="text-foreground text-sm font-semibold truncate">{r.title}</span>
                 {relVerification && (
                   <span
-                    className="w-3.5 h-3.5 rounded-full flex-shrink-0 flex items-center justify-center text-[7px] text-white"
+                    className="w-3.5 h-3.5 rounded-full flex-shrink-0 flex items-center justify-center text-[7px] text-foreground"
                     style={{ background: relVerification.color }}
                     title={relVerification.label}
                   >✓</span>
@@ -88,7 +88,7 @@ function RelatedEntitiesTracked({ related, entity, navigate }: { related: any[];
               </div>
               <div className="flex items-center gap-2 mt-1">
                 {isCrossType && relConfig && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.35)" }}>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)", }}>
                     {relConfig.label}
                   </span>
                 )}
@@ -97,7 +97,7 @@ function RelatedEntitiesTracked({ related, entity, navigate }: { related: any[];
                     {relTrust.label}
                   </span>
                 )}
-                {r.short_description && <p className="text-xs line-clamp-1" style={{ color: "rgba(255,255,255,0.4)" }}>{r.short_description}</p>}
+                {r.short_description && <p className="text-xs line-clamp-1 text-muted-foreground">{r.short_description}</p>}
               </div>
             </div>
           );
@@ -148,10 +148,10 @@ export default function EntityDetailPage() {
       <div className="min-h-screen flex items-center justify-center" style={{ background: "#08120D" }}>
         <div className="text-center">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.04)" }}>
-            <Building2 className="w-7 h-7" style={{ color: "rgba(255,255,255,0.15)" }} />
+            <Building2 className="w-7 h-7 text-muted-foreground" />
           </div>
-          <h1 className="text-white text-xl font-bold mb-2">Not Found</h1>
-          <p className="text-sm mb-4" style={{ color: "rgba(255,255,255,0.4)" }}>
+          <h1 className="text-foreground text-xl font-bold mb-2">Not Found</h1>
+          <p className="text-sm mb-4 text-muted-foreground">
             This page doesn't exist or isn't published yet.
           </p>
           <button onClick={() => navigate("/")} className="text-sm font-medium px-5 py-2 rounded-lg" style={{ background: "rgba(181,98,42,0.15)", color: "#b5622a" }}>
@@ -175,7 +175,7 @@ export default function EntityDetailPage() {
     <div className="min-h-screen" style={{ background: "#08120D" }}>
       {/* Back nav */}
       <div className="max-w-4xl mx-auto px-4 pt-6">
-        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm mb-4" style={{ color: "rgba(255,255,255,0.4)" }}>
+        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm mb-4 text-muted-foreground">
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
       </div>
@@ -187,7 +187,7 @@ export default function EntityDetailPage() {
             <img src={entity.cover_image_url} alt={entity.title} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <Icon className="w-12 h-12" style={{ color: "rgba(255,255,255,0.08)" }} />
+              <Icon className="w-12 h-12 text-muted-foreground" />
             </div>
           )}
         </div>
@@ -198,16 +198,16 @@ export default function EntityDetailPage() {
         <div className="flex items-start justify-between flex-wrap gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <h1 className="text-white text-2xl font-bold">{entity.title}</h1>
+              <h1 className="text-foreground text-2xl font-bold">{entity.title}</h1>
               {verification && (
                 <span
-                  className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] text-white"
+                  className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] text-foreground"
                   style={{ background: verification.color }}
                   title={verification.label}
                 >✓</span>
               )}
             </div>
-            <div className="flex items-center gap-3 flex-wrap text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
+            <div className="flex items-center gap-3 flex-wrap text-xs text-muted-foreground">
               {verification && (
                 <span className="px-2 py-0.5 rounded-full font-medium" style={{ background: `${verification.color}15`, color: verification.color }}>
                   {verification.label}
@@ -227,14 +227,14 @@ export default function EntityDetailPage() {
                 <Globe className="w-3.5 h-3.5" /> Visit
               </a>
             )}
-            <button onClick={() => setShowReport(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs" style={{ background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.35)" }}>
+            <button onClick={() => setShowReport(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs" style={{ background: "rgba(255,255,255,0.04)", }}>
               <Flag className="w-3.5 h-3.5" /> Report
             </button>
           </div>
         </div>
 
         {/* Stats row — badge priority: verification → trust tier → review confidence */}
-        <div className="flex items-center gap-4 mt-4 text-sm flex-wrap" style={{ color: "rgba(255,255,255,0.4)" }}>
+        <div className="flex items-center gap-4 mt-4 text-sm flex-wrap text-muted-foreground">
           {/* Trust tier (only moderate+) */}
           {trustTier && trustTier.tier !== "low" && trustTier.tier !== "emerging" && (
             <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full" style={{ background: trustTier.bg, color: trustTier.color }}>
@@ -247,14 +247,14 @@ export default function EntityDetailPage() {
             <span className="flex items-center gap-1">
               <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
               {entity.avg_rating.toFixed(1)}
-              <span className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
+              <span className="text-xs text-muted-foreground">
                 ({reviewConfidence.label})
               </span>
             </span>
           )}
           {/* Early reviews — count only, no inflated rating */}
           {reviewConfidence.confidence === "early" && (
-            <span className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
+            <span className="text-xs text-muted-foreground">
               {reviewConfidence.label}
             </span>
           )}
@@ -270,7 +270,7 @@ export default function EntityDetailPage() {
 
         {/* Description */}
         {entity.short_description && (
-          <p className="mt-6 text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.6)" }}>
+          <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
             {entity.short_description}
           </p>
         )}
@@ -282,7 +282,7 @@ export default function EntityDetailPage() {
         {entity.tags && entity.tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-4">
             {entity.tags.map((tag: string) => (
-              <span key={tag} className="text-xs px-2 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.4)" }}>
+              <span key={tag} className="text-xs px-2 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.04)", }}>
                 {tag}
               </span>
             ))}
@@ -293,7 +293,7 @@ export default function EntityDetailPage() {
       {/* FAQs — only rendered when data exists, no dead controls */}
       {faqs && faqs.length > 0 && (
         <div className="max-w-4xl mx-auto px-4 mb-8">
-          <h2 className="text-white text-lg font-bold mb-4">FAQ</h2>
+          <h2 className="text-foreground text-lg font-bold mb-4">FAQ</h2>
           <div className="space-y-2">
             {faqs.map((faq) => (
               <div key={faq.id} className="rounded-xl overflow-hidden" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
@@ -301,11 +301,11 @@ export default function EntityDetailPage() {
                   onClick={() => setExpandedFaq(expandedFaq === faq.id ? null : faq.id)}
                   className="w-full flex items-center justify-between px-4 py-3 text-left"
                 >
-                  <span className="text-white text-sm font-medium">{faq.question}</span>
-                  {expandedFaq === faq.id ? <ChevronUp className="w-4 h-4" style={{ color: "rgba(255,255,255,0.3)" }} /> : <ChevronDown className="w-4 h-4" style={{ color: "rgba(255,255,255,0.3)" }} />}
+                  <span className="text-foreground text-sm font-medium">{faq.question}</span>
+                  {expandedFaq === faq.id ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
                 </button>
                 {expandedFaq === faq.id && (
-                  <div className="px-4 pb-4 text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
+                  <div className="px-4 pb-4 text-sm text-muted-foreground">
                     {faq.answer}
                   </div>
                 )}
@@ -319,7 +319,7 @@ export default function EntityDetailPage() {
       <div className="max-w-4xl mx-auto px-4 mb-8">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <h2 className="text-white text-lg font-bold">
+            <h2 className="text-foreground text-lg font-bold">
               Reviews{reviews && reviews.length > 0 ? ` (${reviews.length})` : ""}
             </h2>
             {reviewConfidence.confidence === "strong" && (
@@ -347,13 +347,13 @@ export default function EntityDetailPage() {
                 <div className="flex items-center gap-2 mb-2">
                   <div className="flex items-center gap-0.5">
                     {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} className={`w-3.5 h-3.5 ${i < review.rating ? "text-yellow-500 fill-yellow-500" : "text-white/10"}`} />
+                      <Star key={i} className={`w-3.5 h-3.5 ${i < review.rating ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground"}`} />
                     ))}
                   </div>
-                  {review.title && <span className="text-white text-sm font-medium">{review.title}</span>}
+                  {review.title && <span className="text-foreground text-sm font-medium">{review.title}</span>}
                 </div>
-                {review.body && <p className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>{review.body}</p>}
-                <span className="text-[10px] mt-2 block" style={{ color: "rgba(255,255,255,0.25)" }}>
+                {review.body && <p className="text-xs text-muted-foreground">{review.body}</p>}
+                <span className="text-[10px] mt-2 block text-muted-foreground">
                   {new Date(review.created_at).toLocaleDateString()}
                 </span>
               </div>
@@ -361,8 +361,8 @@ export default function EntityDetailPage() {
           </div>
         ) : (
           <div className="rounded-xl py-8 text-center" style={{ background: "rgba(255,255,255,0.02)" }}>
-            <Star className="w-6 h-6 mx-auto mb-2" style={{ color: "rgba(255,255,255,0.1)" }} />
-            <p className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>No reviews yet. Be the first to share your experience.</p>
+            <Star className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
+            <p className="text-xs text-muted-foreground">No reviews yet. Be the first to share your experience.</p>
           </div>
         )}
       </div>

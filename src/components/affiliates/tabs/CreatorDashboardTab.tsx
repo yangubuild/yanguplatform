@@ -76,22 +76,22 @@ function ChartTooltip({ active, payload, label }: any) {
 
   return (
     <div className="rounded-lg border border-white/10 p-3 text-xs min-w-[180px]" style={{ background: "#1a1a1a" }}>
-      <p className="text-white font-semibold mb-2">{label}</p>
+      <p className="text-foreground font-semibold mb-2">{label}</p>
       <div className="space-y-1">
         <div className="flex items-center justify-between gap-6">
           <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-cyan-400 inline-block" /> Direct</span>
-          <span className="text-white/70">{direct}</span>
-          <span className="text-white/40">{pct(direct)}</span>
+          <span className="text-muted-foreground">{direct}</span>
+          <span className="text-muted-foreground">{pct(direct)}</span>
         </div>
         <div className="flex items-center justify-between gap-6">
           <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-orange-400 inline-block" /> Explore</span>
-          <span className="text-white/70">{explore}</span>
-          <span className="text-white/40">{pct(explore)}</span>
+          <span className="text-muted-foreground">{explore}</span>
+          <span className="text-muted-foreground">{pct(explore)}</span>
         </div>
         <div className="flex items-center justify-between gap-6">
           <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-green-400 inline-block" /> Affiliates</span>
-          <span className="text-white/70">{affiliates}</span>
-          <span className="text-white/40">{pct(affiliates)}</span>
+          <span className="text-muted-foreground">{affiliates}</span>
+          <span className="text-muted-foreground">{pct(affiliates)}</span>
         </div>
       </div>
     </div>
@@ -158,15 +158,15 @@ export function CreatorDashboardTab() {
       {/* Metric selector + period */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <button className="flex items-center gap-1 text-sm text-white/60 mb-1">
+          <button className="flex items-center gap-1 text-sm text-muted-foreground mb-1">
             {metric} <ChevronDown className="w-3.5 h-3.5" />
           </button>
-          <p className="text-3xl font-bold text-white">0</p>
+          <p className="text-3xl font-bold text-foreground">0</p>
         </div>
         <div className="relative" ref={periodRef}>
           <button
             onClick={() => setPeriodOpen(!periodOpen)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-white/70 border border-white/[0.06]"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-muted-foreground border border-white/[0.06]"
           >
             <Calendar className="w-3.5 h-3.5" />
             {period.label}
@@ -178,9 +178,9 @@ export function CreatorDashboardTab() {
                 <button
                   key={opt.label}
                   onClick={() => { setPeriodIdx(i); setPeriodOpen(false); }}
-                  className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-white hover:bg-white/5 transition-colors"
+                  className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-white/5 transition-colors"
                 >
-                  {i === periodIdx && <Check className="w-4 h-4 text-white" />}
+                  {i === periodIdx && <Check className="w-4 h-4 text-foreground" />}
                   {i !== periodIdx && <span className="w-4" />}
                   {opt.label}
                 </button>
@@ -217,7 +217,7 @@ export function CreatorDashboardTab() {
             <Area type="monotone" dataKey="affiliates" stroke="#4ade80" strokeWidth={2} fill="url(#gAff)" />
           </AreaChart>
         </ResponsiveContainer>
-        <div className="flex items-center gap-6 text-[11px] text-white/40 mt-2">
+        <div className="flex items-center gap-6 text-[11px] text-muted-foreground mt-2">
           <span className="flex items-center gap-1.5"><span className="w-2.5 h-0.5 rounded bg-cyan-400 inline-block" /> Direct</span>
           <span className="flex items-center gap-1.5"><span className="w-2.5 h-0.5 rounded bg-orange-400 inline-block" /> Explore</span>
           <span className="flex items-center gap-1.5"><span className="w-2.5 h-0.5 rounded bg-green-400 inline-block" /> Affiliates</span>
@@ -227,19 +227,19 @@ export function CreatorDashboardTab() {
       {/* Action cards */}
       <div className="rounded-xl border border-white/[0.04] divide-y divide-white/[0.04] mb-8" style={{ background: "#111a15" }}>
         <ActionRow
-          icon={<Percent className="w-5 h-5 text-white/40" />}
+          icon={<Percent className="w-5 h-5 text-muted-foreground" />}
           title="Set the affiliate commission for a specific product"
           subtitle="All your products have a 30% commission by default"
           onClick={() => setActivePanel("commission")}
         />
         <ActionRow
-          icon={<Users className="w-5 h-5 text-white/40" />}
+          icon={<Users className="w-5 h-5 text-muted-foreground" />}
           title="Set an affiliate commission for a specific user"
           subtitle="Invite a user to give them special rates"
           onClick={() => setActivePanel("invite")}
         />
         <ActionRow
-          icon={<Link2 className="w-5 h-5 text-white/40" />}
+          icon={<Link2 className="w-5 h-5 text-muted-foreground" />}
           title="External links"
           subtitle="Set external sales page links you want affiliates to promote."
           onClick={() => setActivePanel("external")}
@@ -247,11 +247,11 @@ export function CreatorDashboardTab() {
       </div>
 
       {/* Leaderboard */}
-      <h3 className="text-base font-semibold text-white mb-4">Leaderboard</h3>
+      <h3 className="text-base font-semibold text-foreground mb-4">Leaderboard</h3>
       {leaderboard.length === 0 ? (
         <AffEmptyTable
           columns={["User", "Referrals", "Rewards (USD)", "Past three month retention"]}
-          icon={<Rocket className="w-8 h-8 text-white/20" />}
+          icon={<Rocket className="w-8 h-8 text-muted-foreground" />}
           title="No affiliates yet"
           subtitle="Add affiliates to expand your reach by incentivizing users to refer their friends to your yangu."
         />
@@ -270,10 +270,10 @@ function ActionRow({ icon, title, subtitle, onClick }: { icon: React.ReactNode; 
         {icon}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-white">{title}</p>
-        <p className="text-xs text-white/40 mt-0.5">{subtitle}</p>
+        <p className="text-sm font-medium text-foreground">{title}</p>
+        <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
       </div>
-      <ChevronRight className="w-4 h-4 text-white/20 flex-shrink-0" />
+      <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
     </button>
   );
 }
@@ -282,7 +282,7 @@ function ActionRow({ icon, title, subtitle, onClick }: { icon: React.ReactNode; 
 function LeaderboardTable({ data }: { data: { email: string; referrals: number; rewards: string; retention: string }[] }) {
   return (
     <div className="rounded-xl border border-white/[0.04] overflow-hidden" style={{ background: "#111a15" }}>
-      <div className="flex items-center border-b border-white/[0.04] px-4 py-3 text-xs text-white/30 font-medium">
+      <div className="flex items-center border-b border-white/[0.04] px-4 py-3 text-xs text-muted-foreground font-medium">
         <div className="flex-[2]">User</div>
         <div className="flex-1 text-center">Referrals ↓</div>
         <div className="flex-1 text-center">Rewards (USD)</div>
@@ -292,27 +292,27 @@ function LeaderboardTable({ data }: { data: { email: string; referrals: number; 
       {data.map((row, i) => (
         <div key={i} className="flex items-center px-4 py-3 border-b border-white/[0.04] last:border-0">
           <div className="flex-[2] flex items-center gap-2">
-            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-[10px] text-white font-bold">
+            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-[10px] text-foreground font-bold">
               {row.email.charAt(0).toUpperCase()}
             </div>
-            <span className="text-sm text-white">{row.email.split("@")[0]}</span>
+            <span className="text-sm text-foreground">{row.email.split("@")[0]}</span>
           </div>
-          <div className="flex-1 text-center text-sm text-white">{row.referrals}</div>
-          <div className="flex-1 text-center text-sm text-white">{row.rewards}</div>
-          <div className="flex-1 text-center text-sm text-white">{row.retention}</div>
+          <div className="flex-1 text-center text-sm text-foreground">{row.referrals}</div>
+          <div className="flex-1 text-center text-sm text-foreground">{row.rewards}</div>
+          <div className="flex-1 text-center text-sm text-foreground">{row.retention}</div>
           <div className="w-8 flex justify-center">
-            <MoreVertical className="w-4 h-4 text-white/30" />
+            <MoreVertical className="w-4 h-4 text-muted-foreground" />
           </div>
         </div>
       ))}
-      <div className="flex items-center justify-between px-4 py-3 text-xs text-white/40">
+      <div className="flex items-center justify-between px-4 py-3 text-xs text-muted-foreground">
         <span>Showing 1 to {data.length} of {data.length}</span>
         <div className="flex items-center gap-2">
-          <button className="w-7 h-7 rounded border border-white/10 flex items-center justify-center text-white/30">‹</button>
-          <button className="w-7 h-7 rounded border border-white/20 flex items-center justify-center text-white bg-white/5">1</button>
-          <button className="w-7 h-7 rounded border border-white/10 flex items-center justify-center text-white/30">›</button>
+          <button className="w-7 h-7 rounded border border-white/10 flex items-center justify-center text-muted-foreground">‹</button>
+          <button className="w-7 h-7 rounded border border-white/20 flex items-center justify-center text-foreground bg-white/5">1</button>
+          <button className="w-7 h-7 rounded border border-white/10 flex items-center justify-center text-muted-foreground">›</button>
           <span className="ml-2">Show</span>
-          <button className="flex items-center gap-1 px-2 py-1 rounded border border-white/10 text-white">10 <ChevronDown className="w-3 h-3" /></button>
+          <button className="flex items-center gap-1 px-2 py-1 rounded border border-white/10 text-foreground">10 <ChevronDown className="w-3 h-3" /></button>
         </div>
       </div>
     </div>
@@ -335,7 +335,7 @@ function CommissionPanel({ onBack }: { onBack: () => void }) {
 
   return (
     <div className="max-w-[700px] mx-auto">
-      <button onClick={onBack} className="flex items-center gap-1 text-sm text-white/50 hover:text-white mb-6">
+      <button onClick={onBack} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6">
         ← Back to dashboard
       </button>
 
@@ -343,8 +343,8 @@ function CommissionPanel({ onBack }: { onBack: () => void }) {
       <div className="rounded-xl border border-white/[0.06] p-5 mb-5" style={{ background: "#111a15" }}>
         <div className="flex items-start justify-between mb-1">
           <div>
-            <h3 className="text-sm font-semibold text-white">Featured product</h3>
-            <p className="text-xs text-white/50 mt-1">
+            <h3 className="text-sm font-semibold text-foreground">Featured product</h3>
+            <p className="text-xs text-muted-foreground mt-1">
               Choose which product appears on the <span className="text-accent underline cursor-pointer">affiliate marketplace</span> for potential affiliates to discover and promote.
             </p>
           </div>
@@ -358,16 +358,16 @@ function CommissionPanel({ onBack }: { onBack: () => void }) {
 
         {featuredEnabled ? (
           <div className="mt-4 flex items-center gap-2 rounded-lg border border-white/10 p-2" style={{ background: "#0d1510" }}>
-            <Check className="w-4 h-4 text-white/50" />
-            <div className="w-7 h-7 rounded bg-accent/50 flex items-center justify-center text-[10px] text-white font-bold">BK</div>
-            <span className="text-sm text-white flex-1">{selectedProduct}</span>
-            <button onClick={() => setShowPreview(true)} className="flex items-center gap-1 text-xs text-white/50 hover:text-white px-2 py-1 rounded border border-white/10">
+            <Check className="w-4 h-4 text-muted-foreground" />
+            <div className="w-7 h-7 rounded bg-accent/50 flex items-center justify-center text-[10px] text-foreground font-bold">BK</div>
+            <span className="text-sm text-foreground flex-1">{selectedProduct}</span>
+            <button onClick={() => setShowPreview(true)} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded border border-white/10">
               <Eye className="w-3.5 h-3.5" /> Preview
             </button>
           </div>
         ) : (
           <div className="mt-4 rounded-lg border border-white/10 p-2" style={{ background: "#0d1510" }}>
-            <button className="w-full flex items-center justify-between text-sm text-white/50 p-1">
+            <button className="w-full flex items-center justify-between text-sm text-muted-foreground p-1">
               <span>Select product</span>
               <ChevronDown className="w-4 h-4" />
             </button>
@@ -377,49 +377,49 @@ function CommissionPanel({ onBack }: { onBack: () => void }) {
 
       {/* Affiliate instructions */}
       <div className="rounded-xl border border-white/[0.06] p-5 mb-5" style={{ background: "#111a15" }}>
-        <h3 className="text-sm font-semibold text-white">Affiliate instructions</h3>
-        <p className="text-xs text-white/50 mt-1 mb-3">Include clear affiliate instructions to guide them on how to promote your offer.</p>
+        <h3 className="text-sm font-semibold text-foreground">Affiliate instructions</h3>
+        <p className="text-xs text-muted-foreground mt-1 mb-3">Include clear affiliate instructions to guide them on how to promote your offer.</p>
         <textarea
           value={instructions}
           onChange={(e) => setInstructions(e.target.value)}
           placeholder="Provide affiliates rules and guides on how to promote your offer here."
-          className="w-full h-[160px] rounded-lg border border-white/10 bg-transparent text-sm text-white p-3 resize-none placeholder:text-white/30 focus:outline-none focus:border-white/20"
+          className="w-full h-[160px] rounded-lg border border-white/10 bg-transparent text-sm text-foreground p-3 resize-none placeholder:text-muted-foreground focus:outline-none focus:border-white/20"
         />
       </div>
 
       {/* Commission per yangu */}
       <div className="rounded-xl border border-white/[0.06] p-5 mb-5" style={{ background: "#111a15" }}>
-        <h3 className="text-sm font-semibold text-white">Affiliate commission per yangu</h3>
-        <p className="text-xs text-white/50 mt-1 mb-4">
+        <h3 className="text-sm font-semibold text-foreground">Affiliate commission per yangu</h3>
+        <p className="text-xs text-muted-foreground mt-1 mb-4">
           If an affiliate refers a user to a yangu, they will earn a percentage of the revenue. The default is 30% of the recurring revenue the user pays, but you can set a custom rate depending on which yangu they invite someone to.
         </p>
         <div className="flex items-center gap-3 rounded-lg border border-white/[0.06] p-3" style={{ background: "#0d1510" }}>
-          <div className="w-9 h-9 rounded bg-accent/50 flex items-center justify-center text-[10px] text-white font-bold">BK</div>
+          <div className="w-9 h-9 rounded bg-accent/50 flex items-center justify-center text-[10px] text-foreground font-bold">BK</div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm text-white">{selectedProduct}</p>
+            <p className="text-sm text-foreground">{selectedProduct}</p>
             <p className="text-xs text-accent">0 members</p>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-center">
-              <p className="text-[10px] text-white/40 mb-1">Global affiliate rate ⓘ</p>
+              <p className="text-[10px] text-muted-foreground mb-1">Global affiliate rate ⓘ</p>
               <div className="flex items-center gap-1 rounded border border-white/10 px-2 py-1" style={{ background: "#0d1510" }}>
-                <input type="number" value={globalRate} onChange={(e) => setGlobalRate(Number(e.target.value))} className="w-10 bg-transparent text-sm text-white text-center focus:outline-none" />
+                <input type="number" value={globalRate} onChange={(e) => setGlobalRate(Number(e.target.value))} className="w-10 bg-transparent text-sm text-foreground text-center focus:outline-none" />
                 <div className="flex flex-col">
-                  <ChevronUp className="w-3 h-3 text-white/30 cursor-pointer" onClick={() => setGlobalRate((v) => v + 1)} />
-                  <ChevronDown className="w-3 h-3 text-white/30 cursor-pointer" onClick={() => setGlobalRate((v) => Math.max(0, v - 1))} />
+                  <ChevronUp className="w-3 h-3 text-muted-foreground cursor-pointer" onClick={() => setGlobalRate((v) => v + 1)} />
+                  <ChevronDown className="w-3 h-3 text-muted-foreground cursor-pointer" onClick={() => setGlobalRate((v) => Math.max(0, v - 1))} />
                 </div>
-                <span className="text-xs text-white/40">%</span>
+                <span className="text-xs text-muted-foreground">%</span>
               </div>
             </div>
             <div className="text-center">
-              <p className="text-[10px] text-white/40 mb-1">Member affiliate rate ⓘ</p>
+              <p className="text-[10px] text-muted-foreground mb-1">Member affiliate rate ⓘ</p>
               <div className="flex items-center gap-1 rounded border border-white/10 px-2 py-1" style={{ background: "#0d1510" }}>
-                <input type="number" value={memberRate} onChange={(e) => setMemberRate(Number(e.target.value))} className="w-10 bg-transparent text-sm text-white text-center focus:outline-none" />
+                <input type="number" value={memberRate} onChange={(e) => setMemberRate(Number(e.target.value))} className="w-10 bg-transparent text-sm text-foreground text-center focus:outline-none" />
                 <div className="flex flex-col">
-                  <ChevronUp className="w-3 h-3 text-white/30 cursor-pointer" onClick={() => setMemberRate((v) => v + 1)} />
-                  <ChevronDown className="w-3 h-3 text-white/30 cursor-pointer" onClick={() => setMemberRate((v) => Math.max(0, v - 1))} />
+                  <ChevronUp className="w-3 h-3 text-muted-foreground cursor-pointer" onClick={() => setMemberRate((v) => v + 1)} />
+                  <ChevronDown className="w-3 h-3 text-muted-foreground cursor-pointer" onClick={() => setMemberRate((v) => Math.max(0, v - 1))} />
                 </div>
-                <span className="text-xs text-white/40">%</span>
+                <span className="text-xs text-muted-foreground">%</span>
               </div>
             </div>
           </div>
@@ -447,9 +447,9 @@ function CommissionPreview({ product, onClose }: { product: string; onClose: () 
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-accent/30 border border-accent/30 flex items-center justify-center text-accent font-bold text-sm">{initials}</div>
-            <h2 className="text-lg font-semibold text-white">{product}</h2>
+            <h2 className="text-lg font-semibold text-foreground">{product}</h2>
           </div>
-          <button onClick={onClose} className="text-white/40 hover:text-white"><X className="w-5 h-5" /></button>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground"><X className="w-5 h-5" /></button>
         </div>
 
         <div className="bg-accent/20 text-accent text-sm text-center py-2 rounded-lg mb-5">
@@ -459,22 +459,22 @@ function CommissionPreview({ product, onClose }: { product: string; onClose: () 
         <div className="w-20 h-20 rounded-xl bg-accent/20 border border-accent/20 flex items-center justify-center text-accent font-bold text-2xl mb-3">
           {initials}
         </div>
-        <p className="text-white/60 text-sm mb-4">Meal Kits</p>
+        <p className="text-muted-foreground text-sm mb-4">Meal Kits</p>
 
         <div className="grid grid-cols-3 gap-x-8 gap-y-4 mb-6">
           {["Product price", "Commission rate", "Affiliate sales", "Affiliate earnings", "Conversion rate", "Earnings per click"].map((label) => (
             <div key={label}>
-              <p className="text-xs text-white/40">{label}</p>
-              <p className="text-sm text-white mt-0.5">-</p>
+              <p className="text-xs text-muted-foreground">{label}</p>
+              <p className="text-sm text-foreground mt-0.5">-</p>
             </div>
           ))}
         </div>
 
         <div className="flex items-center justify-center gap-3 pt-4 border-t border-white/[0.06]">
-          <button className="flex items-center gap-2 px-5 py-2 rounded-lg border border-white/10 text-sm text-white/70 hover:text-white">
+          <button className="flex items-center gap-2 px-5 py-2 rounded-lg border border-white/10 text-sm text-muted-foreground hover:text-foreground">
             <ExternalLink className="w-4 h-4" /> View product
           </button>
-          <button className="flex items-center gap-2 px-5 py-2 rounded-lg border border-white/10 text-sm text-white/70 hover:text-white">
+          <button className="flex items-center gap-2 px-5 py-2 rounded-lg border border-white/10 text-sm text-muted-foreground hover:text-foreground">
             <Plus className="w-4 h-4" /> Become an affiliate
           </button>
         </div>
@@ -495,37 +495,37 @@ function InviteAffiliatePanel({ onBack, onInvited }: { onBack: () => void; onInv
     <div className="flex gap-0">
       {/* Left - faded dashboard behind */}
       <div className="flex-1 opacity-30 pointer-events-none">
-        <div className="text-white/30 text-xs">Dashboard content behind...</div>
+        <div className="text-muted-foreground text-xs">Dashboard content behind...</div>
       </div>
 
       {/* Right sidebar */}
       <div className="w-[380px] ml-auto border-l border-white/[0.06] p-6 min-h-[600px] flex flex-col" style={{ background: "#111a15" }}>
-        <h2 className="text-base font-semibold text-white mb-5">Invite affiliate</h2>
+        <h2 className="text-base font-semibold text-foreground mb-5">Invite affiliate</h2>
 
-        <label className="text-xs text-white/50 mb-1">User</label>
+        <label className="text-xs text-muted-foreground mb-1">User</label>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="gilfoyle@piedpiper.net"
-          className="w-full rounded-lg border border-white/10 bg-transparent text-sm text-white p-2.5 mb-1 placeholder:text-white/30 focus:outline-none focus:border-accent"
+          className="w-full rounded-lg border border-white/10 bg-transparent text-sm text-foreground p-2.5 mb-1 placeholder:text-muted-foreground focus:outline-none focus:border-accent"
         />
-        <p className="text-[11px] text-white/40 mb-5">You can add users by their email, yangu username, or yangu user ID.</p>
+        <p className="text-[11px] text-muted-foreground mb-5">You can add users by their email, yangu username, or yangu user ID.</p>
 
-        <label className="text-xs text-white/50 mb-1">Reward</label>
+        <label className="text-xs text-muted-foreground mb-1">Reward</label>
         <div className="flex gap-2 mb-3">
           <div className="flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1.5 flex-1" style={{ background: "#0d1510" }}>
-            <input type="number" value={reward} onChange={(e) => setReward(Number(e.target.value))} className="w-12 bg-transparent text-sm text-white focus:outline-none" />
+            <input type="number" value={reward} onChange={(e) => setReward(Number(e.target.value))} className="w-12 bg-transparent text-sm text-foreground focus:outline-none" />
             <div className="flex flex-col">
-              <ChevronUp className="w-3 h-3 text-white/30 cursor-pointer" onClick={() => setReward((v) => v + 1)} />
-              <ChevronDown className="w-3 h-3 text-white/30 cursor-pointer" onClick={() => setReward((v) => Math.max(0, v - 1))} />
+              <ChevronUp className="w-3 h-3 text-muted-foreground cursor-pointer" onClick={() => setReward((v) => v + 1)} />
+              <ChevronDown className="w-3 h-3 text-muted-foreground cursor-pointer" onClick={() => setReward((v) => Math.max(0, v - 1))} />
             </div>
-            <span className="text-xs text-white/40">%</span>
+            <span className="text-xs text-muted-foreground">%</span>
           </div>
           <select
             value={rewardType}
             onChange={(e) => setRewardType(e.target.value)}
-            className="rounded-lg border border-white/10 bg-transparent text-sm text-white px-3 py-1.5 focus:outline-none"
+            className="rounded-lg border border-white/10 bg-transparent text-sm text-foreground px-3 py-1.5 focus:outline-none"
             style={{ background: "#0d1510" }}
           >
             <option value="Percent">Percent</option>
@@ -536,28 +536,28 @@ function InviteAffiliatePanel({ onBack, onInvited }: { onBack: () => void; onInv
         <select
           value={paymentType}
           onChange={(e) => setPaymentType(e.target.value)}
-          className="w-full rounded-lg border border-white/10 bg-transparent text-sm text-white px-3 py-2.5 mb-5 focus:outline-none"
+          className="w-full rounded-lg border border-white/10 bg-transparent text-sm text-foreground px-3 py-2.5 mb-5 focus:outline-none"
           style={{ background: "#0d1510" }}
         >
           <option value="Recurring payments">Recurring payments</option>
           <option value="One-time payment">One-time payment</option>
         </select>
 
-        <label className="text-xs text-white/50 mb-2">Only allow referring to these products:</label>
+        <label className="text-xs text-muted-foreground mb-2">Only allow referring to these products:</label>
         <div className="relative mb-3">
-          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
             value={searchProducts}
             onChange={(e) => setSearchProducts(e.target.value)}
             placeholder="Search products"
-            className="w-full rounded-lg border border-white/10 bg-transparent text-sm text-white pl-8 pr-3 py-2 placeholder:text-white/30 focus:outline-none"
+            className="w-full rounded-lg border border-white/10 bg-transparent text-sm text-foreground pl-8 pr-3 py-2 placeholder:text-muted-foreground focus:outline-none"
           />
         </div>
         <div className="flex items-center gap-2 mb-auto pb-6">
-          <ChevronRight className="w-4 h-4 text-white/30" />
+          <ChevronRight className="w-4 h-4 text-muted-foreground" />
           <input type="checkbox" className="rounded border-white/20" />
-          <span className="text-sm text-white">Budget-Friendly Meal Prep Kits</span>
+          <span className="text-sm text-foreground">Budget-Friendly Meal Prep Kits</span>
         </div>
 
         <Button
@@ -582,14 +582,14 @@ function ExternalLinksPanel({ onBack }: { onBack: () => void }) {
 
   return (
     <div className="relative">
-      <button onClick={onBack} className="flex items-center gap-1 text-sm text-white/50 hover:text-white mb-6">
+      <button onClick={onBack} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6">
         ← Back to dashboard
       </button>
 
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h2 className="text-base font-semibold text-white">External links</h2>
-          <p className="text-xs text-white/50 mt-1">Set external sales page links you want affiliates to promote.</p>
+          <h2 className="text-base font-semibold text-foreground">External links</h2>
+          <p className="text-xs text-muted-foreground mt-1">Set external sales page links you want affiliates to promote.</p>
         </div>
         <Button
           variant="accent"
@@ -601,7 +601,7 @@ function ExternalLinksPanel({ onBack }: { onBack: () => void }) {
       </div>
 
       <div className="rounded-xl border border-white/[0.04] overflow-hidden" style={{ background: "#111a15" }}>
-        <div className="flex items-center border-b border-white/[0.04] px-4 py-3 text-xs text-white/30 font-medium">
+        <div className="flex items-center border-b border-white/[0.04] px-4 py-3 text-xs text-muted-foreground font-medium">
           <div className="w-[120px]">Name</div>
           <div className="w-[100px]">Link</div>
           <div className="flex-1 text-center">Clicks</div>
@@ -612,14 +612,14 @@ function ExternalLinksPanel({ onBack }: { onBack: () => void }) {
         {links.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
             <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/[0.04] flex items-center justify-center mb-4">
-              <Rocket className="w-8 h-8 text-white/20" />
+              <Rocket className="w-8 h-8 text-muted-foreground" />
             </div>
-            <p className="text-sm font-medium text-white mb-1">No external links yet</p>
-            <p className="text-xs text-white/40">Create an external link to allow affiliates to promote your external sales page.</p>
+            <p className="text-sm font-medium text-foreground mb-1">No external links yet</p>
+            <p className="text-xs text-muted-foreground">Create an external link to allow affiliates to promote your external sales page.</p>
           </div>
         ) : (
           links.map((link, i) => (
-            <div key={i} className="flex items-center px-4 py-3 border-b border-white/[0.04] last:border-0 text-sm text-white">
+            <div key={i} className="flex items-center px-4 py-3 border-b border-white/[0.04] last:border-0 text-sm text-foreground">
               <div className="w-[120px]">{link.name}</div>
               <div className="w-[100px] text-accent truncate">{link.url}</div>
               <div className="flex-1 text-center">0</div>
@@ -636,24 +636,24 @@ function ExternalLinksPanel({ onBack }: { onBack: () => void }) {
         <div className="fixed inset-0 z-50 flex justify-end bg-black/40" onClick={() => setShowCreate(false)}>
           <div className="w-[380px] h-full border-l border-white/[0.06] p-6 flex flex-col" style={{ background: "#111a15" }} onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-base font-semibold text-white">Create external link</h2>
-              <button onClick={() => setShowCreate(false)} className="text-white/40 hover:text-white"><X className="w-5 h-5" /></button>
+              <h2 className="text-base font-semibold text-foreground">Create external link</h2>
+              <button onClick={() => setShowCreate(false)} className="text-muted-foreground hover:text-foreground"><X className="w-5 h-5" /></button>
             </div>
 
-            <label className="text-xs text-white/50 mb-1">Name</label>
+            <label className="text-xs text-muted-foreground mb-1">Name</label>
             <input
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               placeholder="Enter name"
-              className="w-full rounded-lg border border-white/10 bg-transparent text-sm text-white p-2.5 mb-4 placeholder:text-white/30 focus:outline-none focus:border-white/20"
+              className="w-full rounded-lg border border-white/10 bg-transparent text-sm text-foreground p-2.5 mb-4 placeholder:text-muted-foreground focus:outline-none focus:border-white/20"
             />
 
-            <label className="text-xs text-white/50 mb-1">Redirect URL</label>
+            <label className="text-xs text-muted-foreground mb-1">Redirect URL</label>
             <input
               value={newUrl}
               onChange={(e) => setNewUrl(e.target.value)}
               placeholder="https://www.example.com"
-              className="w-full rounded-lg border border-white/10 bg-transparent text-sm text-white p-2.5 mb-4 placeholder:text-white/30 focus:outline-none focus:border-white/20"
+              className="w-full rounded-lg border border-white/10 bg-transparent text-sm text-foreground p-2.5 mb-4 placeholder:text-muted-foreground focus:outline-none focus:border-white/20"
             />
 
             <div className="mt-auto flex items-center justify-between">

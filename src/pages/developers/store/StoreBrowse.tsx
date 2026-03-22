@@ -24,7 +24,7 @@ export default function StoreBrowse() {
   return (
     <DocsPage breadcrumb="Developers" title="App Store" subtitle="Browse apps built by the community and verified by yangu.">
       {isLoading ? (
-        <div className="flex justify-center py-16"><Loader2 className="w-6 h-6 text-white/30 animate-spin" /></div>
+        <div className="flex justify-center py-16"><Loader2 className="w-6 h-6 text-muted-foreground animate-spin" /></div>
       ) : listings && listings.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {listings.map((listing) => (
@@ -39,18 +39,18 @@ export default function StoreBrowse() {
               ) : (
                 <Puzzle className="w-10 h-10 mb-3" style={{ color: "#F46D2A" }} />
               )}
-              <h3 className="text-white font-semibold text-sm mb-1">{listing.name}</h3>
-              <p className="text-xs text-white/40">{listing.summary || "No description"}</p>
+              <h3 className="text-foreground font-semibold text-sm mb-1">{listing.name}</h3>
+              <p className="text-xs text-muted-foreground">{listing.summary || "No description"}</p>
               {listing.category && (
-                <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded-full bg-white/5 text-white/40">{listing.category}</span>
+                <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded-full bg-white/5 text-muted-foreground">{listing.category}</span>
               )}
             </button>
           ))}
         </div>
       ) : (
         <div className="text-center py-16">
-          <Store className="w-10 h-10 text-white/20 mx-auto mb-3" />
-          <p className="text-white/40 text-sm">No apps published yet. Be the first to submit one.</p>
+          <Store className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+          <p className="text-muted-foreground text-sm">No apps published yet. Be the first to submit one.</p>
           <Button variant="accent" onClick={() => navigate("/developers/console/submissions/new")} className="mt-4">
             Submit an App
           </Button>

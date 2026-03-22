@@ -18,7 +18,7 @@ export function AffiliateSignupGateModal({ onClose }: Props) {
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-white/30 hover:text-white"
+          className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
         >
           <X className="w-5 h-5" />
         </button>
@@ -36,10 +36,10 @@ export function AffiliateSignupGateModal({ onClose }: Props) {
           />
         </div>
 
-        <h2 className="text-2xl font-semibold text-white mb-3">
+        <h2 className="text-2xl font-semibold text-foreground mb-3">
           You are not promoting any products yet
         </h2>
-        <p className="text-sm text-white/50 mb-8 max-w-xs">
+        <p className="text-sm text-muted-foreground mb-8 max-w-xs">
           Browse the marketplace to find products to promote
         </p>
 
@@ -48,7 +48,7 @@ export function AffiliateSignupGateModal({ onClose }: Props) {
             onClose();
             navigate("/auth/signup");
           }}
-          className="h-10 px-5 rounded-lg text-sm font-medium text-white transition-all"
+          className="h-10 px-5 rounded-lg text-sm font-medium text-foreground transition-all"
           style={{
             background:
               "linear-gradient(135deg, #c47a3a 0%, #a0522d 50%, #5c2a12 100%)",

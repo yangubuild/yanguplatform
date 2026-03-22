@@ -30,13 +30,13 @@ export function WhyYanguDevelopersContent() {
 
   return (
     <div>
-      <p className={DocsTypography.pageKicker} style={{ color: "rgba(255,255,255,0.4)" }}>
+      <p className={DocsTypography.pageKicker} className="text-muted-foreground">
         Overview
       </p>
 
       <h1 className={DocsTypography.h1}>Build on yangu</h1>
 
-      <p className={DocsTypography.subtitle} style={{ color: "rgba(255,255,255,0.5)" }}>
+      <p className={DocsTypography.subtitle} className="text-muted-foreground">
         Everything you need to build, integrate, and scale on the yangu platform.
       </p>
 
@@ -51,7 +51,7 @@ export function WhyYanguDevelopersContent() {
 
       <div id="for-developers" className="mb-6">
         <h2 className={DocsTypography.h2}>For developers</h2>
-        <p className={DocsTypography.sectionDesc} style={{ color: "rgba(255,255,255,0.5)" }}>
+        <p className={DocsTypography.sectionDesc} className="text-muted-foreground">
           Explore tools and APIs to build on yangu:
         </p>
       </div>
@@ -68,8 +68,8 @@ export function WhyYanguDevelopersContent() {
             }}
           >
             <card.icon className="w-6 h-6 mb-4" strokeWidth={1.5} style={{ color: "#F46D2A" }} />
-            <h3 className="text-white font-semibold text-sm mb-2">{card.title}</h3>
-            <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}>
+            <h3 className="text-foreground font-semibold text-sm mb-2">{card.title}</h3>
+            <p className="text-xs leading-relaxed text-muted-foreground">
               {card.description}
             </p>
           </div>

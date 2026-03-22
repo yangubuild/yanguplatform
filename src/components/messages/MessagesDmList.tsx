@@ -106,19 +106,18 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
       {/* Search */}
       <div className="p-3 flex items-center gap-2">
         <div className="flex-1 flex items-center gap-2 rounded-lg px-3 py-2" style={{ background: "rgba(255,255,255,0.06)" }}>
-          <Search className="w-4 h-4 shrink-0" style={{ color: "rgba(255,255,255,0.35)" }} />
+          <Search className="w-4 h-4 shrink-0 text-muted-foreground" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search conversations..."
-            className="bg-transparent text-sm flex-1 outline-none min-w-0"
-            style={{ color: "rgba(255,255,255,0.8)" }}
+            className="bg-transparent text-sm flex-1 outline-none min-w-0 text-muted-foreground"
           />
         </div>
         <button
           onClick={onOpenCreateMenu}
           className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-opacity hover:opacity-80"
-          style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.8)" }}
+          style={{ background: "rgba(255,255,255,0.06)", }}
           aria-label="Create chat"
         >
           <Plus className="w-4 h-4" />
@@ -129,15 +128,15 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
       <div className="flex-1 overflow-y-auto px-2">
         {isLoading ? (
           <div className="flex items-center justify-center py-10">
-            <Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
+            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
           </div>
         ) : threads.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10 gap-2">
             <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.06)" }}>
-              <MessageCircle className="w-5 h-5" style={{ color: "rgba(255,255,255,0.3)" }} />
+              <MessageCircle className="w-5 h-5 text-muted-foreground" />
             </div>
-            <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>No conversations yet</p>
-            <p className="text-xs" style={{ color: "rgba(255,255,255,0.25)" }}>
+            <p className="text-sm text-muted-foreground">No conversations yet</p>
+            <p className="text-xs text-muted-foreground">
               Start messaging or create a group
             </p>
           </div>
@@ -176,32 +175,32 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-sm font-medium text-white truncate">{thread.name}</span>
+                    <span className="text-sm font-medium text-foreground truncate">{thread.name}</span>
                     {thread.type === "group" && (
                       <span className="text-[9px] px-1.5 py-0.5 rounded-full shrink-0" style={{ background: "rgba(168,85,247,0.15)", color: "rgba(168,85,247,0.8)" }}>
                         Group
                       </span>
                     )}
                   </div>
-                  <p className="text-xs truncate mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  <p className="text-xs truncate mt-0.5 text-muted-foreground">
                     {thread.preview.length > 50 ? thread.preview.slice(0, 50) + "…" : thread.preview}
                   </p>
                 </div>
                 {/* Meta */}
                 <div className="flex flex-col items-end gap-1 shrink-0 ml-1">
-                  <span className="text-[11px]" style={{ color: "rgba(255,255,255,0.3)" }}>
+                  <span className="text-[11px] text-muted-foreground">
                     {thread.date}
                   </span>
                   {thread.unreadCount > 0 && (
                     <span
-                      className="min-w-[20px] h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white px-1.5"
+                      className="min-w-[20px] h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-foreground px-1.5"
                       style={{ background: thread.type === "group" ? "#a855f7" : "#ef4444" }}
                     >
                       {thread.unreadCount > 99 ? "99+" : thread.unreadCount}
                     </span>
                   )}
                   {thread.type === "group" && thread.unreadCount === 0 && (
-                    <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.25)" }}>
+                    <span className="text-[10px] text-muted-foreground">
                       {thread.memberCount}👤
                     </span>
                   )}

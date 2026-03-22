@@ -34,7 +34,7 @@ export function BlogColumnistBlock() {
       <div className="mx-auto" style={{ maxWidth: 1100 }}>
         <h2
           className="text-xs font-semibold uppercase tracking-widest mb-8"
-          style={{ color: "rgba(255,255,255,0.55)", letterSpacing: "0.15em" }}
+          style={{ letterSpacing: "0.15em" }}
         >
           From Our Columnists
         </h2>
@@ -49,17 +49,16 @@ export function BlogColumnistBlock() {
           <div>
             <h3
               className="text-lg font-medium mb-1"
-              style={{ fontFamily: "'Lufga', sans-serif", color: "#fff" }}
+              style={{ fontFamily: "'Lufga', sans-serif", }}
             >
               Dan Shipper
             </h3>
-            <p className="text-sm leading-relaxed mb-3" style={{ color: "rgba(255,255,255,0.55)" }}>
+            <p className="text-sm leading-relaxed mb-3 text-muted-foreground">
               Co-founder and CEO of Every. Writes about AI, productivity, and building products. Previously founded Firefly and co-founded Ether.
             </p>
             <a
               href="#"
-              className="text-xs font-medium transition-colors hover:text-white"
-              style={{ color: "rgba(255,255,255,0.5)" }}
+              className="text-xs font-medium transition-colors hover:text-foreground text-muted-foreground"
             >
               Read more →
             </a>

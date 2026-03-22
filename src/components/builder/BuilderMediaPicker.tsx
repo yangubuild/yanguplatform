@@ -121,7 +121,7 @@ export function BuilderMediaPicker({ value, onChange, surfaceId, hideTypeSelecto
                 className="w-full h-24 object-cover"
               />
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <Expand className="h-5 w-5 text-white" />
+                <Expand className="h-5 w-5 text-foreground" />
               </div>
             </button>
           </DialogTrigger>
@@ -395,7 +395,7 @@ function StockTab({
               className="relative group rounded overflow-hidden border border-border hover:ring-2 hover:ring-primary"
             >
               <img src={r.thumbUrl} alt={r.author} className="w-full h-16 object-cover" />
-              <span className="absolute bottom-0 inset-x-0 bg-black/60 text-[8px] text-white truncate px-1">
+              <span className="absolute bottom-0 inset-x-0 bg-black/60 text-[8px] text-foreground truncate px-1">
                 {r.author}
               </span>
             </button>

@@ -67,7 +67,7 @@ function AdaAlertsButton() {
             <Bell className="h-5 w-5 text-[hsl(var(--admin-text-muted))]" />
           )}
           {totalCount > 0 && (
-            <span className={`absolute -top-0.5 -right-0.5 h-4 min-w-[16px] px-0.5 rounded-full text-[10px] font-bold flex items-center justify-center ring-2 ring-[hsl(var(--admin-bg))] ${hasCritical ? "bg-[hsl(0,72%,51%)] text-white" : "bg-[hsl(24,95%,53%)] text-white"}`}>
+            <span className={`absolute -top-0.5 -right-0.5 h-4 min-w-[16px] px-0.5 rounded-full text-[10px] font-bold flex items-center justify-center ring-2 ring-[hsl(var(--admin-bg))] ${hasCritical ? "bg-[hsl(0,72%,51%)] text-foreground" : "bg-[hsl(24,95%,53%)] text-foreground"}`}>
               {totalCount}
             </span>
           )}

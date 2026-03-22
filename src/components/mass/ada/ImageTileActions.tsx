@@ -145,7 +145,7 @@ export function ImageTileActions({
         {/* Download */}
         <button
           onClick={handleDownload}
-          className="p-1.5 rounded-md bg-black/60 hover:bg-black/80 text-white/70 hover:text-white transition-colors"
+          className="p-1.5 rounded-md bg-black/60 hover:bg-black/80 text-muted-foreground hover:text-foreground transition-colors"
           title="Download"
         >
           <Download className="w-3 h-3" />
@@ -164,7 +164,7 @@ export function ImageTileActions({
         <button
           onClick={handleSaveToDrive}
           disabled={isSavingDrive}
-          className="p-1.5 rounded-md bg-black/60 hover:bg-black/80 text-white/70 hover:text-white transition-colors disabled:opacity-50"
+          className="p-1.5 rounded-md bg-black/60 hover:bg-black/80 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
           title="Save to Google Drive"
         >
           {isSavingDrive ? (
@@ -181,7 +181,7 @@ export function ImageTileActions({
             setShowDeleteConfirm(true);
           }}
           disabled={isDeleting}
-          className="p-1.5 rounded-md bg-black/60 hover:bg-red-900/80 text-white/70 hover:text-red-300 transition-colors disabled:opacity-50"
+          className="p-1.5 rounded-md bg-black/60 hover:bg-red-900/80 text-muted-foreground hover:text-red-300 transition-colors disabled:opacity-50"
           title="Delete"
         >
           {isDeleting ? (
@@ -199,14 +199,14 @@ export function ImageTileActions({
           onClick={(e) => e.stopPropagation()}
         >
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">Delete this image?</AlertDialogTitle>
-            <AlertDialogDescription className="text-white/50">
+            <AlertDialogTitle className="text-foreground">Delete this image?</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
               This cannot be undone. The image will be permanently removed from storage.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel
-              className="bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white"
+              className="bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10 hover:text-foreground"
               onClick={(e) => e.stopPropagation()}
             >
               Cancel
@@ -216,7 +216,7 @@ export function ImageTileActions({
                 e.stopPropagation();
                 handleDelete();
               }}
-              className="bg-red-600 hover:bg-red-700 text-white border-0"
+              className="bg-red-600 hover:bg-red-700 text-foreground border-0"
               disabled={isDeleting}
             >
               {isDeleting ? "Deleting…" : "Delete"}

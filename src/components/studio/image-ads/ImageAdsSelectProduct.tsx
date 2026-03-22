@@ -98,7 +98,7 @@ export function ImageAdsSelectProduct({ onCancel, onSelect, onManualSetup, onSyn
               <div className={`absolute top-3 left-3 z-10 h-4 w-4 rounded border border-border/60 flex items-center justify-center ${
                 selected === product.id ? "bg-accent border-accent" : "bg-card/60"
               }`}>
-                {selected === product.id && <Check className="h-2.5 w-2.5 text-white" />}
+                {selected === product.id && <Check className="h-2.5 w-2.5 text-foreground" />}
               </div>
 
               {/* Top-right actions */}

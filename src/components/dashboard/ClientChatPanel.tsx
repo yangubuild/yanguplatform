@@ -18,8 +18,8 @@ export function ClientChatPanel() {
         className="flex items-center justify-between px-4 py-3 shrink-0"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
-        <span className="text-sm font-semibold text-white">New chat</span>
-        <button className="p-1" style={{ color: "rgba(255,255,255,0.45)" }}>
+        <span className="text-sm font-semibold text-foreground">New chat</span>
+        <button className="p-1 text-muted-foreground">
           <X className="w-4 h-4" />
         </button>
       </div>
@@ -29,8 +29,7 @@ export function ClientChatPanel() {
         {/* Suggestions label */}
         <div className="flex items-center gap-1.5 mb-4">
           <span
-            className="text-xs"
-            style={{ color: "rgba(255,255,255,0.3)" }}
+            className="text-xs text-muted-foreground"
           >
             🏷️ Click a suggestion to send
           </span>
@@ -44,9 +43,7 @@ export function ClientChatPanel() {
               className="w-full text-left px-4 py-3 rounded-xl text-sm transition-all duration-150 hover:opacity-80"
               style={{
                 background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.06)",
-                color: "rgba(255,255,255,0.7)",
-              }}
+                border: "1px solid rgba(255,255,255,0.06)", }}
               onClick={() => setMessage(s)}
             >
               {s}
@@ -61,8 +58,7 @@ export function ClientChatPanel() {
         style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
       >
         <button
-          className="p-1.5"
-          style={{ color: "rgba(255,255,255,0.35)" }}
+          className="p-1.5 text-muted-foreground"
         >
           <Plus className="w-4 h-4" />
         </button>
@@ -78,7 +74,7 @@ export function ClientChatPanel() {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Type what you want done..."
-            className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-white/25"
+            className="flex-1 bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground"
           />
         </div>
         <div className="flex items-center gap-1">
@@ -89,8 +85,7 @@ export function ClientChatPanel() {
             <Zap className="w-3 h-3" /> 313K
           </span>
           <button
-            className="p-1.5"
-            style={{ color: "rgba(255,255,255,0.35)" }}
+            className="p-1.5 text-muted-foreground"
           >
             <Mic className="w-4 h-4" />
           </button>

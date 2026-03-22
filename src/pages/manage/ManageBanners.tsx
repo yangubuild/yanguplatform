@@ -72,7 +72,7 @@ function BannerCard({
         }}
       >
         <div className="h-full flex items-center justify-center">
-          <span className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>
+          <span className="text-xs text-muted-foreground">
             {data.headline || "No headline"}
           </span>
         </div>

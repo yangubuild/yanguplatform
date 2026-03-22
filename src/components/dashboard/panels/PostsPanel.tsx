@@ -33,19 +33,19 @@ export function PostsPanel({ onViewProfile }: PostsPanelProps) {
         className="flex items-center justify-between px-4 py-3 shrink-0"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
-        <span className="text-sm font-semibold text-white">Following</span>
+        <span className="text-sm font-semibold text-foreground">Following</span>
       </div>
 
       {/* Posts list — followed accounts only */}
       <div className="flex-1 overflow-y-auto" ref={scrollRef} onScroll={handleScroll}>
         {isLoading ? (
           <div className="flex items-center justify-center py-10">
-            <Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
+            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
           </div>
         ) : posts.length === 0 ? (
           <div className="flex flex-col items-center justify-center px-4 py-10">
-            <p className="text-sm font-semibold text-white">No posts from followed accounts</p>
-            <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>
+            <p className="text-sm font-semibold text-foreground">No posts from followed accounts</p>
+            <p className="text-xs mt-1 text-muted-foreground">
               Follow people to see their posts here.
             </p>
           </div>
@@ -68,7 +68,7 @@ export function PostsPanel({ onViewProfile }: PostsPanelProps) {
             ))}
             {isFetchingNextPage && (
               <div className="flex justify-center py-4">
-                <Loader2 className="w-4 h-4 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
+                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
               </div>
             )}
           </div>

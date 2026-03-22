@@ -38,26 +38,26 @@ export function PostCard({ post, toggleReaction, onAuthorClick, compact }: PostC
           {post.author_avatar ? (
             <img src={post.author_avatar} alt="" className="w-full h-full rounded-full object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-white/60">
+            <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-muted-foreground">
               {(post.author_name || "U").slice(0, 2).toUpperCase()}
             </div>
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold text-white truncate">{post.author_name}</p>
+          <p className="text-xs font-semibold text-foreground truncate">{post.author_name}</p>
           {post.author_username && (
-            <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>
+            <p className="text-[10px] text-muted-foreground">
               @{post.author_username}
             </p>
           )}
         </div>
-        <span className="text-[10px] shrink-0" style={{ color: "rgba(255,255,255,0.3)" }}>
+        <span className="text-[10px] shrink-0 text-muted-foreground">
           {formatRelativeTime(post.created_at)}
         </span>
       </div>
 
       {/* Content */}
-      <div className="text-sm text-white whitespace-pre-wrap mb-2 break-words">
+      <div className="text-sm text-foreground whitespace-pre-wrap mb-2 break-words">
         <EmojiRenderer text={displayContent} />
       </div>
 
@@ -142,8 +142,8 @@ function CtaPopup({ title, description, onClose, color }: { title: string; descr
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" onClick={onClose}>
       <div onClick={(e) => e.stopPropagation()} className="rounded-xl p-5 w-full max-w-[300px] shadow-2xl" style={{ background: "#1a1f28", border: `1px solid ${color}40` }}>
-        <h3 className="text-sm font-bold text-white mb-2">{title}</h3>
-        <p className="text-xs text-white/60 mb-4">{description}</p>
+        <h3 className="text-sm font-bold text-foreground mb-2">{title}</h3>
+        <p className="text-xs text-muted-foreground mb-4">{description}</p>
         <button onClick={onClose} className="w-full text-xs font-semibold py-2 rounded-lg min-h-[36px]" style={{ background: `${color}20`, color }}>
           Close
         </button>

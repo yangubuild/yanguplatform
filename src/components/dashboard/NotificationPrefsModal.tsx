@@ -22,7 +22,7 @@ export function NotificationPrefsModal({ open, onOpenChange }: NotificationPrefs
         style={{ background: "#1a2129", borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)" }}
       >
         <div className="flex items-center justify-between px-6 pt-6 pb-4">
-          <DialogTitle className="text-lg font-bold text-white">Notification preferences</DialogTitle>
+          <DialogTitle className="text-lg font-bold text-foreground">Notification preferences</DialogTitle>
         </div>
 
         <div className="px-4 pb-6 space-y-2">
@@ -37,11 +37,11 @@ export function NotificationPrefsModal({ open, onOpenChange }: NotificationPrefs
                   {item.emoji}
                 </span>
                 <div className="text-left">
-                  <p className="text-sm font-semibold text-white">{item.name}</p>
-                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{item.sub}</p>
+                  <p className="text-sm font-semibold text-foreground">{item.name}</p>
+                  <p className="text-xs text-muted-foreground">{item.sub}</p>
                 </div>
               </div>
-              <ChevronDown className="w-4 h-4" style={{ color: "rgba(255,255,255,0.3)" }} />
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
             </button>
           ))}
         </div>

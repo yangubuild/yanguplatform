@@ -44,7 +44,7 @@ export function FriendReviewsRightPanel({ friend }: Props) {
         className="flex items-center justify-between px-4 py-3 shrink-0"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
-        <span className="text-sm font-semibold text-white">Review {friendName}</span>
+        <span className="text-sm font-semibold text-foreground">Review {friendName}</span>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
@@ -53,7 +53,7 @@ export function FriendReviewsRightPanel({ friend }: Props) {
           className="rounded-xl p-4"
           style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
         >
-          <p className="text-xs font-semibold text-white mb-1">Average Rating</p>
+          <p className="text-xs font-semibold text-foreground mb-1">Average Rating</p>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-0.5">
               {Array.from({ length: 5 }).map((_, i) => (
@@ -68,9 +68,9 @@ export function FriendReviewsRightPanel({ friend }: Props) {
               ))}
             </div>
             {isLoading ? (
-              <Loader2 className="w-3 h-3 animate-spin" style={{ color: "rgba(255,255,255,0.3)" }} />
+              <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
             ) : (
-              <span className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+              <span className="text-xs text-muted-foreground">
                 {totalCount > 0 ? `${avgRating.toFixed(1)} (${totalCount} review${totalCount !== 1 ? "s" : ""})` : "No ratings yet"}
               </span>
             )}
@@ -82,7 +82,7 @@ export function FriendReviewsRightPanel({ friend }: Props) {
           className="rounded-xl p-4"
           style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
         >
-          <p className="text-xs font-semibold text-white mb-2">Your Review</p>
+          <p className="text-xs font-semibold text-foreground mb-2">Your Review</p>
           <div className="flex items-center gap-2 mb-3">
             <div
               className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold overflow-hidden shrink-0"
@@ -91,10 +91,10 @@ export function FriendReviewsRightPanel({ friend }: Props) {
               {avatarUrl ? (
                 <img src={avatarUrl} alt="" className="w-7 h-7 rounded-full object-cover" />
               ) : (
-                <span className="text-white/60">{reviewerName.slice(0, 2).toUpperCase()}</span>
+                <span className="text-muted-foreground">{reviewerName.slice(0, 2).toUpperCase()}</span>
               )}
             </div>
-            <span className="text-xs text-white">{reviewerName}</span>
+            <span className="text-xs text-foreground">{reviewerName}</span>
           </div>
 
           <div className="flex items-center gap-0.5 mb-3">
@@ -116,7 +116,7 @@ export function FriendReviewsRightPanel({ friend }: Props) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Review title (optional)"
-            className="w-full bg-transparent text-sm text-white placeholder:text-white/25 outline-none mb-2 rounded-lg px-3 py-2"
+            className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none mb-2 rounded-lg px-3 py-2"
             style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
           />
 
@@ -124,7 +124,7 @@ export function FriendReviewsRightPanel({ friend }: Props) {
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Write your review..."
-            className="w-full bg-transparent text-sm text-white placeholder:text-white/25 outline-none resize-none min-h-[60px] rounded-lg px-3 py-2"
+            className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none resize-none min-h-[60px] rounded-lg px-3 py-2"
             style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
           />
 

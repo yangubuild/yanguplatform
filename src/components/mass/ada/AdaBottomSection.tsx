@@ -247,7 +247,7 @@ export function AdaBottomSection() {
           {/* Left: ALL CHAT */}
           <div>
           <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white/60 text-sm font-semibold uppercase tracking-wider">All Chat</h3>
+              <h3 className="text-muted-foreground text-sm font-semibold uppercase tracking-wider">All Chat</h3>
               <div className="flex items-center gap-1">
                 {showSearch && (
                   <input
@@ -256,7 +256,7 @@ export function AdaBottomSection() {
                     onChange={e => setSearchQuery(e.target.value)}
                     onKeyDown={e => { if (e.key === "Escape") { setShowSearch(false); setSearchQuery(""); } }}
                     placeholder="Search…"
-                    className="bg-white/5 text-white/80 text-xs rounded px-2 py-1 w-40 placeholder:text-white/30 outline-none border-none ring-0 focus:outline-none focus:ring-0 focus:border-none"
+                    className="bg-white/5 text-muted-foreground text-xs rounded px-2 py-1 w-40 placeholder:text-muted-foreground outline-none border-none ring-0 focus:outline-none focus:ring-0 focus:border-none"
                   />
                 )}
                 <button
@@ -269,7 +269,7 @@ export function AdaBottomSection() {
                       openSearch();
                     }
                   }}
-                  className="text-white/30 hover:text-white/70 transition-colors p-1"
+                  className="text-muted-foreground hover:text-muted-foreground transition-colors p-1"
                 >
                   {showSearch && !searchQuery.trim() ? <X className="w-4 h-4" /> : <Search className="w-4 h-4" />}
                 </button>
@@ -277,8 +277,8 @@ export function AdaBottomSection() {
             </div>
             {showSearch && searchQuery.trim() ? (
               <div className="space-y-1">
-                {isSearching && <p className="text-white/30 text-xs py-2">Searching…</p>}
-                {!isSearching && searchResults.length === 0 && <p className="text-white/20 text-xs py-2">No results</p>}
+                {isSearching && <p className="text-muted-foreground text-xs py-2">Searching…</p>}
+                {!isSearching && searchResults.length === 0 && <p className="text-muted-foreground text-xs py-2">No results</p>}
                 {searchResults.map((result) => (
                   <button
                     key={`${result.type}-${result.id}`}
@@ -289,25 +289,25 @@ export function AdaBottomSection() {
                     className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left hover:bg-white/5 transition-colors"
                   >
                     {result.type === "chat" ? (
-                      <MessageCircle className="w-3.5 h-3.5 text-white/25 flex-shrink-0" />
+                      <MessageCircle className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
                     ) : result.image_url ? (
                       <div className="w-6 h-6 rounded overflow-hidden flex-shrink-0">
                         <img src={result.image_url} alt="" className="w-full h-full object-cover" />
                       </div>
                     ) : (
-                      <Image className="w-3.5 h-3.5 text-white/25 flex-shrink-0" />
+                      <Image className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
                     )}
-                    <span className="text-white/60 text-xs truncate flex-1">{result.title}</span>
-                    <span className="text-white/20 text-[10px] uppercase flex-shrink-0">{result.type}</span>
+                    <span className="text-muted-foreground text-xs truncate flex-1">{result.title}</span>
+                    <span className="text-muted-foreground text-[10px] uppercase flex-shrink-0">{result.type}</span>
                   </button>
                 ))}
               </div>
             ) : (
               <>
-                <p className="text-white/30 text-[10px] uppercase tracking-wider mb-2">30 Days</p>
+                <p className="text-muted-foreground text-[10px] uppercase tracking-wider mb-2">30 Days</p>
                 <div className="space-y-1">
                   {chats.length === 0 && (
-                    <p className="text-white/20 text-xs">No chats yet</p>
+                    <p className="text-muted-foreground text-xs">No chats yet</p>
                   )}
                   {chats.map((chat) => (
                     <button
@@ -315,9 +315,9 @@ export function AdaBottomSection() {
                       onClick={() => handleLoadChat(chat.id)}
                       className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left hover:bg-white/5 transition-colors group"
                     >
-                      <MessageCircle className="w-3.5 h-3.5 text-white/25 flex-shrink-0" />
-                      <span className="text-white/60 text-xs truncate flex-1">{chat.title}</span>
-                      <MoreHorizontal className="w-3.5 h-3.5 text-white/20 opacity-0 group-hover:opacity-100 flex-shrink-0" />
+                      <MessageCircle className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                      <span className="text-muted-foreground text-xs truncate flex-1">{chat.title}</span>
+                      <MoreHorizontal className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 flex-shrink-0" />
                     </button>
                   ))}
                 </div>
@@ -328,12 +328,12 @@ export function AdaBottomSection() {
           {/* Center: IMAGES */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <Image className="w-4 h-4 text-white/30" />
-              <h3 className="text-white/60 text-sm font-semibold uppercase tracking-wider">Images</h3>
+              <Image className="w-4 h-4 text-muted-foreground" />
+              <h3 className="text-muted-foreground text-sm font-semibold uppercase tracking-wider">Images</h3>
             </div>
             <div className="grid grid-cols-2 gap-2">
               {images.length === 0 && (
-                <p className="text-white/20 text-xs col-span-2">No images yet</p>
+                <p className="text-muted-foreground text-xs col-span-2">No images yet</p>
               )}
               {images.map((img) => (
                 <div
@@ -364,7 +364,7 @@ export function AdaBottomSection() {
                 <button
                   key={item.id}
                   onClick={() => handleIconAction(item.id)}
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-white/30 hover:text-white/70 hover:bg-white/5 transition-all"
+                  className="w-10 h-10 rounded-lg flex items-center justify-center text-muted-foreground hover:text-muted-foreground hover:bg-white/5 transition-all"
                   title={item.label}
                   style={{ border: "1px solid rgba(255,255,255,0.06)" }}
                 >
@@ -384,7 +384,7 @@ export function AdaBottomSection() {
         >
           <button
             onClick={() => setSelectedImage(null)}
-            className="absolute top-4 right-4 text-white/60 hover:text-white z-10"
+            className="absolute top-4 right-4 text-muted-foreground hover:text-foreground z-10"
           >
             <X className="w-6 h-6" />
           </button>
@@ -413,8 +413,8 @@ function ImageWithFallback({ src, alt }: { src?: string; alt: string }) {
   if (error) {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center gap-1 p-2">
-        <Image className="w-5 h-5 text-white/20" />
-        <span className="text-[10px] text-white/30 text-center">Failed to load</span>
+        <Image className="w-5 h-5 text-muted-foreground" />
+        <span className="text-[10px] text-muted-foreground text-center">Failed to load</span>
         <button
           onClick={(e) => { e.stopPropagation(); setError(false); setRetryCount(c => c + 1); }}
           className="text-[10px] text-[#F4A83D]/70 hover:text-[#F4A83D] transition-colors"

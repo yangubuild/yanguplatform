@@ -18,7 +18,7 @@ export function ShareBusinessPopover({ children, avatarUrl, initials = "Y" }: Sh
         className="w-56 p-4 border-0"
         style={{ background: "#111a15", borderRadius: 14, border: "1px solid rgba(255,255,255,0.08)" }}
       >
-        <p className="text-sm font-bold text-white mb-3">Share business</p>
+        <p className="text-sm font-bold text-foreground mb-3">Share business</p>
         <div className="flex items-center gap-3">
           <div className="relative">
             {avatarUrl ? (
@@ -30,7 +30,7 @@ export function ShareBusinessPopover({ children, avatarUrl, initials = "Y" }: Sh
             )}
             <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full" style={{ background: "#6b7280", border: "2px solid #1a2129" }} />
           </div>
-          <span className="text-sm" style={{ color: "rgba(255,255,255,0.6)" }}>Team</span>
+          <span className="text-sm text-muted-foreground">Team</span>
         </div>
       </PopoverContent>
     </Popover>

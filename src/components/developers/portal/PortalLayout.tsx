@@ -49,7 +49,7 @@ export function PortalLayout() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "#08120D" }}>
-        <Loader2 className="w-8 h-8 text-white/30 animate-spin" />
+        <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
       </div>
     );
   }
@@ -58,8 +58,8 @@ export function PortalLayout() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "#08120D" }}>
         <div className="text-center">
-          <h2 className="text-xl font-bold text-white mb-2">Developer Portal</h2>
-          <p className="text-white/50 text-sm mb-6">Sign in to access the developer portal.</p>
+          <h2 className="text-xl font-bold text-foreground mb-2">Developer Portal</h2>
+          <p className="text-muted-foreground text-sm mb-6">Sign in to access the developer portal.</p>
           <Button variant="accent" onClick={() => setShowAuth(true)}>Sign In</Button>
         </div>
         <DeveloperAuthModal
@@ -81,7 +81,7 @@ export function PortalLayout() {
     <div className="min-h-screen" style={{ background: "#08120D" }}>
       <button
         onClick={() => setSidebarOpen(true)}
-        className="fixed top-4 left-4 z-30 p-2 rounded-lg bg-[#1c1c1c] text-white lg:hidden"
+        className="fixed top-4 left-4 z-30 p-2 rounded-lg bg-[#1c1c1c] text-foreground lg:hidden"
       >
         <Menu className="w-6 h-6" />
       </button>
@@ -96,11 +96,11 @@ export function PortalLayout() {
             {/* Portal left nav */}
             <div className="hidden md:block w-[200px] flex-shrink-0">
               <nav className="sticky top-8">
-                <span className="text-white/90 text-sm font-semibold leading-5 block mb-4">Developer Portal</span>
+                <span className="text-muted-foreground text-sm font-semibold leading-5 block mb-4">Developer Portal</span>
                 <div className="border-b border-white/10 mb-4" />
 
                 <div className="mb-6">
-                  <h4 className="text-white/50 text-xs font-semibold uppercase tracking-wider leading-4 mb-2 px-1">Manage</h4>
+                  <h4 className="text-muted-foreground text-xs font-semibold uppercase tracking-wider leading-4 mb-2 px-1">Manage</h4>
                   <ul className="space-y-0.5">
                     {portalNav.map((item) => {
                       const isActive = location.pathname === item.path;
@@ -109,7 +109,7 @@ export function PortalLayout() {
                           <button
                             onClick={() => navigate(item.path)}
                             className={`w-full text-left px-3 py-1.5 rounded-md text-sm leading-5 transition-colors flex items-center gap-2 ${
-                              isActive ? "text-accent bg-accent/8" : "text-white/55 bg-transparent"
+                              isActive ? "text-accent bg-accent/8" : "text-muted-foreground bg-transparent"
                             }`}
                           >
                             <item.icon className="w-4 h-4" />
@@ -125,7 +125,7 @@ export function PortalLayout() {
 
                 <button
                   onClick={() => navigate("/developers/docs")}
-                  className="w-full text-left px-3 py-1.5 rounded-md text-sm leading-5 transition-colors flex items-center gap-2 text-white/55 hover:text-white/80"
+                  className="w-full text-left px-3 py-1.5 rounded-md text-sm leading-5 transition-colors flex items-center gap-2 text-muted-foreground hover:text-muted-foreground"
                 >
                   <BookOpen className="w-4 h-4" />
                   API Docs
@@ -144,7 +144,7 @@ export function PortalLayout() {
                 onClick={() => setSupportOpen(!supportOpen)}
                 className="fixed right-6 bottom-6 z-40 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-colors [background:linear-gradient(90deg,#b5622a_0%,#5c2a12_100%)] hover:brightness-110"
               >
-                {supportOpen ? <X className="w-5 h-5 text-white" /> : <HelpCircle className="w-5 h-5 text-white" />}
+                {supportOpen ? <X className="w-5 h-5 text-foreground" /> : <HelpCircle className="w-5 h-5 text-foreground" />}
               </button>
             </div>
           </div>
@@ -157,12 +157,12 @@ export function PortalLayout() {
             style={{ background: "#111a14", border: "1px solid rgba(255,255,255,0.10)", maxHeight: "70vh" }}
           >
             <div className="p-4 border-b border-white/10">
-              <h3 className="text-white font-semibold text-sm">Support</h3>
+              <h3 className="text-foreground font-semibold text-sm">Support</h3>
               <div className="flex gap-1 mt-3 p-1 rounded-lg bg-white/5">
                 <button
                   onClick={() => setSupportTab("help")}
                   className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors flex items-center justify-center gap-1 ${
-                    supportTab === "help" ? "bg-white/10 text-white" : "text-white/50"
+                    supportTab === "help" ? "bg-white/10 text-foreground" : "text-muted-foreground"
                   }`}
                 >
                   <MessageSquare className="w-3 h-3" /> Help / Q&A
@@ -170,7 +170,7 @@ export function PortalLayout() {
                 <button
                   onClick={() => setSupportTab("contact")}
                   className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors flex items-center justify-center gap-1 ${
-                    supportTab === "contact" ? "bg-white/10 text-white" : "text-white/50"
+                    supportTab === "contact" ? "bg-white/10 text-foreground" : "text-muted-foreground"
                   }`}
                 >
                   <Mail className="w-3 h-3" /> Contact
@@ -181,16 +181,16 @@ export function PortalLayout() {
             <div className="p-4" style={{ minHeight: 200 }}>
               {supportTab === "help" ? (
                 <div className="text-center py-8">
-                  <MessageSquare className="w-8 h-8 text-white/20 mx-auto mb-3" />
-                  <p className="text-white/50 text-sm mb-4">Ask ADA anything about the developer platform.</p>
+                  <MessageSquare className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-muted-foreground text-sm mb-4">Ask ADA anything about the developer platform.</p>
                   <Button variant="accent" size="sm" onClick={() => navigate("/dashboard/ada")}>
                     Open ADA Chat
                   </Button>
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <Mail className="w-8 h-8 text-white/20 mx-auto mb-3" />
-                  <p className="text-white/50 text-sm mb-4">Reach our developer support team.</p>
+                  <Mail className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-muted-foreground text-sm mb-4">Reach our developer support team.</p>
                   <Button
                     variant="accent"
                     size="sm"

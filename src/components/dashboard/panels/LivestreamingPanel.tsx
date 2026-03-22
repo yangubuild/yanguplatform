@@ -10,7 +10,7 @@ export function LivestreamingPanel() {
         className="flex items-center justify-between px-4 py-3 shrink-0"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
-        <span className="text-sm font-semibold text-white">Livestreaming</span>
+        <span className="text-sm font-semibold text-foreground">Livestreaming</span>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
@@ -27,8 +27,8 @@ export function LivestreamingPanel() {
               <Radio className="w-4 h-4" style={{ color: "#ef4444" }} />
             </div>
             <div>
-              <p className="text-sm font-semibold text-white">Stream Tools</p>
-              <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+              <p className="text-sm font-semibold text-foreground">Stream Tools</p>
+              <p className="text-xs text-muted-foreground">
                 Configure your stream before going live
               </p>
             </div>
@@ -36,24 +36,21 @@ export function LivestreamingPanel() {
 
           <div className="space-y-2">
             <button
-              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-left hover:bg-white/5 transition-colors"
-              style={{ color: "rgba(255,255,255,0.7)" }}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-left hover:bg-white/5 transition-colors text-muted-foreground"
             >
-              <Video className="w-4 h-4" style={{ color: "rgba(255,255,255,0.4)" }} />
+              <Video className="w-4 h-4 text-muted-foreground" />
               Camera & Audio settings
             </button>
             <button
-              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-left hover:bg-white/5 transition-colors"
-              style={{ color: "rgba(255,255,255,0.7)" }}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-left hover:bg-white/5 transition-colors text-muted-foreground"
             >
-              <Users className="w-4 h-4" style={{ color: "rgba(255,255,255,0.4)" }} />
+              <Users className="w-4 h-4 text-muted-foreground" />
               Audience settings
             </button>
             <button
-              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-left hover:bg-white/5 transition-colors"
-              style={{ color: "rgba(255,255,255,0.7)" }}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-left hover:bg-white/5 transition-colors text-muted-foreground"
             >
-              <Settings className="w-4 h-4" style={{ color: "rgba(255,255,255,0.4)" }} />
+              <Settings className="w-4 h-4 text-muted-foreground" />
               Stream quality
             </button>
           </div>
@@ -64,8 +61,8 @@ export function LivestreamingPanel() {
           className="rounded-xl p-4"
           style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
         >
-          <p className="text-xs font-semibold text-white mb-2">Recent Streams</p>
-          <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
+          <p className="text-xs font-semibold text-foreground mb-2">Recent Streams</p>
+          <p className="text-xs text-muted-foreground">
             No streams yet. Use Go Live on your profile to start.
           </p>
         </div>
@@ -83,8 +80,8 @@ export function LivestreamingPanel() {
               <MessageCircle className="w-4 h-4" style={{ color: "#ef4444" }} />
             </div>
             <div>
-              <p className="text-sm font-semibold text-white">Live Chat</p>
-              <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+              <p className="text-sm font-semibold text-foreground">Live Chat</p>
+              <p className="text-xs text-muted-foreground">
                 Chat with your audience in real time
               </p>
             </div>
@@ -92,11 +89,11 @@ export function LivestreamingPanel() {
 
           {/* Empty state — no messages until stream is live */}
           <div className="flex flex-col items-center justify-center py-6">
-            <MessageCircle className="w-8 h-8 mb-2" style={{ color: "rgba(255,255,255,0.1)" }} />
-            <p className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>
+            <MessageCircle className="w-8 h-8 mb-2 text-muted-foreground" />
+            <p className="text-xs text-muted-foreground">
               No messages yet
             </p>
-            <p className="text-[10px] mt-1" style={{ color: "rgba(255,255,255,0.2)" }}>
+            <p className="text-[10px] mt-1 text-muted-foreground">
               Messages will appear here when you go live
             </p>
           </div>
@@ -111,7 +108,7 @@ export function LivestreamingPanel() {
               placeholder="Type a message..."
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
-              className="flex-1 bg-transparent text-xs text-white placeholder:text-white/30 outline-none"
+              className="flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none"
             />
             <button
               className="shrink-0 p-1 rounded hover:bg-white/10 transition-colors"

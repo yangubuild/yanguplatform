@@ -38,7 +38,7 @@ export function CommunityTopBar() {
             Sign in
           </button>
           <button
-            className="rounded-lg px-5 py-[8px] text-[14px] font-medium text-white transition-opacity hover:opacity-90"
+            className="rounded-lg px-5 py-[8px] text-[14px] font-medium text-foreground transition-opacity hover:opacity-90"
             style={{ background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" }}
           >
             Start selling

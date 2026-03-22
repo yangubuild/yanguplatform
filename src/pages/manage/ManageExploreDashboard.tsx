@@ -16,13 +16,13 @@ import {
 
 // ── Fill source color mapping ──
 const FILL_SOURCE_COLORS: Record<string, string> = {
-  ad: "bg-[hsl(0,72%,51%)] text-white",
-  premium_subscriber: "bg-[hsl(24,95%,53%)] text-white",
-  mid_subscriber: "bg-[hsl(38,92%,55%)] text-white",
-  subscribed: "bg-[hsl(160,84%,45%)] text-white",
-  engagement: "bg-[hsl(210,80%,55%)] text-white",
+  ad: "bg-[hsl(0,72%,51%)] text-foreground",
+  premium_subscriber: "bg-[hsl(24,95%,53%)] text-foreground",
+  mid_subscriber: "bg-[hsl(38,92%,55%)] text-foreground",
+  subscribed: "bg-[hsl(160,84%,45%)] text-foreground",
+  engagement: "bg-[hsl(210,80%,55%)] text-foreground",
   user_published: "bg-muted text-muted-foreground",
-  seeded: "bg-[hsl(270,60%,55%)] text-white",
+  seeded: "bg-[hsl(270,60%,55%)] text-foreground",
   placeholder: "bg-muted/50 text-muted-foreground",
 };
 

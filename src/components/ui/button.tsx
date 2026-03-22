@@ -16,11 +16,11 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent/10 hover:text-accent-foreground rounded-lg",
         link: "text-primary underline-offset-4 hover:underline",
         // yangu primary gradient CTA — master Build/Explore gradient
-        accent: "text-white border-0 shadow-md hover:shadow-lg hover:brightness-110 transition-all rounded-lg [background:linear-gradient(135deg,#c47a3a_0%,#b5622a_50%,#5c2a12_100%)]",
+        accent: "text-foreground border-0 shadow-md hover:shadow-lg hover:brightness-110 transition-all rounded-lg [background:linear-gradient(135deg,#c47a3a_0%,#b5622a_50%,#5c2a12_100%)]",
         // yangu solid green button
-        solid: "text-white border-0 rounded-lg transition-all hover:brightness-110 [background:#152A20]",
+        solid: "text-foreground border-0 rounded-lg transition-all hover:brightness-110 [background:#152A20]",
         // yangu transparent dark green
-        "dark-green": "text-white/80 bg-transparent border border-[#152A20]/40 rounded-lg hover:bg-[#152A20]/20 transition-all",
+        "dark-green": "text-muted-foreground bg-transparent border border-[#152A20]/40 rounded-lg hover:bg-[#152A20]/20 transition-all",
         success: "bg-success text-success-foreground hover:bg-success/90 rounded-lg",
       },
       size: {

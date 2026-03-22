@@ -7,7 +7,7 @@ function CodeBlock({ code }: CodeBlockProps) {
   return (
     <pre
       className="rounded-lg p-4 text-xs leading-relaxed overflow-x-auto mb-4"
-      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.65)" }}
+      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", }}
     >
       <code>{code}</code>
     </pre>
@@ -15,7 +15,7 @@ function CodeBlock({ code }: CodeBlockProps) {
 }
 
 function Paragraph({ children }: { children: React.ReactNode }) {
-  return <p className="text-sm mb-4" style={{ color: "rgba(255,255,255,0.55)" }}>{children}</p>;
+  return <p className="text-sm mb-4 text-muted-foreground">{children}</p>;
 }
 
 function Badge({ children }: { children: React.ReactNode }) {
@@ -41,8 +41,8 @@ const pages: Record<string, () => JSX.Element> = {
   "/developers/apis/rest-graphql": () => (
     <DocsPage breadcrumb="APIs" title="REST & GraphQL" subtitle="Access the yangu platform through a unified API layer.">
       <DocsSection id="rest" title="REST API" description="The primary interface for platform operations.">
-        <Paragraph>Base URL: <code className="text-white/70">https://api.yangu.com/v1</code></Paragraph>
-        <Paragraph>All endpoints are versioned. The current stable version is <strong className="text-white/70">v1</strong>. Include your API key in the <code className="text-white/70">Authorization</code> header as a Bearer token.</Paragraph>
+        <Paragraph>Base URL: <code className="text-muted-foreground">https://api.yangu.com/v1</code></Paragraph>
+        <Paragraph>All endpoints are versioned. The current stable version is <strong className="text-muted-foreground">v1</strong>. Include your API key in the <code className="text-muted-foreground">Authorization</code> header as a Bearer token.</Paragraph>
         <CodeBlock code={`GET /v1/surfaces?page=1&limit=20
 Authorization: Bearer yng_live_xxxx
 
@@ -61,8 +61,8 @@ Authorization: Bearer yng_live_xxxx
 
       <DocsSection id="graphql" title="GraphQL" description="Query exactly the data you need.">
         <Badge>Preview</Badge>
-        <Paragraph>Endpoint: <code className="text-white/70">https://api.yangu.com/graphql</code></Paragraph>
-        <Paragraph>Authenticate with the same Bearer token. The schema explorer is available at <code className="text-white/70">/graphql/explorer</code> (introspection enabled in dev environments).</Paragraph>
+        <Paragraph>Endpoint: <code className="text-muted-foreground">https://api.yangu.com/graphql</code></Paragraph>
+        <Paragraph>Authenticate with the same Bearer token. The schema explorer is available at <code className="text-muted-foreground">/graphql/explorer</code> (introspection enabled in dev environments).</Paragraph>
         <CodeBlock code={`query {
   surface(slug: "my-site") {
     id
@@ -94,12 +94,12 @@ POST https://auth.yangu.com/token
       </DocsSection>
 
       <DocsSection id="api-keys" title="API Keys" description="Simple authentication for backend integrations.">
-        <Paragraph>Generate keys in the Developer Console. Keys are scoped to an environment (dev / prod) and prefixed with <code className="text-white/70">yng_dev_</code> or <code className="text-white/70">yng_live_</code>.</Paragraph>
-        <Paragraph>Pass as a Bearer token in the <code className="text-white/70">Authorization</code> header. Rotate keys without downtime — old keys remain valid for 24 hours after rotation.</Paragraph>
+        <Paragraph>Generate keys in the Developer Console. Keys are scoped to an environment (dev / prod) and prefixed with <code className="text-muted-foreground">yng_dev_</code> or <code className="text-muted-foreground">yng_live_</code>.</Paragraph>
+        <Paragraph>Pass as a Bearer token in the <code className="text-muted-foreground">Authorization</code> header. Rotate keys without downtime — old keys remain valid for 24 hours after rotation.</Paragraph>
       </DocsSection>
 
       <DocsSection id="sessions" title="Sessions" description="Browser-based session management.">
-        <Paragraph>User sessions are managed via secure HTTP-only cookies. Session tokens refresh automatically. Use the <code className="text-white/70">/auth/session</code> endpoint to inspect the current session.</Paragraph>
+        <Paragraph>User sessions are managed via secure HTTP-only cookies. Session tokens refresh automatically. Use the <code className="text-muted-foreground">/auth/session</code> endpoint to inspect the current session.</Paragraph>
       </DocsSection>
     </DocsPage>
   ),
@@ -119,8 +119,8 @@ POST https://auth.yangu.com/token
         <div className="overflow-x-auto mb-4">
           <table className="w-full text-left">
             <thead><tr className="border-b border-white/10">
-              <th className="px-3 py-2 text-xs font-semibold text-white/60">Event</th>
-              <th className="px-3 py-2 text-xs font-semibold text-white/60">Description</th>
+              <th className="px-3 py-2 text-xs font-semibold text-muted-foreground">Event</th>
+              <th className="px-3 py-2 text-xs font-semibold text-muted-foreground">Description</th>
             </tr></thead>
             <tbody>
               <TableRow cells={["surface.published", "A surface was published or updated"]} />
@@ -198,8 +198,8 @@ brew install yangu/tap/yangu`} />
         <div className="overflow-x-auto mb-4">
           <table className="w-full text-left">
             <thead><tr className="border-b border-white/10">
-              <th className="px-3 py-2 text-xs font-semibold text-white/60">Command</th>
-              <th className="px-3 py-2 text-xs font-semibold text-white/60">Description</th>
+              <th className="px-3 py-2 text-xs font-semibold text-muted-foreground">Command</th>
+              <th className="px-3 py-2 text-xs font-semibold text-muted-foreground">Description</th>
             </tr></thead>
             <tbody>
               <TableRow cells={["yangu init", "Scaffold a new project with config files"]} />
@@ -211,7 +211,7 @@ brew install yangu/tap/yangu`} />
           </table>
         </div>
         <Badge>Preview</Badge>
-        <Paragraph>The CLI is in active development. Run <code className="text-white/70">yangu --help</code> for the full command reference.</Paragraph>
+        <Paragraph>The CLI is in active development. Run <code className="text-muted-foreground">yangu --help</code> for the full command reference.</Paragraph>
       </DocsSection>
     </DocsPage>
   ),
@@ -250,10 +250,10 @@ serve(async (req) => {
 });`} />
       </DocsSection>
       <DocsSection id="secrets" title="Environment Variables & Secrets">
-        <Paragraph>Secrets are managed through the platform. Access them via <code className="text-white/70">Deno.env.get("SECRET_NAME")</code>. Never commit secrets to your repository.</Paragraph>
+        <Paragraph>Secrets are managed through the platform. Access them via <code className="text-muted-foreground">Deno.env.get("SECRET_NAME")</code>. Never commit secrets to your repository.</Paragraph>
       </DocsSection>
       <DocsSection id="deploy" title="Deployment">
-        <Paragraph>Functions are deployed automatically when you push code changes. Use <code className="text-white/70">yangu deploy</code> for manual deployments.</Paragraph>
+        <Paragraph>Functions are deployed automatically when you push code changes. Use <code className="text-muted-foreground">yangu deploy</code> for manual deployments.</Paragraph>
       </DocsSection>
     </DocsPage>
   ),
@@ -274,7 +274,7 @@ serve(async (req) => {
 }`} />
       </DocsSection>
       <DocsSection id="lifecycle" title="App Lifecycle">
-        <Paragraph>Install → Configure → Active → Uninstall. On install, yangu provisions API keys scoped to the granted permissions and delivers an <code className="text-white/70">app.installed</code> webhook.</Paragraph>
+        <Paragraph>Install → Configure → Active → Uninstall. On install, yangu provisions API keys scoped to the granted permissions and delivers an <code className="text-muted-foreground">app.installed</code> webhook.</Paragraph>
       </DocsSection>
       <DocsSection id="review" title="App Store Review">
         <Paragraph>Apps submitted for public distribution go through an automated + manual review process. Reviews check scope justification, security practices, and UI quality.</Paragraph>
@@ -312,8 +312,8 @@ window.addEventListener("message", (event) => {
         <div className="overflow-x-auto mb-4">
           <table className="w-full text-left">
             <thead><tr className="border-b border-white/10">
-              <th className="px-3 py-2 text-xs font-semibold text-white/60">Type</th>
-              <th className="px-3 py-2 text-xs font-semibold text-white/60">Examples</th>
+              <th className="px-3 py-2 text-xs font-semibold text-muted-foreground">Type</th>
+              <th className="px-3 py-2 text-xs font-semibold text-muted-foreground">Examples</th>
             </tr></thead>
             <tbody>
               <TableRow cells={["AI", "Gemini, OpenAI, Qwen, Ideogram"]} />
@@ -335,7 +335,7 @@ window.addEventListener("message", (event) => {
   "/developers/infrastructure/custom-domains": () => (
     <DocsPage breadcrumb="Infrastructure" title="Custom Domains" subtitle="Map your own domains to surfaces and manage DNS programmatically.">
       <DocsSection id="setup" title="Domain Setup" description="Add a custom domain through the API or surface editor.">
-        <Paragraph>Point a CNAME record to <code className="text-white/70">proxy.yangu.com</code>. yangu automatically provisions and renews SSL certificates via Let's Encrypt.</Paragraph>
+        <Paragraph>Point a CNAME record to <code className="text-muted-foreground">proxy.yangu.com</code>. yangu automatically provisions and renews SSL certificates via Let's Encrypt.</Paragraph>
         <CodeBlock code={`POST /v1/domains
 {
   "host": "docs.yourcompany.com",
@@ -355,9 +355,9 @@ window.addEventListener("message", (event) => {
         <div className="overflow-x-auto mb-4">
           <table className="w-full text-left">
             <thead><tr className="border-b border-white/10">
-              <th className="px-3 py-2 text-xs font-semibold text-white/60">Environment</th>
-              <th className="px-3 py-2 text-xs font-semibold text-white/60">Key prefix</th>
-              <th className="px-3 py-2 text-xs font-semibold text-white/60">Data isolation</th>
+              <th className="px-3 py-2 text-xs font-semibold text-muted-foreground">Environment</th>
+              <th className="px-3 py-2 text-xs font-semibold text-muted-foreground">Key prefix</th>
+              <th className="px-3 py-2 text-xs font-semibold text-muted-foreground">Data isolation</th>
             </tr></thead>
             <tbody>
               <TableRow cells={["Development", "yng_dev_", "Separate database"]} />
@@ -379,7 +379,7 @@ window.addEventListener("message", (event) => {
         <CodeBlock code={`X-RateLimit-Limit: 1000
 X-RateLimit-Remaining: 847
 X-RateLimit-Reset: 1706745600`} />
-        <Paragraph>When rate-limited, the API returns <code className="text-white/70">429 Too Many Requests</code> with a <code className="text-white/70">Retry-After</code> header.</Paragraph>
+        <Paragraph>When rate-limited, the API returns <code className="text-muted-foreground">429 Too Many Requests</code> with a <code className="text-muted-foreground">Retry-After</code> header.</Paragraph>
       </DocsSection>
       <DocsSection id="credits" title="Credits System" description="AI and compute operations consume credits.">
         <Paragraph>Check your balance via the API or Console. Credits auto-recharge when below a configurable threshold on paid plans.</Paragraph>
@@ -395,7 +395,7 @@ X-RateLimit-Reset: 1706745600`} />
         <Paragraph>Logs include request method, path, status code, latency, and response size. Filter by time range, status, or endpoint. Webhook delivery logs and edge function logs are available in their respective Console tabs.</Paragraph>
       </DocsSection>
       <DocsSection id="status" title="Platform Status">
-        <Paragraph>Check real-time platform status at <code className="text-white/70">status.yangu.com</code>. Subscribe to incident notifications via email or webhook.</Paragraph>
+        <Paragraph>Check real-time platform status at <code className="text-muted-foreground">status.yangu.com</code>. Subscribe to incident notifications via email or webhook.</Paragraph>
       </DocsSection>
     </DocsPage>
   ),
@@ -410,14 +410,14 @@ X-RateLimit-Reset: 1706745600`} />
           <div className="rounded-lg p-4" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
             <div className="flex items-center gap-2 mb-1">
               <Badge>2026-02</Badge>
-              <span className="text-white/80 text-sm font-medium">Provider Router & Widget Registry</span>
+              <span className="text-muted-foreground text-sm font-medium">Provider Router & Widget Registry</span>
             </div>
             <Paragraph>Runtime-pluggable provider execution and registry-driven widget resolution for ADA and Studio.</Paragraph>
           </div>
           <div className="rounded-lg p-4" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
             <div className="flex items-center gap-2 mb-1">
               <Badge>2026-01</Badge>
-              <span className="text-white/80 text-sm font-medium">Surface Context API</span>
+              <span className="text-muted-foreground text-sm font-medium">Surface Context API</span>
             </div>
             <Paragraph>Canonical surface context for consistent runtime execution across all platform surfaces.</Paragraph>
           </div>
@@ -434,7 +434,7 @@ export default function DocsPlaceholder() {
   if (!Page) {
     return (
       <DocsPage breadcrumb="Developers" title="Page not found" subtitle="This documentation page doesn't exist yet.">
-        <p className="text-white/40 text-sm">Navigate using the sidebar to find available docs.</p>
+        <p className="text-muted-foreground text-sm">Navigate using the sidebar to find available docs.</p>
       </DocsPage>
     );
   }
