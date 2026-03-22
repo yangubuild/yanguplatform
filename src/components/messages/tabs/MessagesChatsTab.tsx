@@ -1,18 +1,22 @@
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useConversationList } from "@/hooks/useDirectMessages";
 import { useUnreadDmPerPartner } from "@/hooks/useUnreadMessages";
+import { useMyGroups } from "@/hooks/useGroupChats";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
-import { Loader2 } from "lucide-react";
+import { Loader2, Users } from "lucide-react";
 import chatIcon8 from "@/assets/chat_icon_8.png";
 
 interface Props {
   onSelectDm?: (userId: string) => void;
+  onSelectGroup?: (groupId: string) => void;
 }
 
-export function MessagesChatsTab({ onSelectDm }: Props) {
+export function MessagesChatsTab({ onSelectDm, onSelectGroup }: Props) {
   const { data: conversations = [], isLoading: loadingDms } = useConversationList();
   const { data: unreadMap } = useUnreadDmPerPartner();
+  const { data: groups = [], isLoading: loadingGroups } = useMyGroups();
   const partnerIds = conversations.map((c) => c.partnerId);
 
   const { data: profiles = [] } = useQuery({
@@ -30,7 +34,46 @@ export function MessagesChatsTab({ onSelectDm }: Props) {
 
   const profileMap = new Map(profiles.map((p) => [p.id, p]));
 
-  if (loadingDms) {
+  const threads = useMemo(() => {
+    const list: any[] = [];
+
+    for (const conv of conversations) {
+      const profile = profileMap.get(conv.partnerId);
+      const name = profile?.display_name || profile?.username || "User";
+      const resolved = profile ? resolveAvatarUrl(profile) : null;
+      list.push({
+        type: "dm",
+        id: conv.partnerId,
+        name,
+        avatar: resolved,
+        initials: name.slice(0, 2).toUpperCase(),
+        preview: conv.lastMessage.content,
+        date: new Date(conv.lastMessage.created_at).toLocaleDateString(undefined, { month: "numeric", day: "numeric" }),
+        timestamp: new Date(conv.lastMessage.created_at).getTime(),
+        unreadCount: unreadMap?.get(conv.partnerId) || 0,
+      });
+    }
+
+    for (const g of groups) {
+      const ts = g.last_message_at ? new Date(g.last_message_at).getTime() : new Date(g.created_at).getTime();
+      list.push({
+        type: "group",
+        id: g.id,
+        name: g.name,
+        avatar: g.avatar_url,
+        initials: g.name.slice(0, 2).toUpperCase(),
+        preview: g.last_message || "No messages yet",
+        date: new Date(ts).toLocaleDateString(undefined, { month: "numeric", day: "numeric" }),
+        timestamp: ts,
+        memberCount: g.member_count ?? 0,
+      });
+    }
+
+    list.sort((a, b) => b.timestamp - a.timestamp);
+    return list;
+  }, [conversations, groups, profileMap, unreadMap]);
+
+  if (loadingDms || loadingGroups) {
     return (
       <div className="flex items-center justify-center h-full">
         <Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
@@ -38,14 +81,14 @@ export function MessagesChatsTab({ onSelectDm }: Props) {
     );
   }
 
-  if (conversations.length === 0) {
+  if (threads.length === 0) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center gap-3 h-full">
         <div className="rounded-2xl p-8 text-center max-w-xs" style={{ background: "rgba(255,255,255,0.03)" }}>
           <img src={chatIcon8} alt="No messages" className="w-20 h-20 mx-auto mb-3 object-contain" style={{ opacity: 0.9 }} />
           <p className="text-sm font-medium text-white">No conversations yet</p>
           <p className="text-xs mt-1.5" style={{ color: "rgba(255,255,255,0.4)" }}>
-            Start a conversation by messaging someone from their profile.
+            Start a conversation or create a group chat.
           </p>
         </div>
       </div>
@@ -55,58 +98,59 @@ export function MessagesChatsTab({ onSelectDm }: Props) {
   return (
     <div className="flex flex-col h-full">
       <div className="p-3 space-y-1">
-        {/* DMs only — group chats removed from UI */}
-        {conversations.map((conv) => {
-          const profile = profileMap.get(conv.partnerId);
-          const name = profile?.display_name || profile?.username || "User";
-          const initials = name.slice(0, 2).toUpperCase();
-          const resolved = profile ? resolveAvatarUrl(profile) : null;
-          const preview = conv.lastMessage.content;
-          const date = new Date(conv.lastMessage.created_at).toLocaleDateString(undefined, {
-            month: "numeric",
-            day: "numeric",
-          });
-          const unreadCount = unreadMap?.get(conv.partnerId) || 0;
-
-          return (
-            <button
-              key={conv.partnerId}
-              onClick={() => onSelectDm?.(conv.partnerId)}
-              className="w-full rounded-xl p-3 flex items-start gap-3 text-left"
-              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
+        {threads.map((thread) => (
+          <button
+            key={`${thread.type}-${thread.id}`}
+            onClick={() => {
+              if (thread.type === "dm") onSelectDm?.(thread.id);
+              else onSelectGroup?.(thread.id);
+            }}
+            className="w-full rounded-xl p-3 flex items-start gap-3 text-left"
+            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
+          >
+            <div
+              className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
+              style={{
+                background: thread.type === "group" ? "rgba(168,85,247,0.2)" : "rgba(96,165,250,0.2)",
+                color: thread.type === "group" ? "rgba(168,85,247,0.9)" : "rgba(96,165,250,0.9)",
+              }}
             >
-              <div
-                className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
-                style={{ background: "rgba(96,165,250,0.2)", color: "rgba(96,165,250,0.9)" }}
-              >
-                {resolved ? (
-                  <img src={resolved} alt="" className="w-9 h-9 rounded-full object-cover" />
-                ) : (
-                  initials
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white truncate">{name}</p>
-                <p className="text-xs mt-1 truncate" style={{ color: "rgba(255,255,255,0.4)" }}>
-                  {preview}
-                </p>
-              </div>
-              <div className="flex flex-col items-end gap-1 shrink-0">
-                <span className="text-[11px]" style={{ color: "rgba(255,255,255,0.3)" }}>
-                  {date}
-                </span>
-                {unreadCount > 0 && (
-                  <span
-                    className="min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-[9px] font-bold text-white px-1"
-                    style={{ background: "#ef4444" }}
-                  >
-                    {unreadCount > 9 ? "9+" : unreadCount}
+              {thread.avatar ? (
+                <img src={thread.avatar} alt="" className="w-9 h-9 rounded-full object-cover" />
+              ) : thread.type === "group" ? (
+                <Users className="w-3.5 h-3.5" />
+              ) : (
+                thread.initials
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1">
+                <p className="text-sm font-medium text-white truncate">{thread.name}</p>
+                {thread.type === "group" && (
+                  <span className="text-[8px] px-1 py-0.5 rounded-full shrink-0" style={{ background: "rgba(168,85,247,0.15)", color: "rgba(168,85,247,0.8)" }}>
+                    Group
                   </span>
                 )}
               </div>
-            </button>
-          );
-        })}
+              <p className="text-xs mt-1 truncate" style={{ color: "rgba(255,255,255,0.4)" }}>
+                {thread.preview}
+              </p>
+            </div>
+            <div className="flex flex-col items-end gap-1 shrink-0">
+              <span className="text-[11px]" style={{ color: "rgba(255,255,255,0.3)" }}>
+                {thread.date}
+              </span>
+              {thread.type === "dm" && thread.unreadCount > 0 && (
+                <span
+                  className="min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-[9px] font-bold text-white px-1"
+                  style={{ background: "#ef4444" }}
+                >
+                  {thread.unreadCount > 9 ? "9+" : thread.unreadCount}
+                </span>
+              )}
+            </div>
+          </button>
+        ))}
       </div>
     </div>
   );
