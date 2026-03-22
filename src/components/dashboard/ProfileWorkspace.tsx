@@ -248,9 +248,9 @@ function OwnPostsTab() {
                 </button>
                 <button onClick={() => setShowEmojiPicker(p => !p)} className="p-1.5 rounded-md hover:bg-white/5" style={{ color: showEmojiPicker ? "#facc15" : "rgba(255,255,255,0.4)" }} title="Emoji"><Smile className="w-4 h-4" /></button>
               </div>
-              <button onClick={handlePost} disabled={!canPost || isPosting} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold" style={{ background: canPost ? "linear-gradient(135deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.08)", color: canPost ? "#fff" : "rgba(255,255,255,0.35)" }}>
+              <Button variant={canPost ? "accent" : "outline"} size="sm" onClick={handlePost} disabled={!canPost || isPosting} className="text-xs px-3 h-8">
                 {isPosting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />} Post
-              </button>
+              </Button>
             </div>
             {/* Type-to-suggest emoji suggestions */}
             {currentWord && (

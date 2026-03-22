@@ -52,12 +52,12 @@ export function renderChatContent(content: string, navigate?: (path: string) => 
         {cleaned && <EmojiRenderer text={cleaned} className="whitespace-pre-wrap" />}
         <div className="flex flex-wrap gap-1.5 mt-1.5">
           {hasBuyNow && (
-            <button className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-semibold text-foreground" style={{ background: "linear-gradient(135deg, #10b981, #059669)" }}>
+            <button className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20">
               🛒 Buy Now
             </button>
           )}
           {hasSellNow && (
-            <button className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-semibold text-foreground" style={{ background: "linear-gradient(135deg, #f97316, #ea580c)" }}>
+            <button className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-semibold text-accent bg-accent/10 border border-accent/20">
               🏷️ Sell Now
             </button>
           )}

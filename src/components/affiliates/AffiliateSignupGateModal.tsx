@@ -41,17 +41,9 @@ export function AffiliateSignupGateModal({ onClose }: Props) {
           Browse the marketplace to find products to promote
         </p>
 
-        <button
-          onClick={() => {
-            onClose();
-            navigate("/auth/signup");
-          }}
-          className="h-10 px-5 rounded-lg text-sm font-medium text-foreground transition-all"
-          style={{
-            background:
-              "linear-gradient(135deg, #c47a3a 0%, #a0522d 50%, #5c2a12 100%)" }}>
+        <Button variant="accent" onClick={() => { onClose(); navigate("/auth/signup"); }}>
           Browse products
-        </button>
+        </Button>
       </div>
     </div>
   );
