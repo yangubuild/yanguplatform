@@ -79,6 +79,14 @@ export function DmThreadView({ targetUserId }: Props) {
   const myAvatar = myProfile ? resolveAvatarUrl(myProfile) : null;
   const myInitials = myName.slice(0, 2).toUpperCase();
 
+  // Typing indicator
+  const dmChannelKey = useMemo(() => {
+    if (!user?.id || !targetUserId) return null;
+    const ids = [user.id, targetUserId].sort();
+    return `dm-${ids[0]}-${ids[1]}`;
+  }, [user?.id, targetUserId]);
+  const { typingUsers, startTyping, stopTyping } = useTypingIndicator(dmChannelKey, myName);
+
   // Online/offline presence (UI wired, backend deferred - uses last_seen heuristic)
   const [isOnline] = useState(false); // Deferred: no real presence backend yet
 
