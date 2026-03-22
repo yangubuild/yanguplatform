@@ -294,7 +294,7 @@ export default function ProfilePage() {
   });
 
   return (
-    <div className="max-w-2xl mx-auto py-6 px-4 min-h-screen" style={{ background: "#08120D" }}>
+    <div className="max-w-2xl mx-auto py-6 px-4 min-h-screen pb-20" style={{ background: "#08120D" }}>
       {/* Banner */}
       <div
         className="relative rounded-2xl overflow-hidden group cursor-pointer"
