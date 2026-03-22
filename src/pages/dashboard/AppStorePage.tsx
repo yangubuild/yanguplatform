@@ -47,7 +47,7 @@ export default function AppStorePage() {
   }, [apps, activeCategory]);
 
   return (
-    <div className="h-full overflow-y-auto" style={{ background: "#0F141A" }}>
+    <div className="h-full overflow-y-auto" style={{ background: "#08120D" }}>
       <div className="max-w-[1100px] mx-auto px-4 sm:px-6 pt-6 pb-16">
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">

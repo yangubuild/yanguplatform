@@ -7,7 +7,7 @@ export default function DashboardPlaceholder() {
   const title = segment.charAt(0).toUpperCase() + segment.slice(1);
 
   return (
-    <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
+    <div className="flex flex-col items-center justify-center py-24 gap-4 text-center min-h-screen" style={{ background: "#08120D" }}>
       <div
         className="flex h-16 w-16 items-center justify-center rounded-2xl"
         style={{ background: "#232a30" }}

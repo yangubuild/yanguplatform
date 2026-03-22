@@ -117,7 +117,7 @@ export default function MessagesPage() {
 
   if (isMobile) {
     return (
-      <div className="h-[calc(100vh-64px)] flex flex-col overflow-hidden" style={{ background: "#0B0F14" }}>
+      <div className="h-[calc(100vh-64px)] flex flex-col overflow-hidden" style={{ background: "#08120D" }}>
         <div className="flex items-center justify-end px-3 py-2">
           <div className="flex items-center gap-2">
             <button
@@ -179,9 +179,9 @@ export default function MessagesPage() {
     return (
       <div
         className="h-[calc(100vh-64px)] overflow-hidden"
-        style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: "0px", background: "#0B0F14" }}
+        style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: "0px", background: "#08120D" }}
       >
-        <div className="h-full overflow-hidden p-2 pr-0" style={{ background: "#0B0F14" }}>
+        <div className="h-full overflow-hidden p-2 pr-0" style={{ background: "#08120D" }}>
           <div className="h-full overflow-hidden flex flex-col" style={{ background: "#0F141A", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.06)" }}>
             <MessagesDmList
               selectedUserId={activeConversationUserId}
@@ -190,7 +190,7 @@ export default function MessagesPage() {
             />
           </div>
         </div>
-        <div className="h-full overflow-hidden p-2" style={{ background: "#0B0F14" }}>
+        <div className="h-full overflow-hidden p-2" style={{ background: "#08120D" }}>
           <div className="h-full overflow-hidden flex flex-col" style={{ background: "#0F141A", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.06)" }}>
             {centerContent}
           </div>
@@ -209,9 +209,9 @@ export default function MessagesPage() {
   return (
     <div
       className="h-[calc(100vh-64px)] overflow-hidden"
-      style={{ display: "grid", gridTemplateColumns: "300px 1fr 340px", gap: "0px", background: "#0B0F14" }}
+      style={{ display: "grid", gridTemplateColumns: "300px 1fr 340px", gap: "0px", background: "#08120D" }}
     >
-      <div className="h-full overflow-hidden p-2 pr-0" style={{ background: "#0B0F14" }}>
+      <div className="h-full overflow-hidden p-2 pr-0" style={{ background: "#08120D" }}>
         <div className="h-full overflow-hidden flex flex-col" style={{ background: "#0F141A", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.06)" }}>
           <MessagesDmList
             selectedUserId={activeConversationUserId}
@@ -221,13 +221,13 @@ export default function MessagesPage() {
         </div>
       </div>
 
-      <div className="h-full overflow-hidden p-2" style={{ background: "#0B0F14" }}>
+      <div className="h-full overflow-hidden p-2" style={{ background: "#08120D" }}>
         <div className="h-full overflow-hidden flex flex-col" style={{ background: "#0F141A", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.06)" }}>
           {centerContent}
         </div>
       </div>
 
-      <div className="h-full overflow-hidden p-2 pl-0" style={{ background: "#0B0F14" }}>
+      <div className="h-full overflow-hidden p-2 pl-0" style={{ background: "#08120D" }}>
         <div className="h-full overflow-hidden flex flex-col overflow-y-auto" style={{ background: "#0F141A", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.06)" }}>
           <MessagesDiscoverySidebar onUserClick={handleSelectConversation} />
         </div>
