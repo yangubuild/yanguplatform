@@ -205,7 +205,7 @@ function MarketplaceViewAssets({ companyName, onBack }: { companyName: string; o
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <h3 className="text-base font-semibold text-foreground">Your affiliate links — {companyName}</h3>
-          <button className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-dashed border-white/20 text-xs text-muted-foreground">
+          <button className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-dashed border-white/20 text-xs text-muted-foreground">
             <Plus className="w-3 h-3 text-muted-foreground" /> Link type
           </button>
         </div>

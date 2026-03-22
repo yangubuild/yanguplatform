@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { createPortal } from "react-dom";
 import { X, ChevronDown, Check, Search, Info, Calendar } from "lucide-react";
 import type { PromoCodeFormData } from "@/pages/dashboard/PromoCodesPage";
@@ -355,14 +356,9 @@ export function CreatePromoModal({ open, onClose, onSubmit, isSubmitting }: Prop
 
         {/* Footer */}
         <div className="px-5 py-4 border-t border-white/[0.06]">
-          <button
-            type="submit"
-            disabled={isSubmitting || !form.code.trim()}
-            onClick={handleSubmit as any}
-            className="w-full h-12 rounded-xl text-sm font-semibold text-foreground transition-all disabled:opacity-40"
-            style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}>
+          <Button variant="accent" size="lg" disabled={isSubmitting || !form.code.trim()} onClick={handleSubmit as any} className="w-full">
             {isSubmitting ? "Creating…" : "Create"}
-          </button>
+          </Button>
         </div>
       </div>
     </div>,

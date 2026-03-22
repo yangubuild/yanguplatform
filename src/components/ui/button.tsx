@@ -21,6 +21,10 @@ const buttonVariants = cva(
         solid: "text-foreground border-0 rounded-lg transition-all hover:brightness-110 [background:#152A20]",
         // yangu transparent dark green
         "dark-green": "text-muted-foreground bg-transparent border border-[#152A20]/40 rounded-lg hover:bg-[#152A20]/20 transition-all",
+        // yangu light orange tint
+        "accent-light": "text-accent bg-accent/10 border border-accent/20 rounded-lg hover:bg-accent/15 transition-all",
+        // yangu light green tint
+        "solid-light": "text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/15 transition-all",
         success: "bg-success text-success-foreground hover:bg-success/90 rounded-lg",
       },
       size: {

@@ -108,19 +108,14 @@ export function CampaignWizard({ onClose }: CampaignWizardProps) {
               <div key={step} className="flex items-center gap-2">
                 <button
                   onClick={() => i <= stepIndex && setCurrentStep(step)}
-                  className="px-6 py-2 rounded-xl text-xs font-medium transition-all"
-                  style={{
-                    background: i === stepIndex
-                      ? "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)"
+                  className={`px-6 py-2 rounded-lg text-xs font-medium transition-all ${
+                    i === stepIndex
+                      ? "[background:linear-gradient(90deg,#b5622a_0%,#5c2a12_100%)] text-foreground"
                       : i < stepIndex
-                      ? "rgba(255,255,255,0.1)"
-                      : "rgba(255,255,255,0.04)",
-                    color: i === stepIndex
-                      ? "#fff"
-                      : i < stepIndex
-                      ? "rgba(255,255,255,0.7)"
-                      : "rgba(255,255,255,0.3)",
-                    cursor: i <= stepIndex ? "pointer" : "default" }}>
+                      ? "bg-muted text-foreground/70"
+                      : "bg-muted/30 text-muted-foreground"
+                  }`}
+                  style={{ cursor: i <= stepIndex ? "pointer" : "default" }}>
                   {step}
                 </button>
                 {i < STEPS.length - 1 && (

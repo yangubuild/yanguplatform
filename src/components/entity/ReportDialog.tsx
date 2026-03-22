@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { X, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
@@ -119,9 +120,9 @@ export function ReportDialog({ entityId, entityTitle, open, onOpenChange }: Repo
                   className="w-full bg-transparent text-foreground text-sm mb-4 px-3 py-2 rounded-lg resize-none focus:outline-none"
                   style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
                 />
-                <button onClick={handleSubmit} disabled={submitting} className="w-full text-sm py-2.5 rounded-lg font-medium disabled:opacity-50" style={{ background: "linear-gradient(135deg, #c47a3a, #b5622a)" }}>
+                <Button variant="accent" onClick={handleSubmit} disabled={submitting} className="w-full">
                   {submitting ? "Submitting..." : "Submit Report"}
-                </button>
+                </Button>
               </>
             )}
           </>

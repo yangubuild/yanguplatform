@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { BadgeCheck, Loader2, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -164,16 +165,14 @@ export function VerifiedModal({ open, onOpenChange }: VerifiedModalProps) {
               Verified ✓
             </button>
           ) : (
-            <button
+            <Button
+              variant={selected && !isPending ? "accent" : "outline"}
               disabled={!selected || submitting || isPending}
               onClick={handleSubmit}
-              className="w-full py-2.5 rounded-lg text-sm font-semibold transition-opacity flex items-center justify-center gap-2"
-              style={{
-                background: selected && !isPending ? "linear-gradient(135deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.08)",
-                color: selected && !isPending ? "#fff" : "rgba(255,255,255,0.35)" }}>
+              className="w-full">
               {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
               {isPending ? "Request Pending" : "Submit Verification Request"}
-            </button>
+            </Button>
           )}
         </div>
       </DialogContent>

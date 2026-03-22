@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from "react";
+import { Button } from "@/components/ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useConversation, useSendMessage } from "@/hooks/useDirectMessages";
@@ -402,14 +403,9 @@ export function DmThreadView({ targetUserId }: Props) {
             placeholder={replyTo ? "Type a reply..." : "Type a message..."}
             className="flex-1 bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground min-w-0"
           />
-          <button
-            onClick={handleSend}
-            disabled={!message.trim()}
-            className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-            style={{
-              background: message.trim() ? "linear-gradient(135deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.08)" }}>
-            <Send className="w-3.5 h-3.5" style={{ color: message.trim() ? "#fff" : "rgba(255,255,255,0.3)" }} />
-          </button>
+          <Button variant={message.trim() ? "accent" : "outline"} size="icon" onClick={handleSend} disabled={!message.trim()} className="w-8 h-8 rounded-lg shrink-0">
+            <Send className="w-3.5 h-3.5" />
+          </Button>
         </div>
       </div>
     </div>

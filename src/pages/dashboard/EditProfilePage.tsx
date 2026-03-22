@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
@@ -44,15 +45,9 @@ export default function EditProfilePage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold text-foreground">Edit profile</h1>
-        <button
-          onClick={handleSave}
-          disabled={!hasChanges}
-          className="px-5 py-2 rounded-xl text-sm font-semibold transition-opacity"
-          style={{
-            background: hasChanges ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.06)",
-            color: hasChanges ? "#fff" : "rgba(255,255,255,0.3)" }}>
+        <Button variant={hasChanges ? "accent" : "outline"} size="sm" onClick={handleSave} disabled={!hasChanges}>
           Save changes
-        </button>
+        </Button>
       </div>
 
       <div className="h-px mb-6" style={{ background: "rgba(255,255,255,0.08)" }} />
