@@ -30,6 +30,13 @@ import { BuilderSetupAnswersPanel } from "@/components/builder/panels/BuilderSet
 import { ImageCropDialog } from "@/components/builder/ImageCropDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  MobileBuilderToolbar,
+  MobileBuilderSheet,
+  MobileBuilderDesktopNotice,
+  type MobilePanel,
+} from "@/components/builder/MobileBuilderMode";
 
 type RightPanel = "none" | "page_edit" | "section" | "setup";
 type PreviewViewport = "desktop" | "mobile";
@@ -37,6 +44,7 @@ type PreviewViewport = "desktop" | "mobile";
 export default function BuilderEditor() {
   const { surfaceId } = useParams<{ surfaceId: string }>();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [publishOpen, setPublishOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
@@ -47,6 +55,7 @@ export default function BuilderEditor() {
   const [previewViewport, setPreviewViewport] = useState<PreviewViewport>("desktop");
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showLeaveWarning, setShowLeaveWarning] = useState(false);
+  const [mobilePanel, setMobilePanel] = useState<MobilePanel>("none");
   const [cropState, setCropState] = useState<{
     open: boolean;
     imageSrc: string;
@@ -205,27 +214,32 @@ export default function BuilderEditor() {
         </div>
       )}
 
+      {/* Desktop notice for mobile users */}
+      <MobileBuilderDesktopNotice />
+
       {/* Top bar */}
-      <header className="sticky top-0 z-40 h-14 border-b border-border bg-background/80 backdrop-blur-sm flex items-center px-4 gap-4">
+      <header className="sticky top-0 z-40 h-14 border-b border-border bg-background/80 backdrop-blur-sm flex items-center px-3 lg:px-4 gap-2 lg:gap-4">
         <button
           onClick={() => safeNavigate("/dashboard")}
-          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0"
         >
-          <ArrowLeft className="h-4 w-4" /> Dashboard
+          <ArrowLeft className="h-4 w-4" /> <span className="hidden sm:inline">Dashboard</span>
         </button>
-        <div className="h-6 w-px bg-border" />
+        <div className="h-6 w-px bg-border hidden sm:block" />
         <h1 className="text-sm font-semibold truncate">{surfaceTitle}</h1>
-        <BuilderPagesDropdown
-          pages={editorState.pages}
-          activePageId={activePageId}
-          surfaceId={editorState.surface.id}
-          onSwitch={setActivePageId}
-          onRefresh={refreshEditor}
-        />
+        <div className="hidden lg:block">
+          <BuilderPagesDropdown
+            pages={editorState.pages}
+            activePageId={activePageId}
+            surfaceId={editorState.surface.id}
+            onSwitch={setActivePageId}
+            onRefresh={refreshEditor}
+          />
+        </div>
         <div className="flex-1" />
 
-        {/* Viewport toggle */}
-        <div className="flex items-center border border-border rounded-md overflow-hidden">
+        {/* Viewport toggle — desktop only */}
+        <div className="hidden lg:flex items-center border border-border rounded-md overflow-hidden">
           <button
             onClick={() => setPreviewViewport("desktop")}
             className={`flex items-center gap-1 px-2.5 py-1.5 text-xs transition-colors ${
@@ -244,25 +258,24 @@ export default function BuilderEditor() {
           </button>
         </div>
 
-        {/* Edit with Ada AI button */}
-        <Button size="sm" variant="outline" className="gap-2" onClick={() => toast.info("AI chat editor coming soon!")}>
+        {/* Desktop-only header buttons */}
+        <Button size="sm" variant="outline" className="gap-2 hidden lg:flex" onClick={() => toast.info("AI chat editor coming soon!")}>
           <Sparkles className="h-4 w-4" /> Edit with Ada AI
         </Button>
-
-        <Button size="sm" variant="outline" onClick={() => setSettingsOpen(true)} className="gap-2">
+        <Button size="sm" variant="outline" onClick={() => setSettingsOpen(true)} className="gap-2 hidden lg:flex">
           <Settings className="h-4 w-4" /> Settings
         </Button>
-        <Button size="sm" variant="outline" onClick={() => safeNavigate("/dashboard/my-business")} className="gap-2">
+        <Button size="sm" variant="outline" onClick={() => safeNavigate("/dashboard/my-business")} className="gap-2 hidden lg:flex">
           <ClipboardList className="h-4 w-4" /> View Orders
         </Button>
-        <Button size="sm" onClick={() => setPublishOpen(true)} className="gap-2">
+        <Button size="sm" onClick={() => setPublishOpen(true)} className="gap-2 hidden lg:flex">
           <Rocket className="h-4 w-4" /> Publish
         </Button>
       </header>
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left panel: Sections */}
-        <aside className="w-72 border-r border-border flex flex-col bg-sidebar overflow-y-auto">
+      <div className="flex flex-1 overflow-hidden" style={{ paddingBottom: isMobile ? 56 : 0 }}>
+        {/* Left panel: Sections — hidden on mobile */}
+        <aside className="w-72 border-r border-border flex-col bg-sidebar overflow-y-auto hidden lg:flex">
           {/* Page Edit trigger */}
           <button
             onClick={() => {
@@ -318,8 +331,8 @@ export default function BuilderEditor() {
         </aside>
 
         {/* Center: Preview */}
-        <main className="flex-1 overflow-y-auto p-6 lg:p-10">
-          <div className={`mx-auto transition-all ${previewViewport === "mobile" ? "max-w-sm" : "max-w-2xl"}`}>
+        <main className="flex-1 overflow-y-auto p-2 sm:p-6 lg:p-10">
+          <div className={`mx-auto transition-all ${isMobile ? "max-w-full" : previewViewport === "mobile" ? "max-w-sm" : "max-w-2xl"}`}>
           <BuilderPreview
             sections={sections}
             surfaceTitle={surfaceTitle}
@@ -488,8 +501,8 @@ export default function BuilderEditor() {
           </div>
         </main>
 
-        {/* Right panel */}
-        {rightPanel === "page_edit" && (
+        {/* Right panel — desktop only */}
+        {!isMobile && rightPanel === "page_edit" && (
           <BuilderPageEditPanel
             settings={pageSettings}
             onSave={async (s) => {
@@ -512,7 +525,7 @@ export default function BuilderEditor() {
             }}
           />
         )}
-        {rightPanel === "setup" && hasAiSetup && (
+        {!isMobile && rightPanel === "setup" && hasAiSetup && (
           <BuilderSetupAnswersPanel
             answers={aiAnswers}
             source={aiSource}
@@ -520,7 +533,7 @@ export default function BuilderEditor() {
             onUpdate={handleUpdateAnswers}
           />
         )}
-        {rightPanel === "section" && selectedSectionId && (() => {
+        {!isMobile && rightPanel === "section" && selectedSectionId && (() => {
           const sec = sections.find((s) => s.id === selectedSectionId);
           if (!sec || sec.isMissing) return null;
           return (
@@ -541,6 +554,117 @@ export default function BuilderEditor() {
           );
         })()}
       </div>
+
+      {/* Mobile bottom toolbar + sheets */}
+      {isMobile && (
+        <>
+          <MobileBuilderToolbar
+            activePanel={mobilePanel}
+            onOpenPanel={(panel) => {
+              if (panel === "publish") {
+                setPublishOpen(true);
+              } else if (panel === "settings") {
+                setSettingsOpen(true);
+              } else {
+                setMobilePanel(panel === mobilePanel ? "none" : panel);
+              }
+            }}
+          />
+
+          {/* Sections sheet */}
+          <MobileBuilderSheet
+            open={mobilePanel === "sections"}
+            onClose={() => setMobilePanel("none")}
+            title="Sections"
+          >
+            <div className="p-3">
+              <BuilderSectionList
+                sections={sections}
+                onReorder={reorderSections}
+                selectedId={selectedSectionId}
+                surfaceType={surfaceType}
+                onSelect={(id) => {
+                  handleSelectSection(id);
+                  setMobilePanel("editor");
+                }}
+                onSwitchMainContent={switchMainContent}
+                currentMainContentType={currentMainContentType}
+                industry={industry}
+                onVariantChange={async (sectionId, displayMode) => {
+                  const section = sections.find((s) => s.id === sectionId);
+                  if (!section) return;
+                  const newSchema = { ...section.schema, display_mode: displayMode };
+                  await updateSectionSchema(sectionId, newSchema);
+                }}
+                onDelete={async (id) => {
+                  const ok = await deleteSection(id);
+                  if (ok && selectedSectionId === id) {
+                    setSelectedSectionId(null);
+                  }
+                  return ok;
+                }}
+              />
+            </div>
+            <div className="p-3 border-t border-border">
+              <BuilderAddSection onAdd={addSection} onAddWithSchema={addSectionWithSchema} isAdding={isAdding || isSwitching} surfaceType={surfaceType} />
+            </div>
+          </MobileBuilderSheet>
+
+          {/* Editor sheet */}
+          <MobileBuilderSheet
+            open={mobilePanel === "editor"}
+            onClose={() => setMobilePanel("none")}
+            title={selectedSectionId ? (sections.find((s) => s.id === selectedSectionId)?.section_type || "Edit Section") : "Page Edit"}
+          >
+            {selectedSectionId ? (() => {
+              const sec = sections.find((s) => s.id === selectedSectionId);
+              if (!sec || sec.isMissing) return <div className="p-4 text-sm text-muted-foreground">Select a section to edit</div>;
+              return (
+                <div className="[&>aside]:w-full [&>aside]:border-0">
+                  <BuilderSectionEditor
+                    key={sec.id}
+                    section={sec}
+                    onClose={() => { setSelectedSectionId(null); setMobilePanel("none"); setLiveSchemaOverride(null); }}
+                    onSave={async (id, schema) => {
+                      await updateSectionSchema(id, schema);
+                      setLiveSchemaOverride(null);
+                    }}
+                    onToggleVisibility={toggleSectionVisibility}
+                    onLocalSchemaChange={(id, schema) => setLiveSchemaOverride({ sectionId: id, schema })}
+                    isSaving={isSavingSection}
+                    surfaceType={surfaceType}
+                    surfaceId={editorState.surface.id}
+                  />
+                </div>
+              );
+            })() : (
+              <div className="[&>aside]:w-full [&>aside]:border-0">
+                <BuilderPageEditPanel
+                  settings={pageSettings}
+                  onSave={async (s) => {
+                    await savePageSettings(s);
+                    setLivePageSettings(null);
+                  }}
+                  onClose={() => setMobilePanel("none")}
+                  isSaving={isSavingPageSettings}
+                  onLocalChange={setLivePageSettings}
+                  surfaceType={surfaceType}
+                  sections={sections}
+                  onApplyTemplate={async (sectionId, schema) => {
+                    await updateSectionSchema(sectionId, schema);
+                  }}
+                  onToggleVisible={async (sectionId) => {
+                    await toggleSectionVisibility(sectionId, true);
+                  }}
+                  onCreateSection={async (sectionType, schema, coreSlot) => {
+                    await addSectionWithSchema(sectionType, schema, { coreSlot });
+                  }}
+                />
+              </div>
+            )}
+          </MobileBuilderSheet>
+        </>
+      )}
 
       {/* Publish Modal */}
       <BuilderPublishModal
