@@ -1092,6 +1092,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
         />
       )}
       <VerifiedModal open={verifiedOpen} onOpenChange={setVerifiedOpen} />
+      <MobilePeopleSheet open={peopleSheetOpen} onOpenChange={setPeopleSheetOpen} />
     </div>
   );
 }
