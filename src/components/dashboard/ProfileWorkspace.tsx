@@ -1,4 +1,10 @@
 import { useState, useRef, useEffect } from "react";
+import { Smile } from "lucide-react";
+import { useEmojiInput } from "@/hooks/useEmojiInput";
+import { EmojiSuggestions } from "@/components/emoji/EmojiSuggestions";
+import { EmojiRenderer } from "@/components/emoji/EmojiRenderer";
+import { YanguEmojiPicker } from "@/components/emoji/YanguEmojiPicker";
+import type { YanguEmoji } from "@/lib/emojiSystem";
 import { useUserPosts, useCreatePost, useToggleReaction, uploadPostMedia, type Post } from "@/hooks/usePosts";
 import { PostInteractions } from "@/components/dashboard/PostInteractions";
 import { useProfileReviews } from "@/hooks/useProfileReviews";
@@ -119,10 +125,19 @@ function OwnPostsTab() {
   const [aiGenerating, setAiGenerating] = useState(false);
   const [buyNowEnabled, setBuyNowEnabled] = useState(false);
   const [joinNowEnabled, setJoinNowEnabled] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
-  const videoInputRef = useRef<HTMLInputElement>(null);
+  const video	InputRef = useRef<HTMLInputElement>(null);
   const avatarUrl = profile ? resolveAvatarUrl(profile) : null;
   const initials = (profile?.display_name || "U").slice(0, 2).toUpperCase();
+
+  // Emoji input hook for type-to-suggest
+  const {
+    currentWord,
+    handleInputChange: handleEmojiInputChange,
+    insertEmoji,
+    replaceCurrentWord,
+  } = useEmojiInput(text, setText);
 
   const handleFileSelect = (files: FileList | null) => {
     if (!files || files.length === 0) return;
