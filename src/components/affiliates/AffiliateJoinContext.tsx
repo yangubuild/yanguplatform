@@ -38,8 +38,7 @@ export function AffiliateJoinProvider({ children }: { children: ReactNode }) {
       isJoined,
       joinAffiliate,
       marketplaceListings: listings,
-      hotOffers: offers,
-    }}>
+      hotOffers: offers }}>
       {children}
     </AffiliateJoinCtx.Provider>
   );

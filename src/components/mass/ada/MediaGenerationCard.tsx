@@ -54,8 +54,7 @@ export function MediaGenerationCard({
                 style={{
                   background: "linear-gradient(110deg, rgba(255,255,255,0.02) 30%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.02) 70%)",
                   backgroundSize: "200% 100%",
-                  animation: "shimmer 2s ease-in-out infinite",
-                }}
+                  animation: "shimmer 2s ease-in-out infinite" }}
               />
             </div>
             <div className="relative z-10 flex flex-col items-center gap-2">

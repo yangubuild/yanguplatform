@@ -83,8 +83,7 @@ export default function ProductIdeas() {
                     top: i === 0 ? "20px" : i === 1 ? "60px" : "10px",
                     right: i === 0 ? "120px" : i === 1 ? "20px" : "60px",
                     zIndex: i === 2 ? 30 : i === 0 ? 10 : 20,
-                    transform: i === 0 ? "rotate(-4deg)" : i === 1 ? "rotate(2deg)" : "rotate(-1deg)",
-                  }}
+                    transform: i === 0 ? "rotate(-4deg)" : i === 1 ? "rotate(2deg)" : "rotate(-1deg)" }}
                 >
                   <div className="text-2xl mb-2">{card.emoji}</div>
                   <h3 className="text-sm font-semibold text-foreground leading-tight">{card.title}</h3>

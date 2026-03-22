@@ -139,7 +139,7 @@ export default function PortalBilling() {
               <code
                 key={t}
                 className="text-xs px-2 py-1.5 rounded"
-                style={{ background: "rgba(255,255,255,0.05)", }}
+                style={{ background: "rgba(255,255,255,0.05)" }}
               >
                 {t}
               </code>

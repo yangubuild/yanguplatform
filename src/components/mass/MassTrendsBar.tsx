@@ -58,16 +58,14 @@ export function MassTrendsBar() {
         <div 
           className="flex items-center gap-6 animate-scroll-left"
           style={{
-            width: 'max-content',
-          }}
+            width: 'max-content' }}
         >
           {duplicatedItems.map((item, index) => (
             <span
               key={index}
               className="shrink-0 text-sm cursor-pointer transition-colors duration-200"
               style={{
-                color: 'rgba(255,255,255,0.55)',
-              }}
+                color: 'rgba(255,255,255,0.55)' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.color = 'rgba(255,255,255,0.9)';
               }}

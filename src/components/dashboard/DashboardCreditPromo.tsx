@@ -76,8 +76,7 @@ export function DashboardCreditPromo() {
           style={{
             background: "linear-gradient(180deg, #181E26 0%, #0F141A 100%)",
             borderRadius: "20px",
-            border: "1px solid rgba(255,255,255,0.08)",
-          }}
+            border: "1px solid rgba(255,255,255,0.08)" }}
           // Hide the default close button
           onPointerDownOutside={(e) => e.preventDefault()}
           onEscapeKeyDown={(e) => e.preventDefault()}
@@ -90,8 +89,7 @@ export function DashboardCreditPromo() {
                 width: 80,
                 height: 80,
                 background: "linear-gradient(135deg, #F97316 0%, #FB923C 100%)",
-                boxShadow: "0 8px 32px rgba(249,115,22,0.35)",
-              }}
+                boxShadow: "0 8px 32px rgba(249,115,22,0.35)" }}
             >
               <span className="text-2xl font-bold text-foreground">$25</span>
             </div>
@@ -119,8 +117,7 @@ export function DashboardCreditPromo() {
               className="w-full h-12 text-base font-semibold rounded-xl"
               style={{
                 background: "linear-gradient(135deg, #F97316 0%, #FB923C 100%)", border: "none",
-                boxShadow: "0 4px 20px rgba(249,115,22,0.3)",
-              }}
+                boxShadow: "0 4px 20px rgba(249,115,22,0.3)" }}
             >
               {claiming ? "Claiming…" : "Claim"}
             </Button>
@@ -138,8 +135,7 @@ export function DashboardCreditPromo() {
           style={{
             background: "linear-gradient(180deg, #181E26 0%, #0F141A 100%)",
             borderRadius: "20px",
-            border: "1px solid rgba(255,255,255,0.08)",
-          }}
+            border: "1px solid rgba(255,255,255,0.08)" }}
         >
           <div className="flex flex-col items-center px-8 pt-10 pb-8">
             {/* Title */}
@@ -157,8 +153,7 @@ export function DashboardCreditPromo() {
                 width: 160,
                 height: 72,
                 background: "linear-gradient(135deg, #F97316 0%, #FB923C 100%)",
-                boxShadow: "0 8px 32px rgba(249,115,22,0.35)",
-              }}
+                boxShadow: "0 8px 32px rgba(249,115,22,0.35)" }}
             >
               <span className="text-2xl font-bold text-foreground">
                 {newBalance.toLocaleString()}
@@ -178,8 +173,7 @@ export function DashboardCreditPromo() {
               className="w-full h-12 text-base font-semibold rounded-xl"
               style={{
                 background: "linear-gradient(135deg, #F97316 0%, #FB923C 100%)", border: "none",
-                boxShadow: "0 4px 20px rgba(249,115,22,0.3)",
-              }}
+                boxShadow: "0 4px 20px rgba(249,115,22,0.3)" }}
             >
               Continue
             </Button>

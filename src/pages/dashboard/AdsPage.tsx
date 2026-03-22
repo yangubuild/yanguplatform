@@ -14,7 +14,7 @@ export default function AdsPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "#08120D" }}>
+    <div className="min-h-screen bg-background" >
       <div className="max-w-5xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">

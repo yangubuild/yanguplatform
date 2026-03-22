@@ -76,8 +76,7 @@ export default function BookTitleGenerator() {
                     top: i === 0 ? "30px" : i === 1 ? "70px" : "0px",
                     right: i === 0 ? "140px" : i === 1 ? "10px" : "70px",
                     zIndex: i === 2 ? 30 : i === 0 ? 10 : 20,
-                    transform: i === 0 ? "rotate(-6deg)" : i === 1 ? "rotate(3deg)" : "rotate(-2deg)",
-                  }}
+                    transform: i === 0 ? "rotate(-6deg)" : i === 1 ? "rotate(3deg)" : "rotate(-2deg)" }}
                 >
                   <div className="text-2xl mb-2">{card.emoji}</div>
                   <h3 className="text-sm font-bold text-foreground leading-tight uppercase tracking-wide">{card.title}</h3>

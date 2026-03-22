@@ -49,8 +49,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
             background: BANNER_CONTRACT.defaultBg,
             border: BANNER_CONTRACT.borderStyle,
             minHeight: BANNER_CONTRACT.minHeight,
-            overflow: "visible",
-          }}
+            overflow: "visible" }}
         >
           {/* Clip inner content for left/right edges but allow vertical overflow */}
           <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none" style={{ zIndex: 0 }} />
@@ -71,8 +70,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
                 className="px-7 py-2.5 rounded-lg text-foreground text-sm font-medium transition-all hover:brightness-110"
                 style={{
                    background: "linear-gradient(135deg, #c47a3a 0%, #a0622e 50%, #5c2a12 100%)",
-                   border: "none",
-                 }}
+                   border: "none" }}
               >
                 {data.cta_text ?? "Learn more"}
               </button>
@@ -88,8 +86,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
               transform: "translateY(-48%)",
               width: "400px",
               height: "440px",
-              zIndex: 20,
-            }}
+              zIndex: 20 }}
           >
             <img
               src={enterpriseMachine}
@@ -108,8 +105,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
               top: "42%",
               width: "44px",
               height: "44px",
-              zIndex: 25,
-            }}
+              zIndex: 25 }}
           >
             <img src={enterpriseCoin} alt="" className="w-full h-full object-contain" />
           </div>
@@ -123,8 +119,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
               transform: "translateX(-50%)",
               width: "100px",
               height: "100px",
-              zIndex: 25,
-            }}
+              zIndex: 25 }}
           >
             <img src={enterpriseCoin} alt="" className="w-full h-full object-contain" />
           </div>
@@ -141,8 +136,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
           className={`${BANNER_CONTRACT.radiusClass} overflow-hidden relative cursor-pointer`}
           style={{
             minHeight: BANNER_CONTRACT.minHeight,
-            border: BANNER_CONTRACT.borderStyle,
-          }}
+            border: BANNER_CONTRACT.borderStyle }}
           onClick={handleBannerClick}
         >
           <img
@@ -182,8 +176,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
           background: BANNER_CONTRACT.defaultBg,
           border: BANNER_CONTRACT.borderStyle,
           minHeight: BANNER_CONTRACT.minHeight,
-          overflow: "visible",
-        }}
+          overflow: "visible" }}
       >
         {/* Left text block — unchanged */}
         <div className="relative z-10 p-6 sm:p-8 md:p-10 lg:p-14 flex items-center" style={{ minHeight: BANNER_CONTRACT.minHeight }}>
@@ -208,8 +201,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
             top: "-60px",
             width: "480px",
             height: "380px",
-            zIndex: 15,
-          }}
+            zIndex: 15 }}
         >
           <img
             src={treasuryWallet}
@@ -228,8 +220,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
             transform: "translateX(-50%)",
             width: "130px",
             height: "200px",
-            zIndex: 25,
-          }}
+            zIndex: 25 }}
         >
           <img
             src={treasuryLight}

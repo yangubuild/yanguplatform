@@ -80,8 +80,7 @@ export function PostCard({ post, toggleReaction, onAuthorClick, compact }: PostC
                   className="rounded-lg object-cover"
                   style={{
                     maxHeight: "300px",
-                    width: post.media_urls.length > 1 ? "calc(50% - 2px)" : "100%",
-                  }}
+                    width: post.media_urls.length > 1 ? "calc(50% - 2px)" : "100%" }}
                   loading="lazy"
                 />
               ))}

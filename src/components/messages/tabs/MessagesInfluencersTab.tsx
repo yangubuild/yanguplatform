@@ -126,8 +126,7 @@ export function MessagesInfluencersTab({ onSelectCreator }: Props) {
                 color: activeQuery.toLowerCase() === cat.toLowerCase()
                   ? "#f59e0b"
                   : "rgba(255,255,255,0.5)",
-                border: `1px solid ${activeQuery.toLowerCase() === cat.toLowerCase() ? "rgba(181,98,42,0.4)" : "rgba(255,255,255,0.06)"}`,
-              }}
+                border: `1px solid ${activeQuery.toLowerCase() === cat.toLowerCase() ? "rgba(181,98,42,0.4)" : "rgba(255,255,255,0.06)"}` }}
             >
               {cat}
             </button>
@@ -205,8 +204,7 @@ export function MessagesInfluencersTab({ onSelectCreator }: Props) {
                             className="text-[9px] px-1.5 py-0.5 rounded shrink-0"
                             style={{
                               background: isService ? "rgba(168,85,247,0.15)" : "rgba(96,165,250,0.15)",
-                              color: isService ? "rgba(168,85,247,0.8)" : "rgba(96,165,250,0.8)",
-                            }}
+                              color: isService ? "rgba(168,85,247,0.8)" : "rgba(96,165,250,0.8)" }}
                           >
                             {isService ? "Service" : "Product"}
                           </span>
@@ -237,7 +235,7 @@ export function MessagesInfluencersTab({ onSelectCreator }: Props) {
                     >
                       <div
                         className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
-                        style={{ background: "rgba(255,255,255,0.08)", }}
+                        style={{ background: "rgba(255,255,255,0.08)" }}
                       >
                         {resolved ? (
                           <img src={resolved} alt="" className="w-10 h-10 rounded-full object-cover" />

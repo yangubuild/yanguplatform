@@ -112,8 +112,7 @@ const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
           scrollPrev,
           scrollNext,
           canScrollPrev,
-          canScrollNext,
-        }}
+          canScrollNext }}
       >
         <div
           ref={ref}

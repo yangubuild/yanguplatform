@@ -88,8 +88,7 @@ export function BlogFeaturedGrid() {
           display: "grid",
           gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1.6fr) 320px",
           gridTemplateRows: "1fr 1fr",
-          gap: "28px 28px",
-        }}
+          gap: "28px 28px" }}
       >
         {/* Left col — 2 stacked cards, each in its own row */}
         {topCards.map((a, i) => (

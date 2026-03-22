@@ -99,8 +99,7 @@ export function PerformancePanel({ isAdmin }: PerformancePanelProps) {
                         ? "hsl(160 84% 39%)"
                         : bar.value < 1000
                         ? "hsl(25 85% 45%)"
-                        : "hsl(0 72% 51%)",
-                    }}
+                        : "hsl(0 72% 51%)" }}
                   />
                 </div>
               </div>

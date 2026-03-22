@@ -102,8 +102,7 @@ export function renderChatContent(content: string, navigate?: (path: string) => 
               className="inline-flex items-center gap-2 mt-1 mb-1 px-3 py-2.5 rounded-xl text-[11px] font-medium text-foreground no-underline break-all"
               style={{
                 background: info.bgGradient,
-                border: `1px solid ${info.borderColor}`,
-              }}
+                border: `1px solid ${info.borderColor}` }}
             >
               <span className="text-base">{info.icon}</span>
               <div className="flex flex-col min-w-0">

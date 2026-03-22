@@ -343,8 +343,7 @@ export default function ProductDescriptions() {
             className="flex-1 overflow-y-auto"
             style={{
               backgroundImage: "radial-gradient(circle, hsl(var(--border)) 1px, transparent 1px)",
-              backgroundSize: "20px 20px",
-            }}
+              backgroundSize: "20px 20px" }}
           >
             {activeTab === "logs" && (
               <div className="p-5 space-y-1 font-mono text-xs">

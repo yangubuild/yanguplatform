@@ -653,7 +653,7 @@ export default function VideoEditorPage() {
   };
 
   return (
-    <div className="h-screen w-full flex flex-col overflow-hidden" style={{ background: "#08120D" }}>
+    <div className="h-screen w-full flex flex-col overflow-hidden bg-background" >
       {/* ═══ TOP BAR ═══ */}
       <div className="h-12 flex items-center justify-between px-4 border-b border-border/20 shrink-0">
         <button

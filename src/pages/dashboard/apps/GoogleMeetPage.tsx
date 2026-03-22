@@ -109,7 +109,7 @@ export default function GoogleMeetPage() {
   }, [startDate]);
 
   return (
-    <div className="w-full min-h-screen px-6 py-6" style={{ background: "#08120D" }}>
+    <div className="w-full min-h-screen px-6 py-6 bg-background" >
       <button
         onClick={() => navigate("/dashboard/my-apps")}
         className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm mb-6 transition-colors"

@@ -29,7 +29,7 @@ export function WhyYanguPage() {
   }, [audience]);
 
   return (
-    <div className="min-h-screen" style={{ background: "#08120D" }}>
+    <div className="min-h-screen bg-background" >
       {/* Mobile menu button */}
       <button
         onClick={() => setSidebarOpen(true)}

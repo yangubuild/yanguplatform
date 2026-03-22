@@ -200,8 +200,7 @@ export function DmThreadView({ targetUserId }: Props) {
             className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2"
             style={{
               background: isOnline ? "#22c55e" : "#6b7280",
-              borderColor: "#0F141A",
-            }}
+              borderColor: "#0F141A" }}
           />
         </div>
         <div className="flex-1">
@@ -296,7 +295,7 @@ export function DmThreadView({ targetUserId }: Props) {
                        background: isMine ? "rgba(255, 255, 255, 0.12)" : "rgba(255, 255, 255, 0.06)",
                        backdropFilter: "blur(16px)",
                        WebkitBackdropFilter: "blur(16px)",
-                       border: isMine ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(255,255,255,0.07)", }}
+                       border: isMine ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(255,255,255,0.07)" }}
                   >
                     {renderContent(msg.content)}
                     <p className="text-[9px] mt-1 text-muted-foreground">
@@ -426,8 +425,7 @@ export function DmThreadView({ targetUserId }: Props) {
             disabled={!message.trim()}
             className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
             style={{
-              background: message.trim() ? "linear-gradient(135deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.08)",
-            }}
+              background: message.trim() ? "linear-gradient(135deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.08)" }}
           >
             <Send className="w-3.5 h-3.5" style={{ color: message.trim() ? "#fff" : "rgba(255,255,255,0.3)" }} />
           </button>

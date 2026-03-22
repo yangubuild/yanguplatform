@@ -294,7 +294,7 @@ export default function ProfilePage() {
   });
 
   return (
-    <div className="max-w-2xl mx-auto py-6 px-4 min-h-screen pb-20" style={{ background: "#08120D" }}>
+    <div className="max-w-2xl mx-auto py-6 px-4 min-h-screen pb-20 bg-background" >
       {/* Banner */}
       <div
         className="relative rounded-2xl overflow-hidden group cursor-pointer"
@@ -304,8 +304,7 @@ export default function ProfilePage() {
             ? `url(${coverUrl}) center/cover no-repeat`
             : !coverUrl ? "#2a3038" : undefined,
           overflow: "hidden",
-          position: "relative",
-        }}
+          position: "relative" }}
         onClick={() => coverInputRef.current?.click()}
       >
         {/* Positioned cover image with crop data */}
@@ -320,8 +319,7 @@ export default function ProfilePage() {
               left: "50%",
               top: "50%",
               transform: `translate(calc(-50% + ${coverCrop.x}px), calc(-50% + ${coverCrop.y}px)) scale(${coverCrop.scale})`,
-              transformOrigin: "center center",
-            }}
+              transformOrigin: "center center" }}
           />
         )}
         {/* Hidden cover file input */}
@@ -381,7 +379,7 @@ export default function ProfilePage() {
           className="w-24 h-24 rounded-full flex items-center justify-center text-2xl font-bold overflow-hidden group relative"
           style={avatarSrc
             ? { background: "transparent" }
-            : { borderWidth: 4, borderStyle: "solid", borderColor: "#1a2025", background: "#2a3038", }
+            : { borderWidth: 4, borderStyle: "solid", borderColor: "#1a2025", }
           }
           title="Change avatar"
         >
@@ -412,7 +410,7 @@ export default function ProfilePage() {
               onClick={handleSave}
               disabled={saving}
               className="px-5 py-2 rounded-xl text-sm font-semibold transition-opacity"
-              style={{ background: "rgba(255,255,255,0.12)", }}
+              style={{ background: "rgba(255,255,255,0.12)" }}
             >
               {saving ? "Saving..." : "Save changes"}
             </button>
@@ -428,7 +426,7 @@ export default function ProfilePage() {
                 value={name}
                 onChange={(e) => setName(e.target.value.slice(0, 100))}
                 className="w-full rounded-xl px-4 py-3 text-sm text-foreground outline-none"
-                style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.1)" }}
+                style={{ border: "1px solid rgba(255,255,255,0.1)" }}
               />
               <p className="text-right text-xs mt-1 text-muted-foreground">{name.length}/100</p>
             </div>
@@ -440,7 +438,7 @@ export default function ProfilePage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value.slice(0, 42))}
                 className="w-full rounded-xl px-4 py-3 text-sm text-foreground outline-none"
-                style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.1)" }}
+                style={{ border: "1px solid rgba(255,255,255,0.1)" }}
               />
               <p className="text-right text-xs mt-1 text-muted-foreground">{username.length}/42</p>
             </div>
@@ -454,7 +452,7 @@ export default function ProfilePage() {
                 placeholder="No bio"
                 rows={3}
                 className="w-full rounded-xl px-4 py-3 text-sm text-foreground outline-none resize-none"
-                style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.1)" }}
+                style={{ border: "1px solid rgba(255,255,255,0.1)" }}
               />
               <p className="text-right text-xs mt-1 text-muted-foreground">{bio.length}/200</p>
             </div>
@@ -485,8 +483,7 @@ export default function ProfilePage() {
                         : hasLink
                         ? "2px solid rgba(255,255,255,0.3)"
                         : "1px solid rgba(255,255,255,0.12)",
-                      opacity: hasLink || isExpanded ? 1 : 0.5,
-                    }}
+                      opacity: hasLink || isExpanded ? 1 : 0.5 }}
                     title={s.name}
                   >
                     <img src={s.icon} alt={s.name} className="w-6 h-6 object-contain" />
@@ -515,7 +512,7 @@ export default function ProfilePage() {
               return (
                 <div
                   className="mt-4 flex items-center gap-3 rounded-xl px-4 py-3"
-                  style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.1)" }}
+                  style={{ border: "1px solid rgba(255,255,255,0.1)" }}
                 >
                   <img src={platform.icon} alt={platform.name} className="w-6 h-6 object-contain shrink-0" />
                   <input
@@ -718,7 +715,6 @@ export default function ProfilePage() {
                 >
                   <div
                     className="w-12 h-12 rounded-xl flex items-center justify-center text-sm font-bold shrink-0"
-                    style={{ background: "#2a3038", }}
                   >
                     {item.initials}
                   </div>
@@ -813,8 +809,7 @@ function ProfileAppRow({ item, appIcon, navigate }: { item: any; appIcon: string
           className="text-[11px] px-2 py-0.5 rounded-md"
           style={{
             background: item.status === "connected" ? "rgba(74,222,128,0.1)" : "rgba(255,255,255,0.06)",
-            color: item.status === "connected" ? "rgb(74,222,128)" : "rgba(255,255,255,0.5)",
-          }}
+            color: item.status === "connected" ? "rgb(74,222,128)" : "rgba(255,255,255,0.5)" }}
         >
           {item.status === "connected" ? "✓ Connected" : "Installed"}
         </span>
@@ -839,7 +834,7 @@ function ToggleRow({
       <div className="flex items-center gap-3">
         <div
           className="w-10 h-10 rounded-full flex items-center justify-center"
-          style={{ background: "#232a30" }}
+          
         >
           <Icon className="w-5 h-5 text-muted-foreground" />
         </div>

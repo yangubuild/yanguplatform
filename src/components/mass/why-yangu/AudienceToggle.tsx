@@ -34,7 +34,7 @@ export function AudienceToggle({ value, onChange }: AudienceToggleProps) {
         className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
         style={{
           background: "rgba(255,255,255,0.06)",
-          border: "1px solid rgba(255,255,255,0.12)", }}
+          border: "1px solid rgba(255,255,255,0.12)" }}
       >
         {current.label}
         <ChevronUp
@@ -49,8 +49,7 @@ export function AudienceToggle({ value, onChange }: AudienceToggleProps) {
           style={{
             background: "rgba(10, 23, 16, 0.85)",
             backdropFilter: "blur(12px)",
-            border: "1px solid rgba(255,255,255,0.12)",
-          }}
+            border: "1px solid rgba(255,255,255,0.12)" }}
         >
           {audiences.map((a) => (
             <button
@@ -61,8 +60,7 @@ export function AudienceToggle({ value, onChange }: AudienceToggleProps) {
               }}
               className="w-full text-left px-4 py-2.5 text-sm flex items-center justify-between transition-colors hover:bg-white/5"
               style={{
-                color: a.value === value ? "#F46D2A" : "rgba(255,255,255,0.7)",
-              }}
+                color: a.value === value ? "#F46D2A" : "rgba(255,255,255,0.7)" }}
             >
               {a.label}
               {a.value === value && <Check className="w-4 h-4" style={{ color: "#F46D2A" }} />}

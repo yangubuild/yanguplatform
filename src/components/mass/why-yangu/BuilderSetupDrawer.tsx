@@ -41,8 +41,7 @@ export function BuilderSetupDrawer({ open, onOpenChange, selectedKeys }: Builder
         className="w-full sm:max-w-md border-l"
         style={{
           background: "#0a170f",
-          borderColor: "rgba(255,255,255,0.1)",
-        }}
+          borderColor: "rgba(255,255,255,0.1)" }}
       >
         <SheetHeader className="mb-6">
           <SheetTitle className="text-foreground text-xl">Your yangu setup</SheetTitle>
@@ -58,8 +57,7 @@ export function BuilderSetupDrawer({ open, onOpenChange, selectedKeys }: Builder
               className="flex items-center gap-3 rounded-lg px-4 py-3"
               style={{
                 background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.08)",
-              }}
+                border: "1px solid rgba(255,255,255,0.08)" }}
             >
               <div
                 className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"

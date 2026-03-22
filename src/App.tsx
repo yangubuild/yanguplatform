@@ -220,7 +220,7 @@ const App = () => (
             <PublicRouteResolver>
               <DomainGate>
               <RouteErrorBoundary>
-              <Suspense fallback={<div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#08120D" }}><img src="/yangu-y-loader.png" alt="Loading" width={40} height={40} style={{ animation: "spin 1.4s linear infinite" }} /></div>}>
+              <Suspense fallback={<div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}><img src="/yangu-y-loader.png" alt="Loading" width={40} height={40} style={{ animation: "spin 1.4s linear infinite" }} /></div>}>
               <Routes>
                 {/* Public routes */}
                 <Route path="/" element={<Index />} />

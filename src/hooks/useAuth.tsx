@@ -189,8 +189,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated,
         needsOnboarding: !!needsOnboarding,
         signOut,
-        refreshProfile,
-      }}
+        refreshProfile }}
     >
       {children}
     </AuthContext.Provider>

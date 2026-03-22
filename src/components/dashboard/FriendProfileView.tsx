@@ -161,15 +161,14 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
           onClick={interactive ? () => setReviewRating(i + 1) : undefined}
           style={{
             color: i < rating ? "#f59e0b" : "rgba(255,255,255,0.15)",
-            fill: i < rating ? "#f59e0b" : "transparent",
-          }}
+            fill: i < rating ? "#f59e0b" : "transparent" }}
         />
       ))}
     </div>
   );
 
   return (
-    <div className="flex flex-col h-full" style={{ background: "#0f141a" }}>
+    <div className="flex flex-col h-full bg-card" >
       {/* Top bar with back */}
       <div
         className="flex items-center gap-3 px-5 py-2.5 shrink-0"
@@ -188,8 +187,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
           style={{
             background: user.cover_url
               ? `url(${user.cover_url}) center/cover no-repeat`
-              : "linear-gradient(135deg, #0d3a27 0%, #061a12 100%)",
-          }}
+              : "linear-gradient(135deg, #0d3a27 0%, #061a12 100%)" }}
         />
 
         {/* Profile header */}
@@ -198,7 +196,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
             className="w-[80px] h-[80px] rounded-full flex items-center justify-center text-xl font-bold overflow-hidden"
             style={{
               background: resolvedAvatar ? "transparent" : "#1e293b",
-              border: "4px solid #0f141a", }}
+              border: "4px solid #0f141a" }}
           >
             {resolvedAvatar ? (
               <img src={resolvedAvatar} alt="" className="w-full h-full rounded-full object-cover" />
@@ -226,7 +224,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
             {isCommunityType ? (
               <button
                 className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold shrink-0"
-                style={{ background: "#22c55e", }}
+                style={{ background: "#22c55e" }}
               >
                 <Users className="w-3.5 h-3.5" /> Join
               </button>
@@ -318,7 +316,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
                       ) : (
                         <div
                           className="h-24 flex items-center justify-center text-3xl font-bold"
-                          style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)", }}
+                          style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)" }}
                         >
                           {(surface.title || "S").charAt(0)}
                         </div>
@@ -360,8 +358,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
                   className="mt-2 flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold"
                   style={{
                     background: reviewRating > 0 ? "linear-gradient(135deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.08)",
-                    color: reviewRating > 0 ? "#fff" : "rgba(255,255,255,0.35)",
-                  }}
+                    color: reviewRating > 0 ? "#fff" : "rgba(255,255,255,0.35)" }}
                 >
                   <Send className="w-3.5 h-3.5" /> Submit
                 </button>

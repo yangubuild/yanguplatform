@@ -126,8 +126,7 @@ export function AdaContentSections() {
       <section
         className="px-6 py-20"
         style={{
-          background: "radial-gradient(ellipse at 50% 0%, rgba(212,149,43,0.12) 0%, transparent 60%)",
-        }}
+          background: "radial-gradient(ellipse at 50% 0%, rgba(212,149,43,0.12) 0%, transparent 60%)" }}
       >
         <div className="max-w-5xl mx-auto">
           <h2
@@ -203,8 +202,7 @@ function ReviewCard({ name, text }: { name: string; text: string }) {
       className="rounded-xl p-5"
       style={{
         background: "rgba(255,255,255,0.03)",
-        border: "1px solid rgba(255,255,255,0.07)",
-      }}
+        border: "1px solid rgba(255,255,255,0.07)" }}
     >
       <p className="text-muted-foreground text-sm leading-relaxed mb-3">"{text}"</p>
       <p className="text-muted-foreground text-xs font-medium">{name}</p>

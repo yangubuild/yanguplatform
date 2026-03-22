@@ -196,15 +196,13 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
               onClick={() => setSelectedRole(role.name)}
               className="w-full flex items-center justify-between px-3 py-4 rounded-lg transition-colors"
               style={{
-                background: selectedRole === role.name ? "rgba(181,98,42,0.12)" : "transparent",
-              }}
+                background: selectedRole === role.name ? "rgba(181,98,42,0.12)" : "transparent" }}
             >
               <div className="flex items-center gap-3">
                 <div
                   className="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0"
                   style={{
-                    borderColor: selectedRole === role.name ? "#E67E22" : "rgba(255,255,255,0.2)",
-                  }}
+                    borderColor: selectedRole === role.name ? "#E67E22" : "rgba(255,255,255,0.2)" }}
                 >
                   {selectedRole === role.name && (
                     <div className="w-2.5 h-2.5 rounded-full" style={{ background: "#E67E22" }} />
@@ -256,7 +254,7 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
                     className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-white/5 transition-colors text-left"
                   >
                     <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
-                      style={{ background: resolved ? "transparent" : "rgba(255,255,255,0.1)", }}>
+                      style={{ background: resolved ? "transparent" : "rgba(255,255,255,0.1)" }}>
                       {resolved ? (
                         <img src={resolved} alt="" className="w-8 h-8 rounded-full object-cover" />
                       ) : (
@@ -309,8 +307,7 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
             style={{
               background: selectedUser && selectedRole && activeOrg ? "linear-gradient(135deg, #c47a3a, #5c2a12)" : "rgba(255,255,255,0.08)",
               color: selectedUser && selectedRole && activeOrg ? "#fff" : "rgba(255,255,255,0.35)",
-              cursor: selectedUser && selectedRole && activeOrg ? "pointer" : "not-allowed",
-            }}
+              cursor: selectedUser && selectedRole && activeOrg ? "pointer" : "not-allowed" }}
             disabled={!selectedUser || !selectedRole || inviting || !activeOrg}
             onClick={handleInvite}
           >

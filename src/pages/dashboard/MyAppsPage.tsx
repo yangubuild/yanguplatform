@@ -108,7 +108,7 @@ export default function MyAppsPage() {
   };
 
   return (
-    <div className="w-full min-h-screen px-6 py-6" style={{ background: "#08120D" }}>
+    <div className="w-full min-h-screen px-6 py-6 bg-background" >
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-semibold text-foreground">My Apps</h1>
         <Button
@@ -159,8 +159,7 @@ export default function MyAppsPage() {
                 className="rounded-xl p-4 flex flex-col gap-3"
                 style={{
                   background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.06)",
-                }}
+                  border: "1px solid rgba(255,255,255,0.06)" }}
               >
                 <div className="flex items-start gap-3">
                   <img

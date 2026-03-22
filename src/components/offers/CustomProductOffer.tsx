@@ -236,8 +236,7 @@ export function CustomProductOffer() {
               className={`h-[82px] rounded-2xl border px-4 py-3 sm:h-[88px]`}
               style={{
                 background: "#ffffff",
-                borderColor: stat.highlight ? YANGU_ORANGE_BORDER_35 : "rgba(0,0,0,0.08)",
-              }}
+                borderColor: stat.highlight ? YANGU_ORANGE_BORDER_35 : "rgba(0,0,0,0.08)" }}
             >
               <div className="flex h-full items-center justify-between gap-2">
                 <div>

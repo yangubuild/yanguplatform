@@ -96,8 +96,7 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
                 className="h-full rounded-full transition-all duration-300"
                 style={{
                   width: `${reachPercent}%`,
-                  background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)",
-                }}
+                  background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
               />
             </div>
             <Button
@@ -158,8 +157,7 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
                   border:
                     data.dailyBudget === b
                       ? "none"
-                      : "1px solid rgba(255,255,255,0.1)",
-                }}
+                      : "1px solid rgba(255,255,255,0.1)" }}
               >
                 ${b}/day
               </button>
@@ -274,8 +272,7 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
                 onClick={handlePayConfirm}
                 className="w-full py-3 rounded-xl text-foreground font-semibold text-base transition-opacity hover:opacity-90"
                 style={{
-                  background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)",
-                }}
+                  background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
               >
                 Pay ${data.dailyBudget.toFixed(2)}
               </button>

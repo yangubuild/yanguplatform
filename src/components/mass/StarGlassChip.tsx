@@ -16,8 +16,7 @@ export function StarGlassChip({ className = "" }: StarGlassChipProps) {
         boxShadow: `
           inset 0 1px 0 rgba(255,255,255,0.08),
           inset 0 -1px 0 rgba(0,0,0,0.15)
-        `,
-      }}
+        ` }}
     >
       {/* Animated silver shimmer effect */}
       <span
@@ -34,14 +33,13 @@ export function StarGlassChip({ className = "" }: StarGlassChipProps) {
             transparent 100%
           )`,
           backgroundSize: "250% 100%",
-          animation: "silverShimmer 2.5s ease-in-out infinite",
-        }}
+          animation: "silverShimmer 2.5s ease-in-out infinite" }}
       />
       <span
         className="relative z-10"
         style={{
           fontSize: "10px",
-          lineHeight: 1, }}
+          lineHeight: 1 }}
       >
         ★
       </span>

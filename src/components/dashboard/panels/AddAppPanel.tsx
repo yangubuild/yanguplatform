@@ -154,7 +154,7 @@ export function AddAppPanel() {
               >
                 <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold shrink-0 overflow-hidden"
-                  style={{ background: "rgba(255,255,255,0.1)", }}
+                  style={{ background: "rgba(255,255,255,0.1)" }}
                 >
                   {icon ? (
                     <img src={icon} alt={app.name} className="w-8 h-8 rounded-lg object-cover" />
@@ -173,7 +173,7 @@ export function AddAppPanel() {
                 <button
                   onClick={() => handleAddApp(app)}
                   className="px-3 py-1 rounded-md text-xs font-semibold shrink-0"
-                  style={{ background: "#22c55e", }}
+                  style={{ background: "#22c55e" }}
                 >
                   Add
                 </button>

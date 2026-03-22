@@ -116,8 +116,7 @@ export default function StoreInstall() {
                       }`}
                       style={{
                         background: selectedOrgId === org.id ? "rgba(244,109,42,0.08)" : "rgba(255,255,255,0.03)",
-                        border: selectedOrgId === org.id ? "1px solid rgba(244,109,42,0.3)" : "1px solid rgba(255,255,255,0.08)",
-                      }}
+                        border: selectedOrgId === org.id ? "1px solid rgba(244,109,42,0.3)" : "1px solid rgba(255,255,255,0.08)" }}
                     >
                       <div className="flex items-center justify-between">
                         <div>

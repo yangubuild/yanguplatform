@@ -47,7 +47,7 @@ export default function AppStorePage() {
   }, [apps, activeCategory]);
 
   return (
-    <div className="h-full overflow-y-auto" style={{ background: "#08120D" }}>
+    <div className="h-full overflow-y-auto bg-background" >
       <div className="max-w-[1100px] mx-auto px-4 sm:px-6 pt-6 pb-16">
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
@@ -67,8 +67,7 @@ export default function AppStorePage() {
             className="mx-auto max-w-[640px] rounded-2xl p-4 relative"
             style={{
               background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.08)",
-            }}
+              border: "1px solid rgba(255,255,255,0.08)" }}
           >
             <textarea
               value={prompt}
@@ -83,8 +82,7 @@ export default function AppStorePage() {
                 style={{
                   background: prompt.trim()
                     ? "linear-gradient(135deg, #b5622a, #5c2a12)"
-                    : "rgba(255,255,255,0.08)",
-                }}
+                    : "rgba(255,255,255,0.08)" }}
               >
                 <ArrowUp className="w-4 h-4 text-foreground" />
               </button>
@@ -130,8 +128,7 @@ export default function AppStorePage() {
                 color:
                   activeCategory === cat.slug
                     ? "rgba(255,255,255,0.90)"
-                    : "rgba(255,255,255,0.40)",
-              }}
+                    : "rgba(255,255,255,0.40)" }}
             >
               {cat.name}
             </button>
@@ -232,8 +229,7 @@ function AppCard({ app, index, userId, queryClient }: { app: AppRegistryEntry; i
       className="rounded-xl p-4 flex flex-col gap-3"
       style={{
         background: "rgba(255,255,255,0.03)",
-        border: "1px solid rgba(255,255,255,0.06)",
-      }}
+        border: "1px solid rgba(255,255,255,0.06)" }}
     >
       <div className="flex items-start gap-3">
         <img
@@ -257,8 +253,7 @@ function AppCard({ app, index, userId, queryClient }: { app: AppRegistryEntry; i
           style={{
             background: isInstalled
               ? "rgba(255,255,255,0.08)"
-              : "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)",
-          }}
+              : "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
         >
           {installing ? (
             <Loader2 className="w-3 h-3 animate-spin" />

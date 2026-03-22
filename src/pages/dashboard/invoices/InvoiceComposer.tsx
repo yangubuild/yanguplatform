@@ -71,14 +71,13 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
   return (
     <div
       className="flex flex-col md:flex-row w-full min-h-[calc(100vh-64px)]"
-      style={{ background: "#08120D" }}
+      
     >
       {/* Left panel — form */}
       <div
         className="invoice-left flex flex-col shrink-0 overflow-y-auto w-full md:w-[min(540px,42%)]"
         style={{
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
-        }}
+          borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
         <style>{`@media (min-width: 768px) { .invoice-left { border-right: 1px solid rgba(255,255,255,0.06) !important; border-bottom: none !important; } }`}</style>
         {/* Top header */}
@@ -169,8 +168,7 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
                 className="flex-1 py-2.5 text-sm font-medium transition-colors"
                 style={{
                   background: form.billingType === t ? "rgba(255,255,255,0.12)" : "transparent",
-                  color: form.billingType === t ? "white" : "rgba(255,255,255,0.45)",
-                }}
+                  color: form.billingType === t ? "white" : "rgba(255,255,255,0.45)" }}
               >
                 {t === "one-time" ? "One-time" : "Recurring"}
               </button>
@@ -220,7 +218,7 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
                 className="px-3 py-1 rounded-md text-xs font-medium"
                 style={{
                   background: "rgba(255,255,255,0.06)",
-                  border: "1px solid rgba(255,255,255,0.1)", }}
+                  border: "1px solid rgba(255,255,255,0.1)" }}
               >
                 ${c}
               </button>
@@ -257,8 +255,7 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
               style={{
                 background: canSend ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.06)",
                 color: canSend ? "white" : "rgba(255,255,255,0.3)",
-                cursor: canSend ? "pointer" : "not-allowed",
-              }}
+                cursor: canSend ? "pointer" : "not-allowed" }}
             >
               Send invoice
             </button>
@@ -310,8 +307,7 @@ function ToggleRow({
         onClick={() => onChange(!checked)}
         className="w-10 h-[22px] rounded-full relative transition-colors"
         style={{
-          background: checked ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.1)",
-        }}
+          background: checked ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.1)" }}
       >
         <span
           className="absolute top-[3px] w-4 h-4 rounded-full bg-white transition-all"

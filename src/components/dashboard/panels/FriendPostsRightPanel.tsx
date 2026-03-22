@@ -55,8 +55,7 @@ export function FriendPostsRightPanel({ friend }: Props) {
                 style={{
                   background: activePostId === post.id ? "rgba(181,98,42,0.15)" : "rgba(255,255,255,0.03)",
                   color: activePostId === post.id ? "#E67E22" : "rgba(255,255,255,0.6)",
-                  border: `1px solid ${activePostId === post.id ? "rgba(181,98,42,0.3)" : "rgba(255,255,255,0.06)"}`,
-                }}
+                  border: `1px solid ${activePostId === post.id ? "rgba(181,98,42,0.3)" : "rgba(255,255,255,0.06)"}` }}
               >
                 {post.content.slice(0, 60)}{post.content.length > 60 ? "…" : ""}
               </button>

@@ -14,8 +14,7 @@ export function BlogHero({ onSubscribeClick }: BlogHeroProps) {
         style={{
           fontFamily: "'Lufga', sans-serif",
           color: "#FFFFFF",
-          maxWidth: 720,
-        }}
+          maxWidth: 720 }}
       >
         The Only Subscription You Need
         <br />

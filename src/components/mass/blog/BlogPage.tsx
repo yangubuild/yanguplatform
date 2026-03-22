@@ -39,7 +39,7 @@ export function BlogPage() {
   const openSubscribe = useCallback(() => setShowModal(true), []);
 
   return (
-    <div className="min-h-screen" style={{ background: "#08120D", color: "#FFFFFF", fontFamily: "'Lufga', sans-serif" }}>
+    <div className="min-h-screen" style={{ color: "#FFFFFF", fontFamily: "'Lufga', sans-serif" }}>
       <main className="min-h-screen">
         <SecondaryPageHeaderShell />
 

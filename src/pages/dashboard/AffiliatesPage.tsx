@@ -8,7 +8,7 @@ const AffiliatesPage = () => {
   const [view, setView] = useState<"affiliate" | "creator">("affiliate");
 
   return (
-    <div className="w-full min-h-screen px-6 py-6" style={{ background: "#08120D" }}>
+    <div className="w-full min-h-screen px-6 py-6 bg-background" >
       {view === "affiliate" ? (
         <AffiliateDashboardView
           isAuthenticated={isAuthenticated}

@@ -38,8 +38,7 @@ export function BlogEssayItem({ essay, titleClamp }: Props) {
         <h4
           className="text-[15px] leading-snug font-medium transition-colors duration-200 group-hover:text-foreground"
           style={{
-            fontFamily: "'Lufga', sans-serif", ...(titleClamp ? clampStyle(titleClamp) : {}),
-          }}
+            fontFamily: "'Lufga', sans-serif", ...(titleClamp ? clampStyle(titleClamp) : {}) }}
         >
           {essay.title}
         </h4>

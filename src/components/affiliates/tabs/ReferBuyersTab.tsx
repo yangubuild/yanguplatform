@@ -295,7 +295,7 @@ function ViewAssetsPage({ programName, onClose }: { programName: string; onClose
   ];
 
   return (
-    <div className="fixed inset-0 z-[100] overflow-y-auto" style={{ background: "#08120D" }}>
+    <div className="fixed inset-0 z-[100] overflow-y-auto bg-background" >
       <div className="w-full px-6 py-6">
         <button onClick={onClose} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4">
           <ChevronLeft className="w-4 h-4" /> Back

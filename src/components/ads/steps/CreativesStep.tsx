@@ -526,8 +526,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
                   style={{
                     background: selectedRatio === i ? "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" : "rgba(255,255,255,0.04)",
                     color: selectedRatio === i ? "#fff" : "rgba(255,255,255,0.5)",
-                    border: selectedRatio === i ? "none" : "1px solid rgba(255,255,255,0.1)",
-                  }}
+                    border: selectedRatio === i ? "none" : "1px solid rgba(255,255,255,0.1)" }}
                 >
                   <div className="font-medium">{r.label}</div>
                   <div className="text-[10px] mt-0.5 opacity-60">{r.size}</div>
@@ -619,16 +618,14 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
                         className="w-full text-left p-4 rounded-xl text-sm transition-colors"
                         style={{
                           background: selectedCaptionIdx === i ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.02)",
-                          border: selectedCaptionIdx === i ? "2px solid #3b82f6" : "1px solid rgba(255,255,255,0.06)",
-                        }}
+                          border: selectedCaptionIdx === i ? "2px solid #3b82f6" : "1px solid rgba(255,255,255,0.06)" }}
                       >
                         <div className="flex items-start gap-3">
                           <div
                             className="w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 shrink-0"
                             style={{
                               borderColor: selectedCaptionIdx === i ? "#3b82f6" : "rgba(255,255,255,0.2)",
-                              background: selectedCaptionIdx === i ? "#3b82f6" : "transparent",
-                            }}
+                              background: selectedCaptionIdx === i ? "#3b82f6" : "transparent" }}
                           >
                             {selectedCaptionIdx === i && <div className="w-2 h-2 rounded-full bg-white" />}
                           </div>

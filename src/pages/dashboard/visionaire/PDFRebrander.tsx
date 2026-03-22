@@ -189,8 +189,7 @@ export default function PDFRebrander() {
           className="flex-1 relative overflow-hidden"
           style={{
             backgroundImage: "radial-gradient(circle, hsl(var(--border)) 1px, transparent 1px)",
-            backgroundSize: "20px 20px",
-          }}
+            backgroundSize: "20px 20px" }}
         >
           {pdfFile ? (
             <div className="flex items-center justify-center h-full p-8">

@@ -76,8 +76,7 @@ export function GroupAvatarUpload({ groupId, currentUrl, groupName, size = 40, e
           background: "rgba(168,85,247,0.2)",
           color: "rgba(168,85,247,0.9)",
           fontSize: size * 0.3,
-          fontWeight: 700,
-        }}
+          fontWeight: 700 }}
       >
         {uploading ? (
           <Loader2 className="animate-spin" style={{ width: size * 0.4, height: size * 0.4 }} />

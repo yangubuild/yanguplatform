@@ -67,8 +67,7 @@ export function WhyYanguContent() {
               className="rounded-xl p-5 transition-all cursor-pointer relative group"
               style={{
                 background: isSelected ? "rgba(244,109,42,0.08)" : "rgba(255,255,255,0.03)",
-                border: isSelected ? "1px solid rgba(244,109,42,0.4)" : "1px solid rgba(255,255,255,0.10)",
-              }}
+                border: isSelected ? "1px solid rgba(244,109,42,0.4)" : "1px solid rgba(255,255,255,0.10)" }}
               onClick={() => toggle(f.key)}
             >
               {/* Selection indicator */}
@@ -76,8 +75,7 @@ export function WhyYanguContent() {
                 className="absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center transition-colors"
                 style={{
                   background: isSelected ? "#F46D2A" : "rgba(255,255,255,0.08)",
-                  border: isSelected ? "none" : "1px solid rgba(255,255,255,0.2)",
-                }}
+                  border: isSelected ? "none" : "1px solid rgba(255,255,255,0.2)" }}
               >
                 {isSelected && <Check className="w-3 h-3 text-foreground" />}
               </div>
@@ -109,8 +107,7 @@ export function WhyYanguContent() {
           style={{
             background: "rgba(10, 23, 16, 0.9)",
             backdropFilter: "blur(12px)",
-            border: "1px solid rgba(255,255,255,0.12)",
-          }}
+            border: "1px solid rgba(255,255,255,0.12)" }}
         >
           <span className="text-muted-foreground text-sm">
             {selected.size} feature{selected.size > 1 ? "s" : ""} selected

@@ -93,7 +93,7 @@ export function MessagesDiscoverySidebar({ onUserClick }: Props) {
               >
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
-                  style={{ background: "rgba(255,255,255,0.1)", }}
+                  style={{ background: "rgba(255,255,255,0.1)" }}
                 >
                   {resolved ? (
                     <img src={resolved} alt="" className="w-10 h-10 rounded-full object-cover" />

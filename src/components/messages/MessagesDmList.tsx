@@ -117,7 +117,7 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
         <button
           onClick={onOpenCreateMenu}
           className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-opacity hover:opacity-80"
-          style={{ background: "rgba(255,255,255,0.06)", }}
+          style={{ background: "rgba(255,255,255,0.06)" }}
           aria-label="Create chat"
         >
           <Plus className="w-4 h-4" />
@@ -161,8 +161,7 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
                   className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 overflow-hidden"
                   style={{
                     background: thread.type === "group" ? "rgba(168,85,247,0.2)" : "rgba(255,255,255,0.1)",
-                    color: thread.type === "group" ? "rgba(168,85,247,0.9)" : "rgba(255,255,255,0.6)",
-                  }}
+                    color: thread.type === "group" ? "rgba(168,85,247,0.9)" : "rgba(255,255,255,0.6)" }}
                 >
                   {thread.avatar ? (
                     <img src={thread.avatar} alt="" className="w-10 h-10 rounded-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />

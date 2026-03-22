@@ -46,8 +46,7 @@ export function BlogStampStrip() {
                   filter: isHov ? "brightness(1.06) saturate(1.08)" : "brightness(1) saturate(1)",
                   boxShadow: isHov ? "0 14px 40px rgba(0,0,0,0.55)" : "0 4px 14px rgba(0,0,0,0.25)",
                   transition: "transform 250ms ease, filter 200ms ease, box-shadow 250ms ease",
-                  zIndex: isHov ? 10 : 1,
-                }}
+                  zIndex: isHov ? 10 : 1 }}
               >
                 <img
                   src={stamp.src}

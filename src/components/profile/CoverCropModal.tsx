@@ -138,7 +138,7 @@ export default function CoverCropModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className="sm:max-w-[600px] p-0 gap-0 overflow-hidden"
-        style={{ background: "#0f141a", border: "1px solid rgba(255,255,255,0.1)" }}
+        style={{ border: "1px solid rgba(255,255,255,0.1)" }}
       >
         <DialogHeader className="px-5 pt-5 pb-3">
           <DialogTitle className="text-foreground text-base">Adjust cover image</DialogTitle>
@@ -155,8 +155,7 @@ export default function CoverCropModal({
             aspectRatio: `${aspectRatio}`,
             background: "#1a2129",
             cursor: isDragging.current ? "grabbing" : "grab",
-            touchAction: "none",
-          }}
+            touchAction: "none" }}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
@@ -176,8 +175,7 @@ export default function CoverCropModal({
               transform: `translate(calc(-50% + ${position.x}px), calc(-50% + ${position.y}px)) scale(${scale})`,
               transformOrigin: "center center",
               opacity: imageLoaded ? 1 : 0,
-              transition: isDragging.current ? "none" : "opacity 0.2s",
-            }}
+              transition: isDragging.current ? "none" : "opacity 0.2s" }}
           />
           {!imageLoaded && (
             <div className="absolute inset-0 flex items-center justify-center">
@@ -228,7 +226,7 @@ export default function CoverCropModal({
               onClick={handleSave}
               disabled={saving}
               className="text-xs font-semibold"
-              style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)", }}
+              style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)" }}
             >
               {saving && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
               Save cover

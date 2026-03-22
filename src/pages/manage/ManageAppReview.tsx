@@ -65,8 +65,7 @@ export default function ManageAppReview() {
             style={{
               color: activeTab === tab.id ? "#F46D2A" : "rgba(255,255,255,0.5)",
               background: activeTab === tab.id ? "rgba(244,109,42,0.08)" : "transparent",
-              borderBottom: activeTab === tab.id ? "2px solid #F46D2A" : "2px solid transparent",
-            }}
+              borderBottom: activeTab === tab.id ? "2px solid #F46D2A" : "2px solid transparent" }}
           >
             {tab.label}
             {tab.count > 0 && (

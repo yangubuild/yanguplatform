@@ -35,8 +35,7 @@ export function ReviewsPanel() {
           className="w-3 h-3"
           style={{
             color: i < rating ? "#f59e0b" : "rgba(255,255,255,0.15)",
-            fill: i < rating ? "#f59e0b" : "transparent",
-          }}
+            fill: i < rating ? "#f59e0b" : "transparent" }}
         />
       ))}
     </div>

@@ -100,7 +100,7 @@ export default function CustomProductWizard() {
   const selectedPolishData = POLISH_OPTIONS.find((p) => p.id === selectedPolish);
 
   return (
-    <div className="min-h-screen p-4 md:p-6" style={{ background: "#08120D" }}>
+    <div className="min-h-screen p-4 md:p-6 bg-background" >
       <div className="max-w-3xl mx-auto">
         {/* ── Step indicator ──────────────────────────── */}
         <div className="flex items-start gap-0 mb-10 pl-1">

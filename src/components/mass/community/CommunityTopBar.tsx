@@ -68,8 +68,7 @@ export function CommunityTopBar() {
                 backgroundColor: theme === "dark" ? "rgba(10,23,16,0.55)" : "#FFFFFF",
                 color: c.inputText,
                 border: "1.5px solid rgba(244,109,42,0.25)",
-                boxShadow: "0 2px 12px rgba(244,109,42,0.1)",
-              }}
+                boxShadow: "0 2px 12px rgba(244,109,42,0.1)" }}
             />
           </div>
         </div>

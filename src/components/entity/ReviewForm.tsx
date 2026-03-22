@@ -91,7 +91,7 @@ export function ReviewForm({ entityId, onSuccess }: ReviewFormProps) {
         style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
       />
       <div className="flex justify-end">
-        <button onClick={handleSubmit} disabled={submitting} className="text-xs px-4 py-2 rounded-lg font-medium disabled:opacity-50" style={{ background: "linear-gradient(135deg, #c47a3a, #b5622a)", }}>
+        <button onClick={handleSubmit} disabled={submitting} className="text-xs px-4 py-2 rounded-lg font-medium disabled:opacity-50" style={{ background: "linear-gradient(135deg, #c47a3a, #b5622a)" }}>
           {submitting ? "Submitting..." : "Submit Review"}
         </button>
       </div>

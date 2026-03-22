@@ -62,8 +62,7 @@ export function FriendReviewsRightPanel({ friend }: Props) {
                   className="w-4 h-4"
                   style={{
                     color: i < Math.round(avgRating) ? "#f59e0b" : "rgba(255,255,255,0.15)",
-                    fill: i < Math.round(avgRating) ? "#f59e0b" : "transparent",
-                  }}
+                    fill: i < Math.round(avgRating) ? "#f59e0b" : "transparent" }}
                 />
               ))}
             </div>
@@ -105,8 +104,7 @@ export function FriendReviewsRightPanel({ friend }: Props) {
                 onClick={() => setRating(i + 1)}
                 style={{
                   color: i < rating ? "#f59e0b" : "rgba(255,255,255,0.15)",
-                  fill: i < rating ? "#f59e0b" : "transparent",
-                }}
+                  fill: i < rating ? "#f59e0b" : "transparent" }}
               />
             ))}
           </div>
@@ -134,8 +132,7 @@ export function FriendReviewsRightPanel({ friend }: Props) {
             className="mt-2 w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-semibold"
             style={{
               background: rating > 0 ? "linear-gradient(135deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.08)",
-              color: rating > 0 ? "#fff" : "rgba(255,255,255,0.35)",
-            }}
+              color: rating > 0 ? "#fff" : "rgba(255,255,255,0.35)" }}
           >
             {submitReview.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />} Submit Review
           </button>

@@ -85,8 +85,7 @@ export function EmojiProvider({ children }: { children: ReactNode }) {
         systemEmojis: SYSTEM_EMOJIS,
         isLoading,
         search,
-        getSuggestions,
-      }}
+        getSuggestions }}
     >
       {children}
     </EmojiContext.Provider>

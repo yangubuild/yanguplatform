@@ -225,8 +225,7 @@ export function LandingTestPromptArea() {
         style={{
           background: 'rgba(255,255,255,0.06)',
           border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: '14px',
-        }}
+          borderRadius: '14px' }}
       >
         <button
           className="px-7 py-2.5 text-sm font-medium transition-all"
@@ -237,8 +236,7 @@ export function LandingTestPromptArea() {
           } : {
             background: 'transparent',
             color: 'rgba(255,255,255,0.45)',
-            borderRadius: '10px',
-          }}
+            borderRadius: '10px' }}
           onClick={() => { setMode("build"); setInputValue(""); setSearchQuery(""); }}
         >
           Build
@@ -252,8 +250,7 @@ export function LandingTestPromptArea() {
           } : {
             background: 'transparent',
             color: 'rgba(255,255,255,0.45)',
-            borderRadius: '10px',
-          }}
+            borderRadius: '10px' }}
           onClick={() => { setMode("explore"); setInputValue(""); setSearchQuery(""); }}
         >
           Explore
@@ -312,8 +309,7 @@ export function LandingTestPromptArea() {
             style={{
               background: 'rgba(255,255,255,0.06)',
               border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: searchResults && searchResults.length > 0 ? '20px 20px 0 0' : '999px',
-            }}
+              borderRadius: searchResults && searchResults.length > 0 ? '20px 20px 0 0' : '999px' }}
           >
             <Search className="w-4 h-4 text-muted-foreground shrink-0" />
             <input

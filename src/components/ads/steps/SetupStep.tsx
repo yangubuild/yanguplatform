@@ -297,8 +297,7 @@ export function SetupStep({ data, onChange }: SetupStepProps) {
             className="ml-auto w-10 h-6 rounded-full transition-colors flex items-center"
             style={{
               background: data.globalReach ? "linear-gradient(90deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.1)",
-              justifyContent: data.globalReach ? "flex-end" : "flex-start",
-            }}
+              justifyContent: data.globalReach ? "flex-end" : "flex-start" }}
           >
             <div className="w-5 h-5 rounded-full bg-white mx-0.5 shadow" />
           </div>

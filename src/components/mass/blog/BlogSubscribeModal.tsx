@@ -93,8 +93,7 @@ export function BlogSubscribeModal() {
         className="relative w-full rounded-2xl overflow-hidden flex flex-col md:flex-row"
         style={{
           maxWidth: 820,
-          animation: "scale-in 0.28s ease-out",
-        }}
+          animation: "scale-in 0.28s ease-out" }}
       >
         {/* Close */}
         <button
@@ -135,7 +134,7 @@ export function BlogSubscribeModal() {
           />
           <button
             className="w-full rounded-lg py-2.5 text-sm font-medium transition-all hover:brightness-95"
-            style={{ background: "#111", }}
+            style={{ background: "#111" }}
           >
             Unlock the Every universe
           </button>

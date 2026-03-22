@@ -110,7 +110,7 @@ export function ExploreSponsoredSection() {
               )}
               <div
                 className="absolute top-2 right-2 px-2 py-0.5 rounded-lg text-[10px] font-medium"
-                style={{ background: "rgba(181, 98, 42, 0.8)", }}
+                style={{ background: "rgba(181, 98, 42, 0.8)" }}
               >
                 Sponsored
               </div>

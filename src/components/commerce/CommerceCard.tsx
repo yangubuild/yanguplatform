@@ -43,8 +43,7 @@ export default function CommerceCard({
         className={`flex items-center gap-3 rounded-xl p-3 cursor-pointer hover:opacity-90 transition-opacity ${className}`}
         style={{
           background: "rgba(255,255,255,0.04)",
-          border: "1px solid rgba(255,255,255,0.08)",
-        }}
+          border: "1px solid rgba(255,255,255,0.08)" }}
         onClick={handleOpen}
       >
         {/* Thumbnail */}
@@ -87,8 +86,7 @@ export default function CommerceCard({
       className={`rounded-2xl overflow-hidden transition-all hover:shadow-lg ${className}`}
       style={{
         background: "rgba(255,255,255,0.04)",
-        border: "1px solid rgba(255,255,255,0.06)",
-      }}
+        border: "1px solid rgba(255,255,255,0.06)" }}
     >
       {/* Image */}
       <div className="aspect-[16/10] overflow-hidden relative" style={{ background: "rgba(255,255,255,0.03)" }}>
@@ -110,8 +108,7 @@ export default function CommerceCard({
           style={{
             background: isProduct ? "rgba(96,165,250,0.2)" : "rgba(168,85,247,0.2)",
             color: isProduct ? "#60a5fa" : "#a855f7",
-            border: `1px solid ${isProduct ? "rgba(96,165,250,0.3)" : "rgba(168,85,247,0.3)"}`,
-          }}
+            border: `1px solid ${isProduct ? "rgba(96,165,250,0.3)" : "rgba(168,85,247,0.3)"}` }}
         >
           {isProduct ? "Product" : "Service"}
         </span>
@@ -144,7 +141,7 @@ export default function CommerceCard({
             </span>
           )}
           {item.category && (
-            <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.06)", }}>
+            <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>
               {item.category}
             </span>
           )}

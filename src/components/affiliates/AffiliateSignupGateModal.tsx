@@ -51,8 +51,7 @@ export function AffiliateSignupGateModal({ onClose }: Props) {
           className="h-10 px-5 rounded-lg text-sm font-medium text-foreground transition-all"
           style={{
             background:
-              "linear-gradient(135deg, #c47a3a 0%, #a0522d 50%, #5c2a12 100%)",
-          }}
+              "linear-gradient(135deg, #c47a3a 0%, #a0522d 50%, #5c2a12 100%)" }}
         >
           Browse products
         </button>

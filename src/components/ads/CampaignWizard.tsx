@@ -67,11 +67,11 @@ export function CampaignWizard({ onClose }: CampaignWizardProps) {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: "#08120D" }}>
+    <div className="min-h-screen bg-background" >
       {/* Header */}
       <div
         className="sticky top-0 z-20 border-b border-white/10"
-        style={{ background: "#08120D" }}
+        
       >
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -124,8 +124,7 @@ export function CampaignWizard({ onClose }: CampaignWizardProps) {
                       : i < stepIndex
                       ? "rgba(255,255,255,0.7)"
                       : "rgba(255,255,255,0.3)",
-                    cursor: i <= stepIndex ? "pointer" : "default",
-                  }}
+                    cursor: i <= stepIndex ? "pointer" : "default" }}
                 >
                   {step}
                 </button>

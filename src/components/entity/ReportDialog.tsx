@@ -80,7 +80,7 @@ export function ReportDialog({ entityId, entityTitle, open, onOpenChange }: Repo
             <p className="text-xs text-muted-foreground">
               Thank you. Our team will review this report.
             </p>
-            <button onClick={handleClose} className="mt-4 text-xs px-4 py-2 rounded-lg" style={{ background: "rgba(255,255,255,0.06)", }}>
+            <button onClick={handleClose} className="mt-4 text-xs px-4 py-2 rounded-lg" style={{ background: "rgba(255,255,255,0.06)" }}>
               Close
             </button>
           </div>
@@ -106,8 +106,7 @@ export function ReportDialog({ entityId, entityTitle, open, onOpenChange }: Repo
                       style={{
                         background: reason === r ? "rgba(181,98,42,0.15)" : "rgba(255,255,255,0.03)",
                         color: reason === r ? "#b5622a" : "rgba(255,255,255,0.5)",
-                        border: `1px solid ${reason === r ? "rgba(181,98,42,0.3)" : "rgba(255,255,255,0.06)"}`,
-                      }}
+                        border: `1px solid ${reason === r ? "rgba(181,98,42,0.3)" : "rgba(255,255,255,0.06)"}` }}
                     >
                       {r}
                     </button>
@@ -121,7 +120,7 @@ export function ReportDialog({ entityId, entityTitle, open, onOpenChange }: Repo
                   className="w-full bg-transparent text-foreground text-sm mb-4 px-3 py-2 rounded-lg resize-none focus:outline-none"
                   style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
                 />
-                <button onClick={handleSubmit} disabled={submitting} className="w-full text-sm py-2.5 rounded-lg font-medium disabled:opacity-50" style={{ background: "linear-gradient(135deg, #c47a3a, #b5622a)", }}>
+                <button onClick={handleSubmit} disabled={submitting} className="w-full text-sm py-2.5 rounded-lg font-medium disabled:opacity-50" style={{ background: "linear-gradient(135deg, #c47a3a, #b5622a)" }}>
                   {submitting ? "Submitting..." : "Submit Report"}
                 </button>
               </>

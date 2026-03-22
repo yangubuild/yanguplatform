@@ -28,8 +28,7 @@ export function MobileBuilderToolbar({ onOpenPanel, activePanel }: MobileBuilder
         height: 56,
         background: "hsl(var(--background))",
         borderTop: "1px solid hsl(var(--border))",
-        paddingBottom: "env(safe-area-inset-bottom, 0px)",
-      }}
+        paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
       {items.map((item) => {
         const active = activePanel === item.key;
@@ -67,8 +66,7 @@ export function MobileBuilderSheet({ open, onClose, title, children }: MobileBui
           className="flex items-center justify-between px-4 shrink-0"
           style={{
             height: 48,
-            borderBottom: "1px solid hsl(var(--border))",
-          }}
+            borderBottom: "1px solid hsl(var(--border))" }}
         >
           <h2 className="text-sm font-semibold text-foreground">{title}</h2>
           <button
@@ -94,8 +92,7 @@ export function MobileBuilderDesktopNotice() {
       style={{
         background: "hsl(var(--muted))",
         borderBottom: "1px solid hsl(var(--border))",
-        color: "hsl(var(--muted-foreground))",
-      }}
+        color: "hsl(var(--muted-foreground))" }}
     >
       <Monitor className="w-3.5 h-3.5 shrink-0" />
       <span>For complex editing, best experience on iPad or desktop</span>

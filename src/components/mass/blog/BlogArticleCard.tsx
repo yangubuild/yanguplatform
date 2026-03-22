@@ -37,8 +37,7 @@ export function BlogArticleCard({ article, size = "default", fillImage, titleCla
           background: "#1a1a1a",
           ...(fillImage
             ? { flex: "1 1 0%", minHeight: 0 }
-            : { flexShrink: 0, aspectRatio: isLarge ? "4/5" : "3/4" }),
-        }}
+            : { flexShrink: 0, aspectRatio: isLarge ? "4/5" : "3/4" }) }}
       >
         {article.image ? (
           <img
@@ -81,8 +80,7 @@ export function BlogArticleCard({ article, size = "default", fillImage, titleCla
           className="font-medium leading-snug transition-colors duration-200 group-hover:text-foreground"
           style={{
             fontFamily: "'Lufga', sans-serif",
-            fontSize: isLarge ? 28 : 18, ...(titleClamp ? clampStyle(titleClamp) : {}),
-          }}
+            fontSize: isLarge ? 28 : 18, ...(titleClamp ? clampStyle(titleClamp) : {}) }}
         >
           {article.title}
         </h3>
@@ -91,8 +89,7 @@ export function BlogArticleCard({ article, size = "default", fillImage, titleCla
         {article.subtitle && (
           <p
             className="mt-1.5 text-sm leading-relaxed"
-            style={{ ...(excerptClamp ? clampStyle(excerptClamp) : {}),
-            }}
+            style={{ ...(excerptClamp ? clampStyle(excerptClamp) : {}) }}
           >
             {article.subtitle}
           </p>

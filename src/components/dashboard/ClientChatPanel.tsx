@@ -43,7 +43,7 @@ export function ClientChatPanel() {
               className="w-full text-left px-4 py-3 rounded-xl text-sm transition-all duration-150 hover:opacity-80"
               style={{
                 background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.06)", }}
+                border: "1px solid rgba(255,255,255,0.06)" }}
               onClick={() => setMessage(s)}
             >
               {s}
@@ -66,8 +66,7 @@ export function ClientChatPanel() {
           className="flex-1 flex items-center rounded-xl px-3 h-9"
           style={{
             background: "rgba(255,255,255,0.04)",
-            border: "1px solid rgba(255,255,255,0.06)",
-          }}
+            border: "1px solid rgba(255,255,255,0.06)" }}
         >
           <input
             type="text"

@@ -133,8 +133,7 @@ export function CoursesPanel() {
                 className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition-colors hover:bg-white/[0.04]"
                 style={{
                   background: "rgba(255,255,255,0.02)",
-                  border: "1px solid rgba(255,255,255,0.05)",
-                }}
+                  border: "1px solid rgba(255,255,255,0.05)" }}
               >
                 <div
                   className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
@@ -178,8 +177,7 @@ export function CoursesPanel() {
               className="rounded-lg px-4 py-6 text-center"
               style={{
                 background: "rgba(255,255,255,0.02)",
-                border: "1px solid rgba(255,255,255,0.05)",
-              }}
+                border: "1px solid rgba(255,255,255,0.05)" }}
             >
               <Bookmark className="w-5 h-5 mx-auto mb-2 text-muted-foreground" />
               <p className="text-xs text-muted-foreground">
@@ -202,8 +200,7 @@ export function CoursesPanel() {
                   className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition-colors hover:bg-white/[0.04]"
                   style={{
                     background: "rgba(255,255,255,0.02)",
-                    border: "1px solid rgba(255,255,255,0.05)",
-                  }}
+                    border: "1px solid rgba(255,255,255,0.05)" }}
                 >
                   {item.thumbnail_url ? (
                     <img
@@ -243,8 +240,7 @@ export function CoursesPanel() {
             className="rounded-lg px-4 py-6 text-center"
             style={{
               background: "rgba(255,255,255,0.02)",
-              border: "1px solid rgba(255,255,255,0.05)",
-            }}
+              border: "1px solid rgba(255,255,255,0.05)" }}
           >
             <GraduationCap className="w-5 h-5 mx-auto mb-2 text-muted-foreground" />
             <p className="text-xs text-muted-foreground">

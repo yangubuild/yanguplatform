@@ -22,8 +22,7 @@ export function InvoicePreviewTabs({ form }: Props) {
           className="flex rounded-lg overflow-hidden"
           style={{
             background: "rgba(255,255,255,0.06)",
-            border: "1px solid rgba(255,255,255,0.08)",
-          }}
+            border: "1px solid rgba(255,255,255,0.08)" }}
         >
           {TABS.map((t) => (
             <button
@@ -32,8 +31,7 @@ export function InvoicePreviewTabs({ form }: Props) {
               className="px-4 py-2 text-sm font-medium transition-colors"
               style={{
                 background: tab === t ? "rgba(255,255,255,0.12)" : "transparent",
-                color: tab === t ? "white" : "rgba(255,255,255,0.45)",
-              }}
+                color: tab === t ? "white" : "rgba(255,255,255,0.45)" }}
             >
               {t}
             </button>

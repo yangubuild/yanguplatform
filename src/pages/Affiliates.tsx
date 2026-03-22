@@ -10,7 +10,7 @@ export default function Affiliates() {
   const { isAuthenticated } = useAuth();
 
   return (
-    <div className="min-h-screen" style={{ background: "#08120D" }}>
+    <div className="min-h-screen bg-background" >
       <button
         onClick={() => setSidebarOpen(true)}
         className="fixed top-4 left-4 z-30 p-2 rounded-lg bg-[#1c1c1c] text-foreground lg:hidden"

@@ -148,7 +148,7 @@ export function StaffPanel() {
                 >
                   <div
                     className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
-                    style={{ background: "rgba(255,255,255,0.1)", }}
+                    style={{ background: "rgba(255,255,255,0.1)" }}
                   >
                     {avatarUrl ? (
                       <img src={avatarUrl} alt={name} className="w-10 h-10 rounded-full object-cover" />

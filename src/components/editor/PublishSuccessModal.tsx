@@ -42,8 +42,7 @@ function SparkParticle({ index, reduceMotion }: { index: number; reduceMotion: b
           height: size,
           background: color,
           left: `calc(50% + ${x}px)`,
-          top: `calc(40% + ${y}px)`,
-        }}
+          top: `calc(40% + ${y}px)` }}
       />
     );
   }

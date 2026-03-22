@@ -91,8 +91,7 @@ export function WhyYanguSidebar({ audience }: WhyYanguSidebarProps) {
                   className={DocsTypography.sidebarLink}
                   style={{
                     color: activeId === item.id ? "#F46D2A" : "rgba(255,255,255,0.55)",
-                    background: activeId === item.id ? "rgba(244,109,42,0.08)" : "transparent",
-                  }}
+                    background: activeId === item.id ? "rgba(244,109,42,0.08)" : "transparent" }}
                 >
                   {item.label}
                 </button>

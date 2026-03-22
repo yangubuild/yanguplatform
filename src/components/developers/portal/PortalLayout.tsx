@@ -48,7 +48,7 @@ export function PortalLayout() {
   // Block rendering when not authenticated
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#08120D" }}>
+      <div className="min-h-screen flex items-center justify-center bg-background" >
         <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
       </div>
     );
@@ -56,7 +56,7 @@ export function PortalLayout() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#08120D" }}>
+      <div className="min-h-screen flex items-center justify-center bg-background" >
         <div className="text-center">
           <h2 className="text-xl font-bold text-foreground mb-2">Developer Portal</h2>
           <p className="text-muted-foreground text-sm mb-6">Sign in to access the developer portal.</p>
@@ -78,7 +78,7 @@ export function PortalLayout() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "#08120D" }}>
+    <div className="min-h-screen bg-background" >
       <button
         onClick={() => setSidebarOpen(true)}
         className="fixed top-4 left-4 z-30 p-2 rounded-lg bg-[#1c1c1c] text-foreground lg:hidden"

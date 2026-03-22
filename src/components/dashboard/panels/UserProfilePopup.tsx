@@ -82,8 +82,7 @@ export function UserProfilePopup({ user, onClose, onViewProfile, onMessage }: Pr
           style={{
             background: user.cover_url
               ? `url(${user.cover_url}) center/cover no-repeat`
-              : "linear-gradient(135deg, #0d3a27 0%, #061a12 100%)",
-          }}
+              : "linear-gradient(135deg, #0d3a27 0%, #061a12 100%)" }}
         />
 
         {/* Avatar overlapping cover */}
@@ -91,8 +90,7 @@ export function UserProfilePopup({ user, onClose, onViewProfile, onMessage }: Pr
           <div
             className="w-[72px] h-[72px] rounded-full flex items-center justify-center text-lg font-bold overflow-hidden"
             style={{
-              background: resolvedAvatar ? "transparent" : "rgba(255,255,255,0.1)", border: "3px solid #111a15",
-            }}
+              background: resolvedAvatar ? "transparent" : "rgba(255,255,255,0.1)", border: "3px solid #111a15" }}
           >
             {resolvedAvatar ? (
               <img src={resolvedAvatar} alt="" className="w-full h-full rounded-full object-cover" />
@@ -150,7 +148,7 @@ export function UserProfilePopup({ user, onClose, onViewProfile, onMessage }: Pr
             <button
               onClick={handleMessage}
               className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-semibold"
-              style={{ background: "rgba(181,98,42,0.9)", }}
+              style={{ background: "rgba(181,98,42,0.9)" }}
             >
               <MessageSquare className="w-3.5 h-3.5" /> Message
             </button>
@@ -160,7 +158,7 @@ export function UserProfilePopup({ user, onClose, onViewProfile, onMessage }: Pr
                 disabled={toggleFollow.isPending}
                 className="flex-1 py-2 rounded-lg text-sm font-semibold transition-colors"
                 style={{
-                  background: isFollowing ? "rgba(255,255,255,0.08)" : "#22c55e", }}
+                  background: isFollowing ? "rgba(255,255,255,0.08)" : "#22c55e" }}
               >
                 {isFollowing ? "Following" : "Follow"}
               </button>
@@ -170,7 +168,7 @@ export function UserProfilePopup({ user, onClose, onViewProfile, onMessage }: Pr
           <button
             onClick={handleViewProfile}
             className="w-full flex items-center justify-center gap-1.5 py-2 mt-2 rounded-lg text-sm font-medium"
-            style={{ background: "rgba(255,255,255,0.06)", }}
+            style={{ background: "rgba(255,255,255,0.06)" }}
           >
             <ExternalLink className="w-3.5 h-3.5" /> View Profile
           </button>

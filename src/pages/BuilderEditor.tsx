@@ -687,8 +687,7 @@ export default function BuilderEditor() {
           title: editorState.surface.title || "",
           description: (editorState.surface as any).description || "",
           slug: editorState.surface.slug || "",
-          metadata: (editorState.surface as any).metadata || {},
-        }}
+          metadata: (editorState.surface as any).metadata || {} }}
         onSaved={() => refreshEditor()}
       />
 

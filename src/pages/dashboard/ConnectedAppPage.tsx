@@ -46,7 +46,7 @@ export default function ConnectedAppPage() {
 
   if (isLoading) {
     return (
-      <div className="w-full min-h-screen flex items-center justify-center" style={{ background: "#08120D" }}>
+      <div className="w-full min-h-screen flex items-center justify-center bg-background" >
         <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
       </div>
     );
@@ -54,7 +54,7 @@ export default function ConnectedAppPage() {
 
   if (!data?.app) {
     return (
-      <div className="w-full min-h-screen px-6 py-6" style={{ background: "#08120D" }}>
+      <div className="w-full min-h-screen px-6 py-6 bg-background" >
         <button onClick={() => navigate("/dashboard/my-apps")} className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm mb-6">
           <ArrowLeft className="w-4 h-4" /> Back to My Apps
         </button>
@@ -69,7 +69,7 @@ export default function ConnectedAppPage() {
   const isConnected = install?.status === "connected";
 
   return (
-    <div className="w-full min-h-screen px-6 py-6" style={{ background: "#08120D" }}>
+    <div className="w-full min-h-screen px-6 py-6 bg-background" >
       <button
         onClick={() => navigate("/dashboard/my-apps")}
         className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm mb-6 transition-colors"

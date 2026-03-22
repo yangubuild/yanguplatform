@@ -151,7 +151,7 @@ export default function MyBusinessPage() {
 
   if (surfaces.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 gap-4 text-center min-h-screen" style={{ background: "#08120D" }}>
+      <div className="flex flex-col items-center justify-center py-24 gap-4 text-center min-h-screen bg-background" >
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
           <Building2 className="h-8 w-8 text-muted-foreground" />
         </div>
@@ -164,7 +164,7 @@ export default function MyBusinessPage() {
   }
 
   return (
-    <div className="p-6 space-y-8 max-w-6xl min-h-screen" style={{ background: "#08120D" }}>
+    <div className="p-6 space-y-8 max-w-6xl min-h-screen bg-background" >
       <div>
         <h1 className="text-2xl font-bold text-foreground">My Business</h1>
         <p className="text-sm text-muted-foreground mt-1">Manage all your published pages</p>
@@ -297,8 +297,7 @@ export default function MyBusinessPage() {
             seo_title: (settingsSurface as any).seo_title || "",
             seo_description: (settingsSurface as any).seo_description || "",
             favicon_url: (settingsSurface as any).favicon_url || "",
-            cover_image_url: (settingsSurface as any).cover_image_url || "",
-          }}
+            cover_image_url: (settingsSurface as any).cover_image_url || "" }}
           onSaved={(meta) => {
             setSurfaces(prev =>
               prev.map(s =>
@@ -324,8 +323,7 @@ export default function MyBusinessPage() {
                 className="rounded-xl p-4 flex flex-col gap-3 cursor-pointer hover:opacity-90 transition-opacity"
                 style={{
                   background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.06)",
-                }}
+                  border: "1px solid rgba(255,255,255,0.06)" }}
                 onClick={() => navigate("/dashboard/app-store")}
               >
                 <div className="flex items-start gap-3">

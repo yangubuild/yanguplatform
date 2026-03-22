@@ -116,8 +116,7 @@ export function MessagesChatsTab({ onSelectDm, onSelectGroup }: Props) {
               className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
               style={{
                 background: thread.type === "group" ? "rgba(168,85,247,0.2)" : "rgba(96,165,250,0.2)",
-                color: thread.type === "group" ? "rgba(168,85,247,0.9)" : "rgba(96,165,250,0.9)",
-              }}
+                color: thread.type === "group" ? "rgba(168,85,247,0.9)" : "rgba(96,165,250,0.9)" }}
             >
               {thread.avatar ? (
                 <img src={thread.avatar} alt="" className="w-10 h-10 rounded-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />

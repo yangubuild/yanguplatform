@@ -141,8 +141,7 @@ function DailyChart({ data }: { data: ExploreAnalyticsData["daily_trend"] }) {
                 border: "1px solid hsl(var(--admin-border))",
                 borderRadius: 8,
                 fontSize: 12,
-                color: "hsl(var(--admin-text))",
-              }}
+                color: "hsl(var(--admin-text))" }}
             />
             <Area type="monotone" dataKey="impressions" stroke="hsl(var(--admin-accent))" fill="url(#grad-imp)" strokeWidth={2} />
             <Area type="monotone" dataKey="clicks" stroke="hsl(150 60% 50%)" fill="transparent" strokeWidth={2} strokeDasharray="4 2" />

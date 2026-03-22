@@ -23,7 +23,7 @@ export function InfluencerProfilePopup({ user, onClose }: Props) {
       {/* Card */}
       <div
         className="fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] rounded-2xl p-6 shadow-2xl"
-        style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.08)" }}
+        style={{ border: "1px solid rgba(255,255,255,0.08)" }}
       >
         {/* Close */}
         <button
@@ -37,7 +37,7 @@ export function InfluencerProfilePopup({ user, onClose }: Props) {
         <div className="flex flex-col items-center text-center">
           <div
             className="w-16 h-16 rounded-full flex items-center justify-center text-lg font-bold mb-3"
-            style={{ background: "rgba(255,255,255,0.1)", }}
+            style={{ background: "rgba(255,255,255,0.1)" }}
           >
             {user.name.slice(0, 2).toUpperCase()}
           </div>
@@ -66,13 +66,13 @@ export function InfluencerProfilePopup({ user, onClose }: Props) {
         <div className="flex items-center gap-2 mt-5">
           <button
             className="flex-1 py-2 rounded-lg text-sm font-semibold"
-            style={{ background: "rgba(96,165,250,1)", }}
+            style={{ background: "rgba(96,165,250,1)" }}
           >
             Follow
           </button>
           <button
             className="flex-1 py-2 rounded-lg text-sm font-semibold"
-            style={{ background: "rgba(255,255,255,0.08)", }}
+            style={{ background: "rgba(255,255,255,0.08)" }}
           >
             Message
           </button>

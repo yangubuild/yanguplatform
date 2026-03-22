@@ -1847,8 +1847,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                   background: isRecording
                     ? "linear-gradient(135deg, #dc2626, #ef4444)"
                     : "linear-gradient(135deg, #D4952B, #F4A83D)",
-                  boxShadow: isRecording ? "0 0 20px rgba(220,38,38,0.4)" : "0 0 20px rgba(212,149,43,0.2)",
-                }}
+                  boxShadow: isRecording ? "0 0 20px rgba(220,38,38,0.4)" : "0 0 20px rgba(212,149,43,0.2)" }}
               >
                 {isRecording ? <Mic className="w-6 h-6 animate-pulse" /> : <ArrowUp className="w-6 h-6" />}
               </button>
@@ -1892,8 +1891,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                       background: msg.role === "assistant"
                         ? "rgba(255,255,255,0.03)"
                         : "transparent",
-                      borderRadius: "12px",
-                    }}
+                      borderRadius: "12px" }}
                   >
                     {renderMessageContent(msg)}
                     {msg.metadata && (msg.metadata as any).attachments && (
@@ -2172,8 +2170,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-[#F4A83D] transition-all duration-200 hover:scale-[1.03]"
                     style={{
                       background: "rgba(255,255,255,0.03)",
-                      border: "1px solid rgba(255,255,255,0.07)",
-                    }}
+                      border: "1px solid rgba(255,255,255,0.07)" }}
                   >
                     <Icon className="w-3.5 h-3.5" />
                     {action.label}
@@ -2200,8 +2197,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                   style={{
                     color: mod.connected ? "rgba(244,168,61,0.7)" : "rgba(255,255,255,0.25)",
                     background: mod.connected ? "rgba(244,168,61,0.06)" : "rgba(255,255,255,0.02)",
-                    border: `1px solid ${mod.connected ? "rgba(244,168,61,0.12)" : "rgba(255,255,255,0.05)"}`,
-                  }}
+                    border: `1px solid ${mod.connected ? "rgba(244,168,61,0.12)" : "rgba(255,255,255,0.05)"}` }}
                 >
                   <span className={`w-1.5 h-1.5 rounded-full ${mod.connected ? "bg-[#F4A83D]/60" : "bg-white/15"}`} />
                   {mod.connected ? "Connected" : "Coming"} • {mod.label}
@@ -2226,8 +2222,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                   style={{
                     background: "rgba(244,168,61,0.04)",
                     border: "1px solid rgba(244,168,61,0.1)",
-                    animationDelay: `${i * 100}ms`,
-                  }}
+                    animationDelay: `${i * 100}ms` }}
                 >
                   <Zap className="w-3 h-3 text-[#F4A83D]/50" />
                   {task}

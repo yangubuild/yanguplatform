@@ -36,8 +36,7 @@ export function BlogExplorePanel() {
           style={{
             background: "linear-gradient(180deg, #0f1f17 0%, #0a1710 100%)",
             border: "1px solid rgba(255,255,255,0.08)",
-            borderRadius: 8,
-          }}
+            borderRadius: 8 }}
         >
           {/* Header */}
           <button
@@ -64,8 +63,7 @@ export function BlogExplorePanel() {
                 style={{
                   textDecoration: "none",
                   borderRadius: 6,
-                  color: (item as any).muted ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.75)",
-                }}
+                  color: (item as any).muted ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.75)" }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)";
                   e.currentTarget.style.color = "#fff";
@@ -90,8 +88,7 @@ export function BlogExplorePanel() {
               className="w-full py-3.5 text-[14px] font-medium flex items-center justify-center gap-2 transition-all hover:brightness-110"
               style={{
                 background: "transparent", border: "1px solid rgba(255,255,255,0.15)",
-                borderRadius: 8,
-              }}
+                borderRadius: 8 }}
             >
               Create your free account <span style={{ fontSize: 16 }}>→</span>
             </button>
@@ -107,8 +104,7 @@ export function BlogExplorePanel() {
           style={{
             background: "linear-gradient(180deg, #0f1f17 0%, #0a1710 100%)", border: "1px solid rgba(255,255,255,0.08)",
             borderRadius: 6,
-            letterSpacing: "0.1em",
-          }}
+            letterSpacing: "0.1em" }}
         >
           Explore
         </button>

@@ -29,7 +29,7 @@ export function BlogEventCard({ event }: Props) {
         className="font-medium leading-snug transition-colors duration-200 group-hover:text-foreground"
         style={{
           fontFamily: "'Lufga', sans-serif",
-          fontSize: 18, }}
+          fontSize: 18 }}
       >
         {event.title}
       </h3>

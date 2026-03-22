@@ -7,7 +7,7 @@ export default function EmailPreviewPage() {
   const displayName = "John";
 
   return (
-    <div className="min-h-screen text-foreground" style={{ background: "#08120D" }}>
+    <div className="min-h-screen text-foreground bg-background" >
       {/* Top bar */}
       <div className="border-b border-border px-6 py-4 flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
@@ -26,8 +26,7 @@ export default function EmailPreviewPage() {
             fontFamily: "'Lufga', Arial, sans-serif",
             borderRadius: 12,
             overflow: "hidden",
-            boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
-          }}
+            boxShadow: "0 4px 24px rgba(0,0,0,0.12)" }}
         >
           {/* Hero */}
           <img
@@ -45,8 +44,7 @@ export default function EmailPreviewPage() {
                 color: "#333333",
                 backgroundColor: "#f5f5f5",
                 borderRadius: 8,
-                padding: "4px 12px",
-              }}
+                padding: "4px 12px" }}
             >
               Welcome 🎉
             </span>
@@ -59,8 +57,7 @@ export default function EmailPreviewPage() {
               fontWeight: "bold",
               color: "#08120D",
               textAlign: "center",
-              margin: "24px 0 16px",
-            }}
+              margin: "24px 0 16px" }}
           >
             Welcome, {displayName}!
           </h2>
@@ -73,8 +70,7 @@ export default function EmailPreviewPage() {
               lineHeight: 1.6,
               textAlign: "center",
               padding: "0 32px",
-              margin: "0 0 32px",
-            }}
+              margin: "0 0 32px" }}
           >
             Your account is all set up and ready to go. Start building your
             internet business with yangu — your hub for creating, connecting,
@@ -99,8 +95,7 @@ export default function EmailPreviewPage() {
               color: "#08120D",
               textAlign: "center",
               margin: "0 0 24px",
-              padding: "0 32px",
-            }}
+              padding: "0 32px" }}
           >
             Build, connect, and grow wealth with yangu!
           </p>
@@ -113,8 +108,7 @@ export default function EmailPreviewPage() {
               fontWeight: "bold",
               color: "#08120D",
               textAlign: "center",
-              margin: "0 0 40px",
-            }}
+              margin: "0 0 40px" }}
           >
             Lets go 🚀
           </p>
@@ -124,8 +118,7 @@ export default function EmailPreviewPage() {
             style={{
               borderColor: "#e5e5e5",
               borderStyle: "dashed",
-              margin: "0 32px 24px",
-            }}
+              margin: "0 32px 24px" }}
           />
 
           {/* Footer */}

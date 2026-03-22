@@ -534,7 +534,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
   };
 
   return (
-    <div className="flex flex-col h-full" style={{ background: "#0f141a" }}>
+    <div className="flex flex-col h-full bg-card" >
       {/* Top bar */}
       <div
         className="flex items-center justify-between px-5 py-2.5 shrink-0"
@@ -568,8 +568,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
               ? `url(${displayCover}) center/cover no-repeat`
               : !displayCover
               ? "radial-gradient(ellipse 80% 140% at 65% 30%, rgba(34,197,94,0.45) 0%, rgba(16,185,129,0.2) 35%, rgba(6,78,59,0.15) 60%, transparent 80%), linear-gradient(135deg, #061a12 0%, #0a2e1e 30%, #0d3a27 55%, #072217 80%, #051510 100%)"
-              : undefined,
-          }}
+              : undefined }}
         >
           {/* Positioned cover with crop data */}
           {displayCover && displayCoverCrop && (
@@ -583,8 +582,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                 left: "50%",
                 top: "50%",
                 transform: `translate(calc(-50% + ${displayCoverCrop.x}px), calc(-50% + ${displayCoverCrop.y}px)) scale(${displayCoverCrop.scale})`,
-                transformOrigin: "center center",
-              }}
+                transformOrigin: "center center" }}
             />
           )}
           {!displayCover && (
@@ -698,7 +696,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                 <button
                   className="p-2 rounded-lg"
                   style={{
-                    background: "rgba(255,255,255,0.05)", }}
+                    background: "rgba(255,255,255,0.05)" }}
                 >
                   <UserPlus className="w-4 h-4" />
                 </button>
@@ -707,7 +705,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                 onClick={() => setNotifModalOpen(true)}
                 className="p-2 rounded-lg"
                 style={{
-                  background: "rgba(255,255,255,0.05)", }}
+                  background: "rgba(255,255,255,0.05)" }}
               >
                 <Bell className="w-4 h-4" />
               </button>
@@ -716,8 +714,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                 className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-semibold"
                 style={{
                   background: "rgba(181,98,42,0.12)",
-                  color: "#E67E22",
-                }}
+                  color: "#E67E22" }}
               >
                 Add team <Plus className="w-3.5 h-3.5" />
               </button>
@@ -726,8 +723,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                 className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-semibold"
                 style={{
                   background: "rgba(59,130,246,0.12)",
-                  color: "#3b82f6",
-                }}
+                  color: "#3b82f6" }}
               >
                 <BadgeCheck className="w-3.5 h-3.5" /> Verified
               </button>
@@ -833,8 +829,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                 className="relative pb-2.5 text-sm font-medium transition-colors"
                 style={{
                   color:
-                    activeTab === tab ? "#E67E22" : "rgba(255,255,255,0.45)",
-                }}
+                    activeTab === tab ? "#E67E22" : "rgba(255,255,255,0.45)" }}
               >
                 {tab}
                 {activeTab === tab && (
@@ -890,7 +885,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                   <button
                     onClick={() => navigate("/my-business")}
                     className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold"
-                    style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)", }}
+                    style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)" }}
                   >
                     Publish your business
                   </button>
@@ -915,7 +910,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                         ) : (
                           <div
                             className="h-24 flex items-center justify-center text-3xl font-bold"
-                            style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)", }}
+                            style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)" }}
                           >
                             {initials}
                           </div>
@@ -1014,8 +1009,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                           : kycStatus === "rejected"
                           ? "rgba(239,68,68,0.2)"
                           : "rgba(255,255,255,0.08)"
-                      }`,
-                    }}
+                      }` }}
                   >
                     <div className="flex items-center gap-2">
                       {kycStatus === "approved" ? (
@@ -1054,8 +1048,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                     className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors"
                     style={{
                       background: kycStatus === "approved" ? "rgba(34,197,94,0.12)" : "linear-gradient(135deg, #b5622a, #5c2a12)",
-                      color: kycStatus === "approved" ? "#22c55e" : "#fff",
-                    }}
+                      color: kycStatus === "approved" ? "#22c55e" : "#fff" }}
                     disabled={kycStatus === "approved"}
                   >
                     {kycStatus === "approved" ? (

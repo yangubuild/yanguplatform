@@ -30,8 +30,7 @@ export function CommunityHero() {
             className="w-full pl-11 pr-4 py-3 rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none text-sm"
             style={{
               background: '#152A20',
-              border: '1px solid rgba(255,255,255,0.12)',
-            }}
+              border: '1px solid rgba(255,255,255,0.12)' }}
           />
         </div>
       </div>

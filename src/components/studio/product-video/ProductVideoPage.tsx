@@ -785,7 +785,7 @@ export default function ProductVideoPage() {
   const [generatedResult, setGeneratedResult] = useState<VideoGenerateResult | null>(null);
 
   return (
-    <div className="h-full flex flex-col overflow-hidden" style={{ background: "#08120D" }}>
+    <div className="h-full flex flex-col overflow-hidden bg-background" >
       {/* ── Top bar ── */}
       <div className="h-12 flex items-center justify-between px-4 border-b border-border/20 shrink-0">
         <div className="flex items-center gap-3">

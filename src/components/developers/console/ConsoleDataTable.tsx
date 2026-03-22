@@ -99,8 +99,7 @@ export function ConsoleDataTable<T extends { id?: string }>({
         className="rounded-xl overflow-hidden"
         style={{
           background: "rgba(255,255,255,0.03)",
-          border: "1px solid rgba(255,255,255,0.10)",
-        }}
+          border: "1px solid rgba(255,255,255,0.10)" }}
       >
         {isLoading ? (
           <div className="p-8 text-center text-muted-foreground text-sm">Loading…</div>
