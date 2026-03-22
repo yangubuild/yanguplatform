@@ -82,7 +82,7 @@ export function FriendChatRightPanel({ friend }: Props) {
                 <div
                   className="max-w-[75%] px-3 py-2 rounded-xl text-sm"
                   style={{
-                    background: isMine ? "rgba(181,98,42,0.3)" : "rgba(255,255,255,0.06)",
+                    background: isMine ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.06)",
                     color: "#fff",
                   }}
                 >
