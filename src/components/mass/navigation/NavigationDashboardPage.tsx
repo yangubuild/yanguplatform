@@ -21,7 +21,7 @@ export function NavigationDashboardPage() {
 
   return (
     <div
-      className="min-h-screen w-full max-w-full overflow-x-hidden">
+      className="min-h-screen w-full max-w-full overflow-x-hidden bg-background">
       <NavDashHeader onMenuToggle={() => setSidebarOpen((p) => !p)} />
       <NavDashSidebar
         isOpen={sidebarOpen}
@@ -30,7 +30,7 @@ export function NavigationDashboardPage() {
       />
 
       <div
-        className="mt-16 transition-all duration-300 min-h-[calc(100vh-64px)] overflow-y-auto"
+        className="mt-16 transition-all duration-300 min-h-[calc(100vh-64px)] overflow-y-auto bg-background"
         style={{
           marginLeft: isMobile ? 0 : totalWidth,
           paddingBottom: isMobile ? 56 : 0 }}>
