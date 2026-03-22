@@ -56,7 +56,7 @@ export default function AgencyAnalyticsPage() {
       <div>
         <div className="flex items-center gap-2">
           <Users className="w-6 h-6 text-destructive" />
-          <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>
+          <h1 className="text-lg font-semibold text-foreground">
             User Segmentation & Analytics
           </h1>
         </div>

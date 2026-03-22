@@ -91,7 +91,7 @@ export default function AgencyHomePage() {
   return (
     <div className="p-6 max-w-[1200px] mx-auto space-y-8 min-h-screen bg-background">
       <div>
-        <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>
+        <h1 className="text-lg font-semibold text-foreground">
           Agency Management
         </h1>
         <p className="text-sm text-muted-foreground mt-1">Managing: My Organization</p>
