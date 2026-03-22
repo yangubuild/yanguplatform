@@ -151,6 +151,14 @@ export function MessagesChatsTab({ onSelectDm, onSelectGroup }: Props) {
                   {thread.unreadCount > 9 ? "9+" : thread.unreadCount}
                 </span>
               )}
+              {thread.type === "group" && thread.unreadCount > 0 && (
+                <span
+                  className="min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-[9px] font-bold text-white px-1"
+                  style={{ background: "#a855f7" }}
+                >
+                  {thread.unreadCount > 9 ? "9+" : thread.unreadCount}
+                </span>
+              )}
             </div>
           </button>
         ))}
