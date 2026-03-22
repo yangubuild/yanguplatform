@@ -189,11 +189,15 @@ export default function DashboardHome() {
       onProfileTabChange={handleProfileTabChange}
     />
   );
+  const postModal = postModalId ? (
+    <PostDetailModal postId={postModalId} onClose={() => setPostModalId(null)} />
+  ) : null;
 
   if (isMobile) {
     return (
       <div className="h-[calc(100vh-64px)] flex flex-col overflow-hidden" style={{ background: "#08120D" }}>
         {centerContent}
+        {postModal}
       </div>
     );
   }
