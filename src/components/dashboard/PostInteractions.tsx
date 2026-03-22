@@ -3,6 +3,7 @@ import { Heart, ThumbsUp, MessageSquare, ExternalLink, Loader2, X, ImagePlus, Vi
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { usePostComments, useCreateComment, uploadPostMedia, type Post } from "@/hooks/usePosts";
+import { useRealtimeComments } from "@/hooks/useRealtimeComments";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -58,19 +59,25 @@ export function PostInteractions({ post, toggleReaction }: PostInteractionsProps
   const [optimisticLoved, setOptimisticLoved] = useState(!!post.user_loved);
   const [optimisticLikeCount, setOptimisticLikeCount] = useState(post.like_count ?? 0);
   const [optimisticLoveCount, setOptimisticLoveCount] = useState(post.love_count ?? 0);
+  const [optimisticCommentCount, setOptimisticCommentCount] = useState(post.comment_count ?? 0);
 
-  // Sync with server data when post changes
+  // Sync with server data when post prop changes
   useEffect(() => {
     setOptimisticLiked(!!post.user_liked);
     setOptimisticLoved(!!post.user_loved);
     setOptimisticLikeCount(post.like_count ?? 0);
     setOptimisticLoveCount(post.love_count ?? 0);
-  }, [post.user_liked, post.user_loved, post.like_count, post.love_count]);
+    setOptimisticCommentCount(post.comment_count ?? 0);
+  }, [post.user_liked, post.user_loved, post.like_count, post.love_count, post.comment_count]);
 
-  const { data: comments = [], isLoading: commentsLoading } = usePostComments(showComments ? post.id : undefined);
+  const activePostId = showComments ? post.id : undefined;
+  const { data: comments = [], isLoading: commentsLoading } = usePostComments(activePostId);
   const createComment = useCreateComment();
   const { data: likers = [] } = useReactionUsers(post.id, "like", showLikers);
   const { data: lovers = [] } = useReactionUsers(post.id, "love", showLovers);
+
+  // Realtime: subscribe to new comments when comments are open
+  useRealtimeComments(activePostId);
 
   // Auth gate: redirect to login if not authenticated
   const requireAuth = useCallback(() => {
@@ -167,7 +174,7 @@ export function PostInteractions({ post, toggleReaction }: PostInteractionsProps
           className="flex items-center gap-1 text-[11px]"
           style={{ color: showComments ? "#a78bfa" : "rgba(255,255,255,0.35)" }}
         >
-          <MessageSquare className="w-3.5 h-3.5" /> {post.comment_count || ""}
+          <MessageSquare className="w-3.5 h-3.5" /> {optimisticCommentCount || ""}
         </button>
         {/* Share */}
         <div className="relative ml-auto">

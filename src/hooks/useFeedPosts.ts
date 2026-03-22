@@ -14,6 +14,7 @@ export function useFeedPosts() {
   return useQuery({
     queryKey: ["feed-posts", user?.id],
     enabled: !!user,
+    staleTime: 10_000,
     queryFn: async (): Promise<Post[]> => {
       if (!user) return [];
 

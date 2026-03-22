@@ -15,6 +15,7 @@ export function useFollowingPosts() {
   const query = useInfiniteQuery({
     queryKey: ["following-posts", user?.id],
     enabled: !!user,
+    staleTime: 10_000,
     initialPageParam: 0,
     getNextPageParam: (lastPage: Post[], allPages) => {
       if (lastPage.length < PAGE_SIZE) return undefined;

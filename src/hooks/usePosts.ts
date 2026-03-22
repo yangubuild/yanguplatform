@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -69,12 +69,76 @@ function aggregateInteractions(
   return { commentCounts, likeCounts, loveCounts, userLiked, userLoved };
 }
 
-/** All query keys that contain posts — used for global invalidation */
+/** All query keys that contain posts */
 const ALL_POST_QUERY_KEYS = ["user-posts", "feed-posts", "following-posts"] as const;
 
-function invalidateAllPosts(queryClient: ReturnType<typeof useQueryClient>) {
+// ─── Scoped Cache Updaters ───────────────────────────────────────────────────
+
+/**
+ * Update a single post's field in ALL post list caches without refetching.
+ * This is O(n) over cached posts but avoids network requests entirely.
+ */
+function updatePostInCache(
+  queryClient: QueryClient,
+  postId: string,
+  updater: (post: Post) => Post
+) {
   ALL_POST_QUERY_KEYS.forEach(key => {
-    queryClient.invalidateQueries({ queryKey: [key] });
+    queryClient.setQueriesData<Post[] | { pages: Post[][] } | undefined>(
+      { queryKey: [key] },
+      (old) => {
+        if (!old) return old;
+        // Handle flat arrays (user-posts, feed-posts)
+        if (Array.isArray(old)) {
+          return old.map(p => p.id === postId ? updater(p) : p);
+        }
+        // Handle infinite query pages (following-posts)
+        if ('pages' in old && Array.isArray(old.pages)) {
+          return {
+            ...old,
+            pages: old.pages.map(page =>
+              page.map(p => p.id === postId ? updater(p) : p)
+            ),
+          };
+        }
+        return old;
+      }
+    );
+  });
+}
+
+/**
+ * Increment a post's comment_count in cache without refetching.
+ */
+export function incrementCommentCount(queryClient: QueryClient, postId: string) {
+  updatePostInCache(queryClient, postId, (p) => ({
+    ...p,
+    comment_count: (p.comment_count ?? 0) + 1,
+  }));
+}
+
+/**
+ * Update reaction state for a post in cache without refetching.
+ */
+function updateReactionInCache(
+  queryClient: QueryClient,
+  postId: string,
+  reactionType: "like" | "love",
+  isActive: boolean
+) {
+  updatePostInCache(queryClient, postId, (p) => {
+    if (reactionType === "like") {
+      return {
+        ...p,
+        user_liked: !isActive,
+        like_count: Math.max(0, (p.like_count ?? 0) + (isActive ? -1 : 1)),
+      };
+    }
+    return {
+      ...p,
+      user_loved: !isActive,
+      love_count: Math.max(0, (p.love_count ?? 0) + (isActive ? -1 : 1)),
+    };
   });
 }
 
@@ -89,6 +153,7 @@ export function useUserPosts(userId: string | undefined) {
   return useQuery({
     queryKey: ["user-posts", userId],
     enabled: !!userId,
+    staleTime: 10_000, // 10s — prevent refetch storms
     queryFn: async (): Promise<Post[]> => {
       if (!userId) return [];
       const { data, error } = await supabase
@@ -140,6 +205,7 @@ export function usePostComments(postId: string | undefined) {
   return useQuery({
     queryKey: ["post-comments", postId],
     enabled: !!postId,
+    staleTime: 5_000, // 5s — comments are relatively stable
     queryFn: async (): Promise<PostComment[]> => {
       if (!postId) return [];
       const { data, error } = await supabase
@@ -211,7 +277,9 @@ export function useCreatePost() {
       return data;
     },
     onSuccess: () => {
-      invalidateAllPosts(queryClient);
+      // New post creation: invalidate only own posts + feed posts (they contain own posts)
+      queryClient.invalidateQueries({ queryKey: ["user-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["feed-posts"] });
       toast.success("Post published!");
     },
     onError: (err: Error) => toast.error(err.message || "Failed to create post"),
@@ -220,7 +288,7 @@ export function useCreatePost() {
 
 export function useCreateComment() {
   const queryClient = useQueryClient();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
 
   return useMutation({
     mutationFn: async ({ postId, content }: { postId: string; content: string }) => {
@@ -235,11 +303,45 @@ export function useCreateComment() {
       if (error) throw error;
       return data;
     },
-    onSuccess: (_, vars) => {
-      queryClient.invalidateQueries({ queryKey: ["post-comments", vars.postId] });
-      invalidateAllPosts(queryClient);
+    onMutate: async (vars) => {
+      // Optimistic: append comment to cache immediately
+      if (!user) return;
+      await queryClient.cancelQueries({ queryKey: ["post-comments", vars.postId] });
+
+      const previousComments = queryClient.getQueryData<PostComment[]>(["post-comments", vars.postId]);
+      const resolvedAvatar = profile ? resolveAvatarUrl(profile) : null;
+
+      const optimisticComment: PostComment = {
+        id: `optimistic-${Date.now()}`,
+        post_id: vars.postId,
+        user_id: user.id,
+        content: vars.content.trim(),
+        created_at: new Date().toISOString(),
+        author_name: profile?.display_name || profile?.username || "You",
+        author_avatar: resolvedAvatar || undefined,
+        author_username: profile?.username || undefined,
+      };
+
+      queryClient.setQueryData<PostComment[]>(
+        ["post-comments", vars.postId],
+        (old) => [...(old ?? []), optimisticComment]
+      );
+
+      // Also increment comment_count in post caches
+      incrementCommentCount(queryClient, vars.postId);
+
+      return { previousComments };
     },
-    onError: (err: Error) => toast.error(err.message || "Failed to add comment"),
+    onError: (_err, vars, context) => {
+      // Rollback on error
+      if (context?.previousComments) {
+        queryClient.setQueryData(["post-comments", vars.postId], context.previousComments);
+      }
+    },
+    onSettled: (_data, _error, vars) => {
+      // Refetch comments to get server-confirmed data (replaces optimistic IDs)
+      queryClient.invalidateQueries({ queryKey: ["post-comments", vars.postId] });
+    },
   });
 }
 
@@ -251,7 +353,6 @@ export function useToggleReaction() {
   const mutationFn = useCallback(async ({ postId, reactionType, isActive }: { postId: string; reactionType: "like" | "love"; isActive: boolean }) => {
     if (!user) throw new Error("Not authenticated");
 
-    // Idempotency: prevent duplicate in-flight requests for same post+type
     const key = `${postId}:${reactionType}`;
     if (inflightRef.current.has(key)) return;
     inflightRef.current.add(key);
@@ -265,7 +366,6 @@ export function useToggleReaction() {
           .eq("user_id", user.id)
           .eq("reaction_type", reactionType);
       } else {
-        // Upsert-like: delete first to prevent unique constraint violations on rapid clicks
         await supabase
           .from("post_reactions")
           .delete()
@@ -283,8 +383,11 @@ export function useToggleReaction() {
 
   return useMutation({
     mutationFn,
-    onSuccess: () => {
-      invalidateAllPosts(queryClient);
+    onMutate: (vars) => {
+      // Scoped optimistic update — no full feed refetch
+      updateReactionInCache(queryClient, vars.postId, vars.reactionType, vars.isActive);
     },
+    // No onSuccess invalidation — optimistic state is sufficient
+    // Server state will sync on next natural query refresh (staleTime)
   });
 }
