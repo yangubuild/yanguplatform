@@ -276,8 +276,8 @@ export function DmThreadView({ targetUserId }: Props) {
                     className={`px-3 py-2 rounded-xl text-sm yg-glass-chat ${isMine ? "yg-sender" : ""}`}
                     style={{ color: "#fff" }}
                   >
-                    {renderContent(msg.content)}
-                    <p className="text-[9px] mt-1" style={{ color: "rgba(255,255,255,0.3)" }}>
+                    <span className="relative z-[1]">{renderContent(msg.content)}</span>
+                    <p className="relative z-[1] text-[9px] mt-1" style={{ color: "rgba(255,255,255,0.3)" }}>
                       {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                     </p>
                   </div>
