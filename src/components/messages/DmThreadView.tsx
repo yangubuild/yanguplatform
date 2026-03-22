@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useConversation, useSendMessage } from "@/hooks/useDirectMessages";
@@ -13,6 +13,8 @@ import { YanguEmojiPicker } from "@/components/emoji/YanguEmojiPicker";
 import { EmojiSuggestions } from "@/components/emoji/EmojiSuggestions";
 import { useEmojiInput } from "@/hooks/useEmojiInput";
 import type { YanguEmoji } from "@/lib/emojiSystem";
+import { useTypingIndicator } from "@/hooks/useTypingIndicator";
+import { TypingIndicator } from "@/components/messages/TypingIndicator";
 
 interface Props {
   targetUserId: string;
