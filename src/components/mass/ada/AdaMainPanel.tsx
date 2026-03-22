@@ -1713,7 +1713,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
 
   return (
     <main
-      className="flex-1 flex flex-col min-h-0 overflow-hidden">
+      className="flex-1 flex flex-col min-h-0 overflow-hidden items-center w-full max-w-full overflow-x-hidden">
       {/* Hidden file input */}
       <input
         ref={fileInputRef}
@@ -2011,7 +2011,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
           <>
             {/* Welcome / hero state */}
             <img src={adaLogo} alt="Ada AI" className="h-10 mb-4 object-contain" />
-            <h1 className="text-foreground text-xl sm:text-4xl md:text-5xl font-bold text-center mb-2 flex flex-wrap items-center justify-center gap-1 sm:gap-3 px-2 sm:px-4 max-w-full overflow-hidden">
+            <h1 className="text-foreground text-xl sm:text-4xl md:text-5xl font-bold text-center mb-2 flex flex-wrap items-center justify-center gap-1 sm:gap-3 px-4 max-w-full overflow-hidden box-border">
               <span>Build your</span>
               <span className="inline-flex min-w-0">
                 <span className="text-[#F4A83D]">

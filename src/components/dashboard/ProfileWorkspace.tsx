@@ -54,6 +54,8 @@ import { NotificationPrefsModal } from "./NotificationPrefsModal";
 import { ShareBusinessPopover } from "./ShareBusinessPopover";
 import { DashboardMoreMenu } from "./DashboardMoreMenu";
 import { SocialLinksModal, SOCIAL_PLATFORMS, type SocialLinksData } from "./SocialLinksModal";
+import { MobilePeopleSheet } from "./mobile/MobilePeopleSheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const TABS = ["Home", "KYC", "Reviews", "Posts", "About"] as const;
 
@@ -330,6 +332,8 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
   const [savingSocial, setSavingSocial] = useState(false);
   const [avatarPickerOpen, setAvatarPickerOpen] = useState(false);
   const [verifiedOpen, setVerifiedOpen] = useState(false);
+  const [peopleSheetOpen, setPeopleSheetOpen] = useState(false);
+  const isMobileView = useIsMobile();
   // Fetch social links from profile
   useEffect(() => {
     if (profile) {
@@ -650,7 +654,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
           </div>
 
           {/* Name row */}
-          <div className="flex items-start justify-between mt-3 gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between mt-3 gap-2 sm:gap-4">
             {editingName ? (
               <div className="flex items-center gap-2 flex-1" style={{ maxWidth: "420px" }}>
                 <input
@@ -658,7 +662,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                   value={nameValue}
                   onChange={(e) => setNameValue(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter") handleSaveName(); if (e.key === "Escape") setEditingName(false); }}
-                  className="text-[22px] leading-[1.15] font-bold text-foreground bg-transparent border-b-2 outline-none flex-1"
+                  className="text-[22px] leading-[1.15] font-bold text-foreground bg-transparent border-b-2 outline-none flex-1 min-w-0"
                   style={{ borderColor: "#b5622a" }}
                 />
                 <button onClick={handleSaveName} disabled={savingName} className="p-1 rounded" style={{ color: "#22c55e" }}>
@@ -669,9 +673,9 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-2 group/name cursor-pointer" onClick={() => { setNameValue(displayName); setEditingName(true); }}>
+              <div className="flex items-center gap-2 group/name cursor-pointer min-w-0" onClick={() => { setNameValue(displayName); setEditingName(true); }}>
                 <h2
-                  className="text-[28px] leading-[1.15] font-bold text-foreground"
+                  className="text-xl sm:text-[28px] leading-[1.15] font-bold text-foreground truncate"
                   style={{ maxWidth: "420px" }}>
                   {displayName}
                 </h2>
@@ -681,18 +685,26 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                   const colorMap: Record<string, string> = { blue: "#3b82f6", orange: "#b5622a", green: "#16a34a" };
                   return <BadgeCheck className="w-5 h-5 shrink-0" style={{ color: colorMap[vt] || "#3b82f6" }} />;
                 })()}
-                <Pencil className="w-3.5 h-3.5 opacity-0 group-hover/name:opacity-100 transition-opacity text-muted-foreground" />
+                <Pencil className="w-3.5 h-3.5 opacity-0 group-hover/name:opacity-100 transition-opacity text-muted-foreground shrink-0" />
               </div>
             )}
-            <div className="flex items-center gap-2 shrink-0 mt-1">
-              <ShareBusinessPopover avatarUrl={displayAvatar} initials={initials}>
+            <div className="flex items-center gap-2 shrink-0 flex-wrap">
+              {isMobileView ? (
                 <button
+                  onClick={() => setPeopleSheetOpen(true)}
                   className="p-2 rounded-lg"
-                  style={{
-                    background: "rgba(255,255,255,0.05)" }}>
+                  style={{ background: "rgba(255,255,255,0.05)" }}>
                   <UserPlus className="w-4 h-4" />
                 </button>
-              </ShareBusinessPopover>
+              ) : (
+                <ShareBusinessPopover avatarUrl={displayAvatar} initials={initials}>
+                  <button
+                    className="p-2 rounded-lg"
+                    style={{ background: "rgba(255,255,255,0.05)" }}>
+                    <UserPlus className="w-4 h-4" />
+                  </button>
+                </ShareBusinessPopover>
+              )}
               <button
                 onClick={() => setNotifModalOpen(true)}
                 className="p-2 rounded-lg"
@@ -702,7 +714,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
               </button>
               <button
                 onClick={() => setTeamModalOpen(true)}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-semibold"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold"
                 style={{
                   background: "rgba(181,98,42,0.12)",
                   color: "#E67E22" }}>
@@ -710,7 +722,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
               </button>
               <button
                 onClick={() => setVerifiedOpen(true)}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-semibold"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold"
                 style={{
                   background: "rgba(59,130,246,0.12)",
                   color: "#3b82f6" }}>
@@ -1080,6 +1092,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
         />
       )}
       <VerifiedModal open={verifiedOpen} onOpenChange={setVerifiedOpen} />
+      <MobilePeopleSheet open={peopleSheetOpen} onOpenChange={setPeopleSheetOpen} />
     </div>
   );
 }

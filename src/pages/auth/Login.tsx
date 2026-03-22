@@ -11,6 +11,7 @@ import { AuthDivider } from "@/components/auth/AuthDivider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PasswordInput } from "@/components/auth/PasswordInput";
 import { toast } from "sonner";
 import { Loader2, Mail } from "lucide-react";
 
@@ -160,9 +161,8 @@ export default function Login() {
                 Forgot password?
               </Link>
             </div>
-            <Input
+            <PasswordInput
               id="password"
-              type="password"
               placeholder="••••••••"
               autoComplete="current-password"
               disabled={isLoading || isMagicLinkLoading}

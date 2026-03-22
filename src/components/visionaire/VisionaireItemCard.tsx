@@ -51,10 +51,10 @@ export function VisionaireItemCard({ item, isSaved, onOpen, onSave, onUnsave, ea
 
   return (
     <div
-      className="group rounded-xl border border-border bg-card overflow-hidden transition-all hover:shadow-lg hover:-translate-y-0.5 cursor-pointer flex flex-col"
+      className="group rounded-xl border border-border bg-card overflow-hidden transition-all hover:shadow-lg hover:-translate-y-0.5 cursor-pointer flex flex-col min-w-0"
       onClick={onOpen}>
       {thumbnail && !imgError ? (
-        <div className="aspect-[4/3] overflow-hidden bg-muted">
+        <div className="aspect-[4/3] overflow-hidden bg-muted flex-shrink-0">
           <img
             src={thumbnail}
             alt={item.title}
