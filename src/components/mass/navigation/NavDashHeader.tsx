@@ -162,27 +162,35 @@ function NotificationBell() {
               <span className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>No notifications yet</span>
             </div>
           ) : (
-            notifications.map((notif: any) => (
-              <button
-                key={notif.id}
-                onClick={() => handleClick(notif)}
-                className="w-full flex items-start gap-3 px-4 py-2.5 text-left transition-colors"
-                style={{ background: notif.is_read ? "transparent" : "rgba(74,222,128,0.04)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = notif.is_read ? "transparent" : "rgba(74,222,128,0.04)")}
-              >
-                {!notif.is_read && <span className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#4ade80" }} />}
-                <div className="flex-1 min-w-0">
-                  <p className="text-[11px] font-medium truncate" style={{ color: "rgba(255,255,255,0.85)" }}>{notif.title}</p>
-                  {notif.body && (
-                    <p className="text-[10px] mt-0.5 truncate" style={{ color: "rgba(255,255,255,0.5)" }}>{notif.body}</p>
+            notifications.map((notif: any) => {
+              const actorAvatar = notif.metadata?.actor_avatar;
+              return (
+                <button
+                  key={notif.id}
+                  onClick={() => handleClick(notif)}
+                  className="w-full flex items-start gap-3 px-4 py-2.5 text-left transition-colors min-h-[44px]"
+                  style={{ background: notif.is_read ? "transparent" : "rgba(74,222,128,0.04)" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = notif.is_read ? "transparent" : "rgba(74,222,128,0.04)")}
+                >
+                  {actorAvatar ? (
+                    <img src={actorAvatar} alt="" className="w-7 h-7 rounded-full object-cover shrink-0 mt-0.5" />
+                  ) : (
+                    !notif.is_read && <span className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#4ade80" }} />
                   )}
-                  <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>
-                    {formatDistanceToNow(new Date(notif.created_at), { addSuffix: true })}
-                  </p>
-                </div>
-              </button>
-            ))
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[11px] font-medium truncate" style={{ color: "rgba(255,255,255,0.85)" }}>{notif.title}</p>
+                    {notif.body && (
+                      <p className="text-[10px] mt-0.5 truncate" style={{ color: "rgba(255,255,255,0.5)" }}>{notif.body}</p>
+                    )}
+                    <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>
+                      {formatDistanceToNow(new Date(notif.created_at), { addSuffix: true })}
+                    </p>
+                  </div>
+                  {!notif.is_read && actorAvatar && <span className="mt-2 w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#4ade80" }} />}
+                </button>
+              );
+            })
           )}
         </div>
       </PopoverContent>
