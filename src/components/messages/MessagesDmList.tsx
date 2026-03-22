@@ -7,7 +7,7 @@ import { useUnreadDmPerPartner } from "@/hooks/useUnreadMessages";
 import { useUnreadGroupPerGroup } from "@/hooks/useGroupUnread";
 import { useMyGroups, type ChatGroup } from "@/hooks/useGroupChats";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
-import { Search, Loader2, Plus, Users } from "lucide-react";
+import { Search, Loader2, Plus, Users, MessageCircle } from "lucide-react";
 
 interface Props {
   selectedUserId: string | null;
@@ -18,7 +18,7 @@ interface Props {
 }
 
 type UnifiedThread = {
-  type: "dm";
+  type: "dm" | "group";
   id: string;
   name: string;
   avatar: string | null;
@@ -27,17 +27,7 @@ type UnifiedThread = {
   date: string;
   timestamp: number;
   unreadCount: number;
-} | {
-  type: "group";
-  id: string;
-  name: string;
-  avatar: string | null;
-  initials: string;
-  preview: string;
-  date: string;
-  timestamp: number;
-  memberCount: number;
-  unreadCount: number;
+  memberCount?: number;
 };
 
 export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, onSelectGroup, onOpenCreateMenu }: Props) {
@@ -65,11 +55,9 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
   const profileMap = new Map(profiles.map((p) => [p.id, p]));
   const lowerSearch = search.toLowerCase();
 
-  // Build unified thread list sorted by latest activity
   const threads = useMemo(() => {
     const list: UnifiedThread[] = [];
 
-    // DMs
     for (const conv of conversations) {
       const profile = profileMap.get(conv.partnerId);
       const name = profile?.display_name || profile?.username || "User";
@@ -87,7 +75,6 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
       });
     }
 
-    // Groups
     for (const g of groups) {
       const ts = g.last_message_at ? new Date(g.last_message_at).getTime() : new Date(g.created_at).getTime();
       list.push({
@@ -99,15 +86,13 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
         preview: g.last_message || "No messages yet",
         date: new Date(ts).toLocaleDateString(undefined, { month: "numeric", day: "numeric" }),
         timestamp: ts,
-        memberCount: g.member_count ?? 0,
         unreadCount: unreadGroupMap?.get(g.id) || 0,
+        memberCount: g.member_count ?? 0,
       });
     }
 
-    // Sort by latest activity
     list.sort((a, b) => b.timestamp - a.timestamp);
 
-    // Filter by search
     if (search.trim()) {
       return list.filter(t => t.name.toLowerCase().includes(lowerSearch));
     }
@@ -121,12 +106,12 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
       {/* Search */}
       <div className="p-3 flex items-center gap-2">
         <div className="flex-1 flex items-center gap-2 rounded-lg px-3 py-2" style={{ background: "rgba(255,255,255,0.06)" }}>
-          <Search className="w-4 h-4" style={{ color: "rgba(255,255,255,0.35)" }} />
+          <Search className="w-4 h-4 shrink-0" style={{ color: "rgba(255,255,255,0.35)" }} />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search conversations..."
-            className="bg-transparent text-sm flex-1 outline-none"
+            className="bg-transparent text-sm flex-1 outline-none min-w-0"
             style={{ color: "rgba(255,255,255,0.8)" }}
           />
         </div>
@@ -147,10 +132,13 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
             <Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
           </div>
         ) : threads.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-10">
+          <div className="flex flex-col items-center justify-center py-10 gap-2">
+            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.06)" }}>
+              <MessageCircle className="w-5 h-5" style={{ color: "rgba(255,255,255,0.3)" }} />
+            </div>
             <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>No conversations yet</p>
-            <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.25)" }}>
-              Start messaging someone or create a group
+            <p className="text-xs" style={{ color: "rgba(255,255,255,0.25)" }}>
+              Start messaging or create a group
             </p>
           </div>
         ) : (
@@ -166,24 +154,26 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
                   if (thread.type === "dm") onSelectUser(thread.id);
                   else onSelectGroup?.(thread.id);
                 }}
-                className="w-full flex items-start gap-3 p-3 rounded-xl text-left transition-colors"
+                className="w-full flex items-center gap-3 p-3 rounded-xl text-left transition-colors min-h-[60px]"
                 style={isSelected ? { background: "rgba(255,255,255,0.08)" } : {}}
               >
+                {/* Avatar — consistent 40px */}
                 <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 overflow-hidden relative"
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 overflow-hidden"
                   style={{
                     background: thread.type === "group" ? "rgba(168,85,247,0.2)" : "rgba(255,255,255,0.1)",
                     color: thread.type === "group" ? "rgba(168,85,247,0.9)" : "rgba(255,255,255,0.6)",
                   }}
                 >
                   {thread.avatar ? (
-                    <img src={thread.avatar} alt="" className="w-10 h-10 rounded-full object-cover" />
+                    <img src={thread.avatar} alt="" className="w-10 h-10 rounded-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                   ) : thread.type === "group" ? (
                     <Users className="w-4 h-4" />
                   ) : (
                     thread.initials
                   )}
                 </div>
+                {/* Content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <span className="text-sm font-medium text-white truncate">{thread.name}</span>
@@ -192,36 +182,29 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
                         Group
                       </span>
                     )}
-                    <span className="ml-auto text-[11px] shrink-0" style={{ color: "rgba(255,255,255,0.3)" }}>
-                      {thread.date}
+                  </div>
+                  <p className="text-xs truncate mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
+                    {thread.preview.length > 50 ? thread.preview.slice(0, 50) + "…" : thread.preview}
+                  </p>
+                </div>
+                {/* Meta */}
+                <div className="flex flex-col items-end gap-1 shrink-0 ml-1">
+                  <span className="text-[11px]" style={{ color: "rgba(255,255,255,0.3)" }}>
+                    {thread.date}
+                  </span>
+                  {thread.unreadCount > 0 && (
+                    <span
+                      className="min-w-[20px] h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white px-1.5"
+                      style={{ background: thread.type === "group" ? "#a855f7" : "#ef4444" }}
+                    >
+                      {thread.unreadCount > 99 ? "99+" : thread.unreadCount}
                     </span>
-                  </div>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <p className="text-xs truncate flex-1" style={{ color: "rgba(255,255,255,0.4)" }}>
-                      {thread.preview}
-                    </p>
-                    {thread.type === "dm" && thread.unreadCount > 0 && (
-                      <span
-                        className="min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-[9px] font-bold text-white px-1 shrink-0"
-                        style={{ background: "#ef4444" }}
-                      >
-                        {thread.unreadCount > 9 ? "9+" : thread.unreadCount}
-                      </span>
-                    )}
-                    {thread.type === "group" && thread.unreadCount > 0 && (
-                      <span
-                        className="min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-[9px] font-bold text-white px-1 shrink-0"
-                        style={{ background: "#a855f7" }}
-                      >
-                        {thread.unreadCount > 9 ? "9+" : thread.unreadCount}
-                      </span>
-                    )}
-                    {thread.type === "group" && thread.unreadCount === 0 && (
-                      <span className="text-[10px] shrink-0" style={{ color: "rgba(255,255,255,0.25)" }}>
-                        {thread.memberCount}👤
-                      </span>
-                    )}
-                  </div>
+                  )}
+                  {thread.type === "group" && thread.unreadCount === 0 && (
+                    <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.25)" }}>
+                      {thread.memberCount}👤
+                    </span>
+                  )}
                 </div>
               </button>
             );
