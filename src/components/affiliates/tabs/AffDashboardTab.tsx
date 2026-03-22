@@ -63,8 +63,8 @@ export function AffDashboardTab() {
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-white/[0.04] p-5 flex flex-col justify-between min-h-[180px]"
-      style={{ background: "#111a15" }}>
+    <div className="rounded-xl border border-white/[0.06] p-5 flex flex-col justify-between min-h-[180px]"
+      style={{ background: "rgba(255,255,255,0.02)" }}>
       <div>
         <p className="text-sm text-white/50 mb-1">{label}</p>
         <p className="text-xl font-semibold text-white">{value}</p>

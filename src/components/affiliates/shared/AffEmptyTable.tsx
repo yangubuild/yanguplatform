@@ -11,7 +11,7 @@ interface Props {
 
 export function AffEmptyTable({ columns, icon, title, subtitle, actionLabel, onAction }: Props) {
   return (
-    <div className="rounded-xl border border-white/[0.04] overflow-hidden" style={{ background: "#111a15" }}>
+    <div className="rounded-xl border border-white/[0.06] overflow-hidden" style={{ background: "rgba(255,255,255,0.02)" }}>
       {/* Header row */}
       <div className="flex items-center border-b border-white/[0.04] px-4 py-3">
         {columns.map((col, i) => (
