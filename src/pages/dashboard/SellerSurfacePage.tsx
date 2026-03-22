@@ -311,16 +311,16 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
   // For emenu, we use a custom entry that still opens the existing EmenuWizard for manual path
   if (engineKey === "emenu") {
     return (
-      <>
+      <div className="min-h-screen" style={{ background: "#08120D" }}>
         <BuilderEntryScreen engine={engine} onComplete={handleComplete} />
         <EmenuWizard
           open={emenuWizardOpen}
           onOpenChange={setEmenuWizardOpen}
           onComplete={handleEmenuWizardComplete}
         />
-      </>
+      </div>
     );
   }
 
-  return <BuilderEntryScreen engine={engine} onComplete={handleComplete} />;
+  return <div className="min-h-screen" style={{ background: "#08120D" }}><BuilderEntryScreen engine={engine} onComplete={handleComplete} /></div>;
 }

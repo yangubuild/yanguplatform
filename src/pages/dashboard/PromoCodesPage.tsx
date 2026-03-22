@@ -118,7 +118,7 @@ export default function PromoCodesPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full min-h-[60vh]">
+      <div className="flex items-center justify-center h-full min-h-[60vh] min-h-screen" style={{ background: "#08120D" }}>
         <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
       </div>
     );

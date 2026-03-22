@@ -151,7 +151,7 @@ export default function MyBusinessPage() {
 
   if (surfaces.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
+      <div className="flex flex-col items-center justify-center py-24 gap-4 text-center min-h-screen" style={{ background: "#08120D" }}>
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
           <Building2 className="h-8 w-8 text-muted-foreground" />
         </div>
