@@ -214,27 +214,32 @@ export default function BuilderEditor() {
         </div>
       )}
 
+      {/* Desktop notice for mobile users */}
+      <MobileBuilderDesktopNotice />
+
       {/* Top bar */}
-      <header className="sticky top-0 z-40 h-14 border-b border-border bg-background/80 backdrop-blur-sm flex items-center px-4 gap-4">
+      <header className="sticky top-0 z-40 h-14 border-b border-border bg-background/80 backdrop-blur-sm flex items-center px-3 lg:px-4 gap-2 lg:gap-4">
         <button
           onClick={() => safeNavigate("/dashboard")}
-          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0"
         >
-          <ArrowLeft className="h-4 w-4" /> Dashboard
+          <ArrowLeft className="h-4 w-4" /> <span className="hidden sm:inline">Dashboard</span>
         </button>
-        <div className="h-6 w-px bg-border" />
+        <div className="h-6 w-px bg-border hidden sm:block" />
         <h1 className="text-sm font-semibold truncate">{surfaceTitle}</h1>
-        <BuilderPagesDropdown
-          pages={editorState.pages}
-          activePageId={activePageId}
-          surfaceId={editorState.surface.id}
-          onSwitch={setActivePageId}
-          onRefresh={refreshEditor}
-        />
+        <div className="hidden lg:block">
+          <BuilderPagesDropdown
+            pages={editorState.pages}
+            activePageId={activePageId}
+            surfaceId={editorState.surface.id}
+            onSwitch={setActivePageId}
+            onRefresh={refreshEditor}
+          />
+        </div>
         <div className="flex-1" />
 
-        {/* Viewport toggle */}
-        <div className="flex items-center border border-border rounded-md overflow-hidden">
+        {/* Viewport toggle — desktop only */}
+        <div className="hidden lg:flex items-center border border-border rounded-md overflow-hidden">
           <button
             onClick={() => setPreviewViewport("desktop")}
             className={`flex items-center gap-1 px-2.5 py-1.5 text-xs transition-colors ${
@@ -253,18 +258,17 @@ export default function BuilderEditor() {
           </button>
         </div>
 
-        {/* Edit with Ada AI button */}
-        <Button size="sm" variant="outline" className="gap-2" onClick={() => toast.info("AI chat editor coming soon!")}>
+        {/* Desktop-only header buttons */}
+        <Button size="sm" variant="outline" className="gap-2 hidden lg:flex" onClick={() => toast.info("AI chat editor coming soon!")}>
           <Sparkles className="h-4 w-4" /> Edit with Ada AI
         </Button>
-
-        <Button size="sm" variant="outline" onClick={() => setSettingsOpen(true)} className="gap-2">
+        <Button size="sm" variant="outline" onClick={() => setSettingsOpen(true)} className="gap-2 hidden lg:flex">
           <Settings className="h-4 w-4" /> Settings
         </Button>
-        <Button size="sm" variant="outline" onClick={() => safeNavigate("/dashboard/my-business")} className="gap-2">
+        <Button size="sm" variant="outline" onClick={() => safeNavigate("/dashboard/my-business")} className="gap-2 hidden lg:flex">
           <ClipboardList className="h-4 w-4" /> View Orders
         </Button>
-        <Button size="sm" onClick={() => setPublishOpen(true)} className="gap-2">
+        <Button size="sm" onClick={() => setPublishOpen(true)} className="gap-2 hidden lg:flex">
           <Rocket className="h-4 w-4" /> Publish
         </Button>
       </header>
