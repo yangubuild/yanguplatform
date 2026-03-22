@@ -51,6 +51,19 @@ export function GroupChatThreadView({ group, onBack }: Props) {
 
   const myMembership = members.find(m => m.user_id === user?.id);
   const isAdmin = myMembership?.role === "admin" || myMembership?.role === "owner";
+  const myName = myMembership ? (members.find(m => m.user_id === user?.id)?.display_name || "User") : "User";
+
+  // Typing indicator
+  const groupChannelKey = useMemo(() => `group-${group.id}`, [group.id]);
+  const { typingUsers, startTyping, stopTyping } = useTypingIndicator(groupChannelKey, myName);
+
+  // Mark group as read
+  const markGroupRead = useMarkGroupRead();
+  useEffect(() => {
+    if (group.id && user?.id) {
+      void markGroupRead(group.id);
+    }
+  }, [group.id, user?.id, markGroupRead]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
