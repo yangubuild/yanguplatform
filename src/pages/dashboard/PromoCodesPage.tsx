@@ -130,7 +130,26 @@ export default function PromoCodesPage() {
         <div className="flex flex-col items-center justify-center h-full min-h-[70vh] gap-6">
           <PromoEmptyState onCreateClick={() => setShowCreate(true)} />
           {/* Create Offer CTA below promo empty state */}
-          <div className="border-t border-white/[0.06] pt-6 w-full max-w-sm mx-auto text-center">
+          <div className="border-t border-white/[0.06] pt-6 w-full max-w-sm mx-auto text-center flex flex-col items-center gap-4">
+            {/* Offer illustration icon */}
+            <div className="relative w-28 h-28 flex items-center justify-center">
+              <div
+                className="absolute inset-0 rounded-2xl"
+                style={{ background: "linear-gradient(135deg, #b5622a22, #5c2a1222)" }}
+              />
+              <div className="relative flex items-center justify-center">
+                <Send className="w-10 h-10 text-accent" />
+                <ImageIcon className="w-7 h-7 text-accent/70 absolute -top-2 -right-3 rotate-12" />
+              </div>
+            </div>
+            <div className="text-center space-y-2">
+              <h2 className="text-xl font-semibold text-foreground">
+                Create your <span className="text-accent">first</span> offer
+              </h2>
+              <p className="text-sm text-muted-foreground max-w-sm">
+                Promote your business with visual offer ads
+              </p>
+            </div>
             <Button
               variant="accent"
               onClick={() => setShowCreateOffer(true)}
@@ -139,9 +158,6 @@ export default function PromoCodesPage() {
               <Send className="w-4 h-4" />
               Create Offer
             </Button>
-            <p className="text-xs text-muted-foreground mt-2">
-              Promote your business with visual offer ads
-            </p>
           </div>
         </div>
       ) : (
