@@ -8,10 +8,22 @@ import { CORE_SECTIONS, resolveCoreSectionType, CONTENT_SECTION_TYPES } from "@/
 import { SECTION_TYPE_LABELS } from "@/config/builderSectionLabels";
 import { MainContentSwitcher } from "./MainContentSwitcher";
 
+interface BuilderSectionListProps {
+  sections: EditorSection[];
+  onReorder: (orderedIds: string[]) => void;
+  selectedId?: string | null;
+  onSelect?: (id: string) => void;
+  onDelete?: (id: string) => Promise<boolean>;
+  onSwitchMainContent?: (newType: string) => Promise<string | null>;
+  onVariantChange?: (sectionId: string, displayMode: string) => void;
+  surfaceType?: string;
+  currentMainContentType?: string | null;
+  industry?: string | null;
+}
+
 /** Detect if a section is the main_content slot */
 function isMainContentSlot(section: EditorSection, surfaceType: string): boolean {
   if (section.core_slot === "main_content") return true;
-  // Fallback: check if it's a core section whose type is in CONTENT_SECTION_TYPES
   if (section.isCore && CONTENT_SECTION_TYPES.has(section.section_type)) return true;
   return false;
 }
@@ -19,11 +31,10 @@ function isMainContentSlot(section: EditorSection, surfaceType: string): boolean
 /** Get display label for a section */
 function getSectionLabel(section: EditorSection, surfaceType: string): { primary: string; secondary?: string } {
   if (isMainContentSlot(section, surfaceType)) {
-    const typeLabel = TYPE_LABELS[section.section_type] || section.section_type;
+    const typeLabel = SECTION_TYPE_LABELS[section.section_type] || section.section_type;
     return { primary: "Main Content", secondary: `Currently: ${typeLabel}` };
   }
 
-  // Other core sections use their wireframe label
   for (const coreDef of CORE_SECTIONS) {
     const resolvedType = resolveCoreSectionType(coreDef.type, surfaceType);
     if (resolvedType === section.section_type && coreDef.type !== "main_content") {
@@ -31,7 +42,7 @@ function getSectionLabel(section: EditorSection, surfaceType: string): { primary
     }
   }
 
-  return { primary: TYPE_LABELS[section.section_type] || section.section_type };
+  return { primary: SECTION_TYPE_LABELS[section.section_type] || section.section_type };
 }
 
 export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, onDelete, onSwitchMainContent, onVariantChange, surfaceType = "quick_site", currentMainContentType, industry }: BuilderSectionListProps) {
