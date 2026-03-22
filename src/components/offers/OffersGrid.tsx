@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Heart, MessageCircle, Share2, MoreHorizontal, ChevronDown, ChevronUp,
   Search, Maximize2, ExternalLink, Smile, Sticker, Image as ImageIcon,
@@ -83,6 +84,7 @@ const DOTS_MENU_ITEMS = [
 ];
 
 export function OffersGrid() {
+  const navigate = useNavigate();
   const [featuredIdx, setFeaturedIdx] = useState(0);
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [commentText, setCommentText] = useState("");
@@ -115,7 +117,11 @@ export function OffersGrid() {
   };
 
   const handleVisitSite = () => {
-    window.location.href = featured.destinationUrl;
+    navigate(featured.destinationUrl);
+  };
+
+  const handleGetOffer = () => {
+    navigate(featured.destinationUrl);
   };
 
   return (
@@ -160,6 +166,7 @@ export function OffersGrid() {
                 <span className="text-sm text-foreground">Profile</span>
                 <ChevronDown className="h-4 w-4 text-foreground" />
                 <button
+                  onClick={handleGetOffer}
                   className="ml-2 rounded-lg px-4 py-1.5 text-sm font-bold text-white"
                   style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)" }}
                 >
