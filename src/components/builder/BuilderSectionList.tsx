@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { EditorSection } from "@/hooks/useBuilderEditor";
 import { CORE_SECTIONS, resolveCoreSectionType, CONTENT_SECTION_TYPES } from "@/config/builderCoreSections";
+import { SECTION_TYPE_LABELS } from "@/config/builderSectionLabels";
 import { MainContentSwitcher } from "./MainContentSwitcher";
 
 interface BuilderSectionListProps {
@@ -20,67 +21,9 @@ interface BuilderSectionListProps {
   industry?: string | null;
 }
 
-const TYPE_LABELS: Record<string, string> = {
-  hero: "Hero Banner",
-  header: "Header / Logo",
-  bio: "Bio",
-  links: "Links",
-  social: "Socials",
-  cta: "CTA",
-  video: "Video",
-  gallery: "Gallery",
-  text: "Text",
-  products: "Products",
-  services: "Services",
-  testimonials: "Testimonials",
-  contact: "Contact",
-  faq: "FAQ",
-  menu: "Menu",
-  schedule: "Schedule",
-  offer: "Offers",
-  hours: "Opening Hours",
-  location: "Location",
-  about: "About",
-  plans: "Plans",
-  featured: "Featured",
-  join: "Join",
-  listings: "Listings",
-  footer: "Footer",
-  properties: "Properties",
-  rooms: "Rooms",
-  booking_calendar: "Booking",
-  programs: "Programs",
-  tours: "Tours",
-  team: "Team",
-  services_pricing: "Services & Pricing",
-  featured_products: "Featured Products",
-  deals: "Deals",
-  flash_sale: "Flash Sale",
-  reviews: "Reviews",
-  supplier_catalog: "Supplier Catalog",
-  bulk_products: "Bulk Products",
-  agriculture_produce: "Agriculture",
-  manufacturer_products: "Manufacturer",
-  coaching: "Coaching",
-  courses: "Courses",
-  live_webinars: "Live Webinars",
-  workshops: "Workshops",
-  mentorship: "Mentorship",
-  resources: "Resources",
-  discussions: "Discussions",
-  live_stream: "Live Stream",
-  live_selling: "Live Selling",
-  affiliate_products: "Affiliate Products",
-  media_feed: "Media Feed",
-  merch: "Merch",
-  tips_support: "Tips & Support",
-  collabs: "Collabs",
-};
-
 /** Detect if a section is the main_content slot */
 function isMainContentSlot(section: EditorSection, surfaceType: string): boolean {
   if (section.core_slot === "main_content") return true;
-  // Fallback: check if it's a core section whose type is in CONTENT_SECTION_TYPES
   if (section.isCore && CONTENT_SECTION_TYPES.has(section.section_type)) return true;
   return false;
 }
@@ -88,11 +31,10 @@ function isMainContentSlot(section: EditorSection, surfaceType: string): boolean
 /** Get display label for a section */
 function getSectionLabel(section: EditorSection, surfaceType: string): { primary: string; secondary?: string } {
   if (isMainContentSlot(section, surfaceType)) {
-    const typeLabel = TYPE_LABELS[section.section_type] || section.section_type;
+    const typeLabel = SECTION_TYPE_LABELS[section.section_type] || section.section_type;
     return { primary: "Main Content", secondary: `Currently: ${typeLabel}` };
   }
 
-  // Other core sections use their wireframe label
   for (const coreDef of CORE_SECTIONS) {
     const resolvedType = resolveCoreSectionType(coreDef.type, surfaceType);
     if (resolvedType === section.section_type && coreDef.type !== "main_content") {
@@ -100,7 +42,7 @@ function getSectionLabel(section: EditorSection, surfaceType: string): { primary
     }
   }
 
-  return { primary: TYPE_LABELS[section.section_type] || section.section_type };
+  return { primary: SECTION_TYPE_LABELS[section.section_type] || section.section_type };
 }
 
 export function BuilderSectionList({ sections, onReorder, selectedId, onSelect, onDelete, onSwitchMainContent, onVariantChange, surfaceType = "quick_site", currentMainContentType, industry }: BuilderSectionListProps) {

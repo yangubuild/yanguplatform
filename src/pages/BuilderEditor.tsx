@@ -6,6 +6,7 @@ import { BuilderPreview } from "@/components/builder/BuilderPreview";
 import { BuilderPublishModal } from "@/components/builder/BuilderPublishModal";
 import { BuilderPageEditPanel } from "@/components/builder/BuilderPageEditPanel";
 import { Card } from "@/components/primitives";
+import { SECTION_TYPE_LABELS } from "@/config/builderSectionLabels";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -614,7 +615,7 @@ export default function BuilderEditor() {
           <MobileBuilderSheet
             open={mobilePanel === "editor"}
             onClose={() => setMobilePanel("none")}
-            title={selectedSectionId ? (sections.find((s) => s.id === selectedSectionId)?.section_type || "Edit Section") : "Page Edit"}
+            title={selectedSectionId ? (() => { const t = sections.find((s) => s.id === selectedSectionId)?.section_type; return t ? (SECTION_TYPE_LABELS[t] || t) : "Edit Section"; })() : "Page Edit"}
           >
             {selectedSectionId ? (() => {
               const sec = sections.find((s) => s.id === selectedSectionId);
