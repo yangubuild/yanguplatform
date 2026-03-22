@@ -69,7 +69,7 @@ function OwnReviewsTab() {
   const reviews = data?.reviews ?? [];
   const avgRating = data?.avgRating ?? 0;
   const totalCount = data?.totalCount ?? 0;
-  if (isLoading) return <div className="flex items-center justify-center py-10"><Loader2 className="w-5 h-5 animate-spin" className="text-muted-foreground" /></div>;
+  if (isLoading) return <div className="flex items-center justify-center py-10"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>;
   return (
     <div className="space-y-4">
       {totalCount > 0 && (
@@ -81,15 +81,15 @@ function OwnReviewsTab() {
               ))}
             </div>
             <span className="text-sm font-semibold text-foreground">{avgRating.toFixed(1)}</span>
-            <span className="text-xs" className="text-muted-foreground">({totalCount} review{totalCount !== 1 ? "s" : ""})</span>
+            <span className="text-xs text-muted-foreground">({totalCount} review{totalCount !== 1 ? "s" : ""})</span>
           </div>
         </div>
       )}
       {reviews.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-10">
-          <Star className="w-8 h-8 mb-2" className="text-muted-foreground" />
+          <Star className="w-8 h-8 mb-2 text-muted-foreground" />
           <p className="text-sm font-semibold text-foreground mb-1">No reviews yet</p>
-          <p className="text-xs" className="text-muted-foreground">Reviews from clients will appear here.</p>
+          <p className="text-xs text-muted-foreground">Reviews from clients will appear here.</p>
         </div>
       ) : (
         reviews.map((r) => (
@@ -99,14 +99,14 @@ function OwnReviewsTab() {
                 {r.reviewer_avatar ? <img src={r.reviewer_avatar} alt="" className="w-6 h-6 rounded-full object-cover" /> : <div className="w-6 h-6 flex items-center justify-center text-[9px] font-bold text-muted-foreground">{(r.reviewer_name||"U").slice(0,2).toUpperCase()}</div>}
               </div>
               <span className="text-xs font-medium text-foreground">{r.reviewer_name}</span>
-              {r.reviewer_username && <span className="text-[10px]" className="text-muted-foreground">@{r.reviewer_username}</span>}
+              {r.reviewer_username && <span className="text-[10px] text-muted-foreground">@{r.reviewer_username}</span>}
             </div>
             <div className="flex items-center gap-0.5">
               {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="w-3 h-3" style={{ color: i < r.rating ? "#f59e0b" : "rgba(255,255,255,0.15)", fill: i < r.rating ? "#f59e0b" : "transparent" }} />)}
             </div>
             {r.title && <p className="text-sm font-medium text-foreground mt-1.5">{r.title}</p>}
-            {r.body && <p className="text-xs mt-1" className="text-muted-foreground">{r.body}</p>}
-            <p className="text-[10px] mt-2" className="text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</p>
+            {r.body && <p className="text-xs mt-1 text-muted-foreground">{r.body}</p>}
+            <p className="text-[10px] mt-2 text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</p>
           </div>
         ))
       )}
@@ -242,9 +242,9 @@ function OwnPostsTab() {
             <div className="flex items-center justify-between mt-2">
               <div className="flex items-center gap-2">
                 <input ref={imageInputRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => { handleFileSelect(e.target.files); e.target.value = ""; }} />
-                <button onClick={() => imageInputRef.current?.click()} className="p-1.5 rounded-md hover:bg-white/5" className="text-muted-foreground" title="Add image"><ImagePlus className="w-4 h-4" /></button>
+                <button onClick={() => imageInputRef.current?.click()} className="p-1.5 rounded-md hover:bg-white/5 text-muted-foreground" title="Add image"><ImagePlus className="w-4 h-4" /></button>
                 <input ref={videoInputRef} type="file" accept="video/mp4,video/webm" className="hidden" onChange={(e) => { handleFileSelect(e.target.files); e.target.value = ""; }} />
-                <button onClick={() => videoInputRef.current?.click()} className="p-1.5 rounded-md hover:bg-white/5" className="text-muted-foreground" title="Add video"><Video className="w-4 h-4" /></button>
+                <button onClick={() => videoInputRef.current?.click()} className="p-1.5 rounded-md hover:bg-white/5 text-muted-foreground" title="Add video"><Video className="w-4 h-4" /></button>
                 <button onClick={handleAiGenerate} disabled={aiGenerating} className="p-1.5 rounded-md hover:bg-amber-500/10 transition-colors disabled:opacity-50" style={{ color: "#f59e0b" }} title="Generate post with AI">
                   {aiGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                 </button>
@@ -276,12 +276,12 @@ function OwnPostsTab() {
         </div>
       </div>
       {isLoading ? (
-        <div className="flex items-center justify-center py-10"><Loader2 className="w-5 h-5 animate-spin" className="text-muted-foreground" /></div>
+        <div className="flex items-center justify-center py-10"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
       ) : posts.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-10">
-          <MessageSquare className="w-8 h-8 mb-2" className="text-muted-foreground" />
+          <MessageSquare className="w-8 h-8 mb-2 text-muted-foreground" />
           <p className="text-sm font-semibold text-foreground mb-1">No posts yet</p>
-          <p className="text-xs" className="text-muted-foreground">Share your first update above!</p>
+          <p className="text-xs text-muted-foreground">Share your first update above!</p>
         </div>
       ) : (
         posts.map((post) => <PostCard key={post.id} post={post} toggleReaction={toggleReaction} />)
@@ -543,13 +543,13 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
         <span className="text-sm font-semibold text-foreground">Home</span>
         <div className="flex items-center gap-1.5">
           <button
-            className="p-1.5 rounded-md" className="text-muted-foreground"
+            className="p-1.5 rounded-md text-muted-foreground"
           >
             <Search className="w-4 h-4" />
           </button>
           <DashboardMoreMenu userId={user?.id}>
             <button
-              className="p-1.5 rounded-md" className="text-muted-foreground"
+              className="p-1.5 rounded-md text-muted-foreground"
             >
               <MoreHorizontal className="w-4 h-4" />
             </button>
@@ -672,7 +672,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                 <button onClick={handleSaveName} disabled={savingName} className="p-1 rounded" style={{ color: "#22c55e" }}>
                   {savingName ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                 </button>
-                <button onClick={() => setEditingName(false)} className="p-1 rounded" className="text-muted-foreground">
+                <button onClick={() => setEditingName(false)} className="p-1 rounded text-muted-foreground">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -690,7 +690,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                   const colorMap: Record<string, string> = { blue: "#3b82f6", orange: "#b5622a", green: "#16a34a" };
                   return <BadgeCheck className="w-5 h-5 shrink-0" style={{ color: colorMap[vt] || "#3b82f6" }} />;
                 })()}
-                <Pencil className="w-3.5 h-3.5 opacity-0 group-hover/name:opacity-100 transition-opacity" className="text-muted-foreground" />
+                <Pencil className="w-3.5 h-3.5 opacity-0 group-hover/name:opacity-100 transition-opacity text-muted-foreground" />
               </div>
             )}
             <div className="flex items-center gap-2 shrink-0 mt-1">
@@ -749,7 +749,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
               <button onClick={handleSaveDesc} disabled={savingDesc} className="p-1 rounded shrink-0" style={{ color: "#22c55e" }}>
                 {savingDesc ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
               </button>
-              <button onClick={() => setEditingDesc(false)} className="p-1 rounded shrink-0" className="text-muted-foreground">
+              <button onClick={() => setEditingDesc(false)} className="p-1 rounded shrink-0 text-muted-foreground">
                 <X className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -766,7 +766,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
 
           {/* Meta row */}
           <div
-            className="flex items-center gap-2.5 mt-2 text-xs flex-wrap" className="text-muted-foreground"
+            className="flex items-center gap-2.5 mt-2 text-xs flex-wrap text-muted-foreground"
           >
             <span className="flex items-center gap-1">
               <MapPin className="w-3 h-3" />
@@ -814,7 +814,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
           </div>
 
           <p
-            className="text-xs mt-1.5" className="text-muted-foreground"
+            className="text-xs mt-1.5 text-muted-foreground"
           >
             1 members
           </p>
@@ -876,7 +876,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
               {/* Published surfaces list */}
               {surfacesLoading ? (
                 <div className="flex items-center justify-center py-10">
-                  <Loader2 className="w-5 h-5 animate-spin" className="text-muted-foreground" />
+                  <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
                 </div>
               ) : publishedSurfaces.length === 0 ? (
                 <div
@@ -884,7 +884,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                   style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
                 >
                   <p className="text-sm font-medium text-foreground mb-1">No published business yet</p>
-                  <p className="text-xs mb-4" className="text-muted-foreground">
+                  <p className="text-xs mb-4 text-muted-foreground">
                     Publish your first business to see it here.
                   </p>
                   <button
@@ -922,7 +922,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                         )}
                         <div className="p-3">
                           <p className="text-sm font-medium text-foreground">{surface.title || "Untitled"}</p>
-                          <p className="text-xs mt-1" className="text-muted-foreground">
+                          <p className="text-xs mt-1 text-muted-foreground">
                             {surface.surface_type}
                           </p>
                         </div>
@@ -938,7 +938,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                             <Eye className="w-4 h-4" style={{ color: "#22c55e" }} />
                           )}
                           <Pencil
-                            className="w-4 h-4 cursor-pointer" className="text-muted-foreground"
+                            className="w-4 h-4 cursor-pointer text-muted-foreground"
                             onClick={() => navigate("/my-business")}
                           />
                         </div>
@@ -962,7 +962,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                     <span className="text-xs font-bold text-foreground">{initials.charAt(0)}</span>
                   )}
                 </div>
-                <span className="flex-1 text-sm" className="text-muted-foreground">
+                <span className="flex-1 text-sm text-muted-foreground">
                   Say something they'll screenshot...
                 </span>
                 <button
@@ -987,7 +987,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold text-foreground">Identity Verification</h3>
-                  <p className="text-xs" className="text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     Complete KYC to unlock full publishing
                   </p>
                 </div>
@@ -995,7 +995,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
 
               {kycLoading ? (
                 <div className="flex items-center justify-center py-8">
-                  <Loader2 className="w-5 h-5 animate-spin" className="text-muted-foreground" />
+                  <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
                 </div>
               ) : (
                 <>
@@ -1025,7 +1025,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                       ) : kycStatus === "pending" || kycStatus === "submitted" ? (
                         <Clock className="w-4 h-4" style={{ color: "#f59e0b" }} />
                       ) : (
-                        <Shield className="w-4 h-4" className="text-muted-foreground" />
+                        <Shield className="w-4 h-4 text-muted-foreground" />
                       )}
                       <span className="text-sm font-medium text-foreground">
                         Status: {kycStatus
@@ -1041,7 +1041,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
                     style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
                   >
                     <p className="text-xs font-medium text-foreground mb-2">What you'll need:</p>
-                    <ul className="text-xs space-y-1" className="text-muted-foreground">
+                    <ul className="text-xs space-y-1 text-muted-foreground">
                       <li>• Government-issued ID</li>
                       <li>• Proof of address</li>
                       <li>• A few minutes to complete</li>
@@ -1082,13 +1082,13 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
             <div className="space-y-4">
               <div>
                 <p className="text-xs font-semibold text-foreground mb-1">Bio</p>
-                <p className="text-sm" className="text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   {((profile as any)?.social_links as any)?.about_me || "No bio set yet. Use the About panel on the right to add one."}
                 </p>
               </div>
               <div>
                 <p className="text-xs font-semibold text-foreground mb-1">Business</p>
-                <p className="text-sm" className="text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   {((profile as any)?.social_links as any)?.about_business || "No business info set yet."}
                 </p>
               </div>

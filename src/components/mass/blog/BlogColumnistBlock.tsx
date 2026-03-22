@@ -53,12 +53,12 @@ export function BlogColumnistBlock() {
             >
               Dan Shipper
             </h3>
-            <p className="text-sm leading-relaxed mb-3" className="text-muted-foreground">
+            <p className="text-sm leading-relaxed mb-3 text-muted-foreground">
               Co-founder and CEO of Every. Writes about AI, productivity, and building products. Previously founded Firefly and co-founded Ether.
             </p>
             <a
               href="#"
-              className="text-xs font-medium transition-colors hover:text-foreground" className="text-muted-foreground"
+              className="text-xs font-medium transition-colors hover:text-foreground text-muted-foreground"
             >
               Read more →
             </a>

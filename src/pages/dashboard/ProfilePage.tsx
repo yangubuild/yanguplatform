@@ -404,7 +404,7 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={() => setEditing(false)}
-              className="flex items-center gap-2 text-sm font-medium" className="text-muted-foreground"
+              className="flex items-center gap-2 text-sm font-medium text-muted-foreground"
             >
               <ArrowLeft className="w-4 h-4" /> Back to profile
             </button>
@@ -430,7 +430,7 @@ export default function ProfilePage() {
                 className="w-full rounded-xl px-4 py-3 text-sm text-foreground outline-none"
                 style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.1)" }}
               />
-              <p className="text-right text-xs mt-1" className="text-muted-foreground">{name.length}/100</p>
+              <p className="text-right text-xs mt-1 text-muted-foreground">{name.length}/100</p>
             </div>
 
             {/* Username */}
@@ -442,7 +442,7 @@ export default function ProfilePage() {
                 className="w-full rounded-xl px-4 py-3 text-sm text-foreground outline-none"
                 style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.1)" }}
               />
-              <p className="text-right text-xs mt-1" className="text-muted-foreground">{username.length}/42</p>
+              <p className="text-right text-xs mt-1 text-muted-foreground">{username.length}/42</p>
             </div>
 
             {/* Bio */}
@@ -456,7 +456,7 @@ export default function ProfilePage() {
                 className="w-full rounded-xl px-4 py-3 text-sm text-foreground outline-none resize-none"
                 style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.1)" }}
               />
-              <p className="text-right text-xs mt-1" className="text-muted-foreground">{bio.length}/200</p>
+              <p className="text-right text-xs mt-1 text-muted-foreground">{bio.length}/200</p>
             </div>
           </div>
 
@@ -465,7 +465,7 @@ export default function ProfilePage() {
           {/* Social links section */}
           <div className="mb-8">
             <h2 className="text-base font-bold text-foreground mb-1">Social links</h2>
-            <p className="text-sm mb-5" className="text-muted-foreground">
+            <p className="text-sm mb-5 text-muted-foreground">
               Tap an icon to add your link. Only linked socials appear on your profile.
             </p>
 
@@ -504,7 +504,7 @@ export default function ProfilePage() {
                 style={{ border: "1px dashed rgba(255,255,255,0.2)" }}
                 title="More socials"
               >
-                <Plus className="w-5 h-5" className="text-muted-foreground" />
+                <Plus className="w-5 h-5 text-muted-foreground" />
               </button>
             </div>
 
@@ -540,7 +540,7 @@ export default function ProfilePage() {
                       }}
                       className="shrink-0"
                     >
-                      <X className="w-4 h-4" className="text-muted-foreground" />
+                      <X className="w-4 h-4 text-muted-foreground" />
                     </button>
                   )}
                 </div>
@@ -553,7 +553,7 @@ export default function ProfilePage() {
           {/* More details */}
           <div className="mb-8">
             <h2 className="text-base font-bold text-foreground mb-1">More details</h2>
-            <p className="text-sm mb-5" className="text-muted-foreground">
+            <p className="text-sm mb-5 text-muted-foreground">
               Choose what appears on your profile and other discovery surfaces.
             </p>
             <div className="space-y-4">
@@ -590,7 +590,7 @@ export default function ProfilePage() {
                         <div className="flex-1">
                           <p className="text-sm font-medium text-foreground">{s.name}</p>
                           {hasLink && (
-                            <p className="text-xs truncate" className="text-muted-foreground">
+                            <p className="text-xs truncate text-muted-foreground">
                               {socialLinks[s.id]}
                             </p>
                           )}
@@ -598,7 +598,7 @@ export default function ProfilePage() {
                         {hasLink ? (
                           <div className="w-3 h-3 rounded-full bg-green-500" />
                         ) : (
-                          <Plus className="w-4 h-4" className="text-muted-foreground" />
+                          <Plus className="w-4 h-4 text-muted-foreground" />
                         )}
                       </div>
                     </div>
@@ -613,9 +613,9 @@ export default function ProfilePage() {
           {/* === VIEW MODE === */}
           <div className="px-1">
             <h1 className="text-xl font-bold text-foreground">{displayName}</h1>
-            <p className="text-sm" className="text-muted-foreground">@{usernameDisplay}</p>
+            <p className="text-sm text-muted-foreground">@{usernameDisplay}</p>
 
-            <div className="flex items-center gap-3 mt-2 text-xs" className="text-muted-foreground">
+            <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
               <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> Dubai, AE</span>
               <span>•</span>
               <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> Joined {joinDate}</span>
@@ -692,7 +692,7 @@ export default function ProfilePage() {
               </Suspense>
             ) : activeTab === "apps" ? (
               !installedApps || installedApps.length === 0 ? (
-                <p className="text-center py-12 text-sm" className="text-muted-foreground">
+                <p className="text-center py-12 text-sm text-muted-foreground">
                   No apps installed yet.
                 </p>
               ) : (
@@ -704,7 +704,7 @@ export default function ProfilePage() {
                 })
               )
             ) : tabData.length === 0 ? (
-              <p className="text-center py-12 text-sm" className="text-muted-foreground">
+              <p className="text-center py-12 text-sm text-muted-foreground">
                 Nothing here yet.
               </p>
             ) : (
@@ -724,14 +724,14 @@ export default function ProfilePage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-foreground truncate">{item.title}</p>
-                    <p className="text-xs" className="text-muted-foreground">{item.category}</p>
-                    <p className="text-xs flex items-center gap-1" className="text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">{item.category}</p>
+                    <p className="text-xs flex items-center gap-1 text-muted-foreground">
                       <Users className="w-3 h-3" /> {item.members}
                     </p>
                   </div>
                   <div className="text-right shrink-0">
                     <p className="text-base font-bold text-foreground">{item.earnings}</p>
-                    <p className="text-[11px]" className="text-muted-foreground">all-time · {item.age}</p>
+                    <p className="text-[11px] text-muted-foreground">all-time · {item.age}</p>
                   </div>
                 </div>
               ))
@@ -786,7 +786,7 @@ function ProfileAppRow({ item, appIcon, navigate }: { item: any; appIcon: string
       <img src={appIcon} alt={item.app.name} className="w-12 h-12 rounded-xl object-cover shrink-0" />
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-foreground truncate">{item.app.name}</p>
-        <p className="text-xs" className="text-muted-foreground">{item.app.provider_name}</p>
+        <p className="text-xs text-muted-foreground">{item.app.provider_name}</p>
       </div>
       <div className="flex items-center gap-2">
         {item.app.supports_oauth && item.status !== "connected" && (
@@ -841,7 +841,7 @@ function ToggleRow({
           className="w-10 h-10 rounded-full flex items-center justify-center"
           style={{ background: "#232a30" }}
         >
-          <Icon className="w-5 h-5" className="text-muted-foreground" />
+          <Icon className="w-5 h-5 text-muted-foreground" />
         </div>
         <span className="text-sm font-medium text-foreground">{label}</span>
       </div>

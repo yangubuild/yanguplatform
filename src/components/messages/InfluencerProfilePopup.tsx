@@ -28,7 +28,7 @@ export function InfluencerProfilePopup({ user, onClose }: Props) {
         {/* Close */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 p-1" className="text-muted-foreground"
+          className="absolute top-3 right-3 p-1 text-muted-foreground"
         >
           <X className="w-4 h-4" />
         </button>
@@ -42,10 +42,10 @@ export function InfluencerProfilePopup({ user, onClose }: Props) {
             {user.name.slice(0, 2).toUpperCase()}
           </div>
           <h3 className="text-base font-semibold text-foreground">{user.name}</h3>
-          <p className="text-xs mt-0.5" className="text-muted-foreground">
+          <p className="text-xs mt-0.5 text-muted-foreground">
             @{user.name.toLowerCase().replace(/\s+/g, "")}
           </p>
-          <p className="text-xs mt-1" className="text-muted-foreground">
+          <p className="text-xs mt-1 text-muted-foreground">
             {user.descriptor}
           </p>
         </div>
@@ -54,11 +54,11 @@ export function InfluencerProfilePopup({ user, onClose }: Props) {
         <div className="flex items-center justify-center gap-6 mt-5">
           <div className="text-center">
             <p className="text-sm font-semibold text-foreground">—</p>
-            <p className="text-[11px]" className="text-muted-foreground">Followers</p>
+            <p className="text-[11px] text-muted-foreground">Followers</p>
           </div>
           <div className="text-center">
             <p className="text-sm font-semibold text-foreground">—</p>
-            <p className="text-[11px]" className="text-muted-foreground">Following</p>
+            <p className="text-[11px] text-muted-foreground">Following</p>
           </div>
         </div>
 

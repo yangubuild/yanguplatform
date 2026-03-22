@@ -20,10 +20,10 @@ export function MessagesPostsTab() {
         </div>
       </div>
 
-      <p className="text-sm mt-2" className="text-muted-foreground">
+      <p className="text-sm mt-2 text-muted-foreground">
         Looks like there aren't any posts yet.
       </p>
-      <p className="text-xs" className="text-muted-foreground">
+      <p className="text-xs text-muted-foreground">
         Be the first one to make a post!
       </p>
     </div>

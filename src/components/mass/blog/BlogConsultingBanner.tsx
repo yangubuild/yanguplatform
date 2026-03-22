@@ -53,7 +53,7 @@ export function BlogConsultingBanner() {
           >
             Stop Planning Your AI Strategy. Start <span style={{ fontStyle: "italic" }}>E</span>xecuting It.
           </h2>
-          <p className="text-sm mb-6" className="text-muted-foreground">
+          <p className="text-sm mb-6 text-muted-foreground">
             Work with our team to build and ship AI-powered products and workflows for your organization.
           </p>
           <button

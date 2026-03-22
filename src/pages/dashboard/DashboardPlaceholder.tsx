@@ -12,10 +12,10 @@ export default function DashboardPlaceholder() {
         className="flex h-16 w-16 items-center justify-center rounded-2xl"
         style={{ background: "#232a30" }}
       >
-        <Construction className="h-8 w-8" className="text-muted-foreground" />
+        <Construction className="h-8 w-8 text-muted-foreground" />
       </div>
       <h2 className="text-xl font-semibold text-foreground">{title}</h2>
-      <p className="text-sm max-w-xs" className="text-muted-foreground">
+      <p className="text-sm max-w-xs text-muted-foreground">
         This section is coming soon.
       </p>
     </div>

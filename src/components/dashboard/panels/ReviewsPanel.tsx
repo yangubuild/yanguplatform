@@ -64,7 +64,7 @@ export function ReviewsPanel() {
         <div className="px-4 py-2 shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
           <div className="flex items-center gap-2">
             {renderStars(Math.round(avgRating))}
-            <span className="text-xs" className="text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               {avgRating.toFixed(1)} avg · {totalCount} review{totalCount !== 1 ? "s" : ""}
             </span>
           </div>
@@ -74,13 +74,13 @@ export function ReviewsPanel() {
       <div className="flex-1 overflow-y-auto px-3 py-2 space-y-2">
         {isLoading ? (
           <div className="flex items-center justify-center py-10">
-            <Loader2 className="w-5 h-5 animate-spin" className="text-muted-foreground" />
+            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
           </div>
         ) : reviews.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10">
-            <Star className="w-8 h-8 mb-2" className="text-muted-foreground" />
+            <Star className="w-8 h-8 mb-2 text-muted-foreground" />
             <p className="text-sm text-foreground mb-1">No reviews yet</p>
-            <p className="text-xs text-center" className="text-muted-foreground">
+            <p className="text-xs text-center text-muted-foreground">
               Share your profile link to receive reviews from clients.
             </p>
           </div>
@@ -103,7 +103,7 @@ export function ReviewsPanel() {
                 </div>
                 <span className="text-[11px] font-medium text-foreground">{review.reviewer_name}</span>
                 {review.reviewer_username && (
-                  <span className="text-[10px]" className="text-muted-foreground">@{review.reviewer_username}</span>
+                  <span className="text-[10px] text-muted-foreground">@{review.reviewer_username}</span>
                 )}
               </div>
               {renderStars(review.rating)}
@@ -111,11 +111,11 @@ export function ReviewsPanel() {
                 <p className="text-sm font-medium text-foreground mt-1.5">{review.title}</p>
               )}
               {review.body && (
-                <p className="text-xs mt-1" className="text-muted-foreground">
+                <p className="text-xs mt-1 text-muted-foreground">
                   {review.body}
                 </p>
               )}
-              <p className="text-[10px] mt-2" className="text-muted-foreground">
+              <p className="text-[10px] mt-2 text-muted-foreground">
                 {new Date(review.created_at).toLocaleDateString()}
               </p>
             </div>

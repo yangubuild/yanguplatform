@@ -99,7 +99,7 @@ export default function MessagesPage() {
     activeTab === "chats" && activeGroupId ? (
       loadingActiveGroup ? (
         <div className="flex h-full items-center justify-center">
-          <Loader2 className="w-5 h-5 animate-spin" className="text-muted-foreground" />
+          <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
         </div>
       ) : activeGroup ? (
         <GroupChatThreadView group={activeGroup as any} onBack={handleCloseThread} />

@@ -28,7 +28,7 @@ export function LivestreamingPanel() {
             </div>
             <div>
               <p className="text-sm font-semibold text-foreground">Stream Tools</p>
-              <p className="text-xs" className="text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Configure your stream before going live
               </p>
             </div>
@@ -36,21 +36,21 @@ export function LivestreamingPanel() {
 
           <div className="space-y-2">
             <button
-              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-left hover:bg-white/5 transition-colors" className="text-muted-foreground"
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-left hover:bg-white/5 transition-colors text-muted-foreground"
             >
-              <Video className="w-4 h-4" className="text-muted-foreground" />
+              <Video className="w-4 h-4 text-muted-foreground" />
               Camera & Audio settings
             </button>
             <button
-              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-left hover:bg-white/5 transition-colors" className="text-muted-foreground"
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-left hover:bg-white/5 transition-colors text-muted-foreground"
             >
-              <Users className="w-4 h-4" className="text-muted-foreground" />
+              <Users className="w-4 h-4 text-muted-foreground" />
               Audience settings
             </button>
             <button
-              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-left hover:bg-white/5 transition-colors" className="text-muted-foreground"
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-left hover:bg-white/5 transition-colors text-muted-foreground"
             >
-              <Settings className="w-4 h-4" className="text-muted-foreground" />
+              <Settings className="w-4 h-4 text-muted-foreground" />
               Stream quality
             </button>
           </div>
@@ -62,7 +62,7 @@ export function LivestreamingPanel() {
           style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
         >
           <p className="text-xs font-semibold text-foreground mb-2">Recent Streams</p>
-          <p className="text-xs" className="text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             No streams yet. Use Go Live on your profile to start.
           </p>
         </div>
@@ -81,7 +81,7 @@ export function LivestreamingPanel() {
             </div>
             <div>
               <p className="text-sm font-semibold text-foreground">Live Chat</p>
-              <p className="text-xs" className="text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Chat with your audience in real time
               </p>
             </div>
@@ -89,11 +89,11 @@ export function LivestreamingPanel() {
 
           {/* Empty state — no messages until stream is live */}
           <div className="flex flex-col items-center justify-center py-6">
-            <MessageCircle className="w-8 h-8 mb-2" className="text-muted-foreground" />
-            <p className="text-xs" className="text-muted-foreground">
+            <MessageCircle className="w-8 h-8 mb-2 text-muted-foreground" />
+            <p className="text-xs text-muted-foreground">
               No messages yet
             </p>
-            <p className="text-[10px] mt-1" className="text-muted-foreground">
+            <p className="text-[10px] mt-1 text-muted-foreground">
               Messages will appear here when you go live
             </p>
           </div>

@@ -116,7 +116,7 @@ export function BlogFeaturedGrid() {
             >
               Recent Publications
             </h3>
-            <ArrowRight className="w-4 h-4 transition-transform duration-200 hover:translate-x-0.5" className="text-muted-foreground" />
+            <ArrowRight className="w-4 h-4 transition-transform duration-200 hover:translate-x-0.5 text-muted-foreground" />
           </div>
           <div className="flex-1 flex flex-col">
             {essayList.map((essay, i) => (

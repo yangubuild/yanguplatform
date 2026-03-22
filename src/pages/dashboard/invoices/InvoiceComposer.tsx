@@ -122,7 +122,7 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
 
           {/* Payment collection */}
           <Section label="Payment collection">
-            <p className="text-xs font-medium mb-2" className="text-muted-foreground">
+            <p className="text-xs font-medium mb-2 text-muted-foreground">
               Due date
             </p>
             <div
@@ -194,7 +194,7 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
                 <div className="flex items-center gap-1 pr-1">
                   <span className="text-muted-foreground text-sm">/</span>
                   <div
-                    className="flex items-center gap-1 px-2 py-1 rounded text-sm cursor-pointer" className="text-foreground"
+                    className="flex items-center gap-1 px-2 py-1 rounded text-sm cursor-pointer text-foreground"
                   >
                     {form.recurringCadence}
                     <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />

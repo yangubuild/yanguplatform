@@ -84,7 +84,7 @@ export function WhyYanguContent() {
 
               <f.icon className="w-6 h-6 mb-4" strokeWidth={1.5} style={{ color: "#F46D2A" }} />
               <h3 className="text-foreground font-semibold text-sm mb-2">{f.title}</h3>
-              <p className="text-xs leading-relaxed mb-3" className="text-muted-foreground">
+              <p className="text-xs leading-relaxed mb-3 text-muted-foreground">
                 {f.description}
               </p>
               <button

@@ -96,7 +96,7 @@ export function PostDetailModal({ postId, onClose }: PostDetailModalProps) {
       >
         {/* Header */}
         <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3" style={{ background: "#0F141A", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-          <span className="text-xs font-semibold" className="text-foreground">Post</span>
+          <span className="text-xs font-semibold text-foreground">Post</span>
           <button
             onClick={onClose}
             className="w-7 h-7 rounded-full flex items-center justify-center"
@@ -116,7 +116,7 @@ export function PostDetailModal({ postId, onClose }: PostDetailModalProps) {
             <PostCard post={post} toggleReaction={toggleReaction} />
           ) : (
             <div className="text-center py-12">
-              <p className="text-xs" className="text-muted-foreground">Post not found</p>
+              <p className="text-xs text-muted-foreground">Post not found</p>
             </div>
           )}
         </div>

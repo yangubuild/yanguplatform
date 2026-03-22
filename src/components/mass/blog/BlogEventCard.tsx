@@ -35,19 +35,19 @@ export function BlogEventCard({ event }: Props) {
       </h3>
 
       {/* Date */}
-      <p className="mt-2 text-sm" className="text-muted-foreground">
+      <p className="mt-2 text-sm text-muted-foreground">
         {event.date}
       </p>
 
       {/* Register Now link */}
       <div className="flex items-center justify-between mt-4">
         <span
-          className="text-sm font-medium" className="text-muted-foreground"
+          className="text-sm font-medium text-muted-foreground"
         >
           Register Now
         </span>
         <ArrowUpRight
-          className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" className="text-muted-foreground"
+          className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 text-muted-foreground"
         />
       </div>
     </a>

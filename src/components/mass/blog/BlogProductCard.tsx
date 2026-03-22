@@ -31,7 +31,7 @@ export function BlogProductCard({ product }: Props) {
 
       {/* Description */}
       <p
-        className="text-sm leading-relaxed mb-4" className="text-muted-foreground"
+        className="text-sm leading-relaxed mb-4 text-muted-foreground"
       >
         {product.description}
       </p>
@@ -39,12 +39,12 @@ export function BlogProductCard({ product }: Props) {
       {/* Try it link */}
       <div className="flex items-center justify-between">
         <span
-          className="text-sm font-medium" className="text-muted-foreground"
+          className="text-sm font-medium text-muted-foreground"
         >
           Try it
         </span>
         <ArrowUpRight
-          className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" className="text-muted-foreground"
+          className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 text-muted-foreground"
         />
       </div>
     </a>

@@ -51,7 +51,7 @@ export function BlogExplorePanel() {
             >
               Explore the Every Universe
             </span>
-            <ChevronDown className="w-4 h-4" className="text-muted-foreground" />
+            <ChevronDown className="w-4 h-4 text-muted-foreground" />
           </button>
 
           {/* Items */}

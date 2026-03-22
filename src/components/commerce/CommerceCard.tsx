@@ -53,7 +53,7 @@ export default function CommerceCard({
             <img src={item.image_url} alt={item.title} className="w-full h-full object-cover" loading="lazy" />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <Icon className="w-5 h-5" className="text-muted-foreground" />
+              <Icon className="w-5 h-5 text-muted-foreground" />
             </div>
           )}
         </div>
@@ -70,13 +70,13 @@ export default function CommerceCard({
             <span className="text-[11px] font-bold" style={{ color: "#10b981" }}>{item.price_label}</span>
           )}
           {item.owner_name && (
-            <span className="text-[10px] block" className="text-muted-foreground">
+            <span className="text-[10px] block text-muted-foreground">
               by {item.owner_name}
             </span>
           )}
         </div>
 
-        <ExternalLink className="w-3.5 h-3.5 shrink-0" className="text-muted-foreground" />
+        <ExternalLink className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
       </div>
     );
   }
@@ -101,7 +101,7 @@ export default function CommerceCard({
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <Icon className="w-10 h-10" className="text-muted-foreground" />
+            <Icon className="w-10 h-10 text-muted-foreground" />
           </div>
         )}
         {/* Kind badge */}
@@ -129,7 +129,7 @@ export default function CommerceCard({
 
         {/* Description */}
         {item.description && (
-          <p className="text-xs line-clamp-2" className="text-muted-foreground">
+          <p className="text-xs line-clamp-2 text-muted-foreground">
             {truncateText(item.description, 120)}
           </p>
         )}
@@ -139,7 +139,7 @@ export default function CommerceCard({
           {item.price_label ? (
             <span className="text-sm font-bold" style={{ color: "#10b981" }}>{item.price_label}</span>
           ) : (
-            <span className="text-[11px]" className="text-muted-foreground">
+            <span className="text-[11px] text-muted-foreground">
               {item.kind === "service" ? "Contact for pricing" : "Price on request"}
             </span>
           )}
@@ -160,7 +160,7 @@ export default function CommerceCard({
                 {item.owner_name.charAt(0).toUpperCase()}
               </div>
             )}
-            <span className="text-[11px]" className="text-muted-foreground">{item.owner_name}</span>
+            <span className="text-[11px] text-muted-foreground">{item.owner_name}</span>
           </div>
         )}
 

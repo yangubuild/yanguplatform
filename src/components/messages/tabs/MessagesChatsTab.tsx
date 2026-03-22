@@ -79,7 +79,7 @@ export function MessagesChatsTab({ onSelectDm, onSelectGroup }: Props) {
   if (loadingDms || loadingGroups) {
     return (
       <div className="flex items-center justify-center h-full">
-        <Loader2 className="w-5 h-5 animate-spin" className="text-muted-foreground" />
+        <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -90,7 +90,7 @@ export function MessagesChatsTab({ onSelectDm, onSelectGroup }: Props) {
         <div className="rounded-2xl p-8 text-center max-w-xs" style={{ background: "rgba(255,255,255,0.03)" }}>
           <img src={chatIcon8} alt="No messages" className="w-20 h-20 mx-auto mb-3 object-contain" style={{ opacity: 0.9 }} />
           <p className="text-sm font-medium text-foreground">No conversations yet</p>
-          <p className="text-xs mt-1.5" className="text-muted-foreground">
+          <p className="text-xs mt-1.5 text-muted-foreground">
             Start a conversation or create a group chat.
           </p>
         </div>
@@ -137,13 +137,13 @@ export function MessagesChatsTab({ onSelectDm, onSelectGroup }: Props) {
                   </span>
                 )}
               </div>
-              <p className="text-xs mt-0.5 truncate" className="text-muted-foreground">
+              <p className="text-xs mt-0.5 truncate text-muted-foreground">
                 {thread.preview.length > 50 ? thread.preview.slice(0, 50) + "…" : thread.preview}
               </p>
             </div>
             {/* Meta */}
             <div className="flex flex-col items-end gap-1 shrink-0 ml-1">
-              <span className="text-[11px]" className="text-muted-foreground">
+              <span className="text-[11px] text-muted-foreground">
                 {thread.date}
               </span>
               {thread.unreadCount > 0 && (

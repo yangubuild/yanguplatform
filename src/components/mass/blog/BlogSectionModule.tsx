@@ -52,12 +52,12 @@ export function BlogSectionModule({ title, subtitle, children, dashedBorder }: P
             {title}
           </h2>
           <ArrowRight
-            className="w-4 h-4 transition-transform duration-200 hover:translate-x-0.5 cursor-pointer" className="text-muted-foreground"
+            className="w-4 h-4 transition-transform duration-200 hover:translate-x-0.5 cursor-pointer text-muted-foreground"
           />
         </div>
 
         {subtitle && (
-          <p className="text-sm mb-8" className="text-muted-foreground">
+          <p className="text-sm mb-8 text-muted-foreground">
             {subtitle}
           </p>
         )}

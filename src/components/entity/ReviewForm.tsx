@@ -24,7 +24,7 @@ export function ReviewForm({ entityId, onSuccess }: ReviewFormProps) {
   if (!user) {
     return (
       <div className="rounded-xl p-4 text-center" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-        <p className="text-sm mb-2" className="text-muted-foreground">Sign in to write a review</p>
+        <p className="text-sm mb-2 text-muted-foreground">Sign in to write a review</p>
         <button onClick={() => navigate("/auth/login")} className="text-xs px-4 py-1.5 rounded-lg font-medium" style={{ background: "rgba(181,98,42,0.2)", color: "#b5622a" }}>
           Sign in
         </button>

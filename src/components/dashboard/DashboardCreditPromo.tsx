@@ -106,7 +106,7 @@ export function DashboardCreditPromo() {
 
             {/* Description */}
             <p
-              className="text-center text-sm mb-8 leading-relaxed max-w-[320px]" className="text-muted-foreground"
+              className="text-center text-sm mb-8 leading-relaxed max-w-[320px] text-muted-foreground"
             >
               We built a powerful AI agent that can help you run your business or
               create a new one. Try it out.
@@ -167,7 +167,7 @@ export function DashboardCreditPromo() {
 
             {/* Subtext */}
             <p
-              className="text-sm mb-8" className="text-muted-foreground"
+              className="text-sm mb-8 text-muted-foreground"
             >
               New token balance
             </p>

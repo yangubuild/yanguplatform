@@ -8,7 +8,7 @@ export function BlogFooter() {
         >
           EVERY
         </span>
-        <span className="text-xs" className="text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           © 2026 Every. All rights reserved.
         </span>
       </div>

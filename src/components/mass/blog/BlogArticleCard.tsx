@@ -65,7 +65,7 @@ export function BlogArticleCard({ article, size = "default", fillImage, titleCla
           </span>
           {article.column && (
             <>
-              <span className="text-muted-foreground" className="text-[11px]">IN</span>
+              <span className="text-muted-foreground text-[11px]">IN</span>
               <span
                 className="text-[11px] uppercase tracking-wide font-semibold"
                 style={{ letterSpacing: "0.06em" }}

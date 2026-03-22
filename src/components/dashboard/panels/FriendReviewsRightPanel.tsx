@@ -68,9 +68,9 @@ export function FriendReviewsRightPanel({ friend }: Props) {
               ))}
             </div>
             {isLoading ? (
-              <Loader2 className="w-3 h-3 animate-spin" className="text-muted-foreground" />
+              <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
             ) : (
-              <span className="text-xs" className="text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 {totalCount > 0 ? `${avgRating.toFixed(1)} (${totalCount} review${totalCount !== 1 ? "s" : ""})` : "No ratings yet"}
               </span>
             )}

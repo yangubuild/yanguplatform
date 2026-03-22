@@ -69,7 +69,7 @@ export function BuilderSetupDrawer({ open, onOpenChange, selectedKeys }: Builder
               </div>
               <div>
                 <p className="text-foreground text-sm font-medium">{f.title}</p>
-                <p className="text-xs" className="text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   {f.description}
                 </p>
               </div>

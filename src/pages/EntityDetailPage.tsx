@@ -43,8 +43,8 @@ function TypeMetaBlock({ entity }: { entity: any }) {
       {items.map((item) => (
         <div key={item.label} className="rounded-xl px-4 py-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
           <div className="flex items-center gap-1.5 mb-1">
-            <item.icon className="w-3.5 h-3.5" className="text-muted-foreground" />
-            <span className="text-[10px] uppercase tracking-wider" className="text-muted-foreground">{item.label}</span>
+            <item.icon className="w-3.5 h-3.5 text-muted-foreground" />
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{item.label}</span>
           </div>
           <span className="text-foreground text-sm font-medium">{item.value}</span>
         </div>
@@ -76,7 +76,7 @@ function RelatedEntitiesTracked({ related, entity, navigate }: { related: any[];
               style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
             >
               <div className="flex items-center gap-2 mb-1">
-                <RelIcon className="w-3.5 h-3.5" className="text-muted-foreground" />
+                <RelIcon className="w-3.5 h-3.5 text-muted-foreground" />
                 <span className="text-foreground text-sm font-semibold truncate">{r.title}</span>
                 {relVerification && (
                   <span
@@ -97,7 +97,7 @@ function RelatedEntitiesTracked({ related, entity, navigate }: { related: any[];
                     {relTrust.label}
                   </span>
                 )}
-                {r.short_description && <p className="text-xs line-clamp-1" className="text-muted-foreground">{r.short_description}</p>}
+                {r.short_description && <p className="text-xs line-clamp-1 text-muted-foreground">{r.short_description}</p>}
               </div>
             </div>
           );
@@ -148,10 +148,10 @@ export default function EntityDetailPage() {
       <div className="min-h-screen flex items-center justify-center" style={{ background: "#08120D" }}>
         <div className="text-center">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.04)" }}>
-            <Building2 className="w-7 h-7" className="text-muted-foreground" />
+            <Building2 className="w-7 h-7 text-muted-foreground" />
           </div>
           <h1 className="text-foreground text-xl font-bold mb-2">Not Found</h1>
-          <p className="text-sm mb-4" className="text-muted-foreground">
+          <p className="text-sm mb-4 text-muted-foreground">
             This page doesn't exist or isn't published yet.
           </p>
           <button onClick={() => navigate("/")} className="text-sm font-medium px-5 py-2 rounded-lg" style={{ background: "rgba(181,98,42,0.15)", color: "#b5622a" }}>
@@ -175,7 +175,7 @@ export default function EntityDetailPage() {
     <div className="min-h-screen" style={{ background: "#08120D" }}>
       {/* Back nav */}
       <div className="max-w-4xl mx-auto px-4 pt-6">
-        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm mb-4" className="text-muted-foreground">
+        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm mb-4 text-muted-foreground">
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
       </div>
@@ -187,7 +187,7 @@ export default function EntityDetailPage() {
             <img src={entity.cover_image_url} alt={entity.title} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <Icon className="w-12 h-12" className="text-muted-foreground" />
+              <Icon className="w-12 h-12 text-muted-foreground" />
             </div>
           )}
         </div>
@@ -207,7 +207,7 @@ export default function EntityDetailPage() {
                 >✓</span>
               )}
             </div>
-            <div className="flex items-center gap-3 flex-wrap text-xs" className="text-muted-foreground">
+            <div className="flex items-center gap-3 flex-wrap text-xs text-muted-foreground">
               {verification && (
                 <span className="px-2 py-0.5 rounded-full font-medium" style={{ background: `${verification.color}15`, color: verification.color }}>
                   {verification.label}
@@ -234,7 +234,7 @@ export default function EntityDetailPage() {
         </div>
 
         {/* Stats row — badge priority: verification → trust tier → review confidence */}
-        <div className="flex items-center gap-4 mt-4 text-sm flex-wrap" className="text-muted-foreground">
+        <div className="flex items-center gap-4 mt-4 text-sm flex-wrap text-muted-foreground">
           {/* Trust tier (only moderate+) */}
           {trustTier && trustTier.tier !== "low" && trustTier.tier !== "emerging" && (
             <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full" style={{ background: trustTier.bg, color: trustTier.color }}>
@@ -247,14 +247,14 @@ export default function EntityDetailPage() {
             <span className="flex items-center gap-1">
               <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
               {entity.avg_rating.toFixed(1)}
-              <span className="text-xs" className="text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 ({reviewConfidence.label})
               </span>
             </span>
           )}
           {/* Early reviews — count only, no inflated rating */}
           {reviewConfidence.confidence === "early" && (
-            <span className="text-xs" className="text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               {reviewConfidence.label}
             </span>
           )}
@@ -270,7 +270,7 @@ export default function EntityDetailPage() {
 
         {/* Description */}
         {entity.short_description && (
-          <p className="mt-6 text-sm leading-relaxed" className="text-muted-foreground">
+          <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
             {entity.short_description}
           </p>
         )}
@@ -302,10 +302,10 @@ export default function EntityDetailPage() {
                   className="w-full flex items-center justify-between px-4 py-3 text-left"
                 >
                   <span className="text-foreground text-sm font-medium">{faq.question}</span>
-                  {expandedFaq === faq.id ? <ChevronUp className="w-4 h-4" className="text-muted-foreground" /> : <ChevronDown className="w-4 h-4" className="text-muted-foreground" />}
+                  {expandedFaq === faq.id ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
                 </button>
                 {expandedFaq === faq.id && (
-                  <div className="px-4 pb-4 text-sm" className="text-muted-foreground">
+                  <div className="px-4 pb-4 text-sm text-muted-foreground">
                     {faq.answer}
                   </div>
                 )}
@@ -352,8 +352,8 @@ export default function EntityDetailPage() {
                   </div>
                   {review.title && <span className="text-foreground text-sm font-medium">{review.title}</span>}
                 </div>
-                {review.body && <p className="text-xs" className="text-muted-foreground">{review.body}</p>}
-                <span className="text-[10px] mt-2 block" className="text-muted-foreground">
+                {review.body && <p className="text-xs text-muted-foreground">{review.body}</p>}
+                <span className="text-[10px] mt-2 block text-muted-foreground">
                   {new Date(review.created_at).toLocaleDateString()}
                 </span>
               </div>
@@ -361,8 +361,8 @@ export default function EntityDetailPage() {
           </div>
         ) : (
           <div className="rounded-xl py-8 text-center" style={{ background: "rgba(255,255,255,0.02)" }}>
-            <Star className="w-6 h-6 mx-auto mb-2" className="text-muted-foreground" />
-            <p className="text-xs" className="text-muted-foreground">No reviews yet. Be the first to share your experience.</p>
+            <Star className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
+            <p className="text-xs text-muted-foreground">No reviews yet. Be the first to share your experience.</p>
           </div>
         )}
       </div>

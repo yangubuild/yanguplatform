@@ -70,14 +70,14 @@ export function ReportDialog({ entityId, entityTitle, open, onOpenChange }: Repo
       <div className="w-full max-w-md rounded-2xl p-6 mx-4" style={{ background: "#111", border: "1px solid rgba(255,255,255,0.08)" }} onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-foreground text-lg font-bold">Report</h3>
-          <button onClick={handleClose}><X className="w-5 h-5" className="text-muted-foreground" /></button>
+          <button onClick={handleClose}><X className="w-5 h-5 text-muted-foreground" /></button>
         </div>
 
         {submitted ? (
           <div className="text-center py-8">
             <CheckCircle className="w-10 h-10 mx-auto mb-3" style={{ color: "#4ade80" }} />
             <p className="text-foreground text-sm font-medium mb-1">Report submitted</p>
-            <p className="text-xs" className="text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Thank you. Our team will review this report.
             </p>
             <button onClick={handleClose} className="mt-4 text-xs px-4 py-2 rounded-lg" style={{ background: "rgba(255,255,255,0.06)", }}>
@@ -86,13 +86,13 @@ export function ReportDialog({ entityId, entityTitle, open, onOpenChange }: Repo
           </div>
         ) : (
           <>
-            <p className="text-xs mb-4" className="text-muted-foreground">
+            <p className="text-xs mb-4 text-muted-foreground">
               Report "{entityTitle}" for violating community guidelines
             </p>
 
             {!user ? (
               <div className="text-center py-4">
-                <p className="text-sm mb-3" className="text-muted-foreground">Sign in to submit a report</p>
+                <p className="text-sm mb-3 text-muted-foreground">Sign in to submit a report</p>
                 <button onClick={() => navigate("/auth/login")} className="text-xs px-4 py-2 rounded-lg" style={{ background: "rgba(181,98,42,0.2)", color: "#b5622a" }}>Sign in</button>
               </div>
             ) : (

@@ -40,7 +40,7 @@ export function BlogPodcastSection() {
           >
             yangu Podcast
           </h2>
-          <ArrowRight className="w-4 h-4" className="text-muted-foreground" />
+          <ArrowRight className="w-4 h-4 text-muted-foreground" />
         </div>
 
         <div className="mb-8" style={{ borderTop: "1px dashed rgba(255,255,255,0.15)" }} />
@@ -55,7 +55,7 @@ export function BlogPodcastSection() {
             <h3 className="text-lg font-medium mb-2" style={{ fontFamily: "'Lufga', sans-serif", }}>
               AI & I
             </h3>
-            <p className="text-sm leading-relaxed mb-3" className="text-muted-foreground">
+            <p className="text-sm leading-relaxed mb-3 text-muted-foreground">
               Every week, Dan sits down with the smartest people in tech and explores the possibilities of AI together.
             </p>
             <div className="flex items-center gap-3">
@@ -71,7 +71,7 @@ export function BlogPodcastSection() {
               <div className="overflow-hidden rounded-lg mb-4" style={{ background: "#1a1a1a", aspectRatio: "3/4" }}>
                 <img src={ep.image} alt={ep.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]" />
               </div>
-              <span className="text-xs mb-1 block" className="text-muted-foreground">
+              <span className="text-xs mb-1 block text-muted-foreground">
                 Episode {ep.episode}
               </span>
               <h4
@@ -80,7 +80,7 @@ export function BlogPodcastSection() {
               >
                 {ep.title}
               </h4>
-              <p className="text-sm mt-2 leading-relaxed" className="text-muted-foreground">
+              <p className="text-sm mt-2 leading-relaxed text-muted-foreground">
                 {ep.subtitle}
               </p>
             </a>

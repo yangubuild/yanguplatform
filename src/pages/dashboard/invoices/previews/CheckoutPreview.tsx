@@ -33,7 +33,7 @@ export function CheckoutPreview({ form }: Props) {
             <span className="text-xs text-foreground font-medium">{companyName}</span>
           </div>
 
-          <p className="text-[11px] mb-3" className="text-muted-foreground">
+          <p className="text-[11px] mb-3 text-muted-foreground">
             {form.description || "Transform Your Weekly Meals While Cutting Grocery Bills in Half"}
           </p>
 

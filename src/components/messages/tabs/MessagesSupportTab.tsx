@@ -30,7 +30,7 @@ export function MessagesSupportTab() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <Loader2 className="w-5 h-5 animate-spin" className="text-muted-foreground" />
+        <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -42,10 +42,10 @@ export function MessagesSupportTab() {
           className="flex h-16 w-16 items-center justify-center rounded-2xl"
           style={{ background: "rgba(255,255,255,0.05)" }}
         >
-          <Shield className="h-8 w-8" className="text-muted-foreground" />
+          <Shield className="h-8 w-8 text-muted-foreground" />
         </div>
         <p className="text-sm font-medium text-foreground">YANGU Support</p>
-        <p className="text-xs max-w-xs text-center" className="text-muted-foreground">
+        <p className="text-xs max-w-xs text-center text-muted-foreground">
           System confirmations and platform notifications will appear here.
         </p>
       </div>
@@ -69,10 +69,10 @@ export function MessagesSupportTab() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground">{notif.title}</p>
-              <p className="text-xs mt-1" className="text-muted-foreground">
+              <p className="text-xs mt-1 text-muted-foreground">
                 {notif.body}
               </p>
-              <p className="text-[10px] mt-2" className="text-muted-foreground">
+              <p className="text-[10px] mt-2 text-muted-foreground">
                 {new Date(notif.created_at).toLocaleString()}
               </p>
             </div>

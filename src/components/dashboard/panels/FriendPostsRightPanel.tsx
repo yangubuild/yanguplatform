@@ -45,7 +45,7 @@ export function FriendPostsRightPanel({ friend }: Props) {
       {/* Post selector */}
       {posts.length > 0 && (
         <div className="px-3 py-2 shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-          <p className="text-[10px] mb-1.5" className="text-muted-foreground">Select a post:</p>
+          <p className="text-[10px] mb-1.5 text-muted-foreground">Select a post:</p>
           <div className="space-y-1 max-h-[120px] overflow-y-auto">
             {posts.slice(0, 10).map((post) => (
               <button
@@ -69,28 +69,28 @@ export function FriendPostsRightPanel({ friend }: Props) {
       <div className="flex-1 overflow-y-auto px-4 py-4">
         {!activePostId ? (
           <div className="flex flex-col items-center justify-center py-8">
-            <MessageSquare className="w-8 h-8 mb-2" className="text-muted-foreground" />
+            <MessageSquare className="w-8 h-8 mb-2 text-muted-foreground" />
             <p className="text-sm text-foreground mb-1">No comments yet</p>
-            <p className="text-xs text-center" className="text-muted-foreground">
+            <p className="text-xs text-center text-muted-foreground">
               {posts.length === 0 ? `${friendName} hasn't posted yet.` : "Select a post to see comments."}
             </p>
           </div>
         ) : commentsLoading ? (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-5 h-5 animate-spin" className="text-muted-foreground" />
+            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
           </div>
         ) : activeComments.length === 0 && !selectedPostId ? (
           <div className="flex flex-col items-center justify-center py-8">
-            <MessageSquare className="w-8 h-8 mb-2" className="text-muted-foreground" />
+            <MessageSquare className="w-8 h-8 mb-2 text-muted-foreground" />
             <p className="text-sm text-foreground mb-1">No comments yet</p>
-            <p className="text-xs text-center" className="text-muted-foreground">
+            <p className="text-xs text-center text-muted-foreground">
               Select a post to see and add comments.
             </p>
           </div>
         ) : comments.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8">
-            <MessageSquare className="w-6 h-6 mb-2" className="text-muted-foreground" />
-            <p className="text-xs" className="text-muted-foreground">No comments on this post yet. Be the first!</p>
+            <MessageSquare className="w-6 h-6 mb-2 text-muted-foreground" />
+            <p className="text-xs text-muted-foreground">No comments on this post yet. Be the first!</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -108,10 +108,10 @@ export function FriendPostsRightPanel({ friend }: Props) {
                 <div className="flex-1 min-w-0">
                   <p className="text-[11px] font-semibold text-foreground">
                     {c.author_name}
-                    {c.author_username && <span className="font-normal ml-1" className="text-muted-foreground">@{c.author_username}</span>}
+                    {c.author_username && <span className="font-normal ml-1 text-muted-foreground">@{c.author_username}</span>}
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">{c.content}</p>
-                  <p className="text-[9px] mt-1" className="text-muted-foreground">
+                  <p className="text-[9px] mt-1 text-muted-foreground">
                     {new Date(c.created_at).toLocaleDateString()}
                   </p>
                 </div>

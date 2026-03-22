@@ -175,7 +175,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
         className="flex items-center gap-3 px-5 py-2.5 shrink-0"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
-        <button onClick={onBack} className="p-1 rounded-md hover:bg-white/5" className="text-muted-foreground">
+        <button onClick={onBack} className="p-1 rounded-md hover:bg-white/5 text-muted-foreground">
           <ArrowLeft className="w-4 h-4" />
         </button>
         <span className="text-sm font-semibold text-foreground">{name}</span>
@@ -212,12 +212,12 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
             <div>
               <h2 className="text-[24px] leading-[1.15] font-bold text-foreground">{name}</h2>
               {username && (
-                <p className="text-sm mt-0.5" className="text-muted-foreground">
+                <p className="text-sm mt-0.5 text-muted-foreground">
                   @{username}
                 </p>
               )}
               {user.business_name && (
-                <p className="text-sm mt-1" className="text-muted-foreground">
+                <p className="text-sm mt-1 text-muted-foreground">
                   {user.business_name}
                 </p>
               )}
@@ -237,7 +237,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
 
           {/* Meta row */}
           <div
-            className="flex items-center gap-2.5 mt-2.5 text-xs flex-wrap" className="text-muted-foreground"
+            className="flex items-center gap-2.5 mt-2.5 text-xs flex-wrap text-muted-foreground"
           >
             <span className="flex items-center gap-1">
               <MapPin className="w-3 h-3" />
@@ -290,7 +290,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
               </div>
               {surfacesLoading ? (
                 <div className="flex items-center justify-center py-10">
-                  <Loader2 className="w-5 h-5 animate-spin" className="text-muted-foreground" />
+                  <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
                 </div>
               ) : surfaces.length === 0 ? (
                 <div
@@ -298,7 +298,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
                   style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
                 >
                   <p className="text-sm text-foreground mb-1">No published surfaces</p>
-                  <p className="text-xs" className="text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     This user has no public offerings yet.
                   </p>
                 </div>
@@ -325,7 +325,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
                       )}
                       <div className="p-3">
                         <p className="text-sm font-medium text-foreground">{surface.title || "Untitled"}</p>
-                        <p className="text-xs mt-1 flex items-center gap-1" className="text-muted-foreground">
+                        <p className="text-xs mt-1 flex items-center gap-1 text-muted-foreground">
                           {surface.surface_type}
                           <ExternalLink className="w-3 h-3 ml-auto" style={{ color: "#22c55e" }} />
                         </p>
@@ -370,13 +370,13 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
               {/* Existing reviews */}
               {reviewsLoading ? (
                 <div className="flex items-center justify-center py-10">
-                  <Loader2 className="w-5 h-5 animate-spin" className="text-muted-foreground" />
+                  <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
                 </div>
               ) : reviews.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8">
-                  <Star className="w-8 h-8 mb-2" className="text-muted-foreground" />
+                  <Star className="w-8 h-8 mb-2 text-muted-foreground" />
                   <p className="text-sm text-foreground mb-1">No reviews yet</p>
-                  <p className="text-xs" className="text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     Be the first to review {name}.
                   </p>
                 </div>
@@ -392,12 +392,12 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
                         {review.reviewer_avatar ? <img src={review.reviewer_avatar} alt="" className="w-5 h-5 rounded-full object-cover" /> : <div className="w-5 h-5 flex items-center justify-center text-[8px] font-bold text-muted-foreground">{(review.reviewer_name||"U").slice(0,2).toUpperCase()}</div>}
                       </div>
                       <span className="text-[11px] font-medium text-foreground">{review.reviewer_name}</span>
-                      {review.reviewer_username && <span className="text-[10px]" className="text-muted-foreground">@{review.reviewer_username}</span>}
+                      {review.reviewer_username && <span className="text-[10px] text-muted-foreground">@{review.reviewer_username}</span>}
                     </div>
                     {renderStars(review.rating)}
                     {review.title && <p className="text-sm font-medium text-foreground mt-1.5">{review.title}</p>}
-                    {review.body && <p className="text-xs mt-1" className="text-muted-foreground">{review.body}</p>}
-                    <p className="text-[10px] mt-2" className="text-muted-foreground">
+                    {review.body && <p className="text-xs mt-1 text-muted-foreground">{review.body}</p>}
+                    <p className="text-[10px] mt-2 text-muted-foreground">
                       {new Date(review.created_at).toLocaleDateString()}
                     </p>
                   </div>
@@ -411,13 +411,13 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
             <div className="space-y-3">
               {postsLoading ? (
                 <div className="flex items-center justify-center py-10">
-                  <Loader2 className="w-5 h-5 animate-spin" className="text-muted-foreground" />
+                  <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
                 </div>
               ) : posts.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8">
-                  <MessageSquare className="w-8 h-8 mb-2" className="text-muted-foreground" />
+                  <MessageSquare className="w-8 h-8 mb-2 text-muted-foreground" />
                   <p className="text-sm font-semibold text-foreground mb-1">{name}'s Posts</p>
-                  <p className="text-xs" className="text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     No posts from this user yet.
                   </p>
                 </div>
@@ -430,9 +430,9 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-semibold text-foreground truncate">{post.author_name}</p>
-                        {post.author_username && <p className="text-[10px]" className="text-muted-foreground">@{post.author_username}</p>}
+                        {post.author_username && <p className="text-[10px] text-muted-foreground">@{post.author_username}</p>}
                       </div>
-                      <span className="text-[10px] shrink-0" className="text-muted-foreground">{new Date(post.created_at).toLocaleDateString()}</span>
+                      <span className="text-[10px] shrink-0 text-muted-foreground">{new Date(post.created_at).toLocaleDateString()}</span>
                     </div>
                     <p className="text-sm text-foreground whitespace-pre-wrap mb-2">{post.content}</p>
                     <div className="flex items-center gap-4">
@@ -442,7 +442,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
                       <button onClick={() => toggleReaction.mutate({ postId: post.id, reactionType: "love", isActive: !!post.user_loved })} className="flex items-center gap-1 text-[11px]" style={{ color: post.user_loved ? "#ef4444" : "rgba(255,255,255,0.35)" }}>
                         <Heart className="w-3.5 h-3.5" /> {post.love_count || ""}
                       </button>
-                      <span className="flex items-center gap-1 text-[11px]" className="text-muted-foreground">
+                      <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
                         <MessageSquare className="w-3.5 h-3.5" /> {post.comment_count || ""}
                       </span>
                     </div>
@@ -457,20 +457,20 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
             <div className="space-y-4">
               <div>
                 <p className="text-xs font-semibold text-foreground mb-1">Bio</p>
-                <p className="text-sm" className="text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   {aboutData?.about_me || "No bio available."}
                 </p>
               </div>
               <div>
                 <p className="text-xs font-semibold text-foreground mb-1">Business</p>
-                <p className="text-sm" className="text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   {aboutData?.about_business || user.business_name || "No business info available."}
                 </p>
               </div>
               {(friendProfile as any)?.location && (
                 <div>
                   <p className="text-xs font-semibold text-foreground mb-1">Location</p>
-                  <p className="text-sm flex items-center gap-1" className="text-muted-foreground">
+                  <p className="text-sm flex items-center gap-1 text-muted-foreground">
                     <MapPin className="w-3 h-3" /> {(friendProfile as any).location}
                   </p>
                 </div>
@@ -478,7 +478,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
               {createdAt && (
                 <div>
                   <p className="text-xs font-semibold text-foreground mb-1">Joined</p>
-                  <p className="text-sm" className="text-muted-foreground">{createdAt}</p>
+                  <p className="text-sm text-muted-foreground">{createdAt}</p>
                 </div>
               )}
             </div>

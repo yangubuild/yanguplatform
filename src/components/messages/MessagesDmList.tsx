@@ -106,12 +106,12 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
       {/* Search */}
       <div className="p-3 flex items-center gap-2">
         <div className="flex-1 flex items-center gap-2 rounded-lg px-3 py-2" style={{ background: "rgba(255,255,255,0.06)" }}>
-          <Search className="w-4 h-4 shrink-0" className="text-muted-foreground" />
+          <Search className="w-4 h-4 shrink-0 text-muted-foreground" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search conversations..."
-            className="bg-transparent text-sm flex-1 outline-none min-w-0" className="text-muted-foreground"
+            className="bg-transparent text-sm flex-1 outline-none min-w-0 text-muted-foreground"
           />
         </div>
         <button
@@ -128,15 +128,15 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
       <div className="flex-1 overflow-y-auto px-2">
         {isLoading ? (
           <div className="flex items-center justify-center py-10">
-            <Loader2 className="w-5 h-5 animate-spin" className="text-muted-foreground" />
+            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
           </div>
         ) : threads.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10 gap-2">
             <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.06)" }}>
-              <MessageCircle className="w-5 h-5" className="text-muted-foreground" />
+              <MessageCircle className="w-5 h-5 text-muted-foreground" />
             </div>
-            <p className="text-sm" className="text-muted-foreground">No conversations yet</p>
-            <p className="text-xs" className="text-muted-foreground">
+            <p className="text-sm text-muted-foreground">No conversations yet</p>
+            <p className="text-xs text-muted-foreground">
               Start messaging or create a group
             </p>
           </div>
@@ -182,13 +182,13 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
                       </span>
                     )}
                   </div>
-                  <p className="text-xs truncate mt-0.5" className="text-muted-foreground">
+                  <p className="text-xs truncate mt-0.5 text-muted-foreground">
                     {thread.preview.length > 50 ? thread.preview.slice(0, 50) + "…" : thread.preview}
                   </p>
                 </div>
                 {/* Meta */}
                 <div className="flex flex-col items-end gap-1 shrink-0 ml-1">
-                  <span className="text-[11px]" className="text-muted-foreground">
+                  <span className="text-[11px] text-muted-foreground">
                     {thread.date}
                   </span>
                   {thread.unreadCount > 0 && (
@@ -200,7 +200,7 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
                     </span>
                   )}
                   {thread.type === "group" && thread.unreadCount === 0 && (
-                    <span className="text-[10px]" className="text-muted-foreground">
+                    <span className="text-[10px] text-muted-foreground">
                       {thread.memberCount}👤
                     </span>
                   )}

@@ -30,7 +30,7 @@ export function ShareBusinessPopover({ children, avatarUrl, initials = "Y" }: Sh
             )}
             <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full" style={{ background: "#6b7280", border: "2px solid #1a2129" }} />
           </div>
-          <span className="text-sm" className="text-muted-foreground">Team</span>
+          <span className="text-sm text-muted-foreground">Team</span>
         </div>
       </PopoverContent>
     </Popover>

@@ -61,11 +61,11 @@ export function NavDashPromoCards() {
           border: "1px solid rgba(255,255,255,0.06)",
         }}
       >
-        <Search className="w-4 h-4" className="text-muted-foreground" />
+        <Search className="w-4 h-4 text-muted-foreground" />
         <input
           type="text"
           placeholder="Search offers"
-          className="flex-1 bg-transparent text-sm outline-none border-none placeholder:text-[rgba(255,255,255,0.35)]" className="text-foreground"
+          className="flex-1 bg-transparent text-sm outline-none border-none placeholder:text-[rgba(255,255,255,0.35)] text-foreground"
         />
       </div>
     </div>

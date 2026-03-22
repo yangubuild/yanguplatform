@@ -81,7 +81,7 @@ export default function EditProfilePage() {
             className="w-full rounded-xl px-4 py-3 text-sm text-foreground outline-none"
             style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.1)" }}
           />
-          <p className="text-right text-xs mt-1" className="text-muted-foreground">{name.length}/100</p>
+          <p className="text-right text-xs mt-1 text-muted-foreground">{name.length}/100</p>
         </div>
 
         {/* Username */}
@@ -93,7 +93,7 @@ export default function EditProfilePage() {
             className="w-full rounded-xl px-4 py-3 text-sm text-foreground outline-none"
             style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.1)" }}
           />
-          <p className="text-right text-xs mt-1" className="text-muted-foreground">{username.length}/42</p>
+          <p className="text-right text-xs mt-1 text-muted-foreground">{username.length}/42</p>
         </div>
 
         {/* Bio */}
@@ -107,7 +107,7 @@ export default function EditProfilePage() {
             className="w-full rounded-xl px-4 py-3 text-sm text-foreground outline-none resize-none"
             style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.1)" }}
           />
-          <p className="text-right text-xs mt-1" className="text-muted-foreground">{bio.length}/200</p>
+          <p className="text-right text-xs mt-1 text-muted-foreground">{bio.length}/200</p>
         </div>
       </div>
 
@@ -117,7 +117,7 @@ export default function EditProfilePage() {
       {/* More details */}
       <div className="mb-8">
         <h2 className="text-base font-bold text-foreground mb-1">More details</h2>
-        <p className="text-sm mb-5" className="text-muted-foreground">
+        <p className="text-sm mb-5 text-muted-foreground">
           Choose what appears on your profile and other explore surfaces.
         </p>
 
@@ -135,12 +135,12 @@ export default function EditProfilePage() {
       {/* Social links */}
       <div>
         <h2 className="text-base font-bold text-foreground mb-1">Social links</h2>
-        <p className="text-sm mb-5" className="text-muted-foreground">
+        <p className="text-sm mb-5 text-muted-foreground">
           Connect your other accounts to let people know where to find you.
         </p>
 
         <div className="flex items-center gap-2">
-          <span className="text-sm mr-1" className="text-muted-foreground">Add:</span>
+          <span className="text-sm mr-1 text-muted-foreground">Add:</span>
           {socialIcons.map((s) => (
             <button
               key={s.name}
@@ -175,7 +175,7 @@ function ToggleRow({
           className="w-10 h-10 rounded-full flex items-center justify-center"
           style={{ background: "#232a30" }}
         >
-          <Icon className="w-5 h-5" className="text-muted-foreground" />
+          <Icon className="w-5 h-5 text-muted-foreground" />
         </div>
         <span className="text-sm font-medium text-foreground">{label}</span>
       </div>

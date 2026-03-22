@@ -15,7 +15,7 @@ function CodeBlock({ code }: CodeBlockProps) {
 }
 
 function Paragraph({ children }: { children: React.ReactNode }) {
-  return <p className="text-sm mb-4" className="text-muted-foreground">{children}</p>;
+  return <p className="text-sm mb-4 text-muted-foreground">{children}</p>;
 }
 
 function Badge({ children }: { children: React.ReactNode }) {

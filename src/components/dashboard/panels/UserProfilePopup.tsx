@@ -71,7 +71,7 @@ export function UserProfilePopup({ user, onClose, onViewProfile, onMessage }: Pr
       >
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 p-1 z-10" className="text-muted-foreground"
+          className="absolute top-3 right-3 p-1 z-10 text-muted-foreground"
         >
           <X className="w-4 h-4" />
         </button>
@@ -103,18 +103,18 @@ export function UserProfilePopup({ user, onClose, onViewProfile, onMessage }: Pr
 
           <h3 className="text-base font-semibold text-foreground mt-2">{name}</h3>
           {user.username && (
-            <p className="text-xs mt-0.5" className="text-muted-foreground">
+            <p className="text-xs mt-0.5 text-muted-foreground">
               @{user.username}
             </p>
           )}
           {user.business_name && (
-            <p className="text-xs mt-1" className="text-muted-foreground">
+            <p className="text-xs mt-1 text-muted-foreground">
               {user.business_name}
             </p>
           )}
 
           {/* Mini metadata row */}
-          <div className="flex items-center gap-3 mt-2 text-[10px]" className="text-muted-foreground">
+          <div className="flex items-center gap-3 mt-2 text-[10px] text-muted-foreground">
             <span className="flex items-center gap-0.5">
               <MapPin className="w-2.5 h-2.5" /> Location
             </span>
@@ -141,7 +141,7 @@ export function UserProfilePopup({ user, onClose, onViewProfile, onMessage }: Pr
               className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
               style={{ background: "rgba(255,255,255,0.08)" }}
             >
-              <MessageSquare className="w-3.5 h-3.5" className="text-muted-foreground" />
+              <MessageSquare className="w-3.5 h-3.5 text-muted-foreground" />
             </button>
           </div>
 

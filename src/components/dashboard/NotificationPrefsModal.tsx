@@ -38,10 +38,10 @@ export function NotificationPrefsModal({ open, onOpenChange }: NotificationPrefs
                 </span>
                 <div className="text-left">
                   <p className="text-sm font-semibold text-foreground">{item.name}</p>
-                  <p className="text-xs" className="text-muted-foreground">{item.sub}</p>
+                  <p className="text-xs text-muted-foreground">{item.sub}</p>
                 </div>
               </div>
-              <ChevronDown className="w-4 h-4" className="text-muted-foreground" />
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
             </button>
           ))}
         </div>

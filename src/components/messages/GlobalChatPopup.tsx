@@ -81,7 +81,7 @@ export function GlobalChatPopup({ onClose }: GlobalChatPopupProps) {
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 flex-shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
         <button className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
-          Global <ChevronDown className="w-3.5 h-3.5" className="text-muted-foreground" />
+          Global <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
         </button>
         <div className="flex items-center gap-2">
           <button className="p-1 rounded-md" style={{ color: "#facc15" }} title="Weekly and monthly product awards">
@@ -92,7 +92,7 @@ export function GlobalChatPopup({ onClose }: GlobalChatPopupProps) {
             style={{ background: "rgba(255,255,255,0.06)" }}>
             Open in Messages
           </button>
-          <button onClick={onClose} className="p-1" className="text-muted-foreground">
+          <button onClick={onClose} className="p-1 text-muted-foreground">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -105,7 +105,7 @@ export function GlobalChatPopup({ onClose }: GlobalChatPopupProps) {
         ) : messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10">
             <p className="text-xs font-semibold text-foreground">No messages yet</p>
-            <p className="text-[10px] mt-1" className="text-muted-foreground">Start the conversation!</p>
+            <p className="text-[10px] mt-1 text-muted-foreground">Start the conversation!</p>
           </div>
         ) : (
           messages.map((msg) => (
@@ -129,7 +129,7 @@ export function GlobalChatPopup({ onClose }: GlobalChatPopupProps) {
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
                   <span className="text-[11px] font-semibold text-foreground truncate">{msg.author_name}</span>
-                  <span className="text-[9px]" className="text-muted-foreground">
+                  <span className="text-[9px] text-muted-foreground">
                     {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                   </span>
                 </div>
@@ -170,7 +170,7 @@ export function GlobalChatPopup({ onClose }: GlobalChatPopupProps) {
           <div className="flex items-center gap-2">
             <input value={message} onChange={(e) => setMessage(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-              placeholder="Your message..." className="flex-1 bg-transparent text-xs outline-none" className="text-muted-foreground" />
+              placeholder="Your message..." className="flex-1 bg-transparent text-xs outline-none text-muted-foreground" />
             <button onClick={handleSend} disabled={(!message.trim() && !mediaFile) || uploading}
               className="p-1.5 rounded-lg" style={{ background: (message.trim() || mediaFile) ? "#22c55e" : "rgba(255,255,255,0.08)" }}>
               {uploading ? <Loader2 className="w-3 h-3 text-foreground animate-spin" /> : <Send className="w-3 h-3 text-foreground" />}
@@ -178,14 +178,14 @@ export function GlobalChatPopup({ onClose }: GlobalChatPopupProps) {
           </div>
           <div className="flex items-center gap-0.5 mt-1 -mb-0.5">
             <input ref={imageRef} type="file" accept="image/*" className="hidden" onChange={(e) => { handleFile(e.target.files); e.target.value = ""; }} />
-            <button onClick={() => imageRef.current?.click()} className="p-0.5 rounded hover:bg-white/5" className="text-muted-foreground"><ImagePlus className="w-3 h-3" /></button>
+            <button onClick={() => imageRef.current?.click()} className="p-0.5 rounded hover:bg-white/5 text-muted-foreground"><ImagePlus className="w-3 h-3" /></button>
             <input ref={videoRef} type="file" accept="video/*" className="hidden" onChange={(e) => { handleFile(e.target.files); e.target.value = ""; }} />
-            <button onClick={() => videoRef.current?.click()} className="p-0.5 rounded hover:bg-white/5" className="text-muted-foreground"><Video className="w-3 h-3" /></button>
-            <button className="p-0.5 rounded hover:bg-white/5" className="text-muted-foreground" onClick={() => imageRef.current?.click()}><span className="text-[8px] font-bold">GIF</span></button>
-            <button className="p-0.5 rounded hover:bg-white/5" className="text-muted-foreground"><Smile className="w-3 h-3" /></button>
-            <button onClick={() => insertTag("[location:📍 My Location]")} className="p-0.5 rounded hover:bg-white/5" className="text-muted-foreground"><MapPin className="w-3 h-3" /></button>
-            <button onClick={() => insertTag("@")} className="p-0.5 rounded hover:bg-white/5" className="text-muted-foreground"><AtSign className="w-3 h-3" /></button>
-            <button onClick={() => insertTag("#")} className="p-0.5 rounded hover:bg-white/5" className="text-muted-foreground"><Hash className="w-3 h-3" /></button>
+            <button onClick={() => videoRef.current?.click()} className="p-0.5 rounded hover:bg-white/5 text-muted-foreground"><Video className="w-3 h-3" /></button>
+            <button className="p-0.5 rounded hover:bg-white/5 text-muted-foreground" onClick={() => imageRef.current?.click()}><span className="text-[8px] font-bold">GIF</span></button>
+            <button className="p-0.5 rounded hover:bg-white/5 text-muted-foreground"><Smile className="w-3 h-3" /></button>
+            <button onClick={() => insertTag("[location:📍 My Location]")} className="p-0.5 rounded hover:bg-white/5 text-muted-foreground"><MapPin className="w-3 h-3" /></button>
+            <button onClick={() => insertTag("@")} className="p-0.5 rounded hover:bg-white/5 text-muted-foreground"><AtSign className="w-3 h-3" /></button>
+            <button onClick={() => insertTag("#")} className="p-0.5 rounded hover:bg-white/5 text-muted-foreground"><Hash className="w-3 h-3" /></button>
             <div className="flex-1" />
             <button onClick={() => insertTag(" [buynow]")} className="p-0.5 rounded hover:bg-white/5" style={{ color: "rgba(16,185,129,0.5)" }}><ShoppingCart className="w-3 h-3" /></button>
             <button onClick={() => insertTag(" [sellnow]")} className="p-0.5 rounded hover:bg-white/5" style={{ color: "rgba(251,146,60,0.5)" }}><Tag className="w-3 h-3" /></button>
