@@ -8,7 +8,7 @@ import { PromoSuccessModal } from "@/components/promo-codes/PromoSuccessModal";
 import { PromoCodesList } from "@/components/promo-codes/PromoCodesList";
 import { CreateOfferModal } from "@/components/promo-codes/CreateOfferModal";
 import { toast } from "sonner";
-import { Plus, Megaphone } from "lucide-react";
+import { Plus, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export interface PromoCodeFormData {
@@ -136,7 +136,7 @@ export default function PromoCodesPage() {
               onClick={() => setShowCreateOffer(true)}
               className="rounded-xl px-6 h-10 gap-2"
             >
-              <Megaphone className="w-4 h-4" />
+              <Send className="w-4 h-4" />
               Create Offer
             </Button>
             <p className="text-xs text-muted-foreground mt-2">
@@ -163,7 +163,7 @@ export default function PromoCodesPage() {
                   onClick={() => setShowCreateOffer(true)}
                   className="rounded-xl px-4 h-9 gap-2 text-sm"
                 >
-                  <Megaphone className="w-4 h-4" />
+                  <Send className="w-4 h-4" />
                   Create Offer
                 </Button>
               </div>
