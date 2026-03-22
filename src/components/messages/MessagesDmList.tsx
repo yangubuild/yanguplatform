@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useConversationList } from "@/hooks/useDirectMessages";
 import { useUnreadDmPerPartner } from "@/hooks/useUnreadMessages";
+import { useUnreadGroupPerGroup } from "@/hooks/useGroupUnread";
 import { useMyGroups, type ChatGroup } from "@/hooks/useGroupChats";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import { Search, Loader2, Plus, Users } from "lucide-react";
@@ -42,6 +43,7 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
   const [search, setSearch] = useState("");
   const { data: conversations = [], isLoading: loadingDms } = useConversationList();
   const { data: unreadMap } = useUnreadDmPerPartner();
+  const { data: unreadGroupMap } = useUnreadGroupPerGroup();
   const { data: groups = [], isLoading: loadingGroups } = useMyGroups();
 
   const partnerIds = conversations.map((c) => c.partnerId);
