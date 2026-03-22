@@ -625,7 +625,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
               onMouseEnter={triggerEmojiPreload}
               style={displayAvatar
                 ? { background: "transparent" }
-                : { background: "#1e293b", border: "4px solid #0f141a", borderRadius: "50%" }
+                : { background: "hsl(var(--muted))", border: "4px solid hsl(var(--card))", borderRadius: "50%" }
               }>
               {displayAvatar ? (
                 <img

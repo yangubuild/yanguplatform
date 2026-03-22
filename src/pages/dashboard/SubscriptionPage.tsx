@@ -67,9 +67,8 @@ export default function SubscriptionPage() {
         {plans.map((plan) => (
           <div
             key={plan.name}
-            className="rounded-2xl p-6 flex flex-col relative"
+            className={`rounded-2xl p-6 flex flex-col relative ${plan.current ? 'bg-card' : 'bg-muted'}`}
             style={{
-              background: plan.current ? "#1a2025" : "#232a30",
               border: plan.popular ? "2px solid #2d5a3d" : "1px solid rgba(255,255,255,0.08)" }}>
             {plan.popular && (
               <span
