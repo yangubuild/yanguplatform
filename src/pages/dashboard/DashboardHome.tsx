@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { InnerPageSidebar, type SidebarItem } from "@/components/dashboard/InnerPageSidebar";
 import { useAcceptInvite } from "@/hooks/useAcceptInvite";
 import { ProfileWorkspace } from "@/components/dashboard/ProfileWorkspace";
@@ -18,9 +18,12 @@ import { FriendProfileView, type FriendUser } from "@/components/dashboard/Frien
 import { FriendReviewsRightPanel } from "@/components/dashboard/panels/FriendReviewsRightPanel";
 import { FriendPostsRightPanel } from "@/components/dashboard/panels/FriendPostsRightPanel";
 import { FriendChatRightPanel } from "@/components/dashboard/panels/FriendChatRightPanel";
+import { PostDetailModal } from "@/components/posts/PostDetailModal";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { resolveAvatarUrl } from "@/lib/avatarUtils";
 
 export type ProfileTab = "Home" | "KYC" | "Reviews" | "Posts" | "About";
 
@@ -94,9 +97,53 @@ export default function DashboardHome() {
   const [activeProfileTab, setActiveProfileTab] = useState<ProfileTab>("Home");
   const [viewedFriend, setViewedFriend] = useState<FriendUser | null>(null);
   const [friendTab, setFriendTab] = useState<string>("Home");
+  const [postModalId, setPostModalId] = useState<string | null>(null);
   const isMobile = useIsMobile();
   const isTablet = useMediaQuery("(min-width: 768px) and (max-width: 1023px)");
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Handle deep-link query params: ?post=ID, ?view_profile=ID
+  useEffect(() => {
+    const postId = searchParams.get("post");
+    const viewProfileId = searchParams.get("view_profile");
+
+    if (postId) {
+      setPostModalId(postId);
+      // Clean the param so modal doesn't reopen on re-render
+      const next = new URLSearchParams(searchParams);
+      next.delete("post");
+      setSearchParams(next, { replace: true });
+    }
+
+    if (viewProfileId) {
+      (async () => {
+        try {
+          const { data: prof } = await supabase
+            .from("profiles")
+            .select("id, display_name, username, avatar_url, avatar_mode, avatar_emoji_key, business_name, cover_url")
+            .eq("id", viewProfileId)
+            .single();
+          if (prof) {
+            const avatar = resolveAvatarUrl(prof);
+            handleViewFriend({
+              id: prof.id,
+              display_name: prof.display_name,
+              username: prof.username,
+              avatar_url: avatar || prof.avatar_url,
+              avatar_mode: prof.avatar_mode,
+              avatar_emoji_key: prof.avatar_emoji_key,
+              business_name: prof.business_name,
+              cover_url: prof.cover_url,
+            });
+          }
+        } catch { /* ignore */ }
+      })();
+      const next = new URLSearchParams(searchParams);
+      next.delete("view_profile");
+      setSearchParams(next, { replace: true });
+    }
+  }, []);
 
   const handleItemChange = (item: SidebarItem) => {
     setActiveItem(item);
@@ -142,11 +189,15 @@ export default function DashboardHome() {
       onProfileTabChange={handleProfileTabChange}
     />
   );
+  const postModal = postModalId ? (
+    <PostDetailModal postId={postModalId} onClose={() => setPostModalId(null)} />
+  ) : null;
 
   if (isMobile) {
     return (
       <div className="h-[calc(100vh-64px)] flex flex-col overflow-hidden" style={{ background: "#08120D" }}>
         {centerContent}
+        {postModal}
       </div>
     );
   }
@@ -189,6 +240,7 @@ export default function DashboardHome() {
             </div>
           </div>
         </div>
+        {postModal}
       </>
     );
   }
@@ -244,6 +296,7 @@ export default function DashboardHome() {
           </div>
         </div>
       </div>
+      {postModal}
     </>
   );
 }
