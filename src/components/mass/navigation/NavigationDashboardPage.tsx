@@ -22,7 +22,7 @@ export function NavigationDashboardPage() {
     <div
       className="min-h-screen w-full max-w-full overflow-x-hidden"
       style={{
-        background: "linear-gradient(180deg, #1f262b 0%, #232a30 100%)",
+        background: "#08120D",
       }}
     >
       <NavDashHeader onMenuToggle={() => setSidebarOpen((p) => !p)} />
@@ -33,7 +33,7 @@ export function NavigationDashboardPage() {
       />
 
       <div
-        className="pt-16 transition-all duration-300 min-h-[calc(100vh-64px)] overflow-y-auto"
+        className="mt-16 transition-all duration-300 min-h-[calc(100vh-64px)] overflow-y-auto"
         style={{ marginLeft: isMobile ? 0 : totalWidth, background: "#08120D" }}
       >
         {/* Routed outlet — wrapped in Suspense so sidebars stay visible during lazy loads */}
