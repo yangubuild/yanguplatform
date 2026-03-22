@@ -189,7 +189,7 @@ export function PostInteractions({ post, toggleReaction }: PostInteractionsProps
       {showComments && (
         <div className="mt-3 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
           {commentsLoading ? (
-            <div className="flex justify-center py-2"><Loader2 className="w-4 h-4 animate-spin text-white/30" /></div>
+            <div className="flex justify-center py-2"><Loader2 className="w-4 h-4 animate-spin text-muted-foreground" /></div>
           ) : comments.length > 0 ? (
             <div className="space-y-2 mb-3 max-h-40 overflow-y-auto">
               {comments.map((c) => (
@@ -198,14 +198,14 @@ export function PostInteractions({ post, toggleReaction }: PostInteractionsProps
                     {c.author_avatar ? (
                       <img src={c.author_avatar} alt="" className="w-5 h-5 rounded-full object-cover" />
                     ) : (
-                      <div className="w-5 h-5 flex items-center justify-center text-[8px] font-bold text-white/50">
+                      <div className="w-5 h-5 flex items-center justify-center text-[8px] font-bold text-muted-foreground">
                         {(c.author_name || "U").slice(0, 2).toUpperCase()}
                       </div>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline gap-1.5">
-                      <span className="text-[10px] font-semibold text-white">{c.author_name}</span>
+                      <span className="text-[10px] font-semibold text-foreground">{c.author_name}</span>
                       {c.author_username && <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.3)" }}>@{c.author_username}</span>}
                     </div>
                     <CommentContent content={c.content} />
@@ -214,7 +214,7 @@ export function PostInteractions({ post, toggleReaction }: PostInteractionsProps
               ))}
             </div>
           ) : (
-            <p className="text-[10px] text-white/30 mb-2">No comments yet</p>
+            <p className="text-[10px] text-muted-foreground mb-2">No comments yet</p>
           )}
           {/* Rich comment composer */}
           <div>
@@ -224,7 +224,7 @@ export function PostInteractions({ post, toggleReaction }: PostInteractionsProps
                   ? <video src={commentMediaPreview} className="w-14 h-14 object-cover" />
                   : <img src={commentMediaPreview} alt="" className="w-14 h-14 object-cover" />}
                 <button onClick={() => { if (commentMediaPreview) URL.revokeObjectURL(commentMediaPreview); setCommentMediaFile(null); setCommentMediaPreview(null); }} className="absolute top-0.5 right-0.5 w-3.5 h-3.5 rounded-full bg-black/70 flex items-center justify-center">
-                  <X className="w-2 h-2 text-white" />
+                  <X className="w-2 h-2 text-foreground" />
                 </button>
               </div>
             )}
@@ -234,7 +234,7 @@ export function PostInteractions({ post, toggleReaction }: PostInteractionsProps
                 onChange={(e) => setCommentText(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleComment(); } }}
                 placeholder="Write a comment..."
-                className="flex-1 bg-transparent text-xs text-white placeholder:text-white/25 outline-none px-2 py-2 rounded-md min-h-[36px]"
+                className="flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none px-2 py-2 rounded-md min-h-[36px]"
                 style={{ background: "rgba(255,255,255,0.05)" }}
               />
             </div>
@@ -271,7 +271,7 @@ function CommentContent({ content }: { content: string }) {
 
   return (
     <div>
-      {textOnly && <p className="text-[11px] text-white/70">{textOnly}</p>}
+      {textOnly && <p className="text-[11px] text-muted-foreground">{textOnly}</p>}
       {urls.map((url, i) => (
         url.match(/\.(mp4|webm)$/i)
           ? <video key={i} src={url} controls className="mt-1 rounded max-h-24 max-w-[180px]" />
@@ -342,19 +342,19 @@ function SharePanel({ postId, postContent, onClose }: { postId: string; postCont
       className="absolute bottom-full right-0 mb-2 z-50 rounded-lg p-3 w-[220px] shadow-xl"
       style={{ background: "#1a1f28", border: "1px solid rgba(255,255,255,0.1)" }}
     >
-      <p className="text-[10px] font-semibold text-white/60 mb-2">Share with…</p>
+      <p className="text-[10px] font-semibold text-muted-foreground mb-2">Share with…</p>
       <div className="flex items-center gap-1.5 mb-2 rounded-md px-2 py-1" style={{ background: "rgba(255,255,255,0.05)" }}>
-        <Search className="w-3 h-3 text-white/30" />
+        <Search className="w-3 h-3 text-muted-foreground" />
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search people…"
-          className="flex-1 bg-transparent text-[11px] text-white placeholder:text-white/25 outline-none"
+          className="flex-1 bg-transparent text-[11px] text-foreground placeholder:text-muted-foreground outline-none"
           autoFocus
         />
       </div>
       <div className="max-h-[150px] overflow-y-auto space-y-1">
-        {users.length === 0 && <p className="text-[10px] text-white/30 text-center py-2">No users found</p>}
+        {users.length === 0 && <p className="text-[10px] text-muted-foreground text-center py-2">No users found</p>}
         {users.map((u) => (
           <button
             key={u.id}
@@ -363,13 +363,13 @@ function SharePanel({ postId, postContent, onClose }: { postId: string; postCont
             className="flex items-center gap-2 w-full p-1.5 rounded-md hover:bg-white/5 transition-colors"
           >
             <div className="w-5 h-5 rounded-full overflow-hidden shrink-0" style={{ background: "rgba(255,255,255,0.1)" }}>
-              {u.avatar ? <img src={u.avatar} alt="" className="w-5 h-5 rounded-full object-cover" /> : <div className="w-5 h-5 flex items-center justify-center text-[8px] font-bold text-white/50">{u.name.slice(0, 2).toUpperCase()}</div>}
+              {u.avatar ? <img src={u.avatar} alt="" className="w-5 h-5 rounded-full object-cover" /> : <div className="w-5 h-5 flex items-center justify-center text-[8px] font-bold text-muted-foreground">{u.name.slice(0, 2).toUpperCase()}</div>}
             </div>
             <div className="flex-1 min-w-0 text-left">
-              <p className="text-[10px] font-medium text-white truncate">{u.name}</p>
+              <p className="text-[10px] font-medium text-foreground truncate">{u.name}</p>
               {u.username && <p className="text-[9px]" style={{ color: "rgba(255,255,255,0.35)" }}>@{u.username}</p>}
             </div>
-            {sending === u.id ? <Loader2 className="w-3 h-3 animate-spin text-white/40" /> : <Send className="w-3 h-3 text-white/25" />}
+            {sending === u.id ? <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" /> : <Send className="w-3 h-3 text-muted-foreground" />}
           </button>
         ))}
       </div>
@@ -389,16 +389,16 @@ function ReactionPopover({ users }: { users: { id: string; name: string; usernam
             {u.avatar ? (
               <img src={u.avatar} alt="" className="w-5 h-5 rounded-full object-cover" />
             ) : (
-              <div className="w-5 h-5 flex items-center justify-center text-[8px] font-bold text-white/50">{u.name.slice(0, 2).toUpperCase()}</div>
+              <div className="w-5 h-5 flex items-center justify-center text-[8px] font-bold text-muted-foreground">{u.name.slice(0, 2).toUpperCase()}</div>
             )}
           </div>
           <div className="min-w-0">
-            <p className="text-[10px] font-medium text-white truncate">{u.name}</p>
+            <p className="text-[10px] font-medium text-foreground truncate">{u.name}</p>
             {u.username && <p className="text-[9px]" style={{ color: "rgba(255,255,255,0.35)" }}>@{u.username}</p>}
           </div>
         </div>
       ))}
-      {users.length > 10 && <p className="text-[9px] text-white/30 mt-1">+{users.length - 10} more</p>}
+      {users.length > 10 && <p className="text-[9px] text-muted-foreground mt-1">+{users.length - 10} more</p>}
     </div>
   );
 }

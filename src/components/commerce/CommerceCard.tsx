@@ -61,7 +61,7 @@ export default function CommerceCard({
         {/* Info */}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <span className="text-xs font-semibold text-white truncate">{item.title}</span>
+            <span className="text-xs font-semibold text-foreground truncate">{item.title}</span>
             {item.is_verified && (
               <ShieldCheck className="w-3 h-3 text-accent shrink-0" />
             )}
@@ -121,7 +121,7 @@ export default function CommerceCard({
       <div className="p-4 space-y-2">
         {/* Title + verified */}
         <div className="flex items-start gap-2">
-          <h3 className="text-sm font-semibold text-white flex-1 line-clamp-2 leading-snug">{item.title}</h3>
+          <h3 className="text-sm font-semibold text-foreground flex-1 line-clamp-2 leading-snug">{item.title}</h3>
           {item.is_verified && (
             <ShieldCheck className="w-4 h-4 text-accent shrink-0 mt-0.5" />
           )}
@@ -156,7 +156,7 @@ export default function CommerceCard({
             {item.owner_avatar ? (
               <img src={item.owner_avatar} alt="" className="w-5 h-5 rounded-full object-cover" />
             ) : (
-              <div className="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold text-white" style={{ background: "rgba(255,255,255,0.1)" }}>
+              <div className="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold text-foreground" style={{ background: "rgba(255,255,255,0.1)" }}>
                 {item.owner_name.charAt(0).toUpperCase()}
               </div>
             )}
@@ -168,7 +168,7 @@ export default function CommerceCard({
         <div className="flex gap-2 pt-2">
           <button
             onClick={handleOpen}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold text-white transition-colors"
+            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold text-foreground transition-colors"
             style={{ background: "linear-gradient(135deg, #b5622a, #d97706)" }}
           >
             <ExternalLink className="w-3.5 h-3.5" />

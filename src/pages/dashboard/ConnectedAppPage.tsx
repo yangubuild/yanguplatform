@@ -47,7 +47,7 @@ export default function ConnectedAppPage() {
   if (isLoading) {
     return (
       <div className="w-full min-h-screen flex items-center justify-center" style={{ background: "#08120D" }}>
-        <Loader2 className="w-6 h-6 text-white/20 animate-spin" />
+        <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
       </div>
     );
   }
@@ -55,10 +55,10 @@ export default function ConnectedAppPage() {
   if (!data?.app) {
     return (
       <div className="w-full min-h-screen px-6 py-6" style={{ background: "#08120D" }}>
-        <button onClick={() => navigate("/dashboard/my-apps")} className="flex items-center gap-2 text-white/50 hover:text-white text-sm mb-6">
+        <button onClick={() => navigate("/dashboard/my-apps")} className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm mb-6">
           <ArrowLeft className="w-4 h-4" /> Back to My Apps
         </button>
-        <p className="text-white/40">App not found.</p>
+        <p className="text-muted-foreground">App not found.</p>
       </div>
     );
   }
@@ -72,7 +72,7 @@ export default function ConnectedAppPage() {
     <div className="w-full min-h-screen px-6 py-6" style={{ background: "#08120D" }}>
       <button
         onClick={() => navigate("/dashboard/my-apps")}
-        className="flex items-center gap-2 text-white/50 hover:text-white text-sm mb-6 transition-colors"
+        className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm mb-6 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" /> Back to My Apps
       </button>
@@ -82,8 +82,8 @@ export default function ConnectedAppPage() {
         <div className="flex items-center gap-4 mb-6">
           <img src={icon} alt={app.name} className="w-14 h-14 rounded-2xl object-cover" />
           <div>
-            <h1 className="text-xl font-semibold text-white">{app.name}</h1>
-            <p className="text-sm text-white/40">{app.provider_name}</p>
+            <h1 className="text-xl font-semibold text-foreground">{app.name}</h1>
+            <p className="text-sm text-muted-foreground">{app.provider_name}</p>
           </div>
         </div>
 
@@ -96,17 +96,17 @@ export default function ConnectedAppPage() {
             {isConnected ? (
               <CheckCircle2 className="w-5 h-5 text-green-400" />
             ) : (
-              <XCircle className="w-5 h-5 text-white/30" />
+              <XCircle className="w-5 h-5 text-muted-foreground" />
             )}
-            <span className="text-sm font-medium text-white">
+            <span className="text-sm font-medium text-foreground">
               {isConnected ? "Connected" : "Not connected"}
             </span>
           </div>
-          <p className="text-xs text-white/40 leading-relaxed">
+          <p className="text-xs text-muted-foreground leading-relaxed">
             {app.short_description || app.long_description || "No description available."}
           </p>
           {install?.installed_at && (
-            <p className="text-[11px] text-white/25 mt-3">
+            <p className="text-[11px] text-muted-foreground mt-3">
               Added {new Date(install.installed_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
             </p>
           )}
@@ -117,7 +117,7 @@ export default function ConnectedAppPage() {
           {MANAGEMENT_LINKS[app.slug] && (
             <button
               onClick={() => navigate(MANAGEMENT_LINKS[app.slug].route)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-white transition-colors hover:opacity-90"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-foreground transition-colors hover:opacity-90"
               style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
             >
               <Settings className="w-4 h-4" />
@@ -129,7 +129,7 @@ export default function ConnectedAppPage() {
               href={externalUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-white transition-colors hover:opacity-90"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-foreground transition-colors hover:opacity-90"
               style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
             >
               <ExternalLink className="w-4 h-4" />

@@ -93,7 +93,7 @@ export function DashboardCreditPromo() {
                 boxShadow: "0 8px 32px rgba(249,115,22,0.35)",
               }}
             >
-              <span className="text-2xl font-bold text-white">$25</span>
+              <span className="text-2xl font-bold text-foreground">$25</span>
             </div>
 
             {/* Headline */}
@@ -163,7 +163,7 @@ export function DashboardCreditPromo() {
                 boxShadow: "0 8px 32px rgba(249,115,22,0.35)",
               }}
             >
-              <span className="text-2xl font-bold text-white">
+              <span className="text-2xl font-bold text-foreground">
                 {newBalance.toLocaleString()}
               </span>
             </div>

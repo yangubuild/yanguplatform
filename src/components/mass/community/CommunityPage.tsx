@@ -115,13 +115,13 @@ function CommunityPageInner() {
 
         {isLoading ? (
           <div className="flex justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-white/60" />
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           </div>
         ) : isExplore ? (
           allExploreEmpty ? (
             <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-              <p className="text-[15px] font-medium text-white">No listings yet</p>
-              <p className="mt-1 text-[13px] text-white/50">
+              <p className="text-[15px] font-medium text-foreground">No listings yet</p>
+              <p className="mt-1 text-[13px] text-muted-foreground">
                 Communities listed on yangu will appear here.
               </p>
             </div>
@@ -144,7 +144,7 @@ function CommunityPageInner() {
           <>
             {filteredItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-                <p className="text-[15px] font-medium text-white">No listings in this category</p>
+                <p className="text-[15px] font-medium text-foreground">No listings in this category</p>
               </div>
             ) : (
               <CommunitySection title={activeFilter} items={filteredItems} showSeeAll={false} linkMap={filteredLinks} />

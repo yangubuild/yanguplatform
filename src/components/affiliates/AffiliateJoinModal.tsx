@@ -15,7 +15,7 @@ export function AffiliateJoinModal({ companyName, avatarUrl, onConfirm, onClose 
     <div className="fixed inset-0 z-[200] flex items-center justify-center">
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
       <div className="relative w-full max-w-md rounded-xl p-8" style={{ background: "#111a15" }}>
-        <button onClick={onClose} className="absolute top-4 right-4 text-white/30 hover:text-white">
+        <button onClick={onClose} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground">
           <X className="w-5 h-5" />
         </button>
 
@@ -23,7 +23,7 @@ export function AffiliateJoinModal({ companyName, avatarUrl, onConfirm, onClose 
           <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
         </div>
 
-        <h2 className="text-xl font-semibold text-white mb-6">
+        <h2 className="text-xl font-semibold text-foreground mb-6">
           Become an affiliate with {companyName}
         </h2>
 
@@ -34,7 +34,7 @@ export function AffiliateJoinModal({ companyName, avatarUrl, onConfirm, onClose 
             onChange={(e) => setAccepted(e.target.checked)}
             className="mt-1 w-4 h-4 rounded border-white/20 bg-transparent accent-accent"
           />
-          <span className="text-sm text-white/60">
+          <span className="text-sm text-muted-foreground">
             I accept the{" "}
             <span className="text-blue-400 hover:underline cursor-pointer">Terms of Use</span>
             {" "}and{" "}

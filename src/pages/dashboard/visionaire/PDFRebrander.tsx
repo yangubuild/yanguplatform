@@ -197,7 +197,7 @@ export default function PDFRebrander() {
               <div className="w-[400px] aspect-[3/4] rounded-lg shadow-lg overflow-hidden" style={{ background: "#1a1a2e" }}>
                 <div className="flex flex-col items-center justify-center h-full gap-4 p-6">
                   {logoPreview && <img src={logoPreview} alt="Logo" className="h-16 object-contain" />}
-                  <p className="text-white font-bold text-lg text-center">{pdfFile.name.replace(".pdf", "")}</p>
+                  <p className="text-foreground font-bold text-lg text-center">{pdfFile.name.replace(".pdf", "")}</p>
                 </div>
               </div>
             </div>

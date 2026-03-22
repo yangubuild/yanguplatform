@@ -228,7 +228,7 @@ export function MetaTopAdsSection() {
 
             {/* clone button */}
             <div className="flex items-center gap-1 px-2 py-2">
-              <button className="flex-1 py-1.5 text-xs font-semibold text-black bg-white border border-border/40 rounded-md hover:bg-accent hover:text-white hover:border-accent transition-colors">
+              <button className="flex-1 py-1.5 text-xs font-semibold text-black bg-white border border-border/40 rounded-md hover:bg-accent hover:text-foreground hover:border-accent transition-colors">
                 Clone this ad
               </button>
               <button className="h-7 w-7 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted">

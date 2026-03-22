@@ -123,7 +123,7 @@ export default function PortalApiKeys() {
         <select
           value={selectedAppId}
           onChange={(e) => setSelectedAppId(e.target.value)}
-          className="h-9 rounded-md border border-white/10 bg-white/5 text-white text-sm px-3 focus:outline-none focus:ring-2 focus:ring-accent"
+          className="h-9 rounded-md border border-white/10 bg-white/5 text-foreground text-sm px-3 focus:outline-none focus:ring-2 focus:ring-accent"
         >
           <option value="all">All Apps</option>
           {(apps ?? []).map((a: any) => (
@@ -131,7 +131,7 @@ export default function PortalApiKeys() {
           ))}
         </select>
 
-        <label className="flex items-center gap-2 text-xs text-white/40 cursor-pointer select-none">
+        <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none">
           <input
             type="checkbox"
             checked={showRevoked}
@@ -149,26 +149,26 @@ export default function PortalApiKeys() {
       </div>
 
       {/* ── beta note ── */}
-      <p className="text-xs text-white/30 mb-4">
+      <p className="text-xs text-muted-foreground mb-4">
         Free during beta — usage is currently unlimited. Limits may apply later.
       </p>
 
       {/* ── table ── */}
       {isLoading ? (
         <div className="flex items-center justify-center py-16">
-          <Loader2 className="w-6 h-6 text-white/30 animate-spin" />
+          <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
         </div>
       ) : filteredKeys.length > 0 ? (
         <div className="rounded-xl overflow-hidden border border-white/10">
           <Table>
             <TableHeader>
               <TableRow className="border-white/10 hover:bg-transparent">
-                <TableHead className="text-white/50">Key</TableHead>
-                <TableHead className="text-white/50">App</TableHead>
-                <TableHead className="text-white/50">Env</TableHead>
-                <TableHead className="text-white/50">Status</TableHead>
-                <TableHead className="text-white/50">Created</TableHead>
-                <TableHead className="text-white/50 text-right">Actions</TableHead>
+                <TableHead className="text-muted-foreground">Key</TableHead>
+                <TableHead className="text-muted-foreground">App</TableHead>
+                <TableHead className="text-muted-foreground">Env</TableHead>
+                <TableHead className="text-muted-foreground">Status</TableHead>
+                <TableHead className="text-muted-foreground">Created</TableHead>
+                <TableHead className="text-muted-foreground text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -179,10 +179,10 @@ export default function PortalApiKeys() {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Key className="w-3.5 h-3.5 text-accent" />
-                        <span className="font-mono text-sm text-white">{k.prefix}</span>
+                        <span className="font-mono text-sm text-foreground">{k.prefix}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-white/60 text-sm">
+                    <TableCell className="text-muted-foreground text-sm">
                       {k.developer_apps?.name ?? "—"}
                     </TableCell>
                     <TableCell>
@@ -199,7 +199,7 @@ export default function PortalApiKeys() {
                         {revoked ? "Revoked" : "Active"}
                       </span>
                     </TableCell>
-                    <TableCell className="text-white/40 text-xs">
+                    <TableCell className="text-muted-foreground text-xs">
                       {new Date(k.created_at).toLocaleDateString()}
                     </TableCell>
                     <TableCell className="text-right">
@@ -222,8 +222,8 @@ export default function PortalApiKeys() {
         </div>
       ) : (
         <div className="text-center py-16">
-          <Key className="w-10 h-10 text-white/20 mx-auto mb-3" />
-          <p className="text-white/40 text-sm">No API keys yet. Create one to get started.</p>
+          <Key className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+          <p className="text-muted-foreground text-sm">No API keys yet. Create one to get started.</p>
         </div>
       )}
 
@@ -232,18 +232,18 @@ export default function PortalApiKeys() {
         <DialogContent className="bg-background border-border text-foreground max-w-md">
           <DialogHeader>
             <DialogTitle>Create API Key</DialogTitle>
-            <DialogDescription className="text-white/50">
+            <DialogDescription className="text-muted-foreground">
               Generate a new key for your app. You'll only see it once.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-2">
             <div>
-              <Label className="text-white/70">App</Label>
+              <Label className="text-muted-foreground">App</Label>
               <select
                 value={createAppId}
                 onChange={(e) => setCreateAppSelected(e.target.value)}
-                className="mt-1 w-full h-10 rounded-md border border-white/10 bg-white/5 text-white text-sm px-3 focus:outline-none focus:ring-2 focus:ring-accent"
+                className="mt-1 w-full h-10 rounded-md border border-white/10 bg-white/5 text-foreground text-sm px-3 focus:outline-none focus:ring-2 focus:ring-accent"
               >
                 <option value="">Select app…</option>
                 {(apps ?? []).map((a: any) => (
@@ -253,7 +253,7 @@ export default function PortalApiKeys() {
             </div>
 
             <div>
-              <Label className="text-white/70">Environment</Label>
+              <Label className="text-muted-foreground">Environment</Label>
               <div className="flex gap-2 mt-1">
                 {(["dev", "prod"] as const).map((env) => (
                   <button
@@ -263,7 +263,7 @@ export default function PortalApiKeys() {
                     className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                       keyEnv === env
                         ? "bg-accent/20 text-accent border border-accent/40"
-                        : "bg-white/5 text-white/50 border border-white/10 hover:bg-white/10"
+                        : "bg-white/5 text-muted-foreground border border-white/10 hover:bg-white/10"
                     }`}
                   >
                     {env === "dev" ? "Development" : "Production"}
@@ -294,7 +294,7 @@ export default function PortalApiKeys() {
               <ShieldAlert className="w-5 h-5 text-accent" />
               Copy Your API Key
             </DialogTitle>
-            <DialogDescription className="text-white/50">
+            <DialogDescription className="text-muted-foreground">
               This is the only time you'll see this key. Copy it now and store it securely.
             </DialogDescription>
           </DialogHeader>
@@ -304,7 +304,7 @@ export default function PortalApiKeys() {
               {newKeyPlain}
             </code>
             <Button variant="ghost" size="icon" onClick={handleCopy} className="shrink-0">
-              {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 text-white/60" />}
+              {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 text-muted-foreground" />}
             </Button>
           </div>
 
@@ -326,7 +326,7 @@ export default function PortalApiKeys() {
         <DialogContent className="bg-background border-border text-foreground max-w-sm">
           <DialogHeader>
             <DialogTitle>Revoke API Key?</DialogTitle>
-            <DialogDescription className="text-white/50">
+            <DialogDescription className="text-muted-foreground">
               This action cannot be undone. Any integrations using this key will stop working immediately.
             </DialogDescription>
           </DialogHeader>

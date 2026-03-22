@@ -99,7 +99,7 @@ export function GroupAvatarUpload({ groupId, currentUrl, groupName, size = 40, e
             className="absolute inset-0 rounded-full flex items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity"
             style={{ background: "rgba(0,0,0,0.5)" }}
           >
-            <Camera className="w-4 h-4 text-white" />
+            <Camera className="w-4 h-4 text-foreground" />
           </button>
           <input
             ref={fileRef}

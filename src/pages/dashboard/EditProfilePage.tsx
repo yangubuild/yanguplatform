@@ -43,7 +43,7 @@ export default function EditProfilePage() {
     <div className="max-w-2xl mx-auto py-6 px-4 min-h-screen pb-20" style={{ background: "#08120D" }}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-bold text-white">Edit profile</h1>
+        <h1 className="text-xl font-bold text-foreground">Edit profile</h1>
         <button
           onClick={handleSave}
           disabled={!hasChanges}
@@ -74,11 +74,11 @@ export default function EditProfilePage() {
       <div className="mt-6 space-y-5">
         {/* Name */}
         <div>
-          <label className="text-sm font-medium text-white block mb-1.5">Name</label>
+          <label className="text-sm font-medium text-foreground block mb-1.5">Name</label>
           <input
             value={name}
             onChange={(e) => setName(e.target.value.slice(0, 100))}
-            className="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
+            className="w-full rounded-xl px-4 py-3 text-sm text-foreground outline-none"
             style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.1)" }}
           />
           <p className="text-right text-xs mt-1" style={{ color: "rgba(255,255,255,0.35)" }}>{name.length}/100</p>
@@ -86,11 +86,11 @@ export default function EditProfilePage() {
 
         {/* Username */}
         <div>
-          <label className="text-sm font-medium text-white block mb-1.5">Username</label>
+          <label className="text-sm font-medium text-foreground block mb-1.5">Username</label>
           <input
             value={username}
             onChange={(e) => setUsername(e.target.value.slice(0, 42))}
-            className="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
+            className="w-full rounded-xl px-4 py-3 text-sm text-foreground outline-none"
             style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.1)" }}
           />
           <p className="text-right text-xs mt-1" style={{ color: "rgba(255,255,255,0.35)" }}>{username.length}/42</p>
@@ -98,13 +98,13 @@ export default function EditProfilePage() {
 
         {/* Bio */}
         <div>
-          <label className="text-sm font-medium text-white block mb-1.5">Bio</label>
+          <label className="text-sm font-medium text-foreground block mb-1.5">Bio</label>
           <textarea
             value={bio}
             onChange={(e) => setBio(e.target.value.slice(0, 200))}
             placeholder="No bio"
             rows={3}
-            className="w-full rounded-xl px-4 py-3 text-sm text-white outline-none resize-none"
+            className="w-full rounded-xl px-4 py-3 text-sm text-foreground outline-none resize-none"
             style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.1)" }}
           />
           <p className="text-right text-xs mt-1" style={{ color: "rgba(255,255,255,0.35)" }}>{bio.length}/200</p>
@@ -116,7 +116,7 @@ export default function EditProfilePage() {
 
       {/* More details */}
       <div className="mb-8">
-        <h2 className="text-base font-bold text-white mb-1">More details</h2>
+        <h2 className="text-base font-bold text-foreground mb-1">More details</h2>
         <p className="text-sm mb-5" style={{ color: "rgba(255,255,255,0.45)" }}>
           Choose what appears on your profile and other explore surfaces.
         </p>
@@ -134,7 +134,7 @@ export default function EditProfilePage() {
 
       {/* Social links */}
       <div>
-        <h2 className="text-base font-bold text-white mb-1">Social links</h2>
+        <h2 className="text-base font-bold text-foreground mb-1">Social links</h2>
         <p className="text-sm mb-5" style={{ color: "rgba(255,255,255,0.45)" }}>
           Connect your other accounts to let people know where to find you.
         </p>
@@ -177,7 +177,7 @@ function ToggleRow({
         >
           <Icon className="w-5 h-5" style={{ color: "rgba(255,255,255,0.6)" }} />
         </div>
-        <span className="text-sm font-medium text-white">{label}</span>
+        <span className="text-sm font-medium text-foreground">{label}</span>
       </div>
       <Switch checked={checked} onCheckedChange={onChange} />
     </div>

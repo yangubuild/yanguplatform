@@ -18,12 +18,12 @@ export function AffDashboardTab() {
     <div>
       {/* Filters */}
       <div className="flex items-center gap-3 mb-6">
-        <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-white/70 border border-white/[0.06]">
+        <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-muted-foreground border border-white/[0.06]">
           {company}
           <ChevronDown className="w-3.5 h-3.5" />
         </button>
-        <span className="text-white/30 text-sm">in</span>
-        <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-white/70 border border-white/[0.06]">
+        <span className="text-muted-foreground text-sm">in</span>
+        <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-muted-foreground border border-white/[0.06]">
           <Calendar className="w-3.5 h-3.5" />
           {period}
           <ChevronDown className="w-3.5 h-3.5" />
@@ -44,15 +44,15 @@ export function AffDashboardTab() {
 
       {/* All activity */}
       <div className="mb-4 flex items-center gap-3">
-        <h3 className="text-sm font-semibold text-white">All activity</h3>
-        <button className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-dashed border-white/20 text-xs text-white/50">
-          <span className="text-white/30">⊕</span> Transaction type
+        <h3 className="text-sm font-semibold text-foreground">All activity</h3>
+        <button className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-dashed border-white/20 text-xs text-muted-foreground">
+          <span className="text-muted-foreground">⊕</span> Transaction type
         </button>
       </div>
 
       <AffEmptyTable
         columns={["Gross amount", "Commission", "Type", "Company", "User", "Created at"]}
-        icon={<Rocket className="w-8 h-8 text-white/20" />}
+        icon={<Rocket className="w-8 h-8 text-muted-foreground" />}
         title="No affiliate activity during this period"
         subtitle="Find more products to promote"
         actionLabel="Browse marketplace"
@@ -66,15 +66,15 @@ function StatCard({ label, value }: { label: string; value: string }) {
     <div className="rounded-xl border border-white/[0.06] p-5 flex flex-col justify-between min-h-[180px]"
       style={{ background: "rgba(255,255,255,0.02)" }}>
       <div>
-        <p className="text-sm text-white/50 mb-1">{label}</p>
-        <p className="text-xl font-semibold text-white">{value}</p>
+        <p className="text-sm text-muted-foreground mb-1">{label}</p>
+        <p className="text-xl font-semibold text-foreground">{value}</p>
       </div>
       <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/[0.04]">
-        <span className="text-[11px] text-white/20">Mar 3</span>
+        <span className="text-[11px] text-muted-foreground">Mar 3</span>
         <div className="flex-1 mx-4 flex items-center justify-center">
-          <span className="text-[11px] text-white/30 px-2 py-0.5 rounded bg-white/5">No data available</span>
+          <span className="text-[11px] text-muted-foreground px-2 py-0.5 rounded bg-white/5">No data available</span>
         </div>
-        <span className="text-[11px] text-white/20">Today</span>
+        <span className="text-[11px] text-muted-foreground">Today</span>
       </div>
     </div>
   );

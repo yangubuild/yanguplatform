@@ -44,7 +44,7 @@ export function MessagesSupportTab() {
         >
           <Shield className="h-8 w-8" style={{ color: "rgba(255,255,255,0.3)" }} />
         </div>
-        <p className="text-sm font-medium text-white">YANGU Support</p>
+        <p className="text-sm font-medium text-foreground">YANGU Support</p>
         <p className="text-xs max-w-xs text-center" style={{ color: "rgba(255,255,255,0.4)" }}>
           System confirmations and platform notifications will appear here.
         </p>
@@ -68,7 +68,7 @@ export function MessagesSupportTab() {
               <Bell className="w-4 h-4" style={{ color: "#4ade80" }} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white">{notif.title}</p>
+              <p className="text-sm font-medium text-foreground">{notif.title}</p>
               <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.5)" }}>
                 {notif.body}
               </p>

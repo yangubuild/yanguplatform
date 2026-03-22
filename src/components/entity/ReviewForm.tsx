@@ -70,7 +70,7 @@ export function ReviewForm({ entityId, onSuccess }: ReviewFormProps) {
             onMouseLeave={() => setHoverRating(0)}
             onClick={() => setRating(n)}
           >
-            <Star className={`w-5 h-5 transition-colors ${n <= (hoverRating || rating) ? "text-yellow-500 fill-yellow-500" : "text-white/15"}`} />
+            <Star className={`w-5 h-5 transition-colors ${n <= (hoverRating || rating) ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground"}`} />
           </button>
         ))}
       </div>
@@ -79,7 +79,7 @@ export function ReviewForm({ entityId, onSuccess }: ReviewFormProps) {
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Review title (optional)"
-        className="w-full bg-transparent text-white text-sm mb-2 px-3 py-2 rounded-lg focus:outline-none"
+        className="w-full bg-transparent text-foreground text-sm mb-2 px-3 py-2 rounded-lg focus:outline-none"
         style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
       />
       <textarea
@@ -87,7 +87,7 @@ export function ReviewForm({ entityId, onSuccess }: ReviewFormProps) {
         onChange={(e) => setBody(e.target.value)}
         placeholder="Write your review..."
         rows={3}
-        className="w-full bg-transparent text-white text-sm mb-3 px-3 py-2 rounded-lg resize-none focus:outline-none"
+        className="w-full bg-transparent text-foreground text-sm mb-3 px-3 py-2 rounded-lg resize-none focus:outline-none"
         style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
       />
       <div className="flex justify-end">

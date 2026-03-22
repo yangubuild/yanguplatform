@@ -4,11 +4,11 @@ export function MassSearchBar() {
   return (
     <div className="py-8">
       <div className="relative flex items-center w-full max-w-lg mx-auto">
-        <Search className="absolute left-4 w-4 h-4 text-white/40" />
+        <Search className="absolute left-4 w-4 h-4 text-muted-foreground" />
         <input
           type="text"
           placeholder="Search yangu to buy, learn, create or sell ..."
-          className="w-full pl-11 pr-12 py-3 rounded-full text-white placeholder:text-white/40 focus:outline-none text-base"
+          className="w-full pl-11 pr-12 py-3 rounded-full text-foreground placeholder:text-muted-foreground focus:outline-none text-base"
           style={{
             background: '#152A20',
             border: '1px solid rgba(255,255,255,0.08)',
@@ -21,7 +21,7 @@ export function MassSearchBar() {
             border: '1px solid rgba(255,255,255,0.1)',
           }}
         >
-          <Mic className="w-4 h-4 text-white/50" />
+          <Mic className="w-4 h-4 text-muted-foreground" />
         </button>
       </div>
     </div>

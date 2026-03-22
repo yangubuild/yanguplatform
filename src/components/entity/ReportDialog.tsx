@@ -69,14 +69,14 @@ export function ReportDialog({ entityId, entityTitle, open, onOpenChange }: Repo
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={handleClose}>
       <div className="w-full max-w-md rounded-2xl p-6 mx-4" style={{ background: "#111", border: "1px solid rgba(255,255,255,0.08)" }} onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-white text-lg font-bold">Report</h3>
+          <h3 className="text-foreground text-lg font-bold">Report</h3>
           <button onClick={handleClose}><X className="w-5 h-5" style={{ color: "rgba(255,255,255,0.4)" }} /></button>
         </div>
 
         {submitted ? (
           <div className="text-center py-8">
             <CheckCircle className="w-10 h-10 mx-auto mb-3" style={{ color: "#4ade80" }} />
-            <p className="text-white text-sm font-medium mb-1">Report submitted</p>
+            <p className="text-foreground text-sm font-medium mb-1">Report submitted</p>
             <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
               Thank you. Our team will review this report.
             </p>
@@ -118,7 +118,7 @@ export function ReportDialog({ entityId, entityTitle, open, onOpenChange }: Repo
                   onChange={(e) => setDetails(e.target.value)}
                   placeholder="Additional details (optional)"
                   rows={3}
-                  className="w-full bg-transparent text-white text-sm mb-4 px-3 py-2 rounded-lg resize-none focus:outline-none"
+                  className="w-full bg-transparent text-foreground text-sm mb-4 px-3 py-2 rounded-lg resize-none focus:outline-none"
                   style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
                 />
                 <button onClick={handleSubmit} disabled={submitting} className="w-full text-sm py-2.5 rounded-lg font-medium disabled:opacity-50" style={{ background: "linear-gradient(135deg, #c47a3a, #b5622a)", color: "#fff" }}>

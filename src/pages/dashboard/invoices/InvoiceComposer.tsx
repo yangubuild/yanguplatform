@@ -89,12 +89,12 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
         <style>{`@media (min-width: 768px) { .invoice-left { border-right: 1px solid rgba(255,255,255,0.06) !important; border-bottom: none !important; } }`}</style>
         {/* Top header */}
         <div className="flex items-center gap-3 px-5 py-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-          <button onClick={onClose} className="text-white/60 hover:text-white">
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
             <X className="w-5 h-5" />
           </button>
           <div className="w-px h-5" style={{ background: "rgba(255,255,255,0.12)" }} />
-          <span className="text-sm text-white/70">Invoices</span>
-          <ChevronRight className="w-3.5 h-3.5 text-white/30" />
+          <span className="text-sm text-muted-foreground">Invoices</span>
+          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
         </div>
 
         {/* Form body */}
@@ -106,7 +106,7 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
               placeholder="Find or add a customer"
               value={form.customer}
               onChange={(e) => update("customer", e.target.value)}
-              className="w-full rounded-lg px-3.5 py-2.5 text-sm outline-none placeholder:text-white/30"
+              className="w-full rounded-lg px-3.5 py-2.5 text-sm outline-none placeholder:text-muted-foreground"
               style={inputStyle}
             />
           </Section>
@@ -119,8 +119,8 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
               className="w-full rounded-lg px-3.5 py-2.5 text-sm flex items-center justify-between cursor-pointer"
               style={inputStyle}
             >
-              <span className="text-white">{form.product}</span>
-              <ChevronDown className="w-4 h-4 text-white/40" />
+              <span className="text-foreground">{form.product}</span>
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
             </div>
           </Section>
 
@@ -135,10 +135,10 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
               className="w-full rounded-lg px-3.5 py-2.5 text-sm flex items-center justify-between"
               style={inputStyle}
             >
-              <span className="text-white">{form.dueOption}</span>
-              <span className="flex items-center gap-1 text-white/70">
+              <span className="text-foreground">{form.dueOption}</span>
+              <span className="flex items-center gap-1 text-muted-foreground">
                 {form.dueDate}
-                <ChevronDown className="w-4 h-4 text-white/40" />
+                <ChevronDown className="w-4 h-4 text-muted-foreground" />
               </span>
             </div>
           </Section>
@@ -152,7 +152,7 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
                 placeholder="Invoice for September coaching call"
                 value={form.description}
                 onChange={(e) => update("description", e.target.value.slice(0, 500))}
-                className="w-full rounded-lg px-3.5 py-2.5 text-sm outline-none placeholder:text-white/30 min-h-[100px] resize-none"
+                className="w-full rounded-lg px-3.5 py-2.5 text-sm outline-none placeholder:text-muted-foreground min-h-[100px] resize-none"
                 style={inputStyle}
               />
               <span
@@ -189,22 +189,22 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
               className="flex items-center flex-1 rounded-lg overflow-hidden"
               style={inputStyle}
             >
-              <span className="pl-3 text-sm text-white/50">$</span>
+              <span className="pl-3 text-sm text-muted-foreground">$</span>
               <input
                 type="number"
                 value={form.amount}
                 onChange={(e) => update("amount", e.target.value)}
-                className="flex-1 bg-transparent px-2 py-2.5 text-sm text-white outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                className="flex-1 bg-transparent px-2 py-2.5 text-sm text-foreground outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               />
               {form.billingType === "one-time" ? null : (
                 <div className="flex items-center gap-1 pr-1">
-                  <span className="text-white/40 text-sm">/</span>
+                  <span className="text-muted-foreground text-sm">/</span>
                   <div
                     className="flex items-center gap-1 px-2 py-1 rounded text-sm cursor-pointer"
                     style={{ color: "white" }}
                   >
                     {form.recurringCadence}
-                    <ChevronDown className="w-3.5 h-3.5 text-white/40" />
+                    <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
                   </div>
                 </div>
               )}
@@ -213,8 +213,8 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
               className="flex items-center gap-1 px-3 py-2.5 rounded-lg text-sm cursor-pointer shrink-0"
               style={inputStyle}
             >
-              <span className="text-white">{form.currency}</span>
-              <ChevronDown className="w-4 h-4 text-white/40" />
+              <span className="text-foreground">{form.currency}</span>
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
             </div>
           </div>
 
@@ -242,14 +242,14 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
             style={{ border: "1px solid rgba(255,255,255,0.08)" }}
           >
             <ToggleRow
-              icon={<Settings className="w-4 h-4 text-white/50" />}
+              icon={<Settings className="w-4 h-4 text-muted-foreground" />}
               label="Advanced options"
               checked={form.advancedOptions}
               onChange={(v) => update("advancedOptions", v)}
             />
             <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }} />
             <ToggleRow
-              icon={<CreditCard className="w-4 h-4 text-white/50" />}
+              icon={<CreditCard className="w-4 h-4 text-muted-foreground" />}
               label="Customize payment methods"
               checked={form.customPaymentMethods}
               onChange={(v) => update("customPaymentMethods", v)}
@@ -288,7 +288,7 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
 function Section({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="mb-1">
-      <p className="text-sm font-semibold text-white/85 mb-2">{label}</p>
+      <p className="text-sm font-semibold text-muted-foreground mb-2">{label}</p>
       {children}
     </div>
   );
@@ -313,7 +313,7 @@ function ToggleRow({
     <div className="flex items-center justify-between px-4 py-3">
       <div className="flex items-center gap-3">
         {icon}
-        <span className="text-sm text-white/80">{label}</span>
+        <span className="text-sm text-muted-foreground">{label}</span>
       </div>
       <button
         onClick={() => onChange(!checked)}

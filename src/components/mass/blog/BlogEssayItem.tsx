@@ -36,7 +36,7 @@ export function BlogEssayItem({ essay, titleClamp }: Props) {
       </div>
       <div className="flex-1 min-w-0 flex flex-col justify-center">
         <h4
-          className="text-[15px] leading-snug font-medium transition-colors duration-200 group-hover:text-white"
+          className="text-[15px] leading-snug font-medium transition-colors duration-200 group-hover:text-foreground"
           style={{
             fontFamily: "'Lufga', sans-serif",
             color: "rgba(255,255,255,0.85)",

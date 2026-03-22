@@ -78,7 +78,7 @@ export default function ConsoleAppPermissions({ appId }: { appId: string }) {
     <div>
       {/* Granted scopes */}
       <div className="mb-8">
-        <h3 className="text-white text-sm font-semibold mb-3 flex items-center gap-2">
+        <h3 className="text-foreground text-sm font-semibold mb-3 flex items-center gap-2">
           <Check className="w-4 h-4 text-green-400" /> Granted ({granted.length})
         </h3>
         {granted.length > 0 ? (
@@ -91,14 +91,14 @@ export default function ConsoleAppPermissions({ appId }: { appId: string }) {
             })}
           </div>
         ) : (
-          <p className="text-white/30 text-xs">No scopes granted yet.</p>
+          <p className="text-muted-foreground text-xs">No scopes granted yet.</p>
         )}
       </div>
 
       {/* Requested scopes */}
       {requested.length > 0 && (
         <div className="mb-8">
-          <h3 className="text-white text-sm font-semibold mb-3 flex items-center gap-2">
+          <h3 className="text-foreground text-sm font-semibold mb-3 flex items-center gap-2">
             <Loader2 className="w-4 h-4 text-blue-400" /> Pending ({requested.length})
           </h3>
           <div className="space-y-2">
@@ -115,7 +115,7 @@ export default function ConsoleAppPermissions({ appId }: { appId: string }) {
       {/* Denied scopes */}
       {denied.length > 0 && (
         <div className="mb-8">
-          <h3 className="text-white text-sm font-semibold mb-3 flex items-center gap-2">
+          <h3 className="text-foreground text-sm font-semibold mb-3 flex items-center gap-2">
             <X className="w-4 h-4 text-red-400" /> Denied ({denied.length})
           </h3>
           <div className="space-y-2">
@@ -133,7 +133,7 @@ export default function ConsoleAppPermissions({ appId }: { appId: string }) {
       <div className="mt-6">
         <button
           onClick={() => setShowScopeList(!showScopeList)}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold text-white"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold text-foreground"
           style={{ background: "rgba(255,255,255,0.08)" }}
         >
           <Plus className="w-3 h-3" /> Request Scopes
@@ -143,7 +143,7 @@ export default function ConsoleAppPermissions({ appId }: { appId: string }) {
           <div className="mt-4 rounded-xl p-4" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)" }}>
             {Object.entries(groupedRegistry).map(([category, scopes]) => (
               <div key={category} className="mb-4 last:mb-0">
-                <h4 className="text-xs text-white/50 uppercase tracking-wider mb-2">{category}</h4>
+                <h4 className="text-xs text-muted-foreground uppercase tracking-wider mb-2">{category}</h4>
                 <div className="space-y-1">
                   {scopes.map((scope) => {
                     const alreadyRequested = requestedKeys.has(scope.scope_key);
@@ -154,8 +154,8 @@ export default function ConsoleAppPermissions({ appId }: { appId: string }) {
                         style={{ background: "rgba(255,255,255,0.02)" }}
                       >
                         <div className="flex-1">
-                          <code className="text-xs text-white/80 font-mono">{scope.scope_key}</code>
-                          <p className="text-xs text-white/40 mt-0.5">{scope.description}</p>
+                          <code className="text-xs text-muted-foreground font-mono">{scope.scope_key}</code>
+                          <p className="text-xs text-muted-foreground mt-0.5">{scope.description}</p>
                           <div className="flex items-center gap-2 mt-1">
                             <span className={`text-[10px] px-1.5 py-0.5 rounded ${riskColors[scope.risk_level]}`}>
                               {scope.risk_level}
@@ -168,12 +168,12 @@ export default function ConsoleAppPermissions({ appId }: { appId: string }) {
                           </div>
                         </div>
                         {alreadyRequested ? (
-                          <span className="text-xs text-white/30">Added</span>
+                          <span className="text-xs text-muted-foreground">Added</span>
                         ) : (
                           <button
                             onClick={() => requestScope.mutate(scope.scope_key)}
                             disabled={requestScope.isPending}
-                            className="text-xs px-2 py-1 rounded text-white/70 hover:text-white"
+                            className="text-xs px-2 py-1 rounded text-muted-foreground hover:text-foreground"
                             style={{ background: "rgba(255,255,255,0.06)" }}
                           >
                             Request
@@ -202,8 +202,8 @@ function ScopeRow({ scopeKey, description, riskLevel, status, notes }: {
   return (
     <div className="flex items-center justify-between rounded-lg p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
       <div>
-        <code className="text-xs text-white/80 font-mono">{scopeKey}</code>
-        {description && <p className="text-xs text-white/40 mt-0.5">{description}</p>}
+        <code className="text-xs text-muted-foreground font-mono">{scopeKey}</code>
+        {description && <p className="text-xs text-muted-foreground mt-0.5">{description}</p>}
         {notes && <p className="text-xs text-red-400/60 mt-1 italic">{notes}</p>}
       </div>
       <div className="flex items-center gap-2">

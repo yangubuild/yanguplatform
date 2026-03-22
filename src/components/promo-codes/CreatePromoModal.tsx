@@ -26,15 +26,15 @@ function DarkSelect({
   const [open, setOpen] = useState(false);
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium text-white/80">{label}</label>
+      <label className="text-sm font-medium text-muted-foreground">{label}</label>
       <div className="relative">
         <button
           type="button"
           onClick={() => setOpen(!open)}
-          className="w-full flex items-center justify-between rounded-xl px-4 h-11 text-sm text-white/70 border border-white/10 bg-white/[0.04] hover:bg-white/[0.06] transition-colors"
+          className="w-full flex items-center justify-between rounded-xl px-4 h-11 text-sm text-muted-foreground border border-white/10 bg-white/[0.04] hover:bg-white/[0.06] transition-colors"
         >
           <span>{options.find((o) => o.value === value)?.label || value}</span>
-          <ChevronDown className="w-4 h-4 text-white/40" />
+          <ChevronDown className="w-4 h-4 text-muted-foreground" />
         </button>
         {open && (
           <>
@@ -46,10 +46,10 @@ function DarkSelect({
                   type="button"
                   onClick={() => { onChange(opt.value); setOpen(false); }}
                   className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-left transition-colors ${
-                    value === opt.value ? "bg-white/[0.08] text-white" : "text-white/60 hover:bg-white/[0.04]"
+                    value === opt.value ? "bg-white/[0.08] text-foreground" : "text-muted-foreground hover:bg-white/[0.04]"
                   }`}
                 >
-                  {value === opt.value && <Check className="w-4 h-4 text-white/80" />}
+                  {value === opt.value && <Check className="w-4 h-4 text-muted-foreground" />}
                   {value !== opt.value && <span className="w-4" />}
                   {opt.label}
                 </button>
@@ -84,9 +84,9 @@ function DarkCheckbox({
           borderColor: checked ? "#3b82f6" : "rgba(255,255,255,0.2)",
         }}
       >
-        {checked && <Check className="w-3.5 h-3.5 text-white" />}
+        {checked && <Check className="w-3.5 h-3.5 text-foreground" />}
       </div>
-      <span className="text-sm text-white/80 group-hover:text-white transition-colors">{label}</span>
+      <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">{label}</span>
     </button>
   );
 }
@@ -136,12 +136,12 @@ export function CreatePromoModal({ open, onClose, onSubmit, isSubmitting }: Prop
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-3">
-          <h2 className="text-base font-semibold text-white">Create promo code</h2>
+          <h2 className="text-base font-semibold text-foreground">Create promo code</h2>
           <button
             onClick={onClose}
             className="p-1 rounded-lg hover:bg-white/[0.06] transition-colors"
           >
-            <X className="w-5 h-5 text-white/50" />
+            <X className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
 
@@ -149,28 +149,28 @@ export function CreatePromoModal({ open, onClose, onSubmit, isSubmitting }: Prop
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-5 pb-3 space-y-5">
           {/* Code */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-white/80">Code</label>
+            <label className="text-sm font-medium text-muted-foreground">Code</label>
             <input
               type="text"
               placeholder="SUMMER_SALE"
               value={form.code}
               onChange={(e) => update("code", e.target.value.toUpperCase().replace(/\s/g, "_"))}
-              className="w-full rounded-xl px-4 h-11 text-sm text-white placeholder:text-white/30 border border-white/10 bg-white/[0.04] focus:outline-none focus:border-white/20 transition-colors"
+              className="w-full rounded-xl px-4 h-11 text-sm text-foreground placeholder:text-muted-foreground border border-white/10 bg-white/[0.04] focus:outline-none focus:border-white/20 transition-colors"
             />
           </div>
 
           {/* Discount */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-white/80">Discount</label>
+            <label className="text-sm font-medium text-muted-foreground">Discount</label>
             <div className="relative">
               <input
                 type="number"
                 min={1}
                 value={form.discountValue}
                 onChange={(e) => update("discountValue", Number(e.target.value))}
-                className="w-full rounded-xl px-4 h-11 text-sm text-white placeholder:text-white/30 border border-white/10 bg-white/[0.04] focus:outline-none focus:border-white/20 transition-colors pr-12"
+                className="w-full rounded-xl px-4 h-11 text-sm text-foreground placeholder:text-muted-foreground border border-white/10 bg-white/[0.04] focus:outline-none focus:border-white/20 transition-colors pr-12"
               />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-white/40">
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
                 {form.discountType === "percentage" ? "%" : "$"}
               </span>
             </div>
@@ -201,13 +201,13 @@ export function CreatePromoModal({ open, onClose, onSubmit, isSubmitting }: Prop
 
           {form.duration === "multiple_months" && (
             <div className="space-y-2">
-              <label className="text-sm font-medium text-white/80">Number of months</label>
+              <label className="text-sm font-medium text-muted-foreground">Number of months</label>
               <input
                 type="number"
                 min={1}
                 value={form.durationMonths || 1}
                 onChange={(e) => update("durationMonths", Number(e.target.value))}
-                className="w-full rounded-xl px-4 h-11 text-sm text-white border border-white/10 bg-white/[0.04] focus:outline-none focus:border-white/20 transition-colors"
+                className="w-full rounded-xl px-4 h-11 text-sm text-foreground border border-white/10 bg-white/[0.04] focus:outline-none focus:border-white/20 transition-colors"
               />
             </div>
           )}
@@ -228,40 +228,40 @@ export function CreatePromoModal({ open, onClose, onSubmit, isSubmitting }: Prop
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-white/80">Affiliate</span>
-                <Info className="w-3.5 h-3.5 text-white/30" />
+                <span className="text-sm font-medium text-muted-foreground">Affiliate</span>
+                <Info className="w-3.5 h-3.5 text-muted-foreground" />
               </div>
               <button type="button" className="text-xs text-accent hover:brightness-110">
                 Set affiliate
               </button>
             </div>
-            <p className="text-xs text-white/40">
+            <p className="text-xs text-muted-foreground">
               Select the affiliate to attach to this promo code
             </p>
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setAffiliateOpen(!affiliateOpen)}
-                className="w-full flex items-center justify-between rounded-xl px-4 h-11 text-sm text-white/40 border border-white/10 bg-white/[0.04] hover:bg-white/[0.06] transition-colors"
+                className="w-full flex items-center justify-between rounded-xl px-4 h-11 text-sm text-muted-foreground border border-white/10 bg-white/[0.04] hover:bg-white/[0.06] transition-colors"
               >
                 <span>Search for affiliate</span>
-                <ChevronDown className="w-4 h-4 text-white/40" />
+                <ChevronDown className="w-4 h-4 text-muted-foreground" />
               </button>
               {affiliateOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setAffiliateOpen(false)} />
                   <div className="absolute z-50 mt-1 w-full rounded-xl border border-white/10 bg-[#1a2420] shadow-xl overflow-hidden p-2">
                     <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-3 h-9 mb-2">
-                      <Search className="w-4 h-4 text-white/30" />
+                      <Search className="w-4 h-4 text-muted-foreground" />
                       <input
                         type="text"
                         placeholder="Search"
                         value={affiliateSearch}
                         onChange={(e) => setAffiliateSearch(e.target.value)}
-                        className="flex-1 text-sm bg-transparent text-white placeholder:text-white/30 focus:outline-none"
+                        className="flex-1 text-sm bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
                       />
                     </div>
-                    <div className="py-4 text-center text-sm text-white/40">
+                    <div className="py-4 text-center text-sm text-muted-foreground">
                       No affiliates found
                     </div>
                   </div>
@@ -287,9 +287,9 @@ export function CreatePromoModal({ open, onClose, onSubmit, isSubmitting }: Prop
                     type="datetime-local"
                     value={form.expiresAt || ""}
                     onChange={(e) => update("expiresAt", e.target.value)}
-                    className="flex-1 rounded-xl px-4 h-10 text-sm text-white border border-white/10 bg-white/[0.04] focus:outline-none focus:border-white/20 transition-colors [color-scheme:dark]"
+                    className="flex-1 rounded-xl px-4 h-10 text-sm text-foreground border border-white/10 bg-white/[0.04] focus:outline-none focus:border-white/20 transition-colors [color-scheme:dark]"
                   />
-                  <Calendar className="w-5 h-5 text-white/30" />
+                  <Calendar className="w-5 h-5 text-muted-foreground" />
                 </div>
               </div>
             )}
@@ -306,7 +306,7 @@ export function CreatePromoModal({ open, onClose, onSubmit, isSubmitting }: Prop
                   min={1}
                   value={form.maxRedemptions || 1}
                   onChange={(e) => update("maxRedemptions", Number(e.target.value))}
-                  className="w-full rounded-xl px-4 h-10 text-sm text-white border border-white/10 bg-white/[0.04] focus:outline-none focus:border-white/20 transition-colors"
+                  className="w-full rounded-xl px-4 h-10 text-sm text-foreground border border-white/10 bg-white/[0.04] focus:outline-none focus:border-white/20 transition-colors"
                 />
               </div>
             )}
@@ -341,8 +341,8 @@ export function CreatePromoModal({ open, onClose, onSubmit, isSubmitting }: Prop
                       }}
                       className={`w-full flex items-center gap-2 rounded-xl px-4 h-10 text-sm border transition-colors ${
                         selected
-                          ? "border-accent/40 bg-accent/10 text-white"
-                          : "border-white/10 bg-white/[0.04] text-white/50 hover:bg-white/[0.06]"
+                          ? "border-accent/40 bg-accent/10 text-foreground"
+                          : "border-white/10 bg-white/[0.04] text-muted-foreground hover:bg-white/[0.06]"
                       }`}
                     >
                       <ChevronDown className="w-4 h-4" />
@@ -356,7 +356,7 @@ export function CreatePromoModal({ open, onClose, onSubmit, isSubmitting }: Prop
             )}
             {form.applyToSpecificProducts && publishedSurfaces.length === 0 && (
               <div className="ml-8 mt-1 mb-2">
-                <p className="text-xs text-white/30">No published businesses found</p>
+                <p className="text-xs text-muted-foreground">No published businesses found</p>
               </div>
             )}
           </div>
@@ -368,7 +368,7 @@ export function CreatePromoModal({ open, onClose, onSubmit, isSubmitting }: Prop
             type="submit"
             disabled={isSubmitting || !form.code.trim()}
             onClick={handleSubmit as any}
-            className="w-full h-12 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-40"
+            className="w-full h-12 rounded-xl text-sm font-semibold text-foreground transition-all disabled:opacity-40"
             style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
           >
             {isSubmitting ? "Creating…" : "Create"}

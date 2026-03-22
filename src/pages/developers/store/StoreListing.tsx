@@ -27,7 +27,7 @@ export default function StoreListing() {
   if (isLoading) {
     return (
       <DocsPage breadcrumb="App Store" title="Loading..." subtitle="">
-        <Loader2 className="w-6 h-6 text-white/30 animate-spin" />
+        <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
       </DocsPage>
     );
   }
@@ -35,7 +35,7 @@ export default function StoreListing() {
   if (!listing) {
     return (
       <DocsPage breadcrumb="App Store" title="App not found" subtitle="This listing doesn't exist or isn't published.">
-        <Button variant="ghost" size="sm" onClick={() => navigate("/developers/store")} className="text-white/50">
+        <Button variant="ghost" size="sm" onClick={() => navigate("/developers/store")} className="text-muted-foreground">
           <ArrowLeft className="w-4 h-4" /> Back to Store
         </Button>
       </DocsPage>
@@ -44,7 +44,7 @@ export default function StoreListing() {
 
   return (
     <DocsPage breadcrumb="App Store" title={listing.name} subtitle={listing.summary || ""}>
-      <Button variant="ghost" size="sm" onClick={() => navigate("/developers/store")} className="text-white/50 mb-6">
+      <Button variant="ghost" size="sm" onClick={() => navigate("/developers/store")} className="text-muted-foreground mb-6">
         <ArrowLeft className="w-4 h-4" /> Back to Store
       </Button>
 
@@ -57,15 +57,15 @@ export default function StoreListing() {
           </div>
         )}
         <div>
-          {listing.category && <span className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-white/40 mb-2 inline-block">{listing.category}</span>}
-          <p className="text-sm text-white/50 mt-2">{listing.description || listing.summary || "No detailed description."}</p>
-          <p className="text-xs text-white/30 mt-2">Pricing: {listing.pricing_model || "free"}</p>
+          {listing.category && <span className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-muted-foreground mb-2 inline-block">{listing.category}</span>}
+          <p className="text-sm text-muted-foreground mt-2">{listing.description || listing.summary || "No detailed description."}</p>
+          <p className="text-xs text-muted-foreground mt-2">Pricing: {listing.pricing_model || "free"}</p>
         </div>
       </div>
 
       {listing.screenshots && listing.screenshots.length > 0 && (
         <div className="mb-8">
-          <h3 className="text-white/70 text-sm font-semibold mb-3">Screenshots</h3>
+          <h3 className="text-muted-foreground text-sm font-semibold mb-3">Screenshots</h3>
           <div className="flex gap-3 overflow-x-auto pb-2">
             {listing.screenshots.map((url, i) => (
               <img key={i} src={url} alt={`Screenshot ${i + 1}`} className="h-48 rounded-lg" />

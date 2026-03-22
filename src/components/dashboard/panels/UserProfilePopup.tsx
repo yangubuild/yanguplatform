@@ -104,7 +104,7 @@ export function UserProfilePopup({ user, onClose, onViewProfile, onMessage }: Pr
             )}
           </div>
 
-          <h3 className="text-base font-semibold text-white mt-2">{name}</h3>
+          <h3 className="text-base font-semibold text-foreground mt-2">{name}</h3>
           {user.username && (
             <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
               @{user.username}
@@ -134,7 +134,7 @@ export function UserProfilePopup({ user, onClose, onViewProfile, onMessage }: Pr
             <input
               type="text"
               placeholder="Send message"
-              className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-white/30"
+              className="flex-1 bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground"
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleMessage();
               }}

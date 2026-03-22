@@ -116,7 +116,7 @@ export default function CustomProductWizard() {
                       : "border-border bg-transparent"
                   }`}
                 >
-                  {i < stepIdx && <Check className="w-3 h-3 text-white" />}
+                  {i < stepIdx && <Check className="w-3 h-3 text-foreground" />}
                   {i === stepIdx && <div className="w-1.5 h-1.5 rounded-full bg-[#b5622a]" />}
                 </div>
                 <span
@@ -236,7 +236,7 @@ export default function CustomProductWizard() {
                       <div className={`w-4 h-4 rounded border flex items-center justify-center ${
                         selectedEnhancers.includes(opt.id) ? "bg-[#b5622a] border-[#b5622a]" : "border-muted-foreground/40"
                       }`}>
-                        {selectedEnhancers.includes(opt.id) && <Check className="w-3 h-3 text-white" />}
+                        {selectedEnhancers.includes(opt.id) && <Check className="w-3 h-3 text-foreground" />}
                       </div>
                       <h3 className="font-bold text-foreground">{opt.title}</h3>
                     </div>
@@ -291,7 +291,7 @@ export default function CustomProductWizard() {
             </div>
 
             <button
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-[#b5622a] to-[#5c2a12] text-white font-semibold text-sm hover:opacity-90 transition-opacity"
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-[#b5622a] to-[#5c2a12] text-foreground font-semibold text-sm hover:opacity-90 transition-opacity"
             >
               Place Order
             </button>
@@ -311,7 +311,7 @@ export default function CustomProductWizard() {
             <button
               onClick={handleContinue}
               disabled={!canContinue}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#b5622a] to-[#5c2a12] text-white font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#b5622a] to-[#5c2a12] text-foreground font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Continue
               <ArrowRight className="w-4 h-4" />

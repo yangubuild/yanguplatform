@@ -42,16 +42,16 @@ interface Props {
 export function IndustryTypeFilter({ value, onChange }: Props) {
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="flex items-center gap-1.5 px-3 py-1 h-auto rounded-full border border-dashed border-white/20 bg-transparent text-xs text-white/50 hover:text-white/70 transition-colors w-auto focus:ring-0 focus:ring-offset-0 [&>svg]:text-white/30">
-        <Plus className="w-3 h-3 text-white/30 mr-1" />
+      <SelectTrigger className="flex items-center gap-1.5 px-3 py-1 h-auto rounded-full border border-dashed border-white/20 bg-transparent text-xs text-muted-foreground hover:text-muted-foreground transition-colors w-auto focus:ring-0 focus:ring-offset-0 [&>svg]:text-muted-foreground">
+        <Plus className="w-3 h-3 text-muted-foreground mr-1" />
         <SelectValue placeholder="Industry type" />
       </SelectTrigger>
-      <SelectContent className="bg-[#1a1a1a] border-white/10 text-white max-h-[360px]">
+      <SelectContent className="bg-[#1a1a1a] border-white/10 text-foreground max-h-[360px]">
         {INDUSTRIES.map((industry) => (
           <SelectItem
             key={industry}
             value={industry}
-            className="text-sm text-white/80 hover:text-white focus:bg-white/10 focus:text-white cursor-pointer"
+            className="text-sm text-muted-foreground hover:text-foreground focus:bg-white/10 focus:text-foreground cursor-pointer"
           >
             {industry}
           </SelectItem>

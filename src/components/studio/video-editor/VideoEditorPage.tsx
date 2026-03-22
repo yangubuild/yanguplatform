@@ -370,7 +370,7 @@ function StockFootageCard({ item, onClick }: { item: typeof STOCK_FOOTAGE[0]; on
       className="relative rounded-lg overflow-hidden aspect-[3/4] bg-muted/10 border border-border/20 hover:border-primary/40 transition-colors group"
     >
       <video ref={videoRef} src={item.video} muted loop playsInline preload="metadata" className="w-full h-full object-cover" />
-      <div className="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 rounded bg-black/60 text-[10px] text-white font-mono">{item.duration}</div>
+      <div className="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 rounded bg-black/60 text-[10px] text-foreground font-mono">{item.duration}</div>
     </button>
   );
 }
@@ -759,7 +759,7 @@ export default function VideoEditorPage() {
                 <Icon className="h-5 w-5" />
                 <span>{item.label}</span>
                 {item.badge && (
-                  <span className="absolute -top-0.5 right-1 px-1 py-px rounded text-[8px] font-bold bg-green-500 text-white">{item.badge}</span>
+                  <span className="absolute -top-0.5 right-1 px-1 py-px rounded text-[8px] font-bold bg-green-500 text-foreground">{item.badge}</span>
                 )}
               </button>
             );

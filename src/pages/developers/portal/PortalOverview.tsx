@@ -38,7 +38,7 @@ export default function PortalOverview() {
       {/* Quick stats */}
       {isLoading ? (
         <div className="flex justify-center py-8">
-          <Loader2 className="w-5 h-5 animate-spin text-white/30" />
+          <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
@@ -54,8 +54,8 @@ export default function PortalOverview() {
               style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}
             >
               <card.icon className="w-5 h-5 mb-3" strokeWidth={1.5} style={{ color: "#F46D2A" }} />
-              <p className="text-2xl font-bold text-white mb-1">{card.value}</p>
-              <p className="text-xs text-white/50">{card.label}</p>
+              <p className="text-2xl font-bold text-foreground mb-1">{card.value}</p>
+              <p className="text-xs text-muted-foreground">{card.label}</p>
             </div>
           ))}
         </div>
@@ -66,23 +66,23 @@ export default function PortalOverview() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
             <Zap className="w-5 h-5 mb-3" strokeWidth={1.5} style={{ color: "#F46D2A" }} />
-            <p className="text-2xl font-bold text-white mb-1">{usage.total_today}</p>
-            <p className="text-xs text-white/50">Today API Calls</p>
+            <p className="text-2xl font-bold text-foreground mb-1">{usage.total_today}</p>
+            <p className="text-xs text-muted-foreground">Today API Calls</p>
           </div>
           <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
             <Activity className="w-5 h-5 mb-3" strokeWidth={1.5} style={{ color: "#F46D2A" }} />
-            <p className="text-2xl font-bold text-white mb-1">{usage.total_period}</p>
-            <p className="text-xs text-white/50">Monthly API Calls</p>
+            <p className="text-2xl font-bold text-foreground mb-1">{usage.total_period}</p>
+            <p className="text-xs text-muted-foreground">Monthly API Calls</p>
           </div>
           <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
             <AlertTriangle className="w-5 h-5 mb-3" strokeWidth={1.5} style={{ color: usage.error_rate_24h > 10 ? "#ef4444" : "#F46D2A" }} />
-            <p className="text-2xl font-bold text-white mb-1">{usage.error_rate_24h.toFixed(1)}%</p>
-            <p className="text-xs text-white/50">Error Rate (24h)</p>
+            <p className="text-2xl font-bold text-foreground mb-1">{usage.error_rate_24h.toFixed(1)}%</p>
+            <p className="text-xs text-muted-foreground">Error Rate (24h)</p>
           </div>
           <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
             <Clock className="w-5 h-5 mb-3" strokeWidth={1.5} style={{ color: "#F46D2A" }} />
-            <p className="text-2xl font-bold text-white mb-1">{usage.avg_latency_ms.toFixed(0)}ms</p>
-            <p className="text-xs text-white/50">Avg Latency</p>
+            <p className="text-2xl font-bold text-foreground mb-1">{usage.avg_latency_ms.toFixed(0)}ms</p>
+            <p className="text-xs text-muted-foreground">Avg Latency</p>
           </div>
         </div>
       )}
@@ -94,7 +94,7 @@ export default function PortalOverview() {
         </Button>
         <Button
           variant="outline"
-          className="border-white/20 text-white/70 hover:bg-white/5"
+          className="border-white/20 text-muted-foreground hover:bg-white/5"
           onClick={() => navigate("/developers")}
         >
           <BookOpen className="w-4 h-4" /> View API Docs

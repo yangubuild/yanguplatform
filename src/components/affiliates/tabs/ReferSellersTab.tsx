@@ -15,10 +15,10 @@ export function ReferSellersTab() {
 
   return (
     <div className="flex flex-col items-center pt-10 pb-16">
-      <h2 className="text-4xl font-bold text-white mb-4 text-center">
+      <h2 className="text-4xl font-bold text-foreground mb-4 text-center">
         Become a yangu partner
       </h2>
-      <p className="text-white/50 text-center max-w-xl mb-6">
+      <p className="text-muted-foreground text-center max-w-xl mb-6">
         Become a yangu Partner, refer users, and earn money whenever yangu grows.
       </p>
       <Button
@@ -37,7 +37,7 @@ export function ReferSellersTab() {
           title="Share your link"
           desc="Share your referral link with your network or invite new users to your yangu."
           visual={
-            <div className="rounded-lg bg-white/5 border border-white/[0.06] px-3 py-2 text-xs text-white/60 mb-3 max-w-[200px]">
+            <div className="rounded-lg bg-white/5 border border-white/[0.06] px-3 py-2 text-xs text-muted-foreground mb-3 max-w-[200px]">
               yangu.studio/?a=yourcode
             </div>
           }
@@ -48,7 +48,7 @@ export function ReferSellersTab() {
           desc="When people sign up to yangu with your link, they will be attributed to you."
           visual={
             <div className="mb-3">
-              <div className="rounded-lg bg-white/5 border border-white/[0.06] px-3 py-2 text-xs text-white/60 max-w-[200px]">
+              <div className="rounded-lg bg-white/5 border border-white/[0.06] px-3 py-2 text-xs text-muted-foreground max-w-[200px]">
                 user@example.com
               </div>
               <div className="flex items-center gap-1 mt-1 text-[11px] text-green-400">
@@ -62,7 +62,7 @@ export function ReferSellersTab() {
           title="Get paid"
           desc="Anytime yangu earns from one of your referrals, you'll get paid."
           visual={
-            <div className="rounded-lg bg-white/5 border border-white/[0.06] px-3 py-2 text-xs text-white/60 mb-3 flex items-center gap-2 max-w-[220px]">
+            <div className="rounded-lg bg-white/5 border border-white/[0.06] px-3 py-2 text-xs text-muted-foreground mb-3 flex items-center gap-2 max-w-[220px]">
               <img src={yanguYLogo} alt="yangu" className="w-6 h-6 object-contain" />
               <span>You've earned $50.00 from a new referral!</span>
             </div>
@@ -73,12 +73,12 @@ export function ReferSellersTab() {
       {/* Bottom info cards */}
       <div className="grid grid-cols-2 gap-4 w-full max-w-4xl">
         <div className="rounded-xl border border-white/[0.04] p-5" style={{ background: "#111a15" }}>
-          <p className="text-sm font-semibold text-white mb-1">💰 Your yangu earns money</p>
-          <p className="text-xs text-white/40">Every new user who joins your yangu and didn't have an account before is automatically counted as your referral.</p>
+          <p className="text-sm font-semibold text-foreground mb-1">💰 Your yangu earns money</p>
+          <p className="text-xs text-muted-foreground">Every new user who joins your yangu and didn't have an account before is automatically counted as your referral.</p>
         </div>
         <div className="rounded-xl border border-white/[0.04] p-5" style={{ background: "#111a15" }}>
-          <p className="text-sm font-semibold text-white mb-1">📚 Learn from the best</p>
-          <p className="text-xs text-white/40">If you're just getting started it's all good! Once accepted, you'll get access to a free community with top partners, educational resources, and best practices.</p>
+          <p className="text-sm font-semibold text-foreground mb-1">📚 Learn from the best</p>
+          <p className="text-xs text-muted-foreground">If you're just getting started it's all good! Once accepted, you'll get access to a free community with top partners, educational resources, and best practices.</p>
         </div>
       </div>
 
@@ -91,8 +91,8 @@ function StepCard({ step, title, desc, visual }: { step: number; title: string; 
   return (
     <div className="rounded-xl border border-white/[0.04] p-5 flex flex-col" style={{ background: "linear-gradient(180deg, #0f2318 0%, #0a1710 100%)" }}>
       {visual}
-      <p className="text-sm font-semibold text-white mb-1">{step}. {title}</p>
-      <p className="text-xs text-white/40">{desc}</p>
+      <p className="text-sm font-semibold text-foreground mb-1">{step}. {title}</p>
+      <p className="text-xs text-muted-foreground">{desc}</p>
     </div>
   );
 }
@@ -103,7 +103,7 @@ function PartnerDetailPage({ onBack }: { onBack: () => void }) {
   return (
     <div className="max-w-4xl mx-auto">
       {/* Header */}
-      <button onClick={onBack} className="flex items-center gap-2 text-sm text-white/50 hover:text-white mb-6">
+      <button onClick={onBack} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6">
         <span>‹</span>
         <img src={yanguYLogo} alt="yangu" className="w-6 h-6 object-contain" />
         yangu Partners
@@ -117,38 +117,38 @@ function PartnerDetailPage({ onBack }: { onBack: () => void }) {
              <div className="text-center">
                <div className="flex items-center justify-center gap-2 mb-2">
                  <img src={yanguYLogo} alt="yangu" className="w-10 h-10 object-contain" />
-                 <span className="text-2xl font-bold text-white">yangu</span>
+                 <span className="text-2xl font-bold text-foreground">yangu</span>
                </div>
-               <p className="text-4xl font-black text-white tracking-wide">AFFILIATES</p>
+               <p className="text-4xl font-black text-foreground tracking-wide">AFFILIATES</p>
              </div>
           </div>
 
           {/* Info bar */}
           <div className="flex items-center gap-4 rounded-xl border border-white/[0.04] px-5 py-3 mb-6" style={{ background: "#111a15" }}>
-            <span className="text-sm text-white/60">🏷 Free</span>
+            <span className="text-sm text-muted-foreground">🏷 Free</span>
             <span className="w-px h-4 bg-white/10" />
-            <span className="text-sm text-white/60">👥 434 members</span>
+            <span className="text-sm text-muted-foreground">👥 434 members</span>
             <span className="w-px h-4 bg-white/10" />
-            <span className="text-sm text-white/60">By Alex Heiden</span>
+            <span className="text-sm text-muted-foreground">By Alex Heiden</span>
           </div>
 
           {/* Description */}
-          <h3 className="text-xl font-bold text-white mb-2">Make Money Bringing People to yangu</h3>
-          <p className="text-sm text-white/50 mb-8">
+          <h3 className="text-xl font-bold text-foreground mb-2">Make Money Bringing People to yangu</h3>
+          <p className="text-sm text-muted-foreground mb-8">
             This yangu will provide you with full training and support to make the most money possible bringing new people to yangu
           </p>
 
           {/* Customer reviews */}
-          <h3 className="text-lg font-semibold text-white mb-4">Customer reviews</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-4">Customer reviews</h3>
           <div className="rounded-xl border border-white/[0.04] p-5 mb-8" style={{ background: "#111a15" }}>
             <div className="flex gap-8">
               <div className="text-center">
-                <p className="text-3xl font-bold text-white">4.3</p>
+                <p className="text-3xl font-bold text-foreground">4.3</p>
                 <div className="flex gap-0.5 justify-center my-1">
                   {[1, 2, 3, 4].map(i => <Star key={i} className="w-4 h-4 fill-yellow-500 text-yellow-500" />)}
                   <Star className="w-4 h-4 fill-yellow-500/50 text-yellow-500" />
                 </div>
-                <p className="text-xs text-white/40">18 ratings</p>
+                <p className="text-xs text-muted-foreground">18 ratings</p>
               </div>
               <div className="flex-1 space-y-1.5">
                 {[
@@ -159,12 +159,12 @@ function PartnerDetailPage({ onBack }: { onBack: () => void }) {
                   { stars: 1, pct: 11, count: 2, color: "#ef4444" },
                 ].map(r => (
                   <div key={r.stars} className="flex items-center gap-2 text-xs">
-                    <span className="text-white/60 w-4">{r.stars}</span>
+                    <span className="text-muted-foreground w-4">{r.stars}</span>
                     <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
                     <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
                       <div className="h-full rounded-full" style={{ width: `${r.pct}%`, background: r.color }} />
                     </div>
-                    <span className="text-white/40 w-16 text-right">{r.pct}% ({r.count})</span>
+                    <span className="text-muted-foreground w-16 text-right">{r.pct}% ({r.count})</span>
                   </div>
                 ))}
               </div>
@@ -173,8 +173,8 @@ function PartnerDetailPage({ onBack }: { onBack: () => void }) {
 
           {/* Top reviews */}
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-white">Top reviews</h3>
-            <button className="text-sm text-white/50 hover:text-white">See all reviews</button>
+            <h3 className="text-lg font-semibold text-foreground">Top reviews</h3>
+            <button className="text-sm text-muted-foreground hover:text-foreground">See all reviews</button>
           </div>
           <div className="grid grid-cols-2 gap-4 mb-8">
             {[
@@ -187,20 +187,20 @@ function PartnerDetailPage({ onBack }: { onBack: () => void }) {
                 <div className="flex items-center gap-3 mb-2">
                   <img src={review.img} alt={review.name} className="w-10 h-10 rounded-full object-cover" />
                   <div>
-                    <p className="text-sm font-medium text-white">{review.name}</p>
-                    <p className="text-xs text-white/30">{review.handle}</p>
+                    <p className="text-sm font-medium text-foreground">{review.name}</p>
+                    <p className="text-xs text-muted-foreground">{review.handle}</p>
                   </div>
-                  <span className="text-xs text-white/30 ml-auto">{review.time}</span>
+                  <span className="text-xs text-muted-foreground ml-auto">{review.time}</span>
                 </div>
                 <div className="flex gap-0.5 mb-2">
                   {[1, 2, 3, 4, 5].map(s => <Star key={s} className="w-3 h-3 fill-yellow-500 text-yellow-500" />)}
                 </div>
-                {review.text && <p className="text-xs text-white/50">{review.text}</p>}
+                {review.text && <p className="text-xs text-muted-foreground">{review.text}</p>}
               </div>
             ))}
           </div>
 
-          <p className="text-xs text-white/30 text-center">🚩 Report this creator</p>
+          <p className="text-xs text-muted-foreground text-center">🚩 Report this creator</p>
         </div>
 
         {/* Right sidebar */}
@@ -209,15 +209,15 @@ function PartnerDetailPage({ onBack }: { onBack: () => void }) {
             <div className="rounded-xl overflow-hidden mb-4 h-[180px] flex items-center justify-center" style={{ background: "linear-gradient(135deg, #1a3a2a 0%, #0d1f15 100%)" }}>
               <div className="text-center">
                 <img src={yanguYLogo} alt="yangu" className="w-14 h-14 mx-auto mb-2 object-contain" />
-                <p className="text-lg font-bold text-white">yangu Partners</p>
+                <p className="text-lg font-bold text-foreground">yangu Partners</p>
               </div>
             </div>
             <div className="flex items-center gap-1 mb-1">
               {[1, 2, 3, 4].map(i => <Star key={i} className="w-3.5 h-3.5 fill-yellow-500 text-yellow-500" />)}
               <Star className="w-3.5 h-3.5 fill-yellow-500/50 text-yellow-500" />
-              <span className="text-xs text-white/50 ml-1">4.3 (18)</span>
+              <span className="text-xs text-muted-foreground ml-1">4.3 (18)</span>
             </div>
-            <p className="text-sm font-medium text-white mb-3">yangu Partners</p>
+            <p className="text-sm font-medium text-foreground mb-3">yangu Partners</p>
             <Button
               variant="accent"
               className="w-full"
@@ -225,7 +225,7 @@ function PartnerDetailPage({ onBack }: { onBack: () => void }) {
             >
               Join the waitlist
             </Button>
-            <p className="text-xs text-white/30 text-center mt-3">Powered by yangu</p>
+            <p className="text-xs text-muted-foreground text-center mt-3">Powered by yangu</p>
           </div>
         </div>
       </div>
@@ -255,51 +255,51 @@ function ApplyPartnerForm({ onClose }: { onClose: () => void }) {
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
       <div className="relative w-full max-w-md rounded-xl border border-white/[0.04] p-6" style={{ background: "#111a15" }}>
         <div className="flex items-center justify-between mb-5">
-          <h3 className="text-lg font-semibold text-white">Apply to be a partner</h3>
-          <button onClick={onClose} className="text-white/40 hover:text-white">
+          <h3 className="text-lg font-semibold text-foreground">Apply to be a partner</h3>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
             <X className="w-5 h-5" />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-sm text-white/60 mb-1.5 block">Full name</label>
+            <label className="text-sm text-muted-foreground mb-1.5 block">Full name</label>
             <input
               required
               value={formData.fullName}
               onChange={e => setFormData(d => ({ ...d, fullName: e.target.value }))}
-              className="w-full h-10 px-3 rounded-lg bg-white/5 border border-white/[0.06] text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-accent/40"
+              className="w-full h-10 px-3 rounded-lg bg-white/5 border border-white/[0.06] text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent/40"
               placeholder="John Doe"
             />
           </div>
           <div>
-            <label className="text-sm text-white/60 mb-1.5 block">Username</label>
+            <label className="text-sm text-muted-foreground mb-1.5 block">Username</label>
             <input
               required
               value={formData.username}
               onChange={e => setFormData(d => ({ ...d, username: e.target.value }))}
-              className="w-full h-10 px-3 rounded-lg bg-white/5 border border-white/[0.06] text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-accent/40"
+              className="w-full h-10 px-3 rounded-lg bg-white/5 border border-white/[0.06] text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent/40"
               placeholder="@johndoe"
             />
           </div>
           <div>
-            <label className="text-sm text-white/60 mb-1.5 block">Email</label>
+            <label className="text-sm text-muted-foreground mb-1.5 block">Email</label>
             <input
               type="email"
               required
               value={formData.email}
               onChange={e => setFormData(d => ({ ...d, email: e.target.value }))}
-              className="w-full h-10 px-3 rounded-lg bg-white/5 border border-white/[0.06] text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-accent/40"
+              className="w-full h-10 px-3 rounded-lg bg-white/5 border border-white/[0.06] text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent/40"
               placeholder="john@example.com"
             />
           </div>
           <div>
-            <label className="text-sm text-white/60 mb-1.5 block">Phone number</label>
+            <label className="text-sm text-muted-foreground mb-1.5 block">Phone number</label>
             <input
               type="tel"
               required
               value={formData.phone}
               onChange={e => setFormData(d => ({ ...d, phone: e.target.value }))}
-              className="w-full h-10 px-3 rounded-lg bg-white/5 border border-white/[0.06] text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-accent/40"
+              className="w-full h-10 px-3 rounded-lg bg-white/5 border border-white/[0.06] text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent/40"
               placeholder="+1 (555) 000-0000"
             />
           </div>
@@ -311,7 +311,7 @@ function ApplyPartnerForm({ onClose }: { onClose: () => void }) {
           >
             {loading ? "Submitting..." : "Submit application"}
           </Button>
-          <p className="text-[11px] text-white/30 text-center">Your application will be sent to partners@yangu.io</p>
+          <p className="text-[11px] text-muted-foreground text-center">Your application will be sent to partners@yangu.io</p>
         </form>
       </div>
     </div>,

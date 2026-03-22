@@ -94,7 +94,7 @@ export function VerifiedModal({ open, onOpenChange }: VerifiedModalProps) {
       >
         <div className="flex items-center gap-3 px-6 pt-6 pb-2">
           <BadgeCheck className="w-5 h-5" style={{ color: "#E67E22" }} />
-          <DialogTitle className="text-lg font-bold text-white">Get Verified</DialogTitle>
+          <DialogTitle className="text-lg font-bold text-foreground">Get Verified</DialogTitle>
         </div>
 
         {isApproved && (
@@ -148,7 +148,7 @@ export function VerifiedModal({ open, onOpenChange }: VerifiedModalProps) {
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <BadgeCheck className="w-4 h-4" style={{ color: opt.color }} />
-                    <span className="text-sm font-semibold text-white">{opt.label}</span>
+                    <span className="text-sm font-semibold text-foreground">{opt.label}</span>
                   </div>
                   <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
                     {opt.description}

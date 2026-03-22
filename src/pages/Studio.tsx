@@ -174,13 +174,13 @@ export default function Studio() {
 
                 <div className="relative z-10">
                   <h2
-                    className="text-2xl md:text-3xl font-black uppercase tracking-tight text-white flex items-center gap-2"
+                    className="text-2xl md:text-3xl font-black uppercase tracking-tight text-foreground flex items-center gap-2"
                     style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}
                   >
                     {card.title}
                     <ArrowRight className="h-5 w-5 opacity-80 group-hover:translate-x-1 transition-transform" />
                   </h2>
-                  <p className="text-sm text-white/70 mt-1">{card.subtitle}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{card.subtitle}</p>
                 </div>
               </button>
             ))}

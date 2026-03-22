@@ -48,7 +48,7 @@ export function ReviewsPanel() {
         className="flex items-center justify-between px-4 py-3 shrink-0"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
-        <span className="text-sm font-semibold text-white">Reviews</span>
+        <span className="text-sm font-semibold text-foreground">Reviews</span>
         <button
           onClick={handleRequestReview}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
@@ -79,7 +79,7 @@ export function ReviewsPanel() {
         ) : reviews.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10">
             <Star className="w-8 h-8 mb-2" style={{ color: "rgba(255,255,255,0.2)" }} />
-            <p className="text-sm text-white mb-1">No reviews yet</p>
+            <p className="text-sm text-foreground mb-1">No reviews yet</p>
             <p className="text-xs text-center" style={{ color: "rgba(255,255,255,0.4)" }}>
               Share your profile link to receive reviews from clients.
             </p>
@@ -96,19 +96,19 @@ export function ReviewsPanel() {
                   {review.reviewer_avatar ? (
                     <img src={review.reviewer_avatar} alt="" className="w-5 h-5 rounded-full object-cover" />
                   ) : (
-                    <div className="w-5 h-5 flex items-center justify-center text-[8px] font-bold text-white/50">
+                    <div className="w-5 h-5 flex items-center justify-center text-[8px] font-bold text-muted-foreground">
                       {(review.reviewer_name || "U").slice(0, 2).toUpperCase()}
                     </div>
                   )}
                 </div>
-                <span className="text-[11px] font-medium text-white">{review.reviewer_name}</span>
+                <span className="text-[11px] font-medium text-foreground">{review.reviewer_name}</span>
                 {review.reviewer_username && (
                   <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.3)" }}>@{review.reviewer_username}</span>
                 )}
               </div>
               {renderStars(review.rating)}
               {review.title && (
-                <p className="text-sm font-medium text-white mt-1.5">{review.title}</p>
+                <p className="text-sm font-medium text-foreground mt-1.5">{review.title}</p>
               )}
               {review.body && (
                 <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.5)" }}>

@@ -192,7 +192,7 @@ export function DmThreadView({ targetUserId }: Props) {
             {targetAvatar ? (
               <img src={targetAvatar} alt="" className="w-8 h-8 rounded-full object-cover" />
             ) : (
-              <span className="text-white/60">{targetInitials}</span>
+              <span className="text-muted-foreground">{targetInitials}</span>
             )}
           </div>
           {/* Online/offline indicator */}
@@ -205,7 +205,7 @@ export function DmThreadView({ targetUserId }: Props) {
           />
         </div>
         <div className="flex-1">
-          <span className="text-sm font-semibold text-white">{targetName}</span>
+          <span className="text-sm font-semibold text-foreground">{targetName}</span>
           {targetProfile?.username && (
             <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>
               @{targetProfile.username}
@@ -263,10 +263,10 @@ export function DmThreadView({ targetUserId }: Props) {
               {targetAvatar ? (
                 <img src={targetAvatar} alt="" className="w-12 h-12 rounded-full object-cover" />
               ) : (
-                <span className="text-white/40 text-sm font-bold">{targetInitials}</span>
+                <span className="text-muted-foreground text-sm font-bold">{targetInitials}</span>
               )}
             </div>
-            <p className="text-sm font-medium text-white">Start a conversation</p>
+            <p className="text-sm font-medium text-foreground">Start a conversation</p>
             <p className="text-xs text-center max-w-[200px]" style={{ color: "rgba(255,255,255,0.4)" }}>
               Send a message to {targetName}
             </p>
@@ -286,7 +286,7 @@ export function DmThreadView({ targetUserId }: Props) {
                     {avatar ? (
                       <img src={avatar} alt="" className="w-7 h-7 rounded-full object-cover" />
                     ) : (
-                      <span className="text-white/60">{initials}</span>
+                      <span className="text-muted-foreground">{initials}</span>
                     )}
                   </div>
                 )}
@@ -323,19 +323,19 @@ export function DmThreadView({ targetUserId }: Props) {
                     >
                       <button
                         onClick={() => { setReplyTo({ id: msg.id, content: msg.content }); setMsgMenuId(null); }}
-                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:opacity-80 text-white"
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:opacity-80 text-foreground"
                       >
                         <Reply className="w-3 h-3" /> Reply
                       </button>
                       <button
                         onClick={() => { handleForward(msg.content); setMsgMenuId(null); }}
-                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:opacity-80 text-white"
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:opacity-80 text-foreground"
                       >
                         <Forward className="w-3 h-3" /> Forward
                       </button>
                       <button
                         onClick={() => { shareMessageExternal(msg.content); setMsgMenuId(null); toast.success("Shared"); }}
-                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:opacity-80 text-white"
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:opacity-80 text-foreground"
                       >
                         <Share2 className="w-3 h-3" /> Share
                       </button>
@@ -359,7 +359,7 @@ export function DmThreadView({ targetUserId }: Props) {
                     {avatar ? (
                       <img src={avatar} alt="" className="w-7 h-7 rounded-full object-cover" />
                     ) : (
-                      <span className="text-white/60">{initials}</span>
+                      <span className="text-muted-foreground">{initials}</span>
                     )}
                   </div>
                 )}
@@ -424,7 +424,7 @@ export function DmThreadView({ targetUserId }: Props) {
             onChange={(e) => { handleInputChange(e.target.value, e.target.selectionStart ?? undefined); startTyping(); }}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
             placeholder={replyTo ? "Type a reply..." : "Type a message..."}
-            className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-white/25 min-w-0"
+            className="flex-1 bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground min-w-0"
           />
           <button
             onClick={handleSend}

@@ -68,7 +68,7 @@ export function WhyYanguDevelopersContent() {
             }}
           >
             <card.icon className="w-6 h-6 mb-4" strokeWidth={1.5} style={{ color: "#F46D2A" }} />
-            <h3 className="text-white font-semibold text-sm mb-2">{card.title}</h3>
+            <h3 className="text-foreground font-semibold text-sm mb-2">{card.title}</h3>
             <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}>
               {card.description}
             </p>

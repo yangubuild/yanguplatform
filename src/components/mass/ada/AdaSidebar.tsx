@@ -184,7 +184,7 @@ export function AdaSidebar({ isOpen = true, onClose, inline = false }: AdaSideba
             if (!isSearchOpen) setTimeout(() => searchInputRef.current?.focus(), 100);
             else setSearchQuery("");
           }}
-          className={`p-1.5 rounded-lg transition-colors ${isSearchOpen ? "text-[#F4A83D] bg-white/5" : "text-white/40 hover:text-white/70"}`}
+          className={`p-1.5 rounded-lg transition-colors ${isSearchOpen ? "text-[#F4A83D] bg-white/5" : "text-muted-foreground hover:text-muted-foreground"}`}
         >
           <Search className="w-4 h-4" />
         </button>
@@ -194,19 +194,19 @@ export function AdaSidebar({ isOpen = true, onClose, inline = false }: AdaSideba
       {isSearchOpen && (
         <div className="px-4 pt-1 pb-2">
           <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
             <input
               ref={searchInputRef}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search chats…"
-              className="w-full pl-8 pr-8 py-2 rounded-lg text-sm text-white/80 placeholder:text-white/30 outline-none border border-white/10 focus:border-[#C4841F]/50"
+              className="w-full pl-8 pr-8 py-2 rounded-lg text-sm text-muted-foreground placeholder:text-muted-foreground outline-none border border-white/10 focus:border-[#C4841F]/50"
               style={{ background: "rgba(255,255,255,0.04)" }}
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -223,11 +223,11 @@ export function AdaSidebar({ isOpen = true, onClose, inline = false }: AdaSideba
             <button
               key={item.id}
               onClick={() => handleIconAction(item.id)}
-              className="group relative p-2 rounded-lg text-white/40 hover:text-white/80 hover:bg-white/5 transition-all"
+              className="group relative p-2 rounded-lg text-muted-foreground hover:text-muted-foreground hover:bg-white/5 transition-all"
               title={item.label}
             >
               <Icon className="w-4 h-4" />
-              <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded text-[10px] text-white/70 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+              <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded text-[10px] text-muted-foreground whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
                 style={{ background: "rgba(0,0,0,0.8)", border: "1px solid rgba(255,255,255,0.1)" }}
               >
                 {item.label}
@@ -241,7 +241,7 @@ export function AdaSidebar({ isOpen = true, onClose, inline = false }: AdaSideba
       <div className="px-4 pt-4 pb-2">
         <button
           onClick={handleNewChat}
-          className="w-full text-left text-sm text-white/80 hover:text-[#F4A83D] transition-colors py-1.5 px-1"
+          className="w-full text-left text-sm text-muted-foreground hover:text-[#F4A83D] transition-colors py-1.5 px-1"
         >
           + New Chat
         </button>
@@ -249,12 +249,12 @@ export function AdaSidebar({ isOpen = true, onClose, inline = false }: AdaSideba
 
       {/* Chat history */}
       <div className="px-4 pt-4 flex-1 overflow-y-auto">
-        <p className="text-white/50 text-xs font-medium uppercase tracking-wider mb-3 px-1">
+        <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider mb-3 px-1">
           {debouncedSearch.trim() ? `Results (${filteredChats.length})` : "All chat"}
         </p>
         <div className="space-y-1">
           {filteredChats.length === 0 && (
-            <p className="text-white/30 text-xs px-3 py-2">
+            <p className="text-muted-foreground text-xs px-3 py-2">
               {debouncedSearch.trim() ? "No matching chats" : "No chats yet"}
             </p>
           )}
@@ -270,7 +270,7 @@ export function AdaSidebar({ isOpen = true, onClose, inline = false }: AdaSideba
                     value={renameValue}
                     onChange={(e) => setRenameValue(e.target.value)}
                     onBlur={submitRename}
-                    className="flex-1 bg-white/10 text-white text-sm rounded px-2 py-1 outline-none border border-white/20 focus:border-[#C4841F]"
+                    className="flex-1 bg-white/10 text-foreground text-sm rounded px-2 py-1 outline-none border border-white/20 focus:border-[#C4841F]"
                   />
                 </form>
               ) : (
@@ -278,12 +278,12 @@ export function AdaSidebar({ isOpen = true, onClose, inline = false }: AdaSideba
                   onClick={() => handleLoadChat(chat.id)}
                   className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left hover:bg-white/5 transition-colors"
                 >
-                  <MessageCircle className="w-4 h-4 text-white/30 flex-shrink-0" />
-                  <span className="text-white/70 text-sm truncate flex-1">
+                  <MessageCircle className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  <span className="text-muted-foreground text-sm truncate flex-1">
                     {highlightMatch(chat.title, debouncedSearch)}
                   </span>
                   {chat.updated_at && (
-                    <span className="text-white/30 text-xs flex-shrink-0 group-hover:hidden">
+                    <span className="text-muted-foreground text-xs flex-shrink-0 group-hover:hidden">
                       {timeAgo(chat.updated_at)}
                     </span>
                   )}
@@ -292,7 +292,7 @@ export function AdaSidebar({ isOpen = true, onClose, inline = false }: AdaSideba
                       e.stopPropagation();
                       setMenuOpenId(menuOpenId === chat.id ? null : chat.id);
                     }}
-                    className="p-1 rounded text-white/30 hover:text-white hover:bg-white/10 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-white/10 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     <MoreHorizontal className="w-4 h-4" />
                   </button>
@@ -308,7 +308,7 @@ export function AdaSidebar({ isOpen = true, onClose, inline = false }: AdaSideba
                 >
                   <button
                     onClick={() => handleRenameChat(chat.id)}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:bg-white/10 transition-colors"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:bg-white/10 transition-colors"
                   >
                     <Pencil className="w-3.5 h-3.5" /> Rename
                   </button>
@@ -361,7 +361,7 @@ export function AdaSidebar({ isOpen = true, onClose, inline = false }: AdaSideba
         {/* Close button mobile */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-white/40 hover:text-white lg:hidden"
+          className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-foreground lg:hidden"
         >
           <X className="w-5 h-5" />
         </button>

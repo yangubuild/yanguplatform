@@ -66,7 +66,7 @@ export default function PortalLogs() {
       {/* Filters */}
       <div className="flex flex-wrap gap-3 mb-6">
         <Select value={selectedApp} onValueChange={setSelectedApp}>
-          <SelectTrigger className="w-[200px] bg-white/5 border-white/10 text-white text-sm">
+          <SelectTrigger className="w-[200px] bg-white/5 border-white/10 text-foreground text-sm">
             <SelectValue placeholder="All Apps" />
           </SelectTrigger>
           <SelectContent>
@@ -78,7 +78,7 @@ export default function PortalLogs() {
         </Select>
 
         <Select value={eventFilter} onValueChange={setEventFilter}>
-          <SelectTrigger className="w-[200px] bg-white/5 border-white/10 text-white text-sm">
+          <SelectTrigger className="w-[200px] bg-white/5 border-white/10 text-foreground text-sm">
             <SelectValue placeholder="All Events" />
           </SelectTrigger>
           <SelectContent>
@@ -92,7 +92,7 @@ export default function PortalLogs() {
 
       {/* Runtime Audit Logs */}
       <div className="mb-8">
-        <h3 className="text-white font-semibold text-sm mb-3 flex items-center gap-2">
+        <h3 className="text-foreground font-semibold text-sm mb-3 flex items-center gap-2">
           <Activity className="w-4 h-4" style={{ color: "#F46D2A" }} />
           Runtime Activity
         </h3>
@@ -102,38 +102,38 @@ export default function PortalLogs() {
         >
           {isLoading ? (
             <div className="flex justify-center py-12">
-              <Loader2 className="w-5 h-5 animate-spin text-white/30" />
+              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
             </div>
           ) : !logs?.length ? (
             <div className="text-center py-12">
-              <Activity className="w-8 h-8 text-white/15 mx-auto mb-3" />
-              <p className="text-white/40 text-sm">No runtime logs yet.</p>
+              <Activity className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+              <p className="text-muted-foreground text-sm">No runtime logs yet.</p>
             </div>
           ) : (
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/10">
-                  <th className="text-left px-4 py-3 text-white/40 font-medium text-xs">Action</th>
-                  <th className="text-left px-4 py-3 text-white/40 font-medium text-xs hidden sm:table-cell">App</th>
-                  <th className="text-left px-4 py-3 text-white/40 font-medium text-xs hidden md:table-cell">Details</th>
-                  <th className="text-left px-4 py-3 text-white/40 font-medium text-xs">Time</th>
+                  <th className="text-left px-4 py-3 text-muted-foreground font-medium text-xs">Action</th>
+                  <th className="text-left px-4 py-3 text-muted-foreground font-medium text-xs hidden sm:table-cell">App</th>
+                  <th className="text-left px-4 py-3 text-muted-foreground font-medium text-xs hidden md:table-cell">Details</th>
+                  <th className="text-left px-4 py-3 text-muted-foreground font-medium text-xs">Time</th>
                 </tr>
               </thead>
               <tbody>
                 {logs.map((log: any) => (
                   <tr key={log.id} className="border-b border-white/5 last:border-0">
                     <td className="px-4 py-3">
-                      <Badge variant="outline" className="text-xs border-white/20 text-white/60">
+                      <Badge variant="outline" className="text-xs border-white/20 text-muted-foreground">
                         {log.action}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3 text-white/50 text-xs hidden sm:table-cell">
+                    <td className="px-4 py-3 text-muted-foreground text-xs hidden sm:table-cell">
                       {log.developer_apps?.name ?? "—"}
                     </td>
-                    <td className="px-4 py-3 text-white/30 text-xs font-mono hidden md:table-cell truncate max-w-[200px]">
+                    <td className="px-4 py-3 text-muted-foreground text-xs font-mono hidden md:table-cell truncate max-w-[200px]">
                       {log.details ? JSON.stringify(log.details).slice(0, 80) : "—"}
                     </td>
-                    <td className="px-4 py-3 text-white/40 text-xs">
+                    <td className="px-4 py-3 text-muted-foreground text-xs">
                       {new Date(log.created_at).toLocaleString()}
                     </td>
                   </tr>
@@ -146,7 +146,7 @@ export default function PortalLogs() {
 
       {/* Webhook Deliveries */}
       <div>
-        <h3 className="text-white font-semibold text-sm mb-3 flex items-center gap-2">
+        <h3 className="text-foreground font-semibold text-sm mb-3 flex items-center gap-2">
           <FileText className="w-4 h-4" style={{ color: "#F46D2A" }} />
           Webhook Deliveries
         </h3>
@@ -156,24 +156,24 @@ export default function PortalLogs() {
         >
           {!deliveries?.length ? (
             <div className="text-center py-12">
-              <FileText className="w-8 h-8 text-white/15 mx-auto mb-3" />
-              <p className="text-white/40 text-sm">No webhook deliveries yet.</p>
+              <FileText className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+              <p className="text-muted-foreground text-sm">No webhook deliveries yet.</p>
             </div>
           ) : (
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/10">
-                  <th className="text-left px-4 py-3 text-white/40 font-medium text-xs">Event</th>
-                  <th className="text-left px-4 py-3 text-white/40 font-medium text-xs hidden sm:table-cell">Status</th>
-                  <th className="text-left px-4 py-3 text-white/40 font-medium text-xs hidden md:table-cell">HTTP</th>
-                  <th className="text-left px-4 py-3 text-white/40 font-medium text-xs">Time</th>
+                  <th className="text-left px-4 py-3 text-muted-foreground font-medium text-xs">Event</th>
+                  <th className="text-left px-4 py-3 text-muted-foreground font-medium text-xs hidden sm:table-cell">Status</th>
+                  <th className="text-left px-4 py-3 text-muted-foreground font-medium text-xs hidden md:table-cell">HTTP</th>
+                  <th className="text-left px-4 py-3 text-muted-foreground font-medium text-xs">Time</th>
                 </tr>
               </thead>
               <tbody>
                 {deliveries.map((d: any) => (
                   <tr key={d.id} className="border-b border-white/5 last:border-0">
                     <td className="px-4 py-3">
-                      <Badge variant="outline" className="text-xs border-white/20 text-white/60">
+                      <Badge variant="outline" className="text-xs border-white/20 text-muted-foreground">
                         {d.event_type}
                       </Badge>
                     </td>
@@ -185,10 +185,10 @@ export default function PortalLogs() {
                         {d.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-white/40 text-xs font-mono hidden md:table-cell">
+                    <td className="px-4 py-3 text-muted-foreground text-xs font-mono hidden md:table-cell">
                       {d.http_status ?? "—"}
                     </td>
-                    <td className="px-4 py-3 text-white/40 text-xs">
+                    <td className="px-4 py-3 text-muted-foreground text-xs">
                       {new Date(d.created_at).toLocaleString()}
                     </td>
                   </tr>

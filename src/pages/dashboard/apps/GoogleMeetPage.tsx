@@ -112,7 +112,7 @@ export default function GoogleMeetPage() {
     <div className="w-full min-h-screen px-6 py-6" style={{ background: "#08120D" }}>
       <button
         onClick={() => navigate("/dashboard/my-apps")}
-        className="flex items-center gap-2 text-white/50 hover:text-white text-sm mb-6 transition-colors"
+        className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm mb-6 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" /> Back to My Apps
       </button>
@@ -121,13 +121,13 @@ export default function GoogleMeetPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-xl font-semibold text-white">Google Meet</h1>
-            <p className="text-sm text-white/40 mt-1">Schedule meetings and generate links inside YANGU</p>
+            <h1 className="text-xl font-semibold text-foreground">Google Meet</h1>
+            <p className="text-sm text-muted-foreground mt-1">Schedule meetings and generate links inside YANGU</p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => { setShowCreate(!showCreate); setCreatedMeetLink(null); }}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-white transition-colors"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-foreground transition-colors"
               style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
             >
               <Plus className="w-4 h-4" />
@@ -136,7 +136,7 @@ export default function GoogleMeetPage() {
             <button
               onClick={fetchEvents}
               disabled={loading}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-white/60 hover:text-white transition-colors"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground transition-colors"
               style={{ background: "rgba(255,255,255,0.06)" }}
             >
               <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
@@ -153,34 +153,34 @@ export default function GoogleMeetPage() {
         {/* Create meeting form */}
         {showCreate && (
           <div className="rounded-xl p-5 mb-6" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-            <h2 className="text-sm font-medium text-white mb-4">Schedule a Meeting</h2>
+            <h2 className="text-sm font-medium text-foreground mb-4">Schedule a Meeting</h2>
             <div className="space-y-3">
               <Input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Meeting title"
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
+                className="bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground"
               />
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Description (optional)"
                 rows={2}
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 resize-none"
+                className="bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground resize-none"
               />
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-white/40 mb-1 block">Start</label>
+                  <label className="text-xs text-muted-foreground mb-1 block">Start</label>
                   <div className="flex gap-2">
-                    <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="bg-white/5 border-white/10 text-white" />
-                    <Input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="bg-white/5 border-white/10 text-white w-28" />
+                    <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="bg-white/5 border-white/10 text-foreground" />
+                    <Input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="bg-white/5 border-white/10 text-foreground w-28" />
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs text-white/40 mb-1 block">End</label>
+                  <label className="text-xs text-muted-foreground mb-1 block">End</label>
                   <div className="flex gap-2">
-                    <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="bg-white/5 border-white/10 text-white" />
-                    <Input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className="bg-white/5 border-white/10 text-white w-28" />
+                    <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="bg-white/5 border-white/10 text-foreground" />
+                    <Input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className="bg-white/5 border-white/10 text-foreground w-28" />
                   </div>
                 </div>
               </div>
@@ -188,12 +188,12 @@ export default function GoogleMeetPage() {
                 value={attendeesInput}
                 onChange={(e) => setAttendeesInput(e.target.value)}
                 placeholder="Attendee emails (comma separated)"
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
+                className="bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground"
               />
               <button
                 onClick={handleCreate}
                 disabled={creating || !title.trim() || !startDate || !endDate}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-white transition-colors disabled:opacity-40"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-foreground transition-colors disabled:opacity-40"
                 style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
               >
                 {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Video className="w-4 h-4" />}
@@ -221,15 +221,15 @@ export default function GoogleMeetPage() {
         )}
 
         {/* Upcoming events */}
-        <h2 className="text-sm font-medium text-white/60 mb-3">Upcoming Meetings</h2>
+        <h2 className="text-sm font-medium text-muted-foreground mb-3">Upcoming Meetings</h2>
         {loading && !hasLoaded ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-6 h-6 text-white/20 animate-spin" />
+            <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
           </div>
         ) : events.length === 0 && hasLoaded ? (
           <div className="text-center py-16">
-            <Calendar className="w-10 h-10 text-white/10 mx-auto mb-3" />
-            <p className="text-white/30 text-sm">No upcoming meetings</p>
+            <Calendar className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+            <p className="text-muted-foreground text-sm">No upcoming meetings</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -241,12 +241,12 @@ export default function GoogleMeetPage() {
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white">{event.summary}</p>
-                    <p className="text-xs text-white/40 mt-1">
+                    <p className="text-sm font-medium text-foreground">{event.summary}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
                       {formatEventTime(event.start)} — {formatEventTime(event.end)}
                     </p>
                     {event.attendees.length > 0 && (
-                      <div className="flex items-center gap-1 mt-2 text-xs text-white/30">
+                      <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
                         <Users className="w-3 h-3" />
                         {event.attendees.length} attendee{event.attendees.length > 1 ? "s" : ""}
                       </div>
@@ -255,10 +255,10 @@ export default function GoogleMeetPage() {
                   <div className="flex items-center gap-1">
                     {event.meetLink && (
                       <>
-                        <button onClick={() => copyLink(event.meetLink!)} className="p-2 rounded-lg text-white/30 hover:text-white hover:bg-white/10 transition-colors" title="Copy Meet link">
+                        <button onClick={() => copyLink(event.meetLink!)} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/10 transition-colors" title="Copy Meet link">
                           <Copy className="w-4 h-4" />
                         </button>
-                        <a href={event.meetLink} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg text-white/30 hover:text-white hover:bg-white/10 transition-colors" title="Join meeting">
+                        <a href={event.meetLink} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/10 transition-colors" title="Join meeting">
                           <Video className="w-4 h-4" />
                         </a>
                       </>

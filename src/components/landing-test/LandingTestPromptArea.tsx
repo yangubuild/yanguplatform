@@ -172,7 +172,7 @@ function EntityResultCard({ entity }: { entity: SearchEntityResult }) {
       )}
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
-          <span className="text-white text-sm font-semibold truncate">{entity.title}</span>
+          <span className="text-foreground text-sm font-semibold truncate">{entity.title}</span>
           <span className="text-[10px] px-1.5 py-0.5 rounded-full shrink-0" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.35)' }}>
             {ENTITY_TYPE_CONFIG[entity.entity_type]?.label || entity.entity_type}
           </span>
@@ -269,7 +269,7 @@ export function LandingTestPromptArea() {
           <div className="px-5 pt-5 pb-2 relative">
             {!inputValue && (
               <div className="absolute inset-0 px-5 pt-5 pb-2 pointer-events-none flex items-start">
-                <span className="text-white/30 text-base">
+                <span className="text-muted-foreground text-base">
                   {animatedText}
                   <span className="inline-block w-[2px] h-[1.1em] bg-white/40 align-text-bottom ml-px animate-pulse" />
                 </span>
@@ -281,23 +281,23 @@ export function LandingTestPromptArea() {
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
               placeholder=""
-              className="w-full bg-transparent text-white text-base focus:outline-none relative z-10"
+              className="w-full bg-transparent text-foreground text-base focus:outline-none relative z-10"
             />
           </div>
           <div className="flex items-center justify-between px-4 pb-4">
             <button className="w-9 h-9 flex items-center justify-center rounded-full" style={{ background: 'rgba(255,255,255,0.05)' }}>
-              <Plus className="w-4 h-4 text-white/40" />
+              <Plus className="w-4 h-4 text-muted-foreground" />
             </button>
             <div className="flex items-center gap-2">
               <button className="w-9 h-9 flex items-center justify-center rounded-full" style={{ background: 'rgba(255,255,255,0.05)' }}>
-                <Mic className="w-4 h-4 text-white/40" />
+                <Mic className="w-4 h-4 text-muted-foreground" />
               </button>
               <button
                 onClick={handleSubmit}
                 className="w-9 h-9 flex items-center justify-center rounded-full"
                 style={{ background: 'rgba(255,255,255,0.08)' }}
               >
-                <ArrowUp className="w-4 h-4 text-white/40" />
+                <ArrowUp className="w-4 h-4 text-muted-foreground" />
               </button>
             </div>
           </div>
@@ -315,21 +315,21 @@ export function LandingTestPromptArea() {
               borderRadius: searchResults && searchResults.length > 0 ? '20px 20px 0 0' : '999px',
             }}
           >
-            <Search className="w-4 h-4 text-white/40 shrink-0" />
+            <Search className="w-4 h-4 text-muted-foreground shrink-0" />
             <input
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
               placeholder="Search yangu to buy, learn, create or sell..."
-              className="flex-1 bg-transparent text-white placeholder:text-white/30 text-sm focus:outline-none"
+              className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground text-sm focus:outline-none"
             />
             <button
               onClick={handleSubmit}
               className="w-8 h-8 flex items-center justify-center rounded-full shrink-0"
               style={{ background: 'rgba(255,255,255,0.08)' }}
             >
-              <ArrowUp className="w-4 h-4 text-white/40" />
+              <ArrowUp className="w-4 h-4 text-muted-foreground" />
             </button>
           </div>
 
@@ -357,7 +357,7 @@ export function LandingTestPromptArea() {
       <div className="flex items-center justify-center gap-8 flex-wrap">
         {stats.filter(s => !s.hidden).map((s) => (
           <span key={s.label} className="text-sm" style={{ color: 'rgba(255,255,255,0.35)' }}>
-            <span className="font-semibold text-white/50 tabular-nums">{s.display}</span> {s.label}
+            <span className="font-semibold text-muted-foreground tabular-nums">{s.display}</span> {s.label}
           </span>
         ))}
       </div>

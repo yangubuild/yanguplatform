@@ -46,7 +46,7 @@ export default function SubscriptionPage() {
     <div className="max-w-4xl mx-auto py-6 px-4 min-h-screen" style={{ background: "#08120D" }}>
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-lg font-semibold text-white">Choose a plan that works for you</h1>
+        <h1 className="text-lg font-semibold text-foreground">Choose a plan that works for you</h1>
         <div className="flex rounded-lg overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.15)" }}>
           {(["personal", "business"] as const).map((t) => (
             <button
@@ -92,9 +92,9 @@ export default function SubscriptionPage() {
               </span>
             )}
 
-            <h3 className="text-lg font-bold text-white">{plan.name}</h3>
+            <h3 className="text-lg font-bold text-foreground">{plan.name}</h3>
             <p className="text-xs mb-3" style={{ color: "rgba(255,255,255,0.45)" }}>{plan.description}</p>
-            <p className="text-3xl font-bold text-white mb-1">
+            <p className="text-3xl font-bold text-foreground mb-1">
               {plan.price}<span className="text-sm font-normal" style={{ color: "rgba(255,255,255,0.45)" }}>/mo</span>
             </p>
 
@@ -138,7 +138,7 @@ export default function SubscriptionPage() {
             <p className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.5)" }}>Your Current Plan</p>
             <Star className="w-4 h-4" style={{ color: "rgba(255,255,255,0.3)" }} />
           </div>
-          <p className="text-lg font-bold text-white mb-0.5">Free</p>
+          <p className="text-lg font-bold text-foreground mb-0.5">Free</p>
           <p className="text-xs mb-4" style={{ color: "rgba(255,255,255,0.4)" }}>Member since Dec 25, 2025</p>
           <button
             onClick={() => navigate("/dashboard/profile/subscription")}
@@ -156,7 +156,7 @@ export default function SubscriptionPage() {
             <CreditCard className="w-4 h-4" style={{ color: "rgba(255,255,255,0.3)" }} />
           </div>
           <div className="flex items-baseline gap-2 mb-2">
-            <p className="text-2xl font-bold text-white">{balance}</p>
+            <p className="text-2xl font-bold text-foreground">{balance}</p>
             <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>of 1</p>
           </div>
           <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>

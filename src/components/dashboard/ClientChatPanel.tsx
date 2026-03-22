@@ -18,7 +18,7 @@ export function ClientChatPanel() {
         className="flex items-center justify-between px-4 py-3 shrink-0"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
-        <span className="text-sm font-semibold text-white">New chat</span>
+        <span className="text-sm font-semibold text-foreground">New chat</span>
         <button className="p-1" style={{ color: "rgba(255,255,255,0.45)" }}>
           <X className="w-4 h-4" />
         </button>
@@ -78,7 +78,7 @@ export function ClientChatPanel() {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Type what you want done..."
-            className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-white/25"
+            className="flex-1 bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground"
           />
         </div>
         <div className="flex items-center gap-1">

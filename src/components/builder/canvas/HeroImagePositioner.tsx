@@ -64,7 +64,7 @@ export function HeroImagePositioner({
         {/* Hover hint */}
         {!showOptions && (
           <div className="absolute inset-0 bg-black/0 group-hover/hero-img:bg-black/30 transition-all flex items-center justify-center">
-            <span className="opacity-0 group-hover/hero-img:opacity-100 transition-opacity text-white text-xs font-medium bg-black/50 px-2.5 py-1 rounded-full">
+            <span className="opacity-0 group-hover/hero-img:opacity-100 transition-opacity text-foreground text-xs font-medium bg-black/50 px-2.5 py-1 rounded-full">
               Click to edit
             </span>
           </div>

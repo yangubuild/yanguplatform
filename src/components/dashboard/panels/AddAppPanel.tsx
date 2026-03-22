@@ -110,7 +110,7 @@ export function AddAppPanel() {
         className="flex items-center justify-between px-4 py-3 shrink-0"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
-        <span className="text-sm font-semibold text-white">Add App</span>
+        <span className="text-sm font-semibold text-foreground">Add App</span>
       </div>
 
       <div className="px-3 py-2">
@@ -124,7 +124,7 @@ export function AddAppPanel() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search networking apps..."
-            className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-white/25"
+            className="flex-1 bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground"
           />
         </div>
       </div>
@@ -163,7 +163,7 @@ export function AddAppPanel() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white truncate">{app.name}</p>
+                  <p className="text-sm font-medium text-foreground truncate">{app.name}</p>
                   {app.short_description && (
                     <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.35)" }}>
                       {app.short_description}

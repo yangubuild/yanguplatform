@@ -102,7 +102,7 @@ export function BusinessProductSelector({ onBack, onImport }: Props) {
                   <div className={`absolute top-3 left-3 z-10 h-4 w-4 rounded border border-border/60 flex items-center justify-center ${
                     isSelected ? "bg-accent border-accent" : "bg-card/60"
                   }`}>
-                    {isSelected && <Check className="h-2.5 w-2.5 text-white" />}
+                    {isSelected && <Check className="h-2.5 w-2.5 text-foreground" />}
                   </div>
 
                   <div className="w-full aspect-square rounded-lg overflow-hidden bg-muted/30">

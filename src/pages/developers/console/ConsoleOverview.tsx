@@ -45,7 +45,7 @@ export default function ConsoleOverview() {
     return (
       <DocsPage breadcrumb="Console" title="Developer Console" subtitle="Overview of your developer platform.">
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-6 h-6 animate-spin text-white/40" />
+          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
         </div>
       </DocsPage>
     );
@@ -55,7 +55,7 @@ export default function ConsoleOverview() {
     return (
       <DocsPage breadcrumb="Console" title="Developer Console" subtitle="">
         <div className="rounded-xl p-8 text-center" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
-          <p className="text-white/50 text-sm">You don't have permission to access the Developer Console.</p>
+          <p className="text-muted-foreground text-sm">You don't have permission to access the Developer Console.</p>
         </div>
       </DocsPage>
     );
@@ -82,8 +82,8 @@ export default function ConsoleOverview() {
             }}
           >
             <card.icon className="w-5 h-5 mb-3" strokeWidth={1.5} style={{ color: "#F46D2A" }} />
-            <p className="text-2xl font-bold text-white mb-1">{card.value}</p>
-            <p className="text-xs text-white/50">{card.title}</p>
+            <p className="text-2xl font-bold text-foreground mb-1">{card.value}</p>
+            <p className="text-xs text-muted-foreground">{card.title}</p>
           </div>
         ))}
       </div>

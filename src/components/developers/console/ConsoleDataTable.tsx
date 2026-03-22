@@ -62,19 +62,19 @@ export function ConsoleDataTable<T extends { id?: string }>({
     <div>
       <div className="flex items-center gap-3 mb-4">
         <div className="relative flex-1 max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder={searchPlaceholder}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-white/30 text-sm h-9"
+            className="pl-9 bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground text-sm h-9"
           />
         </div>
         {statusFilter && (
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="h-9 rounded-md border border-white/10 bg-white/5 text-white text-sm px-3"
+            className="h-9 rounded-md border border-white/10 bg-white/5 text-foreground text-sm px-3"
           >
             <option value="all">All statuses</option>
             {statusFilter.options.map((opt) => (
@@ -103,15 +103,15 @@ export function ConsoleDataTable<T extends { id?: string }>({
         }}
       >
         {isLoading ? (
-          <div className="p-8 text-center text-white/40 text-sm">Loading…</div>
+          <div className="p-8 text-center text-muted-foreground text-sm">Loading…</div>
         ) : filtered.length === 0 ? (
-          <div className="p-8 text-center text-white/40 text-sm">{emptyMessage}</div>
+          <div className="p-8 text-center text-muted-foreground text-sm">{emptyMessage}</div>
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/10">
                 {columns.map((col, i) => (
-                  <th key={i} className={`text-left text-white/50 font-medium px-4 py-3 ${col.className || ""}`}>
+                  <th key={i} className={`text-left text-muted-foreground font-medium px-4 py-3 ${col.className || ""}`}>
                     {col.header}
                   </th>
                 ))}
@@ -122,7 +122,7 @@ export function ConsoleDataTable<T extends { id?: string }>({
               {filtered.map((row, ri) => (
                 <tr key={row.id || ri} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                   {columns.map((col, ci) => (
-                    <td key={ci} className={`px-4 py-3 text-white/80 ${col.className || ""}`}>
+                    <td key={ci} className={`px-4 py-3 text-muted-foreground ${col.className || ""}`}>
                       {typeof col.accessor === "function"
                         ? col.accessor(row)
                         : String(row[col.accessor] ?? "—")}
@@ -133,7 +133,7 @@ export function ConsoleDataTable<T extends { id?: string }>({
                       {canWrite ? (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-7 w-7 text-white/40 hover:text-white">
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground">
                               <MoreHorizontal className="w-4 h-4" />
                             </Button>
                           </DropdownMenuTrigger>
@@ -142,7 +142,7 @@ export function ConsoleDataTable<T extends { id?: string }>({
                               <DropdownMenuItem
                                 key={action.label}
                                 onClick={() => action.onClick(row)}
-                                className={`text-sm ${action.destructive ? "text-red-400" : "text-white/80"}`}
+                                className={`text-sm ${action.destructive ? "text-red-400" : "text-muted-foreground"}`}
                               >
                                 {action.label}
                               </DropdownMenuItem>

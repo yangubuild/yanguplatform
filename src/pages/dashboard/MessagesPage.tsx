@@ -105,8 +105,8 @@ export default function MessagesPage() {
         <GroupChatThreadView group={activeGroup as any} onBack={handleCloseThread} />
       ) : (
         <div className="flex h-full flex-col items-center justify-center gap-2 text-center px-6">
-          <p className="text-sm font-medium text-white">Group not available</p>
-          <p className="text-xs text-white/40">This group could not be loaded or you no longer have access.</p>
+          <p className="text-sm font-medium text-foreground">Group not available</p>
+          <p className="text-xs text-muted-foreground">This group could not be loaded or you no longer have access.</p>
         </div>
       )
     ) : activeTab === "chats" && activeConversationUserId ? (
@@ -142,7 +142,7 @@ export default function MessagesPage() {
         {showUsersPanel && (
           <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "#0F141A" }}>
             <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-              <span className="text-sm font-semibold text-white">People</span>
+              <span className="text-sm font-semibold text-foreground">People</span>
               <button onClick={() => setShowUsersPanel(false)} style={{ color: "rgba(255,255,255,0.5)" }}>
                 <X className="w-5 h-5" />
               </button>

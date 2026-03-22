@@ -53,7 +53,7 @@ export default function ManageAppReview() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-white mb-6">App Review Queue</h1>
+      <h1 className="text-2xl font-bold text-foreground mb-6">App Review Queue</h1>
 
       {/* Tab bar */}
       <div className="flex gap-1 mb-6 border-b border-white/10 pb-px">
@@ -77,7 +77,7 @@ export default function ManageAppReview() {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center py-16"><Loader2 className="w-6 h-6 text-white/30 animate-spin" /></div>
+        <div className="flex justify-center py-16"><Loader2 className="w-6 h-6 text-muted-foreground animate-spin" /></div>
       ) : selectedListing ? (
         <ReviewDetail listingId={selectedListing} onBack={() => setSelectedListing(null)} />
       ) : filtered.length > 0 ? (
@@ -91,14 +91,14 @@ export default function ManageAppReview() {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-white text-sm font-semibold">{listing.name}</h3>
-                  <p className="text-xs text-white/40 mt-1">
+                  <h3 className="text-foreground text-sm font-semibold">{listing.name}</h3>
+                  <p className="text-xs text-muted-foreground mt-1">
                     {(listing.developer_apps as any)?.name} • {listing.category || "No category"}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <ScopeRiskSummary appId={listing.app_id} />
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${statusColors[listing.status] || "bg-white/10 text-white/40"}`}>
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${statusColors[listing.status] || "bg-white/10 text-muted-foreground"}`}>
                     {listing.status}
                   </span>
                 </div>
@@ -107,7 +107,7 @@ export default function ManageAppReview() {
           ))}
         </div>
       ) : (
-        <p className="text-white/30 text-sm text-center py-8">No items in this queue.</p>
+        <p className="text-muted-foreground text-sm text-center py-8">No items in this queue.</p>
       )}
     </div>
   );
@@ -242,40 +242,40 @@ function ReviewDetail({ listingId, onBack }: { listingId: string; onBack: () => 
     onError: (err: Error) => toast.error(err.message),
   });
 
-  if (!listing) return <Loader2 className="w-5 h-5 text-white/30 animate-spin" />;
+  if (!listing) return <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />;
 
   const latestRun = runs?.[0];
   const latestReasons = (latestRun?.reasons as any[]) || [];
 
   return (
     <div>
-      <button onClick={onBack} className="text-sm text-white/50 hover:text-white/70 mb-4">← Back to queue</button>
+      <button onClick={onBack} className="text-sm text-muted-foreground hover:text-muted-foreground mb-4">← Back to queue</button>
 
       {/* Listing info */}
       <div className="rounded-xl p-5 mb-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-white text-lg font-bold">{listing.name}</h2>
+          <h2 className="text-foreground text-lg font-bold">{listing.name}</h2>
           <span className={`text-xs px-2 py-0.5 rounded-full ${statusColors[listing.status] || ""}`}>{listing.status}</span>
         </div>
         <div className="grid grid-cols-2 gap-3 text-xs">
-          <div><span className="text-white/40">App:</span> <span className="text-white/70">{(listing.developer_apps as any)?.name}</span></div>
-          <div><span className="text-white/40">Category:</span> <span className="text-white/70">{listing.category || "—"}</span></div>
-          <div><span className="text-white/40">Pricing:</span> <span className="text-white/70">{listing.pricing_model || "free"}</span></div>
-          <div><span className="text-white/40">Slug:</span> <span className="text-white/70 font-mono">{listing.slug}</span></div>
+          <div><span className="text-muted-foreground">App:</span> <span className="text-muted-foreground">{(listing.developer_apps as any)?.name}</span></div>
+          <div><span className="text-muted-foreground">Category:</span> <span className="text-muted-foreground">{listing.category || "—"}</span></div>
+          <div><span className="text-muted-foreground">Pricing:</span> <span className="text-muted-foreground">{listing.pricing_model || "free"}</span></div>
+          <div><span className="text-muted-foreground">Slug:</span> <span className="text-muted-foreground font-mono">{listing.slug}</span></div>
         </div>
-        {listing.summary && <p className="text-xs text-white/50 mt-3">{listing.summary}</p>}
+        {listing.summary && <p className="text-xs text-muted-foreground mt-3">{listing.summary}</p>}
       </div>
 
       {/* Scopes requested */}
       {scopes && scopes.length > 0 && (
         <div className="rounded-xl p-4 mb-4" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)" }}>
-          <h3 className="text-white text-sm font-semibold mb-2 flex items-center gap-2"><Shield className="w-4 h-4" /> Requested Scopes</h3>
+          <h3 className="text-foreground text-sm font-semibold mb-2 flex items-center gap-2"><Shield className="w-4 h-4" /> Requested Scopes</h3>
           <div className="space-y-1">
             {scopes.map((s) => {
               const reg = s.developer_scope_registry as any;
               return (
                 <div key={s.scope_key} className="flex items-center justify-between text-xs px-2 py-1.5 rounded" style={{ background: "rgba(255,255,255,0.02)" }}>
-                  <code className="text-white/70 font-mono">{s.scope_key}</code>
+                  <code className="text-muted-foreground font-mono">{s.scope_key}</code>
                   <div className="flex items-center gap-2">
                     <span className={`text-[10px] px-1.5 py-0.5 rounded ${statusColors[`${reg?.risk_level === 'high' ? 'auto_rejected' : reg?.risk_level === 'medium' ? 'needs_manual_review' : 'auto_approved'}`] || ""}`}>
                       {reg?.risk_level}
@@ -294,7 +294,7 @@ function ReviewDetail({ listingId, onBack }: { listingId: string; onBack: () => 
       {/* Latest auto-review */}
       {latestRun && (
         <div className="rounded-xl p-4 mb-4" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)" }}>
-          <h3 className="text-white text-sm font-semibold mb-2">Latest Review (Score: {latestRun.score}/100)</h3>
+          <h3 className="text-foreground text-sm font-semibold mb-2">Latest Review (Score: {latestRun.score}/100)</h3>
           {latestReasons.length > 0 ? (
             <div className="space-y-2">
               {latestReasons.map((r: any, i: number) => (
@@ -305,8 +305,8 @@ function ReviewDetail({ listingId, onBack }: { listingId: string; onBack: () => 
                     "bg-yellow-500/10 text-yellow-400"
                   }`}>{r.severity}</span>
                   <div>
-                    <p className="text-white/70 font-medium">{r.title}</p>
-                    <p className="text-white/40">{r.detail}</p>
+                    <p className="text-muted-foreground font-medium">{r.title}</p>
+                    <p className="text-muted-foreground">{r.detail}</p>
                   </div>
                 </div>
               ))}
@@ -320,10 +320,10 @@ function ReviewDetail({ listingId, onBack }: { listingId: string; onBack: () => 
       {/* Appeals */}
       {appeals && appeals.length > 0 && (
         <div className="rounded-xl p-4 mb-4" style={{ background: "rgba(168,85,247,0.04)", border: "1px solid rgba(168,85,247,0.12)" }}>
-          <h3 className="text-white text-sm font-semibold mb-2 flex items-center gap-2"><MessageSquare className="w-4 h-4 text-purple-400" /> Appeals</h3>
+          <h3 className="text-foreground text-sm font-semibold mb-2 flex items-center gap-2"><MessageSquare className="w-4 h-4 text-purple-400" /> Appeals</h3>
           {appeals.map((a) => (
             <div key={a.id} className="mb-3 last:mb-0">
-              <p className="text-xs text-white/70">{a.message}</p>
+              <p className="text-xs text-muted-foreground">{a.message}</p>
               {a.evidence_links && (a.evidence_links as string[]).length > 0 && (
                 <div className="mt-1">
                   {(a.evidence_links as string[]).map((link, i) => (
@@ -339,13 +339,13 @@ function ReviewDetail({ listingId, onBack }: { listingId: string; onBack: () => 
 
       {/* Admin actions */}
       <div className="rounded-xl p-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
-        <h3 className="text-white text-sm font-semibold mb-3">Admin Actions</h3>
+        <h3 className="text-foreground text-sm font-semibold mb-3">Admin Actions</h3>
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           placeholder="Review notes (required for rejection)..."
           rows={2}
-          className="w-full px-3 py-2 rounded-lg text-sm text-white/90 mb-3"
+          className="w-full px-3 py-2 rounded-lg text-sm text-muted-foreground mb-3"
           style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)" }}
         />
         <div className="flex flex-wrap gap-2">

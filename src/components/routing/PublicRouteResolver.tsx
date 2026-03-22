@@ -56,7 +56,7 @@ function RouteDebugBar({ debug, route }: { debug: RouteDebugInfo | null; route: 
   if (!debug) return null;
   
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-black/90 text-white text-xs p-2 z-[9999] font-mono overflow-x-auto">
+    <div className="fixed bottom-0 left-0 right-0 bg-black/90 text-foreground text-xs p-2 z-[9999] font-mono overflow-x-auto">
       <div className="max-w-7xl mx-auto flex flex-wrap gap-4">
         <div>
           <span className="text-muted-foreground">rawHost:</span>{" "}

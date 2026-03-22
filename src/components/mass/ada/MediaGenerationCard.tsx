@@ -60,11 +60,11 @@ export function MediaGenerationCard({
             </div>
             <div className="relative z-10 flex flex-col items-center gap-2">
               {kind === "image" ? (
-                <ImageIcon className="w-8 h-8 text-white/20 animate-pulse" />
+                <ImageIcon className="w-8 h-8 text-muted-foreground animate-pulse" />
               ) : (
-                <Film className="w-8 h-8 text-white/20 animate-pulse" />
+                <Film className="w-8 h-8 text-muted-foreground animate-pulse" />
               )}
-              <span className="text-xs text-white/40">
+              <span className="text-xs text-muted-foreground">
                 {progressStep || statusLabels[status] || "Processing…"}
               </span>
               {/* Progress dots */}
@@ -92,7 +92,7 @@ export function MediaGenerationCard({
             {onRetry && (
               <button
                 onClick={onRetry}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/70 hover:text-white transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
                 style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}
               >
                 <RefreshCw className="w-3 h-3" />
@@ -106,7 +106,7 @@ export function MediaGenerationCard({
       {/* Metadata + actions */}
       {isDone && (
         <div className="px-3 py-2.5 flex items-center justify-between">
-          <span className="text-xs text-white/40">
+          <span className="text-xs text-muted-foreground">
             {kind === "image" ? "Image created" : "Video created"}
             {caption && <> • {caption}</>}
           </span>
@@ -116,14 +116,14 @@ export function MediaGenerationCard({
               download={`ada-${kind}-${Date.now()}.${kind === "image" ? "png" : "mp4"}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-1.5 rounded-md text-white/40 hover:text-white/70 hover:bg-white/5 transition-colors"
+              className="p-1.5 rounded-md text-muted-foreground hover:text-muted-foreground hover:bg-white/5 transition-colors"
               title="Download"
             >
               <Download className="w-3.5 h-3.5" />
             </a>
             <button
               onClick={handleCopyLink}
-              className="p-1.5 rounded-md text-white/40 hover:text-white/70 hover:bg-white/5 transition-colors"
+              className="p-1.5 rounded-md text-muted-foreground hover:text-muted-foreground hover:bg-white/5 transition-colors"
               title={copied ? "Copied!" : "Copy link"}
             >
               <Link2 className="w-3.5 h-3.5" />

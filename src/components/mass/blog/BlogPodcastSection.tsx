@@ -75,7 +75,7 @@ export function BlogPodcastSection() {
                 Episode {ep.episode}
               </span>
               <h4
-                className="font-medium leading-snug group-hover:text-white transition-colors"
+                className="font-medium leading-snug group-hover:text-foreground transition-colors"
                 style={{ fontFamily: "'Lufga', sans-serif", fontSize: 18, color: "rgba(255,255,255,0.85)" }}
               >
                 {ep.title}

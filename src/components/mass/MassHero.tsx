@@ -15,10 +15,10 @@ export function MassHero() {
     >
       <div className="relative z-10 max-w-md">
         <h1 className={`${T.hero} mb-4`}>
-          <span className="text-white block">Build and.</span>
-          <span className="text-white/50 block">Sell Online.</span>
+          <span className="text-foreground block">Build and.</span>
+          <span className="text-muted-foreground block">Sell Online.</span>
         </h1>
-        <p className={`${T.subheader} text-white/40 max-w-xs`}>
+        <p className={`${T.subheader} text-muted-foreground max-w-xs`}>
           Your all-in-one platform to build, market, and scale a business with live video and AI.
         </p>
       </div>

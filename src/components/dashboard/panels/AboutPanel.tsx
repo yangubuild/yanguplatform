@@ -45,7 +45,7 @@ export function AboutPanel() {
         className="flex items-center justify-between px-4 py-3 shrink-0"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
-        <span className="text-sm font-semibold text-white">About</span>
+        <span className="text-sm font-semibold text-foreground">About</span>
         <button
           onClick={handleSave}
           disabled={saving}
@@ -61,7 +61,7 @@ export function AboutPanel() {
         {/* About You */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-xs font-semibold text-white">About You</label>
+            <label className="text-xs font-semibold text-foreground">About You</label>
             <button
               className="flex items-center gap-1 text-[10px] font-medium"
               style={{ color: "#E67E22" }}
@@ -74,7 +74,7 @@ export function AboutPanel() {
             value={aboutMe}
             onChange={(e) => setAboutMe(e.target.value)}
             placeholder="Tell people about yourself..."
-            className="w-full rounded-lg px-3 py-2 text-sm text-white bg-transparent outline-none resize-none min-h-[80px]"
+            className="w-full rounded-lg px-3 py-2 text-sm text-foreground bg-transparent outline-none resize-none min-h-[80px]"
             style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
           />
         </div>
@@ -82,7 +82,7 @@ export function AboutPanel() {
         {/* About Business */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-xs font-semibold text-white">About Business</label>
+            <label className="text-xs font-semibold text-foreground">About Business</label>
             <button
               className="flex items-center gap-1 text-[10px] font-medium"
               style={{ color: "#E67E22" }}
@@ -95,14 +95,14 @@ export function AboutPanel() {
             value={aboutBiz}
             onChange={(e) => setAboutBiz(e.target.value)}
             placeholder="Describe your business..."
-            className="w-full rounded-lg px-3 py-2 text-sm text-white bg-transparent outline-none resize-none min-h-[80px]"
+            className="w-full rounded-lg px-3 py-2 text-sm text-foreground bg-transparent outline-none resize-none min-h-[80px]"
             style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
           />
         </div>
 
         {/* AI Quick Actions */}
         <div>
-          <p className="text-xs font-semibold text-white mb-2">AI Quick Actions</p>
+          <p className="text-xs font-semibold text-foreground mb-2">AI Quick Actions</p>
           <div className="grid grid-cols-2 gap-2">
             {["Generate Logo", "Mission Statement", "Vision Statement", "Business Summary"].map((label) => (
               <button

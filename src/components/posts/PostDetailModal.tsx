@@ -102,7 +102,7 @@ export function PostDetailModal({ postId, onClose }: PostDetailModalProps) {
             className="w-7 h-7 rounded-full flex items-center justify-center"
             style={{ background: "rgba(255,255,255,0.06)" }}
           >
-            <X className="w-3.5 h-3.5 text-white/60" />
+            <X className="w-3.5 h-3.5 text-muted-foreground" />
           </button>
         </div>
 

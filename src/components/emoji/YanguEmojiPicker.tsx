@@ -34,8 +34,8 @@ export function YanguEmojiPicker({ onSelect, onClose }: YanguEmojiPickerProps) {
     >
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-white/5">
-        <span className="text-xs font-semibold text-white/70">Emojis</span>
-        <button onClick={onClose} className="p-0.5 rounded hover:bg-white/10 text-white/40 hover:text-white/70">
+        <span className="text-xs font-semibold text-muted-foreground">Emojis</span>
+        <button onClick={onClose} className="p-0.5 rounded hover:bg-white/10 text-muted-foreground hover:text-muted-foreground">
           <X className="w-3.5 h-3.5" />
         </button>
       </div>
@@ -43,14 +43,14 @@ export function YanguEmojiPicker({ onSelect, onClose }: YanguEmojiPickerProps) {
       {/* Search */}
       <div className="px-3 py-2">
         <div className="relative">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search emojis..."
-            className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-white/5 border border-white/5 text-xs text-white placeholder:text-white/25 outline-none focus:border-white/15"
+            className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-white/5 border border-white/5 text-xs text-foreground placeholder:text-muted-foreground outline-none focus:border-white/15"
           />
         </div>
       </div>
@@ -62,7 +62,7 @@ export function YanguEmojiPicker({ onSelect, onClose }: YanguEmojiPickerProps) {
           className={`text-[10px] font-medium px-2.5 py-1 rounded-full transition-colors ${
             tab === "custom"
               ? "bg-success/20 text-success"
-              : "text-white/40 hover:text-white/60 hover:bg-white/5"
+              : "text-muted-foreground hover:text-muted-foreground hover:bg-white/5"
           }`}
         >
           yangu ({results.custom.length})
@@ -72,7 +72,7 @@ export function YanguEmojiPicker({ onSelect, onClose }: YanguEmojiPickerProps) {
           className={`text-[10px] font-medium px-2.5 py-1 rounded-full transition-colors ${
             tab === "system"
               ? "bg-success/20 text-success"
-              : "text-white/40 hover:text-white/60 hover:bg-white/5"
+              : "text-muted-foreground hover:text-muted-foreground hover:bg-white/5"
           }`}
         >
           System ({results.system.length})
@@ -83,9 +83,9 @@ export function YanguEmojiPicker({ onSelect, onClose }: YanguEmojiPickerProps) {
       <div className="px-3 pb-3 overflow-y-auto" style={{ maxHeight: 220 }}>
         {tab === "custom" ? (
           isLoading ? (
-            <div className="text-center py-6 text-white/30 text-xs">Loading emojis...</div>
+            <div className="text-center py-6 text-muted-foreground text-xs">Loading emojis...</div>
           ) : results.custom.length === 0 ? (
-            <div className="text-center py-6 text-white/30 text-xs">No matching emojis</div>
+            <div className="text-center py-6 text-muted-foreground text-xs">No matching emojis</div>
           ) : (
             <div className="grid grid-cols-6 gap-1">
               {results.custom.map((emoji) => (
@@ -102,7 +102,7 @@ export function YanguEmojiPicker({ onSelect, onClose }: YanguEmojiPickerProps) {
                     loading="lazy"
                   />
                   {/* Tooltip */}
-                  <span className="absolute -top-7 left-1/2 -translate-x-1/2 text-[9px] bg-black/90 text-white/80 px-1.5 py-0.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                  <span className="absolute -top-7 left-1/2 -translate-x-1/2 text-[9px] bg-black/90 text-muted-foreground px-1.5 py-0.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                     :{emoji.keyword}:
                   </span>
                 </button>
@@ -110,7 +110,7 @@ export function YanguEmojiPicker({ onSelect, onClose }: YanguEmojiPickerProps) {
             </div>
           )
         ) : results.system.length === 0 ? (
-          <div className="text-center py-6 text-white/30 text-xs">No matching emojis</div>
+          <div className="text-center py-6 text-muted-foreground text-xs">No matching emojis</div>
         ) : (
           <div className="grid grid-cols-8 gap-0.5">
             {results.system.map((emoji) => (

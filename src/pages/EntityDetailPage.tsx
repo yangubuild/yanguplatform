@@ -46,7 +46,7 @@ function TypeMetaBlock({ entity }: { entity: any }) {
             <item.icon className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.25)" }} />
             <span className="text-[10px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>{item.label}</span>
           </div>
-          <span className="text-white text-sm font-medium">{item.value}</span>
+          <span className="text-foreground text-sm font-medium">{item.value}</span>
         </div>
       ))}
     </div>
@@ -58,7 +58,7 @@ function RelatedEntitiesTracked({ related, entity, navigate }: { related: any[];
 
   return (
     <div className="max-w-4xl mx-auto px-4 mb-12" ref={trackRef}>
-      <h2 className="text-white text-lg font-bold mb-4">You might also like</h2>
+      <h2 className="text-foreground text-lg font-bold mb-4">You might also like</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {related.slice(0, 6).map((r: any) => {
           const route = getEntityRoute(r);
@@ -77,10 +77,10 @@ function RelatedEntitiesTracked({ related, entity, navigate }: { related: any[];
             >
               <div className="flex items-center gap-2 mb-1">
                 <RelIcon className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.25)" }} />
-                <span className="text-white text-sm font-semibold truncate">{r.title}</span>
+                <span className="text-foreground text-sm font-semibold truncate">{r.title}</span>
                 {relVerification && (
                   <span
-                    className="w-3.5 h-3.5 rounded-full flex-shrink-0 flex items-center justify-center text-[7px] text-white"
+                    className="w-3.5 h-3.5 rounded-full flex-shrink-0 flex items-center justify-center text-[7px] text-foreground"
                     style={{ background: relVerification.color }}
                     title={relVerification.label}
                   >✓</span>
@@ -150,7 +150,7 @@ export default function EntityDetailPage() {
           <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.04)" }}>
             <Building2 className="w-7 h-7" style={{ color: "rgba(255,255,255,0.15)" }} />
           </div>
-          <h1 className="text-white text-xl font-bold mb-2">Not Found</h1>
+          <h1 className="text-foreground text-xl font-bold mb-2">Not Found</h1>
           <p className="text-sm mb-4" style={{ color: "rgba(255,255,255,0.4)" }}>
             This page doesn't exist or isn't published yet.
           </p>
@@ -198,10 +198,10 @@ export default function EntityDetailPage() {
         <div className="flex items-start justify-between flex-wrap gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <h1 className="text-white text-2xl font-bold">{entity.title}</h1>
+              <h1 className="text-foreground text-2xl font-bold">{entity.title}</h1>
               {verification && (
                 <span
-                  className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] text-white"
+                  className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] text-foreground"
                   style={{ background: verification.color }}
                   title={verification.label}
                 >✓</span>
@@ -293,7 +293,7 @@ export default function EntityDetailPage() {
       {/* FAQs — only rendered when data exists, no dead controls */}
       {faqs && faqs.length > 0 && (
         <div className="max-w-4xl mx-auto px-4 mb-8">
-          <h2 className="text-white text-lg font-bold mb-4">FAQ</h2>
+          <h2 className="text-foreground text-lg font-bold mb-4">FAQ</h2>
           <div className="space-y-2">
             {faqs.map((faq) => (
               <div key={faq.id} className="rounded-xl overflow-hidden" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
@@ -301,7 +301,7 @@ export default function EntityDetailPage() {
                   onClick={() => setExpandedFaq(expandedFaq === faq.id ? null : faq.id)}
                   className="w-full flex items-center justify-between px-4 py-3 text-left"
                 >
-                  <span className="text-white text-sm font-medium">{faq.question}</span>
+                  <span className="text-foreground text-sm font-medium">{faq.question}</span>
                   {expandedFaq === faq.id ? <ChevronUp className="w-4 h-4" style={{ color: "rgba(255,255,255,0.3)" }} /> : <ChevronDown className="w-4 h-4" style={{ color: "rgba(255,255,255,0.3)" }} />}
                 </button>
                 {expandedFaq === faq.id && (
@@ -319,7 +319,7 @@ export default function EntityDetailPage() {
       <div className="max-w-4xl mx-auto px-4 mb-8">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <h2 className="text-white text-lg font-bold">
+            <h2 className="text-foreground text-lg font-bold">
               Reviews{reviews && reviews.length > 0 ? ` (${reviews.length})` : ""}
             </h2>
             {reviewConfidence.confidence === "strong" && (
@@ -347,10 +347,10 @@ export default function EntityDetailPage() {
                 <div className="flex items-center gap-2 mb-2">
                   <div className="flex items-center gap-0.5">
                     {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} className={`w-3.5 h-3.5 ${i < review.rating ? "text-yellow-500 fill-yellow-500" : "text-white/10"}`} />
+                      <Star key={i} className={`w-3.5 h-3.5 ${i < review.rating ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground"}`} />
                     ))}
                   </div>
-                  {review.title && <span className="text-white text-sm font-medium">{review.title}</span>}
+                  {review.title && <span className="text-foreground text-sm font-medium">{review.title}</span>}
                 </div>
                 {review.body && <p className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>{review.body}</p>}
                 <span className="text-[10px] mt-2 block" style={{ color: "rgba(255,255,255,0.25)" }}>

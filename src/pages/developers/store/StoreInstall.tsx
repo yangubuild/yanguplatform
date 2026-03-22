@@ -80,7 +80,7 @@ export default function StoreInstall() {
   if (!listing) {
     return (
       <DocsPage breadcrumb="App Store → Install" title="Not Found" subtitle="This app is not available for installation.">
-        <Button variant="ghost" size="sm" onClick={() => navigate("/developers/store")} className="text-white/50">
+        <Button variant="ghost" size="sm" onClick={() => navigate("/developers/store")} className="text-muted-foreground">
           <ArrowLeft className="w-4 h-4" /> Back to Store
         </Button>
       </DocsPage>
@@ -89,19 +89,19 @@ export default function StoreInstall() {
 
   return (
     <DocsPage breadcrumb="App Store → Install" title={`Install ${listing.name}`} subtitle="Choose an organization to install this app.">
-      <Button variant="ghost" size="sm" onClick={() => navigate(`/developers/store/${appSlug}`)} className="text-white/50 mb-6">
+      <Button variant="ghost" size="sm" onClick={() => navigate(`/developers/store/${appSlug}`)} className="text-muted-foreground mb-6">
         <ArrowLeft className="w-4 h-4" /> Back to listing
       </Button>
 
       {!user ? (
         <div className="rounded-xl p-6 text-center" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
           <AlertTriangle className="w-8 h-8 text-orange-400 mx-auto mb-3" />
-          <p className="text-white/60 text-sm">Please sign in to install apps.</p>
+          <p className="text-muted-foreground text-sm">Please sign in to install apps.</p>
         </div>
       ) : (
         <div className="max-w-lg">
           <div className="mb-4">
-            <label className="text-xs text-white/50 block mb-2">Select Organization</label>
+            <label className="text-xs text-muted-foreground block mb-2">Select Organization</label>
             {orgs && orgs.length > 0 ? (
               <div className="space-y-2">
                 {orgs.map((om) => {
@@ -121,8 +121,8 @@ export default function StoreInstall() {
                     >
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-white/80">{org.name}</p>
-                          <p className="text-xs text-white/40">{om.role}</p>
+                          <p className="text-sm text-muted-foreground">{org.name}</p>
+                          <p className="text-xs text-muted-foreground">{om.role}</p>
                         </div>
                         {alreadyInstalled && (
                           <span className="text-xs text-green-400 flex items-center gap-1">
@@ -135,7 +135,7 @@ export default function StoreInstall() {
                 })}
               </div>
             ) : (
-              <p className="text-white/30 text-sm">No organizations found. Create one first.</p>
+              <p className="text-muted-foreground text-sm">No organizations found. Create one first.</p>
             )}
           </div>
 

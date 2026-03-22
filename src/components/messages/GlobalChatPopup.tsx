@@ -80,7 +80,7 @@ export function GlobalChatPopup({ onClose }: GlobalChatPopupProps) {
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 flex-shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-        <button className="flex items-center gap-1.5 text-sm font-semibold text-white">
+        <button className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
           Global <ChevronDown className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.4)" }} />
         </button>
         <div className="flex items-center gap-2">
@@ -101,10 +101,10 @@ export function GlobalChatPopup({ onClose }: GlobalChatPopupProps) {
       {/* Messages feed */}
       <div ref={feedRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
         {isLoading ? (
-          <div className="flex justify-center py-10"><Loader2 className="w-5 h-5 animate-spin text-white/30" /></div>
+          <div className="flex justify-center py-10"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
         ) : messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10">
-            <p className="text-xs font-semibold text-white">No messages yet</p>
+            <p className="text-xs font-semibold text-foreground">No messages yet</p>
             <p className="text-[10px] mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>Start the conversation!</p>
           </div>
         ) : (
@@ -115,7 +115,7 @@ export function GlobalChatPopup({ onClose }: GlobalChatPopupProps) {
                   {msg.author_avatar ? (
                     <img src={msg.author_avatar} alt="" className="w-7 h-7 rounded-full object-cover" />
                   ) : (
-                    <span className="text-[8px] font-bold text-white/50">{(msg.author_name || "U").slice(0, 2).toUpperCase()}</span>
+                    <span className="text-[8px] font-bold text-muted-foreground">{(msg.author_name || "U").slice(0, 2).toUpperCase()}</span>
                   )}
                 </div>
                 <span
@@ -128,7 +128,7 @@ export function GlobalChatPopup({ onClose }: GlobalChatPopupProps) {
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[11px] font-semibold text-white truncate">{msg.author_name}</span>
+                  <span className="text-[11px] font-semibold text-foreground truncate">{msg.author_name}</span>
                   <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.25)" }}>
                     {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                   </span>
@@ -158,7 +158,7 @@ export function GlobalChatPopup({ onClose }: GlobalChatPopupProps) {
               : <img src={mediaPreview} alt="" className="h-12 rounded-lg object-cover" />}
             <button onClick={() => { if (mediaPreview) URL.revokeObjectURL(mediaPreview); setMediaFile(null); setMediaPreview(null); }}
               className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-black/70 flex items-center justify-center">
-              <X className="w-2 h-2 text-white" />
+              <X className="w-2 h-2 text-foreground" />
             </button>
           </div>
         </div>
@@ -173,7 +173,7 @@ export function GlobalChatPopup({ onClose }: GlobalChatPopupProps) {
               placeholder="Your message..." className="flex-1 bg-transparent text-xs outline-none" style={{ color: "rgba(255,255,255,0.8)" }} />
             <button onClick={handleSend} disabled={(!message.trim() && !mediaFile) || uploading}
               className="p-1.5 rounded-lg" style={{ background: (message.trim() || mediaFile) ? "#22c55e" : "rgba(255,255,255,0.08)" }}>
-              {uploading ? <Loader2 className="w-3 h-3 text-white animate-spin" /> : <Send className="w-3 h-3 text-white" />}
+              {uploading ? <Loader2 className="w-3 h-3 text-foreground animate-spin" /> : <Send className="w-3 h-3 text-foreground" />}
             </button>
           </div>
           <div className="flex items-center gap-0.5 mt-1 -mb-0.5">

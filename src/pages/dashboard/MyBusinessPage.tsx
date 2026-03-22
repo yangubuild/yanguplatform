@@ -252,7 +252,7 @@ export default function MyBusinessPage() {
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction className="bg-[#b5622a] text-white hover:bg-[#b5622a]/90 rounded-xl" onClick={async () => {
+                            <AlertDialogAction className="bg-[#b5622a] text-foreground hover:bg-[#b5622a]/90 rounded-xl" onClick={async () => {
                               const { error } = await supabase.from("builder_surfaces").delete().eq("id", s.id);
                               if (error) { toast.error("Failed to delete"); return; }
                               await forceDeleteSurface(s.id);

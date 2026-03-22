@@ -42,7 +42,7 @@ export function InfluencerProfilePopup({ user, onClose }: Props) {
           >
             {user.name.slice(0, 2).toUpperCase()}
           </div>
-          <h3 className="text-base font-semibold text-white">{user.name}</h3>
+          <h3 className="text-base font-semibold text-foreground">{user.name}</h3>
           <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
             @{user.name.toLowerCase().replace(/\s+/g, "")}
           </p>
@@ -54,11 +54,11 @@ export function InfluencerProfilePopup({ user, onClose }: Props) {
         {/* Stats */}
         <div className="flex items-center justify-center gap-6 mt-5">
           <div className="text-center">
-            <p className="text-sm font-semibold text-white">—</p>
+            <p className="text-sm font-semibold text-foreground">—</p>
             <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.35)" }}>Followers</p>
           </div>
           <div className="text-center">
-            <p className="text-sm font-semibold text-white">—</p>
+            <p className="text-sm font-semibold text-foreground">—</p>
             <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.35)" }}>Following</p>
           </div>
         </div>

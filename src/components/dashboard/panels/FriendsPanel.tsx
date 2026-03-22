@@ -81,7 +81,7 @@ export function FriendsPanel({ onViewProfile }: FriendsPanelProps) {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search people..."
-              className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-white/25"
+              className="flex-1 bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground"
             />
             <div className="flex items-center gap-0.5 text-[11px]" style={{ color: "rgba(255,255,255,0.25)" }}>
               <Command className="w-3 h-3" />K
@@ -103,7 +103,7 @@ export function FriendsPanel({ onViewProfile }: FriendsPanelProps) {
               <span className="text-sm">💰</span>
             </div>
             <div className="flex-1 text-left min-w-0">
-              <p className="text-sm font-medium text-white">Affiliate dashboard</p>
+              <p className="text-sm font-medium text-foreground">Affiliate dashboard</p>
               <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.4)" }}>
                 Earn by referring others
               </p>
@@ -120,7 +120,7 @@ export function FriendsPanel({ onViewProfile }: FriendsPanelProps) {
         {/* People count + See all */}
         <div className="px-4 pb-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-white">
+            <span className="text-sm font-semibold text-foreground">
               People{" "}
               <span style={{ color: "rgba(255,255,255,0.4)" }}>
                 {totalCount.toLocaleString()}
@@ -171,7 +171,7 @@ export function FriendsPanel({ onViewProfile }: FriendsPanelProps) {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white truncate">
+                  <p className="text-sm font-medium text-foreground truncate">
                     {user.display_name || user.username || "Unnamed"}
                   </p>
                   {user.username && (

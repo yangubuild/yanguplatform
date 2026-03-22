@@ -20,8 +20,8 @@ function PaymentMethodRow({ icon, label, selected, tag, last }: { icon: React.Re
         {selected && <div className="w-2 h-2 rounded-full" style={{ background: "#b5622a" }} />}
       </div>
       {icon}
-      <span className="text-sm text-white/70">{label}</span>
-      {tag && <span className="ml-auto text-[10px] text-white/30 bg-white/[0.06] px-2 py-0.5 rounded-lg">{tag}</span>}
+      <span className="text-sm text-muted-foreground">{label}</span>
+      {tag && <span className="ml-auto text-[10px] text-muted-foreground bg-white/[0.06] px-2 py-0.5 rounded-lg">{tag}</span>}
     </div>
   );
 }
@@ -76,10 +76,10 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
         {/* Potential audience reach */}
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-sm font-medium text-white/60">
+            <span className="text-sm font-medium text-muted-foreground">
               Potential audience reach
             </span>
-            <Info className="w-3.5 h-3.5 text-white/30" />
+            <Info className="w-3.5 h-3.5 text-muted-foreground" />
           </div>
           <div className="flex items-baseline gap-2 mb-3">
             <span
@@ -88,7 +88,7 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
             >
               95M - 105M
             </span>
-            <span className="text-base text-white/30">/ 265M</span>
+            <span className="text-base text-muted-foreground">/ 265M</span>
           </div>
           <div className="flex items-center gap-4">
             <div className="flex-1 h-3 rounded-full bg-white/[0.08] overflow-hidden">
@@ -103,7 +103,7 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
             <Button
               variant="outline"
               size="sm"
-              className="border-white/20 text-white/70 hover:text-white hover:bg-white/5 rounded-xl text-xs px-4 h-8 shrink-0"
+              className="border-white/20 text-muted-foreground hover:text-foreground hover:bg-white/5 rounded-xl text-xs px-4 h-8 shrink-0"
             >
               Add more media
             </Button>
@@ -113,13 +113,13 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
         {/* Daily budget */}
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <label className="block text-sm font-semibold text-white">
+            <label className="block text-sm font-semibold text-foreground">
               Daily budget
             </label>
-            <Info className="w-3.5 h-3.5 text-white/30" />
+            <Info className="w-3.5 h-3.5 text-muted-foreground" />
           </div>
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50 text-base font-medium">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-base font-medium">
               $
             </span>
             <input
@@ -129,7 +129,7 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
               value={inputValue}
               onChange={handleInputChange}
               onBlur={handleInputBlur}
-              className="w-full bg-white/[0.04] border border-white/10 rounded-xl text-white pl-8 pr-4 py-3 text-base outline-none transition-colors focus:border-[#b5622a] focus:ring-1 focus:ring-[#b5622a]/30 placeholder:text-white/20"
+              className="w-full bg-white/[0.04] border border-white/10 rounded-xl text-foreground pl-8 pr-4 py-3 text-base outline-none transition-colors focus:border-[#b5622a] focus:ring-1 focus:ring-[#b5622a]/30 placeholder:text-muted-foreground"
             />
           </div>
 
@@ -168,11 +168,11 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
         </div>
 
         {/* Terms */}
-        <p className="text-sm text-white/30">
+        <p className="text-sm text-muted-foreground">
           By launching your campaign you agree to the{" "}
           <a
             href="#"
-            className="underline hover:text-white/50"
+            className="underline hover:text-muted-foreground"
             style={{ color: "#b5622a" }}
           >
             YANGU Ads Terms
@@ -201,23 +201,23 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
                 <img src={yanguLogo} alt="yangu" className="h-7 w-auto" />
                 <button
                   onClick={() => setShowPayment(false)}
-                  className="text-white/40 hover:text-white/70 transition-colors"
+                  className="text-muted-foreground hover:text-muted-foreground transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <p className="text-white/40 text-xs mb-2">Charge from YANGU Ads</p>
+              <p className="text-muted-foreground text-xs mb-2">Charge from YANGU Ads</p>
 
               <div className="text-center py-3">
-                <p className="text-white/50 text-sm">YANGU Ads</p>
-                <p className="text-4xl font-bold text-white mt-1">
+                <p className="text-muted-foreground text-sm">YANGU Ads</p>
+                <p className="text-4xl font-bold text-foreground mt-1">
                   ${data.dailyBudget.toFixed(2)}
                 </p>
               </div>
 
               <div className="mt-2">
-                <p className="text-white/70 text-xs font-semibold">Description</p>
-                <p className="text-white/40 text-xs">Daily ad budget charge</p>
+                <p className="text-muted-foreground text-xs font-semibold">Description</p>
+                <p className="text-muted-foreground text-xs">Daily ad budget charge</p>
               </div>
             </div>
 
@@ -225,40 +225,40 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
             <div className="px-6 pb-6 space-y-4">
               {/* Payment method */}
               <div>
-                <p className="text-white/70 text-xs font-semibold mb-2">
+                <p className="text-muted-foreground text-xs font-semibold mb-2">
                   Payment method
                 </p>
                 <div className="border border-white/10 rounded-xl overflow-hidden">
                   {/* Card */}
-                  <PaymentMethodRow icon={<CreditCard className="w-4 h-4 text-white/50" />} label="Card" selected />
+                  <PaymentMethodRow icon={<CreditCard className="w-4 h-4 text-muted-foreground" />} label="Card" selected />
                   <div className="p-3 space-y-2 border-b border-white/10">
-                    <p className="text-xs font-semibold text-white/70">Card information</p>
+                    <p className="text-xs font-semibold text-muted-foreground">Card information</p>
                     <input
                       type="text"
                       placeholder="1234 1234 1234 1234"
-                      className="w-full bg-white/[0.04] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/20 outline-none focus:border-[#b5622a]"
+                      className="w-full bg-white/[0.04] border border-white/10 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-[#b5622a]"
                     />
                     <div className="flex gap-2">
                       <input
                         type="text"
                         placeholder="MM / YY"
-                        className="w-1/2 bg-white/[0.04] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/20 outline-none focus:border-[#b5622a]"
+                        className="w-1/2 bg-white/[0.04] border border-white/10 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-[#b5622a]"
                       />
                       <input
                         type="text"
                         placeholder="CVC"
-                        className="w-1/2 bg-white/[0.04] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/20 outline-none focus:border-[#b5622a]"
+                        className="w-1/2 bg-white/[0.04] border border-white/10 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-[#b5622a]"
                       />
                     </div>
                   </div>
                   {/* Mobile Money */}
-                  <PaymentMethodRow icon={<Smartphone className="w-4 h-4 text-white/50" />} label="Mobile Money" tag="Coming soon" />
+                  <PaymentMethodRow icon={<Smartphone className="w-4 h-4 text-muted-foreground" />} label="Mobile Money" tag="Coming soon" />
                   {/* Apple Pay */}
-                  <PaymentMethodRow icon={<Apple className="w-4 h-4 text-white/50" />} label="Apple Pay" tag="Coming soon" />
+                  <PaymentMethodRow icon={<Apple className="w-4 h-4 text-muted-foreground" />} label="Apple Pay" tag="Coming soon" />
                   {/* Google Pay */}
                   <PaymentMethodRow
                     icon={
-                      <svg className="w-4 h-4 text-white/50" viewBox="0 0 24 24" fill="currentColor">
+                      <svg className="w-4 h-4 text-muted-foreground" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" />
                       </svg>
                     }
@@ -272,7 +272,7 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
               {/* Pay button */}
               <button
                 onClick={handlePayConfirm}
-                className="w-full py-3 rounded-xl text-white font-semibold text-base transition-opacity hover:opacity-90"
+                className="w-full py-3 rounded-xl text-foreground font-semibold text-base transition-opacity hover:opacity-90"
                 style={{
                   background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)",
                 }}

@@ -178,7 +178,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
         <button onClick={onBack} className="p-1 rounded-md hover:bg-white/5" style={{ color: "rgba(255,255,255,0.5)" }}>
           <ArrowLeft className="w-4 h-4" />
         </button>
-        <span className="text-sm font-semibold text-white">{name}</span>
+        <span className="text-sm font-semibold text-foreground">{name}</span>
       </div>
 
       <div className="flex-1 min-h-0 overflow-y-auto">
@@ -212,7 +212,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
           {/* Name + action button row */}
           <div className="flex items-start justify-between mt-3 gap-4">
             <div>
-              <h2 className="text-[24px] leading-[1.15] font-bold text-white">{name}</h2>
+              <h2 className="text-[24px] leading-[1.15] font-bold text-foreground">{name}</h2>
               {username && (
                 <p className="text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
                   @{username}
@@ -287,7 +287,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
           {activeTab === "Home" && (
             <>
               <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-semibold text-white">
+                <span className="text-sm font-semibold text-foreground">
                   Surfaces <span style={{ color: "rgba(255,255,255,0.4)" }}>{surfaces.length}</span>
                 </span>
               </div>
@@ -300,7 +300,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
                   className="rounded-xl p-8 text-center"
                   style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
                 >
-                  <p className="text-sm text-white mb-1">No published surfaces</p>
+                  <p className="text-sm text-foreground mb-1">No published surfaces</p>
                   <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
                     This user has no public offerings yet.
                   </p>
@@ -327,7 +327,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
                         </div>
                       )}
                       <div className="p-3">
-                        <p className="text-sm font-medium text-white">{surface.title || "Untitled"}</p>
+                        <p className="text-sm font-medium text-foreground">{surface.title || "Untitled"}</p>
                         <p className="text-xs mt-1 flex items-center gap-1" style={{ color: "rgba(255,255,255,0.45)" }}>
                           {surface.surface_type}
                           <ExternalLink className="w-3 h-3 ml-auto" style={{ color: "#22c55e" }} />
@@ -348,13 +348,13 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
                 className="rounded-xl p-4"
                 style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
               >
-                <p className="text-sm font-semibold text-white mb-2">Leave a review</p>
+                <p className="text-sm font-semibold text-foreground mb-2">Leave a review</p>
                 {renderStars(reviewRating, true)}
                 <textarea
                   value={reviewText}
                   onChange={(e) => setReviewText(e.target.value)}
                   placeholder="Write your review..."
-                  className="w-full mt-3 bg-transparent text-sm text-white placeholder:text-white/25 outline-none resize-none min-h-[60px] rounded-lg px-3 py-2"
+                  className="w-full mt-3 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none resize-none min-h-[60px] rounded-lg px-3 py-2"
                   style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
                 />
                 <button
@@ -378,7 +378,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
               ) : reviews.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8">
                   <Star className="w-8 h-8 mb-2" style={{ color: "rgba(255,255,255,0.2)" }} />
-                  <p className="text-sm text-white mb-1">No reviews yet</p>
+                  <p className="text-sm text-foreground mb-1">No reviews yet</p>
                   <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
                     Be the first to review {name}.
                   </p>
@@ -392,13 +392,13 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
                   >
                     <div className="flex items-center gap-2 mb-1.5">
                       <div className="w-5 h-5 rounded-full overflow-hidden shrink-0" style={{ background: "rgba(255,255,255,0.1)" }}>
-                        {review.reviewer_avatar ? <img src={review.reviewer_avatar} alt="" className="w-5 h-5 rounded-full object-cover" /> : <div className="w-5 h-5 flex items-center justify-center text-[8px] font-bold text-white/50">{(review.reviewer_name||"U").slice(0,2).toUpperCase()}</div>}
+                        {review.reviewer_avatar ? <img src={review.reviewer_avatar} alt="" className="w-5 h-5 rounded-full object-cover" /> : <div className="w-5 h-5 flex items-center justify-center text-[8px] font-bold text-muted-foreground">{(review.reviewer_name||"U").slice(0,2).toUpperCase()}</div>}
                       </div>
-                      <span className="text-[11px] font-medium text-white">{review.reviewer_name}</span>
+                      <span className="text-[11px] font-medium text-foreground">{review.reviewer_name}</span>
                       {review.reviewer_username && <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.3)" }}>@{review.reviewer_username}</span>}
                     </div>
                     {renderStars(review.rating)}
-                    {review.title && <p className="text-sm font-medium text-white mt-1.5">{review.title}</p>}
+                    {review.title && <p className="text-sm font-medium text-foreground mt-1.5">{review.title}</p>}
                     {review.body && <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.5)" }}>{review.body}</p>}
                     <p className="text-[10px] mt-2" style={{ color: "rgba(255,255,255,0.3)" }}>
                       {new Date(review.created_at).toLocaleDateString()}
@@ -419,7 +419,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
               ) : posts.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8">
                   <MessageSquare className="w-8 h-8 mb-2" style={{ color: "rgba(255,255,255,0.2)" }} />
-                  <p className="text-sm font-semibold text-white mb-1">{name}'s Posts</p>
+                  <p className="text-sm font-semibold text-foreground mb-1">{name}'s Posts</p>
                   <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
                     No posts from this user yet.
                   </p>
@@ -429,15 +429,15 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
                   <div key={post.id} className="rounded-lg p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-7 h-7 rounded-full overflow-hidden shrink-0" style={{ background: "rgba(255,255,255,0.1)" }}>
-                        {post.author_avatar ? <img src={post.author_avatar} alt="" className="w-7 h-7 rounded-full object-cover" /> : <div className="w-7 h-7 flex items-center justify-center text-[10px] font-bold text-white/60">{(post.author_name||"U").slice(0,2).toUpperCase()}</div>}
+                        {post.author_avatar ? <img src={post.author_avatar} alt="" className="w-7 h-7 rounded-full object-cover" /> : <div className="w-7 h-7 flex items-center justify-center text-[10px] font-bold text-muted-foreground">{(post.author_name||"U").slice(0,2).toUpperCase()}</div>}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-white truncate">{post.author_name}</p>
+                        <p className="text-xs font-semibold text-foreground truncate">{post.author_name}</p>
                         {post.author_username && <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>@{post.author_username}</p>}
                       </div>
                       <span className="text-[10px] shrink-0" style={{ color: "rgba(255,255,255,0.3)" }}>{new Date(post.created_at).toLocaleDateString()}</span>
                     </div>
-                    <p className="text-sm text-white whitespace-pre-wrap mb-2">{post.content}</p>
+                    <p className="text-sm text-foreground whitespace-pre-wrap mb-2">{post.content}</p>
                     <div className="flex items-center gap-4">
                       <button onClick={() => toggleReaction.mutate({ postId: post.id, reactionType: "like", isActive: !!post.user_liked })} className="flex items-center gap-1 text-[11px]" style={{ color: post.user_liked ? "#3b82f6" : "rgba(255,255,255,0.35)" }}>
                         <ThumbsUp className="w-3.5 h-3.5" /> {post.like_count || ""}
@@ -459,20 +459,20 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
           {activeTab === "About" && (
             <div className="space-y-4">
               <div>
-                <p className="text-xs font-semibold text-white mb-1">Bio</p>
+                <p className="text-xs font-semibold text-foreground mb-1">Bio</p>
                 <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
                   {aboutData?.about_me || "No bio available."}
                 </p>
               </div>
               <div>
-                <p className="text-xs font-semibold text-white mb-1">Business</p>
+                <p className="text-xs font-semibold text-foreground mb-1">Business</p>
                 <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
                   {aboutData?.about_business || user.business_name || "No business info available."}
                 </p>
               </div>
               {(friendProfile as any)?.location && (
                 <div>
-                  <p className="text-xs font-semibold text-white mb-1">Location</p>
+                  <p className="text-xs font-semibold text-foreground mb-1">Location</p>
                   <p className="text-sm flex items-center gap-1" style={{ color: "rgba(255,255,255,0.5)" }}>
                     <MapPin className="w-3 h-3" /> {(friendProfile as any).location}
                   </p>
@@ -480,7 +480,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
               )}
               {createdAt && (
                 <div>
-                  <p className="text-xs font-semibold text-white mb-1">Joined</p>
+                  <p className="text-xs font-semibold text-foreground mb-1">Joined</p>
                   <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>{createdAt}</p>
                 </div>
               )}

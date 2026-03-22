@@ -141,7 +141,7 @@ export default function CoverCropModal({
         style={{ background: "#0f141a", border: "1px solid rgba(255,255,255,0.1)" }}
       >
         <DialogHeader className="px-5 pt-5 pb-3">
-          <DialogTitle className="text-white text-base">Adjust cover image</DialogTitle>
+          <DialogTitle className="text-foreground text-base">Adjust cover image</DialogTitle>
           <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
             Drag to reposition. Zoom to adjust framing.
           </p>

@@ -33,7 +33,7 @@ export function PostsPanel({ onViewProfile }: PostsPanelProps) {
         className="flex items-center justify-between px-4 py-3 shrink-0"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
-        <span className="text-sm font-semibold text-white">Following</span>
+        <span className="text-sm font-semibold text-foreground">Following</span>
       </div>
 
       {/* Posts list — followed accounts only */}
@@ -44,7 +44,7 @@ export function PostsPanel({ onViewProfile }: PostsPanelProps) {
           </div>
         ) : posts.length === 0 ? (
           <div className="flex flex-col items-center justify-center px-4 py-10">
-            <p className="text-sm font-semibold text-white">No posts from followed accounts</p>
+            <p className="text-sm font-semibold text-foreground">No posts from followed accounts</p>
             <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>
               Follow people to see their posts here.
             </p>

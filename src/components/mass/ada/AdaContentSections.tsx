@@ -53,7 +53,7 @@ export function AdaContentSections() {
             <div key={s.num} className="flex flex-col items-center text-center relative">
               {/* Step number */}
               <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold text-white mb-4"
+                className="w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold text-foreground mb-4"
                 style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
               >
                 {s.num}
@@ -62,10 +62,10 @@ export function AdaContentSections() {
               {i < steps.length - 1 && (
                 <div className="hidden lg:block absolute top-5 left-[calc(50%+24px)] w-[calc(100%-48px)] h-px bg-white/10" />
               )}
-              <h3 className="text-white text-sm font-semibold mb-2" style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>
+              <h3 className="text-foreground text-sm font-semibold mb-2" style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>
                 {s.title}
               </h3>
-              <p className="text-white/50 text-xs leading-relaxed max-w-[200px]">{s.desc}</p>
+              <p className="text-muted-foreground text-xs leading-relaxed max-w-[200px]">{s.desc}</p>
             </div>
           ))}
         </div>
@@ -77,7 +77,7 @@ export function AdaContentSections() {
       {/* ── Section 2: Feature Blocks ── */}
       <section className="px-6 py-20 max-w-5xl mx-auto">
         <h2
-          className="text-white text-3xl md:text-4xl font-bold text-center mb-16"
+          className="text-foreground text-3xl md:text-4xl font-bold text-center mb-16"
           style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}
         >
           A Superhuman AI Command System
@@ -91,12 +91,12 @@ export function AdaContentSections() {
                   className="w-11 h-11 rounded-lg flex items-center justify-center mb-4"
                   style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
                 >
-                  <Icon className="w-5 h-5 text-white/60" />
+                  <Icon className="w-5 h-5 text-muted-foreground" />
                 </div>
-                <h3 className="text-white text-base font-semibold mb-2" style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>
+                <h3 className="text-foreground text-base font-semibold mb-2" style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>
                   {f.title}
                 </h3>
-                <p className="text-white/45 text-sm leading-relaxed max-w-[280px]">{f.desc}</p>
+                <p className="text-muted-foreground text-sm leading-relaxed max-w-[280px]">{f.desc}</p>
               </div>
             );
           })}
@@ -110,12 +110,12 @@ export function AdaContentSections() {
                   className="w-11 h-11 rounded-lg flex items-center justify-center mb-4"
                   style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
                 >
-                  <Icon className="w-5 h-5 text-white/60" />
+                  <Icon className="w-5 h-5 text-muted-foreground" />
                 </div>
-                <h3 className="text-white text-base font-semibold mb-2" style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>
+                <h3 className="text-foreground text-base font-semibold mb-2" style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>
                   {f.title}
                 </h3>
-                <p className="text-white/45 text-sm leading-relaxed max-w-[280px]">{f.desc}</p>
+                <p className="text-muted-foreground text-sm leading-relaxed max-w-[280px]">{f.desc}</p>
               </div>
             );
           })}
@@ -131,7 +131,7 @@ export function AdaContentSections() {
       >
         <div className="max-w-5xl mx-auto">
           <h2
-            className="text-white text-3xl md:text-4xl font-bold text-center mb-14"
+            className="text-foreground text-3xl md:text-4xl font-bold text-center mb-14"
             style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}
           >
             Loved by creators worldwide
@@ -161,7 +161,7 @@ export function AdaContentSections() {
         {/* Spacer */}
         <div className="mb-16" />
         <h2
-          className="text-white text-3xl md:text-4xl font-bold text-center mb-14"
+          className="text-foreground text-3xl md:text-4xl font-bold text-center mb-14"
           style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}
         >
           Frequently Asked<br />Questions
@@ -173,14 +173,14 @@ export function AdaContentSections() {
                 onClick={() => setOpenFaq(openFaq === i ? null : i)}
                 className="w-full flex items-center justify-between py-5 text-left group"
               >
-                <span className="text-white text-sm md:text-base font-medium pr-4">{faq.q}</span>
+                <span className="text-foreground text-sm md:text-base font-medium pr-4">{faq.q}</span>
                 <ChevronRight
-                  className={`w-5 h-5 text-white/30 flex-shrink-0 transition-transform duration-200 ${openFaq === i ? "rotate-90" : ""}`}
+                  className={`w-5 h-5 text-muted-foreground flex-shrink-0 transition-transform duration-200 ${openFaq === i ? "rotate-90" : ""}`}
                 />
               </button>
               {openFaq === i && (
                 <div className="pb-5 pr-10">
-                  <p className="text-white/50 text-sm leading-relaxed">{faq.a}</p>
+                  <p className="text-muted-foreground text-sm leading-relaxed">{faq.a}</p>
                 </div>
               )}
               {i < faqs.length - 1 && (
@@ -206,8 +206,8 @@ function ReviewCard({ name, text }: { name: string; text: string }) {
         border: "1px solid rgba(255,255,255,0.07)",
       }}
     >
-      <p className="text-white/70 text-sm leading-relaxed mb-3">"{text}"</p>
-      <p className="text-white/40 text-xs font-medium">{name}</p>
+      <p className="text-muted-foreground text-sm leading-relaxed mb-3">"{text}"</p>
+      <p className="text-muted-foreground text-xs font-medium">{name}</p>
     </div>
   );
 }

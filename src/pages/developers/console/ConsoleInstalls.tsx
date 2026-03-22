@@ -175,7 +175,7 @@ export default function ConsoleInstalls() {
   if (orgLoading) {
     return (
       <DocsPage breadcrumb="Console › Installs" title="Surface Installs" subtitle="">
-        <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-white/40" /></div>
+        <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
       </DocsPage>
     );
   }
@@ -184,7 +184,7 @@ export default function ConsoleInstalls() {
     return (
       <DocsPage breadcrumb="Console › Installs" title="Surface Installs" subtitle="">
         <div className="rounded-xl p-8 text-center" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
-          <p className="text-white/50 text-sm">You don't have permission to access this page.</p>
+          <p className="text-muted-foreground text-sm">You don't have permission to access this page.</p>
         </div>
       </DocsPage>
     );
@@ -194,10 +194,10 @@ export default function ConsoleInstalls() {
     const colors: Record<string, string> = {
       active: "bg-green-500/20 text-green-400 border-green-500/30",
       enabled: "bg-green-500/20 text-green-400 border-green-500/30",
-      disabled: "bg-white/10 text-white/50 border-white/20",
+      disabled: "bg-white/10 text-muted-foreground border-white/20",
       revoked: "bg-red-500/20 text-red-400 border-red-500/30",
     };
-    return <Badge className={`text-xs ${colors[status] || "bg-white/10 text-white/60 border-white/20"}`}>{status}</Badge>;
+    return <Badge className={`text-xs ${colors[status] || "bg-white/10 text-muted-foreground border-white/20"}`}>{status}</Badge>;
   };
 
   const cols: ColumnDef<InstallRow>[] = [
@@ -263,28 +263,28 @@ export default function ConsoleInstalls() {
 
       {/* Mint Token Dialog — token shown once, not stored */}
       <Dialog open={!!mintedToken || minting} onOpenChange={(o) => { if (!o) { setMintedToken(null); setMinting(false); } }}>
-        <DialogContent className="bg-[#1a1a2e] border-white/10 text-white sm:max-w-md">
+        <DialogContent className="bg-[#1a1a2e] border-white/10 text-foreground sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-white">Widget Install Token</DialogTitle>
+            <DialogTitle className="text-foreground">Widget Install Token</DialogTitle>
           </DialogHeader>
           {minting ? (
             <div className="flex justify-center py-6">
-              <Loader2 className="w-6 h-6 animate-spin text-white/40" />
+              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
             </div>
           ) : mintedToken ? (
             <div className="space-y-3">
-              <p className="text-white/50 text-xs">This token is shown once and will not be stored. Copy it now.</p>
+              <p className="text-muted-foreground text-xs">This token is shown once and will not be stored. Copy it now.</p>
               <div className="flex items-center gap-2">
                 <Input
                   readOnly
                   value={mintedToken}
-                  className="bg-white/5 border-white/10 text-white font-mono text-xs h-9 flex-1"
+                  className="bg-white/5 border-white/10 text-foreground font-mono text-xs h-9 flex-1"
                 />
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={copyToken}
-                  className="text-white/60 hover:text-white shrink-0"
+                  className="text-muted-foreground hover:text-foreground shrink-0"
                 >
                   {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
                 </Button>

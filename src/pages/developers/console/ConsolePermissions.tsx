@@ -214,7 +214,7 @@ export default function ConsolePermissions() {
   if (orgLoading) {
     return (
       <DocsPage breadcrumb="Console › Permissions" title="Permissions" subtitle="">
-        <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-white/40" /></div>
+        <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
       </DocsPage>
     );
   }
@@ -223,7 +223,7 @@ export default function ConsolePermissions() {
     return (
       <DocsPage breadcrumb="Console › Permissions" title="Permissions" subtitle="">
         <div className="rounded-xl p-8 text-center" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
-          <p className="text-white/50 text-sm">You don't have permission to access this page.</p>
+          <p className="text-muted-foreground text-sm">You don't have permission to access this page.</p>
         </div>
       </DocsPage>
     );
@@ -235,7 +235,7 @@ export default function ConsolePermissions() {
       requested: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
       denied: "bg-red-500/20 text-red-400 border-red-500/30",
     };
-    return <Badge className={`text-xs ${colors[status] || "bg-white/10 text-white/60 border-white/20"}`}>{status}</Badge>;
+    return <Badge className={`text-xs ${colors[status] || "bg-white/10 text-muted-foreground border-white/20"}`}>{status}</Badge>;
   };
 
   const scopeCols: ColumnDef<AppScope>[] = [
@@ -269,7 +269,7 @@ export default function ConsolePermissions() {
 
   return (
     <DocsPage breadcrumb="Console › Permissions" title="Permissions" subtitle="Manage app scopes and provider access.">
-      <h2 className="text-lg font-semibold text-white mb-4">App Scopes</h2>
+      <h2 className="text-lg font-semibold text-foreground mb-4">App Scopes</h2>
       <ConsoleDataTable
         data={scopes}
         columns={scopeCols}
@@ -284,7 +284,7 @@ export default function ConsolePermissions() {
         emptyMessage="No scopes configured."
       />
 
-      <h2 className="text-lg font-semibold text-white mb-4 mt-10">Provider Permissions</h2>
+      <h2 className="text-lg font-semibold text-foreground mb-4 mt-10">Provider Permissions</h2>
       <ConsoleDataTable
         data={providers}
         columns={provCols}

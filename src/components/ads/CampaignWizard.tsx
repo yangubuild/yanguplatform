@@ -75,10 +75,10 @@ export function CampaignWizard({ onClose }: CampaignWizardProps) {
       >
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={onClose} className="text-white/50 hover:text-white">
+            <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <span className="text-white font-semibold">Launch campaign</span>
+            <span className="text-foreground font-semibold">Launch campaign</span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -130,7 +130,7 @@ export function CampaignWizard({ onClose }: CampaignWizardProps) {
                   {step}
                 </button>
                 {i < STEPS.length - 1 && (
-                  <ChevronRight className="w-3 h-3 text-white/20" />
+                  <ChevronRight className="w-3 h-3 text-muted-foreground" />
                 )}
               </div>
             ))}

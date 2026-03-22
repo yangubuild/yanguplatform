@@ -105,7 +105,7 @@ export default function PortalWebhooks() {
       {/* Beta note */}
       <div className="flex items-start gap-2 mb-6 px-3 py-2 rounded-lg bg-accent/8 border border-accent/20">
         <Info className="w-4 h-4 mt-0.5 text-accent shrink-0" />
-        <p className="text-white/60 text-xs">
+        <p className="text-muted-foreground text-xs">
           Webhooks are in <span className="text-accent font-medium">Beta</span> — event delivery is best-effort during this period. No charges apply.
         </p>
       </div>
@@ -113,7 +113,7 @@ export default function PortalWebhooks() {
       {/* Controls */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <Select value={selectedApp} onValueChange={setSelectedApp}>
-          <SelectTrigger className="w-[220px] bg-white/5 border-white/10 text-white text-sm">
+          <SelectTrigger className="w-[220px] bg-white/5 border-white/10 text-foreground text-sm">
             <SelectValue placeholder="All Apps" />
           </SelectTrigger>
           <SelectContent>
@@ -134,16 +134,16 @@ export default function PortalWebhooks() {
           className="rounded-xl p-5 mb-6 space-y-4"
           style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}
         >
-          <h4 className="text-white font-semibold text-sm flex items-center gap-2">
+          <h4 className="text-foreground font-semibold text-sm flex items-center gap-2">
             <Webhook className="w-4 h-4" style={{ color: "#F46D2A" }} />
             New Webhook
           </h4>
 
           {selectedApp === "all" && (
             <div>
-              <Label className="text-white/40 text-xs">App</Label>
+              <Label className="text-muted-foreground text-xs">App</Label>
               <Select value="" onValueChange={setSelectedApp}>
-                <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white text-sm">
+                <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-foreground text-sm">
                   <SelectValue placeholder="Select an app" />
                 </SelectTrigger>
                 <SelectContent>
@@ -156,17 +156,17 @@ export default function PortalWebhooks() {
           )}
 
           <div>
-            <Label className="text-white/40 text-xs">Endpoint URL</Label>
+            <Label className="text-muted-foreground text-xs">Endpoint URL</Label>
             <Input
               value={newUrl}
               onChange={(e) => setNewUrl(e.target.value)}
               placeholder="https://example.com/webhooks"
-              className="mt-1 bg-white/5 border-white/10 text-white"
+              className="mt-1 bg-white/5 border-white/10 text-foreground"
             />
           </div>
 
           <div>
-            <Label className="text-white/40 text-xs mb-2 block">Events</Label>
+            <Label className="text-muted-foreground text-xs mb-2 block">Events</Label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {AVAILABLE_EVENTS.map((ev) => (
                 <label key={ev.key} className="flex items-center gap-2 cursor-pointer">
@@ -174,7 +174,7 @@ export default function PortalWebhooks() {
                     checked={selectedEvents.includes(ev.key)}
                     onCheckedChange={() => toggleEvent(ev.key)}
                   />
-                  <span className="text-white/70 text-sm">{ev.label}</span>
+                  <span className="text-muted-foreground text-sm">{ev.label}</span>
                 </label>
               ))}
             </div>
@@ -185,7 +185,7 @@ export default function PortalWebhooks() {
               {creating ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
               Create Webhook
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => setShowCreate(false)} className="text-white/50">
+            <Button variant="ghost" size="sm" onClick={() => setShowCreate(false)} className="text-muted-foreground">
               Cancel
             </Button>
           </div>
@@ -199,40 +199,40 @@ export default function PortalWebhooks() {
       >
         {isLoading ? (
           <div className="flex justify-center py-12">
-            <Loader2 className="w-5 h-5 animate-spin text-white/30" />
+            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
           </div>
         ) : !webhooks?.length ? (
           <div className="text-center py-12">
-            <Webhook className="w-8 h-8 text-white/15 mx-auto mb-3" />
-            <p className="text-white/40 text-sm">No webhooks configured yet.</p>
+            <Webhook className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+            <p className="text-muted-foreground text-sm">No webhooks configured yet.</p>
           </div>
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/10">
-                <th className="text-left px-4 py-3 text-white/40 font-medium text-xs">URL</th>
-                <th className="text-left px-4 py-3 text-white/40 font-medium text-xs">Events</th>
-                <th className="text-left px-4 py-3 text-white/40 font-medium text-xs">Status</th>
-                <th className="text-right px-4 py-3 text-white/40 font-medium text-xs">Actions</th>
+                <th className="text-left px-4 py-3 text-muted-foreground font-medium text-xs">URL</th>
+                <th className="text-left px-4 py-3 text-muted-foreground font-medium text-xs">Events</th>
+                <th className="text-left px-4 py-3 text-muted-foreground font-medium text-xs">Status</th>
+                <th className="text-right px-4 py-3 text-muted-foreground font-medium text-xs">Actions</th>
               </tr>
             </thead>
             <tbody>
               {webhooks.map((wh: any) => (
                 <tr key={wh.id} className="border-b border-white/5 last:border-0">
-                  <td className="px-4 py-3 text-white/70 font-mono text-xs truncate max-w-[240px]">
+                  <td className="px-4 py-3 text-muted-foreground font-mono text-xs truncate max-w-[240px]">
                     {wh.url}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1">
                       {(wh.events ?? []).map((ev: string) => (
-                        <Badge key={ev} variant="outline" className="text-[10px] border-white/20 text-white/50">
+                        <Badge key={ev} variant="outline" className="text-[10px] border-white/20 text-muted-foreground">
                           {ev}
                         </Badge>
                       ))}
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <Badge className={wh.is_active ? "bg-green-500/20 text-green-400 border-green-500/30" : "bg-white/10 text-white/50 border-white/20"}>
+                    <Badge className={wh.is_active ? "bg-green-500/20 text-green-400 border-green-500/30" : "bg-white/10 text-muted-foreground border-white/20"}>
                       {wh.is_active ? "Active" : "Inactive"}
                     </Badge>
                   </td>

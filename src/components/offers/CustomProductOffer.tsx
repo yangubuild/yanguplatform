@@ -155,7 +155,7 @@ export function CustomProductOffer() {
             <div className="mt-5 flex flex-wrap items-center gap-3">
               <button
                 onClick={() => navigate("/dashboard/offers/custom-product")}
-                className="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90"
+                className="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-foreground transition-opacity hover:opacity-90"
                 style={{ background: YANGU_GRADIENT }}
               >
                 Get Your Own Product
@@ -288,7 +288,7 @@ export function CustomProductOffer() {
 
         <div className="relative h-[200px] rounded-2xl border border-border bg-foreground px-6 py-5 text-background sm:h-[210px] lg:h-[220px]">
           <span
-            className="absolute right-4 top-4 rounded-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white"
+            className="absolute right-4 top-4 rounded-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-foreground"
             style={{ background: YANGU_GRADIENT }}
           >
             Limited Offer
@@ -322,7 +322,7 @@ export function CustomProductOffer() {
               </div>
               <button
                 onClick={() => navigate("/dashboard/offers/custom-product")}
-                className="inline-flex items-center gap-1.5 rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                className="inline-flex items-center gap-1.5 rounded-xl px-5 py-2.5 text-sm font-semibold text-foreground transition-opacity hover:opacity-90"
                 style={{ background: YANGU_GRADIENT }}
               >
                 Get Started

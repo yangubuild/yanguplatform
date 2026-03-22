@@ -14,7 +14,7 @@ export default function DashboardPlaceholder() {
       >
         <Construction className="h-8 w-8" style={{ color: "rgba(255,255,255,0.4)" }} />
       </div>
-      <h2 className="text-xl font-semibold text-white">{title}</h2>
+      <h2 className="text-xl font-semibold text-foreground">{title}</h2>
       <p className="text-sm max-w-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
         This section is coming soon.
       </p>

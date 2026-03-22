@@ -39,7 +39,7 @@ export function FriendPostsRightPanel({ friend }: Props) {
         className="flex items-center justify-between px-4 py-3 shrink-0"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
-        <span className="text-sm font-semibold text-white">Comments</span>
+        <span className="text-sm font-semibold text-foreground">Comments</span>
       </div>
 
       {/* Post selector */}
@@ -70,7 +70,7 @@ export function FriendPostsRightPanel({ friend }: Props) {
         {!activePostId ? (
           <div className="flex flex-col items-center justify-center py-8">
             <MessageSquare className="w-8 h-8 mb-2" style={{ color: "rgba(255,255,255,0.2)" }} />
-            <p className="text-sm text-white mb-1">No comments yet</p>
+            <p className="text-sm text-foreground mb-1">No comments yet</p>
             <p className="text-xs text-center" style={{ color: "rgba(255,255,255,0.4)" }}>
               {posts.length === 0 ? `${friendName} hasn't posted yet.` : "Select a post to see comments."}
             </p>
@@ -82,7 +82,7 @@ export function FriendPostsRightPanel({ friend }: Props) {
         ) : activeComments.length === 0 && !selectedPostId ? (
           <div className="flex flex-col items-center justify-center py-8">
             <MessageSquare className="w-8 h-8 mb-2" style={{ color: "rgba(255,255,255,0.2)" }} />
-            <p className="text-sm text-white mb-1">No comments yet</p>
+            <p className="text-sm text-foreground mb-1">No comments yet</p>
             <p className="text-xs text-center" style={{ color: "rgba(255,255,255,0.4)" }}>
               Select a post to see and add comments.
             </p>
@@ -100,17 +100,17 @@ export function FriendPostsRightPanel({ friend }: Props) {
                   {c.author_avatar ? (
                     <img src={c.author_avatar} alt="" className="w-6 h-6 rounded-full object-cover" />
                   ) : (
-                    <div className="w-6 h-6 flex items-center justify-center text-[9px] font-bold text-white/50">
+                    <div className="w-6 h-6 flex items-center justify-center text-[9px] font-bold text-muted-foreground">
                       {(c.author_name || "U").slice(0, 2).toUpperCase()}
                     </div>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[11px] font-semibold text-white">
+                  <p className="text-[11px] font-semibold text-foreground">
                     {c.author_name}
                     {c.author_username && <span className="font-normal ml-1" style={{ color: "rgba(255,255,255,0.35)" }}>@{c.author_username}</span>}
                   </p>
-                  <p className="text-xs text-white/70 mt-0.5">{c.content}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{c.content}</p>
                   <p className="text-[9px] mt-1" style={{ color: "rgba(255,255,255,0.25)" }}>
                     {new Date(c.created_at).toLocaleDateString()}
                   </p>
@@ -132,7 +132,7 @@ export function FriendPostsRightPanel({ friend }: Props) {
               {avatarUrl ? (
                 <img src={avatarUrl} alt="" className="w-8 h-8 rounded-full object-cover" />
               ) : (
-                <span className="text-white/60">{initials}</span>
+                <span className="text-muted-foreground">{initials}</span>
               )}
             </div>
             <div
@@ -145,7 +145,7 @@ export function FriendPostsRightPanel({ friend }: Props) {
                 onChange={(e) => setComment(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") handleSendComment(); }}
                 placeholder="Write a comment..."
-                className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-white/25"
+                className="flex-1 bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground"
               />
               <button
                 onClick={handleSendComment}

@@ -100,12 +100,12 @@ export function MessagesInfluencersTab({ onSelectCreator }: Props) {
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               placeholder="Search by product, niche, or category..."
-              className="flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/25"
+              className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
             />
           </div>
           <button
             onClick={handleSearch}
-            className="px-4 py-2.5 rounded-lg text-xs font-semibold text-white shrink-0"
+            className="px-4 py-2.5 rounded-lg text-xs font-semibold text-foreground shrink-0"
             style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)" }}
           >
             Search
@@ -142,7 +142,7 @@ export function MessagesInfluencersTab({ onSelectCreator }: Props) {
             <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.04)" }}>
               <Sparkles className="w-7 h-7" style={{ color: "rgba(255,255,255,0.2)" }} />
             </div>
-            <p className="text-sm font-medium text-white">Discover Creators & Products</p>
+            <p className="text-sm font-medium text-foreground">Discover Creators & Products</p>
             <p className="text-xs max-w-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
               Search by product, niche, or category to find creators, products, and services for collaboration and commerce.
             </p>
@@ -154,7 +154,7 @@ export function MessagesInfluencersTab({ onSelectCreator }: Props) {
         ) : !hasResults ? (
           <div className="flex flex-col items-center justify-center py-10 gap-2 text-center px-6">
             <Store className="w-8 h-8" style={{ color: "rgba(255,255,255,0.15)" }} />
-            <p className="text-sm font-medium text-white/60">No results for "{activeQuery}"</p>
+            <p className="text-sm font-medium text-muted-foreground">No results for "{activeQuery}"</p>
             <p className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>
               Try a different product, category, or niche keyword.
             </p>
@@ -192,7 +192,7 @@ export function MessagesInfluencersTab({ onSelectCreator }: Props) {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <p className="text-sm font-medium text-white truncate">{item.title}</p>
+                          <p className="text-sm font-medium text-foreground truncate">{item.title}</p>
                           {item.is_verified && <ShieldCheck className="w-3 h-3 text-accent shrink-0" />}
                         </div>
                         <div className="flex items-center gap-2 mt-0.5">
@@ -246,7 +246,7 @@ export function MessagesInfluencersTab({ onSelectCreator }: Props) {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-white truncate">{name}</p>
+                        <p className="text-sm font-medium text-foreground truncate">{name}</p>
                         <div className="flex items-center gap-2 mt-0.5">
                           {profile.business_name && (
                             <span className="text-[10px] truncate" style={{ color: "rgba(255,255,255,0.5)" }}>
@@ -265,7 +265,7 @@ export function MessagesInfluencersTab({ onSelectCreator }: Props) {
                       </div>
                       <button
                         onClick={() => onSelectCreator?.(profile.id)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-white shrink-0 transition-opacity hover:opacity-80"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-foreground shrink-0 transition-opacity hover:opacity-80"
                         style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)" }}
                       >
                         <MessageCircle className="w-3 h-3" />

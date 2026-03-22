@@ -36,7 +36,7 @@ function AvatarCard({ slot }: { slot: AvatarSlot }) {
 
       {/* hover-reveal "Create video" button – same pattern as PVE section */}
       <div className="absolute bottom-0 left-0 right-0 z-20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-accent/20 to-accent/5 px-2 py-1.5">
-        <button className="w-full py-1.5 text-xs font-semibold text-black bg-white border border-border/40 rounded-md hover:bg-accent hover:text-white hover:border-accent transition-colors">
+        <button className="w-full py-1.5 text-xs font-semibold text-black bg-white border border-border/40 rounded-md hover:bg-accent hover:text-foreground hover:border-accent transition-colors">
           Create video
         </button>
       </div>

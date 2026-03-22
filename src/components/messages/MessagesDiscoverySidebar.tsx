@@ -53,7 +53,7 @@ export function MessagesDiscoverySidebar({ onUserClick }: Props) {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search people..."
-            className="text-sm flex-1 bg-transparent outline-none text-white placeholder:text-white/25"
+            className="text-sm flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground"
           />
           <div className="flex items-center gap-0.5 text-[11px]" style={{ color: "rgba(255,255,255,0.25)" }}>
             <Command className="w-3 h-3" />K
@@ -64,7 +64,7 @@ export function MessagesDiscoverySidebar({ onUserClick }: Props) {
       {/* Header */}
       <div className="px-4 pt-2 pb-3">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-semibold text-white">People</span>
+          <span className="text-sm font-semibold text-foreground">People</span>
         </div>
       </div>
 
@@ -102,7 +102,7 @@ export function MessagesDiscoverySidebar({ onUserClick }: Props) {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white truncate">{name}</p>
+                  <p className="text-sm font-medium text-foreground truncate">{name}</p>
                   {user.username && (
                     <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.35)" }}>
                       @{user.username}

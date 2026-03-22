@@ -336,11 +336,11 @@ export default function ProfilePage() {
         {/* Hover overlay — same as dashboard */}
         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-[5]">
           {uploadingCover ? (
-            <Loader2 className="w-8 h-8 text-white animate-spin" />
+            <Loader2 className="w-8 h-8 text-foreground animate-spin" />
           ) : (
             <div className="flex flex-col items-center gap-1">
-              <ImagePlus className="w-6 h-6 text-white" />
-              <span className="text-xs text-white/80 font-medium">Change cover</span>
+              <ImagePlus className="w-6 h-6 text-foreground" />
+              <span className="text-xs text-muted-foreground font-medium">Change cover</span>
             </div>
           )}
         </div>
@@ -352,7 +352,7 @@ export default function ProfilePage() {
                 className="w-9 h-9 rounded-full flex items-center justify-center"
                 style={{ background: "rgba(0,0,0,0.5)" }}
               >
-                <MoreHorizontal className="w-5 h-5 text-white" />
+                <MoreHorizontal className="w-5 h-5 text-foreground" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-44">
@@ -391,7 +391,7 @@ export default function ProfilePage() {
             displayName.charAt(0).toUpperCase()
           )}
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-full">
-            <Pencil className="w-5 h-5 text-white" />
+            <Pencil className="w-5 h-5 text-foreground" />
           </div>
         </button>
       </div>
@@ -424,11 +424,11 @@ export default function ProfilePage() {
           <div className="space-y-5">
             {/* Name */}
             <div>
-              <label className="text-sm font-medium text-white block mb-1.5">Name</label>
+              <label className="text-sm font-medium text-foreground block mb-1.5">Name</label>
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value.slice(0, 100))}
-                className="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
+                className="w-full rounded-xl px-4 py-3 text-sm text-foreground outline-none"
                 style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.1)" }}
               />
               <p className="text-right text-xs mt-1" style={{ color: "rgba(255,255,255,0.35)" }}>{name.length}/100</p>
@@ -436,11 +436,11 @@ export default function ProfilePage() {
 
             {/* Username */}
             <div>
-              <label className="text-sm font-medium text-white block mb-1.5">Username</label>
+              <label className="text-sm font-medium text-foreground block mb-1.5">Username</label>
               <input
                 value={username}
                 onChange={(e) => setUsername(e.target.value.slice(0, 42))}
-                className="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
+                className="w-full rounded-xl px-4 py-3 text-sm text-foreground outline-none"
                 style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.1)" }}
               />
               <p className="text-right text-xs mt-1" style={{ color: "rgba(255,255,255,0.35)" }}>{username.length}/42</p>
@@ -448,13 +448,13 @@ export default function ProfilePage() {
 
             {/* Bio */}
             <div>
-              <label className="text-sm font-medium text-white block mb-1.5">Bio</label>
+              <label className="text-sm font-medium text-foreground block mb-1.5">Bio</label>
               <textarea
                 value={bio}
                 onChange={(e) => setBio(e.target.value.slice(0, 200))}
                 placeholder="No bio"
                 rows={3}
-                className="w-full rounded-xl px-4 py-3 text-sm text-white outline-none resize-none"
+                className="w-full rounded-xl px-4 py-3 text-sm text-foreground outline-none resize-none"
                 style={{ background: "#232a30", border: "1px solid rgba(255,255,255,0.1)" }}
               />
               <p className="text-right text-xs mt-1" style={{ color: "rgba(255,255,255,0.35)" }}>{bio.length}/200</p>
@@ -465,7 +465,7 @@ export default function ProfilePage() {
 
           {/* Social links section */}
           <div className="mb-8">
-            <h2 className="text-base font-bold text-white mb-1">Social links</h2>
+            <h2 className="text-base font-bold text-foreground mb-1">Social links</h2>
             <p className="text-sm mb-5" style={{ color: "rgba(255,255,255,0.45)" }}>
               Tap an icon to add your link. Only linked socials appear on your profile.
             </p>
@@ -531,7 +531,7 @@ export default function ProfilePage() {
                       }
                     }}
                     placeholder={platform.placeholder}
-                    className="flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/30"
+                    className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
                   />
                   {socialLinks[platform.id] && (
                     <button
@@ -553,7 +553,7 @@ export default function ProfilePage() {
 
           {/* More details */}
           <div className="mb-8">
-            <h2 className="text-base font-bold text-white mb-1">More details</h2>
+            <h2 className="text-base font-bold text-foreground mb-1">More details</h2>
             <p className="text-sm mb-5" style={{ color: "rgba(255,255,255,0.45)" }}>
               Choose what appears on your profile and other discovery surfaces.
             </p>
@@ -572,7 +572,7 @@ export default function ProfilePage() {
               style={{ background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)" }}
             >
               <DialogHeader>
-                <DialogTitle className="text-white">More socials</DialogTitle>
+                <DialogTitle className="text-foreground">More socials</DialogTitle>
               </DialogHeader>
               <div className="flex flex-col gap-3 py-2">
                 {EXTRA_SOCIALS.map((s) => {
@@ -589,7 +589,7 @@ export default function ProfilePage() {
                       >
                         <img src={s.icon} alt={s.name} className="w-8 h-8 object-contain shrink-0" />
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-white">{s.name}</p>
+                          <p className="text-sm font-medium text-foreground">{s.name}</p>
                           {hasLink && (
                             <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.4)" }}>
                               {socialLinks[s.id]}
@@ -613,7 +613,7 @@ export default function ProfilePage() {
         <>
           {/* === VIEW MODE === */}
           <div className="px-1">
-            <h1 className="text-xl font-bold text-white">{displayName}</h1>
+            <h1 className="text-xl font-bold text-foreground">{displayName}</h1>
             <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>@{usernameDisplay}</p>
 
             <div className="flex items-center gap-3 mt-2 text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
@@ -641,8 +641,8 @@ export default function ProfilePage() {
             )}
 
             <div className="flex items-center gap-4 mt-3">
-              <span className="text-sm text-white"><strong>0</strong> <span style={{ color: "rgba(255,255,255,0.5)" }}>Followers</span></span>
-              <span className="text-sm text-white"><strong>0</strong> <span style={{ color: "rgba(255,255,255,0.5)" }}>Following</span></span>
+              <span className="text-sm text-foreground"><strong>0</strong> <span style={{ color: "rgba(255,255,255,0.5)" }}>Followers</span></span>
+              <span className="text-sm text-foreground"><strong>0</strong> <span style={{ color: "rgba(255,255,255,0.5)" }}>Following</span></span>
             </div>
 
             <div className="flex gap-3 mt-5">
@@ -724,14 +724,14 @@ export default function ProfilePage() {
                     {item.initials}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-white truncate">{item.title}</p>
+                    <p className="text-sm font-semibold text-foreground truncate">{item.title}</p>
                     <p className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>{item.category}</p>
                     <p className="text-xs flex items-center gap-1" style={{ color: "rgba(255,255,255,0.35)" }}>
                       <Users className="w-3 h-3" /> {item.members}
                     </p>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-base font-bold text-white">{item.earnings}</p>
+                    <p className="text-base font-bold text-foreground">{item.earnings}</p>
                     <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.4)" }}>all-time · {item.age}</p>
                   </div>
                 </div>
@@ -786,7 +786,7 @@ function ProfileAppRow({ item, appIcon, navigate }: { item: any; appIcon: string
     >
       <img src={appIcon} alt={item.app.name} className="w-12 h-12 rounded-xl object-cover shrink-0" />
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-white truncate">{item.app.name}</p>
+        <p className="text-sm font-semibold text-foreground truncate">{item.app.name}</p>
         <p className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>{item.app.provider_name}</p>
       </div>
       <div className="flex items-center gap-2">
@@ -794,7 +794,7 @@ function ProfileAppRow({ item, appIcon, navigate }: { item: any; appIcon: string
           <button
             onClick={handleConnect}
             disabled={connecting}
-            className="px-3 py-1 rounded-lg text-xs font-medium text-white flex items-center gap-1"
+            className="px-3 py-1 rounded-lg text-xs font-medium text-foreground flex items-center gap-1"
             style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}
           >
             {connecting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Link2 className="w-3 h-3" />}
@@ -804,7 +804,7 @@ function ProfileAppRow({ item, appIcon, navigate }: { item: any; appIcon: string
         {item.app.launch_route && item.status === "connected" && (
           <button
             onClick={() => navigate(item.app.launch_route)}
-            className="px-3 py-1 rounded-lg text-xs font-medium text-white"
+            className="px-3 py-1 rounded-lg text-xs font-medium text-foreground"
             style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
           >
             Open
@@ -844,7 +844,7 @@ function ToggleRow({
         >
           <Icon className="w-5 h-5" style={{ color: "rgba(255,255,255,0.6)" }} />
         </div>
-        <span className="text-sm font-medium text-white">{label}</span>
+        <span className="text-sm font-medium text-foreground">{label}</span>
       </div>
       <Switch checked={checked} onCheckedChange={onChange} />
     </div>

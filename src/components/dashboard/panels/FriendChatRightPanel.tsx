@@ -44,7 +44,7 @@ export function FriendChatRightPanel({ friend }: Props) {
             {resolvedAvatar ? (
               <img src={resolvedAvatar} alt="" className="w-8 h-8 rounded-full object-cover" />
             ) : (
-              <span className="text-white/60">{initials}</span>
+              <span className="text-muted-foreground">{initials}</span>
             )}
           </div>
           <Circle
@@ -58,7 +58,7 @@ export function FriendChatRightPanel({ friend }: Props) {
           />
         </div>
         <div>
-          <span className="text-sm font-semibold text-white">{name}</span>
+          <span className="text-sm font-semibold text-foreground">{name}</span>
           <p className="text-[10px]" style={{ color: isOnline ? "#22c55e" : "rgba(255,255,255,0.35)" }}>
             {isOnline ? "Online" : "Offline"}
           </p>
@@ -69,7 +69,7 @@ export function FriendChatRightPanel({ friend }: Props) {
       <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-2">
         {messages.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center">
-            <p className="text-sm text-white mb-1">Start a conversation</p>
+            <p className="text-sm text-foreground mb-1">Start a conversation</p>
             <p className="text-xs text-center" style={{ color: "rgba(255,255,255,0.4)" }}>
               Send a message to {name}
             </p>
@@ -113,7 +113,7 @@ export function FriendChatRightPanel({ friend }: Props) {
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
             placeholder="Type a message..."
-            className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-white/25"
+            className="flex-1 bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground"
           />
           <button
             onClick={handleSend}

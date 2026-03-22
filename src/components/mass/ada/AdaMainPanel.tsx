@@ -1567,8 +1567,8 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
             className="w-full max-h-[400px] object-contain bg-black"
           />
           <div className="px-3 py-2 flex items-center justify-between">
-            <span className="text-xs text-white/40">Video</span>
-            <a href={url} download={`ada-video-${Date.now()}.mp4`} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-md text-white/40 hover:text-white/70 hover:bg-white/5 transition-colors" title="Download">
+            <span className="text-xs text-muted-foreground">Video</span>
+            <a href={url} download={`ada-video-${Date.now()}.mp4`} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-md text-muted-foreground hover:text-muted-foreground hover:bg-white/5 transition-colors" title="Download">
               <Download className="w-3.5 h-3.5" />
             </a>
           </div>
@@ -1586,7 +1586,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
     return (
       <div key={idx} className="relative inline-block my-2">
         <img src={url} alt="Generated" className="rounded-lg max-w-full" style={{ maxHeight: "400px" }} loading="lazy" />
-        <a href={url} download={`ada-image-${Date.now()}.png`} target="_blank" rel="noopener noreferrer" className="absolute top-2 right-2 p-2 rounded-lg bg-black/60 hover:bg-black/80 text-white/80 hover:text-white transition-colors" title="Download">
+        <a href={url} download={`ada-image-${Date.now()}.png`} target="_blank" rel="noopener noreferrer" className="absolute top-2 right-2 p-2 rounded-lg bg-black/60 hover:bg-black/80 text-muted-foreground hover:text-foreground transition-colors" title="Download">
           <Download className="w-4 h-4" />
         </a>
       </div>
@@ -1730,7 +1730,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
       <div className="flex items-center justify-between px-6 pt-6 pb-4">
         <button
           onClick={() => window.dispatchEvent(new CustomEvent("ada-new-chat"))}
-          className="text-sm text-white/80 hover:text-[#F4A83D] transition-colors"
+          className="text-sm text-muted-foreground hover:text-[#F4A83D] transition-colors"
         >
           + New Chat
         </button>
@@ -1741,7 +1741,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
           {/* Phone: Toggle mobile preview mode */}
           <button
             onClick={toggleMobilePreview}
-            className={`p-2 rounded-lg border transition-colors ${mobilePreviewEnabled ? "text-[#F4A83D] border-[#F4A83D]/30 bg-[#F4A83D]/10" : "text-white/40 hover:text-white/70 border-white/10"}`}
+            className={`p-2 rounded-lg border transition-colors ${mobilePreviewEnabled ? "text-[#F4A83D] border-[#F4A83D]/30 bg-[#F4A83D]/10" : "text-muted-foreground hover:text-muted-foreground border-white/10"}`}
             style={!mobilePreviewEnabled ? { background: "linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.08))" } : undefined}
             title={mobilePreviewEnabled ? "Mobile preview ON" : "Mobile preview OFF"}
           >
@@ -1752,7 +1752,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
           <div className="relative" ref={extensionsRef}>
             <button
               onClick={() => setShowExtensionsDropdown(prev => !prev)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 text-white/50 text-sm hover:text-white/70"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 text-muted-foreground text-sm hover:text-muted-foreground"
               style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.08))" }}
             >
               <Settings className="w-3.5 h-3.5" />
@@ -1764,7 +1764,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                 className="absolute right-0 top-full mt-2 w-56 rounded-xl py-2 z-50 shadow-xl"
                 style={{ background: "#111", border: "1px solid rgba(255,255,255,0.1)" }}
               >
-                <p className="px-3 py-1 text-[10px] uppercase tracking-wider text-white/30 font-medium">Provider Toggles</p>
+                <p className="px-3 py-1 text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Provider Toggles</p>
                 {[
                   { key: "openai_reasoning", label: "OpenAI (Reasoning)", color: "emerald" },
                   { key: "ideogram_image", label: "Ideogram (Image)", color: "amber" },
@@ -1777,14 +1777,14 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                   <button
                     key={p.key}
                     onClick={() => toggleProvider(p.key)}
-                    className="w-full flex items-center justify-between px-3 py-2 text-sm text-white/70 hover:bg-white/5 transition-colors"
+                    className="w-full flex items-center justify-between px-3 py-2 text-sm text-muted-foreground hover:bg-white/5 transition-colors"
                   >
                     <span>{p.label}</span>
                     <span className={`w-2 h-2 rounded-full ${enabledProviders[p.key] !== false ? "bg-emerald-400" : "bg-white/20"}`} />
                   </button>
                 ))}
                 <div className="border-t border-white/5 mt-1 pt-1 px-3 py-1">
-                  <p className="text-[10px] text-white/25">Disabled providers are skipped during routing.</p>
+                  <p className="text-[10px] text-muted-foreground">Disabled providers are skipped during routing.</p>
                 </div>
               </div>
             )}
@@ -1820,7 +1820,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
               </svg>
             </div>
 
-            <p className="text-white/70 text-center text-base md:text-lg max-w-md mb-2 leading-relaxed">
+            <p className="text-muted-foreground text-center text-base md:text-lg max-w-md mb-2 leading-relaxed">
               {voiceText.split("sunset").map((part, i, arr) =>
                 i < arr.length - 1 ? (
                   <span key={i}>{part}<span className="text-[#E0A030]">sunset</span></span>
@@ -1829,20 +1829,20 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                 )
               )}
             </p>
-            <p className="text-white/40 text-sm mb-6">
+            <p className="text-muted-foreground text-sm mb-6">
               {isTranscribing ? "Transcribing..." : "Listening..."}
             </p>
 
             <div className="flex items-center gap-4 mb-8">
               <button
                 onClick={cancelVoice}
-                className="w-12 h-12 rounded-full border border-white/15 flex items-center justify-center text-white/50 hover:text-white hover:border-white/30 transition-colors"
+                className="w-12 h-12 rounded-full border border-white/15 flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-white/30 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
               <button
                 onClick={stopVoice}
-                className="w-14 h-14 rounded-full flex items-center justify-center text-white shadow-lg transition-colors"
+                className="w-14 h-14 rounded-full flex items-center justify-center text-foreground shadow-lg transition-colors"
                 style={{
                   background: isRecording
                     ? "linear-gradient(135deg, #dc2626, #ef4444)"
@@ -1876,7 +1876,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                 <div key={msg.id} className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>
                   {/* Routing pill */}
                   {msg.role === "assistant" && msg.routingPill && (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 mb-1 rounded-full text-[10px] font-medium text-white/50"
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 mb-1 rounded-full text-[10px] font-medium text-muted-foreground"
                       style={{ background: "rgba(244,168,61,0.08)", border: "1px solid rgba(244,168,61,0.15)" }}>
                       {msg.routingPill.tier}
                     </span>
@@ -1899,7 +1899,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                     {msg.metadata && (msg.metadata as any).attachments && (
                       <div className="flex flex-wrap gap-1 mt-2">
                         {((msg.metadata as any).attachments as { name: string; type: string }[]).map((a, i) => (
-                          <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs text-white/60 border border-white/10">
+                          <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs text-muted-foreground border border-white/10">
                             <Paperclip className="w-3 h-3" />
                             {a.name}
                           </span>
@@ -1907,7 +1907,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                       </div>
                     )}
                     {msg.metadata && (msg.metadata as any).audio_path && (
-                      <span className="inline-flex items-center gap-1 mt-1 text-xs text-white/30">
+                      <span className="inline-flex items-center gap-1 mt-1 text-xs text-muted-foreground">
                         <AudioLines className="w-3 h-3" />
                         Voice ({(msg.metadata as any).language || "?"})
                       </span>
@@ -1917,7 +1917,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
               ))}
               {isThinking && (
                 <div className="flex justify-start">
-                  <div className="max-w-[80%] px-4 py-3 text-sm text-white/60">
+                  <div className="max-w-[80%] px-4 py-3 text-sm text-muted-foreground">
                     <span className="flex items-center gap-2">
                       <Loader2 className="w-4 h-4 animate-spin" />
                       {intent === "search" ? "Searching yangu…" : "Thinking…"}
@@ -1932,7 +1932,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
             {userScrolledUp && hasMessages && (
               <button
                 onClick={jumpToLatest}
-                className="mb-2 px-3 py-1 rounded-lg text-xs font-medium text-white/70 hover:text-white transition-colors"
+                className="mb-2 px-3 py-1 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
                 style={{ background: "rgba(244,168,61,0.15)", border: "1px solid rgba(244,168,61,0.25)" }}
               >
                 ↓ Jump to latest
@@ -1946,13 +1946,13 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                 <div className="inline-flex rounded-lg overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
                   {(["auto", "standard", "cinema", "motion"] as AdaMode[]).map(m => (
                     <button key={m} onClick={() => updateMode(m)}
-                      className={`px-2.5 py-1 text-[11px] font-medium capitalize transition-colors ${adaMode === m ? "text-[#F4A83D] bg-[#F4A83D]/10" : "text-white/35 hover:text-white/60"}`}
+                      className={`px-2.5 py-1 text-[11px] font-medium capitalize transition-colors ${adaMode === m ? "text-[#F4A83D] bg-[#F4A83D]/10" : "text-muted-foreground hover:text-muted-foreground"}`}
                     >{m === "motion" ? "Motion Pro" : m}</button>
                   ))}
                 </div>
                 {/* Skill dropdown */}
                 <select value={adaSkill} onChange={e => updateSkill(e.target.value as AdaSkill)}
-                  className="px-2.5 py-1 rounded-lg text-[11px] font-medium text-white/50 outline-none capitalize cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg text-[11px] font-medium text-muted-foreground outline-none capitalize cursor-pointer"
                   style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
                 >
                   <option value="starter">Starter</option>
@@ -1967,10 +1967,10 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
               {pendingAttachments.length > 0 && (
                 <div className="flex flex-wrap gap-1 mb-2">
                   {pendingAttachments.map((a, i) => (
-                    <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs text-white/60 bg-white/5 border border-white/10">
+                    <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs text-muted-foreground bg-white/5 border border-white/10">
                       <Paperclip className="w-3 h-3" />
                       {a.name}
-                      <button onClick={() => setPendingAttachments(prev => prev.filter((_, idx) => idx !== i))} className="text-white/30 hover:text-white/60 ml-1">
+                      <button onClick={() => setPendingAttachments(prev => prev.filter((_, idx) => idx !== i))} className="text-muted-foreground hover:text-muted-foreground ml-1">
                         <X className="w-3 h-3" />
                       </button>
                     </span>
@@ -1991,26 +1991,26 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                   }}
                   placeholder={placeholder}
                   rows={1}
-                  className="w-full bg-transparent text-white/90 text-sm placeholder:text-white/30 resize-none outline-none mb-3"
+                  className="w-full bg-transparent text-muted-foreground text-sm placeholder:text-muted-foreground resize-none outline-none mb-3"
                 />
                 <div className="flex items-center justify-between">
-                  <button onClick={handleAttachClick} className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-white/70 transition-colors">
+                  <button onClick={handleAttachClick} className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-muted-foreground hover:text-muted-foreground transition-colors">
                     <Plus className="w-4 h-4" />
                   </button>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setIntent(prev => prev === "search" ? null : "search")}
-                      className={`px-2 py-1 text-xs font-medium transition-colors ${intent === "search" ? "text-[#F4A83D]" : "text-white/30 hover:text-white/50"}`}
+                      className={`px-2 py-1 text-xs font-medium transition-colors ${intent === "search" ? "text-[#F4A83D]" : "text-muted-foreground hover:text-muted-foreground"}`}
                     >
                       Search
                     </button>
                     <button
                       onClick={() => setIntent(prev => prev === "discuss" ? null : "discuss")}
-                      className={`px-2 py-1 text-xs font-medium transition-colors ${intent === "discuss" ? "text-[#F4A83D]" : "text-white/30 hover:text-white/50"}`}
+                      className={`px-2 py-1 text-xs font-medium transition-colors ${intent === "discuss" ? "text-[#F4A83D]" : "text-muted-foreground hover:text-muted-foreground"}`}
                     >
                       Discuss
                     </button>
-                    <button onClick={startVoice} className="w-9 h-9 rounded-full flex items-center justify-center text-white/40 hover:text-white/70 transition-colors">
+                    <button onClick={startVoice} className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground hover:text-muted-foreground transition-colors">
                       <AudioLines className="w-5 h-5" />
                     </button>
                     <button
@@ -2019,7 +2019,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                       className="w-9 h-9 rounded-full flex items-center justify-center transition-colors disabled:opacity-30"
                       style={{ background: (inputValue.trim() || pendingAttachments.length > 0) ? "linear-gradient(135deg, #D4952B, #F4A83D)" : "rgba(255,255,255,0.1)" }}
                     >
-                      <ArrowUp className="w-5 h-5 text-white" />
+                      <ArrowUp className="w-5 h-5 text-foreground" />
                     </button>
                   </div>
                 </div>
@@ -2030,7 +2030,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
           <>
             {/* Welcome / hero state */}
             <img src={adaLogo} alt="Ada AI" className="h-10 mb-4 object-contain" />
-            <h1 className="text-white text-xl sm:text-4xl md:text-5xl font-bold text-center mb-2 flex flex-wrap items-center justify-center gap-1 sm:gap-3 px-2 sm:px-4 max-w-full overflow-hidden">
+            <h1 className="text-foreground text-xl sm:text-4xl md:text-5xl font-bold text-center mb-2 flex flex-wrap items-center justify-center gap-1 sm:gap-3 px-2 sm:px-4 max-w-full overflow-hidden">
               <span>Build your</span>
               <span className="inline-flex min-w-0">
                 <span className="text-[#F4A83D]">
@@ -2039,7 +2039,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
               </span>
             </h1>
             {isAuthenticated && profile?.display_name && (
-              <p className="text-white/40 text-2xl md:text-3xl font-light text-center mb-10">
+              <p className="text-muted-foreground text-2xl md:text-3xl font-light text-center mb-10">
                 {profile.display_name}
               </p>
             )}
@@ -2053,12 +2053,12 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                 <div className="inline-flex rounded-lg overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
                   {(["auto", "standard", "cinema", "motion"] as AdaMode[]).map(m => (
                     <button key={m} onClick={() => updateMode(m)}
-                      className={`px-2.5 py-1 text-[11px] font-medium capitalize transition-colors ${adaMode === m ? "text-[#F4A83D] bg-[#F4A83D]/10" : "text-white/35 hover:text-white/60"}`}
+                      className={`px-2.5 py-1 text-[11px] font-medium capitalize transition-colors ${adaMode === m ? "text-[#F4A83D] bg-[#F4A83D]/10" : "text-muted-foreground hover:text-muted-foreground"}`}
                     >{m === "motion" ? "Motion Pro" : m}</button>
                   ))}
                 </div>
                 <select value={adaSkill} onChange={e => updateSkill(e.target.value as AdaSkill)}
-                  className="px-2.5 py-1 rounded-lg text-[11px] font-medium text-white/50 outline-none capitalize cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg text-[11px] font-medium text-muted-foreground outline-none capitalize cursor-pointer"
                   style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
                 >
                   <option value="starter">Starter</option>
@@ -2073,10 +2073,10 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
               {pendingAttachments.length > 0 && (
                 <div className="flex flex-wrap gap-1 mb-2">
                   {pendingAttachments.map((a, i) => (
-                    <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs text-white/60 bg-white/5 border border-white/10">
+                    <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs text-muted-foreground bg-white/5 border border-white/10">
                       <Paperclip className="w-3 h-3" />
                       {a.name}
-                      <button onClick={() => setPendingAttachments(prev => prev.filter((_, idx) => idx !== i))} className="text-white/30 hover:text-white/60 ml-1">
+                      <button onClick={() => setPendingAttachments(prev => prev.filter((_, idx) => idx !== i))} className="text-muted-foreground hover:text-muted-foreground ml-1">
                         <X className="w-3 h-3" />
                       </button>
                     </span>
@@ -2086,10 +2086,10 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
               {/* Dev mode indicator */}
               {import.meta.env.DEV && forcedMode && (
                 <div className="flex items-center gap-1 mb-1">
-                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded text-white/40" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded text-muted-foreground" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
                     MODE: {forcedMode.toUpperCase()}
                   </span>
-                  <button onClick={() => setForcedMode(null)} className="text-white/20 hover:text-white/50 text-[9px]">✕</button>
+                  <button onClick={() => setForcedMode(null)} className="text-muted-foreground hover:text-muted-foreground text-[9px]">✕</button>
                 </div>
               )}
               <div ref={boxRef} className="relative rounded-2xl outline-none ring-0 [&_*]:focus-visible:outline-none">
@@ -2108,28 +2108,28 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                     }}
                     placeholder={placeholder}
                     rows={2}
-                    className="w-full bg-transparent text-white/90 text-sm placeholder:text-white/30 resize-none outline-none focus:outline-none focus-visible:outline-none focus:ring-0 mb-3"
+                    className="w-full bg-transparent text-muted-foreground text-sm placeholder:text-muted-foreground resize-none outline-none focus:outline-none focus-visible:outline-none focus:ring-0 mb-3"
                   />
                   <div className="flex items-center justify-between">
-                    <button onClick={handleAttachClick} className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-white/70 transition-colors">
+                    <button onClick={handleAttachClick} className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-muted-foreground hover:text-muted-foreground transition-colors">
                       <Plus className="w-4 h-4" />
                     </button>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setIntent(prev => prev === "search" ? null : "search")}
-                        className={`px-2 py-1 text-xs font-medium transition-colors ${intent === "search" ? "text-[#F4A83D]" : "text-white/30 hover:text-white/50"}`}
+                        className={`px-2 py-1 text-xs font-medium transition-colors ${intent === "search" ? "text-[#F4A83D]" : "text-muted-foreground hover:text-muted-foreground"}`}
                       >
                         Search
                       </button>
                       <button
                         onClick={() => setIntent(prev => prev === "discuss" ? null : "discuss")}
-                        className={`px-2 py-1 text-xs font-medium transition-colors ${intent === "discuss" ? "text-[#F4A83D]" : "text-white/30 hover:text-white/50"}`}
+                        className={`px-2 py-1 text-xs font-medium transition-colors ${intent === "discuss" ? "text-[#F4A83D]" : "text-muted-foreground hover:text-muted-foreground"}`}
                       >
                         Discuss
                       </button>
                       <button
                         onClick={startVoice}
-                        className="w-9 h-9 rounded-full flex items-center justify-center text-white/40 hover:text-white/70 transition-colors"
+                        className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground hover:text-muted-foreground transition-colors"
                       >
                         <AudioLines className="w-5 h-5" />
                       </button>
@@ -2139,7 +2139,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                         className="w-9 h-9 rounded-full flex items-center justify-center transition-colors disabled:opacity-30"
                         style={{ background: (inputValue.trim() || pendingAttachments.length > 0) ? "linear-gradient(135deg, #D4952B, #F4A83D)" : "rgba(255,255,255,0.1)" }}
                       >
-                        <ArrowUp className="w-5 h-5 text-white" />
+                        <ArrowUp className="w-5 h-5 text-foreground" />
                       </button>
                     </div>
                   </div>
@@ -2169,7 +2169,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                       setInputValue(action.prompt);
                       textareaRef.current?.focus();
                     }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/50 hover:text-[#F4A83D] transition-all duration-200 hover:scale-[1.03]"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-[#F4A83D] transition-all duration-200 hover:scale-[1.03]"
                     style={{
                       background: "rgba(255,255,255,0.03)",
                       border: "1px solid rgba(255,255,255,0.07)",
@@ -2216,13 +2216,13 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
           <div className="w-full max-w-2xl mb-3 animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div className="flex items-center gap-2 mb-2">
               <Activity className="w-3.5 h-3.5 text-[#F4A83D]/60" />
-              <span className="text-[10px] uppercase tracking-wider text-white/30 font-medium">Active Tasks</span>
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Active Tasks</span>
             </div>
             <div className="flex flex-wrap gap-2">
               {activeTasks.map((task, i) => (
                 <span
                   key={i}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs text-white/60 animate-in fade-in duration-300"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs text-muted-foreground animate-in fade-in duration-300"
                   style={{
                     background: "rgba(244,168,61,0.04)",
                     border: "1px solid rgba(244,168,61,0.1)",
@@ -2235,7 +2235,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
               ))}
             </div>
             {sessionGoal && (
-              <p className="text-[10px] text-white/25 mt-2 flex items-center gap-1">
+              <p className="text-[10px] text-muted-foreground mt-2 flex items-center gap-1">
                 <span className="w-1 h-1 rounded-full bg-[#F4A83D]/40" />
                 Session goal: {sessionGoal}
               </p>
@@ -2261,7 +2261,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
         )}
 
         {/* Disclaimer */}
-        <p className="text-white/25 text-xs text-center max-w-md mb-6">
+        <p className="text-muted-foreground text-xs text-center max-w-md mb-6">
           Don't enter sensitive info. AI responses may be inaccurate and do not
           represent views.
         </p>
@@ -2277,19 +2277,19 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Code2 className="w-5 h-5 text-[#F4A83D]" />
-                <h3 className="text-white font-semibold">Advanced Mode</h3>
+                <h3 className="text-foreground font-semibold">Advanced Mode</h3>
               </div>
-              <button onClick={() => setShowAdvancedModal(false)} className="text-white/40 hover:text-white">
+              <button onClick={() => setShowAdvancedModal(false)} className="text-muted-foreground hover:text-foreground">
                 <X className="w-5 h-5" />
               </button>
             </div>
             <div className="space-y-3">
               <label className="block">
-                <span className="text-white/50 text-xs">Provider</span>
+                <span className="text-muted-foreground text-xs">Provider</span>
                 <select
                   value={selectedProvider}
                   onChange={e => updateProvider(e.target.value)}
-                  className="w-full mt-1 px-3 py-2 rounded-lg text-sm text-white/80 outline-none"
+                  className="w-full mt-1 px-3 py-2 rounded-lg text-sm text-muted-foreground outline-none"
                   style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
                 >
                   <option value="openai">OpenAI (Reasoning / Chat)</option>
@@ -2299,11 +2299,11 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                 </select>
               </label>
               <label className="block">
-                <span className="text-white/50 text-xs">Aspect Ratio</span>
+                <span className="text-muted-foreground text-xs">Aspect Ratio</span>
                 <select
                   value={selectedAspectRatio}
                   onChange={e => updateAspectRatio(e.target.value)}
-                  className="w-full mt-1 px-3 py-2 rounded-lg text-sm text-white/80 outline-none"
+                  className="w-full mt-1 px-3 py-2 rounded-lg text-sm text-muted-foreground outline-none"
                   style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
                 >
                   <option value="1:1">1:1</option>
@@ -2313,19 +2313,19 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                 </select>
               </label>
               <label className="block">
-                <span className="text-white/50 text-xs">Raw Params (JSON)</span>
+                <span className="text-muted-foreground text-xs">Raw Params (JSON)</span>
                 <textarea
                   rows={3}
                   value={advancedParams}
                   onChange={e => updateAdvancedParams(e.target.value)}
-                  className="w-full mt-1 px-3 py-2 rounded-lg text-sm text-white/60 font-mono outline-none resize-none"
+                  className="w-full mt-1 px-3 py-2 rounded-lg text-sm text-muted-foreground font-mono outline-none resize-none"
                   style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)" }}
                   placeholder='{"style_type": "realistic"}'
                 />
               </label>
             </div>
             <div className="flex items-center gap-2 pt-1">
-              <span className="text-xs text-white/30 flex-1">
+              <span className="text-xs text-muted-foreground flex-1">
                 Chat defaults to OpenAI • /image uses {selectedProvider === "ideogram" || selectedProvider === "qwen" ? selectedProvider : "Ideogram"} • /video uses Creatify
               </span>
               <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium ${selectedProvider === "openai" ? "text-emerald-400 bg-emerald-400/10" : "text-[#F4A83D] bg-[#F4A83D]/10"}`}>
@@ -2343,15 +2343,15 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Palette className="w-5 h-5 text-[#F4A83D]" />
-                <h3 className="text-white font-semibold">Preset Styles</h3>
+                <h3 className="text-foreground font-semibold">Preset Styles</h3>
               </div>
-              <button onClick={() => setShowStylesDrawer(false)} className="text-white/40 hover:text-white"><X className="w-5 h-5" /></button>
+              <button onClick={() => setShowStylesDrawer(false)} className="text-muted-foreground hover:text-foreground"><X className="w-5 h-5" /></button>
             </div>
             {["Photorealistic", "Digital Art", "Watercolor", "3D Render", "Minimalist", "Anime", "Sketch"].map(style => (
               <button
                 key={style}
                 onClick={() => { setInputValue(prev => prev ? `${prev}, ${style.toLowerCase()} style` : `/image ${style.toLowerCase()} style `); setShowStylesDrawer(false); }}
-                className="w-full text-left px-4 py-3 rounded-xl text-sm text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+                className="w-full text-left px-4 py-3 rounded-xl text-sm text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors"
                 style={{ border: "1px solid rgba(255,255,255,0.06)" }}
               >
                 {style}
@@ -2368,26 +2368,26 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <BarChart3 className="w-5 h-5 text-[#F4A83D]" />
-                <h3 className="text-white font-semibold">Generation History</h3>
+                <h3 className="text-foreground font-semibold">Generation History</h3>
               </div>
-              <button onClick={() => setShowHistoryDrawer(false)} className="text-white/40 hover:text-white"><X className="w-5 h-5" /></button>
+              <button onClick={() => setShowHistoryDrawer(false)} className="text-muted-foreground hover:text-foreground"><X className="w-5 h-5" /></button>
             </div>
             {messages.filter(m => m.mediaGen).length === 0 ? (
-              <p className="text-white/30 text-sm">No generations yet in this session.</p>
+              <p className="text-muted-foreground text-sm">No generations yet in this session.</p>
             ) : (
               messages.filter(m => m.mediaGen).map(m => (
                 <div key={m.id} className="rounded-xl p-3 space-y-2" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-white/50 capitalize">{m.mediaGen!.kind} • {m.mediaGen!.status}</span>
-                    <span className="text-xs text-white/30">{new Date(m.created_at).toLocaleTimeString()}</span>
+                    <span className="text-xs text-muted-foreground capitalize">{m.mediaGen!.kind} • {m.mediaGen!.status}</span>
+                    <span className="text-xs text-muted-foreground">{new Date(m.created_at).toLocaleTimeString()}</span>
                   </div>
-                  {m.mediaGen!.caption && <p className="text-sm text-white/60 truncate">{m.mediaGen!.caption}</p>}
+                  {m.mediaGen!.caption && <p className="text-sm text-muted-foreground truncate">{m.mediaGen!.caption}</p>}
                   {m.mediaGen!.previewUrl && (
                     <div className="flex items-center gap-2">
                       <a href={m.mediaGen!.previewUrl} download target="_blank" rel="noopener noreferrer" className="text-xs text-[#F4A83D] hover:underline flex items-center gap-1">
                         <Download className="w-3 h-3" /> Download
                       </a>
-                      <button onClick={() => { if (m.mediaGen?.retryPrompt && m.mediaGen?.retryCid) handleRetryMedia(m); }} className="text-xs text-white/40 hover:text-white/70 flex items-center gap-1">
+                      <button onClick={() => { if (m.mediaGen?.retryPrompt && m.mediaGen?.retryCid) handleRetryMedia(m); }} className="text-xs text-muted-foreground hover:text-muted-foreground flex items-center gap-1">
                         <RefreshCw className="w-3 h-3" /> Retry
                       </button>
                     </div>

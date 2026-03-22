@@ -105,7 +105,7 @@ export default function GoogleDrivePage() {
     <div className="w-full min-h-screen px-6 py-6" style={{ background: "#08120D" }}>
       <button
         onClick={() => navigate("/dashboard/my-apps")}
-        className="flex items-center gap-2 text-white/50 hover:text-white text-sm mb-6 transition-colors"
+        className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm mb-6 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" /> Back to My Apps
       </button>
@@ -114,13 +114,13 @@ export default function GoogleDrivePage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-xl font-semibold text-white">Google Drive</h1>
-            <p className="text-sm text-white/40 mt-1">Browse and import files into YANGU</p>
+            <h1 className="text-xl font-semibold text-foreground">Google Drive</h1>
+            <p className="text-sm text-muted-foreground mt-1">Browse and import files into YANGU</p>
           </div>
           <button
             onClick={() => fetchFiles(searchQuery)}
             disabled={fetching}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-white/60 hover:text-white transition-colors"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground transition-colors"
             style={{ background: "rgba(255,255,255,0.06)" }}
           >
             <RefreshCw className={`w-4 h-4 ${fetching ? "animate-spin" : ""}`} />
@@ -131,12 +131,12 @@ export default function GoogleDrivePage() {
         {/* Search */}
         <form onSubmit={handleSearch} className="mb-6">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search files..."
-              className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/30"
+              className="pl-10 bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground"
             />
           </div>
         </form>
@@ -151,12 +151,12 @@ export default function GoogleDrivePage() {
         {/* Files list */}
         {fetching && !hasLoaded ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-6 h-6 text-white/20 animate-spin" />
+            <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
           </div>
         ) : files.length === 0 && hasLoaded ? (
           <div className="text-center py-20">
-            <FolderOpen className="w-10 h-10 text-white/10 mx-auto mb-3" />
-            <p className="text-white/30 text-sm">No files found</p>
+            <FolderOpen className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+            <p className="text-muted-foreground text-sm">No files found</p>
           </div>
         ) : (
           <div className="space-y-1">
@@ -171,12 +171,12 @@ export default function GoogleDrivePage() {
                     <img src={file.thumbnailLink} alt="" className="w-9 h-9 rounded-lg object-cover flex-shrink-0" />
                   ) : (
                     <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.06)" }}>
-                      <Icon className="w-4 h-4 text-white/40" />
+                      <Icon className="w-4 h-4 text-muted-foreground" />
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-white truncate">{file.name}</p>
-                    <p className="text-[11px] text-white/30">
+                    <p className="text-sm text-foreground truncate">{file.name}</p>
+                    <p className="text-[11px] text-muted-foreground">
                       {new Date(file.modifiedTime).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                       {file.size ? ` · ${formatFileSize(file.size)}` : ""}
                     </p>
@@ -184,7 +184,7 @@ export default function GoogleDrivePage() {
                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => handleImport(file)}
-                      className="p-2 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+                      className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/10 transition-colors"
                       title="Copy link for import"
                     >
                       <Download className="w-4 h-4" />
@@ -194,7 +194,7 @@ export default function GoogleDrivePage() {
                         href={file.webViewLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-2 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+                        className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/10 transition-colors"
                         title="Open in Google Drive"
                       >
                         <ExternalLink className="w-4 h-4" />
@@ -213,7 +213,7 @@ export default function GoogleDrivePage() {
             <button
               onClick={() => fetchFiles(searchQuery, nextPageToken)}
               disabled={fetching}
-              className="px-4 py-2 rounded-xl text-sm text-white/60 hover:text-white transition-colors"
+              className="px-4 py-2 rounded-xl text-sm text-muted-foreground hover:text-foreground transition-colors"
               style={{ background: "rgba(255,255,255,0.06)" }}
             >
               {fetching ? "Loading..." : "Load more"}

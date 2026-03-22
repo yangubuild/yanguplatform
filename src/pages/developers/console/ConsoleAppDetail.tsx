@@ -61,7 +61,7 @@ export default function ConsoleAppDetail() {
             className={`flex items-center gap-2 px-4 py-2.5 text-sm transition-colors rounded-t-lg ${
               activeTab === id
                 ? "text-accent bg-accent/8 border-b-2 border-accent"
-                : "text-white/50 bg-transparent border-b-2 border-transparent"
+                : "text-muted-foreground bg-transparent border-b-2 border-transparent"
             }`}
           >
             <Icon className="w-4 h-4" />
@@ -137,10 +137,10 @@ function KeysTab({ appId }: { appId: string }) {
 
       {revealedKey && (
         <div className="rounded-lg p-4 mb-6 bg-accent/8 border border-accent/20">
-          <p className="text-xs text-white/60 mb-2">Copy this key now. It will not be shown again.</p>
+          <p className="text-xs text-muted-foreground mb-2">Copy this key now. It will not be shown again.</p>
           <div className="flex items-center gap-2">
-            <code className="text-sm text-white/90 font-mono flex-1 break-all">{revealedKey}</code>
-            <button onClick={() => { navigator.clipboard.writeText(revealedKey); toast.success("Copied"); }} className="text-white/40 hover:text-white">
+            <code className="text-sm text-muted-foreground font-mono flex-1 break-all">{revealedKey}</code>
+            <button onClick={() => { navigator.clipboard.writeText(revealedKey); toast.success("Copied"); }} className="text-muted-foreground hover:text-foreground">
               <Copy className="w-4 h-4" />
             </button>
           </div>
@@ -148,18 +148,18 @@ function KeysTab({ appId }: { appId: string }) {
       )}
 
       {isLoading ? (
-        <Loader2 className="w-5 h-5 text-white/30 animate-spin" />
+        <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
       ) : keys && keys.length > 0 ? (
         <div className="space-y-2">
           {keys.map((k) => (
             <div key={k.id} className="flex items-center justify-between rounded-lg p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
               <div>
-                <code className="text-xs text-white/70 font-mono">{k.prefix}</code>
+                <code className="text-xs text-muted-foreground font-mono">{k.prefix}</code>
                 <span className={`ml-2 text-xs px-1.5 py-0.5 rounded ${k.environment === "prod" ? "bg-accent/10 text-accent" : "bg-blue-500/10 text-blue-400"}`}>{k.environment}</span>
                 {k.revoked_at && <span className="ml-2 text-xs text-red-400/60">revoked</span>}
               </div>
               {!k.revoked_at && (
-                <button onClick={() => rotateKey.mutate(k.id)} className="text-white/30 hover:text-white/60">
+                <button onClick={() => rotateKey.mutate(k.id)} className="text-muted-foreground hover:text-muted-foreground">
                   <RotateCcw className="w-4 h-4" />
                 </button>
               )}
@@ -167,7 +167,7 @@ function KeysTab({ appId }: { appId: string }) {
           ))}
         </div>
       ) : (
-        <p className="text-white/30 text-sm">No keys yet. Create one above.</p>
+        <p className="text-muted-foreground text-sm">No keys yet. Create one above.</p>
       )}
     </div>
   );
@@ -227,7 +227,7 @@ function OAuthTab({ appId }: { appId: string }) {
     toast.success("Redirect URI removed");
   };
 
-  if (isLoading) return <Loader2 className="w-5 h-5 text-white/30 animate-spin" />;
+  if (isLoading) return <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />;
 
   const uris = oauth?.redirect_uris || [];
   const scopes = oauth?.scopes || [];
@@ -236,10 +236,10 @@ function OAuthTab({ appId }: { appId: string }) {
     <div>
       <DocsSection title="Redirect URIs">
         <div className="mb-3 flex items-center justify-between">
-          <p className="text-xs text-white/40">URLs where users will be redirected after OAuth authorization.</p>
+          <p className="text-xs text-muted-foreground">URLs where users will be redirected after OAuth authorization.</p>
           <button
             onClick={() => setShowAddUri(true)}
-            className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg text-white/70 hover:text-white"
+            className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground"
             style={{ background: "rgba(255,255,255,0.08)" }}
           >
             <Plus className="w-3 h-3" /> Add URI
@@ -252,10 +252,10 @@ function OAuthTab({ appId }: { appId: string }) {
               value={newUri}
               onChange={(e) => setNewUri(e.target.value)}
               placeholder="https://yourapp.com/callback"
-              className="flex-1 px-3 py-2 rounded-lg text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-accent/50"
+              className="flex-1 px-3 py-2 rounded-lg text-sm bg-white/5 border border-white/10 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent/50"
             />
-            <button onClick={handleAddUri} className="px-3 py-2 rounded-lg text-sm text-white bg-accent/20 hover:bg-accent/30">Add</button>
-            <button onClick={() => { setShowAddUri(false); setNewUri(""); }} className="px-3 py-2 rounded-lg text-sm text-white/40 hover:text-white/60">Cancel</button>
+            <button onClick={handleAddUri} className="px-3 py-2 rounded-lg text-sm text-foreground bg-accent/20 hover:bg-accent/30">Add</button>
+            <button onClick={() => { setShowAddUri(false); setNewUri(""); }} className="px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-muted-foreground">Cancel</button>
           </div>
         )}
 
@@ -263,15 +263,15 @@ function OAuthTab({ appId }: { appId: string }) {
           <div className="space-y-1">
             {uris.map((uri) => (
               <div key={uri} className="flex items-center justify-between rounded-lg p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                <code className="text-xs text-white/70 font-mono break-all">{uri}</code>
-                <button onClick={() => handleRemoveUri(uri)} className="text-white/30 hover:text-red-400 ml-2 shrink-0">
+                <code className="text-xs text-muted-foreground font-mono break-all">{uri}</code>
+                <button onClick={() => handleRemoveUri(uri)} className="text-muted-foreground hover:text-red-400 ml-2 shrink-0">
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-white/30 text-sm py-4 text-center">No redirect URIs configured.</p>
+          <p className="text-muted-foreground text-sm py-4 text-center">No redirect URIs configured.</p>
         )}
       </DocsSection>
 
@@ -279,11 +279,11 @@ function OAuthTab({ appId }: { appId: string }) {
         {scopes.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {scopes.map((s) => (
-              <span key={s} className="text-xs px-2 py-1 rounded bg-white/5 text-white/60 font-mono">{s}</span>
+              <span key={s} className="text-xs px-2 py-1 rounded bg-white/5 text-muted-foreground font-mono">{s}</span>
             ))}
           </div>
         ) : (
-          <p className="text-white/30 text-sm">No scopes configured.</p>
+          <p className="text-muted-foreground text-sm">No scopes configured.</p>
         )}
       </DocsSection>
     </div>
@@ -340,15 +340,15 @@ function WebhooksTab({ appId }: { appId: string }) {
     onError: (err: Error) => toast.error(err.message),
   });
 
-  if (isLoading) return <Loader2 className="w-5 h-5 text-white/30 animate-spin" />;
+  if (isLoading) return <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />;
 
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <p className="text-xs text-white/40">Receive HTTP callbacks when events occur in your app.</p>
+        <p className="text-xs text-muted-foreground">Receive HTTP callbacks when events occur in your app.</p>
         <button
           onClick={() => setShowAdd(true)}
-          className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg text-white/70 hover:text-white"
+          className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground"
           style={{ background: "rgba(255,255,255,0.08)" }}
         >
           <Plus className="w-3 h-3" /> Add Webhook
@@ -361,12 +361,12 @@ function WebhooksTab({ appId }: { appId: string }) {
             value={newUrl}
             onChange={(e) => setNewUrl(e.target.value)}
             placeholder="https://yourapp.com/webhook"
-            className="flex-1 px-3 py-2 rounded-lg text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-accent/50"
+            className="flex-1 px-3 py-2 rounded-lg text-sm bg-white/5 border border-white/10 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent/50"
           />
-          <button onClick={() => addWebhook.mutate()} disabled={addWebhook.isPending} className="px-3 py-2 rounded-lg text-sm text-white bg-accent/20 hover:bg-accent/30">
+          <button onClick={() => addWebhook.mutate()} disabled={addWebhook.isPending} className="px-3 py-2 rounded-lg text-sm text-foreground bg-accent/20 hover:bg-accent/30">
             {addWebhook.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Add"}
           </button>
-          <button onClick={() => { setShowAdd(false); setNewUrl(""); }} className="px-3 py-2 rounded-lg text-sm text-white/40 hover:text-white/60">Cancel</button>
+          <button onClick={() => { setShowAdd(false); setNewUrl(""); }} className="px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-muted-foreground">Cancel</button>
         </div>
       )}
 
@@ -375,19 +375,19 @@ function WebhooksTab({ appId }: { appId: string }) {
           {webhooks.map((wh) => (
             <div key={wh.id} className="flex items-center justify-between rounded-lg p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
               <div className="flex-1 min-w-0">
-                <code className="text-xs text-white/70 font-mono break-all">{wh.url}</code>
+                <code className="text-xs text-muted-foreground font-mono break-all">{wh.url}</code>
                 <span className={`ml-2 text-xs ${wh.is_active ? "text-green-400" : "text-red-400"}`}>
                   {wh.is_active ? "active" : "disabled"}
                 </span>
               </div>
-              <button onClick={() => deleteWebhook.mutate(wh.id)} className="text-white/30 hover:text-red-400 ml-2 shrink-0">
+              <button onClick={() => deleteWebhook.mutate(wh.id)} className="text-muted-foreground hover:text-red-400 ml-2 shrink-0">
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-white/30 text-sm py-4 text-center">No webhooks configured. Add one to receive event notifications.</p>
+        <p className="text-muted-foreground text-sm py-4 text-center">No webhooks configured. Add one to receive event notifications.</p>
       )}
     </div>
   );
@@ -410,7 +410,7 @@ function LogsTab({ appId }: { appId: string }) {
     },
   });
 
-  if (isLoading) return <Loader2 className="w-5 h-5 text-white/30 animate-spin" />;
+  if (isLoading) return <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />;
 
   const filtered = deliveries?.filter((d) =>
     !eventFilter || d.event_type.toLowerCase().includes(eventFilter.toLowerCase())
@@ -424,7 +424,7 @@ function LogsTab({ appId }: { appId: string }) {
           value={eventFilter}
           onChange={(e) => setEventFilter(e.target.value)}
           placeholder="Filter by event type…"
-          className="flex-1 max-w-xs px-3 py-2 rounded-lg text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-accent/50"
+          className="flex-1 max-w-xs px-3 py-2 rounded-lg text-sm bg-white/5 border border-white/10 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent/50"
         />
       </div>
 
@@ -432,16 +432,16 @@ function LogsTab({ appId }: { appId: string }) {
         <div className="space-y-2">
           {filtered.map((d) => (
             <div key={d.id} className="rounded-lg p-3 flex items-center gap-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
-              <span className="text-xs text-white/50 font-mono">{d.event_type}</span>
+              <span className="text-xs text-muted-foreground font-mono">{d.event_type}</span>
               <span className={`text-xs ${d.http_status && d.http_status < 400 ? "text-green-400" : "text-red-400"}`}>{d.http_status ?? d.status}</span>
-              <span className="text-xs text-white/30 ml-auto">{new Date(d.created_at).toLocaleString()}</span>
+              <span className="text-xs text-muted-foreground ml-auto">{new Date(d.created_at).toLocaleString()}</span>
             </div>
           ))}
         </div>
       ) : deliveries && deliveries.length === 0 ? (
-        <p className="text-white/30 text-sm py-8 text-center">Logs will appear here when webhook events fire.</p>
+        <p className="text-muted-foreground text-sm py-8 text-center">Logs will appear here when webhook events fire.</p>
       ) : (
-        <p className="text-white/30 text-sm py-4 text-center">No logs match the current filter.</p>
+        <p className="text-muted-foreground text-sm py-4 text-center">No logs match the current filter.</p>
       )}
     </div>
   );

@@ -79,11 +79,11 @@ export function WhyYanguContent() {
                   border: isSelected ? "none" : "1px solid rgba(255,255,255,0.2)",
                 }}
               >
-                {isSelected && <Check className="w-3 h-3 text-white" />}
+                {isSelected && <Check className="w-3 h-3 text-foreground" />}
               </div>
 
               <f.icon className="w-6 h-6 mb-4" strokeWidth={1.5} style={{ color: "#F46D2A" }} />
-              <h3 className="text-white font-semibold text-sm mb-2">{f.title}</h3>
+              <h3 className="text-foreground font-semibold text-sm mb-2">{f.title}</h3>
               <p className="text-xs leading-relaxed mb-3" style={{ color: "rgba(255,255,255,0.5)" }}>
                 {f.description}
               </p>
@@ -112,7 +112,7 @@ export function WhyYanguContent() {
             border: "1px solid rgba(255,255,255,0.12)",
           }}
         >
-          <span className="text-white/70 text-sm">
+          <span className="text-muted-foreground text-sm">
             {selected.size} feature{selected.size > 1 ? "s" : ""} selected
           </span>
           <Button variant="accent" onClick={() => setDrawerOpen(true)}>

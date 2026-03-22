@@ -9,7 +9,7 @@ const ideas = [
 export function BusinessIdeasRow() {
   return (
     <section className="mb-12">
-      <h2 className="text-white text-xl font-bold mb-5">Business ideas</h2>
+      <h2 className="text-foreground text-xl font-bold mb-5">Business ideas</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {ideas.map((idea, i) => (
           <button

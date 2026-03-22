@@ -111,7 +111,7 @@ export function StaffPanel() {
         className="flex items-center justify-between px-4 py-3 shrink-0"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
-        <span className="text-sm font-semibold text-white">Team</span>
+        <span className="text-sm font-semibold text-foreground">Team</span>
         <button
           onClick={() => setTeamModalOpen(true)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
@@ -129,7 +129,7 @@ export function StaffPanel() {
         ) : members.length === 0 && invites.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10">
             <UserCog className="w-8 h-8 mb-2" style={{ color: "rgba(255,255,255,0.2)" }} />
-            <p className="text-sm text-white mb-1">No team members yet</p>
+            <p className="text-sm text-foreground mb-1">No team members yet</p>
             <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
               Add team members to help manage your business.
             </p>
@@ -157,7 +157,7 @@ export function StaffPanel() {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white truncate">{name}</p>
+                    <p className="text-sm font-medium text-foreground truncate">{name}</p>
                     <p className="text-xs truncate capitalize" style={{ color: "rgba(255,255,255,0.35)" }}>
                       {member.role}
                     </p>
@@ -197,7 +197,7 @@ export function StaffPanel() {
                       <Mail className="w-4 h-4" style={{ color: "rgba(255,255,255,0.3)" }} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-white truncate">{inv.email}</p>
+                      <p className="text-sm font-medium text-foreground truncate">{inv.email}</p>
                       <div className="flex items-center gap-1.5">
                         <Clock className="w-3 h-3" style={{ color: "rgba(255,255,255,0.25)" }} />
                         <p className="text-xs capitalize" style={{ color: "rgba(255,255,255,0.35)" }}>

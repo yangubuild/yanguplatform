@@ -103,7 +103,7 @@ export function CoursesPanel() {
       {/* Header */}
       <div className="flex items-center gap-2 px-5 pt-5 pb-3">
         <GraduationCap className="w-5 h-5" style={{ color: "#E67E22" }} />
-        <h2 className="text-base font-bold text-white">Courses</h2>
+        <h2 className="text-base font-bold text-foreground">Courses</h2>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 pb-6 space-y-6">
@@ -118,7 +118,7 @@ export function CoursesPanel() {
             </div>
             <button
               onClick={() => navigate("/dashboard/visionaire/university")}
-              className="text-[11px] font-medium flex items-center gap-1 transition-colors hover:text-white"
+              className="text-[11px] font-medium flex items-center gap-1 transition-colors hover:text-foreground"
               style={{ color: "#E67E22" }}
             >
               View All <ArrowRight className="w-3 h-3" />
@@ -143,7 +143,7 @@ export function CoursesPanel() {
                   <GraduationCap className="w-4 h-4" style={{ color: "#E67E22" }} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white truncate">{course.title}</p>
+                  <p className="text-sm font-medium text-foreground truncate">{course.title}</p>
                   <p className="text-[11px] text-muted-foreground">
                     {course.lessons} lessons
                   </p>
@@ -220,7 +220,7 @@ export function CoursesPanel() {
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white truncate">{item.title}</p>
+                    <p className="text-sm font-medium text-foreground truncate">{item.title}</p>
                     <p className="text-[11px] text-muted-foreground capitalize">
                       {item.type} · {item.category}
                     </p>

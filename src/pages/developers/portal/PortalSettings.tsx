@@ -61,22 +61,22 @@ export default function PortalSettings() {
         >
           <div className="flex items-center gap-3 mb-5">
             <Bell className="w-5 h-5" style={{ color: "#F46D2A" }} />
-            <h3 className="text-white font-semibold text-sm">Notifications</h3>
+            <h3 className="text-foreground font-semibold text-sm">Notifications</h3>
           </div>
 
           <div className="space-y-4 max-w-md">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white/80 text-sm font-medium">Developer Updates</p>
-                <p className="text-white/40 text-xs">New APIs, features, and platform news</p>
+                <p className="text-muted-foreground text-sm font-medium">Developer Updates</p>
+                <p className="text-muted-foreground text-xs">New APIs, features, and platform news</p>
               </div>
               <Switch checked={devOptIn} onCheckedChange={setDevOptIn} />
             </div>
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white/80 text-sm font-medium">Security Emails</p>
-                <p className="text-white/40 text-xs">Login alerts and security-related notifications</p>
+                <p className="text-muted-foreground text-sm font-medium">Security Emails</p>
+                <p className="text-muted-foreground text-xs">Login alerts and security-related notifications</p>
               </div>
               <Switch checked={securityEmails} onCheckedChange={setSecurityEmails} />
             </div>
@@ -95,29 +95,29 @@ export default function PortalSettings() {
         >
           <div className="flex items-center gap-3 mb-5">
             <Shield className="w-5 h-5" style={{ color: "#F46D2A" }} />
-            <h3 className="text-white font-semibold text-sm">Security</h3>
+            <h3 className="text-foreground font-semibold text-sm">Security</h3>
           </div>
 
           <div className="space-y-4 max-w-md">
             <div>
-              <p className="text-white/80 text-sm font-medium">Change Password</p>
-              <p className="text-white/40 text-xs mb-3">
-                Send a password reset link to <span className="font-mono text-white/50">{user?.email}</span>
+              <p className="text-muted-foreground text-sm font-medium">Change Password</p>
+              <p className="text-muted-foreground text-xs mb-3">
+                Send a password reset link to <span className="font-mono text-muted-foreground">{user?.email}</span>
               </p>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handlePasswordReset}
                 disabled={resetSent}
-                className="border-white/20 text-white/70"
+                className="border-white/20 text-muted-foreground"
               >
                 {resetSent ? "Email Sent" : "Send Reset Link"}
               </Button>
             </div>
 
             <div className="border-t border-white/10 pt-4">
-              <p className="text-white/80 text-sm font-medium">Active Sessions</p>
-              <p className="text-white/40 text-xs">
+              <p className="text-muted-foreground text-sm font-medium">Active Sessions</p>
+              <p className="text-muted-foreground text-xs">
                 You are currently signed in. Sessions expire after inactivity.
               </p>
             </div>
@@ -135,8 +135,8 @@ export default function PortalSettings() {
           </div>
 
           <div className="max-w-md">
-            <p className="text-white/80 text-sm font-medium">Delete Developer Account</p>
-            <p className="text-white/40 text-xs mb-3">
+            <p className="text-muted-foreground text-sm font-medium">Delete Developer Account</p>
+            <p className="text-muted-foreground text-xs mb-3">
               This will revoke all API keys, remove all apps, and permanently delete your developer account. This action cannot be undone.
             </p>
             <Button
@@ -157,7 +157,7 @@ export default function PortalSettings() {
             <DialogTitle className="flex items-center gap-2 text-red-400">
               <AlertTriangle className="w-5 h-5" /> Delete Developer Account
             </DialogTitle>
-            <DialogDescription className="text-white/50">
+            <DialogDescription className="text-muted-foreground">
               This feature is not yet available. Please contact{" "}
               <a href="mailto:developers@yangu.com" className="text-accent hover:underline">developers@yangu.com</a>{" "}
               to request account deletion.

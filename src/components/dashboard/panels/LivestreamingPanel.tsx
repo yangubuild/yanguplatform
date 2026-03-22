@@ -10,7 +10,7 @@ export function LivestreamingPanel() {
         className="flex items-center justify-between px-4 py-3 shrink-0"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
-        <span className="text-sm font-semibold text-white">Livestreaming</span>
+        <span className="text-sm font-semibold text-foreground">Livestreaming</span>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
@@ -27,7 +27,7 @@ export function LivestreamingPanel() {
               <Radio className="w-4 h-4" style={{ color: "#ef4444" }} />
             </div>
             <div>
-              <p className="text-sm font-semibold text-white">Stream Tools</p>
+              <p className="text-sm font-semibold text-foreground">Stream Tools</p>
               <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
                 Configure your stream before going live
               </p>
@@ -64,7 +64,7 @@ export function LivestreamingPanel() {
           className="rounded-xl p-4"
           style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
         >
-          <p className="text-xs font-semibold text-white mb-2">Recent Streams</p>
+          <p className="text-xs font-semibold text-foreground mb-2">Recent Streams</p>
           <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
             No streams yet. Use Go Live on your profile to start.
           </p>
@@ -83,7 +83,7 @@ export function LivestreamingPanel() {
               <MessageCircle className="w-4 h-4" style={{ color: "#ef4444" }} />
             </div>
             <div>
-              <p className="text-sm font-semibold text-white">Live Chat</p>
+              <p className="text-sm font-semibold text-foreground">Live Chat</p>
               <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
                 Chat with your audience in real time
               </p>
@@ -111,7 +111,7 @@ export function LivestreamingPanel() {
               placeholder="Type a message..."
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
-              className="flex-1 bg-transparent text-xs text-white placeholder:text-white/30 outline-none"
+              className="flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none"
             />
             <button
               className="shrink-0 p-1 rounded hover:bg-white/10 transition-colors"

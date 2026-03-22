@@ -78,7 +78,7 @@ export function BlogArticleCard({ article, size = "default", fillImage, titleCla
 
         {/* Title */}
         <h3
-          className="font-medium leading-snug transition-colors duration-200 group-hover:text-white"
+          className="font-medium leading-snug transition-colors duration-200 group-hover:text-foreground"
           style={{
             fontFamily: "'Lufga', sans-serif",
             fontSize: isLarge ? 28 : 18,

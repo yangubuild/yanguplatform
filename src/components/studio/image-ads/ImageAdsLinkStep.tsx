@@ -79,7 +79,7 @@ export function ImageAdsLinkStep({ onSelectProduct, onManualSetup, onAnalyze }: 
       <div className="flex items-center justify-end gap-3 w-full">
         <Button
           variant="outline"
-          className="h-12 rounded-xl border-border/60 text-sm font-semibold transition-all hover:border-transparent hover:text-white px-6"
+          className="h-12 rounded-xl border-border/60 text-sm font-semibold transition-all hover:border-transparent hover:text-foreground px-6"
           onMouseEnter={(e) => { e.currentTarget.style.background = 'linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)'; }}
           onMouseLeave={(e) => { e.currentTarget.style.background = ''; }}
           onClick={onSelectProduct}

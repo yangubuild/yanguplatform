@@ -71,7 +71,7 @@ export function WhyYanguSidebar({ audience }: WhyYanguSidebarProps) {
     <nav className="sticky top-8">
       <div className="flex items-center justify-between mb-4">
         <span className={DocsTypography.sidebarHeader}>Getting Started</span>
-        <button className="text-white/40 hover:text-white/70 transition-colors">
+        <button className="text-muted-foreground hover:text-muted-foreground transition-colors">
           <ChevronLeft className="w-4 h-4" />
         </button>
       </div>

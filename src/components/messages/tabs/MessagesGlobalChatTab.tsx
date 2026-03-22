@@ -99,7 +99,7 @@ export function MessagesGlobalChatTab() {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b shrink-0" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
-        <button className="flex items-center gap-1.5 text-sm font-medium text-white">
+        <button className="flex items-center gap-1.5 text-sm font-medium text-foreground">
           Global <ChevronDown className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.4)" }} />
         </button>
         <div className="flex items-center gap-2">
@@ -114,7 +114,7 @@ export function MessagesGlobalChatTab() {
           <div className="flex items-center justify-center py-10"><Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} /></div>
         ) : messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10">
-            <p className="text-sm font-semibold text-white">Welcome to Global Chat</p>
+            <p className="text-sm font-semibold text-foreground">Welcome to Global Chat</p>
             <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>Be the first to say something!</p>
           </div>
         ) : (
@@ -153,7 +153,7 @@ export function MessagesGlobalChatTab() {
               ? <video src={mediaPreview} className="h-14 rounded-lg" />
               : <img src={mediaPreview} alt="" className="h-14 rounded-lg object-cover" />}
             <button onClick={() => { if (mediaPreview) URL.revokeObjectURL(mediaPreview); setMediaFile(null); setMediaPreview(null); }}
-              className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-black/70 flex items-center justify-center"><X className="w-2.5 h-2.5 text-white" /></button>
+              className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-black/70 flex items-center justify-center"><X className="w-2.5 h-2.5 text-foreground" /></button>
           </div>
         </div>
       )}
@@ -193,7 +193,7 @@ export function MessagesGlobalChatTab() {
             />
             <button onClick={handleSend} disabled={(!message.trim() && !mediaFile) || uploading}
               className="p-1.5 rounded-lg transition-colors" style={{ background: (message.trim() || mediaFile) ? "#22c55e" : "rgba(255,255,255,0.08)" }}>
-              {uploading ? <Loader2 className="w-3.5 h-3.5 text-white animate-spin" /> : <Send className="w-3.5 h-3.5 text-white" />}
+              {uploading ? <Loader2 className="w-3.5 h-3.5 text-foreground animate-spin" /> : <Send className="w-3.5 h-3.5 text-foreground" />}
             </button>
           </div>
           <div className="flex items-center gap-1 mt-1.5 -mb-0.5">
@@ -237,7 +237,7 @@ function MessageBubble({ msg, presenceMap, currentUserId, onReply, onReaction, e
             {msg.author_avatar ? (
               <img src={msg.author_avatar} alt="" className="w-8 h-8 rounded-full object-cover" />
             ) : (
-              <span className="text-[9px] font-bold text-white/50">{(msg.author_name || "U").slice(0, 2).toUpperCase()}</span>
+              <span className="text-[9px] font-bold text-muted-foreground">{(msg.author_name || "U").slice(0, 2).toUpperCase()}</span>
             )}
           </div>
           <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border" style={{ background: presenceMap[msg.user_id] === "live" ? "#22c55e" : "#6b7280", borderColor: "#111820" }} />
@@ -246,7 +246,7 @@ function MessageBubble({ msg, presenceMap, currentUserId, onReply, onReaction, e
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-white">{msg.author_name}</span>
+            <span className="text-xs font-semibold text-foreground">{msg.author_name}</span>
             {msg.author_username && <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.3)" }}>@{msg.author_username}</span>}
             <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.2)" }}>
               {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}

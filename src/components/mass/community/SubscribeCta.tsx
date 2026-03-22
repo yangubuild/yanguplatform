@@ -12,10 +12,10 @@ export function SubscribeCta() {
         style={{ background: "radial-gradient(ellipse at 40% 60%, #1a5c3a 0%, #0f3d2a 30%, #0a2e1e 50%, #0d1f15 70%, #0a1710 100%)" }}
       >
         <div>
-          <h2 className={`max-w-[360px] ${T.header} text-white`}>
+          <h2 className={`max-w-[360px] ${T.header} text-foreground`}>
             Be the first to<br />know about new creators<br />and communities
           </h2>
-          <button className="mt-5 rounded-lg border border-white/30 px-5 py-[8px] text-[14px] font-medium text-white transition-colors hover:bg-white/10">
+          <button className="mt-5 rounded-lg border border-white/30 px-5 py-[8px] text-[14px] font-medium text-foreground transition-colors hover:bg-white/10">
             Subscribe to Discover
           </button>
         </div>

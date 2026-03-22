@@ -89,7 +89,7 @@ export function MessagesChatsTab({ onSelectDm, onSelectGroup }: Props) {
       <div className="flex-1 flex flex-col items-center justify-center gap-3 h-full">
         <div className="rounded-2xl p-8 text-center max-w-xs" style={{ background: "rgba(255,255,255,0.03)" }}>
           <img src={chatIcon8} alt="No messages" className="w-20 h-20 mx-auto mb-3 object-contain" style={{ opacity: 0.9 }} />
-          <p className="text-sm font-medium text-white">No conversations yet</p>
+          <p className="text-sm font-medium text-foreground">No conversations yet</p>
           <p className="text-xs mt-1.5" style={{ color: "rgba(255,255,255,0.4)" }}>
             Start a conversation or create a group chat.
           </p>
@@ -130,7 +130,7 @@ export function MessagesChatsTab({ onSelectDm, onSelectGroup }: Props) {
             {/* Content */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5">
-                <p className="text-sm font-medium text-white truncate">{thread.name}</p>
+                <p className="text-sm font-medium text-foreground truncate">{thread.name}</p>
                 {thread.type === "group" && (
                   <span className="text-[9px] px-1.5 py-0.5 rounded-full shrink-0" style={{ background: "rgba(168,85,247,0.15)", color: "rgba(168,85,247,0.8)" }}>
                     Group
@@ -148,7 +148,7 @@ export function MessagesChatsTab({ onSelectDm, onSelectGroup }: Props) {
               </span>
               {thread.unreadCount > 0 && (
                 <span
-                  className="min-w-[20px] h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white px-1.5"
+                  className="min-w-[20px] h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-foreground px-1.5"
                   style={{ background: thread.type === "group" ? "#a855f7" : "#ef4444" }}
                 >
                   {thread.unreadCount > 99 ? "99+" : thread.unreadCount}

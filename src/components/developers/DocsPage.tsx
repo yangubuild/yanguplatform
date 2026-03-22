@@ -13,7 +13,7 @@ export function DocsPage({ breadcrumb, title, subtitle, children }: DocsPageProp
       <p className="text-sm mb-2" style={{ color: "rgba(255,255,255,0.4)" }}>
         {breadcrumb}
       </p>
-      <h1 className="text-3xl font-bold text-white mb-3">{title}</h1>
+      <h1 className="text-3xl font-bold text-foreground mb-3">{title}</h1>
       <p className="text-base mb-10" style={{ color: "rgba(255,255,255,0.5)" }}>
         {subtitle}
       </p>
@@ -32,7 +32,7 @@ interface DocsSectionProps {
 export function DocsSection({ id, title, description, children }: DocsSectionProps) {
   return (
     <div id={id} className="mb-10">
-      <h2 className="text-xl font-semibold text-white mb-2">{title}</h2>
+      <h2 className="text-xl font-semibold text-foreground mb-2">{title}</h2>
       {description && (
         <p className="text-sm mb-6" style={{ color: "rgba(255,255,255,0.5)" }}>
           {description}
@@ -61,7 +61,7 @@ export function DocsCard({ icon: Icon, title, description, onClick }: DocsCardPr
       }}
     >
       <Icon className="w-6 h-6 mb-4" strokeWidth={1.5} style={{ color: "#F46D2A" }} />
-      <h3 className="text-white font-semibold text-sm mb-2">{title}</h3>
+      <h3 className="text-foreground font-semibold text-sm mb-2">{title}</h3>
       <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}>
         {description}
       </p>
@@ -83,16 +83,16 @@ export function PlaceholderBlock({ title, items }: PlaceholderBlockProps) {
         border: "1px dashed rgba(255,255,255,0.10)",
       }}
     >
-      <h3 className="text-white/70 text-sm font-semibold mb-3">{title}</h3>
+      <h3 className="text-muted-foreground text-sm font-semibold mb-3">{title}</h3>
       <ul className="space-y-2">
         {items.map((item) => (
-          <li key={item} className="text-white/40 text-xs flex items-center gap-2">
+          <li key={item} className="text-muted-foreground text-xs flex items-center gap-2">
             <span className="w-1 h-1 rounded-full bg-white/20" />
             {item}
           </li>
         ))}
       </ul>
-      <div className="mt-4 text-xs text-white/30 italic">Coming next</div>
+      <div className="mt-4 text-xs text-muted-foreground italic">Coming next</div>
     </div>
   );
 }

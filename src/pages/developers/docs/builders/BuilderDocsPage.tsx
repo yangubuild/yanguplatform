@@ -96,7 +96,7 @@ export default function BuilderDocsPage() {
   if (!doc) {
     return (
       <DocsPage breadcrumb="Builders" title="Page not found" subtitle="This builder docs page doesn't exist.">
-        <Button variant="ghost" className="text-white/70 gap-2" onClick={() => navigate("/why-yangu?audience=builders")}>
+        <Button variant="ghost" className="text-muted-foreground gap-2" onClick={() => navigate("/why-yangu?audience=builders")}>
           <ArrowLeft className="w-4 h-4" /> Back to Builders
         </Button>
       </DocsPage>
@@ -107,7 +107,7 @@ export default function BuilderDocsPage() {
     <DocsPage breadcrumb={`Builders / ${doc.title}`} title={doc.title} subtitle={doc.intro}>
       <Button
         variant="ghost"
-        className="text-white/60 gap-2 mb-6 hover:text-white/80"
+        className="text-muted-foreground gap-2 mb-6 hover:text-muted-foreground"
         onClick={() => navigate("/why-yangu?audience=builders")}
       >
         <ArrowLeft className="w-4 h-4" /> Back to Builders

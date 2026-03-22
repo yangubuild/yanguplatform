@@ -158,7 +158,7 @@ export function GroupChatThreadView({ group, onBack }: Props) {
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3 shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         {onBack && (
-          <button onClick={onBack} className="text-white/50 hover:text-white/80 mr-1 min-w-[28px] min-h-[28px] flex items-center justify-center">←</button>
+          <button onClick={onBack} className="text-muted-foreground hover:text-muted-foreground mr-1 min-w-[28px] min-h-[28px] flex items-center justify-center">←</button>
         )}
         <GroupAvatarUpload
           groupId={group.id}
@@ -168,7 +168,7 @@ export function GroupChatThreadView({ group, onBack }: Props) {
           editable={isAdmin}
         />
         <div className="flex-1 min-w-0">
-          <span className="text-sm font-semibold text-white truncate block">{group.name}</span>
+          <span className="text-sm font-semibold text-foreground truncate block">{group.name}</span>
           <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>
             {members.length} member{members.length !== 1 ? "s" : ""}
           </span>
@@ -194,15 +194,15 @@ export function GroupChatThreadView({ group, onBack }: Props) {
       {showMembers && (
         <div className="px-4 py-3 space-y-2 max-h-64 overflow-y-auto" style={{ background: "rgba(255,255,255,0.02)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-white">Members ({members.length})</span>
-            <button onClick={() => setShowMembers(false)} className="min-w-[28px] min-h-[28px] flex items-center justify-center"><X className="w-3.5 h-3.5 text-white/40" /></button>
+            <span className="text-xs font-semibold text-foreground">Members ({members.length})</span>
+            <button onClick={() => setShowMembers(false)} className="min-w-[28px] min-h-[28px] flex items-center justify-center"><X className="w-3.5 h-3.5 text-muted-foreground" /></button>
           </div>
           {members.map(m => (
             <div key={m.id} className="flex items-center gap-2 py-1.5 min-h-[36px]">
               <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold overflow-hidden shrink-0" style={{ background: "rgba(255,255,255,0.1)" }}>
                 {m.avatar ? <img src={m.avatar} alt="" className="w-7 h-7 rounded-full object-cover" /> : (m.display_name?.slice(0, 2).toUpperCase() || "?")}
               </div>
-              <span className="text-xs text-white flex-1 truncate">{m.display_name}</span>
+              <span className="text-xs text-foreground flex-1 truncate">{m.display_name}</span>
               <span className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.4)" }}>{m.role}</span>
               {isAdmin && m.user_id !== user?.id && (
                 <button onClick={() => handleRemoveMember(m.user_id)} className="text-[10px] px-2 py-1 rounded hover:opacity-80 min-h-[28px]" style={{ color: "#ef4444" }}>Remove</button>
@@ -212,16 +212,16 @@ export function GroupChatThreadView({ group, onBack }: Props) {
           {isAdmin && (
             <div className="mt-2 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
               <div className="flex items-center gap-2 min-h-[36px]">
-                <UserPlus className="w-3.5 h-3.5 text-white/40 shrink-0" />
+                <UserPlus className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                 <input
                   value={addUserSearch}
                   onChange={e => handleSearchUsers(e.target.value)}
                   placeholder="Add member..."
-                  className="flex-1 bg-transparent text-xs text-white outline-none placeholder:text-white/25"
+                  className="flex-1 bg-transparent text-xs text-foreground outline-none placeholder:text-muted-foreground"
                 />
               </div>
               {searchResults.map(p => (
-                <button key={p.id} onClick={() => handleAddMember(p.id)} className="w-full flex items-center gap-2 py-2 px-1 text-xs text-white hover:opacity-80 min-h-[36px]">
+                <button key={p.id} onClick={() => handleAddMember(p.id)} className="w-full flex items-center gap-2 py-2 px-1 text-xs text-foreground hover:opacity-80 min-h-[36px]">
                   <span className="truncate">{p.display_name || p.username}</span>
                   <span className="ml-auto text-[10px] font-medium" style={{ color: "#4ade80" }}>+ Add</span>
                 </button>
@@ -253,7 +253,7 @@ export function GroupChatThreadView({ group, onBack }: Props) {
             <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: "rgba(168,85,247,0.15)" }}>
               <Users className="w-5 h-5" style={{ color: "rgba(168,85,247,0.7)" }} />
             </div>
-            <p className="text-sm font-medium text-white">No messages yet</p>
+            <p className="text-sm font-medium text-foreground">No messages yet</p>
             <p className="text-xs text-center max-w-[200px]" style={{ color: "rgba(255,255,255,0.4)" }}>
               Start the conversation in {group.name}
             </p>
@@ -265,7 +265,7 @@ export function GroupChatThreadView({ group, onBack }: Props) {
               <div key={msg.id} className={`group flex gap-2 ${isMine ? "justify-end" : "justify-start"}`}>
                 {!isMine && (
                   <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold overflow-hidden shrink-0 mt-1" style={{ background: "rgba(255,255,255,0.1)" }}>
-                    {msg.author_avatar ? <img src={msg.author_avatar} alt="" className="w-7 h-7 rounded-full object-cover" /> : <span className="text-white/60">{(msg.author_name || "?").slice(0, 2).toUpperCase()}</span>}
+                    {msg.author_avatar ? <img src={msg.author_avatar} alt="" className="w-7 h-7 rounded-full object-cover" /> : <span className="text-muted-foreground">{(msg.author_name || "?").slice(0, 2).toUpperCase()}</span>}
                   </div>
                 )}
                 <div className="relative max-w-[75%]">
@@ -285,10 +285,10 @@ export function GroupChatThreadView({ group, onBack }: Props) {
                   </div>
                   {msgMenuId === msg.id && (
                     <div className="absolute top-6 right-0 z-20 rounded-lg py-1 min-w-[140px]" style={{ background: "#1a2027", border: "1px solid rgba(255,255,255,0.1)" }}>
-                      <button onClick={() => { setReplyTo({ id: msg.id, content: msg.content }); setMsgMenuId(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:opacity-80 text-white min-h-[36px]">
+                      <button onClick={() => { setReplyTo({ id: msg.id, content: msg.content }); setMsgMenuId(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:opacity-80 text-foreground min-h-[36px]">
                         <Reply className="w-3 h-3" /> Reply
                       </button>
-                      <button onClick={() => { shareMessageExternal(msg.content); setMsgMenuId(null); toast.success("Shared"); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:opacity-80 text-white min-h-[36px]">
+                      <button onClick={() => { shareMessageExternal(msg.content); setMsgMenuId(null); toast.success("Shared"); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:opacity-80 text-foreground min-h-[36px]">
                         <Share2 className="w-3 h-3" /> Share
                       </button>
                       {isMine && (
@@ -346,7 +346,7 @@ export function GroupChatThreadView({ group, onBack }: Props) {
               onChange={e => { handleInputChange(e.target.value, e.target.selectionStart ?? undefined); startTyping(); }}
               onKeyDown={e => e.key === "Enter" && handleSend()}
               placeholder={replyTo ? "Type a reply..." : "Type a message..."}
-              className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-white/25 min-w-0"
+              className="flex-1 bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground min-w-0"
             />
             <button onClick={handleSend} disabled={!message.trim()} className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ background: message.trim() ? "linear-gradient(135deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.08)" }}>
               <Send className="w-3.5 h-3.5" style={{ color: message.trim() ? "#fff" : "rgba(255,255,255,0.3)" }} />

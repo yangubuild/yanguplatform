@@ -57,7 +57,7 @@ export default function ConsoleNewSubmission() {
     <DocsPage breadcrumb="Console → Submissions" title="New Submission" subtitle="Submit an app to the yangu App Store.">
       <div className="max-w-lg space-y-4">
         <div>
-          <label className="text-xs text-white/50 block mb-1">Select App</label>
+          <label className="text-xs text-muted-foreground block mb-1">Select App</label>
           <select
             value={selectedAppId}
             onChange={(e) => {
@@ -65,7 +65,7 @@ export default function ConsoleNewSubmission() {
               const app = apps?.find((a) => a.id === e.target.value);
               if (app) { setName(app.name); setSlug(app.slug); }
             }}
-            className="w-full px-3 py-2 rounded-lg text-sm text-white/90"
+            className="w-full px-3 py-2 rounded-lg text-sm text-muted-foreground"
             style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)" }}
           >
             <option value="">Choose an app...</option>
@@ -76,23 +76,23 @@ export default function ConsoleNewSubmission() {
         </div>
 
         <div>
-          <label className="text-xs text-white/50 block mb-1">Listing Name</label>
-          <input value={name} onChange={(e) => setName(e.target.value)} className="w-full px-3 py-2 rounded-lg text-sm text-white/90" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)" }} />
+          <label className="text-xs text-muted-foreground block mb-1">Listing Name</label>
+          <input value={name} onChange={(e) => setName(e.target.value)} className="w-full px-3 py-2 rounded-lg text-sm text-muted-foreground" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)" }} />
         </div>
 
         <div>
-          <label className="text-xs text-white/50 block mb-1">Slug</label>
-          <input value={slug} onChange={(e) => setSlug(e.target.value)} className="w-full px-3 py-2 rounded-lg text-sm text-white/90 font-mono" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)" }} />
+          <label className="text-xs text-muted-foreground block mb-1">Slug</label>
+          <input value={slug} onChange={(e) => setSlug(e.target.value)} className="w-full px-3 py-2 rounded-lg text-sm text-muted-foreground font-mono" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)" }} />
         </div>
 
         <div>
-          <label className="text-xs text-white/50 block mb-1">Summary</label>
-          <textarea value={summary} onChange={(e) => setSummary(e.target.value)} rows={3} className="w-full px-3 py-2 rounded-lg text-sm text-white/90" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)" }} />
+          <label className="text-xs text-muted-foreground block mb-1">Summary</label>
+          <textarea value={summary} onChange={(e) => setSummary(e.target.value)} rows={3} className="w-full px-3 py-2 rounded-lg text-sm text-muted-foreground" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)" }} />
         </div>
 
         <div>
-          <label className="text-xs text-white/50 block mb-1">Category</label>
-          <input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="e.g. analytics, marketing" className="w-full px-3 py-2 rounded-lg text-sm text-white/90" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)" }} />
+          <label className="text-xs text-muted-foreground block mb-1">Category</label>
+          <input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="e.g. analytics, marketing" className="w-full px-3 py-2 rounded-lg text-sm text-muted-foreground" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)" }} />
         </div>
 
         <div className="flex gap-2 pt-4">
@@ -103,7 +103,7 @@ export default function ConsoleNewSubmission() {
           >
             {createListing.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Submit for Review"}
           </Button>
-          <Button variant="ghost" onClick={() => navigate(-1)} className="text-white/50">Cancel</Button>
+          <Button variant="ghost" onClick={() => navigate(-1)} className="text-muted-foreground">Cancel</Button>
         </div>
       </div>
     </DocsPage>

@@ -27,10 +27,10 @@ export function CheckoutPreview({ form }: Props) {
         <div className="px-5 pb-6 pt-3">
           {/* Company */}
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white" style={{ background: "#2563eb" }}>
+            <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-foreground" style={{ background: "#2563eb" }}>
               {companyName.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()}
             </div>
-            <span className="text-xs text-white font-medium">{companyName}</span>
+            <span className="text-xs text-foreground font-medium">{companyName}</span>
           </div>
 
           <p className="text-[11px] mb-3" style={{ color: "rgba(255,255,255,0.4)" }}>
@@ -39,18 +39,18 @@ export function CheckoutPreview({ form }: Props) {
 
           {/* Product + price */}
           <div className="text-center py-3 mb-4" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-            <p className="text-xs text-white/60 mb-0.5">{form.product}</p>
-            <p className="text-2xl font-bold text-white">{formatted}</p>
+            <p className="text-xs text-muted-foreground mb-0.5">{form.product}</p>
+            <p className="text-2xl font-bold text-foreground">{formatted}</p>
           </div>
 
           {/* Email */}
-          <label className="text-[11px] font-medium text-white/70 mb-1 block">Email</label>
+          <label className="text-[11px] font-medium text-muted-foreground mb-1 block">Email</label>
           <div className="rounded-lg px-3 py-2 mb-4 text-xs" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)" }}>
             johnappleseed@gmail.com
           </div>
 
           {/* Payment methods */}
-          <p className="text-[11px] font-medium text-white/70 mb-2">Payment methods</p>
+          <p className="text-[11px] font-medium text-muted-foreground mb-2">Payment methods</p>
           <div className="flex flex-col gap-2 mb-4">
             {["Card", "Balance", "Apple Pay"].map((m, i) => (
               <div
@@ -71,12 +71,12 @@ export function CheckoutPreview({ form }: Props) {
           </div>
 
           {/* Billing address */}
-          <p className="text-[11px] font-medium text-white/70 mb-2">Billing address</p>
+          <p className="text-[11px] font-medium text-muted-foreground mb-2">Billing address</p>
           <div className="flex flex-col gap-2">
             <div className="rounded-lg px-3 py-2 text-xs" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.35)" }}>Name</div>
             <div className="rounded-lg px-3 py-2 text-xs flex justify-between items-center" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "white" }}>
               <span>United States</span>
-              <span className="text-white/30">▾</span>
+              <span className="text-muted-foreground">▾</span>
             </div>
             <div className="rounded-lg px-3 py-2 text-xs" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.35)" }}>Address line 1</div>
           </div>
