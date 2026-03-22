@@ -1,19 +1,27 @@
 import { useState } from "react";
 import { Heart, MessageCircle, Share2, ExternalLink, MoreHorizontal, ChevronDown } from "lucide-react";
+import offer01 from "@/assets/offers/offer-01.jpg";
+import offer02 from "@/assets/offers/offer-02.jpg";
+import offer03 from "@/assets/offers/offer-03.jpg";
+import offer04 from "@/assets/offers/offer-04.jpg";
+import offer05 from "@/assets/offers/offer-05.jpg";
+import offer06 from "@/assets/offers/offer-06.jpg";
+import offer07 from "@/assets/offers/offer-07.jpg";
+import offer08 from "@/assets/offers/offer-08.jpg";
+import offer09 from "@/assets/offers/offer-09.jpg";
+import offer10 from "@/assets/offers/offer-10.jpg";
 
 const TILES = [
-  { id: "1", image: "/images/custom-product-source/cover-1.jpg", title: "Chips Product Poster Design", description: "Snack advertisement design for a chips brand — Ideal for fo...", author: "Mohammed Shalash", avatar: "/images/custom-product-source/happy-1.avif", comments: 1, likes: 9 },
-  { id: "2", image: "/images/custom-product-source/cover-2.jpg" },
-  { id: "3", image: "/images/custom-product-source/cover-3.jpg" },
-  { id: "4", image: "/images/custom-product-source/cover-4.jpg" },
-  { id: "5", image: "/images/custom-product-source/cover-5.jpg" },
-  { id: "6", image: "/images/custom-product-source/cover-6.jpg" },
-  { id: "7", image: "/images/custom-product-source/cover-7.jpg" },
-  { id: "8", image: "/images/custom-product-source/cover-8.jpg" },
-  { id: "9", image: "/images/custom-product-source/cover-9.jpg" },
-  { id: "10", image: "/images/custom-product-source/cover-10.jpg" },
-  { id: "11", image: "/images/custom-product-source/cover-11.jpg" },
-  { id: "12", image: "/images/custom-product-source/cover-12.jpg" },
+  { id: "1", image: offer01, title: "Chips Product Poster Design", description: "Snack advertisement design for a chips brand — Ideal for fo...", author: "Mohammed Shalash", avatar: "/images/custom-product-source/happy-1.avif", comments: 1, likes: 9 },
+  { id: "2", image: offer02 },
+  { id: "3", image: offer03 },
+  { id: "4", image: offer04 },
+  { id: "5", image: offer05 },
+  { id: "6", image: offer06 },
+  { id: "7", image: offer07 },
+  { id: "8", image: offer08 },
+  { id: "9", image: offer09 },
+  { id: "10", image: offer10 },
 ];
 
 /* Varying heights to create masonry feel like the screenshot */
