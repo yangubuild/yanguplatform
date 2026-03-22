@@ -26,10 +26,7 @@ export function CommunityHero() {
           <input
             type="text"
             placeholder="Search"
-            className="w-full pl-11 pr-4 py-3 rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none text-sm"
-            style={{
-              background: '#152A20',
-              border: '1px solid rgba(255,255,255,0.12)' }}
+            className="w-full pl-11 pr-4 py-3 rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none text-sm bg-muted border border-border"
           />
         </div>
       </div>

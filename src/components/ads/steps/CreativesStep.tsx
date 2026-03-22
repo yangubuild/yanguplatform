@@ -373,7 +373,7 @@ export function CreativesStep({ data, onChange }: CreativesStepProps) {
       </div>
 
       {/* Search ads bar - active */}
-      <div className="rounded-xl" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="rounded-xl bg-muted border border-border">
         <div className="flex items-center justify-between px-5 py-4">
           <div className="flex items-center gap-4">
             <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "rgba(255,255,255,0.06)" }}>

@@ -49,7 +49,7 @@ export function YanguEmojiPicker({ onSelect, onClose }: YanguEmojiPickerProps) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search emojis..."
-            className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-white/5 border border-white/5 text-xs text-foreground placeholder:text-muted-foreground outline-none focus:border-white/15"
+            className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-muted border border-border text-xs text-foreground placeholder:text-muted-foreground outline-none focus:border-border"
           />
         </div>
       </div>
