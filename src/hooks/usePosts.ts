@@ -21,6 +21,8 @@ export interface Post {
   love_count?: number;
   user_liked?: boolean;
   user_loved?: boolean;
+  /** Whether the post has a cover image (media) */
+  has_cover?: boolean;
 }
 
 export interface PostComment {
@@ -74,6 +76,13 @@ function invalidateAllPosts(queryClient: ReturnType<typeof useQueryClient>) {
   ALL_POST_QUERY_KEYS.forEach(key => {
     queryClient.invalidateQueries({ queryKey: [key] });
   });
+}
+
+/**
+ * Helper: returns true if a post has a valid cover image
+ */
+export function postHasCover(post: { media_urls?: string[] | null }): boolean {
+  return !!(post.media_urls && post.media_urls.length > 0 && post.media_urls[0]);
 }
 
 export function useUserPosts(userId: string | undefined) {

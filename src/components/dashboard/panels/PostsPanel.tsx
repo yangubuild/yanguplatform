@@ -1,11 +1,11 @@
 import { useState, useRef, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { ImagePlus, Video, Sparkles, Send, Loader2, X } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
-import { useCreatePost, useToggleReaction, uploadPostMedia, type Post } from "@/hooks/usePosts";
+import { useToggleReaction, type Post } from "@/hooks/usePosts";
 import { useFollowingPosts } from "@/hooks/useFollowingPosts";
-import { PostInteractions } from "@/components/dashboard/PostInteractions";
+import { PostCard } from "@/components/posts/PostCard";
 import { toast } from "sonner";
 import type { FriendUser } from "@/components/dashboard/FriendProfileView";
 
@@ -52,59 +52,19 @@ export function PostsPanel({ onViewProfile }: PostsPanelProps) {
         ) : (
           <div className="px-3 py-2 space-y-2">
             {posts.map((post) => (
-              <div
+              <PostCard
                 key={post.id}
-                className="rounded-lg p-3"
-                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
-              >
-                <div
-                  className={`flex items-center gap-2 mb-2 ${onViewProfile ? "cursor-pointer" : ""}`}
-                  onClick={onViewProfile ? () => {
-                    onViewProfile({
-                      id: post.user_id,
-                      display_name: post.author_name || "Unknown",
-                      avatar_url: post.author_avatar || null,
-                      username: post.author_username || null,
-                    } as FriendUser);
-                  } : undefined}
-                >
-                  <div className="w-7 h-7 rounded-full overflow-hidden shrink-0" style={{ background: "rgba(255,255,255,0.1)" }}>
-                    {post.author_avatar ? (
-                      <img src={post.author_avatar} alt="" className="w-7 h-7 rounded-full object-cover" />
-                    ) : (
-                      <div className="w-7 h-7 flex items-center justify-center text-[10px] font-bold text-white/60">
-                        {(post.author_name || "U").slice(0, 2).toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-white truncate">{post.author_name}</p>
-                    {post.author_username && (
-                      <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>@{post.author_username}</p>
-                    )}
-                  </div>
-                  <span className="text-[10px] shrink-0" style={{ color: "rgba(255,255,255,0.3)" }}>
-                    {new Date(post.created_at).toLocaleDateString()}
-                  </span>
-                </div>
-                <p className="text-sm text-white whitespace-pre-wrap mb-2">{post.content}</p>
-
-                {post.media_urls && post.media_urls.length > 0 && (
-                  <div className="mb-2 rounded-lg overflow-hidden">
-                    {post.media_type === "video" ? (
-                      <video src={post.media_urls[0]} controls className="w-full max-h-48 object-cover rounded-lg" />
-                    ) : (
-                      <div className="flex gap-1 flex-wrap">
-                        {post.media_urls.map((url, i) => (
-                          <img key={i} src={url} alt="" className="rounded-lg object-cover max-h-48" style={{ maxWidth: post.media_urls.length > 1 ? "48%" : "100%" }} />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                <PostInteractions post={post} toggleReaction={toggleReaction} />
-              </div>
+                post={post}
+                toggleReaction={toggleReaction}
+                onAuthorClick={onViewProfile ? (p) => {
+                  onViewProfile({
+                    id: p.user_id,
+                    display_name: p.author_name || "Unknown",
+                    avatar_url: p.author_avatar || null,
+                    username: p.author_username || null,
+                  } as FriendUser);
+                } : undefined}
+              />
             ))}
             {isFetchingNextPage && (
               <div className="flex justify-center py-4">

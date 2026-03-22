@@ -6,7 +6,8 @@ import { EmojiRenderer } from "@/components/emoji/EmojiRenderer";
 import { YanguEmojiPicker } from "@/components/emoji/YanguEmojiPicker";
 import type { YanguEmoji } from "@/lib/emojiSystem";
 import { useUserPosts, useCreatePost, useToggleReaction, uploadPostMedia, type Post } from "@/hooks/usePosts";
-import { PostInteractions } from "@/components/dashboard/PostInteractions";
+import { PostCard } from "@/components/posts/PostCard";
+
 import { useProfileReviews } from "@/hooks/useProfileReviews";
 import { Heart, ThumbsUp } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -289,80 +290,8 @@ function OwnPostsTab() {
   );
 }
 
-/** Renders a post card with CTA button support */
-function PostCard({ post, toggleReaction }: { post: Post; toggleReaction: any }) {
-  const [showBuyPopup, setShowBuyPopup] = useState(false);
-  const [showJoinPopup, setShowJoinPopup] = useState(false);
-  const hasBuyNow = post.content.includes("[cta:buynow]");
-  const hasJoinNow = post.content.includes("[cta:joinnow]");
-  const displayContent = post.content.replace(/\n?\[cta:(buynow|joinnow)\]/g, "").trim();
 
-  return (
-    <div className="rounded-lg p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-      <div className="flex items-center gap-2 mb-2">
-        <div className="w-7 h-7 rounded-full overflow-hidden shrink-0" style={{ background: "rgba(255,255,255,0.1)" }}>
-          {post.author_avatar ? <img src={post.author_avatar} alt="" className="w-7 h-7 rounded-full object-cover" /> : <div className="w-7 h-7 flex items-center justify-center text-[10px] font-bold text-white/60">{(post.author_name||"U").slice(0,2).toUpperCase()}</div>}
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold text-white truncate">{post.author_name}</p>
-          {post.author_username && <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>@{post.author_username}</p>}
-        </div>
-        <span className="text-[10px] shrink-0" style={{ color: "rgba(255,255,255,0.3)" }}>{new Date(post.created_at).toLocaleDateString()}</span>
-      </div>
-      <div className="text-sm text-white whitespace-pre-wrap mb-2"><EmojiRenderer text={displayContent} /></div>
-      {post.media_urls && post.media_urls.length > 0 && (
-        <div className="mb-2 rounded-lg overflow-hidden">
-          {post.media_type === "video" ? (
-            <video src={post.media_urls[0]} controls className="w-full max-h-48 object-cover rounded-lg" />
-          ) : (
-            <div className="flex gap-1 flex-wrap">
-              {post.media_urls.map((url, i) => (
-                <img key={i} src={url} alt="" className="rounded-lg object-cover max-h-48" style={{ maxWidth: post.media_urls.length > 1 ? "48%" : "100%" }} />
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-      {/* CTA buttons */}
-      {(hasBuyNow || hasJoinNow) && (
-        <div className="flex items-center gap-2 mb-2">
-          {hasBuyNow && (
-            <button onClick={() => setShowBuyPopup(true)} className="text-[11px] font-semibold px-3 py-1.5 rounded-lg transition-colors" style={{ background: "rgba(16,185,129,0.15)", color: "#10b981", border: "1px solid rgba(16,185,129,0.3)" }}>
-              Buy Now
-            </button>
-          )}
-          {hasJoinNow && (
-            <button onClick={() => setShowJoinPopup(true)} className="text-[11px] font-semibold px-3 py-1.5 rounded-lg transition-colors" style={{ background: "rgba(59,130,246,0.15)", color: "#3b82f6", border: "1px solid rgba(59,130,246,0.3)" }}>
-              Join Now
-            </button>
-          )}
-        </div>
-      )}
-      <PostInteractions post={post} toggleReaction={toggleReaction} />
-      {/* Buy popup */}
-      {showBuyPopup && (
-        <CtaPopup title="Complete Purchase" description="This item is available for purchase. Payment integration coming soon." onClose={() => setShowBuyPopup(false)} color="#10b981" />
-      )}
-      {showJoinPopup && (
-        <CtaPopup title="Join Service / Community" description="Join this service or community. Membership setup coming soon." onClose={() => setShowJoinPopup(false)} color="#3b82f6" />
-      )}
-    </div>
-  );
-}
 
-function CtaPopup({ title, description, onClose, color }: { title: string; description: string; onClose: () => void; color: string }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
-      <div onClick={(e) => e.stopPropagation()} className="rounded-xl p-5 w-[300px] shadow-2xl" style={{ background: "#1a1f28", border: `1px solid ${color}40` }}>
-        <h3 className="text-sm font-bold text-white mb-2">{title}</h3>
-        <p className="text-xs text-white/60 mb-4">{description}</p>
-        <button onClick={onClose} className="w-full text-xs font-semibold py-2 rounded-lg" style={{ background: `${color}20`, color }}>
-          Close
-        </button>
-      </div>
-    </div>
-  );
-}
 
 
 interface ProfileWorkspaceProps {
