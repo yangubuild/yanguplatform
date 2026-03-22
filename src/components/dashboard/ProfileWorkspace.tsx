@@ -6,6 +6,7 @@ import { EmojiRenderer } from "@/components/emoji/EmojiRenderer";
 import { YanguEmojiPicker } from "@/components/emoji/YanguEmojiPicker";
 import type { YanguEmoji } from "@/lib/emojiSystem";
 import { useUserPosts, useCreatePost, useToggleReaction, uploadPostMedia, type Post } from "@/hooks/usePosts";
+import { PostCard } from "@/components/posts/PostCard";
 import { PostInteractions } from "@/components/dashboard/PostInteractions";
 import { useProfileReviews } from "@/hooks/useProfileReviews";
 import { Heart, ThumbsUp } from "lucide-react";
