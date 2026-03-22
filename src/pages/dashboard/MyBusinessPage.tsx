@@ -164,9 +164,9 @@ export default function MyBusinessPage() {
   }
 
   return (
-    <div className="p-6 space-y-8 max-w-6xl min-h-screen bg-background">
+    <div className="p-6 space-y-8 max-w-5xl min-h-screen bg-background">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">My Business</h1>
+        <h1 className="text-lg font-semibold text-foreground">My Business</h1>
         <p className="text-sm text-muted-foreground mt-1">Manage all your published pages</p>
       </div>
 
@@ -213,18 +213,18 @@ export default function MyBusinessPage() {
                     {/* Primary actions — Edit Builder + Surface Settings + Preview + Delete */}
                     <div className="flex gap-2">
                       {/* ACTION 1: Edit Builder */}
-                      <Button size="sm" variant="outline" className="gap-1.5 flex-1 rounded-xl" onClick={() => navigate(`/builder/${s.id}`)}>
+                      <Button size="sm" variant="outline" className="gap-1.5 flex-1" onClick={() => navigate(`/builder/${s.id}`)}>
                         <Pencil className="h-3.5 w-3.5" /> Edit
                       </Button>
                       {/* ACTION 2: Surface Settings */}
-                      <Button size="sm" variant="outline" className="gap-1.5 rounded-xl" onClick={() => setSettingsSurface(s)}>
+                      <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setSettingsSurface(s)}>
                         <Settings2 className="h-3.5 w-3.5" />
                       </Button>
                       {/* BLOCK C FIX: Open actual live public page */}
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="gap-1.5 rounded-xl"
+                        className="gap-1.5"
                         onClick={() => {
                           if (liveUrl) {
                             window.open(liveUrl, "_blank");
@@ -236,7 +236,7 @@ export default function MyBusinessPage() {
                       </Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button size="sm" variant="ghost" className="gap-1.5 text-[#b5622a] hover:text-[#b5622a] hover:bg-[#b5622a]/10 rounded-xl">
+                          <Button size="sm" variant="ghost" className="gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10">
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>
                         </AlertDialogTrigger>
@@ -251,7 +251,7 @@ export default function MyBusinessPage() {
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction className="bg-[#b5622a] text-foreground hover:bg-[#b5622a]/90 rounded-xl" onClick={async () => {
+                            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={async () => {
                               const { error } = await supabase.from("builder_surfaces").delete().eq("id", s.id);
                               if (error) { toast.error("Failed to delete"); return; }
                               await forceDeleteSurface(s.id);
@@ -267,13 +267,13 @@ export default function MyBusinessPage() {
 
                     {/* Management actions — 3 clear buttons */}
                     <div className="grid grid-cols-3 gap-2 border-t border-border pt-3">
-                      <Button size="sm" variant="ghost" className="gap-1 text-xs rounded-xl" onClick={() => navigate(`/dashboard/my-business/${s.id}/analytics`)}>
+                      <Button size="sm" variant="ghost" className="gap-1 text-xs" onClick={() => navigate(`/dashboard/my-business/${s.id}/analytics`)}>
                         <BarChart3 className="h-3.5 w-3.5" /> Analytics
                       </Button>
-                      <Button size="sm" variant="ghost" className="gap-1 text-xs rounded-xl" onClick={() => navigate(`/dashboard/my-business/${s.id}/users`)}>
+                      <Button size="sm" variant="ghost" className="gap-1 text-xs" onClick={() => navigate(`/dashboard/my-business/${s.id}/users`)}>
                         <Users className="h-3.5 w-3.5" /> Users
                       </Button>
-                      <Button size="sm" variant="ghost" className="gap-1 text-xs rounded-xl" onClick={() => navigate(`/dashboard/my-business/${s.id}/deposit`)}>
+                      <Button size="sm" variant="ghost" className="gap-1 text-xs" onClick={() => navigate(`/dashboard/my-business/${s.id}/deposit`)}>
                         <Wallet className="h-3.5 w-3.5" /> Deposit
                       </Button>
                     </div>
@@ -319,10 +319,7 @@ export default function MyBusinessPage() {
             return (
               <div
                 key={app.slug}
-                className="rounded-xl p-4 flex flex-col gap-3 cursor-pointer hover:opacity-90 transition-opacity"
-                style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.06)" }}
+                className="rounded-xl p-4 flex flex-col gap-3 cursor-pointer hover:opacity-90 transition-opacity bg-card border border-border"
                 onClick={() => navigate("/dashboard/app-store")}>
                 <div className="flex items-start gap-3">
                   {icon && (
