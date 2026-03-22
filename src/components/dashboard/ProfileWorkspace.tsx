@@ -54,6 +54,8 @@ import { NotificationPrefsModal } from "./NotificationPrefsModal";
 import { ShareBusinessPopover } from "./ShareBusinessPopover";
 import { DashboardMoreMenu } from "./DashboardMoreMenu";
 import { SocialLinksModal, SOCIAL_PLATFORMS, type SocialLinksData } from "./SocialLinksModal";
+import { MobilePeopleSheet } from "./mobile/MobilePeopleSheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const TABS = ["Home", "KYC", "Reviews", "Posts", "About"] as const;
 
@@ -330,6 +332,8 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
   const [savingSocial, setSavingSocial] = useState(false);
   const [avatarPickerOpen, setAvatarPickerOpen] = useState(false);
   const [verifiedOpen, setVerifiedOpen] = useState(false);
+  const [peopleSheetOpen, setPeopleSheetOpen] = useState(false);
+  const isMobileView = useIsMobile();
   // Fetch social links from profile
   useEffect(() => {
     if (profile) {
