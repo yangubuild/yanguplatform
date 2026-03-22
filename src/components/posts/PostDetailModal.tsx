@@ -87,21 +87,18 @@ export function PostDetailModal({ postId, onClose }: PostDetailModalProps) {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
-      onClick={onClose}
-    >
+      onClick={onClose}>
       <div
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-xl shadow-2xl"
-        style={{ background: "#0F141A", border: "1px solid rgba(255,255,255,0.08)" }}
-      >
+        style={{ border: "1px solid rgba(255,255,255,0.08)" }}>
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3" style={{ background: "#0F141A", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
           <span className="text-xs font-semibold text-foreground">Post</span>
           <button
             onClick={onClose}
             className="w-7 h-7 rounded-full flex items-center justify-center"
-            style={{ background: "rgba(255,255,255,0.06)" }}
-          >
+            style={{ background: "rgba(255,255,255,0.06)" }}>
             <X className="w-3.5 h-3.5 text-muted-foreground" />
           </button>
         </div>

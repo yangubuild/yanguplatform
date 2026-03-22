@@ -67,7 +67,7 @@ function ExploreSurfacesTab() {
     (index: number, direction: "up" | "down") => {
       const data = [...(localOrder ?? surfaces)];
       const targetIndex = direction === "up" ? index - 1 : index + 1;
-      if (targetIndex < 0 || targetIndex >= data.length) return;
+      if (targetIndex < 0 || targetIndex>= data.length) return;
       [data[index], data[targetIndex]] = [data[targetIndex], data[index]];
       setLocalOrder(data);
       setHasOrderChanges(true);
@@ -147,16 +147,14 @@ function ExploreSurfacesTab() {
       <div className="flex gap-2 flex-wrap">
         <button
           className={`text-xs px-3 py-1 rounded-full border transition-colors ${!categoryFilter ? "bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:bg-muted"}`}
-          onClick={() => setCategoryFilter(null)}
-        >
+          onClick={() => setCategoryFilter(null)}>
           All
         </button>
         {categories.map((cat) => (
           <button
             key={cat}
             className={`text-xs px-3 py-1 rounded-full border transition-colors capitalize ${categoryFilter === cat ? "bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:bg-muted"}`}
-            onClick={() => setCategoryFilter(cat === categoryFilter ? null : cat)}
-          >
+            onClick={() => setCategoryFilter(cat === categoryFilter ? null : cat)}>
             {cat}
           </button>
         ))}

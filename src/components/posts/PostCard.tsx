@@ -24,17 +24,14 @@ export function PostCard({ post, toggleReaction, onAuthorClick, compact }: PostC
   return (
     <div
       className="rounded-lg p-3 sm:p-4"
-      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
-    >
+      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
       {/* Author header */}
       <div
         className={`flex items-center gap-2 mb-2 ${onAuthorClick ? "cursor-pointer" : ""}`}
-        onClick={onAuthorClick ? () => onAuthorClick(post) : undefined}
-      >
+        onClick={onAuthorClick ? () => onAuthorClick(post) : undefined}>
         <div
           className="w-8 h-8 rounded-full overflow-hidden shrink-0"
-          style={{ background: "rgba(255,255,255,0.1)" }}
-        >
+          style={{ background: "rgba(255,255,255,0.1)" }}>
           {post.author_avatar ? (
             <img src={post.author_avatar} alt="" className="w-full h-full rounded-full object-cover" />
           ) : (
@@ -62,7 +59,7 @@ export function PostCard({ post, toggleReaction, onAuthorClick, compact }: PostC
       </div>
 
       {/* Media — cover image / video */}
-      {post.media_urls && post.media_urls.length > 0 && (
+      {post.media_urls && post.media_urls.length> 0 && (
         <div className="mb-2 rounded-lg overflow-hidden">
           {post.media_type === "video" ? (
             <video
@@ -71,7 +68,7 @@ export function PostCard({ post, toggleReaction, onAuthorClick, compact }: PostC
               className="w-full max-h-[300px] object-cover rounded-lg"
             />
           ) : (
-            <div className={`flex gap-1 ${post.media_urls.length > 1 ? "flex-wrap" : ""}`}>
+            <div className={`flex gap-1 ${post.media_urls.length> 1 ? "flex-wrap" : ""}`}>
               {post.media_urls.map((url, i) => (
                 <img
                   key={i}
@@ -80,8 +77,7 @@ export function PostCard({ post, toggleReaction, onAuthorClick, compact }: PostC
                   className="rounded-lg object-cover"
                   style={{
                     maxHeight: "300px",
-                    width: post.media_urls.length > 1 ? "calc(50% - 2px)" : "100%",
-                  }}
+                    width: post.media_urls.length> 1 ? "calc(50% - 2px)" : "100%" }}
                   loading="lazy"
                 />
               ))}
@@ -97,8 +93,7 @@ export function PostCard({ post, toggleReaction, onAuthorClick, compact }: PostC
             <button
               onClick={() => setShowBuyPopup(true)}
               className="text-[11px] font-semibold px-3 py-1.5 rounded-lg transition-colors min-h-[36px]"
-              style={{ background: "rgba(16,185,129,0.15)", color: "#10b981", border: "1px solid rgba(16,185,129,0.3)" }}
-            >
+              style={{ background: "rgba(16,185,129,0.15)", color: "#10b981", border: "1px solid rgba(16,185,129,0.3)" }}>
               Buy Now
             </button>
           )}
@@ -106,8 +101,7 @@ export function PostCard({ post, toggleReaction, onAuthorClick, compact }: PostC
             <button
               onClick={() => setShowJoinPopup(true)}
               className="text-[11px] font-semibold px-3 py-1.5 rounded-lg transition-colors min-h-[36px]"
-              style={{ background: "rgba(59,130,246,0.15)", color: "#3b82f6", border: "1px solid rgba(59,130,246,0.3)" }}
-            >
+              style={{ background: "rgba(59,130,246,0.15)", color: "#3b82f6", border: "1px solid rgba(59,130,246,0.3)" }}>
               Join Now
             </button>
           )}

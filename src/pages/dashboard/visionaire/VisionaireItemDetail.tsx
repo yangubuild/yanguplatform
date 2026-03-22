@@ -79,14 +79,13 @@ export default function VisionaireItemDetail() {
         {/* Back */}
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
+          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="h-4 w-4" />
           Back to Library
         </button>
 
         {/* Tags */}
-        {tags.length > 0 && (
+        {tags.length> 0 && (
           <div className="flex gap-2 flex-wrap">
             {tags.map((t: string) => (
               <Badge key={t} variant="secondary" className="text-xs">{t}</Badge>
@@ -196,8 +195,7 @@ export default function VisionaireItemDetail() {
                     onError: () => toast.error("Failed"),
                   });
                 }
-              }}
-            >
+              }}>
               {isSaved ? (
                 <><BookmarkCheck className="h-4 w-4 mr-2" /> Saved</>
               ) : (
@@ -231,16 +229,14 @@ export default function VisionaireItemDetail() {
                   } catch {
                     window.open(item.download_url, "_blank");
                   }
-                }}
-              >
+                }}>
                 <Download className="h-4 w-4 mr-2" />
                 Download product
               </Button>
             ) : item.source_url ? (
               <Button
                 className="w-full bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-                onClick={() => window.open(item.source_url, "_blank")}
-              >
+                onClick={() => window.open(item.source_url, "_blank")}>
                 <Download className="h-4 w-4 mr-2" />
                 Download from Drive
               </Button>
@@ -259,7 +255,7 @@ export default function VisionaireItemDetail() {
         </div>
 
         {/* Related items */}
-        {related && related.length > 0 && (
+        {related && related.length> 0 && (
           <div className="space-y-4 pt-4 border-t border-border">
             <h2 className="text-lg font-semibold text-foreground">Related products</h2>
             <VisionaireGrid items={related} />

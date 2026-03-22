@@ -85,7 +85,7 @@ export function GroupChatThreadView({ group, onBack }: Props) {
   };
 
   const handleLeave = () => {
-    if (myMembership?.role === "owner" && members.length > 1) {
+    if (myMembership?.role === "owner" && members.length> 1) {
       toast.error("Transfer ownership before leaving");
       return;
     }
@@ -203,7 +203,7 @@ export function GroupChatThreadView({ group, onBack }: Props) {
                 {m.avatar ? <img src={m.avatar} alt="" className="w-7 h-7 rounded-full object-cover" /> : (m.display_name?.slice(0, 2).toUpperCase() || "?")}
               </div>
               <span className="text-xs text-foreground flex-1 truncate">{m.display_name}</span>
-              <span className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)", }}>{m.role}</span>
+              <span className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)" }}>{m.role}</span>
               {isAdmin && m.user_id !== user?.id && (
                 <button onClick={() => handleRemoveMember(m.user_id)} className="text-[10px] px-2 py-1 rounded hover:opacity-80 min-h-[28px]" style={{ color: "#ef4444" }}>Remove</button>
               )}
@@ -272,7 +272,7 @@ export function GroupChatThreadView({ group, onBack }: Props) {
                   {!isMine && (
                     <p className="text-[10px] mb-0.5 font-medium" style={{ color: "rgba(96,165,250,0.8)" }}>{msg.author_name}</p>
                   )}
-                  <div className="px-3 py-2 rounded-xl text-sm" style={{ background: isMine ? "rgba(255, 255, 255, 0.12)" : "rgba(255, 255, 255, 0.06)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: isMine ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(255,255,255,0.07)", }}>
+                  <div className="px-3 py-2 rounded-xl text-sm" style={{ background: isMine ? "rgba(255, 255, 255, 0.12)" : "rgba(255, 255, 255, 0.06)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: isMine ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(255,255,255,0.07)" }}>
                     {renderContent(msg.content)}
                     <p className="text-[9px] mt-1 text-muted-foreground">
                       {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}

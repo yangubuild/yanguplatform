@@ -49,8 +49,7 @@ export const Banner = React.forwardRef<HTMLDivElement, BannerProps>(
           variantClasses[variant],
           className
         )}
-        {...props}
-      >
+        {...props}>
         {icon && <span className="flex-shrink-0">{icon}</span>}
         <div className="flex-1 text-sm font-medium">{children}</div>
         {dismissible && onDismiss && (
@@ -59,8 +58,7 @@ export const Banner = React.forwardRef<HTMLDivElement, BannerProps>(
             size="sm"
             onClick={onDismiss}
             aria-label="Dismiss"
-            className="flex-shrink-0 -mr-2"
-          >
+            className="flex-shrink-0 -mr-2">
             <X className="h-4 w-4" />
           </IconButton>
         )}

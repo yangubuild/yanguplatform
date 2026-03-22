@@ -92,7 +92,7 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
     // Run client-side validation first
     const vErrors = validate();
     setValidationErrors(vErrors);
-    if (vErrors.length > 0) {
+    if (vErrors.length> 0) {
       setPublishError(vErrors[0].message);
       return;
     }

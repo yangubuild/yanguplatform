@@ -85,11 +85,10 @@ export default function AgencySupportPage() {
   };
 
   return (
-    <div className="p-6 max-w-[1200px] mx-auto space-y-6 min-h-screen" style={{ background: "#08120D" }}>
+    <div className="p-6 max-w-[1200px] mx-auto space-y-6 min-h-screen bg-background">
       <button
         onClick={() => navigate("/dashboard/agency")}
-        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-      >
+        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
         <ArrowLeft className="w-4 h-4" /> Back to Agency Management
       </button>
 
@@ -158,8 +157,7 @@ export default function AgencySupportPage() {
             <Card
               key={ticket.id}
               className="border border-border cursor-pointer hover:shadow-md transition-shadow"
-              onClick={() => openReply(ticket)}
-            >
+              onClick={() => openReply(ticket)}>
               <CardContent className="p-4 flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full flex items-center justify-center bg-muted/50">
                   <StatusIcon className="w-5 h-5" style={{ color: cfg.color }} />
@@ -177,8 +175,7 @@ export default function AgencySupportPage() {
                 <Badge
                   variant="secondary"
                   className="text-xs capitalize shrink-0"
-                  style={{ color: cfg.color }}
-                >
+                  style={{ color: cfg.color }}>
                   {ticket.status}
                 </Badge>
               </CardContent>

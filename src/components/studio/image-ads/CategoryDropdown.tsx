@@ -35,8 +35,7 @@ export function CategoryDropdown({ value, onChange }: Props) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center justify-between w-full h-10 rounded-lg bg-background border border-border/60 px-3 text-sm text-left outline-none ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 transition-colors"
-      >
+        className="flex items-center justify-between w-full h-10 rounded-lg bg-background border border-border/60 px-3 text-sm text-left outline-none ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 transition-colors">
         <span className={value ? "text-foreground" : "text-muted-foreground"}>
           {value || "Select a product category ..."}
         </span>
@@ -64,8 +63,7 @@ export function CategoryDropdown({ value, onChange }: Props) {
                   hoveredIdx === idx
                     ? "bg-muted/40 text-foreground"
                     : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
+                }`}>
                 <span>{cat.label}</span>
                 <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-60" />
               </button>
@@ -73,18 +71,16 @@ export function CategoryDropdown({ value, onChange }: Props) {
           </div>
 
           {/* Subcategories */}
-          {hoveredIdx !== null && PRODUCT_CATEGORIES[hoveredIdx]?.subcategories.length > 0 && (
+          {hoveredIdx !== null && PRODUCT_CATEGORIES[hoveredIdx]?.subcategories.length> 0 && (
             <div
               className="w-[280px] max-h-[360px] overflow-y-auto rounded-xl border border-border/60 bg-card py-1 shadow-lg ml-1"
-              onMouseLeave={() => {}}
-            >
+              onMouseLeave={() => {}}>
               {PRODUCT_CATEGORIES[hoveredIdx].subcategories.map((sub) => (
                 <button
                   key={sub}
                   type="button"
                   onClick={() => handleSelect(sub)}
-                  className="w-full px-5 py-2.5 text-sm text-left text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors"
-                >
+                  className="w-full px-5 py-2.5 text-sm text-left text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors">
                   {sub}
                 </button>
               ))}

@@ -20,7 +20,7 @@ export type UserType = AccountType;
 
 /**
  * Resolve account type from auth/profile data.
- * Priority: admin > agency > user.
+ * Priority: admin> agency> user.
  */
 export function resolveAccountType(opts: {
   isAdmin: boolean;

@@ -74,7 +74,7 @@ export default function PaymentsSettingsPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto py-6 px-4 space-y-6 min-h-screen" style={{ background: "#08120D" }}>
+    <div className="max-w-2xl mx-auto py-6 px-4 space-y-6 min-h-screen bg-background">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Payment settings</h1>

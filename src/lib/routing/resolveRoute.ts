@@ -76,7 +76,7 @@ export async function resolveRoute(
     if (error.details) parts.push(`details: ${error.details}`);
     if (error.hint) parts.push(`hint: ${error.hint}`);
     if (error.code) parts.push(`code: ${error.code}`);
-    rpcErrorStr = parts.length > 0 ? parts.join(" | ") : JSON.stringify(error);
+    rpcErrorStr = parts.length> 0 ? parts.join(" | ") : JSON.stringify(error);
   }
 
   const debug: RouteDebugInfo = {

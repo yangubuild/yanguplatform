@@ -22,7 +22,7 @@ export default function LiveSellingPage() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center py-24 gap-4 text-center min-h-screen" style={{ background: "#08120D" }}>
+    <div className="flex flex-col items-center justify-center py-24 gap-4 text-center min-h-screen bg-background">
       <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       <p className="text-sm text-muted-foreground">
         {isInitializing ? "Setting up your Live Shop…" : "Redirecting to editor…"}

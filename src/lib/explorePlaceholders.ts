@@ -516,7 +516,7 @@ export function backfillWithPlaceholders(
   section: PlaceholderSurface["preferredSection"] | "popular",
   slotCount: number,
 ): SearchEntityResult[] {
-  if (liveEntities.length >= slotCount) return liveEntities.slice(0, slotCount);
+  if (liveEntities.length>= slotCount) return liveEntities.slice(0, slotCount);
 
   const liveIds = new Set(liveEntities.map((e) => e.id));
 

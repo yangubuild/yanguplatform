@@ -4,8 +4,7 @@ export function MessagesPostsTab() {
       {/* Skeleton post card */}
       <div
         className="w-full max-w-lg rounded-xl p-5"
-        style={{ background: "rgba(255,255,255,0.04)" }}
-      >
+        style={{ background: "rgba(255,255,255,0.04)" }}>
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-full" style={{ background: "rgba(255,255,255,0.08)" }} />
           <div className="flex-1 space-y-2">

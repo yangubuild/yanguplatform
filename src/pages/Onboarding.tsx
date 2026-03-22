@@ -643,8 +643,7 @@ export default function Onboarding() {
             <button
               type="button"
               onClick={() => setShowAvatarPicker(!showAvatarPicker)}
-              className="relative w-20 h-20 rounded-full bg-muted border-2 border-border hover:border-accent transition-colors overflow-hidden focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background"
-            >
+              className="relative w-20 h-20 rounded-full bg-muted border-2 border-border hover:border-accent transition-colors overflow-hidden focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background">
               {avatarUrl ? (
                 <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
@@ -669,8 +668,7 @@ export default function Onboarding() {
                     className={cn(
                       "w-12 h-12 rounded-full overflow-hidden border-2 transition-all focus:outline-none",
                       avatarUrl === src ? "border-accent ring-2 ring-accent/30" : "border-transparent hover:border-accent/50"
-                    )}
-                  >
+                    )}>
                     <img src={src} alt={`Avatar ${i + 1}`} className="w-full h-full object-cover" />
                   </button>
                 ))}
@@ -682,8 +680,7 @@ export default function Onboarding() {
                   size="sm"
                   className="text-xs"
                   disabled={uploadingAvatar}
-                  onClick={() => avatarInputRef.current?.click()}
-                >
+                  onClick={() => avatarInputRef.current?.click()}>
                   {uploadingAvatar ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Camera className="h-3 w-3 mr-1" />}
                   Upload photo
                 </Button>
@@ -717,7 +714,7 @@ export default function Onboarding() {
               <p className="text-sm text-success">{PLATFORM_DOMAIN}/@{username} is available!</p>
             ) : usernameAvailable === false ? (
               <p className="text-sm text-destructive">This username is already taken</p>
-            ) : username.length >= 3 ? (
+            ) : username.length>= 3 ? (
               <p className="text-sm text-muted-foreground">Your profile: {PLATFORM_DOMAIN}/@{username}</p>
             ) : null}
           </div>
@@ -764,8 +761,7 @@ export default function Onboarding() {
                       ? "border-accent ring-1 ring-accent/30"
                       : "border-border/60 hover:border-border",
                     isLoading && "opacity-50 pointer-events-none"
-                  )}
-                >
+                  )}>
                   {/* Subtle gradient glow behind card */}
                   <div className={cn("absolute inset-0 opacity-[0.07] rounded-2xl pointer-events-none", path.bgColor)} />
 
@@ -809,8 +805,7 @@ export default function Onboarding() {
                 "w-full h-12 px-4 pr-10 rounded-xl border border-border bg-card text-foreground",
                 "appearance-none cursor-pointer",
                 "focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
-              )}
-            >
+              )}>
               {COUNTRIES.sort().map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
@@ -823,8 +818,7 @@ export default function Onboarding() {
             variant="accent"
             className="w-full h-11"
             onClick={handleCountryContinue}
-            disabled={!selectedCountry}
-          >
+            disabled={!selectedCountry}>
             Continue
           </Button>
 
@@ -854,8 +848,7 @@ export default function Onboarding() {
               onClick={generateBusinessNames}
               disabled={loadingSuggestions}
               className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-accent/10 hover:bg-accent/20 transition-colors focus:outline-none"
-              title="Get AI suggestions"
-            >
+              title="Get AI suggestions">
               {loadingSuggestions ? (
                 <Loader2 className="h-4 w-4 animate-spin text-accent" />
               ) : (
@@ -864,15 +857,14 @@ export default function Onboarding() {
             </button>
           </div>
 
-          {aiSuggestions.length > 0 && (
+          {aiSuggestions.length> 0 && (
             <div className="flex flex-wrap gap-2">
               {aiSuggestions.map((name, i) => (
                 <button
                   key={i}
                   type="button"
                   onClick={() => { setBusinessName(name); setAiSuggestions([]); }}
-                  className="px-3 py-1.5 rounded-lg border border-border bg-card text-sm hover:border-accent/50 hover:bg-accent/5 transition-all focus:outline-none"
-                >
+                  className="px-3 py-1.5 rounded-lg border border-border bg-card text-sm hover:border-accent/50 hover:bg-accent/5 transition-all focus:outline-none">
                   {name}
                 </button>
               ))}
@@ -884,8 +876,7 @@ export default function Onboarding() {
             variant="accent"
             className="w-full h-11"
             onClick={handleBusinessContinue}
-            disabled={!businessName.trim() || isLoading}
-          >
+            disabled={!businessName.trim() || isLoading}>
             {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
             {selectedPath && !ONBOARDING_PATHS[selectedPath]?.surfaceType ? "Create My Space" : "Next"}
           </Button>
@@ -942,7 +933,7 @@ export default function Onboarding() {
               <p className="text-sm text-success">{pathConfig.domain}/{slug} is available!</p>
             ) : slugAvailable === false ? (
               <p className="text-sm text-destructive">This URL is already taken</p>
-            ) : slug.length >= 3 ? (
+            ) : slug.length>= 3 ? (
               <p className="text-sm text-muted-foreground">{pathConfig.domain}/{slug}</p>
             ) : null}
           </div>

@@ -65,11 +65,9 @@ export default function ManageAppReview() {
             style={{
               color: activeTab === tab.id ? "#F46D2A" : "rgba(255,255,255,0.5)",
               background: activeTab === tab.id ? "rgba(244,109,42,0.08)" : "transparent",
-              borderBottom: activeTab === tab.id ? "2px solid #F46D2A" : "2px solid transparent",
-            }}
-          >
+              borderBottom: activeTab === tab.id ? "2px solid #F46D2A" : "2px solid transparent" }}>
             {tab.label}
-            {tab.count > 0 && (
+            {tab.count> 0 && (
               <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10">{tab.count}</span>
             )}
           </button>
@@ -80,15 +78,14 @@ export default function ManageAppReview() {
         <div className="flex justify-center py-16"><Loader2 className="w-6 h-6 text-muted-foreground animate-spin" /></div>
       ) : selectedListing ? (
         <ReviewDetail listingId={selectedListing} onBack={() => setSelectedListing(null)} />
-      ) : filtered.length > 0 ? (
+      ) : filtered.length> 0 ? (
         <div className="space-y-2">
           {filtered.map((listing) => (
             <div
               key={listing.id}
               onClick={() => setSelectedListing(listing.id)}
               className="rounded-xl p-4 cursor-pointer hover:border-white/20 transition-colors"
-              style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}
-            >
+              style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-foreground text-sm font-semibold">{listing.name}</h3>
@@ -267,7 +264,7 @@ function ReviewDetail({ listingId, onBack }: { listingId: string; onBack: () => 
       </div>
 
       {/* Scopes requested */}
-      {scopes && scopes.length > 0 && (
+      {scopes && scopes.length> 0 && (
         <div className="rounded-xl p-4 mb-4" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)" }}>
           <h3 className="text-foreground text-sm font-semibold mb-2 flex items-center gap-2"><Shield className="w-4 h-4" /> Requested Scopes</h3>
           <div className="space-y-1">
@@ -295,7 +292,7 @@ function ReviewDetail({ listingId, onBack }: { listingId: string; onBack: () => 
       {latestRun && (
         <div className="rounded-xl p-4 mb-4" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)" }}>
           <h3 className="text-foreground text-sm font-semibold mb-2">Latest Review (Score: {latestRun.score}/100)</h3>
-          {latestReasons.length > 0 ? (
+          {latestReasons.length> 0 ? (
             <div className="space-y-2">
               {latestReasons.map((r: any, i: number) => (
                 <div key={i} className="flex items-start gap-2 text-xs">
@@ -318,13 +315,13 @@ function ReviewDetail({ listingId, onBack }: { listingId: string; onBack: () => 
       )}
 
       {/* Appeals */}
-      {appeals && appeals.length > 0 && (
+      {appeals && appeals.length> 0 && (
         <div className="rounded-xl p-4 mb-4" style={{ background: "rgba(168,85,247,0.04)", border: "1px solid rgba(168,85,247,0.12)" }}>
           <h3 className="text-foreground text-sm font-semibold mb-2 flex items-center gap-2"><MessageSquare className="w-4 h-4 text-purple-400" /> Appeals</h3>
           {appeals.map((a) => (
             <div key={a.id} className="mb-3 last:mb-0">
               <p className="text-xs text-muted-foreground">{a.message}</p>
-              {a.evidence_links && (a.evidence_links as string[]).length > 0 && (
+              {a.evidence_links && (a.evidence_links as string[]).length> 0 && (
                 <div className="mt-1">
                   {(a.evidence_links as string[]).map((link, i) => (
                     <a key={i} href={link} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-400 hover:underline block">{link}</a>
@@ -382,8 +379,7 @@ function ActionButton({ label, onClick, isPending, variant }: {
       onClick={onClick}
       disabled={isPending}
       className="px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-50"
-      style={{ background: bg, color }}
-    >
+      style={{ background: bg, color }}>
       {isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : label}
     </button>
   );

@@ -48,8 +48,7 @@ export function ImageAdsLinkStep({ onSelectProduct, onManualSetup, onAnalyze }: 
             <div
               key={p.label}
               className="h-9 w-9 rounded-full overflow-hidden bg-muted/40 flex items-center justify-center shrink-0"
-              title={p.label}
-            >
+              title={p.label}>
               <img src={p.icon} alt={p.label} className="h-full w-full object-cover" />
             </div>
           ))}
@@ -68,8 +67,7 @@ export function ImageAdsLinkStep({ onSelectProduct, onManualSetup, onAnalyze }: 
           />
           <button
             onClick={handleTryLink}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-accent text-sm font-medium hover:underline"
-          >
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-accent text-sm font-medium hover:underline">
             Try some link?
           </button>
         </div>
@@ -82,16 +80,14 @@ export function ImageAdsLinkStep({ onSelectProduct, onManualSetup, onAnalyze }: 
           className="h-12 rounded-xl border-border/60 text-sm font-semibold transition-all hover:border-transparent hover:text-foreground px-6"
           onMouseEnter={(e) => { e.currentTarget.style.background = 'linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)'; }}
           onMouseLeave={(e) => { e.currentTarget.style.background = ''; }}
-          onClick={onSelectProduct}
-        >
+          onClick={onSelectProduct}>
           Choose existing product
         </Button>
         <Button
           variant="accent"
           className="h-12 rounded-xl text-sm font-semibold px-6"
           disabled={!url.trim()}
-          onClick={() => url.trim() && onAnalyze(url)}
-        >
+          onClick={() => url.trim() && onAnalyze(url)}>
           <Sparkles className="h-4 w-4 mr-2" />
           Analyze URL
         </Button>

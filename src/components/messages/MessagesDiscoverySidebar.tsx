@@ -46,8 +46,7 @@ export function MessagesDiscoverySidebar({ onUserClick }: Props) {
       <div className="p-3">
         <div
           className="flex items-center gap-2 rounded-lg px-3 py-2"
-          style={{ background: "rgba(255,255,255,0.06)" }}
-        >
+          style={{ background: "rgba(255,255,255,0.06)" }}>
           <Search className="w-4 h-4 text-muted-foreground" />
           <input
             value={search}
@@ -89,12 +88,10 @@ export function MessagesDiscoverySidebar({ onUserClick }: Props) {
               <button
                 key={user.id}
                 onClick={() => onUserClick(user.id)}
-                className="w-full flex items-center gap-3 py-2.5 px-2 rounded-lg hover:bg-white/5 transition-colors text-left"
-              >
+                className="w-full flex items-center gap-3 py-2.5 px-2 rounded-lg hover:bg-white/5 transition-colors text-left">
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
-                  style={{ background: "rgba(255,255,255,0.1)", }}
-                >
+                  style={{ background: "rgba(255,255,255,0.1)" }}>
                   {resolved ? (
                     <img src={resolved} alt="" className="w-10 h-10 rounded-full object-cover" />
                   ) : (

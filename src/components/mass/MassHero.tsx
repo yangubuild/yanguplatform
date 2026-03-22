@@ -10,9 +10,7 @@ export function MassHero() {
           radial-gradient(circle at 22% 38%, rgba(41, 96, 72, 0.28) 0%, rgba(21, 38, 31, 0.18) 32%, rgba(10, 23, 16, 0) 62%),
           linear-gradient(90deg, #174638 0%, #15261F 42%, #0A1710 78%)
         `,
-        boxShadow: 'inset 0 0 120px rgba(0,0,0,0.45)',
-      }}
-    >
+        boxShadow: 'inset 0 0 120px rgba(0,0,0,0.45)' }}>
       <div className="relative z-10 max-w-md">
         <h1 className={`${T.hero} mb-4`}>
           <span className="text-foreground block">Build and.</span>

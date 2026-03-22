@@ -46,7 +46,7 @@ export default function UniversityLessonViewer() {
     const richContent = courseContent ? courseContent[idx] : (course.id === 1 ? MASTER_LIBRARY_LESSONS[idx] : null);
 
     const progress =
-      courseLessons.length > 0
+      courseLessons.length> 0
         ? Math.round((completedLessons.size / courseLessons.length) * 100)
         : 0;
 
@@ -65,8 +65,7 @@ export default function UniversityLessonViewer() {
           <aside className="w-64 shrink-0 border-r border-border pr-6 hidden md:block">
             <Link
               to={`/dashboard/visionaire/university/${slug}`}
-              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
-            >
+              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6">
               <ArrowLeft className="h-4 w-4" /> Back to Masterclass
             </Link>
 
@@ -89,8 +88,7 @@ export default function UniversityLessonViewer() {
                       isActive
                         ? "text-foreground font-medium"
                         : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
+                    }`}>
                     {isComplete ? (
                       <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
                     ) : isActive ? (
@@ -141,8 +139,7 @@ export default function UniversityLessonViewer() {
                 variant={completedLessons.has(idx) ? "outline" : "destructive"}
                 className="gap-2"
                 onClick={handleMarkComplete}
-                disabled={completedLessons.has(idx)}
-              >
+                disabled={completedLessons.has(idx)}>
                 {completedLessons.has(idx) ? (
                   <>
                     <CheckCircle2 className="h-4 w-4" /> Completed
@@ -157,12 +154,11 @@ export default function UniversityLessonViewer() {
 
             {/* Prev / Next buttons */}
             <div className="mt-6 flex items-center justify-between">
-              {idx > 0 ? (
+              {idx> 0 ? (
                 <Button
                   variant="outline"
                   className="gap-2"
-                  onClick={() => navigate(`${basePath}/lesson/${idx - 1}`)}
-                >
+                  onClick={() => navigate(`${basePath}/lesson/${idx - 1}`)}>
                   <ArrowLeft className="h-4 w-4" /> Previous
                 </Button>
               ) : (
@@ -172,8 +168,7 @@ export default function UniversityLessonViewer() {
                 <Button
                   variant="outline"
                   className="gap-2"
-                  onClick={() => navigate(`${basePath}/lesson/${idx + 1}`)}
-                >
+                  onClick={() => navigate(`${basePath}/lesson/${idx + 1}`)}>
                   Next <ArrowRight className="h-4 w-4" />
                 </Button>
               ) : (
@@ -191,8 +186,7 @@ export default function UniversityLessonViewer() {
                     to={`${basePath}/lesson/${i}`}
                     className={`block px-3 py-2 rounded-lg text-sm ${
                       i === idx ? "bg-muted font-medium text-foreground" : "text-muted-foreground"
-                    }`}
-                  >
+                    }`}>
                     {lesson.title}
                   </Link>
                 ))}
@@ -241,7 +235,7 @@ export default function UniversityLessonViewer() {
   }
 
   const progress =
-    lessons.length > 0 ? Math.round((completedLessons.size / lessons.length) * 100) : 0;
+    lessons.length> 0 ? Math.round((completedLessons.size / lessons.length) * 100) : 0;
 
   const handleMarkComplete = () => {
     setCompletedLessons((prev) => {
@@ -257,8 +251,7 @@ export default function UniversityLessonViewer() {
         <aside className="w-64 shrink-0 border-r border-border pr-6 hidden md:block">
           <Link
             to={`/dashboard/visionaire/university/${slug}`}
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
-          >
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6">
             <ArrowLeft className="h-4 w-4" /> Master Library Masterclass
           </Link>
 
@@ -281,8 +274,7 @@ export default function UniversityLessonViewer() {
                     isActive
                       ? "text-foreground font-medium"
                       : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
+                  }`}>
                   {isComplete ? (
                     <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
                   ) : isActive ? (
@@ -325,8 +317,7 @@ export default function UniversityLessonViewer() {
               variant={completedLessons.has(idx) ? "outline" : "destructive"}
               className="gap-2"
               onClick={handleMarkComplete}
-              disabled={completedLessons.has(idx)}
-            >
+              disabled={completedLessons.has(idx)}>
               {completedLessons.has(idx) ? (
                 <>
                   <CheckCircle2 className="h-4 w-4" /> Completed
@@ -348,8 +339,7 @@ export default function UniversityLessonViewer() {
                   to={`/dashboard/visionaire/university/${slug}/lessons/${i}`}
                   className={`block px-3 py-2 rounded-lg text-sm ${
                     i === idx ? "bg-muted font-medium text-foreground" : "text-muted-foreground"
-                  }`}
-                >
+                  }`}>
                   {lesson.title}
                 </Link>
               ))}

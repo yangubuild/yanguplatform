@@ -109,14 +109,12 @@ export function StaffPanel() {
     <div className="flex flex-col h-full" style={{ background: "#111820" }}>
       <div
         className="flex items-center justify-between px-4 py-3 shrink-0"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
-      >
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         <span className="text-sm font-semibold text-foreground">Team</span>
         <button
           onClick={() => setTeamModalOpen(true)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
-          style={{ background: "rgba(181,98,42,0.12)", color: "#E67E22" }}
-        >
+          style={{ background: "rgba(181,98,42,0.12)", color: "#E67E22" }}>
           <Plus className="w-3.5 h-3.5" /> Add Team
         </button>
       </div>
@@ -144,12 +142,10 @@ export function StaffPanel() {
               return (
                 <div
                   key={`${member.user_id}-${member.org_id}-${i}`}
-                  className="flex items-center gap-3 py-2.5 px-2 rounded-lg hover:bg-white/5 transition-colors group"
-                >
+                  className="flex items-center gap-3 py-2.5 px-2 rounded-lg hover:bg-white/5 transition-colors group">
                   <div
                     className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
-                    style={{ background: "rgba(255,255,255,0.1)", }}
-                  >
+                    style={{ background: "rgba(255,255,255,0.1)" }}>
                     {avatarUrl ? (
                       <img src={avatarUrl} alt={name} className="w-10 h-10 rounded-full object-cover" />
                     ) : (
@@ -166,8 +162,7 @@ export function StaffPanel() {
                     <button
                       onClick={() => handleRemoveMember(member)}
                       className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg transition-opacity text-muted-foreground"
-                      title="Remove member"
-                    >
+                      title="Remove member">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   )}
@@ -176,7 +171,7 @@ export function StaffPanel() {
             })}
 
             {/* Pending invites */}
-            {invites.length > 0 && (
+            {invites.length> 0 && (
               <>
                 <div className="pt-2 pb-1 px-2">
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -187,12 +182,10 @@ export function StaffPanel() {
                   <div
                     key={inv.id}
                     className="flex items-center gap-3 py-2.5 px-2 rounded-lg"
-                    style={{ opacity: 0.6 }}
-                  >
+                    style={{ opacity: 0.6 }}>
                     <div
                       className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
-                      style={{ background: "rgba(255,255,255,0.06)" }}
-                    >
+                      style={{ background: "rgba(255,255,255,0.06)" }}>
                       <Mail className="w-4 h-4 text-muted-foreground" />
                     </div>
                     <div className="flex-1 min-w-0">

@@ -85,7 +85,7 @@ export function MainContentSwitcher({
   // Only show variants if the current type matches a registered target
   const showVariants =
     variantConfig &&
-    variantConfig.allowed.length > 1 &&
+    variantConfig.allowed.length> 1 &&
     currentMainContentType &&
     registryTargets.includes(currentMainContentType);
 
@@ -115,14 +115,13 @@ export function MainContentSwitcher({
             "h-6 w-6 shrink-0 rounded-md inline-flex items-center justify-center text-muted-foreground/70 hover:text-foreground hover:bg-muted transition-colors",
             className
           )}
-          aria-label="Switch main content type"
-        >
+          aria-label="Switch main content type">
           <ArrowLeftRight className="h-3.5 w-3.5" />
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-60 p-2" align="start" side="right">
-        {/* Section type switcher — only if >1 target */}
-        {targets.length > 1 && (
+        {/* Section type switcher — only if>1 target */}
+        {targets.length> 1 && (
           <>
             <div className="px-3 py-1.5">
               <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
@@ -147,8 +146,7 @@ export function MainContentSwitcher({
                         ? "bg-primary/10 text-primary font-medium cursor-default"
                         : "hover:bg-muted",
                       isLegacy && "opacity-70"
-                    )}
-                  >
+                    )}>
                     <span>{meta.icon}</span>
                     <span className="flex-1">{meta.label}</span>
                     {isCurrent && !isLegacy && (
@@ -189,8 +187,7 @@ export function MainContentSwitcher({
                       isCurrent
                         ? "bg-accent/10 text-accent-foreground font-medium cursor-default"
                         : "hover:bg-muted"
-                    )}
-                  >
+                    )}>
                     <span className="flex-1">{VARIANT_LABELS[mode] || mode}</span>
                     {isCurrent && (
                       <span className="text-[10px] text-muted-foreground">Active</span>

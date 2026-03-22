@@ -95,8 +95,7 @@ export function CanvasEditableText({
           editing
             ? "ring-1 ring-primary/50 rounded px-1 -mx-1 bg-primary/5"
             : "hover:ring-1 hover:ring-primary/30 hover:rounded hover:px-1 hover:-mx-1 cursor-text"
-        }`}
-      >
+        }`}>
         {value || placeholder}
       </Tag>
 
@@ -107,8 +106,7 @@ export function CanvasEditableText({
             <button
               onClick={(e) => { e.stopPropagation(); setShowAi(true); }}
               className="absolute -right-6 top-0 opacity-0 group-hover/edit:opacity-100 transition-opacity p-0.5 rounded hover:bg-primary/10"
-              title="Rewrite with Ada"
-            >
+              title="Rewrite with Ada">
               <Sparkles className="h-3 w-3 text-primary" />
             </button>
           </PopoverTrigger>
@@ -116,16 +114,14 @@ export function CanvasEditableText({
             className="w-48 p-2"
             side="right"
             align="start"
-            onClick={(e) => e.stopPropagation()}
-          >
+            onClick={(e) => e.stopPropagation()}>
             <p className="text-[10px] font-medium text-muted-foreground mb-1.5 px-1">✨ Rewrite with Ada</p>
             <div className="space-y-0.5">
               {REWRITE_OPTIONS.map((opt) => (
                 <button
                   key={opt.label}
                   onClick={() => handleRewrite(opt.instruction)}
-                  className="w-full text-left text-xs px-2 py-1.5 rounded hover:bg-accent transition-colors"
-                >
+                  className="w-full text-left text-xs px-2 py-1.5 rounded hover:bg-accent transition-colors">
                   {opt.label}
                 </button>
               ))}

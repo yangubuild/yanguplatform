@@ -199,8 +199,7 @@ export default function Billing() {
                 size="sm"
                 onClick={handleActivateTrial}
                 disabled={isUpdating || hasUsedTrial}
-                className="w-full"
-              >
+                className="w-full">
                 {isUpdating ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 ) : hasUsedTrial ? (

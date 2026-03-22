@@ -90,8 +90,7 @@ export default function ProductMockups() {
             </div>
             <button
               onClick={() => setActiveView("grid")}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               ← Back
             </button>
           </div>
@@ -116,8 +115,7 @@ export default function ProductMockups() {
             <button
               key={r.id}
               onClick={() => handleCardClick(r)}
-              className="group text-left rounded-xl border border-border bg-card overflow-hidden hover:shadow-md transition-shadow"
-            >
+              className="group text-left rounded-xl border border-border bg-card overflow-hidden hover:shadow-md transition-shadow">
               <div className="overflow-hidden">
                 <img
                   src={r.image}

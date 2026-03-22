@@ -51,8 +51,7 @@ export function IndustryTypeFilter({ value, onChange }: Props) {
           <SelectItem
             key={industry}
             value={industry}
-            className="text-sm text-muted-foreground hover:text-foreground focus:bg-white/10 focus:text-foreground cursor-pointer"
-          >
+            className="text-sm text-muted-foreground hover:text-foreground focus:bg-white/10 focus:text-foreground cursor-pointer">
             {industry}
           </SelectItem>
         ))}

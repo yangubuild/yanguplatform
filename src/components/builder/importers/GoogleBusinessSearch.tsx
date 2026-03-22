@@ -152,14 +152,13 @@ export function GoogleBusinessSearch({ onSelect, onBack }: Props) {
               )}
             </div>
 
-            {predictions.length > 0 && !selected && (
+            {predictions.length> 0 && !selected && (
               <div className="absolute left-0 right-0 mt-1 z-10 rounded-lg border border-border bg-card shadow-lg overflow-hidden">
                 {predictions.map((p, i) => (
                   <button
                     key={i}
                     onClick={() => handleSelectPrediction(p)}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-accent/50 transition-colors"
-                  >
+                    className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-accent/50 transition-colors">
                     <MapPin className="h-4 w-4 text-muted-foreground shrink-0" />
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">{p.name}</p>
@@ -191,12 +190,12 @@ export function GoogleBusinessSearch({ onSelect, onBack }: Props) {
               {selected.website && <p className="text-xs text-muted-foreground truncate">🌐 {selected.website}</p>}
               {selected.category && <p className="text-xs text-muted-foreground">🏷️ {selected.category}</p>}
               {selected.description && <p className="text-xs text-muted-foreground italic">{selected.description}</p>}
-              {selected.photos && selected.photos.length > 0 && (
+              {selected.photos && selected.photos.length> 0 && (
                 <div className="flex gap-1.5 overflow-x-auto pt-1">
                   {selected.photos.slice(0, 4).map((url, i) => (
                     <img key={i} src={url} alt={`${selected.name} photo ${i + 1}`} className="h-14 w-14 rounded object-cover shrink-0" />
                   ))}
-                  {selected.photos.length > 4 && (
+                  {selected.photos.length> 4 && (
                     <div className="h-14 w-14 rounded bg-muted flex items-center justify-center text-xs text-muted-foreground shrink-0">
                       +{selected.photos.length - 4}
                     </div>

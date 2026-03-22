@@ -36,7 +36,7 @@ function CreateGroupForm({ onCancel, onCreated }: { onCancel: () => void; onCrea
 
   const { data: results = [], isLoading } = useQuery({
     queryKey: ["group-search-users", user?.id, normalized, selectedIds.join(",")],
-    enabled: !!user && normalized.length >= 2,
+    enabled: !!user && normalized.length>= 2,
     queryFn: async (): Promise<SearchProfile[]> => {
       const { data, error } = await supabase
         .from("profiles")
@@ -100,7 +100,7 @@ function CreateGroupForm({ onCancel, onCreated }: { onCancel: () => void; onCrea
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, business, or category" className="flex-1 bg-transparent text-xs outline-none text-foreground" />
           </div>
 
-          {selectedProfiles.length > 0 && (
+          {selectedProfiles.length> 0 && (
             <div className="flex flex-wrap gap-1.5">
               {selectedProfiles.map((p) => (
                 <span key={p.id} className="inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[10px]" style={{ background: "hsl(var(--secondary))", borderColor: "hsl(var(--border))" }}>

@@ -73,8 +73,7 @@ export function FriendsPanel({ onViewProfile }: FriendsPanelProps) {
         <div className="p-3">
           <div
             className="flex items-center gap-2 rounded-lg px-3 py-2"
-            style={{ background: "rgba(255,255,255,0.06)" }}
-          >
+            style={{ background: "rgba(255,255,255,0.06)" }}>
             <Search className="w-4 h-4 text-muted-foreground" />
             <input
               type="text"
@@ -94,12 +93,10 @@ export function FriendsPanel({ onViewProfile }: FriendsPanelProps) {
           <button
             onClick={() => navigate("/dashboard/affiliates")}
             className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 hover:opacity-90 transition-opacity"
-            style={{ background: "rgba(181,98,42,0.1)", border: "1px solid rgba(181,98,42,0.15)" }}
-          >
+            style={{ background: "rgba(181,98,42,0.1)", border: "1px solid rgba(181,98,42,0.15)" }}>
             <div
               className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-              style={{ background: "rgba(181,98,42,0.2)" }}
-            >
+              style={{ background: "rgba(181,98,42,0.2)" }}>
               <span className="text-sm">💰</span>
             </div>
             <div className="flex-1 text-left min-w-0">
@@ -110,8 +107,7 @@ export function FriendsPanel({ onViewProfile }: FriendsPanelProps) {
             </div>
             <span
               className="px-2 py-0.5 rounded text-[10px] font-bold shrink-0"
-              style={{ background: "rgba(181,98,42,0.3)", color: "#E67E22" }}
-            >
+              style={{ background: "rgba(181,98,42,0.3)", color: "#E67E22" }}>
               New
             </span>
           </button>
@@ -129,8 +125,7 @@ export function FriendsPanel({ onViewProfile }: FriendsPanelProps) {
             <button
               className="text-xs font-medium"
               style={{ color: "#E67E22" }}
-              onClick={() => {/* Already showing full list */}}
-            >
+              onClick={() => {/* Already showing full list */}}>
               See all
             </button>
           </div>
@@ -158,12 +153,10 @@ export function FriendsPanel({ onViewProfile }: FriendsPanelProps) {
               <button
                 key={user.id}
                 onClick={() => setSelectedUser(user)}
-                className="w-full flex items-center gap-3 py-2.5 px-2 rounded-lg hover:bg-white/5 transition-colors text-left"
-              >
+                className="w-full flex items-center gap-3 py-2.5 px-2 rounded-lg hover:bg-white/5 transition-colors text-left">
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
-                  style={{ background: "rgba(255,255,255,0.1)", }}
-                >
+                  style={{ background: "rgba(255,255,255,0.1)" }}>
                   {resolved ? (
                     <img src={resolved} alt="" className="w-10 h-10 rounded-full object-cover" />
                   ) : (

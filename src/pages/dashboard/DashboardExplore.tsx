@@ -59,39 +59,39 @@ export default function DashboardExplore() {
   }, [verifiedEntities, productEntities, serviceEntities, communityEntities, popularEntities]);
 
   return (
-    <div className="min-h-full" style={{ background: '#08120D' }}>
+    <div className="min-h-full" >
       <div className="px-4 sm:px-6 lg:px-10 py-6 max-w-[1100px] mx-auto">
         <LandingTestPromptArea />
         <LandingTestGettingStarted />
         <PremiumBusinessRow
           title="Trusted Businesses"
-          entities={verifiedSlotted.length > 0 ? verifiedSlotted : undefined}
+          entities={verifiedSlotted.length> 0 ? verifiedSlotted : undefined}
           businesses={verifiedBusinesses}
         />
         <BusinessIdeasRow />
         <PremiumBusinessRow
           title="Buy From"
           subtitle="Shop products from verified sellers and businesses on yangu"
-          entities={productSlotted.length > 0 ? productSlotted : undefined}
+          entities={productSlotted.length> 0 ? productSlotted : undefined}
           businesses={salesCommunityBusinesses}
         />
         <LandingTestDynamicBanner slot="middle" bannerData={banners?.middle} />
         <PremiumBusinessRow
           title="Find Services"
           subtitle="Find expert services from coaches, consultants, and freelancers"
-          entities={serviceSlotted.length > 0 ? serviceSlotted : undefined}
+          entities={serviceSlotted.length> 0 ? serviceSlotted : undefined}
           businesses={mindsetCoachingBusinesses}
         />
         <PremiumBusinessRow
           title="Join Communities"
           subtitle="Join communities for learning, networking, and growth"
-          entities={communitySlotted.length > 0 ? communitySlotted : undefined}
+          entities={communitySlotted.length> 0 ? communitySlotted : undefined}
           businesses={weightLossCoachingBusinesses}
         />
         <LandingTestDynamicBanner slot="lower" bannerData={banners?.lower} />
         
         <PopularBusinessGrid
-          entities={popularSlotted.length > 0 ? popularSlotted : undefined}
+          entities={popularSlotted.length> 0 ? popularSlotted : undefined}
           businesses={popularBusinesses}
         />
         <LandingTestFooter />

@@ -102,11 +102,10 @@ export default function GoogleDrivePage() {
   };
 
   return (
-    <div className="w-full min-h-screen px-6 py-6" style={{ background: "#08120D" }}>
+    <div className="w-full min-h-screen px-6 py-6 bg-background">
       <button
         onClick={() => navigate("/dashboard/my-apps")}
-        className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm mb-6 transition-colors"
-      >
+        className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm mb-6 transition-colors">
         <ArrowLeft className="w-4 h-4" /> Back to My Apps
       </button>
 
@@ -121,8 +120,7 @@ export default function GoogleDrivePage() {
             onClick={() => fetchFiles(searchQuery)}
             disabled={fetching}
             className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground transition-colors"
-            style={{ background: "rgba(255,255,255,0.06)" }}
-          >
+            style={{ background: "rgba(255,255,255,0.06)" }}>
             <RefreshCw className={`w-4 h-4 ${fetching ? "animate-spin" : ""}`} />
             Refresh
           </button>
@@ -165,8 +163,7 @@ export default function GoogleDrivePage() {
               return (
                 <div
                   key={file.id}
-                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.04] transition-colors group"
-                >
+                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.04] transition-colors group">
                   {file.thumbnailLink ? (
                     <img src={file.thumbnailLink} alt="" className="w-9 h-9 rounded-lg object-cover flex-shrink-0" />
                   ) : (
@@ -185,8 +182,7 @@ export default function GoogleDrivePage() {
                     <button
                       onClick={() => handleImport(file)}
                       className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/10 transition-colors"
-                      title="Copy link for import"
-                    >
+                      title="Copy link for import">
                       <Download className="w-4 h-4" />
                     </button>
                     {file.webViewLink && (
@@ -195,8 +191,7 @@ export default function GoogleDrivePage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/10 transition-colors"
-                        title="Open in Google Drive"
-                      >
+                        title="Open in Google Drive">
                         <ExternalLink className="w-4 h-4" />
                       </a>
                     )}
@@ -214,8 +209,7 @@ export default function GoogleDrivePage() {
               onClick={() => fetchFiles(searchQuery, nextPageToken)}
               disabled={fetching}
               className="px-4 py-2 rounded-xl text-sm text-muted-foreground hover:text-foreground transition-colors"
-              style={{ background: "rgba(255,255,255,0.06)" }}
-            >
+              style={{ background: "rgba(255,255,255,0.06)" }}>
               {fetching ? "Loading..." : "Load more"}
             </button>
           </div>

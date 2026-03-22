@@ -38,7 +38,7 @@ export function OverviewSection({ surface, userId, onSurfaceUpdate }: OverviewSe
   const [newTitle, setNewTitle] = useState(surface.title || "");
   const { renameSurface } = useSurfaceActions();
 
-  const isPublished = surface.activePublishes.length > 0;
+  const isPublished = surface.activePublishes.length> 0;
   const isArchived = !!surface.archived_at;
 
   const handleSave = async () => {
@@ -89,8 +89,7 @@ export function OverviewSection({ surface, userId, onSurfaceUpdate }: OverviewSe
           </div>
           <Badge 
             variant={isPublished ? "default" : "secondary"}
-            className={isPublished ? "bg-success text-success-foreground" : ""}
-          >
+            className={isPublished ? "bg-success text-success-foreground" : ""}>
             {isArchived ? "Archived" : isPublished ? "Live" : "Draft"}
           </Badge>
         </div>
@@ -106,8 +105,7 @@ export function OverviewSection({ surface, userId, onSurfaceUpdate }: OverviewSe
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsEditing(true)}
-                disabled={isArchived}
-              >
+                disabled={isArchived}>
                 <Pencil className="h-4 w-4 mr-2" />
                 Edit
               </Button>
@@ -128,8 +126,7 @@ export function OverviewSection({ surface, userId, onSurfaceUpdate }: OverviewSe
                 </Button>
                 <Button
                   onClick={handleSave}
-                  disabled={!newTitle.trim() || renameSurface.isPending}
-                >
+                  disabled={!newTitle.trim() || renameSurface.isPending}>
                   {renameSurface.isPending ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />

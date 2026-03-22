@@ -224,8 +224,7 @@ export function SurfaceSettingsDialog({
                 variant="outline"
                 className="gap-1.5"
                 onClick={() => triggerFileInput("favicon")}
-                disabled={uploadingFavicon}
-              >
+                disabled={uploadingFavicon}>
                 {uploadingFavicon ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 ) : (
@@ -238,8 +237,7 @@ export function SurfaceSettingsDialog({
                   size="sm"
                   variant="ghost"
                   className="text-xs text-destructive"
-                  onClick={() => setFaviconUrl("")}
-                >
+                  onClick={() => setFaviconUrl("")}>
                   Remove
                 </Button>
               )}
@@ -260,8 +258,7 @@ export function SurfaceSettingsDialog({
                   className="w-full h-32 object-cover"
                 />
                 <div className="absolute inset-0 bg-black/0 hover:bg-black/30 transition-all flex items-center justify-center gap-2 group cursor-pointer"
-                  onClick={() => triggerFileInput("cover")}
-                >
+                  onClick={() => triggerFileInput("cover")}>
                   <span className="opacity-0 group-hover:opacity-100 transition-opacity text-foreground text-xs font-medium bg-black/50 px-2.5 py-1 rounded-full">
                     Change cover
                   </span>
@@ -270,8 +267,7 @@ export function SurfaceSettingsDialog({
             ) : (
               <div
                 className="w-full h-32 rounded-lg border border-dashed border-border bg-muted flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-muted/80 transition-colors"
-                onClick={() => triggerFileInput("cover")}
-              >
+                onClick={() => triggerFileInput("cover")}>
                 {uploadingCover ? (
                   <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                 ) : (
@@ -291,8 +287,7 @@ export function SurfaceSettingsDialog({
                   onClick={() => {
                     setCropImageSrc(coverImageUrl);
                     setShowCropDialog(true);
-                  }}
-                >
+                  }}>
                   <Crop className="h-3.5 w-3.5" />
                   Resize / Reposition
                 </Button>
@@ -300,8 +295,7 @@ export function SurfaceSettingsDialog({
                   size="sm"
                   variant="ghost"
                   className="text-xs text-destructive"
-                  onClick={() => setCoverImageUrl("")}
-                >
+                  onClick={() => setCoverImageUrl("")}>
                   Remove cover
                 </Button>
               </div>

@@ -117,7 +117,7 @@ export function useSurfaces(options: UseSurfacesOptions = {}) {
           }
           const meta = bs.metadata as any;
           let cover: string | null = null;
-          if (meta?.photos && Array.isArray(meta.photos) && meta.photos.length > 0) {
+          if (meta?.photos && Array.isArray(meta.photos) && meta.photos.length> 0) {
             cover = meta.photos[0];
           }
           if (!cover && meta?.ai_profile?.avatar_url) {

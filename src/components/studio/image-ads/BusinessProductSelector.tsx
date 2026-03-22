@@ -73,8 +73,7 @@ export function BusinessProductSelector({ onBack, onImport }: Props) {
               <button
                 key={biz.id}
                 onClick={() => setSelectedBusiness(biz.id)}
-                className="flex items-center gap-4 rounded-xl border border-border/40 px-5 py-5 text-left transition-colors hover:border-border bg-card/60 hover:bg-muted/30"
-              >
+                className="flex items-center gap-4 rounded-xl border border-border/40 px-5 py-5 text-left transition-colors hover:border-border bg-card/60 hover:bg-muted/30">
                 <div className="h-10 w-10 rounded-lg bg-muted/40 flex items-center justify-center">
                   <Store className="h-5 w-5 text-muted-foreground" />
                 </div>
@@ -96,8 +95,7 @@ export function BusinessProductSelector({ onBack, onImport }: Props) {
                   onClick={() => toggleProduct(product.id)}
                   className={`group relative rounded-xl border-2 text-left transition-colors ${
                     isSelected ? "border-accent/60" : "border-transparent hover:border-border/40"
-                  }`}
-                >
+                  }`}>
                   {/* Checkbox */}
                   <div className={`absolute top-3 left-3 z-10 h-4 w-4 rounded border border-border/60 flex items-center justify-center ${
                     isSelected ? "bg-accent border-accent" : "bg-card/60"
@@ -134,8 +132,7 @@ export function BusinessProductSelector({ onBack, onImport }: Props) {
             variant="accent"
             disabled={selectedProducts.size === 0}
             onClick={() => onImport(Array.from(selectedProducts))}
-            className="rounded-lg"
-          >
+            className="rounded-lg">
             Use selected products
           </Button>
         </div>

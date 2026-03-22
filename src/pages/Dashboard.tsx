@@ -26,8 +26,8 @@ export default function Dashboard() {
     navigate(`/s/${surface.id}/preview`);
   };
 
-  const hasSurfaces = surfaces && surfaces.length > 0;
-  const activeSurfacesCount = surfaces?.filter((s) => s.activePublishes.length > 0).length || 0;
+  const hasSurfaces = surfaces && surfaces.length> 0;
+  const activeSurfacesCount = surfaces?.filter((s) => s.activePublishes.length> 0).length || 0;
 
   const handleCreateSurface = () => {
     if (import.meta.env.DEV) console.log("[Dashboard] Navigating to /onboarding?new=1");
@@ -127,8 +127,7 @@ export default function Dashboard() {
                     />
                     <Label
                       htmlFor="show-archived"
-                      className="text-sm text-muted-foreground cursor-pointer flex items-center gap-1"
-                    >
+                      className="text-sm text-muted-foreground cursor-pointer flex items-center gap-1">
                       <Archive className="h-3.5 w-3.5" />
                       Show archived
                     </Label>

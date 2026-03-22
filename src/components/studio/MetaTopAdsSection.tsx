@@ -131,8 +131,7 @@ export function MetaTopAdsSection() {
         <div>
           <h2
             className="text-xl md:text-2xl font-black uppercase tracking-tight text-foreground"
-            style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}
-          >
+            style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>
             META TOP ADS
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
@@ -155,8 +154,7 @@ export function MetaTopAdsSection() {
               activeFilter === chip
                 ? "border-accent bg-accent/20 text-accent"
                 : "border-border/50 bg-transparent text-muted-foreground hover:border-border hover:text-foreground"
-            }`}
-          >
+            }`}>
             {chip}
           </button>
         ))}
@@ -167,8 +165,7 @@ export function MetaTopAdsSection() {
         {META_ADS.slice(0, 5).map((ad) => (
           <div
             key={ad.id}
-            className="rounded-xl border border-border/40 bg-card overflow-hidden flex flex-col"
-          >
+            className="rounded-xl border border-border/40 bg-card overflow-hidden flex flex-col">
             {/* brand header */}
             <div className="flex items-center gap-2 px-3 py-2.5">
               <div className="h-7 w-7 rounded-full bg-muted/60 flex items-center justify-center text-sm shrink-0">
@@ -244,8 +241,7 @@ export function MetaTopAdsSection() {
         {META_ADS.slice(5, 10).map((ad) => (
           <div
             key={ad.id}
-            className="rounded-xl border border-border/40 bg-card overflow-hidden flex flex-col"
-          >
+            className="rounded-xl border border-border/40 bg-card overflow-hidden flex flex-col">
             {/* brand header */}
             <div className="flex items-center gap-2 px-3 py-2.5">
               <div className="h-7 w-7 rounded-full bg-muted/60 flex items-center justify-center text-sm shrink-0">

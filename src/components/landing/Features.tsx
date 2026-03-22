@@ -54,8 +54,7 @@ export function Features() {
             <div
               key={feature.title}
               className="group rounded-2xl border border-border bg-card p-6 transition-all hover:border-accent/50 hover:shadow-lg"
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
+              style={{ animationDelay: `${index * 0.1}s` }}>
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10 text-accent transition-colors group-hover:bg-accent group-hover:text-accent-foreground">
                 <feature.icon className="h-6 w-6" />
               </div>

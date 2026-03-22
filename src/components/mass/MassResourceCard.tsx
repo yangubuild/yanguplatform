@@ -14,14 +14,11 @@ export function MassResourceCard({ image, title, category, featured = false, url
       href={url || "#"} 
       target="_blank" 
       rel="noopener noreferrer"
-      className="group cursor-pointer block"
-    >
+      className="group cursor-pointer block">
       <div 
         className="relative overflow-hidden rounded-xl mb-3"
         style={{
-          background: '#0A1710',
-        }}
-      >
+          background: '#0A1710' }}>
         <img
           src={image}
           alt={title}

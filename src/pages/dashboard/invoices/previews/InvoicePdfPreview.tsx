@@ -17,8 +17,7 @@ export function InvoicePdfPreview({ form }: Props) {
     <div className="flex justify-center pt-4">
       <div
         className="w-full max-w-lg rounded-lg overflow-hidden"
-        style={{ background: "white", color: "#111", minHeight: 500 }}
-      >
+        style={{ background: "white", color: "#111", minHeight: 500 }}>
         <div className="p-8">
           {/* Header */}
           <div className="flex justify-between items-start mb-8">

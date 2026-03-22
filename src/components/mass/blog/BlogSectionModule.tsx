@@ -34,9 +34,7 @@ export function BlogSectionModule({ title, subtitle, children, dashedBorder }: P
       className="px-6 py-10 transition-all duration-[400ms] ease-out"
       style={{
         opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(8px)",
-      }}
-    >
+        transform: visible ? "translateY(0)" : "translateY(8px)" }}>
       <div className="mx-auto" style={{ maxWidth: 1100 }}>
         {/* Dashed top border */}
         {dashedBorder && (
@@ -47,8 +45,7 @@ export function BlogSectionModule({ title, subtitle, children, dashedBorder }: P
         <div className="flex items-center justify-between mb-2">
           <h2
             className="text-xs font-semibold uppercase tracking-widest"
-            style={{ letterSpacing: "0.15em" }}
-          >
+            style={{ letterSpacing: "0.15em" }}>
             {title}
           </h2>
           <ArrowRight

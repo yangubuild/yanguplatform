@@ -182,13 +182,11 @@ export function DmThreadView({ targetUserId }: Props) {
       {/* Header */}
       <div
         className="flex items-center gap-3 px-4 py-3 shrink-0"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
-      >
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         <div className="relative">
           <div
             className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold overflow-hidden"
-            style={{ background: "rgba(255,255,255,0.1)" }}
-          >
+            style={{ background: "rgba(255,255,255,0.1)" }}>
             {targetAvatar ? (
               <img src={targetAvatar} alt="" className="w-8 h-8 rounded-full object-cover" />
             ) : (
@@ -200,8 +198,7 @@ export function DmThreadView({ targetUserId }: Props) {
             className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2"
             style={{
               background: isOnline ? "#22c55e" : "#6b7280",
-              borderColor: "#0F141A",
-            }}
+              borderColor: "#0F141A" }}
           />
         </div>
         <div className="flex-1">
@@ -216,20 +213,17 @@ export function DmThreadView({ targetUserId }: Props) {
         <div className="relative">
           <button
             onClick={() => setShowChatMenu(!showChatMenu)}
-            className="p-1.5 rounded-lg hover:opacity-80 text-muted-foreground"
-          >
+            className="p-1.5 rounded-lg hover:opacity-80 text-muted-foreground">
             <MoreVertical className="w-4 h-4" />
           </button>
           {showChatMenu && (
             <div
               className="absolute right-0 top-8 z-20 rounded-lg py-1 min-w-[160px]"
-              style={{ background: "#1a2027", border: "1px solid rgba(255,255,255,0.1)" }}
-            >
+              style={{ background: "#1a2027", border: "1px solid rgba(255,255,255,0.1)" }}>
               <button
                 onClick={() => { deleteChat.mutate(); setShowChatMenu(false); }}
                 className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:opacity-80"
-                style={{ color: "#ef4444" }}
-              >
+                style={{ color: "#ef4444" }}>
                 <Trash2 className="w-3.5 h-3.5" /> Delete Conversation
               </button>
             </div>
@@ -280,8 +274,7 @@ export function DmThreadView({ targetUserId }: Props) {
                 {!isMine && (
                   <div
                     className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold overflow-hidden shrink-0 mt-1"
-                    style={{ background: "rgba(255,255,255,0.1)" }}
-                  >
+                    style={{ background: "rgba(255,255,255,0.1)" }}>
                     {avatar ? (
                       <img src={avatar} alt="" className="w-7 h-7 rounded-full object-cover" />
                     ) : (
@@ -296,8 +289,7 @@ export function DmThreadView({ targetUserId }: Props) {
                        background: isMine ? "rgba(255, 255, 255, 0.12)" : "rgba(255, 255, 255, 0.06)",
                        backdropFilter: "blur(16px)",
                        WebkitBackdropFilter: "blur(16px)",
-                       border: isMine ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(255,255,255,0.07)", }}
-                  >
+                       border: isMine ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(255,255,255,0.07)" }}>
                     {renderContent(msg.content)}
                     <p className="text-[9px] mt-1 text-muted-foreground">
                       {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
@@ -308,40 +300,34 @@ export function DmThreadView({ targetUserId }: Props) {
                     <button
                       onClick={() => setMsgMenuId(msgMenuId === msg.id ? null : msg.id)}
                       className="p-1 rounded"
-                      style={{ background: "rgba(0,0,0,0.5)" }}
-                    >
+                      style={{ background: "rgba(0,0,0,0.5)" }}>
                       <MoreVertical className="w-3 h-3 text-muted-foreground" />
                     </button>
                   </div>
                   {msgMenuId === msg.id && (
                     <div
                       className="absolute top-6 right-0 z-20 rounded-lg py-1 min-w-[140px]"
-                      style={{ background: "#1a2027", border: "1px solid rgba(255,255,255,0.1)" }}
-                    >
+                      style={{ background: "#1a2027", border: "1px solid rgba(255,255,255,0.1)" }}>
                       <button
                         onClick={() => { setReplyTo({ id: msg.id, content: msg.content }); setMsgMenuId(null); }}
-                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:opacity-80 text-foreground"
-                      >
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:opacity-80 text-foreground">
                         <Reply className="w-3 h-3" /> Reply
                       </button>
                       <button
                         onClick={() => { handleForward(msg.content); setMsgMenuId(null); }}
-                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:opacity-80 text-foreground"
-                      >
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:opacity-80 text-foreground">
                         <Forward className="w-3 h-3" /> Forward
                       </button>
                       <button
                         onClick={() => { shareMessageExternal(msg.content); setMsgMenuId(null); toast.success("Shared"); }}
-                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:opacity-80 text-foreground"
-                      >
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:opacity-80 text-foreground">
                         <Share2 className="w-3 h-3" /> Share
                       </button>
                       {isMine && (
                         <button
                           onClick={() => { deleteMsg.mutate(msg.id); setMsgMenuId(null); }}
                           className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:opacity-80"
-                          style={{ color: "#ef4444" }}
-                        >
+                          style={{ color: "#ef4444" }}>
                           <Trash2 className="w-3 h-3" /> Delete
                         </button>
                       )}
@@ -351,8 +337,7 @@ export function DmThreadView({ targetUserId }: Props) {
                 {isMine && (
                   <div
                     className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold overflow-hidden shrink-0 mt-1"
-                    style={{ background: "rgba(255,255,255,0.1)" }}
-                  >
+                    style={{ background: "rgba(255,255,255,0.1)" }}>
                     {avatar ? (
                       <img src={avatar} alt="" className="w-7 h-7 rounded-full object-cover" />
                     ) : (
@@ -392,25 +377,21 @@ export function DmThreadView({ targetUserId }: Props) {
       <div className="shrink-0 px-3 py-2.5" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
         <div
           className="flex items-center gap-1.5 rounded-xl px-3 py-2.5"
-          style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
-        >
+          style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="p-1.5 rounded hover:opacity-80 shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center text-muted-foreground"
-          >
+            className="p-1.5 rounded hover:opacity-80 shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center text-muted-foreground">
             <Image className="w-4 h-4" />
           </button>
           <button
             onClick={() => videoInputRef.current?.click()}
-            className="p-1.5 rounded hover:opacity-80 shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center text-muted-foreground"
-          >
+            className="p-1.5 rounded hover:opacity-80 shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center text-muted-foreground">
             <Video className="w-4 h-4" />
           </button>
           <button
             onClick={() => setShowEmojiPicker((prev) => !prev)}
             className="p-1.5 rounded hover:opacity-80 shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center"
-            style={{ color: showEmojiPicker ? "#facc15" : "rgba(255,255,255,0.4)" }}
-          >
+            style={{ color: showEmojiPicker ? "#facc15" : "rgba(255,255,255,0.4)" }}>
             <Smile className="w-4 h-4" />
           </button>
           <input
@@ -426,9 +407,7 @@ export function DmThreadView({ targetUserId }: Props) {
             disabled={!message.trim()}
             className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
             style={{
-              background: message.trim() ? "linear-gradient(135deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.08)",
-            }}
-          >
+              background: message.trim() ? "linear-gradient(135deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.08)" }}>
             <Send className="w-3.5 h-3.5" style={{ color: message.trim() ? "#fff" : "rgba(255,255,255,0.3)" }} />
           </button>
         </div>

@@ -74,8 +74,7 @@ export function BlogSectionLayoutEditor({ sectionId, sectionTitle, onClose }: Bl
               variant={containerCount === opt.count ? "default" : "outline"}
               size="sm"
               className="gap-1.5"
-              onClick={() => setContainerCount(opt.count)}
-            >
+              onClick={() => setContainerCount(opt.count)}>
               <opt.icon className="h-3.5 w-3.5" />
               {opt.label}
             </Button>
@@ -92,8 +91,7 @@ export function BlogSectionLayoutEditor({ sectionId, sectionTitle, onClose }: Bl
               key={size}
               variant={cardSize === size ? "default" : "outline"}
               size="sm"
-              onClick={() => setCardSize(size)}
-            >
+              onClick={() => setCardSize(size)}>
               {size}
             </Button>
           ))}
@@ -173,10 +171,9 @@ export function BlogSectionLayoutEditor({ sectionId, sectionTitle, onClose }: Bl
                 cardSize === "Hero" && "h-28",
                 cardSize === "Medium" && "h-20",
                 cardSize === "Small" && "h-14",
-              )}
-            >
+              )}>
               <span>Card {i + 1}</span>
-              {enabledCtas.length > 0 && (
+              {enabledCtas.length> 0 && (
                 <span className="text-[9px] text-primary/60">{enabledCtas.map((c) => ctaOptions.find((o) => o.id === c)?.label).join(" · ")}</span>
               )}
             </div>

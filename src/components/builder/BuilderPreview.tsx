@@ -544,8 +544,7 @@ function LinksPreview({ schema, canvas }: { schema: Record<string, unknown>; can
                     ? "rounded-xl border-foreground/20 bg-card hover:bg-accent/10 hover:scale-[1.02] shadow-sm"
                     : "rounded-lg border-border bg-muted/50"
                 }`}
-                tabIndex={0}
-              >
+                tabIndex={0}>
                 {item.label || item.url || "Link"}
               </div>
             </ItemCardWrapper>
@@ -570,7 +569,7 @@ function SocialPreview({ schema }: { schema: Record<string, unknown> }) {
   const disabledLinks = (schema.disabled_links as string[]) || [];
 
   const displaySlots: { platform: string; url: string; icon: string }[] = (() => {
-    if (activeSlots.length > 0) {
+    if (activeSlots.length> 0) {
       return activeSlots.map(s => {
         const p = getPlatform(s.platform);
         return { platform: s.platform, url: s.url, icon: p?.icon || "" };
@@ -597,8 +596,7 @@ function SocialPreview({ schema }: { schema: Record<string, unknown> }) {
               target="_blank"
               rel="noopener noreferrer"
               className="w-10 h-10 rounded-full overflow-hidden border border-border bg-card flex items-center justify-center yangu-interactive hover:bg-accent/10 hover:scale-110 transition-all"
-              title={platform}
-            >
+              title={platform}>
               <img src={icon} alt={platform} className={`w-full h-full object-cover ${iconStyleClass}`} />
             </a>
           ))}
@@ -658,17 +656,15 @@ function ShowcasePreview({ schema, canvas }: { schema: Record<string, unknown>; 
         <div
           ref={scrollRef}
           className="flex gap-3 overflow-x-auto px-4 pb-2 snap-x snap-mandatory"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
-        >
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}>
           {items.map((item, i) => {
             const realIdx = allRawItems.indexOf(item as unknown as Record<string, unknown>);
             return (
-              <ItemCardWrapper key={i} canvas={canvas} fieldPath="showcase_items" items={allRawItems} index={realIdx} className="shrink-0" >
+              <ItemCardWrapper key={i} canvas={canvas} fieldPath="showcase_items" items={allRawItems} index={realIdx} className="shrink-0">
                 <div
                   className="snap-start rounded-xl border border-border bg-card overflow-hidden yangu-interactive hover:shadow-lg transition-all group"
                   style={{ width: "calc(50% - 6px)", minWidth: "160px" }}
-                  tabIndex={0}
-                >
+                  tabIndex={0}>
                   {item.image_url ? (
                     <div className="aspect-square bg-muted overflow-hidden relative">
                       <EditableImage src={item.image_url} alt={item.title || ""} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" field={`showcase_items.${realIdx}.image_url`} canvas={canvas} />
@@ -715,8 +711,7 @@ function ShowcaseAccordionItem({ item, index, canvas }: { item: { title?: string
     <div className="yangu-interactive">
       <button
         className="w-full flex items-center gap-3 p-3 text-left hover:bg-accent/5 transition-colors"
-        onClick={() => setOpen(!open)}
-      >
+        onClick={() => setOpen(!open)}>
         <div className="w-16 h-16 rounded-lg bg-muted overflow-hidden shrink-0">
           <EditableImage src={item.image_url || ""} alt={item.title || ""} className="w-full h-full object-cover" field={`showcase_items.${index}.image_url`} canvas={canvas} />
         </div>
@@ -762,7 +757,7 @@ function VideoPreview({ schema }: { schema: Record<string, unknown> }) {
 
 function GalleryPreview({ schema, canvas }: { schema: Record<string, unknown>; canvas?: CanvasCallbacks }) {
   const rawItems = (schema.items as Array<Record<string, unknown>>) || [];
-  const items = rawItems.length > 0
+  const items = rawItems.length> 0
     ? rawItems.filter((it) => !it._hidden).slice(0, 6).map((item, i) => {
         if (typeof item === "string") return item;
         return (item as Record<string, string>).src || (item as Record<string, string>).image_url || demoImage(i + 1);
@@ -813,7 +808,7 @@ function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; can
         {schema.description && <EditableText value={schema.description as string} field="description" className="text-xs text-muted-foreground leading-relaxed" tag="p" canvas={canvas} />}
       </div>
 
-      {isTrustBadges && items.length > 0 && (
+      {isTrustBadges && items.length> 0 && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
           {items.map((item, i) => (
             <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={rawItems.indexOf(item as unknown as Record<string, unknown>)}>
@@ -829,7 +824,7 @@ function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; can
         </div>
       )}
 
-      {isStoryBlock && items.length > 0 && (
+      {isStoryBlock && items.length> 0 && (
         <div className="space-y-3">
           {items.map((item, i) => (
             <ItemCardWrapper key={i} canvas={canvas} fieldPath="items" items={rawItems} index={rawItems.indexOf(item as unknown as Record<string, unknown>)}>
@@ -848,7 +843,7 @@ function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; can
         </div>
       )}
 
-      {!isTrustBadges && !isStoryBlock && items.length > 0 && (
+      {!isTrustBadges && !isStoryBlock && items.length> 0 && (
         <div className="space-y-2">
           {items.map((item, i) => {
             const realIdx = rawItems.indexOf(item as unknown as Record<string, unknown>);
@@ -880,7 +875,7 @@ function OfferPreview({ schema, canvas }: { schema: Record<string, unknown>; can
         </div>
       )}
 
-      {testimonials?.enabled && (testimonials.items || []).length > 0 && (() => {
+      {testimonials?.enabled && (testimonials.items || []).length> 0 && (() => {
         const rawTestimonialItems = ((schema.testimonials as Record<string, unknown>)?.items as Array<Record<string, unknown>>) || [];
         const visibleTestimonials = rawTestimonialItems.filter((it) => !it._hidden) as Array<{ name?: string; quote?: string; location?: string; label?: string }>;
         return (
@@ -1028,7 +1023,7 @@ function ProductsPreview({ schema, canvas }: { schema: Record<string, unknown>; 
     image_url: item.image_url || (item.media as Array<{ src?: string }>)?.[0]?.src || "",
   }));
 
-  const items = products.length > 0 ? products : legacyItems;
+  const items = products.length> 0 ? products : legacyItems;
   const usingSeedData = items.length === 0;
   const renderedItems = usingSeedData ? [
     { name: "Modern Chair", price: "$89", image_url: demoImage(0), badge: "New", description: "" },
@@ -1518,7 +1513,7 @@ function HeaderPreview({
 
   const handleNavClick = (e: React.MouseEvent, label: string) => {
     e.stopPropagation();
-    if (pages && pages.length > 1 && onSwitchPage) {
+    if (pages && pages.length> 1 && onSwitchPage) {
       const labelLower = label.toLowerCase().trim();
       const matchedPage = pages.find(
         (p) => p.title.toLowerCase() === labelLower || p.slug.toLowerCase() === labelLower
@@ -1539,8 +1534,7 @@ function HeaderPreview({
     <span
       key={`${item}-${i}`}
       onClick={(e) => handleNavClick(e, item)}
-      className={`text-[10px] yangu-nav-item cursor-pointer hover:underline ${isDark ? "text-background/70" : "text-muted-foreground"}`}
-    >
+      className={`text-[10px] yangu-nav-item cursor-pointer hover:underline ${isDark ? "text-background/70" : "text-muted-foreground"}`}>
       {item}
     </span>
   );
@@ -1612,7 +1606,7 @@ function FooterPreview({ schema, canvas }: { schema: Record<string, unknown>; ca
   const hours = (schema.hours as Array<{ day?: string; hours?: string }>) || [];
   const socialEntries = Object.entries(social).filter(([, v]) => v);
   const columns = (schema.columns as Array<{ title?: string; links?: string[] }>) || [];
-  const isMultiColumn = (schema.layout_variant as string) === "multi_column" || columns.length > 0;
+  const isMultiColumn = (schema.layout_variant as string) === "multi_column" || columns.length> 0;
   const copyright = (schema.copyright as string) || "";
   const newsletterEnabled = schema.newsletter_enabled as boolean;
   const newsletterHeading = (schema.newsletter_heading as string) || "";
@@ -1632,7 +1626,7 @@ function FooterPreview({ schema, canvas }: { schema: Record<string, unknown>; ca
           </div>
         </div>
       )}
-      {isMultiColumn && columns.length > 0 && (() => {
+      {isMultiColumn && columns.length> 0 && (() => {
         const rawColumns = (schema.columns as Array<Record<string, unknown>>) || [];
         return (
           <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${Math.min(columns.length, 3)}, 1fr)` }}>
@@ -1659,14 +1653,14 @@ function FooterPreview({ schema, canvas }: { schema: Record<string, unknown>; ca
           </div>
         </>
       )}
-      {socialEntries.length > 0 && (
+      {socialEntries.length> 0 && (
         <div className="flex gap-2 flex-wrap">
           {socialEntries.map(([platform, handle]) => (
             <span key={platform} className="px-2 py-0.5 rounded bg-muted text-[10px]">{platform}: {handle}</span>
           ))}
         </div>
       )}
-      {hours.length > 0 && (() => {
+      {hours.length> 0 && (() => {
         const rawHours = (schema.hours as Array<Record<string, unknown>>) || [];
         return (
           <div className="space-y-0.5">
@@ -1767,11 +1761,11 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
   const selectedColor = (ps.background_color || "").trim();
   const parsedColor = hexToHslParts(selectedColor);
   const primaryToken = parsedColor ? toHslToken(parsedColor) : null;
-  const baseForegroundToken = parsedColor ? (parsedColor.l > 60 ? "222 47% 11%" : "210 40% 98%") : null;
+  const baseForegroundToken = parsedColor ? (parsedColor.l> 60 ? "222 47% 11%" : "210 40% 98%") : null;
   const pageFontToken = ps.font_color ? toHslToken(hexToHslParts(ps.font_color) || { h: 222, s: 47, l: 11 }) : null;
   const resolvedForegroundToken = pageFontToken || baseForegroundToken;
   const cardToken = parsedColor
-    ? `${parsedColor.h} ${Math.max(12, Math.min(parsedColor.s, 45))}% ${Math.max(16, Math.min(parsedColor.l + (parsedColor.l > 50 ? -8 : 10), 94))}%`
+    ? `${parsedColor.h} ${Math.max(12, Math.min(parsedColor.s, 45))}% ${Math.max(16, Math.min(parsedColor.l + (parsedColor.l> 50 ? -8 : 10), 94))}%`
     : null;
 
   const prefersDark = typeof window !== "undefined" && window.matchMedia?.("(prefers-color-scheme: dark)").matches;
@@ -1848,8 +1842,7 @@ export function BuilderPreview({ sections, surfaceTitle, selectedSectionId, onSe
                     isLayoutB
                       ? "rounded-lg border border-border bg-card shadow-sm"
                       : "border-b border-border last:border-b-0"
-                  } ${selectedSectionId === section.id ? "ring-2 ring-primary ring-inset" : "hover:ring-1 hover:ring-primary/30 hover:ring-inset"}`}
-                >
+                  } ${selectedSectionId === section.id ? "ring-2 ring-primary ring-inset" : "hover:ring-1 hover:ring-primary/30 hover:ring-inset"}`}>
                   {canvasEditEnabled && onHideSection && onDeleteSection && (
                     <CanvasSectionControls
                       sectionId={section.id}

@@ -31,7 +31,7 @@ export function useEmojiInput(
       const word = wordMatch?.[1] || "";
 
       // Only suggest if word is 2+ chars and doesn't start with special chars
-      if (word.length >= 2 && !/^[@#\[]/.test(word)) {
+      if (word.length>= 2 && !/^[@#\[]/.test(word)) {
         setCurrentWord(word);
       } else {
         setCurrentWord("");

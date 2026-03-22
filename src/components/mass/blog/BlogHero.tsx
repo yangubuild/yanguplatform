@@ -14,9 +14,7 @@ export function BlogHero({ onSubscribeClick }: BlogHeroProps) {
         style={{
           fontFamily: "'Lufga', sans-serif",
           color: "#FFFFFF",
-          maxWidth: 720,
-        }}
-      >
+          maxWidth: 720 }}>
         The Only Subscription You Need
         <br />
         to Stay at the Edge of AI
@@ -32,8 +30,7 @@ export function BlogHero({ onSubscribeClick }: BlogHeroProps) {
         variant="accent"
         size="default"
         onClick={onSubscribeClick}
-        className="mt-8"
-      >
+        className="mt-8">
         Subscribe
       </Button>
     </section>

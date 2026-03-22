@@ -31,8 +31,7 @@ export function FollowButton({ targetUserId, compact }: Props) {
         onClick={handleClick}
         className="px-3 py-1 rounded-md text-xs font-semibold shrink-0 cursor-pointer transition-colors"
         style={{
-          background: isFollowing ? "rgba(255,255,255,0.08)" : "#22c55e", }}
-      >
+          background: isFollowing ? "rgba(255,255,255,0.08)" : "#22c55e" }}>
         {isFollowing ? "Following" : "Follow"}
       </span>
     );
@@ -44,8 +43,7 @@ export function FollowButton({ targetUserId, compact }: Props) {
       disabled={toggleFollow.isPending}
       className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
       style={{
-        background: isFollowing ? "rgba(255,255,255,0.08)" : "#22c55e", }}
-    >
+        background: isFollowing ? "rgba(255,255,255,0.08)" : "#22c55e" }}>
       {isFollowing ? "Following" : "Follow"}
     </button>
   );

@@ -43,15 +43,13 @@ export function AboutPanel() {
     <div className="flex flex-col h-full" style={{ background: "#111820" }}>
       <div
         className="flex items-center justify-between px-4 py-3 shrink-0"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
-      >
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         <span className="text-sm font-semibold text-foreground">About</span>
         <button
           onClick={handleSave}
           disabled={saving}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
-          style={{ background: "rgba(181,98,42,0.12)", color: "#E67E22" }}
-        >
+          style={{ background: "rgba(181,98,42,0.12)", color: "#E67E22" }}>
           {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
           Save
         </button>
@@ -65,8 +63,7 @@ export function AboutPanel() {
             <button
               className="flex items-center gap-1 text-[10px] font-medium"
               style={{ color: "#E67E22" }}
-              title="AI Generate"
-            >
+              title="AI Generate">
               <Sparkles className="w-3 h-3" /> Generate
             </button>
           </div>
@@ -86,8 +83,7 @@ export function AboutPanel() {
             <button
               className="flex items-center gap-1 text-[10px] font-medium"
               style={{ color: "#E67E22" }}
-              title="AI Generate"
-            >
+              title="AI Generate">
               <Sparkles className="w-3 h-3" /> Generate
             </button>
           </div>
@@ -108,8 +104,7 @@ export function AboutPanel() {
               <button
                 key={label}
                 className="flex items-center gap-1.5 px-3 py-2.5 rounded-lg text-xs font-medium transition-colors hover:bg-white/5"
-                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", }}
-              >
+                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
                 <Sparkles className="w-3 h-3" style={{ color: "#E67E22" }} />
                 {label}
               </button>

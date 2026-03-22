@@ -28,16 +28,13 @@ export function BlogPodcastSection() {
       className="px-6 py-10 transition-all duration-[400ms] ease-out"
       style={{
         opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(8px)",
-      }}
-    >
+        transform: visible ? "translateY(0)" : "translateY(8px)" }}>
       <div className="mx-auto" style={{ maxWidth: 1100 }}>
         {/* Header */}
         <div className="flex items-center justify-between mb-2">
           <h2
             className="text-xs font-semibold uppercase tracking-widest"
-            style={{ letterSpacing: "0.15em" }}
-          >
+            style={{ letterSpacing: "0.15em" }}>
             yangu Podcast
           </h2>
           <ArrowRight className="w-4 h-4 text-muted-foreground" />
@@ -52,7 +49,7 @@ export function BlogPodcastSection() {
             <div className="overflow-hidden rounded-lg mb-4" style={{ background: "#1a1a1a", aspectRatio: "3/4" }}>
               <img src={podcastHeroImage} alt="AI & I Podcast" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]" />
             </div>
-            <h3 className="text-lg font-medium mb-2" style={{ fontFamily: "'Lufga', sans-serif", }}>
+            <h3 className="text-lg font-medium mb-2" style={{ fontFamily: "'Lufga', sans-serif" }}>
               AI & I
             </h3>
             <p className="text-sm leading-relaxed mb-3 text-muted-foreground">
@@ -76,8 +73,7 @@ export function BlogPodcastSection() {
               </span>
               <h4
                 className="font-medium leading-snug group-hover:text-foreground transition-colors"
-                style={{ fontFamily: "'Lufga', sans-serif", fontSize: 18, }}
-              >
+                style={{ fontFamily: "'Lufga', sans-serif", fontSize: 18 }}>
                 {ep.title}
               </h4>
               <p className="text-sm mt-2 leading-relaxed text-muted-foreground">

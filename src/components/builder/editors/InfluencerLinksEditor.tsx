@@ -21,7 +21,7 @@ function getSlots(schema: Record<string, unknown>): SocialSlot[] {
   const stored = schema.active_social_links as SocialSlot[] | undefined;
   if (stored && Array.isArray(stored) && stored.length === 6) return stored;
   const legacy = schema.social_links as Record<string, string> | undefined;
-  if (legacy && Object.keys(legacy).length > 0) {
+  if (legacy && Object.keys(legacy).length> 0) {
     const entries = Object.entries(legacy).slice(0, 6);
     const slots: SocialSlot[] = entries.map(([platform, url], i) => ({ platform, url, slotIndex: i }));
     while (slots.length < 6) {
@@ -64,7 +64,7 @@ export function InfluencerLinksEditor({ schema, update }: InfluencerLinksEditorP
     const enteredUrl = searchUrls[platformId] || "";
     // Already in slots? Just focus it
     const existing = slots.findIndex(s => s.platform === platformId);
-    if (existing >= 0) {
+    if (existing>= 0) {
       if (enteredUrl) {
         const next = slots.map((s, i) => i === existing ? { ...s, url: enteredUrl } : s);
         save(next);
@@ -75,7 +75,7 @@ export function InfluencerLinksEditor({ schema, update }: InfluencerLinksEditorP
     }
     // Check if there's an empty slot (no url)
     const emptyIdx = slots.findIndex(s => !s.url);
-    if (emptyIdx >= 0) {
+    if (emptyIdx>= 0) {
       const next = slots.map((s, i) => i === emptyIdx ? { platform: platformId, url: enteredUrl, slotIndex: i } : s);
       save(next);
       setSearchQuery("");
@@ -109,7 +109,7 @@ export function InfluencerLinksEditor({ schema, update }: InfluencerLinksEditorP
     update({ icon_style: style });
   };
 
-  const searchResults = searchQuery.length > 0
+  const searchResults = searchQuery.length> 0
     ? searchPlatforms(searchQuery).filter(p => !slots.some(s => s.platform === p.id))
     : [];
 
@@ -147,8 +147,7 @@ export function InfluencerLinksEditor({ schema, update }: InfluencerLinksEditorP
                       ? "bg-primary/10 ring-1 ring-primary/30"
                       : "hover:bg-muted/60"
                   }`}
-                  onClick={() => setReplaceTarget(i)}
-                >
+                  onClick={() => setReplaceTarget(i)}>
                   <img
                     src={p.icon}
                     alt={p.name}
@@ -168,14 +167,12 @@ export function InfluencerLinksEditor({ schema, update }: InfluencerLinksEditorP
             <button
               onClick={confirmReplace}
               disabled={replaceTarget === null}
-              className="flex-1 rounded-md bg-primary text-primary-foreground text-xs py-1.5 disabled:opacity-40 transition-opacity"
-            >
+              className="flex-1 rounded-md bg-primary text-primary-foreground text-xs py-1.5 disabled:opacity-40 transition-opacity">
               Replace
             </button>
             <button
               onClick={cancelReplace}
-              className="flex-1 rounded-md border border-border text-xs py-1.5 hover:bg-muted/60 transition-colors"
-            >
+              className="flex-1 rounded-md border border-border text-xs py-1.5 hover:bg-muted/60 transition-colors">
               Cancel
             </button>
           </div>
@@ -212,8 +209,7 @@ export function InfluencerLinksEditor({ schema, update }: InfluencerLinksEditorP
                 <button
                   onClick={() => handleClearSlot(index)}
                   className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center hover:bg-destructive/10 transition-colors"
-                  title="Clear link"
-                >
+                  title="Clear link">
                   <X className="h-3.5 w-3.5 text-muted-foreground" />
                 </button>
               )}
@@ -236,13 +232,12 @@ export function InfluencerLinksEditor({ schema, update }: InfluencerLinksEditorP
             className="pl-8 h-8 text-sm"
           />
         </div>
-        {searchResults.length > 0 && (
+        {searchResults.length> 0 && (
           <div className="rounded-md border border-border bg-popover max-h-[280px] overflow-y-auto space-y-1 p-1.5">
             {searchResults.map(p => (
               <div
                 key={p.id}
-                className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-accent/10 transition-colors"
-              >
+                className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-accent/10 transition-colors">
                 <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center shrink-0 bg-muted/50 border border-border">
                   <img src={p.icon} alt={p.name} className="w-full h-full object-cover" title={p.name} />
                 </div>
@@ -255,15 +250,14 @@ export function InfluencerLinksEditor({ schema, update }: InfluencerLinksEditorP
                 <button
                   onClick={() => handleAddPlatform(p.id)}
                   className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center bg-primary text-primary-foreground hover:bg-primary/80 transition-colors"
-                  title={`Add ${p.name}`}
-                >
+                  title={`Add ${p.name}`}>
                   <Plus className="h-3.5 w-3.5" />
                 </button>
               </div>
             ))}
           </div>
         )}
-        {searchQuery.length > 0 && searchResults.length === 0 && (
+        {searchQuery.length> 0 && searchResults.length === 0 && (
           <p className="text-[11px] text-muted-foreground px-1">No platforms found.</p>
         )}
       </div>
@@ -276,8 +270,7 @@ export function InfluencerLinksEditor({ schema, update }: InfluencerLinksEditorP
         <RadioGroup
           value={iconStyle}
           onValueChange={setIconStyle}
-          className="flex gap-4"
-        >
+          className="flex gap-4">
           {[
             { value: "original", label: "Original" },
             { value: "white", label: "White" },

@@ -65,7 +65,7 @@ export function useAvatarTraining() {
         }
         fetchJobs();
       }
-      if (attempts > 60) {
+      if (attempts> 60) {
         clearInterval(interval);
         toast.error("Training status polling timed out");
       }

@@ -44,8 +44,7 @@ export function AdminSidebar() {
             <img src={yanguYIcon} alt="yangu" className="h-7 w-7 opacity-80" />
             <span
               className="text-sm font-semibold tracking-wide text-[hsl(var(--admin-text))]"
-              style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}
-            >
+              style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>
               Command Center
             </span>
           </div>
@@ -88,8 +87,7 @@ export function AdminSidebar() {
                           to={manageLink(item.slug)}
                           end={item.end}
                           className="admin-nav-item flex items-center gap-3 text-sm"
-                          activeClassName="admin-nav-item-active"
-                        >
+                          activeClassName="admin-nav-item-active">
                           <item.icon className="h-4 w-4 shrink-0" />
                           <span>{item.title}</span>
                         </NavLink>

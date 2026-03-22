@@ -61,7 +61,7 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
  * Silent fail — optimization is non-critical.
  */
 export async function fetchTuningSignals(): Promise<Map<string, ExposureTuningSignal>> {
-  if (Date.now() - lastFetchTime < CACHE_TTL && signalCache.size > 0) {
+  if (Date.now() - lastFetchTime < CACHE_TTL && signalCache.size> 0) {
     return signalCache;
   }
 
@@ -98,7 +98,7 @@ export async function fetchTuningSignals(): Promise<Map<string, ExposureTuningSi
  * Fetch banner optimization signals with caching.
  */
 export async function fetchBannerSignals(): Promise<Map<string, BannerOptimizationSignal>> {
-  if (Date.now() - lastFetchTime < CACHE_TTL && bannerCache.size > 0) {
+  if (Date.now() - lastFetchTime < CACHE_TTL && bannerCache.size> 0) {
     return bannerCache;
   }
 
@@ -205,15 +205,15 @@ export function applyDiversityGuard(
   return adjustments.map((adj, i) => {
     const cat = entities[i].primary_category ?? entities[i].entity_type;
 
-    if (adj > 0) {
+    if (adj> 0) {
       const count = categoryBoostCount[cat] ?? 0;
       categoryBoostCount[cat] = count + 1;
 
       // After a category has received multiple boosts, diminish further ones
-      if (count >= 3) {
+      if (count>= 3) {
         return adj * 0.3; // Heavy diminish
       }
-      if (count >= 2) {
+      if (count>= 2) {
         return adj * 0.6; // Moderate diminish
       }
     }
@@ -237,7 +237,7 @@ export function applyPaidFairnessGuard(
   if (tier === "paid" || tier === "premium") {
     // Paid entities get reduced CTR boost benefit
     // They already have premium boost from Phase 8
-    return rawAdjustment > 0 ? rawAdjustment * 0.5 : rawAdjustment;
+    return rawAdjustment> 0 ? rawAdjustment * 0.5 : rawAdjustment;
   }
   return rawAdjustment;
 }

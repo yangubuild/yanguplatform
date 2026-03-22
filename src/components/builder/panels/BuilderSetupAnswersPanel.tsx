@@ -67,7 +67,7 @@ export function BuilderSetupAnswersPanel({ answers, source, onClose, onUpdate }:
           filteredEntries.map(([key, value]) => (
             <div key={key} className="space-y-1">
               <Label className="text-xs text-muted-foreground">{displayKey(key)}</Label>
-              {value.length > 80 ? (
+              {value.length> 80 ? (
                 <Textarea
                   value={value}
                   onChange={(e) => handleChange(key, e.target.value)}

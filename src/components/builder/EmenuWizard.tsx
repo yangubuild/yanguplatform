@@ -159,7 +159,7 @@ export function EmenuWizard({ open, onOpenChange, onComplete }: Props) {
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { toast.error("Max 5MB"); return; }
+    if (file.size> 5 * 1024 * 1024) { toast.error("Max 5MB"); return; }
     if (!user?.id) { toast.error("Not logged in"); return; }
 
     setLogoUploading(true);
@@ -209,7 +209,7 @@ export function EmenuWizard({ open, onOpenChange, onComplete }: Props) {
   const handleHeroBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 10 * 1024 * 1024) { toast.error("Max 10MB"); return; }
+    if (file.size> 10 * 1024 * 1024) { toast.error("Max 10MB"); return; }
     if (!user?.id) { toast.error("Not logged in"); return; }
 
     setHeroBannerUploading(true);
@@ -390,8 +390,7 @@ export function EmenuWizard({ open, onOpenChange, onComplete }: Props) {
                     size="sm"
                     className="gap-1.5"
                     onClick={handleAiLogo}
-                    disabled={aiLogoLoading || !data.business_name.trim()}
-                  >
+                    disabled={aiLogoLoading || !data.business_name.trim()}>
                     {aiLogoLoading ? (
                       <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Generating…</>
                     ) : (
@@ -414,8 +413,7 @@ export function EmenuWizard({ open, onOpenChange, onComplete }: Props) {
                     variant="destructive"
                     size="sm"
                     className="absolute top-2 right-2 h-7 text-xs"
-                    onClick={() => update({ hero_banner_url: "" })}
-                  >
+                    onClick={() => update({ hero_banner_url: "" })}>
                     Remove
                   </Button>
                 </div>
@@ -429,8 +427,7 @@ export function EmenuWizard({ open, onOpenChange, onComplete }: Props) {
                     onClick={() => setHeroTab(tab)}
                     className={`px-3 py-1.5 text-xs font-medium border-b-2 transition-colors ${
                       heroTab === tab ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
+                    }`}>
                     {tab === "upload" ? "Upload" : tab === "ai" ? "AI Generate" : "Stock Images"}
                   </button>
                 ))}
@@ -461,8 +458,7 @@ export function EmenuWizard({ open, onOpenChange, onComplete }: Props) {
                     variant="outline"
                     className="w-full gap-1.5 text-xs"
                     onClick={handleHeroAi}
-                    disabled={heroAiLoading || !data.business_name.trim()}
-                  >
+                    disabled={heroAiLoading || !data.business_name.trim()}>
                     {heroAiLoading ? (
                       <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Generating…</>
                     ) : (
@@ -486,7 +482,7 @@ export function EmenuWizard({ open, onOpenChange, onComplete }: Props) {
                       {heroStockSearching ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Search className="h-3.5 w-3.5" />}
                     </Button>
                   </div>
-                  {heroStockResults.length > 0 && (
+                  {heroStockResults.length> 0 && (
                     <div className="grid grid-cols-3 gap-1.5 max-h-36 overflow-y-auto">
                       {heroStockResults.map((r) => (
                         <button
@@ -495,8 +491,7 @@ export function EmenuWizard({ open, onOpenChange, onComplete }: Props) {
                             update({ hero_banner_url: r.fullUrl });
                             toast.success(`Photo by ${r.author}`);
                           }}
-                          className="relative rounded overflow-hidden border border-border hover:ring-2 hover:ring-primary"
-                        >
+                          className="relative rounded overflow-hidden border border-border hover:ring-2 hover:ring-primary">
                           <img src={r.thumbUrl} alt={r.author} className="w-full h-14 object-cover" />
                           <span className="absolute bottom-0 inset-x-0 bg-black/60 text-[8px] text-foreground truncate px-1">{r.author}</span>
                         </button>

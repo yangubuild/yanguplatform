@@ -73,7 +73,7 @@ export async function fetchCustomEmojis(): Promise<YanguEmoji[]> {
           ...emoji,
           keyword: normalizeEmojiKeyword(emoji.keyword || emoji.name),
         }))
-        .filter((emoji: YanguEmoji) => emoji.keyword.length > 0);
+        .filter((emoji: YanguEmoji) => emoji.keyword.length> 0);
       return cachedEmojis!;
     } catch (err) {
       console.error("Error fetching custom emojis:", err);

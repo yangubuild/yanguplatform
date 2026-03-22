@@ -73,8 +73,7 @@ function RelatedEntitiesTracked({ related, entity, navigate }: { related: any[];
               key={r.id}
               onClick={() => { handleClick(r); ext ? window.open(route, "_blank") : navigate(route); }}
               className="rounded-xl p-3 cursor-pointer hover:opacity-80 transition-opacity"
-              style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
-            >
+              style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
               <div className="flex items-center gap-2 mb-1">
                 <RelIcon className="w-3.5 h-3.5 text-muted-foreground" />
                 <span className="text-foreground text-sm font-semibold truncate">{r.title}</span>
@@ -82,13 +81,12 @@ function RelatedEntitiesTracked({ related, entity, navigate }: { related: any[];
                   <span
                     className="w-3.5 h-3.5 rounded-full flex-shrink-0 flex items-center justify-center text-[7px] text-foreground"
                     style={{ background: relVerification.color }}
-                    title={relVerification.label}
-                  >✓</span>
+                    title={relVerification.label}>✓</span>
                 )}
               </div>
               <div className="flex items-center gap-2 mt-1">
                 {isCrossType && relConfig && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)", }}>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)" }}>
                     {relConfig.label}
                   </span>
                 )}
@@ -132,7 +130,7 @@ export default function EntityDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen" style={{ background: "#08120D" }}>
+      <div className="min-h-screen bg-background">
         <div className="max-w-4xl mx-auto px-4 py-12">
           <Skeleton className="h-56 w-full rounded-2xl mb-6" />
           <Skeleton className="h-8 w-64 mb-3" />
@@ -145,7 +143,7 @@ export default function EntityDetailPage() {
 
   if (!entity || isError) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#08120D" }}>
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.04)" }}>
             <Building2 className="w-7 h-7 text-muted-foreground" />
@@ -172,7 +170,7 @@ export default function EntityDetailPage() {
   const reviewConfidence = getReviewConfidence(entity.review_count, entity.avg_rating);
 
   return (
-    <div className="min-h-screen" style={{ background: "#08120D" }}>
+    <div className="min-h-screen bg-background">
       {/* Back nav */}
       <div className="max-w-4xl mx-auto px-4 pt-6">
         <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm mb-4 text-muted-foreground">
@@ -203,8 +201,7 @@ export default function EntityDetailPage() {
                 <span
                   className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] text-foreground"
                   style={{ background: verification.color }}
-                  title={verification.label}
-                >✓</span>
+                  title={verification.label}>✓</span>
               )}
             </div>
             <div className="flex items-center gap-3 flex-wrap text-xs text-muted-foreground">
@@ -227,7 +224,7 @@ export default function EntityDetailPage() {
                 <Globe className="w-3.5 h-3.5" /> Visit
               </a>
             )}
-            <button onClick={() => setShowReport(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs" style={{ background: "rgba(255,255,255,0.04)", }}>
+            <button onClick={() => setShowReport(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs" style={{ background: "rgba(255,255,255,0.04)" }}>
               <Flag className="w-3.5 h-3.5" /> Report
             </button>
           </div>
@@ -243,7 +240,7 @@ export default function EntityDetailPage() {
             </span>
           )}
           {/* Rating — only when confidence warrants display */}
-          {reviewConfidence.showRating && typeof entity.avg_rating === "number" && entity.avg_rating > 0 && (
+          {reviewConfidence.showRating && typeof entity.avg_rating === "number" && entity.avg_rating> 0 && (
             <span className="flex items-center gap-1">
               <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
               {entity.avg_rating.toFixed(1)}
@@ -279,10 +276,10 @@ export default function EntityDetailPage() {
         <TypeMetaBlock entity={entity} />
 
         {/* Tags */}
-        {entity.tags && entity.tags.length > 0 && (
+        {entity.tags && entity.tags.length> 0 && (
           <div className="flex flex-wrap gap-2 mt-4">
             {entity.tags.map((tag: string) => (
-              <span key={tag} className="text-xs px-2 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.04)", }}>
+              <span key={tag} className="text-xs px-2 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.04)" }}>
                 {tag}
               </span>
             ))}
@@ -291,7 +288,7 @@ export default function EntityDetailPage() {
       </div>
 
       {/* FAQs — only rendered when data exists, no dead controls */}
-      {faqs && faqs.length > 0 && (
+      {faqs && faqs.length> 0 && (
         <div className="max-w-4xl mx-auto px-4 mb-8">
           <h2 className="text-foreground text-lg font-bold mb-4">FAQ</h2>
           <div className="space-y-2">
@@ -299,8 +296,7 @@ export default function EntityDetailPage() {
               <div key={faq.id} className="rounded-xl overflow-hidden" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
                 <button
                   onClick={() => setExpandedFaq(expandedFaq === faq.id ? null : faq.id)}
-                  className="w-full flex items-center justify-between px-4 py-3 text-left"
-                >
+                  className="w-full flex items-center justify-between px-4 py-3 text-left">
                   <span className="text-foreground text-sm font-medium">{faq.question}</span>
                   {expandedFaq === faq.id ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
                 </button>
@@ -320,7 +316,7 @@ export default function EntityDetailPage() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <h2 className="text-foreground text-lg font-bold">
-              Reviews{reviews && reviews.length > 0 ? ` (${reviews.length})` : ""}
+              Reviews{reviews && reviews.length> 0 ? ` (${reviews.length})` : ""}
             </h2>
             {reviewConfidence.confidence === "strong" && (
               <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "rgba(74,222,128,0.08)", color: "rgb(74,222,128)" }}>
@@ -340,7 +336,7 @@ export default function EntityDetailPage() {
           </div>
         )}
 
-        {reviews && reviews.length > 0 ? (
+        {reviews && reviews.length> 0 ? (
           <div className="space-y-3">
             {reviews.map((review) => (
               <div key={review.id} className="rounded-xl p-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
@@ -368,7 +364,7 @@ export default function EntityDetailPage() {
       </div>
 
       {/* Related entities — intelligent cross-category recommendations */}
-      {related && related.length > 0 && (
+      {related && related.length> 0 && (
         <RelatedEntitiesTracked related={related} entity={entity} navigate={navigate} />
       )}
 

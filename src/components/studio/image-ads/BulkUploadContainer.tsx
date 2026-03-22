@@ -53,8 +53,7 @@ export function BulkUploadContainer({ onBack, onUploadComplete }: Props) {
             dragging
               ? "border-accent/60 bg-accent/5"
               : "border-border/40 hover:border-border bg-card/30"
-          }`}
-        >
+          }`}>
           <div className="h-14 w-14 rounded-xl bg-muted/30 flex items-center justify-center mb-4">
             <ImagePlus className="h-7 w-7 text-muted-foreground" />
           </div>
@@ -72,7 +71,7 @@ export function BulkUploadContainer({ onBack, onUploadComplete }: Props) {
         </div>
 
         {/* File preview list */}
-        {files.length > 0 && (
+        {files.length> 0 && (
           <div className="mt-6 flex flex-col gap-2">
             <p className="text-xs font-medium text-muted-foreground mb-1">{files.length} file{files.length !== 1 ? "s" : ""} selected</p>
             {files.map((file, idx) => (
@@ -98,8 +97,7 @@ export function BulkUploadContainer({ onBack, onUploadComplete }: Props) {
           variant="accent"
           disabled={files.length === 0}
           onClick={() => onUploadComplete(files)}
-          className="rounded-lg"
-        >
+          className="rounded-lg">
           Upload files
         </Button>
       </div>

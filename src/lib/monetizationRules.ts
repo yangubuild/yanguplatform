@@ -75,7 +75,7 @@ export function computePremiumBoost(entity: PremiumBoostInput): number {
   // If entity is both verified AND paid, use the paid tier boost only (not additive).
   // Verified-only entities get a small 1.0 from tier; paid entities get 3.0+.
   // This prevents verified+paid from getting 4.0 when paid alone gets 3.0.
-  if (isVerified && tierBoost > 1.0) {
+  if (isVerified && tierBoost> 1.0) {
     // Already paid tier — verified benefit is captured in trust_score, not here
     return Math.min(tierBoost, MAX_PREMIUM_BOOST);
   }
@@ -122,12 +122,11 @@ export const TREND_TRUST_FLOOR = 30;
  * Non-premium entities pass through unchanged.
  */
 export function filterTrendMonetized<
-  T extends { trust_score?: number | null; visibility_tier?: string | null },
->(entities: T[]): T[] {
+  T extends { trust_score?: number | null; visibility_tier?: string | null },>(entities: T[]): T[] {
   return entities.filter((e) => {
     const tier = e.visibility_tier ?? "free";
     if (tier === "paid" || tier === "premium") {
-      return (e.trust_score ?? 0) >= TREND_TRUST_FLOOR;
+      return (e.trust_score ?? 0)>= TREND_TRUST_FLOOR;
     }
     return true;
   });
@@ -143,8 +142,7 @@ export const MAX_RELATED_PAID_FRACTION = 0.30;
  * If paid entities exceed the fraction limit, trim excess paid and backfill with organic.
  */
 export function enforceRelatedPaidCap<
-  T extends { visibility_tier?: string | null },
->(items: T[]): T[] {
+  T extends { visibility_tier?: string | null },>(items: T[]): T[] {
   if (items.length === 0) return items;
 
   const maxPaid = Math.max(1, Math.floor(items.length * MAX_RELATED_PAID_FRACTION));

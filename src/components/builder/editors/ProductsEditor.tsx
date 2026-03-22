@@ -97,8 +97,8 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
 
   const rawProducts = Array.isArray(schema.products) ? (schema.products as any[]) : [];
   const rawLegacyItems = Array.isArray(schema.items) ? (schema.items as any[]) : [];
-  const sourceProducts = rawProducts.length > 0 ? rawProducts : rawLegacyItems;
-  const isUsingLegacyItems = rawProducts.length === 0 && rawLegacyItems.length > 0;
+  const sourceProducts = rawProducts.length> 0 ? rawProducts : rawLegacyItems;
+  const isUsingLegacyItems = rawProducts.length === 0 && rawLegacyItems.length> 0;
 
   const mapRawProduct = (p: any): Product => {
     const legacyImages: string[] = Array.isArray(p.images)
@@ -107,7 +107,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
         ? [p.image_url]
         : [];
     const existingMedia: MediaAsset[] = Array.isArray(p.media) ? p.media : [];
-    const media: MediaAsset[] = existingMedia.length > 0
+    const media: MediaAsset[] = existingMedia.length> 0
       ? existingMedia
       : legacyImages.filter(Boolean).map((url: string) => ({ type: "image" as const, src: url, provider: "url" as const }));
 
@@ -366,7 +366,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
         data?.content,
         data?.text,
         data?.choices?.[0]?.message?.content,
-      ].find((v): v is string => typeof v === "string" && v.trim().length > 0)?.trim();
+      ].find((v): v is string => typeof v === "string" && v.trim().length> 0)?.trim();
 
       if (!generatedText) throw new Error("No description generated");
 
@@ -456,7 +456,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
         data?.content,
         data?.text,
         data?.choices?.[0]?.message?.content,
-      ].find((v): v is string => typeof v === "string" && v.trim().length > 0)?.trim();
+      ].find((v): v is string => typeof v === "string" && v.trim().length> 0)?.trim();
 
       if (!generatedText) throw new Error("No specifications generated");
 
@@ -599,8 +599,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
             </div>
             <div
               className="border border-border rounded-xl p-4 cursor-pointer hover:border-primary/50 hover:bg-accent/5 space-y-1"
-              onClick={openManualAdd}
-            >
+              onClick={openManualAdd}>
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
                   <Upload className="h-5 w-5 text-primary" />
@@ -616,8 +615,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
               onClick={() => {
                 setShowAddMethodDialog(false);
                 navigate(`/dashboard/seller/eshop-connect${surfaceId ? `?shop_surface_id=${surfaceId}` : ""}`);
-              }}
-            >
+              }}>
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-lg bg-secondary flex items-center justify-center">
                   <Link2 className="h-5 w-5 text-secondary-foreground" />
@@ -670,7 +668,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
               <p className="text-xs text-primary">
                 Click on a subcategory to add sub-subcategories (e.g., Electronics → Phones → iPhone).
               </p>
-              {catSubs.length > 0 && (
+              {catSubs.length> 0 && (
                 <div className="space-y-1 mt-2">
                   {catSubs.map((sub, si) => (
                     <div key={si} className="flex items-center gap-2 text-sm bg-muted/30 rounded px-2 py-1">
@@ -687,8 +685,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
             <Button
               onClick={saveCat}
               disabled={!catName.trim()}
-              className="w-full bg-foreground text-background hover:bg-foreground/90"
-            >
+              className="w-full bg-foreground text-background hover:bg-foreground/90">
               {editCatIndex !== null ? "Save Category" : "Create Category"}
             </Button>
           </div>
@@ -744,7 +741,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
             <div className="space-y-1.5">
               <Label className="text-sm font-bold">Product Images (max 10)</Label>
               <p className="text-xs text-muted-foreground">First image is the primary cover photo</p>
-              {pMedia.length > 0 && pMedia[0]?.src && (
+              {pMedia.length> 0 && pMedia[0]?.src && (
                 <div className="flex items-center gap-1.5 text-xs text-primary mb-1">
                   <Star className="h-3 w-3 fill-primary" /> Primary
                 </div>
@@ -752,14 +749,14 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
               <MediaPickerList
                 items={pMedia}
                 onChange={(next) => {
-                  if (next.length > 10) return;
+                  if (next.length> 10) return;
                   setPMedia(next);
                 }}
                 surfaceId={surfaceId || ""}
                 label="Product Images"
                 max={10}
               />
-              <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={generateProductImage} disabled={isGeneratingImage || pMedia.length >= 10}>
+              <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={generateProductImage} disabled={isGeneratingImage || pMedia.length>= 10}>
                 {isGeneratingImage ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />} AI Generate Product Image
               </Button>
             </div>
@@ -841,7 +838,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
-              {pSizes.length > 0 && (
+              {pSizes.length> 0 && (
                 <div className="flex flex-wrap gap-1.5 mt-1">
                   {pSizes.map((s, si) => (
                     <span key={si} className="text-xs bg-muted px-2 py-1 rounded-full flex items-center gap-1">
@@ -928,8 +925,7 @@ export function ProductsEditor({ schema, update, surfaceId }: FormProps) {
             <Button
               onClick={saveProduct}
               disabled={!pName.trim() || !pPrice.trim()}
-              className="w-full bg-foreground text-background hover:bg-foreground/90"
-            >
+              className="w-full bg-foreground text-background hover:bg-foreground/90">
               {editProductIndex !== null ? "Save Product" : "Add Product"}
             </Button>
           </div>

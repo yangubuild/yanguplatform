@@ -54,8 +54,7 @@ export function MediaGenerationCard({
                 style={{
                   background: "linear-gradient(110deg, rgba(255,255,255,0.02) 30%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.02) 70%)",
                   backgroundSize: "200% 100%",
-                  animation: "shimmer 2s ease-in-out infinite",
-                }}
+                  animation: "shimmer 2s ease-in-out infinite" }}
               />
             </div>
             <div className="relative z-10 flex flex-col items-center gap-2">
@@ -93,8 +92,7 @@ export function MediaGenerationCard({
               <button
                 onClick={onRetry}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-                style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}
-              >
+                style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}>
                 <RefreshCw className="w-3 h-3" />
                 Retry
               </button>
@@ -117,15 +115,13 @@ export function MediaGenerationCard({
               target="_blank"
               rel="noopener noreferrer"
               className="p-1.5 rounded-md text-muted-foreground hover:text-muted-foreground hover:bg-white/5 transition-colors"
-              title="Download"
-            >
+              title="Download">
               <Download className="w-3.5 h-3.5" />
             </a>
             <button
               onClick={handleCopyLink}
               className="p-1.5 rounded-md text-muted-foreground hover:text-muted-foreground hover:bg-white/5 transition-colors"
-              title={copied ? "Copied!" : "Copy link"}
-            >
+              title={copied ? "Copied!" : "Copy link"}>
               <Link2 className="w-3.5 h-3.5" />
             </button>
           </div>

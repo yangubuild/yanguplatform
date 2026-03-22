@@ -16,15 +16,15 @@ export function diversifyResults<T extends { primary_category?: string | null }>
   const result: T[] = [];
   const remaining = [...head];
 
-  while (remaining.length > 0) {
-    const lastCat = result.length > 0 ? result[result.length - 1].primary_category : null;
+  while (remaining.length> 0) {
+    const lastCat = result.length> 0 ? result[result.length - 1].primary_category : null;
 
     // Try to pick the highest-ranked item that doesn't repeat the last category
     const diffIdx = lastCat
       ? remaining.findIndex((r) => r.primary_category !== lastCat)
       : -1;
 
-    if (diffIdx > 0) {
+    if (diffIdx> 0) {
       result.push(remaining.splice(diffIdx, 1)[0]);
     } else {
       // No diversity candidate or first pick — take highest ranked

@@ -254,8 +254,7 @@ export default function ManagePricing() {
             size="sm"
             onClick={handleCreatePlan}
             disabled={creating || !newKey.trim() || !newName.trim()}
-            className="gap-1.5 rounded-md"
-          >
+            className="gap-1.5 rounded-md">
             {creating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
             Create
           </Button>
@@ -270,7 +269,7 @@ export default function ManagePricing() {
         />
 
         {/* Plan selector for entitlements */}
-        {plans.length > 0 && (
+        {plans.length> 0 && (
           <div className="mt-4 flex items-center gap-3">
             <Label className="text-sm text-[hsl(var(--admin-text-muted))]">Select plan to edit entitlements:</Label>
             <Select value={selectedPlanId || ""} onValueChange={setSelectedPlanId}>
@@ -308,8 +307,7 @@ export default function ManagePricing() {
                 return (
                   <div
                     key={at}
-                    className="flex items-center gap-3 p-3 rounded-lg border border-[hsl(var(--admin-border)/0.3)] bg-[hsl(var(--admin-surface-elevated)/0.2)]"
-                  >
+                    className="flex items-center gap-3 p-3 rounded-lg border border-[hsl(var(--admin-border)/0.3)] bg-[hsl(var(--admin-surface-elevated)/0.2)]">
                     <span className="text-sm font-medium capitalize flex-1 text-[hsl(var(--admin-text))]">{at}</span>
                     <Input
                       type="number"
@@ -323,8 +321,7 @@ export default function ManagePricing() {
                       variant="outline"
                       onClick={() => handleSaveEntitlement(at)}
                       disabled={savingAsset === at}
-                      className="gap-1 rounded-md"
-                    >
+                      className="gap-1 rounded-md">
                       {savingAsset === at ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
                       Save
                     </Button>
@@ -371,8 +368,7 @@ export default function ManagePricing() {
             size="sm"
             onClick={handleAssign}
             disabled={assigning || !assignEmail.trim() || !assignPlanKey}
-            className="gap-1.5 rounded-md"
-          >
+            className="gap-1.5 rounded-md">
             {assigning ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <UserPlus className="h-3.5 w-3.5" />}
             Assign
           </Button>

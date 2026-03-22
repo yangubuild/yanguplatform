@@ -386,8 +386,7 @@ export default function DevSeed() {
                 onClick={handleSeed}
                 disabled={isSeeding}
                 className="w-full"
-                size="lg"
-              >
+                size="lg">
                 {isSeeding ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -428,8 +427,7 @@ export default function DevSeed() {
                           {result.domains?.map((d) => (
                             <div
                               key={d.id}
-                              className="flex justify-between items-center bg-muted/50 rounded px-2 py-1"
-                            >
+                              className="flex justify-between items-center bg-muted/50 rounded px-2 py-1">
                               <span className="font-mono text-xs">{d.host}</span>
                               <span className="font-mono text-xs text-muted-foreground truncate max-w-[200px]">
                                 {d.id}

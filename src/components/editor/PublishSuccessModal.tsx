@@ -42,8 +42,7 @@ function SparkParticle({ index, reduceMotion }: { index: number; reduceMotion: b
           height: size,
           background: color,
           left: `calc(50% + ${x}px)`,
-          top: `calc(40% + ${y}px)`,
-        }}
+          top: `calc(40% + ${y}px)` }}
       />
     );
   }
@@ -117,8 +116,7 @@ export function PublishSuccessModal({
           </div>
           <button
             onClick={() => onOpenChange(false)}
-            className="p-1.5 rounded-full hover:bg-muted transition-colors text-muted-foreground shrink-0"
-          >
+            className="p-1.5 rounded-full hover:bg-muted transition-colors text-muted-foreground shrink-0">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -172,8 +170,7 @@ export function PublishSuccessModal({
                 variant="outline"
                 size="sm"
                 className="flex-1 text-xs gap-1"
-                onClick={() => handleAdaNavigate()}
-              >
+                onClick={() => handleAdaNavigate()}>
                 Get growth plan
                 <ArrowRight className="w-3 h-3" />
               </Button>
@@ -181,8 +178,7 @@ export function PublishSuccessModal({
                 variant="outline"
                 size="sm"
                 className="flex-1 text-xs gap-1"
-                onClick={() => handleAdaNavigate("promo")}
-              >
+                onClick={() => handleAdaNavigate("promo")}>
                 Create promo content
                 <ArrowRight className="w-3 h-3" />
               </Button>
@@ -194,8 +190,7 @@ export function PublishSuccessModal({
             {publishedUrl && (
               <Button
                 className="w-full gap-2"
-                onClick={() => window.open(publishedUrl, "_blank")}
-              >
+                onClick={() => window.open(publishedUrl, "_blank")}>
                 Visit Live Surface
                 <ExternalLink className="w-4 h-4" />
               </Button>
@@ -205,8 +200,7 @@ export function PublishSuccessModal({
                 onOpenChange(false);
                 navigate("/dashboard");
               }}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Back to Dashboard
             </button>
           </div>

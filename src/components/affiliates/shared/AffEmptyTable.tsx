@@ -17,8 +17,7 @@ export function AffEmptyTable({ columns, icon, title, subtitle, actionLabel, onA
         {columns.map((col, i) => (
           <div
             key={col}
-            className={`text-xs text-muted-foreground font-medium ${i === 0 ? "flex-[2]" : "flex-1 text-center"}`}
-          >
+            className={`text-xs text-muted-foreground font-medium ${i === 0 ? "flex-[2]" : "flex-1 text-center"}`}>
             {col}
           </div>
         ))}
@@ -35,8 +34,7 @@ export function AffEmptyTable({ columns, icon, title, subtitle, actionLabel, onA
           <button
             onClick={onAction}
             className="px-5 py-2 rounded-xl text-sm font-medium text-foreground"
-            style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
-          >
+            style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}>
             {actionLabel}
           </button>
         )}

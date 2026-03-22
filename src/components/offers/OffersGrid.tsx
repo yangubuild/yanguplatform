@@ -152,8 +152,7 @@ export function OffersGrid() {
                           <button
                             key={item}
                             onClick={() => setDotsOpen(false)}
-                            className="w-full text-left px-4 py-3 text-sm text-foreground hover:bg-white/[0.06] transition-colors"
-                          >
+                            className="w-full text-left px-4 py-3 text-sm text-foreground hover:bg-white/[0.06] transition-colors">
                             {item}
                           </button>
                         ))}
@@ -168,8 +167,7 @@ export function OffersGrid() {
                 <button
                   onClick={handleGetOffer}
                   className="ml-2 rounded-lg px-4 py-1.5 text-sm font-bold text-foreground"
-                  style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)" }}
-                >
+                  style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)" }}>
                   Get Offer
                 </button>
               </div>
@@ -186,8 +184,7 @@ export function OffersGrid() {
               {/* Bottom-left: Visit site */}
               <button
                 onClick={handleVisitSite}
-                className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-lg bg-white/90 px-3 py-1.5 text-sm font-medium text-black shadow"
-              >
+                className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-lg bg-white/90 px-3 py-1.5 text-sm font-medium text-black shadow">
                 <ExternalLink className="h-3.5 w-3.5" />
                 Visit site
               </button>
@@ -198,8 +195,7 @@ export function OffersGrid() {
                 </button>
                 <button
                   onClick={() => setLightboxOpen(true)}
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow hover:bg-white transition-colors"
-                >
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow hover:bg-white transition-colors">
                   <Search className="h-4 w-4 text-black" />
                 </button>
               </div>
@@ -211,8 +207,7 @@ export function OffersGrid() {
                 <h2 className="text-lg font-bold text-foreground">{featured.title}</h2>
                 <button
                   onClick={handleVisitSite}
-                  className="rounded-lg border border-border px-4 py-1.5 text-sm font-semibold text-foreground hover:bg-white/[0.04] transition-colors"
-                >
+                  className="rounded-lg border border-border px-4 py-1.5 text-sm font-semibold text-foreground hover:bg-white/[0.04] transition-colors">
                   Visit site
                 </button>
               </div>
@@ -232,8 +227,7 @@ export function OffersGrid() {
               {/* Comments toggle */}
               <button
                 onClick={() => setCommentsOpen(!commentsOpen)}
-                className="mt-3 flex items-center gap-1 text-sm text-foreground cursor-pointer"
-              >
+                className="mt-3 flex items-center gap-1 text-sm text-foreground cursor-pointer">
                 <span>{comments.length} Comment{comments.length !== 1 ? "s" : ""}</span>
                 {commentsOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </button>
@@ -296,8 +290,7 @@ export function OffersGrid() {
                   setCommentsOpen(false);
                   setDotsOpen(false);
                 }}
-                className="mb-3 block w-full overflow-hidden rounded-xl transition-transform duration-200 hover:scale-[1.02] focus-visible:outline-none break-inside-avoid"
-              >
+                className="mb-3 block w-full overflow-hidden rounded-xl transition-transform duration-200 hover:scale-[1.02] focus-visible:outline-none break-inside-avoid">
                 <img
                   src={tile.image}
                   alt={tile.title}

@@ -43,7 +43,7 @@ export default function AdClonePage() {
   };
 
   return (
-    <div className="flex flex-col h-screen w-full relative overflow-hidden" style={{ background: "#08120D" }}>
+    <div className="flex flex-col h-screen w-full relative overflow-hidden bg-background">
       {/* Top bar */}
       <div className="flex items-center justify-between px-6 pt-4 pb-2 shrink-0">
         <div className="flex items-center gap-3">
@@ -102,7 +102,7 @@ export default function AdClonePage() {
                 {result.analysis.style_notes && (
                   <p className="text-sm text-foreground"><span className="text-muted-foreground">Style:</span> {result.analysis.style_notes}</p>
                 )}
-                {result.analysis.colors && result.analysis.colors.length > 0 && (
+                {result.analysis.colors && result.analysis.colors.length> 0 && (
                   <div className="flex items-center gap-1 flex-wrap">
                     <span className="text-xs text-muted-foreground">Colors:</span>
                     {result.analysis.colors.map((c, i) => (
@@ -112,7 +112,7 @@ export default function AdClonePage() {
                 )}
               </div>
 
-              {result.variations.length > 0 && (
+              {result.variations.length> 0 && (
                 <div className="space-y-2">
                   <p className="text-sm font-semibold text-foreground">Generated Variations</p>
                   {result.variations.map((v, i) => (
@@ -187,8 +187,7 @@ export default function AdClonePage() {
             <button
               onClick={handleGenerate}
               disabled={!uploadedAdUrl || isAnalyzing}
-              className={`h-10 rounded-lg bg-accent text-accent-foreground text-sm font-semibold px-6 flex items-center gap-2 transition-opacity ${!uploadedAdUrl || isAnalyzing ? "opacity-50 cursor-not-allowed" : "hover:opacity-90"}`}
-            >
+              className={`h-10 rounded-lg bg-accent text-accent-foreground text-sm font-semibold px-6 flex items-center gap-2 transition-opacity ${!uploadedAdUrl || isAnalyzing ? "opacity-50 cursor-not-allowed" : "hover:opacity-90"}`}>
               {isAnalyzing ? <><Loader2 className="h-4 w-4 animate-spin" /> Analyzing...</> : "Generate cloned ad (3 credits/5s)"}
             </button>
             <span className="text-xs text-accent flex items-center gap-1">⚡ First time free for videos under 60 seconds</span>

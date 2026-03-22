@@ -74,8 +74,7 @@ export default function DashboardCommunityPage() {
           variant="ghost"
           size="sm"
           className="ml-4 mt-4 gap-2"
-          onClick={() => setSelectedFlow(null)}
-        >
+          onClick={() => setSelectedFlow(null)}>
           ← Back
         </Button>
         <BuilderEntryScreen engine={communityEngine} onComplete={handleCommunityComplete} />
@@ -85,7 +84,7 @@ export default function DashboardCommunityPage() {
 
   // Default: show type picker
   return (
-    <div className="max-w-2xl mx-auto py-12 space-y-8 min-h-screen" style={{ background: "#08120D" }}>
+    <div className="max-w-2xl mx-auto py-12 space-y-8 min-h-screen bg-background">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Community</h1>
         <p className="text-muted-foreground mt-1">

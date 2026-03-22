@@ -123,8 +123,7 @@ export default function DigitalProductUniversity() {
         {/* ── Featured Course ── */}
         <Link
           to={`/dashboard/visionaire/university/${featured.slug}`}
-          className="block rounded-2xl bg-card border border-border overflow-hidden hover:border-primary/30 transition-colors"
-        >
+          className="block rounded-2xl bg-card border border-border overflow-hidden hover:border-primary/30 transition-colors">
           <div className="grid md:grid-cols-2 gap-0">
             {/* Left text */}
             <div className="p-8 md:p-10 flex flex-col justify-center space-y-5">
@@ -172,8 +171,7 @@ export default function DigitalProductUniversity() {
                   ? `/dashboard/visionaire/university/master-library-masterclass/course/${MASTERCLASS_SLUG_MAP[course.slug]}`
                   : `/dashboard/visionaire/university/${course.slug}`
               }
-              className="group rounded-xl border border-border bg-card overflow-hidden hover:border-primary/30 transition-colors flex flex-col"
-            >
+              className="group rounded-xl border border-border bg-card overflow-hidden hover:border-primary/30 transition-colors flex flex-col">
               <div className="relative aspect-[16/10] overflow-hidden">
                 <img
                   src={course.image}

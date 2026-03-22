@@ -99,7 +99,7 @@ export default function CoverCropModal({
 
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
-    const delta = e.deltaY > 0 ? -0.1 : 0.1;
+    const delta = e.deltaY> 0 ? -0.1 : 0.1;
     const newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale + delta));
     setScale(newScale);
     setPosition(clampPosition(position.x, position.y, newScale));
@@ -138,8 +138,7 @@ export default function CoverCropModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className="sm:max-w-[600px] p-0 gap-0 overflow-hidden"
-        style={{ background: "#0f141a", border: "1px solid rgba(255,255,255,0.1)" }}
-      >
+        style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
         <DialogHeader className="px-5 pt-5 pb-3">
           <DialogTitle className="text-foreground text-base">Adjust cover image</DialogTitle>
           <p className="text-xs text-muted-foreground">
@@ -155,14 +154,12 @@ export default function CoverCropModal({
             aspectRatio: `${aspectRatio}`,
             background: "#1a2129",
             cursor: isDragging.current ? "grabbing" : "grab",
-            touchAction: "none",
-          }}
+            touchAction: "none" }}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
-          onWheel={handleWheel}
-        >
+          onWheel={handleWheel}>
           <img
             src={imageUrl}
             alt="Cover preview"
@@ -176,8 +173,7 @@ export default function CoverCropModal({
               transform: `translate(calc(-50% + ${position.x}px), calc(-50% + ${position.y}px)) scale(${scale})`,
               transformOrigin: "center center",
               opacity: imageLoaded ? 1 : 0,
-              transition: isDragging.current ? "none" : "opacity 0.2s",
-            }}
+              transition: isDragging.current ? "none" : "opacity 0.2s" }}
           />
           {!imageLoaded && (
             <div className="absolute inset-0 flex items-center justify-center">
@@ -203,14 +199,12 @@ export default function CoverCropModal({
         {/* Actions */}
         <div
           className="flex items-center justify-between px-5 py-4"
-          style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}
-        >
+          style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
           <Button
             variant="ghost"
             size="sm"
             onClick={handleReset}
-            className="text-xs text-muted-foreground"
-          >
+            className="text-xs text-muted-foreground">
             <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
             Reset
           </Button>
@@ -219,8 +213,7 @@ export default function CoverCropModal({
               variant="ghost"
               size="sm"
               onClick={() => onOpenChange(false)}
-              className="text-xs text-muted-foreground"
-            >
+              className="text-xs text-muted-foreground">
               Cancel
             </Button>
             <Button
@@ -228,8 +221,7 @@ export default function CoverCropModal({
               onClick={handleSave}
               disabled={saving}
               className="text-xs font-semibold"
-              style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)", }}
-            >
+              style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)" }}>
               {saving && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
               Save cover
             </Button>

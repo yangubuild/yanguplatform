@@ -263,7 +263,7 @@ export function isPublicSlugRoute(route: string): boolean {
   
   // Single segment slug: /something (no additional slashes except the leading one)
   const pathWithoutLeadingSlash = route.slice(1);
-  const isSimpleSlug = pathWithoutLeadingSlash.length > 0 && !pathWithoutLeadingSlash.includes("/");
+  const isSimpleSlug = pathWithoutLeadingSlash.length> 0 && !pathWithoutLeadingSlash.includes("/");
   
   return isSimpleSlug;
 }

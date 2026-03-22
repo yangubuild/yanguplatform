@@ -468,8 +468,7 @@ export function BannersAdsEditor({ schema, update }: Props) {
         title="Announcement Bar"
         description="Top banner with promotions or alerts"
         enabled={s.announcement_bar.enabled}
-        onToggle={(v) => updateSection("announcement_bar", { ...s.announcement_bar, enabled: v })}
-      >
+        onToggle={(v) => updateSection("announcement_bar", { ...s.announcement_bar, enabled: v })}>
         <AnnouncementSection data={s.announcement_bar} onChange={(v) => updateSection("announcement_bar", v)} />
       </SectionCard>
 
@@ -478,8 +477,7 @@ export function BannersAdsEditor({ schema, update }: Props) {
         title="Hero Banner"
         description="Main carousel banner at the top of your shop"
         enabled={s.hero_banner.enabled}
-        onToggle={(v) => updateSection("hero_banner", { ...s.hero_banner, enabled: v })}
-      >
+        onToggle={(v) => updateSection("hero_banner", { ...s.hero_banner, enabled: v })}>
         <HeroBannerSection data={s.hero_banner} onChange={(v) => updateSection("hero_banner", v)} />
       </SectionCard>
 
@@ -488,8 +486,7 @@ export function BannersAdsEditor({ schema, update }: Props) {
         title="Featured Categories"
         description="Highlight product categories with images"
         enabled={s.featured_categories.enabled}
-        onToggle={(v) => updateSection("featured_categories", { ...s.featured_categories, enabled: v })}
-      >
+        onToggle={(v) => updateSection("featured_categories", { ...s.featured_categories, enabled: v })}>
         <FeaturedCategoriesSection data={s.featured_categories} onChange={(v) => updateSection("featured_categories", v)} />
       </SectionCard>
 
@@ -498,8 +495,7 @@ export function BannersAdsEditor({ schema, update }: Props) {
         title="Middle Promotional Banners"
         description="Banners placed between product sections"
         enabled={s.middle_banner.enabled}
-        onToggle={(v) => updateSection("middle_banner", { ...s.middle_banner, enabled: v })}
-      >
+        onToggle={(v) => updateSection("middle_banner", { ...s.middle_banner, enabled: v })}>
         <MiddleBannerSection data={s.middle_banner} onChange={(v) => updateSection("middle_banner", v)} />
       </SectionCard>
     </div>

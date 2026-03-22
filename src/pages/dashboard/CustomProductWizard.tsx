@@ -86,7 +86,7 @@ export default function CustomProductWizard() {
     if (stepIdx < STEPS.length - 1) setStepIdx(stepIdx + 1);
   };
   const handleBack = () => {
-    if (stepIdx > 0) setStepIdx(stepIdx - 1);
+    if (stepIdx> 0) setStepIdx(stepIdx - 1);
     else navigate("/dashboard/offers");
   };
 
@@ -100,7 +100,7 @@ export default function CustomProductWizard() {
   const selectedPolishData = POLISH_OPTIONS.find((p) => p.id === selectedPolish);
 
   return (
-    <div className="min-h-screen p-4 md:p-6" style={{ background: "#08120D" }}>
+    <div className="min-h-screen p-4 md:p-6 bg-background">
       <div className="max-w-3xl mx-auto">
         {/* ── Step indicator ──────────────────────────── */}
         <div className="flex items-start gap-0 mb-10 pl-1">
@@ -114,16 +114,14 @@ export default function CustomProductWizard() {
                       : i === stepIdx
                       ? "border-[#b5622a] bg-transparent"
                       : "border-border bg-transparent"
-                  }`}
-                >
+                  }`}>
                   {i < stepIdx && <Check className="w-3 h-3 text-foreground" />}
                   {i === stepIdx && <div className="w-1.5 h-1.5 rounded-full bg-[#b5622a]" />}
                 </div>
                 <span
                   className={`text-xs font-medium ${
                     i <= stepIdx ? "text-foreground" : "text-muted-foreground"
-                  }`}
-                >
+                  }`}>
                   {step}
                 </span>
               </div>
@@ -162,8 +160,7 @@ export default function CustomProductWizard() {
                     selectedLength === opt.id
                       ? "border-[#b5622a] bg-[#b5622a]/5"
                       : "border-border bg-card hover:border-muted-foreground/30"
-                  }`}
-                >
+                  }`}>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-1.5">
                       <h3 className="font-bold text-foreground">{opt.title}</h3>
@@ -200,8 +197,7 @@ export default function CustomProductWizard() {
                     selectedPolish === opt.id
                       ? "border-[#b5622a] bg-[#b5622a]/5"
                       : "border-border bg-card hover:border-muted-foreground/30"
-                  }`}
-                >
+                  }`}>
                   <div className="flex items-center justify-between mb-1.5">
                     <h3 className="font-bold text-foreground">{opt.title}</h3>
                     <span className="text-sm font-bold text-foreground">{opt.price}</span>
@@ -229,8 +225,7 @@ export default function CustomProductWizard() {
                     selectedEnhancers.includes(opt.id)
                       ? "border-[#b5622a] bg-[#b5622a]/5"
                       : "border-border bg-card hover:border-muted-foreground/30"
-                  }`}
-                >
+                  }`}>
                   <div className="flex items-center justify-between mb-1.5">
                     <div className="flex items-center gap-2">
                       <div className={`w-4 h-4 rounded border flex items-center justify-center ${
@@ -273,7 +268,7 @@ export default function CustomProductWizard() {
                   <span className="text-sm font-medium text-foreground">{selectedPolishData.price}</span>
                 </div>
               )}
-              {selectedEnhancers.length > 0 && (
+              {selectedEnhancers.length> 0 && (
                 <>
                   <div className="h-px bg-border" />
                   {selectedEnhancers.map((id) => {
@@ -291,8 +286,7 @@ export default function CustomProductWizard() {
             </div>
 
             <button
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-[#b5622a] to-[#5c2a12] text-foreground font-semibold text-sm hover:opacity-90 transition-opacity"
-            >
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-[#b5622a] to-[#5c2a12] text-foreground font-semibold text-sm hover:opacity-90 transition-opacity">
               Place Order
             </button>
           </div>
@@ -302,8 +296,7 @@ export default function CustomProductWizard() {
         <div className="flex items-center justify-between mt-8 pt-5 border-t border-border">
           <button
             onClick={handleBack}
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="w-4 h-4" />
             Back
           </button>
@@ -311,8 +304,7 @@ export default function CustomProductWizard() {
             <button
               onClick={handleContinue}
               disabled={!canContinue}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#b5622a] to-[#5c2a12] text-foreground font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-            >
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#b5622a] to-[#5c2a12] text-foreground font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed">
               Continue
               <ArrowRight className="w-4 h-4" />
             </button>

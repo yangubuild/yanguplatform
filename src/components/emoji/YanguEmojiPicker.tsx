@@ -30,8 +30,7 @@ export function YanguEmojiPicker({ onSelect, onClose }: YanguEmojiPickerProps) {
     <div
       className="rounded-xl border border-white/10 overflow-hidden shadow-2xl"
       style={{ background: "#111a15", width: 320, maxHeight: 360 }}
-      onClick={(e) => e.stopPropagation()}
-    >
+      onClick={(e) => e.stopPropagation()}>
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-white/5">
         <span className="text-xs font-semibold text-muted-foreground">Emojis</span>
@@ -63,8 +62,7 @@ export function YanguEmojiPicker({ onSelect, onClose }: YanguEmojiPickerProps) {
             tab === "custom"
               ? "bg-success/20 text-success"
               : "text-muted-foreground hover:text-muted-foreground hover:bg-white/5"
-          }`}
-        >
+          }`}>
           yangu ({results.custom.length})
         </button>
         <button
@@ -73,8 +71,7 @@ export function YanguEmojiPicker({ onSelect, onClose }: YanguEmojiPickerProps) {
             tab === "system"
               ? "bg-success/20 text-success"
               : "text-muted-foreground hover:text-muted-foreground hover:bg-white/5"
-          }`}
-        >
+          }`}>
           System ({results.system.length})
         </button>
       </div>
@@ -93,8 +90,7 @@ export function YanguEmojiPicker({ onSelect, onClose }: YanguEmojiPickerProps) {
                   key={emoji.id}
                   onClick={() => onSelect(emoji)}
                   title={emoji.keyword}
-                  className="aspect-square rounded-lg hover:bg-white/10 p-1 transition-colors flex items-center justify-center group relative"
-                >
+                  className="aspect-square rounded-lg hover:bg-white/10 p-1 transition-colors flex items-center justify-center group relative">
                   <img
                     src={emoji.thumbnailUrl}
                     alt={emoji.keyword}
@@ -117,8 +113,7 @@ export function YanguEmojiPicker({ onSelect, onClose }: YanguEmojiPickerProps) {
               <button
                 key={emoji}
                 onClick={() => onSelect(emoji)}
-                className="text-lg hover:scale-125 transition-transform p-1 rounded hover:bg-white/10"
-              >
+                className="text-lg hover:scale-125 transition-transform p-1 rounded hover:bg-white/10">
                 {emoji}
               </button>
             ))}

@@ -43,13 +43,13 @@ function setStore(prefix: string, id: string) {
 function pruneExpired() {
   try {
     const now = Date.now();
-    for (let i = localStorage.length - 1; i >= 0; i--) {
+    for (let i = localStorage.length - 1; i>= 0; i--) {
       const key = localStorage.key(i);
       if (key?.startsWith(DISMISSED_PREFIX)) {
         const raw = localStorage.getItem(key);
         if (raw) {
           const { ts } = JSON.parse(raw);
-          if (now - ts >= COOLDOWN_MS) localStorage.removeItem(key);
+          if (now - ts>= COOLDOWN_MS) localStorage.removeItem(key);
         }
       }
     }

@@ -38,8 +38,7 @@ export default function ManageContentHome() {
           <Link
             key={link.slug}
             to={manageLink(link.slug)}
-            className="group rounded-xl border border-border bg-card p-5 hover:border-accent/40 hover:shadow-sm transition-all"
-          >
+            className="group rounded-xl border border-border bg-card p-5 hover:border-accent/40 hover:shadow-sm transition-all">
             <div className="flex items-start gap-3">
               <div className="p-2 rounded-lg bg-muted">
                 <link.icon className="h-5 w-5 text-muted-foreground group-hover:text-accent transition-colors" />

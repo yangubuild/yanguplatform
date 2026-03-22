@@ -90,7 +90,7 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
   const { isListed, status: communityStatus, listOnCommunity, unlistFromCommunity, invalidate: invalidateCommunity } = useCommunityListing(surface.id);
 
   const isArchived = !!surface.archived_at;
-  const hasActivePublish = surface.activePublishes.length > 0;
+  const hasActivePublish = surface.activePublishes.length> 0;
   const isPublished = hasActivePublish;
 
   const lastPublish = surface.activePublishes[0] || null;
@@ -141,7 +141,7 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
   };
 
   const openUnpublishDialog = () => {
-    if (surface.activePublishes.length > 1) {
+    if (surface.activePublishes.length> 1) {
       setSelectedDomainId(surface.activePublishes[0].domain_id);
     }
     setUnpublishDialogOpen(true);
@@ -308,8 +308,7 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
               )}
               <Badge
                 variant={isPublished ? "default" : "secondary"}
-                className={`flex-shrink-0 ${isPublished ? "bg-success text-success-foreground" : ""}`}
-              >
+                className={`flex-shrink-0 ${isPublished ? "bg-success text-success-foreground" : ""}`}>
                 {isArchived ? "Archived" : isPublished ? "Live" : "Draft"}
               </Badge>
               <DropdownMenu>
@@ -326,8 +325,7 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
                         onClick={() => {
                           setNewTitle(surface.title || "");
                           setRenameDialogOpen(true);
-                        }}
-                      >
+                        }}>
                         <Pencil className="h-4 w-4 mr-2" />
                         Rename
                       </DropdownMenuItem>
@@ -389,8 +387,7 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() => setDeleteDialogOpen(true)}
-                    className="text-destructive focus:text-destructive"
-                  >
+                    className="text-destructive focus:text-destructive">
                     <Trash2 className="h-4 w-4 mr-2" />
                     Delete
                   </DropdownMenuItem>
@@ -430,8 +427,7 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
                 size="sm"
                 className="flex-1"
                 onClick={openUnpublishDialog}
-                disabled={unpublishSurface.isPending}
-              >
+                disabled={unpublishSurface.isPending}>
                 {unpublishSurface.isPending ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 ) : (
@@ -445,8 +441,7 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
                 size="sm"
                 className="flex-1"
                 onClick={() => setRepublishDialogOpen(true)}
-                disabled={republishSurface.isPending}
-              >
+                disabled={republishSurface.isPending}>
                 {republishSurface.isPending ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 ) : (
@@ -460,8 +455,7 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
               size="sm"
               className="flex-1"
               onClick={() => onEdit?.(surface)}
-              disabled={isArchived}
-            >
+              disabled={isArchived}>
               <Pencil className="h-4 w-4 mr-2" />
               Edit
             </Button>
@@ -482,8 +476,7 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleUnarchiveAndList}
-              disabled={communityLoading}
-            >
+              disabled={communityLoading}>
               {communityLoading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -522,8 +515,7 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
             </Button>
             <Button
               onClick={handleRename}
-              disabled={!newTitle.trim() || renameSurface.isPending}
-            >
+              disabled={!newTitle.trim() || renameSurface.isPending}>
               {renameSurface.isPending ? "Saving..." : "Save"}
             </Button>
           </DialogFooter>
@@ -539,7 +531,7 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
               This will remove the surface from the live site. You can publish it again anytime.
             </DialogDescription>
           </DialogHeader>
-          {surface.activePublishes.length > 1 && (
+          {surface.activePublishes.length> 1 && (
             <div className="py-4">
               <Label>Select domain to unpublish from</Label>
               <Select value={selectedDomainId} onValueChange={setSelectedDomainId}>
@@ -562,8 +554,7 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
             </Button>
             <Button
               onClick={handleUnpublish}
-              disabled={unpublishSurface.isPending}
-            >
+              disabled={unpublishSurface.isPending}>
               {unpublishSurface.isPending ? "Unpublishing..." : "Unpublish"}
             </Button>
           </DialogFooter>
@@ -583,8 +574,7 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleArchive}
-              disabled={archiveSurface.isPending}
-            >
+              disabled={archiveSurface.isPending}>
               {archiveSurface.isPending ? "Archiving..." : "Archive"}
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -606,8 +596,7 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
             <AlertDialogAction
               onClick={handleDelete}
               disabled={deleteSurface.isPending}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               {deleteSurface.isPending ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -627,8 +616,7 @@ export function SurfaceCard({ surface, onEdit, onPreview }: SurfaceCardProps) {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleRepublish}
-              disabled={republishSurface.isPending}
-            >
+              disabled={republishSurface.isPending}>
               {republishSurface.isPending ? "Publishing..." : "Republish"}
             </AlertDialogAction>
           </AlertDialogFooter>

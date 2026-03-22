@@ -40,8 +40,7 @@ export function HeroImagePositioner({
     return (
       <div
         className={`bg-muted flex items-center justify-center text-muted-foreground text-xs cursor-pointer ${className}`}
-        onClick={handleImageClick}
-      >
+        onClick={handleImageClick}>
         <Upload className="h-5 w-5 mr-1.5" />
         Click to upload
       </div>
@@ -52,8 +51,7 @@ export function HeroImagePositioner({
     <>
       <div
         className={`relative group/hero-img cursor-pointer ${className}`}
-        onClick={handleImageClick}
-      >
+        onClick={handleImageClick}>
         <img
           src={src}
           alt={alt}
@@ -74,12 +72,10 @@ export function HeroImagePositioner({
         {showOptions && (
           <div
             className="absolute inset-0 z-20 flex items-center justify-center bg-black/40"
-            onClick={(e) => { e.stopPropagation(); setShowOptions(false); }}
-          >
+            onClick={(e) => { e.stopPropagation(); setShowOptions(false); }}>
             <div
               className="flex flex-col gap-1 bg-background/95 backdrop-blur-md rounded-xl shadow-lg border border-border p-2 min-w-[200px]"
-              onClick={(e) => e.stopPropagation()}
-            >
+              onClick={(e) => e.stopPropagation()}>
               <button
                 type="button"
                 onClick={(e) => {
@@ -87,8 +83,7 @@ export function HeroImagePositioner({
                   setShowOptions(false);
                   setShowCropDialog(true);
                 }}
-                className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-accent transition-colors text-left"
-              >
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-accent transition-colors text-left">
                 <Crop className="h-4 w-4 text-muted-foreground shrink-0" />
                 <span className="text-sm font-medium text-foreground">Resize / Reposition</span>
               </button>
@@ -99,8 +94,7 @@ export function HeroImagePositioner({
                   setShowOptions(false);
                   onImageReplace?.();
                 }}
-                className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-accent transition-colors text-left"
-              >
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-accent transition-colors text-left">
                 <Upload className="h-4 w-4 text-muted-foreground shrink-0" />
                 <span className="text-sm font-medium text-foreground">Replace Image</span>
               </button>
@@ -112,8 +106,7 @@ export function HeroImagePositioner({
                     setShowOptions(false);
                     onRemove();
                   }}
-                  className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-accent transition-colors text-left"
-                >
+                  className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-accent transition-colors text-left">
                   <span className="text-sm font-medium text-destructive">Remove Image</span>
                 </button>
               )}

@@ -7,7 +7,7 @@ import { OffersGrid } from "@/components/offers/OffersGrid";
  */
 export default function DashboardOffers() {
   return (
-    <div className="overflow-y-auto pb-10 min-h-screen" style={{ background: "#08120D" }}>
+    <div className="overflow-y-auto pb-10 min-h-screen bg-background">
       <OffersSearchBar />
       <OffersGrid />
     </div>

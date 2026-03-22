@@ -347,10 +347,10 @@ export default function EshopConnectPage() {
     );
   }
 
-  const hasAnyProvider = connectedProviders().filter((p) => p !== "estores").length > 0;
+  const hasAnyProvider = connectedProviders().filter((p) => p !== "estores").length> 0;
 
   return (
-    <div className="flex flex-col h-full min-h-0 overflow-hidden min-h-screen" style={{ background: "#08120D" }}>
+    <div className="flex flex-col h-full min-h-0 overflow-hidden min-h-screen bg-background">
       {/* AI Mode Popup */}
       {showPopup && (
         <AiModePopup
@@ -373,8 +373,7 @@ export default function EshopConnectPage() {
                 activeTab === tab.key
                   ? "text-accent border-b-2 border-accent"
                   : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
+              }`}>
               {tab.key === "ai-mode" && <Sparkles className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />}
               {tab.label}
             </button>
@@ -426,8 +425,7 @@ export default function EshopConnectPage() {
                           : isUnavailable
                             ? "border-border/40 text-muted-foreground/40 cursor-not-allowed"
                             : "border-border/60 text-muted-foreground/60 hover:border-accent/40"
-                    }`}
-                  >
+                    }`}>
                     {!connected && !isUnavailable && s.key !== "estores" && s.key !== "aliexpress" && <Plug className="w-3 h-3" />}
                     {s.label}
                     {isComingSoon && " (soon)"}
@@ -451,14 +449,14 @@ export default function EshopConnectPage() {
               <Sparkles className="w-10 h-10 text-accent mx-auto" />
               <h2 className="text-lg font-bold text-foreground">AI Sourcing Mode</h2>
               <p className="text-sm text-muted-foreground">
-                {results.length > 0
+                {results.length> 0
                   ? `${results.length} ${providerKey === "cj" ? "CJ" : providerKey === "moderndropship" ? "ModernDropship" : providerKey === "aliexpress" ? "AliExpress" : "YANGU"} products loaded. Ask AI to recommend the best ones.`
                   : "Describe what you're looking for and AI will help you find the best products."}
               </p>
             </div>
 
             {/* Product context summary */}
-            {results.length > 0 && (
+            {results.length> 0 && (
               <div className="rounded-xl border border-border bg-card/50 p-4 space-y-2">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Current Dataset</p>
                 <div className="flex flex-wrap gap-3 text-xs text-foreground">
@@ -466,11 +464,11 @@ export default function EshopConnectPage() {
                   <span>Products: <strong>{results.length}</strong></span>
                   {(() => {
                     const cats = new Set(results.map((r) => r.category_name).filter(Boolean));
-                    return cats.size > 0 ? <span>Categories: <strong>{cats.size}</strong></span> : null;
+                    return cats.size> 0 ? <span>Categories: <strong>{cats.size}</strong></span> : null;
                   })()}
                   {(() => {
                     const countries = new Set(results.map((r) => r.ship_from_country).filter(Boolean));
-                    return countries.size > 0 ? <span>Ship from: <strong>{Array.from(countries).join(", ")}</strong></span> : null;
+                    return countries.size> 0 ? <span>Ship from: <strong>{Array.from(countries).join(", ")}</strong></span> : null;
                   })()}
                 </div>
                 <div className="flex flex-wrap gap-1.5 mt-1">
@@ -479,7 +477,7 @@ export default function EshopConnectPage() {
                       {r.title}
                     </span>
                   ))}
-                  {results.length > 5 && <span className="text-[10px] text-muted-foreground">+{results.length - 5} more</span>}
+                  {results.length> 5 && <span className="text-[10px] text-muted-foreground">+{results.length - 5} more</span>}
                 </div>
               </div>
             )}
@@ -488,13 +486,13 @@ export default function EshopConnectPage() {
               <textarea
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder={results.length > 0
+                placeholder={results.length> 0
                   ? "e.g. Which of these products have the best margin? Show me items under $5 from China..."
                   : "e.g. Find trending wireless earbuds under $15 with fast shipping from China..."}
                 className="w-full h-28 p-4 rounded-xl border-2 border-accent/30 bg-card text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent resize-none"
               />
               <div className="flex flex-wrap gap-2">
-                {(results.length > 0
+                {(results.length> 0
                   ? ["Show best margin products", "Items under $5", "Fast shipping options", "Top categories"]
                   : ["Trending on TikTok", "High margin products", "US warehouse items", "Best sellers under $10"]
                 ).map((chip) => (
@@ -502,8 +500,7 @@ export default function EshopConnectPage() {
                     key={chip}
                     type="button"
                     onClick={() => { setQuery(chip); setActiveTab("products"); doSearch(chip); }}
-                    className="px-3 py-1.5 rounded-xl border border-border/60 bg-card/60 text-xs text-muted-foreground hover:border-accent/40 hover:text-foreground transition-colors"
-                  >
+                    className="px-3 py-1.5 rounded-xl border border-border/60 bg-card/60 text-xs text-muted-foreground hover:border-accent/40 hover:text-foreground transition-colors">
                     {chip}
                   </button>
                 ))}

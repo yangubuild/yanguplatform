@@ -90,8 +90,7 @@ export default function ManufacturersTab() {
               key={s.key}
               className={`rounded-xl border bg-card p-5 space-y-3 transition-colors ${
                 comingSoon ? "border-border/40 opacity-60" : "border-border hover:border-accent/40"
-              }`}
-            >
+              }`}>
               <div className="flex items-center gap-3">
                 <div className="w-11 h-11 rounded-xl bg-accent/10 flex items-center justify-center">
                   <Package className="w-5 h-5 text-accent" />
@@ -145,8 +144,7 @@ export default function ManufacturersTab() {
                       size="sm"
                       onClick={() => handleDisconnect(s.key)}
                       disabled={isBusy}
-                      className="gap-1.5 text-xs"
-                    >
+                      className="gap-1.5 text-xs">
                       {isBusy ? <Loader2 className="w-3 h-3 animate-spin" /> : <Unplug className="w-3 h-3" />}
                       Disconnect
                     </Button>
@@ -155,8 +153,7 @@ export default function ManufacturersTab() {
                       size="sm"
                       onClick={() => handleConnect(s.key)}
                       disabled={isBusy}
-                      className="bg-accent text-accent-foreground hover:bg-accent/90 gap-1.5 text-xs"
-                    >
+                      className="bg-accent text-accent-foreground hover:bg-accent/90 gap-1.5 text-xs">
                       {isBusy ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plug className="w-3 h-3" />}
                       Connect {s.name.split(" ")[0]}
                     </Button>

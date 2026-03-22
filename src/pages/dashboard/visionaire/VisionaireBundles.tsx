@@ -14,7 +14,7 @@ function titleToGradient(title: string): string {
     hash = title.charCodeAt(i) + ((hash << 5) - hash);
   }
   const h1 = Math.abs(hash % 360);
-  const h2 = (h1 + 40 + Math.abs((hash >> 8) % 30)) % 360;
+  const h2 = (h1 + 40 + Math.abs((hash>> 8) % 30)) % 360;
   return `linear-gradient(135deg, hsl(${h1}, 55%, 25%), hsl(${h2}, 45%, 15%))`;
 }
 
@@ -92,8 +92,7 @@ export default function VisionaireBundles() {
                 <div
                   key={bundle.id}
                   className="rounded-xl border border-border bg-card overflow-hidden group hover:shadow-lg hover:border-primary/30 transition-all cursor-pointer"
-                  onClick={() => navigate(`/dashboard/visionaire/bundle/${bundle.id}`)}
-                >
+                  onClick={() => navigate(`/dashboard/visionaire/bundle/${bundle.id}`)}>
                   {/* Cover */}
                   <div className="relative aspect-[4/3] overflow-hidden bg-black">
                     {bundle.thumbnail_url ? (
@@ -105,8 +104,7 @@ export default function VisionaireBundles() {
                     ) : (
                       <div
                         className="w-full h-full flex items-center justify-center"
-                        style={{ background: titleToGradient(bundle.title) }}
-                      >
+                        style={{ background: titleToGradient(bundle.title) }}>
                         <Package className="h-12 w-12 text-muted-foreground" />
                       </div>
                     )}
@@ -136,8 +134,7 @@ export default function VisionaireBundles() {
                         onClick={(e) => {
                           e.stopPropagation();
                           navigate(`/dashboard/visionaire/bundle/${bundle.id}`);
-                        }}
-                      >
+                        }}>
                         <Package className="h-3.5 w-3.5 mr-1.5" /> Open Bundle
                       </Button>
                       <Button
@@ -157,8 +154,7 @@ export default function VisionaireBundles() {
                               onError: () => toast.error("Failed"),
                             });
                           }
-                        }}
-                      >
+                        }}>
                         {isSaved ? (
                           <BookmarkCheck className="h-4 w-4 text-primary" />
                         ) : (

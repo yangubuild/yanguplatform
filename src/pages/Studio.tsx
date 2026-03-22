@@ -121,8 +121,7 @@ export default function Studio() {
         <div className="flex items-center justify-end px-6 pt-4 pb-2">
           <button
             className="inline-flex items-center gap-2 rounded-lg border border-accent/40 bg-accent/10 px-4 py-1.5 text-sm font-semibold text-accent hover:bg-accent/20 transition-colors"
-            onClick={() => navigate("/billing")}
-          >
+            onClick={() => navigate("/billing")}>
             Upgrade
             <span className="inline-flex items-center gap-1 text-accent">
               {creditsLoading ? (
@@ -149,8 +148,7 @@ export default function Studio() {
                   bg-gradient-to-br ${card.gradient}
                   flex flex-col justify-end p-6 text-left
                   group cursor-pointer transition-transform hover:scale-[1.01]
-                `}
-              >
+                `}>
                 {/* badge */}
                 {card.badge && (
                   <div className="absolute top-4 left-1/2 -translate-x-1/2">
@@ -175,8 +173,7 @@ export default function Studio() {
                 <div className="relative z-10">
                   <h2
                     className="text-2xl md:text-3xl font-black uppercase tracking-tight text-foreground flex items-center gap-2"
-                    style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}
-                  >
+                    style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>
                     {card.title}
                     <ArrowRight className="h-5 w-5 opacity-80 group-hover:translate-x-1 transition-transform" />
                   </h2>
@@ -203,8 +200,7 @@ export default function Studio() {
                   };
                   if (routes[chip.id]) navigate(routes[chip.id]);
                 }}
-                className="flex items-center gap-3 rounded-xl border border-border/40 bg-card px-5 py-4 text-sm font-medium text-foreground hover:bg-muted/60 transition-colors text-left"
-              >
+                className="flex items-center gap-3 rounded-xl border border-border/40 bg-card px-5 py-4 text-sm font-medium text-foreground hover:bg-muted/60 transition-colors text-left">
                 <chip.icon className="h-5 w-5 text-accent shrink-0" />
                 <span>{chip.label}</span>
                 {chip.beta && (
@@ -227,8 +223,7 @@ export default function Studio() {
                   };
                   if (routes[chip.id]) navigate(routes[chip.id]);
                 }}
-                className="flex items-center gap-3 rounded-xl border border-border/40 bg-card px-5 py-4 text-sm font-medium text-foreground hover:bg-muted/60 transition-colors text-left"
-              >
+                className="flex items-center gap-3 rounded-xl border border-border/40 bg-card px-5 py-4 text-sm font-medium text-foreground hover:bg-muted/60 transition-colors text-left">
                 <chip.icon className="h-5 w-5 text-accent shrink-0" />
                 <span>{chip.label}</span>
                 {chip.beta && (
@@ -247,8 +242,7 @@ export default function Studio() {
               <div>
                 <h2
                   className="text-xl md:text-2xl font-black uppercase tracking-tight text-foreground flex items-center gap-2"
-                  style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}
-                >
+                  style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>
                   TOP ADS OF THE WEEK
                   <span className="inline-flex items-center rounded bg-accent/15 px-1.5 py-0.5 text-[11px] font-bold text-accent">
                     AI
@@ -268,13 +262,11 @@ export default function Studio() {
             <div className="relative">
               <div
                 ref={scrollRef}
-                className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1 snap-x"
-              >
+                className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1 snap-x">
                 {TOP_ADS.map((ad) => (
                   <div
                     key={ad.id}
-                    className="shrink-0 w-[260px] md:w-[280px] snap-start cursor-pointer group"
-                  >
+                    className="shrink-0 w-[260px] md:w-[280px] snap-start cursor-pointer group">
                     <div className="rounded-2xl aspect-[4/3] bg-black mb-3 overflow-hidden">
                       <video
                         src={ad.video}
@@ -298,8 +290,7 @@ export default function Studio() {
               {/* scroll arrow */}
               <button
                 onClick={scrollRight}
-                className="absolute right-0 top-1/3 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-card/90 border border-border/40 flex items-center justify-center text-foreground hover:bg-muted transition-colors shadow-lg"
-              >
+                className="absolute right-0 top-1/3 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-card/90 border border-border/40 flex items-center justify-center text-foreground hover:bg-muted transition-colors shadow-lg">
                 <ChevronRight className="h-5 w-5" />
               </button>
           </div>

@@ -46,7 +46,7 @@ export function MessagesGlobalChatTab() {
   const handleFile = (files: FileList | null) => {
     if (!files?.[0]) return;
     const f = files[0];
-    if (f.size > 5 * 1024 * 1024) { toast.error("Max 5MB"); return; }
+    if (f.size> 5 * 1024 * 1024) { toast.error("Max 5MB"); return; }
     setMediaFile(f);
     setMediaPreview(URL.createObjectURL(f));
   };
@@ -260,7 +260,7 @@ function MessageBubble({ msg, presenceMap, currentUserId, onReply, onReaction, e
             </div>
           )}
 
-          <div className="mt-1 inline-block rounded-xl px-3 py-2 text-xs max-w-[280px]" style={{ background: "rgba(255,255,255,0.07)", }}>
+          <div className="mt-1 inline-block rounded-xl px-3 py-2 text-xs max-w-[280px]" style={{ background: "rgba(255,255,255,0.07)" }}>
             <ChatContent content={msg.content} metadata={msg.metadata} />
           </div>
 
@@ -275,7 +275,7 @@ function MessageBubble({ msg, presenceMap, currentUserId, onReply, onReaction, e
           )}
 
           {/* Existing reactions */}
-          {msg.reactions.length > 0 && (
+          {msg.reactions.length> 0 && (
             <div className="flex flex-wrap gap-1 mt-1">
               {msg.reactions.map(r => {
                 const isMine = currentUserId && r.userIds.includes(currentUserId);
@@ -284,8 +284,7 @@ function MessageBubble({ msg, presenceMap, currentUserId, onReply, onReaction, e
                     className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[11px] transition-colors"
                     style={{
                       background: isMine ? "rgba(96,165,250,0.15)" : "rgba(255,255,255,0.06)",
-                      border: `1px solid ${isMine ? "rgba(96,165,250,0.3)" : "rgba(255,255,255,0.08)"}`,
-                    }}>
+                      border: `1px solid ${isMine ? "rgba(96,165,250,0.3)" : "rgba(255,255,255,0.08)"}` }}>
                     <span>{r.emoji}</span>
                     <span style={{ color: isMine ? "#60a5fa" : "rgba(255,255,255,0.5)" }}>{r.count}</span>
                   </button>

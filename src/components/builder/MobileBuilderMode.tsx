@@ -28,9 +28,7 @@ export function MobileBuilderToolbar({ onOpenPanel, activePanel }: MobileBuilder
         height: 56,
         background: "hsl(var(--background))",
         borderTop: "1px solid hsl(var(--border))",
-        paddingBottom: "env(safe-area-inset-bottom, 0px)",
-      }}
-    >
+        paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
       {items.map((item) => {
         const active = activePanel === item.key;
         return (
@@ -38,8 +36,7 @@ export function MobileBuilderToolbar({ onOpenPanel, activePanel }: MobileBuilder
             key={item.key}
             onClick={() => onOpenPanel(item.key)}
             className="flex flex-col items-center justify-center gap-0.5 flex-1 h-full"
-            style={{ color: active ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))" }}
-          >
+            style={{ color: active ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))" }}>
             <item.icon className="w-5 h-5" />
             <span className="text-[10px] font-medium">{item.label}</span>
           </button>
@@ -61,20 +58,16 @@ export function MobileBuilderSheet({ open, onClose, title, children }: MobileBui
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent
         className="fixed inset-0 z-50 flex flex-col p-0 m-0 max-w-none max-h-none h-full w-full rounded-none border-0 lg:hidden [&>button]:hidden"
-        style={{ background: "hsl(var(--background))" }}
-      >
+        style={{ background: "hsl(var(--background))" }}>
         <div
           className="flex items-center justify-between px-4 shrink-0"
           style={{
             height: 48,
-            borderBottom: "1px solid hsl(var(--border))",
-          }}
-        >
+            borderBottom: "1px solid hsl(var(--border))" }}>
           <h2 className="text-sm font-semibold text-foreground">{title}</h2>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground"
-          >
+            className="w-8 h-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -94,16 +87,13 @@ export function MobileBuilderDesktopNotice() {
       style={{
         background: "hsl(var(--muted))",
         borderBottom: "1px solid hsl(var(--border))",
-        color: "hsl(var(--muted-foreground))",
-      }}
-    >
+        color: "hsl(var(--muted-foreground))" }}>
       <Monitor className="w-3.5 h-3.5 shrink-0" />
       <span>For complex editing, best experience on iPad or desktop</span>
       <button
         onClick={() => setDismissed(true)}
         className="ml-auto text-[10px] font-medium shrink-0"
-        style={{ color: "hsl(var(--foreground))" }}
-      >
+        style={{ color: "hsl(var(--foreground))" }}>
         Dismiss
       </button>
     </div>

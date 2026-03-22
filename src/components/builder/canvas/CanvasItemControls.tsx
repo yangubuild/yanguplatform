@@ -19,8 +19,7 @@ export function CanvasItemControls({ onHide, onDelete }: CanvasItemControlsProps
   return (
     <div
       className="absolute right-1 top-1 flex gap-0.5 opacity-0 group-hover/item:opacity-100 transition-opacity z-10"
-      onClick={(e) => e.stopPropagation()}
-    >
+      onClick={(e) => e.stopPropagation()}>
       <button
         type="button"
         onClick={(e) => {
@@ -28,8 +27,7 @@ export function CanvasItemControls({ onHide, onDelete }: CanvasItemControlsProps
           onHide();
         }}
         className="p-0.5 rounded bg-background/90 border border-border shadow-sm hover:bg-accent transition-colors"
-        title="Hide item"
-      >
+        title="Hide item">
         <EyeOff className="h-3 w-3 text-muted-foreground" />
       </button>
       <button
@@ -48,8 +46,7 @@ export function CanvasItemControls({ onHide, onDelete }: CanvasItemControlsProps
           : "p-0.5 rounded bg-background/90 border border-border shadow-sm hover:bg-destructive/10 transition-colors"
         }
         title={confirmDelete ? "Click again to confirm delete" : "Delete item"}
-        aria-label={confirmDelete ? "Confirm delete item" : "Delete item"}
-      >
+        aria-label={confirmDelete ? "Confirm delete item" : "Delete item"}>
         <Trash2 className={confirmDelete ? "h-3 w-3 text-destructive-foreground" : "h-3 w-3 text-muted-foreground"} />
       </button>
     </div>

@@ -10,13 +10,11 @@ export function BlogEventCard({ event }: Props) {
     <a
       href="#"
       className="group block transition-all duration-200 hover:-translate-y-0.5"
-      style={{ textDecoration: "none" }}
-    >
+      style={{ textDecoration: "none" }}>
       {/* Image — tall 3:4 aspect ratio */}
       <div
         className="overflow-hidden rounded-lg mb-4"
-        style={{ background: "#1a1a1a", aspectRatio: "3/4" }}
-      >
+        style={{ background: "#1a1a1a", aspectRatio: "3/4" }}>
         <img
           src={event.image}
           alt={event.title}
@@ -29,8 +27,7 @@ export function BlogEventCard({ event }: Props) {
         className="font-medium leading-snug transition-colors duration-200 group-hover:text-foreground"
         style={{
           fontFamily: "'Lufga', sans-serif",
-          fontSize: 18, }}
-      >
+          fontSize: 18 }}>
         {event.title}
       </h3>
 
@@ -42,8 +39,7 @@ export function BlogEventCard({ event }: Props) {
       {/* Register Now link */}
       <div className="flex items-center justify-between mt-4">
         <span
-          className="text-sm font-medium text-muted-foreground"
-        >
+          className="text-sm font-medium text-muted-foreground">
           Register Now
         </span>
         <ArrowUpRight

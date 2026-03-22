@@ -69,13 +69,11 @@ export class RouteErrorBoundary extends Component<Props, State> {
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            background: "#08120D",
+
             color: "#e2e8f0",
             fontFamily: "system-ui, sans-serif",
             padding: "2rem",
-            textAlign: "center",
-          }}
-        >
+            textAlign: "center" }}>
           <h1 style={{ fontSize: "1.5rem", marginBottom: "0.75rem" }}>
             {isChunk ? "New version available" : "Something went wrong"}
           </h1>
@@ -94,9 +92,7 @@ export class RouteErrorBoundary extends Component<Props, State> {
                 color: "#f87171",
                 maxWidth: 600,
                 overflow: "auto",
-                marginBottom: "1.5rem",
-              }}
-            >
+                marginBottom: "1.5rem" }}>
               {this.state.error.message}
             </pre>
           )}
@@ -111,9 +107,7 @@ export class RouteErrorBoundary extends Component<Props, State> {
               fontWeight: 600,
               cursor: "pointer",
               fontSize: "0.95rem",
-              marginBottom: "0.5rem",
-            }}
-          >
+              marginBottom: "0.5rem" }}>
             Reload Page
           </button>
           {!isChunk && (
@@ -127,9 +121,7 @@ export class RouteErrorBoundary extends Component<Props, State> {
                 color: "#94a3b8",
                 fontWeight: 500,
                 cursor: "pointer",
-                fontSize: "0.85rem",
-              }}
-            >
+                fontSize: "0.85rem" }}>
               Try again without reload
             </button>
           )}

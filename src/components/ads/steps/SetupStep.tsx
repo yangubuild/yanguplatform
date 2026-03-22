@@ -213,7 +213,7 @@ export function SetupStep({ data, onChange }: SetupStepProps) {
     const sel = data.selectedLocations || [];
     if (type === "continent") {
       const countries = GEO_DATA.filter((g) => g.type === "country" && g.continent === name).map((g) => g.name);
-      return countries.length > 0 && countries.every((c) => sel.includes(c));
+      return countries.length> 0 && countries.every((c) => sel.includes(c));
     }
     return sel.includes(name);
   };
@@ -252,8 +252,7 @@ export function SetupStep({ data, onChange }: SetupStepProps) {
                 data.selectedProduct === p.id
                   ? { border: "2px solid #b5622a" }
                   : {}
-              }
-            >
+              }>
               <img
                 src={p.image}
                 alt={p.title}
@@ -284,8 +283,7 @@ export function SetupStep({ data, onChange }: SetupStepProps) {
               ? "bg-[rgba(181,98,42,0.08)]"
               : "bg-white/[0.03] border border-white/10"
           }`}
-          style={data.globalReach ? { border: "2px solid #b5622a" } : {}}
-        >
+          style={data.globalReach ? { border: "2px solid #b5622a" } : {}}>
           <Globe className="w-5 h-5" style={{ color: "#b5622a" }} />
           <div>
             <span className="text-sm font-medium text-foreground">Global reach</span>
@@ -297,9 +295,7 @@ export function SetupStep({ data, onChange }: SetupStepProps) {
             className="ml-auto w-10 h-6 rounded-full transition-colors flex items-center"
             style={{
               background: data.globalReach ? "linear-gradient(90deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.1)",
-              justifyContent: data.globalReach ? "flex-end" : "flex-start",
-            }}
-          >
+              justifyContent: data.globalReach ? "flex-end" : "flex-start" }}>
             <div className="w-5 h-5 rounded-full bg-white mx-0.5 shadow" />
           </div>
         </div>
@@ -336,16 +332,14 @@ export function SetupStep({ data, onChange }: SetupStepProps) {
                     onClick={() => toggleLocation(g.name, g.type)}
                     className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors hover:bg-white/[0.04] ${
                       g.type === "country" ? "pl-8" : ""
-                    } ${i < filtered.length - 1 ? "border-b border-white/[0.05]" : ""}`}
-                  >
+                    } ${i < filtered.length - 1 ? "border-b border-white/[0.05]" : ""}`}>
                     <div
                       className={`w-4.5 h-4.5 rounded border flex items-center justify-center shrink-0 transition-colors ${
                         selected
                           ? "border-[#b5622a] bg-[#b5622a]"
                           : "border-white/20 bg-transparent"
                       }`}
-                      style={{ width: 18, height: 18 }}
-                    >
+                      style={{ width: 18, height: 18 }}>
                       {selected && <Check className="w-3 h-3 text-foreground" />}
                     </div>
                     <span className="text-sm text-muted-foreground">

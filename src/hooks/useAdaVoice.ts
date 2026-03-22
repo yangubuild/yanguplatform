@@ -40,7 +40,7 @@ export function useAdaVoice({ chatId, userId, isAuthenticated, onTranscript }: U
       const recorder = new MediaRecorder(stream, { mimeType });
       chunksRef.current = [];
       recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunksRef.current.push(e.data);
+        if (e.data.size> 0) chunksRef.current.push(e.data);
       };
       recorder.start(250);
       recorderRef.current = recorder;

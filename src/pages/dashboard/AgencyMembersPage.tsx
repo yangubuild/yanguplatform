@@ -48,11 +48,10 @@ export default function AgencyMembersPage() {
   const [activeTab, setActiveTab] = useState("members");
 
   return (
-    <div className="p-6 max-w-[1200px] mx-auto space-y-6 min-h-screen" style={{ background: "#08120D" }}>
+    <div className="p-6 max-w-[1200px] mx-auto space-y-6 min-h-screen bg-background">
       <button
         onClick={() => navigate("/dashboard/agency")}
-        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-      >
+        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
         <ArrowLeft className="w-4 h-4" /> Back to Agency Management
       </button>
 

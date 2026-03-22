@@ -65,8 +65,8 @@ export default function ConsoleRuntime() {
     const errs: Record<string, string> = {};
     if (!form.bucket_key || !SLUG_RE.test(String(form.bucket_key))) errs.bucket_key = "Required, lowercase slug format";
     if (!form.app_id) errs.app_id = "Required";
-    if (!form.max_requests || Number(form.max_requests) <= 0) errs.max_requests = "Must be > 0";
-    if (!form.window_seconds || Number(form.window_seconds) <= 0) errs.window_seconds = "Must be > 0";
+    if (!form.max_requests || Number(form.max_requests) <= 0) errs.max_requests = "Must be> 0";
+    if (!form.window_seconds || Number(form.window_seconds) <= 0) errs.window_seconds = "Must be> 0";
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };

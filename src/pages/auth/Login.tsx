@@ -107,8 +107,7 @@ export default function Login() {
     return (
       <AuthShell
         title="Check your email"
-        subtitle="We sent you a magic link to sign in"
-      >
+        subtitle="We sent you a magic link to sign in">
         <div className="text-center space-y-4">
           <div className="mx-auto w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
             <Mail className="h-6 w-6 text-accent" />
@@ -119,8 +118,7 @@ export default function Login() {
           <Button
             variant="outline"
             className="w-full"
-            onClick={() => setShowMagicLink(false)}
-          >
+            onClick={() => setShowMagicLink(false)}>
             Back to login
           </Button>
         </div>
@@ -131,8 +129,7 @@ export default function Login() {
   return (
     <AuthShell
       title="Welcome back"
-      subtitle="Sign in to your account"
-    >
+      subtitle="Sign in to your account">
       <div className="space-y-6">
         <SocialAuthButtons disabled={isLoading || isMagicLinkLoading} />
 
@@ -159,8 +156,7 @@ export default function Login() {
               <Label htmlFor="password">Password</Label>
               <Link
                 to="/auth/reset-password"
-                className="text-sm text-accent hover:underline"
-              >
+                className="text-sm text-accent hover:underline">
                 Forgot password?
               </Link>
             </div>
@@ -182,8 +178,7 @@ export default function Login() {
               type="submit"
               variant="accent"
               className="w-full h-11"
-              disabled={isLoading || isMagicLinkLoading}
-            >
+              disabled={isLoading || isMagicLinkLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Sign in
             </Button>
@@ -193,8 +188,7 @@ export default function Login() {
               variant="ghost"
               className="w-full"
               onClick={handleMagicLink}
-              disabled={isLoading || isMagicLinkLoading}
-            >
+              disabled={isLoading || isMagicLinkLoading}>
               {isMagicLinkLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               <Mail className="mr-2 h-4 w-4" />
               Send magic link instead

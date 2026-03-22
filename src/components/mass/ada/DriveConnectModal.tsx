@@ -41,8 +41,7 @@ export function DriveConnectModal({ open, onOpenChange }: DriveConnectModalProps
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        style={{ background: "#111", border: "1px solid rgba(255,255,255,0.1)" }}
-      >
+        style={{ background: "#111", border: "1px solid rgba(255,255,255,0.1)" }}>
         <DialogHeader>
           <DialogTitle className="text-foreground flex items-center gap-2">
             <HardDrive className="w-5 h-5 text-[#F4A83D]" />
@@ -62,8 +61,7 @@ export function DriveConnectModal({ open, onOpenChange }: DriveConnectModalProps
           <button
             onClick={() => onOpenChange(false)}
             className="px-4 py-2 rounded-lg text-sm text-muted-foreground hover:text-muted-foreground transition-colors"
-            style={{ border: "1px solid rgba(255,255,255,0.1)" }}
-          >
+            style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
             {connected ? "Close" : "Cancel"}
           </button>
           {!checking && !connected && (
@@ -71,8 +69,7 @@ export function DriveConnectModal({ open, onOpenChange }: DriveConnectModalProps
               onClick={handleConnect}
               disabled={connecting}
               className="px-4 py-2 rounded-lg text-sm font-medium text-foreground transition-colors disabled:opacity-50 flex items-center gap-2"
-              style={{ background: "linear-gradient(135deg, #D4952B, #F4A83D)" }}
-            >
+              style={{ background: "linear-gradient(135deg, #D4952B, #F4A83D)" }}>
               {connecting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
               Connect Drive
             </button>

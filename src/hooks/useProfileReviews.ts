@@ -67,7 +67,7 @@ export function useProfileReviews(userId: string | undefined) {
         };
       });
 
-      const avg = mapped.length > 0
+      const avg = mapped.length> 0
         ? mapped.reduce((sum, r) => sum + r.rating, 0) / mapped.length
         : 0;
 

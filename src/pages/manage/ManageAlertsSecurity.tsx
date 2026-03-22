@@ -48,7 +48,7 @@ function AutoDetectedSources() {
     );
   }
 
-  const hasAny = sources.some((s) => s.value > 0);
+  const hasAny = sources.some((s) => s.value> 0);
 
   return (
     <AdminGlassCard>
@@ -64,13 +64,12 @@ function AutoDetectedSources() {
             <div
               key={s.key}
               className={`rounded-xl border px-4 py-3 flex items-center gap-3 ${
-                s.value > 0
+                s.value> 0
                   ? `border-[hsl(${s.color}/0.4)] bg-[hsl(${s.color}/0.05)]`
                   : "border-[hsl(var(--admin-border)/0.3)] bg-[hsl(var(--admin-surface-elevated)/0.3)]"
-              }`}
-            >
-              <div className={`p-1.5 rounded-lg ${s.value > 0 ? `bg-[hsl(${s.color}/0.12)]` : "bg-[hsl(var(--admin-surface-elevated)/0.5)]"}`}>
-                <s.icon className={`h-4 w-4 ${s.value > 0 ? `text-[hsl(${s.color})]` : "text-[hsl(var(--admin-text-muted))]"}`} />
+              }`}>
+              <div className={`p-1.5 rounded-lg ${s.value> 0 ? `bg-[hsl(${s.color}/0.12)]` : "bg-[hsl(var(--admin-surface-elevated)/0.5)]"}`}>
+                <s.icon className={`h-4 w-4 ${s.value> 0 ? `text-[hsl(${s.color})]` : "text-[hsl(var(--admin-text-muted))]"}`} />
               </div>
               <div>
                 <p className="text-lg font-bold text-[hsl(var(--admin-text))]">{s.value}</p>
@@ -145,8 +144,7 @@ function AlertsTable() {
           </Select>
           <button
             onClick={() => refetch()}
-            className="p-1.5 rounded-lg hover:bg-[hsl(var(--admin-surface-elevated)/0.5)] transition-colors text-[hsl(var(--admin-text-muted))]"
-          >
+            className="p-1.5 rounded-lg hover:bg-[hsl(var(--admin-surface-elevated)/0.5)] transition-colors text-[hsl(var(--admin-text-muted))]">
             <RefreshCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
           </button>
         </div>
@@ -205,8 +203,7 @@ function AlertsTable() {
                     <button
                       onClick={() => handleResolve(a)}
                       disabled={resolveMut.isPending}
-                      className="text-xs px-2 py-1 rounded-md hover:bg-[hsl(var(--admin-surface-elevated)/0.5)] text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text))] transition-colors disabled:opacity-50"
-                    >
+                      className="text-xs px-2 py-1 rounded-md hover:bg-[hsl(var(--admin-surface-elevated)/0.5)] text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text))] transition-colors disabled:opacity-50">
                       {resolveMut.isPending ? (
                         <Loader2 className="h-3 w-3 animate-spin" />
                       ) : a.is_resolved ? (

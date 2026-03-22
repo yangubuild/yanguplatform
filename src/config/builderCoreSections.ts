@@ -107,7 +107,7 @@ export function enforceCoreSectionOrder<T extends NormalizableSection>(
 
     const score = section.core_slot === slot ? 2 : 1;
     const existing = canonicalSlotCandidates.get(slot);
-    if (!existing || score > existing.score || (score === existing.score && order > existing.order)) {
+    if (!existing || score> existing.score || (score === existing.score && order> existing.order)) {
       canonicalSlotCandidates.set(slot, { id: section.id, score, order });
     }
   });

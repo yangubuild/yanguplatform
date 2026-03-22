@@ -63,8 +63,7 @@ function MiniChart({ data, label, color = "hsl(var(--admin-accent))" }: { data: 
                 border: "1px solid hsl(var(--admin-border))",
                 borderRadius: 8,
                 fontSize: 12,
-                color: "hsl(var(--admin-text))",
-              }}
+                color: "hsl(var(--admin-text))" }}
             />
             <Area type="monotone" dataKey="count" stroke={color} fill={`url(#grad-${label})`} strokeWidth={2} />
           </AreaChart>
@@ -100,8 +99,7 @@ export default function ManageAnalytics() {
                 days === opt.value
                   ? "bg-[hsl(var(--admin-accent))] text-[hsl(var(--admin-bg))]"
                   : "text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text))]"
-              }`}
-            >
+              }`}>
               {opt.label}
             </button>
           ))}

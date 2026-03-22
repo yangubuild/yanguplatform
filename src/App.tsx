@@ -220,7 +220,7 @@ const App = () => (
             <PublicRouteResolver>
               <DomainGate>
               <RouteErrorBoundary>
-              <Suspense fallback={<div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#08120D" }}><img src="/yangu-y-loader.png" alt="Loading" width={40} height={40} style={{ animation: "spin 1.4s linear infinite" }} /></div>}>
+              <Suspense fallback={<div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}><img src="/yangu-y-loader.png" alt="Loading" width={40} height={40} style={{ animation: "spin 1.4s linear infinite" }} /></div>}>
               <Routes>
                 {/* Public routes */}
                 <Route path="/" element={<Index />} />
@@ -298,8 +298,7 @@ const App = () => (
                     <DeveloperPortalGuard>
                       <PortalLayoutModule />
                     </DeveloperPortalGuard>
-                  }
-                >
+                  }>
                   <Route index element={<Navigate to="/developers/portal/overview" replace />} />
                   <Route path="overview" element={<PortalOverview />} />
                   <Route path="apps" element={<PortalApps />} />
@@ -365,8 +364,7 @@ const App = () => (
                     <ProtectedRoute>
                       <NavigationDashboardPage />
                     </ProtectedRoute>
-                  }
-                >
+                  }>
                   <Route index element={<Navigate to="/dashboard/offers" replace />} />
                   <Route path="home" element={<DashboardHome />} />
                   <Route path="explore" element={<DashboardExplore />} />
@@ -501,8 +499,7 @@ const App = () => (
                     <AdminRoute>
                       <AdminShell />
                     </AdminRoute>
-                  }
-                >
+                  }>
                   <Route index element={<ManageDashboard />} />
                   <Route path="ada" element={<ManageAda />} />
                   <Route path="messages" element={<ManageMessages />} />

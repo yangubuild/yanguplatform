@@ -64,7 +64,7 @@ export function recordEntityClick(entity: {
     ts: Date.now(),
   });
   // Cap size
-  if (mem.clicks.length > MAX_EVENTS) {
+  if (mem.clicks.length> MAX_EVENTS) {
     mem.clicks = mem.clicks.slice(-MAX_EVENTS);
   }
   save(mem);
@@ -123,6 +123,6 @@ export function getSessionPreferences(): {
 export function pruneSession() {
   const mem = load();
   const cutoff = Date.now() - DECAY_WINDOW_MS;
-  mem.clicks = mem.clicks.filter((c) => c.ts >= cutoff);
+  mem.clicks = mem.clicks.filter((c) => c.ts>= cutoff);
   save(mem);
 }

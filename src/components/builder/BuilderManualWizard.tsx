@@ -268,8 +268,7 @@ export function BuilderManualWizard({ engine, onComplete, onBack }: Props) {
           <Button
             variant="outline"
             onClick={isFirst ? onBack : () => setStepIdx((i) => i - 1)}
-            className="gap-2"
-          >
+            className="gap-2">
             <ArrowLeft className="h-4 w-4" /> {isFirst ? "Back" : "Previous"}
           </Button>
           <Button onClick={handleNext} disabled={!canContinue || isSubmitting} className="gap-2">

@@ -40,8 +40,7 @@ export function InnerPageSidebar({ className = "", activeItem, onItemChange }: I
   return (
     <div
       className={`flex flex-col h-full ${className}`}
-      style={{ background: "transparent" }}
-    >
+      style={{ background: "transparent" }}>
       {/* Main nav */}
       <nav className="px-2 mt-2 flex-1 overflow-y-auto">
         {NAV_ITEMS.map((item) => {
@@ -53,9 +52,7 @@ export function InnerPageSidebar({ className = "", activeItem, onItemChange }: I
               className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-150 mb-0.5"
               style={{
                 background: isActive ? "rgba(255,255,255,0.08)" : "transparent",
-                color: isActive ? "#fff" : "rgba(255,255,255,0.6)",
-              }}
-            >
+                color: isActive ? "#fff" : "rgba(255,255,255,0.6)" }}>
               {item.customIcon ? (
                 <img
                   src={chatIcon9}
@@ -66,8 +63,7 @@ export function InnerPageSidebar({ className = "", activeItem, onItemChange }: I
                 <item.icon
                   className="w-4 h-4 shrink-0"
                   style={{
-                    color: isActive ? "#fff" : "rgba(255,255,255,0.45)",
-                  }}
+                    color: isActive ? "#fff" : "rgba(255,255,255,0.45)" }}
                 />
               ) : null}
               <span className="font-medium">{item.label}</span>

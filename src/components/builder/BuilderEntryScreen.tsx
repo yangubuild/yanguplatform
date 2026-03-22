@@ -49,8 +49,7 @@ export function BuilderEntryScreen({ engine, onComplete }: Props) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card
           className="p-6 space-y-3 border-2 border-primary/30 hover:border-primary/60 transition-colors cursor-pointer"
-          onClick={() => setMode("ai")}
-        >
+          onClick={() => setMode("ai")}>
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
             <h3 className="font-semibold text-foreground">Build with AI</h3>
@@ -65,8 +64,7 @@ export function BuilderEntryScreen({ engine, onComplete }: Props) {
 
         <Card
           className="p-6 space-y-3 hover:border-primary/30 transition-colors cursor-pointer"
-          onClick={() => setMode("manual")}
-        >
+          onClick={() => setMode("manual")}>
           <div className="flex items-center gap-2">
             <Wrench className="h-5 w-5 text-muted-foreground" />
             <h3 className="font-semibold text-foreground">Build Manually</h3>

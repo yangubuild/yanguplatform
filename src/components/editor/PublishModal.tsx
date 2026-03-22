@@ -99,8 +99,8 @@ export function PublishModal({
 
   // Auto-select domain on open
   useEffect(() => {
-    if (open && domains.length > 0 && !selectedDomainId) {
-      // Priority: current surface domain > first domain
+    if (open && domains.length> 0 && !selectedDomainId) {
+      // Priority: current surface domain> first domain
       const defaultDomain = 
         domains.find((d) => d.id === currentDomainId) ||
         domains[0];
@@ -242,8 +242,7 @@ export function PublishModal({
                         selectedDomainId === domain.id
                           ? "border-accent bg-accent/5"
                           : "border-border hover:border-muted-foreground/50 hover:bg-muted/50"
-                      }`}
-                    >
+                      }`}>
                       <div className={`p-2 rounded-full ${
                         selectedDomainId === domain.id ? "bg-accent/10" : "bg-muted"
                       }`}>
@@ -327,15 +326,14 @@ export function PublishModal({
                           : "You can't publish this yet."}
                       </p>
                       
-                      {!eligibility.eligible && eligibility.reasons.length > 0 && (
+                      {!eligibility.eligible && eligibility.reasons.length> 0 && (
                         <div className="mt-3 space-y-2">
                           {eligibility.reasons.map((reason, idx) => {
                             const action = REASON_ACTIONS[reason];
                             return (
                               <div 
                                 key={idx}
-                                className="flex items-center justify-between gap-2 text-sm"
-                              >
+                                className="flex items-center justify-between gap-2 text-sm">
                                 <span className="text-muted-foreground">{reason}</span>
                                 {action && (
                                   <Button
@@ -345,8 +343,7 @@ export function PublishModal({
                                     onClick={() => {
                                       onOpenChange(false);
                                       navigate(action.route);
-                                    }}
-                                  >
+                                    }}>
                                     {action.label}
                                     <ArrowRight className="h-3 w-3" />
                                   </Button>
@@ -370,7 +367,7 @@ export function PublishModal({
                 <XCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-destructive">You can't publish this yet.</p>
-                  {publishResult.reasons && publishResult.reasons.length > 0 && (
+                  {publishResult.reasons && publishResult.reasons.length> 0 && (
                     <div className="mt-3 space-y-2">
                       {publishResult.reasons.map((reason, idx) => {
                         const action = REASON_ACTIONS[reason];
@@ -385,8 +382,7 @@ export function PublishModal({
                                 onClick={() => {
                                   onOpenChange(false);
                                   navigate(action.route);
-                                }}
-                              >
+                                }}>
                                 {action.label}
                                 <ArrowRight className="h-3 w-3" />
                               </Button>
@@ -410,8 +406,7 @@ export function PublishModal({
           <Button
             onClick={handlePublish}
             disabled={!selectedDomainId || !canPublish || isPublishing || !activeOrg}
-            className="gap-2"
-          >
+            className="gap-2">
             {isPublishing ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (

@@ -89,14 +89,14 @@ const columns: AdminColumn<ManagedEntity>[] = [
     key: "tags",
     header: "Tags",
     render: (r) =>
-      r.tags && r.tags.length > 0 ? (
+      r.tags && r.tags.length> 0 ? (
         <div className="flex gap-1 flex-wrap max-w-[120px]">
           {r.tags.slice(0, 3).map((t) => (
             <span key={t} className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
               {t}
             </span>
           ))}
-          {r.tags.length > 3 && <span className="text-[10px] text-muted-foreground">+{r.tags.length - 3}</span>}
+          {r.tags.length> 3 && <span className="text-[10px] text-muted-foreground">+{r.tags.length - 3}</span>}
         </div>
       ) : (
         <span className="text-xs text-muted-foreground">—</span>
@@ -182,8 +182,7 @@ export default function ManageEntities() {
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
-                className="text-xs bg-background border border-border rounded px-2 py-1 text-foreground"
-              >
+                className="text-xs bg-background border border-border rounded px-2 py-1 text-foreground">
                 {ENTITY_TYPE_FILTERS.map((f) => (
                   <option key={f.value} value={f.value}>
                     {f.label}

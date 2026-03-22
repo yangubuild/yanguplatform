@@ -64,9 +64,7 @@ export function WhyYanguDevelopersContent() {
             className="rounded-xl p-5 transition-colors cursor-pointer hover:border-white/20"
             style={{
               background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.10)",
-            }}
-          >
+              border: "1px solid rgba(255,255,255,0.10)" }}>
             <card.icon className="w-6 h-6 mb-4" strokeWidth={1.5} style={{ color: "#F46D2A" }} />
             <h3 className="text-foreground font-semibold text-sm mb-2">{card.title}</h3>
             <p className="text-xs leading-relaxed text-muted-foreground">

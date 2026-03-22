@@ -57,8 +57,7 @@ export default function PortalSettings() {
         {/* Notifications */}
         <div
           className="rounded-xl p-6"
-          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}
-        >
+          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
           <div className="flex items-center gap-3 mb-5">
             <Bell className="w-5 h-5" style={{ color: "#F46D2A" }} />
             <h3 className="text-foreground font-semibold text-sm">Notifications</h3>
@@ -91,8 +90,7 @@ export default function PortalSettings() {
         {/* Security */}
         <div
           className="rounded-xl p-6"
-          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}
-        >
+          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
           <div className="flex items-center gap-3 mb-5">
             <Shield className="w-5 h-5" style={{ color: "#F46D2A" }} />
             <h3 className="text-foreground font-semibold text-sm">Security</h3>
@@ -109,8 +107,7 @@ export default function PortalSettings() {
                 size="sm"
                 onClick={handlePasswordReset}
                 disabled={resetSent}
-                className="border-white/20 text-muted-foreground"
-              >
+                className="border-white/20 text-muted-foreground">
                 {resetSent ? "Email Sent" : "Send Reset Link"}
               </Button>
             </div>
@@ -127,8 +124,7 @@ export default function PortalSettings() {
         {/* Danger Zone */}
         <div
           className="rounded-xl p-6"
-          style={{ background: "rgba(239,68,68,0.03)", border: "1px solid rgba(239,68,68,0.15)" }}
-        >
+          style={{ background: "rgba(239,68,68,0.03)", border: "1px solid rgba(239,68,68,0.15)" }}>
           <div className="flex items-center gap-3 mb-5">
             <AlertTriangle className="w-5 h-5 text-red-400" />
             <h3 className="text-red-400 font-semibold text-sm">Danger Zone</h3>
@@ -142,8 +138,7 @@ export default function PortalSettings() {
             <Button
               variant="destructive"
               size="sm"
-              onClick={() => setShowDeleteConfirm(true)}
-            >
+              onClick={() => setShowDeleteConfirm(true)}>
               Delete Developer Account
             </Button>
           </div>

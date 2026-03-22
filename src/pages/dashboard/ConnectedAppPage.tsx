@@ -46,7 +46,7 @@ export default function ConnectedAppPage() {
 
   if (isLoading) {
     return (
-      <div className="w-full min-h-screen flex items-center justify-center" style={{ background: "#08120D" }}>
+      <div className="w-full min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
       </div>
     );
@@ -54,7 +54,7 @@ export default function ConnectedAppPage() {
 
   if (!data?.app) {
     return (
-      <div className="w-full min-h-screen px-6 py-6" style={{ background: "#08120D" }}>
+      <div className="w-full min-h-screen px-6 py-6 bg-background">
         <button onClick={() => navigate("/dashboard/my-apps")} className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm mb-6">
           <ArrowLeft className="w-4 h-4" /> Back to My Apps
         </button>
@@ -69,11 +69,10 @@ export default function ConnectedAppPage() {
   const isConnected = install?.status === "connected";
 
   return (
-    <div className="w-full min-h-screen px-6 py-6" style={{ background: "#08120D" }}>
+    <div className="w-full min-h-screen px-6 py-6 bg-background">
       <button
         onClick={() => navigate("/dashboard/my-apps")}
-        className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm mb-6 transition-colors"
-      >
+        className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm mb-6 transition-colors">
         <ArrowLeft className="w-4 h-4" /> Back to My Apps
       </button>
 
@@ -90,8 +89,7 @@ export default function ConnectedAppPage() {
         {/* Status card */}
         <div
           className="rounded-xl p-5 mb-4"
-          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
-        >
+          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
           <div className="flex items-center gap-2 mb-3">
             {isConnected ? (
               <CheckCircle2 className="w-5 h-5 text-green-400" />
@@ -118,8 +116,7 @@ export default function ConnectedAppPage() {
             <button
               onClick={() => navigate(MANAGEMENT_LINKS[app.slug].route)}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-foreground transition-colors hover:opacity-90"
-              style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
-            >
+              style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}>
               <Settings className="w-4 h-4" />
               {MANAGEMENT_LINKS[app.slug].label}
             </button>
@@ -130,8 +127,7 @@ export default function ConnectedAppPage() {
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-foreground transition-colors hover:opacity-90"
-              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
-            >
+              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
               <ExternalLink className="w-4 h-4" />
               Open {app.name}
             </a>

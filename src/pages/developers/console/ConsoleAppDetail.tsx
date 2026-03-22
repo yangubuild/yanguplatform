@@ -51,8 +51,7 @@ export default function ConsoleAppDetail() {
     <DocsPage
       breadcrumb="Console → Apps"
       title={app?.name ?? "App Detail"}
-      subtitle={app ? `Slug: ${app.slug} • Status: ${app.status}` : "Loading..."}
-    >
+      subtitle={app ? `Slug: ${app.slug} • Status: ${app.status}` : "Loading..."}>
       <div className="flex gap-1 mb-8 border-b border-white/10 pb-px">
         {tabs.map(({ id, label, icon: Icon }) => (
           <button
@@ -62,8 +61,7 @@ export default function ConsoleAppDetail() {
               activeTab === id
                 ? "text-accent bg-accent/8 border-b-2 border-accent"
                 : "text-muted-foreground bg-transparent border-b-2 border-transparent"
-            }`}
-          >
+            }`}>
             <Icon className="w-4 h-4" />
             {label}
           </button>
@@ -149,7 +147,7 @@ function KeysTab({ appId }: { appId: string }) {
 
       {isLoading ? (
         <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
-      ) : keys && keys.length > 0 ? (
+      ) : keys && keys.length> 0 ? (
         <div className="space-y-2">
           {keys.map((k) => (
             <div key={k.id} className="flex items-center justify-between rounded-lg p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
@@ -240,8 +238,7 @@ function OAuthTab({ appId }: { appId: string }) {
           <button
             onClick={() => setShowAddUri(true)}
             className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground"
-            style={{ background: "rgba(255,255,255,0.08)" }}
-          >
+            style={{ background: "rgba(255,255,255,0.08)" }}>
             <Plus className="w-3 h-3" /> Add URI
           </button>
         </div>
@@ -259,7 +256,7 @@ function OAuthTab({ appId }: { appId: string }) {
           </div>
         )}
 
-        {uris.length > 0 ? (
+        {uris.length> 0 ? (
           <div className="space-y-1">
             {uris.map((uri) => (
               <div key={uri} className="flex items-center justify-between rounded-lg p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
@@ -276,7 +273,7 @@ function OAuthTab({ appId }: { appId: string }) {
       </DocsSection>
 
       <DocsSection title="Scopes">
-        {scopes.length > 0 ? (
+        {scopes.length> 0 ? (
           <div className="flex flex-wrap gap-2">
             {scopes.map((s) => (
               <span key={s} className="text-xs px-2 py-1 rounded bg-white/5 text-muted-foreground font-mono">{s}</span>
@@ -349,8 +346,7 @@ function WebhooksTab({ appId }: { appId: string }) {
         <button
           onClick={() => setShowAdd(true)}
           className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground"
-          style={{ background: "rgba(255,255,255,0.08)" }}
-        >
+          style={{ background: "rgba(255,255,255,0.08)" }}>
           <Plus className="w-3 h-3" /> Add Webhook
         </button>
       </div>
@@ -370,7 +366,7 @@ function WebhooksTab({ appId }: { appId: string }) {
         </div>
       )}
 
-      {webhooks && webhooks.length > 0 ? (
+      {webhooks && webhooks.length> 0 ? (
         <div className="space-y-2">
           {webhooks.map((wh) => (
             <div key={wh.id} className="flex items-center justify-between rounded-lg p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
@@ -428,7 +424,7 @@ function LogsTab({ appId }: { appId: string }) {
         />
       </div>
 
-      {filtered.length > 0 ? (
+      {filtered.length> 0 ? (
         <div className="space-y-2">
           {filtered.map((d) => (
             <div key={d.id} className="rounded-lg p-3 flex items-center gap-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>

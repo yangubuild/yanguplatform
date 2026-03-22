@@ -70,20 +70,18 @@ export function MassLandingPage() {
 
   return (
     <div 
-      className="min-h-screen"
-      style={{ background: '#08120D' }}
-    >
+      className="bg-background min-h-screen"
+      >
       {/* Mobile menu button */}
       <button
         onClick={() => setSidebarOpen(true)}
-        className="fixed top-4 left-4 z-30 p-2 rounded-lg bg-[#1c1c1c] text-foreground lg:hidden"
-      >
+        className="fixed top-4 left-4 z-30 p-2 rounded-lg bg-[#1c1c1c] text-foreground lg:hidden">
         <Menu className="w-6 h-6" />
       </button>
 
       <MassSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <main className="lg:ml-[240px] min-h-screen">
+      <main className="bg-background lg:ml-[240px] min-h-screen">
         <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-10 py-6 pt-16 lg:pt-8">
           <MassHeader />
           <MassHero />
@@ -94,7 +92,7 @@ export function MassLandingPage() {
           {/* Row 1: Verified — 4 key surfaces */}
           <PremiumBusinessRow
             title="Trusted Businesses"
-            entities={verifiedSlotted.length > 0 ? verifiedSlotted : undefined}
+            entities={verifiedSlotted.length> 0 ? verifiedSlotted : undefined}
             businesses={verifiedBusinesses}
           />
 
@@ -104,7 +102,7 @@ export function MassLandingPage() {
           <PremiumBusinessRow
             title="Buy From"
             subtitle="Shop products from verified sellers and businesses on yangu"
-            entities={productSlotted.length > 0 ? productSlotted : undefined}
+            entities={productSlotted.length> 0 ? productSlotted : undefined}
             businesses={salesCommunityBusinesses}
           />
 
@@ -115,7 +113,7 @@ export function MassLandingPage() {
           <PremiumBusinessRow
             title="Find Services"
             subtitle="Find expert services from coaches, consultants, and freelancers"
-            entities={serviceSlotted.length > 0 ? serviceSlotted : undefined}
+            entities={serviceSlotted.length> 0 ? serviceSlotted : undefined}
             businesses={mindsetCoachingBusinesses}
           />
 
@@ -123,7 +121,7 @@ export function MassLandingPage() {
           <PremiumBusinessRow
             title="Join Communities"
             subtitle="Join communities for learning, networking, and growth"
-            entities={communitySlotted.length > 0 ? communitySlotted : undefined}
+            entities={communitySlotted.length> 0 ? communitySlotted : undefined}
             businesses={weightLossCoachingBusinesses}
           />
 
@@ -132,7 +130,7 @@ export function MassLandingPage() {
 
           {/* Popular grid — 16 surfaces without cover images */}
           <PopularBusinessGrid
-            entities={popularSlotted.length > 0 ? popularSlotted : undefined}
+            entities={popularSlotted.length> 0 ? popularSlotted : undefined}
             businesses={popularBusinesses}
           />
 

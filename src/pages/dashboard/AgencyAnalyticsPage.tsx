@@ -44,12 +44,11 @@ export default function AgencyAnalyticsPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="p-6 max-w-[1200px] mx-auto space-y-6 min-h-screen" style={{ background: "#08120D" }}>
+    <div className="p-6 max-w-[1200px] mx-auto space-y-6 min-h-screen bg-background">
       {/* Back */}
       <button
         onClick={() => navigate("/dashboard/agency")}
-        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-      >
+        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
         <ArrowLeft className="w-4 h-4" /> Back to Agency Management
       </button>
 
@@ -135,8 +134,7 @@ export default function AgencyAnalyticsPage() {
                 <TableCell>
                   <Badge
                     className="text-xs text-foreground"
-                    style={{ background: phaseColors[m.phase] || "hsl(var(--muted))" }}
-                  >
+                    style={{ background: phaseColors[m.phase] || "hsl(var(--muted))" }}>
                     {m.phase}
                   </Badge>
                 </TableCell>

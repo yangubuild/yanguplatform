@@ -58,15 +58,13 @@ export default function LazyStyleCard({ name, video, selected, onSelect }: Props
       onClick={onSelect}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className="group flex flex-col gap-1.5"
-    >
+      className="group flex flex-col gap-1.5">
       <div
         className={`relative aspect-square rounded-xl border-2 overflow-hidden transition-all ${
           selected
             ? "border-accent shadow-[0_0_12px_hsl(var(--accent)/0.3)]"
             : "border-border/20 hover:border-border/40"
-        } bg-muted/10`}
-      >
+        } bg-muted/10`}>
         {video && isInView ? (
           <video
             ref={videoRef}
@@ -91,8 +89,7 @@ export default function LazyStyleCard({ name, video, selected, onSelect }: Props
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="3"
-            >
+              strokeWidth="3">
               <polyline points="20 6 9 17 4 12" />
             </svg>
           </div>

@@ -21,9 +21,7 @@ export default function AiShortsLayoutShell({ topBar, left, right }: Props) {
       <div
         className="ai-shorts-grid flex-1 min-h-0 grid gap-4 sm:gap-6 max-w-full overflow-x-hidden"
         style={{
-          gridTemplateColumns: "minmax(0, 1fr)",
-        }}
-      >
+          gridTemplateColumns: "minmax(0, 1fr)" }}>
         {/* On sm+ show 2-col layout via media query */}
         <style>{`
           @media (min-width: 900px) { .ai-shorts-grid { grid-template-columns: minmax(420px, 480px) 1fr !important; } }

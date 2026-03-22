@@ -84,8 +84,7 @@ export function BuilderTemplatePicker({ surfaceType, sections, onApply, onToggle
             disabled={!!applying}
             className={`w-full text-left border rounded-lg p-3 transition-all hover:border-primary/50 hover:bg-accent/5 ${
               applied === t.key ? "border-primary bg-primary/5" : "border-border"
-            }`}
-          >
+            }`}>
             <div className="flex items-start gap-3">
               <span className="text-xl">{t.icon}</span>
               <div className="flex-1 min-w-0">

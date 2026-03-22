@@ -8,8 +8,7 @@ const Breadcrumb = React.forwardRef<
   HTMLElement,
   React.ComponentPropsWithoutRef<"nav"> & {
     separator?: React.ReactNode;
-  }
->(({ ...props }, ref) => <nav ref={ref} aria-label="breadcrumb" {...props} />);
+  }>(({ ...props }, ref) => <nav ref={ref} aria-label="breadcrumb" {...props} />);
 Breadcrumb.displayName = "Breadcrumb";
 
 const BreadcrumbList = React.forwardRef<HTMLOListElement, React.ComponentPropsWithoutRef<"ol">>(
@@ -37,8 +36,7 @@ const BreadcrumbLink = React.forwardRef<
   HTMLAnchorElement,
   React.ComponentPropsWithoutRef<"a"> & {
     asChild?: boolean;
-  }
->(({ asChild, className, ...props }, ref) => {
+  }>(({ asChild, className, ...props }, ref) => {
   const Comp = asChild ? Slot : "a";
 
   return <Comp ref={ref} className={cn("transition-colors hover:text-foreground", className)} {...props} />;
@@ -71,8 +69,7 @@ const BreadcrumbEllipsis = ({ className, ...props }: React.ComponentProps<"span"
     role="presentation"
     aria-hidden="true"
     className={cn("flex h-9 w-9 items-center justify-center", className)}
-    {...props}
-  >
+    {...props}>
     <MoreHorizontal className="h-4 w-4" />
     <span className="sr-only">More</span>
   </span>

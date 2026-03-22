@@ -49,7 +49,7 @@ export function ImageAdsGeneratedPage({
   const realImages = generatedAssets
     .map((a: any) => a?.file_url || a?.thumbnail_url)
     .filter(Boolean);
-  const images = realImages.length > 0 ? realImages : isDemo ? DEMO_IMAGES : FALLBACK_IMAGES;
+  const images = realImages.length> 0 ? realImages : isDemo ? DEMO_IMAGES : FALLBACK_IMAGES;
   const product = isDemo ? DEMO_PRODUCT : null;
 
   const [brandName, setBrandName] = useState(product?.brandName ?? "My Product");
@@ -108,7 +108,7 @@ export function ImageAdsGeneratedPage({
             <div>
               <h2 className="text-lg font-bold text-foreground">Set Up Your Image Ads</h2>
               <p className="text-sm text-muted-foreground mt-1">
-                {realImages.length > 0
+                {realImages.length> 0
                   ? `${realImages.length} ad variations generated. Review and regenerate as needed.`
                   : "We've pulled product info from your link. Review and adjust before generating."}
               </p>
@@ -138,7 +138,7 @@ export function ImageAdsGeneratedPage({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label className="text-sm font-medium">
-                  {realImages.length > 0 ? "Generated Ad Variations" : "Select product images to start"}
+                  {realImages.length> 0 ? "Generated Ad Variations" : "Select product images to start"}
                 </Label>
                 <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-semibold text-accent">
                   <Lightbulb className="h-3 w-3" />
@@ -146,7 +146,7 @@ export function ImageAdsGeneratedPage({
                 </span>
               </div>
               <p className="text-xs text-muted-foreground">
-                {realImages.length > 0
+                {realImages.length> 0
                   ? "Select the variations you want to keep."
                   : "Choose the best 3-5 product images for the best results."}
               </p>
@@ -160,8 +160,7 @@ export function ImageAdsGeneratedPage({
                       selectedImages.has(idx)
                         ? "border-accent shadow-md shadow-accent/20"
                         : "border-border/40 hover:border-border"
-                    }`}
-                  >
+                    }`}>
                     <img
                       src={src}
                       alt={`Product ${idx + 1}`}
@@ -189,14 +188,12 @@ export function ImageAdsGeneratedPage({
               <div className="flex items-center gap-2 flex-wrap">
                 <button
                   onClick={selectAll}
-                  className="rounded-lg border border-border/40 bg-card px-3 py-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-                >
+                  className="rounded-lg border border-border/40 bg-card px-3 py-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
                   Select all
                 </button>
                 <button
                   onClick={unselectAll}
-                  className="rounded-lg border border-border/40 bg-card px-3 py-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-                >
+                  className="rounded-lg border border-border/40 bg-card px-3 py-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
                   Unselect all
                 </button>
                 <button className="rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-1 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors">
@@ -279,8 +276,7 @@ export function ImageAdsGeneratedPage({
                 variant="outline"
                 className="h-10 rounded-lg text-sm font-semibold px-4"
                 disabled={isToggling}
-                onClick={handlePublishAlbum}
-              >
+                onClick={handlePublishAlbum}>
                 {isToggling ? <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> : null}
                 Publish Album
               </Button>
@@ -336,8 +332,7 @@ export function ImageAdsGeneratedPage({
               variant="accent"
               className="h-10 rounded-lg text-sm font-semibold gap-1.5 px-6"
               disabled={isGenerating}
-              onClick={handleRegenerate}
-            >
+              onClick={handleRegenerate}>
               {isGenerating ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (

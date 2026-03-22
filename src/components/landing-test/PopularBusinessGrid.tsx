@@ -46,8 +46,7 @@ function EntityGridCard({ entity, onClickTrack }: { entity: SearchEntityResult; 
     <div
       onClick={() => { onClickTrack?.(entity); ext ? window.open(route, "_blank") : navigate(route); }}
       className="rounded-2xl p-4 cursor-pointer hover:opacity-90 transition-opacity"
-      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}
-    >
+      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
       <div className="flex items-center gap-3 mb-2">
         {entity.avatar_url ? (
           <img src={entity.avatar_url} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />
@@ -88,7 +87,7 @@ function EntityGridCard({ entity, onClickTrack }: { entity: SearchEntityResult; 
 }
 
 export function PopularBusinessGrid({ businesses, entities }: Props) {
-  const hasLive = entities && entities.length > 0;
+  const hasLive = entities && entities.length> 0;
   const { ref: trackRef, handleClick } = useImpressionTracker(entities ?? [], "popular_grid");
 
   return (

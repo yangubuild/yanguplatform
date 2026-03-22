@@ -42,8 +42,7 @@ export function ImageAdsSection() {
         <div>
           <h2
             className="text-xl md:text-2xl font-black uppercase tracking-tight text-foreground flex items-center gap-2"
-            style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}
-          >
+            style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>
             IMAGE ADS
             <span className="inline-flex items-center rounded bg-accent/15 px-1.5 py-0.5 text-[11px] font-bold text-accent">
               AI
@@ -69,8 +68,7 @@ export function ImageAdsSection() {
               activeFilter === chip
                 ? "border-accent bg-accent/20 text-accent"
                 : "border-border/50 bg-transparent text-muted-foreground hover:border-border hover:text-foreground"
-            }`}
-          >
+            }`}>
             {chip}
           </button>
         ))}
@@ -82,8 +80,7 @@ export function ImageAdsSection() {
           {IMAGE_CARDS.map((card) => (
             <div
               key={card.id}
-              className={`relative rounded-xl overflow-hidden bg-muted/30 cursor-pointer group ${card.span ?? ""}`}
-            >
+              className={`relative rounded-xl overflow-hidden bg-muted/30 cursor-pointer group ${card.span ?? ""}`}>
               {card.image ? (
                 <img
                   src={card.image}

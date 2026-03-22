@@ -200,7 +200,7 @@ export function useBuilderEditor(surfaceId: string | undefined) {
       if (!activePageId) return;
       setIsAdding(true);
 
-      const nextPosition = sections.length > 0 ? Math.max(...sections.map((s) => s.position)) + 1 : 0;
+      const nextPosition = sections.length> 0 ? Math.max(...sections.map((s) => s.position)) + 1 : 0;
       const schema = getDefaultSchema(sectionType);
 
       try {
@@ -240,7 +240,7 @@ export function useBuilderEditor(surfaceId: string | undefined) {
       if (!activePageId) return;
       setIsAdding(true);
 
-      const nextPosition = options?.position ?? (sections.length > 0 ? Math.max(...sections.map((s) => s.position)) + 1 : 0);
+      const nextPosition = options?.position ?? (sections.length> 0 ? Math.max(...sections.map((s) => s.position)) + 1 : 0);
 
       try {
         const { data, error } = await supabase.rpc("builder_upsert_section", {

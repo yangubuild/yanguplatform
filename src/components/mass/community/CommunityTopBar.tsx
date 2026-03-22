@@ -22,8 +22,7 @@ export function CommunityTopBar() {
           <a
             href="#"
             className="hidden text-sm sm:inline"
-            style={{ color: c.textMuted }}
-          >
+            style={{ color: c.textMuted }}>
             create a community
           </a>
         </div>
@@ -33,14 +32,12 @@ export function CommunityTopBar() {
           </a>
           <button
             className="rounded-lg border px-5 py-[8px] text-[14px] font-medium transition-colors hover:opacity-90"
-            style={{ backgroundColor: "transparent", borderColor: c.signInBorder, color: c.signInText }}
-          >
+            style={{ backgroundColor: "transparent", borderColor: c.signInBorder, color: c.signInText }}>
             Sign in
           </button>
           <button
             className="rounded-lg px-5 py-[8px] text-[14px] font-medium text-foreground transition-opacity hover:opacity-90"
-            style={{ background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" }}
-          >
+            style={{ background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" }}>
             Start selling
           </button>
         </div>
@@ -49,8 +46,7 @@ export function CommunityTopBar() {
       <div className="mx-auto max-w-[1100px] px-4 sm:px-6 lg:px-10 pb-5 pt-4 text-center">
         <h1
           className={`mx-auto max-w-[520px] ${T.hero}`}
-          style={{ color: c.text }}
-        >
+          style={{ color: c.text }}>
           Build and run your community
         </h1>
         <p className={`mx-auto mt-1.5 max-w-[380px] ${T.subheader}`} style={{ color: c.textSecondary }}>
@@ -68,8 +64,7 @@ export function CommunityTopBar() {
                 backgroundColor: theme === "dark" ? "rgba(10,23,16,0.55)" : "#FFFFFF",
                 color: c.inputText,
                 border: "1.5px solid rgba(244,109,42,0.25)",
-                boxShadow: "0 2px 12px rgba(244,109,42,0.1)",
-              }}
+                boxShadow: "0 2px 12px rgba(244,109,42,0.1)" }}
             />
           </div>
         </div>

@@ -19,8 +19,7 @@ export function ConversationIntelligence() {
         <Badge variant="outline" className="text-[10px] border-[hsl(25,85%,45%/0.3)] text-[hsl(25,85%,45%)] bg-[hsl(25,85%,45%/0.08)]">
           ● Live
         </Badge>
-      }
-    >
+      }>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
         <KpiCard label="Active Sessions" value={234} icon={MessageSquare} trend="+18% vs yesterday" severity="success" />
         <KpiCard label="Chat Queue" value={12} icon={Zap} trend="Avg 3.2s response" />

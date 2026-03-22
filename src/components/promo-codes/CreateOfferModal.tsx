@@ -49,7 +49,7 @@ function convertPrice(usdCents: number, currencyCode: string): string {
   const rate = RATES[currencyCode] || 1;
   const amount = (usdCents / 100) * rate;
   // Round nicely
-  const rounded = amount >= 100 ? Math.round(amount) : Math.round(amount * 100) / 100;
+  const rounded = amount>= 100 ? Math.round(amount) : Math.round(amount * 100) / 100;
   return rounded.toLocaleString();
 }
 
@@ -145,8 +145,7 @@ export function CreateOfferModal({ open, onClose }: Props) {
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
       <div
         className="relative z-10 w-full max-w-md mx-auto rounded-2xl border border-white/10 flex flex-col"
-        style={{ background: "#111a15", maxHeight: "90vh" }}
-      >
+        style={{ background: "#111a15", maxHeight: "90vh" }}>
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-3">
           <h2 className="text-base font-semibold text-foreground">Create offer</h2>
@@ -221,8 +220,7 @@ export function CreateOfferModal({ open, onClose }: Props) {
                     durationType === opt.value
                       ? "border-accent/50 bg-accent/10 text-foreground"
                       : "border-white/10 bg-white/[0.04] text-muted-foreground hover:bg-white/[0.06]"
-                  }`}
-                >
+                  }`}>
                   <p className="text-sm font-semibold">{opt.label}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">{opt.price}</p>
                 </button>
@@ -244,8 +242,7 @@ export function CreateOfferModal({ open, onClose }: Props) {
             disabled={isSubmitting || !header.trim()}
             onClick={handleSubmit as any}
             className="w-full h-12 rounded-xl text-sm font-semibold text-foreground transition-all disabled:opacity-40"
-            style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
-          >
+            style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}>
             {isSubmitting ? "Publishing…" : "Publish Offer"}
           </button>
         </div>

@@ -33,7 +33,7 @@ export function ExploreSponsoredSection() {
           .not("targeting", "is", null)
           .limit(6);
 
-        if (data && data.length > 0) {
+        if (data && data.length> 0) {
           setBusinesses(
             data
               .filter((ad) => {
@@ -44,7 +44,7 @@ export function ExploreSponsoredSection() {
                 // Phase 8: trust floor — sponsored entities must meet minimum trust
                 const t = ad.targeting as any;
                 const trust = t?.trust_score ?? 0;
-                return trust >= SPONSORED_TRUST_FLOOR;
+                return trust>= SPONSORED_TRUST_FLOOR;
               })
               .map((ad) => {
                 const t = ad.targeting as any;
@@ -69,7 +69,7 @@ export function ExploreSponsoredSection() {
 
   const impressionTracked = useRef(false);
   useEffect(() => {
-    if (!impressionTracked.current && businesses.length > 0) {
+    if (!impressionTracked.current && businesses.length> 0) {
       impressionTracked.current = true;
       trackImpressions(
         businesses.map(b => ({ id: b.id, visibility_tier: "paid", trust_score: b.trustScore })),
@@ -94,8 +94,7 @@ export function ExploreSponsoredSection() {
             target="_blank"
             rel="noopener noreferrer"
             className="group cursor-pointer block"
-            onClick={() => trackClick({ id: biz.id, visibility_tier: "paid", trust_score: biz.trustScore }, "explore_sponsored")}
-          >
+            onClick={() => trackClick({ id: biz.id, visibility_tier: "paid", trust_score: biz.trustScore }, "explore_sponsored")}>
             <div className="relative overflow-hidden rounded-xl mb-3" style={{ background: "#0A1710" }}>
               {biz.coverImage ? (
                 <img
@@ -110,8 +109,7 @@ export function ExploreSponsoredSection() {
               )}
               <div
                 className="absolute top-2 right-2 px-2 py-0.5 rounded-lg text-[10px] font-medium"
-                style={{ background: "rgba(181, 98, 42, 0.8)", }}
-              >
+                style={{ background: "rgba(181, 98, 42, 0.8)" }}>
                 Sponsored
               </div>
             </div>

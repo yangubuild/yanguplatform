@@ -77,8 +77,7 @@ export function BoxMockupGallery({ onUse }: BoxMockupGalleryProps) {
       {BOX_MOCKUPS.map((mockup) => (
         <div
           key={mockup.id}
-          className="group relative rounded-xl border border-border overflow-hidden bg-muted aspect-square"
-        >
+          className="group relative rounded-xl border border-border overflow-hidden bg-muted aspect-square">
           <img
             src={mockup.src}
             alt={mockup.label}
@@ -92,15 +91,13 @@ export function BoxMockupGallery({ onUse }: BoxMockupGalleryProps) {
               <button
                 onClick={(e) => handlePreview(mockup, e)}
                 className="p-1.5 rounded-md bg-foreground/80 text-background hover:bg-foreground transition-colors"
-                title="Preview"
-              >
+                title="Preview">
                 <Maximize2 className="h-3.5 w-3.5" />
               </button>
               <button
                 onClick={(e) => handleDownload(mockup, e)}
                 className="p-1.5 rounded-md bg-foreground/80 text-background hover:bg-foreground transition-colors"
-                title="Download"
-              >
+                title="Download">
                 <Download className="h-3.5 w-3.5" />
               </button>
             </div>
@@ -108,8 +105,7 @@ export function BoxMockupGallery({ onUse }: BoxMockupGalleryProps) {
             {/* Use button */}
             <button
               onClick={() => onUse(mockup)}
-              className="flex items-center gap-1.5 px-5 py-2 rounded-lg bg-foreground text-background text-sm font-medium hover:bg-foreground/90 transition-colors shadow-lg"
-            >
+              className="flex items-center gap-1.5 px-5 py-2 rounded-lg bg-foreground text-background text-sm font-medium hover:bg-foreground/90 transition-colors shadow-lg">
               <Sparkles className="h-3.5 w-3.5" />
               Use
             </button>

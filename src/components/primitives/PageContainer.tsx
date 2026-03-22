@@ -35,8 +35,7 @@ export function PageContainer({
         sizeClasses[size],
         padded && "py-6 lg:py-8",
         className
-      )}
-    >
+      )}>
       {children}
     </div>
   );

@@ -169,8 +169,7 @@ function AvatarVideoCard({ avatar, onClick }: { avatar: typeof REALISTIC_AVATARS
       onClick={onClick}
       onMouseEnter={() => videoRef.current?.play()}
       onMouseLeave={() => { if (videoRef.current) { videoRef.current.pause(); videoRef.current.currentTime = 0; } }}
-      className="relative rounded-lg overflow-hidden aspect-[3/4] bg-muted/10 border border-border/20 hover:border-primary/40 transition-colors group"
-    >
+      className="relative rounded-lg overflow-hidden aspect-[3/4] bg-muted/10 border border-border/20 hover:border-primary/40 transition-colors group">
       <video
         ref={videoRef}
         src={avatar.video}
@@ -367,8 +366,7 @@ function StockFootageCard({ item, onClick }: { item: typeof STOCK_FOOTAGE[0]; on
       onClick={onClick}
       onMouseEnter={() => videoRef.current?.play()}
       onMouseLeave={() => { if (videoRef.current) { videoRef.current.pause(); videoRef.current.currentTime = 0; } }}
-      className="relative rounded-lg overflow-hidden aspect-[3/4] bg-muted/10 border border-border/20 hover:border-primary/40 transition-colors group"
-    >
+      className="relative rounded-lg overflow-hidden aspect-[3/4] bg-muted/10 border border-border/20 hover:border-primary/40 transition-colors group">
       <video ref={videoRef} src={item.video} muted loop playsInline preload="metadata" className="w-full h-full object-cover" />
       <div className="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 rounded bg-black/60 text-[10px] text-foreground font-mono">{item.duration}</div>
     </button>
@@ -379,8 +377,7 @@ function StockImageCard({ item, onClick }: { item: typeof STOCK_IMAGES[0]; onCli
   return (
     <button
       onClick={onClick}
-      className="relative rounded-lg overflow-hidden aspect-[3/4] bg-muted/10 border border-border/20 hover:border-primary/40 transition-colors group"
-    >
+      className="relative rounded-lg overflow-hidden aspect-[3/4] bg-muted/10 border border-border/20 hover:border-primary/40 transition-colors group">
       <img src={item.image} alt="" className="w-full h-full object-cover" />
     </button>
   );
@@ -653,13 +650,12 @@ export default function VideoEditorPage() {
   };
 
   return (
-    <div className="h-screen w-full flex flex-col overflow-hidden" style={{ background: "#08120D" }}>
+    <div className="h-screen w-full flex flex-col overflow-hidden bg-background">
       {/* ═══ TOP BAR ═══ */}
       <div className="h-12 flex items-center justify-between px-4 border-b border-border/20 shrink-0">
         <button
-          onClick={() => window.history.length > 1 ? window.history.back() : window.location.assign("/dashboard/studio")}
-          className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-muted/20 transition-colors"
-        >
+          onClick={() => window.history.length> 1 ? window.history.back() : window.location.assign("/dashboard/studio")}
+          className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-muted/20 transition-colors">
           <ArrowLeft className="h-4 w-4 text-muted-foreground" />
         </button>
         <div className="flex items-center gap-1">
@@ -675,8 +671,7 @@ export default function VideoEditorPage() {
               <button
                 className="p-2 rounded hover:bg-muted/20"
                 onMouseEnter={() => setTooltipId(item.id)}
-                onMouseLeave={() => setTooltipId(null)}
-              >
+                onMouseLeave={() => setTooltipId(null)}>
                 <item.icon className="h-4 w-4 text-muted-foreground" />
               </button>
               {tooltipId === item.id && (
@@ -691,8 +686,7 @@ export default function VideoEditorPage() {
               className="p-2 rounded hover:bg-muted/20"
               onMouseEnter={() => setTooltipId("more")}
               onMouseLeave={() => setTooltipId(null)}
-              onClick={() => setTooltipId(tooltipId === "more-menu" ? null : "more-menu")}
-            >
+              onClick={() => setTooltipId(tooltipId === "more-menu" ? null : "more-menu")}>
               <MoreVertical className="h-4 w-4 text-muted-foreground" />
             </button>
             {tooltipId === "more" && (
@@ -710,8 +704,7 @@ export default function VideoEditorPage() {
                   <button
                     key={item.label}
                     className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-foreground hover:bg-muted/20 transition-colors"
-                    onClick={() => setTooltipId(null)}
-                  >
+                    onClick={() => setTooltipId(null)}>
                     <item.icon className="h-4 w-4 text-muted-foreground" />
                     {item.label}
                   </button>
@@ -754,8 +747,7 @@ export default function VideoEditorPage() {
               <button
                 key={item.key}
                 onClick={() => setActiveNav(item.key)}
-                className={`relative flex flex-col items-center gap-0.5 w-14 py-2 rounded-lg text-[11px] transition-colors ${active ? "bg-muted/30 text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted/10"}`}
-              >
+                className={`relative flex flex-col items-center gap-0.5 w-14 py-2 rounded-lg text-[11px] transition-colors ${active ? "bg-muted/30 text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted/10"}`}>
                 <Icon className="h-5 w-5" />
                 <span>{item.label}</span>
                 {item.badge && (
@@ -784,14 +776,12 @@ export default function VideoEditorPage() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setPreviewMode("portrait")}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm transition-colors ${previewMode === "portrait" ? "bg-muted/30 text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-                >
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm transition-colors ${previewMode === "portrait" ? "bg-muted/30 text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
                   <Smartphone className="h-4 w-4" /> Portrait <span className="text-muted-foreground text-xs">(9:16)</span>
                 </button>
                 <button
                   onClick={() => setPreviewMode("background")}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm transition-colors ${previewMode === "background" ? "bg-muted/30 text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-                >
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm transition-colors ${previewMode === "background" ? "bg-muted/30 text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
                   <Square className="h-4 w-4" /> Background
                 </button>
               </div>

@@ -68,8 +68,7 @@ export function ReviewForm({ entityId, onSuccess }: ReviewFormProps) {
             key={n}
             onMouseEnter={() => setHoverRating(n)}
             onMouseLeave={() => setHoverRating(0)}
-            onClick={() => setRating(n)}
-          >
+            onClick={() => setRating(n)}>
             <Star className={`w-5 h-5 transition-colors ${n <= (hoverRating || rating) ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground"}`} />
           </button>
         ))}
@@ -91,7 +90,7 @@ export function ReviewForm({ entityId, onSuccess }: ReviewFormProps) {
         style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
       />
       <div className="flex justify-end">
-        <button onClick={handleSubmit} disabled={submitting} className="text-xs px-4 py-2 rounded-lg font-medium disabled:opacity-50" style={{ background: "linear-gradient(135deg, #c47a3a, #b5622a)", }}>
+        <button onClick={handleSubmit} disabled={submitting} className="text-xs px-4 py-2 rounded-lg font-medium disabled:opacity-50" style={{ background: "linear-gradient(135deg, #c47a3a, #b5622a)" }}>
           {submitting ? "Submitting..." : "Submit Review"}
         </button>
       </div>

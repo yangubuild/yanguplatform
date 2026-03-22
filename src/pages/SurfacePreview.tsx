@@ -188,7 +188,7 @@ export default function SurfacePreview() {
     );
   }
 
-  const isPublished = surface.activePublishes.length > 0;
+  const isPublished = surface.activePublishes.length> 0;
   const isArchived = !!surface.archived_at;
 
   return (
@@ -198,8 +198,7 @@ export default function SurfacePreview() {
           {/* Back button */}
           <button
             onClick={handleBack}
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-          >
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="h-4 w-4" />
             Back to Dashboard
           </button>
@@ -214,8 +213,7 @@ export default function SurfacePreview() {
                 href={`https://${surface.activePublishes[0].domain_host}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-primary hover:underline flex items-center gap-1"
-              >
+                className="text-sm text-primary hover:underline flex items-center gap-1">
                 View public page
                 <ExternalLink className="h-3 w-3" />
               </a>
@@ -232,8 +230,7 @@ export default function SurfacePreview() {
                     <h1 className="text-2xl font-bold">{surface.title || "Untitled Surface"}</h1>
                     <Badge 
                       variant={isPublished ? "default" : "secondary"}
-                      className={isPublished ? "bg-success text-success-foreground" : ""}
-                    >
+                      className={isPublished ? "bg-success text-success-foreground" : ""}>
                       {isArchived ? "Archived" : isPublished ? "Live" : "Draft"}
                     </Badge>
                   </div>

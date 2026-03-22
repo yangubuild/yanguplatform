@@ -94,11 +94,10 @@ export default function GmailPage() {
   };
 
   return (
-    <div className="w-full min-h-screen px-6 py-6" style={{ background: "#08120D" }}>
+    <div className="w-full min-h-screen px-6 py-6 bg-background">
       <button
         onClick={() => navigate("/dashboard/my-apps")}
-        className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm mb-6 transition-colors"
-      >
+        className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm mb-6 transition-colors">
         <ArrowLeft className="w-4 h-4" /> Back to My Apps
       </button>
 
@@ -113,8 +112,7 @@ export default function GmailPage() {
               <Button
                 variant="accent"
                 size="sm"
-                onClick={() => { setView("compose"); setComposeTo(""); setComposeSubject(""); setComposeBody(""); }}
-              >
+                onClick={() => { setView("compose"); setComposeTo(""); setComposeSubject(""); setComposeBody(""); }}>
                 <Send className="w-4 h-4" />
                 Compose
               </Button>
@@ -123,8 +121,7 @@ export default function GmailPage() {
                 onClick={() => fetchInbox()}
                 disabled={loading}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground transition-colors"
-                style={{ background: "rgba(255,255,255,0.06)" }}
-              >
+                style={{ background: "rgba(255,255,255,0.06)" }}>
                 <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
               </button>
             )}
@@ -167,8 +164,7 @@ export default function GmailPage() {
                 variant="accent"
                 size="default"
                 onClick={handleSend}
-                disabled={sending || !composeTo.trim()}
-              >
+                disabled={sending || !composeTo.trim()}>
                 {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 Send
               </Button>
@@ -210,8 +206,7 @@ export default function GmailPage() {
                   <button
                     key={msg.id}
                     onClick={() => openMessage(msg)}
-                    className="w-full flex items-start gap-3 p-3 rounded-xl hover:bg-white/[0.04] transition-colors text-left"
-                  >
+                    className="w-full flex items-start gap-3 p-3 rounded-xl hover:bg-white/[0.04] transition-colors text-left">
                     <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{ background: msg.isUnread ? "#b5622a" : "transparent" }} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
@@ -236,8 +231,7 @@ export default function GmailPage() {
                   variant="dark-green"
                   size="default"
                   onClick={() => fetchInbox(nextPageToken)}
-                  disabled={loading}
-                >
+                  disabled={loading}>
                   {loading ? "Loading..." : "Load more"}
                 </Button>
               </div>

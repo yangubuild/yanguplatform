@@ -74,8 +74,7 @@ export function BuilderMediaPicker({ value, onChange, surfaceId, hideTypeSelecto
           <Label className="text-xs">Media Type</Label>
           <Select
             value={mediaType}
-            onValueChange={(v) => onChange({ ...safeValue, type: v as MediaValue["type"] })}
-          >
+            onValueChange={(v) => onChange({ ...safeValue, type: v as MediaValue["type"] })}>
             <SelectTrigger className="text-sm">
               <SelectValue />
             </SelectTrigger>
@@ -377,7 +376,7 @@ function StockTab({
         </Button>
       </div>
 
-      {results.length > 0 && (
+      {results.length> 0 && (
         <div className="grid grid-cols-3 gap-1.5 max-h-48 overflow-y-auto">
           {results.map((r) => (
             <button
@@ -392,8 +391,7 @@ function StockTab({
                 });
                 toast.success(`Photo by ${r.author}`);
               }}
-              className="relative group rounded overflow-hidden border border-border hover:ring-2 hover:ring-primary"
-            >
+              className="relative group rounded overflow-hidden border border-border hover:ring-2 hover:ring-primary">
               <img src={r.thumbUrl} alt={r.author} className="w-full h-16 object-cover" />
               <span className="absolute bottom-0 inset-x-0 bg-black/60 text-[8px] text-foreground truncate px-1">
                 {r.author}
@@ -520,8 +518,7 @@ function AiImageTab({
         variant="outline"
         className="w-full gap-1.5 text-xs"
         onClick={handleGenerate}
-        disabled={generating || !prompt.trim()}
-      >
+        disabled={generating || !prompt.trim()}>
         {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
         Generate Image
       </Button>

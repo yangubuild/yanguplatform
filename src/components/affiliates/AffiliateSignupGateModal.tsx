@@ -14,12 +14,10 @@ export function AffiliateSignupGateModal({ onClose }: Props) {
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
       <div
         className="relative w-full max-w-lg rounded-xl p-10 flex flex-col items-center text-center"
-        style={{ background: "#111a15" }}
-      >
+        style={{ background: "#111a15" }}>
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
-        >
+          className="absolute top-4 right-4 text-muted-foreground hover:text-foreground">
           <X className="w-5 h-5" />
         </button>
 
@@ -51,9 +49,7 @@ export function AffiliateSignupGateModal({ onClose }: Props) {
           className="h-10 px-5 rounded-lg text-sm font-medium text-foreground transition-all"
           style={{
             background:
-              "linear-gradient(135deg, #c47a3a 0%, #a0522d 50%, #5c2a12 100%)",
-          }}
-        >
+              "linear-gradient(135deg, #c47a3a 0%, #a0522d 50%, #5c2a12 100%)" }}>
           Browse products
         </button>
       </div>

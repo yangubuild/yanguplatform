@@ -24,7 +24,7 @@ export function MessagesInfluencersTab({ onSelectCreator }: Props) {
   // Search creators (profiles)
   const { data: creatorResults = [], isLoading: creatorsLoading } = useQuery({
     queryKey: ["influencer-search", activeQuery],
-    enabled: activeQuery.trim().length >= 2,
+    enabled: activeQuery.trim().length>= 2,
     queryFn: async () => {
       const q = activeQuery.trim().toLowerCase();
       const { data, error } = await supabase
@@ -42,7 +42,7 @@ export function MessagesInfluencersTab({ onSelectCreator }: Props) {
   // Search commerce objects (products/services/businesses)
   const { data: commerceResults = [], isLoading: commerceLoading } = useQuery({
     queryKey: ["commerce-search", activeQuery],
-    enabled: activeQuery.trim().length >= 2,
+    enabled: activeQuery.trim().length>= 2,
     queryFn: async () => {
       const q = activeQuery.trim().toLowerCase();
       const { data, error } = await supabase
@@ -72,10 +72,10 @@ export function MessagesInfluencersTab({ onSelectCreator }: Props) {
   });
 
   const isLoading = creatorsLoading || commerceLoading;
-  const hasResults = creatorResults.length > 0 || commerceResults.length > 0;
+  const hasResults = creatorResults.length> 0 || commerceResults.length> 0;
 
   const handleSearch = () => {
-    if (searchQuery.trim().length >= 2) {
+    if (searchQuery.trim().length>= 2) {
       setActiveQuery(searchQuery.trim());
     }
   };
@@ -92,8 +92,7 @@ export function MessagesInfluencersTab({ onSelectCreator }: Props) {
         <div className="flex items-center gap-2">
           <div
             className="flex-1 flex items-center gap-2 rounded-lg px-3 py-2.5"
-            style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
-          >
+            style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
             <Search className="w-4 h-4 shrink-0 text-muted-foreground" />
             <input
               value={searchQuery}
@@ -106,8 +105,7 @@ export function MessagesInfluencersTab({ onSelectCreator }: Props) {
           <button
             onClick={handleSearch}
             className="px-4 py-2.5 rounded-lg text-xs font-semibold text-foreground shrink-0"
-            style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)" }}
-          >
+            style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)" }}>
             Search
           </button>
         </div>
@@ -126,9 +124,7 @@ export function MessagesInfluencersTab({ onSelectCreator }: Props) {
                 color: activeQuery.toLowerCase() === cat.toLowerCase()
                   ? "#f59e0b"
                   : "rgba(255,255,255,0.5)",
-                border: `1px solid ${activeQuery.toLowerCase() === cat.toLowerCase() ? "rgba(181,98,42,0.4)" : "rgba(255,255,255,0.06)"}`,
-              }}
-            >
+                border: `1px solid ${activeQuery.toLowerCase() === cat.toLowerCase() ? "rgba(181,98,42,0.4)" : "rgba(255,255,255,0.06)"}` }}>
               {cat}
             </button>
           ))}
@@ -162,7 +158,7 @@ export function MessagesInfluencersTab({ onSelectCreator }: Props) {
         ) : (
           <>
             {/* Commerce results (products/services) */}
-            {commerceResults.length > 0 && (
+            {commerceResults.length> 0 && (
               <>
                 <p className="text-[10px] font-medium px-1 pt-1 pb-0.5 text-muted-foreground">
                   {commerceResults.length} product{commerceResults.length !== 1 ? "s" : ""} & service{commerceResults.length !== 1 ? "s" : ""}
@@ -178,12 +174,10 @@ export function MessagesInfluencersTab({ onSelectCreator }: Props) {
                       onClick={() => {
                         if (item.link?.startsWith("http")) window.open(item.link, "_blank");
                         else if (item.link) navigate(item.link);
-                      }}
-                    >
+                      }}>
                       <div
                         className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 overflow-hidden"
-                        style={{ background: "rgba(255,255,255,0.06)" }}
-                      >
+                        style={{ background: "rgba(255,255,255,0.06)" }}>
                         {item.image_url ? (
                           <img src={item.image_url} alt="" className="w-10 h-10 rounded-lg object-cover" loading="lazy" />
                         ) : (
@@ -205,9 +199,7 @@ export function MessagesInfluencersTab({ onSelectCreator }: Props) {
                             className="text-[9px] px-1.5 py-0.5 rounded shrink-0"
                             style={{
                               background: isService ? "rgba(168,85,247,0.15)" : "rgba(96,165,250,0.15)",
-                              color: isService ? "rgba(168,85,247,0.8)" : "rgba(96,165,250,0.8)",
-                            }}
-                          >
+                              color: isService ? "rgba(168,85,247,0.8)" : "rgba(96,165,250,0.8)" }}>
                             {isService ? "Service" : "Product"}
                           </span>
                         </div>
@@ -220,7 +212,7 @@ export function MessagesInfluencersTab({ onSelectCreator }: Props) {
             )}
 
             {/* Creator results */}
-            {creatorResults.length > 0 && (
+            {creatorResults.length> 0 && (
               <>
                 <p className="text-[10px] font-medium px-1 pt-2 pb-0.5 text-muted-foreground">
                   {creatorResults.length} creator{creatorResults.length !== 1 ? "s" : ""} found
@@ -233,12 +225,10 @@ export function MessagesInfluencersTab({ onSelectCreator }: Props) {
                     <div
                       key={profile.id}
                       className="rounded-xl p-3 flex items-center gap-3"
-                      style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}
-                    >
+                      style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
                       <div
                         className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
-                        style={{ background: "rgba(255,255,255,0.08)", }}
-                      >
+                        style={{ background: "rgba(255,255,255,0.08)" }}>
                         {resolved ? (
                           <img src={resolved} alt="" className="w-10 h-10 rounded-full object-cover" />
                         ) : (
@@ -256,8 +246,7 @@ export function MessagesInfluencersTab({ onSelectCreator }: Props) {
                           {profile.creator_type && (
                             <span
                               className="text-[9px] px-1.5 py-0.5 rounded shrink-0"
-                              style={{ background: "rgba(181,98,42,0.2)", color: "rgba(245,158,11,0.8)" }}
-                            >
+                              style={{ background: "rgba(181,98,42,0.2)", color: "rgba(245,158,11,0.8)" }}>
                               {profile.creator_type}
                             </span>
                           )}
@@ -266,8 +255,7 @@ export function MessagesInfluencersTab({ onSelectCreator }: Props) {
                       <button
                         onClick={() => onSelectCreator?.(profile.id)}
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-foreground shrink-0 transition-opacity hover:opacity-80"
-                        style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)" }}
-                      >
+                        style={{ background: "linear-gradient(135deg, #b5622a, #5c2a12)" }}>
                         <MessageCircle className="w-3 h-3" />
                         Message
                       </button>

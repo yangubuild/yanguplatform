@@ -66,7 +66,7 @@ function checkRateLimit(limits: RuntimeRateLimit[]): RuntimeDenial | null {
     if (entry) {
       const windowMs = limit.window_seconds * 1000;
       if (now - entry.windowStart < windowMs) {
-        if (entry.count >= limit.max_requests) {
+        if (entry.count>= limit.max_requests) {
           return { allowed: false, reason: "rate_limited" };
         }
       } else {
@@ -163,7 +163,7 @@ export async function resolveRuntimeExecution(
   }
 
   // 5. Rate limit soft guard
-  if (ctx.rate_limits && ctx.rate_limits.length > 0) {
+  if (ctx.rate_limits && ctx.rate_limits.length> 0) {
     const denial = checkRateLimit(ctx.rate_limits);
     if (denial) return denial;
   }

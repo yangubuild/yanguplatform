@@ -92,8 +92,7 @@ export function DevE2ETestPanel() {
           <select
             value={provider}
             onChange={(e) => setProvider(e.target.value)}
-            className="text-[11px] px-2 py-1 rounded-md bg-[hsl(var(--admin-surface)/0.5)] border border-[hsl(var(--admin-border)/0.3)] text-[hsl(var(--admin-text))] outline-none"
-          >
+            className="text-[11px] px-2 py-1 rounded-md bg-[hsl(var(--admin-surface)/0.5)] border border-[hsl(var(--admin-border)/0.3)] text-[hsl(var(--admin-text))] outline-none">
             {PROVIDERS.map((p) => (
               <option key={p} value={p}>{p}</option>
             ))}
@@ -103,8 +102,7 @@ export function DevE2ETestPanel() {
         <button
           onClick={run}
           disabled={running || !prompt.trim()}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-[hsl(25,85%,45%/0.15)] text-[hsl(25,85%,45%)] border border-[hsl(25,85%,45%/0.3)] hover:bg-[hsl(25,85%,45%/0.25)] transition-colors disabled:opacity-40"
-        >
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-[hsl(25,85%,45%/0.15)] text-[hsl(25,85%,45%)] border border-[hsl(25,85%,45%/0.3)] hover:bg-[hsl(25,85%,45%/0.25)] transition-colors disabled:opacity-40">
           {running ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FlaskConical className="h-3.5 w-3.5" />}
           Run E2E Test
         </button>

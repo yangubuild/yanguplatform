@@ -102,7 +102,7 @@ export default function StoreInstall() {
         <div className="max-w-lg">
           <div className="mb-4">
             <label className="text-xs text-muted-foreground block mb-2">Select Organization</label>
-            {orgs && orgs.length > 0 ? (
+            {orgs && orgs.length> 0 ? (
               <div className="space-y-2">
                 {orgs.map((om) => {
                   const org = om.orgs as any;
@@ -116,9 +116,7 @@ export default function StoreInstall() {
                       }`}
                       style={{
                         background: selectedOrgId === org.id ? "rgba(244,109,42,0.08)" : "rgba(255,255,255,0.03)",
-                        border: selectedOrgId === org.id ? "1px solid rgba(244,109,42,0.3)" : "1px solid rgba(255,255,255,0.08)",
-                      }}
-                    >
+                        border: selectedOrgId === org.id ? "1px solid rgba(244,109,42,0.3)" : "1px solid rgba(255,255,255,0.08)" }}>
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-sm text-muted-foreground">{org.name}</p>
@@ -142,8 +140,7 @@ export default function StoreInstall() {
           <Button
             variant="accent"
             onClick={() => installApp.mutate()}
-            disabled={!selectedOrgId || installApp.isPending || installedOrgIds.has(selectedOrgId)}
-          >
+            disabled={!selectedOrgId || installApp.isPending || installedOrgIds.has(selectedOrgId)}>
             {installApp.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Install App"}
           </Button>
         </div>

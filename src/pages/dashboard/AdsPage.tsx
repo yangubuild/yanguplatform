@@ -14,7 +14,7 @@ export default function AdsPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "#08120D" }}>
+    <div className="min-h-screen bg-background">
       <div className="max-w-5xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -22,8 +22,7 @@ export default function AdsPage() {
           <Button
             variant="accent"
             onClick={() => setShowWizard(true)}
-            className="rounded-xl px-5 h-10"
-          >
+            className="rounded-xl px-5 h-10">
             Launch new campaign
           </Button>
         </div>
@@ -38,8 +37,7 @@ export default function AdsPage() {
                 activeTab === tab
                   ? "text-foreground"
                   : "text-muted-foreground hover:text-muted-foreground"
-              }`}
-            >
+              }`}>
               {tab}
               {activeTab === tab && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full" style={{ background: "#b5622a" }} />
@@ -52,8 +50,7 @@ export default function AdsPage() {
         <div className="flex flex-col items-center justify-center py-24">
           <div
             className="w-32 h-32 rounded-2xl flex items-center justify-center mb-8"
-            style={{ background: "rgba(181,98,42,0.1)" }}
-          >
+            style={{ background: "rgba(181,98,42,0.1)" }}>
             <Megaphone className="w-16 h-16" style={{ color: "rgba(181,98,42,0.6)" }} />
           </div>
 
@@ -67,8 +64,7 @@ export default function AdsPage() {
           <Button
             variant="accent"
             onClick={() => setShowWizard(true)}
-            className="rounded-xl px-6 h-11"
-          >
+            className="rounded-xl px-6 h-11">
             Launch new campaign
           </Button>
         </div>

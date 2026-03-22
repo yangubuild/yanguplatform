@@ -119,8 +119,7 @@ export default function VisionaireHome() {
               key={tag}
               variant="outline"
               className="cursor-pointer hover:bg-accent/50 transition-colors text-xs"
-              onClick={() => handleTagClick(tag)}
-            >
+              onClick={() => handleTagClick(tag)}>
               {tag}
             </Badge>
           ))}

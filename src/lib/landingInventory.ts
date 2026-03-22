@@ -60,7 +60,7 @@ export function detectPlatformPhase(stats: {
   activeAds: number;
 }): PlatformPhase {
   // Growth threshold: 50+ published surfaces, 10+ subscriptions, or 5+ ads
-  if (stats.totalPublished >= 50 && (stats.activeSubscriptions >= 10 || stats.activeAds >= 5)) {
+  if (stats.totalPublished>= 50 && (stats.activeSubscriptions>= 10 || stats.activeAds>= 5)) {
     return "growth";
   }
   return "bootstrap";
@@ -99,7 +99,7 @@ function classifyFillSource(
   if (isSeeded) return "seeded";
 
   // Engagement-based: entities with high trust or activity
-  if ((entity.trust_score ?? 0) >= 50) return "engagement";
+  if ((entity.trust_score ?? 0)>= 50) return "engagement";
 
   return "user_published";
 }
@@ -196,7 +196,7 @@ let manualOverrides: Map<string, number> | null = null;
  * Map of entity_id → position (lower = higher priority).
  */
 export function setManualOverrides(overrides: Map<string, number>): void {
-  manualOverrides = overrides.size > 0 ? overrides : null;
+  manualOverrides = overrides.size> 0 ? overrides : null;
 }
 
 /**
@@ -221,7 +221,7 @@ export function rotateForSlots(
   const globalAppearances = options?.globalAppearances ?? new Map<string, number>();
 
   // Apply manual overrides if set — these take absolute precedence
-  if (manualOverrides && manualOverrides.size > 0) {
+  if (manualOverrides && manualOverrides.size> 0) {
     const overridden = [...entities].sort((a, b) => {
       const posA = manualOverrides!.get(a.id) ?? 9999;
       const posB = manualOverrides!.get(b.id) ?? 9999;
@@ -279,12 +279,12 @@ export function rotateForSlots(
   const selectedIds = new Set<string>();
 
   for (const item of scored) {
-    if (selected.length >= slotCount) break;
+    if (selected.length>= slotCount) break;
 
     const currentAppearances = globalAppearances.get(item.entity.id) ?? 0;
 
     // Controlled repeat: max 2 visible appearances across ALL key surfaces
-    if (currentAppearances >= 2) continue;
+    if (currentAppearances>= 2) continue;
 
     // Never repeat inside same row
     if (selectedIds.has(item.entity.id)) continue;

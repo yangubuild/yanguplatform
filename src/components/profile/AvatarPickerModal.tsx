@@ -55,14 +55,14 @@ export default function AvatarPickerModal({ open, onOpenChange }: AvatarPickerMo
     const file = e.target.files?.[0];
     if (!file || !user) return;
 
-    if (file.size > 2 * 1024 * 1024) {
+    if (file.size> 2 * 1024 * 1024) {
       toast({ title: "File too large", description: "Max 2MB allowed.", variant: "destructive" });
       return;
     }
 
     const img = new Image();
     img.onload = () => {
-      if (img.width > 512 || img.height > 512) {
+      if (img.width> 512 || img.height> 512) {
         toast({
           title: "Tip: Recommended size",
           description: "For best results, use a 512×512px image. Yours will be cropped to a circle.",
@@ -146,8 +146,7 @@ export default function AvatarPickerModal({ open, onOpenChange }: AvatarPickerMo
                           ? "ring-2 ring-primary ring-offset-2 ring-offset-card"
                           : "hover:ring-1 hover:ring-muted-foreground/30"
                       )}
-                      title={emoji.label}
-                    >
+                      title={emoji.label}>
                       {/* Skeleton placeholder */}
                       {!isLoaded && (
                         <div className="absolute inset-0 animate-pulse rounded-xl bg-muted" />
@@ -173,8 +172,7 @@ export default function AvatarPickerModal({ open, onOpenChange }: AvatarPickerMo
             <div className="flex flex-col items-center gap-4 py-8">
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="w-24 h-24 rounded-full border-2 border-dashed border-muted-foreground/30 flex items-center justify-center cursor-pointer hover:border-primary transition-colors"
-              >
+                className="w-24 h-24 rounded-full border-2 border-dashed border-muted-foreground/30 flex items-center justify-center cursor-pointer hover:border-primary transition-colors">
                 {uploading ? (
                   <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
                 ) : (

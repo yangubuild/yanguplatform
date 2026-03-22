@@ -52,21 +52,18 @@ export function AffiliateDashboardView({ isAuthenticated, onSwitchToCreator, isL
                   <button
                     onClick={() => setShowMarketplace(true)}
                     className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-foreground"
-                    style={{ background: "rgba(255,255,255,0.08)" }}
-                  >
+                    style={{ background: "rgba(255,255,255,0.08)" }}>
                     <Gift className="w-4 h-4 text-accent" />
                     Affiliate marketplace
                   </button>
                   <button
                     onClick={() => setActiveTab("Refer sellers")}
-                    className="px-4 py-2 rounded-xl text-sm font-medium border border-accent/40 text-accent"
-                  >
+                    className="px-4 py-2 rounded-xl text-sm font-medium border border-accent/40 text-accent">
                     Apply to be a partner
                   </button>
                   <button
                     onClick={onSwitchToCreator}
-                    className="px-4 py-2 rounded-xl text-sm font-medium border border-white/10 text-muted-foreground hover:text-foreground transition-colors"
-                  >
+                    className="px-4 py-2 rounded-xl text-sm font-medium border border-white/10 text-muted-foreground hover:text-foreground transition-colors">
                     Creator dashboard
                   </button>
                 </>
@@ -75,15 +72,13 @@ export function AffiliateDashboardView({ isAuthenticated, onSwitchToCreator, isL
                   <button
                     onClick={handlePublicGatedAction}
                     className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-foreground"
-                    style={{ background: "rgba(255,255,255,0.08)" }}
-                  >
+                    style={{ background: "rgba(255,255,255,0.08)" }}>
                     <Gift className="w-4 h-4 text-accent" />
                     Affiliate marketplace
                   </button>
                   <button
                     onClick={() => setActiveTab("Refer sellers")}
-                    className="px-4 py-2 rounded-xl text-sm font-medium border border-accent/40 text-accent"
-                  >
+                    className="px-4 py-2 rounded-xl text-sm font-medium border border-accent/40 text-accent">
                     Apply to be a partner
                   </button>
                 </>
@@ -99,8 +94,7 @@ export function AffiliateDashboardView({ isAuthenticated, onSwitchToCreator, isL
                 onClick={() => setActiveTab(tab)}
                 className={`pb-3 text-sm font-medium transition-colors relative ${
                   activeTab === tab ? "text-foreground" : "text-muted-foreground hover:text-muted-foreground"
-                }`}
-              >
+                }`}>
                 {tab}
                 {activeTab === tab && (
                   <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-accent rounded-full" />

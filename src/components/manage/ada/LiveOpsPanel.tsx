@@ -68,8 +68,7 @@ export function LiveOpsPanel() {
             <div key={action.id} className="space-y-2">
               <button
                 onClick={() => handleAction(action.id)}
-                className={`w-full flex items-center gap-3 p-3 rounded-md border transition-colors ${v.bg} ${v.border} ${v.hover}`}
-              >
+                className={`w-full flex items-center gap-3 p-3 rounded-md border transition-colors ${v.bg} ${v.border} ${v.hover}`}>
                 {isActive ? <PauseCircle className={`h-5 w-5 ${v.text}`} /> : <Icon className={`h-5 w-5 ${v.text}`} />}
                 <div className="text-left flex-1">
                   <span className={`text-xs font-medium ${v.text}`}>

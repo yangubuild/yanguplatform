@@ -54,8 +54,7 @@ export default function ResetPassword() {
       <AuthShell
         title="Check your email"
         subtitle="We sent you a password reset link"
-        showBackLink={false}
-      >
+        showBackLink={false}>
         <div className="space-y-6 text-center">
           <div className="mx-auto w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center">
             <Mail className="h-8 w-8 text-accent" />
@@ -81,8 +80,7 @@ export default function ResetPassword() {
       title="Reset password"
       subtitle="Enter your email and we'll send you a reset link"
       backLinkHref="/auth/login"
-      backLinkLabel="Back to login"
-    >
+      backLinkLabel="Back to login">
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
@@ -103,8 +101,7 @@ export default function ResetPassword() {
           type="submit"
           variant="accent"
           className="w-full h-11"
-          disabled={isLoading}
-        >
+          disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Send reset link
         </Button>

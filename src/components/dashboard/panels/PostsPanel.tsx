@@ -22,7 +22,7 @@ export function PostsPanel({ onViewProfile }: PostsPanelProps) {
   const handleScroll = useCallback(() => {
     const el = scrollRef.current;
     if (!el || !hasNextPage || isFetchingNextPage) return;
-    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 200) {
+    if (el.scrollTop + el.clientHeight>= el.scrollHeight - 200) {
       fetchNextPage();
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
@@ -31,8 +31,7 @@ export function PostsPanel({ onViewProfile }: PostsPanelProps) {
     <div className="flex flex-col h-full" style={{ background: "#111820" }}>
       <div
         className="flex items-center justify-between px-4 py-3 shrink-0"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
-      >
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         <span className="text-sm font-semibold text-foreground">Following</span>
       </div>
 

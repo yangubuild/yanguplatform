@@ -43,21 +43,21 @@ function useTypingAnimation(prompts: string[], active: boolean) {
       const currentPrompt = prompts[idx.current % prompts.length];
 
       if (phase.current === "typing") {
-        if (elapsed >= TYPING_SPEED) {
+        if (elapsed>= TYPING_SPEED) {
           lastTick.current = now;
           charIdx.current++;
           setDisplay(currentPrompt.slice(0, charIdx.current));
-          if (charIdx.current >= currentPrompt.length) {
+          if (charIdx.current>= currentPrompt.length) {
             phase.current = "pausing";
           }
         }
       } else if (phase.current === "pausing") {
-        if (elapsed >= PAUSE_AFTER_TYPE) {
+        if (elapsed>= PAUSE_AFTER_TYPE) {
           lastTick.current = now;
           phase.current = "erasing";
         }
       } else if (phase.current === "erasing") {
-        if (elapsed >= ERASING_SPEED) {
+        if (elapsed>= ERASING_SPEED) {
           lastTick.current = now;
           charIdx.current--;
           setDisplay(currentPrompt.slice(0, charIdx.current));
@@ -66,7 +66,7 @@ function useTypingAnimation(prompts: string[], active: boolean) {
           }
         }
       } else if (phase.current === "waiting") {
-        if (elapsed >= PAUSE_AFTER_ERASE) {
+        if (elapsed>= PAUSE_AFTER_ERASE) {
           lastTick.current = now;
           idx.current = (idx.current + 1) % prompts.length;
           charIdx.current = 0;
@@ -121,7 +121,7 @@ function useLiveStats() {
             const t = Math.min(elapsed / RAMP_DURATION, 1);
             const eased = 1 - Math.pow(1 - t, 3);
             const val = Math.round(cfg.target * eased);
-            if (t >= 1) reached.current[i] = true;
+            if (t>= 1) reached.current[i] = true;
             return val;
           }
           const jitter = 0.5 + Math.random();
@@ -161,8 +161,7 @@ function EntityResultCard({ entity }: { entity: SearchEntityResult }) {
     <button
       onClick={() => external ? window.open(route, "_blank") : navigate(route)}
       className="flex items-start gap-3 px-4 py-3 rounded-xl text-left transition-colors hover:opacity-80 w-full"
-      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}
-    >
+      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
       {entity.cover_image_url ? (
         <img src={entity.cover_image_url} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" />
       ) : (
@@ -202,7 +201,7 @@ export function LandingTestPromptArea() {
 
   const { data: searchResults, isLoading: searching } = useSearchEntities(
     { query: searchQuery || undefined, limit: 8 },
-    mode === "explore" && searchQuery.length >= 2,
+    mode === "explore" && searchQuery.length>= 2,
     `explore-${searchQuery}`,
   );
 
@@ -225,9 +224,7 @@ export function LandingTestPromptArea() {
         style={{
           background: 'rgba(255,255,255,0.06)',
           border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: '14px',
-        }}
-      >
+          borderRadius: '14px' }}>
         <button
           className="px-7 py-2.5 text-sm font-medium transition-all"
           style={mode === "build" ? {
@@ -237,10 +234,8 @@ export function LandingTestPromptArea() {
           } : {
             background: 'transparent',
             color: 'rgba(255,255,255,0.45)',
-            borderRadius: '10px',
-          }}
-          onClick={() => { setMode("build"); setInputValue(""); setSearchQuery(""); }}
-        >
+            borderRadius: '10px' }}
+          onClick={() => { setMode("build"); setInputValue(""); setSearchQuery(""); }}>
           Build
         </button>
         <button
@@ -252,10 +247,8 @@ export function LandingTestPromptArea() {
           } : {
             background: 'transparent',
             color: 'rgba(255,255,255,0.45)',
-            borderRadius: '10px',
-          }}
-          onClick={() => { setMode("explore"); setInputValue(""); setSearchQuery(""); }}
-        >
+            borderRadius: '10px' }}
+          onClick={() => { setMode("explore"); setInputValue(""); setSearchQuery(""); }}>
           Explore
         </button>
       </div>
@@ -264,8 +257,7 @@ export function LandingTestPromptArea() {
       {mode === "build" && (
         <div
           className="w-full max-w-[700px] rounded-2xl overflow-hidden"
-          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
-        >
+          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}>
           <div className="px-5 pt-5 pb-2 relative">
             {!inputValue && (
               <div className="absolute inset-0 px-5 pt-5 pb-2 pointer-events-none flex items-start">
@@ -295,8 +287,7 @@ export function LandingTestPromptArea() {
               <button
                 onClick={handleSubmit}
                 className="w-9 h-9 flex items-center justify-center rounded-full"
-                style={{ background: 'rgba(255,255,255,0.08)' }}
-              >
+                style={{ background: 'rgba(255,255,255,0.08)' }}>
                 <ArrowUp className="w-4 h-4 text-muted-foreground" />
               </button>
             </div>
@@ -312,9 +303,7 @@ export function LandingTestPromptArea() {
             style={{
               background: 'rgba(255,255,255,0.06)',
               border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: searchResults && searchResults.length > 0 ? '20px 20px 0 0' : '999px',
-            }}
-          >
+              borderRadius: searchResults && searchResults.length> 0 ? '20px 20px 0 0' : '999px' }}>
             <Search className="w-4 h-4 text-muted-foreground shrink-0" />
             <input
               type="text"
@@ -327,25 +316,23 @@ export function LandingTestPromptArea() {
             <button
               onClick={handleSubmit}
               className="w-8 h-8 flex items-center justify-center rounded-full shrink-0"
-              style={{ background: 'rgba(255,255,255,0.08)' }}
-            >
+              style={{ background: 'rgba(255,255,255,0.08)' }}>
               <ArrowUp className="w-4 h-4 text-muted-foreground" />
             </button>
           </div>
 
           {/* Live search results dropdown */}
-          {searchResults && searchResults.length > 0 && (
+          {searchResults && searchResults.length> 0 && (
             <div
               className="rounded-b-2xl overflow-hidden divide-y divide-white/[0.04]"
-              style={{ background: 'rgba(255,255,255,0.04)', borderLeft: '1px solid rgba(255,255,255,0.08)', borderRight: '1px solid rgba(255,255,255,0.08)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}
-            >
+              style={{ background: 'rgba(255,255,255,0.04)', borderLeft: '1px solid rgba(255,255,255,0.08)', borderRight: '1px solid rgba(255,255,255,0.08)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
               {searchResults.map((entity) => (
                 <EntityResultCard key={entity.id} entity={entity} />
               ))}
             </div>
           )}
 
-          {searching && searchQuery.length >= 2 && (
+          {searching && searchQuery.length>= 2 && (
             <div className="text-center py-3 text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>
               Searching...
             </div>

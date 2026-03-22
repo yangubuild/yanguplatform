@@ -54,8 +54,7 @@ export function BuilderAddSection({
                 <button
                   key={type}
                   onClick={() => handleSelectGeneral(type)}
-                  className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors text-left"
-                >
+                  className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors text-left">
                   <span>{icon}</span>
                   <span>{label}</span>
                 </button>

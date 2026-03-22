@@ -7,8 +7,7 @@ function CodeBlock({ code }: CodeBlockProps) {
   return (
     <pre
       className="rounded-lg p-4 text-xs leading-relaxed overflow-x-auto mb-4"
-      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", }}
-    >
+      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
       <code>{code}</code>
     </pre>
   );

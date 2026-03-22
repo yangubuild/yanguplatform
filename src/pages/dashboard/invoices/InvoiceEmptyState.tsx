@@ -13,7 +13,7 @@ export function InvoiceEmptyState({ onCreateInvoice }: InvoiceEmptyStateProps) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] px-4" style={{ background: "#08120D" }}>
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] px-4 bg-background">
       {/* Illustration area */}
       <div className="mb-6">
         <div className="w-[160px] h-[130px] flex items-center justify-center">
@@ -51,15 +51,13 @@ export function InvoiceEmptyState({ onCreateInvoice }: InvoiceEmptyStateProps) {
         </p>
         <button
           onClick={onCreateInvoice}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium bg-primary text-primary-foreground shrink-0"
-        >
+          className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium bg-primary text-primary-foreground shrink-0">
           <Plus className="w-4 h-4" />
           Create invoice
         </button>
         <button
           onClick={handleViewDocs}
-          className="text-sm font-medium text-foreground shrink-0 px-3 py-2.5 hover:underline"
-        >
+          className="text-sm font-medium text-foreground shrink-0 px-3 py-2.5 hover:underline">
           View docs
         </button>
       </div>

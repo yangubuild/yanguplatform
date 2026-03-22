@@ -30,8 +30,7 @@ export function AdminStatusBadge({ status, className }: AdminStatusBadgeProps) {
         "inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium capitalize",
         styles,
         className,
-      )}
-    >
+      )}>
       {status}
     </span>
   );

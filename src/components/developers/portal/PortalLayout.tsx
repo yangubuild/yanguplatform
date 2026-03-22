@@ -48,7 +48,7 @@ export function PortalLayout() {
   // Block rendering when not authenticated
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#08120D" }}>
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
       </div>
     );
@@ -56,7 +56,7 @@ export function PortalLayout() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#08120D" }}>
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <h2 className="text-xl font-bold text-foreground mb-2">Developer Portal</h2>
           <p className="text-muted-foreground text-sm mb-6">Sign in to access the developer portal.</p>
@@ -78,11 +78,10 @@ export function PortalLayout() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "#08120D" }}>
+    <div className="min-h-screen bg-background">
       <button
         onClick={() => setSidebarOpen(true)}
-        className="fixed top-4 left-4 z-30 p-2 rounded-lg bg-[#1c1c1c] text-foreground lg:hidden"
-      >
+        className="fixed top-4 left-4 z-30 p-2 rounded-lg bg-[#1c1c1c] text-foreground lg:hidden">
         <Menu className="w-6 h-6" />
       </button>
 
@@ -110,8 +109,7 @@ export function PortalLayout() {
                             onClick={() => navigate(item.path)}
                             className={`w-full text-left px-3 py-1.5 rounded-md text-sm leading-5 transition-colors flex items-center gap-2 ${
                               isActive ? "text-accent bg-accent/8" : "text-muted-foreground bg-transparent"
-                            }`}
-                          >
+                            }`}>
                             <item.icon className="w-4 h-4" />
                             {item.label}
                           </button>
@@ -125,8 +123,7 @@ export function PortalLayout() {
 
                 <button
                   onClick={() => navigate("/developers/docs")}
-                  className="w-full text-left px-3 py-1.5 rounded-md text-sm leading-5 transition-colors flex items-center gap-2 text-muted-foreground hover:text-muted-foreground"
-                >
+                  className="w-full text-left px-3 py-1.5 rounded-md text-sm leading-5 transition-colors flex items-center gap-2 text-muted-foreground hover:text-muted-foreground">
                   <BookOpen className="w-4 h-4" />
                   API Docs
                 </button>
@@ -142,8 +139,7 @@ export function PortalLayout() {
             <div className="hidden lg:block">
               <button
                 onClick={() => setSupportOpen(!supportOpen)}
-                className="fixed right-6 bottom-6 z-40 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-colors [background:linear-gradient(90deg,#b5622a_0%,#5c2a12_100%)] hover:brightness-110"
-              >
+                className="fixed right-6 bottom-6 z-40 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-colors [background:linear-gradient(90deg,#b5622a_0%,#5c2a12_100%)] hover:brightness-110">
                 {supportOpen ? <X className="w-5 h-5 text-foreground" /> : <HelpCircle className="w-5 h-5 text-foreground" />}
               </button>
             </div>
@@ -154,8 +150,7 @@ export function PortalLayout() {
         {supportOpen && (
           <div
             className="fixed right-6 bottom-20 z-40 w-[360px] rounded-2xl overflow-hidden shadow-2xl"
-            style={{ background: "#111a14", border: "1px solid rgba(255,255,255,0.10)", maxHeight: "70vh" }}
-          >
+            style={{ background: "#111a14", border: "1px solid rgba(255,255,255,0.10)", maxHeight: "70vh" }}>
             <div className="p-4 border-b border-white/10">
               <h3 className="text-foreground font-semibold text-sm">Support</h3>
               <div className="flex gap-1 mt-3 p-1 rounded-lg bg-white/5">
@@ -163,16 +158,14 @@ export function PortalLayout() {
                   onClick={() => setSupportTab("help")}
                   className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors flex items-center justify-center gap-1 ${
                     supportTab === "help" ? "bg-white/10 text-foreground" : "text-muted-foreground"
-                  }`}
-                >
+                  }`}>
                   <MessageSquare className="w-3 h-3" /> Help / Q&A
                 </button>
                 <button
                   onClick={() => setSupportTab("contact")}
                   className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors flex items-center justify-center gap-1 ${
                     supportTab === "contact" ? "bg-white/10 text-foreground" : "text-muted-foreground"
-                  }`}
-                >
+                  }`}>
                   <Mail className="w-3 h-3" /> Contact
                 </button>
               </div>
@@ -194,8 +187,7 @@ export function PortalLayout() {
                   <Button
                     variant="accent"
                     size="sm"
-                    onClick={() => window.open("mailto:developers@yangu.com", "_blank")}
-                  >
+                    onClick={() => window.open("mailto:developers@yangu.com", "_blank")}>
                     Email Support
                   </Button>
                 </div>

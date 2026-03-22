@@ -60,8 +60,7 @@ export function ReferBuyersTab({ isAuthenticated, onOpenMarketplace, onGatedActi
         </div>
         <button
           onClick={onOpenMarketplace}
-          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-muted-foreground transition-colors"
-        >
+          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-muted-foreground transition-colors">
           View all <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -82,8 +81,7 @@ export function ReferBuyersTab({ isAuthenticated, onOpenMarketplace, onGatedActi
                       isJoined(offer.id)
                         ? "border-green-500/40 text-green-400 bg-green-500/10"
                         : "border-white/[0.06] text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
+                    }`}>
                     {isJoined(offer.id) ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
                   </button>
                 </div>
@@ -145,8 +143,7 @@ export function ReferBuyersTab({ isAuthenticated, onOpenMarketplace, onGatedActi
                   <div className="flex-1 text-center">
                     <button
                       onClick={() => setViewAssetsProgram(prog.name)}
-                      className="px-3 py-1.5 rounded-lg text-xs font-medium text-foreground border border-white/[0.06] hover:bg-white/[0.04] transition-colors"
-                    >
+                      className="px-3 py-1.5 rounded-lg text-xs font-medium text-foreground border border-white/[0.06] hover:bg-white/[0.04] transition-colors">
                       View assets
                     </button>
                   </div>
@@ -295,7 +292,7 @@ function ViewAssetsPage({ programName, onClose }: { programName: string; onClose
   ];
 
   return (
-    <div className="fixed inset-0 z-[100] overflow-y-auto" style={{ background: "#08120D" }}>
+    <div className="fixed inset-0 z-[100] overflow-y-auto bg-background">
       <div className="w-full px-6 py-6">
         <button onClick={onClose} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4">
           <ChevronLeft className="w-4 h-4" /> Back

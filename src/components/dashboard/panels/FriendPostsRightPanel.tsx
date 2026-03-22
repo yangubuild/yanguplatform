@@ -37,13 +37,12 @@ export function FriendPostsRightPanel({ friend }: Props) {
     <div className="flex flex-col h-full" style={{ background: "#111820" }}>
       <div
         className="flex items-center justify-between px-4 py-3 shrink-0"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
-      >
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         <span className="text-sm font-semibold text-foreground">Comments</span>
       </div>
 
       {/* Post selector */}
-      {posts.length > 0 && (
+      {posts.length> 0 && (
         <div className="px-3 py-2 shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
           <p className="text-[10px] mb-1.5 text-muted-foreground">Select a post:</p>
           <div className="space-y-1 max-h-[120px] overflow-y-auto">
@@ -55,10 +54,8 @@ export function FriendPostsRightPanel({ friend }: Props) {
                 style={{
                   background: activePostId === post.id ? "rgba(181,98,42,0.15)" : "rgba(255,255,255,0.03)",
                   color: activePostId === post.id ? "#E67E22" : "rgba(255,255,255,0.6)",
-                  border: `1px solid ${activePostId === post.id ? "rgba(181,98,42,0.3)" : "rgba(255,255,255,0.06)"}`,
-                }}
-              >
-                {post.content.slice(0, 60)}{post.content.length > 60 ? "…" : ""}
+                  border: `1px solid ${activePostId === post.id ? "rgba(181,98,42,0.3)" : "rgba(255,255,255,0.06)"}` }}>
+                {post.content.slice(0, 60)}{post.content.length> 60 ? "…" : ""}
               </button>
             ))}
           </div>
@@ -127,8 +124,7 @@ export function FriendPostsRightPanel({ friend }: Props) {
           <div className="flex items-center gap-2">
             <div
               className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
-              style={{ background: "rgba(255,255,255,0.1)" }}
-            >
+              style={{ background: "rgba(255,255,255,0.1)" }}>
               {avatarUrl ? (
                 <img src={avatarUrl} alt="" className="w-8 h-8 rounded-full object-cover" />
               ) : (
@@ -137,8 +133,7 @@ export function FriendPostsRightPanel({ friend }: Props) {
             </div>
             <div
               className="flex-1 flex items-center gap-2 rounded-lg px-3 py-2"
-              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
-            >
+              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
               <input
                 type="text"
                 value={comment}
@@ -151,8 +146,7 @@ export function FriendPostsRightPanel({ friend }: Props) {
                 onClick={handleSendComment}
                 disabled={!comment.trim() || createComment.isPending}
                 className="p-1 rounded"
-                style={{ color: comment.trim() ? "#E67E22" : "rgba(255,255,255,0.2)" }}
-              >
+                style={{ color: comment.trim() ? "#E67E22" : "rgba(255,255,255,0.2)" }}>
                 {createComment.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
               </button>
             </div>

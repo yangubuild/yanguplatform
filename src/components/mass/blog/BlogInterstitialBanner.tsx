@@ -23,9 +23,7 @@ export function BlogInterstitialBanner() {
         style={{
           maxWidth: 1100,
           borderRadius: 16,
-          minHeight: 340,
-        }}
-      >
+          minHeight: 340 }}>
         {/* Background image */}
         <img
           src={interstitialBg}
@@ -42,9 +40,7 @@ export function BlogInterstitialBanner() {
             className="text-center leading-tight"
             style={{
               fontFamily: "'Georgia', 'Times New Roman', serif",
-              fontSize: "clamp(26px, 4vw, 42px)", fontWeight: 400,
-            }}
-          >
+              fontSize: "clamp(26px, 4vw, 42px)", fontWeight: 400 }}>
             Ideas and <span style={{ fontStyle: "italic" }}>A</span>pps to Thrive in the AI Age
           </h2>
 
@@ -54,8 +50,7 @@ export function BlogInterstitialBanner() {
               <div
                 key={icon.alt}
                 className="transition-transform duration-200 hover:scale-105 hover:-translate-y-1"
-                style={{ width: "clamp(64px, 10vw, 110px)" }}
-              >
+                style={{ width: "clamp(64px, 10vw, 110px)" }}>
                 <img
                   src={icon.src}
                   alt={icon.alt}

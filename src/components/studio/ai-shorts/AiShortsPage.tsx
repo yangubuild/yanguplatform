@@ -166,7 +166,7 @@ export default function AiShortsPage() {
   }, [generatedResult, selectedStyle]);
 
   const handleTryExample = () => setScript(EXAMPLE_SCRIPT);
-  const canGenerate = script.trim().length > 0 && !isGenerating;
+  const canGenerate = script.trim().length> 0 && !isGenerating;
 
   /* ─── Render ─── */
   return (
@@ -238,8 +238,7 @@ export default function AiShortsPage() {
                     onClick={() => setAspectRatio(opt.value)}
                     className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border text-sm font-medium transition-all ${
                       aspectRatio === opt.value ? "border-accent bg-accent/10 text-accent" : "border-border/30 text-muted-foreground hover:border-border/60 hover:text-foreground"
-                    }`}
-                  >
+                    }`}>
                     <opt.icon className="h-4 w-4" />{opt.label}
                   </button>
                 ))}

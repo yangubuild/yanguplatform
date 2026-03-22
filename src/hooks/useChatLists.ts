@@ -31,7 +31,7 @@ export function useCreateChatList() {
         .single();
       if (error) throw error;
 
-      if (memberUserIds.length > 0) {
+      if (memberUserIds.length> 0) {
         const rows = memberUserIds.map((uid) => ({ list_id: list.id, member_user_id: uid }));
         const { error: mErr } = await supabase.from("chat_list_members").insert(rows);
         if (mErr) throw mErr;

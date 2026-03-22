@@ -43,10 +43,8 @@ export default function CommerceCard({
         className={`flex items-center gap-3 rounded-xl p-3 cursor-pointer hover:opacity-90 transition-opacity ${className}`}
         style={{
           background: "rgba(255,255,255,0.04)",
-          border: "1px solid rgba(255,255,255,0.08)",
-        }}
-        onClick={handleOpen}
-      >
+          border: "1px solid rgba(255,255,255,0.08)" }}
+        onClick={handleOpen}>
         {/* Thumbnail */}
         <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0" style={{ background: "rgba(255,255,255,0.06)" }}>
           {item.image_url ? (
@@ -87,9 +85,7 @@ export default function CommerceCard({
       className={`rounded-2xl overflow-hidden transition-all hover:shadow-lg ${className}`}
       style={{
         background: "rgba(255,255,255,0.04)",
-        border: "1px solid rgba(255,255,255,0.06)",
-      }}
-    >
+        border: "1px solid rgba(255,255,255,0.06)" }}>
       {/* Image */}
       <div className="aspect-[16/10] overflow-hidden relative" style={{ background: "rgba(255,255,255,0.03)" }}>
         {item.image_url ? (
@@ -110,9 +106,7 @@ export default function CommerceCard({
           style={{
             background: isProduct ? "rgba(96,165,250,0.2)" : "rgba(168,85,247,0.2)",
             color: isProduct ? "#60a5fa" : "#a855f7",
-            border: `1px solid ${isProduct ? "rgba(96,165,250,0.3)" : "rgba(168,85,247,0.3)"}`,
-          }}
-        >
+            border: `1px solid ${isProduct ? "rgba(96,165,250,0.3)" : "rgba(168,85,247,0.3)"}` }}>
           {isProduct ? "Product" : "Service"}
         </span>
       </div>
@@ -144,7 +138,7 @@ export default function CommerceCard({
             </span>
           )}
           {item.category && (
-            <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.06)", }}>
+            <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>
               {item.category}
             </span>
           )}
@@ -169,8 +163,7 @@ export default function CommerceCard({
           <button
             onClick={handleOpen}
             className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold text-foreground transition-colors"
-            style={{ background: "linear-gradient(135deg, #b5622a, #d97706)" }}
-          >
+            style={{ background: "linear-gradient(135deg, #b5622a, #d97706)" }}>
             <ExternalLink className="w-3.5 h-3.5" />
             {item.kind === "service" ? "View Service" : "View Product"}
           </button>
@@ -178,8 +171,7 @@ export default function CommerceCard({
             <button
               onClick={(e) => { e.stopPropagation(); onMessage(); }}
               className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-colors"
-              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
-            >
+              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
               <MessageSquare className="w-3.5 h-3.5" />
               Message
             </button>

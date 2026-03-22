@@ -57,8 +57,7 @@ export default function CompletedProducts() {
       {COMPLETED_PRODUCTS.map((product) => (
         <div
           key={product.title}
-          className="rounded-xl border border-border bg-card overflow-hidden hover:border-primary/20 transition-colors"
-        >
+          className="rounded-xl border border-border bg-card overflow-hidden hover:border-primary/20 transition-colors">
           <div className="bg-muted/30">
             <img
               src={product.cover}

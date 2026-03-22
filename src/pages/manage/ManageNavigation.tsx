@@ -233,7 +233,7 @@ function SidebarBuilderTab() {
   const groupedSections = SECTIONS.map((s) => ({
     section: s,
     items: items.filter((i) => i.section === s),
-  })).filter((g) => g.items.length > 0);
+  })).filter((g) => g.items.length> 0);
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">

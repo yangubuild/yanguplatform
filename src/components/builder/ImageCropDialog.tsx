@@ -93,8 +93,7 @@ export function ImageCropDialog({
             crop={crop}
             onChange={(c) => setCrop(c)}
             onComplete={(c) => setCompletedCrop(c)}
-            aspect={aspectRatio}
-          >
+            aspect={aspectRatio}>
             <img
               ref={imgRef}
               src={imageSrc}
@@ -112,8 +111,7 @@ export function ImageCropDialog({
           <Button
             onClick={handleCropImage}
             disabled={!completedCrop || processing}
-            className="gap-2"
-          >
+            className="gap-2">
             {processing && <Loader2 className="h-4 w-4 animate-spin" />}
             Apply Crop
           </Button>

@@ -89,7 +89,7 @@ export default function AgencyHomePage() {
   ];
 
   return (
-    <div className="p-6 max-w-[1200px] mx-auto space-y-8 min-h-screen" style={{ background: "#08120D" }}>
+    <div className="p-6 max-w-[1200px] mx-auto space-y-8 min-h-screen bg-background">
       <div>
         <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Lufga', 'Inter', sans-serif" }}>
           Agency Management
@@ -103,13 +103,11 @@ export default function AgencyHomePage() {
           <Card
             key={card.title}
             className="cursor-pointer hover:shadow-md transition-shadow border border-border"
-            onClick={card.onClick}
-          >
+            onClick={card.onClick}>
             <CardContent className="p-5 flex flex-col items-center text-center gap-3">
               <div
                 className="w-12 h-12 rounded-full flex items-center justify-center"
-                style={{ background: card.bg }}
-              >
+                style={{ background: card.bg }}>
                 <card.icon className="w-5 h-5" style={{ color: card.color }} />
               </div>
               <div>

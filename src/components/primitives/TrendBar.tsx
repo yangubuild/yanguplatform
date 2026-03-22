@@ -76,8 +76,7 @@ export const TrendBar = React.forwardRef<HTMLDivElement, TrendBarProps>(
           styles.container,
           className
         )}
-        {...props}
-      >
+        {...props}>
         {/* Value */}
         <span className={cn("text-foreground", styles.value)}>{value}</span>
 
@@ -88,8 +87,7 @@ export const TrendBar = React.forwardRef<HTMLDivElement, TrendBarProps>(
               "flex items-center gap-1",
               trendColors[trend],
               styles.change
-            )}
-          >
+            )}>
             <Icon className="h-4 w-4" />
             <span className="font-medium">
               {trend === "up" && "+"}
@@ -134,8 +132,7 @@ export function TrendBarCompact({
         "inline-flex items-center gap-1 text-sm font-medium",
         trendColors[trend],
         className
-      )}
-    >
+      )}>
       <Icon className="h-3.5 w-3.5" />
       <span>
         {trend === "up" && "+"}

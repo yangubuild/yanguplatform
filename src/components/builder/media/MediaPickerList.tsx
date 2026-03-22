@@ -85,9 +85,9 @@ export function MediaPickerList({
         }
       }
 
-      if (newAssets.length > 0) {
+      if (newAssets.length> 0) {
         onChange([...items, ...newAssets]);
-        toast.success(`${newAssets.length} file${newAssets.length > 1 ? "s" : ""} uploaded!`);
+        toast.success(`${newAssets.length} file${newAssets.length> 1 ? "s" : ""} uploaded!`);
       }
     } catch (err) {
       console.error("Bulk upload error:", err);
@@ -131,8 +131,7 @@ export function MediaPickerList({
           {/* Row header */}
           <div
             className="flex items-center gap-2 px-3 py-2 bg-muted/30 cursor-pointer hover:bg-muted/50"
-            onClick={() => setExpandedIdx(expandedIdx === idx ? null : idx)}
-          >
+            onClick={() => setExpandedIdx(expandedIdx === idx ? null : idx)}>
             <GripVertical className="h-3.5 w-3.5 text-muted-foreground shrink-0 cursor-grab" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); moveUp(idx); }} />
             {item.src ? (
               item.type === "video" ? (
@@ -154,8 +153,7 @@ export function MediaPickerList({
               variant="ghost"
               size="icon"
               className="h-6 w-6 shrink-0"
-              onClick={(e) => { e.stopPropagation(); removeItem(idx); }}
-            >
+              onClick={(e) => { e.stopPropagation(); removeItem(idx); }}>
               <Trash2 className="h-3 w-3 text-muted-foreground" />
             </Button>
           </div>
@@ -182,7 +180,7 @@ export function MediaPickerList({
         className="hidden"
         onChange={(e) => {
           const fileList = e.target.files;
-          if (fileList && fileList.length > 0) {
+          if (fileList && fileList.length> 0) {
             handleBulkUpload(Array.from(fileList));
           }
           e.target.value = "";
@@ -194,8 +192,7 @@ export function MediaPickerList({
         size="sm"
         className="w-full gap-1.5 text-xs"
         onClick={addItem}
-        disabled={items.length >= max || uploading}
-      >
+        disabled={items.length>= max || uploading}>
         {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
         {uploading ? `Uploading ${uploadCount}/${uploadTotal}...` : `Add ${label.replace(/s$/, "")} (images/videos)`}
       </Button>

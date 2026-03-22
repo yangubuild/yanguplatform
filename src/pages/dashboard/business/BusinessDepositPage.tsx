@@ -40,7 +40,7 @@ export default function BusinessDepositPage() {
     .toUpperCase();
 
   return (
-    <div className="p-6 space-y-6 max-w-5xl min-h-screen" style={{ background: "#08120D" }}>
+    <div className="p-6 space-y-6 max-w-5xl min-h-screen bg-background">
       <button onClick={() => navigate("/dashboard/my-business")} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
         <ArrowLeft className="h-4 w-4" /> Back to My Business
       </button>
@@ -76,8 +76,7 @@ export default function BusinessDepositPage() {
             onClick={() => setTab(t.key)}
             className={`pb-2 text-sm font-medium transition-colors ${
               tab === t.key ? "text-primary border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
+            }`}>
             {t.label}
           </button>
         ))}
@@ -195,8 +194,7 @@ function WithdrawModal({ onClose }: { onClose: () => void }) {
             <button
               key={s}
               onClick={() => setStep(i)}
-              className={`flex items-center gap-2 text-sm w-full text-left ${i === step ? "text-foreground font-medium" : "text-muted-foreground"}`}
-            >
+              className={`flex items-center gap-2 text-sm w-full text-left ${i === step ? "text-foreground font-medium" : "text-muted-foreground"}`}>
               <span className={`h-2 w-2 rounded-full ${i === step ? "bg-primary" : i < step ? "bg-emerald-400" : "bg-muted-foreground/30"}`} />
               {s}
             </button>

@@ -20,8 +20,7 @@ export function CommunityFilterBar({ onFilterChange }: CommunityFilterBarProps) 
   return (
     <div
       className="sticky top-0 z-20 w-full px-6 transition-colors duration-300"
-      style={{ backgroundColor: c.bg }}
-    >
+      style={{ backgroundColor: c.bg }}>
       <div className="mx-auto flex max-w-[1100px] items-center gap-3 py-4 px-4 sm:px-6 lg:px-10">
         <div className="flex flex-1 gap-3 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
           {categories.map((cat) => {
@@ -39,8 +38,7 @@ export function CommunityFilterBar({ onFilterChange }: CommunityFilterBarProps) 
                         color: c.filterInactiveText,
                         border: `1px solid ${c.filterInactiveBorder}`,
                       }
-                }
-              >
+                }>
                 {cat}
               </button>
             );
@@ -48,8 +46,7 @@ export function CommunityFilterBar({ onFilterChange }: CommunityFilterBarProps) 
         </div>
         <button
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition-colors"
-          style={{ borderColor: c.scrollBtnBorder, color: c.scrollBtnText }}
-        >
+          style={{ borderColor: c.scrollBtnBorder, color: c.scrollBtnText }}>
           <ChevronRight size={16} />
         </button>
       </div>

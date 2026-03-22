@@ -98,7 +98,7 @@ export function useRoles(): RolesState {
   const isAnalyst = manageRoles.includes("analyst");
   const isModerator = manageRoles.includes("moderator");
   const isContentEditor = manageRoles.includes("content_editor");
-  const hasAnyManageRole = manageRoles.length > 0;
+  const hasAnyManageRole = manageRoles.length> 0;
 
   return {
     roles,

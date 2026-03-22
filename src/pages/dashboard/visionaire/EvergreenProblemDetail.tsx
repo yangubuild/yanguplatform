@@ -125,8 +125,7 @@ export default function EvergreenProblemDetail() {
         {/* Back link */}
         <Link
           to="/dashboard/visionaire/evergreen"
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="h-4 w-4" />
           Back to Evergreen Problems
         </Link>
@@ -243,7 +242,7 @@ export default function EvergreenProblemDetail() {
         )}
 
         {/* Offer Angles */}
-        {rich && rich.offerAngles.length > 0 && (
+        {rich && rich.offerAngles.length> 0 && (
           <div className="rounded-xl border border-border bg-card p-6 md:p-8 space-y-4">
             <div className="flex items-center gap-2">
               <MessageSquare className="h-5 w-5 text-foreground" />

@@ -45,7 +45,7 @@ function mapRawItem(raw: any): ShowcaseItem {
       ? [raw.image_url]
       : [];
   const existingMedia: MediaAsset[] = Array.isArray(raw.media) ? raw.media : [];
-  const media: MediaAsset[] = existingMedia.length > 0
+  const media: MediaAsset[] = existingMedia.length> 0
     ? existingMedia
     : legacyImages.filter(Boolean).map((url: string) => ({ type: "image" as const, src: url, provider: "url" as const }));
 
@@ -81,8 +81,8 @@ export function InfluencerShowcaseEditor({ schema, update, surfaceId }: Influenc
   // Read from showcase_items or items (legacy)
   const rawShowcase = Array.isArray(schema.showcase_items) ? (schema.showcase_items as any[]) : [];
   const rawLegacyItems = Array.isArray(schema.items) ? (schema.items as any[]) : [];
-  const sourceItems = rawShowcase.length > 0 ? rawShowcase : rawLegacyItems;
-  const isUsingLegacy = rawShowcase.length === 0 && rawLegacyItems.length > 0;
+  const sourceItems = rawShowcase.length> 0 ? rawShowcase : rawLegacyItems;
+  const isUsingLegacy = rawShowcase.length === 0 && rawLegacyItems.length> 0;
 
   const items = sourceItems.map(mapRawItem);
   const displayMode = (schema.showcase_display as string) || "carousel";

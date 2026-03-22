@@ -19,8 +19,7 @@ export function EmailPreview({ form }: Props) {
       <div className="flex items-center gap-2.5">
         <div
           className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-foreground"
-          style={{ background: "#2563eb" }}
-        >
+          style={{ background: "#2563eb" }}>
           {companyName.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()}
         </div>
         <span className="text-sm text-foreground font-medium">{companyName}</span>
@@ -34,7 +33,7 @@ export function EmailPreview({ form }: Props) {
         </div>
 
         <div className="px-6 pb-3">
-          <button className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", }}>
+          <button className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
             ↓ Download invoice
           </button>
         </div>
@@ -45,7 +44,7 @@ export function EmailPreview({ form }: Props) {
         </div>
 
         <div className="px-6 py-3">
-          <button className="w-full py-3 rounded-lg text-sm font-medium" style={{ background: "rgba(255,255,255,0.08)", }}>
+          <button className="w-full py-3 rounded-lg text-sm font-medium" style={{ background: "rgba(255,255,255,0.08)" }}>
             Pay now
           </button>
         </div>

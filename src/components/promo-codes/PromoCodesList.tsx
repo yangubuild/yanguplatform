@@ -44,8 +44,7 @@ export function PromoCodesList({ promoCodes, onCreateClick }: Props) {
         {promoCodes.map((p: any) => (
           <div
             key={p.id}
-            className="flex items-center gap-4 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4"
-          >
+            className="flex items-center gap-4 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
             <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
               <Tag className="w-5 h-5 text-accent" />
             </div>

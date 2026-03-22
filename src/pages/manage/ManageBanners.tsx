@@ -30,9 +30,7 @@ function BannerCard({
       className="rounded-xl border p-5"
       style={{
         borderColor: "hsl(var(--border))",
-        background: isSystem ? "hsl(var(--muted) / 0.3)" : "hsl(var(--card))",
-      }}
-    >
+        background: isSystem ? "hsl(var(--muted) / 0.3)" : "hsl(var(--card))" }}>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           {isSystem ? (
@@ -68,9 +66,7 @@ function BannerCard({
           background: data.image_url
             ? `url(${data.image_url}) center/cover`
             : BANNER_CONTRACT.defaultBg,
-          border: BANNER_CONTRACT.borderStyle,
-        }}
-      >
+          border: BANNER_CONTRACT.borderStyle }}>
         <div className="h-full flex items-center justify-center">
           <span className="text-xs text-muted-foreground">
             {data.headline || "No headline"}
@@ -97,8 +93,7 @@ function BannerCard({
               setImageInput("");
               toast.success("Banner image updated");
             }}
-            className="gap-1"
-          >
+            className="gap-1">
             <Upload className="w-3.5 h-3.5" /> Set
           </Button>
           {data.image_url && (
@@ -109,8 +104,7 @@ function BannerCard({
                 onRemoveImage?.();
                 toast.success("Banner image removed");
               }}
-              className="gap-1 text-destructive"
-            >
+              className="gap-1 text-destructive">
               <Trash2 className="w-3.5 h-3.5" /> Remove
             </Button>
           )}
@@ -164,8 +158,7 @@ export default function ManageBanners() {
           data={{
             headline: "Build and. Sell Online.",
             subheadline: "Your all-in-one platform to build, market, and scale a business.",
-            is_active: true,
-          }}
+            is_active: true }}
         />
 
         {/* Banner 2: Editable */}
@@ -176,8 +169,7 @@ export default function ManageBanners() {
             headline: banners?.middle.headline,
             subheadline: banners?.middle.subheadline,
             image_url: banners?.middle.image_url,
-            is_active: banners?.middle.is_active ?? true,
-          }}
+            is_active: banners?.middle.is_active ?? true }}
           onToggle={() => handleToggle("middle")}
           onUpdateImage={(url) => handleUpdateImage("middle", url)}
           onRemoveImage={() => handleRemoveImage("middle")}
@@ -191,8 +183,7 @@ export default function ManageBanners() {
             headline: banners?.lower.headline,
             subheadline: banners?.lower.subheadline,
             image_url: banners?.lower.image_url,
-            is_active: banners?.lower.is_active ?? true,
-          }}
+            is_active: banners?.lower.is_active ?? true }}
           onToggle={() => handleToggle("lower")}
           onUpdateImage={(url) => handleUpdateImage("lower", url)}
           onRemoveImage={() => handleRemoveImage("lower")}

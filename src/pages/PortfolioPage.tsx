@@ -87,8 +87,7 @@ export default function PortfolioPage() {
             {assets.map((asset) => (
               <div
                 key={asset.id}
-                className="rounded-xl overflow-hidden border border-border/40 bg-card group"
-              >
+                className="rounded-xl overflow-hidden border border-border/40 bg-card group">
                 <div className="aspect-square bg-muted/20 relative">
                   {asset.file_url || asset.thumbnail_url ? (
                     <img

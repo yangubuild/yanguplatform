@@ -46,8 +46,7 @@ export function DomainNav({
         "flex gap-1",
         orientation === "vertical" ? "flex-col" : "flex-row items-center",
         className
-      )}
-    >
+      )}>
       {navItems.map((item) => {
         const isActive = location.pathname === item.path || 
           location.pathname.startsWith(`${item.path}/`);
@@ -68,8 +67,7 @@ export function DomainNav({
               isActive
                 ? "bg-accent text-accent-foreground"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted"
-            )}
-          >
+            )}>
             {showIcons && IconComponent && (
               <IconComponent className="h-4 w-4" />
             )}

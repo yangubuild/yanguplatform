@@ -47,8 +47,7 @@ export function SaveToStudioButton({
       onClick={handleSave}
       disabled={saveToStudio.isPending || saved}
       className={`p-1.5 rounded-md bg-black/60 hover:bg-black/80 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50 ${className}`}
-      title={saved ? "Saved to Studio" : "Save to Studio"}
-    >
+      title={saved ? "Saved to Studio" : "Save to Studio"}>
       {saveToStudio.isPending ? (
         <Loader2 className="w-3 h-3 animate-spin" />
       ) : saved ? (

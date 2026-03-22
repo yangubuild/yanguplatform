@@ -28,8 +28,7 @@ export function UsageCostMonitoring() {
               segment === s
                 ? "bg-[hsl(25,85%,45%/0.15)] text-[hsl(25,85%,45%)] border border-[hsl(25,85%,45%/0.3)]"
                 : "text-[hsl(var(--admin-text-muted))] border border-[hsl(var(--admin-border)/0.3)] hover:bg-[hsl(var(--admin-surface-elevated)/0.4)]"
-            }`}
-          >
+            }`}>
             {s}
           </button>
         ))}
@@ -43,8 +42,8 @@ export function UsageCostMonitoring() {
           label="Rate Warnings"
           value={data.rateWarnings}
           icon={AlertTriangle}
-          severity={data.rateWarnings > 0 ? "warning" : "success"}
-          trend={data.rateWarnings > 0 ? "Active throttling" : "All clear"}
+          severity={data.rateWarnings> 0 ? "warning" : "success"}
+          trend={data.rateWarnings> 0 ? "Active throttling" : "All clear"}
         />
       </div>
     </AdaGlassModule>

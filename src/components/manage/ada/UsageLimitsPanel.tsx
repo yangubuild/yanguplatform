@@ -178,8 +178,7 @@ export function UsageLimitsPanel() {
                   )}
                   <button
                     onClick={() => resetMyUsage(cfg.key)}
-                    className="flex items-center gap-1 text-[10px] text-accent hover:underline"
-                  >
+                    className="flex items-center gap-1 text-[10px] text-accent hover:underline">
                     <RotateCcw className="h-3 w-3" /> Reset
                   </button>
                 </div>
@@ -190,8 +189,7 @@ export function UsageLimitsPanel() {
                   size="sm"
                   onClick={() => saveConfig(cfg.key)}
                   disabled={saving === cfg.key}
-                  className="h-7 text-xs gap-1"
-                >
+                  className="h-7 text-xs gap-1">
                   {saving === cfg.key ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
                   Save
                 </Button>

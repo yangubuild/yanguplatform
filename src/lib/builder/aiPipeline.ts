@@ -114,7 +114,7 @@ function buildSectionsFromEngine(
 
   // Inject answer data into hero section
   const heroIdx = sections.findIndex((s) => s.type === "hero");
-  if (heroIdx >= 0) {
+  if (heroIdx>= 0) {
     const nameKey = engine.key === "influencer" ? "display_name" :
                     engine.key === "community" ? "community_name" : "business_name";
     sections[heroIdx].schema = mergeIntoDefault("hero", {
@@ -126,7 +126,7 @@ function buildSectionsFromEngine(
 
   // Inject contact data if present
   const contactIdx = sections.findIndex((s) => s.type === "contact");
-  if (contactIdx >= 0) {
+  if (contactIdx>= 0) {
     sections[contactIdx].schema = mergeIntoDefault("contact", {
       ...sections[contactIdx].schema,
       email: String(answers.contact_email || ""),

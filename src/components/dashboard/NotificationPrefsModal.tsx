@@ -19,8 +19,7 @@ export function NotificationPrefsModal({ open, onOpenChange }: NotificationPrefs
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className="sm:max-w-md p-0 border-0 gap-0"
-        style={{ background: "#1a2129", borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)" }}
-      >
+        style={{ background: "#1a2129", borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)" }}>
         <div className="flex items-center justify-between px-6 pt-6 pb-4">
           <DialogTitle className="text-lg font-bold text-foreground">Notification preferences</DialogTitle>
         </div>
@@ -30,8 +29,7 @@ export function NotificationPrefsModal({ open, onOpenChange }: NotificationPrefs
             <button
               key={item.name}
               className="w-full flex items-center justify-between px-4 py-3 rounded-xl transition-colors hover:bg-white/[0.03]"
-              style={{ border: "1px solid rgba(255,255,255,0.08)" }}
-            >
+              style={{ border: "1px solid rgba(255,255,255,0.08)" }}>
               <div className="flex items-center gap-3">
                 <span className="text-xl w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(255,255,255,0.06)" }}>
                   {item.emoji}

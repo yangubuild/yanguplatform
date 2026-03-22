@@ -51,7 +51,7 @@ export function PublishSection({ surface, userId, orgId, onSurfaceUpdate }: Publ
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { unpublishSurface } = useSurfaceActions();
 
-  const isPublished = surface.activePublishes.length > 0;
+  const isPublished = surface.activePublishes.length> 0;
   const isArchived = !!surface.archived_at;
 
   // Permission check
@@ -123,14 +123,13 @@ export function PublishSection({ surface, userId, orgId, onSurfaceUpdate }: Publ
               </h3>
               <Badge 
                 variant={isPublished ? "default" : "secondary"}
-                className={isPublished ? "bg-success text-success-foreground" : ""}
-              >
+                className={isPublished ? "bg-success text-success-foreground" : ""}>
                 {isPublished ? "Live" : "Draft"}
               </Badge>
             </div>
             <p className="text-sm text-muted-foreground mt-1">
               {isPublished
-                ? `Published on ${surface.activePublishes.length} domain${surface.activePublishes.length > 1 ? "s" : ""}`
+                ? `Published on ${surface.activePublishes.length} domain${surface.activePublishes.length> 1 ? "s" : ""}`
                 : "Only you can view this surface. Publish to make it public."}
             </p>
           </div>
@@ -145,8 +144,7 @@ export function PublishSection({ surface, userId, orgId, onSurfaceUpdate }: Publ
             {surface.activePublishes.map((pub) => (
               <div
                 key={pub.id}
-                className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border border-border"
-              >
+                className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border border-border">
                 <div className="flex items-center gap-3">
                   <Globe className="h-5 w-5 text-muted-foreground" />
                   <div>
@@ -165,16 +163,14 @@ export function PublishSection({ surface, userId, orgId, onSurfaceUpdate }: Publ
                     onClick={() => {
                       const path = pub.slug ? `/${pub.slug}` : "/";
                       window.open(`https://${pub.domain_host}${path}`, "_blank");
-                    }}
-                  >
+                    }}>
                     <ExternalLink className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => handleUnpublish(pub.domain_id)}
-                    disabled={unpublishSurface.isPending || !isOwner}
-                  >
+                    disabled={unpublishSurface.isPending || !isOwner}>
                     <GlobeIcon className="h-4 w-4 mr-1" />
                     Unpublish
                   </Button>
@@ -214,8 +210,7 @@ export function PublishSection({ surface, userId, orgId, onSurfaceUpdate }: Publ
               variant={isPublished ? "outline" : "default"}
               disabled={rolesLoading || !isOwner || isArchived}
               onClick={() => setIsModalOpen(true)}
-              className="gap-2"
-            >
+              className="gap-2">
               <Rocket className="h-4 w-4" />
               {isPublished ? "Add Domain" : "Publish Surface"}
               <ArrowRight className="h-4 w-4" />

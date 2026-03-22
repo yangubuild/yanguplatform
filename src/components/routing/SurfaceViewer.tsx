@@ -52,7 +52,7 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#08120D' }}>
+      <div className="bg-background min-h-screen flex items-center justify-center" >
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
@@ -144,11 +144,10 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
   // Influencer: wrap in mobile frame on desktop
   if (isInfluencer) {
     return (
-      <div className="min-h-screen bg-muted/30 flex justify-center">
+      <div className="bg-background min-h-screen bg-muted/30 flex justify-center">
         <div
           className="w-full max-w-[420px] min-h-screen bg-background yangu-live shadow-xl"
-          style={themeStyle}
-        >
+          style={themeStyle}>
           {pageContent}
         </div>
       </div>

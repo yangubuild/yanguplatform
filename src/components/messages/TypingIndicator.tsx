@@ -21,8 +21,7 @@ export function TypingIndicator({ names }: Props) {
             className="w-1.5 h-1.5 rounded-full"
             style={{
               background: "rgba(255,255,255,0.4)",
-              animation: `typingDot 1.4s infinite ${i * 0.2}s`,
-            }}
+              animation: `typingDot 1.4s infinite ${i * 0.2}s` }}
           />
         ))}
       </div>

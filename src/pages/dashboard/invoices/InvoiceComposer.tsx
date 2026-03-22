@@ -56,7 +56,7 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
   const recurringChips = ["19.99", "39.99", "79.99"];
   const chips = form.billingType === "one-time" ? oneTimeChips : recurringChips;
 
-  const canSend = form.customer.trim().length > 0 && parseFloat(form.amount) > 0;
+  const canSend = form.customer.trim().length> 0 && parseFloat(form.amount)> 0;
 
   const inputStyle: React.CSSProperties = {
     background: "rgba(255,255,255,0.06)",
@@ -70,16 +70,12 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
 
   return (
     <div
-      className="flex flex-col md:flex-row w-full min-h-[calc(100vh-64px)]"
-      style={{ background: "#08120D" }}
-    >
+      className="flex flex-col md:flex-row w-full min-h-[calc(100vh-64px)]">
       {/* Left panel — form */}
       <div
         className="invoice-left flex flex-col shrink-0 overflow-y-auto w-full md:w-[min(540px,42%)]"
         style={{
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
-        }}
-      >
+          borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         <style>{`@media (min-width: 768px) { .invoice-left { border-right: 1px solid rgba(255,255,255,0.06) !important; border-bottom: none !important; } }`}</style>
         {/* Top header */}
         <div className="flex items-center gap-3 px-5 py-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
@@ -111,8 +107,7 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
           <Section label="Product">
             <div
               className="w-full rounded-lg px-3.5 py-2.5 text-sm flex items-center justify-between cursor-pointer"
-              style={inputStyle}
-            >
+              style={inputStyle}>
               <span className="text-foreground">{form.product}</span>
               <ChevronDown className="w-4 h-4 text-muted-foreground" />
             </div>
@@ -127,8 +122,7 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
             </p>
             <div
               className="w-full rounded-lg px-3.5 py-2.5 text-sm flex items-center justify-between"
-              style={inputStyle}
-            >
+              style={inputStyle}>
               <span className="text-foreground">{form.dueOption}</span>
               <span className="flex items-center gap-1 text-muted-foreground">
                 {form.dueDate}
@@ -151,8 +145,7 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
               />
               <span
                 className="absolute bottom-2 right-3 text-xs"
-                style={mutedStyle}
-              >
+                style={mutedStyle}>
                 {form.description.length} / 500
               </span>
             </div>
@@ -169,9 +162,7 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
                 className="flex-1 py-2.5 text-sm font-medium transition-colors"
                 style={{
                   background: form.billingType === t ? "rgba(255,255,255,0.12)" : "transparent",
-                  color: form.billingType === t ? "white" : "rgba(255,255,255,0.45)",
-                }}
-              >
+                  color: form.billingType === t ? "white" : "rgba(255,255,255,0.45)" }}>
                 {t === "one-time" ? "One-time" : "Recurring"}
               </button>
             ))}
@@ -181,8 +172,7 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
           <div className="flex items-center gap-2 mb-2">
             <div
               className="flex items-center flex-1 rounded-lg overflow-hidden"
-              style={inputStyle}
-            >
+              style={inputStyle}>
               <span className="pl-3 text-sm text-muted-foreground">$</span>
               <input
                 type="number"
@@ -194,8 +184,7 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
                 <div className="flex items-center gap-1 pr-1">
                   <span className="text-muted-foreground text-sm">/</span>
                   <div
-                    className="flex items-center gap-1 px-2 py-1 rounded text-sm cursor-pointer text-foreground"
-                  >
+                    className="flex items-center gap-1 px-2 py-1 rounded text-sm cursor-pointer text-foreground">
                     {form.recurringCadence}
                     <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
                   </div>
@@ -204,8 +193,7 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
             </div>
             <div
               className="flex items-center gap-1 px-3 py-2.5 rounded-lg text-sm cursor-pointer shrink-0"
-              style={inputStyle}
-            >
+              style={inputStyle}>
               <span className="text-foreground">{form.currency}</span>
               <ChevronDown className="w-4 h-4 text-muted-foreground" />
             </div>
@@ -220,8 +208,7 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
                 className="px-3 py-1 rounded-md text-xs font-medium"
                 style={{
                   background: "rgba(255,255,255,0.06)",
-                  border: "1px solid rgba(255,255,255,0.1)", }}
-              >
+                  border: "1px solid rgba(255,255,255,0.1)" }}>
                 ${c}
               </button>
             ))}
@@ -230,8 +217,7 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
           {/* Advanced options */}
           <div
             className="rounded-xl overflow-hidden mb-4"
-            style={{ border: "1px solid rgba(255,255,255,0.08)" }}
-          >
+            style={{ border: "1px solid rgba(255,255,255,0.08)" }}>
             <ToggleRow
               icon={<Settings className="w-4 h-4 text-muted-foreground" />}
               label="Advanced options"
@@ -257,9 +243,7 @@ export function InvoiceComposer({ onClose }: InvoiceComposerProps) {
               style={{
                 background: canSend ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.06)",
                 color: canSend ? "white" : "rgba(255,255,255,0.3)",
-                cursor: canSend ? "pointer" : "not-allowed",
-              }}
-            >
+                cursor: canSend ? "pointer" : "not-allowed" }}>
               Send invoice
             </button>
           </div>
@@ -310,9 +294,7 @@ function ToggleRow({
         onClick={() => onChange(!checked)}
         className="w-10 h-[22px] rounded-full relative transition-colors"
         style={{
-          background: checked ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.1)",
-        }}
-      >
+          background: checked ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.1)" }}>
         <span
           className="absolute top-[3px] w-4 h-4 rounded-full bg-white transition-all"
           style={{ left: checked ? "20px" : "3px" }}

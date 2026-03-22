@@ -76,12 +76,10 @@ export function DashboardCreditPromo() {
           style={{
             background: "linear-gradient(180deg, #181E26 0%, #0F141A 100%)",
             borderRadius: "20px",
-            border: "1px solid rgba(255,255,255,0.08)",
-          }}
+            border: "1px solid rgba(255,255,255,0.08)" }}
           // Hide the default close button
           onPointerDownOutside={(e) => e.preventDefault()}
-          onEscapeKeyDown={(e) => e.preventDefault()}
-        >
+          onEscapeKeyDown={(e) => e.preventDefault()}>
           <div className="flex flex-col items-center px-8 pt-10 pb-8">
             {/* $25 Badge */}
             <div
@@ -90,24 +88,20 @@ export function DashboardCreditPromo() {
                 width: 80,
                 height: 80,
                 background: "linear-gradient(135deg, #F97316 0%, #FB923C 100%)",
-                boxShadow: "0 8px 32px rgba(249,115,22,0.35)",
-              }}
-            >
+                boxShadow: "0 8px 32px rgba(249,115,22,0.35)" }}>
               <span className="text-2xl font-bold text-foreground">$25</span>
             </div>
 
             {/* Headline */}
             <h2
               className="text-xl font-bold text-center mb-3"
-              style={{ color: "#F1F1F1" }}
-            >
+              style={{ color: "#F1F1F1" }}>
               Claim $25 of free AI tokens on us
             </h2>
 
             {/* Description */}
             <p
-              className="text-center text-sm mb-8 leading-relaxed max-w-[320px] text-muted-foreground"
-            >
+              className="text-center text-sm mb-8 leading-relaxed max-w-[320px] text-muted-foreground">
               We built a powerful AI agent that can help you run your business or
               create a new one. Try it out.
             </p>
@@ -119,9 +113,7 @@ export function DashboardCreditPromo() {
               className="w-full h-12 text-base font-semibold rounded-xl"
               style={{
                 background: "linear-gradient(135deg, #F97316 0%, #FB923C 100%)", border: "none",
-                boxShadow: "0 4px 20px rgba(249,115,22,0.3)",
-              }}
-            >
+                boxShadow: "0 4px 20px rgba(249,115,22,0.3)" }}>
               {claiming ? "Claiming…" : "Claim"}
             </Button>
           </div>
@@ -138,15 +130,12 @@ export function DashboardCreditPromo() {
           style={{
             background: "linear-gradient(180deg, #181E26 0%, #0F141A 100%)",
             borderRadius: "20px",
-            border: "1px solid rgba(255,255,255,0.08)",
-          }}
-        >
+            border: "1px solid rgba(255,255,255,0.08)" }}>
           <div className="flex flex-col items-center px-8 pt-10 pb-8">
             {/* Title */}
             <h2
               className="text-xl font-bold text-center mb-6"
-              style={{ color: "#F1F1F1" }}
-            >
+              style={{ color: "#F1F1F1" }}>
               Enjoy your tokens.
             </h2>
 
@@ -157,9 +146,7 @@ export function DashboardCreditPromo() {
                 width: 160,
                 height: 72,
                 background: "linear-gradient(135deg, #F97316 0%, #FB923C 100%)",
-                boxShadow: "0 8px 32px rgba(249,115,22,0.35)",
-              }}
-            >
+                boxShadow: "0 8px 32px rgba(249,115,22,0.35)" }}>
               <span className="text-2xl font-bold text-foreground">
                 {newBalance.toLocaleString()}
               </span>
@@ -167,8 +154,7 @@ export function DashboardCreditPromo() {
 
             {/* Subtext */}
             <p
-              className="text-sm mb-8 text-muted-foreground"
-            >
+              className="text-sm mb-8 text-muted-foreground">
               New token balance
             </p>
 
@@ -178,9 +164,7 @@ export function DashboardCreditPromo() {
               className="w-full h-12 text-base font-semibold rounded-xl"
               style={{
                 background: "linear-gradient(135deg, #F97316 0%, #FB923C 100%)", border: "none",
-                boxShadow: "0 4px 20px rgba(249,115,22,0.3)",
-              }}
-            >
+                boxShadow: "0 4px 20px rgba(249,115,22,0.3)" }}>
               Continue
             </Button>
           </div>

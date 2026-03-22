@@ -122,8 +122,7 @@ export function InfluencerTemplateCustomizer({ open, onClose, current, onApply }
                   onClick={() => setHeaderStyle(hs.key)}
                   className={`shrink-0 w-28 h-36 rounded-lg border-2 transition-all flex flex-col items-center justify-center gap-1 p-2 ${
                     headerStyle === hs.key ? "border-primary bg-primary/5" : "border-border hover:border-muted-foreground/40"
-                  }`}
-                >
+                  }`}>
                   {/* Mini preview */}
                   <div className="w-full h-20 rounded bg-muted/60 flex flex-col items-center justify-center gap-0.5">
                     {hs.avatarEnabled && <div className="w-6 h-6 rounded-full bg-muted-foreground/20" />}
@@ -150,8 +149,7 @@ export function InfluencerTemplateCustomizer({ open, onClose, current, onApply }
                   onClick={() => setColorScheme(cs.key)}
                   className={`shrink-0 w-16 h-20 rounded-lg border-2 transition-all flex flex-col items-center justify-center gap-1 ${
                     colorScheme === cs.key ? "border-primary" : "border-border hover:border-muted-foreground/40"
-                  }`}
-                >
+                  }`}>
                   <div className="w-10 h-10 rounded-md overflow-hidden flex flex-col">
                     <div className="flex-1" style={{ backgroundColor: cs.preview[0] }} />
                     <div className="h-3" style={{ backgroundColor: cs.preview[1] }}>
@@ -174,8 +172,7 @@ export function InfluencerTemplateCustomizer({ open, onClose, current, onApply }
                   onClick={() => setFont(fp.key)}
                   className={`shrink-0 w-20 h-20 rounded-lg border-2 transition-all flex items-center justify-center ${
                     font === fp.key ? "border-primary bg-primary/5" : "border-border hover:border-muted-foreground/40"
-                  }`}
-                >
+                  }`}>
                   <span className={`text-2xl ${fp.style}`} style={{ fontFamily: fp.family }}>Aa</span>
                 </button>
               ))}
@@ -192,8 +189,7 @@ export function InfluencerTemplateCustomizer({ open, onClose, current, onApply }
                   onClick={() => setButtonStyle(bs.key)}
                   className={`shrink-0 w-20 h-20 rounded-lg border-2 transition-all flex flex-col items-center justify-center gap-1.5 p-2 ${
                     buttonStyle === bs.key ? "border-primary bg-primary/5" : "border-border hover:border-muted-foreground/40"
-                  }`}
-                >
+                  }`}>
                   {[1,2,3].map(i => (
                     <div key={i} className="w-full h-3 bg-muted-foreground/20" style={{ borderRadius: bs.borderRadius }} />
                   ))}
