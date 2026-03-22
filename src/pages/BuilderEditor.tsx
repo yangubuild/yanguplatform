@@ -44,6 +44,7 @@ type PreviewViewport = "desktop" | "mobile";
 export default function BuilderEditor() {
   const { surfaceId } = useParams<{ surfaceId: string }>();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [publishOpen, setPublishOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
@@ -54,6 +55,7 @@ export default function BuilderEditor() {
   const [previewViewport, setPreviewViewport] = useState<PreviewViewport>("desktop");
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showLeaveWarning, setShowLeaveWarning] = useState(false);
+  const [mobilePanel, setMobilePanel] = useState<MobilePanel>("none");
   const [cropState, setCropState] = useState<{
     open: boolean;
     imageSrc: string;
