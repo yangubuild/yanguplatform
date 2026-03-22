@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useRef, useCallback } from "react";
+import { resolveAvatarUrl } from "@/lib/avatarUtils";
 
 /** All query keys that depend on follow relationships */
 const FOLLOW_QUERY_KEYS = [
