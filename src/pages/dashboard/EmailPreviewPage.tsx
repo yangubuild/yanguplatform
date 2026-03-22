@@ -7,7 +7,7 @@ export default function EmailPreviewPage() {
   const displayName = "John";
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen text-foreground" style={{ background: "#08120D" }}>
       {/* Top bar */}
       <div className="border-b border-border px-6 py-4 flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>

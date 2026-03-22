@@ -145,7 +145,7 @@ export default function DashboardHome() {
 
   if (isMobile) {
     return (
-      <div className="h-[calc(100vh-64px)] flex flex-col overflow-hidden">
+      <div className="h-[calc(100vh-64px)] flex flex-col overflow-hidden" style={{ background: "#08120D" }}>
         {centerContent}
       </div>
     );
@@ -161,10 +161,10 @@ export default function DashboardHome() {
             display: "grid",
             gridTemplateColumns: "1fr 340px",
             gap: "0px",
-            background: "#0B0F14",
+            background: "#08120D",
           }}
         >
-          <div className="h-full overflow-hidden p-2" style={{ background: "#0B0F14" }}>
+          <div className="h-full overflow-hidden p-2" style={{ background: "#08120D" }}>
             <div
               className="h-full overflow-hidden"
               style={{
@@ -176,7 +176,7 @@ export default function DashboardHome() {
               {centerContent}
             </div>
           </div>
-          <div className="h-full overflow-hidden p-2 pl-0" style={{ background: "#0B0F14" }}>
+          <div className="h-full overflow-hidden p-2 pl-0" style={{ background: "#08120D" }}>
             <div
               className="h-full overflow-hidden"
               style={{
@@ -202,10 +202,10 @@ export default function DashboardHome() {
           display: "grid",
           gridTemplateColumns: "200px 1fr 340px",
           gap: "0px",
-          background: "#0B0F14",
+          background: "#08120D",
         }}
       >
-        <div className="h-full overflow-hidden flex flex-col p-2 pr-0" style={{ background: "#0B0F14" }}>
+        <div className="h-full overflow-hidden flex flex-col p-2 pr-0" style={{ background: "#08120D" }}>
           <div
             className="flex-1 overflow-hidden"
             style={{
@@ -218,7 +218,7 @@ export default function DashboardHome() {
           </div>
         </div>
 
-        <div className="h-full overflow-hidden p-2" style={{ background: "#0B0F14" }}>
+        <div className="h-full overflow-hidden p-2" style={{ background: "#08120D" }}>
           <div
             className="h-full overflow-hidden"
             style={{
@@ -231,7 +231,7 @@ export default function DashboardHome() {
           </div>
         </div>
 
-        <div className="h-full overflow-hidden p-2 pl-0" style={{ background: "#0B0F14" }}>
+        <div className="h-full overflow-hidden p-2 pl-0" style={{ background: "#08120D" }}>
           <div
             className="h-full overflow-hidden"
             style={{

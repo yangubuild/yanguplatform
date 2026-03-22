@@ -43,7 +43,7 @@ export default function BusinessAnalyticsPage() {
   const chartData = generateDummyChart(7);
 
   return (
-    <div className="p-6 space-y-8 max-w-6xl">
+    <div className="p-6 space-y-8 max-w-6xl min-h-screen" style={{ background: "#08120D" }}>
       <button onClick={() => navigate("/dashboard/my-business")} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
         <ArrowLeft className="h-4 w-4" /> Back to My Business
       </button>
