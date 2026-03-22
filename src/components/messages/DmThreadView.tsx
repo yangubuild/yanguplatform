@@ -272,12 +272,9 @@ export function DmThreadView({ targetUserId }: Props) {
                   </div>
                 )}
                 <div className="relative max-w-[75%]">
-                  <div
-                    className="px-3 py-2 rounded-xl text-sm"
-                    style={{
-                      background: isMine ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.06)",
-                      color: "#fff",
-                    }}
+                <div
+                    className={`px-3 py-2 rounded-xl text-sm yg-glass-chat ${isMine ? "yg-sender" : ""}`}
+                    style={{ color: "#fff" }}
                   >
                     {renderContent(msg.content)}
                     <p className="text-[9px] mt-1" style={{ color: "rgba(255,255,255,0.3)" }}>
