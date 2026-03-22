@@ -127,7 +127,7 @@ function OwnPostsTab() {
   const [joinNowEnabled, setJoinNowEnabled] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
-  const video	InputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
   const avatarUrl = profile ? resolveAvatarUrl(profile) : null;
   const initials = (profile?.display_name || "U").slice(0, 2).toUpperCase();
 
