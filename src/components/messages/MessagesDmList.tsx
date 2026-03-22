@@ -37,6 +37,7 @@ type UnifiedThread = {
   date: string;
   timestamp: number;
   memberCount: number;
+  unreadCount: number;
 };
 
 export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, onSelectGroup, onOpenCreateMenu }: Props) {
