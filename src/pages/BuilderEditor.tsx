@@ -331,8 +331,8 @@ export default function BuilderEditor() {
         </aside>
 
         {/* Center: Preview */}
-        <main className="flex-1 overflow-y-auto p-6 lg:p-10">
-          <div className={`mx-auto transition-all ${previewViewport === "mobile" ? "max-w-sm" : "max-w-2xl"}`}>
+        <main className="flex-1 overflow-y-auto p-2 sm:p-6 lg:p-10">
+          <div className={`mx-auto transition-all ${isMobile ? "max-w-full" : previewViewport === "mobile" ? "max-w-sm" : "max-w-2xl"}`}>
           <BuilderPreview
             sections={sections}
             surfaceTitle={surfaceTitle}
