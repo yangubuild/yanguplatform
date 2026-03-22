@@ -100,6 +100,7 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
         date: new Date(ts).toLocaleDateString(undefined, { month: "numeric", day: "numeric" }),
         timestamp: ts,
         memberCount: g.member_count ?? 0,
+        unreadCount: unreadGroupMap?.get(g.id) || 0,
       });
     }
 
