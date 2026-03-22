@@ -14,6 +14,7 @@ import type { YanguEmoji } from "@/lib/emojiSystem";
 import { useTypingIndicator } from "@/hooks/useTypingIndicator";
 import { TypingIndicator } from "@/components/messages/TypingIndicator";
 import { useMarkGroupRead } from "@/hooks/useGroupUnread";
+import { GroupAvatarUpload } from "@/components/messages/GroupAvatarUpload";
 
 interface Props {
   group: ChatGroup;
@@ -157,31 +158,31 @@ export function GroupChatThreadView({ group, onBack }: Props) {
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3 shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         {onBack && (
-          <button onClick={onBack} className="text-white/50 hover:text-white/80 mr-1">←</button>
+          <button onClick={onBack} className="text-white/50 hover:text-white/80 mr-1 min-w-[28px] min-h-[28px] flex items-center justify-center">←</button>
         )}
-        <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold overflow-hidden" style={{ background: "rgba(96,165,250,0.2)", color: "rgba(96,165,250,0.9)" }}>
-          {group.avatar_url ? (
-            <img src={group.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
-          ) : (
-            group.name.slice(0, 2).toUpperCase()
-          )}
-        </div>
+        <GroupAvatarUpload
+          groupId={group.id}
+          currentUrl={group.avatar_url}
+          groupName={group.name}
+          size={36}
+          editable={isAdmin}
+        />
         <div className="flex-1 min-w-0">
           <span className="text-sm font-semibold text-white truncate block">{group.name}</span>
           <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>
             {members.length} member{members.length !== 1 ? "s" : ""}
           </span>
         </div>
-        <button onClick={() => setShowMembers(!showMembers)} className="p-1.5 rounded-lg hover:opacity-80" style={{ color: "rgba(255,255,255,0.4)" }}>
+        <button onClick={() => setShowMembers(!showMembers)} className="p-2 rounded-lg hover:opacity-80 min-w-[36px] min-h-[36px] flex items-center justify-center" style={{ color: "rgba(255,255,255,0.4)" }}>
           <Users className="w-4 h-4" />
         </button>
         <div className="relative">
-          <button onClick={() => setShowGroupMenu(!showGroupMenu)} className="p-1.5 rounded-lg hover:opacity-80" style={{ color: "rgba(255,255,255,0.4)" }}>
+          <button onClick={() => setShowGroupMenu(!showGroupMenu)} className="p-2 rounded-lg hover:opacity-80 min-w-[36px] min-h-[36px] flex items-center justify-center" style={{ color: "rgba(255,255,255,0.4)" }}>
             <MoreVertical className="w-4 h-4" />
           </button>
           {showGroupMenu && (
-            <div className="absolute right-0 top-8 z-20 rounded-lg py-1 min-w-[160px]" style={{ background: "#1a2027", border: "1px solid rgba(255,255,255,0.1)" }}>
-              <button onClick={handleLeave} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:opacity-80" style={{ color: "#ef4444" }}>
+            <div className="absolute right-0 top-10 z-20 rounded-lg py-1 min-w-[160px]" style={{ background: "#1a2027", border: "1px solid rgba(255,255,255,0.1)" }}>
+              <button onClick={handleLeave} className="w-full flex items-center gap-2 px-3 py-2.5 text-xs text-left hover:opacity-80 min-h-[36px]" style={{ color: "#ef4444" }}>
                 <LogOut className="w-3.5 h-3.5" /> Leave Group
               </button>
             </div>
@@ -189,30 +190,29 @@ export function GroupChatThreadView({ group, onBack }: Props) {
         </div>
       </div>
 
-      {/* Members panel (slide) */}
+      {/* Members panel */}
       {showMembers && (
         <div className="px-4 py-3 space-y-2 max-h-64 overflow-y-auto" style={{ background: "rgba(255,255,255,0.02)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold text-white">Members ({members.length})</span>
-            <button onClick={() => setShowMembers(false)}><X className="w-3.5 h-3.5 text-white/40" /></button>
+            <button onClick={() => setShowMembers(false)} className="min-w-[28px] min-h-[28px] flex items-center justify-center"><X className="w-3.5 h-3.5 text-white/40" /></button>
           </div>
           {members.map(m => (
-            <div key={m.id} className="flex items-center gap-2 py-1">
-              <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold overflow-hidden" style={{ background: "rgba(255,255,255,0.1)" }}>
-                {m.avatar ? <img src={m.avatar} alt="" className="w-6 h-6 rounded-full object-cover" /> : (m.display_name?.slice(0, 2).toUpperCase() || "?")}
+            <div key={m.id} className="flex items-center gap-2 py-1.5 min-h-[36px]">
+              <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold overflow-hidden shrink-0" style={{ background: "rgba(255,255,255,0.1)" }}>
+                {m.avatar ? <img src={m.avatar} alt="" className="w-7 h-7 rounded-full object-cover" /> : (m.display_name?.slice(0, 2).toUpperCase() || "?")}
               </div>
               <span className="text-xs text-white flex-1 truncate">{m.display_name}</span>
               <span className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.4)" }}>{m.role}</span>
               {isAdmin && m.user_id !== user?.id && (
-                <button onClick={() => handleRemoveMember(m.user_id)} className="text-[9px] hover:opacity-80" style={{ color: "#ef4444" }}>Remove</button>
+                <button onClick={() => handleRemoveMember(m.user_id)} className="text-[10px] px-2 py-1 rounded hover:opacity-80 min-h-[28px]" style={{ color: "#ef4444" }}>Remove</button>
               )}
             </div>
           ))}
-          {/* Add member (admin only) */}
           {isAdmin && (
             <div className="mt-2 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-              <div className="flex items-center gap-2">
-                <UserPlus className="w-3.5 h-3.5 text-white/40" />
+              <div className="flex items-center gap-2 min-h-[36px]">
+                <UserPlus className="w-3.5 h-3.5 text-white/40 shrink-0" />
                 <input
                   value={addUserSearch}
                   onChange={e => handleSearchUsers(e.target.value)}
@@ -221,9 +221,9 @@ export function GroupChatThreadView({ group, onBack }: Props) {
                 />
               </div>
               {searchResults.map(p => (
-                <button key={p.id} onClick={() => handleAddMember(p.id)} className="w-full flex items-center gap-2 py-1.5 px-1 text-xs text-white hover:opacity-80">
+                <button key={p.id} onClick={() => handleAddMember(p.id)} className="w-full flex items-center gap-2 py-2 px-1 text-xs text-white hover:opacity-80 min-h-[36px]">
                   <span className="truncate">{p.display_name || p.username}</span>
-                  <span className="ml-auto text-[9px]" style={{ color: "#4ade80" }}>+ Add</span>
+                  <span className="ml-auto text-[10px] font-medium" style={{ color: "#4ade80" }}>+ Add</span>
                 </button>
               ))}
             </div>
@@ -234,11 +234,11 @@ export function GroupChatThreadView({ group, onBack }: Props) {
       {/* Reply indicator */}
       {replyTo && (
         <div className="px-4 py-2 flex items-center gap-2" style={{ background: "rgba(255,255,255,0.03)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-          <Reply className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.4)" }} />
+          <Reply className="w-3.5 h-3.5 shrink-0" style={{ color: "rgba(255,255,255,0.4)" }} />
           <span className="text-xs truncate flex-1" style={{ color: "rgba(255,255,255,0.5)" }}>
             Replying to: {replyTo.content.slice(0, 60)}
           </span>
-          <button onClick={() => setReplyTo(null)}><X className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.4)" }} /></button>
+          <button onClick={() => setReplyTo(null)} className="min-w-[28px] min-h-[28px] flex items-center justify-center"><X className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.4)" }} /></button>
         </div>
       )}
 
@@ -249,9 +249,12 @@ export function GroupChatThreadView({ group, onBack }: Props) {
             <Loader2 className="w-5 h-5 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
           </div>
         ) : messages.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center">
-            <p className="text-sm text-white mb-1">No messages yet</p>
-            <p className="text-xs text-center" style={{ color: "rgba(255,255,255,0.4)" }}>
+          <div className="flex-1 flex flex-col items-center justify-center gap-2">
+            <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: "rgba(168,85,247,0.15)" }}>
+              <Users className="w-5 h-5" style={{ color: "rgba(168,85,247,0.7)" }} />
+            </div>
+            <p className="text-sm font-medium text-white">No messages yet</p>
+            <p className="text-xs text-center max-w-[200px]" style={{ color: "rgba(255,255,255,0.4)" }}>
               Start the conversation in {group.name}
             </p>
           </div>
@@ -282,14 +285,14 @@ export function GroupChatThreadView({ group, onBack }: Props) {
                   </div>
                   {msgMenuId === msg.id && (
                     <div className="absolute top-6 right-0 z-20 rounded-lg py-1 min-w-[140px]" style={{ background: "#1a2027", border: "1px solid rgba(255,255,255,0.1)" }}>
-                      <button onClick={() => { setReplyTo({ id: msg.id, content: msg.content }); setMsgMenuId(null); }} className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:opacity-80 text-white">
+                      <button onClick={() => { setReplyTo({ id: msg.id, content: msg.content }); setMsgMenuId(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:opacity-80 text-white min-h-[36px]">
                         <Reply className="w-3 h-3" /> Reply
                       </button>
-                      <button onClick={() => { shareMessageExternal(msg.content); setMsgMenuId(null); toast.success("Shared"); }} className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:opacity-80 text-white">
+                      <button onClick={() => { shareMessageExternal(msg.content); setMsgMenuId(null); toast.success("Shared"); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:opacity-80 text-white min-h-[36px]">
                         <Share2 className="w-3 h-3" /> Share
                       </button>
                       {isMine && (
-                        <button onClick={() => handleDeleteMsg(msg.id)} className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:opacity-80" style={{ color: "#ef4444" }}>
+                        <button onClick={() => handleDeleteMsg(msg.id)} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:opacity-80 min-h-[36px]" style={{ color: "#ef4444" }}>
                           <Trash2 className="w-3 h-3" /> Delete
                         </button>
                       )}
@@ -326,15 +329,15 @@ export function GroupChatThreadView({ group, onBack }: Props) {
 
       {/* Input */}
       {myMembership ? (
-        <div className="shrink-0 px-4 py-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-          <div className="flex items-center gap-2 rounded-xl px-3 py-2.5" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
-            <button onClick={() => fileInputRef.current?.click()} className="p-1 rounded hover:opacity-80 shrink-0" style={{ color: "rgba(255,255,255,0.4)" }}>
+        <div className="shrink-0 px-3 py-2.5" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+          <div className="flex items-center gap-1.5 rounded-xl px-3 py-2.5" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
+            <button onClick={() => fileInputRef.current?.click()} className="p-1.5 rounded hover:opacity-80 shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center" style={{ color: "rgba(255,255,255,0.4)" }}>
               <Image className="w-4 h-4" />
             </button>
-            <button onClick={() => videoInputRef.current?.click()} className="p-1 rounded hover:opacity-80 shrink-0" style={{ color: "rgba(255,255,255,0.4)" }}>
+            <button onClick={() => videoInputRef.current?.click()} className="p-1.5 rounded hover:opacity-80 shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center" style={{ color: "rgba(255,255,255,0.4)" }}>
               <Video className="w-4 h-4" />
             </button>
-            <button onClick={() => setShowEmojiPicker((prev) => !prev)} className="p-1 rounded hover:opacity-80 shrink-0" style={{ color: showEmojiPicker ? "#facc15" : "rgba(255,255,255,0.4)" }}>
+            <button onClick={() => setShowEmojiPicker((prev) => !prev)} className="p-1.5 rounded hover:opacity-80 shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center" style={{ color: showEmojiPicker ? "#facc15" : "rgba(255,255,255,0.4)" }}>
               <Smile className="w-4 h-4" />
             </button>
             <input
@@ -343,15 +346,15 @@ export function GroupChatThreadView({ group, onBack }: Props) {
               onChange={e => { handleInputChange(e.target.value, e.target.selectionStart ?? undefined); startTyping(); }}
               onKeyDown={e => e.key === "Enter" && handleSend()}
               placeholder={replyTo ? "Type a reply..." : "Type a message..."}
-              className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-white/25"
+              className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-white/25 min-w-0"
             />
-            <button onClick={handleSend} disabled={!message.trim()} className="w-7 h-7 rounded-full flex items-center justify-center shrink-0" style={{ background: message.trim() ? "linear-gradient(135deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.08)" }}>
+            <button onClick={handleSend} disabled={!message.trim()} className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ background: message.trim() ? "linear-gradient(135deg, #b5622a, #5c2a12)" : "rgba(255,255,255,0.08)" }}>
               <Send className="w-3.5 h-3.5" style={{ color: message.trim() ? "#fff" : "rgba(255,255,255,0.3)" }} />
             </button>
           </div>
         </div>
       ) : (
-        <div className="shrink-0 px-4 py-3 text-center" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="shrink-0 px-4 py-4 text-center" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
           <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>You are not a member of this group</p>
         </div>
       )}
