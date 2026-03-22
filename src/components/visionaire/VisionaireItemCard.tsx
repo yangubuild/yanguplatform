@@ -12,6 +12,7 @@ interface VisionaireItemCardProps {
   onOpen: () => void;
   onSave: (e: React.MouseEvent) => void;
   onUnsave: (e: React.MouseEvent) => void;
+  eagerLoad?: boolean;
 }
 
 async function handleDriveDownload(downloadUrl: string) {
@@ -44,7 +45,7 @@ async function handleDriveDownload(downloadUrl: string) {
   }
 }
 
-export function VisionaireItemCard({ item, isSaved, onOpen, onSave, onUnsave }: VisionaireItemCardProps) {
+export function VisionaireItemCard({ item, isSaved, onOpen, onSave, onUnsave, eagerLoad = false }: VisionaireItemCardProps) {
   const thumbnail = getItemThumbnail(item);
   const [imgError, setImgError] = useState(false);
 
@@ -54,17 +55,17 @@ export function VisionaireItemCard({ item, isSaved, onOpen, onSave, onUnsave }: 
       onClick={onOpen}
     >
       {thumbnail && !imgError ? (
-        <div className="overflow-hidden bg-muted">
+        <div className="aspect-[4/3] overflow-hidden bg-muted">
           <img
             src={thumbnail}
             alt={item.title}
-            className="w-full h-auto block transition-transform group-hover:scale-105"
-            loading="lazy"
+            className="w-full h-full object-cover transition-transform group-hover:scale-105"
+            loading={eagerLoad ? "eager" : "lazy"}
             onError={() => setImgError(true)}
           />
         </div>
       ) : (
-        <div className="h-32 bg-muted flex items-center justify-center">
+        <div className="aspect-[4/3] bg-muted flex items-center justify-center">
           {item.type === "video" ? (
             <Play className="h-10 w-10 text-muted-foreground/40" />
           ) : item.type === "audio" || item.type === "podcast" ? (
