@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Gift } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { AffDashboardTab } from "./tabs/AffDashboardTab";
 import { ReferBuyersTab } from "./tabs/ReferBuyersTab";
 import { ReferSellersTab } from "./tabs/ReferSellersTab";

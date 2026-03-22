@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { CreatorDashboardTab } from "./tabs/CreatorDashboardTab";
 import { AffiliatePortalTab } from "./tabs/AffiliatePortalTab";
 import { RevenueShareTab } from "./tabs/RevenueShareTab";
