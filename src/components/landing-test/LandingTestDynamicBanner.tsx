@@ -156,7 +156,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
               <div className="max-w-md">
                 <h2 className={`${T.header} text-foreground mb-3`}>{data.headline}</h2>
                 {data.subheadline && (
-                  <p className={`${T.subheader} mb-6`} className="text-muted-foreground">
+                  <p className={`${T.subheader} text-muted-foreground mb-6`}>
                     {data.subheadline}
                   </p>
                 )}
@@ -191,7 +191,7 @@ export function LandingTestDynamicBanner({ slot, bannerData }: Props) {
             <h2 className={`${T.header} text-foreground mb-3`}>
               {data.headline ?? "Meet yangu Treasury"}
             </h2>
-            <p className={`${T.subheader} mb-6`} className="text-muted-foreground">
+            <p className={`${T.subheader} text-muted-foreground mb-6`}>
               {data.subheadline ?? "Earn up to 6% yield on your cash."}
             </p>
             <Button variant="accent" size="default">
