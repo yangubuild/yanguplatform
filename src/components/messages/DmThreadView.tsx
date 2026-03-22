@@ -414,7 +414,7 @@ export function DmThreadView({ targetUserId }: Props) {
           <input
             type="text"
             value={message}
-            onChange={(e) => handleInputChange(e.target.value, e.target.selectionStart ?? undefined)}
+            onChange={(e) => { handleInputChange(e.target.value, e.target.selectionStart ?? undefined); startTyping(); }}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
             placeholder={replyTo ? "Type a reply..." : "Type a message..."}
             className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-white/25"
