@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useConversationList } from "@/hooks/useDirectMessages";
 import { useUnreadDmPerPartner } from "@/hooks/useUnreadMessages";
+import { useUnreadGroupPerGroup } from "@/hooks/useGroupUnread";
 import { useMyGroups, type ChatGroup } from "@/hooks/useGroupChats";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import { Search, Loader2, Plus, Users } from "lucide-react";
@@ -36,12 +37,14 @@ type UnifiedThread = {
   date: string;
   timestamp: number;
   memberCount: number;
+  unreadCount: number;
 };
 
 export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, onSelectGroup, onOpenCreateMenu }: Props) {
   const [search, setSearch] = useState("");
   const { data: conversations = [], isLoading: loadingDms } = useConversationList();
   const { data: unreadMap } = useUnreadDmPerPartner();
+  const { data: unreadGroupMap } = useUnreadGroupPerGroup();
   const { data: groups = [], isLoading: loadingGroups } = useMyGroups();
 
   const partnerIds = conversations.map((c) => c.partnerId);
@@ -97,6 +100,7 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
         date: new Date(ts).toLocaleDateString(undefined, { month: "numeric", day: "numeric" }),
         timestamp: ts,
         memberCount: g.member_count ?? 0,
+        unreadCount: unreadGroupMap?.get(g.id) || 0,
       });
     }
 
@@ -108,7 +112,7 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
       return list.filter(t => t.name.toLowerCase().includes(lowerSearch));
     }
     return list;
-  }, [conversations, groups, profileMap, unreadMap, search, lowerSearch]);
+  }, [conversations, groups, profileMap, unreadMap, unreadGroupMap, search, lowerSearch]);
 
   const isLoading = loadingDms || loadingGroups;
 
@@ -204,7 +208,15 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
                         {thread.unreadCount > 9 ? "9+" : thread.unreadCount}
                       </span>
                     )}
-                    {thread.type === "group" && (
+                    {thread.type === "group" && thread.unreadCount > 0 && (
+                      <span
+                        className="min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-[9px] font-bold text-white px-1 shrink-0"
+                        style={{ background: "#a855f7" }}
+                      >
+                        {thread.unreadCount > 9 ? "9+" : thread.unreadCount}
+                      </span>
+                    )}
+                    {thread.type === "group" && thread.unreadCount === 0 && (
                       <span className="text-[10px] shrink-0" style={{ color: "rgba(255,255,255,0.25)" }}>
                         {thread.memberCount}👤
                       </span>

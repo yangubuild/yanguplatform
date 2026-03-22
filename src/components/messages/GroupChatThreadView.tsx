@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useGroupMessages, useSendGroupMessage, useGroupMembers, useLeaveGroup, useRemoveGroupMember, useAddGroupMember, type ChatGroup } from "@/hooks/useGroupChats";
 import { renderChatContent, shareMessageExternal } from "@/lib/chatMessageRenderer";
 import { Send, Loader2, MoreVertical, Reply, Share2, Trash2, Users, LogOut, UserPlus, Image, Video, X, Smile } from "lucide-react";
@@ -11,6 +11,9 @@ import { YanguEmojiPicker } from "@/components/emoji/YanguEmojiPicker";
 import { EmojiSuggestions } from "@/components/emoji/EmojiSuggestions";
 import { useEmojiInput } from "@/hooks/useEmojiInput";
 import type { YanguEmoji } from "@/lib/emojiSystem";
+import { useTypingIndicator } from "@/hooks/useTypingIndicator";
+import { TypingIndicator } from "@/components/messages/TypingIndicator";
+import { useMarkGroupRead } from "@/hooks/useGroupUnread";
 
 interface Props {
   group: ChatGroup;
@@ -48,6 +51,19 @@ export function GroupChatThreadView({ group, onBack }: Props) {
 
   const myMembership = members.find(m => m.user_id === user?.id);
   const isAdmin = myMembership?.role === "admin" || myMembership?.role === "owner";
+  const myName = myMembership ? (members.find(m => m.user_id === user?.id)?.display_name || "User") : "User";
+
+  // Typing indicator
+  const groupChannelKey = useMemo(() => `group-${group.id}`, [group.id]);
+  const { typingUsers, startTyping, stopTyping } = useTypingIndicator(groupChannelKey, myName);
+
+  // Mark group as read
+  const markGroupRead = useMarkGroupRead();
+  useEffect(() => {
+    if (group.id && user?.id) {
+      void markGroupRead(group.id);
+    }
+  }, [group.id, user?.id, markGroupRead]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -64,6 +80,7 @@ export function GroupChatThreadView({ group, onBack }: Props) {
     sendMessage.mutate({ groupId: group.id, content: prefix + trimmed });
     setMessage("");
     setReplyTo(null);
+    stopTyping();
   };
 
   const handleLeave = () => {
@@ -305,6 +322,8 @@ export function GroupChatThreadView({ group, onBack }: Props) {
         </div>
       )}
 
+      <TypingIndicator names={typingUsers.map(u => u.name)} />
+
       {/* Input */}
       {myMembership ? (
         <div className="shrink-0 px-4 py-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
@@ -321,7 +340,7 @@ export function GroupChatThreadView({ group, onBack }: Props) {
             <input
               type="text"
               value={message}
-              onChange={e => handleInputChange(e.target.value, e.target.selectionStart ?? undefined)}
+              onChange={e => { handleInputChange(e.target.value, e.target.selectionStart ?? undefined); startTyping(); }}
               onKeyDown={e => e.key === "Enter" && handleSend()}
               placeholder={replyTo ? "Type a reply..." : "Type a message..."}
               className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-white/25"

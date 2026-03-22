@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useConversation, useSendMessage } from "@/hooks/useDirectMessages";
@@ -13,6 +13,8 @@ import { YanguEmojiPicker } from "@/components/emoji/YanguEmojiPicker";
 import { EmojiSuggestions } from "@/components/emoji/EmojiSuggestions";
 import { useEmojiInput } from "@/hooks/useEmojiInput";
 import type { YanguEmoji } from "@/lib/emojiSystem";
+import { useTypingIndicator } from "@/hooks/useTypingIndicator";
+import { TypingIndicator } from "@/components/messages/TypingIndicator";
 
 interface Props {
   targetUserId: string;
@@ -77,6 +79,14 @@ export function DmThreadView({ targetUserId }: Props) {
   const myAvatar = myProfile ? resolveAvatarUrl(myProfile) : null;
   const myInitials = myName.slice(0, 2).toUpperCase();
 
+  // Typing indicator
+  const dmChannelKey = useMemo(() => {
+    if (!user?.id || !targetUserId) return null;
+    const ids = [user.id, targetUserId].sort();
+    return `dm-${ids[0]}-${ids[1]}`;
+  }, [user?.id, targetUserId]);
+  const { typingUsers, startTyping, stopTyping } = useTypingIndicator(dmChannelKey, myName);
+
   // Online/offline presence (UI wired, backend deferred - uses last_seen heuristic)
   const [isOnline] = useState(false); // Deferred: no real presence backend yet
 
@@ -130,6 +140,7 @@ export function DmThreadView({ targetUserId }: Props) {
     sendMessage.mutate({ receiverId: targetUserId, content: prefix + message.trim() });
     setMessage("");
     setReplyTo(null);
+    stopTyping();
   };
 
   const handleForward = (content: string) => {
@@ -371,6 +382,8 @@ export function DmThreadView({ targetUserId }: Props) {
         </div>
       )}
 
+      <TypingIndicator names={typingUsers.map(u => u.name)} />
+
       {/* Input */}
       <div className="shrink-0 px-4 py-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
         <div
@@ -401,7 +414,7 @@ export function DmThreadView({ targetUserId }: Props) {
           <input
             type="text"
             value={message}
-            onChange={(e) => handleInputChange(e.target.value, e.target.selectionStart ?? undefined)}
+            onChange={(e) => { handleInputChange(e.target.value, e.target.selectionStart ?? undefined); startTyping(); }}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
             placeholder={replyTo ? "Type a reply..." : "Type a message..."}
             className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-white/25"
