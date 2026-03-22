@@ -46,7 +46,7 @@ export default function BookCoverTemplates() {
           <Input placeholder="Search covers (e.g. Cover-42)..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
-          {filtered.map((cover) => (
+          {filtered.map((cover, index) => (
             <div key={cover.id} className="group rounded-xl border border-border bg-card overflow-hidden">
               <div className="aspect-[3/4] overflow-hidden bg-muted">
                 <img src={cover.url} alt={cover.label} className="w-full h-full object-cover" loading={index < 6 ? "eager" : "lazy"} />
