@@ -112,7 +112,7 @@ export default function MessagesPage() {
     ) : activeTab === "chats" && activeConversationUserId ? (
       <DmThreadView targetUserId={activeConversationUserId} />
     ) : (
-      <MessagesCenterPanel activeTab={activeTab} onTabChange={handleTabChange} onSelectDm={handleSelectConversation} />
+      <MessagesCenterPanel activeTab={activeTab} onTabChange={handleTabChange} onSelectDm={handleSelectConversation} onSelectGroup={handleSelectGroup} />
     );
 
   if (isMobile) {
