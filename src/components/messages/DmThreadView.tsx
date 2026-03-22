@@ -87,7 +87,8 @@ export function DmThreadView({ targetUserId }: Props) {
   useEffect(() => {
     if (!user || !targetUserId) return;
     void markDmsRead(targetUserId);
-  }, [markDmsRead, messages.length, targetUserId, user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [targetUserId, user?.id]);
 
   // Delete single message
   const deleteMsg = useMutation({

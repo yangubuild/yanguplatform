@@ -40,6 +40,8 @@ export function useConversation(otherUserId: string | undefined) {
   return useQuery({
     queryKey: ["conversation", user?.id, otherUserId],
     enabled: !!user && !!otherUserId,
+    staleTime: 5000,
+    refetchOnMount: false,
     queryFn: async (): Promise<DirectMessage[]> => {
       const { data, error } = await (supabase
         .from("direct_messages" as any)
@@ -52,7 +54,7 @@ export function useConversation(otherUserId: string | undefined) {
       if (error) throw error;
       return (data ?? []) as unknown as DirectMessage[];
     },
-    refetchInterval: 15000, // reduced since realtime handles most updates
+    refetchInterval: 15000,
   });
 }
 
@@ -62,6 +64,8 @@ export function useConversationList() {
   return useQuery({
     queryKey: ["conversation-list", user?.id],
     enabled: !!user,
+    staleTime: 5000,
+    refetchOnMount: false,
     queryFn: async () => {
       const { data, error } = await (supabase
         .from("direct_messages" as any)

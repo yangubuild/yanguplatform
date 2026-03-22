@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useCallback } from "react";
 import { useEffect } from "react";
 
 /**
@@ -29,6 +30,8 @@ export function useUnreadDmCount() {
   return useQuery({
     queryKey: ["unread-dm-count", user?.id],
     enabled: !!user,
+    staleTime: 5000,
+    refetchOnMount: false,
     queryFn: async () => {
       const { count, error } = await supabase
         .from("direct_messages")
@@ -68,6 +71,8 @@ export function useUnreadDmPerPartner() {
   return useQuery({
     queryKey: ["unread-dm-per-partner", user?.id],
     enabled: !!user,
+    staleTime: 5000,
+    refetchOnMount: false,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("direct_messages")
@@ -92,7 +97,7 @@ export function useMarkDmsRead() {
   const { user } = useAuth();
   const qc = useQueryClient();
 
-  return async (senderId: string) => {
+  return useCallback(async (senderId: string) => {
     if (!user) return;
     await supabase
       .from("direct_messages")
@@ -102,6 +107,6 @@ export function useMarkDmsRead() {
       .is("read_at", null);
     qc.invalidateQueries({ queryKey: ["unread-dm-count", user.id] });
     qc.invalidateQueries({ queryKey: ["unread-dm-per-partner", user.id] });
-    qc.invalidateQueries({ queryKey: ["conversation-list", user.id] });
-  };
+    // Don't invalidate conversation-list here — realtime handles it
+  }, [user, qc]);
 }
