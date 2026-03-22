@@ -48,8 +48,7 @@ Deno.serve(async (req) => {
     const emojis = allFiles.map((file: any) => {
       // filename without extension = keyword
       const keyword = file.name.replace(/\.[^.]+$/, "").toLowerCase();
-      // Use Drive thumbnail or direct link
-      // For public files, construct a direct view URL
+      // Use direct view URL — preserves PNG transparency (Drive thumbnails add white bg)
       const imageUrl = `https://drive.google.com/uc?export=view&id=${file.id}`;
 
       return {
@@ -57,10 +56,8 @@ Deno.serve(async (req) => {
         keyword,
         name: file.name,
         url: imageUrl,
-        // Smaller thumbnail for picker grid
-        thumbnailUrl: file.thumbnailLink
-          ? file.thumbnailLink.replace(/=s\d+/, "=s64")
-          : imageUrl,
+        // Use same direct URL for thumbnail — Google's thumbnailLink adds white backgrounds to PNGs
+        thumbnailUrl: imageUrl,
       };
     });
 
