@@ -1,17 +1,15 @@
-import { NavDashPromoCards } from "@/components/mass/navigation/NavDashPromoCards";
-import { CustomProductOffer } from "@/components/offers/CustomProductOffer";
+import { OffersSearchBar } from "@/components/offers/OffersSearchBar";
+import { OffersGrid } from "@/components/offers/OffersGrid";
 
 /**
- * DashboardOffers – Main /dashboard/offers page.
- * Re-uses the same promo banner carousel as the Dashboard home.
+ * DashboardOffers – /dashboard/offers
+ * Phase 1: Structure + layout only. Search bar + discovery grid.
  */
 export default function DashboardOffers() {
   return (
-    <div>
-      <NavDashPromoCards />
-      <div className="px-6 md:px-10 lg:px-14 pb-6">
-        <CustomProductOffer />
-      </div>
+    <div className="overflow-y-auto pb-10">
+      <OffersSearchBar />
+      <OffersGrid />
     </div>
   );
 }
