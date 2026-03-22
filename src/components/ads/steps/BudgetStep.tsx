@@ -255,7 +255,7 @@ export function BudgetStep({ data, onChange, onLaunch }: BudgetStepProps) {
               {/* Pay button */}
               <Button variant="accent" size="lg" onClick={handlePayConfirm} className="w-full">
                 Pay ${data.dailyBudget.toFixed(2)}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
