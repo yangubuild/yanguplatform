@@ -8,7 +8,7 @@ import { PromoSuccessModal } from "@/components/promo-codes/PromoSuccessModal";
 import { PromoCodesList } from "@/components/promo-codes/PromoCodesList";
 import { CreateOfferModal } from "@/components/promo-codes/CreateOfferModal";
 import { toast } from "sonner";
-import { Plus, Send } from "lucide-react";
+import { Plus, Send, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export interface PromoCodeFormData {
