@@ -240,6 +240,7 @@ export default function DashboardHome() {
             </div>
           </div>
         </div>
+        {postModal}
       </>
     );
   }
