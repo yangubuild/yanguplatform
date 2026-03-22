@@ -208,7 +208,15 @@ export function MessagesDmList({ selectedUserId, selectedGroupId, onSelectUser, 
                         {thread.unreadCount > 9 ? "9+" : thread.unreadCount}
                       </span>
                     )}
-                    {thread.type === "group" && (
+                    {thread.type === "group" && thread.unreadCount > 0 && (
+                      <span
+                        className="min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-[9px] font-bold text-white px-1 shrink-0"
+                        style={{ background: "#a855f7" }}
+                      >
+                        {thread.unreadCount > 9 ? "9+" : thread.unreadCount}
+                      </span>
+                    )}
+                    {thread.type === "group" && thread.unreadCount === 0 && (
                       <span className="text-[10px] shrink-0" style={{ color: "rgba(255,255,255,0.25)" }}>
                         {thread.memberCount}👤
                       </span>
