@@ -112,7 +112,7 @@ export default function MessagesPage() {
     ) : activeTab === "chats" && activeConversationUserId ? (
       <DmThreadView targetUserId={activeConversationUserId} />
     ) : (
-      <MessagesCenterPanel activeTab={activeTab} onTabChange={handleTabChange} onSelectDm={handleSelectConversation} />
+      <MessagesCenterPanel activeTab={activeTab} onTabChange={handleTabChange} onSelectDm={handleSelectConversation} onSelectGroup={handleSelectGroup} />
     );
 
   if (isMobile) {
@@ -185,7 +185,9 @@ export default function MessagesPage() {
           <div className="h-full overflow-hidden flex flex-col" style={{ background: "#0F141A", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.06)" }}>
             <MessagesDmList
               selectedUserId={activeConversationUserId}
+              selectedGroupId={activeGroupId}
               onSelectUser={handleSelectConversation}
+              onSelectGroup={handleSelectGroup}
               onOpenCreateMenu={() => setShowCreateLauncher(true)}
             />
           </div>
@@ -215,7 +217,9 @@ export default function MessagesPage() {
         <div className="h-full overflow-hidden flex flex-col" style={{ background: "#0F141A", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.06)" }}>
           <MessagesDmList
             selectedUserId={activeConversationUserId}
+            selectedGroupId={activeGroupId}
             onSelectUser={handleSelectConversation}
+            onSelectGroup={handleSelectGroup}
             onOpenCreateMenu={() => setShowCreateLauncher(true)}
           />
         </div>
