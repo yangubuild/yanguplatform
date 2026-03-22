@@ -275,10 +275,10 @@ export function DmThreadView({ targetUserId }: Props) {
                   <div
                     className="px-3 py-2 rounded-xl text-sm"
                     style={{
-                      background: isMine ? "rgba(16, 36, 24, 0.72)" : "rgba(8, 18, 13, 0.50)",
-                      backdropFilter: isMine ? "blur(18px)" : "blur(14px)",
-                      WebkitBackdropFilter: isMine ? "blur(18px)" : "blur(14px)",
-                      border: isMine ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(255,255,255,0.05)",
+                       background: isMine ? "rgba(255, 255, 255, 0.12)" : "rgba(255, 255, 255, 0.06)",
+                       backdropFilter: "blur(16px)",
+                       WebkitBackdropFilter: "blur(16px)",
+                       border: isMine ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(255,255,255,0.07)",
                       color: "#fff",
                     }}
                   >
