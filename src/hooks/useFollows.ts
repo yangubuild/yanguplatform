@@ -112,7 +112,7 @@ export function useToggleFollow() {
             type: "follow",
             title: `${name} followed you`,
             body: `${name} ${uname} started following you on YANGU. Follow them back to stay connected!`,
-            link: `/dashboard/home`,
+            link: `/dashboard/home?view_profile=${user.id}`,
             is_read: false,
             metadata: { actor_id: user.id, actor_avatar: avatarUrl } as any,
           } as any);

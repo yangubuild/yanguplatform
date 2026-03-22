@@ -393,7 +393,7 @@ async function sendPostNotification({
       type,
       title: `${name} ${actionLabel}`,
       body: `Tap to view the post`,
-      link: `/dashboard/home`,
+      link: `/dashboard/home?post=${postId}`,
       is_read: false,
       metadata: { post_id: postId, actor_id: actorId, actor_avatar: avatarUrl } as any,
     } as any);
