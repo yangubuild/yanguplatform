@@ -1316,6 +1316,35 @@ export type Database = {
           },
         ]
       }
+      chat_group_read_cursors: {
+        Row: {
+          group_id: string
+          id: string
+          last_read_at: string
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          id?: string
+          last_read_at?: string
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          id?: string
+          last_read_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_group_read_cursors_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "chat_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_groups: {
         Row: {
           avatar_url: string | null
