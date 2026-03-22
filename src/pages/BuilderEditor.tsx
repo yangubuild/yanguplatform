@@ -30,6 +30,13 @@ import { BuilderSetupAnswersPanel } from "@/components/builder/panels/BuilderSet
 import { ImageCropDialog } from "@/components/builder/ImageCropDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  MobileBuilderToolbar,
+  MobileBuilderSheet,
+  MobileBuilderDesktopNotice,
+  type MobilePanel,
+} from "@/components/builder/MobileBuilderMode";
 
 type RightPanel = "none" | "page_edit" | "section" | "setup";
 type PreviewViewport = "desktop" | "mobile";
