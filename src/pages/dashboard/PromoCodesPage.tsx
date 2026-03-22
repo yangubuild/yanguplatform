@@ -136,7 +136,7 @@ export default function PromoCodesPage() {
               onClick={() => setShowCreateOffer(true)}
               className="rounded-xl px-6 h-10 gap-2"
             >
-              <Megaphone className="w-4 h-4" />
+              <Send className="w-4 h-4" />
               Create Offer
             </Button>
             <p className="text-xs text-muted-foreground mt-2">
@@ -163,7 +163,7 @@ export default function PromoCodesPage() {
                   onClick={() => setShowCreateOffer(true)}
                   className="rounded-xl px-4 h-9 gap-2 text-sm"
                 >
-                  <Megaphone className="w-4 h-4" />
+                  <Send className="w-4 h-4" />
                   Create Offer
                 </Button>
               </div>
