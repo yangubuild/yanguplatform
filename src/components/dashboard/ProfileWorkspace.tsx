@@ -253,6 +253,24 @@ function OwnPostsTab() {
                 {isPosting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />} Post
               </button>
             </div>
+            {/* Type-to-suggest emoji suggestions */}
+            {currentWord && (
+              <div className="mt-1">
+                <EmojiSuggestions
+                  currentWord={currentWord}
+                  onSelect={(value, keyword) => replaceCurrentWord(value, keyword)}
+                />
+              </div>
+            )}
+            {/* Emoji picker */}
+            {showEmojiPicker && (
+              <div className="mt-1">
+                <YanguEmojiPicker
+                  onSelect={(value) => { insertEmoji(value); setShowEmojiPicker(false); }}
+                  onClose={() => setShowEmojiPicker(false)}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
