@@ -127,6 +127,7 @@ sectionLabels["content/news"] = "Articles / News";
 sectionLabels["content/events"] = "Events (Registration)";
 sectionLabels["ada"] = "ADA AI";
 sectionLabels["messages"] = "Messages & Support";
+sectionLabels["support"] = "Support Queue";
 sectionLabels["content"] = "Content Engine";
 sectionLabels["explore-dashboard"] = "Explore Dashboard";
 sectionLabels["navigation"] = "Navigation Manager";
