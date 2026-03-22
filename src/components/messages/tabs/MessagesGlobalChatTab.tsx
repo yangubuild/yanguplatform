@@ -6,6 +6,11 @@ import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import { uploadPostMedia } from "@/hooks/usePosts";
 import { toast } from "sonner";
 import { buildChatPresenceMap } from "@/lib/chatPresence";
+import { YanguEmojiPicker } from "@/components/emoji/YanguEmojiPicker";
+import { EmojiSuggestions } from "@/components/emoji/EmojiSuggestions";
+import { EmojiRenderer } from "@/components/emoji/EmojiRenderer";
+import { useEmojiInput } from "@/hooks/useEmojiInput";
+import type { YanguEmoji } from "@/lib/emojiSystem";
 
 const QUICK_EMOJIS = ["👍", "❤️", "😂", "🔥", "😮", "👏"];
 
@@ -25,6 +30,14 @@ export function MessagesGlobalChatTab() {
   const imageRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Emoji input hook for type-to-suggest
+  const {
+    currentWord,
+    handleInputChange,
+    insertEmoji,
+    replaceCurrentWord,
+  } = useEmojiInput(message, setMessage);
 
   useEffect(() => {
     if (feedRef.current) feedRef.current.scrollTop = feedRef.current.scrollHeight;
@@ -72,6 +85,11 @@ export function MessagesGlobalChatTab() {
   const handleReaction = (msgId: string, emoji: string) => {
     toggleReaction.mutate({ messageId: msgId, emoji });
     setEmojiPickerMsgId(null);
+  };
+
+  const handleEmojiSelect = (value: string | YanguEmoji) => {
+    insertEmoji(value);
+    setShowComposerEmoji(false);
   };
 
   const insertTag = (tag: string) => setMessage(prev => prev + tag);
@@ -140,14 +158,23 @@ export function MessagesGlobalChatTab() {
         </div>
       )}
 
-      {/* Composer emoji picker */}
+      {/* Type-to-suggest emoji suggestions */}
+      {currentWord && (
+        <div className="px-4 pb-1">
+          <EmojiSuggestions
+            currentWord={currentWord}
+            onSelect={(value, keyword) => replaceCurrentWord(value, keyword)}
+          />
+        </div>
+      )}
+
+      {/* Composer emoji picker — now uses YanguEmojiPicker */}
       {showComposerEmoji && (
         <div className="px-4 pb-1">
-          <div className="flex gap-1 flex-wrap p-2 rounded-lg" style={{ background: "rgba(255,255,255,0.08)" }}>
-            {["😀","😂","😍","🥺","😎","🤔","👍","👎","❤️","🔥","🎉","💯","😮","👏","🙏","✨","💪","🚀"].map(e => (
-              <button key={e} onClick={() => { setMessage(prev => prev + e); setShowComposerEmoji(false); }} className="text-lg hover:scale-125 transition-transform p-0.5">{e}</button>
-            ))}
-          </div>
+          <YanguEmojiPicker
+            onSelect={handleEmojiSelect}
+            onClose={() => setShowComposerEmoji(false)}
+          />
         </div>
       )}
 
@@ -158,7 +185,7 @@ export function MessagesGlobalChatTab() {
             <input
               ref={inputRef}
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={(e) => handleInputChange(e.target.value, e.target.selectionStart ?? undefined)}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
               placeholder={replyTo ? `Reply to ${replyTo.author_name}...` : "Your message..."}
               className="flex-1 bg-transparent text-sm outline-none"
@@ -290,7 +317,7 @@ function MessageBubble({ msg, presenceMap, currentUserId, onReply, onReaction, e
   );
 }
 
-/* ── Render message content ── */
+/* ── Render message content with custom emoji support ── */
 function ChatContent({ content, metadata }: { content: string; metadata?: any }) {
   const parts = content.split(/(@\w+|#\w+)/g);
   return (
@@ -299,7 +326,8 @@ function ChatContent({ content, metadata }: { content: string; metadata?: any })
         {parts.map((part, i) => {
           if (part.startsWith("@")) return <span key={i} className="font-semibold" style={{ color: "#60a5fa" }}>{part}</span>;
           if (part.startsWith("#")) return <span key={i} className="font-semibold" style={{ color: "#a78bfa" }}>{part}</span>;
-          return <span key={i}>{part}</span>;
+          // Render custom emojis via :keyword: shortcodes
+          return <EmojiRenderer key={i} text={part} />;
         })}
       </span>
       {metadata?.location && (
