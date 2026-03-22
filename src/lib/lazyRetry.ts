@@ -72,9 +72,13 @@ function fetchBuildMeta(): Promise<number | null> {
 export function startBuildVersionGuard() {
   if (typeof document === "undefined") return;
 
+  const hostname = window.location.hostname;
+  const isPreviewHost =
+    hostname.includes("lovableproject.com") || hostname.startsWith("id-preview--");
+
   // Only activate in production — in dev/preview environments, builds change
   // frequently and cause unwanted reloads while the user is actively testing.
-  if (import.meta.env.DEV) return;
+  if (import.meta.env.DEV || isPreviewHost) return;
 
   // Capture the current deployment's timestamp on first load
   fetchBuildMeta().then((ts) => {
