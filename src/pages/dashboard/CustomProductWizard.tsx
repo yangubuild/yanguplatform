@@ -140,7 +140,7 @@ export default function CustomProductWizard() {
         {currentStep === "Length" && (
           <div className="space-y-5">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Choose your book length</h1>
+              <h1 className="text-lg font-semibold text-foreground">Choose your book length</h1>
               <p className="text-sm text-muted-foreground mt-1">Select the desired length for your content</p>
             </div>
 
@@ -185,7 +185,7 @@ export default function CustomProductWizard() {
         {currentStep === "Polish" && (
           <div className="space-y-5">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Choose your polish level</h1>
+              <h1 className="text-lg font-semibold text-foreground">Choose your polish level</h1>
               <p className="text-sm text-muted-foreground mt-1">Select how refined you want your book to be</p>
             </div>
             <div className="space-y-3">
@@ -213,7 +213,7 @@ export default function CustomProductWizard() {
         {currentStep === "Enhancers" && (
           <div className="space-y-5">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Add enhancers</h1>
+              <h1 className="text-lg font-semibold text-foreground">Add enhancers</h1>
               <p className="text-sm text-muted-foreground mt-1">Optional add-ons to maximize your book's impact</p>
             </div>
             <div className="space-y-3">
@@ -248,7 +248,7 @@ export default function CustomProductWizard() {
         {currentStep === "Summary" && (
           <div className="space-y-5">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Order summary</h1>
+              <h1 className="text-lg font-semibold text-foreground">Order summary</h1>
               <p className="text-sm text-muted-foreground mt-1">Review your selections before placing your order</p>
             </div>
             <div className="rounded-xl border border-border bg-card p-6 space-y-4">
