@@ -194,6 +194,7 @@ const AgencySupportPage = lazy(() => lazyRetry(() => import("./pages/dashboard/A
 const MessagesPage = lazy(() => lazyRetry(() => import("./pages/dashboard/MessagesPage")));
 const EmenuOrdersPage = lazy(() => lazyRetry(() => import("./pages/dashboard/EmenuOrdersPage")));
 const PaymentsSettingsPage = lazy(() => lazyRetry(() => import("./pages/dashboard/PaymentsSettingsPage")));
+const SettingsPage = lazy(() => lazyRetry(() => import("./pages/dashboard/SettingsPage")));
 const EshopCheckoutPage = lazy(() => lazyRetry(() => import("./pages/EshopCheckoutPage")));
 import { DashboardRoleGate } from "@/components/auth/DashboardRoleGate";
 
@@ -407,6 +408,7 @@ const App = () => (
                   <Route path="live-selling" element={<LiveSellingPage />} />
                   <Route path="studio-showcase" element={<StudioShowcasePage />} />
                   <Route path="profile" element={<ProfilePage />} />
+                  <Route path="settings" element={<SettingsPage />} />
                   <Route path="profile/edit" element={<EditProfilePage />} />
                   <Route path="profile/subscription" element={<SubscriptionPage />} />
 
