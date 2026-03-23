@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useConversation, useSendMessage } from "@/hooks/useDirectMessages";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import { renderChatContent, shareMessageExternal } from "@/lib/chatMessageRenderer";
-import { Send, Loader2, MoreVertical, Reply, Forward, Trash2, Image, Video, X, Share2, Smile, Phone, VideoIcon, SmilePlus, ChevronDown, Search, Tag, Info, CheckSquare, BellOff, Heart, XCircle, Flag, Ban, MinusCircle, Megaphone } from "lucide-react";
+import { Send, Loader2, MoreVertical, Reply, Forward, Trash2, Image, Video, X, Smile, Phone, VideoIcon, SmilePlus, ChevronDown, Search, Tag, Info, CheckSquare, BellOff, Heart, Flag, Ban, Megaphone, Plus, Camera, Mic, Download, Languages } from "lucide-react";
 import { useLongPress } from "@/hooks/useLongPress";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -21,6 +21,7 @@ import { QuickReactionBar } from "@/components/messages/QuickReactionBar";
 import { MessageReactions } from "@/components/messages/MessageReactions";
 import { ChatLabelBadges, ChatLabelPicker } from "@/components/messages/ChatLabel";
 import { ChatBusinessActions } from "@/components/messages/ChatBusinessActions";
+import { ForwardMessageDialog } from "@/components/messages/ForwardMessageDialog";
 
 interface Props {
   targetUserId: string;
