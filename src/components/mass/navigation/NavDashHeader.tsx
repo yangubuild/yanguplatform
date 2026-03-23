@@ -577,6 +577,15 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
                 >
                   Manage Subscription
                 </button>
+                <button
+                  onClick={() => navigate("/dashboard/settings")}
+                  className="w-full px-4 py-2.5 text-left text-xs transition-colors"
+                  style={{ color: "rgba(255,255,255,0.7)" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                >
+                  Account Settings
+                </button>
                 <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", margin: "2px 0" }} />
                 <button
                   onClick={async () => {
