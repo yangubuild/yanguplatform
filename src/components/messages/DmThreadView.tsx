@@ -149,7 +149,6 @@ export function DmThreadView({ targetUserId }: Props) {
 
   const handleForward = (content: string) => {
     setForwardingMsg(content);
-    toast.info("Select a user from the sidebar to forward this message");
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: "image" | "video") => {
