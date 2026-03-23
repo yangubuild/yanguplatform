@@ -6,6 +6,7 @@ import { EmojiRenderer } from "@/components/emoji/EmojiRenderer";
 import { YanguEmojiPicker } from "@/components/emoji/YanguEmojiPicker";
 import type { YanguEmoji } from "@/lib/emojiSystem";
 import { useUserPosts, useCreatePost, useToggleReaction, uploadPostMedia, type Post } from "@/hooks/usePosts";
+import { useFeedPosts } from "@/hooks/useFeedPosts";
 import { PostCard } from "@/components/posts/PostCard";
 import { Button } from "@/components/ui/button";
 
@@ -117,9 +118,23 @@ function OwnReviewsTab() {
   );
 }
 
-function OwnPostsTab() {
+function OwnPostsTab({ onAuthorClick }: { onAuthorClick?: (post: Post) => void }) {
   const { user, profile } = useAuth();
-  const { data: posts = [], isLoading } = useUserPosts(user?.id);
+  const isMobileView = useIsMobile();
+  const { data: ownPosts = [], isLoading: ownLoading } = useUserPosts(user?.id);
+  const { data: feedPosts = [], isLoading: feedLoading } = useFeedPosts();
+  
+  // On mobile, show mixed feed (owner + followed). On desktop, show owner only (followed posts are in right panel).
+  const isLoading = isMobileView ? (ownLoading || feedLoading) : ownLoading;
+  const posts = isMobileView
+    ? (() => {
+        // Merge owner posts + feed posts, deduplicate, sort by date
+        const merged = new Map<string, Post>();
+        ownPosts.forEach(p => merged.set(p.id, p));
+        feedPosts.forEach(p => { if (!merged.has(p.id)) merged.set(p.id, p); });
+        return Array.from(merged.values()).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      })()
+    : ownPosts;
   const createPost = useCreatePost();
   const toggleReaction = useToggleReaction();
   const [text, setText] = useState("");
@@ -285,7 +300,7 @@ function OwnPostsTab() {
           <p className="text-xs text-muted-foreground">Share your first update above!</p>
         </div>
       ) : (
-        posts.map((post) => <PostCard key={post.id} post={post} toggleReaction={toggleReaction} />)
+        posts.map((post) => <PostCard key={post.id} post={post} toggleReaction={toggleReaction} onAuthorClick={onAuthorClick} />)
       )}
     </div>
   );
@@ -298,9 +313,10 @@ function OwnPostsTab() {
 interface ProfileWorkspaceProps {
   activeProfileTab?: string;
   onProfileTabChange?: (tab: string) => void;
+  onViewProfile?: (user: { id: string; display_name: string | null; username: string | null; avatar_url: string | null }) => void;
 }
 
-export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: ProfileWorkspaceProps) {
+export function ProfileWorkspace({ activeProfileTab, onProfileTabChange, onViewProfile }: ProfileWorkspaceProps) {
   const { user, profile, refreshProfile } = useAuth();
   const queryClient = useQueryClient();
   const [internalTab, setInternalTab] = useState<string>("Home");
@@ -1048,7 +1064,15 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange }: Profi
 
           {activeTab === "Reviews" && <OwnReviewsTab />}
 
-          {activeTab === "Posts" && <OwnPostsTab />}
+          {activeTab === "Posts" && <OwnPostsTab onAuthorClick={onViewProfile ? (post) => {
+            if (post.user_id === user?.id) return; // Don't switch to own profile
+            onViewProfile({
+              id: post.user_id,
+              display_name: post.author_name || null,
+              username: post.author_username || null,
+              avatar_url: post.author_avatar || null,
+            });
+          } : undefined} />}
 
           {activeTab === "About" && (
             <div className="space-y-4">
