@@ -42,7 +42,7 @@ export function QuickReactionBar({ messageId, type, onClose }: QuickReactionBarP
   return (
     <div
       className="flex items-center gap-1 rounded-full px-2 py-1.5 shadow-2xl animate-in fade-in slide-in-from-bottom-2 duration-150"
-      style={{ background: "#1e2730", border: "1px solid rgba(255,255,255,0.15)" }}
+      style={{ background: "#1a2027", border: "1px solid rgba(255,255,255,0.15)" }}
       onClick={(e) => e.stopPropagation()}>
       {QUICK_EMOJIS.map((emoji) => (
         <button

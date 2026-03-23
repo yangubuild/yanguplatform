@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { useGroupMessages, useSendGroupMessage, useGroupMembers, useLeaveGroup, useRemoveGroupMember, useAddGroupMember, type ChatGroup } from "@/hooks/useGroupChats";
 import { renderChatContent, shareMessageExternal } from "@/lib/chatMessageRenderer";
-import { Send, Loader2, MoreVertical, Reply, Share2, Trash2, Users, LogOut, UserPlus, Image, Video, X, Smile, Phone, VideoIcon, SmilePlus, ChevronDown, Forward } from "lucide-react";
+import { Send, Loader2, MoreVertical, Reply, Share2, Trash2, Users, LogOut, UserPlus, Image, Video, X, Smile, Phone, VideoIcon, SmilePlus, ChevronDown, Forward, Mic } from "lucide-react";
 import { useLongPress } from "@/hooks/useLongPress";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -20,6 +20,8 @@ import { GroupAvatarUpload } from "@/components/messages/GroupAvatarUpload";
 import { QuickReactionBar } from "@/components/messages/QuickReactionBar";
 import { MessageReactions } from "@/components/messages/MessageReactions";
 import { ChatBusinessActions } from "@/components/messages/ChatBusinessActions";
+import { useChatAudioRecorder } from "@/hooks/useChatAudioRecorder";
+import { buildChatAttachmentMessage, uploadChatAttachment } from "@/lib/chatUploads";
 
 interface Props {
   group: ChatGroup;
@@ -39,6 +41,8 @@ export function GroupChatThreadView({ group, onBack }: Props) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+  const documentInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const { user } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -128,16 +132,50 @@ export function GroupChatThreadView({ group, onBack }: Props) {
     });
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: "image" | "video") => {
+  const sendAttachment = async (file: File, type: "image" | "video" | "audio" | "document") => {
+    if (!user) return;
+    const url = await uploadChatAttachment({ userId: user.id, file, prefix: `group-${type}` });
+    sendMessage.mutate({ groupId: group.id, content: buildChatAttachmentMessage(type, url, file.name) });
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: "image" | "video" | "document") => {
     const file = e.target.files?.[0];
-    if (!file || !user) return;
-    const ext = file.name.split(".").pop();
-    const path = `${user.id}/group-${Date.now()}.${ext}`;
-    const { error: uploadError } = await supabase.storage.from("post-media").upload(path, file);
-    if (uploadError) { toast.error("Upload failed"); return; }
-    const { data: urlData } = supabase.storage.from("post-media").getPublicUrl(path);
-    const emoji = type === "image" ? "📷" : "🎥";
-    sendMessage.mutate({ groupId: group.id, content: `${emoji} ${urlData.publicUrl}` });
+    e.target.value = "";
+    if (!file) return;
+    try {
+      await sendAttachment(file, type);
+    } catch {
+      toast.error("Upload failed");
+    }
+  };
+
+  const handleCameraCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+      await sendAttachment(file, file.type.startsWith("video/") ? "video" : "image");
+    } catch {
+      toast.error("Camera upload failed");
+    }
+  };
+
+  const handleShareLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error("Location is not supported on this device");
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        sendMessage.mutate({
+          groupId: group.id,
+          content: `📍 Shared location\nhttps://maps.google.com/?q=${latitude},${longitude}`,
+        });
+      },
+      () => toast.error("Unable to get your location"),
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
   };
 
   const handleDeleteMsg = async (msgId: string) => {
@@ -158,6 +196,19 @@ export function GroupChatThreadView({ group, onBack }: Props) {
     insertEmoji(value);
     setShowEmojiPicker(false);
   };
+
+  const { isRecording, toggleRecording } = useChatAudioRecorder({
+    onRecorded: async (blob) => {
+      const file = new File([blob], `group-voice-${Date.now()}.webm`, { type: blob.type || "audio/webm" });
+      try {
+        await sendAttachment(file, "audio");
+        toast.success("Voice note sent");
+      } catch {
+        toast.error("Voice upload failed");
+      }
+    },
+    onError: (message) => toast.error(message),
+  });
 
   return (
     <div className="flex flex-col h-full">
@@ -299,6 +350,8 @@ export function GroupChatThreadView({ group, onBack }: Props) {
       {/* Hidden file inputs */}
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={e => handleFileUpload(e, "image")} />
       <input ref={videoInputRef} type="file" accept="video/*" className="hidden" onChange={e => handleFileUpload(e, "video")} />
+      <input ref={documentInputRef} type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar" className="hidden" onChange={e => handleFileUpload(e, "document")} />
+      <input ref={cameraInputRef} type="file" accept="image/*,video/*" capture="environment" className="hidden" onChange={handleCameraCapture} />
 
       {currentWord && myMembership && (
         <div className="px-4 pb-1">
@@ -321,14 +374,18 @@ export function GroupChatThreadView({ group, onBack }: Props) {
       {myMembership ? (
         <div className="shrink-0 px-3 py-2.5 relative" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
           <div className="flex items-center gap-1.5 rounded-xl px-3 py-2.5" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
-            <ChatBusinessActions
-              onPhotos={() => fileInputRef.current?.click()}
-              onCamera={() => videoInputRef.current?.click()}
-            />
+            <div className="relative shrink-0">
+              <ChatBusinessActions
+                onPhotos={() => fileInputRef.current?.click()}
+                onCamera={() => cameraInputRef.current?.click()}
+                onDocument={() => documentInputRef.current?.click()}
+                onLocation={handleShareLocation}
+              />
+            </div>
             <button onClick={() => fileInputRef.current?.click()} className="p-1.5 rounded hover:opacity-80 shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center text-muted-foreground">
               <Image className="w-4 h-4" />
             </button>
-            <button onClick={() => videoInputRef.current?.click()} className="p-1.5 rounded hover:opacity-80 shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center text-muted-foreground">
+            <button onClick={() => cameraInputRef.current?.click()} className="p-1.5 rounded hover:opacity-80 shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center text-muted-foreground">
               <Video className="w-4 h-4" />
             </button>
             <button onClick={() => setShowEmojiPicker((prev) => !prev)} className="p-1.5 rounded hover:opacity-80 shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center" style={{ color: showEmojiPicker ? "#facc15" : "rgba(255,255,255,0.4)" }}>
@@ -342,9 +399,19 @@ export function GroupChatThreadView({ group, onBack }: Props) {
               placeholder={replyTo ? "Type a reply..." : "Type a message..."}
               className="flex-1 bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground min-w-0"
             />
-            <Button variant={message.trim() ? "accent" : "outline"} size="icon" onClick={handleSend} disabled={!message.trim()} className="w-8 h-8 rounded-lg shrink-0">
-              <Send className="w-3.5 h-3.5" />
-            </Button>
+            {message.trim() ? (
+              <Button variant="accent" size="icon" onClick={handleSend} className="w-8 h-8 rounded-lg shrink-0">
+                <Send className="w-3.5 h-3.5" />
+              </Button>
+            ) : (
+              <button
+                onClick={() => void toggleRecording()}
+                className="p-1.5 rounded hover:opacity-80 shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center"
+                title={isRecording ? "Stop recording" : "Voice message"}
+                style={{ color: isRecording ? "#ef4444" : "rgba(255,255,255,0.4)" }}>
+                <Mic className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
       ) : (

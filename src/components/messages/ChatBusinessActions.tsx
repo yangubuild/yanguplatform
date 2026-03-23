@@ -9,7 +9,7 @@ const MEDIA_ACTIONS = [
   { icon: Camera, label: "Camera", action: "camera" },
   { icon: MapPin, label: "Location", action: "location" },
   { icon: Contact, label: "Contact", action: "contact" },
-  { icon: File, label: "Document", action: "document" },
+  { icon: File, label: "Files", action: "document" },
   { icon: BarChart3, label: "Poll", action: "poll" },
   { icon: Calendar, label: "Event", action: "event" },
   { icon: Wand2, label: "AI images", action: "ai_images" },
@@ -27,9 +27,10 @@ interface ChatBusinessActionsProps {
   onPhotos?: () => void;
   onCamera?: () => void;
   onDocument?: () => void;
+  onLocation?: () => void;
 }
 
-export function ChatBusinessActions({ onPhotos, onCamera, onDocument }: ChatBusinessActionsProps) {
+export function ChatBusinessActions({ onPhotos, onCamera, onDocument, onLocation }: ChatBusinessActionsProps) {
   const [open, setOpen] = useState(false);
   const [showTrendModal, setShowTrendModal] = useState(false);
   const navigate = useNavigate();
@@ -40,7 +41,7 @@ export function ChatBusinessActions({ onPhotos, onCamera, onDocument }: ChatBusi
       case "photos": onPhotos?.(); break;
       case "camera": onCamera?.(); break;
       case "document": onDocument?.(); break;
-      case "location": toast.info("Location sharing coming soon"); break;
+      case "location": onLocation?.(); break;
       case "contact": toast.info("Contact sharing coming soon"); break;
       case "poll": toast.info("Polls coming soon"); break;
       case "event": toast.info("Event sharing coming soon"); break;

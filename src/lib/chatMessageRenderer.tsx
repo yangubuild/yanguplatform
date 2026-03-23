@@ -42,6 +42,27 @@ export function renderChatContent(content: string, navigate?: (path: string) => 
     return <img src={url} alt="Shared" className="max-w-full rounded-lg mt-1" style={{ maxHeight: 200 }} />;
   }
 
+  const audioMatch = content.match(/^🎵\s(https?:\/\/.+)$/);
+  if (audioMatch) {
+    return <audio src={audioMatch[1]} controls className="max-w-full mt-1" />;
+  }
+
+  const documentMatch = content.match(/^📎\s([^\n]+)\n(https?:\/\/.+)$/);
+  if (documentMatch) {
+    const [, fileName, url] = documentMatch;
+    return (
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-2 mt-1 px-3 py-2 rounded-xl text-xs font-medium text-foreground no-underline"
+        style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
+        <span>📎</span>
+        <span className="truncate max-w-[220px]">{fileName}</span>
+      </a>
+    );
+  }
+
   // [buynow] / [sellnow] CTA buttons
   const hasBuyNow = content.includes("[buynow]");
   const hasSellNow = content.includes("[sellnow]");
