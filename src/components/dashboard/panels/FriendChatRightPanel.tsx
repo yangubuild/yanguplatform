@@ -37,7 +37,7 @@ export function FriendChatRightPanel({ friend }: Props) {
   };
 
   return (
-    <div className="flex flex-col h-full" style={{ background: "#111820" }}>
+    <div className="flex flex-col h-full bg-background">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3 shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         <div className="relative">

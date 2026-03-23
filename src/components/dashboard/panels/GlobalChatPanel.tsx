@@ -7,7 +7,7 @@ import { Trophy } from "lucide-react";
  */
 export function GlobalChatPanel() {
   return (
-    <div className="flex flex-col h-full" style={{ background: "#111820" }}>
+    <div className="flex flex-col h-full bg-background">
       <div
         className="flex items-center justify-between px-4 py-3 shrink-0"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
