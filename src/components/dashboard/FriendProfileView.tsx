@@ -186,7 +186,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
   );
 
   return (
-    <div className="flex flex-col h-full bg-card">
+    <div className="flex flex-col h-full bg-background">
       {/* Top bar with back */}
       <div
         className="flex items-center gap-3 px-5 py-2.5 shrink-0"
