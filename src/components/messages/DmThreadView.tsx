@@ -174,14 +174,14 @@ export function DmThreadView({ targetUserId }: Props) {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div
-        className="flex items-center gap-3 px-4 py-3 shrink-0"
+        className="flex items-center gap-3 px-4 py-3 shrink-0 relative"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         <div className="relative">
           <div
-            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold overflow-hidden"
+            className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold overflow-hidden"
             style={{ background: "rgba(255,255,255,0.1)" }}>
             {targetAvatar ? (
-              <img src={targetAvatar} alt="" className="w-8 h-8 rounded-full object-cover" />
+              <img src={targetAvatar} alt="" className="w-9 h-9 rounded-full object-cover" />
             ) : (
               <span className="text-muted-foreground">{targetInitials}</span>
             )}
@@ -196,9 +196,9 @@ export function DmThreadView({ targetUserId }: Props) {
           {targetProfile?.username && (
             <p className="text-[10px] text-muted-foreground">@{targetProfile.username}</p>
           )}
-          {/* Chat Labels */}
-          <ChatLabel targetUserId={targetUserId} />
+          <ChatLabelBadges targetUserId={targetUserId} />
         </div>
+
         {/* Call buttons */}
         <button
           onClick={() => toast.info("Voice calling not available yet")}
@@ -212,7 +212,24 @@ export function DmThreadView({ targetUserId }: Props) {
           title="Video call">
           <VideoIcon className="w-4 h-4" />
         </button>
-        {/* Chat-level menu */}
+
+        {/* Labels icon */}
+        <button
+          onClick={() => setShowLabelPicker(!showLabelPicker)}
+          className="p-1.5 rounded-lg hover:bg-white/10 text-muted-foreground"
+          title="Labels">
+          <Tag className="w-4 h-4" />
+        </button>
+
+        {/* Search (future-ready) */}
+        <button
+          onClick={() => toast.info("Chat search coming soon")}
+          className="p-1.5 rounded-lg hover:bg-white/10 text-muted-foreground"
+          title="Search">
+          <Search className="w-4 h-4" />
+        </button>
+
+        {/* 3-dot menu */}
         <div className="relative">
           <button
             onClick={() => setShowChatMenu(!showChatMenu)}
@@ -220,18 +237,70 @@ export function DmThreadView({ targetUserId }: Props) {
             <MoreVertical className="w-4 h-4" />
           </button>
           {showChatMenu && (
-            <div
-              className="absolute right-0 top-8 z-20 rounded-lg py-1 min-w-[160px]"
-              style={{ background: "#1a2027", border: "1px solid rgba(255,255,255,0.1)" }}>
-              <button
-                onClick={() => { deleteChat.mutate(); setShowChatMenu(false); }}
-                className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:opacity-80"
-                style={{ color: "#ef4444" }}>
-                <Trash2 className="w-3.5 h-3.5" /> Delete Conversation
-              </button>
-            </div>
+            <>
+              <div className="fixed inset-0 z-30" onClick={() => setShowChatMenu(false)} />
+              <div
+                className="absolute right-0 top-8 z-40 rounded-xl py-1.5 min-w-[200px] shadow-2xl"
+                style={{ background: "#1e2730", border: "1px solid rgba(255,255,255,0.1)" }}>
+                <button
+                  onClick={() => { navigate(`/dashboard/profile/${targetUserId}`); setShowChatMenu(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-xs text-left hover:bg-white/5 text-foreground">
+                  <Info className="w-4 h-4 text-muted-foreground" /> Contact info
+                </button>
+                <button
+                  onClick={() => { toast.info("Chat search coming soon"); setShowChatMenu(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-xs text-left hover:bg-white/5 text-foreground">
+                  <Search className="w-4 h-4 text-muted-foreground" /> Search
+                </button>
+                <button
+                  onClick={() => { toast.info("Select messages coming soon"); setShowChatMenu(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-xs text-left hover:bg-white/5 text-foreground">
+                  <CheckSquare className="w-4 h-4 text-muted-foreground" /> Select messages
+                </button>
+                <button
+                  onClick={() => { toast.info("Notifications muted"); setShowChatMenu(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-xs text-left hover:bg-white/5 text-foreground">
+                  <BellOff className="w-4 h-4 text-muted-foreground" /> Mute notifications
+                </button>
+                <button
+                  onClick={() => { toast.info("Added to favorites"); setShowChatMenu(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-xs text-left hover:bg-white/5 text-foreground">
+                  <Heart className="w-4 h-4 text-muted-foreground" /> Add to Favorites
+                </button>
+                <button
+                  onClick={() => { setShowLabelPicker(true); setShowChatMenu(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-xs text-left hover:bg-white/5 text-foreground">
+                  <Tag className="w-4 h-4 text-muted-foreground" /> Labels
+                </button>
+                <button
+                  onClick={() => { navigate("/dashboard/ads"); setShowChatMenu(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-xs text-left hover:bg-white/5 text-foreground">
+                  <Megaphone className="w-4 h-4 text-muted-foreground" /> Advertise
+                </button>
+                <div className="my-1" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }} />
+                <button
+                  onClick={() => { toast.info("User reported"); setShowChatMenu(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-xs text-left hover:bg-white/5 text-foreground">
+                  <Flag className="w-4 h-4 text-muted-foreground" /> Report
+                </button>
+                <button
+                  onClick={() => { toast.info("User blocked"); setShowChatMenu(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-xs text-left hover:bg-white/5 text-foreground">
+                  <Ban className="w-4 h-4 text-muted-foreground" /> Block
+                </button>
+                <button
+                  onClick={() => { deleteChat.mutate(); setShowChatMenu(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-xs text-left hover:bg-white/5"
+                  style={{ color: "#ef4444" }}>
+                  <Trash2 className="w-4 h-4" /> Delete chat
+                </button>
+              </div>
+            </>
           )}
         </div>
+
+        {/* Labels picker dropdown */}
+        <ChatLabelPicker targetUserId={targetUserId} open={showLabelPicker} onClose={() => setShowLabelPicker(false)} />
       </div>
 
       {/* Reply indicator */}
