@@ -8,7 +8,6 @@ const QUICK_EMOJIS = ["👍", "❤️", "😂", "😮", "😢", "🙏"];
 
 interface QuickReactionBarProps {
   messageId: string;
-  /** "dm" or "group" — determines which table to write to */
   type: "dm" | "group";
   onClose: () => void;
 }
@@ -22,7 +21,6 @@ export function QuickReactionBar({ messageId, type, onClose }: QuickReactionBarP
     if (!user || reacting) return;
     setReacting(true);
     const table = type === "dm" ? "dm_reactions" : "group_message_reactions";
-    // Toggle: if already reacted with same emoji, remove it
     const { data: existing } = await supabase
       .from(table)
       .select("id")
@@ -36,7 +34,6 @@ export function QuickReactionBar({ messageId, type, onClose }: QuickReactionBarP
     } else {
       await supabase.from(table).insert({ message_id: messageId, user_id: user.id, emoji });
     }
-    // Invalidate reactions query
     qc.invalidateQueries({ queryKey: [`${type}-reactions`, messageId] });
     setReacting(false);
     onClose();
@@ -44,22 +41,22 @@ export function QuickReactionBar({ messageId, type, onClose }: QuickReactionBarP
 
   return (
     <div
-      className="flex items-center gap-0.5 rounded-full px-1.5 py-1 shadow-xl animate-in fade-in slide-in-from-bottom-2 duration-150"
-      style={{ background: "#1a2027", border: "1px solid rgba(255,255,255,0.12)" }}
+      className="flex items-center gap-1 rounded-full px-2 py-1.5 shadow-2xl animate-in fade-in slide-in-from-bottom-2 duration-150"
+      style={{ background: "#1e2730", border: "1px solid rgba(255,255,255,0.15)" }}
       onClick={(e) => e.stopPropagation()}>
       {QUICK_EMOJIS.map((emoji) => (
         <button
           key={emoji}
           onClick={() => handleReact(emoji)}
           disabled={reacting}
-          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-base">
+          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 active:scale-110 transition-all text-xl">
           {emoji}
         </button>
       ))}
       <button
-        className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-muted-foreground"
+        className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-muted-foreground"
         title="More reactions">
-        <Plus className="w-3.5 h-3.5" />
+        <Plus className="w-4 h-4" />
       </button>
     </div>
   );
