@@ -181,6 +181,16 @@ export function GroupChatThreadView({ group, onBack }: Props) {
         <button onClick={() => setShowMembers(!showMembers)} className="p-2 rounded-lg hover:opacity-80 min-w-[36px] min-h-[36px] flex items-center justify-center text-muted-foreground">
           <Users className="w-4 h-4" />
         </button>
+        <button
+          onClick={() => toast.info("Voice calling not available yet")}
+          className="p-1.5 rounded-lg hover:bg-white/10 text-muted-foreground" title="Voice call">
+          <Phone className="w-4 h-4" />
+        </button>
+        <button
+          onClick={() => toast.info("Video calling not available yet")}
+          className="p-1.5 rounded-lg hover:bg-white/10 text-muted-foreground" title="Video call">
+          <VideoIcon className="w-4 h-4" />
+        </button>
         <div className="relative">
           <button onClick={() => setShowGroupMenu(!showGroupMenu)} className="p-2 rounded-lg hover:opacity-80 min-w-[36px] min-h-[36px] flex items-center justify-center text-muted-foreground">
             <MoreVertical className="w-4 h-4" />
