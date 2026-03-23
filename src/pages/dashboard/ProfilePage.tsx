@@ -816,3 +816,208 @@ function ToggleRow({
     </div>
   );
 }
+
+/* ── Inline Settings Section (embedded in profile tab) ── */
+function SettingsSection({ title, icon: Icon, children }: { title: string; icon: React.ElementType; children: React.ReactNode }) {
+  return (
+    <div className="rounded-xl p-5 mb-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+      <div className="flex items-center gap-2.5 mb-4">
+        <Icon className="w-4 h-4" style={{ color: "#F46D2A" }} />
+        <h3 className="text-sm font-semibold" style={{ color: "rgba(255,255,255,0.85)" }}>{title}</h3>
+      </div>
+      <div className="space-y-4">{children}</div>
+    </div>
+  );
+}
+
+function SettingsRow({ label, description, children }: { label: string; description?: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <div className="min-w-0">
+        <p className="text-sm" style={{ color: "rgba(255,255,255,0.75)" }}>{label}</p>
+        {description && <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{description}</p>}
+      </div>
+      <div className="shrink-0">{children}</div>
+    </div>
+  );
+}
+
+function ProfileSettingsInline() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [resetSent, setResetSent] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
+  const [pushNotifs, setPushNotifs] = useState(user?.user_metadata?.push_notifications !== false);
+  const [emailNotifs, setEmailNotifs] = useState(user?.user_metadata?.email_notifications !== false);
+  const [savingNotifs, setSavingNotifs] = useState(false);
+  const [profilePublic, setProfilePublic] = useState(user?.user_metadata?.profile_visibility !== "private");
+  const [messagePrivacy, setMessagePrivacy] = useState<string>(user?.user_metadata?.message_privacy || "everyone");
+  const [followPrivacy, setFollowPrivacy] = useState<string>(user?.user_metadata?.follow_privacy || "everyone");
+  const [savingPrivacy, setSavingPrivacy] = useState(false);
+
+  const handlePasswordReset = async () => {
+    if (!user?.email) return;
+    setResetLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setResetLoading(false);
+    if (error) toast({ title: error.message, variant: "destructive" });
+    else { setResetSent(true); toast({ title: "Password reset email sent" }); }
+  };
+
+  const handleSaveNotifs = async () => {
+    setSavingNotifs(true);
+    const { error } = await supabase.auth.updateUser({
+      data: { push_notifications: pushNotifs, email_notifications: emailNotifs },
+    });
+    setSavingNotifs(false);
+    if (error) toast({ title: error.message, variant: "destructive" });
+    else toast({ title: "Notification preferences saved" });
+  };
+
+  const handleSavePrivacy = async () => {
+    setSavingPrivacy(true);
+    const { error } = await supabase.auth.updateUser({
+      data: { profile_visibility: profilePublic ? "public" : "private", message_privacy: messagePrivacy, follow_privacy: followPrivacy },
+    });
+    setSavingPrivacy(false);
+    if (error) toast({ title: error.message, variant: "destructive" });
+    else toast({ title: "Privacy settings saved" });
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  };
+
+  const kycStatus = user?.user_metadata?.kyc_status || "not_started";
+  const kycLabel: Record<string, { text: string; icon: React.ElementType; color: string }> = {
+    not_started: { text: "Not Started", icon: Clock, color: "rgba(255,255,255,0.5)" },
+    in_progress: { text: "In Progress", icon: Clock, color: "#F46D2A" },
+    pending_review: { text: "Pending Review", icon: Clock, color: "#F46D2A" },
+    verified: { text: "Verified", icon: CheckCircle2, color: "rgba(74,222,128,0.8)" },
+    rejected: { text: "Rejected", icon: AlertTriangle, color: "#ef4444" },
+  };
+  const kyc = kycLabel[kycStatus] || kycLabel.not_started;
+
+  return (
+    <div className="space-y-4 pb-8">
+      {/* Account */}
+      <SettingsSection title="Account" icon={Mail}>
+        <SettingsRow label="Email" description={user?.email || "—"}>
+          <span className="text-xs px-2 py-1 rounded" style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.5)" }}>Verified</span>
+        </SettingsRow>
+        <SettingsRow label="Password" description="Send a reset link to your email">
+          <Button variant="outline" size="sm" onClick={handlePasswordReset} disabled={resetSent || resetLoading} className="border-white/10 text-xs">
+            {resetLoading && <Loader2 className="w-3 h-3 animate-spin mr-1" />}
+            {resetSent ? "Sent ✓" : "Reset Password"}
+          </Button>
+        </SettingsRow>
+        <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }} className="pt-3">
+          <button onClick={handleSignOut} className="flex items-center gap-2 text-xs font-medium" style={{ color: "#ef4444" }}>
+            <LogOut className="w-3.5 h-3.5" /> Sign Out
+          </button>
+        </div>
+      </SettingsSection>
+
+      {/* Privacy */}
+      <SettingsSection title="Privacy" icon={Eye}>
+        <SettingsRow label="Profile visibility" description="Make your profile discoverable">
+          <Switch checked={profilePublic} onCheckedChange={setProfilePublic} />
+        </SettingsRow>
+        <SettingsRow label="Who can message you" description="Control who sends you DMs">
+          <select value={messagePrivacy} onChange={(e) => setMessagePrivacy(e.target.value)} className="text-xs rounded px-2 py-1.5" style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.75)", border: "1px solid rgba(255,255,255,0.1)" }}>
+            <option value="everyone">Everyone</option><option value="followers">Followers only</option><option value="nobody">Nobody</option>
+          </select>
+        </SettingsRow>
+        <SettingsRow label="Who can follow you" description="Control follow requests">
+          <select value={followPrivacy} onChange={(e) => setFollowPrivacy(e.target.value)} className="text-xs rounded px-2 py-1.5" style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.75)", border: "1px solid rgba(255,255,255,0.1)" }}>
+            <option value="everyone">Everyone</option><option value="approval">Requires approval</option>
+          </select>
+        </SettingsRow>
+        <Button variant="accent" size="sm" onClick={handleSavePrivacy} disabled={savingPrivacy}>
+          {savingPrivacy && <Loader2 className="w-3 h-3 animate-spin mr-1" />} Save Privacy Settings
+        </Button>
+      </SettingsSection>
+
+      {/* Notifications */}
+      <SettingsSection title="Notifications" icon={Bell}>
+        <SettingsRow label="Push notifications" description="Browser and mobile push alerts">
+          <Switch checked={pushNotifs} onCheckedChange={setPushNotifs} />
+        </SettingsRow>
+        <SettingsRow label="Email notifications" description="Updates and alerts via email">
+          <Switch checked={emailNotifs} onCheckedChange={setEmailNotifs} />
+        </SettingsRow>
+        <Button variant="accent" size="sm" onClick={handleSaveNotifs} disabled={savingNotifs}>
+          {savingNotifs && <Loader2 className="w-3 h-3 animate-spin mr-1" />} Save Notifications
+        </Button>
+      </SettingsSection>
+
+      {/* Security */}
+      <SettingsSection title="Security" icon={Shield}>
+        <SettingsRow label="KYC verification" description="Identity verification status">
+          <button onClick={() => navigate("/kyc")} className="flex items-center gap-1.5 text-xs font-medium" style={{ color: kyc.color }}>
+            <kyc.icon className="w-3.5 h-3.5" /> {kyc.text} <ChevronRight className="w-3 h-3" style={{ color: "rgba(255,255,255,0.3)" }} />
+          </button>
+        </SettingsRow>
+        <SettingsRow label="Active sessions" description="Session management coming soon">
+          <span className="text-[11px]" style={{ color: "rgba(255,255,255,0.35)" }}>Current session active</span>
+        </SettingsRow>
+      </SettingsSection>
+
+      {/* Preferences */}
+      <SettingsSection title="Preferences" icon={Palette}>
+        <SettingsRow label="Language" description="Select your preferred language">
+          <span className="flex items-center gap-1 text-xs" style={{ color: "rgba(255,255,255,0.5)" }}><Globe className="w-3 h-3" /> English</span>
+        </SettingsRow>
+        <SettingsRow label="Currency" description="Display currency for prices">
+          <span className="flex items-center gap-1 text-xs" style={{ color: "rgba(255,255,255,0.5)" }}><DollarSign className="w-3 h-3" /> USD</span>
+        </SettingsRow>
+        <SettingsRow label="Theme" description="Using system default">
+          <span className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>Dark</span>
+        </SettingsRow>
+      </SettingsSection>
+    </div>
+  );
+}
+
+/* ── Help & Support Section ── */
+function ProfileHelpSection() {
+  const navigate = useNavigate();
+
+  const helpItems = [
+    { icon: HelpCircle, label: "Help Center", description: "FAQs and guides", action: () => toast({ title: "Help center coming soon" }) },
+    { icon: MessageCircle, label: "Contact Support", description: "Get help from our team", action: () => navigate("/dashboard/messages") },
+    { icon: FileText, label: "Terms of Service", description: "Read our terms", action: () => window.open("/terms", "_blank") },
+    { icon: Shield, label: "Privacy Policy", description: "How we protect your data", action: () => window.open("/privacy", "_blank") },
+    { icon: FileText, label: "Community Guidelines", description: "Rules for the platform", action: () => toast({ title: "Community guidelines coming soon" }) },
+  ];
+
+  return (
+    <div className="space-y-2 pb-8">
+      {helpItems.map((item) => (
+        <button
+          key={item.label}
+          onClick={item.action}
+          className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left transition-colors"
+          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.06)")}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.03)")}>
+          <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ background: "rgba(255,255,255,0.06)" }}>
+            <item.icon className="w-4 h-4" style={{ color: "#F46D2A" }} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-foreground">{item.label}</p>
+            <p className="text-xs text-muted-foreground">{item.description}</p>
+          </div>
+          <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "rgba(255,255,255,0.25)" }} />
+        </button>
+      ))}
+
+      <div className="pt-4 text-center">
+        <p className="text-[11px] text-muted-foreground">YANGU Platform v1.0</p>
+      </div>
+    </div>
+  );
+}
