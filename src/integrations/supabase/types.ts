@@ -1375,6 +1375,30 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_labels: {
+        Row: {
+          created_at: string
+          id: string
+          label: string
+          target_user_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label: string
+          target_user_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string
+          target_user_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       chat_list_members: {
         Row: {
           added_at: string
@@ -2508,6 +2532,38 @@ export type Database = {
         }
         Relationships: []
       }
+      dm_reactions: {
+        Row: {
+          created_at: string
+          emoji: string
+          id: string
+          message_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          emoji: string
+          id?: string
+          message_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          emoji?: string
+          id?: string
+          message_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dm_reactions_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "direct_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       domains: {
         Row: {
           created_at: string | null
@@ -3445,6 +3501,38 @@ export type Database = {
           },
         ]
       }
+      group_message_reactions: {
+        Row: {
+          created_at: string
+          emoji: string
+          id: string
+          message_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          emoji: string
+          id?: string
+          message_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          emoji?: string
+          id?: string
+          message_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_message_reactions_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "chat_group_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       knowledge_chunks: {
         Row: {
           content: string
@@ -3585,6 +3673,42 @@ export type Database = {
           slot?: string
           subheadline?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      live_trends: {
+        Row: {
+          created_at: string
+          duration_type: string
+          ends_at: string
+          id: string
+          payment_amount_cents: number
+          starts_at: string
+          status: string
+          text: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_type?: string
+          ends_at: string
+          id?: string
+          payment_amount_cents?: number
+          starts_at?: string
+          status?: string
+          text: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_type?: string
+          ends_at?: string
+          id?: string
+          payment_amount_cents?: number
+          starts_at?: string
+          status?: string
+          text?: string
+          user_id?: string
         }
         Relationships: []
       }

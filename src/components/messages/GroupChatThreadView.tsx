@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { useGroupMessages, useSendGroupMessage, useGroupMembers, useLeaveGroup, useRemoveGroupMember, useAddGroupMember, type ChatGroup } from "@/hooks/useGroupChats";
 import { renderChatContent, shareMessageExternal } from "@/lib/chatMessageRenderer";
-import { Send, Loader2, MoreVertical, Reply, Share2, Trash2, Users, LogOut, UserPlus, Image, Video, X, Smile } from "lucide-react";
+import { Send, Loader2, MoreVertical, Reply, Share2, Trash2, Users, LogOut, UserPlus, Image, Video, X, Smile, Phone, VideoIcon, SmilePlus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -16,6 +16,9 @@ import { useTypingIndicator } from "@/hooks/useTypingIndicator";
 import { TypingIndicator } from "@/components/messages/TypingIndicator";
 import { useMarkGroupRead } from "@/hooks/useGroupUnread";
 import { GroupAvatarUpload } from "@/components/messages/GroupAvatarUpload";
+import { QuickReactionBar } from "@/components/messages/QuickReactionBar";
+import { MessageReactions } from "@/components/messages/MessageReactions";
+import { ChatBusinessActions } from "@/components/messages/ChatBusinessActions";
 
 interface Props {
   group: ChatGroup;
@@ -29,6 +32,7 @@ export function GroupChatThreadView({ group, onBack }: Props) {
   const [showMembers, setShowMembers] = useState(false);
   const [showGroupMenu, setShowGroupMenu] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [reactionMsgId, setReactionMsgId] = useState<string | null>(null);
   const [addUserSearch, setAddUserSearch] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -177,6 +181,16 @@ export function GroupChatThreadView({ group, onBack }: Props) {
         <button onClick={() => setShowMembers(!showMembers)} className="p-2 rounded-lg hover:opacity-80 min-w-[36px] min-h-[36px] flex items-center justify-center text-muted-foreground">
           <Users className="w-4 h-4" />
         </button>
+        <button
+          onClick={() => toast.info("Voice calling not available yet")}
+          className="p-1.5 rounded-lg hover:bg-white/10 text-muted-foreground" title="Voice call">
+          <Phone className="w-4 h-4" />
+        </button>
+        <button
+          onClick={() => toast.info("Video calling not available yet")}
+          className="p-1.5 rounded-lg hover:bg-white/10 text-muted-foreground" title="Video call">
+          <VideoIcon className="w-4 h-4" />
+        </button>
         <div className="relative">
           <button onClick={() => setShowGroupMenu(!showGroupMenu)} className="p-2 rounded-lg hover:opacity-80 min-w-[36px] min-h-[36px] flex items-center justify-center text-muted-foreground">
             <MoreVertical className="w-4 h-4" />
@@ -243,8 +257,7 @@ export function GroupChatThreadView({ group, onBack }: Props) {
         </div>
       )}
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-2">
+      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-2" onClick={() => { setReactionMsgId(null); setMsgMenuId(null); }}>
         {isLoading ? (
           <div className="flex-1 flex items-center justify-center">
             <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
@@ -273,19 +286,33 @@ export function GroupChatThreadView({ group, onBack }: Props) {
                   {!isMine && (
                     <p className="text-[10px] mb-0.5 font-medium" style={{ color: "rgba(96,165,250,0.8)" }}>{msg.author_name}</p>
                   )}
-                  <div className="px-3 py-2 rounded-xl text-sm" style={{ background: isMine ? "rgba(255, 255, 255, 0.12)" : "rgba(255, 255, 255, 0.06)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: isMine ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(255,255,255,0.07)" }}>
+                  {/* Quick reaction bar */}
+                  {reactionMsgId === msg.id && (
+                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 z-30">
+                      <QuickReactionBar messageId={msg.id} type="group" onClose={() => setReactionMsgId(null)} />
+                    </div>
+                  )}
+                  <div className="px-3 py-2 rounded-xl text-sm cursor-pointer" style={{ background: isMine ? "rgba(255, 255, 255, 0.12)" : "rgba(255, 255, 255, 0.06)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: isMine ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(255,255,255,0.07)" }}
+                    onDoubleClick={(e) => { e.stopPropagation(); setReactionMsgId(msg.id); }}>
                     {renderContent(msg.content)}
                     <p className="text-[9px] mt-1 text-muted-foreground">
                       {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                     </p>
                   </div>
-                  <div className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => setMsgMenuId(msgMenuId === msg.id ? null : msg.id)} className="p-1 rounded" style={{ background: "rgba(0,0,0,0.5)" }}>
+                  <MessageReactions messageId={msg.id} type="group" />
+                  <div className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity flex gap-0.5">
+                    <button onClick={(e) => { e.stopPropagation(); setReactionMsgId(reactionMsgId === msg.id ? null : msg.id); }} className="p-1 rounded" style={{ background: "rgba(0,0,0,0.5)" }}>
+                      <SmilePlus className="w-3 h-3 text-muted-foreground" />
+                    </button>
+                    <button onClick={(e) => { e.stopPropagation(); setMsgMenuId(msgMenuId === msg.id ? null : msg.id); }} className="p-1 rounded" style={{ background: "rgba(0,0,0,0.5)" }}>
                       <MoreVertical className="w-3 h-3 text-muted-foreground" />
                     </button>
                   </div>
                   {msgMenuId === msg.id && (
-                    <div className="absolute top-6 right-0 z-20 rounded-lg py-1 min-w-[140px]" style={{ background: "#1a2027", border: "1px solid rgba(255,255,255,0.1)" }}>
+                    <div className="absolute top-6 right-0 z-20 rounded-lg py-1 min-w-[140px]" style={{ background: "#1a2027", border: "1px solid rgba(255,255,255,0.1)" }} onClick={(e) => e.stopPropagation()}>
+                      <button onClick={() => { setReactionMsgId(msg.id); setMsgMenuId(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:opacity-80 text-foreground min-h-[36px]">
+                        <SmilePlus className="w-3 h-3" /> React
+                      </button>
                       <button onClick={() => { setReplyTo({ id: msg.id, content: msg.content }); setMsgMenuId(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:opacity-80 text-foreground min-h-[36px]">
                         <Reply className="w-3 h-3" /> Reply
                       </button>
@@ -330,8 +357,9 @@ export function GroupChatThreadView({ group, onBack }: Props) {
 
       {/* Input */}
       {myMembership ? (
-        <div className="shrink-0 px-3 py-2.5" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="shrink-0 px-3 py-2.5 relative" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
           <div className="flex items-center gap-1.5 rounded-xl px-3 py-2.5" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
+            <ChatBusinessActions />
             <button onClick={() => fileInputRef.current?.click()} className="p-1.5 rounded hover:opacity-80 shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center text-muted-foreground">
               <Image className="w-4 h-4" />
             </button>

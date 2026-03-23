@@ -24,23 +24,8 @@ export function EmojiRenderer({ text, className }: EmojiRendererProps) {
   return (
     <span className={className}>
       {parts.map((part, i) => {
-        const match = part.match(/^:([a-z0-9_-]+):$/i);
-        if (match) {
-          const keyword = normalizeEmojiKeyword(match[1]);
-          const emoji = customEmojis.find((e) => e.keyword === keyword);
-          if (emoji) {
-            return (
-              <img
-                key={i}
-                src={emoji.thumbnailUrl}
-                alt={`:${emoji.keyword}:`}
-                title={`:${emoji.keyword}:`}
-                className="inline-block align-text-bottom"
-                style={{ width: "1.2em", height: "1.2em" }}
-              />
-            );
-          }
-        }
+        // Custom emoji rendering disabled — Drive URLs broken.
+        // Just render the text as-is (shortcodes will show as plain text).
         return <span key={i}>{part}</span>;
       })}
     </span>
