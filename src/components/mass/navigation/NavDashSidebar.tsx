@@ -419,7 +419,10 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
                             key={subItem.label}
                             onClick={() => {
                               setExtendedActiveItem(subItem.label);
-                              if (subItem.to) navigate(subItem.to);
+                              if (subItem.to) {
+                                navigate(subItem.to);
+                                onClose?.();
+                              }
                             }}
                             className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 mb-0.5 ${
                               isSubActive ? "nav-offers-active" : "nav-item-hover"
