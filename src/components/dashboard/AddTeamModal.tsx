@@ -239,7 +239,7 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
           {/* Search results dropdown */}
           {searchInput.trim().length>= 2 && !selectedUser && searchResults.length> 0 && (
             <div className="absolute left-4 right-4 top-full mt-1 z-50 rounded-lg overflow-hidden"
-              style={{ background: "#1a2420", border: "1px solid rgba(255,255,255,0.1)" }}>
+              style={{ background: "#1a2027", border: "1px solid rgba(255,255,255,0.1)" }}>
               {searchResults.map((u) => {
                 const resolved = resolveAvatarUrl(u);
                 const fallbackInitials = (u.display_name || u.username || "?").slice(0, 2).toUpperCase();
