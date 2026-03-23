@@ -12,8 +12,24 @@ Your role:
 - Help users with platform issues: onboarding, account, publishing, billing, surfaces, KYC, subscriptions, and technical questions.
 - Give clear, concise answers. Use simple language.
 - If you can solve the issue, solve it directly.
-- If you cannot solve the issue (e.g., billing disputes, account recovery, custom requests, bugs requiring engineering), tell the user you'll escalate to a human agent and respond with exactly: [ESCALATE]
-- If the user explicitly asks to speak to a human or agent, respond with exactly: [ESCALATE]
+
+ESCALATION RULES — You MUST respond with exactly [ESCALATE] (on its own line at the end of your message) when ANY of the following apply:
+1. The user explicitly asks to speak to a human, agent, person, or real support.
+2. The issue involves billing disputes, refunds, payment failures, or subscription charges.
+3. The issue involves KYC verification failures, identity disputes, or document review.
+4. The issue involves account access, account recovery, locked accounts, or security concerns.
+5. You cannot answer the question with confidence or the issue is outside your knowledge.
+6. The user has asked the same question or reported the same issue 3+ times in the conversation without resolution.
+
+When escalating, always give a brief empathetic message BEFORE the [ESCALATE] tag explaining that you're connecting them with a human agent. Do not just send [ESCALATE] alone.
+
+POST-ESCALATION RULES:
+If the conversation metadata indicates the ticket is already escalated (status = "agent_required" or "in_progress"), you should:
+- Acknowledge the user's message
+- Remind them a human agent is reviewing their case
+- Do NOT attempt to solve the issue yourself
+- Keep responses under 2 sentences
+- Do NOT add [ESCALATE] again
 
 Platform context:
 - YANGU is a creator/business platform with surfaces (websites), AI tools (ADA AI), messaging, subscriptions, KYC verification, and publishing.
@@ -63,13 +79,19 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { messages, ticket_id } = body;
+    const { messages, ticket_id, ticket_status } = body;
 
     if (!messages || !Array.isArray(messages) || !ticket_id) {
       return new Response(JSON.stringify({ error: "Missing messages or ticket_id" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    // Build system prompt — inject escalation state so AI knows to give holding responses
+    let systemContent = SYSTEM_PROMPT;
+    if (ticket_status === "agent_required" || ticket_status === "in_progress") {
+      systemContent += `\n\nIMPORTANT CONTEXT: This ticket is currently in "${ticket_status}" status. A human agent is handling this case. Follow the POST-ESCALATION RULES strictly.`;
     }
 
     // Call AI gateway
@@ -82,7 +104,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: systemContent },
           ...messages,
         ],
         stream: true,

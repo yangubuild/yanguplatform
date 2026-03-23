@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -11,6 +11,8 @@ export interface SupportMessage {
   created_at: string;
 }
 
+export type TicketStatus = "pending" | "agent_required" | "in_progress" | "resolved" | "closed";
+
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/support-chat`;
 
 export function useSupportChat() {
@@ -18,8 +20,13 @@ export function useSupportChat() {
   const [messages, setMessages] = useState<SupportMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [ticketId, setTicketId] = useState<string | null>(null);
+  const [ticketStatus, setTicketStatus] = useState<TicketStatus>("pending");
   const [isEscalated, setIsEscalated] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+
+  // Derived states for UI
+  const isAgentHandling = ticketStatus === "agent_required" || ticketStatus === "in_progress";
+  const isResolved = ticketStatus === "resolved" || ticketStatus === "closed";
 
   const ensureTicket = useCallback(async (): Promise<string | null> => {
     if (ticketId) return ticketId;
@@ -37,7 +44,9 @@ export function useSupportChat() {
 
     if (existing) {
       setTicketId(existing.id);
-      if (existing.status === "agent_required" || existing.status === "in_progress") {
+      const status = existing.status as TicketStatus;
+      setTicketStatus(status);
+      if (status === "agent_required" || status === "in_progress") {
         setIsEscalated(true);
       }
       // Load existing messages
@@ -61,7 +70,7 @@ export function useSupportChat() {
       return existing.id;
     }
 
-    // Create new ticket
+    // Create new ticket — starts as pending (AI-only)
     const { data: newTicket, error } = await supabase
       .from("support_tickets")
       .insert({ user_id: user.id, subject: "Support Chat", category: "general" })
@@ -74,6 +83,7 @@ export function useSupportChat() {
     }
 
     setTicketId(newTicket.id);
+    setTicketStatus("pending");
     return newTicket.id;
   }, [ticketId, user]);
 
@@ -91,8 +101,51 @@ export function useSupportChat() {
       .from("support_tickets")
       .update({ status: "agent_required", updated_at: new Date().toISOString() })
       .eq("id", tId);
+    setTicketStatus("agent_required");
     setIsEscalated(true);
   }, []);
+
+  // Poll for new agent messages and status changes on the active ticket
+  useEffect(() => {
+    if (!ticketId) return;
+    const interval = setInterval(async () => {
+      // Refresh ticket status
+      const { data: ticket } = await supabase
+        .from("support_tickets")
+        .select("status")
+        .eq("id", ticketId)
+        .maybeSingle();
+
+      if (ticket) {
+        const newStatus = ticket.status as TicketStatus;
+        setTicketStatus(newStatus);
+        if (newStatus === "agent_required" || newStatus === "in_progress") {
+          setIsEscalated(true);
+        }
+      }
+
+      // Refresh messages (check for new agent replies)
+      const { data: msgs } = await supabase
+        .from("support_messages")
+        .select("*")
+        .eq("ticket_id", ticketId)
+        .order("created_at", { ascending: true });
+
+      if (msgs?.length) {
+        setMessages(
+          msgs.map((m: any) => ({
+            id: m.id,
+            role: m.sender_type === "user" ? "user" as const : "assistant" as const,
+            content: m.content,
+            sender_type: m.sender_type,
+            created_at: m.created_at,
+          }))
+        );
+      }
+    }, 8000); // Poll every 8 seconds
+
+    return () => clearInterval(interval);
+  }, [ticketId]);
 
   const sendMessage = useCallback(async (input: string) => {
     if (!input.trim() || isLoading) return;
@@ -147,7 +200,11 @@ export function useSupportChat() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session?.access_token ?? import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ messages: conversationMsgs, ticket_id: tId }),
+        body: JSON.stringify({
+          messages: conversationMsgs,
+          ticket_id: tId,
+          ticket_status: ticketStatus,
+        }),
       });
 
       if (!resp.ok) {
@@ -192,7 +249,7 @@ export function useSupportChat() {
 
       // Check for escalation signal
       if (assistantContent.includes("[ESCALATE]")) {
-        assistantContent = assistantContent.replace("[ESCALATE]", "").trim();
+        assistantContent = assistantContent.replace(/\[ESCALATE\]/g, "").trim();
         if (!assistantContent) {
           assistantContent = "I'm connecting you with a support agent who can help further. Your conversation history has been preserved so they can see what we've discussed.";
         }
@@ -201,8 +258,8 @@ export function useSupportChat() {
           prev.map(m => m.id === assistantId ? { ...m, content: assistantContent } : m)
         );
         await escalateTicket(tId);
-        // Save escalation message
-        await saveMessage(tId, "This conversation has been escalated to a human support agent.", "ai");
+        // Save system escalation notice
+        await saveMessage(tId, "⚡ This conversation has been escalated to a human support agent.", "ai");
       }
 
       // Save AI response
@@ -212,17 +269,17 @@ export function useSupportChat() {
     } catch (err) {
       console.error("Support chat error:", err);
       toast.error(err instanceof Error ? err.message : "Failed to get support response");
-      // Remove the empty assistant message if error
       setMessages(prev => prev.filter(m => m.id !== assistantId));
     } finally {
       setIsLoading(false);
     }
-  }, [messages, isLoading, ensureTicket, saveMessage, escalateTicket]);
+  }, [messages, isLoading, ensureTicket, saveMessage, escalateTicket, ticketStatus]);
 
   const startNewConversation = useCallback(() => {
     setTicketId(null);
     setMessages([]);
     setIsEscalated(false);
+    setTicketStatus("pending");
   }, []);
 
   return {
@@ -230,7 +287,10 @@ export function useSupportChat() {
     isLoading,
     sendMessage,
     isEscalated,
+    isAgentHandling,
+    isResolved,
     ticketId,
+    ticketStatus,
     ensureTicket,
     startNewConversation,
   };

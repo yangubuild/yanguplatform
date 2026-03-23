@@ -4,11 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Loader2, MessageSquare, Clock, User, CheckCircle2, XCircle, Headset } from "lucide-react";
 import { toast } from "sonner";
@@ -22,6 +18,15 @@ const STATUS_CONFIG: Record<TicketStatus, { label: string; color: string; icon: 
   in_progress: { label: "In Progress", color: "bg-blue-500/10 text-blue-500 border-blue-500/20", icon: MessageSquare },
   resolved: { label: "Resolved", color: "bg-green-500/10 text-green-500 border-green-500/20", icon: CheckCircle2 },
   closed: { label: "Closed", color: "bg-muted text-muted-foreground border-border", icon: XCircle },
+};
+
+// Valid status transitions
+const ALLOWED_TRANSITIONS: Record<TicketStatus, TicketStatus[]> = {
+  pending: ["agent_required", "in_progress", "closed"],
+  agent_required: ["in_progress", "closed"],
+  in_progress: ["resolved", "closed"],
+  resolved: ["closed"],
+  closed: [],
 };
 
 export default function ManageSupportQueue() {
@@ -45,6 +50,7 @@ export default function ManageSupportQueue() {
       if (error) throw error;
       return data ?? [];
     },
+    refetchInterval: 10000,
   });
 
   const { data: ticketMessages = [] } = useQuery({
@@ -59,6 +65,7 @@ export default function ManageSupportQueue() {
       if (error) throw error;
       return data ?? [];
     },
+    refetchInterval: selectedTicket ? 6000 : false,
   });
 
   const updateStatus = useMutation({
@@ -88,7 +95,7 @@ export default function ManageSupportQueue() {
         content: replyText,
       });
       if (error) throw error;
-      // Update ticket status to in_progress if it was agent_required
+      // Auto-transition: first agent reply moves ticket to in_progress
       const ticket = tickets.find(t => t.id === selectedTicket);
       if (ticket?.status === "agent_required" || ticket?.status === "pending") {
         await supabase
@@ -107,6 +114,8 @@ export default function ManageSupportQueue() {
   });
 
   const selectedTicketData = tickets.find(t => t.id === selectedTicket);
+  const currentStatus = (selectedTicketData?.status || "pending") as TicketStatus;
+  const allowedNextStatuses = ALLOWED_TRANSITIONS[currentStatus] || [];
 
   return (
     <div className="space-y-6">
@@ -198,77 +207,91 @@ export default function ManageSupportQueue() {
                   </p>
                 </div>
                 <Select
-                  value={selectedTicketData?.status}
+                  value={currentStatus}
                   onValueChange={(v) => updateStatus.mutate({ id: selectedTicket, status: v })}>
                   <SelectTrigger className="w-[140px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="agent_required">Agent Required</SelectItem>
-                    <SelectItem value="in_progress">In Progress</SelectItem>
-                    <SelectItem value="resolved">Resolved</SelectItem>
-                    <SelectItem value="closed">Closed</SelectItem>
+                    {/* Always show current status */}
+                    <SelectItem value={currentStatus} disabled>
+                      {STATUS_CONFIG[currentStatus]?.label} (current)
+                    </SelectItem>
+                    {allowedNextStatuses.map((s) => (
+                      <SelectItem key={s} value={s}>{STATUS_CONFIG[s].label}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
 
               {/* Messages */}
               <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                {ticketMessages.map((msg: any) => (
-                  <div
-                    key={msg.id}
-                    className={`flex gap-2 ${msg.sender_type === "agent" ? "justify-end" : "justify-start"}`}>
-                    {msg.sender_type !== "agent" && (
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
-                        msg.sender_type === "ai" ? "bg-accent/10" : "bg-muted"
-                      }`}>
-                        {msg.sender_type === "ai" ? (
-                          <MessageSquare className="h-3 w-3 text-accent" />
-                        ) : (
-                          <User className="h-3 w-3 text-muted-foreground" />
-                        )}
+                {ticketMessages.map((msg: any) => {
+                  // System messages
+                  if (msg.sender_type === "ai" && msg.content.startsWith("⚡")) {
+                    return (
+                      <div key={msg.id} className="flex justify-center">
+                        <span className="text-[10px] text-muted-foreground bg-muted/50 px-3 py-1 rounded-full">
+                          {msg.content}
+                        </span>
                       </div>
-                    )}
-                    <div
-                      className={`max-w-[80%] rounded-lg px-3 py-2 text-xs leading-relaxed whitespace-pre-wrap ${
+                    );
+                  }
+                  return (
+                    <div key={msg.id}
+                      className={`flex gap-2 ${msg.sender_type === "agent" ? "justify-end" : "justify-start"}`}>
+                      {msg.sender_type !== "agent" && (
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+                          msg.sender_type === "ai" ? "bg-accent/10" : "bg-muted"
+                        }`}>
+                          {msg.sender_type === "ai" ? (
+                            <MessageSquare className="h-3 w-3 text-accent" />
+                          ) : (
+                            <User className="h-3 w-3 text-muted-foreground" />
+                          )}
+                        </div>
+                      )}
+                      <div className={`max-w-[80%] rounded-lg px-3 py-2 text-xs leading-relaxed whitespace-pre-wrap ${
                         msg.sender_type === "agent"
                           ? "bg-accent text-accent-foreground"
                           : msg.sender_type === "ai"
                           ? "bg-accent/10 text-foreground"
                           : "bg-muted text-foreground"
                       }`}>
-                      {msg.sender_type !== "user" && (
                         <span className="text-[10px] font-semibold block mb-1 opacity-70">
-                          {msg.sender_type === "ai" ? "AI Assistant" : "Support Agent"}
+                          {msg.sender_type === "ai" ? "AI Assistant" : msg.sender_type === "agent" ? "Support Agent" : "User"}
                         </span>
-                      )}
-                      {msg.content}
-                    </div>
-                    {msg.sender_type === "agent" && (
-                      <div className="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center shrink-0 mt-0.5">
-                        <Headset className="h-3 w-3 text-accent" />
+                        {msg.content}
                       </div>
-                    )}
-                  </div>
-                ))}
+                      {msg.sender_type === "agent" && (
+                        <div className="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center shrink-0 mt-0.5">
+                          <Headset className="h-3 w-3 text-accent" />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
 
-              {/* Reply input */}
+              {/* Reply input — disabled for closed tickets */}
               <div className="p-3 border-t border-border flex gap-2">
-                <input
-                  value={replyText}
-                  onChange={(e) => setReplyText(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendReply.mutate()}
-                  placeholder="Type a reply as agent..."
-                  className="flex-1 bg-muted rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border focus:border-accent transition-colors"
-                />
-                <Button
-                  size="sm"
-                  disabled={!replyText.trim() || sendReply.isPending}
-                  onClick={() => sendReply.mutate()}>
-                  Send
-                </Button>
+                {currentStatus === "closed" ? (
+                  <p className="text-xs text-muted-foreground py-2 w-full text-center">This ticket is closed.</p>
+                ) : (
+                  <>
+                    <input
+                      value={replyText}
+                      onChange={(e) => setReplyText(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendReply.mutate()}
+                      placeholder="Type a reply as agent..."
+                      className="flex-1 bg-muted rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border focus:border-accent transition-colors"
+                    />
+                    <Button size="sm" disabled={!replyText.trim() || sendReply.isPending}
+                      onClick={() => sendReply.mutate()}>
+                      Send
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           )}
