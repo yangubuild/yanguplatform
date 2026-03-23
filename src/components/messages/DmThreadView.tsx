@@ -32,6 +32,7 @@ export function DmThreadView({ targetUserId }: Props) {
   const [forwardingMsg, setForwardingMsg] = useState<string | null>(null);
   const [msgMenuId, setMsgMenuId] = useState<string | null>(null);
   const [showChatMenu, setShowChatMenu] = useState(false);
+  const [showLabelPicker, setShowLabelPicker] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [reactionMsgId, setReactionMsgId] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
