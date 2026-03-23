@@ -47,7 +47,7 @@ export function UserProfilePopup({ user, onClose, onViewProfile, onMessage }: Pr
     if (onViewProfile) {
       onViewProfile();
     } else {
-      navigate(`/dashboard/home`);
+      navigate(`/dashboard/home?view_profile=${user.id}`);
       onClose();
     }
   };

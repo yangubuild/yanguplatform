@@ -105,13 +105,21 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
       setExpandedItem(expandedItem === label ? null : label);
     } else {
       setExpandedItem(null);
-      if (item.to) navigate(item.to);
+      if (item.to) {
+        navigate(item.to);
+        // Auto-close sidebar on mobile after navigation
+        onClose?.();
+      }
     }
   };
 
   const handleSubItemClick = (sub: { label: string; to?: string }) => {
     setActiveItem(sub.label);
-    if (sub.to) navigate(sub.to);
+    if (sub.to) {
+      navigate(sub.to);
+      // Auto-close sidebar on mobile after navigation
+      onClose?.();
+    }
   };
 
   const visibleNavItems = PRIMARY_NAV_ITEMS.filter((item) => isNavItemVisible(item, userType, isOrgOwner));

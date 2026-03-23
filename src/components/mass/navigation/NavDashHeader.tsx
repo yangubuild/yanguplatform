@@ -198,8 +198,6 @@ function NotificationBell() {
   );
 }
 function MessagesBadgeButton({ globalChatOpen, onToggle }: { globalChatOpen: boolean; onToggle: () => void }) {
-  const { data: unreadDmCount = 0 } = useUnreadDmCount();
-
   return (
     <button
       onClick={onToggle}
@@ -213,14 +211,6 @@ function MessagesBadgeButton({ globalChatOpen, onToggle }: { globalChatOpen: boo
         className="w-7 h-7 object-contain transition-transform hover:scale-105"
         style={{ filter: globalChatOpen ? "drop-shadow(0 0 6px rgba(249,115,22,0.4))" : "none" }}
       />
-      {unreadDmCount > 0 && (
-        <span
-          className="absolute top-0.5 right-0 min-w-[16px] h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white px-1"
-          style={{ background: "#ef4444" }}
-        >
-          {unreadDmCount > 9 ? "9+" : unreadDmCount}
-        </span>
-      )}
     </button>
   );
 }
@@ -587,6 +577,22 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
                   onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                 >
                   Manage Subscription
+                </button>
+                <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", margin: "2px 0" }} />
+                <button
+                  onClick={async () => {
+                    const { signOut: doSignOut } = await import("@/hooks/useAuth").then(m => ({ signOut: m.useAuth }));
+                    // Direct signout via supabase
+                    const { supabase: sb } = await import("@/integrations/supabase/client");
+                    await sb.auth.signOut();
+                    window.location.href = "/";
+                  }}
+                  className="w-full px-4 py-2.5 text-left text-xs transition-colors"
+                  style={{ color: "#ef4444" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(239,68,68,0.08)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                >
+                  Sign Out
                 </button>
               </div>
             </PopoverContent>
