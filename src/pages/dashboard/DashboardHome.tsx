@@ -187,6 +187,13 @@ export default function DashboardHome() {
     <ProfileWorkspace
       activeProfileTab={activeProfileTab}
       onProfileTabChange={handleProfileTabChange}
+      onViewProfile={(u) => handleViewFriend({
+        id: u.id,
+        display_name: u.display_name,
+        username: u.username,
+        avatar_url: u.avatar_url,
+        business_name: null,
+      })}
     />
   );
   const postModal = postModalId ? (
