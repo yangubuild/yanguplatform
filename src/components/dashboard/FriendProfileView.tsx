@@ -21,6 +21,24 @@ import { useProfileReviews, useSubmitProfileReview } from "@/hooks/useProfileRev
 import { useFollowCounts } from "@/hooks/useFollows";
 import { FollowButton } from "./panels/FollowButton";
 
+import instagramIcon from "@/assets/icons/instagram-3.png";
+import facebookIcon from "@/assets/icons/facebook-3.png";
+import youtubeIcon from "@/assets/icons/youtube-3.png";
+import linkedinIcon from "@/assets/icons/linkedin-2.png";
+import xIcon from "@/assets/icons/x-3.png";
+import tiktokIcon from "@/assets/icons/tiktok-3.png";
+import whatsappIcon from "@/assets/icons/whatsapp-3.png";
+
+const FRIEND_SOCIAL_PLATFORMS = [
+  { id: "instagram", name: "Instagram", icon: instagramIcon },
+  { id: "facebook", name: "Facebook", icon: facebookIcon },
+  { id: "youtube", name: "YouTube", icon: youtubeIcon },
+  { id: "linkedin", name: "LinkedIn", icon: linkedinIcon },
+  { id: "x", name: "X", icon: xIcon },
+  { id: "tiktok", name: "TikTok", icon: tiktokIcon },
+  { id: "whatsapp", name: "WhatsApp", icon: whatsappIcon },
+] as const;
+
 export interface FriendUser {
   id: string;
   display_name: string | null;
@@ -245,6 +263,35 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
             )}
             <span className="text-muted-foreground">•</span>
             <span>{followCounts?.followers ?? 0} followers · {followCounts?.following ?? 0} following</span>
+            {/* Social link icons */}
+            {(() => {
+              const sl = (friendProfile as any)?.social_links as Record<string, string> | null;
+              if (!sl || typeof sl !== "object") return null;
+              const activeSocials = FRIEND_SOCIAL_PLATFORMS.filter(p => sl[p.id]);
+              if (activeSocials.length === 0) return null;
+              return (
+                <>
+                  <span className="text-muted-foreground">•</span>
+                  <span className="flex items-center gap-1.5">
+                    {activeSocials.map(p => {
+                      let url = sl[p.id] || "#";
+                      if (url !== "#" && !url.startsWith("http")) url = `https://${url}`;
+                      return (
+                        <a
+                          key={p.id}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:opacity-80 transition-opacity"
+                          onClick={e => e.stopPropagation()}>
+                          <img src={p.icon} alt={p.name} className="w-4 h-4 rounded-sm object-contain" />
+                        </a>
+                      );
+                    })}
+                  </span>
+                </>
+              );
+            })()}
             <span className="text-muted-foreground">•</span>
             <span>{surfaces.length} surface{surfaces.length !== 1 ? "s" : ""}</span>
           </div>
