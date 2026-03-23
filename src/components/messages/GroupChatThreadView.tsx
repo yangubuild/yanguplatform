@@ -352,3 +352,88 @@ export function GroupChatThreadView({ group, onBack }: Props) {
     </div>
   );
 }
+
+/* ── WhatsApp-style group message bubble ── */
+function GroupMessageBubble({
+  msg, isMine, reactionMsgId, msgMenuId,
+  setReactionMsgId, setMsgMenuId, setReplyTo, renderContent, handleDeleteMsg, userId,
+}: {
+  msg: any; isMine: boolean;
+  reactionMsgId: string | null; msgMenuId: string | null;
+  setReactionMsgId: (id: string | null) => void; setMsgMenuId: (id: string | null) => void;
+  setReplyTo: (v: { id: string; content: string }) => void;
+  renderContent: (content: string) => React.ReactNode;
+  handleDeleteMsg: (id: string) => void; userId?: string;
+}) {
+  const longPress = useLongPress(() => setReactionMsgId(msg.id), 400);
+
+  return (
+    <div className={`flex gap-2 items-end ${isMine ? "justify-end" : "justify-start"}`}>
+      {!isMine && (
+        <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold overflow-hidden shrink-0 mb-1" style={{ background: "rgba(255,255,255,0.1)" }}>
+          {msg.author_avatar ? <img src={msg.author_avatar} alt="" className="w-7 h-7 rounded-full object-cover" /> : <span className="text-muted-foreground">{(msg.author_name || "?").slice(0, 2).toUpperCase()}</span>}
+        </div>
+      )}
+
+      <div className="relative max-w-[75%] group">
+        {!isMine && (
+          <p className="text-[10px] mb-0.5 font-medium" style={{ color: "rgba(96,165,250,0.8)" }}>{msg.author_name}</p>
+        )}
+        {reactionMsgId === msg.id && (
+          <div className="absolute -top-12 left-1/2 -translate-x-1/2 z-30">
+            <QuickReactionBar messageId={msg.id} type="group" onClose={() => setReactionMsgId(null)} />
+          </div>
+        )}
+        <div
+          className="px-3 py-2 rounded-xl text-sm select-none"
+          style={{
+            background: isMine ? "rgba(255, 255, 255, 0.12)" : "rgba(255, 255, 255, 0.06)",
+            backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
+            border: isMine ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(255,255,255,0.07)",
+          }}
+          {...longPress}
+          onDoubleClick={(e) => { e.stopPropagation(); setReactionMsgId(msg.id); }}>
+          {renderContent(msg.content)}
+          <p className="text-[9px] mt-1 text-muted-foreground">
+            {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+          </p>
+        </div>
+        <MessageReactions messageId={msg.id} type="group" />
+        {msgMenuId === msg.id && (
+          <div className="absolute top-6 right-0 z-20 rounded-lg py-1 min-w-[140px]" style={{ background: "#1a2027", border: "1px solid rgba(255,255,255,0.1)" }} onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => { setReactionMsgId(msg.id); setMsgMenuId(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:opacity-80 text-foreground min-h-[36px]">
+              <SmilePlus className="w-3 h-3" /> React
+            </button>
+            <button onClick={() => { setReplyTo({ id: msg.id, content: msg.content }); setMsgMenuId(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:opacity-80 text-foreground min-h-[36px]">
+              <Reply className="w-3 h-3" /> Reply
+            </button>
+            <button onClick={() => { shareMessageExternal(msg.content); setMsgMenuId(null); toast.success("Shared"); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:opacity-80 text-foreground min-h-[36px]">
+              <Share2 className="w-3 h-3" /> Share
+            </button>
+            {isMine && (
+              <button onClick={() => handleDeleteMsg(msg.id)} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:opacity-80 min-h-[36px]" style={{ color: "#ef4444" }}>
+                <Trash2 className="w-3 h-3" /> Delete
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Side action icons */}
+      <div className="flex flex-col gap-0.5 mb-1 shrink-0">
+        <button
+          onClick={(e) => { e.stopPropagation(); setReplyTo({ id: msg.id, content: msg.content }); }}
+          className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors opacity-0 group-hover:opacity-60 hover:!opacity-100"
+          title="Reply">
+          <Reply className="w-3 h-3 text-muted-foreground" />
+        </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); setMsgMenuId(msgMenuId === msg.id ? null : msg.id); }}
+          className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors opacity-0 group-hover:opacity-60 hover:!opacity-100"
+          title="More">
+          <ChevronDown className="w-3 h-3 text-muted-foreground" />
+        </button>
+      </div>
+    </div>
+  );
+}
