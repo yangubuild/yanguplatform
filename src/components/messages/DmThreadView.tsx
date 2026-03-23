@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useConversation, useSendMessage } from "@/hooks/useDirectMessages";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import { renderChatContent, shareMessageExternal } from "@/lib/chatMessageRenderer";
-import { Send, Loader2, MoreVertical, Reply, Forward, Trash2, Image, Video, X, Share2, Smile, Phone, VideoIcon, SmilePlus, ChevronDown, Search, Tag, Info, CheckSquare, BellOff, Heart, XCircle, Flag, Ban, MinusCircle, Megaphone } from "lucide-react";
+import { Send, Loader2, MoreVertical, Reply, Forward, Trash2, Image, Video, X, Smile, Phone, VideoIcon, SmilePlus, ChevronDown, Search, Tag, Info, CheckSquare, BellOff, Heart, Flag, Ban, Megaphone, Plus, Camera, Mic, Download, Languages } from "lucide-react";
 import { useLongPress } from "@/hooks/useLongPress";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -21,6 +21,7 @@ import { QuickReactionBar } from "@/components/messages/QuickReactionBar";
 import { MessageReactions } from "@/components/messages/MessageReactions";
 import { ChatLabelBadges, ChatLabelPicker } from "@/components/messages/ChatLabel";
 import { ChatBusinessActions } from "@/components/messages/ChatBusinessActions";
+import { ForwardMessageDialog } from "@/components/messages/ForwardMessageDialog";
 
 interface Props {
   targetUserId: string;
@@ -148,7 +149,6 @@ export function DmThreadView({ targetUserId }: Props) {
 
   const handleForward = (content: string) => {
     setForwardingMsg(content);
-    toast.info("Select a user from the sidebar to forward this message");
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: "image" | "video") => {
@@ -303,19 +303,6 @@ export function DmThreadView({ targetUserId }: Props) {
         <ChatLabelPicker targetUserId={targetUserId} open={showLabelPicker} onClose={() => setShowLabelPicker(false)} />
       </div>
 
-      {/* Reply indicator */}
-      {replyTo && (
-        <div className="px-4 py-2 flex items-center gap-2" style={{ background: "rgba(255,255,255,0.03)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-          <Reply className="w-3.5 h-3.5 text-muted-foreground" />
-          <span className="text-xs truncate flex-1 text-muted-foreground">
-            Replying to: {replyTo.content.slice(0, 60)}
-          </span>
-          <button onClick={() => setReplyTo(null)}>
-            <X className="w-3.5 h-3.5 text-muted-foreground" />
-          </button>
-        </div>
-      )}
-
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-2" onClick={() => { setReactionMsgId(null); setMsgMenuId(null); }}>
         {isLoading ? (
@@ -385,46 +372,79 @@ export function DmThreadView({ targetUserId }: Props) {
 
       <TypingIndicator names={typingUsers.map(u => u.name)} />
 
-      {/* Input */}
-      <div className="shrink-0 px-3 py-2.5 relative" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-        <div
-          className="flex items-center gap-1.5 rounded-xl px-3 py-2.5"
-          style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
+      {/* Reply indicator above input */}
+      {replyTo && (
+        <div className="shrink-0 px-3 py-2 flex items-center gap-2" style={{ background: "rgba(255,255,255,0.04)", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+          <div className="w-1 h-8 rounded-full shrink-0" style={{ background: "#f59e0b" }} />
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] font-semibold" style={{ color: "#f59e0b" }}>Replying</p>
+            <p className="text-xs truncate text-foreground">{replyTo.content.slice(0, 60)}</p>
+          </div>
+          <button onClick={() => setReplyTo(null)} className="shrink-0">
+            <X className="w-4 h-4 text-muted-foreground" />
+          </button>
+        </div>
+      )}
+
+      {/* Input bar — WhatsApp style: Plus, text, emoji, camera, mic */}
+      <div className="shrink-0 px-3 py-2.5" style={{ borderTop: replyTo ? "none" : "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="flex items-center gap-1.5">
+          {/* Plus button for attachments */}
           <ChatBusinessActions />
+
+          {/* Text input area */}
+          <div
+            className="flex-1 flex items-center gap-1.5 rounded-full px-3 py-2"
+            style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
+            <button
+              onClick={() => setShowEmojiPicker((prev) => !prev)}
+              className="p-1 rounded-full hover:opacity-80 shrink-0"
+              style={{ color: showEmojiPicker ? "#facc15" : "rgba(255,255,255,0.4)" }}>
+              <Smile className="w-4 h-4" />
+            </button>
+            <input
+              type="text"
+              value={message}
+              onChange={(e) => { handleInputChange(e.target.value, e.target.selectionStart ?? undefined); startTyping(); }}
+              onKeyDown={(e) => e.key === "Enter" && handleSend()}
+              placeholder={replyTo ? "Type a reply..." : "Type a message..."}
+              className="flex-1 bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground min-w-0"
+            />
+          </div>
+
+          {/* Camera */}
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="p-1.5 rounded hover:opacity-80 shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center text-muted-foreground">
-            <Image className="w-4 h-4" />
+            className="p-2 rounded-full hover:bg-white/10 shrink-0 text-muted-foreground"
+            title="Photo">
+            <Camera className="w-5 h-5" />
           </button>
-          <button
-            onClick={() => videoInputRef.current?.click()}
-            className="p-1.5 rounded hover:opacity-80 shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center text-muted-foreground">
-            <Video className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setShowEmojiPicker((prev) => !prev)}
-            className="p-1.5 rounded hover:opacity-80 shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center"
-            style={{ color: showEmojiPicker ? "#facc15" : "rgba(255,255,255,0.4)" }}>
-            <Smile className="w-4 h-4" />
-          </button>
-          <input
-            type="text"
-            value={message}
-            onChange={(e) => { handleInputChange(e.target.value, e.target.selectionStart ?? undefined); startTyping(); }}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            placeholder={replyTo ? "Type a reply..." : "Type a message..."}
-            className="flex-1 bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground min-w-0"
-          />
-          <Button variant={message.trim() ? "accent" : "outline"} size="icon" onClick={handleSend} disabled={!message.trim()} className="w-8 h-8 rounded-lg shrink-0">
-            <Send className="w-3.5 h-3.5" />
-          </Button>
+
+          {/* Send or Mic */}
+          {message.trim() ? (
+            <Button variant="accent" size="icon" onClick={handleSend} className="w-9 h-9 rounded-full shrink-0">
+              <Send className="w-4 h-4" />
+            </Button>
+          ) : (
+            <button
+              onClick={() => toast.info("Voice recording coming soon")}
+              className="p-2 rounded-full hover:bg-white/10 shrink-0 text-muted-foreground"
+              title="Voice message">
+              <Mic className="w-5 h-5" />
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Forward dialog */}
+      {forwardingMsg && (
+        <ForwardMessageDialog content={forwardingMsg} onClose={() => setForwardingMsg(null)} />
+      )}
     </div>
   );
 }
 
-/* ── WhatsApp-style message bubble with long-press + side icons ── */
+/* ── WhatsApp-style message bubble with side icons: Forward, Emoji, Dropdown ── */
 function DmMessageBubble({
   msg, isMine, avatar, initials, reactionMsgId, msgMenuId,
   setReactionMsgId, setMsgMenuId, setReplyTo, handleForward, renderContent, deleteMsg, userId,
@@ -438,19 +458,13 @@ function DmMessageBubble({
   deleteMsg: any; userId?: string;
 }) {
   const longPress = useLongPress(() => setReactionMsgId(msg.id), 400);
+  const isImage = msg.content.includes("📷") || /https?:\/\/\S+\.(jpg|jpeg|png|gif|webp)/i.test(msg.content);
 
   return (
-    <div className={`flex gap-2 items-end ${isMine ? "justify-end" : "justify-start"}`}>
+    <div className={`flex gap-1.5 items-end ${isMine ? "justify-end" : "justify-start"}`}>
       {!isMine && (
         <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold overflow-hidden shrink-0 mb-1" style={{ background: "rgba(255,255,255,0.1)" }}>
           {avatar ? <img src={avatar} alt="" className="w-7 h-7 rounded-full object-cover" /> : <span className="text-muted-foreground">{initials}</span>}
-        </div>
-      )}
-
-      {/* Side icons — left side for received messages */}
-      {!isMine && (
-        <div className="flex flex-col gap-0.5 mb-1 opacity-0 group-hover:opacity-100 transition-opacity" style={{ opacity: 1 }}>
-          {/* intentionally empty — icons go on right */}
         </div>
       )}
 
@@ -465,9 +479,19 @@ function DmMessageBubble({
           {...longPress}
           onClick={(e) => { e.stopPropagation(); setReactionMsgId(reactionMsgId === msg.id ? null : msg.id); }}>
           {renderContent(msg.content)}
-          <p className="text-[9px] mt-1 text-muted-foreground">
-            {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-          </p>
+          <div className="flex items-center justify-between gap-2 mt-1">
+            <p className="text-[9px] text-muted-foreground">
+              {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+            </p>
+            {/* Inline reply button */}
+            <button
+              onClick={(e) => { e.stopPropagation(); setReplyTo({ id: msg.id, content: msg.content }); }}
+              className="flex items-center gap-0.5 text-[9px] text-muted-foreground hover:text-foreground transition-colors"
+              title="Reply">
+              <Reply className="w-3 h-3" />
+              <span>Reply</span>
+            </button>
+          </div>
         </div>
         <MessageReactions messageId={msg.id} type="dm" />
         {/* Quick reaction bar floating below */}
@@ -478,27 +502,40 @@ function DmMessageBubble({
         )}
         {/* Dropdown menu */}
         {msgMenuId === msg.id && (
-          <div className="absolute top-6 right-0 z-20 rounded-lg py-1 min-w-[140px]" style={{ background: "#1a2027", border: "1px solid rgba(255,255,255,0.1)" }} onClick={(e) => e.stopPropagation()}>
-            <button onClick={() => { setReplyTo({ id: msg.id, content: msg.content }); setMsgMenuId(null); }} className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:opacity-80 text-foreground">
-              <Reply className="w-3 h-3" /> Reply
+          <div
+            className="absolute top-6 right-0 z-20 rounded-xl py-1.5 min-w-[160px] shadow-xl"
+            style={{ background: "#1a2027", border: "1px solid rgba(255,255,255,0.1)" }}
+            onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => { setReplyTo({ id: msg.id, content: msg.content }); setMsgMenuId(null); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-left hover:bg-white/5 text-foreground">
+              <Reply className="w-3.5 h-3.5 text-muted-foreground" /> Reply
             </button>
-            <button onClick={() => { handleForward(msg.content); setMsgMenuId(null); }} className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:opacity-80 text-foreground">
-              <Forward className="w-3 h-3" /> Forward
+            <button onClick={() => { handleForward(msg.content); setMsgMenuId(null); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-left hover:bg-white/5 text-foreground">
+              <Forward className="w-3.5 h-3.5 text-muted-foreground" /> Forward
             </button>
-            <button onClick={() => { shareMessageExternal(msg.content); setMsgMenuId(null); toast.success("Shared"); }} className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:opacity-80 text-foreground">
-              <Share2 className="w-3 h-3" /> Share
-            </button>
-            {isMine && (
-              <button onClick={() => { deleteMsg.mutate(msg.id); setMsgMenuId(null); }} className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:opacity-80" style={{ color: "#ef4444" }}>
-                <Trash2 className="w-3 h-3" /> Delete
+            {isImage && (
+              <button onClick={() => { toast.info("Save to device coming soon"); setMsgMenuId(null); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-left hover:bg-white/5 text-foreground">
+                <Download className="w-3.5 h-3.5 text-muted-foreground" /> Save
               </button>
             )}
+            <button onClick={() => { toast.info("Translation coming soon"); setMsgMenuId(null); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-left hover:bg-white/5 text-foreground">
+              <Languages className="w-3.5 h-3.5 text-muted-foreground" /> Translate
+            </button>
+            <div className="my-1" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }} />
+            <button onClick={() => { deleteMsg.mutate(msg.id); setMsgMenuId(null); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-left hover:bg-white/5" style={{ color: "#ef4444" }}>
+              <Trash2 className="w-3.5 h-3.5" /> Delete
+            </button>
           </div>
         )}
       </div>
 
-      {/* Side action icons — always visible */}
-      <div className="flex items-center gap-0.5 mb-1 shrink-0">
+      {/* Side action icons — Forward, Emoji, Dropdown (always visible) */}
+      <div className="flex flex-col items-center gap-0.5 mb-1 shrink-0">
+        <button
+          onClick={(e) => { e.stopPropagation(); handleForward(msg.content); }}
+          className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+          title="Forward">
+          <Forward className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.4)" }} />
+        </button>
         <button
           onClick={(e) => { e.stopPropagation(); setReactionMsgId(reactionMsgId === msg.id ? null : msg.id); }}
           className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
