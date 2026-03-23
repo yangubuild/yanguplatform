@@ -4,12 +4,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import {
   Mail, Lock, LogOut, Eye, MessageSquare, UserPlus,
   Bell, BellRing, Shield, Globe, Palette, Loader2,
-  ChevronRight, CheckCircle2, Clock, AlertTriangle
+  ChevronRight, CheckCircle2, Clock, AlertTriangle, DollarSign
 } from "lucide-react";
 
 function Section({ title, icon: Icon, children }: { title: string; icon: React.ElementType; children: React.ReactNode }) {
@@ -39,6 +38,27 @@ function Row({ label, description, children }: { label: string; description?: st
   );
 }
 
+const LANGUAGES = [
+  { value: "en", label: "English" },
+  { value: "fr", label: "Français" },
+  { value: "es", label: "Español" },
+  { value: "sw", label: "Kiswahili" },
+  { value: "ar", label: "العربية" },
+  { value: "pt", label: "Português" },
+  { value: "zh", label: "中文" },
+];
+
+const CURRENCIES = [
+  { value: "USD", label: "USD", symbol: "$" },
+  { value: "EUR", label: "EUR", symbol: "€" },
+  { value: "GBP", label: "GBP", symbol: "£" },
+  { value: "KES", label: "KES", symbol: "KSh" },
+  { value: "UGX", label: "UGX", symbol: "USh" },
+  { value: "NGN", label: "NGN", symbol: "₦" },
+  { value: "AED", label: "AED", symbol: "د.إ" },
+  { value: "ZAR", label: "ZAR", symbol: "R" },
+];
+
 export default function SettingsPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -57,6 +77,11 @@ export default function SettingsPage() {
   const [messagePrivacy, setMessagePrivacy] = useState<string>(user?.user_metadata?.message_privacy || "everyone");
   const [followPrivacy, setFollowPrivacy] = useState<string>(user?.user_metadata?.follow_privacy || "everyone");
   const [savingPrivacy, setSavingPrivacy] = useState(false);
+
+  // Preferences
+  const [language, setLanguage] = useState<string>(user?.user_metadata?.preferred_language || "en");
+  const [currency, setCurrency] = useState<string>(user?.user_metadata?.preferred_currency || "USD");
+  const [savingPrefs, setSavingPrefs] = useState(false);
 
   const handlePasswordReset = async () => {
     if (!user?.email) return;
@@ -97,6 +122,16 @@ export default function SettingsPage() {
     else toast.success("Privacy settings saved");
   };
 
+  const handleSavePrefs = async () => {
+    setSavingPrefs(true);
+    const { error } = await supabase.auth.updateUser({
+      data: { preferred_language: language, preferred_currency: currency },
+    });
+    setSavingPrefs(false);
+    if (error) toast.error(error.message);
+    else toast.success("Preferences saved");
+  };
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     window.location.href = "/";
@@ -112,6 +147,12 @@ export default function SettingsPage() {
     rejected: { text: "Rejected", icon: AlertTriangle, color: "#ef4444" },
   };
   const kyc = kycLabel[kycStatus] || kycLabel.not_started;
+
+  const selectStyle = {
+    background: "rgba(255,255,255,0.06)",
+    color: "rgba(255,255,255,0.75)",
+    border: "1px solid rgba(255,255,255,0.1)",
+  };
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4 py-6 space-y-5">
@@ -156,7 +197,7 @@ export default function SettingsPage() {
             value={messagePrivacy}
             onChange={(e) => setMessagePrivacy(e.target.value)}
             className="text-xs rounded px-2 py-1.5"
-            style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.75)", border: "1px solid rgba(255,255,255,0.1)" }}
+            style={selectStyle}
           >
             <option value="everyone">Everyone</option>
             <option value="followers">Followers only</option>
@@ -168,7 +209,7 @@ export default function SettingsPage() {
             value={followPrivacy}
             onChange={(e) => setFollowPrivacy(e.target.value)}
             className="text-xs rounded px-2 py-1.5"
-            style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.75)", border: "1px solid rgba(255,255,255,0.1)" }}
+            style={selectStyle}
           >
             <option value="everyone">Everyone</option>
             <option value="approval">Requires approval</option>
@@ -207,21 +248,44 @@ export default function SettingsPage() {
             <ChevronRight className="w-3 h-3" style={{ color: "rgba(255,255,255,0.3)" }} />
           </button>
         </Row>
-        <Row label="Active sessions" description="Session management coming soon">
+        <Row label="Active sessions" description="Manage your active login sessions">
           <span className="text-[11px]" style={{ color: "rgba(255,255,255,0.35)" }}>Current session active</span>
         </Row>
       </Section>
 
       {/* Preferences */}
       <Section title="Preferences" icon={Palette}>
-        <Row label="Language" description="Language selection coming soon">
-          <span className="flex items-center gap-1 text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>
-            <Globe className="w-3 h-3" /> English
-          </span>
+        <Row label="Language" description="Select your preferred language">
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            className="text-xs rounded px-2 py-1.5"
+            style={selectStyle}
+          >
+            {LANGUAGES.map((l) => (
+              <option key={l.value} value={l.value}>{l.label}</option>
+            ))}
+          </select>
+        </Row>
+        <Row label="Currency" description="Display currency for prices">
+          <select
+            value={currency}
+            onChange={(e) => setCurrency(e.target.value)}
+            className="text-xs rounded px-2 py-1.5"
+            style={selectStyle}
+          >
+            {CURRENCIES.map((c) => (
+              <option key={c.value} value={c.value}>{c.symbol} {c.label}</option>
+            ))}
+          </select>
         </Row>
         <Row label="Theme" description="Using system default">
           <span className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>Dark</span>
         </Row>
+        <Button variant="accent" size="sm" onClick={handleSavePrefs} disabled={savingPrefs}>
+          {savingPrefs && <Loader2 className="w-3 h-3 animate-spin mr-1" />}
+          Save Preferences
+        </Button>
       </Section>
     </div>
   );

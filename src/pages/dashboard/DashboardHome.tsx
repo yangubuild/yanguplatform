@@ -104,46 +104,46 @@ export default function DashboardHome() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Handle deep-link query params: ?post=ID, ?view_profile=ID
-  useEffect(() => {
-    const postId = searchParams.get("post");
-    const viewProfileId = searchParams.get("view_profile");
+  const viewProfileId = searchParams.get("view_profile");
+  const postId = searchParams.get("post");
 
+  useEffect(() => {
     if (postId) {
       setPostModalId(postId);
-      // Clean the param so modal doesn't reopen on re-render
       const next = new URLSearchParams(searchParams);
       next.delete("post");
       setSearchParams(next, { replace: true });
     }
+  }, [postId]);
 
-    if (viewProfileId) {
-      (async () => {
-        try {
-          const { data: prof } = await supabase
-            .from("profiles")
-            .select("id, display_name, username, avatar_url, avatar_mode, avatar_emoji_key, business_name, cover_url")
-            .eq("id", viewProfileId)
-            .single();
-          if (prof) {
-            const avatar = resolveAvatarUrl(prof);
-            handleViewFriend({
-              id: prof.id,
-              display_name: prof.display_name,
-              username: prof.username,
-              avatar_url: avatar || prof.avatar_url,
-              avatar_mode: prof.avatar_mode,
-              avatar_emoji_key: prof.avatar_emoji_key,
-              business_name: prof.business_name,
-              cover_url: prof.cover_url,
-            });
-          }
-        } catch { /* ignore */ }
-      })();
-      const next = new URLSearchParams(searchParams);
-      next.delete("view_profile");
-      setSearchParams(next, { replace: true });
-    }
-  }, []);
+  useEffect(() => {
+    if (!viewProfileId) return;
+    (async () => {
+      try {
+        const { data: prof } = await supabase
+          .from("profiles")
+          .select("id, display_name, username, avatar_url, avatar_mode, avatar_emoji_key, business_name, cover_url")
+          .eq("id", viewProfileId)
+          .single();
+        if (prof) {
+          const avatar = resolveAvatarUrl(prof);
+          handleViewFriend({
+            id: prof.id,
+            display_name: prof.display_name,
+            username: prof.username,
+            avatar_url: avatar || prof.avatar_url,
+            avatar_mode: prof.avatar_mode,
+            avatar_emoji_key: prof.avatar_emoji_key,
+            business_name: prof.business_name,
+            cover_url: prof.cover_url,
+          });
+        }
+      } catch { /* ignore */ }
+    })();
+    const next = new URLSearchParams(searchParams);
+    next.delete("view_profile");
+    setSearchParams(next, { replace: true });
+  }, [viewProfileId]);
 
   const handleItemChange = (item: SidebarItem) => {
     setActiveItem(item);
