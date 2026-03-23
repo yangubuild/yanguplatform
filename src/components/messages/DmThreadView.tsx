@@ -22,6 +22,8 @@ import { MessageReactions } from "@/components/messages/MessageReactions";
 import { ChatLabelBadges, ChatLabelPicker } from "@/components/messages/ChatLabel";
 import { ChatBusinessActions } from "@/components/messages/ChatBusinessActions";
 import { ForwardMessageDialog } from "@/components/messages/ForwardMessageDialog";
+import { useChatAudioRecorder } from "@/hooks/useChatAudioRecorder";
+import { buildChatAttachmentMessage, uploadChatAttachment } from "@/lib/chatUploads";
 
 interface Props {
   targetUserId: string;
@@ -39,6 +41,8 @@ export function DmThreadView({ targetUserId }: Props) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+  const documentInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const { user } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -151,16 +155,50 @@ export function DmThreadView({ targetUserId }: Props) {
     setForwardingMsg(content);
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: "image" | "video") => {
+  const sendAttachment = async (file: File, type: "image" | "video" | "audio" | "document") => {
+    if (!user) return;
+    const url = await uploadChatAttachment({ userId: user.id, file, prefix: `dm-${type}` });
+    sendMessage.mutate({ receiverId: targetUserId, content: buildChatAttachmentMessage(type, url, file.name) });
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: "image" | "video" | "document") => {
     const file = e.target.files?.[0];
-    if (!file || !user) return;
-    const ext = file.name.split(".").pop();
-    const path = `${user.id}/dm-${Date.now()}.${ext}`;
-    const { error: uploadError } = await supabase.storage.from("post-media").upload(path, file);
-    if (uploadError) { toast.error("Upload failed"); return; }
-    const { data: urlData } = supabase.storage.from("post-media").getPublicUrl(path);
-    const emoji = type === "image" ? "📷" : "🎥";
-    sendMessage.mutate({ receiverId: targetUserId, content: `${emoji} ${urlData.publicUrl}` });
+    e.target.value = "";
+    if (!file) return;
+    try {
+      await sendAttachment(file, type);
+    } catch {
+      toast.error("Upload failed");
+    }
+  };
+
+  const handleCameraCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+      await sendAttachment(file, file.type.startsWith("video/") ? "video" : "image");
+    } catch {
+      toast.error("Camera upload failed");
+    }
+  };
+
+  const handleShareLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error("Location is not supported on this device");
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        sendMessage.mutate({
+          receiverId: targetUserId,
+          content: `📍 Shared location\nhttps://maps.google.com/?q=${latitude},${longitude}`,
+        });
+      },
+      () => toast.error("Unable to get your location"),
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
   };
 
   const renderContent = (content: string) => renderChatContent(content, navigate);
@@ -169,6 +207,19 @@ export function DmThreadView({ targetUserId }: Props) {
     insertEmoji(value);
     setShowEmojiPicker(false);
   };
+
+  const { isRecording, toggleRecording } = useChatAudioRecorder({
+    onRecorded: async (blob) => {
+      const file = new File([blob], `voice-${Date.now()}.webm`, { type: blob.type || "audio/webm" });
+      try {
+        await sendAttachment(file, "audio");
+        toast.success("Voice note sent");
+      } catch {
+        toast.error("Voice upload failed");
+      }
+    },
+    onError: (message) => toast.error(message),
+  });
 
   return (
     <div className="flex flex-col h-full">
@@ -354,6 +405,8 @@ export function DmThreadView({ targetUserId }: Props) {
       {/* Hidden file inputs */}
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, "image")} />
       <input ref={videoInputRef} type="file" accept="video/*" className="hidden" onChange={(e) => handleFileUpload(e, "video")} />
+      <input ref={documentInputRef} type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar" className="hidden" onChange={(e) => handleFileUpload(e, "document")} />
+      <input ref={cameraInputRef} type="file" accept="image/*,video/*" capture="environment" className="hidden" onChange={handleCameraCapture} />
 
       {currentWord && (
         <div className="px-4 pb-1">
@@ -390,11 +443,14 @@ export function DmThreadView({ targetUserId }: Props) {
       <div className="shrink-0 px-3 py-2.5" style={{ borderTop: replyTo ? "none" : "1px solid rgba(255,255,255,0.06)" }}>
         <div className="flex items-center gap-1.5">
           {/* Plus button for attachments */}
-          <ChatBusinessActions
-            onPhotos={() => fileInputRef.current?.click()}
-            onCamera={() => videoInputRef.current?.click()}
-            onDocument={() => toast.info("Document upload coming soon")}
-          />
+          <div className="relative shrink-0">
+            <ChatBusinessActions
+              onPhotos={() => fileInputRef.current?.click()}
+              onCamera={() => cameraInputRef.current?.click()}
+              onDocument={() => documentInputRef.current?.click()}
+              onLocation={handleShareLocation}
+            />
+          </div>
 
           {/* Text input area */}
           <div
@@ -418,7 +474,7 @@ export function DmThreadView({ targetUserId }: Props) {
 
           {/* Camera */}
           <button
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => cameraInputRef.current?.click()}
             className="p-2 rounded-full hover:bg-white/10 shrink-0 text-muted-foreground"
             title="Photo">
             <Camera className="w-5 h-5" />
@@ -431,9 +487,10 @@ export function DmThreadView({ targetUserId }: Props) {
             </Button>
           ) : (
             <button
-              onClick={() => toast.info("Voice recording coming soon")}
+              onClick={() => void toggleRecording()}
               className="p-2 rounded-full hover:bg-white/10 shrink-0 text-muted-foreground"
-              title="Voice message">
+              title={isRecording ? "Stop recording" : "Voice message"}
+              style={isRecording ? { color: "#ef4444" } : undefined}>
               <Mic className="w-5 h-5" />
             </button>
           )}
