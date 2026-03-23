@@ -19,7 +19,7 @@ import { useTypingIndicator } from "@/hooks/useTypingIndicator";
 import { TypingIndicator } from "@/components/messages/TypingIndicator";
 import { QuickReactionBar } from "@/components/messages/QuickReactionBar";
 import { MessageReactions } from "@/components/messages/MessageReactions";
-import { ChatLabel } from "@/components/messages/ChatLabel";
+import { ChatLabelBadges, ChatLabelPicker } from "@/components/messages/ChatLabel";
 import { ChatBusinessActions } from "@/components/messages/ChatBusinessActions";
 
 interface Props {
