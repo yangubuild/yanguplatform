@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, FileText, Tag, Megaphone, Compass, Globe, X, Sparkles, ImageIcon, Camera, MapPin, Contact, File, BarChart3, Calendar, Wand2 } from "lucide-react";
-import { CreateTrendModal } from "@/components/messages/CreateTrendModal";
+import { Plus, X, ImageIcon, Camera, MapPin, Contact, File, BarChart3, Calendar, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 
 const MEDIA_ACTIONS = [
@@ -15,14 +14,6 @@ const MEDIA_ACTIONS = [
   { icon: Wand2, label: "AI images", action: "ai_images" },
 ];
 
-const BUSINESS_ACTIONS = [
-  { icon: FileText, label: "Create Post", route: "/dashboard/home?action=new_post" },
-  { icon: Tag, label: "Create Offer", route: "/dashboard/offers?action=new_offer" },
-  { icon: Megaphone, label: "Create Ad", route: "/dashboard/ads?action=new_ad" },
-  { icon: Compass, label: "Add to Explore", route: "/dashboard/explore" },
-  { icon: Globe, label: "Add to Global Chat", route: "/dashboard/messages?tab=global" },
-];
-
 interface ChatBusinessActionsProps {
   onPhotos?: () => void;
   onCamera?: () => void;
@@ -32,7 +23,6 @@ interface ChatBusinessActionsProps {
 
 export function ChatBusinessActions({ onPhotos, onCamera, onDocument, onLocation }: ChatBusinessActionsProps) {
   const [open, setOpen] = useState(false);
-  const [showTrendModal, setShowTrendModal] = useState(false);
   const navigate = useNavigate();
 
   const handleMediaAction = (action: string) => {
@@ -55,7 +45,7 @@ export function ChatBusinessActions({ onPhotos, onCamera, onDocument, onLocation
       <button
         onClick={() => setOpen(true)}
         className="p-1.5 rounded hover:opacity-80 shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center text-muted-foreground"
-        title="Attachments & actions">
+        title="Attachments">
         <Plus className="w-4 h-4" />
       </button>
     );
@@ -88,31 +78,7 @@ export function ChatBusinessActions({ onPhotos, onCamera, onDocument, onLocation
             </button>
           ))}
         </div>
-
-        <div className="my-1" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }} />
-        <div className="flex items-center px-3 pb-1 pt-0.5">
-          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Actions</span>
-        </div>
-        {BUSINESS_ACTIONS.map((a) => (
-          <button
-            key={a.label}
-            onClick={() => { navigate(a.route); setOpen(false); }}
-            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-foreground hover:bg-white/5 transition-colors">
-            <a.icon className="w-3.5 h-3.5 text-muted-foreground" />
-            {a.label}
-          </button>
-        ))}
-        <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }} className="mt-1 pt-1">
-          <button
-            onClick={() => { setShowTrendModal(true); setOpen(false); }}
-            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs hover:bg-white/5 transition-colors"
-            style={{ color: "#f59e0b" }}>
-            <Sparkles className="w-3.5 h-3.5" />
-            Create Trend
-          </button>
-        </div>
       </div>
-      {showTrendModal && <CreateTrendModal onClose={() => setShowTrendModal(false)} />}
     </>
   );
 }

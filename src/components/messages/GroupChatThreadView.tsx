@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useGroupMessages, useSendGroupMessage, useGroupMembers, useLeaveGroup, useRemoveGroupMember, useAddGroupMember, type ChatGroup } from "@/hooks/useGroupChats";
 import { renderChatContent, shareMessageExternal } from "@/lib/chatMessageRenderer";
 import { Send, Loader2, MoreVertical, Reply, Share2, Trash2, Users, LogOut, UserPlus, Image, Video, X, Smile, Phone, VideoIcon, SmilePlus, ChevronDown, Forward, Mic } from "lucide-react";
+import { ChatHeaderBusinessMenu } from "@/components/messages/ChatHeaderBusinessMenu";
 import { useLongPress } from "@/hooks/useLongPress";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -243,6 +244,7 @@ export function GroupChatThreadView({ group, onBack }: Props) {
           className="p-1.5 rounded-lg hover:bg-white/10 text-muted-foreground" title="Video call">
           <VideoIcon className="w-4 h-4" />
         </button>
+        <ChatHeaderBusinessMenu />
         <div className="relative">
           <button onClick={() => setShowGroupMenu(!showGroupMenu)} className="p-2 rounded-lg hover:opacity-80 min-w-[36px] min-h-[36px] flex items-center justify-center text-muted-foreground">
             <MoreVertical className="w-4 h-4" />
