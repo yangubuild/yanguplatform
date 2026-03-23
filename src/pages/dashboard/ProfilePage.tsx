@@ -117,7 +117,7 @@ const mockJoined = [
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { user, profile, refreshProfile } = useAuth();
-  const [activeTab, setActiveTab] = useState<"created" | "joined" | "apps" | "reviews" | "commerce">("created");
+  const [activeTab, setActiveTab] = useState<"created" | "joined" | "settings" | "help">("created");
   const [avatarModalOpen, setAvatarModalOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
@@ -639,13 +639,13 @@ export default function ProfilePage() {
           {/* Tabs */}
           <div className="mt-6 border-b" style={{ borderColor: "rgba(255,255,255,0.1)" }}>
             <div className="flex overflow-x-auto scrollbar-hide">
-              {(["created", "joined", "commerce", "apps", "reviews"] as const).map((tab) => (
+              {(["created", "joined", "settings", "help"] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className="flex-1 py-3 text-sm font-medium text-center capitalize transition-colors relative whitespace-nowrap px-2"
                   style={{ color: activeTab === tab ? "#fff" : "rgba(255,255,255,0.45)" }}>
-                  {tab === "commerce" ? "Products" : tab}
+                  {tab === "help" ? "Help & Support" : tab === "settings" ? "Settings" : tab}
                   {activeTab === tab && (
                     <div className="absolute bottom-0 left-1/4 right-1/4 h-0.5 rounded-full" style={{ background: "#b5622a" }} />
                   )}
@@ -656,26 +656,12 @@ export default function ProfilePage() {
 
           {/* Tab content */}
           <div className="mt-4 space-y-1">
-            {activeTab === "commerce" ? (
+            {activeTab === "settings" ? (
               <Suspense fallback={<div className="py-8 flex justify-center"><div className="w-5 h-5 border-2 border-white/20 border-t-accent rounded-full animate-spin" /></div>}>
-                <ProfileCommerceSection
-                  userId={user?.id || ""}
-                  onMessageSeller={() => navigate("/dashboard/messages")}
-                />
+                <ProfileSettingsInline />
               </Suspense>
-            ) : activeTab === "apps" ? (
-              !installedApps || installedApps.length === 0 ? (
-                <p className="text-center py-12 text-sm text-muted-foreground">
-                  No apps installed yet.
-                </p>
-              ) : (
-                installedApps.map((item: any) => {
-                  const appIcon = ICON_MAP[item.app.slug] || item.app.icon;
-                  return (
-                    <ProfileAppRow key={item.id} item={item} appIcon={appIcon} navigate={navigate} />
-                  );
-                })
-              )
+            ) : activeTab === "help" ? (
+              <ProfileHelpSection />
             ) : tabData.length === 0 ? (
               <p className="text-center py-12 text-sm text-muted-foreground">
                 Nothing here yet.
