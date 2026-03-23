@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { useGroupMessages, useSendGroupMessage, useGroupMembers, useLeaveGroup, useRemoveGroupMember, useAddGroupMember, type ChatGroup } from "@/hooks/useGroupChats";
 import { renderChatContent, shareMessageExternal } from "@/lib/chatMessageRenderer";
-import { Send, Loader2, MoreVertical, Reply, Share2, Trash2, Users, LogOut, UserPlus, Image, Video, X, Smile } from "lucide-react";
+import { Send, Loader2, MoreVertical, Reply, Share2, Trash2, Users, LogOut, UserPlus, Image, Video, X, Smile, Phone, VideoIcon, SmilePlus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -16,6 +16,9 @@ import { useTypingIndicator } from "@/hooks/useTypingIndicator";
 import { TypingIndicator } from "@/components/messages/TypingIndicator";
 import { useMarkGroupRead } from "@/hooks/useGroupUnread";
 import { GroupAvatarUpload } from "@/components/messages/GroupAvatarUpload";
+import { QuickReactionBar } from "@/components/messages/QuickReactionBar";
+import { MessageReactions } from "@/components/messages/MessageReactions";
+import { ChatBusinessActions } from "@/components/messages/ChatBusinessActions";
 
 interface Props {
   group: ChatGroup;
