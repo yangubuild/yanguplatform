@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Circle, Reply, ChevronDown } from "lucide-react";
+import { Send, Circle, Reply, ChevronDown, SmilePlus } from "lucide-react";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import type { FriendUser } from "../FriendProfileView";
 import { useConversation, useSendMessage } from "@/hooks/useDirectMessages";
