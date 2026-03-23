@@ -6,6 +6,7 @@ import { useConversation, useSendMessage } from "@/hooks/useDirectMessages";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
 import { renderChatContent, shareMessageExternal } from "@/lib/chatMessageRenderer";
 import { Send, Loader2, MoreVertical, Reply, Forward, Trash2, Image, Video, X, Smile, Phone, VideoIcon, SmilePlus, ChevronDown, Search, Tag, Info, CheckSquare, BellOff, Heart, Flag, Ban, Megaphone, Plus, Camera, Mic, Download, Languages } from "lucide-react";
+import { ChatHeaderBusinessMenu } from "@/components/messages/ChatHeaderBusinessMenu";
 import { useLongPress } from "@/hooks/useLongPress";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -272,7 +273,10 @@ export function DmThreadView({ targetUserId }: Props) {
           <Tag className="w-4 h-4" />
         </button>
 
-        {/* Search (future-ready) */}
+        {/* Business actions */}
+        <ChatHeaderBusinessMenu />
+
+        {/* Search */}
         <button
           onClick={() => toast.info("Chat search coming soon")}
           className="p-1.5 rounded-lg hover:bg-white/10 text-muted-foreground"
