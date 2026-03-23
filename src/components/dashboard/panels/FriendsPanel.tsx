@@ -68,7 +68,7 @@ export function FriendsPanel({ onViewProfile }: FriendsPanelProps) {
     : excludeSelf(users);
 
   return (
-    <div className="flex flex-col h-full" style={{ background: "#111820" }}>
+    <div className="flex flex-col h-full bg-background">
       {/* Search - fixed top */}
       <div className="shrink-0">
         <div className="p-3">
