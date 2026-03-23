@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Check, Star, CreditCard, Settings } from "lucide-react";
 import { useCredits } from "@/hooks/useCredits";
 
-const plans = [
+const personalPlans = [
   {
     name: "Free",
     price: "$0.00",
@@ -36,11 +36,46 @@ const plans = [
   },
 ];
 
+const businessPlans = [
+  {
+    name: "Starter",
+    price: "$50.00",
+    description: "Get your business started on Yangu",
+    features: ["Team collaboration", "5 Team members", "10 Surfaces", "Priority Support", "Analytics dashboard"],
+    highlights: ["10 Surfaces /mo", "5 Generations /mo"],
+    current: false,
+    popular: false,
+    highValue: false,
+  },
+  {
+    name: "Growth",
+    price: "$100.00",
+    description: "Scale your operations with advanced tools",
+    features: ["Unlimited team members", "25 Surfaces", "Advanced Generations", "Priority Support", "24/7 Support"],
+    highlights: ["25 Surfaces /mo", "15 Generations /mo"],
+    current: false,
+    popular: true,
+    highValue: false,
+  },
+  {
+    name: "Scale",
+    price: "$300.00",
+    description: "Enterprise-grade for maximum impact",
+    features: ["Unlimited everything", "Dedicated support", "Custom integrations", "SLA guarantee", "White-label options"],
+    highlights: ["Unlimited Surfaces", "50 Generations /mo"],
+    current: false,
+    popular: false,
+    highValue: true,
+  },
+];
+
 export default function SubscriptionPage() {
   const navigate = useNavigate();
   const [billingType, setBillingType] = useState<"personal" | "business">("personal");
   const { data: credits } = useCredits();
   const balance = typeof credits === "number" ? credits : 1;
+
+  const plans = billingType === "personal" ? personalPlans : businessPlans;
 
   return (
     <div className="max-w-4xl mx-auto py-6 px-4 min-h-screen bg-background">
@@ -66,24 +101,26 @@ export default function SubscriptionPage() {
         {plans.map((plan) => (
           <div
             key={plan.name}
-            className={`rounded-2xl p-6 flex flex-col relative ${plan.current ? 'bg-card' : 'bg-muted'}`}
+            className={`rounded-2xl p-5 flex flex-col relative ${plan.current ? 'bg-card' : 'bg-muted'}`}
             style={{
-              border: plan.popular ? "2px solid hsl(var(--primary))" : "1px solid hsl(var(--border))" }}>
+              border: plan.popular ? "2px solid hsl(var(--primary))" : "1px solid hsl(var(--border))",
+              minHeight: 360,
+            }}>
             {plan.popular && (
               <span
-                className="absolute -top-3 left-1/2 -translate-x-1/2 text-[11px] font-bold px-3 py-1 rounded-full border border-border">
+                className="absolute -top-3 left-1/2 -translate-x-1/2 text-[11px] font-bold px-3 py-1 rounded-full border border-border bg-card whitespace-nowrap">
                 Most Popular
               </span>
             )}
             {plan.highValue && (
               <span
-                className="absolute -top-3 left-1/2 -translate-x-1/2 text-[11px] font-bold px-3 py-1 rounded-full border border-border">
+                className="absolute -top-3 left-1/2 -translate-x-1/2 text-[11px] font-bold px-3 py-1 rounded-full border border-border bg-card whitespace-nowrap">
                 Highest Value
               </span>
             )}
 
             <h3 className="text-lg font-bold text-foreground">{plan.name}</h3>
-            <p className="text-xs mb-3 text-muted-foreground">{plan.description}</p>
+            <p className="text-xs mb-3 text-muted-foreground line-clamp-2">{plan.description}</p>
             <p className="text-3xl font-bold text-foreground mb-1">
               {plan.price}<span className="text-sm font-normal text-muted-foreground">/mo</span>
             </p>
@@ -110,7 +147,7 @@ export default function SubscriptionPage() {
               <p className="text-xs font-bold mb-2 text-muted-foreground">Plan highlights:</p>
               {plan.features.map((f) => (
                 <div key={f} className="flex items-center gap-2 mb-1">
-                  <Check className="w-3.5 h-3.5" style={{ color: "#4ade80" }} />
+                  <Check className="w-3.5 h-3.5 shrink-0" style={{ color: "#4ade80" }} />
                   <span className="text-xs text-muted-foreground">{f}</span>
                 </div>
               ))}
