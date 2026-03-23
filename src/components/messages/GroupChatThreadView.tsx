@@ -32,6 +32,7 @@ export function GroupChatThreadView({ group, onBack }: Props) {
   const [showMembers, setShowMembers] = useState(false);
   const [showGroupMenu, setShowGroupMenu] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [reactionMsgId, setReactionMsgId] = useState<string | null>(null);
   const [addUserSearch, setAddUserSearch] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
