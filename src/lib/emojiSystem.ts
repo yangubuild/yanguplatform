@@ -41,49 +41,10 @@ let fetchPromise: Promise<YanguEmoji[]> | null = null;
  * Results are cached in memory for the entire session.
  */
 export async function fetchCustomEmojis(): Promise<YanguEmoji[]> {
-  // Return cache if available
-  if (cachedEmojis) return cachedEmojis;
-
-  // Deduplicate concurrent calls
-  if (fetchPromise) return fetchPromise;
-
-  fetchPromise = (async () => {
-    try {
-      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
-      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
-      const res = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/list-drive-emojis`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            apikey: anonKey,
-          },
-        }
-      );
-
-      if (!res.ok) {
-        console.error("Failed to fetch custom emojis:", res.status);
-        return [];
-      }
-
-      const data = await res.json();
-      cachedEmojis = (data.emojis || [])
-        .map((emoji: YanguEmoji) => ({
-          ...emoji,
-          keyword: normalizeEmojiKeyword(emoji.keyword || emoji.name),
-        }))
-        .filter((emoji: YanguEmoji) => emoji.keyword.length> 0);
-      return cachedEmojis!;
-    } catch (err) {
-      console.error("Error fetching custom emojis:", err);
-      return [];
-    } finally {
-      fetchPromise = null;
-    }
-  })();
-
-  return fetchPromise;
+  // Custom YANGU emojis are temporarily disabled — Google Drive direct URLs
+  // are blocked by browser cookie/redirect walls, causing broken images.
+  // TODO: Re-enable after migrating emoji assets to Supabase Storage.
+  return [];
 }
 
 /**

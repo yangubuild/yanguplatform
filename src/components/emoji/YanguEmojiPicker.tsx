@@ -17,7 +17,7 @@ interface YanguEmojiPickerProps {
 export function YanguEmojiPicker({ onSelect, onClose }: YanguEmojiPickerProps) {
   const { customEmojis, systemEmojis, isLoading, search } = useEmojis();
   const [query, setQuery] = useState("");
-  const [tab, setTab] = useState<"custom" | "system">("custom");
+  const [tab, setTab] = useState<"custom" | "system">("system");
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
