@@ -245,19 +245,19 @@ export default function DashboardHome() {
           gridTemplateColumns: "200px 1fr 340px",
           gap: "0px" }}>
         <div className="h-full overflow-hidden flex flex-col p-2 pr-0 bg-background">
-          <div className="flex-1 overflow-hidden bg-background rounded-[14px] border border-border/10">
+          <div className="flex-1 overflow-hidden bg-background rounded-[14px] border border-border">
             <InnerPageSidebar activeItem={activeItem} onItemChange={handleItemChange} />
           </div>
         </div>
 
         <div className="h-full overflow-hidden p-2 bg-background">
-          <div className="h-full overflow-hidden bg-background rounded-[14px] border border-border/10">
+          <div className="h-full overflow-hidden bg-background rounded-[14px] border border-border">
             {centerContent}
           </div>
         </div>
 
         <div className="h-full overflow-hidden p-2 pl-0 bg-background">
-          <div className="h-full overflow-hidden bg-background rounded-[14px] border border-border/10">
+          <div className="h-full overflow-hidden bg-background rounded-[14px] border border-border">
             {rightPanel}
           </div>
         </div>
