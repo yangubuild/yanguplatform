@@ -321,7 +321,10 @@ export function GroupChatThreadView({ group, onBack }: Props) {
       {myMembership ? (
         <div className="shrink-0 px-3 py-2.5 relative" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
           <div className="flex items-center gap-1.5 rounded-xl px-3 py-2.5" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
-            <ChatBusinessActions />
+            <ChatBusinessActions
+              onPhotos={() => fileInputRef.current?.click()}
+              onCamera={() => videoInputRef.current?.click()}
+            />
             <button onClick={() => fileInputRef.current?.click()} className="p-1.5 rounded hover:opacity-80 shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center text-muted-foreground">
               <Image className="w-4 h-4" />
             </button>
