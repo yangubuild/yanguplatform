@@ -241,7 +241,7 @@ export function DmThreadView({ targetUserId }: Props) {
               <div className="fixed inset-0 z-30" onClick={() => setShowChatMenu(false)} />
               <div
                 className="absolute right-0 top-8 z-40 rounded-xl py-1.5 min-w-[200px] shadow-2xl"
-                style={{ background: "#1e2730", border: "1px solid rgba(255,255,255,0.1)" }}>
+                style={{ background: "#1a2027", border: "1px solid rgba(255,255,255,0.1)" }}>
                 <button
                   onClick={() => { navigate(`/dashboard/profile/${targetUserId}`); setShowChatMenu(false); }}
                   className="w-full flex items-center gap-3 px-4 py-2.5 text-xs text-left hover:bg-white/5 text-foreground">
@@ -390,7 +390,11 @@ export function DmThreadView({ targetUserId }: Props) {
       <div className="shrink-0 px-3 py-2.5" style={{ borderTop: replyTo ? "none" : "1px solid rgba(255,255,255,0.06)" }}>
         <div className="flex items-center gap-1.5">
           {/* Plus button for attachments */}
-          <ChatBusinessActions />
+          <ChatBusinessActions
+            onPhotos={() => fileInputRef.current?.click()}
+            onCamera={() => videoInputRef.current?.click()}
+            onDocument={() => toast.info("Document upload coming soon")}
+          />
 
           {/* Text input area */}
           <div
@@ -461,14 +465,14 @@ function DmMessageBubble({
   const isImage = msg.content.includes("📷") || /https?:\/\/\S+\.(jpg|jpeg|png|gif|webp)/i.test(msg.content);
 
   return (
-    <div className={`flex gap-1.5 items-end ${isMine ? "justify-end" : "justify-start"}`}>
+    <div className={`flex gap-1 sm:gap-1.5 items-end ${isMine ? "justify-end" : "justify-start"}`}>
       {!isMine && (
         <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold overflow-hidden shrink-0 mb-1" style={{ background: "rgba(255,255,255,0.1)" }}>
           {avatar ? <img src={avatar} alt="" className="w-7 h-7 rounded-full object-cover" /> : <span className="text-muted-foreground">{initials}</span>}
         </div>
       )}
 
-      <div className="relative max-w-[75%]">
+      <div className="relative max-w-[65%] sm:max-w-[75%]">
         <div
           className="px-3 py-2 rounded-xl text-sm select-none cursor-pointer"
           style={{
@@ -529,24 +533,24 @@ function DmMessageBubble({
       </div>
 
       {/* Side action icons — Forward, Emoji, Dropdown (always visible) */}
-      <div className="flex flex-col items-center gap-0.5 mb-1 shrink-0">
+      <div className="flex flex-col items-center gap-0.5 mb-1 shrink-0 min-w-[24px]">
         <button
           onClick={(e) => { e.stopPropagation(); handleForward(msg.content); }}
           className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
           title="Forward">
-          <Forward className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.4)" }} />
+          <Forward className="w-3 h-3 sm:w-3.5 sm:h-3.5" style={{ color: "rgba(255,255,255,0.4)" }} />
         </button>
         <button
           onClick={(e) => { e.stopPropagation(); setReactionMsgId(reactionMsgId === msg.id ? null : msg.id); }}
           className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
           title="React">
-          <SmilePlus className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.4)" }} />
+          <SmilePlus className="w-3 h-3 sm:w-3.5 sm:h-3.5" style={{ color: "rgba(255,255,255,0.4)" }} />
         </button>
         <button
           onClick={(e) => { e.stopPropagation(); setMsgMenuId(msgMenuId === msg.id ? null : msg.id); }}
           className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
           title="More">
-          <ChevronDown className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.4)" }} />
+          <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5" style={{ color: "rgba(255,255,255,0.4)" }} />
         </button>
       </div>
 
