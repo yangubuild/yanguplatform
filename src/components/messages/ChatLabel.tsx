@@ -96,7 +96,7 @@ export function ChatLabelPicker({ targetUserId, open, onClose }: ChatLabelProps 
       <div className="fixed inset-0 z-40" onClick={onClose} />
       <div
         className="absolute left-0 top-full mt-1 z-50 rounded-xl py-2 min-w-[220px] shadow-2xl"
-        style={{ background: "#1e2730", border: "1px solid rgba(255,255,255,0.1)" }}>
+        style={{ background: "#1a2027", border: "1px solid rgba(255,255,255,0.1)" }}>
         <p className="px-4 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Labels</p>
         {LABEL_OPTIONS.map((opt) => {
           const isActive = activeLabels.includes(opt.value);

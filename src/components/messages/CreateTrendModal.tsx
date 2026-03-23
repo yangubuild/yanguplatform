@@ -75,7 +75,7 @@ export function CreateTrendModal({ onClose }: CreateTrendModalProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={onClose}>
       <div
         className="w-full max-w-md mx-4 rounded-2xl overflow-hidden"
-        style={{ background: "#111820", border: "1px solid rgba(255,255,255,0.08)" }}
+        style={{ background: "#1a2027", border: "1px solid rgba(255,255,255,0.08)" }}
         onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
