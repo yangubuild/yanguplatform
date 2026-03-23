@@ -3676,6 +3676,42 @@ export type Database = {
         }
         Relationships: []
       }
+      live_trends: {
+        Row: {
+          created_at: string
+          duration_type: string
+          ends_at: string
+          id: string
+          payment_amount_cents: number
+          starts_at: string
+          status: string
+          text: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_type?: string
+          ends_at: string
+          id?: string
+          payment_amount_cents?: number
+          starts_at?: string
+          status?: string
+          text: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_type?: string
+          ends_at?: string
+          id?: string
+          payment_amount_cents?: number
+          starts_at?: string
+          status?: string
+          text?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       merchant_offers: {
         Row: {
           comment_count: number
