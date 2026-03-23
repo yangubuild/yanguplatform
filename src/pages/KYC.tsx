@@ -35,6 +35,14 @@ interface DiditResponse {
   error?: string;
 }
 
+function isStaleSession(record: KycRecord): boolean {
+  // If metadata has a verification URL and submitted_at is older than 48 hours, consider it stale
+  if (!record.submitted_at) return false;
+  const submittedAt = new Date(record.submitted_at).getTime();
+  const hoursSinceSubmit = (Date.now() - submittedAt) / (1000 * 60 * 60);
+  return hoursSinceSubmit > 48;
+}
+
 function mapToUiStatus(record: KycRecord | null): KycUiStatus {
   if (!record || !record.status) return "not_started";
   if (record.status === "approved") return "verified";
@@ -54,6 +62,16 @@ function mapToUiStatus(record: KycRecord | null): KycUiStatus {
   // If provider says "Approved" / "Completed" but DB hasn't caught up yet
   if (lastProviderStatus && ["approved", "verified", "completed"].includes(lastProviderStatus)) {
     return "verified";
+  }
+
+  // If session is stale (submitted > 48h ago, no resolution), let user restart
+  if (isStaleSession(record)) {
+    return "not_started";
+  }
+
+  // Provider says "In Review" — pending review
+  if (lastProviderStatus && ["in review", "in_review", "processing"].includes(lastProviderStatus)) {
+    return "pending_review";
   }
 
   // If the user has submitted to the provider (no active URL or status indicates submission)

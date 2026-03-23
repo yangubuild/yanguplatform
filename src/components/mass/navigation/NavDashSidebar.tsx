@@ -105,13 +105,21 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
       setExpandedItem(expandedItem === label ? null : label);
     } else {
       setExpandedItem(null);
-      if (item.to) navigate(item.to);
+      if (item.to) {
+        navigate(item.to);
+        // Auto-close sidebar on mobile after navigation
+        onClose?.();
+      }
     }
   };
 
   const handleSubItemClick = (sub: { label: string; to?: string }) => {
     setActiveItem(sub.label);
-    if (sub.to) navigate(sub.to);
+    if (sub.to) {
+      navigate(sub.to);
+      // Auto-close sidebar on mobile after navigation
+      onClose?.();
+    }
   };
 
   const visibleNavItems = PRIMARY_NAV_ITEMS.filter((item) => isNavItemVisible(item, userType, isOrgOwner));
@@ -411,7 +419,10 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
                             key={subItem.label}
                             onClick={() => {
                               setExtendedActiveItem(subItem.label);
-                              if (subItem.to) navigate(subItem.to);
+                              if (subItem.to) {
+                                navigate(subItem.to);
+                                onClose?.();
+                              }
                             }}
                             className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 mb-0.5 ${
                               isSubActive ? "nav-offers-active" : "nav-item-hover"
