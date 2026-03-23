@@ -553,7 +553,7 @@ export function ProfileWorkspace({ activeProfileTab, onProfileTabChange, onViewP
   };
 
   return (
-    <div className="flex flex-col h-full bg-card">
+    <div className="flex flex-col h-full bg-background">
       {/* Top bar */}
       <div
         className="flex items-center justify-between px-5 py-2.5 shrink-0"
