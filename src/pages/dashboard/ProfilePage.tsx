@@ -270,7 +270,7 @@ export default function ProfilePage() {
   const filledSocials = ALL_SOCIALS.filter(s => socialLinks[s.id]);
   const publicSocials = filledSocials.slice(0, 6);
 
-  const tabData = activeTab === "created" ? mockCreated : activeTab === "joined" ? mockJoined : activeTab === "reviews" ? [] : [];
+  const tabData = activeTab === "created" ? mockCreated : activeTab === "joined" ? mockJoined : [];
 
   // Fetch user's installed apps for the "apps" tab
   const { data: installedApps } = useQuery({
