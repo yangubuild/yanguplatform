@@ -23,7 +23,7 @@ export function InfluencerProfilePopup({ user, onClose }: Props) {
       {/* Card */}
       <div
         className="fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] rounded-2xl p-6 shadow-2xl"
-        style={{ border: "1px solid rgba(255,255,255,0.08)" }}>
+        style={{ background: "#1a2027", border: "1px solid rgba(255,255,255,0.08)" }}>
         {/* Close */}
         <button
           onClick={onClose}

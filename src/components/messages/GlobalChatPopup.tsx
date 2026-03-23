@@ -72,7 +72,7 @@ export function GlobalChatPopup({ onClose }: GlobalChatPopupProps) {
       style={{
         top: 64, right: 16, width: 380,
         height: "calc(100vh - 80px)", maxHeight: 600,
-        background: "#1a2026",
+        background: "#1a2027",
         border: "1px solid rgba(255,255,255,0.08)",
         borderRadius: 16,
         boxShadow: "0 12px 48px rgba(0,0,0,0.6)" }}>
@@ -120,7 +120,7 @@ export function GlobalChatPopup({ onClose }: GlobalChatPopupProps) {
                   className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border"
                   style={{
                     background: presenceMap[msg.user_id] === "live" ? "#22c55e" : "#6b7280",
-                    borderColor: "#1a2026" }}
+                    borderColor: "#1a2027" }}
                 />
               </div>
               <div className="min-w-0 flex-1">
