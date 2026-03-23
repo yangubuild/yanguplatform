@@ -257,8 +257,7 @@ export function GroupChatThreadView({ group, onBack }: Props) {
         </div>
       )}
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-2">
+      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-2" onClick={() => { setReactionMsgId(null); setMsgMenuId(null); }}>
         {isLoading ? (
           <div className="flex-1 flex items-center justify-center">
             <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
@@ -287,19 +286,33 @@ export function GroupChatThreadView({ group, onBack }: Props) {
                   {!isMine && (
                     <p className="text-[10px] mb-0.5 font-medium" style={{ color: "rgba(96,165,250,0.8)" }}>{msg.author_name}</p>
                   )}
-                  <div className="px-3 py-2 rounded-xl text-sm" style={{ background: isMine ? "rgba(255, 255, 255, 0.12)" : "rgba(255, 255, 255, 0.06)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: isMine ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(255,255,255,0.07)" }}>
+                  {/* Quick reaction bar */}
+                  {reactionMsgId === msg.id && (
+                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 z-30">
+                      <QuickReactionBar messageId={msg.id} type="group" onClose={() => setReactionMsgId(null)} />
+                    </div>
+                  )}
+                  <div className="px-3 py-2 rounded-xl text-sm cursor-pointer" style={{ background: isMine ? "rgba(255, 255, 255, 0.12)" : "rgba(255, 255, 255, 0.06)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: isMine ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(255,255,255,0.07)" }}
+                    onDoubleClick={(e) => { e.stopPropagation(); setReactionMsgId(msg.id); }}>
                     {renderContent(msg.content)}
                     <p className="text-[9px] mt-1 text-muted-foreground">
                       {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                     </p>
                   </div>
-                  <div className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => setMsgMenuId(msgMenuId === msg.id ? null : msg.id)} className="p-1 rounded" style={{ background: "rgba(0,0,0,0.5)" }}>
+                  <MessageReactions messageId={msg.id} type="group" />
+                  <div className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity flex gap-0.5">
+                    <button onClick={(e) => { e.stopPropagation(); setReactionMsgId(reactionMsgId === msg.id ? null : msg.id); }} className="p-1 rounded" style={{ background: "rgba(0,0,0,0.5)" }}>
+                      <SmilePlus className="w-3 h-3 text-muted-foreground" />
+                    </button>
+                    <button onClick={(e) => { e.stopPropagation(); setMsgMenuId(msgMenuId === msg.id ? null : msg.id); }} className="p-1 rounded" style={{ background: "rgba(0,0,0,0.5)" }}>
                       <MoreVertical className="w-3 h-3 text-muted-foreground" />
                     </button>
                   </div>
                   {msgMenuId === msg.id && (
-                    <div className="absolute top-6 right-0 z-20 rounded-lg py-1 min-w-[140px]" style={{ background: "#1a2027", border: "1px solid rgba(255,255,255,0.1)" }}>
+                    <div className="absolute top-6 right-0 z-20 rounded-lg py-1 min-w-[140px]" style={{ background: "#1a2027", border: "1px solid rgba(255,255,255,0.1)" }} onClick={(e) => e.stopPropagation()}>
+                      <button onClick={() => { setReactionMsgId(msg.id); setMsgMenuId(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:opacity-80 text-foreground min-h-[36px]">
+                        <SmilePlus className="w-3 h-3" /> React
+                      </button>
                       <button onClick={() => { setReplyTo({ id: msg.id, content: msg.content }); setMsgMenuId(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:opacity-80 text-foreground min-h-[36px]">
                         <Reply className="w-3 h-3" /> Reply
                       </button>
