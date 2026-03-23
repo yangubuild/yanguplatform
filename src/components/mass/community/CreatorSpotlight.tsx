@@ -8,7 +8,7 @@ export function CreatorSpotlight() {
   const c = getThemeColors(theme);
 
   return (
-    <section className="w-full transition-colors duration-300" style={{ backgroundColor: c.bg }}>
+    <section className="w-full transition-colors duration-300 bg-background">
       <div className="mx-auto max-w-[1100px] px-4 sm:px-6 lg:px-10 pb-4 pt-14">
         <div className="mb-5 flex items-center justify-between">
           <h2 className={T.sectionH2} style={{ color: c.text }}>Creators you might like</h2>
