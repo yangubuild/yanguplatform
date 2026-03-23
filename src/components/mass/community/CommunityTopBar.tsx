@@ -9,7 +9,7 @@ export function CommunityTopBar() {
   const c = getThemeColors(theme);
 
   return (
-    <header className="w-full transition-colors duration-300" style={{ backgroundColor: c.bg }}>
+    <header className="w-full transition-colors duration-300 bg-background">
       <div className="mx-auto flex h-[64px] max-w-[1100px] items-center justify-between px-4 sm:px-6 lg:px-10">
         <div className="flex items-center gap-4">
           <a href="/" className="flex items-center">
@@ -61,7 +61,7 @@ export function CommunityTopBar() {
               placeholder="Search"
               className="w-full rounded-lg py-[12px] pl-11 pr-4 text-sm focus:outline-none transition-all duration-200 hover:border-[#F46D2A] hover:shadow-[0_2px_16px_rgba(244,109,42,0.2)]"
               style={{
-                backgroundColor: theme === "dark" ? "rgba(8,18,13,0.55)" : "#FFFFFF",
+                backgroundColor: theme === "dark" ? "hsl(var(--muted))" : "#FFFFFF",
                 color: c.inputText,
                 border: "1.5px solid rgba(244,109,42,0.25)",
                 boxShadow: "0 2px 12px rgba(244,109,42,0.1)" }}
