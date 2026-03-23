@@ -10,7 +10,7 @@ export const ROUTES = {
   
   // User routes
   dashboard: "/dashboard",
-  settings: "/settings",
+  settings: "/dashboard/settings",
   profile: "/profile",
   kyc: "/kyc",
   billing: "/billing",
