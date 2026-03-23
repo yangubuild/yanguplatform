@@ -61,7 +61,7 @@ export function SocialLinksModal({ open, onOpenChange, initialData, onSave, savi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md" style={{ background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)" }}>
+      <DialogContent className="sm:max-w-md" style={{ background: "#1a2027", border: "1px solid rgba(255,255,255,0.1)" }}>
         <DialogHeader>
           <DialogTitle className="text-foreground">Social icons</DialogTitle>
         </DialogHeader>

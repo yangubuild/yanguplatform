@@ -183,7 +183,7 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className="sm:max-w-md p-0 border-0 gap-0"
-        style={{ background: "#111a15", borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)" }}>
+        style={{ background: "#1a2027", borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)" }}>
         <div className="flex items-center justify-between px-6 pt-6 pb-2">
           <DialogTitle className="text-lg font-bold text-foreground">Add team member</DialogTitle>
         </div>
