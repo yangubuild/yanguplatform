@@ -12,7 +12,7 @@ export function ClientChatPanel() {
   const [message, setMessage] = useState("");
 
   return (
-    <div className="flex flex-col h-full" style={{ background: "#111820" }}>
+    <div className="flex flex-col h-full bg-background">
       {/* Header */}
       <div
         className="flex items-center justify-between px-4 py-3 shrink-0"
