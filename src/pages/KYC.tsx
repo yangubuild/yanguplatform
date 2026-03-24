@@ -13,10 +13,20 @@ import {
   ExternalLink,
   AlertCircle,
   RefreshCw,
+  Sun,
+  Camera,
+  CreditCard,
+  Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 type KycDbStatus = "pending" | "submitted" | "approved" | "rejected" | null;
 type KycUiStatus = "not_started" | "in_progress" | "pending_review" | "verified" | "rejected";
@@ -99,6 +109,7 @@ export default function KYC() {
   const [isLoading, setIsLoading] = useState(true);
   const [isStarting, setIsStarting] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [showGuidance, setShowGuidance] = useState(false);
   const hasSyncedCallback = useRef(false);
 
   const callbackSessionId = searchParams.get("verificationSessionId");
@@ -274,7 +285,7 @@ export default function KYC() {
     },
     pending_review: {
       label: "Pending Review",
-      description: "Your verification has been submitted and is under review. This usually takes a few minutes.",
+      description: "Your verification has been submitted and is under review. This can take 1–24 hours depending on the provider. This is not a rejection — please wait for the result before retrying.",
       badgeVariant: "secondary",
       icon: <Clock3 className="h-5 w-5 text-muted-foreground" />,
     },
@@ -338,7 +349,7 @@ export default function KYC() {
             <div className="grid gap-3">
               {/* Primary CTA based on state */}
               {uiStatus === "not_started" && (
-                <Button onClick={handleStartOrContinue} disabled={isStarting}>
+                <Button onClick={() => setShowGuidance(true)} disabled={isStarting}>
                   {isStarting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
                   Start KYC
                 </Button>
@@ -360,7 +371,7 @@ export default function KYC() {
               )}
 
               {uiStatus === "rejected" && (
-                <Button onClick={handleStartOrContinue} disabled={isStarting}>
+                <Button onClick={() => setShowGuidance(true)} disabled={isStarting}>
                   {isStarting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
                   Retry KYC
                 </Button>
@@ -390,6 +401,67 @@ export default function KYC() {
           </>
         )}
       </Card>
+
+      {/* Pre-start KYC Guidance Modal */}
+      <Dialog open={showGuidance} onOpenChange={setShowGuidance}>
+        <DialogContent className="sm:max-w-md">
+          <div className="flex items-center gap-3 mb-1">
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <Camera className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <DialogTitle className="text-base font-semibold">Before you start</DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground">
+                A few tips for the fastest approval
+              </DialogDescription>
+            </div>
+          </div>
+
+          <div className="space-y-3 my-4">
+            {[
+              { icon: Sun, text: "Make sure lighting is bright and even — avoid shadows" },
+              { icon: Camera, text: "Take a clear, sharp selfie — no blur or motion" },
+              { icon: CreditCard, text: "Your ID should be fully visible — no cropped edges" },
+              { icon: Eye, text: "Avoid glare on your ID — tilt slightly if needed" },
+            ].map((tip, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <div className="w-7 h-7 rounded-md bg-accent/10 flex items-center justify-center shrink-0 mt-0.5">
+                  <tip.icon className="h-3.5 w-3.5 text-accent" />
+                </div>
+                <p className="text-sm text-muted-foreground leading-snug">{tip.text}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="rounded-lg border border-border bg-muted/30 p-3 mb-4">
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              If your photo or ID is unclear, your verification may go to <span className="font-medium text-foreground">manual review</span> and
+              take <span className="font-medium text-foreground">1–24 hours</span>. For the fastest approval, verify in good lighting with a clear photo.
+            </p>
+          </div>
+
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setShowGuidance(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="flex-1"
+              disabled={isStarting}
+              onClick={() => {
+                setShowGuidance(false);
+                handleStartOrContinue();
+              }}
+            >
+              {isStarting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+              Continue KYC
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
