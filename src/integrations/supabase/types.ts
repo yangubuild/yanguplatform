@@ -3747,6 +3747,50 @@ export type Database = {
           },
         ]
       }
+      hub_bookings: {
+        Row: {
+          agency_id: string
+          booked_by: string
+          booking_date: string
+          created_at: string
+          end_time: string
+          id: string
+          notes: string | null
+          start_time: string
+          status: string
+        }
+        Insert: {
+          agency_id: string
+          booked_by: string
+          booking_date: string
+          created_at?: string
+          end_time: string
+          id?: string
+          notes?: string | null
+          start_time: string
+          status?: string
+        }
+        Update: {
+          agency_id?: string
+          booked_by?: string
+          booking_date?: string
+          created_at?: string
+          end_time?: string
+          id?: string
+          notes?: string | null
+          start_time?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hub_bookings_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       knowledge_chunks: {
         Row: {
           content: string
@@ -6601,6 +6645,16 @@ export type Database = {
         }
         Returns: string
       }
+      create_hub_booking: {
+        Args: {
+          p_agency_id: string
+          p_date: string
+          p_end: string
+          p_notes?: string
+          p_start: string
+        }
+        Returns: string
+      }
       create_ideogram_generation:
         | { Args: { p_params?: Json; p_prompt: string }; Returns: string }
         | {
@@ -6676,7 +6730,16 @@ export type Database = {
         }[]
       }
       get_agency_dashboard: { Args: { p_agency_id: string }; Returns: Json }
+      get_agency_dashboard_v2: { Args: { p_agency_id: string }; Returns: Json }
       get_agency_members: { Args: { p_agency_id: string }; Returns: Json }
+      get_agency_referrals: {
+        Args: { p_agency_id: string; p_user_id?: string }
+        Returns: Json
+      }
+      get_agency_support_tickets: {
+        Args: { p_agency_id: string }
+        Returns: Json
+      }
       get_anthropic_publications: {
         Args: { p_limit?: number; p_offset?: number }
         Returns: {
@@ -6758,6 +6821,7 @@ export type Database = {
           visibility_tier: string
         }[]
       }
+      get_hub_bookings: { Args: { p_agency_id: string }; Returns: Json }
       get_kyc_status: { Args: { p_user_id: string }; Returns: Json }
       get_my_active_promos: {
         Args: never
@@ -6782,6 +6846,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      get_my_agency_stats: { Args: { p_agency_id: string }; Returns: Json }
       get_my_credit_balance: { Args: never; Returns: number }
       get_my_entitlements: { Args: never; Returns: Json }
       get_my_image_generations: {
