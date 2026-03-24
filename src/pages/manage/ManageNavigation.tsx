@@ -526,7 +526,7 @@ function RulesTab() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-foreground">Feature Flags & Experiments</h3>
-        <Badge variant="outline" className="text-[10px]">Placeholder</Badge>
+        <Badge variant="outline" className="text-[10px] text-warning">Local Only</Badge>
       </div>
 
       <Card>
