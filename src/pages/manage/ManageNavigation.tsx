@@ -133,8 +133,8 @@ const VISIBILITY_OPTIONS: { value: VisibilityRule; label: string }[] = [
   { value: "admin", label: "Admin" },
 ];
 
-// ─── Mock data ────────────────────────────────────────────────────
-const MOCK_NAV_ITEMS: NavItem[] = [
+// ─── Default config (loaded from local state — no DB table yet) ──
+const DEFAULT_NAV_ITEMS: NavItem[] = [
   { id: "1", label: "Dashboard", icon: "LayoutDashboard", route: "/dashboard", visibility: "logged_in", badge: "", enabled: true, section: "Explore" },
   { id: "2", label: "Explore", icon: "Compass", route: "/discover", visibility: "all", badge: "", enabled: true, section: "Explore" },
   { id: "3", label: "Ada AI", icon: "Bot", route: "/ada-ai", visibility: "all", badge: "New", enabled: true, section: "Explore" },
@@ -145,7 +145,7 @@ const MOCK_NAV_ITEMS: NavItem[] = [
   { id: "8", label: "Community", icon: "Store", route: "/community", visibility: "all", badge: "", enabled: true, section: "Community" },
 ];
 
-const MOCK_TOPBAR: TopBarControl[] = [
+const DEFAULT_TOPBAR: TopBarControl[] = [
   { id: "search", label: "Search", enabled: true },
   { id: "wallet", label: "Wallet balance", enabled: true },
   { id: "deposit", label: "Deposit button", enabled: true },
@@ -154,12 +154,12 @@ const MOCK_TOPBAR: TopBarControl[] = [
   { id: "profile", label: "Profile menu", enabled: true },
 ];
 
-const MOCK_QUICK_ACTIONS: QuickAction[] = [
+const DEFAULT_QUICK_ACTIONS: QuickAction[] = [
   { id: "1", label: "Create Surface", route: "/dashboard" },
   { id: "2", label: "View Blog", route: "/blog" },
 ];
 
-const MOCK_BANNERS: BannerCard[] = [
+const DEFAULT_BANNERS: BannerCard[] = [
   {
     id: "1", title: "Launch Offer", description: "Get 120% bonus credits on your first deposit",
     imageUrl: "", ctaLabel: "Claim Now", ctaLink: "/billing", targetRoles: ["all"],
@@ -172,14 +172,14 @@ const MOCK_BANNERS: BannerCard[] = [
   },
 ];
 
-const MOCK_APPS: AppEntry[] = [
+const DEFAULT_APPS: AppEntry[] = [
   { id: "1", name: "Cora Analytics", icon: "LayoutDashboard", link: "/apps/cora", status: "approved" },
   { id: "2", name: "Mail Pro", icon: "Bell", link: "/apps/mail", status: "featured" },
   { id: "3", name: "Sparkle CRM", icon: "Star" as any, link: "/apps/sparkle", status: "pending" },
   { id: "4", name: "Budget Tracker", icon: "Wallet", link: "/apps/budget", status: "rejected" },
 ];
 
-const MOCK_EXPERIMENTS: Experiment[] = [
+const DEFAULT_EXPERIMENTS: Experiment[] = [
   { id: "1", label: "Sidebar compact mode", enabled: true, targetRole: "all", variant: "A" },
   { id: "2", label: "New search UX", enabled: false, targetRole: "logged_in", variant: "B" },
   { id: "3", label: "Seller quick actions", enabled: false, targetRole: "seller", variant: "A" },
@@ -192,7 +192,7 @@ function DisabledActionBar() {
     <div className="flex items-center gap-2 pt-4 border-t border-border">
       <Button disabled className="gap-2"><Save className="h-4 w-4" /> Save Draft</Button>
       <Button disabled variant="outline" className="gap-2"><Upload className="h-4 w-4" /> Publish</Button>
-      <span className="text-xs text-muted-foreground ml-2">Backend not connected yet</span>
+      <span className="text-xs text-warning ml-2">⚠ Configuration editor — changes are local only until backend persistence is connected</span>
     </div>
   );
 }
@@ -204,7 +204,7 @@ function IconPreview({ name }: { name: string }) {
 
 // ─── Tab: Sidebar Builder ─────────────────────────────────────────
 function SidebarBuilderTab() {
-  const [items, setItems] = useState<NavItem[]>(MOCK_NAV_ITEMS);
+  const [items, setItems] = useState<NavItem[]>(DEFAULT_NAV_ITEMS);
   const [previewRole, setPreviewRole] = useState<VisibilityRule>("all");
 
   const updateItem = (id: string, patch: Partial<NavItem>) => {
@@ -319,8 +319,8 @@ function SidebarBuilderTab() {
 
 // ─── Tab: Top Bar Controls ────────────────────────────────────────
 function TopBarControlsTab() {
-  const [controls, setControls] = useState<TopBarControl[]>(MOCK_TOPBAR);
-  const [actions, setActions] = useState<QuickAction[]>(MOCK_QUICK_ACTIONS);
+  const [controls, setControls] = useState<TopBarControl[]>(DEFAULT_TOPBAR);
+  const [actions, setActions] = useState<QuickAction[]>(DEFAULT_QUICK_ACTIONS);
 
   const toggleControl = (id: string) => {
     setControls((prev) => prev.map((c) => (c.id === id ? { ...c, enabled: !c.enabled } : c)));
@@ -386,7 +386,7 @@ function TopBarControlsTab() {
 
 // ─── Tab: Ad Banners & Offers ─────────────────────────────────────
 function AdBannersTab() {
-  const [banners, setBanners] = useState<BannerCard[]>(MOCK_BANNERS);
+  const [banners, setBanners] = useState<BannerCard[]>(DEFAULT_BANNERS);
 
   const updateBanner = (id: string, patch: Partial<BannerCard>) => {
     setBanners((prev) => prev.map((b) => (b.id === id ? { ...b, ...patch } : b)));
@@ -457,7 +457,7 @@ function AdBannersTab() {
 
 // ─── Tab: App Store & Apps ────────────────────────────────────────
 function AppStoreTab() {
-  const [apps, setApps] = useState<AppEntry[]>(MOCK_APPS);
+  const [apps, setApps] = useState<AppEntry[]>(DEFAULT_APPS);
 
   const statusColors: Record<AppEntry["status"], string> = {
     approved: "bg-success/10 text-success border-success/20",
@@ -516,7 +516,7 @@ function AppStoreTab() {
 
 // ─── Tab: Rules & Experiments ─────────────────────────────────────
 function RulesTab() {
-  const [experiments, setExperiments] = useState<Experiment[]>(MOCK_EXPERIMENTS);
+  const [experiments, setExperiments] = useState<Experiment[]>(DEFAULT_EXPERIMENTS);
 
   const toggleExp = (id: string) => {
     setExperiments((prev) => prev.map((e) => (e.id === id ? { ...e, enabled: !e.enabled } : e)));
@@ -526,7 +526,7 @@ function RulesTab() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-foreground">Feature Flags & Experiments</h3>
-        <Badge variant="outline" className="text-[10px]">Placeholder</Badge>
+        <Badge variant="outline" className="text-[10px] text-warning">Local Only</Badge>
       </div>
 
       <Card>

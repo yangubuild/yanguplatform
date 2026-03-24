@@ -6598,7 +6598,9 @@ export type Database = {
       }
       manage_command_center: { Args: never; Returns: Json }
       manage_command_center_v2: { Args: never; Returns: Json }
+      manage_community_promotions: { Args: never; Returns: Json }
       manage_domains_list: { Args: never; Returns: Json }
+      manage_events_overview: { Args: never; Returns: Json }
       manage_explore_surfaces: { Args: never; Returns: Json }
       manage_explore_surfaces_stats: { Args: never; Returns: Json }
       manage_explore_users_stats: { Args: never; Returns: Json }
@@ -6657,6 +6659,7 @@ export type Database = {
         Args: { p_id: string; p_image_url: string }
         Returns: string
       }
+      manage_news_articles: { Args: never; Returns: Json }
       manage_notifications_list: {
         Args: { p_limit?: number; p_status?: string }
         Returns: Json
@@ -6722,7 +6725,16 @@ export type Database = {
         Args: { p_action: string; p_reason?: string; p_subscription_id: string }
         Returns: undefined
       }
+      manage_support_reply: {
+        Args: { p_content: string; p_ticket_id: string }
+        Returns: undefined
+      }
       manage_support_sla_list: { Args: { p_status?: string }; Returns: Json }
+      manage_support_tickets_full: { Args: never; Returns: Json }
+      manage_support_update_status: {
+        Args: { p_status: string; p_ticket_id: string }
+        Returns: undefined
+      }
       manage_surface_action: {
         Args: { p_action: string; p_publish_id: string }
         Returns: string
