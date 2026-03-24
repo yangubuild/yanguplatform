@@ -7,10 +7,12 @@ type DbAppRole = Database["public"]["Enums"]["app_role"];
 
 export type AppRole = DbAppRole;
 export type ManageRole = AppRole | "writer" | "analyst" | "moderator" | "content_editor";
+export type AgencyRole = "agency_admin" | "agency_manager" | "foot_soldier";
 
 interface RolesState {
   roles: AppRole[];
   manageRoles: ManageRole[];
+  agencyRoles: AgencyRole[];
   isAdmin: boolean;
   isOwner: boolean;
   isManager: boolean;
@@ -19,25 +21,32 @@ interface RolesState {
   isAnalyst: boolean;
   isModerator: boolean;
   isContentEditor: boolean;
+  isAgencyAdmin: boolean;
+  isAgencyManager: boolean;
+  isFootSoldier: boolean;
   hasAnyManageRole: boolean;
+  hasAnyAgencyRole: boolean;
   isLoading: boolean;
   refetch: () => Promise<void>;
 }
 
 const MANAGE_ROLES: ManageRole[] = ["admin", "owner", "manager", "writer", "designer", "analyst", "moderator", "content_editor"];
 const DB_MANAGE_ROLES: AppRole[] = ["admin", "owner", "manager", "designer"];
-const DB_APP_ROLES: AppRole[] = ["admin", "owner", "manager", "designer", "user"];
+const AGENCY_ROLE_KEYS: AgencyRole[] = ["agency_admin", "agency_manager", "foot_soldier"];
+const ALL_KNOWN_ROLES: string[] = ["admin", "user", "owner", "manager", "designer", "agency_admin", "agency_manager", "foot_soldier"];
 
 export function useRoles(): RolesState {
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [manageRoles, setManageRoles] = useState<ManageRole[]>([]);
+  const [agencyRoles, setAgencyRoles] = useState<AgencyRole[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchRoles = useCallback(async () => {
     if (!user?.id) {
       setRoles([]);
       setManageRoles([]);
+      setAgencyRoles([]);
       setIsLoading(false);
       return;
     }
@@ -45,7 +54,6 @@ export function useRoles(): RolesState {
     setIsLoading(true);
 
     try {
-      // Read user's assigned roles directly to avoid enum-cast 400 RPC errors
       const { data, error } = await supabase
         .from("user_roles")
         .select("role")
@@ -53,27 +61,35 @@ export function useRoles(): RolesState {
 
       if (error) throw error;
 
-      const assigned = new Set<AppRole>();
+      const assigned = new Set<string>();
       for (const row of data || []) {
-        const role = row.role as AppRole;
-        if (DB_APP_ROLES.includes(role)) assigned.add(role);
+        assigned.add(row.role as string);
       }
 
+      // Base roles
       const resolvedRoles: AppRole[] = ["user"];
       for (const role of ["admin", "owner", "manager", "designer"] as const) {
         if (assigned.has(role)) resolvedRoles.push(role);
       }
 
+      // Management roles
       const resolvedManageRoles = MANAGE_ROLES.filter(
-        (role) => DB_MANAGE_ROLES.includes(role as AppRole) && assigned.has(role as AppRole)
+        (role) => DB_MANAGE_ROLES.includes(role as AppRole) && assigned.has(role as string)
       ) as ManageRole[];
+
+      // Agency roles
+      const resolvedAgencyRoles = AGENCY_ROLE_KEYS.filter(
+        (role) => assigned.has(role)
+      );
 
       setRoles(resolvedRoles);
       setManageRoles(resolvedManageRoles);
+      setAgencyRoles(resolvedAgencyRoles);
     } catch (err) {
       console.error("Failed to fetch roles:", err);
       setRoles(["user"]);
       setManageRoles([]);
+      setAgencyRoles([]);
     } finally {
       setIsLoading(false);
     }
@@ -84,6 +100,7 @@ export function useRoles(): RolesState {
     if (!isAuthenticated) {
       setRoles([]);
       setManageRoles([]);
+      setAgencyRoles([]);
       setIsLoading(false);
       return;
     }
@@ -98,11 +115,16 @@ export function useRoles(): RolesState {
   const isAnalyst = manageRoles.includes("analyst");
   const isModerator = manageRoles.includes("moderator");
   const isContentEditor = manageRoles.includes("content_editor");
-  const hasAnyManageRole = manageRoles.length> 0;
+  const isAgencyAdmin = agencyRoles.includes("agency_admin");
+  const isAgencyManager = agencyRoles.includes("agency_manager");
+  const isFootSoldier = agencyRoles.includes("foot_soldier");
+  const hasAnyManageRole = manageRoles.length > 0;
+  const hasAnyAgencyRole = agencyRoles.length > 0;
 
   return {
     roles,
     manageRoles,
+    agencyRoles,
     isAdmin,
     isOwner,
     isManager,
@@ -111,9 +133,12 @@ export function useRoles(): RolesState {
     isAnalyst,
     isModerator,
     isContentEditor,
+    isAgencyAdmin,
+    isAgencyManager,
+    isFootSoldier,
     hasAnyManageRole,
+    hasAnyAgencyRole,
     isLoading: authLoading || isLoading,
     refetch: fetchRoles,
   };
 }
-
