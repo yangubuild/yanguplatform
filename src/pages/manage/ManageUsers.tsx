@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { AdminToolbar } from "@/components/manage/AdminToolbar";
 import { AdminTable, type AdminColumn } from "@/components/manage/AdminTable";
+import { useUserFullLifecycle, useUserModerationAction } from "@/hooks/manage/useManageUserLifecycle";
 import { AdminStatusBadge } from "@/components/manage/AdminStatusBadge";
 import { AdminGlassCard, AdminMetricCard, AdminPageHeader } from "@/components/manage/AdminGlassCard";
 import { Badge } from "@/components/ui/badge";
@@ -194,10 +195,13 @@ function buildColumns(onAction: (user: LifecycleUser, action: string) => void): 
   ];
 }
 
-// ── User Detail Drawer ─────────────────────────────────────
+// ── User Detail Drawer (Full Lifecycle) ────────────────────
 function UserDetailDrawer({
-  user, open, onClose,
-}: { user: LifecycleUser | null; open: boolean; onClose: () => void }) {
+  user, open, onClose, onAction,
+}: { user: LifecycleUser | null; open: boolean; onClose: () => void; onAction: (user: LifecycleUser, action: string) => void }) {
+  const { data: lifecycle, isLoading: lcLoading } = useUserFullLifecycle(user?.id ?? null);
+  const modAction = useUserModerationAction();
+
   if (!user) return null;
 
   const fields: { label: string; value: React.ReactNode }[] = [
@@ -222,14 +226,21 @@ function UserDetailDrawer({
     { label: "Creator Type", value: user.creator_type || "—" },
   ];
 
+  const handleMod = (action: "suspend" | "reactivate" | "reset_onboarding") => {
+    modAction.mutate({ userId: user.id, action }, {
+      onSuccess: () => { toast.success(`Action "${action.replace(/_/g, " ")}" completed`); onClose(); },
+      onError: (e) => toast.error(e.message),
+    });
+  };
+
   return (
     <Sheet open={open} onOpenChange={() => onClose()}>
-      <SheetContent className="w-[420px] sm:max-w-[420px] overflow-y-auto">
+      <SheetContent className="w-[460px] sm:max-w-[460px] overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="text-lg">
             {user.display_name || user.username || user.email}
           </SheetTitle>
-          <SheetDescription>User lifecycle details</SheetDescription>
+          <SheetDescription>Full user lifecycle</SheetDescription>
         </SheetHeader>
         <div className="mt-6 space-y-3">
           {fields.map((f) => (
@@ -238,6 +249,94 @@ function UserDetailDrawer({
               <span className="text-sm text-foreground text-right">{f.value}</span>
             </div>
           ))}
+        </div>
+
+        {/* Lifecycle data */}
+        {lcLoading ? (
+          <div className="mt-4 text-xs text-muted-foreground">Loading lifecycle…</div>
+        ) : lifecycle && (
+          <div className="mt-6 space-y-4">
+            {/* KYC */}
+            <div className="rounded-lg border border-border p-3">
+              <h4 className="text-xs font-semibold text-foreground mb-2">KYC Status</h4>
+              {lifecycle.kyc ? (
+                <div className="text-xs text-muted-foreground space-y-1">
+                  <p>Status: <span className="font-medium text-foreground">{lifecycle.kyc.status}</span></p>
+                  <p>Provider: {lifecycle.kyc.provider || "—"}</p>
+                  <p>Created: {formatDateTime(lifecycle.kyc.created_at)}</p>
+                </div>
+              ) : <p className="text-xs text-muted-foreground">No KYC record</p>}
+            </div>
+
+            {/* Subscription */}
+            <div className="rounded-lg border border-border p-3">
+              <h4 className="text-xs font-semibold text-foreground mb-2">Subscription</h4>
+              {lifecycle.subscription ? (
+                <div className="text-xs text-muted-foreground space-y-1">
+                  <p>Plan: <span className="font-medium text-foreground">{lifecycle.subscription.plan_id}</span></p>
+                  <p>Status: <span className="font-medium text-foreground">{lifecycle.subscription.status}</span></p>
+                  <p>Provider: {lifecycle.subscription.provider}</p>
+                </div>
+              ) : <p className="text-xs text-muted-foreground">No subscription</p>}
+            </div>
+
+            {/* Activity */}
+            <div className="rounded-lg border border-border p-3">
+              <h4 className="text-xs font-semibold text-foreground mb-2">Activity</h4>
+              <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                <p>Surfaces: <span className="font-medium text-foreground">{lifecycle.surfaces_count}</span></p>
+                <p>AI Images: <span className="font-medium text-foreground">{lifecycle.ai_images_count}</span></p>
+                <p>AI Videos: <span className="font-medium text-foreground">{lifecycle.ai_videos_count}</span></p>
+                <p>Tickets: <span className="font-medium text-foreground">{lifecycle.support_tickets_count}</span></p>
+              </div>
+            </div>
+
+            {/* Roles */}
+            {lifecycle.roles && lifecycle.roles.length > 0 && (
+              <div className="rounded-lg border border-border p-3">
+                <h4 className="text-xs font-semibold text-foreground mb-2">Roles</h4>
+                <div className="flex gap-1.5 flex-wrap">
+                  {lifecycle.roles.map((r: string) => (
+                    <Badge key={r} variant="outline" className="text-[10px]">{r}</Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Recent Audit */}
+            {lifecycle.recent_audit && lifecycle.recent_audit.length > 0 && (
+              <div className="rounded-lg border border-border p-3">
+                <h4 className="text-xs font-semibold text-foreground mb-2">Recent Activity</h4>
+                <div className="space-y-1">
+                  {lifecycle.recent_audit.slice(0, 5).map((a, i) => (
+                    <div key={i} className="flex justify-between text-[10px] text-muted-foreground">
+                      <span>{a.action} ({a.entity_type})</span>
+                      <span>{formatDate(a.created_at)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="mt-6 pt-4 border-t border-border space-y-2">
+          <h4 className="text-xs font-semibold text-foreground mb-2">Moderation Actions</h4>
+          <div className="flex gap-2 flex-wrap">
+            {user.account_status !== "suspended" ? (
+              <Button size="sm" variant="destructive" onClick={() => handleMod("suspend")} disabled={modAction.isPending}>
+                <Shield className="h-3.5 w-3.5 mr-1" /> Suspend
+              </Button>
+            ) : (
+              <Button size="sm" variant="outline" onClick={() => handleMod("reactivate")} disabled={modAction.isPending}>
+                <ShieldOff className="h-3.5 w-3.5 mr-1" /> Reactivate
+              </Button>
+            )}
+            <Button size="sm" variant="outline" onClick={() => handleMod("reset_onboarding")} disabled={modAction.isPending}>
+              <RotateCcw className="h-3.5 w-3.5 mr-1" /> Reset Onboarding
+            </Button>
+          </div>
         </div>
       </SheetContent>
     </Sheet>
@@ -443,7 +542,7 @@ export default function ManageUsers() {
       )}
 
       {/* User Detail Drawer */}
-      <UserDetailDrawer user={detailUser} open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+      <UserDetailDrawer user={detailUser} open={drawerOpen} onClose={() => { setDrawerOpen(false); fetchData(); }} onAction={handleAction} />
     </div>
   );
 }
