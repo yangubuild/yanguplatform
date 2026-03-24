@@ -56,7 +56,15 @@ const ManageDataIntegrity = lazy(() => lazyRetry(() => import("@/pages/manage/Ma
 
 // Agency pages
 const AgencyDashboard = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyDashboard")));
-const AgencyPlaceholder = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyPlaceholder")));
+const AgencyOnboarding = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyOnboarding")));
+const AgencyMembersPage = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyMembersPage")));
+const AgencyCommissions = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyCommissions")));
+const AgencyPerformance = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyPerformance")));
+const AgencyAnalytics = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyAnalytics")));
+const AgencyHub = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyHub")));
+const AgencySupportPage = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencySupportPage")));
+const AgencySettingsPage = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencySettingsPage")));
+const AgencyKYC = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyKYC")));
 
 // Auth — login only, no signup
 const Login = lazy(() => lazyRetry(() => import("@/pages/auth/Login")));
