@@ -4289,6 +4289,48 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_incidents: {
+        Row: {
+          affected_system: string | null
+          assigned_to: string | null
+          created_at: string
+          description: string | null
+          id: string
+          reported_by: string | null
+          resolved_at: string | null
+          severity: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          affected_system?: string | null
+          assigned_to?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          reported_by?: string | null
+          resolved_at?: string | null
+          severity?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          affected_system?: string | null
+          assigned_to?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          reported_by?: string | null
+          resolved_at?: string | null
+          severity?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       post_comments: {
         Row: {
           content: string
@@ -6528,6 +6570,10 @@ export type Database = {
       }
       is_username_available: { Args: { _username: string }; Returns: boolean }
       list_on_community: { Args: { p_surface_id: string }; Returns: Json }
+      manage_ai_usage_stats: {
+        Args: { p_days?: number; p_limit?: number }
+        Returns: Json
+      }
       manage_alerts_list: {
         Args: {
           p_limit?: number
@@ -6549,17 +6595,45 @@ export type Database = {
         }
         Returns: Json
       }
+      manage_command_center: { Args: never; Returns: Json }
       manage_domains_list: { Args: never; Returns: Json }
       manage_explore_surfaces: { Args: never; Returns: Json }
       manage_explore_surfaces_stats: { Args: never; Returns: Json }
       manage_explore_users_stats: { Args: never; Returns: Json }
       manage_get_user_detail: { Args: { p_user_id: string }; Returns: Json }
+      manage_incident_upsert: {
+        Args: {
+          p_affected_system?: string
+          p_description?: string
+          p_id?: string
+          p_severity?: string
+          p_status?: string
+          p_title?: string
+        }
+        Returns: string
+      }
+      manage_incidents_list: {
+        Args: { p_severity?: string; p_status?: string }
+        Returns: Json
+      }
       manage_invite_user: {
         Args: {
           p_email: string
           p_roles: Database["public"]["Enums"]["app_role"][]
         }
         Returns: Json
+      }
+      manage_kyc_list: {
+        Args: { p_limit?: number; p_offset?: number; p_status?: string }
+        Returns: Json
+      }
+      manage_kyc_update_status: {
+        Args: {
+          p_new_status: string
+          p_reason?: string
+          p_verification_id: string
+        }
+        Returns: undefined
       }
       manage_list_invites: { Args: never; Returns: Json }
       manage_list_users: {
@@ -6576,6 +6650,10 @@ export type Database = {
         Returns: Json
       }
       manage_overview_stats: { Args: never; Returns: Json }
+      manage_payments_overview: {
+        Args: { p_limit?: number; p_offset?: number; p_status?: string }
+        Returns: Json
+      }
       manage_platform_alerts: { Args: never; Returns: Json }
       manage_recent_audit_logs: {
         Args: { p_limit?: number; p_offset?: number }
@@ -6627,6 +6705,10 @@ export type Database = {
           p_user_id: string
         }
         Returns: Json
+      }
+      manage_subscription_action: {
+        Args: { p_action: string; p_reason?: string; p_subscription_id: string }
+        Returns: undefined
       }
       manage_surfaces_list: { Args: never; Returns: Json }
       manage_toggle_feature_flag: {
