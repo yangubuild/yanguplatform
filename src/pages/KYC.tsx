@@ -114,6 +114,7 @@ export default function KYC() {
   const [isStarting, setIsStarting] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [showGuidance, setShowGuidance] = useState(false);
+  const [checkedItems, setCheckedItems] = useState<boolean[]>([false, false, false]);
   const hasSyncedCallback = useRef(false);
 
   const callbackSessionId = searchParams.get("verificationSessionId");
