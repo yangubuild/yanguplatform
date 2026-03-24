@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import { resolveRoute, isDevEnvironment, normalizeHostname, type ResolvedRoute, type RouteDebugInfo } from "@/lib/routing/resolveRoute";
 import { resolveAppMode } from "@/lib/routing/appMode";
 import { ManagementRoutes } from "@/components/manage/ManagementRoutes";
+import { AgencyRoutes } from "@/components/routing/AgencyRoutes";
 
 const DomainHome = lazy(() => lazyRetry(() => import("./DomainHome").then((m) => ({ default: m.DomainHome }))));
 const Index = lazy(() => lazyRetry(() => import("@/pages/Index")));
