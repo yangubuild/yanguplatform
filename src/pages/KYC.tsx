@@ -401,6 +401,67 @@ export default function KYC() {
           </>
         )}
       </Card>
+
+      {/* Pre-start KYC Guidance Modal */}
+      <Dialog open={showGuidance} onOpenChange={setShowGuidance}>
+        <DialogContent className="sm:max-w-md">
+          <div className="flex items-center gap-3 mb-1">
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <Camera className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <DialogTitle className="text-base font-semibold">Before you start</DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground">
+                A few tips for the fastest approval
+              </DialogDescription>
+            </div>
+          </div>
+
+          <div className="space-y-3 my-4">
+            {[
+              { icon: Sun, text: "Make sure lighting is bright and even — avoid shadows" },
+              { icon: Camera, text: "Take a clear, sharp selfie — no blur or motion" },
+              { icon: CreditCard, text: "Your ID should be fully visible — no cropped edges" },
+              { icon: Eye, text: "Avoid glare on your ID — tilt slightly if needed" },
+            ].map((tip, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <div className="w-7 h-7 rounded-md bg-accent/10 flex items-center justify-center shrink-0 mt-0.5">
+                  <tip.icon className="h-3.5 w-3.5 text-accent" />
+                </div>
+                <p className="text-sm text-muted-foreground leading-snug">{tip.text}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="rounded-lg border border-border bg-muted/30 p-3 mb-4">
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              If your photo or ID is unclear, your verification may go to <span className="font-medium text-foreground">manual review</span> and
+              take <span className="font-medium text-foreground">1–24 hours</span>. For the fastest approval, verify in good lighting with a clear photo.
+            </p>
+          </div>
+
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setShowGuidance(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="flex-1"
+              disabled={isStarting}
+              onClick={() => {
+                setShowGuidance(false);
+                handleStartOrContinue();
+              }}
+            >
+              {isStarting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+              Continue KYC
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
