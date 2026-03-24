@@ -319,8 +319,8 @@ function SidebarBuilderTab() {
 
 // ─── Tab: Top Bar Controls ────────────────────────────────────────
 function TopBarControlsTab() {
-  const [controls, setControls] = useState<TopBarControl[]>(MOCK_TOPBAR);
-  const [actions, setActions] = useState<QuickAction[]>(MOCK_QUICK_ACTIONS);
+  const [controls, setControls] = useState<TopBarControl[]>(DEFAULT_TOPBAR);
+  const [actions, setActions] = useState<QuickAction[]>(DEFAULT_QUICK_ACTIONS);
 
   const toggleControl = (id: string) => {
     setControls((prev) => prev.map((c) => (c.id === id ? { ...c, enabled: !c.enabled } : c)));
@@ -386,7 +386,7 @@ function TopBarControlsTab() {
 
 // ─── Tab: Ad Banners & Offers ─────────────────────────────────────
 function AdBannersTab() {
-  const [banners, setBanners] = useState<BannerCard[]>(MOCK_BANNERS);
+  const [banners, setBanners] = useState<BannerCard[]>(DEFAULT_BANNERS);
 
   const updateBanner = (id: string, patch: Partial<BannerCard>) => {
     setBanners((prev) => prev.map((b) => (b.id === id ? { ...b, ...patch } : b)));
@@ -457,7 +457,7 @@ function AdBannersTab() {
 
 // ─── Tab: App Store & Apps ────────────────────────────────────────
 function AppStoreTab() {
-  const [apps, setApps] = useState<AppEntry[]>(MOCK_APPS);
+  const [apps, setApps] = useState<AppEntry[]>(DEFAULT_APPS);
 
   const statusColors: Record<AppEntry["status"], string> = {
     approved: "bg-success/10 text-success border-success/20",
