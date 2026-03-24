@@ -4,21 +4,25 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CalendarDays, Plus, Clock } from "lucide-react";
+import { CalendarDays, Plus, Clock, X, Pencil } from "lucide-react";
 import { useAgencyContext } from "@/hooks/manage/useAgencyContext";
 import { useHubBookings, useCreateHubBooking } from "@/hooks/manage/useAgencyHubBookings";
-import { toast } from "@/hooks/use-toast";
+import { useCancelHubBooking, useModifyHubBooking } from "@/hooks/manage/useHubActions";
+import { toast } from "sonner";
 
 export default function AgencyHub() {
   const { data: ctx, isLoading: ctxLoading } = useAgencyContext();
   const agencyId = ctx?.agency_id;
   const { data: bookings, isLoading } = useHubBookings(agencyId);
   const createBooking = useCreateHubBooking(agencyId);
+  const cancelBooking = useCancelHubBooking(agencyId);
+  const modifyBooking = useModifyHubBooking(agencyId);
   const [showForm, setShowForm] = useState(false);
   const [formDate, setFormDate] = useState("");
   const [formStart, setFormStart] = useState("09:00");
   const [formEnd, setFormEnd] = useState("17:00");
   const [formNotes, setFormNotes] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   if (ctxLoading || isLoading) {
     return (
@@ -44,19 +48,35 @@ export default function AgencyHub() {
   }, 0);
 
   const handleSubmit = async () => {
-    if (!formDate) {
-      toast({ title: "Error", description: "Please select a date", variant: "destructive" });
-      return;
-    }
+    if (!formDate) { toast.error("Please select a date"); return; }
     try {
-      await createBooking.mutateAsync({ date: formDate, start: formStart, end: formEnd, notes: formNotes || undefined });
-      toast({ title: "Booking created" });
-      setShowForm(false);
-      setFormDate("");
-      setFormNotes("");
-    } catch {
-      toast({ title: "Error", description: "Failed to create booking", variant: "destructive" });
+      if (editingId) {
+        await modifyBooking.mutateAsync({ bookingId: editingId, date: formDate, start: formStart, end: formEnd, notes: formNotes || undefined });
+      } else {
+        await createBooking.mutateAsync({ date: formDate, start: formStart, end: formEnd, notes: formNotes || undefined });
+      }
+      resetForm();
+    } catch (e: any) {
+      toast.error(e.message || "Failed to save booking");
     }
+  };
+
+  const resetForm = () => {
+    setShowForm(false);
+    setEditingId(null);
+    setFormDate("");
+    setFormStart("09:00");
+    setFormEnd("17:00");
+    setFormNotes("");
+  };
+
+  const startEdit = (b: any) => {
+    setEditingId(b.id);
+    setFormDate(b.booking_date);
+    setFormStart(b.start_time.slice(0, 5));
+    setFormEnd(b.end_time.slice(0, 5));
+    setFormNotes(b.notes ?? "");
+    setShowForm(true);
   };
 
   return (
@@ -66,12 +86,12 @@ export default function AgencyHub() {
           <h1 className="text-lg font-semibold text-[hsl(var(--admin-text))]">Hub Booking</h1>
           <p className="text-sm text-[hsl(var(--admin-text-muted))]">Schedule and track hub usage · Min 10 hours/week</p>
         </div>
-        <Button size="sm" onClick={() => setShowForm(!showForm)}>
+        <Button size="sm" onClick={() => { resetForm(); setShowForm(true); }}>
           <Plus className="w-3.5 h-3.5 mr-1.5" /> Book Slot
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <Card className="border border-border">
           <CardContent className="p-4">
             <p className="text-[11px] text-muted-foreground uppercase tracking-wider">This Week</p>
@@ -97,7 +117,9 @@ export default function AgencyHub() {
 
       {showForm && (
         <Card className="border border-border">
-          <CardHeader className="pb-3"><CardTitle className="text-sm">New Booking</CardTitle></CardHeader>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm">{editingId ? "Modify Booking" : "New Booking"}</CardTitle>
+          </CardHeader>
           <CardContent className="space-y-3">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <Input type="date" value={formDate} onChange={(e) => setFormDate(e.target.value)} />
@@ -105,11 +127,11 @@ export default function AgencyHub() {
               <Input type="time" value={formEnd} onChange={(e) => setFormEnd(e.target.value)} />
             </div>
             <Input placeholder="Notes (optional)" value={formNotes} onChange={(e) => setFormNotes(e.target.value)} />
-            <div className="flex gap-2">
-              <Button size="sm" onClick={handleSubmit} disabled={createBooking.isPending}>
-                {createBooking.isPending ? "Booking..." : "Confirm Booking"}
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" onClick={handleSubmit} disabled={createBooking.isPending || modifyBooking.isPending}>
+                {editingId ? "Update Booking" : "Confirm Booking"}
               </Button>
-              <Button size="sm" variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>
+              <Button size="sm" variant="outline" onClick={resetForm}>Cancel</Button>
             </div>
           </CardContent>
         </Card>
@@ -118,14 +140,14 @@ export default function AgencyHub() {
       <Card className="border border-border">
         <CardHeader className="pb-3"><CardTitle className="text-sm">Upcoming Bookings</CardTitle></CardHeader>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm min-w-[500px]">
             <thead className="bg-muted/50">
               <tr className="text-left text-xs text-muted-foreground uppercase tracking-wider">
-                <th className="px-4 py-3">Date</th>
-                <th className="px-4 py-3">Time</th>
-                <th className="px-4 py-3">Booked By</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Notes</th>
+                <th className="px-3 sm:px-4 py-3">Date</th>
+                <th className="px-3 sm:px-4 py-3">Time</th>
+                <th className="px-3 sm:px-4 py-3 hidden sm:table-cell">Booked By</th>
+                <th className="px-3 sm:px-4 py-3">Status</th>
+                <th className="px-3 sm:px-4 py-3">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -134,16 +156,35 @@ export default function AgencyHub() {
               ) : (
                 bookings!.map((b) => (
                   <tr key={b.id} className="hover:bg-muted/30">
-                    <td className="px-4 py-3 text-foreground">{new Date(b.booking_date).toLocaleDateString()}</td>
-                    <td className="px-4 py-3 text-foreground flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5 text-muted-foreground" />
-                      {b.start_time.slice(0, 5)} – {b.end_time.slice(0, 5)}
+                    <td className="px-3 sm:px-4 py-3 text-foreground">{new Date(b.booking_date).toLocaleDateString()}</td>
+                    <td className="px-3 sm:px-4 py-3 text-foreground whitespace-nowrap">
+                      <span className="inline-flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5 text-muted-foreground hidden sm:inline" />
+                        {b.start_time.slice(0, 5)} – {b.end_time.slice(0, 5)}
+                      </span>
                     </td>
-                    <td className="px-4 py-3 text-foreground">{b.booker_name ?? "—"}</td>
-                    <td className="px-4 py-3">
-                      <Badge variant={b.status === "confirmed" ? "default" : "secondary"} className="text-xs">{b.status}</Badge>
+                    <td className="px-3 sm:px-4 py-3 text-foreground hidden sm:table-cell">{b.booker_name ?? "—"}</td>
+                    <td className="px-3 sm:px-4 py-3">
+                      <Badge variant={b.status === "confirmed" ? "default" : b.status === "cancelled" ? "destructive" : "secondary"} className="text-xs">{b.status}</Badge>
                     </td>
-                    <td className="px-4 py-3 text-xs text-muted-foreground">{b.notes ?? "—"}</td>
+                    <td className="px-3 sm:px-4 py-3">
+                      {b.status !== "cancelled" && (
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => startEdit(b)} title="Modify">
+                            <Pencil className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-destructive"
+                            onClick={() => cancelBooking.mutate(b.id)}
+                            disabled={cancelBooking.isPending}
+                            title="Cancel">
+                            <X className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      )}
+                    </td>
                   </tr>
                 ))
               )}
