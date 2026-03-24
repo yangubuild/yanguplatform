@@ -13,10 +13,20 @@ import {
   ExternalLink,
   AlertCircle,
   RefreshCw,
+  Sun,
+  Camera,
+  CreditCard,
+  Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 type KycDbStatus = "pending" | "submitted" | "approved" | "rejected" | null;
 type KycUiStatus = "not_started" | "in_progress" | "pending_review" | "verified" | "rejected";
