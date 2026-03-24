@@ -115,6 +115,9 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
   const [shouldUseInternalRouting, setShouldUseInternalRouting] = useState(false);
   const [appModeResult, setAppModeResult] = useState<ReturnType<typeof resolveAppMode>>(null);
 
+  // Detect management subdomain synchronously
+  const isManagementHost = useRef(resolveAppMode(window.location.hostname) === "management").current;
+
   // Compute synchronous fast-path: determine if we can skip loading entirely
   const fastPathRef = useRef<boolean | null>(null);
   if (fastPathRef.current === null) {
@@ -122,7 +125,7 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
     const isDev = isDevEnvironment();
     const isInternal = INTERNAL_ROUTES.some((route) => path.startsWith(route));
     const isCommunity = path.startsWith("/community");
-    if (isDev || isInternal || isCommunity) {
+    if (isDev || isInternal || isCommunity || isManagementHost) {
       fastPathRef.current = true;
     } else {
       fastPathRef.current = false;
