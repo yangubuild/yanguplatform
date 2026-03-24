@@ -34,6 +34,10 @@ const ManagePromos = lazy(() => lazyRetry(() => import("@/pages/manage/ManagePro
 const ManageTeam = lazy(() => lazyRetry(() => import("@/pages/manage/ManageTeam")));
 const ManageAppReview = lazy(() => lazyRetry(() => import("@/pages/manage/ManageAppReview")));
 const ManageEntities = lazy(() => lazyRetry(() => import("@/pages/manage/ManageEntities")));
+const ManageExploreAnalytics = lazy(() => lazyRetry(() => import("@/pages/manage/ManageExploreAnalytics")));
+const ManageBanners = lazy(() => lazyRetry(() => import("@/pages/manage/ManageBanners")));
+const ManageReports = lazy(() => lazyRetry(() => import("@/pages/manage/ManageReports")));
+const ManageSupportQueue = lazy(() => lazyRetry(() => import("@/pages/manage/ManageSupportQueue")));
 
 // Auth — login only, no signup
 const Login = lazy(() => lazyRetry(() => import("@/pages/auth/Login")));
@@ -95,6 +99,12 @@ export function ManagementRoutes() {
           <Route path="alerts-security" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAlertsSecurity /></ManageRoleGate>} />
           <Route path="app-review" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAppReview /></ManageRoleGate>} />
           <Route path="entities" element={<ManageRoleGate allowedRoles={["admin"]}><ManageEntities /></ManageRoleGate>} />
+          <Route path="reports" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManageReports /></ManageRoleGate>} />
+          <Route path="support" element={<ManageRoleGate allowedRoles={["admin"]}><ManageSupportQueue /></ManageRoleGate>} />
+          {/* Analytics */}
+          <Route path="explore-analytics" element={<ManageRoleGate allowedRoles={["admin", "analyst"]}><ManageExploreAnalytics /></ManageRoleGate>} />
+          {/* Design */}
+          <Route path="banners" element={<ManageRoleGate allowedRoles={["admin", "content_editor"]}><ManageBanners /></ManageRoleGate>} />
           {/* System */}
           <Route path="settings" element={<ManageSettings />} />
           <Route path="audit-logs" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManageAuditLogs /></ManageRoleGate>} />

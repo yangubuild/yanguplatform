@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import getStarted1 from "@/assets/landing-get-started-university.png";
 import getStarted2 from "@/assets/landing-get-started-micro.png";
@@ -8,6 +8,13 @@ import { T } from "@/lib/typography";
 
 export function LandingTestGettingStarted() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Detect if rendered inside the authenticated dashboard context
+  const isDashboard = location.pathname.startsWith("/dashboard");
+
+  const visionaireTarget = isDashboard ? "/dashboard/visionaire/university" : "/auth/login";
+  const microInfluenceTarget = isDashboard ? "/dashboard/affiliates" : "/auth/login";
 
   return (
     <section className="mb-12">
@@ -22,7 +29,7 @@ export function LandingTestGettingStarted() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
           <button
-            onClick={() => navigate("/auth/login")}
+            onClick={() => navigate(visionaireTarget)}
             className="absolute bottom-4 left-4 flex flex-col gap-0.5 text-left">
             <span className="flex items-center gap-2">
               <img src={iconVisionaire} alt="" className="w-7 h-7 rounded-lg" />
@@ -46,7 +53,7 @@ export function LandingTestGettingStarted() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
           <button
-            onClick={() => navigate("/auth/login")}
+            onClick={() => navigate(microInfluenceTarget)}
             className="absolute bottom-4 left-4 flex flex-col gap-0.5 text-left">
             <span className="flex items-center gap-2">
               <img src={iconYangu} alt="" className="w-7 h-7 rounded-lg" />

@@ -10,8 +10,11 @@ import { ENTITY_TYPE_CONFIG } from "@/types/search";
  * 3. Fallback → discover filtered by entity type
  */
 export function getEntityRoute(entity: SearchEntityResult): string {
-  // If the entity has a live domain, link to it
+  // If the entity has a live domain, link to it (include slug for container domains)
   if (entity.domain_host) {
+    if (entity.slug) {
+      return `https://${entity.domain_host}/${entity.slug}`;
+    }
     return `https://${entity.domain_host}`;
   }
 
