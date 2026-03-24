@@ -4519,6 +4519,59 @@ export type Database = {
           },
         ]
       }
+      payout_requests: {
+        Row: {
+          agency_id: string
+          amount_cents: number
+          approved_at: string | null
+          approved_by: string | null
+          currency: string
+          disbursed_at: string | null
+          id: string
+          member_user_id: string
+          notes: string | null
+          rejection_reason: string | null
+          requested_at: string
+          status: string
+        }
+        Insert: {
+          agency_id: string
+          amount_cents?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          currency?: string
+          disbursed_at?: string | null
+          id?: string
+          member_user_id: string
+          notes?: string | null
+          rejection_reason?: string | null
+          requested_at?: string
+          status?: string
+        }
+        Update: {
+          agency_id?: string
+          amount_cents?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          currency?: string
+          disbursed_at?: string | null
+          id?: string
+          member_user_id?: string
+          notes?: string | null
+          rejection_reason?: string | null
+          requested_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payout_requests_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payouts: {
         Row: {
           agency_id: string
@@ -6524,6 +6577,7 @@ export type Database = {
         Args: { _surface_id: string; _user_id: string }
         Returns: boolean
       }
+      cancel_hub_booking: { Args: { p_booking_id: string }; Returns: undefined }
       charge_reserved: {
         Args: { p_amount: number; p_ref_id: string; p_ref_type: string }
         Returns: undefined
@@ -6717,6 +6771,10 @@ export type Database = {
         Returns: string
       }
       ensure_my_entitlements: { Args: never; Returns: Json }
+      escalate_agency_ticket: {
+        Args: { p_reason?: string; p_ticket_id: string }
+        Returns: undefined
+      }
       evaluate_publish_eligibility: {
         Args: {
           p_domain_id: string
@@ -6732,6 +6790,10 @@ export type Database = {
       get_agency_dashboard: { Args: { p_agency_id: string }; Returns: Json }
       get_agency_dashboard_v2: { Args: { p_agency_id: string }; Returns: Json }
       get_agency_members: { Args: { p_agency_id: string }; Returns: Json }
+      get_agency_payouts: {
+        Args: { p_agency_id: string; p_user_id?: string }
+        Returns: Json
+      }
       get_agency_referrals: {
         Args: { p_agency_id: string; p_user_id?: string }
         Returns: Json
@@ -7285,6 +7347,16 @@ export type Database = {
         Args: { p_action: string; p_user_id: string }
         Returns: string
       }
+      modify_hub_booking: {
+        Args: {
+          p_booking_id: string
+          p_date: string
+          p_end: string
+          p_notes?: string
+          p_start: string
+        }
+        Returns: undefined
+      }
       move_to_dlq: {
         Args: {
           dlq_name: string
@@ -7337,6 +7409,10 @@ export type Database = {
       }
       replay_webhook_delivery: {
         Args: { p_delivery_id: string }
+        Returns: string
+      }
+      request_payout: {
+        Args: { p_agency_id: string; p_amount_cents: number }
         Returns: string
       }
       request_publish_surface:
