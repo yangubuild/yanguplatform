@@ -48,6 +48,11 @@ const ManageSupportQueue = lazy(() => lazyRetry(() => import("@/pages/manage/Man
 const ManageSurfaceModeration = lazy(() => lazyRetry(() => import("@/pages/manage/ManageSurfaceModeration")));
 const ManageMedia = lazy(() => lazyRetry(() => import("@/pages/manage/ManageMedia")));
 const ManageNotifications = lazy(() => lazyRetry(() => import("@/pages/manage/ManageNotifications")));
+const ManageAutomation = lazy(() => lazyRetry(() => import("@/pages/manage/ManageAutomation")));
+const ManageSearch = lazy(() => lazyRetry(() => import("@/pages/manage/ManageSearch")));
+const ManageAgencies = lazy(() => lazyRetry(() => import("@/pages/manage/ManageAgencies")));
+const ManageSmartAlerts = lazy(() => lazyRetry(() => import("@/pages/manage/ManageSmartAlerts")));
+const ManageDataIntegrity = lazy(() => lazyRetry(() => import("@/pages/manage/ManageDataIntegrity")));
 
 // Agency pages
 const AgencyDashboard = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyDashboard")));

@@ -269,6 +269,9 @@ export default function ManageCommandCenter() {
           </p>
         </AdminGlassCard>
       </div>
+
+      {/* Quick Actions */}
+      <QuickActionsPanel />
     </div>
   );
 }
