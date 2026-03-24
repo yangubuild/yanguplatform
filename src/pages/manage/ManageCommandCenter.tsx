@@ -1,12 +1,20 @@
+import { useState } from "react";
 import { AdminGlassCard, AdminMetricCard } from "@/components/manage/AdminGlassCard";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Users, DollarSign, Shield, AlertTriangle,
   CreditCard, Layers, Headset, Image, Flame,
   TrendingUp, CheckCircle2, Eye, ExternalLink,
+  UserX, RotateCcw, ShieldCheck,
 } from "lucide-react";
 import { useManageCommandCenterV2, type CommandCenterV2Data } from "@/hooks/manage/useManageCommandCenterV2";
+import { useQuickSuspendUser, useQuickRetryPayment, useQuickRetriggerKyc } from "@/hooks/manage/useManageQuickActions";
 import { useNavigate } from "react-router-dom";
 
 function LiveBadge() {
