@@ -45,6 +45,9 @@ const ManageExploreAnalytics = lazy(() => lazyRetry(() => import("@/pages/manage
 const ManageBanners = lazy(() => lazyRetry(() => import("@/pages/manage/ManageBanners")));
 const ManageReports = lazy(() => lazyRetry(() => import("@/pages/manage/ManageReports")));
 const ManageSupportQueue = lazy(() => lazyRetry(() => import("@/pages/manage/ManageSupportQueue")));
+const ManageSurfaceModeration = lazy(() => lazyRetry(() => import("@/pages/manage/ManageSurfaceModeration")));
+const ManageMedia = lazy(() => lazyRetry(() => import("@/pages/manage/ManageMedia")));
+const ManageNotifications = lazy(() => lazyRetry(() => import("@/pages/manage/ManageNotifications")));
 
 // Agency pages
 const AgencyDashboard = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyDashboard")));
@@ -122,6 +125,9 @@ export function ManagementRoutes() {
           <Route path="support" element={<ManageRoleGate allowedRoles={["admin"]}><ManageSupportQueue /></ManageRoleGate>} />
           <Route path="explore-analytics" element={<ManageRoleGate allowedRoles={["admin", "analyst"]}><ManageExploreAnalytics /></ManageRoleGate>} />
           <Route path="banners" element={<ManageRoleGate allowedRoles={["admin", "content_editor"]}><ManageBanners /></ManageRoleGate>} />
+          <Route path="surface-moderation" element={<ManageRoleGate allowedRoles={["admin"]}><ManageSurfaceModeration /></ManageRoleGate>} />
+          <Route path="media" element={<ManageRoleGate allowedRoles={["admin"]}><ManageMedia /></ManageRoleGate>} />
+          <Route path="notifications" element={<ManageRoleGate allowedRoles={["admin"]}><ManageNotifications /></ManageRoleGate>} />
           <Route path="settings" element={<ManageSettings />} />
           <Route path="audit-logs" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManageAuditLogs /></ManageRoleGate>} />
           <Route path="*" element={<ManageNotFound />} />

@@ -24,6 +24,8 @@ import {
   Image,
   AlertTriangle,
   Radio,
+  Eye,
+  Mail,
   type LucideIcon,
 } from "lucide-react";
 import { ManageRole } from "@/hooks/useRoles";
@@ -70,7 +72,10 @@ export const adminNavGroups: AdminNavGroup[] = [
       { title: "KYC Control", slug: "kyc", icon: Shield, allowedRoles: ["admin"] },
       { title: "Payments", slug: "payments", icon: CreditCard, allowedRoles: ["admin"] },
       { title: "AI Usage", slug: "ai-usage", icon: Image, allowedRoles: ["admin"] },
+      { title: "Surface Moderation", slug: "surface-moderation", icon: Eye, allowedRoles: ["admin"] },
       { title: "Incidents", slug: "incidents", icon: AlertTriangle, allowedRoles: ["admin"] },
+      { title: "Media Control", slug: "media", icon: Image, allowedRoles: ["admin"] },
+      { title: "Notifications", slug: "notifications", icon: Mail, allowedRoles: ["admin"] },
       { title: "Team & Invites", slug: "team", icon: UserPlus, allowedRoles: ["admin", "owner"] },
       { title: "Pricing & Subscriptions", slug: "pricing", icon: CreditCard, allowedRoles: ["admin"] },
       { title: "Promos & Rewards", slug: "promos", icon: Megaphone, allowedRoles: ["admin"] },
@@ -78,6 +83,7 @@ export const adminNavGroups: AdminNavGroup[] = [
       { title: "Community", slug: "community", icon: Megaphone, allowedRoles: ["admin", "moderator"] },
       { title: "Messages", slug: "messages", icon: MessageSquare, allowedRoles: ["admin", "content_editor"] },
       { title: "Support Queue", slug: "support", icon: Headset, allowedRoles: ["admin"] },
+      { title: "Surfaces", slug: "surfaces", icon: Layers, allowedRoles: ["admin"] },
       { title: "Agents", slug: "agents", icon: Bot, allowedRoles: ["admin"] },
       { title: "Domains", slug: "domains", icon: Globe, allowedRoles: ["admin"] },
     ],
@@ -145,3 +151,6 @@ sectionLabels["kyc"] = "KYC Control";
 sectionLabels["payments"] = "Payments Control";
 sectionLabels["ai-usage"] = "AI Usage Control";
 sectionLabels["incidents"] = "Incidents";
+sectionLabels["surface-moderation"] = "Surface Moderation";
+sectionLabels["media"] = "Media Control";
+sectionLabels["notifications"] = "Notification Control";

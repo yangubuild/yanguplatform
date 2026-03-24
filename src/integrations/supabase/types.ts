@@ -6583,6 +6583,7 @@ export type Database = {
         }
         Returns: Json
       }
+      manage_analytics_investor: { Args: { p_days?: number }; Returns: Json }
       manage_analytics_overview: { Args: { p_days?: number }; Returns: Json }
       manage_audit_log_filters: { Args: never; Returns: Json }
       manage_audit_logs_list: {
@@ -6596,6 +6597,7 @@ export type Database = {
         Returns: Json
       }
       manage_command_center: { Args: never; Returns: Json }
+      manage_command_center_v2: { Args: never; Returns: Json }
       manage_domains_list: { Args: never; Returns: Json }
       manage_explore_surfaces: { Args: never; Returns: Json }
       manage_explore_surfaces_stats: { Args: never; Returns: Json }
@@ -6647,6 +6649,16 @@ export type Database = {
           p_offset?: number
           p_status?: string
         }
+        Returns: Json
+      }
+      manage_media_delete: { Args: { p_id: string }; Returns: string }
+      manage_media_list: { Args: { p_search?: string }; Returns: Json }
+      manage_media_update: {
+        Args: { p_id: string; p_image_url: string }
+        Returns: string
+      }
+      manage_notifications_list: {
+        Args: { p_limit?: number; p_status?: string }
         Returns: Json
       }
       manage_overview_stats: { Args: never; Returns: Json }
@@ -6710,7 +6722,16 @@ export type Database = {
         Args: { p_action: string; p_reason?: string; p_subscription_id: string }
         Returns: undefined
       }
+      manage_support_sla_list: { Args: { p_status?: string }; Returns: Json }
+      manage_surface_action: {
+        Args: { p_action: string; p_publish_id: string }
+        Returns: string
+      }
       manage_surfaces_list: { Args: never; Returns: Json }
+      manage_surfaces_moderation: {
+        Args: { p_filter?: string; p_search?: string }
+        Returns: Json
+      }
       manage_toggle_feature_flag: {
         Args: { p_enabled: boolean; p_key: string }
         Returns: undefined
@@ -6729,7 +6750,12 @@ export type Database = {
         Args: { p_action: string; p_user_id: string }
         Returns: Json
       }
+      manage_user_full_lifecycle: { Args: { p_user_id: string }; Returns: Json }
       manage_user_lifecycle_stats: { Args: never; Returns: Json }
+      manage_user_moderation_action: {
+        Args: { p_action: string; p_user_id: string }
+        Returns: string
+      }
       move_to_dlq: {
         Args: {
           dlq_name: string
@@ -7009,6 +7035,7 @@ export type Database = {
         | "past_due"
         | "trialing"
         | "unpaid"
+      surface_flag_status: "clean" | "flagged" | "featured" | "unpublished"
       surface_type: "shop" | "store" | "site" | "studio" | "live" | "community"
       visibility_tier: "free" | "verified" | "paid" | "premium"
     }
@@ -7207,6 +7234,7 @@ export const Constants = {
         "trialing",
         "unpaid",
       ],
+      surface_flag_status: ["clean", "flagged", "featured", "unpublished"],
       surface_type: ["shop", "store", "site", "studio", "live", "community"],
       visibility_tier: ["free", "verified", "paid", "premium"],
     },

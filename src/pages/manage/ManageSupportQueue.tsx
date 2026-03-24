@@ -157,6 +157,8 @@ export default function ManageSupportQueue() {
             tickets.map((ticket: any) => {
               const status = ticket.status as TicketStatus;
               const config = STATUS_CONFIG[status] || STATUS_CONFIG.pending;
+              const hoursAge = ticket.hours_since_created ?? ((Date.now() - new Date(ticket.created_at).getTime()) / 3600000);
+              const slaBreach = ticket.sla_breached ?? (["pending", "agent_required"].includes(status) && hoursAge > 24);
               return (
                 <button
                   key={ticket.id}
@@ -164,13 +166,20 @@ export default function ManageSupportQueue() {
                   className={`w-full text-left rounded-xl p-4 border transition-colors ${
                     selectedTicket === ticket.id
                       ? "border-accent bg-accent/5"
+                      : slaBreach
+                      ? "border-destructive/30 bg-destructive/5 hover:bg-destructive/10"
                       : "border-border bg-card hover:bg-muted/50"
                   }`}>
                   <div className="flex items-start justify-between gap-2 mb-1.5">
                     <p className="text-sm font-medium text-foreground line-clamp-1">{ticket.subject}</p>
-                    <Badge variant="outline" className={`shrink-0 text-[10px] ${config.color}`}>
-                      {config.label}
-                    </Badge>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {slaBreach && (
+                        <Badge variant="destructive" className="text-[9px]">SLA BREACHED</Badge>
+                      )}
+                      <Badge variant="outline" className={`text-[10px] ${config.color}`}>
+                        {config.label}
+                      </Badge>
+                    </div>
                   </div>
                   {ticket.description && (
                     <p className="text-xs text-muted-foreground line-clamp-2 mb-2">{ticket.description}</p>
@@ -178,9 +187,13 @@ export default function ManageSupportQueue() {
                   <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <User className="h-3 w-3" />
-                      {ticket.user_id?.slice(0, 8)}...
+                      {ticket.username ? `@${ticket.username}` : ticket.email ?? ticket.user_id?.slice(0, 8) + "..."}
                     </span>
                     <span>{format(new Date(ticket.created_at), "MMM d, HH:mm")}</span>
+                    <span className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {hoursAge < 1 ? "<1h" : `${Math.floor(hoursAge)}h`}
+                    </span>
                     <Badge variant="outline" className="text-[9px]">{ticket.category}</Badge>
                   </div>
                 </button>

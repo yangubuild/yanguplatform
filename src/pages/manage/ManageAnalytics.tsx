@@ -1,10 +1,16 @@
 import { useState } from "react";
-import { BarChart3, Users, Layers, Globe, Shield, Activity, Package, TrendingUp } from "lucide-react";
-import { AdminGlassCard } from "@/components/manage/AdminGlassCard";
+import { AdminGlassCard, AdminMetricCard, AdminPageHeader } from "@/components/manage/AdminGlassCard";
+import { Button } from "@/components/ui/button";
+import {
+  BarChart3, Users, DollarSign, TrendingUp, Shield,
+  CreditCard, Layers, Download,
+} from "lucide-react";
+import { useManageAnalyticsInvestor, type InvestorAnalytics } from "@/hooks/manage/useManageAnalyticsInvestor";
 import { useManageAnalytics } from "@/hooks/manage/useManageAnalytics";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const PERIOD_OPTIONS = [
   { label: "7d", value: 7 },
@@ -12,27 +18,12 @@ const PERIOD_OPTIONS = [
   { label: "90d", value: 90 },
 ] as const;
 
-function StatCard({ icon: Icon, label, value, sub }: { icon: React.ElementType; label: string; value: string | number; sub?: string }) {
-  return (
-    <AdminGlassCard className="p-4 flex items-start gap-3">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[hsl(var(--admin-surface-elevated)/0.6)]">
-        <Icon className="h-5 w-5 text-[hsl(var(--admin-accent))]" />
-      </div>
-      <div className="min-w-0">
-        <p className="text-xs text-[hsl(var(--admin-text-muted))] truncate">{label}</p>
-        <p className="text-lg font-semibold text-[hsl(var(--admin-text))] font-display">{value}</p>
-        {sub && <p className="text-xs text-[hsl(var(--admin-text-muted))]">{sub}</p>}
-      </div>
-    </AdminGlassCard>
-  );
-}
-
-function MiniChart({ data, label, color = "hsl(var(--admin-accent))" }: { data: { day: string; count: number }[]; label: string; color?: string }) {
-  if (!data.length) {
+function MiniChart({ data, label, color = "hsl(var(--admin-accent))", dataKey = "count" }: { data: any[] | null; label: string; color?: string; dataKey?: string }) {
+  if (!data?.length) {
     return (
       <AdminGlassCard className="p-4">
         <p className="text-sm font-medium text-[hsl(var(--admin-text))] mb-2">{label}</p>
-        <p className="text-xs text-[hsl(var(--admin-text-muted))]">No data in selected period</p>
+        <p className="text-xs text-[hsl(var(--admin-text-muted))]">No data</p>
       </AdminGlassCard>
     );
   }
@@ -63,9 +54,10 @@ function MiniChart({ data, label, color = "hsl(var(--admin-accent))" }: { data: 
                 border: "1px solid hsl(var(--admin-border))",
                 borderRadius: 8,
                 fontSize: 12,
-                color: "hsl(var(--admin-text))" }}
+                color: "hsl(var(--admin-text))"
+              }}
             />
-            <Area type="monotone" dataKey="count" stroke={color} fill={`url(#grad-${label})`} strokeWidth={2} />
+            <Area type="monotone" dataKey={dataKey} stroke={color} fill={`url(#grad-${label})`} strokeWidth={2} />
           </AreaChart>
         </ResponsiveContainer>
       </div>
@@ -73,81 +65,99 @@ function MiniChart({ data, label, color = "hsl(var(--admin-accent))" }: { data: 
   );
 }
 
+function exportSnapshot(data: InvestorAnalytics, days: number) {
+  const snapshot = {
+    exported_at: new Date().toISOString(),
+    period_days: days,
+    metrics: {
+      revenue_total: `$${(data.revenue_total_cents / 100).toFixed(2)}`,
+      revenue_period: `$${(data.revenue_period_cents / 100).toFixed(2)}`,
+      total_users: data.total_users,
+      active_users_period: data.active_users_period,
+      new_users_period: data.new_users_period,
+      kyc_conversion_rate: `${data.kyc_conversion_rate}%`,
+      subscription_conversion_rate: `${data.subscription_conversion_rate}%`,
+      subscriptions_active: data.subscriptions_active,
+      surfaces_published: data.surfaces_published,
+    },
+    daily_revenue: data.daily_revenue,
+    daily_signups: data.daily_signups,
+  };
+
+  const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `yangu-analytics-${days}d-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function ManageAnalytics() {
   const [days, setDays] = useState(30);
-  const { data, isLoading, error } = useManageAnalytics(days);
+  const { data: investor, isLoading: investorLoading } = useManageAnalyticsInvestor(days);
+  const { data: original, isLoading: originalLoading } = useManageAnalytics(days);
+
+  const isLoading = investorLoading || originalLoading;
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
+        <AdminPageHeader title="Platform Analytics" description="Investor-ready metrics and growth data" />
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[hsl(var(--admin-surface-elevated)/0.6)]">
-            <BarChart3 className="h-5 w-5 text-[hsl(var(--admin-accent))]" />
+          {investor && (
+            <Button size="sm" variant="outline" className="gap-1.5" onClick={() => exportSnapshot(investor, days)}>
+              <Download className="h-3.5 w-3.5" /> Export Snapshot
+            </Button>
+          )}
+          <div className="flex gap-1 rounded-lg bg-[hsl(var(--admin-surface-elevated)/0.4)] p-1">
+            {PERIOD_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => setDays(opt.value)}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  days === opt.value
+                    ? "bg-[hsl(var(--admin-accent))] text-[hsl(var(--admin-bg))]"
+                    : "text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text))]"
+                }`}>
+                {opt.label}
+              </button>
+            ))}
           </div>
-          <div>
-            <h1 className="text-xl font-semibold text-[hsl(var(--admin-text))] font-display">Platform Analytics</h1>
-            <p className="text-xs text-[hsl(var(--admin-text-muted))]">Live platform metrics from real data sources</p>
-          </div>
-        </div>
-        <div className="flex gap-1 rounded-lg bg-[hsl(var(--admin-surface-elevated)/0.4)] p-1">
-          {PERIOD_OPTIONS.map((opt) => (
-            <button
-              key={opt.value}
-              onClick={() => setDays(opt.value)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                days === opt.value
-                  ? "bg-[hsl(var(--admin-accent))] text-[hsl(var(--admin-bg))]"
-                  : "text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text))]"
-              }`}>
-              {opt.label}
-            </button>
-          ))}
         </div>
       </div>
 
       {isLoading && (
-        <AdminGlassCard className="p-8 text-center">
-          <p className="text-sm text-[hsl(var(--admin-text-muted))]">Loading analytics…</p>
-        </AdminGlassCard>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
+        </div>
       )}
 
-      {error && (
-        <AdminGlassCard className="p-6 border-red-500/30">
-          <p className="text-sm text-red-400">Failed to load analytics: {(error as Error).message}</p>
-        </AdminGlassCard>
-      )}
-
-      {data && (
+      {investor && (
         <>
-          {/* KPI Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-            <StatCard icon={Users} label="Total Users" value={data.totals.total_users} sub={`+${data.totals.users_7d} this week`} />
-            <StatCard icon={Layers} label="Surfaces" value={data.totals.total_surfaces} />
-            <StatCard icon={Globe} label="Active Domains" value={data.totals.active_domains} />
-            <StatCard icon={Shield} label="Open Alerts" value={data.totals.open_alerts} />
-            <StatCard icon={Package} label="App Installs" value={data.totals.active_app_installs} />
+          {/* Revenue + Growth KPIs */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <AdminMetricCard icon={<DollarSign className="h-4 w-4" />} label="Total Revenue" value={`$${(investor.revenue_total_cents / 100).toFixed(2)}`} />
+            <AdminMetricCard icon={<TrendingUp className="h-4 w-4" />} label={`Revenue (${days}d)`} value={`$${(investor.revenue_period_cents / 100).toFixed(2)}`} />
+            <AdminMetricCard icon={<Users className="h-4 w-4" />} label="Total Users" value={investor.total_users} trend={<span className="text-xs text-muted-foreground">+{investor.new_users_period} new</span>} />
+            <AdminMetricCard icon={<Users className="h-4 w-4" />} label={`Active (${days}d)`} value={investor.active_users_period} />
           </div>
 
-          {/* Subscription + Events row */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            <StatCard icon={TrendingUp} label="Active Subscriptions" value={data.totals.active_subscriptions} />
-            <StatCard icon={Activity} label="Builder Events (7d)" value={data.totals.builder_events_7d} />
-            <StatCard icon={Users} label="New Users (30d)" value={data.totals.users_30d} />
+          {/* Conversion KPIs */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <AdminMetricCard icon={<Shield className="h-4 w-4" />} label="KYC Conversion" value={`${investor.kyc_conversion_rate}%`} trend={<span className="text-xs text-muted-foreground">{investor.kyc_approved}/{investor.kyc_total}</span>} />
+            <AdminMetricCard icon={<CreditCard className="h-4 w-4" />} label="Sub Conversion" value={`${investor.subscription_conversion_rate}%`} trend={<span className="text-xs text-muted-foreground">{investor.subscriptions_active} active</span>} />
+            <AdminMetricCard icon={<Layers className="h-4 w-4" />} label="Surfaces Published" value={investor.surfaces_published} trend={<span className="text-xs text-muted-foreground">{investor.surfaces_total} total</span>} />
+            <AdminMetricCard icon={<CreditCard className="h-4 w-4" />} label="Total Subs" value={investor.subscriptions_total} />
           </div>
 
           {/* Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <MiniChart data={data.user_growth} label="User Registrations" color="hsl(var(--admin-accent))" />
-            <MiniChart data={data.surface_growth} label="Surface Creation" color="hsl(150 60% 50%)" />
-            <MiniChart data={data.domain_growth} label="Domain Registrations" color="hsl(200 70% 55%)" />
-            <MiniChart data={data.builder_events} label="Builder Events" color="hsl(280 60% 60%)" />
-            <MiniChart data={data.audit_activity} label="Audit Activity" color="hsl(40 80% 55%)" />
-          </div>
-
-          {/* Data source note */}
-          <div className="text-xs text-[hsl(var(--admin-text-muted))] px-1">
-            <span className="font-medium">Live sources:</span> auth.users · surfaces · domains · audit_logs · builder_events · billing_subscriptions · app_user_installs · platform_alerts
+            <MiniChart data={investor.daily_revenue} label="Daily Revenue (cents)" color="hsl(150 60% 50%)" dataKey="cents" />
+            <MiniChart data={investor.daily_signups} label="Daily Signups" color="hsl(var(--admin-accent))" dataKey="count" />
+            {original?.user_growth && <MiniChart data={original.user_growth} label="User Registrations" color="hsl(200 70% 55%)" />}
+            {original?.surface_growth && <MiniChart data={original.surface_growth} label="Surface Creation" color="hsl(280 60% 60%)" />}
           </div>
         </>
       )}
