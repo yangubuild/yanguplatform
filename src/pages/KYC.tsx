@@ -349,7 +349,7 @@ export default function KYC() {
             <div className="grid gap-3">
               {/* Primary CTA based on state */}
               {uiStatus === "not_started" && (
-                <Button onClick={handleStartOrContinue} disabled={isStarting}>
+                <Button onClick={() => setShowGuidance(true)} disabled={isStarting}>
                   {isStarting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
                   Start KYC
                 </Button>
