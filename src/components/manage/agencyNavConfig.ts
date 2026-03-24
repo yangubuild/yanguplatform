@@ -9,6 +9,7 @@ import {
   UserPlus,
   CalendarDays,
   Settings,
+  Wallet,
   type LucideIcon,
 } from "lucide-react";
 import type { AgencyRole } from "@/hooks/useRoles";
@@ -18,7 +19,6 @@ export interface AgencyNavItem {
   slug: string;
   icon: LucideIcon;
   end?: boolean;
-  /** Roles that can see this item. agency_admin always sees everything. */
   allowedRoles: AgencyRole[];
 }
 
@@ -48,6 +48,7 @@ export const agencyNavGroups: AgencyNavGroup[] = [
     label: "Finance",
     items: [
       { title: "Commissions", slug: "commissions", icon: DollarSign, allowedRoles: ["agency_admin", "agency_manager", "foot_soldier"] },
+      { title: "Payouts", slug: "payouts", icon: Wallet, allowedRoles: ["agency_admin", "agency_manager", "foot_soldier"] },
     ],
   },
   {
