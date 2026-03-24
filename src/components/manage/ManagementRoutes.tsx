@@ -162,15 +162,16 @@ export function ManagementRoutes() {
             </ManagementGuard>
           }>
           <Route index element={<AgencyDashboard />} />
-          <Route path="analytics" element={<AgencyPlaceholder />} />
-          <Route path="performance" element={<AgencyPlaceholder />} />
-          <Route path="members" element={<AgencyPlaceholder />} />
-          <Route path="onboarding" element={<AgencyPlaceholder />} />
-          <Route path="kyc" element={<AgencyGuard allowedRoles={["agency_admin"]}><AgencyPlaceholder /></AgencyGuard>} />
-          <Route path="commissions" element={<AgencyPlaceholder />} />
-          <Route path="pricing" element={<AgencyGuard allowedRoles={["agency_admin"]}><AgencyPlaceholder /></AgencyGuard>} />
-          <Route path="support" element={<AgencyGuard allowedRoles={["agency_admin", "agency_manager"]}><AgencyPlaceholder /></AgencyGuard>} />
-          <Route path="*" element={<AgencyPlaceholder />} />
+          <Route path="analytics" element={<AgencyGuard allowedRoles={["agency_admin", "agency_manager"]}><AgencyAnalytics /></AgencyGuard>} />
+          <Route path="performance" element={<AgencyPerformance />} />
+          <Route path="members" element={<AgencyGuard allowedRoles={["agency_admin", "agency_manager"]}><AgencyMembersPage /></AgencyGuard>} />
+          <Route path="onboarding" element={<AgencyOnboarding />} />
+          <Route path="kyc" element={<AgencyGuard allowedRoles={["agency_admin"]}><AgencyKYC /></AgencyGuard>} />
+          <Route path="commissions" element={<AgencyCommissions />} />
+          <Route path="hub" element={<AgencyHub />} />
+          <Route path="support" element={<AgencyGuard allowedRoles={["agency_admin", "agency_manager"]}><AgencySupportPage /></AgencyGuard>} />
+          <Route path="settings" element={<AgencyGuard allowedRoles={["agency_admin"]}><AgencySettingsPage /></AgencyGuard>} />
+          <Route path="*" element={<AgencyDashboard />} />
         </Route>
 
         {/* Catch-all — redirect to role router */}
