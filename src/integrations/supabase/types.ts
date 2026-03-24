@@ -6599,6 +6599,9 @@ export type Database = {
       manage_command_center: { Args: never; Returns: Json }
       manage_command_center_v2: { Args: never; Returns: Json }
       manage_community_promotions: { Args: never; Returns: Json }
+      manage_delete_page: { Args: { p_page_id: string }; Returns: undefined }
+      manage_delete_post: { Args: { p_post_id: string }; Returns: undefined }
+      manage_delete_promo: { Args: { p_promo_id: string }; Returns: undefined }
       manage_domains_list: { Args: never; Returns: Json }
       manage_events_overview: { Args: never; Returns: Json }
       manage_explore_surfaces: { Args: never; Returns: Json }
@@ -6674,6 +6677,7 @@ export type Database = {
         Args: { p_limit?: number; p_offset?: number }
         Returns: Json
       }
+      manage_reset_theme: { Args: { p_surface_id: string }; Returns: undefined }
       manage_resolve_alert: {
         Args: { p_alert_id: string; p_resolve?: boolean }
         Returns: undefined
@@ -6746,6 +6750,18 @@ export type Database = {
       }
       manage_toggle_feature_flag: {
         Args: { p_enabled: boolean; p_key: string }
+        Returns: undefined
+      }
+      manage_toggle_featured: {
+        Args: { p_app_id: string; p_featured: boolean }
+        Returns: undefined
+      }
+      manage_toggle_integration: {
+        Args: { p_app_id: string; p_status: string }
+        Returns: undefined
+      }
+      manage_toggle_promo: {
+        Args: { p_active: boolean; p_promo_id: string }
         Returns: undefined
       }
       manage_update_quota_config: {
