@@ -118,7 +118,6 @@ export const adminNavGroups: AdminNavGroup[] = [
       { title: "Research & Testing", slug: "research-testing", icon: FlaskConical, allowedRoles: ["admin", "analyst"] },
       { title: "Alerts & Security", slug: "alerts-security", icon: ShieldAlert, allowedRoles: ["admin"] },
       { title: "Data Integrity", slug: "data-integrity", icon: Database, allowedRoles: ["admin"] },
-    decision: undefined,
     ],
   },
   {
