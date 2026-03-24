@@ -6,8 +6,9 @@ import {
   TrendingUp,
   ShieldCheck,
   HeadphonesIcon,
-  CreditCard,
   UserPlus,
+  CalendarDays,
+  Settings,
   type LucideIcon,
 } from "lucide-react";
 import type { AgencyRole } from "@/hooks/useRoles";
@@ -32,14 +33,14 @@ export const agencyNavGroups: AgencyNavGroup[] = [
     items: [
       { title: "Dashboard", slug: "", icon: LayoutDashboard, end: true, allowedRoles: ["agency_admin", "agency_manager", "foot_soldier"] },
       { title: "Analytics", slug: "analytics", icon: BarChart3, allowedRoles: ["agency_admin", "agency_manager"] },
-      { title: "Performance", slug: "performance", icon: TrendingUp, allowedRoles: ["agency_admin", "agency_manager"] },
+      { title: "Performance", slug: "performance", icon: TrendingUp, allowedRoles: ["agency_admin", "agency_manager", "foot_soldier"] },
     ],
   },
   {
     label: "Team",
     items: [
-      { title: "Members", slug: "members", icon: Users, allowedRoles: ["agency_admin", "agency_manager"] },
-      { title: "Onboarding", slug: "onboarding", icon: UserPlus, allowedRoles: ["agency_admin", "agency_manager"] },
+      { title: "Foot Soldiers", slug: "members", icon: Users, allowedRoles: ["agency_admin", "agency_manager"] },
+      { title: "Onboarding", slug: "onboarding", icon: UserPlus, allowedRoles: ["agency_admin", "agency_manager", "foot_soldier"] },
       { title: "KYC Status", slug: "kyc", icon: ShieldCheck, allowedRoles: ["agency_admin"] },
     ],
   },
@@ -47,13 +48,14 @@ export const agencyNavGroups: AgencyNavGroup[] = [
     label: "Finance",
     items: [
       { title: "Commissions", slug: "commissions", icon: DollarSign, allowedRoles: ["agency_admin", "agency_manager", "foot_soldier"] },
-      { title: "Pricing & Packages", slug: "pricing", icon: CreditCard, allowedRoles: ["agency_admin"] },
     ],
   },
   {
-    label: "Support",
+    label: "Operations",
     items: [
-      { title: "Support Queue", slug: "support", icon: HeadphonesIcon, allowedRoles: ["agency_admin", "agency_manager"] },
+      { title: "Hub Booking", slug: "hub", icon: CalendarDays, allowedRoles: ["agency_admin", "agency_manager", "foot_soldier"] },
+      { title: "Support", slug: "support", icon: HeadphonesIcon, allowedRoles: ["agency_admin", "agency_manager"] },
+      { title: "Settings", slug: "settings", icon: Settings, allowedRoles: ["agency_admin"] },
     ],
   },
 ];
