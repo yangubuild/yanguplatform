@@ -20,6 +20,10 @@ import {
   CreditCard,
   UserPlus,
   Headset,
+  Shield,
+  Image,
+  AlertTriangle,
+  Radio,
   type LucideIcon,
 } from "lucide-react";
 import { ManageRole } from "@/hooks/useRoles";
@@ -53,6 +57,7 @@ export const adminNavGroups: AdminNavGroup[] = [
   {
     label: "Overview",
     items: [
+      { title: "Command Center", slug: "command-center", icon: Radio, allowedRoles: ["admin"] },
       { title: "Dashboard", slug: "", icon: LayoutDashboard, end: true, allowedRoles: ["admin"] },
       { title: "Explore Dashboard", slug: "explore-dashboard", icon: Layers, allowedRoles: ["admin"] },
       { title: "Analytics", slug: "analytics", icon: BarChart3, allowedRoles: ["admin", "analyst"] },
@@ -62,6 +67,10 @@ export const adminNavGroups: AdminNavGroup[] = [
     label: "Platform",
     items: [
       { title: "Users", slug: "users", icon: Users, allowedRoles: ["admin"] },
+      { title: "KYC Control", slug: "kyc", icon: Shield, allowedRoles: ["admin"] },
+      { title: "Payments", slug: "payments", icon: CreditCard, allowedRoles: ["admin"] },
+      { title: "AI Usage", slug: "ai-usage", icon: Image, allowedRoles: ["admin"] },
+      { title: "Incidents", slug: "incidents", icon: AlertTriangle, allowedRoles: ["admin"] },
       { title: "Team & Invites", slug: "team", icon: UserPlus, allowedRoles: ["admin", "owner"] },
       { title: "Pricing & Subscriptions", slug: "pricing", icon: CreditCard, allowedRoles: ["admin"] },
       { title: "Promos & Rewards", slug: "promos", icon: Megaphone, allowedRoles: ["admin"] },
