@@ -5,7 +5,7 @@ import { useRoles } from "@/hooks/useRoles";
 import { setActiveContext } from "@/lib/routing/activeContext";
 import { Loader2, ShieldX } from "lucide-react";
 
-/** Emails that are always allowed into the management panel */
+/** Emails that are always allowed into the control plane */
 const ALLOWED_ADMIN_EMAILS = [
   "yanguabuild@gmail.com",
   "kafeeroaz@gmail.com",
@@ -16,20 +16,25 @@ interface ManagementGuardProps {
 }
 
 /**
- * Guard for the management subdomain (manage.yangu.studio).
+ * Top-level guard for manage.yangu.studio control plane.
  * - Requires authenticated user.
- * - Allows access if email is in allowlist OR user has admin/management role.
- * - Does NOT trigger onboarding redirects.
+ * - Allows access if email is in allowlist OR user has any manage or agency role.
+ * - Routes users to the correct workspace based on role at "/".
  * - Sets active context to "management".
- * - Redirects content_editor to /content on root landing (mirrors AdminRoute).
  */
 export function ManagementGuard({ children }: ManagementGuardProps) {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
-  const { hasAnyManageRole, isContentEditor, isAdmin, isLoading: rolesLoading } = useRoles();
+  const {
+    hasAnyManageRole,
+    hasAnyAgencyRole,
+    isAdmin,
+    isContentEditor,
+    isLoading: rolesLoading,
+  } = useRoles();
   const location = useLocation();
 
   const emailAllowed = !!user?.email && ALLOWED_ADMIN_EMAILS.includes(user.email.toLowerCase());
-  const hasAccess = emailAllowed || hasAnyManageRole;
+  const hasAccess = emailAllowed || hasAnyManageRole || hasAnyAgencyRole;
 
   // Set management context on mount
   useEffect(() => {
@@ -56,16 +61,23 @@ export function ManagementGuard({ children }: ManagementGuardProps) {
         <ShieldX className="h-16 w-16 text-muted-foreground" />
         <h1 className="text-2xl font-semibold text-foreground">Access Restricted</h1>
         <p className="text-muted-foreground text-center max-w-md">
-          You don't have permission to access the management panel.
+          You don't have permission to access the control panel.
           Contact an administrator if you believe this is an error.
         </p>
       </div>
     );
   }
 
-  // content_editor landing on panel root → redirect to content home
-  if (isContentEditor && !isAdmin && location.pathname === "/") {
-    return <Navigate to="/content" replace />;
+  // Root "/" role-based redirect
+  if (location.pathname === "/") {
+    // Admin/management roles → management workspace
+    if (emailAllowed || hasAnyManageRole) {
+      return <Navigate to="/management" replace />;
+    }
+    // Agency-only roles → agency workspace
+    if (hasAnyAgencyRole) {
+      return <Navigate to="/agency" replace />;
+    }
   }
 
   return <>{children}</>;
