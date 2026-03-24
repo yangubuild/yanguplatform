@@ -139,6 +139,9 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
     // Once internal routing is determined, never re-resolve
     if (shouldUseInternalRouting) return;
 
+    // Management subdomain always uses ManagementRoutes — skip all resolution
+    if (isManagementHost) return;
+
     async function resolve() {
       const path = location.pathname;
 
