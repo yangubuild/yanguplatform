@@ -76,10 +76,10 @@ export default function ManageAiUsage() {
 
       {/* Stats row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <AdminMetricCard icon={Image} label="Images Generated" value={imgStats.total} sub={`${imgStats.failed} failed`} />
-        <AdminMetricCard icon={Video} label="Videos Generated" value={vidStats.total} sub={`${vidStats.failed} failed`} />
-        <AdminMetricCard icon={Activity} label="Total Generations" value={imgStats.total + vidStats.total} />
-        <AdminMetricCard icon={AlertTriangle} label="Total Failures" value={imgStats.failed + vidStats.failed} />
+        <AdminMetricCard icon={<Image className="h-4 w-4" />} label="Images Generated" value={imgStats.total} trend={<span className="text-xs text-muted-foreground">{imgStats.failed} failed</span>} />
+        <AdminMetricCard icon={<Video className="h-4 w-4" />} label="Videos Generated" value={vidStats.total} trend={<span className="text-xs text-muted-foreground">{vidStats.failed} failed</span>} />
+        <AdminMetricCard icon={<Activity className="h-4 w-4" />} label="Total Generations" value={imgStats.total + vidStats.total} />
+        <AdminMetricCard icon={<AlertTriangle className="h-4 w-4" />} label="Total Failures" value={imgStats.failed + vidStats.failed} />
       </div>
 
       {/* Trend chart */}

@@ -119,10 +119,10 @@ export default function ManageIncidents() {
     <div className="space-y-4">
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <AdminMetricCard icon={AlertTriangle} label="Total Incidents" value={incidents.length} />
-        <AdminMetricCard icon={Flame} label="Open" value={openCount} />
-        <AdminMetricCard icon={ServerCrash} label="Critical" value={critCount} />
-        <AdminMetricCard icon={CheckCircle2} label="Resolved" value={incidents.filter((i) => i.status === "resolved").length} />
+        <AdminMetricCard icon={<AlertTriangle className="h-4 w-4" />} label="Total Incidents" value={incidents.length} />
+        <AdminMetricCard icon={<Flame className="h-4 w-4" />} label="Open" value={openCount} />
+        <AdminMetricCard icon={<ServerCrash className="h-4 w-4" />} label="Critical" value={critCount} />
+        <AdminMetricCard icon={<CheckCircle2 className="h-4 w-4" />} label="Resolved" value={incidents.filter((i) => i.status === "resolved").length} />
       </div>
 
       {/* Toolbar */}

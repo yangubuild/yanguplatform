@@ -122,11 +122,11 @@ export default function ManagePayments() {
     <div className="space-y-4">
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-        <AdminMetricCard icon={CreditCard} label="Total" value={stats.total} />
-        <AdminMetricCard icon={CheckCircle2} label="Active" value={stats.active} />
-        <AdminMetricCard icon={XCircle} label="Canceled" value={stats.canceled} />
-        <AdminMetricCard icon={AlertTriangle} label="Past Due" value={stats.past_due} />
-        <AdminMetricCard icon={TrendingUp} label="Trialing" value={stats.trialing} />
+        <AdminMetricCard icon={<CreditCard className="h-4 w-4" />} label="Total" value={stats.total} />
+        <AdminMetricCard icon={<CheckCircle2 className="h-4 w-4" />} label="Active" value={stats.active} />
+        <AdminMetricCard icon={<XCircle className="h-4 w-4" />} label="Canceled" value={stats.canceled} />
+        <AdminMetricCard icon={<AlertTriangle className="h-4 w-4" />} label="Past Due" value={stats.past_due} />
+        <AdminMetricCard icon={<TrendingUp className="h-4 w-4" />} label="Trialing" value={stats.trialing} />
       </div>
 
       <Tabs defaultValue="subscriptions">

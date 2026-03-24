@@ -82,18 +82,18 @@ export default function ManageCommandCenter() {
 
       {/* Primary Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <AdminMetricCard icon={Users} label="Active Users (24h)" value={data.active_users_24h} sub={`${data.active_users_7d} in 7d`} />
-        <AdminMetricCard icon={Users} label="Total Users" value={data.total_users} />
-        <AdminMetricCard icon={DollarSign} label="Transactions Today" value={data.transactions_today} sub={`${data.transactions_7d} in 7d`} />
-        <AdminMetricCard icon={TrendingUp} label="Revenue Today" value={`$${(data.revenue_today_cents / 100).toFixed(2)}`} />
+        <AdminMetricCard icon={<Users className="h-4 w-4" />} label="Active Users (24h)" value={data.active_users_24h} trend={<span className="text-xs text-muted-foreground">{data.active_users_7d} in 7d</span>} />
+        <AdminMetricCard icon={<Users className="h-4 w-4" />} label="Total Users" value={data.total_users} />
+        <AdminMetricCard icon={<DollarSign className="h-4 w-4" />} label="Transactions Today" value={data.transactions_today} trend={<span className="text-xs text-muted-foreground">{data.transactions_7d} in 7d</span>} />
+        <AdminMetricCard icon={<TrendingUp className="h-4 w-4" />} label="Revenue Today" value={`$${(data.revenue_today_cents / 100).toFixed(2)}`} />
       </div>
 
       {/* Secondary Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <AdminMetricCard icon={Shield} label="KYC Pending" value={data.kyc_pending} sub={`${data.kyc_approved_today} approved today`} />
-        <AdminMetricCard icon={CreditCard} label="Active Subs" value={data.active_subscriptions} sub={`${data.past_due_subscriptions} past due`} />
-        <AdminMetricCard icon={Image} label="AI Generations Today" value={data.ai_generations_today} />
-        <AdminMetricCard icon={Layers} label="Published Surfaces" value={data.surfaces_published} />
+        <AdminMetricCard icon={<Shield className="h-4 w-4" />} label="KYC Pending" value={data.kyc_pending} trend={<span className="text-xs text-muted-foreground">{data.kyc_approved_today} approved today</span>} />
+        <AdminMetricCard icon={<CreditCard className="h-4 w-4" />} label="Active Subs" value={data.active_subscriptions} trend={<span className="text-xs text-muted-foreground">{data.past_due_subscriptions} past due</span>} />
+        <AdminMetricCard icon={<Image className="h-4 w-4" />} label="AI Generations Today" value={data.ai_generations_today} />
+        <AdminMetricCard icon={<Layers className="h-4 w-4" />} label="Published Surfaces" value={data.surfaces_published} />
       </div>
 
       {/* System Health */}

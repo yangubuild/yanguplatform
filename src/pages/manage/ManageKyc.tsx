@@ -115,11 +115,11 @@ export default function ManageKyc() {
     <div className="space-y-4">
       {/* Stats Row */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-        <AdminMetricCard icon={Shield} label="Total" value={stats.total} />
-        <AdminMetricCard icon={Clock} label="Pending" value={stats.pending} />
-        <AdminMetricCard icon={Loader2} label="Submitted" value={stats.submitted} />
-        <AdminMetricCard icon={ShieldCheck} label="Approved" value={stats.approved} />
-        <AdminMetricCard icon={ShieldX} label="Rejected" value={stats.rejected} />
+        <AdminMetricCard icon={<Shield className="h-4 w-4" />} label="Total" value={stats.total} />
+        <AdminMetricCard icon={<Clock className="h-4 w-4" />} label="Pending" value={stats.pending} />
+        <AdminMetricCard icon={<Loader2 className="h-4 w-4" />} label="Submitted" value={stats.submitted} />
+        <AdminMetricCard icon={<ShieldCheck className="h-4 w-4" />} label="Approved" value={stats.approved} />
+        <AdminMetricCard icon={<ShieldX className="h-4 w-4" />} label="Rejected" value={stats.rejected} />
       </div>
 
       {/* Filter */}
