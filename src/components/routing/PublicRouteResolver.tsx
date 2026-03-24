@@ -236,6 +236,11 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
     return resolverFallback;
   }
 
+  // Management subdomain: render ManagementRoutes directly (all paths)
+  if (isManagementHost) {
+    return <ManagementRoutes />;
+  }
+
   // Use internal React Router routing
   if (shouldUseInternalRouting) {
     return <>{children}</>;
