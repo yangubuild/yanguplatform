@@ -371,7 +371,7 @@ export default function KYC() {
               )}
 
               {uiStatus === "rejected" && (
-                <Button onClick={handleStartOrContinue} disabled={isStarting}>
+                <Button onClick={() => setShowGuidance(true)} disabled={isStarting}>
                   {isStarting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
                   Retry KYC
                 </Button>
