@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import { resolveRoute, isDevEnvironment, normalizeHostname, type ResolvedRoute, type RouteDebugInfo } from "@/lib/routing/resolveRoute";
 import { resolveAppMode } from "@/lib/routing/appMode";
 import { ManagementRoutes } from "@/components/manage/ManagementRoutes";
+import { AgencyRoutes } from "@/components/routing/AgencyRoutes";
 
 const DomainHome = lazy(() => lazyRetry(() => import("./DomainHome").then((m) => ({ default: m.DomainHome }))));
 const Index = lazy(() => lazyRetry(() => import("@/pages/Index")));
@@ -115,8 +116,9 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
   const [shouldUseInternalRouting, setShouldUseInternalRouting] = useState(false);
   const [appModeResult, setAppModeResult] = useState<ReturnType<typeof resolveAppMode>>(null);
 
-  // Detect management subdomain synchronously
+  // Detect management/agency subdomain synchronously
   const isManagementHost = useRef(resolveAppMode(window.location.hostname) === "management").current;
+  const isAgencyHost = useRef(resolveAppMode(window.location.hostname) === "agency").current;
 
   // Compute synchronous fast-path: determine if we can skip loading entirely
   const fastPathRef = useRef<boolean | null>(null);
@@ -125,7 +127,7 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
     const isDev = isDevEnvironment();
     const isInternal = INTERNAL_ROUTES.some((route) => path.startsWith(route));
     const isCommunity = path.startsWith("/community");
-    if (isDev || isInternal || isCommunity || isManagementHost) {
+    if (isDev || isInternal || isCommunity || isManagementHost || isAgencyHost) {
       fastPathRef.current = true;
     } else {
       fastPathRef.current = false;
@@ -139,8 +141,8 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
     // Once internal routing is determined, never re-resolve
     if (shouldUseInternalRouting) return;
 
-    // Management subdomain always uses ManagementRoutes — skip all resolution
-    if (isManagementHost) return;
+    // Management/Agency subdomain always uses dedicated routes — skip all resolution
+    if (isManagementHost || isAgencyHost) return;
 
     async function resolve() {
       const path = location.pathname;
@@ -239,6 +241,11 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
   // Management subdomain: render ManagementRoutes directly (all paths)
   if (isManagementHost) {
     return <ManagementRoutes />;
+  }
+
+  // Agency subdomain: render AgencyRoutes directly (all paths)
+  if (isAgencyHost) {
+    return <AgencyRoutes />;
   }
 
   // Use internal React Router routing

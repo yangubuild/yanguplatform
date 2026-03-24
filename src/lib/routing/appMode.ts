@@ -4,7 +4,7 @@ import { normalizeHostname } from "./resolveRoute";
  * Enterprise domain mode resolver.
  * Maps a hostname to one of the platform application modes.
  */
-export type AppMode = "platform" | "community" | "studio" | "live" | "publish_container" | "management";
+export type AppMode = "platform" | "community" | "studio" | "live" | "publish_container" | "management" | "agency";
 
 const HOST_MODE_MAP: Record<string, AppMode> = {
   "yangu.io": "platform",
@@ -15,6 +15,7 @@ const HOST_MODE_MAP: Record<string, AppMode> = {
   "yangu.shop": "publish_container",
   "yangu.store": "publish_container",
   "yangu.site": "publish_container",
+  "agency.yangu.studio": "agency",
 };
 
 /**
@@ -27,6 +28,10 @@ export function resolveAppMode(host: string): AppMode | null {
   if (host === "manage.yangu.studio" || host === "www.manage.yangu.studio") {
     console.log("APP MODE [raw]:", host, "→ management");
     return "management";
+  }
+  if (host === "agency.yangu.studio" || host === "www.agency.yangu.studio") {
+    console.log("APP MODE [raw]:", host, "→ agency");
+    return "agency";
   }
 
   const normalized = normalizeHostname(host);
