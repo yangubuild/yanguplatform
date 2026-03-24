@@ -19,6 +19,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useRoles } from "@/hooks/useRoles";
+import { UserMenu } from "./UserMenu";
 import { usePlatformAlerts, useCriticalAlertCount } from "@/hooks/manage/useManageDashboardData";
 import { useNavigate } from "react-router-dom";
 
@@ -110,16 +111,7 @@ function AdaAlertsButton() {
   );
 }
 
-function RoleBadge() {
-  const { isAdmin, isContentEditor } = useRoles();
-  const label = isAdmin ? "Admin" : isContentEditor ? "Content Editor" : null;
-  if (!label) return null;
-  return (
-    <Badge variant="outline" className="text-[10px] font-medium border-[hsl(var(--admin-border)/0.5)] text-[hsl(var(--admin-text-muted))]">
-      Role: {label}
-    </Badge>
-  );
-}
+// RoleBadge removed — UserMenu now handles role display
 
 export function AdminShell() {
   const location = useLocation();
@@ -165,8 +157,8 @@ export function AdminShell() {
               </Breadcrumb>
             </div>
             <div className="flex items-center gap-3">
-              <RoleBadge />
               {isAdmin && <AdaAlertsButton />}
+              <UserMenu />
             </div>
           </header>
           {/* Main Content Canvas */}
