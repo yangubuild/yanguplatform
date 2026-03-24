@@ -65,38 +65,23 @@ const AgencyHub = lazy(() => lazyRetry(() => import("@/pages/manage/agency/Agenc
 const AgencySupportPage = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencySupportPage")));
 const AgencySettingsPage = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencySettingsPage")));
 const AgencyKYC = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyKYC")));
+const AgencyPayouts = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyPayouts")));
 
-// Auth — login only, no signup
+// Auth
 const Login = lazy(() => lazyRetry(() => import("@/pages/auth/Login")));
 const AuthCallback = lazy(() => lazyRetry(() => import("@/pages/auth/AuthCallback")));
 
-/**
- * Routes for the manage.yangu.studio control plane.
- * Two workspaces: /management/* and /agency/*
- * Root "/" redirects by role (handled in ManagementGuard).
- */
 export function ManagementRoutes() {
   return (
     <Suspense fallback={<div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}><img src="/yangu-y-loader.png" alt="Loading" width={40} height={40} style={{ animation: "spin 1.4s linear infinite" }} /></div>}>
       <Routes>
-        {/* Auth routes — login only */}
+        {/* Auth routes */}
         <Route path="/auth/login" element={<Login />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/auth/signup" element={<Navigate to="/auth/login" replace />} />
         <Route path="/auth/*" element={<Navigate to="/auth/login" replace />} />
 
-        {/* Root — role-based redirect (ManagementGuard handles the redirect) */}
-        <Route
-          path="/"
-          element={
-            <ManagementGuard>
-              {/* If ManagementGuard doesn't redirect, show nothing — shouldn't happen */}
-              <Navigate to="/management" replace />
-            </ManagementGuard>
-          }
-        />
-
-        {/* ═══════════════ MANAGEMENT WORKSPACE ═══════════════ */}
+        {/* ═══════════ MANAGEMENT WORKSPACE ═══════════ */}
         <Route
           path="/management"
           element={
@@ -151,9 +136,9 @@ export function ManagementRoutes() {
           <Route path="*" element={<ManageNotFound />} />
         </Route>
 
-        {/* ═══════════════ AGENCY WORKSPACE ═══════════════ */}
+        {/* ═══════════ AGENCY WORKSPACE (ROOT ROUTES) ═══════════ */}
         <Route
-          path="/agency"
+          path="/"
           element={
             <ManagementGuard>
               <AgencyGuard>
@@ -168,13 +153,26 @@ export function ManagementRoutes() {
           <Route path="onboarding" element={<AgencyOnboarding />} />
           <Route path="kyc" element={<AgencyGuard allowedRoles={["agency_admin"]}><AgencyKYC /></AgencyGuard>} />
           <Route path="commissions" element={<AgencyCommissions />} />
+          <Route path="payouts" element={<AgencyPayouts />} />
           <Route path="hub" element={<AgencyHub />} />
           <Route path="support" element={<AgencyGuard allowedRoles={["agency_admin", "agency_manager"]}><AgencySupportPage /></AgencyGuard>} />
           <Route path="settings" element={<AgencyGuard allowedRoles={["agency_admin"]}><AgencySettingsPage /></AgencyGuard>} />
-          <Route path="*" element={<AgencyDashboard />} />
         </Route>
 
-        {/* Catch-all — redirect to role router */}
+        {/* ═══════════ LEGACY /agency/* REDIRECTS ═══════════ */}
+        <Route path="/agency" element={<Navigate to="/" replace />} />
+        <Route path="/agency/analytics" element={<Navigate to="/analytics" replace />} />
+        <Route path="/agency/performance" element={<Navigate to="/performance" replace />} />
+        <Route path="/agency/members" element={<Navigate to="/members" replace />} />
+        <Route path="/agency/onboarding" element={<Navigate to="/onboarding" replace />} />
+        <Route path="/agency/kyc" element={<Navigate to="/kyc" replace />} />
+        <Route path="/agency/commissions" element={<Navigate to="/commissions" replace />} />
+        <Route path="/agency/hub" element={<Navigate to="/hub" replace />} />
+        <Route path="/agency/support" element={<Navigate to="/support" replace />} />
+        <Route path="/agency/settings" element={<Navigate to="/settings" replace />} />
+        <Route path="/agency/*" element={<Navigate to="/" replace />} />
+
+        {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>

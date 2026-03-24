@@ -75,7 +75,7 @@ export function AgencySidebar() {
                     <SidebarMenuItem key={item.slug}>
                       <SidebarMenuButton asChild>
                         <NavLink
-                          to={`/agency/${item.slug}`.replace(/\/+$/, "") || "/agency"}
+                          to={`/${item.slug}`.replace(/\/+$/, "") || "/"}
                           end={item.end}
                           className="admin-nav-item flex items-center gap-3 text-sm"
                           activeClassName="admin-nav-item-active">

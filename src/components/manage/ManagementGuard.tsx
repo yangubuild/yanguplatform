@@ -5,7 +5,6 @@ import { useRoles } from "@/hooks/useRoles";
 import { setActiveContext } from "@/lib/routing/activeContext";
 import { Loader2, ShieldX } from "lucide-react";
 
-/** Emails that are always allowed into the control plane */
 const ALLOWED_ADMIN_EMAILS = [
   "yanguabuild@gmail.com",
   "kafeeroaz@gmail.com",
@@ -15,13 +14,6 @@ interface ManagementGuardProps {
   children: ReactNode;
 }
 
-/**
- * Top-level guard for manage.yangu.studio control plane.
- * - Requires authenticated user.
- * - Allows access if email is in allowlist OR user has any manage or agency role.
- * - Routes users to the correct workspace based on role at "/".
- * - Sets active context to "management".
- */
 export function ManagementGuard({ children }: ManagementGuardProps) {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const {
@@ -36,7 +28,6 @@ export function ManagementGuard({ children }: ManagementGuardProps) {
   const emailAllowed = !!user?.email && ALLOWED_ADMIN_EMAILS.includes(user.email.toLowerCase());
   const hasAccess = emailAllowed || hasAnyManageRole || hasAnyAgencyRole;
 
-  // Set management context on mount
   useEffect(() => {
     if (isAuthenticated && hasAccess) {
       setActiveContext("management");
@@ -57,7 +48,7 @@ export function ManagementGuard({ children }: ManagementGuardProps) {
 
   if (!hasAccess) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4 px-4">
         <ShieldX className="h-16 w-16 text-muted-foreground" />
         <h1 className="text-2xl font-semibold text-foreground">Access Restricted</h1>
         <p className="text-muted-foreground text-center max-w-md">
@@ -68,16 +59,9 @@ export function ManagementGuard({ children }: ManagementGuardProps) {
     );
   }
 
-  // Root "/" role-based redirect
-  if (location.pathname === "/") {
-    // Admin/management roles → management workspace
-    if (emailAllowed || hasAnyManageRole) {
-      return <Navigate to="/management" replace />;
-    }
-    // Agency-only roles → agency workspace
-    if (hasAnyAgencyRole) {
-      return <Navigate to="/agency" replace />;
-    }
+  // Root "/" — management-only users should go to /management
+  if (location.pathname === "/" && (emailAllowed || hasAnyManageRole) && !hasAnyAgencyRole) {
+    return <Navigate to="/management" replace />;
   }
 
   return <>{children}</>;

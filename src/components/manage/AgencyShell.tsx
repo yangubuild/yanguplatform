@@ -10,31 +10,28 @@ import {
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
 import { agencySectionLabels } from "./agencyNavConfig";
-import { useRoles } from "@/hooks/useRoles";
 import { UserMenu } from "./UserMenu";
-
-// AgencyRoleBadge removed — UserMenu now handles role display
 
 export function AgencyShell() {
   const location = useLocation();
-  const agencyPath = location.pathname.replace(/^\/agency\/?/, "");
-  const segments = agencyPath.split("/").filter(Boolean);
+  // Root-level routes: strip leading slash to get segment
+  const segments = location.pathname.split("/").filter(Boolean);
   const sectionTitle = agencySectionLabels[segments.join("/")] ?? agencySectionLabels[segments[0] ?? ""] ?? (segments[0] ? segments[0].charAt(0).toUpperCase() + segments[0].slice(1) : "Dashboard");
 
   return (
     <SidebarProvider>
-      <div className="admin-shell flex w-full">
+      <div className="admin-shell flex w-full min-h-screen">
         <AgencySidebar />
         <div className="flex flex-1 flex-col min-w-0">
-          <header className="admin-glass-header sticky top-0 z-40 h-14 flex items-center justify-between px-4 lg:px-6">
-            <div className="flex items-center gap-4">
-              <SidebarTrigger className="lg:hidden text-[hsl(var(--admin-text-muted))]" />
+          <header className="admin-glass-header sticky top-0 z-40 h-14 flex items-center justify-between px-3 sm:px-4 lg:px-6">
+            <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+              <SidebarTrigger className="lg:hidden text-[hsl(var(--admin-text-muted))] shrink-0" />
               <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem>
                     {segments.length > 0 ? (
                       <BreadcrumbLink asChild>
-                        <Link to="/agency" className="text-[hsl(var(--admin-text-muted))] hover:text-[hsl(24,95%,53%)] transition-colors text-sm">Agency</Link>
+                        <Link to="/" className="text-[hsl(var(--admin-text-muted))] hover:text-[hsl(24,95%,53%)] transition-colors text-sm">Agency</Link>
                       </BreadcrumbLink>
                     ) : (
                       <BreadcrumbPage className="text-[hsl(var(--admin-text))] text-sm">Agency</BreadcrumbPage>
@@ -44,18 +41,18 @@ export function AgencyShell() {
                     <>
                       <BreadcrumbSeparator className="text-[hsl(var(--admin-text-muted))]" />
                       <BreadcrumbItem>
-                        <BreadcrumbPage className="text-[hsl(var(--admin-text))] text-sm">{sectionTitle}</BreadcrumbPage>
+                        <BreadcrumbPage className="text-[hsl(var(--admin-text))] text-sm truncate max-w-[200px]">{sectionTitle}</BreadcrumbPage>
                       </BreadcrumbItem>
                     </>
                   )}
                 </BreadcrumbList>
               </Breadcrumb>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 shrink-0">
               <UserMenu />
             </div>
           </header>
-          <main className="flex-1 p-6 lg:p-8">
+          <main className="flex-1 p-4 sm:p-6 lg:p-8">
             <Outlet />
           </main>
         </div>
