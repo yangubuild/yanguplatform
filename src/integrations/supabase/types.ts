@@ -6875,7 +6875,15 @@ export type Database = {
         | "ai_generated_app"
         | "embedded_app"
         | "developer_app"
-      app_role: "admin" | "user" | "owner" | "manager" | "designer"
+      app_role:
+        | "admin"
+        | "user"
+        | "owner"
+        | "manager"
+        | "designer"
+        | "agency_admin"
+        | "agency_manager"
+        | "foot_soldier"
       app_visibility: "public" | "private" | "internal"
       builder_surface_type:
         | "live_bio"
@@ -7060,7 +7068,16 @@ export const Constants = {
         "embedded_app",
         "developer_app",
       ],
-      app_role: ["admin", "user", "owner", "manager", "designer"],
+      app_role: [
+        "admin",
+        "user",
+        "owner",
+        "manager",
+        "designer",
+        "agency_admin",
+        "agency_manager",
+        "foot_soldier",
+      ],
       app_visibility: ["public", "private", "internal"],
       builder_surface_type: [
         "live_bio",
