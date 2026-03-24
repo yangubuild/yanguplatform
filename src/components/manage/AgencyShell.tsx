@@ -11,8 +11,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { agencySectionLabels } from "./agencyNavConfig";
 import { useRoles } from "@/hooks/useRoles";
-import { Badge } from "@/components/ui/badge";
-import { Building2, Shield, Users } from "lucide-react";
+import { UserMenu } from "./UserMenu";
 
 function AgencyRoleBadge() {
   const { isAgencyAdmin, isAgencyManager, isFootSoldier, isAdmin } = useRoles();
@@ -68,7 +67,7 @@ export function AgencyShell() {
               </Breadcrumb>
             </div>
             <div className="flex items-center gap-3">
-              <AgencyRoleBadge />
+              <UserMenu />
             </div>
           </header>
           <main className="flex-1 p-6 lg:p-8">

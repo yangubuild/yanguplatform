@@ -165,8 +165,8 @@ export function AdminShell() {
               </Breadcrumb>
             </div>
             <div className="flex items-center gap-3">
-              <RoleBadge />
               {isAdmin && <AdaAlertsButton />}
+              <UserMenu />
             </div>
           </header>
           {/* Main Content Canvas */}
