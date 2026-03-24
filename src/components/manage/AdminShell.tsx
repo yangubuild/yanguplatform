@@ -111,16 +111,7 @@ function AdaAlertsButton() {
   );
 }
 
-function RoleBadge() {
-  const { isAdmin, isContentEditor } = useRoles();
-  const label = isAdmin ? "Admin" : isContentEditor ? "Content Editor" : null;
-  if (!label) return null;
-  return (
-    <Badge variant="outline" className="text-[10px] font-medium border-[hsl(var(--admin-border)/0.5)] text-[hsl(var(--admin-text-muted))]">
-      Role: {label}
-    </Badge>
-  );
-}
+// RoleBadge removed — UserMenu now handles role display
 
 export function AdminShell() {
   const location = useLocation();
