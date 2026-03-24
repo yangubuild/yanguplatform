@@ -13,20 +13,24 @@ import {
   ExternalLink,
   AlertCircle,
   RefreshCw,
-  Sun,
-  Camera,
-  CreditCard,
-  Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import kycGuideImg from "@/assets/kyc-guide.png";
+
+const checklistItems = [
+  "I have my ID ready and clearly visible",
+  "I am in a well-lit environment",
+  "My camera is clean and working",
+];
 
 type KycDbStatus = "pending" | "submitted" | "approved" | "rejected" | null;
 type KycUiStatus = "not_started" | "in_progress" | "pending_review" | "verified" | "rejected";
