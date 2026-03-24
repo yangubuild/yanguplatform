@@ -13,20 +13,24 @@ import {
   ExternalLink,
   AlertCircle,
   RefreshCw,
-  Sun,
-  Camera,
-  CreditCard,
-  Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import kycGuideImg from "@/assets/kyc-guide.png";
+
+const checklistItems = [
+  "I have my ID ready and clearly visible",
+  "I am in a well-lit environment",
+  "My camera is clean and working",
+];
 
 type KycDbStatus = "pending" | "submitted" | "approved" | "rejected" | null;
 type KycUiStatus = "not_started" | "in_progress" | "pending_review" | "verified" | "rejected";
@@ -110,6 +114,7 @@ export default function KYC() {
   const [isStarting, setIsStarting] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [showGuidance, setShowGuidance] = useState(false);
+  const [checkedItems, setCheckedItems] = useState<boolean[]>([false, false, false]);
   const hasSyncedCallback = useRef(false);
 
   const callbackSessionId = searchParams.get("verificationSessionId");
@@ -405,38 +410,53 @@ export default function KYC() {
       {/* Pre-start KYC Guidance Modal */}
       <Dialog open={showGuidance} onOpenChange={setShowGuidance}>
         <DialogContent className="sm:max-w-md">
-          <div className="flex items-center gap-3 mb-1">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <Camera className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <DialogTitle className="text-base font-semibold">Before you start</DialogTitle>
-              <DialogDescription className="text-xs text-muted-foreground">
-                A few tips for the fastest approval
-              </DialogDescription>
-            </div>
+          <DialogTitle className="text-lg font-semibold text-center">Get ready for verification</DialogTitle>
+          <DialogDescription className="text-center text-xs text-muted-foreground -mt-1">
+            Follow these tips for the fastest approval
+          </DialogDescription>
+
+          {/* Visual guide image */}
+          <div className="my-3">
+            <img
+              src={kycGuideImg}
+              alt="Left: well-lit clear photo with green check. Right: dark unclear photo with red cross."
+              className="w-full rounded-lg"
+            />
           </div>
 
-          <div className="space-y-3 my-4">
-            {[
-              { icon: Sun, text: "Make sure lighting is bright and even — avoid shadows" },
-              { icon: Camera, text: "Take a clear, sharp selfie — no blur or motion" },
-              { icon: CreditCard, text: "Your ID should be fully visible — no cropped edges" },
-              { icon: Eye, text: "Avoid glare on your ID — tilt slightly if needed" },
-            ].map((tip, i) => (
-              <div key={i} className="flex items-start gap-3">
-                <div className="w-7 h-7 rounded-md bg-accent/10 flex items-center justify-center shrink-0 mt-0.5">
-                  <tip.icon className="h-3.5 w-3.5 text-accent" />
-                </div>
-                <p className="text-sm text-muted-foreground leading-snug">{tip.text}</p>
-              </div>
+          {/* Interactive checklist */}
+          <div className="space-y-2.5 mb-3">
+            {checklistItems.map((item, i) => (
+              <label key={i} className="flex items-center gap-3 cursor-pointer group">
+                <Checkbox
+                  checked={checkedItems[i]}
+                  onCheckedChange={() =>
+                    setCheckedItems((prev) => {
+                      const next = [...prev];
+                      next[i] = !next[i];
+                      return next;
+                    })
+                  }
+                />
+                <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">
+                  {item}
+                </span>
+              </label>
             ))}
           </div>
 
+          {/* Subtle hint when nothing checked */}
+          {checkedItems.every((v) => !v) && (
+            <p className="text-xs text-muted-foreground/70 text-center mb-1">
+              For best results, confirm all items above
+            </p>
+          )}
+
+          {/* Info box */}
           <div className="rounded-lg border border-border bg-muted/30 p-3 mb-4">
             <p className="text-xs text-muted-foreground leading-relaxed">
-              If your photo or ID is unclear, your verification may go to <span className="font-medium text-foreground">manual review</span> and
-              take <span className="font-medium text-foreground">1–24 hours</span>. For the fastest approval, verify in good lighting with a clear photo.
+              For immediate approval, make sure your photo and ID are clear. Poor lighting or unclear images may result in{" "}
+              <span className="font-medium text-foreground">manual review (1–24 hours)</span>.
             </p>
           </div>
 
@@ -457,7 +477,7 @@ export default function KYC() {
               }}
             >
               {isStarting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-              Continue KYC
+              Start KYC
             </Button>
           </div>
         </DialogContent>
