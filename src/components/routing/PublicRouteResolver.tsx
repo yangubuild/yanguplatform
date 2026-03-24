@@ -3,6 +3,7 @@ import { useEffect, useState, ReactNode, lazy, Suspense, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { resolveRoute, isDevEnvironment, normalizeHostname, type ResolvedRoute, type RouteDebugInfo } from "@/lib/routing/resolveRoute";
 import { resolveAppMode } from "@/lib/routing/appMode";
+import { ManagementRoutes } from "@/components/manage/ManagementRoutes";
 
 const DomainHome = lazy(() => lazyRetry(() => import("./DomainHome").then((m) => ({ default: m.DomainHome }))));
 const Index = lazy(() => lazyRetry(() => import("@/pages/Index")));
@@ -13,7 +14,6 @@ const PublishContainerLanding = lazy(() => lazyRetry(() => import("./PublishCont
 const IdentityHub = lazy(() => lazyRetry(() => import("./IdentityHub").then((m) => ({ default: m.IdentityHub }))));
 const SurfaceViewer = lazy(() => lazyRetry(() => import("./SurfaceViewer").then((m) => ({ default: m.SurfaceViewer }))));
 const NotFound = lazy(() => lazyRetry(() => import("@/pages/NotFound")));
-
 
 interface PublicRouteResolverProps {
   children: ReactNode;
