@@ -2,11 +2,12 @@ import { AdminGlassCard, AdminMetricCard } from "@/components/manage/AdminGlassC
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Users, DollarSign, Shield, Activity, AlertTriangle,
+  Users, DollarSign, Shield, AlertTriangle,
   CreditCard, Layers, Headset, Image, Flame,
-  TrendingUp, CheckCircle2, Clock,
+  TrendingUp, CheckCircle2, Eye, ExternalLink,
 } from "lucide-react";
-import { useManageCommandCenter, type CommandCenterData } from "@/hooks/manage/useManageIncidents";
+import { useManageCommandCenterV2, type CommandCenterV2Data } from "@/hooks/manage/useManageCommandCenterV2";
+import { useNavigate } from "react-router-dom";
 
 function LiveBadge() {
   return (
@@ -17,28 +18,44 @@ function LiveBadge() {
   );
 }
 
-function AlertCard({ alert }: { alert: CommandCenterData["red_alerts"][0] }) {
+function ClickableAlertCard({ alert, onClick }: { alert: CommandCenterV2Data["red_alerts"][0]; onClick: () => void }) {
   const sevColor = alert.severity === "critical"
     ? "border-destructive/40 bg-destructive/5"
     : "border-orange-500/40 bg-orange-500/5";
 
   return (
-    <div className={`rounded-lg border p-3 ${sevColor}`}>
+    <button onClick={onClick} className={`w-full text-left rounded-lg border p-3 ${sevColor} hover:opacity-80 transition-opacity`}>
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-foreground truncate">{alert.title}</p>
           <p className="text-xs text-muted-foreground mt-0.5 capitalize">{alert.affected_system ?? "system"} · {alert.status}</p>
         </div>
-        <Badge variant="outline" className={`text-[10px] shrink-0 ${alert.severity === "critical" ? "border-destructive/30 text-destructive" : "border-orange-500/30 text-orange-500"}`}>
-          {alert.severity.toUpperCase()}
-        </Badge>
+        <div className="flex items-center gap-1.5">
+          <Badge variant="outline" className={`text-[10px] shrink-0 ${alert.severity === "critical" ? "border-destructive/30 text-destructive" : "border-orange-500/30 text-orange-500"}`}>
+            {alert.severity.toUpperCase()}
+          </Badge>
+          <ExternalLink className="h-3 w-3 text-muted-foreground" />
+        </div>
       </div>
+    </button>
+  );
+}
+
+function SpikeIndicator({ label, value, threshold = 3 }: { label: string; value: number; threshold?: number }) {
+  const isSpike = value >= threshold;
+  return (
+    <div className={`rounded-lg border p-2.5 ${isSpike ? "border-destructive/30 bg-destructive/5" : "border-border bg-card"}`}>
+      <p className="text-[10px] text-muted-foreground">{label}</p>
+      <p className={`text-lg font-bold ${isSpike ? "text-destructive" : "text-foreground"}`}>
+        {value} {isSpike && <span className="text-xs">⚠️</span>}
+      </p>
     </div>
   );
 }
 
 export default function ManageCommandCenter() {
-  const { data, isLoading } = useManageCommandCenter();
+  const { data, isLoading } = useManageCommandCenterV2();
+  const navigate = useNavigate();
 
   if (isLoading || !data) {
     return (
@@ -55,6 +72,8 @@ export default function ManageCommandCenter() {
   }
 
   const hasRedAlerts = data.red_alerts.length > 0;
+  const hasKycAlerts = data.kyc_alerts.length > 0;
+  const hasPaymentAlerts = data.payment_alerts.length > 0;
 
   return (
     <div className="space-y-6">
@@ -65,7 +84,7 @@ export default function ManageCommandCenter() {
         <span className="text-xs text-muted-foreground ml-auto">Auto-refresh: 15s</span>
       </div>
 
-      {/* RED ALERTS */}
+      {/* RED ALERTS — clickable → incidents */}
       {hasRedAlerts && (
         <AdminGlassCard className="p-4 border-destructive/30">
           <div className="flex items-center gap-2 mb-3">
@@ -74,10 +93,62 @@ export default function ManageCommandCenter() {
           </div>
           <div className="space-y-2">
             {data.red_alerts.map((alert) => (
-              <AlertCard key={alert.id} alert={alert} />
+              <ClickableAlertCard
+                key={alert.id}
+                alert={alert}
+                onClick={() => navigate("/management/incidents")}
+              />
             ))}
           </div>
         </AdminGlassCard>
+      )}
+
+      {/* KYC + Payment Alerts */}
+      {(hasKycAlerts || hasPaymentAlerts) && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {hasKycAlerts && (
+            <AdminGlassCard className="p-4 border-orange-500/20">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-orange-500" />
+                  <h3 className="text-sm font-semibold text-foreground">KYC Alerts ({data.kyc_alerts.length})</h3>
+                </div>
+                <button onClick={() => navigate("/management/kyc")} className="text-xs text-accent hover:underline flex items-center gap-1">
+                  View All <ExternalLink className="h-3 w-3" />
+                </button>
+              </div>
+              <div className="space-y-1.5">
+                {data.kyc_alerts.slice(0, 3).map((a) => (
+                  <div key={a.id} className="text-xs text-muted-foreground flex justify-between">
+                    <span>User {a.user_id.slice(0, 8)}… — <span className="text-destructive font-medium">{a.status}</span></span>
+                    <span>{new Date(a.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}</span>
+                  </div>
+                ))}
+              </div>
+            </AdminGlassCard>
+          )}
+          {hasPaymentAlerts && (
+            <AdminGlassCard className="p-4 border-yellow-500/20">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <CreditCard className="h-4 w-4 text-yellow-500" />
+                  <h3 className="text-sm font-semibold text-foreground">Payment Alerts ({data.payment_alerts.length})</h3>
+                </div>
+                <button onClick={() => navigate("/management/payments")} className="text-xs text-accent hover:underline flex items-center gap-1">
+                  View All <ExternalLink className="h-3 w-3" />
+                </button>
+              </div>
+              <div className="space-y-1.5">
+                {data.payment_alerts.slice(0, 3).map((a) => (
+                  <div key={a.id} className="text-xs text-muted-foreground flex justify-between">
+                    <span>User {a.user_id.slice(0, 8)}… — <span className="text-orange-500 font-medium">{a.status}</span></span>
+                    <span>{a.plan_id}</span>
+                  </div>
+                ))}
+              </div>
+            </AdminGlassCard>
+          )}
+        </div>
       )}
 
       {/* Primary Stats */}
@@ -93,8 +164,18 @@ export default function ManageCommandCenter() {
         <AdminMetricCard icon={<Shield className="h-4 w-4" />} label="KYC Pending" value={data.kyc_pending} trend={<span className="text-xs text-muted-foreground">{data.kyc_approved_today} approved today</span>} />
         <AdminMetricCard icon={<CreditCard className="h-4 w-4" />} label="Active Subs" value={data.active_subscriptions} trend={<span className="text-xs text-muted-foreground">{data.past_due_subscriptions} past due</span>} />
         <AdminMetricCard icon={<Image className="h-4 w-4" />} label="AI Generations Today" value={data.ai_generations_today} />
-        <AdminMetricCard icon={<Layers className="h-4 w-4" />} label="Published Surfaces" value={data.surfaces_published} />
+        <AdminMetricCard icon={<Layers className="h-4 w-4" />} label="Published Surfaces" value={data.surfaces_published} trend={<span className="text-xs text-muted-foreground">{data.surfaces_no_cover} no cover</span>} />
       </div>
+
+      {/* Error Spikes */}
+      <AdminGlassCard className="p-4">
+        <h3 className="text-sm font-semibold text-foreground mb-3">Error Spikes (24h)</h3>
+        <div className="grid grid-cols-3 gap-3">
+          <SpikeIndicator label="KYC Rejections" value={data.error_spikes.kyc_rejections_24h} />
+          <SpikeIndicator label="Failed Payments" value={data.error_spikes.failed_payments_24h} />
+          <SpikeIndicator label="AI Errors" value={data.error_spikes.ai_errors_24h} />
+        </div>
+      </AdminGlassCard>
 
       {/* System Health */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -115,6 +196,9 @@ export default function ManageCommandCenter() {
             <p className="text-xs text-[hsl(var(--admin-text-muted))]">Support Pending</p>
           </div>
           <p className="text-2xl font-bold text-[hsl(var(--admin-text))]">{data.support_pending}</p>
+          {data.support_escalated > 0 && (
+            <Badge variant="outline" className="text-[10px] mt-1 border-orange-500/30 text-orange-500">{data.support_escalated} escalated</Badge>
+          )}
         </AdminGlassCard>
 
         <AdminGlassCard className="p-4">
