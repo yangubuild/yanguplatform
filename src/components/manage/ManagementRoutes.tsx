@@ -23,6 +23,11 @@ const ManageSettings = lazy(() => lazyRetry(() => import("@/pages/manage/ManageS
 const ManageNotFound = lazy(() => lazyRetry(() => import("@/pages/manage/ManageNotFound")));
 const ManageSurfaces = lazy(() => lazyRetry(() => import("@/pages/manage/ManageSurfaces")));
 const ManageDomains = lazy(() => lazyRetry(() => import("@/pages/manage/ManageDomains")));
+const ManageKyc = lazy(() => lazyRetry(() => import("@/pages/manage/ManageKyc")));
+const ManagePayments = lazy(() => lazyRetry(() => import("@/pages/manage/ManagePayments")));
+const ManageAiUsage = lazy(() => lazyRetry(() => import("@/pages/manage/ManageAiUsage")));
+const ManageIncidents = lazy(() => lazyRetry(() => import("@/pages/manage/ManageIncidents")));
+const ManageCommandCenter = lazy(() => lazyRetry(() => import("@/pages/manage/ManageCommandCenter")));
 const ManageNavigation = lazy(() => lazyRetry(() => import("@/pages/manage/ManageNavigation")));
 const ManageCommunity = lazy(() => lazyRetry(() => import("@/pages/manage/ManageCommunity")));
 const ManageBlog = lazy(() => lazyRetry(() => import("@/pages/manage/ManageBlog")));
@@ -96,6 +101,11 @@ export function ManagementRoutes() {
           <Route path="community" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManageCommunity /></ManageRoleGate>} />
           <Route path="agents" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAgents /></ManageRoleGate>} />
           <Route path="domains" element={<ManageRoleGate allowedRoles={["admin"]}><ManageDomains /></ManageRoleGate>} />
+          <Route path="kyc" element={<ManageRoleGate allowedRoles={["admin"]}><ManageKyc /></ManageRoleGate>} />
+          <Route path="payments" element={<ManageRoleGate allowedRoles={["admin"]}><ManagePayments /></ManageRoleGate>} />
+          <Route path="ai-usage" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAiUsage /></ManageRoleGate>} />
+          <Route path="incidents" element={<ManageRoleGate allowedRoles={["admin"]}><ManageIncidents /></ManageRoleGate>} />
+          <Route path="command-center" element={<ManageRoleGate allowedRoles={["admin"]}><ManageCommandCenter /></ManageRoleGate>} />
           <Route path="analytics" element={<ManageRoleGate allowedRoles={["admin", "analyst"]}><ManageAnalytics /></ManageRoleGate>} />
           <Route path="content" element={<ManageRoleGate allowedRoles={["admin", "writer", "content_editor"]}><ManageContentHome /></ManageRoleGate>} />
           <Route path="content/blog" element={<ManageRoleGate allowedRoles={["admin", "writer", "content_editor"]}><ManageBlog /></ManageRoleGate>} />
