@@ -2,11 +2,10 @@ import { useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, UserPlus, UserX } from "lucide-react";
+import { Search } from "lucide-react";
 import { useAgencyContext } from "@/hooks/manage/useAgencyContext";
-import { useAgencyMembersList, type AgencyMember } from "@/hooks/manage/useAgencyMembers";
+import { useAgencyMembersList } from "@/hooks/manage/useAgencyMembers";
 import { useRoles } from "@/hooks/useRoles";
 
 function fmt(cents: number) {
@@ -20,7 +19,7 @@ const ROLE_COLORS: Record<string, string> = {
 };
 
 export default function AgencyMembers() {
-  const { isAgencyAdmin, isAgencyManager, isAdmin, isFootSoldier } = useRoles();
+  const { isAgencyAdmin, isAgencyManager, isAdmin } = useRoles();
   const isLeader = isAdmin || isAgencyAdmin || isAgencyManager;
   const { data: ctx, isLoading: ctxLoading } = useAgencyContext();
   const agencyId = ctx?.agency_id;
@@ -31,23 +30,16 @@ export default function AgencyMembers() {
     if (!members) return [];
     if (!search) return members;
     const q = search.toLowerCase();
-    return members.filter(
-      (m) => m.display_name?.toLowerCase().includes(q) || m.username?.toLowerCase().includes(q)
-    );
+    return members.filter((m) => m.display_name?.toLowerCase().includes(q) || m.username?.toLowerCase().includes(q));
   }, [members, search]);
 
   if (ctxLoading || isLoading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-8 w-48" />
-        {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20" />)}
-      </div>
-    );
+    return <div className="space-y-4"><Skeleton className="h-8 w-48" />{[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20" />)}</div>;
   }
 
   if (!isLeader) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 gap-3 text-center">
+      <div className="flex flex-col items-center justify-center py-24 gap-3 text-center px-4">
         <h2 className="text-lg font-semibold text-foreground">Access Restricted</h2>
         <p className="text-sm text-muted-foreground max-w-xs">Foot Soldiers can only view their own stats on the Dashboard.</p>
       </div>
@@ -59,11 +51,9 @@ export default function AgencyMembers() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-lg font-semibold text-[hsl(var(--admin-text))]">Foot Soldiers</h1>
-          <p className="text-sm text-[hsl(var(--admin-text-muted))]">{members?.length ?? 0} members · {totalReferrals} referrals · {fmt(totalEarned)} earned</p>
-        </div>
+      <div>
+        <h1 className="text-lg font-semibold text-[hsl(var(--admin-text))]">Foot Soldiers</h1>
+        <p className="text-sm text-[hsl(var(--admin-text-muted))]">{members?.length ?? 0} members · {totalReferrals} referrals · {fmt(totalEarned)} earned</p>
       </div>
 
       <div className="relative max-w-sm">
@@ -71,7 +61,33 @@ export default function AgencyMembers() {
         <Input placeholder="Search members..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
       </div>
 
-      <Card className="border border-border">
+      {/* Mobile card view */}
+      <div className="block sm:hidden space-y-3">
+        {filtered.length === 0 ? (
+          <p className="text-center text-muted-foreground py-8">No members found</p>
+        ) : (
+          filtered.map((m) => (
+            <Card key={m.id} className="border border-border">
+              <CardContent className="p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="font-medium text-foreground">{m.display_name ?? m.username ?? "—"}</p>
+                  <Badge variant={m.status === "active" ? "default" : "secondary"} className="text-xs">{m.status}</Badge>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className={`text-xs ${ROLE_COLORS[m.role] ?? ""}`}>{m.role.replace(/_/g, " ")}</Badge>
+                </div>
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>{m.referral_count} referrals</span>
+                  <span>{fmt(m.commission_total)} earned</span>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </div>
+
+      {/* Desktop table */}
+      <Card className="border border-border hidden sm:block">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-muted/50">
@@ -90,21 +106,11 @@ export default function AgencyMembers() {
               ) : (
                 filtered.map((m) => (
                   <tr key={m.id} className="hover:bg-muted/30">
-                    <td className="px-4 py-3">
-                      <p className="font-medium text-foreground">{m.display_name ?? m.username ?? "—"}</p>
-                    </td>
-                    <td className="px-4 py-3">
-                      <Badge variant="outline" className={`text-xs ${ROLE_COLORS[m.role] ?? ""}`}>
-                        {m.role.replace(/_/g, " ")}
-                      </Badge>
-                    </td>
+                    <td className="px-4 py-3 font-medium text-foreground">{m.display_name ?? m.username ?? "—"}</td>
+                    <td className="px-4 py-3"><Badge variant="outline" className={`text-xs ${ROLE_COLORS[m.role] ?? ""}`}>{m.role.replace(/_/g, " ")}</Badge></td>
                     <td className="px-4 py-3 font-medium text-foreground">{m.referral_count}</td>
                     <td className="px-4 py-3 font-medium text-foreground">{fmt(m.commission_total)}</td>
-                    <td className="px-4 py-3">
-                      <Badge variant={m.status === "active" ? "default" : "secondary"} className="text-xs">
-                        {m.status}
-                      </Badge>
-                    </td>
+                    <td className="px-4 py-3"><Badge variant={m.status === "active" ? "default" : "secondary"} className="text-xs">{m.status}</Badge></td>
                     <td className="px-4 py-3 text-xs text-muted-foreground">{new Date(m.joined_at).toLocaleDateString()}</td>
                   </tr>
                 ))

@@ -21,7 +21,7 @@ export default function AgencyKYC() {
 
   if (!isAdmin && !isAgencyAdmin) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 gap-3 text-center">
+      <div className="flex flex-col items-center justify-center py-24 gap-3 text-center px-4">
         <h2 className="text-lg font-semibold text-foreground">Access Restricted</h2>
         <p className="text-sm text-muted-foreground max-w-xs">KYC status overview is available for agency admins only.</p>
       </div>
@@ -46,23 +46,46 @@ export default function AgencyKYC() {
         <p className="text-sm text-[hsl(var(--admin-text-muted))]">Verification overview for all referred users</p>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
         {[
           { label: "Verified", count: grouped.verified.length, color: "text-green-600" },
-          { label: "Pending Review", count: grouped.pending_review.length, color: "text-yellow-600" },
+          { label: "Pending", count: grouped.pending_review.length, color: "text-yellow-600" },
           { label: "Rejected", count: grouped.rejected.length, color: "text-red-600" },
           { label: "Not Started", count: grouped.not_started.length, color: "text-muted-foreground" },
         ].map((s) => (
           <Card key={s.label} className="border border-border">
-            <CardContent className="p-4">
-              <p className="text-[11px] text-muted-foreground uppercase tracking-wider">{s.label}</p>
-              <p className={`text-2xl font-bold mt-1 ${s.color}`}>{s.count}</p>
+            <CardContent className="p-3 sm:p-4">
+              <p className="text-[10px] sm:text-[11px] text-muted-foreground uppercase tracking-wider">{s.label}</p>
+              <p className={`text-xl sm:text-2xl font-bold mt-1 ${s.color}`}>{s.count}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <Card className="border border-border">
+      {/* Mobile card view */}
+      <div className="block sm:hidden space-y-3">
+        {(referrals?.length ?? 0) === 0 ? (
+          <p className="text-center text-muted-foreground py-8">No referrals</p>
+        ) : (
+          referrals!.map((r) => (
+            <Card key={r.id} className="border border-border">
+              <CardContent className="p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="font-medium text-foreground truncate max-w-[60%]">{r.referred_name ?? "—"}</p>
+                  <Badge variant="outline" className={`text-xs ${KYC_BADGE[r.kyc_status] ?? ""}`}>{r.kyc_status.replace(/_/g, " ")}</Badge>
+                </div>
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>{r.soldier_name ?? "—"}</span>
+                  <span>{new Date(r.created_at).toLocaleDateString()}</span>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </div>
+
+      {/* Desktop table */}
+      <Card className="border border-border hidden sm:block">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-muted/50">
@@ -71,7 +94,7 @@ export default function AgencyKYC() {
                 <th className="px-4 py-3">Foot Soldier</th>
                 <th className="px-4 py-3">KYC Status</th>
                 <th className="px-4 py-3">Source</th>
-                <th className="px-4 py-3">Referred Date</th>
+                <th className="px-4 py-3">Date</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -85,11 +108,7 @@ export default function AgencyKYC() {
                       <p className="text-xs text-muted-foreground">{r.referred_email ?? ""}</p>
                     </td>
                     <td className="px-4 py-3 text-foreground">{r.soldier_name ?? "—"}</td>
-                    <td className="px-4 py-3">
-                      <Badge variant="outline" className={`text-xs ${KYC_BADGE[r.kyc_status] ?? ""}`}>
-                        {r.kyc_status.replace(/_/g, " ")}
-                      </Badge>
-                    </td>
+                    <td className="px-4 py-3"><Badge variant="outline" className={`text-xs ${KYC_BADGE[r.kyc_status] ?? ""}`}>{r.kyc_status.replace(/_/g, " ")}</Badge></td>
                     <td className="px-4 py-3"><Badge variant="outline" className="text-xs">{r.source}</Badge></td>
                     <td className="px-4 py-3 text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</td>
                   </tr>
