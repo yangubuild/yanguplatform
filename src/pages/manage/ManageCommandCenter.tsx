@@ -61,6 +61,56 @@ function SpikeIndicator({ label, value, threshold = 3 }: { label: string; value:
   );
 }
 
+function QuickActionsPanel() {
+  const [suspendId, setSuspendId] = useState("");
+  const [retryId, setRetryId] = useState("");
+  const [kycId, setKycId] = useState("");
+  const suspendUser = useQuickSuspendUser();
+  const retryPayment = useQuickRetryPayment();
+  const retriggerKyc = useQuickRetriggerKyc();
+
+  return (
+    <AdminGlassCard className="p-4">
+      <h3 className="text-sm font-semibold text-[hsl(var(--admin-text))] mb-3">⚡ Quick Actions</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="space-y-2">
+          <p className="text-xs text-[hsl(var(--admin-text-muted))]">Suspend User</p>
+          <div className="flex gap-1.5">
+            <Input placeholder="User ID" value={suspendId} onChange={(e) => setSuspendId(e.target.value)}
+              className="h-8 text-xs bg-[hsl(var(--admin-surface-elevated)/0.5)] border-[hsl(var(--admin-border)/0.4)] text-[hsl(var(--admin-text))]" />
+            <Button size="sm" variant="destructive" className="h-8 text-xs shrink-0" disabled={!suspendId || suspendUser.isPending}
+              onClick={() => suspendUser.mutate(suspendId, { onSuccess: () => setSuspendId("") })}>
+              <UserX className="h-3 w-3" />
+            </Button>
+          </div>
+        </div>
+        <div className="space-y-2">
+          <p className="text-xs text-[hsl(var(--admin-text-muted))]">Retry Payment</p>
+          <div className="flex gap-1.5">
+            <Input placeholder="Subscription ID" value={retryId} onChange={(e) => setRetryId(e.target.value)}
+              className="h-8 text-xs bg-[hsl(var(--admin-surface-elevated)/0.5)] border-[hsl(var(--admin-border)/0.4)] text-[hsl(var(--admin-text))]" />
+            <Button size="sm" variant="outline" className="h-8 text-xs shrink-0 border-[hsl(var(--admin-border)/0.4)] text-[hsl(var(--admin-text-muted))]" disabled={!retryId || retryPayment.isPending}
+              onClick={() => retryPayment.mutate(retryId, { onSuccess: () => setRetryId("") })}>
+              <RotateCcw className="h-3 w-3" />
+            </Button>
+          </div>
+        </div>
+        <div className="space-y-2">
+          <p className="text-xs text-[hsl(var(--admin-text-muted))]">Re-trigger KYC</p>
+          <div className="flex gap-1.5">
+            <Input placeholder="User ID" value={kycId} onChange={(e) => setKycId(e.target.value)}
+              className="h-8 text-xs bg-[hsl(var(--admin-surface-elevated)/0.5)] border-[hsl(var(--admin-border)/0.4)] text-[hsl(var(--admin-text))]" />
+            <Button size="sm" variant="outline" className="h-8 text-xs shrink-0 border-[hsl(var(--admin-border)/0.4)] text-[hsl(var(--admin-text-muted))]" disabled={!kycId || retriggerKyc.isPending}
+              onClick={() => retriggerKyc.mutate(kycId, { onSuccess: () => setKycId("") })}>
+              <ShieldCheck className="h-3 w-3" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    </AdminGlassCard>
+  );
+}
+
 export default function ManageCommandCenter() {
   const { data, isLoading } = useManageCommandCenterV2();
   const navigate = useNavigate();
