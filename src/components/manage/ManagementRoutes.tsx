@@ -133,6 +133,11 @@ export function ManagementRoutes() {
           <Route path="surface-moderation" element={<ManageRoleGate allowedRoles={["admin"]}><ManageSurfaceModeration /></ManageRoleGate>} />
           <Route path="media" element={<ManageRoleGate allowedRoles={["admin"]}><ManageMedia /></ManageRoleGate>} />
           <Route path="notifications" element={<ManageRoleGate allowedRoles={["admin"]}><ManageNotifications /></ManageRoleGate>} />
+          <Route path="automation" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAutomation /></ManageRoleGate>} />
+          <Route path="search" element={<ManageRoleGate allowedRoles={["admin", "moderator", "support"]}><ManageSearch /></ManageRoleGate>} />
+          <Route path="agencies" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAgencies /></ManageRoleGate>} />
+          <Route path="smart-alerts" element={<ManageRoleGate allowedRoles={["admin"]}><ManageSmartAlerts /></ManageRoleGate>} />
+          <Route path="data-integrity" element={<ManageRoleGate allowedRoles={["admin"]}><ManageDataIntegrity /></ManageRoleGate>} />
           <Route path="settings" element={<ManageSettings />} />
           <Route path="audit-logs" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManageAuditLogs /></ManageRoleGate>} />
           <Route path="*" element={<ManageNotFound />} />
