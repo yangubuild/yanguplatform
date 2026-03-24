@@ -26,6 +26,11 @@ import {
   Radio,
   Eye,
   Mail,
+  Zap,
+  Search,
+  Building2,
+  Bell,
+  Database,
   type LucideIcon,
 } from "lucide-react";
 import { ManageRole } from "@/hooks/useRoles";
@@ -106,9 +111,20 @@ export const adminNavGroups: AdminNavGroup[] = [
   {
     label: "Operations",
     items: [
+      { title: "Automation", slug: "automation", icon: Zap, allowedRoles: ["admin"] },
+      { title: "Smart Alerts", slug: "smart-alerts", icon: Bell, allowedRoles: ["admin"] },
+      { title: "Global Search", slug: "search", icon: Search, allowedRoles: ["admin", "moderator"] },
       { title: "Integrations", slug: "integrations", icon: Puzzle, allowedRoles: ["admin"] },
       { title: "Research & Testing", slug: "research-testing", icon: FlaskConical, allowedRoles: ["admin", "analyst"] },
       { title: "Alerts & Security", slug: "alerts-security", icon: ShieldAlert, allowedRoles: ["admin"] },
+      { title: "Data Integrity", slug: "data-integrity", icon: Database, allowedRoles: ["admin"] },
+    decision: undefined,
+    ],
+  },
+  {
+    label: "Agency",
+    items: [
+      { title: "Agency Overview", slug: "agencies", icon: Building2, allowedRoles: ["admin"] },
     ],
   },
   {
