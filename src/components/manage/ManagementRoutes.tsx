@@ -48,6 +48,11 @@ const ManageSupportQueue = lazy(() => lazyRetry(() => import("@/pages/manage/Man
 const ManageSurfaceModeration = lazy(() => lazyRetry(() => import("@/pages/manage/ManageSurfaceModeration")));
 const ManageMedia = lazy(() => lazyRetry(() => import("@/pages/manage/ManageMedia")));
 const ManageNotifications = lazy(() => lazyRetry(() => import("@/pages/manage/ManageNotifications")));
+const ManageAutomation = lazy(() => lazyRetry(() => import("@/pages/manage/ManageAutomation")));
+const ManageSearch = lazy(() => lazyRetry(() => import("@/pages/manage/ManageSearch")));
+const ManageAgencies = lazy(() => lazyRetry(() => import("@/pages/manage/ManageAgencies")));
+const ManageSmartAlerts = lazy(() => lazyRetry(() => import("@/pages/manage/ManageSmartAlerts")));
+const ManageDataIntegrity = lazy(() => lazyRetry(() => import("@/pages/manage/ManageDataIntegrity")));
 
 // Agency pages
 const AgencyDashboard = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyDashboard")));
@@ -128,6 +133,11 @@ export function ManagementRoutes() {
           <Route path="surface-moderation" element={<ManageRoleGate allowedRoles={["admin"]}><ManageSurfaceModeration /></ManageRoleGate>} />
           <Route path="media" element={<ManageRoleGate allowedRoles={["admin"]}><ManageMedia /></ManageRoleGate>} />
           <Route path="notifications" element={<ManageRoleGate allowedRoles={["admin"]}><ManageNotifications /></ManageRoleGate>} />
+          <Route path="automation" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAutomation /></ManageRoleGate>} />
+          <Route path="search" element={<ManageRoleGate allowedRoles={["admin", "moderator", "support"]}><ManageSearch /></ManageRoleGate>} />
+          <Route path="agencies" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAgencies /></ManageRoleGate>} />
+          <Route path="smart-alerts" element={<ManageRoleGate allowedRoles={["admin"]}><ManageSmartAlerts /></ManageRoleGate>} />
+          <Route path="data-integrity" element={<ManageRoleGate allowedRoles={["admin"]}><ManageDataIntegrity /></ManageRoleGate>} />
           <Route path="settings" element={<ManageSettings />} />
           <Route path="audit-logs" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManageAuditLogs /></ManageRoleGate>} />
           <Route path="*" element={<ManageNotFound />} />

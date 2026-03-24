@@ -314,6 +314,80 @@ export type Database = {
         }
         Relationships: []
       }
+      agencies: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json | null
+          name: string
+          owner_user_id: string
+          region: string | null
+          slug: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          name: string
+          owner_user_id: string
+          region?: string | null
+          slug: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          name?: string
+          owner_user_id?: string
+          region?: string | null
+          slug?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      agency_members: {
+        Row: {
+          agency_id: string
+          id: string
+          joined_at: string
+          metadata: Json | null
+          role: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          agency_id: string
+          id?: string
+          joined_at?: string
+          metadata?: Json | null
+          role?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          agency_id?: string
+          id?: string
+          joined_at?: string
+          metadata?: Json | null
+          role?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agency_members_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agent_onboardings: {
         Row: {
           agent_id: string
@@ -842,6 +916,89 @@ export type Database = {
           old_data?: Json | null
           user_agent?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      automation_executions: {
+        Row: {
+          error: string | null
+          executed_at: string
+          id: string
+          result: Json | null
+          rule_id: string
+          status: string
+        }
+        Insert: {
+          error?: string | null
+          executed_at?: string
+          id?: string
+          result?: Json | null
+          rule_id: string
+          status?: string
+        }
+        Update: {
+          error?: string | null
+          executed_at?: string
+          id?: string
+          result?: Json | null
+          rule_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_executions_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "automation_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automation_rules: {
+        Row: {
+          action_config: Json
+          action_type: string
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          is_enabled: boolean
+          last_triggered_at: string | null
+          name: string
+          trigger_config: Json
+          trigger_count: number
+          trigger_type: string
+          updated_at: string
+        }
+        Insert: {
+          action_config?: Json
+          action_type: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          is_enabled?: boolean
+          last_triggered_at?: string | null
+          name: string
+          trigger_config?: Json
+          trigger_count?: number
+          trigger_type: string
+          updated_at?: string
+        }
+        Update: {
+          action_config?: Json
+          action_type?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          is_enabled?: boolean
+          last_triggered_at?: string | null
+          name?: string
+          trigger_config?: Json
+          trigger_count?: number
+          trigger_type?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1464,6 +1621,63 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      commissions: {
+        Row: {
+          agency_id: string
+          amount_cents: number
+          currency: string
+          id: string
+          member_user_id: string
+          paid_at: string | null
+          payout_id: string | null
+          phase: string
+          referral_id: string | null
+          status: string
+          triggered_at: string
+        }
+        Insert: {
+          agency_id: string
+          amount_cents?: number
+          currency?: string
+          id?: string
+          member_user_id: string
+          paid_at?: string | null
+          payout_id?: string | null
+          phase?: string
+          referral_id?: string | null
+          status?: string
+          triggered_at?: string
+        }
+        Update: {
+          agency_id?: string
+          amount_cents?: number
+          currency?: string
+          id?: string
+          member_user_id?: string
+          paid_at?: string | null
+          payout_id?: string | null
+          phase?: string
+          referral_id?: string | null
+          status?: string
+          triggered_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commissions_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commissions_referral_id_fkey"
+            columns: ["referral_id"]
+            isOneToOne: false
+            referencedRelation: "referrals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       community_listings: {
         Row: {
@@ -3604,6 +3818,8 @@ export type Database = {
           rejection_reason: string | null
           reviewed_at: string | null
           reviewed_by: string | null
+          source: string | null
+          source_agency_id: string | null
           status: Database["public"]["Enums"]["kyc_status"]
           submitted_at: string | null
           updated_at: string
@@ -3617,6 +3833,8 @@ export type Database = {
           rejection_reason?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          source?: string | null
+          source_agency_id?: string | null
           status?: Database["public"]["Enums"]["kyc_status"]
           submitted_at?: string | null
           updated_at?: string
@@ -3630,12 +3848,22 @@ export type Database = {
           rejection_reason?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          source?: string | null
+          source_agency_id?: string | null
           status?: Database["public"]["Enums"]["kyc_status"]
           submitted_at?: string | null
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "kyc_verifications_source_agency_id_fkey"
+            columns: ["source_agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       landing_banners: {
         Row: {
@@ -4247,6 +4475,53 @@ export type Database = {
           },
         ]
       }
+      payouts: {
+        Row: {
+          agency_id: string
+          created_at: string
+          currency: string
+          id: string
+          member_user_id: string
+          method: string | null
+          processed_at: string | null
+          reference: string | null
+          status: string
+          total_cents: number
+        }
+        Insert: {
+          agency_id: string
+          created_at?: string
+          currency?: string
+          id?: string
+          member_user_id: string
+          method?: string | null
+          processed_at?: string | null
+          reference?: string | null
+          status?: string
+          total_cents?: number
+        }
+        Update: {
+          agency_id?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          member_user_id?: string
+          method?: string | null
+          processed_at?: string | null
+          reference?: string | null
+          status?: string
+          total_cents?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payouts_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       platform_alerts: {
         Row: {
           alert_type: string
@@ -4398,6 +4673,7 @@ export type Database = {
       profiles: {
         Row: {
           account_status: string
+          agency_id: string | null
           avatar_emoji_key: string | null
           avatar_mode: string
           avatar_url: string | null
@@ -4418,6 +4694,7 @@ export type Database = {
           onboarding_completed_at: string | null
           onboarding_started_at: string | null
           onboarding_step: string | null
+          referred_by: string | null
           social_links: Json | null
           updated_at: string
           username: string | null
@@ -4426,6 +4703,7 @@ export type Database = {
         }
         Insert: {
           account_status?: string
+          agency_id?: string | null
           avatar_emoji_key?: string | null
           avatar_mode?: string
           avatar_url?: string | null
@@ -4446,6 +4724,7 @@ export type Database = {
           onboarding_completed_at?: string | null
           onboarding_started_at?: string | null
           onboarding_step?: string | null
+          referred_by?: string | null
           social_links?: Json | null
           updated_at?: string
           username?: string | null
@@ -4454,6 +4733,7 @@ export type Database = {
         }
         Update: {
           account_status?: string
+          agency_id?: string | null
           avatar_emoji_key?: string | null
           avatar_mode?: string
           avatar_url?: string | null
@@ -4474,13 +4754,22 @@ export type Database = {
           onboarding_completed_at?: string | null
           onboarding_started_at?: string | null
           onboarding_step?: string | null
+          referred_by?: string | null
           social_links?: Json | null
           updated_at?: string
           username?: string | null
           verified_tick?: string | null
           welcome_email_sent_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       promo_campaigns: {
         Row: {
@@ -4765,6 +5054,50 @@ export type Database = {
         }
         Relationships: []
       }
+      referrals: {
+        Row: {
+          agency_id: string | null
+          converted_at: string | null
+          created_at: string
+          id: string
+          metadata: Json | null
+          referred_by_user_id: string
+          referred_user_id: string
+          source: string
+          status: string
+        }
+        Insert: {
+          agency_id?: string | null
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          referred_by_user_id: string
+          referred_user_id: string
+          source?: string
+          status?: string
+        }
+        Update: {
+          agency_id?: string | null
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          referred_by_user_id?: string
+          referred_user_id?: string
+          source?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       searchable_entities: {
         Row: {
           avg_rating: number | null
@@ -4892,6 +5225,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      smart_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string
+          current_value: number | null
+          id: string
+          is_resolved: boolean
+          message: string
+          metric: string
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          threshold_value: number | null
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string
+          current_value?: number | null
+          id?: string
+          is_resolved?: boolean
+          message: string
+          metric: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          threshold_value?: number | null
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string
+          current_value?: number | null
+          id?: string
+          is_resolved?: boolean
+          message?: string
+          metric?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          threshold_value?: number | null
+        }
+        Relationships: []
       }
       studio_assets: {
         Row: {
@@ -6300,6 +6675,8 @@ export type Database = {
           reasons: string[]
         }[]
       }
+      get_agency_dashboard: { Args: { p_agency_id: string }; Returns: Json }
+      get_agency_members: { Args: { p_agency_id: string }; Returns: Json }
       get_anthropic_publications: {
         Args: { p_limit?: number; p_offset?: number }
         Returns: {
@@ -6316,6 +6693,10 @@ export type Database = {
       get_app_runtime_context: { Args: { p_app_id: string }; Returns: Json }
       get_builder_community_listings: {
         Args: { p_limit?: number; p_offset?: number }
+        Returns: Json
+      }
+      get_commissions: {
+        Args: { p_agency_id: string; p_user_id?: string }
         Returns: Json
       }
       get_community_section: {
@@ -6377,6 +6758,7 @@ export type Database = {
           visibility_tier: string
         }[]
       }
+      get_kyc_status: { Args: { p_user_id: string }; Returns: Json }
       get_my_active_promos: {
         Args: never
         Returns: {
@@ -6456,6 +6838,10 @@ export type Database = {
       }
       get_published_surface: {
         Args: { p_publish_id?: string; p_surface_id?: string }
+        Returns: Json
+      }
+      get_referrals: {
+        Args: { p_agency_id: string; p_user_id?: string }
         Returns: Json
       }
       get_related_entities: {
@@ -6570,6 +6956,7 @@ export type Database = {
       }
       is_username_available: { Args: { _username: string }; Returns: boolean }
       list_on_community: { Args: { p_surface_id: string }; Returns: Json }
+      manage_agencies_overview: { Args: never; Returns: Json }
       manage_ai_usage_stats: {
         Args: { p_days?: number; p_limit?: number }
         Returns: Json
@@ -6596,9 +6983,30 @@ export type Database = {
         }
         Returns: Json
       }
+      manage_automation_executions: {
+        Args: { p_limit?: number; p_rule_id: string }
+        Returns: Json
+      }
+      manage_automation_rules_list: { Args: never; Returns: Json }
       manage_command_center: { Args: never; Returns: Json }
       manage_command_center_v2: { Args: never; Returns: Json }
       manage_community_promotions: { Args: never; Returns: Json }
+      manage_create_automation_rule: {
+        Args: {
+          p_action_config: Json
+          p_action_type: string
+          p_description: string
+          p_name: string
+          p_trigger_config: Json
+          p_trigger_type: string
+        }
+        Returns: string
+      }
+      manage_data_integrity_check: { Args: never; Returns: Json }
+      manage_delete_automation_rule: {
+        Args: { p_rule_id: string }
+        Returns: undefined
+      }
       manage_delete_page: { Args: { p_page_id: string }; Returns: undefined }
       manage_delete_post: { Args: { p_post_id: string }; Returns: undefined }
       manage_delete_promo: { Args: { p_promo_id: string }; Returns: undefined }
@@ -6608,6 +7016,10 @@ export type Database = {
       manage_explore_surfaces_stats: { Args: never; Returns: Json }
       manage_explore_users_stats: { Args: never; Returns: Json }
       manage_get_user_detail: { Args: { p_user_id: string }; Returns: Json }
+      manage_global_search: {
+        Args: { p_limit?: number; p_query: string }
+        Returns: Json
+      }
       manage_incident_upsert: {
         Args: {
           p_affected_system?: string
@@ -6673,6 +7085,18 @@ export type Database = {
         Returns: Json
       }
       manage_platform_alerts: { Args: never; Returns: Json }
+      manage_quick_retrigger_kyc: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
+      manage_quick_retry_payment: {
+        Args: { p_subscription_id: string }
+        Returns: undefined
+      }
+      manage_quick_suspend_user: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
       manage_recent_audit_logs: {
         Args: { p_limit?: number; p_offset?: number }
         Returns: Json
@@ -6680,6 +7104,10 @@ export type Database = {
       manage_reset_theme: { Args: { p_surface_id: string }; Returns: undefined }
       manage_resolve_alert: {
         Args: { p_alert_id: string; p_resolve?: boolean }
+        Returns: undefined
+      }
+      manage_resolve_smart_alert: {
+        Args: { p_alert_id: string }
         Returns: undefined
       }
       manage_save_explore_order: {
@@ -6725,6 +7153,10 @@ export type Database = {
         }
         Returns: Json
       }
+      manage_smart_alerts_list: {
+        Args: { p_resolved?: boolean }
+        Returns: Json
+      }
       manage_subscription_action: {
         Args: { p_action: string; p_reason?: string; p_subscription_id: string }
         Returns: undefined
@@ -6747,6 +7179,10 @@ export type Database = {
       manage_surfaces_moderation: {
         Args: { p_filter?: string; p_search?: string }
         Returns: Json
+      }
+      manage_toggle_automation_rule: {
+        Args: { p_enabled: boolean; p_rule_id: string }
+        Returns: undefined
       }
       manage_toggle_feature_flag: {
         Args: { p_enabled: boolean; p_key: string }
@@ -7020,6 +7456,9 @@ export type Database = {
         | "agency_admin"
         | "agency_manager"
         | "foot_soldier"
+        | "support"
+        | "analyst"
+        | "moderator"
       app_visibility: "public" | "private" | "internal"
       builder_surface_type:
         | "live_bio"
@@ -7214,6 +7653,9 @@ export const Constants = {
         "agency_admin",
         "agency_manager",
         "foot_soldier",
+        "support",
+        "analyst",
+        "moderator",
       ],
       app_visibility: ["public", "private", "internal"],
       builder_surface_type: [
