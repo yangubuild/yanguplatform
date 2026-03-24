@@ -109,6 +109,7 @@ export default function KYC() {
   const [isLoading, setIsLoading] = useState(true);
   const [isStarting, setIsStarting] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [showGuidance, setShowGuidance] = useState(false);
   const hasSyncedCallback = useRef(false);
 
   const callbackSessionId = searchParams.get("verificationSessionId");
@@ -284,7 +285,7 @@ export default function KYC() {
     },
     pending_review: {
       label: "Pending Review",
-      description: "Your verification has been submitted and is under review. This usually takes a few minutes.",
+      description: "Your verification has been submitted and is under review. This can take 1–24 hours depending on the provider. This is not a rejection — please wait for the result before retrying.",
       badgeVariant: "secondary",
       icon: <Clock3 className="h-5 w-5 text-muted-foreground" />,
     },
