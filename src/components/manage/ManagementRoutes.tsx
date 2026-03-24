@@ -3,14 +3,16 @@ import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { ManagementGuard } from "./ManagementGuard";
 import { AdminShell } from "./AdminShell";
+import { AgencyShell } from "./AgencyShell";
 import { ManageRoleGate } from "./ManageRoleGate";
+import { AgencyGuard } from "./AgencyGuard";
 
+// Management pages
 const ManageDashboard = lazy(() => lazyRetry(() => import("@/pages/manage/ManageDashboard")));
 const ManageExploreDashboard = lazy(() => lazyRetry(() => import("@/pages/manage/ManageExploreDashboard")));
 const ManageAlertsSecurity = lazy(() => lazyRetry(() => import("@/pages/manage/ManageAlertsSecurity")));
 const ManageAnalytics = lazy(() => lazyRetry(() => import("@/pages/manage/ManageAnalytics")));
 const ManageUsers = lazy(() => lazyRetry(() => import("@/pages/manage/ManageUsers")));
-const ManagePlaceholder = lazy(() => lazyRetry(() => import("@/pages/manage/ManagePlaceholder")));
 const ManageAgents = lazy(() => lazyRetry(() => import("@/pages/manage/ManageAgents")));
 const ManageIntegrations = lazy(() => lazyRetry(() => import("@/pages/manage/ManageIntegrations")));
 const ManagePages = lazy(() => lazyRetry(() => import("@/pages/manage/ManagePages")));
@@ -39,16 +41,18 @@ const ManageBanners = lazy(() => lazyRetry(() => import("@/pages/manage/ManageBa
 const ManageReports = lazy(() => lazyRetry(() => import("@/pages/manage/ManageReports")));
 const ManageSupportQueue = lazy(() => lazyRetry(() => import("@/pages/manage/ManageSupportQueue")));
 
+// Agency pages
+const AgencyDashboard = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyDashboard")));
+const AgencyPlaceholder = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyPlaceholder")));
+
 // Auth — login only, no signup
 const Login = lazy(() => lazyRetry(() => import("@/pages/auth/Login")));
 const AuthCallback = lazy(() => lazyRetry(() => import("@/pages/auth/AuthCallback")));
 
 /**
- * Routes for the management subdomain (manage.yangu.studio).
- * Completely isolated runtime — no landing page, no domain gate, no platform routes.
- * Signup is disabled; login only.
- *
- * Route definitions mirror App.tsx /manage/* exactly to prevent drift.
+ * Routes for the manage.yangu.studio control plane.
+ * Two workspaces: /management/* and /agency/*
+ * Root "/" redirects by role (handled in ManagementGuard).
  */
 export function ManagementRoutes() {
   return (
@@ -57,13 +61,23 @@ export function ManagementRoutes() {
         {/* Auth routes — login only */}
         <Route path="/auth/login" element={<Login />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
-        {/* Block signup — redirect to login */}
         <Route path="/auth/signup" element={<Navigate to="/auth/login" replace />} />
         <Route path="/auth/*" element={<Navigate to="/auth/login" replace />} />
 
-        {/* Management panel */}
+        {/* Root — role-based redirect (ManagementGuard handles the redirect) */}
         <Route
           path="/"
+          element={
+            <ManagementGuard>
+              {/* If ManagementGuard doesn't redirect, show nothing — shouldn't happen */}
+              <Navigate to="/management" replace />
+            </ManagementGuard>
+          }
+        />
+
+        {/* ═══════════════ MANAGEMENT WORKSPACE ═══════════════ */}
+        <Route
+          path="/management"
           element={
             <ManagementGuard>
               <AdminShell />
@@ -73,7 +87,6 @@ export function ManagementRoutes() {
           <Route path="explore-dashboard" element={<ManageRoleGate allowedRoles={["admin"]}><ManageExploreDashboard /></ManageRoleGate>} />
           <Route path="ada" element={<ManageAda />} />
           <Route path="messages" element={<ManageMessages />} />
-          {/* Platform */}
           <Route path="users" element={<ManageUsers />} />
           <Route path="team" element={<ManageTeam />} />
           <Route path="pricing" element={<ManageRoleGate allowedRoles={["admin"]}><ManagePricing /></ManageRoleGate>} />
@@ -83,17 +96,13 @@ export function ManagementRoutes() {
           <Route path="community" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManageCommunity /></ManageRoleGate>} />
           <Route path="agents" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAgents /></ManageRoleGate>} />
           <Route path="domains" element={<ManageRoleGate allowedRoles={["admin"]}><ManageDomains /></ManageRoleGate>} />
-          {/* Analytics */}
           <Route path="analytics" element={<ManageRoleGate allowedRoles={["admin", "analyst"]}><ManageAnalytics /></ManageRoleGate>} />
-          {/* Content */}
           <Route path="content" element={<ManageRoleGate allowedRoles={["admin", "writer", "content_editor"]}><ManageContentHome /></ManageRoleGate>} />
           <Route path="content/blog" element={<ManageRoleGate allowedRoles={["admin", "writer", "content_editor"]}><ManageBlog /></ManageRoleGate>} />
           <Route path="content/news" element={<ManageRoleGate allowedRoles={["admin", "writer", "content_editor"]}><ManageNews /></ManageRoleGate>} />
           <Route path="content/events" element={<ManageRoleGate allowedRoles={["admin", "writer", "content_editor"]}><ManageEvents /></ManageRoleGate>} />
-          {/* Design & Pages */}
           <Route path="branding" element={<ManageRoleGate allowedRoles={["admin", "designer"]}><ManageBranding /></ManageRoleGate>} />
           <Route path="pages" element={<ManageRoleGate allowedRoles={["admin", "designer"]}><ManagePages /></ManageRoleGate>} />
-          {/* Operations */}
           <Route path="integrations" element={<ManageRoleGate allowedRoles={["admin"]}><ManageIntegrations /></ManageRoleGate>} />
           <Route path="research-testing" element={<ManageRoleGate allowedRoles={["admin", "analyst"]}><ManageResearchTesting /></ManageRoleGate>} />
           <Route path="alerts-security" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAlertsSecurity /></ManageRoleGate>} />
@@ -101,17 +110,36 @@ export function ManagementRoutes() {
           <Route path="entities" element={<ManageRoleGate allowedRoles={["admin"]}><ManageEntities /></ManageRoleGate>} />
           <Route path="reports" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManageReports /></ManageRoleGate>} />
           <Route path="support" element={<ManageRoleGate allowedRoles={["admin"]}><ManageSupportQueue /></ManageRoleGate>} />
-          {/* Analytics */}
           <Route path="explore-analytics" element={<ManageRoleGate allowedRoles={["admin", "analyst"]}><ManageExploreAnalytics /></ManageRoleGate>} />
-          {/* Design */}
           <Route path="banners" element={<ManageRoleGate allowedRoles={["admin", "content_editor"]}><ManageBanners /></ManageRoleGate>} />
-          {/* System */}
           <Route path="settings" element={<ManageSettings />} />
           <Route path="audit-logs" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManageAuditLogs /></ManageRoleGate>} />
           <Route path="*" element={<ManageNotFound />} />
         </Route>
 
-        {/* Catch-all — redirect to panel root */}
+        {/* ═══════════════ AGENCY WORKSPACE ═══════════════ */}
+        <Route
+          path="/agency"
+          element={
+            <ManagementGuard>
+              <AgencyGuard>
+                <AgencyShell />
+              </AgencyGuard>
+            </ManagementGuard>
+          }>
+          <Route index element={<AgencyDashboard />} />
+          <Route path="analytics" element={<AgencyPlaceholder />} />
+          <Route path="performance" element={<AgencyPlaceholder />} />
+          <Route path="members" element={<AgencyPlaceholder />} />
+          <Route path="onboarding" element={<AgencyPlaceholder />} />
+          <Route path="kyc" element={<AgencyGuard allowedRoles={["agency_admin"]}><AgencyPlaceholder /></AgencyGuard>} />
+          <Route path="commissions" element={<AgencyPlaceholder />} />
+          <Route path="pricing" element={<AgencyGuard allowedRoles={["agency_admin"]}><AgencyPlaceholder /></AgencyGuard>} />
+          <Route path="support" element={<AgencyGuard allowedRoles={["agency_admin", "agency_manager"]}><AgencyPlaceholder /></AgencyGuard>} />
+          <Route path="*" element={<AgencyPlaceholder />} />
+        </Route>
+
+        {/* Catch-all — redirect to role router */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>
