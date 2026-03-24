@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import {
-  UserPlus, BarChart3, DollarSign, ShieldCheck, HeadphonesIcon, TrendingUp, Users, CalendarDays,
+  UserPlus, BarChart3, DollarSign, ShieldCheck, HeadphonesIcon, TrendingUp, Users, CalendarDays, Wallet,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useRoles } from "@/hooks/useRoles";
 import { useAgencyContext } from "@/hooks/manage/useAgencyContext";
 import { useAgencyDashboard, useMyAgencyStats } from "@/hooks/manage/useAgencyDashboard";
@@ -25,7 +25,7 @@ export default function AgencyDashboard() {
     return (
       <div className="space-y-6">
         <Skeleton className="h-8 w-64" />
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-24" />)}
         </div>
       </div>
@@ -34,7 +34,7 @@ export default function AgencyDashboard() {
 
   if (!agencyId) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 gap-3 text-center">
+      <div className="flex flex-col items-center justify-center py-24 gap-3 text-center px-4">
         <h2 className="text-lg font-semibold text-foreground">No Agency Found</h2>
         <p className="text-sm text-muted-foreground max-w-xs">
           You are not assigned to any agency. Contact your administrator.
@@ -74,18 +74,19 @@ export default function AgencyDashboard() {
   const displayStats = isLeader ? leaderStats : soldierStats;
 
   const actionCards = [
-    { icon: Users, title: "Members", desc: "Manage foot soldiers", to: "/agency/members", visible: isLeader },
-    { icon: UserPlus, title: "Onboarding", desc: "Track referrals & KYC", to: "/agency/onboarding", visible: isLeader },
-    { icon: DollarSign, title: "Commissions", desc: "Earnings & payouts", to: "/agency/commissions", visible: true },
-    { icon: TrendingUp, title: "Performance", desc: "Targets & leaderboard", to: "/agency/performance", visible: true },
-    { icon: BarChart3, title: "Analytics", desc: "Funnels & retention", to: "/agency/analytics", visible: isLeader },
-    { icon: CalendarDays, title: "Hub Booking", desc: "Schedule hub time", to: "/agency/hub", visible: true },
-    { icon: ShieldCheck, title: "KYC Status", desc: "Verification overview", to: "/agency/kyc", visible: isLeader },
-    { icon: HeadphonesIcon, title: "Support", desc: "Tickets & escalation", to: "/agency/support", visible: isLeader },
+    { icon: Users, title: "Members", desc: "Manage foot soldiers", to: "/members", visible: isLeader },
+    { icon: UserPlus, title: "Onboarding", desc: "Track referrals & KYC", to: "/onboarding", visible: true },
+    { icon: DollarSign, title: "Commissions", desc: "Earnings & payouts", to: "/commissions", visible: true },
+    { icon: Wallet, title: "Payouts", desc: "Request disbursement", to: "/payouts", visible: true },
+    { icon: TrendingUp, title: "Performance", desc: "Targets & leaderboard", to: "/performance", visible: true },
+    { icon: BarChart3, title: "Analytics", desc: "Funnels & retention", to: "/analytics", visible: isLeader },
+    { icon: CalendarDays, title: "Hub Booking", desc: "Schedule hub time", to: "/hub", visible: true },
+    { icon: ShieldCheck, title: "KYC Status", desc: "Verification overview", to: "/kyc", visible: isLeader },
+    { icon: HeadphonesIcon, title: "Support", desc: "Tickets & escalation", to: "/support", visible: isLeader },
   ].filter((c) => c.visible);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <div>
         <h1 className="text-lg font-semibold text-[hsl(var(--admin-text))]">{agencyName} Dashboard</h1>
         <p className="text-sm text-[hsl(var(--admin-text-muted))] mt-1">
@@ -98,31 +99,31 @@ export default function AgencyDashboard() {
           {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-20 rounded-lg" />)}
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
           {displayStats.map((s) => (
             <Card key={s.label} className="border border-border bg-card">
-              <CardContent className="p-4">
-                <p className="text-[11px] text-muted-foreground uppercase tracking-wider">{s.label}</p>
-                <p className="text-2xl font-bold text-foreground mt-1">{s.value}</p>
+              <CardContent className="p-3 sm:p-4">
+                <p className="text-[10px] sm:text-[11px] text-muted-foreground uppercase tracking-wider truncate">{s.label}</p>
+                <p className="text-xl sm:text-2xl font-bold text-foreground mt-1">{s.value}</p>
               </CardContent>
             </Card>
           ))}
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
         {actionCards.map((card) => (
           <Card
             key={card.title}
-            className="cursor-pointer hover:shadow-md transition-shadow border border-border bg-card"
+            className="cursor-pointer hover:shadow-md transition-shadow border border-border bg-card active:scale-[0.98]"
             onClick={() => navigate(card.to)}>
-            <CardContent className="p-5 flex items-center gap-4">
+            <CardContent className="p-4 sm:p-5 flex items-center gap-3 sm:gap-4">
               <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-muted shrink-0">
                 <card.icon className="w-5 h-5 text-foreground" />
               </div>
               <div className="min-w-0">
                 <p className="font-semibold text-sm text-foreground">{card.title}</p>
-                <p className="text-xs text-muted-foreground">{card.desc}</p>
+                <p className="text-xs text-muted-foreground truncate">{card.desc}</p>
               </div>
             </CardContent>
           </Card>

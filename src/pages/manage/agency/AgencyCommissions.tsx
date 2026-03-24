@@ -1,10 +1,10 @@
 import { useState, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAgencyContext } from "@/hooks/manage/useAgencyContext";
-import { useAgencyCommissions, type Commission } from "@/hooks/manage/useAgencyCommissions";
+import { useAgencyCommissions } from "@/hooks/manage/useAgencyCommissions";
 import { useRoles } from "@/hooks/useRoles";
 import { useAuth } from "@/hooks/useAuth";
 import { HelpCircle } from "lucide-react";
@@ -20,11 +20,7 @@ export default function AgencyCommissions() {
   const { user } = useAuth();
   const { data: ctx, isLoading: ctxLoading } = useAgencyContext();
   const agencyId = ctx?.agency_id;
-  const { data: commissions, isLoading } = useAgencyCommissions(
-    agencyId,
-    isLeader ? undefined : user?.id
-  );
-
+  const { data: commissions, isLoading } = useAgencyCommissions(agencyId, isLeader ? undefined : user?.id);
   const [phaseFilter, setPhaseFilter] = useState("all");
 
   const filtered = useMemo(() => {
@@ -34,12 +30,7 @@ export default function AgencyCommissions() {
   }, [commissions, phaseFilter]);
 
   if (ctxLoading || isLoading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-8 w-48" />
-        {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20" />)}
-      </div>
-    );
+    return <div className="space-y-4"><Skeleton className="h-8 w-48" />{[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20" />)}</div>;
   }
 
   const phase1Total = commissions?.filter((c) => c.phase === "phase_1").reduce((s, c) => s + c.amount_cents, 0) ?? 0;
@@ -57,7 +48,7 @@ export default function AgencyCommissions() {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <button className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
+              <button className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors self-start sm:self-auto">
                 <HelpCircle className="w-4 h-4" /> Commission Rules
               </button>
             </TooltipTrigger>
@@ -71,7 +62,7 @@ export default function AgencyCommissions() {
         </TooltipProvider>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
         {[
           { label: "Phase 1 Earnings", value: fmt(phase1Total) },
           { label: "Phase 2 Recurring", value: fmt(phase2Total) },
@@ -79,28 +70,49 @@ export default function AgencyCommissions() {
           { label: "Pending Payout", value: fmt(totalPending) },
         ].map((s) => (
           <Card key={s.label} className="border border-border">
-            <CardContent className="p-4">
-              <p className="text-[11px] text-muted-foreground uppercase tracking-wider">{s.label}</p>
-              <p className="text-2xl font-bold text-foreground mt-1">{s.value}</p>
+            <CardContent className="p-3 sm:p-4">
+              <p className="text-[10px] sm:text-[11px] text-muted-foreground uppercase tracking-wider truncate">{s.label}</p>
+              <p className="text-xl sm:text-2xl font-bold text-foreground mt-1">{s.value}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <div className="flex gap-3">
-        <Select value={phaseFilter} onValueChange={setPhaseFilter}>
-          <SelectTrigger className="w-[160px]">
-            <SelectValue placeholder="Filter by phase" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Phases</SelectItem>
-            <SelectItem value="phase_1">Phase 1</SelectItem>
-            <SelectItem value="phase_2">Phase 2</SelectItem>
-          </SelectContent>
-        </Select>
+      <Select value={phaseFilter} onValueChange={setPhaseFilter}>
+        <SelectTrigger className="w-full sm:w-[160px]">
+          <SelectValue placeholder="Filter by phase" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Phases</SelectItem>
+          <SelectItem value="phase_1">Phase 1</SelectItem>
+          <SelectItem value="phase_2">Phase 2</SelectItem>
+        </SelectContent>
+      </Select>
+
+      {/* Mobile card view */}
+      <div className="block sm:hidden space-y-3">
+        {filtered.length === 0 ? (
+          <p className="text-center text-muted-foreground py-8">No commissions yet</p>
+        ) : (
+          filtered.map((c) => (
+            <Card key={c.id} className="border border-border">
+              <CardContent className="p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <Badge variant="outline" className="text-xs">{c.phase === "phase_1" ? "Phase 1 ($1)" : "Phase 2 ($4/mo)"}</Badge>
+                  <Badge variant={c.status === "paid" ? "default" : "secondary"} className="text-xs">{c.status}</Badge>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-bold text-foreground">{fmt(c.amount_cents)}</span>
+                  <span className="text-xs text-muted-foreground">{new Date(c.triggered_at).toLocaleDateString()}</span>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
 
-      <Card className="border border-border">
+      {/* Desktop table */}
+      <Card className="border border-border hidden sm:block">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-muted/50">
@@ -118,15 +130,9 @@ export default function AgencyCommissions() {
               ) : (
                 filtered.map((c) => (
                   <tr key={c.id} className="hover:bg-muted/30">
-                    <td className="px-4 py-3">
-                      <Badge variant="outline" className="text-xs">
-                        {c.phase === "phase_1" ? "Phase 1 ($1)" : "Phase 2 ($4/mo)"}
-                      </Badge>
-                    </td>
+                    <td className="px-4 py-3"><Badge variant="outline" className="text-xs">{c.phase === "phase_1" ? "Phase 1 ($1)" : "Phase 2 ($4/mo)"}</Badge></td>
                     <td className="px-4 py-3 font-medium text-foreground">{fmt(c.amount_cents)}</td>
-                    <td className="px-4 py-3">
-                      <Badge variant={c.status === "paid" ? "default" : "secondary"} className="text-xs">{c.status}</Badge>
-                    </td>
+                    <td className="px-4 py-3"><Badge variant={c.status === "paid" ? "default" : "secondary"} className="text-xs">{c.status}</Badge></td>
                     <td className="px-4 py-3 text-xs text-muted-foreground">{new Date(c.triggered_at).toLocaleDateString()}</td>
                     <td className="px-4 py-3 text-xs text-muted-foreground">{c.paid_at ? new Date(c.paid_at).toLocaleDateString() : "—"}</td>
                   </tr>
