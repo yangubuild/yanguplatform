@@ -19,6 +19,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useRoles } from "@/hooks/useRoles";
+import { UserMenu } from "./UserMenu";
 import { usePlatformAlerts, useCriticalAlertCount } from "@/hooks/manage/useManageDashboardData";
 import { useNavigate } from "react-router-dom";
 

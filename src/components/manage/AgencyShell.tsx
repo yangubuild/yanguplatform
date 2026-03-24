@@ -13,22 +13,7 @@ import { agencySectionLabels } from "./agencyNavConfig";
 import { useRoles } from "@/hooks/useRoles";
 import { UserMenu } from "./UserMenu";
 
-function AgencyRoleBadge() {
-  const { isAgencyAdmin, isAgencyManager, isFootSoldier, isAdmin } = useRoles();
-  let label = "Agent";
-  let Icon = Users;
-  if (isAdmin) { label = "Platform Admin"; Icon = Shield; }
-  else if (isAgencyAdmin) { label = "Agency Admin"; Icon = Building2; }
-  else if (isAgencyManager) { label = "Agency Manager"; Icon = Users; }
-  else if (isFootSoldier) { label = "Foot Soldier"; Icon = Users; }
-
-  return (
-    <Badge variant="outline" className="text-[10px] font-medium border-[hsl(var(--admin-border)/0.5)] text-[hsl(var(--admin-text-muted))] flex items-center gap-1">
-      <Icon className="h-3 w-3" />
-      {label}
-    </Badge>
-  );
-}
+// AgencyRoleBadge removed — UserMenu now handles role display
 
 export function AgencyShell() {
   const location = useLocation();
