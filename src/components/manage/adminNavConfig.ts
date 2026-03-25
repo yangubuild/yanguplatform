@@ -31,6 +31,13 @@ import {
   Building2,
   Bell,
   Database,
+  Activity,
+  Rocket,
+  Code2,
+  PaintBucket,
+  Share2,
+  FileBarChart,
+  UserCheck,
   type LucideIcon,
 } from "lucide-react";
 import { ManageRole } from "@/hooks/useRoles";
@@ -38,14 +45,10 @@ import { manageLink } from "@/lib/routing/managePathUtils";
 
 export interface AdminNavItem {
   title: string;
-  /** Panel-relative slug (e.g. "users", "content/blog"). Resolved at render via manageLink(). */
   slug: string;
   icon: LucideIcon;
-  /** If true, NavLink uses `end` matching */
   end?: boolean;
-  /** Roles that can see this item. Admin always sees everything. */
   allowedRoles: ManageRole[];
-  /** Nested children rendered as sub-items */
   children?: AdminNavItem[];
 }
 
@@ -68,29 +71,50 @@ export const adminNavGroups: AdminNavGroup[] = [
       { title: "Dashboard", slug: "", icon: LayoutDashboard, end: true, allowedRoles: ["admin"] },
       { title: "Explore Dashboard", slug: "explore-dashboard", icon: Layers, allowedRoles: ["admin"] },
       { title: "Analytics", slug: "analytics", icon: BarChart3, allowedRoles: ["admin", "analyst"] },
+      { title: "Launch Counter", slug: "launch-counter", icon: Rocket, allowedRoles: ["admin"] },
     ],
   },
   {
     label: "Platform",
     items: [
-      { title: "Users", slug: "users", icon: Users, allowedRoles: ["admin"] },
+      { title: "Users", slug: "users", icon: Users, allowedRoles: ["admin", "support_lead"] },
       { title: "KYC Control", slug: "kyc", icon: Shield, allowedRoles: ["admin"] },
-      { title: "Payments", slug: "payments", icon: CreditCard, allowedRoles: ["admin"] },
+      { title: "Payments", slug: "payments", icon: CreditCard, allowedRoles: ["admin", "finance_lead"] },
       { title: "AI Usage", slug: "ai-usage", icon: Image, allowedRoles: ["admin"] },
       { title: "Surface Moderation", slug: "surface-moderation", icon: Eye, allowedRoles: ["admin"] },
-      { title: "Incidents", slug: "incidents", icon: AlertTriangle, allowedRoles: ["admin"] },
+      { title: "Incidents", slug: "incidents", icon: AlertTriangle, allowedRoles: ["admin", "engineer"] },
       { title: "Media Control", slug: "media", icon: Image, allowedRoles: ["admin"] },
       { title: "Notifications", slug: "notifications", icon: Mail, allowedRoles: ["admin"] },
       { title: "Team & Invites", slug: "team", icon: UserPlus, allowedRoles: ["admin", "owner"] },
       { title: "Pricing & Subscriptions", slug: "pricing", icon: CreditCard, allowedRoles: ["admin"] },
-      { title: "Promos & Rewards", slug: "promos", icon: Megaphone, allowedRoles: ["admin"] },
+      { title: "Promos & Rewards", slug: "promos", icon: Megaphone, allowedRoles: ["admin", "sales_marketing"] },
       { title: "Navigation", slug: "navigation", icon: Layers, allowedRoles: ["admin"] },
       { title: "Community", slug: "community", icon: Megaphone, allowedRoles: ["admin", "moderator"] },
       { title: "Messages", slug: "messages", icon: MessageSquare, allowedRoles: ["admin", "content_editor"] },
-      { title: "Support Queue", slug: "support", icon: Headset, allowedRoles: ["admin"] },
+      { title: "Support Queue", slug: "support", icon: Headset, allowedRoles: ["admin", "support_lead"] },
       { title: "Surfaces", slug: "surfaces", icon: Layers, allowedRoles: ["admin"] },
       { title: "Agents", slug: "agents", icon: Bot, allowedRoles: ["admin"] },
       { title: "Domains", slug: "domains", icon: Globe, allowedRoles: ["admin"] },
+    ],
+  },
+  {
+    label: "Platform Health",
+    items: [
+      { title: "Health Monitor", slug: "platform-health", icon: Activity, allowedRoles: ["admin", "engineer"] },
+    ],
+  },
+  {
+    label: "Engineering",
+    items: [
+      { title: "Engineer Hub", slug: "engineer", icon: Code2, allowedRoles: ["admin", "engineer"] },
+    ],
+  },
+  {
+    label: "Design Studio",
+    items: [
+      { title: "Asset Manager", slug: "design-studio", icon: PaintBucket, allowedRoles: ["admin", "designer"] },
+      { title: "Branding", slug: "branding", icon: Palette, allowedRoles: ["admin", "designer"] },
+      { title: "Pages", slug: "pages", icon: FileStack, allowedRoles: ["admin", "designer"] },
     ],
   },
   {
@@ -102,10 +126,21 @@ export const adminNavGroups: AdminNavGroup[] = [
     ],
   },
   {
-    label: "Design & Pages",
+    label: "Sales & Marketing",
     items: [
-      { title: "Branding", slug: "branding", icon: Palette, allowedRoles: ["admin", "designer"] },
-      { title: "Pages", slug: "pages", icon: FileStack, allowedRoles: ["admin", "designer"] },
+      { title: "Campaigns & Outreach", slug: "sales-marketing", icon: Megaphone, allowedRoles: ["admin", "sales_marketing"] },
+    ],
+  },
+  {
+    label: "Digital Marketing",
+    items: [
+      { title: "Social & SEO", slug: "digital-marketing", icon: Share2, allowedRoles: ["admin", "social_digital"] },
+    ],
+  },
+  {
+    label: "Reporting",
+    items: [
+      { title: "Department Reports", slug: "department-reports", icon: FileBarChart, allowedRoles: ["admin"] },
     ],
   },
   {
@@ -124,6 +159,12 @@ export const adminNavGroups: AdminNavGroup[] = [
     label: "Agency",
     items: [
       { title: "Agency Overview", slug: "agencies", icon: Building2, allowedRoles: ["admin"] },
+    ],
+  },
+  {
+    label: "Team Management",
+    items: [
+      { title: "Management Team KYC", slug: "management-kyc", icon: UserCheck, allowedRoles: ["admin", "owner"] },
     ],
   },
   {
@@ -174,3 +215,11 @@ sectionLabels["search"] = "Global Search";
 sectionLabels["agencies"] = "Agency Overview";
 sectionLabels["smart-alerts"] = "Smart Alerts";
 sectionLabels["data-integrity"] = "Data Integrity";
+sectionLabels["platform-health"] = "Platform Health Monitor";
+sectionLabels["launch-counter"] = "Launch Counter";
+sectionLabels["engineer"] = "Engineer Hub";
+sectionLabels["design-studio"] = "Design Studio";
+sectionLabels["sales-marketing"] = "Sales & Marketing";
+sectionLabels["digital-marketing"] = "Digital Marketing";
+sectionLabels["department-reports"] = "Department Reports";
+sectionLabels["management-kyc"] = "Management Team KYC";
