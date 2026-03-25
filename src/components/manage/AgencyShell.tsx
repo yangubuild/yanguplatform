@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Outlet, useLocation, Link } from "react-router-dom";
 import { AgencySidebar } from "./AgencySidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -53,7 +54,9 @@ export function AgencyShell() {
             </div>
           </header>
           <main className="flex-1 p-4 sm:p-6 lg:p-8">
-            <Outlet />
+            <Suspense fallback={<div className="flex items-center justify-center py-24"><img src="/yangu-y-loader.png" alt="Loading" width={36} height={36} style={{ animation: "spin 1.4s linear infinite" }} /></div>}>
+              <Outlet />
+            </Suspense>
           </main>
         </div>
       </div>

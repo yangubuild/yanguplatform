@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Outlet, useLocation, Link } from "react-router-dom";
 import { getManageSlug, manageLink } from "@/lib/routing/managePathUtils";
 import { AdminSidebar } from "./AdminSidebar";
@@ -163,7 +164,9 @@ export function AdminShell() {
           </header>
           {/* Main Content Canvas */}
           <main className="flex-1 p-6 lg:p-8">
-            <Outlet />
+            <Suspense fallback={<div className="flex items-center justify-center py-24"><img src="/yangu-y-loader.png" alt="Loading" width={36} height={36} style={{ animation: "spin 1.4s linear infinite" }} /></div>}>
+              <Outlet />
+            </Suspense>
           </main>
         </div>
       </div>

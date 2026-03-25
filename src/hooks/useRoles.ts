@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { useAuth } from "@/hooks/useAuth";
@@ -41,6 +41,7 @@ export function useRoles(): RolesState {
   const [manageRoles, setManageRoles] = useState<ManageRole[]>([]);
   const [agencyRoles, setAgencyRoles] = useState<AgencyRole[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const hasFetchedOnce = useRef(false);
 
   const fetchRoles = useCallback(async () => {
     if (!user?.id) {
@@ -51,7 +52,10 @@ export function useRoles(): RolesState {
       return;
     }
 
-    setIsLoading(true);
+    // Only show loading state on initial fetch — subsequent refetches are silent
+    if (!hasFetchedOnce.current) {
+      setIsLoading(true);
+    }
 
     try {
       const { data, error } = await supabase
@@ -91,6 +95,7 @@ export function useRoles(): RolesState {
       setManageRoles([]);
       setAgencyRoles([]);
     } finally {
+      hasFetchedOnce.current = true;
       setIsLoading(false);
     }
   }, [user?.id]);

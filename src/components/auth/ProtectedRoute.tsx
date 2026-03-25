@@ -67,15 +67,15 @@ export function ProtectedRoute({ children, requireOnboarding = true }: Protected
     if (needsOnboarding) return <Navigate to="/onboarding" replace />;
     if (!profile?.username) return <Navigate to="/onboarding" replace />;
 
-    // Org check — only block here if org is still loading
-    if (orgLoading) {
+    // Org check — only block on initial load (no cached data yet)
+    if (orgLoading && !activeOrg) {
       return (
         <div className="min-h-screen flex items-center justify-center bg-background">
           <Loader2 className="h-8 w-8 animate-spin text-accent" />
         </div>
       );
     }
-    if (!activeOrg) return <Navigate to="/onboarding" replace />;
+    if (!orgLoading && !activeOrg) return <Navigate to="/onboarding" replace />;
 
     if (!(profile as any)?.country || !(profile as any)?.business_name) {
       return <Navigate to="/onboarding" replace />;

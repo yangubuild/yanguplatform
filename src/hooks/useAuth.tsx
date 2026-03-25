@@ -129,6 +129,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         }
 
+        // For TOKEN_REFRESHED, only update session ref — skip profile refetch
+        // and avoid creating new user/session object references that would
+        // cascade re-renders through guards and shells.
+        if (event === "TOKEN_REFRESHED") {
+          setSession(currentSession);
+          return;
+        }
+
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
 
