@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 type DbAppRole = Database["public"]["Enums"]["app_role"];
 
 export type AppRole = DbAppRole;
-export type ManageRole = AppRole | "writer" | "analyst" | "moderator" | "content_editor";
+export type ManageRole = AppRole | "writer" | "analyst" | "moderator" | "content_editor" | "engineer" | "sales_marketing" | "finance_lead" | "support_lead" | "social_digital";
 export type AgencyRole = "agency_admin" | "agency_manager" | "foot_soldier" | "finance_officer" | "creator" | "influencer";
 
 interface RolesState {
@@ -33,10 +33,10 @@ interface RolesState {
   refetch: () => Promise<void>;
 }
 
-const MANAGE_ROLES: ManageRole[] = ["admin", "owner", "manager", "writer", "designer", "analyst", "moderator", "content_editor"];
-const DB_MANAGE_ROLES: AppRole[] = ["admin", "owner", "manager", "designer"];
+const MANAGE_ROLES: ManageRole[] = ["admin", "owner", "manager", "writer", "designer", "analyst", "moderator", "content_editor", "engineer", "sales_marketing", "finance_lead", "support_lead", "social_digital"];
+const DB_MANAGE_ROLES: AppRole[] = ["admin", "owner", "manager", "designer", "engineer", "sales_marketing", "finance_lead", "support_lead", "social_digital"];
 const AGENCY_ROLE_KEYS: AgencyRole[] = ["agency_admin", "agency_manager", "foot_soldier", "finance_officer", "creator", "influencer"];
-const ALL_KNOWN_ROLES: string[] = ["admin", "user", "owner", "manager", "designer", "agency_admin", "agency_manager", "foot_soldier", "finance_officer", "creator", "influencer"];
+const ALL_KNOWN_ROLES: string[] = ["admin", "user", "owner", "manager", "designer", "engineer", "sales_marketing", "finance_lead", "support_lead", "social_digital", "agency_admin", "agency_manager", "foot_soldier", "finance_officer", "creator", "influencer"];
 
 export function useRoles(): RolesState {
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
