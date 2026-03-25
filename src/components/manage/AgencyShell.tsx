@@ -12,10 +12,10 @@ import {
 } from "@/components/ui/breadcrumb";
 import { agencySectionLabels } from "./agencyNavConfig";
 import { UserMenu } from "./UserMenu";
+import { AgencyNotificationBell } from "./AgencyNotificationBell";
 
 export function AgencyShell() {
   const location = useLocation();
-  // Root-level routes: strip leading slash to get segment
   const segments = location.pathname.split("/").filter(Boolean);
   const sectionTitle = agencySectionLabels[segments.join("/")] ?? agencySectionLabels[segments[0] ?? ""] ?? (segments[0] ? segments[0].charAt(0).toUpperCase() + segments[0].slice(1) : "Dashboard");
 
@@ -49,7 +49,8 @@ export function AgencyShell() {
                 </BreadcrumbList>
               </Breadcrumb>
             </div>
-            <div className="flex items-center gap-3 shrink-0">
+            <div className="flex items-center gap-2 shrink-0">
+              <AgencyNotificationBell />
               <UserMenu />
             </div>
           </header>
