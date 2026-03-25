@@ -8,6 +8,7 @@ import { AgencyGuard } from "@/components/manage/AgencyGuard";
 import { Loader2, ShieldX } from "lucide-react";
 
 // Agency pages
+const AgencyLanding = lazy(() => lazyRetry(() => import("@/pages/auth/AgencyLanding")));
 const AgencyDashboard = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyDashboard")));
 const AgencyOnboarding = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyOnboarding")));
 const AgencyMembersPage = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyMembersPage")));
