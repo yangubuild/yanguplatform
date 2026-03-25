@@ -9,17 +9,16 @@ import { Button } from "@/components/ui/button";
 import { Activity, Globe, AlertTriangle, CheckCircle2, Clock, RefreshCcw, Link2Off, Shield } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
-// The 9 YANGU domains
 const YANGU_DOMAINS = [
   { domain: "yangu.io", label: "Main Platform" },
   { domain: "yangu.shop", label: "Shop" },
   { domain: "yangu.store", label: "Store" },
   { domain: "yangu.site", label: "Sites" },
   { domain: "yangu.studio", label: "Studio" },
+  { domain: "yangu.live", label: "Live" },
+  { domain: "yangu.community", label: "Community" },
   { domain: "manage.yangu.studio", label: "Management" },
   { domain: "agency.yangu.studio", label: "Agency" },
-  { domain: "yangu.social", label: "Social" },
-  { domain: "yangu.app", label: "App" },
 ];
 
 interface HealthCheck {
@@ -61,7 +60,6 @@ function formatMs(ms: number | null) {
 export default function ManagePlatformHealth() {
   const { data: checks = [], isLoading, refetch } = useHealthChecks();
 
-  // Get latest check per domain
   const latestByDomain: Record<string, HealthCheck> = {};
   for (const c of checks) {
     if (!latestByDomain[c.domain]) latestByDomain[c.domain] = c;
@@ -82,6 +80,9 @@ export default function ManagePlatformHealth() {
   const healthy = domainStatuses.filter((d) => d.status === "healthy").length;
   const degraded = domainStatuses.filter((d) => d.status === "degraded").length;
   const down = domainStatuses.filter((d) => d.status === "down").length;
+
+  // Get most recent check timestamp
+  const lastCheckTime = checks.length > 0 ? new Date(checks[0].checked_at).toLocaleString() : "No checks yet";
 
   const columns: AdminColumn<(typeof domainStatuses)[0]>[] = [
     {
@@ -113,14 +114,14 @@ export default function ManagePlatformHealth() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="Platform Health Monitor" description="Real-time health status of all YANGU domains" />
+      <AdminPageHeader title="Platform Health Monitor" description="Real-time health status of all YANGU domains (auto-checks every 60s)" />
 
-      {/* Red alert banner */}
+      {/* Critical RED ALERT banner */}
       {down > 0 && (
-        <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 flex items-center gap-3">
-          <AlertTriangle className="h-5 w-5 text-red-500 animate-pulse shrink-0" />
+        <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 flex items-center gap-3 animate-pulse">
+          <AlertTriangle className="h-5 w-5 text-red-500 shrink-0" />
           <div>
-            <p className="text-sm font-semibold text-red-400">🚨 CRITICAL: {down} domain(s) DOWN</p>
+            <p className="text-sm font-semibold text-red-400">🚨 CRITICAL: {down} domain(s) DOWN — Incident auto-created</p>
             <p className="text-xs text-red-400/70">
               {domainStatuses.filter((d) => d.status === "down").map((d) => d.domain).join(", ")}
             </p>
@@ -128,11 +129,28 @@ export default function ManagePlatformHealth() {
         </div>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-4">
+      {/* Degraded warning banner */}
+      {degraded > 0 && down === 0 && (
+        <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/10 px-4 py-3 flex items-center gap-3">
+          <Clock className="h-5 w-5 text-yellow-500 shrink-0" />
+          <div>
+            <p className="text-sm font-semibold text-yellow-400">⚠️ WARNING: {degraded} domain(s) degraded (response &gt; 2s)</p>
+            <p className="text-xs text-yellow-400/70">
+              {domainStatuses.filter((d) => d.status === "degraded").map((d) => d.domain).join(", ")}
+            </p>
+          </div>
+        </div>
+      )}
+
+      <div className="grid gap-4 sm:grid-cols-5">
         <AdminMetricCard label="Total Domains" value={YANGU_DOMAINS.length} icon={<Globe className="h-4 w-4" />} />
         <AdminMetricCard label="Healthy" value={healthy} icon={<CheckCircle2 className="h-4 w-4" />} />
         <AdminMetricCard label="Degraded" value={degraded} icon={<Clock className="h-4 w-4" />} />
         <AdminMetricCard label="Down" value={down} icon={<AlertTriangle className="h-4 w-4" />} />
+        <div className="rounded-lg border border-[hsl(var(--admin-border)/0.3)] bg-[hsl(var(--admin-card)/0.5)] p-3">
+          <p className="text-xs text-muted-foreground">Last Check</p>
+          <p className="text-sm font-mono text-foreground mt-1">{lastCheckTime}</p>
+        </div>
       </div>
 
       <Tabs defaultValue="status">
@@ -201,7 +219,7 @@ export default function ManagePlatformHealth() {
             </div>
             <div className="space-y-3">
               {[
-                { trigger: "Domain down > 3 minutes", severity: "critical", active: true },
+                { trigger: "Domain down > 3 consecutive checks → auto-incident", severity: "critical", active: true },
                 { trigger: "Fraud spike > 2%", severity: "critical", active: true },
                 { trigger: "Payment failure > 5%", severity: "high", active: true },
                 { trigger: "Error rate > 10% (any service)", severity: "high", active: true },

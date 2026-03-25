@@ -1,16 +1,22 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminGlassCard, AdminMetricCard, AdminPageHeader } from "@/components/manage/AdminGlassCard";
 import { AdminTable, type AdminColumn } from "@/components/manage/AdminTable";
 import { AdminStatusBadge } from "@/components/manage/AdminStatusBadge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
+  Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
+} from "@/components/ui/sheet";
+import {
   Megaphone, Mail, Users, Calendar, FileCheck, Building2,
-  Send, CheckCircle2, Clock, UserPlus, BarChart3,
+  Send, CheckCircle2, Clock, UserPlus, BarChart3, Loader2, TestTube,
 } from "lucide-react";
+import { toast } from "sonner";
 
 function useAgencyOnboarding() {
   return useQuery({
@@ -57,13 +63,60 @@ function useApprovalRequests() {
 }
 
 export default function ManageSalesMarketing() {
+  const queryClient = useQueryClient();
   const { data: agencies = [], isLoading: agLoading } = useAgencyOnboarding();
   const { data: triggers = [], isLoading: trLoading } = useEmailTriggers();
   const { data: approvals = [], isLoading: apLoading } = useApprovalRequests();
 
+  const [showTestSend, setShowTestSend] = useState(false);
+  const [selectedTrigger, setSelectedTrigger] = useState<any>(null);
+  const [testEmail, setTestEmail] = useState("");
+  const [testSubject, setTestSubject] = useState("");
+  const [testHtml, setTestHtml] = useState("");
+
   const pendingAgencies = agencies.filter((a: any) => a.status === "pending");
   const activeAgencies = agencies.filter((a: any) => a.status === "active");
   const pendingApprovals = approvals.filter((a: any) => a.status === "pending");
+
+  const totalSent = triggers.reduce((sum: number, t: any) => sum + (t.sent_count || 0), 0);
+  const totalOpens = triggers.reduce((sum: number, t: any) => sum + (t.open_count || 0), 0);
+  const totalClicks = triggers.reduce((sum: number, t: any) => sum + (t.click_count || 0), 0);
+
+  const testSendMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke("send-email-campaign", {
+        body: {
+          test_email: testEmail,
+          subject: testSubject || "Test Campaign Email",
+          html_content: testHtml || "<p>This is a test email from YANGU Management.</p>",
+          trigger_id: selectedTrigger?.id,
+        },
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      toast.success(`Test email sent to ${testEmail}`);
+      setShowTestSend(false);
+      setTestEmail("");
+    },
+    onError: (e) => toast.error(`Test send failed: ${e.message}`),
+  });
+
+  const sendCampaignMutation = useMutation({
+    mutationFn: async (triggerId: string) => {
+      const { data, error } = await supabase.functions.invoke("send-email-campaign", {
+        body: { trigger_id: triggerId },
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      toast.success(`Campaign sent: ${data?.sent_count || 0} emails delivered`);
+      queryClient.invalidateQueries({ queryKey: ["manage", "email-triggers"] });
+    },
+    onError: (e) => toast.error(`Campaign failed: ${e.message}`),
+  });
 
   return (
     <div className="space-y-6">
@@ -71,9 +124,9 @@ export default function ManageSalesMarketing() {
 
       <div className="grid gap-4 sm:grid-cols-4">
         <AdminMetricCard label="Active Agencies" value={activeAgencies.length} icon={<Building2 className="h-4 w-4" />} />
-        <AdminMetricCard label="Pending Applications" value={pendingAgencies.length} icon={<Clock className="h-4 w-4" />} />
-        <AdminMetricCard label="Email Triggers" value={triggers.length} icon={<Mail className="h-4 w-4" />} />
-        <AdminMetricCard label="Pending Approvals" value={pendingApprovals.length} icon={<FileCheck className="h-4 w-4" />} />
+        <AdminMetricCard label="Total Emails Sent" value={totalSent} icon={<Mail className="h-4 w-4" />} />
+        <AdminMetricCard label="Total Opens" value={totalOpens} icon={<BarChart3 className="h-4 w-4" />} />
+        <AdminMetricCard label="Total Clicks" value={totalClicks} icon={<Megaphone className="h-4 w-4" />} />
       </div>
 
       <Tabs defaultValue="campaigns">
@@ -88,7 +141,16 @@ export default function ManageSalesMarketing() {
           <AdminGlassCard>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-semibold text-[hsl(var(--admin-text))]">Email Campaign Triggers</h3>
-              <Button size="sm"><Send className="h-4 w-4 mr-2" /> Create Campaign</Button>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => { setSelectedTrigger(null); setShowTestSend(true); }}
+                >
+                  <TestTube className="h-4 w-4 mr-2" /> Test Send
+                </Button>
+                <Button size="sm"><Send className="h-4 w-4 mr-2" /> Create Campaign</Button>
+              </div>
             </div>
             {triggers.length === 0 ? (
               <div className="py-8 text-center text-muted-foreground text-sm">
@@ -102,8 +164,43 @@ export default function ManageSalesMarketing() {
                   { key: "trigger_name", header: "Campaign", render: (r: any) => <span className="text-sm font-medium text-foreground">{r.trigger_name}</span> },
                   { key: "trigger_event", header: "Trigger", render: (r: any) => <Badge variant="outline" className="text-xs">{r.trigger_event}</Badge> },
                   { key: "is_active", header: "Status", render: (r: any) => <AdminStatusBadge status={r.is_active ? "active" : "inactive"} /> },
-                  { key: "fire_count", header: "Sent", render: (r: any) => <span className="text-xs font-mono">{r.fire_count}</span> },
-                  { key: "last_fired_at", header: "Last Fired", render: (r: any) => <span className="text-xs text-muted-foreground">{r.last_fired_at ? new Date(r.last_fired_at).toLocaleString() : "Never"}</span> },
+                  { key: "sent_count", header: "Sent", render: (r: any) => <span className="text-xs font-mono">{r.sent_count || 0}</span> },
+                  { key: "open_count", header: "Opens", render: (r: any) => <span className="text-xs font-mono">{r.open_count || 0}</span> },
+                  { key: "click_count", header: "Clicks", render: (r: any) => <span className="text-xs font-mono">{r.click_count || 0}</span> },
+                  { key: "last_sent_at", header: "Last Sent", render: (r: any) => <span className="text-xs text-muted-foreground">{r.last_sent_at ? new Date(r.last_sent_at).toLocaleString() : "Never"}</span> },
+                  {
+                    key: "actions",
+                    header: "",
+                    render: (r: any) => (
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => { setSelectedTrigger(r); setShowTestSend(true); }}
+                          title="Test Send"
+                        >
+                          <TestTube className="h-4 w-4 text-blue-500" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            if (confirm(`Send campaign "${r.trigger_name}" to all matching users?`)) {
+                              sendCampaignMutation.mutate(r.id);
+                            }
+                          }}
+                          disabled={sendCampaignMutation.isPending}
+                          title="Send Campaign"
+                        >
+                          {sendCampaignMutation.isPending ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Send className="h-4 w-4 text-emerald-500" />
+                          )}
+                        </Button>
+                      </div>
+                    ),
+                  },
                 ]}
                 data={triggers}
                 loading={trLoading}
@@ -178,6 +275,59 @@ export default function ManageSalesMarketing() {
           </AdminGlassCard>
         </TabsContent>
       </Tabs>
+
+      {/* Test Send Sheet */}
+      <Sheet open={showTestSend} onOpenChange={setShowTestSend}>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>Test Email Send</SheetTitle>
+            <SheetDescription>
+              {selectedTrigger
+                ? `Send a test of "${selectedTrigger.trigger_name}" to a single email`
+                : "Send a test email via Resend"}
+            </SheetDescription>
+          </SheetHeader>
+          <div className="space-y-4 mt-4">
+            <div>
+              <label className="text-sm font-medium mb-1 block">Recipient Email</label>
+              <Input
+                type="email"
+                value={testEmail}
+                onChange={(e) => setTestEmail(e.target.value)}
+                placeholder="your@email.com"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Subject</label>
+              <Input
+                value={testSubject}
+                onChange={(e) => setTestSubject(e.target.value)}
+                placeholder={selectedTrigger?.trigger_name || "Test Campaign Email"}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">HTML Content</label>
+              <Textarea
+                value={testHtml}
+                onChange={(e) => setTestHtml(e.target.value)}
+                placeholder={selectedTrigger?.template_content || "<p>Hello from YANGU Management</p>"}
+                rows={6}
+              />
+            </div>
+            <Button
+              onClick={() => testSendMutation.mutate()}
+              disabled={!testEmail || testSendMutation.isPending}
+              className="w-full"
+            >
+              {testSendMutation.isPending ? (
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Sending...</>
+              ) : (
+                <><TestTube className="h-4 w-4 mr-2" /> Send Test Email</>
+              )}
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
