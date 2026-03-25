@@ -795,6 +795,45 @@ export type Database = {
         }
         Relationships: []
       }
+      announcements: {
+        Row: {
+          content: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          scheduled_for: string | null
+          status: string | null
+          target_platforms: string[] | null
+          target_roles: string[] | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          scheduled_for?: string | null
+          status?: string | null
+          target_platforms?: string[] | null
+          target_roles?: string[] | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          scheduled_for?: string | null
+          status?: string | null
+          target_platforms?: string[] | null
+          target_roles?: string[] | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       app_categories: {
         Row: {
           created_at: string
@@ -1105,6 +1144,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      approval_requests: {
+        Row: {
+          approved_by: string[] | null
+          created_at: string | null
+          details: Json | null
+          id: string
+          rejected_by: string | null
+          rejection_reason: string | null
+          request_type: string
+          requester_id: string
+          status: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          approved_by?: string[] | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          rejected_by?: string | null
+          rejection_reason?: string | null
+          request_type: string
+          requester_id: string
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          approved_by?: string[] | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          rejected_by?: string | null
+          rejection_reason?: string | null
+          request_type?: string
+          requester_id?: string
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       audit_logs: {
         Row: {
@@ -2250,6 +2331,42 @@ export type Database = {
         }
         Relationships: []
       }
+      department_reports: {
+        Row: {
+          blockers: string[] | null
+          created_at: string | null
+          created_by: string | null
+          data: Json | null
+          department: string
+          highlights: string[] | null
+          id: string
+          report_date: string
+          summary: string | null
+        }
+        Insert: {
+          blockers?: string[] | null
+          created_at?: string | null
+          created_by?: string | null
+          data?: Json | null
+          department: string
+          highlights?: string[] | null
+          id?: string
+          report_date: string
+          summary?: string | null
+        }
+        Update: {
+          blockers?: string[] | null
+          created_at?: string | null
+          created_by?: string | null
+          data?: Json | null
+          department?: string
+          highlights?: string[] | null
+          id?: string
+          report_date?: string
+          summary?: string | null
+        }
+        Relationships: []
+      }
       developer_api_quota_config: {
         Row: {
           daily_limit: number
@@ -3118,6 +3235,36 @@ export type Database = {
           },
         ]
       }
+      domain_health_checks: {
+        Row: {
+          checked_at: string | null
+          domain: string
+          error_message: string | null
+          error_rate: number | null
+          id: string
+          response_time_ms: number | null
+          status: string
+        }
+        Insert: {
+          checked_at?: string | null
+          domain: string
+          error_message?: string | null
+          error_rate?: number | null
+          id?: string
+          response_time_ms?: number | null
+          status?: string
+        }
+        Update: {
+          checked_at?: string | null
+          domain?: string
+          error_message?: string | null
+          error_rate?: number | null
+          id?: string
+          response_time_ms?: number | null
+          status?: string
+        }
+        Relationships: []
+      }
       domains: {
         Row: {
           created_at: string | null
@@ -3664,6 +3811,48 @@ export type Database = {
           send_delay_ms?: number
           transactional_email_ttl_minutes?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      email_triggers: {
+        Row: {
+          conditions: Json | null
+          created_at: string | null
+          fire_count: number | null
+          id: string
+          is_active: boolean | null
+          last_fired_at: string | null
+          template_content: string | null
+          template_id: string | null
+          trigger_event: string
+          trigger_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          conditions?: Json | null
+          created_at?: string | null
+          fire_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_fired_at?: string | null
+          template_content?: string | null
+          template_id?: string | null
+          trigger_event: string
+          trigger_name?: string
+          updated_at?: string | null
+        }
+        Update: {
+          conditions?: Json | null
+          created_at?: string | null
+          fire_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_fired_at?: string | null
+          template_content?: string | null
+          template_id?: string | null
+          trigger_event?: string
+          trigger_name?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -4919,6 +5108,96 @@ export type Database = {
           starts_at?: string
           status?: string
           text?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      management_assets: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          asset_type: string
+          created_at: string | null
+          description: string | null
+          file_url: string
+          id: string
+          rejected_reason: string | null
+          status: string | null
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          asset_type?: string
+          created_at?: string | null
+          description?: string | null
+          file_url: string
+          id?: string
+          rejected_reason?: string | null
+          status?: string | null
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          asset_type?: string
+          created_at?: string | null
+          description?: string | null
+          file_url?: string
+          id?: string
+          rejected_reason?: string | null
+          status?: string | null
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title?: string
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
+      management_team_members: {
+        Row: {
+          created_at: string | null
+          department: string | null
+          email: string
+          id: string
+          invited_by: string | null
+          is_active: boolean | null
+          kyc_data: Json | null
+          kyc_status: string | null
+          role: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          department?: string | null
+          email: string
+          id?: string
+          invited_by?: string | null
+          is_active?: boolean | null
+          kyc_data?: Json | null
+          kyc_status?: string | null
+          role: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          department?: string | null
+          email?: string
+          id?: string
+          invited_by?: string | null
+          is_active?: boolean | null
+          kyc_data?: Json | null
+          kyc_status?: string | null
+          role?: string
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -8642,6 +8921,11 @@ export type Database = {
         | "finance_officer"
         | "creator"
         | "influencer"
+        | "engineer"
+        | "sales_marketing"
+        | "finance_lead"
+        | "support_lead"
+        | "social_digital"
       app_visibility: "public" | "private" | "internal"
       builder_surface_type:
         | "live_bio"
@@ -8842,6 +9126,11 @@ export const Constants = {
         "finance_officer",
         "creator",
         "influencer",
+        "engineer",
+        "sales_marketing",
+        "finance_lead",
+        "support_lead",
+        "social_digital",
       ],
       app_visibility: ["public", "private", "internal"],
       builder_surface_type: [
