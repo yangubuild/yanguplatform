@@ -8,6 +8,7 @@ import { AgencyGuard } from "@/components/manage/AgencyGuard";
 import { Loader2, ShieldX } from "lucide-react";
 
 // Agency pages
+const AgencyLanding = lazy(() => lazyRetry(() => import("@/pages/auth/AgencyLanding")));
 const AgencyDashboard = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyDashboard")));
 const AgencyOnboarding = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyOnboarding")));
 const AgencyMembersPage = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyMembersPage")));
@@ -36,7 +37,7 @@ function AgencyAuthGuard({ children }: { children: React.ReactNode }) {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/auth/login" state={{ from: location }} replace />;
+    return <Navigate to="/welcome" state={{ from: location }} replace />;
   }
 
   if (!hasAnyAgencyRole) {
@@ -59,6 +60,9 @@ export function AgencyRoutes() {
   return (
     <Suspense fallback={<div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}><img src="/yangu-y-loader.png" alt="Loading" width={40} height={40} style={{ animation: "spin 1.4s linear infinite" }} /></div>}>
       <Routes>
+        {/* Public landing */}
+        <Route path="/welcome" element={<AgencyLanding />} />
+
         {/* Auth */}
         <Route path="/auth/login" element={<AgencyLogin />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
@@ -91,7 +95,7 @@ export function AgencyRoutes() {
         <Route path="/agency/*" element={<Navigate to="/" replace />} />
 
         {/* Catch-all → login */}
-        <Route path="*" element={<Navigate to="/auth/login" replace />} />
+        <Route path="*" element={<Navigate to="/welcome" replace />} />
       </Routes>
     </Suspense>
   );
