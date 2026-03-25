@@ -10,6 +10,7 @@ import { Building2, Settings2, Shield, DollarSign, Save, Loader2 } from "lucide-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { SocialLinksSection } from "@/components/manage/SocialLinksSection";
+import { ContractSection } from "@/components/manage/ContractSection";
 
 const ROLE_ACCESS = [
   { role: "Agency Principal", db: "agency_admin", access: "Full access — team, finance, branding, settings, reports" },
