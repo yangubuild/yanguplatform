@@ -21,7 +21,7 @@ interface AdminRouteProps {
  * Redirects unauthenticated users to /auth/login?returnTo=/manage...
  */
 export function AdminRoute({ children }: AdminRouteProps) {
-  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const { hasAnyManageRole, isContentEditor, isAdmin, isLoading: rolesLoading } = useRoles();
   const location = useLocation();
 

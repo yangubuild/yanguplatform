@@ -15,7 +15,7 @@ interface ManagementGuardProps {
 }
 
 export function ManagementGuard({ children }: ManagementGuardProps) {
-  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const {
     hasAnyManageRole,
     hasAnyAgencyRole,
