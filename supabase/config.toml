@@ -72,3 +72,13 @@ project_id = "xcipuyvcwfytlsjryhvs"
     verify_jwt = false
   [functions.visionaire-llm]
     verify_jwt = false
+  [functions.check-domain-health]
+    verify_jwt = false
+  [functions.send-email-campaign]
+    verify_jwt = false
+  [functions.email-webhook]
+    verify_jwt = false
+  [functions.management-kyc-session]
+    verify_jwt = false
+  [functions.management-kyc-webhook]
+    verify_jwt = false
