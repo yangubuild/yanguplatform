@@ -102,7 +102,7 @@ export default function ProductsTab({
   }, [results, selectedCategory, selectedCountry]);
 
   return (
-    <div className="flex min-h-0">
+    <div className="flex min-h-0 min-w-0">
       <aside className="w-52 shrink-0 border-r border-border/40 p-4 space-y-5 hidden lg:block">
         <div>
           <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Category</h4>
@@ -169,7 +169,7 @@ export default function ProductsTab({
         </div>
       </aside>
 
-      <div className="flex-1 p-5">
+      <div className="flex-1 min-w-0 px-4 py-4 sm:p-5">
         {import.meta.env.DEV && (
           <div className="mb-2 text-[11px] text-muted-foreground">
             CJ: {providerCounts.cj} · ModernDropship: {providerCounts.moderndropship} · AliExpress: {providerCounts.aliexpress} · YANGU Estores: {providerCounts.estores}
@@ -183,7 +183,7 @@ export default function ProductsTab({
         )}
 
         {!hasConnectedProvider && results.length === 0 && !searching ? (
-          <div className="max-w-lg mx-auto py-16 text-center space-y-6">
+            <div className="max-w-lg mx-auto py-12 sm:py-16 text-center space-y-6">
             <div className="w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto">
               <Plug className="w-8 h-8 text-accent" />
             </div>
@@ -193,17 +193,17 @@ export default function ProductsTab({
                 Connect CJ Dropshipping or ModernDropship to browse and import products into your store.
               </p>
             </div>
-            <div className="flex justify-center gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
               <Button
                 onClick={onGoToManufacturers}
-                className="bg-accent text-accent-foreground hover:bg-accent/90 gap-1.5">
+                className="w-full sm:w-auto bg-accent text-accent-foreground hover:bg-accent/90 gap-1.5">
                 <Plug className="w-4 h-4" />
                 Connect a Supplier
               </Button>
             </div>
           </div>
         ) : searching ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="rounded-lg border border-border bg-card animate-pulse">
                 <div className="aspect-square bg-muted rounded-t-lg" />
@@ -237,7 +237,7 @@ export default function ProductsTab({
                 </button>
               </div>
             )}
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
               {filteredResults.map((item) => (
                 <ProductCard
                   key={`${item.provider_key || "unknown"}:${item.external_product_id}`}
@@ -254,7 +254,7 @@ export default function ProductsTab({
             <button onClick={() => { setSelectedCategory(null); setSelectedCountry(null); }} className="text-sm text-accent hover:underline mt-2">Clear all filters</button>
           </div>
         ) : hasAttemptedProviderLoad && selectedProviderKey ? (
-          <div className="max-w-xl mx-auto py-14 text-center space-y-4">
+          <div className="max-w-xl mx-auto py-12 sm:py-14 text-center space-y-4 px-1">
             <Search className="w-10 h-10 text-muted-foreground/40 mx-auto" />
             {(() => {
               const w = providerWarnings.join(" ");
@@ -278,7 +278,7 @@ export default function ProductsTab({
                       <p className="text-sm text-foreground font-medium">{providerLabel} API key unauthorized or insufficient permissions.</p>
                       <p className="text-xs text-muted-foreground mt-1">Check that your API key is valid and has the correct permissions.</p>
                     </div>
-                    <Button onClick={onGoToManufacturers} variant="outline" className="gap-1.5">
+                    <Button onClick={onGoToManufacturers} variant="outline" className="w-full sm:w-auto gap-1.5">
                       <Plug className="w-4 h-4" />
                       Check connection / API key
                     </Button>
@@ -294,7 +294,7 @@ export default function ProductsTab({
                       <p className="text-xs text-muted-foreground mt-1">Too many requests. Wait a few seconds and try again.</p>
                     </div>
                     {onRefreshProvider && (
-                      <Button onClick={onRefreshProvider} variant="outline" className="gap-1.5">
+                        <Button onClick={onRefreshProvider} variant="outline" className="w-full sm:w-auto gap-1.5">
                         <RefreshCw className="w-4 h-4" />
                         Retry
                       </Button>
@@ -310,9 +310,9 @@ export default function ProductsTab({
                       <p className="text-sm text-foreground font-medium">No ModernDropship products available for this account.</p>
                       <p className="text-xs text-muted-foreground mt-1">Your Modern buyer account has 0 assigned products. Add/share products in ModernDropship, then refresh.</p>
                     </div>
-                    <div className="flex justify-center gap-2">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
                       {onRefreshProvider && (
-                        <Button onClick={onRefreshProvider} variant="outline" className="gap-1.5">
+                        <Button onClick={onRefreshProvider} variant="outline" className="w-full sm:w-auto gap-1.5">
                           <RefreshCw className="w-4 h-4" />
                           Refresh
                         </Button>
@@ -347,7 +347,7 @@ export default function ProductsTab({
                       <Button
                         onClick={onConnectAliExpress}
                         disabled={aliexpressConnecting}
-                        className="bg-accent text-accent-foreground hover:bg-accent/90 gap-1.5">
+                        className="w-full sm:w-auto bg-accent text-accent-foreground hover:bg-accent/90 gap-1.5">
                         <ExternalLink className="w-4 h-4" />
                         {aliexpressConnecting ? "Connecting…" : "Connect AliExpress Account"}
                       </Button>
@@ -361,9 +361,9 @@ export default function ProductsTab({
                       <p className="text-sm text-foreground font-medium">No AliExpress products found for this query.</p>
                       <p className="text-xs text-muted-foreground mt-1">Try a different search term or check back later.</p>
                     </div>
-                    <div className="flex justify-center gap-2">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
                       {onRefreshProvider && (
-                        <Button onClick={onRefreshProvider} variant="outline" className="gap-1.5">
+                        <Button onClick={onRefreshProvider} variant="outline" className="w-full sm:w-auto gap-1.5">
                           <RefreshCw className="w-4 h-4" />
                           Refresh
                         </Button>
@@ -382,7 +382,7 @@ export default function ProductsTab({
             })()}
           </div>
         ) : (
-          <div className="max-w-xl mx-auto py-12">
+          <div className="max-w-xl mx-auto py-12 px-1">
             <div className="text-center mb-8">
               <Search className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
               <p className="text-sm text-muted-foreground">Search for products to get started</p>

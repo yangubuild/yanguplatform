@@ -35,7 +35,7 @@ export default function ProductCard({ item, formatPrice, onClick }: Props) {
   return (
     <button
       onClick={onClick}
-      className="text-left rounded-lg border border-border bg-card hover:border-accent/40 hover:shadow-md transition-all group overflow-hidden">
+      className="min-w-0 w-full text-left rounded-lg border border-border bg-card hover:border-accent/40 hover:shadow-md transition-all group overflow-hidden">
       <div className="aspect-square bg-muted overflow-hidden relative">
         {(item.thumbnail || item.thumbnail_url) ? (
           <img
@@ -55,17 +55,17 @@ export default function ProductCard({ item, formatPrice, onClick }: Props) {
         </span>
       </div>
 
-      <div className="p-3 space-y-1.5">
-        <p className="text-sm font-medium text-foreground line-clamp-2 leading-snug">{item.title}</p>
-        <div className="flex items-baseline gap-1">
-          <span className="text-sm font-bold text-accent">{displayPrice}</span>
+      <div className="p-3 space-y-1.5 min-w-0">
+        <p className="text-sm font-medium text-foreground line-clamp-2 leading-snug break-words">{item.title}</p>
+        <div className="flex min-w-0 flex-wrap items-baseline gap-1">
+          <span className="text-sm font-bold text-accent break-words">{displayPrice}</span>
           {displayPriceMax && (
-            <span className="text-xs text-muted-foreground">– {displayPriceMax}</span>
+            <span className="text-xs text-muted-foreground break-words">– {displayPriceMax}</span>
           )}
         </div>
-        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+        <div className="flex min-w-0 items-center gap-1.5 text-[11px] text-muted-foreground">
           <ShieldCheck className="w-3 h-3 text-success" />
-          Ships from China
+          <span className="truncate">Ships from China</span>
         </div>
       </div>
     </button>
