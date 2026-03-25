@@ -3816,12 +3816,16 @@ export type Database = {
       }
       email_triggers: {
         Row: {
+          click_count: number | null
           conditions: Json | null
           created_at: string | null
           fire_count: number | null
           id: string
           is_active: boolean | null
           last_fired_at: string | null
+          last_sent_at: string | null
+          open_count: number | null
+          sent_count: number | null
           template_content: string | null
           template_id: string | null
           trigger_event: string
@@ -3829,12 +3833,16 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          click_count?: number | null
           conditions?: Json | null
           created_at?: string | null
           fire_count?: number | null
           id?: string
           is_active?: boolean | null
           last_fired_at?: string | null
+          last_sent_at?: string | null
+          open_count?: number | null
+          sent_count?: number | null
           template_content?: string | null
           template_id?: string | null
           trigger_event: string
@@ -3842,12 +3850,16 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          click_count?: number | null
           conditions?: Json | null
           created_at?: string | null
           fire_count?: number | null
           id?: string
           is_active?: boolean | null
           last_fired_at?: string | null
+          last_sent_at?: string | null
+          open_count?: number | null
+          sent_count?: number | null
           template_content?: string | null
           template_id?: string | null
           trigger_event?: string
@@ -5206,10 +5218,12 @@ export type Database = {
         Row: {
           created_at: string | null
           department: string | null
+          didit_session_id: string | null
           email: string
           id: string
           invited_by: string | null
           is_active: boolean | null
+          kyc_completed_at: string | null
           kyc_data: Json | null
           kyc_status: string | null
           role: string
@@ -5219,10 +5233,12 @@ export type Database = {
         Insert: {
           created_at?: string | null
           department?: string | null
+          didit_session_id?: string | null
           email: string
           id?: string
           invited_by?: string | null
           is_active?: boolean | null
+          kyc_completed_at?: string | null
           kyc_data?: Json | null
           kyc_status?: string | null
           role: string
@@ -5232,10 +5248,12 @@ export type Database = {
         Update: {
           created_at?: string | null
           department?: string | null
+          didit_session_id?: string | null
           email?: string
           id?: string
           invited_by?: string | null
           is_active?: boolean | null
+          kyc_completed_at?: string | null
           kyc_data?: Json | null
           kyc_status?: string | null
           role?: string
