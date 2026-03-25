@@ -1,11 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
-const OWNER_EMAILS = [
-  "yanguabuild@gmail.com",
-  "kafeeroa]z@gmail.com", // normalized to lowercase
-].map(e => e.toLowerCase());
-
-// Normalize the second email
 const ALLOWED_EMAILS = [
   "yanguabuild@gmail.com",
   "kafeeroaz@gmail.com",
