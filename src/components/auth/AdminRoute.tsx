@@ -3,7 +3,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { manageLink } from "@/lib/routing/managePathUtils";
 import { useRoles } from "@/hooks/useRoles";
-import { Loader2, ShieldX } from "lucide-react";
+import { ShieldX } from "lucide-react";
 
 /** Emails that are always allowed into the management panel */
 const ALLOWED_ADMIN_EMAILS = [

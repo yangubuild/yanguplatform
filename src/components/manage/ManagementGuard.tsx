@@ -3,7 +3,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useRoles } from "@/hooks/useRoles";
 import { setActiveContext } from "@/lib/routing/activeContext";
-import { Loader2, ShieldX } from "lucide-react";
+import { ShieldX } from "lucide-react";
 
 const ALLOWED_ADMIN_EMAILS = [
   "yanguabuild@gmail.com",

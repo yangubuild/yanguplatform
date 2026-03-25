@@ -3,7 +3,6 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useRoles } from "@/hooks/useRoles";
 import { resolveAccountType, AccountType } from "@/config/dashboardNav";
-import { Loader2 } from "lucide-react";
 
 interface RequireRoleProps {
   allowed: AccountType[];

@@ -2,7 +2,6 @@ import { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { useRoles } from "@/hooks/useRoles";
 import { useAuth } from "@/hooks/useAuth";
-import { Loader2 } from "lucide-react";
 
 interface DashboardRoleGateProps {
   children: ReactNode;
