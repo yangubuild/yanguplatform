@@ -126,8 +126,9 @@ function CoverRow({ images, rowIndex }: { images: readonly string[]; rowIndex: n
             key={`${src}-${index}`}
             src={src}
             alt={`Book cover ${rowIndex + 1}-${index + 1}`}
-            className="h-full min-h-[118px] w-[120px] shrink-0 rounded-md object-cover"
-            loading="lazy"
+            className="h-full min-h-[118px] w-[120px] shrink-0 rounded-md object-cover bg-muted"
+            loading={index < 8 ? "eager" : "lazy"}
+            decoding={index < 8 ? "sync" : "async"}
           />
         ))}
       </div>

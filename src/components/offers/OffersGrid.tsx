@@ -178,6 +178,9 @@ export function OffersGrid() {
                 alt={featured.title}
                 className="w-full object-cover"
                 style={{ maxHeight: "560px" }}
+                loading="eager"
+                decoding="sync"
+                fetchPriority="high"
               />
               {/* Bottom-left: Visit site */}
               <button
@@ -292,9 +295,10 @@ export function OffersGrid() {
                 <img
                   src={tile.image}
                   alt={tile.title}
-                  className="w-full object-cover rounded-xl"
-                  style={{ height: MASONRY_HEIGHTS[i % MASONRY_HEIGHTS.length] }}
-                  loading="lazy"
+                  className="w-full rounded-xl bg-muted"
+                  style={{ height: MASONRY_HEIGHTS[i % MASONRY_HEIGHTS.length], objectFit: "cover" }}
+                  loading={i < 6 ? "eager" : "lazy"}
+                  decoding={i < 6 ? "sync" : "async"}
                 />
               </button>
             ))}
