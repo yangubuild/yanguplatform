@@ -216,6 +216,7 @@ import { DashboardRoleGate } from "@/components/auth/DashboardRoleGate";
 const App = () => (
   <ThemeProvider>
     <AuthProvider>
+      <RolesProvider>
       <EmojiProvider>
       <TooltipProvider>
         <Toaster />
@@ -563,6 +564,7 @@ const App = () => (
         </BrowserRouter>
       </TooltipProvider>
       </EmojiProvider>
+      </RolesProvider>
     </AuthProvider>
   </ThemeProvider>
 );
