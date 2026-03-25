@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
+import { FunctionsHttpError } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,30 +48,37 @@ export default function AgencyLogin() {
 
     setLoading(true);
     try {
-      const res = await supabase.functions.invoke("agency-owner-signup", {
+      const { data, error } = await supabase.functions.invoke("agency-owner-signup", {
         body: { email: email.trim(), password },
       });
 
-      if (res.error) {
-        const msg = res.error?.message || "Signup failed";
-        toast.error(msg);
-        setLoading(false);
+      if (error) {
+        throw error;
+      }
+
+      const result = data as { success?: boolean; error?: string; message?: string };
+
+      if (result?.error) {
+        toast.error(result.error);
         return;
       }
 
-      const data = res.data as { success?: boolean; error?: string; message?: string };
-
-      if (data?.error) {
-        toast.error(data.error);
-        setLoading(false);
-        return;
-      }
-
-      toast.success(data?.message || "Account created! You can now sign in.");
+      toast.success(result?.message || "Account created! You can now sign in.");
       setMode("login");
       setConfirmPassword("");
-    } catch (err: any) {
-      toast.error(err?.message || "Something went wrong");
+    } catch (err) {
+      if (err instanceof FunctionsHttpError) {
+        try {
+          const errorData = await err.context.json();
+          toast.error(errorData?.error || errorData?.message || err.message);
+          return;
+        } catch {
+          toast.error(err.message);
+          return;
+        }
+      }
+
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setLoading(false);
     }
