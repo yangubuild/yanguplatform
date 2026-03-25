@@ -16,6 +16,9 @@ import {
 import { useManagePayments, useSubscriptionAction, type Subscription, type Transaction } from "@/hooks/manage/useManagePayments";
 import { toast } from "sonner";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { PayoutQueuePanel } from "@/components/manage/finance/PayoutQueuePanel";
+import { FraudAmlPanel } from "@/components/manage/finance/FraudAmlPanel";
+import { FinancialReportsPanel } from "@/components/manage/finance/FinancialReportsPanel";
 
 const STATUS_FILTERS = [
   { value: "all", label: "All" },
@@ -133,6 +136,9 @@ export default function ManagePayments() {
         <TabsList>
           <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
           <TabsTrigger value="transactions">Recent Transactions</TabsTrigger>
+          <TabsTrigger value="payouts">Payouts</TabsTrigger>
+          <TabsTrigger value="fraud">Fraud & AML</TabsTrigger>
+          <TabsTrigger value="reports">Reports</TabsTrigger>
         </TabsList>
 
         <TabsContent value="subscriptions" className="space-y-3">
@@ -151,6 +157,18 @@ export default function ManagePayments() {
 
         <TabsContent value="transactions">
           <AdminTable columns={txColumns} data={transactions} loading={isLoading} rowKey={(r) => r.id} />
+        </TabsContent>
+
+        <TabsContent value="payouts">
+          <PayoutQueuePanel />
+        </TabsContent>
+
+        <TabsContent value="fraud">
+          <FraudAmlPanel />
+        </TabsContent>
+
+        <TabsContent value="reports">
+          <FinancialReportsPanel />
         </TabsContent>
       </Tabs>
     </div>

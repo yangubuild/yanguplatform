@@ -9,6 +9,8 @@ import {
 import { Loader2, MessageSquare, Clock, User, CheckCircle2, XCircle, Headset } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { AdaSupportIntegration } from "@/components/manage/support/AdaSupportIntegration";
+import { ProactiveOutreachPanel } from "@/components/manage/support/ProactiveOutreachPanel";
 
 type TicketStatus = "pending" | "agent_required" | "in_progress" | "resolved" | "closed";
 
@@ -310,6 +312,12 @@ export default function ManageSupportQueue() {
           )}
         </div>
       </div>
+
+      {/* ADA Conversation History */}
+      <AdaSupportIntegration ticketUserId={selectedTicketData?.user_id} />
+
+      {/* Proactive Outreach */}
+      <ProactiveOutreachPanel />
     </div>
   );
 }
