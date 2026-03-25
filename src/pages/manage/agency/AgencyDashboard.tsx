@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Copy, QrCode, Users, DollarSign, ShieldCheck, TrendingUp, BarChart3, BookOpen, CalendarDays, UserPlus, Wallet, HeadphonesIcon, Settings } from "lucide-react";
+import { Copy, QrCode, Users, DollarSign, ShieldCheck, TrendingUp, BarChart3, BookOpen, CalendarDays, UserPlus, Wallet, HeadphonesIcon, Settings, FileText } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
