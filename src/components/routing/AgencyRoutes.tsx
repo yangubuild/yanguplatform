@@ -45,7 +45,7 @@ function AgencyAuthGuard({ children }: { children: React.ReactNode }) {
     return <Navigate to="/welcome" state={{ from: location }} replace />;
   }
 
-  if (!hasAnyAgencyRole) {
+  if (!hasAnyAgencyRole && !isAdmin) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4 px-4">
         <ShieldX className="h-16 w-16 text-muted-foreground" />
