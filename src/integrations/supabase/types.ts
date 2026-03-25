@@ -4182,6 +4182,48 @@ export type Database = {
           },
         ]
       }
+      fraud_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string
+          description: string
+          id: string
+          metadata: Json | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string
+          description: string
+          id?: string
+          metadata?: Json | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string
+          description?: string
+          id?: string
+          metadata?: Json | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       fx_rates: {
         Row: {
           as_of: string
@@ -6580,6 +6622,96 @@ export type Database = {
           resolved_by?: string | null
           severity?: string
           threshold_value?: number | null
+        }
+        Relationships: []
+      }
+      social_connections: {
+        Row: {
+          access_token_encrypted: string | null
+          account_id: string | null
+          account_name: string | null
+          connected_at: string | null
+          connected_by: string | null
+          created_at: string
+          followers_count: number | null
+          id: string
+          metadata: Json | null
+          platform: string
+          refresh_token_encrypted: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          access_token_encrypted?: string | null
+          account_id?: string | null
+          account_name?: string | null
+          connected_at?: string | null
+          connected_by?: string | null
+          created_at?: string
+          followers_count?: number | null
+          id?: string
+          metadata?: Json | null
+          platform: string
+          refresh_token_encrypted?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          access_token_encrypted?: string | null
+          account_id?: string | null
+          account_name?: string | null
+          connected_at?: string | null
+          connected_by?: string | null
+          created_at?: string
+          followers_count?: number | null
+          id?: string
+          metadata?: Json | null
+          platform?: string
+          refresh_token_encrypted?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      social_posts: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string | null
+          engagement: Json | null
+          id: string
+          media_urls: string[] | null
+          platform: string
+          published_at: string | null
+          scheduled_for: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by?: string | null
+          engagement?: Json | null
+          id?: string
+          media_urls?: string[] | null
+          platform: string
+          published_at?: string | null
+          scheduled_for?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          engagement?: Json | null
+          id?: string
+          media_urls?: string[] | null
+          platform?: string
+          published_at?: string | null
+          scheduled_for?: string | null
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
