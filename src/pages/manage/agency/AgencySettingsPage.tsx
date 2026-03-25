@@ -91,6 +91,11 @@ export default function AgencySettings() {
         <p className="text-sm text-[hsl(var(--admin-text-muted))]">Agency profile, commission splits, and access configuration</p>
       </div>
 
+      {/* Contract */}
+      {agency?.id && ctx?.id && (
+        <ContractSection agencyId={agency.id} memberId={ctx.id} canSign={canEdit} />
+      )}
+
       {/* Agency Profile */}
       <Card className="border border-border">
         <CardHeader className="pb-3">
