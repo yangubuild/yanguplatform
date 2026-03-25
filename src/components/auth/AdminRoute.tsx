@@ -3,7 +3,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { manageLink } from "@/lib/routing/managePathUtils";
 import { useRoles } from "@/hooks/useRoles";
-import { Loader2, ShieldX } from "lucide-react";
+import { ShieldX } from "lucide-react";
 
 /** Emails that are always allowed into the management panel */
 const ALLOWED_ADMIN_EMAILS = [
@@ -21,19 +21,16 @@ interface AdminRouteProps {
  * Redirects unauthenticated users to /auth/login?returnTo=/manage...
  */
 export function AdminRoute({ children }: AdminRouteProps) {
-  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const { hasAnyManageRole, isContentEditor, isAdmin, isLoading: rolesLoading } = useRoles();
   const location = useLocation();
 
   const emailAllowed = !!user?.email && ALLOWED_ADMIN_EMAILS.includes(user.email.toLowerCase());
   const hasAccess = emailAllowed || hasAnyManageRole;
 
-  if (authLoading || rolesLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-accent" />
-      </div>
-    );
+  // rolesLoading already includes authLoading — no need to check both
+  if (rolesLoading) {
+    return null; // Shell stays mounted during initial boot
   }
 
   if (!isAuthenticated) {
