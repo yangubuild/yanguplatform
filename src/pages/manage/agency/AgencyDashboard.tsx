@@ -415,7 +415,7 @@ export default function AgencyDashboard() {
         <>
           {isLeader && <LeaderView dash={dash} navigate={navigate} />}
           {isFinanceOfficer && !isLeader && <FinanceView dash={dash} navigate={navigate} />}
-          {(isFootSoldier && !isLeader && !isFinanceOfficer) && <FootSoldierView agencySlug={agencySlug} myStats={myStats} />}
+          {(isFootSoldier && !isLeader && !isFinanceOfficer) && <FootSoldierView agencySlug={agencySlug} myStats={myStats} memberId={ctx?.id ?? ""} agencyId={agencyId!} />}
           {(isCreator || isInfluencer) && !isLeader && !isFinanceOfficer && !isFootSoldier && (
             <ContentView myStats={myStats} navigate={navigate} roleLabel={isCreator ? "Creator" : "Influencer"} />
           )}
