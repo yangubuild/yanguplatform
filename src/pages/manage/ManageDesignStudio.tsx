@@ -161,13 +161,13 @@ export default function ManageDesignStudio() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="Design Studio" subtitle="Asset uploads, approvals, templates & brand resources" />
+      <AdminPageHeader title="Design Studio" description="Asset uploads, approvals, templates & brand resources" />
 
       <div className="grid gap-4 sm:grid-cols-4">
-        <AdminMetricCard label="Total Assets" value={assets.length} icon={PaintBucket} />
-        <AdminMetricCard label="Pending Approval" value={pending} icon={Clock} />
-        <AdminMetricCard label="Approved" value={approved} icon={CheckCircle2} />
-        <AdminMetricCard label="Asset Types" value={ASSET_TYPES.length} icon={Palette} />
+        <AdminMetricCard label="Total Assets" value={assets.length} icon={<PaintBucket className="h-4 w-4" />} />
+        <AdminMetricCard label="Pending Approval" value={pending} icon={<Clock className="h-4 w-4" />} />
+        <AdminMetricCard label="Approved" value={approved} icon={<CheckCircle2 className="h-4 w-4" />} />
+        <AdminMetricCard label="Asset Types" value={ASSET_TYPES.length} icon={<Palette className="h-4 w-4" />} />
       </div>
 
       <AdminGlassCard>

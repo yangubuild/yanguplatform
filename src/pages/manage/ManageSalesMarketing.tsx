@@ -67,13 +67,13 @@ export default function ManageSalesMarketing() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="Sales & Marketing" subtitle="Email campaigns, agency onboarding, asset approvals" />
+      <AdminPageHeader title="Sales & Marketing" description="Email campaigns, agency onboarding, asset approvals" />
 
       <div className="grid gap-4 sm:grid-cols-4">
-        <AdminMetricCard label="Active Agencies" value={activeAgencies.length} icon={Building2} />
-        <AdminMetricCard label="Pending Applications" value={pendingAgencies.length} icon={Clock} />
-        <AdminMetricCard label="Email Triggers" value={triggers.length} icon={Mail} />
-        <AdminMetricCard label="Pending Approvals" value={pendingApprovals.length} icon={FileCheck} />
+        <AdminMetricCard label="Active Agencies" value={activeAgencies.length} icon={<Building2 className="h-4 w-4" />} />
+        <AdminMetricCard label="Pending Applications" value={pendingAgencies.length} icon={<Clock className="h-4 w-4" />} />
+        <AdminMetricCard label="Email Triggers" value={triggers.length} icon={<Mail className="h-4 w-4" />} />
+        <AdminMetricCard label="Pending Approvals" value={pendingApprovals.length} icon={<FileCheck className="h-4 w-4" />} />
       </div>
 
       <Tabs defaultValue="campaigns">

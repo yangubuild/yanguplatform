@@ -27,13 +27,13 @@ const THIRD_PARTY_TOOLS = [
 export default function ManageDigitalMarketing() {
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="Digital Marketing" subtitle="Social media, SEO, analytics & performance tracking" />
+      <AdminPageHeader title="Digital Marketing" description="Social media, SEO, analytics & performance tracking" />
 
       <div className="grid gap-4 sm:grid-cols-4">
-        <AdminMetricCard label="Connected Platforms" value={0} icon={Share2} />
-        <AdminMetricCard label="Total Reach" value="—" icon={Eye} />
-        <AdminMetricCard label="Engagement Rate" value="—" icon={MousePointer} />
-        <AdminMetricCard label="SEO Score" value="—" icon={Search} />
+        <AdminMetricCard label="Connected Platforms" value={0} icon={<Share2 className="h-4 w-4" />} />
+        <AdminMetricCard label="Total Reach" value="—" icon={<Eye className="h-4 w-4" />} />
+        <AdminMetricCard label="Engagement Rate" value="—" icon={<MousePointer className="h-4 w-4" />} />
+        <AdminMetricCard label="SEO Score" value="—" icon={<Search className="h-4 w-4" />} />
       </div>
 
       <Tabs defaultValue="social">

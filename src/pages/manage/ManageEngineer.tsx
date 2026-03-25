@@ -65,13 +65,13 @@ export default function ManageEngineer() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="Engineer Hub" subtitle="Error logs, infrastructure monitoring & fix request queue" />
+      <AdminPageHeader title="Engineer Hub" description="Error logs, infrastructure monitoring & fix request queue" />
 
       <div className="grid gap-4 sm:grid-cols-4">
-        <AdminMetricCard label="Error Logs (24h)" value={errors.length} icon={Bug} />
-        <AdminMetricCard label="Open Incidents" value={openIncidents.length} icon={AlertTriangle} />
-        <AdminMetricCard label="Critical Issues" value={criticalIncidents.length} icon={Server} />
-        <AdminMetricCard label="Edge Functions" value={edgeFns.length} icon={Zap} />
+        <AdminMetricCard label="Error Logs (24h)" value={errors.length} icon={<Bug className="h-4 w-4" />} />
+        <AdminMetricCard label="Open Incidents" value={openIncidents.length} icon={<AlertTriangle className="h-4 w-4" />} />
+        <AdminMetricCard label="Critical Issues" value={criticalIncidents.length} icon={<Server className="h-4 w-4" />} />
+        <AdminMetricCard label="Edge Functions" value={edgeFns.length} icon={<Zap className="h-4 w-4" />} />
       </div>
 
       <Tabs defaultValue="errors">

@@ -122,13 +122,13 @@ export default function ManageDepartmentReports() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="Department Reports" subtitle="Cross-department daily reporting & coordination" />
+      <AdminPageHeader title="Department Reports" description="Cross-department daily reporting & coordination" />
 
       <div className="grid gap-4 sm:grid-cols-4">
-        <AdminMetricCard label="Total Reports" value={reports.length} icon={FileBarChart} />
-        <AdminMetricCard label="Today's Reports" value={todayReports.length} icon={Calendar} />
-        <AdminMetricCard label="Departments" value={DEPARTMENTS.length} icon={Building2} />
-        <AdminMetricCard label="With Blockers" value={reports.filter((r) => r.blockers && r.blockers.length > 0).length} icon={AlertTriangle} />
+        <AdminMetricCard label="Total Reports" value={reports.length} icon={<FileBarChart className="h-4 w-4" />} />
+        <AdminMetricCard label="Today's Reports" value={todayReports.length} icon={<Calendar className="h-4 w-4" />} />
+        <AdminMetricCard label="Departments" value={DEPARTMENTS.length} icon={<Building2 className="h-4 w-4" />} />
+        <AdminMetricCard label="With Blockers" value={reports.filter((r) => r.blockers && r.blockers.length > 0).length} icon={<AlertTriangle className="h-4 w-4" />} />
       </div>
 
       <Tabs defaultValue="all">

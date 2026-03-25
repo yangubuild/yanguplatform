@@ -146,13 +146,13 @@ export default function ManageManagementKyc() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="Management Team KYC" subtitle="Invite team members with mandatory KYC verification" />
+      <AdminPageHeader title="Management Team KYC" description="Invite team members with mandatory KYC verification" />
 
       <div className="grid gap-4 sm:grid-cols-4">
-        <AdminMetricCard label="Total Members" value={members.length} icon={Users} />
-        <AdminMetricCard label="Pending KYC" value={pending} icon={Clock} />
-        <AdminMetricCard label="KYC Approved" value={approved} icon={Shield} />
-        <AdminMetricCard label="Active Access" value={active} icon={UserCheck} />
+        <AdminMetricCard label="Total Members" value={members.length} icon={<Users className="h-4 w-4" />} />
+        <AdminMetricCard label="Pending KYC" value={pending} icon={<Clock className="h-4 w-4" />} />
+        <AdminMetricCard label="KYC Approved" value={approved} icon={<Shield className="h-4 w-4" />} />
+        <AdminMetricCard label="Active Access" value={active} icon={<UserCheck className="h-4 w-4" />} />
       </div>
 
       <AdminGlassCard>

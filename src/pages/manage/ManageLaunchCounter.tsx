@@ -97,7 +97,7 @@ export default function ManageLaunchCounter() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="Launch Counter" subtitle="Real-time user growth tracking since launch" />
+      <AdminPageHeader title="Launch Counter" description="Real-time user growth tracking since launch" />
 
       {!launchDate ? (
         <AdminGlassCard>
@@ -148,10 +148,10 @@ export default function ManageLaunchCounter() {
           </AdminGlassCard>
 
           <div className="grid gap-4 sm:grid-cols-4">
-            <AdminMetricCard label="Since Launch" value={stats?.totalSinceLaunch ?? 0} icon={Rocket} />
-            <AdminMetricCard label="Total Platform Users" value={stats?.totalAll ?? 0} icon={Users} />
-            <AdminMetricCard label="KYC Verified (New)" value={stats?.kycVerified ?? 0} icon={ShieldCheck} />
-            <AdminMetricCard label="Users/Min" value={stats?.usersPerMinute?.toFixed(1) ?? "0"} icon={TrendingUp} />
+            <AdminMetricCard label="Since Launch" value={stats?.totalSinceLaunch ?? 0} icon={<Rocket className="h-4 w-4" />} />
+            <AdminMetricCard label="Total Platform Users" value={stats?.totalAll ?? 0} icon={<Users className="h-4 w-4" />} />
+            <AdminMetricCard label="KYC Verified (New)" value={stats?.kycVerified ?? 0} icon={<ShieldCheck className="h-4 w-4" />} />
+            <AdminMetricCard label="Users/Min" value={stats?.usersPerMinute?.toFixed(1) ?? "0"} icon={<TrendingUp className="h-4 w-4" />} />
           </div>
 
           {/* Country breakdown */}

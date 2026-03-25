@@ -113,7 +113,7 @@ export default function ManagePlatformHealth() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="Platform Health Monitor" subtitle="Real-time health status of all YANGU domains" />
+      <AdminPageHeader title="Platform Health Monitor" description="Real-time health status of all YANGU domains" />
 
       {/* Red alert banner */}
       {down > 0 && (
@@ -129,10 +129,10 @@ export default function ManagePlatformHealth() {
       )}
 
       <div className="grid gap-4 sm:grid-cols-4">
-        <AdminMetricCard label="Total Domains" value={YANGU_DOMAINS.length} icon={Globe} />
-        <AdminMetricCard label="Healthy" value={healthy} icon={CheckCircle2} />
-        <AdminMetricCard label="Degraded" value={degraded} icon={Clock} />
-        <AdminMetricCard label="Down" value={down} icon={AlertTriangle} />
+        <AdminMetricCard label="Total Domains" value={YANGU_DOMAINS.length} icon={<Globe className="h-4 w-4" />} />
+        <AdminMetricCard label="Healthy" value={healthy} icon={<CheckCircle2 className="h-4 w-4" />} />
+        <AdminMetricCard label="Degraded" value={degraded} icon={<Clock className="h-4 w-4" />} />
+        <AdminMetricCard label="Down" value={down} icon={<AlertTriangle className="h-4 w-4" />} />
       </div>
 
       <Tabs defaultValue="status">
