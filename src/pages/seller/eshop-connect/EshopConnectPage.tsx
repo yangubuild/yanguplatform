@@ -71,6 +71,7 @@ export default function EshopConnectPage() {
   const [isAliExpressDisabled, setIsAliExpressDisabled] = useState(false);
   const [aliexpressNeedsAuth, setAliexpressNeedsAuth] = useState(false);
   const [aliexpressConnecting, setAliexpressConnecting] = useState(false);
+  const isAiPopupVisible = showPopup && activeTab === "ai-mode";
 
   const { isConnected, connectedProviders, isLoading: connectionsLoading } = useDropshipConnections();
   const { data: surfaces } = useSurfaces();
@@ -352,7 +353,7 @@ export default function EshopConnectPage() {
   return (
     <div className="flex flex-col h-full min-h-0 overflow-hidden min-h-screen bg-background">
       {/* AI Mode Popup */}
-      {showPopup && (
+      {isAiPopupVisible && (
         <AiModePopup
           onClose={dismissPopup}
           onTryAiMode={() => {
@@ -364,20 +365,22 @@ export default function EshopConnectPage() {
 
       {/* Top Tab Navigation — Alibaba style */}
       <div className="border-b border-border/60 bg-card/50">
-        <div className="flex flex-nowrap items-center gap-3 px-4 py-3 sm:justify-center sm:gap-6 sm:px-4 overflow-x-auto scrollbar-none">
-          {TABS.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`shrink-0 flex-none whitespace-nowrap text-[12px] sm:text-sm font-semibold px-2.5 sm:px-1 pb-1 transition-colors relative ${
-                activeTab === tab.key
-                  ? "text-accent border-b-2 border-accent"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}>
-              {tab.key === "ai-mode" && <Sparkles className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />}
-              {tab.label}
-            </button>
-          ))}
+        <div className="overflow-x-auto overflow-y-hidden scrollbar-none sm:px-4">
+          <div className="flex min-w-max flex-nowrap items-center gap-4 px-4 py-3 sm:justify-center sm:gap-6 sm:px-0">
+            {TABS.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`inline-flex flex-none shrink-0 whitespace-nowrap text-[11px] sm:text-sm font-semibold px-0 pb-1 transition-colors relative ${
+                  activeTab === tab.key
+                    ? "text-accent border-b-2 border-accent"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}>
+                {tab.key === "ai-mode" && <Sparkles className="w-3.5 h-3.5 inline mr-1 -mt-0.5 shrink-0" />}
+                <span className="whitespace-nowrap">{tab.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Search Bar — large, Alibaba-style */}
@@ -392,11 +395,11 @@ export default function EshopConnectPage() {
                   className="w-full text-sm text-foreground placeholder:text-muted-foreground bg-transparent focus:outline-none"
                 />
               </div>
-              <div className="flex flex-col items-stretch gap-3 px-4 pb-3 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
-                <button type="button" className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
+              <div className="flex flex-col items-stretch gap-3 px-4 pb-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                <button type="button" className="flex min-h-10 items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
                   <Search className="w-3.5 h-3.5" /> Image Search
                 </button>
-                <Button type="submit" size="sm" disabled={searching} className="w-full sm:w-auto bg-accent text-accent-foreground hover:bg-accent/90 rounded-xl px-5 gap-1.5">
+                <Button type="submit" size="sm" disabled={searching} className="w-full sm:w-auto min-h-10 bg-accent text-accent-foreground hover:bg-accent/90 rounded-xl px-5 gap-1.5">
                   <Sparkles className="w-3.5 h-3.5" />
                   {searching ? "Searching…" : "Search"}
                 </Button>
@@ -404,38 +407,40 @@ export default function EshopConnectPage() {
             </form>
 
             {/* Source selector row — scrollable on mobile */}
-            <div className="mt-3 flex flex-nowrap items-center gap-3 overflow-x-auto scrollbar-none px-4 pb-1 sm:justify-center sm:px-1">
-              {ALL_SOURCES.map((s) => {
-                const connected = isConnected(s.key);
-                const isComingSoon = s.key === "dsers";
-                const isAliExpressPending = s.key === "aliexpress" && isAliExpressDisabled;
-                const isUnavailable = isComingSoon || isAliExpressPending;
-                const active = providerKey === s.key;
+            <div className="mt-3 overflow-x-auto overflow-y-hidden scrollbar-none sm:px-1">
+              <div className="flex min-w-max flex-nowrap items-center gap-3 px-4 pb-1 sm:justify-center sm:px-0">
+                {ALL_SOURCES.map((s) => {
+                  const connected = isConnected(s.key);
+                  const isComingSoon = s.key === "dsers";
+                  const isAliExpressPending = s.key === "aliexpress" && isAliExpressDisabled;
+                  const isUnavailable = isComingSoon || isAliExpressPending;
+                  const active = providerKey === s.key;
 
-                return (
-                  <button
-                    key={s.key}
-                    disabled={isUnavailable}
-                    onClick={() => handleSourceClick(s.key)}
-                    className={`shrink-0 flex-none whitespace-nowrap text-xs px-3 py-1.5 rounded-md border transition-colors flex items-center gap-1.5 ${
-                      active
-                        ? "border-accent bg-accent/10 text-accent font-medium"
-                        : connected
-                          ? "border-border text-muted-foreground hover:border-accent/40 hover:text-foreground"
-                          : isUnavailable
-                            ? "border-border/40 text-muted-foreground/40 cursor-not-allowed"
-                            : "border-border/60 text-muted-foreground/60 hover:border-accent/40"
-                    }`}>
-                    {!connected && !isUnavailable && s.key !== "estores" && s.key !== "aliexpress" && <Plug className="w-3 h-3" />}
-                    {s.label}
-                    {isComingSoon && <span className="hidden sm:inline"> (soon)</span>}
-                    {isAliExpressPending && <span className="hidden sm:inline"> (pending)</span>}
-                    {!connected && !isUnavailable && s.key !== "estores" && s.key !== "aliexpress" && (
-                      <span className="text-[10px] text-muted-foreground/50 hidden sm:inline">• not connected</span>
-                    )}
-                  </button>
-                );
-              })}
+                  return (
+                    <button
+                      key={s.key}
+                      disabled={isUnavailable}
+                      onClick={() => handleSourceClick(s.key)}
+                      className={`inline-flex flex-none shrink-0 items-center gap-1.5 whitespace-nowrap text-xs px-3 py-1.5 rounded-md border transition-colors ${
+                        active
+                          ? "border-accent bg-accent/10 text-accent font-medium"
+                          : connected
+                            ? "border-border text-muted-foreground hover:border-accent/40 hover:text-foreground"
+                            : isUnavailable
+                              ? "border-border/40 text-muted-foreground/40 cursor-not-allowed"
+                              : "border-border/60 text-muted-foreground/60 hover:border-accent/40"
+                      }`}>
+                      {!connected && !isUnavailable && s.key !== "estores" && s.key !== "aliexpress" && <Plug className="w-3 h-3 shrink-0" />}
+                      <span className="whitespace-nowrap">{s.label}</span>
+                      {isComingSoon && <span className="hidden sm:inline"> (soon)</span>}
+                      {isAliExpressPending && <span className="hidden sm:inline"> (pending)</span>}
+                      {!connected && !isUnavailable && s.key !== "estores" && s.key !== "aliexpress" && (
+                        <span className="text-[10px] text-muted-foreground/50 hidden sm:inline">• not connected</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}
