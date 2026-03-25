@@ -15,7 +15,7 @@ import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
 } from "@/components/ui/sheet";
 import {
-  UserCheck, UserPlus, Shield, Clock, Mail, CheckCircle2, XCircle, Users,
+  UserCheck, UserPlus, Shield, Clock, CheckCircle2, XCircle, Users, ExternalLink, Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -49,6 +49,8 @@ interface TeamMember {
   invited_by: string | null;
   created_at: string;
   updated_at: string;
+  didit_session_id: string | null;
+  kyc_completed_at: string | null;
 }
 
 function useTeamMembers() {
@@ -78,7 +80,7 @@ export default function ManageManagementKyc() {
         email: form.email,
         role: form.role,
         department: form.department,
-        user_id: "00000000-0000-0000-0000-000000000000", // placeholder until user signs up
+        user_id: "00000000-0000-0000-0000-000000000000",
         invited_by: user?.id,
         kyc_status: "pending",
         is_active: false,
@@ -97,7 +99,7 @@ export default function ManageManagementKyc() {
   const kycAction = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
       const update: any = { kyc_status: status, updated_at: new Date().toISOString() };
-      if (status === "approved") update.is_active = true;
+      if (status === "approved") { update.is_active = true; update.kyc_completed_at = new Date().toISOString(); }
       if (status === "rejected") update.is_active = false;
       const { error } = await supabase.from("management_team_members").update(update).eq("id", id);
       if (error) throw error;
@@ -106,6 +108,26 @@ export default function ManageManagementKyc() {
       toast.success("KYC status updated");
       queryClient.invalidateQueries({ queryKey: ["manage", "mgmt-team"] });
     },
+  });
+
+  const startKycMutation = useMutation({
+    mutationFn: async (memberId: string) => {
+      const { data, error } = await supabase.functions.invoke("management-kyc-session", {
+        body: { member_id: memberId },
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      if (data?.session_url) {
+        window.open(data.session_url, "_blank");
+        toast.success("Didit KYC session opened in new tab");
+        queryClient.invalidateQueries({ queryKey: ["manage", "mgmt-team"] });
+      } else {
+        toast.error("No KYC session URL returned");
+      }
+    },
+    onError: (e) => toast.error(`KYC session failed: ${e.message}`),
   });
 
   const pending = members.filter((m) => m.kyc_status === "pending").length;
@@ -126,27 +148,48 @@ export default function ManageManagementKyc() {
       ),
     },
     { key: "is_active", header: "Access", render: (r) => <AdminStatusBadge status={r.is_active ? "active" : "inactive"} /> },
+    {
+      key: "kyc_completed_at",
+      header: "KYC Completed",
+      render: (r) => <span className="text-xs text-muted-foreground">{r.kyc_completed_at ? new Date(r.kyc_completed_at).toLocaleDateString() : "—"}</span>,
+    },
     { key: "created_at", header: "Invited", render: (r) => <span className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</span> },
     {
       key: "actions",
       header: "",
-      render: (r) =>
-        r.kyc_status === "pending" ? (
-          <div className="flex gap-1">
-            <Button variant="ghost" size="sm" onClick={() => kycAction.mutate({ id: r.id, status: "approved" })}>
-              <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => kycAction.mutate({ id: r.id, status: "rejected" })}>
-              <XCircle className="h-4 w-4 text-red-500" />
-            </Button>
-          </div>
-        ) : null,
+      render: (r) => (
+        <div className="flex gap-1">
+          {r.kyc_status === "pending" && (
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => startKycMutation.mutate(r.id)}
+                disabled={startKycMutation.isPending}
+                title="Start Didit KYC"
+              >
+                {startKycMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <ExternalLink className="h-4 w-4 text-blue-500" />
+                )}
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => kycAction.mutate({ id: r.id, status: "approved" })}>
+                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => kycAction.mutate({ id: r.id, status: "rejected" })}>
+                <XCircle className="h-4 w-4 text-red-500" />
+              </Button>
+            </>
+          )}
+        </div>
+      ),
     },
   ];
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="Management Team KYC" description="Invite team members with mandatory KYC verification" />
+      <AdminPageHeader title="Management Team KYC" description="Invite team members with mandatory Didit KYC verification" />
 
       <div className="grid gap-4 sm:grid-cols-4">
         <AdminMetricCard label="Total Members" value={members.length} icon={<Users className="h-4 w-4" />} />
@@ -169,7 +212,7 @@ export default function ManageManagementKyc() {
         <SheetContent>
           <SheetHeader>
             <SheetTitle>Invite Team Member</SheetTitle>
-            <SheetDescription>New members must complete KYC (ID + face scan) before accessing the panel</SheetDescription>
+            <SheetDescription>New members must complete Didit KYC (ID + face scan) before accessing the panel</SheetDescription>
           </SheetHeader>
           <div className="space-y-4 mt-4">
             <div>
