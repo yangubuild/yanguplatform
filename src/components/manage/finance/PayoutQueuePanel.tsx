@@ -29,7 +29,7 @@ export function PayoutQueuePanel() {
     queryKey: ["manage-payouts", statusFilter],
     queryFn: async () => {
       let query = supabase
-        .from("payout_requests" as any)
+        .from("payout_requests")
         .select("*")
         .order("requested_at", { ascending: false })
         .limit(100);
@@ -51,7 +51,7 @@ export function PayoutQueuePanel() {
       if (status === "disbursed") updates.disbursed_at = new Date().toISOString();
       if (reason) updates.rejection_reason = reason;
       const { error } = await supabase
-        .from("payout_requests" as any)
+        .from("payout_requests")
         .update(updates)
         .eq("id", id);
       if (error) throw error;
