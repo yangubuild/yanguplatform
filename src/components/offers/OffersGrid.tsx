@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import {
@@ -84,6 +84,58 @@ const DOTS_MENU_ITEMS = [
   "Get Pin embed code",
 ];
 
+const INITIAL_OFFER_MEDIA = TILES.map((tile) => tile.image);
+
+function useOfferMediaReady(images: string[]) {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const preloadImages = async () => {
+      await Promise.all(
+        images.map(
+          (src) =>
+            new Promise<void>((resolve) => {
+              const image = new window.Image();
+              image.src = src;
+
+              const finalize = () => {
+                if (typeof image.decode === "function") {
+                  image.decode().catch(() => undefined).finally(() => resolve());
+                  return;
+                }
+
+                resolve();
+              };
+
+              if (image.complete) {
+                finalize();
+                return;
+              }
+
+              image.onload = finalize;
+              image.onerror = () => resolve();
+            })
+        )
+      );
+
+      if (!cancelled) {
+        setReady(true);
+      }
+    };
+
+    setReady(false);
+    void preloadImages();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [images]);
+
+  return ready;
+}
+
 export function OffersGrid() {
   const navigate = useNavigate();
   const [featuredIdx, setFeaturedIdx] = useState(0);
@@ -96,6 +148,8 @@ export function OffersGrid() {
   const featured = TILES[featuredIdx];
   const grid = TILES.filter((_, i) => i !== featuredIdx);
   const comments = localComments[featured.id] || [];
+  const criticalOfferMedia = useMemo(() => INITIAL_OFFER_MEDIA, []);
+  const offerMediaReady = useOfferMediaReady(criticalOfferMedia);
 
   const handlePostComment = () => {
     if (!commentText.trim()) return;
@@ -127,7 +181,7 @@ export function OffersGrid() {
 
   return (
     <div className="mx-auto w-full max-w-[1100px] px-4 sm:px-6 lg:px-10">
-      <div className="flex flex-col lg:flex-row gap-4">
+      <div className={`flex flex-col gap-4 lg:flex-row ${offerMediaReady ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
         {/* ── LEFT: Featured Pin ── */}
         <div className="w-full lg:max-w-[480px] shrink-0">
           <div className="rounded-2xl border border-border bg-card overflow-hidden">
@@ -176,7 +230,7 @@ export function OffersGrid() {
               <img
                 src={featured.image}
                 alt={featured.title}
-                className="w-full object-cover"
+                  className="block w-full object-cover"
                 style={{ maxHeight: "560px" }}
                 loading="eager"
                 decoding="sync"
@@ -295,10 +349,11 @@ export function OffersGrid() {
                 <img
                   src={tile.image}
                   alt={tile.title}
-                  className="w-full rounded-xl bg-muted"
+                  className="block w-full rounded-xl"
                   style={{ height: MASONRY_HEIGHTS[i % MASONRY_HEIGHTS.length], objectFit: "cover" }}
-                  loading={i < 6 ? "eager" : "lazy"}
-                  decoding={i < 6 ? "sync" : "async"}
+                  loading="eager"
+                  decoding="sync"
+                  fetchPriority={i < 3 ? "high" : "auto"}
                 />
               </button>
             ))}
