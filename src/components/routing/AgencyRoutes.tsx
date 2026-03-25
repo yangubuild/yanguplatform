@@ -30,7 +30,7 @@ const AuthCallback = lazy(() => lazyRetry(() => import("@/pages/auth/AuthCallbac
 
 function AgencyAuthGuard({ children }: { children: React.ReactNode }) {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
-  const { hasAnyAgencyRole, isLoading: rolesLoading } = useRoles();
+  const { hasAnyAgencyRole, isAdmin, isLoading: rolesLoading } = useRoles();
   const location = useLocation();
 
   if (authLoading || rolesLoading) {
