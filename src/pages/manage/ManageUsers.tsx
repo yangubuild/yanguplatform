@@ -24,6 +24,7 @@ import {
 import { useRoles } from "@/hooks/useRoles";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { UserSegmentationPanel } from "@/components/manage/users/UserSegmentationPanel";
 
 // ── Types ──────────────────────────────────────────────────
 interface LifecycleUser {
@@ -538,6 +539,13 @@ export default function ManageUsers() {
       {isAdmin && (
         <div className="pt-6 border-t border-[hsl(var(--admin-border)/0.2)]">
           <AdminResetTool />
+        </div>
+      )}
+
+      {/* User Segmentation */}
+      {isAdmin && (
+        <div className="pt-6 border-t border-[hsl(var(--admin-border)/0.2)]">
+          <UserSegmentationPanel />
         </div>
       )}
 
