@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AdminGlassCard, AdminPageHeader, AdminMetricCard } from "@/components/manage/AdminGlassCard";
+import { ApprovalWorkflowPanel } from "@/components/manage/approval/ApprovalWorkflowPanel";
 import { AdminStatusBadge } from "@/components/manage/AdminStatusBadge";
 import {
   useOverviewStats,
@@ -276,6 +277,9 @@ export default function ManageDashboard() {
         <LifecycleFunnel />
         <RecentActivity />
       </div>
+
+      {/* Approval Workflow */}
+      <ApprovalWorkflowPanel />
     </div>
   );
 }
