@@ -957,3 +957,12 @@ a:focus-visible,
 *::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--border));
 }
+
+/* Hide scrollbar utility for horizontal scroll containers */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
