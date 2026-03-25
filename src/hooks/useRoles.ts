@@ -7,7 +7,7 @@ type DbAppRole = Database["public"]["Enums"]["app_role"];
 
 export type AppRole = DbAppRole;
 export type ManageRole = AppRole | "writer" | "analyst" | "moderator" | "content_editor";
-export type AgencyRole = "agency_admin" | "agency_manager" | "foot_soldier";
+export type AgencyRole = "agency_admin" | "agency_manager" | "foot_soldier" | "finance_officer" | "creator" | "influencer";
 
 interface RolesState {
   roles: AppRole[];
@@ -24,6 +24,9 @@ interface RolesState {
   isAgencyAdmin: boolean;
   isAgencyManager: boolean;
   isFootSoldier: boolean;
+  isFinanceOfficer: boolean;
+  isCreator: boolean;
+  isInfluencer: boolean;
   hasAnyManageRole: boolean;
   hasAnyAgencyRole: boolean;
   isLoading: boolean;
@@ -32,8 +35,8 @@ interface RolesState {
 
 const MANAGE_ROLES: ManageRole[] = ["admin", "owner", "manager", "writer", "designer", "analyst", "moderator", "content_editor"];
 const DB_MANAGE_ROLES: AppRole[] = ["admin", "owner", "manager", "designer"];
-const AGENCY_ROLE_KEYS: AgencyRole[] = ["agency_admin", "agency_manager", "foot_soldier"];
-const ALL_KNOWN_ROLES: string[] = ["admin", "user", "owner", "manager", "designer", "agency_admin", "agency_manager", "foot_soldier"];
+const AGENCY_ROLE_KEYS: AgencyRole[] = ["agency_admin", "agency_manager", "foot_soldier", "finance_officer", "creator", "influencer"];
+const ALL_KNOWN_ROLES: string[] = ["admin", "user", "owner", "manager", "designer", "agency_admin", "agency_manager", "foot_soldier", "finance_officer", "creator", "influencer"];
 
 export function useRoles(): RolesState {
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
@@ -123,6 +126,9 @@ export function useRoles(): RolesState {
   const isAgencyAdmin = agencyRoles.includes("agency_admin");
   const isAgencyManager = agencyRoles.includes("agency_manager");
   const isFootSoldier = agencyRoles.includes("foot_soldier");
+  const isFinanceOfficer = agencyRoles.includes("finance_officer");
+  const isCreator = agencyRoles.includes("creator");
+  const isInfluencer = agencyRoles.includes("influencer");
   const hasAnyManageRole = manageRoles.length > 0;
   const hasAnyAgencyRole = agencyRoles.length > 0;
 
@@ -141,6 +147,9 @@ export function useRoles(): RolesState {
     isAgencyAdmin,
     isAgencyManager,
     isFootSoldier,
+    isFinanceOfficer,
+    isCreator,
+    isInfluencer,
     hasAnyManageRole,
     hasAnyAgencyRole,
     isLoading: authLoading || isLoading,

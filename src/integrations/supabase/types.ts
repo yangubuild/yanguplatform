@@ -1400,6 +1400,63 @@ export type Database = {
           },
         ]
       }
+      certificates: {
+        Row: {
+          certificate_code: string
+          certificate_type: string
+          course_id: string | null
+          expires_at: string | null
+          id: string
+          issued_at: string
+          metadata: Json
+          status: string
+          title: string
+          track_id: string | null
+          user_id: string
+        }
+        Insert: {
+          certificate_code: string
+          certificate_type: string
+          course_id?: string | null
+          expires_at?: string | null
+          id?: string
+          issued_at?: string
+          metadata?: Json
+          status?: string
+          title: string
+          track_id?: string | null
+          user_id: string
+        }
+        Update: {
+          certificate_code?: string
+          certificate_type?: string
+          course_id?: string | null
+          expires_at?: string | null
+          id?: string
+          issued_at?: string
+          metadata?: Json
+          status?: string
+          title?: string
+          track_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certificates_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "learning_courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "certificates_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "learning_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_group_members: {
         Row: {
           group_id: string
@@ -3944,6 +4001,507 @@ export type Database = {
           is_active?: boolean
           slot?: string
           subheadline?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      learning_course_completions: {
+        Row: {
+          certificate_issued: boolean
+          completed_at: string
+          course_id: string
+          final_score: number | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          certificate_issued?: boolean
+          completed_at?: string
+          course_id: string
+          final_score?: number | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          certificate_issued?: boolean
+          completed_at?: string
+          course_id?: string
+          final_score?: number | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_course_completions_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "learning_courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_courses: {
+        Row: {
+          created_at: string
+          description: string | null
+          estimated_minutes: number | null
+          id: string
+          is_active: boolean
+          is_required: boolean
+          is_tot_eligible: boolean
+          slug: string
+          sort_order: number
+          thumbnail_url: string | null
+          title: string
+          track_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          estimated_minutes?: number | null
+          id?: string
+          is_active?: boolean
+          is_required?: boolean
+          is_tot_eligible?: boolean
+          slug: string
+          sort_order?: number
+          thumbnail_url?: string | null
+          title: string
+          track_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          estimated_minutes?: number | null
+          id?: string
+          is_active?: boolean
+          is_required?: boolean
+          is_tot_eligible?: boolean
+          slug?: string
+          sort_order?: number
+          thumbnail_url?: string | null
+          title?: string
+          track_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_courses_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "learning_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_enrollments: {
+        Row: {
+          assigned_by: string | null
+          assigned_reason: string | null
+          course_id: string | null
+          created_at: string
+          due_at: string | null
+          enrollment_status: string
+          id: string
+          track_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_by?: string | null
+          assigned_reason?: string | null
+          course_id?: string | null
+          created_at?: string
+          due_at?: string | null
+          enrollment_status?: string
+          id?: string
+          track_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_by?: string | null
+          assigned_reason?: string | null
+          course_id?: string | null
+          created_at?: string
+          due_at?: string | null
+          enrollment_status?: string
+          id?: string
+          track_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_enrollments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "learning_courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "learning_enrollments_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "learning_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_lesson_progress: {
+        Row: {
+          completed_at: string | null
+          id: string
+          last_position_seconds: number | null
+          last_viewed_at: string | null
+          lesson_id: string
+          percent_complete: number
+          started_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          id?: string
+          last_position_seconds?: number | null
+          last_viewed_at?: string | null
+          lesson_id: string
+          percent_complete?: number
+          started_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          id?: string
+          last_position_seconds?: number | null
+          last_viewed_at?: string | null
+          lesson_id?: string
+          percent_complete?: number
+          started_at?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_lesson_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "learning_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_lessons: {
+        Row: {
+          content_body: string | null
+          content_url: string | null
+          course_id: string
+          created_at: string
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          is_active: boolean
+          is_required: boolean
+          lesson_type: string
+          passing_score: number | null
+          slug: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content_body?: string | null
+          content_url?: string | null
+          course_id: string
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          is_active?: boolean
+          is_required?: boolean
+          lesson_type: string
+          passing_score?: number | null
+          slug: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content_body?: string | null
+          content_url?: string | null
+          course_id?: string
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          is_active?: boolean
+          is_required?: boolean
+          lesson_type?: string
+          passing_score?: number | null
+          slug?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_lessons_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "learning_courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_quiz_attempts: {
+        Row: {
+          answers: Json
+          attempted_at: string
+          id: string
+          lesson_id: string
+          passed: boolean | null
+          score: number | null
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          attempted_at?: string
+          id?: string
+          lesson_id: string
+          passed?: boolean | null
+          score?: number | null
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          attempted_at?: string
+          id?: string
+          lesson_id?: string
+          passed?: boolean | null
+          score?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_quiz_attempts_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "learning_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_quiz_options: {
+        Row: {
+          id: string
+          is_correct: boolean
+          option_text: string
+          question_id: string
+          sort_order: number
+        }
+        Insert: {
+          id?: string
+          is_correct?: boolean
+          option_text: string
+          question_id: string
+          sort_order?: number
+        }
+        Update: {
+          id?: string
+          is_correct?: boolean
+          option_text?: string
+          question_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_quiz_options_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "learning_quiz_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_quiz_questions: {
+        Row: {
+          created_at: string
+          id: string
+          lesson_id: string
+          question_text: string
+          question_type: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lesson_id: string
+          question_text: string
+          question_type: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          question_text?: string
+          question_type?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_quiz_questions_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "learning_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_resources: {
+        Row: {
+          created_at: string
+          id: string
+          lesson_id: string
+          resource_type: string
+          resource_url: string
+          sort_order: number
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lesson_id: string
+          resource_type: string
+          resource_url: string
+          sort_order?: number
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          resource_type?: string
+          resource_url?: string
+          sort_order?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_resources_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "learning_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_role_defaults: {
+        Row: {
+          course_id: string | null
+          id: string
+          is_required: boolean
+          role: string
+          track_id: string | null
+        }
+        Insert: {
+          course_id?: string | null
+          id?: string
+          is_required?: boolean
+          role: string
+          track_id?: string | null
+        }
+        Update: {
+          course_id?: string | null
+          id?: string
+          is_required?: boolean
+          role?: string
+          track_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_role_defaults_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "learning_courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "learning_role_defaults_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "learning_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_track_completions: {
+        Row: {
+          completed_at: string
+          id: string
+          track_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          id?: string
+          track_id: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          id?: string
+          track_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_track_completions_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "learning_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_tracks: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          is_required: boolean
+          role_target: string[]
+          slug: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_required?: boolean
+          role_target?: string[]
+          slug: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_required?: boolean
+          role_target?: string[]
+          slug?: string
+          sort_order?: number
+          title?: string
           updated_at?: string
         }
         Relationships: []
@@ -7600,6 +8158,9 @@ export type Database = {
         | "support"
         | "analyst"
         | "moderator"
+        | "finance_officer"
+        | "creator"
+        | "influencer"
       app_visibility: "public" | "private" | "internal"
       builder_surface_type:
         | "live_bio"
@@ -7797,6 +8358,9 @@ export const Constants = {
         "support",
         "analyst",
         "moderator",
+        "finance_officer",
+        "creator",
+        "influencer",
       ],
       app_visibility: ["public", "private", "internal"],
       builder_surface_type: [
