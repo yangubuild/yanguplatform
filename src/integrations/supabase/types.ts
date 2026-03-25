@@ -394,6 +394,50 @@ export type Database = {
           },
         ]
       }
+      agency_contracts: {
+        Row: {
+          agency_id: string
+          contract_url: string
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          signature_data: Json | null
+          signed_at: string | null
+          signed_by: string | null
+          status: string
+        }
+        Insert: {
+          agency_id: string
+          contract_url: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          signature_data?: Json | null
+          signed_at?: string | null
+          signed_by?: string | null
+          status?: string
+        }
+        Update: {
+          agency_id?: string
+          contract_url?: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          signature_data?: Json | null
+          signed_at?: string | null
+          signed_by?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agency_contracts_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agency_invitations: {
         Row: {
           agency_id: string
@@ -3914,6 +3958,41 @@ export type Database = {
         }
         Relationships: []
       }
+      foot_soldier_checkins: {
+        Row: {
+          agency_id: string
+          checkin_date: string
+          created_at: string | null
+          id: string
+          member_id: string
+          users_onboarded: number | null
+        }
+        Insert: {
+          agency_id: string
+          checkin_date: string
+          created_at?: string | null
+          id?: string
+          member_id: string
+          users_onboarded?: number | null
+        }
+        Update: {
+          agency_id?: string
+          checkin_date?: string
+          created_at?: string | null
+          id?: string
+          member_id?: string
+          users_onboarded?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "foot_soldier_checkins_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fx_rates: {
         Row: {
           as_of: string
@@ -4083,6 +4162,69 @@ export type Database = {
             columns: ["agency_id"]
             isOneToOne: false
             referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hub_events: {
+        Row: {
+          agency_id: string
+          attendees: number | null
+          created_at: string | null
+          created_by: string | null
+          end_time: string | null
+          event_date: string
+          hub_booking_id: string | null
+          id: string
+          location: string | null
+          purpose: string | null
+          start_time: string | null
+          status: string
+          title: string
+        }
+        Insert: {
+          agency_id: string
+          attendees?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          end_time?: string | null
+          event_date: string
+          hub_booking_id?: string | null
+          id?: string
+          location?: string | null
+          purpose?: string | null
+          start_time?: string | null
+          status?: string
+          title: string
+        }
+        Update: {
+          agency_id?: string
+          attendees?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          end_time?: string | null
+          event_date?: string
+          hub_booking_id?: string | null
+          id?: string
+          location?: string | null
+          purpose?: string | null
+          start_time?: string | null
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hub_events_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hub_events_hub_booking_id_fkey"
+            columns: ["hub_booking_id"]
+            isOneToOne: false
+            referencedRelation: "hub_bookings"
             referencedColumns: ["id"]
           },
         ]
@@ -6871,6 +7013,106 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      vision_board_goals: {
+        Row: {
+          actual_kyc_users: number | null
+          actual_subscribers: number | null
+          agency_id: string
+          created_at: string | null
+          created_by: string | null
+          goal_type: string
+          id: string
+          period_end: string
+          period_start: string
+          status: string
+          target_kyc_users: number | null
+          target_subscribers: number | null
+        }
+        Insert: {
+          actual_kyc_users?: number | null
+          actual_subscribers?: number | null
+          agency_id: string
+          created_at?: string | null
+          created_by?: string | null
+          goal_type?: string
+          id?: string
+          period_end: string
+          period_start: string
+          status?: string
+          target_kyc_users?: number | null
+          target_subscribers?: number | null
+        }
+        Update: {
+          actual_kyc_users?: number | null
+          actual_subscribers?: number | null
+          agency_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          goal_type?: string
+          id?: string
+          period_end?: string
+          period_start?: string
+          status?: string
+          target_kyc_users?: number | null
+          target_subscribers?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vision_board_goals_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vision_board_tasks: {
+        Row: {
+          agency_id: string
+          assigned_to: string | null
+          completed_at: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          status: string
+          title: string
+        }
+        Insert: {
+          agency_id: string
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          status?: string
+          title: string
+        }
+        Update: {
+          agency_id?: string
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vision_board_tasks_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       visionaire_items: {
         Row: {

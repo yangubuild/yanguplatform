@@ -10,6 +10,7 @@ import { Building2, Settings2, Shield, DollarSign, Save, Loader2 } from "lucide-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { SocialLinksSection } from "@/components/manage/SocialLinksSection";
+import { ContractSection } from "@/components/manage/ContractSection";
 
 const ROLE_ACCESS = [
   { role: "Agency Principal", db: "agency_admin", access: "Full access — team, finance, branding, settings, reports" },
@@ -89,6 +90,11 @@ export default function AgencySettings() {
         <h1 className="text-lg font-semibold text-[hsl(var(--admin-text))]">Settings</h1>
         <p className="text-sm text-[hsl(var(--admin-text-muted))]">Agency profile, commission splits, and access configuration</p>
       </div>
+
+      {/* Contract */}
+      {agency?.id && ctx?.id && (
+        <ContractSection agencyId={agency.id} memberId={ctx.id} canSign={canEdit} />
+      )}
 
       {/* Agency Profile */}
       <Card className="border border-border">
