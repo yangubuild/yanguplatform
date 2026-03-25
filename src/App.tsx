@@ -33,6 +33,8 @@ const KYC = lazy(() => lazyRetry(() => import("./pages/KYC")));
 const Billing = lazy(() => lazyRetry(() => import("./pages/Billing")));
 const DevSeed = lazy(() => lazyRetry(() => import("./pages/dev/DevSeed")));
 const TestDomainVerification = lazy(() => lazyRetry(() => import("./pages/dev/TestDomainVerification")));
+const AgencyLandingDev = lazy(() => lazyRetry(() => import("./pages/auth/AgencyLanding")));
+const AgencyLoginDev = lazy(() => lazyRetry(() => import("./pages/auth/AgencyLogin")));
 const Subscriptions = lazy(() => lazyRetry(() => import("./pages/Subscriptions")));
 import { AdminRoute } from "@/components/auth/AdminRoute";
 import { AdminShell } from "@/components/manage/AdminShell";
@@ -546,6 +548,8 @@ const App = () => (
                 {/* Dev routes - only in development */}
                 <Route path="/dev/seed" element={<DevSeed />} />
                 <Route path="/dev/test-domain-verification" element={<TestDomainVerification />} />
+                <Route path="/dev/agency-landing" element={<Suspense fallback={<div />}><AgencyLandingDev /></Suspense>} />
+                <Route path="/dev/agency-login" element={<Suspense fallback={<div />}><AgencyLoginDev /></Suspense>} />
                 
                 {/* Catch-all */}
                 <Route path="*" element={<NotFound />} />
