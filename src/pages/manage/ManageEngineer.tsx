@@ -44,7 +44,7 @@ function useIncidents() {
   return useQuery({
     queryKey: ["manage", "engineer-incidents"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("incidents")
         .select("*")
         .order("created_at", { ascending: false })
