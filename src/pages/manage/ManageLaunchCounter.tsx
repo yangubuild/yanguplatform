@@ -28,7 +28,7 @@ function useLaunchStats(launchDate: string | null) {
       if (e2) throw e2;
 
       // KYC verified since launch
-      const { count: kycVerified, error: e3 } = await supabase
+      const { count: kycVerified, error: e3 } = await (supabase as any)
         .from("profiles")
         .select("*", { count: "exact", head: true })
         .gte("created_at", launchDate)
