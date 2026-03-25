@@ -281,11 +281,12 @@ function FinanceView({ dash, navigate }: { dash: any; navigate: any }) {
       </div>
 
       {/* Actions */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
           { icon: DollarSign, title: "Commissions", desc: "Full breakdown", to: "/commissions" },
           { icon: Wallet, title: "Payouts", desc: "Request disbursement", to: "/payouts" },
           { icon: BarChart3, title: "Analytics", desc: "Financial data", to: "/analytics" },
+          { icon: FileText, title: "Monthly Report", desc: "Submit to Yangu", to: "/monthly-report" },
         ].map((card) => (
           <Card
             key={card.title}
