@@ -350,6 +350,56 @@ export type Database = {
         }
         Relationships: []
       }
+      agency_invitations: {
+        Row: {
+          agency_id: string
+          commission_split_phase1: number | null
+          commission_split_phase2: number | null
+          created_at: string | null
+          email: string
+          expires_at: string | null
+          id: string
+          invited_by: string | null
+          role: string
+          status: string
+          token: string
+        }
+        Insert: {
+          agency_id: string
+          commission_split_phase1?: number | null
+          commission_split_phase2?: number | null
+          created_at?: string | null
+          email: string
+          expires_at?: string | null
+          id?: string
+          invited_by?: string | null
+          role: string
+          status?: string
+          token?: string
+        }
+        Update: {
+          agency_id?: string
+          commission_split_phase1?: number | null
+          commission_split_phase2?: number | null
+          created_at?: string | null
+          email?: string
+          expires_at?: string | null
+          id?: string
+          invited_by?: string | null
+          role?: string
+          status?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agency_invitations_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agency_members: {
         Row: {
           agency_id: string
@@ -381,6 +431,50 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "agency_members_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agency_notifications: {
+        Row: {
+          agency_id: string
+          created_at: string | null
+          data: Json | null
+          id: string
+          is_read: boolean | null
+          message: string
+          recipient_user_id: string
+          title: string
+          type: string
+        }
+        Insert: {
+          agency_id: string
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          recipient_user_id: string
+          title: string
+          type: string
+        }
+        Update: {
+          agency_id?: string
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          recipient_user_id?: string
+          title?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agency_notifications_agency_id_fkey"
             columns: ["agency_id"]
             isOneToOne: false
             referencedRelation: "agencies"
