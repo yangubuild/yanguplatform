@@ -32,16 +32,13 @@ const AgencyLogin = lazy(() => lazyRetry(() => import("@/pages/auth/AgencyLogin"
 const AuthCallback = lazy(() => lazyRetry(() => import("@/pages/auth/AuthCallback")));
 
 function AgencyAuthGuard({ children }: { children: React.ReactNode }) {
-  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { hasAnyAgencyRole, isAdmin, isLoading: rolesLoading } = useRoles();
   const location = useLocation();
 
-  if (authLoading || rolesLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-accent" />
-      </div>
-    );
+  // rolesLoading already includes authLoading — no need to check both
+  if (rolesLoading) {
+    return null; // Shell stays mounted during initial boot
   }
 
   if (!isAuthenticated) {

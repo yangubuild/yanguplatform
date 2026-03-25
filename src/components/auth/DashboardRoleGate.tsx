@@ -15,14 +15,11 @@ interface DashboardRoleGateProps {
  */
 export function DashboardRoleGate({ children, requiredRole }: DashboardRoleGateProps) {
   const { isAdmin, isLoading: rolesLoading } = useRoles();
-  const { profile, isLoading: authLoading } = useAuth();
+  const { profile } = useAuth();
 
-  if (authLoading || rolesLoading) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+  // rolesLoading already includes authLoading — no need to check both
+  if (rolesLoading) {
+    return null; // Shell stays mounted; content appears when ready
   }
 
   if (requiredRole === "admin" && !isAdmin) {
