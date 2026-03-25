@@ -1,12 +1,16 @@
 import { useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search } from "lucide-react";
+import { Search, UserPlus, Clock, Mail } from "lucide-react";
 import { useAgencyContext } from "@/hooks/manage/useAgencyContext";
 import { useAgencyMembersList } from "@/hooks/manage/useAgencyMembers";
+import { useAgencyInvitations } from "@/hooks/manage/useAgencyInvitations";
 import { useRoles } from "@/hooks/useRoles";
+import { InviteTeamMemberModal } from "@/components/manage/InviteTeamMemberModal";
+import { formatDistanceToNow } from "date-fns";
 
 function fmt(cents: number) {
   return `$${(cents / 100).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
@@ -36,7 +40,11 @@ export default function AgencyMembers() {
   const { data: ctx, isLoading: ctxLoading } = useAgencyContext();
   const agencyId = ctx?.agency_id;
   const { data: members, isLoading } = useAgencyMembersList(isLeader ? agencyId : undefined);
+  const { data: invitations } = useAgencyInvitations(isAgencyAdmin || isAdmin ? agencyId : undefined);
   const [search, setSearch] = useState("");
+  const [inviteOpen, setInviteOpen] = useState(false);
+
+  const pendingInvites = useMemo(() => invitations?.filter((i) => i.status === "pending") ?? [], [invitations]);
 
   const filtered = useMemo(() => {
     if (!members) return [];
@@ -63,10 +71,47 @@ export default function AgencyMembers() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-lg font-semibold text-[hsl(var(--admin-text))]">Foot Soldiers</h1>
-        <p className="text-sm text-[hsl(var(--admin-text-muted))]">{members?.length ?? 0} members · {totalReferrals} referrals · {fmt(totalEarned)} earned</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-lg font-semibold text-[hsl(var(--admin-text))]">Team Members</h1>
+          <p className="text-sm text-[hsl(var(--admin-text-muted))]">
+            {members?.length ?? 0} members · {totalReferrals} referrals · {fmt(totalEarned)} earned
+          </p>
+        </div>
+        {(isAgencyAdmin || isAdmin) && agencyId && (
+          <Button onClick={() => setInviteOpen(true)} size="sm" className="shrink-0">
+            <UserPlus className="h-4 w-4 mr-2" />
+            Invite Member
+          </Button>
+        )}
       </div>
+
+      {/* Pending invitations */}
+      {pendingInvites.length > 0 && (
+        <Card className="border border-border bg-accent/5">
+          <CardContent className="p-4">
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-1.5">
+              <Clock className="h-3.5 w-3.5" /> Pending Invitations ({pendingInvites.length})
+            </h3>
+            <div className="space-y-2">
+              {pendingInvites.map((inv) => (
+                <div key={inv.id} className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                    <span className="text-foreground">{inv.email}</span>
+                    <Badge variant="outline" className={`text-[10px] ${ROLE_COLORS[inv.role] ?? ""}`}>
+                      {ROLE_LABELS[inv.role] ?? inv.role}
+                    </Badge>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    Expires {formatDistanceToNow(new Date(inv.expires_at), { addSuffix: true })}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -131,6 +176,15 @@ export default function AgencyMembers() {
           </table>
         </div>
       </Card>
+
+      {/* Invite Modal */}
+      {agencyId && (
+        <InviteTeamMemberModal
+          open={inviteOpen}
+          onOpenChange={setInviteOpen}
+          agencyId={agencyId}
+        />
+      )}
     </div>
   );
 }
