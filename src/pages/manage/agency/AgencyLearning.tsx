@@ -1,16 +1,16 @@
-import { useLearningTracks, useMyEnrollments, useMyCourseCompletions, useMyCertificates } from "@/hooks/useLearning";
+import { useLearningTracks } from "@/hooks/useLearning";
 import { useRoles } from "@/hooks/useRoles";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Award, GraduationCap, ChevronRight, Loader2 } from "lucide-react";
+import { BookOpen, ChevronRight, Clock, Loader2, CheckCircle2 } from "lucide-react";
 
+/**
+ * Quick Start — lightweight role-based guides.
+ * NOT a school. Each track is 2–5 micro-lessons, <15 minutes total.
+ */
 export default function AgencyLearning() {
   const { data: tracks, isLoading: tracksLoading } = useLearningTracks();
-  const { data: enrollments } = useMyEnrollments();
-  const { data: completions } = useMyCourseCompletions();
-  const { data: certificates } = useMyCertificates();
   const { agencyRoles } = useRoles();
 
   if (tracksLoading) {
@@ -21,10 +21,6 @@ export default function AgencyLearning() {
     );
   }
 
-  const enrolledTrackIds = new Set((enrollments ?? []).filter(e => e.track_id).map(e => e.track_id));
-  const completedCourseIds = new Set((completions ?? []).map(c => c.course_id));
-  const certCount = (certificates ?? []).length;
-
   // Filter tracks relevant to user's roles
   const relevantTracks = (tracks ?? []).filter(track => {
     if (track.role_target.length === 0) return true;
@@ -32,109 +28,89 @@ export default function AgencyLearning() {
   });
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Learning Center</h1>
-        <p className="text-muted-foreground mt-1">Master your role with structured training and certification</p>
+        <h1 className="text-lg font-semibold text-[hsl(var(--admin-text))]">Quick Start</h1>
+        <p className="text-sm text-[hsl(var(--admin-text-muted))] mt-1">
+          Get operational in under 15 minutes. Short, actionable guides for your role.
+        </p>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="flex items-center gap-4 p-5">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10">
-              <BookOpen className="h-5 w-5 text-accent" />
+      {/* How it works */}
+      <Card className="border border-border bg-accent/5">
+        <CardContent className="p-4">
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <div>
+              <p className="text-2xl font-bold text-foreground">2–5</p>
+              <p className="text-xs text-muted-foreground">min per lesson</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-foreground">{enrolledTrackIds.size}</p>
-              <p className="text-xs text-muted-foreground">Enrolled Tracks</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center gap-4 p-5">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/10">
-              <GraduationCap className="h-5 w-5 text-emerald-500" />
+              <p className="text-2xl font-bold text-foreground">3–4</p>
+              <p className="text-xs text-muted-foreground">lessons per track</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-foreground">{completedCourseIds.size}</p>
-              <p className="text-xs text-muted-foreground">Courses Completed</p>
+              <p className="text-2xl font-bold text-foreground">{"<15"}</p>
+              <p className="text-xs text-muted-foreground">min total</p>
             </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center gap-4 p-5">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-yellow-500/10">
-              <Award className="h-5 w-5 text-yellow-500" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">{certCount}</p>
-              <p className="text-xs text-muted-foreground">Certificates Earned</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Learning Tracks */}
-      <div>
-        <h2 className="text-lg font-semibold text-foreground mb-4">Your Learning Tracks</h2>
-        {relevantTracks.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-              <BookOpen className="h-12 w-12 text-muted-foreground/40 mb-3" />
-              <p className="text-muted-foreground">No learning tracks available yet.</p>
-              <p className="text-sm text-muted-foreground/60 mt-1">Tracks will appear here once assigned by your agency admin.</p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-4">
-            {relevantTracks.map(track => {
-              const isEnrolled = enrolledTrackIds.has(track.id);
-              return (
-                <Link key={track.id} to={`/learning/${track.slug}`}>
-                  <Card className="hover:border-accent/40 transition-colors cursor-pointer">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <CardTitle className="text-base">{track.title}</CardTitle>
-                            {track.is_required && (
-                              <Badge variant="destructive" className="text-[10px] px-1.5 py-0">Required</Badge>
-                            )}
-                            {isEnrolled && (
-                              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Enrolled</Badge>
-                            )}
-                          </div>
-                          <CardDescription className="line-clamp-2">{track.description}</CardDescription>
-                        </div>
-                        <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 mt-1" />
-                      </div>
-                    </CardHeader>
-                    {isEnrolled && (
-                      <CardContent className="pt-0">
-                        <Progress value={0} className="h-1.5" />
-                        <p className="text-xs text-muted-foreground mt-1.5">0% complete</p>
-                      </CardContent>
-                    )}
-                  </Card>
-                </Link>
-              );
-            })}
           </div>
-        )}
-      </div>
+        </CardContent>
+      </Card>
 
-      {/* Certificates shortcut */}
-      {certCount > 0 && (
-        <div>
-          <Link to="/certificates" className="text-sm text-accent hover:underline flex items-center gap-1">
-            <Award className="h-4 w-4" />
-            View all certificates ({certCount})
-            <ChevronRight className="h-3 w-3" />
-          </Link>
+      {/* Tracks */}
+      {relevantTracks.length === 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+            <BookOpen className="h-12 w-12 text-muted-foreground/40 mb-3" />
+            <p className="text-muted-foreground">No guides available for your role yet.</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-3">
+          {relevantTracks.map(track => (
+            <Link key={track.id} to={`/learning/${track.slug}`}>
+              <Card className="hover:border-accent/40 transition-colors cursor-pointer border border-border">
+                <CardContent className="p-4 flex items-center gap-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted shrink-0">
+                    <BookOpen className="h-5 w-5 text-foreground" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <p className="font-semibold text-sm text-foreground">{track.title}</p>
+                      {track.is_required && (
+                        <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Required</Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground line-clamp-1">{track.description}</p>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
         </div>
       )}
+
+      {/* FAQ */}
+      <Card className="border border-border">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-semibold">Common Questions</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm">
+          <div>
+            <p className="font-medium text-foreground">How do I earn commissions?</p>
+            <p className="text-muted-foreground text-xs mt-0.5">Phase 1: $1 per KYC-verified user (active 7+ days). Phase 2: $4/month per active subscriber.</p>
+          </div>
+          <div>
+            <p className="font-medium text-foreground">What is KYC?</p>
+            <p className="text-muted-foreground text-xs mt-0.5">Know Your Customer — users scan their ID and take a selfie via Didit to verify their identity.</p>
+          </div>
+          <div>
+            <p className="font-medium text-foreground">When do I get paid?</p>
+            <p className="text-muted-foreground text-xs mt-0.5">Commissions are calculated monthly. Request payouts from the Payouts page — agency admin approves.</p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -11,7 +11,6 @@ import {
   Settings,
   Wallet,
   BookOpen,
-  Award,
   type LucideIcon,
 } from "lucide-react";
 import type { AgencyRole } from "@/hooks/useRoles";
@@ -38,7 +37,7 @@ export const agencyNavGroups: AgencyNavGroup[] = [
     label: "Overview",
     items: [
       { title: "Dashboard", slug: "", icon: LayoutDashboard, end: true, allowedRoles: ALL_ROLES },
-      { title: "Analytics", slug: "analytics", icon: BarChart3, allowedRoles: LEADERS },
+      { title: "Analytics", slug: "analytics", icon: BarChart3, allowedRoles: [...LEADERS, "finance_officer"] },
       { title: "Performance", slug: "performance", icon: TrendingUp, allowedRoles: [...LEADERS, "foot_soldier", "influencer"] },
     ],
   },
@@ -51,14 +50,6 @@ export const agencyNavGroups: AgencyNavGroup[] = [
     ],
   },
   {
-    label: "Learning",
-    items: [
-      { title: "Learning Center", slug: "learning", icon: BookOpen, allowedRoles: ALL_ROLES },
-      { title: "Certificates", slug: "certificates", icon: Award, allowedRoles: ALL_ROLES },
-      { title: "Team Learning", slug: "learning/team", icon: Users, allowedRoles: LEADERS },
-    ],
-  },
-  {
     label: "Finance",
     items: [
       { title: "Commissions", slug: "commissions", icon: DollarSign, allowedRoles: [...LEADERS, "foot_soldier", "finance_officer", "influencer"] },
@@ -66,9 +57,15 @@ export const agencyNavGroups: AgencyNavGroup[] = [
     ],
   },
   {
-    label: "Operations",
+    label: "Resources",
     items: [
+      { title: "Quick Start", slug: "learning", icon: BookOpen, allowedRoles: ALL_ROLES },
       { title: "Hub Booking", slug: "hub", icon: CalendarDays, allowedRoles: ALL_ROLES },
+    ],
+  },
+  {
+    label: "Admin",
+    items: [
       { title: "Support", slug: "support", icon: HeadphonesIcon, allowedRoles: LEADERS },
       { title: "Settings", slug: "settings", icon: Settings, allowedRoles: ["agency_admin"] },
     ],

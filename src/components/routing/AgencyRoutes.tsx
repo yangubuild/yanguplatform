@@ -92,10 +92,8 @@ export function AgencyRoutes() {
           <Route path="commissions" element={<AgencyCommissions />} />
           <Route path="payouts" element={<AgencyPayouts />} />
           <Route path="learning" element={<AgencyLearning />} />
-          <Route path="learning/team" element={<AgencyGuard allowedRoles={["agency_admin", "agency_manager"]}><AgencyLearningTeam /></AgencyGuard>} />
           <Route path="learning/:trackSlug" element={<AgencyLearningTrack />} />
           <Route path="learning/course/:courseSlug" element={<AgencyLearningCourse />} />
-          <Route path="certificates" element={<AgencyCertificates />} />
           <Route path="hub" element={<AgencyHub />} />
           <Route path="support" element={<AgencyGuard allowedRoles={["agency_admin", "agency_manager"]}><AgencySupportPage /></AgencyGuard>} />
           <Route path="settings" element={<AgencyGuard allowedRoles={["agency_admin"]}><AgencySettingsPage /></AgencyGuard>} />
