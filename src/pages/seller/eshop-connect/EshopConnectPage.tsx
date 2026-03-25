@@ -364,12 +364,12 @@ export default function EshopConnectPage() {
 
       {/* Top Tab Navigation — Alibaba style */}
       <div className="border-b border-border/60 bg-card/50">
-        <div className="flex items-center gap-4 sm:gap-6 sm:justify-center py-3 px-4 overflow-x-auto scrollbar-none">
+        <div className="flex flex-nowrap items-center gap-5 sm:gap-6 sm:justify-center py-3 px-5 sm:px-4 overflow-x-auto scrollbar-none">
           {TABS.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`text-sm font-semibold px-1 pb-1 transition-colors relative whitespace-nowrap shrink-0 ${
+              className={`text-[13px] sm:text-sm font-semibold px-2 sm:px-1 pb-1 transition-colors relative whitespace-nowrap flex-none ${
                 activeTab === tab.key
                   ? "text-accent border-b-2 border-accent"
                   : "text-muted-foreground hover:text-foreground"
@@ -392,11 +392,11 @@ export default function EshopConnectPage() {
                   className="w-full text-sm text-foreground placeholder:text-muted-foreground bg-transparent focus:outline-none"
                 />
               </div>
-              <div className="flex items-center justify-between px-4 pb-3">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-0 px-4 pb-3">
                 <button type="button" className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
                   <Search className="w-3.5 h-3.5" /> Image Search
                 </button>
-                <Button type="submit" size="sm" disabled={searching} className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-xl px-5 gap-1.5">
+                <Button type="submit" size="sm" disabled={searching} className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-xl px-5 gap-1.5 w-full sm:w-auto">
                   <Sparkles className="w-3.5 h-3.5" />
                   {searching ? "Searching…" : "Search"}
                 </Button>
@@ -404,7 +404,7 @@ export default function EshopConnectPage() {
             </form>
 
             {/* Source selector row — scrollable on mobile */}
-            <div className="flex items-center sm:justify-center gap-2 mt-3 overflow-x-auto scrollbar-none px-1 pb-1">
+            <div className="flex flex-nowrap items-center sm:justify-center gap-3 mt-3 overflow-x-auto scrollbar-none px-2 sm:px-1 pb-1">
               {ALL_SOURCES.map((s) => {
                 const connected = isConnected(s.key);
                 const isComingSoon = s.key === "dsers";
@@ -417,7 +417,7 @@ export default function EshopConnectPage() {
                     key={s.key}
                     disabled={isUnavailable}
                     onClick={() => handleSourceClick(s.key)}
-                    className={`text-xs px-3 py-1.5 rounded-md border transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+                    className={`text-xs px-3 py-1.5 rounded-md border transition-colors flex items-center gap-1.5 whitespace-nowrap flex-none ${
                       active
                         ? "border-accent bg-accent/10 text-accent font-medium"
                         : connected
