@@ -13,6 +13,7 @@ import {
   BookOpen,
   FolderOpen,
   Calendar,
+  Lightbulb,
   type LucideIcon,
 } from "lucide-react";
 import type { AgencyRole } from "@/hooks/useRoles";
@@ -63,6 +64,12 @@ export const agencyNavGroups: AgencyNavGroup[] = [
     items: [
       { title: "Asset Library", slug: "assets", icon: FolderOpen, allowedRoles: ALL_ROLES },
       { title: "Content Calendar", slug: "content-calendar", icon: Calendar, allowedRoles: ["agency_admin", "creator"] },
+    ],
+  },
+  {
+    label: "Planning",
+    items: [
+      { title: "Vision Board", slug: "vision-board", icon: Lightbulb, allowedRoles: ALL_ROLES },
     ],
   },
   {
