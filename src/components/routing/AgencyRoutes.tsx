@@ -23,8 +23,7 @@ const AgencyPayouts = lazy(() => lazyRetry(() => import("@/pages/manage/agency/A
 const AgencyLearning = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyLearning")));
 const AgencyLearningTrack = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyLearningTrack")));
 const AgencyLearningCourse = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyLearningCourse")));
-const AgencyCertificates = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyCertificates")));
-const AgencyLearningTeam = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyLearningTeam")));
+// Certificates and team learning removed — simplified to Quick Start
 const AgencyLogin = lazy(() => lazyRetry(() => import("@/pages/auth/AgencyLogin")));
 const AuthCallback = lazy(() => lazyRetry(() => import("@/pages/auth/AuthCallback")));
 
