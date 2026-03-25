@@ -11,13 +11,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
+import { DailyCheckin } from "@/components/manage/DailyCheckin";
 
 function fmt(cents: number) {
   return `$${(cents / 100).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
 }
 
 // ─── Foot Soldier Dashboard ──────────────────────────────────
-function FootSoldierView({ agencySlug, myStats }: { agencySlug: string; myStats: any }) {
+function FootSoldierView({ agencySlug, myStats, memberId, agencyId }: { agencySlug: string; myStats: any; memberId: string; agencyId: string }) {
   const [showQr, setShowQr] = useState(false);
   const refLink = `https://yangu.io/join?ref=${agencySlug}`;
 
@@ -118,6 +119,9 @@ function FootSoldierView({ agencySlug, myStats }: { agencySlug: string; myStats:
           )}
         </CardContent>
       </Card>
+
+      {/* Daily Check-in */}
+      <DailyCheckin memberId={memberId} agencyId={agencyId} />
     </div>
   );
 }
