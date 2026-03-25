@@ -38,6 +38,7 @@ const AgencyLoginDev = lazy(() => lazyRetry(() => import("./pages/auth/AgencyLog
 const Subscriptions = lazy(() => lazyRetry(() => import("./pages/Subscriptions")));
 import { AdminRoute } from "@/components/auth/AdminRoute";
 import { AdminShell } from "@/components/manage/AdminShell";
+import { RolesProvider } from "@/hooks/useRoles";
 import { ManageRoleGate } from "@/components/manage/ManageRoleGate";
 import { RequireRole } from "@/components/auth/RequireRole";
 

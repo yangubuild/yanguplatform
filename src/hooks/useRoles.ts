@@ -1,4 +1,5 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useRef, ReactNode } from "react";
+import { createElement } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { useAuth } from "@/hooks/useAuth";
@@ -36,15 +37,42 @@ interface RolesState {
 const MANAGE_ROLES: ManageRole[] = ["admin", "owner", "manager", "writer", "designer", "analyst", "moderator", "content_editor", "engineer", "sales_marketing", "finance_lead", "support_lead", "social_digital"];
 const DB_MANAGE_ROLES: AppRole[] = ["admin", "owner", "manager", "designer", "engineer", "sales_marketing", "finance_lead", "support_lead", "social_digital"];
 const AGENCY_ROLE_KEYS: AgencyRole[] = ["agency_admin", "agency_manager", "foot_soldier", "finance_officer", "creator", "influencer"];
-const ALL_KNOWN_ROLES: string[] = ["admin", "user", "owner", "manager", "designer", "engineer", "sales_marketing", "finance_lead", "support_lead", "social_digital", "agency_admin", "agency_manager", "foot_soldier", "finance_officer", "creator", "influencer"];
 
-export function useRoles(): RolesState {
+const defaultState: RolesState = {
+  roles: [],
+  manageRoles: [],
+  agencyRoles: [],
+  isAdmin: false,
+  isOwner: false,
+  isManager: false,
+  isWriter: false,
+  isDesigner: false,
+  isAnalyst: false,
+  isModerator: false,
+  isContentEditor: false,
+  isAgencyAdmin: false,
+  isAgencyManager: false,
+  isFootSoldier: false,
+  isFinanceOfficer: false,
+  isCreator: false,
+  isInfluencer: false,
+  hasAnyManageRole: false,
+  hasAnyAgencyRole: false,
+  isLoading: true,
+  refetch: async () => {},
+};
+
+const RolesContext = createContext<RolesState>(defaultState);
+
+export function RolesProvider({ children }: { children: ReactNode }) {
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [manageRoles, setManageRoles] = useState<ManageRole[]>([]);
   const [agencyRoles, setAgencyRoles] = useState<AgencyRole[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const hasFetchedOnce = useRef(false);
+  const hasFetchedForUser = useRef<string | null>(null);
+  // Track in-flight fetch to deduplicate
+  const fetchPromise = useRef<Promise<void> | null>(null);
 
   const fetchRoles = useCallback(async () => {
     if (!user?.id) {
@@ -52,11 +80,13 @@ export function useRoles(): RolesState {
       setManageRoles([]);
       setAgencyRoles([]);
       setIsLoading(false);
+      hasFetchedForUser.current = null;
       return;
     }
 
-    // Only show loading state on initial fetch — subsequent refetches are silent
-    if (!hasFetchedOnce.current) {
+    // If we already fetched for this exact user, skip loading state (silent refresh)
+    const isFirstFetch = hasFetchedForUser.current !== user.id;
+    if (isFirstFetch) {
       setIsLoading(true);
     }
 
@@ -73,18 +103,15 @@ export function useRoles(): RolesState {
         assigned.add(row.role as string);
       }
 
-      // Base roles
       const resolvedRoles: AppRole[] = ["user"];
       for (const role of ["admin", "owner", "manager", "designer"] as const) {
         if (assigned.has(role)) resolvedRoles.push(role);
       }
 
-      // Management roles
       const resolvedManageRoles = MANAGE_ROLES.filter(
         (role) => DB_MANAGE_ROLES.includes(role as AppRole) && assigned.has(role as string)
       ) as ManageRole[];
 
-      // Agency roles
       const resolvedAgencyRoles = AGENCY_ROLE_KEYS.filter(
         (role) => assigned.has(role)
       );
@@ -92,16 +119,28 @@ export function useRoles(): RolesState {
       setRoles(resolvedRoles);
       setManageRoles(resolvedManageRoles);
       setAgencyRoles(resolvedAgencyRoles);
+      hasFetchedForUser.current = user.id;
     } catch (err) {
       console.error("Failed to fetch roles:", err);
       setRoles(["user"]);
       setManageRoles([]);
       setAgencyRoles([]);
     } finally {
-      hasFetchedOnce.current = true;
       setIsLoading(false);
+      fetchPromise.current = null;
     }
   }, [user?.id]);
+
+  // Deduplicated refetch for external callers
+  const refetch = useCallback(async () => {
+    if (fetchPromise.current) {
+      await fetchPromise.current;
+      return;
+    }
+    const p = fetchRoles();
+    fetchPromise.current = p;
+    await p;
+  }, [fetchRoles]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -110,10 +149,13 @@ export function useRoles(): RolesState {
       setManageRoles([]);
       setAgencyRoles([]);
       setIsLoading(false);
+      hasFetchedForUser.current = null;
       return;
     }
-    void fetchRoles();
-  }, [authLoading, isAuthenticated, fetchRoles]);
+    // Only fetch if we haven't already fetched for this user
+    if (hasFetchedForUser.current === user?.id) return;
+    void refetch();
+  }, [authLoading, isAuthenticated, user?.id, refetch]);
 
   const isAdmin = roles.includes("admin") || manageRoles.includes("admin");
   const isOwner = manageRoles.includes("owner") || isAdmin;
@@ -132,7 +174,7 @@ export function useRoles(): RolesState {
   const hasAnyManageRole = manageRoles.length > 0;
   const hasAnyAgencyRole = agencyRoles.length > 0;
 
-  return {
+  const value: RolesState = {
     roles,
     manageRoles,
     agencyRoles,
@@ -153,6 +195,12 @@ export function useRoles(): RolesState {
     hasAnyManageRole,
     hasAnyAgencyRole,
     isLoading: authLoading || isLoading,
-    refetch: fetchRoles,
+    refetch,
   };
+
+  return createElement(RolesContext.Provider, { value }, children);
+}
+
+export function useRoles(): RolesState {
+  return useContext(RolesContext);
 }
