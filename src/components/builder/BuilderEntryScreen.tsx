@@ -40,7 +40,7 @@ export function BuilderEntryScreen({ engine, onComplete }: Props) {
   }
 
   return (
-    <div className="max-w-2xl mx-auto py-12 space-y-8">
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-6 sm:space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-foreground">{engine.label}</h1>
         <p className="text-muted-foreground mt-1">{engine.description}</p>
@@ -48,14 +48,14 @@ export function BuilderEntryScreen({ engine, onComplete }: Props) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card
-          className="p-6 space-y-3 border-2 border-primary/30 hover:border-primary/60 transition-colors cursor-pointer"
+          className="p-5 sm:p-6 space-y-3 border-2 border-primary/30 hover:border-primary/60 transition-colors cursor-pointer"
           onClick={() => setMode("ai")}>
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
             <h3 className="font-semibold text-foreground">Build with AI</h3>
           </div>
           <p className="text-sm text-muted-foreground">
-            Import from a social profile or let AI help you set up quickly. You'll still edit everything manually after.
+            Import from a social profile or let AI help you set up quickly.
           </p>
           <Button size="sm" className="w-full gap-2" onClick={(e) => { e.stopPropagation(); setMode("ai"); }}>
             <Sparkles className="h-4 w-4" /> Start with AI
@@ -63,7 +63,7 @@ export function BuilderEntryScreen({ engine, onComplete }: Props) {
         </Card>
 
         <Card
-          className="p-6 space-y-3 hover:border-primary/30 transition-colors cursor-pointer"
+          className="p-5 sm:p-6 space-y-3 hover:border-primary/30 transition-colors cursor-pointer"
           onClick={() => setMode("manual")}>
           <div className="flex items-center gap-2">
             <Wrench className="h-5 w-5 text-muted-foreground" />

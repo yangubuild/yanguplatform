@@ -127,9 +127,9 @@ export function OffersGrid() {
 
   return (
     <div className="mx-auto w-full max-w-[1100px] px-4 sm:px-6 lg:px-10">
-      <div className="flex gap-4">
+      <div className="flex flex-col lg:flex-row gap-4">
         {/* ── LEFT: Featured Pin ── */}
-        <div className="w-full max-w-[480px] shrink-0">
+        <div className="w-full lg:max-w-[480px] shrink-0">
           <div className="rounded-2xl border border-border bg-card overflow-hidden">
             {/* Top bar */}
             <div className="flex items-center justify-between px-4 py-3">
@@ -275,9 +275,9 @@ export function OffersGrid() {
           </div>
         </div>
 
-        {/* ── RIGHT: 3-column masonry grid ── */}
+        {/* ── RIGHT: masonry grid — 2 cols on mobile, 3 on desktop ── */}
         <div className="flex-1 min-w-0">
-          <div className="columns-3 gap-3">
+          <div className="columns-2 sm:columns-3 gap-3">
             {grid.map((tile, i) => (
               <button
                 key={tile.id}

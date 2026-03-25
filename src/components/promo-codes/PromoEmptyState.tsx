@@ -31,12 +31,12 @@ export function PromoEmptyState({ onCreateClick, onCreateOfferClick }: PromoEmpt
         </p>
       </div>
 
-      <div className="flex items-center gap-3">
-        <Button onClick={onCreateClick} variant="solid" className="px-5 h-10 gap-2">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full max-w-sm sm:max-w-none sm:w-auto px-4 sm:px-0">
+        <Button onClick={onCreateClick} variant="solid" className="px-5 h-10 gap-2 w-full sm:w-auto">
           <Plus className="w-4 h-4" />
           Create promo code
         </Button>
-        <Button variant="accent" onClick={onCreateOfferClick} className="px-6 h-10 gap-2">
+        <Button variant="accent" onClick={onCreateOfferClick} className="px-6 h-10 gap-2 w-full sm:w-auto">
           <Send className="w-4 h-4" />
           Create Offer
         </Button>

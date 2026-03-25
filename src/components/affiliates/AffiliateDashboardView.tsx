@@ -45,30 +45,35 @@ export function AffiliateDashboardView({ isAuthenticated, onSwitchToCreator, isL
       ) : (
         <div>
           {/* Header */}
-          <div className="flex items-center justify-between mb-1">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-1">
             <h1 className="text-xl font-semibold text-foreground">Affiliates</h1>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               {isAuthenticated && !isLandingPage ? (
                 <>
                   <Button variant="outline" size="sm" onClick={() => setShowMarketplace(true)}>
                     <Gift className="w-4 h-4 text-accent" />
-                    Affiliate marketplace
+                    <span className="hidden sm:inline">Affiliate marketplace</span>
+                    <span className="sm:hidden">Marketplace</span>
                   </Button>
                   <Button variant="accent-light" size="sm" onClick={() => setActiveTab("Refer sellers")}>
-                    Apply to be a partner
+                    <span className="hidden sm:inline">Apply to be a partner</span>
+                    <span className="sm:hidden">Apply</span>
                   </Button>
                   <Button variant="outline" size="sm" onClick={onSwitchToCreator}>
-                    Creator dashboard
+                    <span className="hidden sm:inline">Creator dashboard</span>
+                    <span className="sm:hidden">Creator</span>
                   </Button>
                 </>
               ) : (
                 <>
                   <Button variant="outline" size="sm" onClick={handlePublicGatedAction}>
                     <Gift className="w-4 h-4 text-accent" />
-                    Affiliate marketplace
+                    <span className="hidden sm:inline">Affiliate marketplace</span>
+                    <span className="sm:hidden">Marketplace</span>
                   </Button>
                   <Button variant="accent-light" size="sm" onClick={() => setActiveTab("Refer sellers")}>
-                    Apply to be a partner
+                    <span className="hidden sm:inline">Apply to be a partner</span>
+                    <span className="sm:hidden">Apply</span>
                   </Button>
                 </>
               )}
@@ -76,12 +81,12 @@ export function AffiliateDashboardView({ isAuthenticated, onSwitchToCreator, isL
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-6 border-b border-white/[0.06] mt-2 mb-6">
+          <div className="flex gap-4 sm:gap-6 border-b border-white/[0.06] mt-2 mb-6 overflow-x-auto scrollbar-none">
             {tabs.map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`pb-3 text-sm font-medium transition-colors relative ${
+                className={`pb-3 text-sm font-medium transition-colors relative whitespace-nowrap ${
                   activeTab === tab ? "text-foreground" : "text-muted-foreground hover:text-muted-foreground"
                 }`}>
                 {tab}
