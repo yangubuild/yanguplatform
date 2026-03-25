@@ -11,6 +11,8 @@ import {
   Settings,
   Wallet,
   BookOpen,
+  FolderOpen,
+  Calendar,
   type LucideIcon,
 } from "lucide-react";
 import type { AgencyRole } from "@/hooks/useRoles";
@@ -54,6 +56,13 @@ export const agencyNavGroups: AgencyNavGroup[] = [
     items: [
       { title: "Commissions", slug: "commissions", icon: DollarSign, allowedRoles: [...LEADERS, "foot_soldier", "finance_officer", "influencer"] },
       { title: "Payouts", slug: "payouts", icon: Wallet, allowedRoles: [...LEADERS, "foot_soldier", "finance_officer", "influencer"] },
+    ],
+  },
+  {
+    label: "Marketing",
+    items: [
+      { title: "Asset Library", slug: "assets", icon: FolderOpen, allowedRoles: ALL_ROLES },
+      { title: "Content Calendar", slug: "content-calendar", icon: Calendar, allowedRoles: ["agency_admin", "creator"] },
     ],
   },
   {

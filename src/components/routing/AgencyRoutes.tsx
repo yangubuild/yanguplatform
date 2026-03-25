@@ -23,6 +23,9 @@ const AgencyPayouts = lazy(() => lazyRetry(() => import("@/pages/manage/agency/A
 const AgencyLearning = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyLearning")));
 const AgencyLearningTrack = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyLearningTrack")));
 const AgencyLearningCourse = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyLearningCourse")));
+const AgencyAssetLibrary = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyAssetLibrary")));
+const AgencyContentCalendar = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyContentCalendar")));
+const AgencyMonthlyReport = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyMonthlyReport")));
 // Certificates and team learning removed — simplified to Quick Start
 const AgencyLogin = lazy(() => lazyRetry(() => import("@/pages/auth/AgencyLogin")));
 const AuthCallback = lazy(() => lazyRetry(() => import("@/pages/auth/AuthCallback")));
@@ -94,6 +97,9 @@ export function AgencyRoutes() {
           <Route path="learning/:trackSlug" element={<AgencyLearningTrack />} />
           <Route path="learning/course/:courseSlug" element={<AgencyLearningCourse />} />
           <Route path="hub" element={<AgencyHub />} />
+          <Route path="assets" element={<AgencyAssetLibrary />} />
+          <Route path="content-calendar" element={<AgencyGuard allowedRoles={["agency_admin", "creator"]}><AgencyContentCalendar /></AgencyGuard>} />
+          <Route path="monthly-report" element={<AgencyGuard allowedRoles={["agency_admin", "finance_officer"]}><AgencyMonthlyReport /></AgencyGuard>} />
           <Route path="support" element={<AgencyGuard allowedRoles={["agency_admin", "agency_manager"]}><AgencySupportPage /></AgencyGuard>} />
           <Route path="settings" element={<AgencyGuard allowedRoles={["agency_admin"]}><AgencySettingsPage /></AgencyGuard>} />
         </Route>

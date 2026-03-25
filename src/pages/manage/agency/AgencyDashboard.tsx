@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Copy, QrCode, Users, DollarSign, ShieldCheck, TrendingUp, BarChart3, BookOpen, CalendarDays, UserPlus, Wallet, HeadphonesIcon, Settings } from "lucide-react";
+import { Copy, QrCode, Users, DollarSign, ShieldCheck, TrendingUp, BarChart3, BookOpen, CalendarDays, UserPlus, Wallet, HeadphonesIcon, Settings, FileText } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -281,11 +281,12 @@ function FinanceView({ dash, navigate }: { dash: any; navigate: any }) {
       </div>
 
       {/* Actions */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
           { icon: DollarSign, title: "Commissions", desc: "Full breakdown", to: "/commissions" },
           { icon: Wallet, title: "Payouts", desc: "Request disbursement", to: "/payouts" },
           { icon: BarChart3, title: "Analytics", desc: "Financial data", to: "/analytics" },
+          { icon: FileText, title: "Monthly Report", desc: "Submit to Yangu", to: "/monthly-report" },
         ].map((card) => (
           <Card
             key={card.title}

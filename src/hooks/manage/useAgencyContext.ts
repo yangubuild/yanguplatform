@@ -15,7 +15,7 @@ export function useAgencyContext() {
       if (!user?.id) return null;
       const { data, error } = await supabase
         .from("agency_members")
-        .select("id, agency_id, role, status, agencies(id, name, slug, status)")
+        .select("id, agency_id, role, status, agencies(id, name, slug, status, region, metadata)")
         .eq("user_id", user.id)
         .eq("status", "active")
         .limit(1)

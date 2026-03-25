@@ -350,6 +350,50 @@ export type Database = {
         }
         Relationships: []
       }
+      agency_assets: {
+        Row: {
+          agency_id: string | null
+          asset_type: string
+          created_at: string | null
+          file_url: string
+          id: string
+          is_public: boolean | null
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string
+        }
+        Insert: {
+          agency_id?: string | null
+          asset_type: string
+          created_at?: string | null
+          file_url: string
+          id?: string
+          is_public?: boolean | null
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title: string
+        }
+        Update: {
+          agency_id?: string | null
+          asset_type?: string
+          created_at?: string | null
+          file_url?: string
+          id?: string
+          is_public?: boolean | null
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agency_assets_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agency_invitations: {
         Row: {
           agency_id: string
@@ -475,6 +519,50 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "agency_notifications_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agency_reports: {
+        Row: {
+          agency_id: string
+          created_by: string | null
+          data: Json
+          file_url: string | null
+          id: string
+          report_date: string
+          report_type: string
+          status: string
+          submitted_at: string | null
+        }
+        Insert: {
+          agency_id: string
+          created_by?: string | null
+          data?: Json
+          file_url?: string | null
+          id?: string
+          report_date: string
+          report_type?: string
+          status?: string
+          submitted_at?: string | null
+        }
+        Update: {
+          agency_id?: string
+          created_by?: string | null
+          data?: Json
+          file_url?: string | null
+          id?: string
+          report_date?: string
+          report_type?: string
+          status?: string
+          submitted_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agency_reports_agency_id_fkey"
             columns: ["agency_id"]
             isOneToOne: false
             referencedRelation: "agencies"
@@ -1973,6 +2061,63 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      content_calendar: {
+        Row: {
+          agency_id: string
+          asset_id: string | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          notes: string | null
+          platform: string
+          scheduled_for: string
+          status: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          agency_id: string
+          asset_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          platform: string
+          scheduled_for: string
+          status?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          agency_id?: string
+          asset_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          platform?: string
+          scheduled_for?: string
+          status?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_calendar_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_calendar_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "agency_assets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       creatify_templates: {
         Row: {

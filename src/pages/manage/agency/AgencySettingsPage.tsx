@@ -9,6 +9,7 @@ import { useRoles } from "@/hooks/useRoles";
 import { Building2, Settings2, Shield, DollarSign, Save, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { SocialLinksSection } from "@/components/manage/SocialLinksSection";
 
 const ROLE_ACCESS = [
   { role: "Agency Principal", db: "agency_admin", access: "Full access — team, finance, branding, settings, reports" },
@@ -231,6 +232,15 @@ export default function AgencySettings() {
           </p>
         </CardContent>
       </Card>
+
+      {/* Social Links */}
+      {agency?.id && (
+        <SocialLinksSection
+          agencyId={agency.id}
+          metadata={agency.metadata}
+          canEdit={canEdit}
+        />
+      )}
 
       {/* Role Access Matrix */}
       <Card className="border border-border">
