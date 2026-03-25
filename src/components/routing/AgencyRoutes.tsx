@@ -20,6 +20,11 @@ const AgencySupportPage = lazy(() => lazyRetry(() => import("@/pages/manage/agen
 const AgencySettingsPage = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencySettingsPage")));
 const AgencyKYC = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyKYC")));
 const AgencyPayouts = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyPayouts")));
+const AgencyLearning = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyLearning")));
+const AgencyLearningTrack = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyLearningTrack")));
+const AgencyLearningCourse = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyLearningCourse")));
+const AgencyCertificates = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyCertificates")));
+const AgencyLearningTeam = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyLearningTeam")));
 const AgencyLogin = lazy(() => lazyRetry(() => import("@/pages/auth/AgencyLogin")));
 const AuthCallback = lazy(() => lazyRetry(() => import("@/pages/auth/AuthCallback")));
 
@@ -86,6 +91,11 @@ export function AgencyRoutes() {
           <Route path="kyc" element={<AgencyGuard allowedRoles={["agency_admin"]}><AgencyKYC /></AgencyGuard>} />
           <Route path="commissions" element={<AgencyCommissions />} />
           <Route path="payouts" element={<AgencyPayouts />} />
+          <Route path="learning" element={<AgencyLearning />} />
+          <Route path="learning/team" element={<AgencyGuard allowedRoles={["agency_admin", "agency_manager"]}><AgencyLearningTeam /></AgencyGuard>} />
+          <Route path="learning/:trackSlug" element={<AgencyLearningTrack />} />
+          <Route path="learning/course/:courseSlug" element={<AgencyLearningCourse />} />
+          <Route path="certificates" element={<AgencyCertificates />} />
           <Route path="hub" element={<AgencyHub />} />
           <Route path="support" element={<AgencyGuard allowedRoles={["agency_admin", "agency_manager"]}><AgencySupportPage /></AgencyGuard>} />
           <Route path="settings" element={<AgencyGuard allowedRoles={["agency_admin"]}><AgencySettingsPage /></AgencyGuard>} />

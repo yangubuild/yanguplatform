@@ -10,6 +10,8 @@ import {
   CalendarDays,
   Settings,
   Wallet,
+  BookOpen,
+  Award,
   type LucideIcon,
 } from "lucide-react";
 import type { AgencyRole } from "@/hooks/useRoles";
@@ -42,6 +44,14 @@ export const agencyNavGroups: AgencyNavGroup[] = [
       { title: "Foot Soldiers", slug: "members", icon: Users, allowedRoles: ["agency_admin", "agency_manager"] },
       { title: "Onboarding", slug: "onboarding", icon: UserPlus, allowedRoles: ["agency_admin", "agency_manager", "foot_soldier"] },
       { title: "KYC Status", slug: "kyc", icon: ShieldCheck, allowedRoles: ["agency_admin"] },
+    ],
+  },
+  {
+    label: "Learning",
+    items: [
+      { title: "Learning Center", slug: "learning", icon: BookOpen, allowedRoles: ["agency_admin", "agency_manager", "foot_soldier"] },
+      { title: "Certificates", slug: "certificates", icon: Award, allowedRoles: ["agency_admin", "agency_manager", "foot_soldier"] },
+      { title: "Team Learning", slug: "learning/team", icon: Users, allowedRoles: ["agency_admin", "agency_manager"] },
     ],
   },
   {
