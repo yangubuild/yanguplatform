@@ -17,7 +17,7 @@ export function AffDashboardTab() {
   return (
     <div>
       {/* Filters */}
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex flex-wrap items-center gap-3 mb-6">
         <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-muted-foreground border border-white/[0.06]">
           {company}
           <ChevronDown className="w-3.5 h-3.5" />
@@ -31,12 +31,12 @@ export function AffDashboardTab() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-3 gap-4 mb-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-4">
         {STAT_CARDS.slice(0, 3).map((card) => (
           <StatCard key={card.label} label={card.label} value={card.value} />
         ))}
       </div>
-      <div className="grid grid-cols-2 gap-4 mb-8">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-8">
         {STAT_CARDS.slice(3).map((card) => (
           <StatCard key={card.label} label={card.label} value={card.value} />
         ))}
@@ -63,18 +63,18 @@ export function AffDashboardTab() {
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-white/[0.06] p-5 flex flex-col justify-between min-h-[180px]"
+    <div className="rounded-xl border border-white/[0.06] p-4 sm:p-5 flex flex-col justify-between min-h-[140px] sm:min-h-[180px]"
       style={{ background: "rgba(255,255,255,0.02)" }}>
       <div>
-        <p className="text-sm text-muted-foreground mb-1">{label}</p>
-        <p className="text-xl font-semibold text-foreground">{value}</p>
+        <p className="text-xs sm:text-sm text-muted-foreground mb-1 line-clamp-2">{label}</p>
+        <p className="text-lg sm:text-xl font-semibold text-foreground">{value}</p>
       </div>
-      <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/[0.04]">
-        <span className="text-[11px] text-muted-foreground">Mar 3</span>
-        <div className="flex-1 mx-4 flex items-center justify-center">
-          <span className="text-[11px] text-muted-foreground px-2 py-0.5 rounded bg-white/5">No data available</span>
+      <div className="flex items-center justify-between mt-auto pt-3 sm:pt-4 border-t border-white/[0.04]">
+        <span className="text-[10px] sm:text-[11px] text-muted-foreground">Mar 3</span>
+        <div className="flex-1 mx-2 sm:mx-4 flex items-center justify-center">
+          <span className="text-[10px] sm:text-[11px] text-muted-foreground px-1.5 sm:px-2 py-0.5 rounded bg-white/5 truncate">No data</span>
         </div>
-        <span className="text-[11px] text-muted-foreground">Today</span>
+        <span className="text-[10px] sm:text-[11px] text-muted-foreground">Today</span>
       </div>
     </div>
   );

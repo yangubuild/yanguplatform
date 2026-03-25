@@ -364,12 +364,12 @@ export default function EshopConnectPage() {
 
       {/* Top Tab Navigation — Alibaba style */}
       <div className="border-b border-border/60 bg-card/50">
-        <div className="flex items-center justify-center gap-6 py-3">
+        <div className="flex items-center gap-4 sm:gap-6 sm:justify-center py-3 px-4 overflow-x-auto scrollbar-none">
           {TABS.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`text-sm font-semibold px-1 pb-1 transition-colors relative ${
+              className={`text-sm font-semibold px-1 pb-1 transition-colors relative whitespace-nowrap shrink-0 ${
                 activeTab === tab.key
                   ? "text-accent border-b-2 border-accent"
                   : "text-muted-foreground hover:text-foreground"
@@ -382,7 +382,7 @@ export default function EshopConnectPage() {
 
         {/* Search Bar — large, Alibaba-style */}
         {(activeTab === "products" || activeTab === "worldwide") && (
-          <div className="px-6 pb-4">
+          <div className="px-4 sm:px-6 pb-4">
             <form onSubmit={handleSearch} className="relative max-w-4xl mx-auto rounded-xl border-2 border-accent/40 bg-card overflow-hidden">
               <div className="px-4 pt-3 pb-1">
                 <input
@@ -403,8 +403,8 @@ export default function EshopConnectPage() {
               </div>
             </form>
 
-            {/* Source selector row */}
-            <div className="flex items-center justify-center gap-2 mt-3">
+            {/* Source selector row — scrollable on mobile */}
+            <div className="flex items-center sm:justify-center gap-2 mt-3 overflow-x-auto scrollbar-none px-1 pb-1">
               {ALL_SOURCES.map((s) => {
                 const connected = isConnected(s.key);
                 const isComingSoon = s.key === "dsers";
@@ -417,7 +417,7 @@ export default function EshopConnectPage() {
                     key={s.key}
                     disabled={isUnavailable}
                     onClick={() => handleSourceClick(s.key)}
-                    className={`text-xs px-3 py-1.5 rounded-md border transition-colors flex items-center gap-1.5 ${
+                    className={`text-xs px-3 py-1.5 rounded-md border transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
                       active
                         ? "border-accent bg-accent/10 text-accent font-medium"
                         : connected
@@ -428,10 +428,10 @@ export default function EshopConnectPage() {
                     }`}>
                     {!connected && !isUnavailable && s.key !== "estores" && s.key !== "aliexpress" && <Plug className="w-3 h-3" />}
                     {s.label}
-                    {isComingSoon && " (soon)"}
-                    {isAliExpressPending && " (pending verification)"}
+                    {isComingSoon && <span className="hidden sm:inline"> (soon)</span>}
+                    {isAliExpressPending && <span className="hidden sm:inline"> (pending)</span>}
                     {!connected && !isUnavailable && s.key !== "estores" && s.key !== "aliexpress" && (
-                      <span className="text-[10px] text-muted-foreground/50">• not connected</span>
+                      <span className="text-[10px] text-muted-foreground/50 hidden sm:inline">• not connected</span>
                     )}
                   </button>
                 );

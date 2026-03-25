@@ -21,7 +21,7 @@ export function MassHeader({ hideTrends, showLogo }: { hideTrends?: boolean; sho
   return (
     <header className="mb-8 lg:overflow-visible">
       {/* Top row - Logo left, buttons right when needed */}
-      <div className={`flex items-center ${showLogo ? "justify-between" : "justify-end"} gap-4`}>
+      <div className={`flex items-center ${showLogo ? "justify-between" : "justify-end"} gap-3`}>
         {showLogo && (
           <button
             type="button"
@@ -32,16 +32,7 @@ export function MassHeader({ hideTrends, showLogo }: { hideTrends?: boolean; sho
           </button>
         )}
 
-        <div className="flex items-center gap-3">
-          {/* Mobile hamburger — visible only below lg */}
-          <button
-            type="button"
-            onClick={() => setDrawerOpen(true)}
-            className="lg:hidden flex items-center justify-center h-10 w-10 rounded-lg text-foreground/70 hover:bg-muted/40 transition-colors"
-            aria-label="Open navigation menu">
-            <Menu size={22} />
-          </button>
-
+        <div className="flex items-center gap-2 sm:gap-3">
           <Button
             variant="solid"
             size="default"

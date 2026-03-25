@@ -84,7 +84,7 @@ export default function DashboardCommunityPage() {
 
   // Default: show type picker
   return (
-    <div className="max-w-2xl mx-auto py-12 space-y-8 min-h-screen bg-background">
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-6 sm:space-y-8 min-h-screen bg-background">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Community</h1>
         <p className="text-muted-foreground mt-1">
@@ -92,8 +92,8 @@ export default function DashboardCommunityPage() {
         </p>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2">
-        <Card className="p-6 flex flex-col gap-4 cursor-pointer hover:border-primary/30 transition-colors" onClick={handleListingCreate}>
+      <div className="grid gap-4 sm:gap-6 sm:grid-cols-2">
+        <Card className="p-5 sm:p-6 flex flex-col gap-4 cursor-pointer hover:border-primary/30 transition-colors" onClick={handleListingCreate}>
           <div className="flex items-center gap-3">
             <div className="rounded-lg bg-primary/10 p-2.5">
               <Store className="h-5 w-5 text-primary" />
@@ -106,7 +106,7 @@ export default function DashboardCommunityPage() {
           <Button className="w-full">Create Listing</Button>
         </Card>
 
-        <Card className="p-6 flex flex-col gap-4 cursor-pointer hover:border-primary/30 transition-colors" onClick={() => setSelectedFlow("community")}>
+        <Card className="p-5 sm:p-6 flex flex-col gap-4 cursor-pointer hover:border-primary/30 transition-colors" onClick={() => setSelectedFlow("community")}>
           <div className="flex items-center gap-3">
             <div className="rounded-lg bg-primary/10 p-2.5">
               <Users className="h-5 w-5 text-primary" />

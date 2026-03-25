@@ -73,6 +73,7 @@ export function MassLandingPage() {
       className="bg-background min-h-screen"
       >
       {/* Mobile menu button */}
+      {/* Single mobile menu button — hidden on desktop */}
       <button
         onClick={() => setSidebarOpen(true)}
         className="fixed top-4 left-4 z-30 p-2 rounded-lg bg-[#1c1c1c] text-foreground lg:hidden">
