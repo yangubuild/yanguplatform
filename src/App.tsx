@@ -33,6 +33,8 @@ const KYC = lazy(() => lazyRetry(() => import("./pages/KYC")));
 const Billing = lazy(() => lazyRetry(() => import("./pages/Billing")));
 const DevSeed = lazy(() => lazyRetry(() => import("./pages/dev/DevSeed")));
 const TestDomainVerification = lazy(() => lazyRetry(() => import("./pages/dev/TestDomainVerification")));
+const AgencyLandingDev = lazy(() => lazyRetry(() => import("./pages/auth/AgencyLanding")));
+const AgencyLoginDev = lazy(() => lazyRetry(() => import("./pages/auth/AgencyLogin")));
 const Subscriptions = lazy(() => lazyRetry(() => import("./pages/Subscriptions")));
 import { AdminRoute } from "@/components/auth/AdminRoute";
 import { AdminShell } from "@/components/manage/AdminShell";
