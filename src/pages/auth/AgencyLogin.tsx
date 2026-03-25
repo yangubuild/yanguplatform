@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import yanguIcon from "@/assets/yangu-y-icon.png";
+import yanguIcon from "@/assets/yangu-agency-icon.png";
 
 export default function AgencyLogin() {
   const [email, setEmail] = useState("");
@@ -89,7 +89,7 @@ export default function AgencyLogin() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-12 rounded-lg text-white font-semibold text-base bg-gradient-to-r from-[hsl(24,60%,50%)] to-[hsl(24,40%,38%)] hover:opacity-90 transition-opacity"
+              className="w-full h-12 rounded-lg text-white font-semibold text-base bg-gradient-to-r from-[hsl(var(--admin-accent))] to-[hsl(25,70%,35%)] hover:opacity-90 transition-opacity border border-[hsl(var(--admin-accent)/0.3)]"
             >
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Sign In
