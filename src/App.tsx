@@ -546,6 +546,8 @@ const App = () => (
                 {/* Dev routes - only in development */}
                 <Route path="/dev/seed" element={<DevSeed />} />
                 <Route path="/dev/test-domain-verification" element={<TestDomainVerification />} />
+                <Route path="/dev/agency-landing" element={<Suspense fallback={<div />}><AgencyLandingDev /></Suspense>} />
+                <Route path="/dev/agency-login" element={<Suspense fallback={<div />}><AgencyLoginDev /></Suspense>} />
                 
                 {/* Catch-all */}
                 <Route path="*" element={<NotFound />} />
