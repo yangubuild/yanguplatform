@@ -29,43 +29,47 @@ export interface AgencyNavGroup {
   items: AgencyNavItem[];
 }
 
+/** All 6 agency roles for convenience */
+const ALL_ROLES: AgencyRole[] = ["agency_admin", "agency_manager", "foot_soldier", "finance_officer", "creator", "influencer"];
+const LEADERS: AgencyRole[] = ["agency_admin", "agency_manager"];
+
 export const agencyNavGroups: AgencyNavGroup[] = [
   {
     label: "Overview",
     items: [
-      { title: "Dashboard", slug: "", icon: LayoutDashboard, end: true, allowedRoles: ["agency_admin", "agency_manager", "foot_soldier"] },
-      { title: "Analytics", slug: "analytics", icon: BarChart3, allowedRoles: ["agency_admin", "agency_manager"] },
-      { title: "Performance", slug: "performance", icon: TrendingUp, allowedRoles: ["agency_admin", "agency_manager", "foot_soldier"] },
+      { title: "Dashboard", slug: "", icon: LayoutDashboard, end: true, allowedRoles: ALL_ROLES },
+      { title: "Analytics", slug: "analytics", icon: BarChart3, allowedRoles: LEADERS },
+      { title: "Performance", slug: "performance", icon: TrendingUp, allowedRoles: [...LEADERS, "foot_soldier", "influencer"] },
     ],
   },
   {
     label: "Team",
     items: [
-      { title: "Foot Soldiers", slug: "members", icon: Users, allowedRoles: ["agency_admin", "agency_manager"] },
-      { title: "Onboarding", slug: "onboarding", icon: UserPlus, allowedRoles: ["agency_admin", "agency_manager", "foot_soldier"] },
+      { title: "Foot Soldiers", slug: "members", icon: Users, allowedRoles: LEADERS },
+      { title: "Onboarding", slug: "onboarding", icon: UserPlus, allowedRoles: [...LEADERS, "foot_soldier"] },
       { title: "KYC Status", slug: "kyc", icon: ShieldCheck, allowedRoles: ["agency_admin"] },
     ],
   },
   {
     label: "Learning",
     items: [
-      { title: "Learning Center", slug: "learning", icon: BookOpen, allowedRoles: ["agency_admin", "agency_manager", "foot_soldier"] },
-      { title: "Certificates", slug: "certificates", icon: Award, allowedRoles: ["agency_admin", "agency_manager", "foot_soldier"] },
-      { title: "Team Learning", slug: "learning/team", icon: Users, allowedRoles: ["agency_admin", "agency_manager"] },
+      { title: "Learning Center", slug: "learning", icon: BookOpen, allowedRoles: ALL_ROLES },
+      { title: "Certificates", slug: "certificates", icon: Award, allowedRoles: ALL_ROLES },
+      { title: "Team Learning", slug: "learning/team", icon: Users, allowedRoles: LEADERS },
     ],
   },
   {
     label: "Finance",
     items: [
-      { title: "Commissions", slug: "commissions", icon: DollarSign, allowedRoles: ["agency_admin", "agency_manager", "foot_soldier"] },
-      { title: "Payouts", slug: "payouts", icon: Wallet, allowedRoles: ["agency_admin", "agency_manager", "foot_soldier"] },
+      { title: "Commissions", slug: "commissions", icon: DollarSign, allowedRoles: [...LEADERS, "foot_soldier", "finance_officer", "influencer"] },
+      { title: "Payouts", slug: "payouts", icon: Wallet, allowedRoles: [...LEADERS, "foot_soldier", "finance_officer", "influencer"] },
     ],
   },
   {
     label: "Operations",
     items: [
-      { title: "Hub Booking", slug: "hub", icon: CalendarDays, allowedRoles: ["agency_admin", "agency_manager", "foot_soldier"] },
-      { title: "Support", slug: "support", icon: HeadphonesIcon, allowedRoles: ["agency_admin", "agency_manager"] },
+      { title: "Hub Booking", slug: "hub", icon: CalendarDays, allowedRoles: ALL_ROLES },
+      { title: "Support", slug: "support", icon: HeadphonesIcon, allowedRoles: LEADERS },
       { title: "Settings", slug: "settings", icon: Settings, allowedRoles: ["agency_admin"] },
     ],
   },

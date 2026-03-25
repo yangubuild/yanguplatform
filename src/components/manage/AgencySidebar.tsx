@@ -3,7 +3,7 @@ import { useRoles } from "@/hooks/useRoles";
 import { useAuth } from "@/hooks/useAuth";
 import { agencyNavGroups } from "./agencyNavConfig";
 import yanguYIcon from "@/assets/yangu-y-icon.png";
-import { Building2, Shield, Users } from "lucide-react";
+import { Building2, Shield, Users, DollarSign, Palette, Megaphone } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -14,17 +14,24 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
+const ROLE_BADGE_MAP: Record<string, { label: string; icon: typeof Shield }> = {
+  agency_admin: { label: "Agency Principal", icon: Building2 },
+  agency_manager: { label: "Sales Lead", icon: Users },
+  foot_soldier: { label: "Foot Soldier", icon: Users },
+  finance_officer: { label: "Finance Officer", icon: DollarSign },
+  creator: { label: "Creator", icon: Palette },
+  influencer: { label: "Influencer", icon: Megaphone },
+};
+
 export function AgencySidebar() {
   const { agencyRoles, isAdmin, isAgencyAdmin } = useRoles();
   const { profile } = useAuth();
 
   const roleBadge = isAdmin
     ? { label: "Platform Admin", icon: Shield }
-    : isAgencyAdmin
-      ? { label: "Agency Admin", icon: Building2 }
-      : agencyRoles.length > 0
-        ? { label: agencyRoles[0].replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()), icon: Users }
-        : null;
+    : agencyRoles.length > 0
+      ? ROLE_BADGE_MAP[agencyRoles[0]] ?? { label: agencyRoles[0].replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()), icon: Users }
+      : null;
 
   return (
     <Sidebar className="admin-glass-sidebar border-r-0">

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import {
-  UserPlus, BarChart3, DollarSign, ShieldCheck, HeadphonesIcon, TrendingUp, Users, CalendarDays, Wallet,
+  UserPlus, BarChart3, DollarSign, ShieldCheck, HeadphonesIcon, TrendingUp, Users, CalendarDays, Wallet, BookOpen, Award, Megaphone, Palette,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRoles } from "@/hooks/useRoles";
@@ -14,7 +14,7 @@ function fmt(cents: number) {
 
 export default function AgencyDashboard() {
   const navigate = useNavigate();
-  const { isAgencyAdmin, isAgencyManager, isFootSoldier, isAdmin } = useRoles();
+  const { isAgencyAdmin, isAgencyManager, isFootSoldier, isFinanceOfficer, isCreator, isInfluencer, isAdmin } = useRoles();
   const isLeader = isAdmin || isAgencyAdmin || isAgencyManager;
   const { data: ctx, isLoading: ctxLoading } = useAgencyContext();
   const agencyId = ctx?.agency_id;
@@ -46,6 +46,7 @@ export default function AgencyDashboard() {
   const agencyName = (ctx as any)?.agencies?.name ?? "Agency";
   const loading = dashLoading || myLoading;
 
+  // Leader stats (Agency Principal + Sales Lead)
   const leaderStats = dash ? [
     { label: "Onboarded Users", value: dash.total_referrals },
     { label: "KYC Approved", value: dash.kyc_approved },
@@ -61,6 +62,7 @@ export default function AgencyDashboard() {
     { label: "Conversion Rate", value: dash.total_referrals > 0 ? `${((dash.converted_referrals / dash.total_referrals) * 100).toFixed(1)}%` : "0%" },
   ] : [];
 
+  // Foot soldier stats
   const soldierStats = myStats ? [
     { label: "My Referrals", value: myStats.my_referrals },
     { label: "Converted", value: myStats.my_converted },
@@ -71,27 +73,62 @@ export default function AgencyDashboard() {
     { label: "Phase 2", value: fmt(myStats.my_phase2_cents) },
   ] : [];
 
-  const displayStats = isLeader ? leaderStats : soldierStats;
+  // Finance officer stats
+  const financeStats = dash ? [
+    { label: "Total Agency Earned", value: fmt(dash.total_earned_cents) },
+    { label: "Pending Payouts", value: fmt(dash.pending_cents) },
+    { label: "Phase 1 Total", value: fmt(dash.phase1_total_cents) },
+    { label: "Phase 2 Recurring", value: fmt(dash.phase2_total_cents) },
+    { label: "Active Subscribers", value: dash.active_subscribers },
+    { label: "Team Members", value: dash.total_members },
+  ] : [];
 
+  // Creator/Influencer stats (personal + learning focused)
+  const contentStats = myStats ? [
+    { label: "Total Earned", value: fmt(myStats.my_total_earned_cents) },
+    { label: "Pending", value: fmt(myStats.my_pending_cents) },
+  ] : [];
+
+  let displayStats: { label: string; value: string | number }[];
+  let subtitle: string;
+
+  if (isLeader) {
+    displayStats = leaderStats;
+    subtitle = "Agency-wide operations overview";
+  } else if (isFinanceOfficer) {
+    displayStats = financeStats;
+    subtitle = "Financial overview and commission tracking";
+  } else if (isCreator || isInfluencer) {
+    displayStats = contentStats;
+    subtitle = isCreator ? "Content and learning overview" : "Campaign and earnings overview";
+  } else {
+    displayStats = soldierStats;
+    subtitle = "Your personal performance overview";
+  }
+
+  // Role-specific action cards
   const actionCards = [
-    { icon: Users, title: "Members", desc: "Manage foot soldiers", to: "/members", visible: isLeader },
-    { icon: UserPlus, title: "Onboarding", desc: "Track referrals & KYC", to: "/onboarding", visible: true },
-    { icon: DollarSign, title: "Commissions", desc: "Earnings & payouts", to: "/commissions", visible: true },
-    { icon: Wallet, title: "Payouts", desc: "Request disbursement", to: "/payouts", visible: true },
-    { icon: TrendingUp, title: "Performance", desc: "Targets & leaderboard", to: "/performance", visible: true },
-    { icon: BarChart3, title: "Analytics", desc: "Funnels & retention", to: "/analytics", visible: isLeader },
-    { icon: CalendarDays, title: "Hub Booking", desc: "Schedule hub time", to: "/hub", visible: true },
+    // Leaders
+    { icon: Users, title: "Team", desc: "Manage foot soldiers", to: "/members", visible: isLeader },
+    { icon: UserPlus, title: "Onboarding", desc: "Track referrals & KYC", to: "/onboarding", visible: isLeader || isFootSoldier },
     { icon: ShieldCheck, title: "KYC Status", desc: "Verification overview", to: "/kyc", visible: isLeader },
+    { icon: BarChart3, title: "Analytics", desc: "Funnels & retention", to: "/analytics", visible: isLeader },
     { icon: HeadphonesIcon, title: "Support", desc: "Tickets & escalation", to: "/support", visible: isLeader },
+    // Finance
+    { icon: DollarSign, title: "Commissions", desc: "Earnings & payouts", to: "/commissions", visible: true },
+    { icon: Wallet, title: "Payouts", desc: "Request disbursement", to: "/payouts", visible: isLeader || isFootSoldier || isFinanceOfficer || isInfluencer },
+    // All roles
+    { icon: TrendingUp, title: "Performance", desc: "Targets & leaderboard", to: "/performance", visible: isLeader || isFootSoldier || isInfluencer },
+    { icon: BookOpen, title: "Learning", desc: "Training & courses", to: "/learning", visible: true },
+    { icon: Award, title: "Certificates", desc: "Your credentials", to: "/certificates", visible: true },
+    { icon: CalendarDays, title: "Hub Booking", desc: "Schedule hub time", to: "/hub", visible: true },
   ].filter((c) => c.visible);
 
   return (
     <div className="space-y-6 sm:space-y-8">
       <div>
         <h1 className="text-lg font-semibold text-[hsl(var(--admin-text))]">{agencyName} Dashboard</h1>
-        <p className="text-sm text-[hsl(var(--admin-text-muted))] mt-1">
-          {isLeader ? "Agency-wide operations overview" : "Your personal performance overview"}
-        </p>
+        <p className="text-sm text-[hsl(var(--admin-text-muted))] mt-1">{subtitle}</p>
       </div>
 
       {loading ? (

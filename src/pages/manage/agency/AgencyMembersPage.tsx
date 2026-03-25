@@ -16,6 +16,18 @@ const ROLE_COLORS: Record<string, string> = {
   agency_admin: "bg-primary/10 text-primary border-primary/20",
   agency_manager: "bg-blue-500/10 text-blue-600 border-blue-500/20",
   foot_soldier: "bg-muted text-muted-foreground border-border",
+  finance_officer: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+  creator: "bg-purple-500/10 text-purple-600 border-purple-500/20",
+  influencer: "bg-orange-500/10 text-orange-600 border-orange-500/20",
+};
+
+const ROLE_LABELS: Record<string, string> = {
+  agency_admin: "Agency Principal",
+  agency_manager: "Sales Lead",
+  foot_soldier: "Foot Soldier",
+  finance_officer: "Finance Officer",
+  creator: "Creator",
+  influencer: "Influencer",
 };
 
 export default function AgencyMembers() {
@@ -74,7 +86,7 @@ export default function AgencyMembers() {
                   <Badge variant={m.status === "active" ? "default" : "secondary"} className="text-xs">{m.status}</Badge>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline" className={`text-xs ${ROLE_COLORS[m.role] ?? ""}`}>{m.role.replace(/_/g, " ")}</Badge>
+                  <Badge variant="outline" className={`text-xs ${ROLE_COLORS[m.role] ?? ""}`}>{ROLE_LABELS[m.role] ?? m.role.replace(/_/g, " ")}</Badge>
                 </div>
                 <div className="flex justify-between text-xs text-muted-foreground">
                   <span>{m.referral_count} referrals</span>
@@ -107,7 +119,7 @@ export default function AgencyMembers() {
                 filtered.map((m) => (
                   <tr key={m.id} className="hover:bg-muted/30">
                     <td className="px-4 py-3 font-medium text-foreground">{m.display_name ?? m.username ?? "—"}</td>
-                    <td className="px-4 py-3"><Badge variant="outline" className={`text-xs ${ROLE_COLORS[m.role] ?? ""}`}>{m.role.replace(/_/g, " ")}</Badge></td>
+                    <td className="px-4 py-3"><Badge variant="outline" className={`text-xs ${ROLE_COLORS[m.role] ?? ""}`}>{ROLE_LABELS[m.role] ?? m.role.replace(/_/g, " ")}</Badge></td>
                     <td className="px-4 py-3 font-medium text-foreground">{m.referral_count}</td>
                     <td className="px-4 py-3 font-medium text-foreground">{fmt(m.commission_total)}</td>
                     <td className="px-4 py-3"><Badge variant={m.status === "active" ? "default" : "secondary"} className="text-xs">{m.status}</Badge></td>
