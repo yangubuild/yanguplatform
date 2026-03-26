@@ -93,7 +93,7 @@ export function FriendProfileView({ user, onBack, onTabChange }: FriendProfileVi
     queryFn: async () => {
       const { data, error } = await supabase
         .from("public_profile_view")
-        .select("*")
+        .select("id, username, display_name, avatar_url, avatar_mode, avatar_emoji_key, cover_url, cover_crop, social_links, business_name, country, creator_type, verified_tick, created_at")
         .eq("id", user.id)
         .maybeSingle();
       if (error) throw error;
