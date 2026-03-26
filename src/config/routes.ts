@@ -7,6 +7,7 @@ export const ROUTES = {
   login: "/login",
   signup: "/signup",
   resetPassword: "/reset-password",
+  support: "/support",
   
   // User routes
   dashboard: "/dashboard",
