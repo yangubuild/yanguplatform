@@ -38,8 +38,8 @@ export const SignupEmail = ({
         <Section style={logoSection}>
           <Img
             src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/yangu-email-logo.png"
-            width="180"
-            height="180"
+            width="140"
+            height="140"
             alt="yangu"
             style={logoImage}
           />
@@ -115,14 +115,14 @@ const container = {
 
 const logoSection = {
   textAlign: 'center' as const,
-  padding: '24px 0 0',
+  padding: '28px 0 0',
 }
 
 const logoImage = {
   display: 'block' as const,
   margin: '0 auto',
-  width: '180px',
-  height: '180px',
+  width: '140px',
+  height: '140px',
 }
 
 const badgeRow = {
@@ -145,7 +145,7 @@ const h1 = {
   fontWeight: 'bold' as const,
   color: '#08120D',
   textAlign: 'center' as const,
-  margin: '8px 0 16px',
+  margin: '12px 0 16px',
 }
 
 const bodyText = {
