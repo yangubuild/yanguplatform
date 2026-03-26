@@ -1,5 +1,5 @@
 import { lazyRetry } from "@/lib/lazyRetry";
-import { lazy, Suspense } from "react";
+import { lazy } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useRoles } from "@/hooks/useRoles";
@@ -66,7 +66,6 @@ function AgencyAuthGuard({ children }: { children: React.ReactNode }) {
 
 export function AgencyRoutes() {
   return (
-    <Suspense fallback={<div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}><img src="/yangu-y-loader.png" alt="Loading" width={40} height={40} style={{ animation: "spin 1.4s linear infinite" }} /></div>}>
       <Routes>
         {/* Public landing */}
         <Route path="/welcome" element={<AgencyLanding />} />
@@ -112,6 +111,5 @@ export function AgencyRoutes() {
         {/* Catch-all → login */}
         <Route path="*" element={<Navigate to="/welcome" replace />} />
       </Routes>
-    </Suspense>
   );
 }
