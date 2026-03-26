@@ -14,39 +14,35 @@ import {
   divider, footerTd, footerLink, orangeIcon,
 } from './email-styles.ts'
 
-interface Props { name?: string; surfaceName?: string; surfaceUrl?: string }
+interface Props { name?: string; dashboardUrl?: string }
 
-const SurfacePublishedEmail = ({
+const KycApprovedEmail = ({
   name,
-  surfaceName = 'My Surface',
-  surfaceUrl = 'https://yangu.io',
+  dashboardUrl = 'https://yangu.io/dashboard',
 }: Props) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>🎉 Your surface is now live on YANGU!</Preview>
+    <Preview>Your YANGU identity verification is approved ✅</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={logoSectionCentered}>
           <Img src={LOGO_URL} width="140" height="140" alt="yangu" style={logoImageCentered} />
         </Section>
-        <Section style={badgeRow}><Text style={badge}>Published 🚀</Text></Section>
-        <Heading style={h1Centered}>🎉 Your surface is now live!</Heading>
+        <Section style={badgeRow}><Text style={badge}>Verified ✅</Text></Section>
+        <Heading style={h1Centered}>Identity Verified!</Heading>
         <Text style={bodyTextCentered}>
-          Your YANGU surface{surfaceName ? ` "${surfaceName}"` : ''} has been successfully published and is now accessible online.
+          {name ? `Congratulations ${name}! ` : 'Congratulations! '}Your identity verification has been approved. You now have full access to all YANGU features.
         </Text>
         <Text style={bodyTextCentered}>
-          You can start sharing it, receiving customers, and growing your business.
+          You can now publish surfaces, accept payments, and unlock premium tools on the platform.
         </Text>
         <Section style={buttonSectionCentered}>
-          <Link href={surfaceUrl} style={{ display: 'inline-block' }}>
+          <Link href={dashboardUrl} style={{ display: 'inline-block' }}>
             <table cellPadding="0" cellSpacing="0" style={{ borderCollapse: 'collapse' as const, margin: '0 auto' }}>
-              <tr><td align="center" style={ctaButton}>View Your Surface</td></tr>
+              <tr><td align="center" style={ctaButton}>Go to Dashboard</td></tr>
             </table>
           </Link>
         </Section>
-        <Text style={bodyTextCentered}>
-          If you need to make updates, you can edit your surface anytime from your dashboard.
-        </Text>
         <Text style={signoffTextCentered}>Keep building 🚀</Text>
         <Text style={signoffLabelCentered}>Your internet business hub,</Text>
         <Text style={teamNameCentered}>YANGU Team</Text>
@@ -63,8 +59,8 @@ const SurfacePublishedEmail = ({
 )
 
 export const template = {
-  component: SurfacePublishedEmail,
-  subject: '🎉 Your YANGU surface is now live!',
-  displayName: 'Surface published',
-  previewData: { name: 'Builder', surfaceName: 'My Portfolio' },
+  component: KycApprovedEmail,
+  subject: 'Your YANGU identity verification is approved ✅',
+  displayName: 'KYC approved',
+  previewData: { name: 'Builder' },
 } satisfies TemplateEntry

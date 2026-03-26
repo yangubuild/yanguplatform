@@ -14,39 +14,36 @@ import {
   divider, footerTd, footerLink, orangeIcon,
 } from './email-styles.ts'
 
-interface Props { name?: string; surfaceName?: string; surfaceUrl?: string }
+interface Props { name?: string; amount?: string; dashboardUrl?: string }
 
-const SurfacePublishedEmail = ({
+const PaymentSuccessfulEmail = ({
   name,
-  surfaceName = 'My Surface',
-  surfaceUrl = 'https://yangu.io',
+  amount = 'KES 1,500',
+  dashboardUrl = 'https://yangu.io/dashboard/billing',
 }: Props) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>🎉 Your surface is now live on YANGU!</Preview>
+    <Preview>Payment of {amount} received — thank you!</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={logoSectionCentered}>
           <Img src={LOGO_URL} width="140" height="140" alt="yangu" style={logoImageCentered} />
         </Section>
-        <Section style={badgeRow}><Text style={badge}>Published 🚀</Text></Section>
-        <Heading style={h1Centered}>🎉 Your surface is now live!</Heading>
+        <Section style={badgeRow}><Text style={badge}>Payment ✅</Text></Section>
+        <Heading style={h1Centered}>Payment Received!</Heading>
         <Text style={bodyTextCentered}>
-          Your YANGU surface{surfaceName ? ` "${surfaceName}"` : ''} has been successfully published and is now accessible online.
+          {name ? `Thank you ${name}! ` : 'Thank you! '}Your payment of <strong>{amount}</strong> has been successfully processed.
         </Text>
         <Text style={bodyTextCentered}>
-          You can start sharing it, receiving customers, and growing your business.
+          Your account has been updated. You can view your billing history and receipts from your dashboard.
         </Text>
         <Section style={buttonSectionCentered}>
-          <Link href={surfaceUrl} style={{ display: 'inline-block' }}>
+          <Link href={dashboardUrl} style={{ display: 'inline-block' }}>
             <table cellPadding="0" cellSpacing="0" style={{ borderCollapse: 'collapse' as const, margin: '0 auto' }}>
-              <tr><td align="center" style={ctaButton}>View Your Surface</td></tr>
+              <tr><td align="center" style={ctaButton}>View Billing</td></tr>
             </table>
           </Link>
         </Section>
-        <Text style={bodyTextCentered}>
-          If you need to make updates, you can edit your surface anytime from your dashboard.
-        </Text>
         <Text style={signoffTextCentered}>Keep building 🚀</Text>
         <Text style={signoffLabelCentered}>Your internet business hub,</Text>
         <Text style={teamNameCentered}>YANGU Team</Text>
@@ -63,8 +60,8 @@ const SurfacePublishedEmail = ({
 )
 
 export const template = {
-  component: SurfacePublishedEmail,
-  subject: '🎉 Your YANGU surface is now live!',
-  displayName: 'Surface published',
-  previewData: { name: 'Builder', surfaceName: 'My Portfolio' },
+  component: PaymentSuccessfulEmail,
+  subject: (data) => `Payment of ${data.amount ?? 'KES 1,500'} received ✅`,
+  displayName: 'Payment successful',
+  previewData: { name: 'Builder', amount: 'KES 1,500' },
 } satisfies TemplateEntry
