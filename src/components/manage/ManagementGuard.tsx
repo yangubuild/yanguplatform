@@ -2,8 +2,9 @@ import { ReactNode, useEffect } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useRoles } from "@/hooks/useRoles";
+import { YanguLoader } from "@/components/YanguLoader";
 import { setActiveContext } from "@/lib/routing/activeContext";
-import { Loader2, ShieldX } from "lucide-react";
+import { ShieldX } from "lucide-react";
 
 const ALLOWED_ADMIN_EMAILS = [
   "yanguabuild@gmail.com",
@@ -37,7 +38,7 @@ export function ManagementGuard({ children }: ManagementGuardProps) {
   if (authLoading || rolesLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+        <YanguLoader size={40} fullArea={false} />
       </div>
     );
   }

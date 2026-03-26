@@ -3,7 +3,8 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { manageLink } from "@/lib/routing/managePathUtils";
 import { useRoles } from "@/hooks/useRoles";
-import { Loader2, ShieldX } from "lucide-react";
+import { YanguLoader } from "@/components/YanguLoader";
+import { ShieldX } from "lucide-react";
 
 /** Emails that are always allowed into the management panel */
 const ALLOWED_ADMIN_EMAILS = [
@@ -31,7 +32,7 @@ export function AdminRoute({ children }: AdminRouteProps) {
   if (authLoading || rolesLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+        <YanguLoader size={40} fullArea={false} />
       </div>
     );
   }

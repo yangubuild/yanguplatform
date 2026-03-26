@@ -1,5 +1,3 @@
-import yanguYIcon from "@/assets/yangu-y-icon.png";
-
 interface YanguLoaderProps {
   /** Size of the loader icon in pixels (default: 40) */
   size?: number;
@@ -9,10 +7,12 @@ interface YanguLoaderProps {
   fullArea?: boolean;
 }
 
+const YANGU_LOADER_SRC = "/yangu-y-loader.png";
+
 export function YanguLoader({ size = 40, label, fullArea = true }: YanguLoaderProps) {
   const img = (
     <img
-      src={yanguYIcon}
+      src={YANGU_LOADER_SRC}
       alt="Loading"
       width={size}
       height={size}
@@ -31,7 +31,7 @@ export function YanguLoader({ size = 40, label, fullArea = true }: YanguLoaderPr
   }
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center min-h-[200px]">
+    <div className="flex flex-1 flex-col items-center justify-center min-h-[200px]">
       {img}
       {label && <p className="text-xs text-muted-foreground mt-2">{label}</p>}
     </div>
