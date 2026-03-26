@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminGlassCard, AdminPageHeader, AdminMetricCard } from "@/components/manage/AdminGlassCard";
 import { Badge } from "@/components/ui/badge";
@@ -7,9 +7,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Eye, TrendingUp, Globe, BarChart3, RefreshCw, CheckCircle2, XCircle,
-  ArrowUpRight, Target,
+  Target, Shield, Layers, Zap,
 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 /* ── Capability config ── */
 const CAPABILITIES = [
@@ -43,8 +44,44 @@ const REGIONS = [
   { key: "global", label: "Global", emoji: "🌐" },
 ];
 
+const SCORE_LABELS: Record<string, { label: string; color: string }> = {
+  "Dominant AI Presence": { label: "Dominant AI Presence", color: "#22c55e" },
+  "Strong Positioning": { label: "Strong Positioning", color: "#3b82f6" },
+  "Growing Visibility": { label: "Growing Visibility", color: "#f59e0b" },
+  "Weak Presence": { label: "Weak Presence", color: "#f97316" },
+  "Invisible in AI": { label: "Invisible in AI", color: "#ef4444" },
+  "No data": { label: "No Data", color: "#6b7280" },
+};
+
+interface VisibilityScore {
+  total_score: number;
+  mention_score: number;
+  position_score: number;
+  capability_score: number;
+  positioning_score: number;
+  competitive_score: number;
+  mention_rate_pct: number;
+  avg_position: number | null;
+  capabilities_covered: number;
+  positioning_match_pct: number;
+  interpretation: string;
+  total_queries: number;
+  mentioned_count: number;
+}
+
 export default function ManageAiVisibility() {
   const [scanning, setScanning] = useState(false);
+  const queryClient = useQueryClient();
+
+  /* ── Computed Score via RPC ── */
+  const { data: score, isLoading: scoreLoading } = useQuery({
+    queryKey: ["ai-visibility-score"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("calculate_ai_visibility_score", { p_days: 30 });
+      if (error) throw error;
+      return data as unknown as VisibilityScore;
+    },
+  });
 
   const { data: tracking = [], isLoading: trackingLoading } = useQuery({
     queryKey: ["ai-visibility-tracking"],
@@ -70,32 +107,13 @@ export default function ManageAiVisibility() {
     },
   });
 
-  /* ── Derived stats ── */
-  const totalQueries = tracking.length;
-  const mentionedCount = tracking.filter((t: any) => t.yangu_mentioned).length;
-  const mentionRate = totalQueries > 0 ? Math.round((mentionedCount / totalQueries) * 100) : 0;
-  const avgPosition = (() => {
-    const withPos = tracking.filter((t: any) => t.yangu_mentioned && t.yangu_position);
-    if (withPos.length === 0) return "—";
-    const avg = withPos.reduce((sum: number, t: any) => sum + (t.yangu_position ?? 0), 0) / withPos.length;
-    return `#${avg.toFixed(1)}`;
-  })();
-  const positioningMatchRate = (() => {
-    const matched = tracking.filter((t: any) => t.positioning_match).length;
-    return totalQueries > 0 ? Math.round((matched / totalQueries) * 100) : 0;
-  })();
-
-  /* ── Capability breakdown ── */
+  /* ── Capability breakdown (from raw data) ── */
   const capabilityStats = CAPABILITIES.map((cap) => {
     const relevant = tracking.filter((t: any) =>
       (t.capability_mentioned as string[] | null)?.includes(cap.key)
     );
     const total = tracking.length || 1;
-    return {
-      ...cap,
-      count: relevant.length,
-      pct: Math.round((relevant.length / total) * 100),
-    };
+    return { ...cap, count: relevant.length, pct: Math.round((relevant.length / total) * 100) };
   }).sort((a, b) => b.pct - a.pct);
 
   /* ── Regional breakdown ── */
@@ -107,45 +125,55 @@ export default function ManageAiVisibility() {
       return true;
     });
     const mentioned = relevant.filter((t: any) => t.yangu_mentioned).length;
-    return {
-      ...r,
-      total: relevant.length,
-      mentioned,
-      pct: relevant.length > 0 ? Math.round((mentioned / relevant.length) * 100) : 0,
-    };
+    return { ...r, total: relevant.length, mentioned, pct: relevant.length > 0 ? Math.round((mentioned / relevant.length) * 100) : 0 };
   });
 
   /* ── Platform breakdown ── */
   const platformStats = AI_PLATFORMS.map((p) => {
     const relevant = tracking.filter((t: any) => t.ai_platform === p.key);
     const mentioned = relevant.filter((t: any) => t.yangu_mentioned).length;
-    return {
-      ...p,
-      total: relevant.length,
-      mentioned,
-      pct: relevant.length > 0 ? Math.round((mentioned / relevant.length) * 100) : 0,
-    };
+    return { ...p, total: relevant.length, mentioned, pct: relevant.length > 0 ? Math.round((mentioned / relevant.length) * 100) : 0 };
   });
 
   const handleRunScan = async () => {
     setScanning(true);
     try {
-      await supabase.functions.invoke("ai-visibility-scan");
-    } catch { /* */ }
+      const { error } = await supabase.functions.invoke("ai-visibility-scan");
+      if (error) throw error;
+      toast.success("Scan complete — refreshing data");
+      queryClient.invalidateQueries({ queryKey: ["ai-visibility-tracking"] });
+      queryClient.invalidateQueries({ queryKey: ["ai-visibility-score"] });
+      queryClient.invalidateQueries({ queryKey: ["ai-visibility-settings"] });
+    } catch (e: any) {
+      toast.error(e.message || "Scan failed");
+    }
     setScanning(false);
   };
 
-  if (trackingLoading) {
+  const isLoading = trackingLoading || scoreLoading;
+
+  if (isLoading) {
     return (
       <div className="space-y-4">
         <Skeleton className="h-8 w-64" />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-28" />)}
         </div>
         <Skeleton className="h-96" />
       </div>
     );
   }
+
+  const totalScore = score?.total_score ?? 0;
+  const interp = SCORE_LABELS[score?.interpretation ?? "No data"] ?? SCORE_LABELS["No data"];
+
+  const SCORE_COMPONENTS = [
+    { label: "Mention Rate", value: score?.mention_score ?? 0, max: 30, icon: <Eye className="h-4 w-4" />, detail: `${score?.mention_rate_pct ?? 0}% of queries` },
+    { label: "Position Score", value: score?.position_score ?? 0, max: 20, icon: <TrendingUp className="h-4 w-4" />, detail: score?.avg_position ? `Avg rank` : "No data" },
+    { label: "Capability Coverage", value: score?.capability_score ?? 0, max: 20, icon: <Layers className="h-4 w-4" />, detail: `${score?.capabilities_covered ?? 0}/12 capabilities` },
+    { label: "Positioning Match", value: score?.positioning_score ?? 0, max: 15, icon: <Target className="h-4 w-4" />, detail: `${score?.positioning_match_pct ?? 0}% aligned` },
+    { label: "Competitive Strength", value: score?.competitive_score ?? 0, max: 15, icon: <Shield className="h-4 w-4" />, detail: "vs competitors" },
+  ];
 
   return (
     <div className="space-y-6">
@@ -164,31 +192,84 @@ export default function ManageAiVisibility() {
         }
       />
 
-      {/* ── Top Metrics ── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <AdminMetricCard
-          label="Positioning Score"
-          value={`${mentionRate}/100`}
-          icon={<Target className="h-4 w-4" />}
-          trend={<span className="text-xs text-emerald-500 font-medium">▲ Active</span>}
-        />
-        <AdminMetricCard
-          label="Mention Rate"
-          value={`${mentionRate}%`}
-          icon={<Eye className="h-4 w-4" />}
-          trend={<span className="text-xs text-[hsl(var(--admin-text-muted))]">{mentionedCount}/{totalQueries} queries</span>}
-        />
-        <AdminMetricCard
-          label="Avg Position"
-          value={avgPosition}
-          icon={<TrendingUp className="h-4 w-4" />}
-        />
-        <AdminMetricCard
-          label="Positioning Match"
-          value={`${positioningMatchRate}%`}
-          icon={<BarChart3 className="h-4 w-4" />}
-          trend={<span className="text-xs text-[hsl(var(--admin-text-muted))]">alignment</span>}
-        />
+      {/* ── POSITIONING SCORE HERO ── */}
+      <AdminGlassCard className="p-6">
+        <div className="flex flex-col md:flex-row items-center gap-6">
+          {/* Big score circle */}
+          <div className="relative w-32 h-32 flex-shrink-0">
+            <svg className="w-32 h-32 -rotate-90" viewBox="0 0 128 128">
+              <circle cx="64" cy="64" r="56" fill="none" stroke="hsl(var(--admin-border)/0.2)" strokeWidth="10" />
+              <circle
+                cx="64" cy="64" r="56" fill="none"
+                stroke={interp.color}
+                strokeWidth="10"
+                strokeLinecap="round"
+                strokeDasharray={`${(totalScore / 100) * 352} 352`}
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="text-3xl font-bold text-[hsl(var(--admin-text))]" style={{ fontFamily: "'Lufga', sans-serif" }}>
+                {totalScore}
+              </span>
+              <span className="text-xs text-[hsl(var(--admin-text-muted))]">/100</span>
+            </div>
+          </div>
+
+          {/* Score details */}
+          <div className="flex-1 text-center md:text-left">
+            <h3 className="text-lg font-bold text-[hsl(var(--admin-text))]" style={{ fontFamily: "'Lufga', sans-serif" }}>
+              YANGU POSITIONING SCORE
+            </h3>
+            <Badge
+              className="mt-1 text-white border-0"
+              style={{ backgroundColor: interp.color }}>
+              {interp.label}
+            </Badge>
+            <p className="text-sm text-[hsl(var(--admin-text-muted))] mt-2">
+              Mentioned in {score?.mentioned_count ?? 0}/{score?.total_queries ?? 0} queries •{" "}
+              {score?.capabilities_covered ?? 0}/12 capabilities recognized •{" "}
+              {score?.positioning_match_pct ?? 0}% positioning alignment
+            </p>
+          </div>
+        </div>
+
+        {/* Component bars */}
+        <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 mt-6">
+          {SCORE_COMPONENTS.map((c) => {
+            const pct = c.max > 0 ? Math.round((c.value / c.max) * 100) : 0;
+            return (
+              <div key={c.label} className="bg-[hsl(var(--admin-border)/0.08)] rounded-lg p-3">
+                <div className="flex items-center gap-1.5 mb-1">
+                  {c.icon}
+                  <span className="text-xs font-medium text-[hsl(var(--admin-text))] truncate">{c.label}</span>
+                </div>
+                <div className="text-xl font-bold text-[hsl(var(--admin-text))]" style={{ fontFamily: "'Lufga', sans-serif" }}>
+                  {c.value}<span className="text-xs font-normal text-[hsl(var(--admin-text-muted))]">/{c.max}</span>
+                </div>
+                <div className="h-1.5 bg-[hsl(var(--admin-border)/0.2)] rounded-full mt-1 overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all"
+                    style={{
+                      width: `${pct}%`,
+                      background: pct > 70 ? "#22c55e" : pct > 40 ? "#f59e0b" : "#ef4444",
+                    }}
+                  />
+                </div>
+                <p className="text-[10px] text-[hsl(var(--admin-text-muted))] mt-1">{c.detail}</p>
+              </div>
+            );
+          })}
+        </div>
+      </AdminGlassCard>
+
+      {/* ── Score Interpretation Legend ── */}
+      <div className="flex flex-wrap gap-2">
+        {Object.entries(SCORE_LABELS).filter(([k]) => k !== "No data").map(([key, val]) => (
+          <div key={key} className="flex items-center gap-1.5 text-xs text-[hsl(var(--admin-text-muted))]">
+            <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: val.color }} />
+            {val.label}
+          </div>
+        ))}
       </div>
 
       <Tabs defaultValue="capabilities" className="space-y-4">
@@ -228,7 +309,7 @@ export default function ManageAiVisibility() {
                 </div>
               ))}
             </div>
-            {totalQueries === 0 && (
+            {tracking.length === 0 && (
               <p className="text-sm text-[hsl(var(--admin-text-muted))] text-center py-8">
                 No tracking data yet. Run your first scan to start collecting data.
               </p>
@@ -296,21 +377,23 @@ export default function ManageAiVisibility() {
         <TabsContent value="recent">
           <AdminGlassCard className="p-0 overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm min-w-[600px]">
+              <table className="w-full text-sm min-w-[700px]">
                 <thead className="bg-[hsl(var(--admin-card))]">
                   <tr className="text-left text-xs text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">
                     <th className="px-4 py-3">Platform</th>
                     <th className="px-4 py-3">Query</th>
                     <th className="px-4 py-3">Mentioned</th>
                     <th className="px-4 py-3">Position</th>
+                    <th className="px-4 py-3">Capabilities</th>
                     <th className="px-4 py-3">Sentiment</th>
+                    <th className="px-4 py-3">Match</th>
                     <th className="px-4 py-3">Date</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[hsl(var(--admin-border)/0.2)]">
                   {tracking.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-4 py-12 text-center text-[hsl(var(--admin-text-muted))]">
+                      <td colSpan={8} className="px-4 py-12 text-center text-[hsl(var(--admin-text-muted))]">
                         No tracking data yet. Click "Run Scan" to start.
                       </td>
                     </tr>
@@ -322,7 +405,7 @@ export default function ManageAiVisibility() {
                             {AI_PLATFORMS.find((p) => p.key === t.ai_platform)?.label || t.ai_platform}
                           </Badge>
                         </td>
-                        <td className="px-4 py-3 text-[hsl(var(--admin-text))] max-w-[200px] truncate">{t.query}</td>
+                        <td className="px-4 py-3 text-[hsl(var(--admin-text))] max-w-[180px] truncate">{t.query}</td>
                         <td className="px-4 py-3">
                           {t.yangu_mentioned ? (
                             <CheckCircle2 className="h-4 w-4 text-emerald-500" />
@@ -331,7 +414,21 @@ export default function ManageAiVisibility() {
                           )}
                         </td>
                         <td className="px-4 py-3 text-[hsl(var(--admin-text))] font-semibold">
-                          {t.yangu_mentioned ? `#${t.yangu_position ?? "—"}` : "—"}
+                          {t.yangu_mentioned && t.yangu_position ? `#${t.yangu_position}` : "—"}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex flex-wrap gap-0.5">
+                            {((t.capability_mentioned as string[]) ?? []).slice(0, 3).map((c: string) => (
+                              <Badge key={c} variant="outline" className="text-[10px] px-1 py-0 border-[hsl(var(--admin-border)/0.3)] text-[hsl(var(--admin-text-muted))]">
+                                {CAPABILITIES.find(cap => cap.key === c)?.icon ?? "·"}
+                              </Badge>
+                            ))}
+                            {((t.capability_mentioned as string[]) ?? []).length > 3 && (
+                              <span className="text-[10px] text-[hsl(var(--admin-text-muted))]">
+                                +{(t.capability_mentioned as string[]).length - 3}
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="px-4 py-3">
                           <Badge
@@ -339,10 +436,18 @@ export default function ManageAiVisibility() {
                             className={`text-xs capitalize ${
                               t.sentiment === "positive" ? "border-emerald-500/40 text-emerald-500" :
                               t.sentiment === "negative" ? "border-red-500/40 text-red-500" :
+                              t.sentiment === "mixed" ? "border-amber-500/40 text-amber-500" :
                               "border-[hsl(var(--admin-border)/0.4)] text-[hsl(var(--admin-text-muted))]"
                             }`}>
                             {t.sentiment || "—"}
                           </Badge>
+                        </td>
+                        <td className="px-4 py-3">
+                          {t.positioning_match ? (
+                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                          ) : (
+                            <XCircle className="h-3.5 w-3.5 text-[hsl(var(--admin-text-muted))]" />
+                          )}
                         </td>
                         <td className="px-4 py-3 text-xs text-[hsl(var(--admin-text-muted))]">
                           {new Date(t.tracked_at).toLocaleDateString()}
