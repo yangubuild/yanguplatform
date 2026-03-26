@@ -8,6 +8,8 @@ export const ROUTES = {
   signup: "/signup",
   resetPassword: "/reset-password",
   support: "/support",
+  helpCenter: "/help-center",
+  updates: "/updates",
   
   // User routes
   dashboard: "/dashboard",

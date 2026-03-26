@@ -71,6 +71,8 @@ const EmailPreviewPage = lazy(() => lazyRetry(() => import("./pages/dashboard/Em
 
 const BuilderPage = lazy(() => lazyRetry(() => import("./pages/BuilderPage")));
 const SupportPage = lazy(() => lazyRetry(() => import("./pages/SupportPage")));
+const HelpCenter = lazy(() => lazyRetry(() => import("./pages/HelpCenter")));
+const PlatformUpdates = lazy(() => lazyRetry(() => import("./pages/PlatformUpdates")));
 
 // Visionaire pages (lazy)
 const VisionaireHome = lazy(() => lazyRetry(() => import("./pages/dashboard/visionaire/VisionaireHome")));
@@ -256,6 +258,8 @@ const App = () => (
                 
                 <Route path="/builder" element={<BuilderPage />} />
                 <Route path="/support" element={<SupportPage />} />
+                <Route path="/help-center" element={<HelpCenter />} />
+                <Route path="/updates" element={<PlatformUpdates />} />
 
                 {/* Developer platform */}
                 <Route path="/developers" element={<DevelopersLayout />}>
