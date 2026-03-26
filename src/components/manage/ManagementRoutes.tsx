@@ -1,5 +1,5 @@
 import { lazyRetry } from "@/lib/lazyRetry";
-import { lazy, Suspense } from "react";
+import { lazy } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { ManagementGuard } from "./ManagementGuard";
 import { AdminShell } from "./AdminShell";
@@ -83,7 +83,6 @@ const AuthCallback = lazy(() => lazyRetry(() => import("@/pages/auth/AuthCallbac
 
 export function ManagementRoutes() {
   return (
-    <Suspense fallback={<div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}><img src="/yangu-y-loader.png" alt="Loading" width={40} height={40} style={{ animation: "spin 1.4s linear infinite" }} /></div>}>
       <Routes>
         {/* Auth routes */}
         <Route path="/auth/login" element={<Login />} />
@@ -194,6 +193,5 @@ export function ManagementRoutes() {
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </Suspense>
   );
 }
