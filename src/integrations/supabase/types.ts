@@ -8207,19 +8207,23 @@ export type Database = {
         Args: { p_surface_type: string }
         Returns: Database["public"]["Enums"]["searchable_entity_type"]
       }
-      developer_check_and_increment_usage: {
-        Args: {
-          p_app_id: string
-          p_endpoint: string
-          p_latency_ms?: number
-          p_success: boolean
-        }
-        Returns: Json
-      }
-      developer_get_usage_summary: {
-        Args: { p_app_id?: string; p_days?: number }
-        Returns: Json
-      }
+      developer_check_and_increment_usage:
+        | {
+            Args: { p_app_id: string; p_endpoint: string; p_method?: string }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_app_id: string
+              p_endpoint: string
+              p_latency_ms?: number
+              p_success: boolean
+            }
+            Returns: Json
+          }
+      developer_get_usage_summary:
+        | { Args: { p_app_id: string }; Returns: Json }
+        | { Args: { p_app_id?: string; p_days?: number }; Returns: Json }
       discovery_analytics_summary: { Args: { p_days?: number }; Returns: Json }
       dismiss_promo: { Args: { p_campaign_key: string }; Returns: undefined }
       enqueue_dropship_order_sync_jobs: {
