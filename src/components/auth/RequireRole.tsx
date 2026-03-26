@@ -3,7 +3,6 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useRoles } from "@/hooks/useRoles";
 import { resolveAccountType, AccountType } from "@/config/dashboardNav";
-import { Loader2 } from "lucide-react";
 
 interface RequireRoleProps {
   allowed: AccountType[];
@@ -17,15 +16,12 @@ interface RequireRoleProps {
  * is not in the allowed list.
  */
 export function RequireRole({ allowed, children, redirectTo = "/dashboard/profile" }: RequireRoleProps) {
-  const { profile, isLoading: authLoading } = useAuth();
+  const { profile } = useAuth();
   const { isAdmin, isLoading: rolesLoading } = useRoles();
 
-  if (authLoading || rolesLoading) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+  // rolesLoading already includes authLoading — no need to check both
+  if (rolesLoading) {
+    return null; // Shell stays mounted; content appears when ready
   }
 
   const accountType = resolveAccountType({ isAdmin, creatorType: profile?.creator_type });

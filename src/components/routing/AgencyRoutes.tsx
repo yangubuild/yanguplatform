@@ -1,12 +1,11 @@
 import { lazyRetry } from "@/lib/lazyRetry";
-import { lazy } from "react";
+import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useRoles } from "@/hooks/useRoles";
 import { AgencyShell } from "@/components/manage/AgencyShell";
 import { AgencyGuard } from "@/components/manage/AgencyGuard";
-import { YanguLoader } from "@/components/YanguLoader";
-import { ShieldX } from "lucide-react";
+import { Loader2, ShieldX } from "lucide-react";
 
 // Agency pages
 const AgencyLanding = lazy(() => lazyRetry(() => import("@/pages/auth/AgencyLanding")));
@@ -33,16 +32,13 @@ const AgencyLogin = lazy(() => lazyRetry(() => import("@/pages/auth/AgencyLogin"
 const AuthCallback = lazy(() => lazyRetry(() => import("@/pages/auth/AuthCallback")));
 
 function AgencyAuthGuard({ children }: { children: React.ReactNode }) {
-  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { hasAnyAgencyRole, isAdmin, isLoading: rolesLoading } = useRoles();
   const location = useLocation();
 
-  if (authLoading || rolesLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <YanguLoader size={40} fullArea={false} />
-      </div>
-    );
+  // rolesLoading already includes authLoading — no need to check both
+  if (rolesLoading) {
+    return null; // Shell stays mounted during initial boot
   }
 
   if (!isAuthenticated) {
@@ -67,6 +63,7 @@ function AgencyAuthGuard({ children }: { children: React.ReactNode }) {
 
 export function AgencyRoutes() {
   return (
+    <Suspense fallback={<div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}><img src="/yangu-y-loader.png" alt="Loading" width={40} height={40} style={{ animation: "spin 1.4s linear infinite" }} /></div>}>
       <Routes>
         {/* Public landing */}
         <Route path="/welcome" element={<AgencyLanding />} />
@@ -112,5 +109,6 @@ export function AgencyRoutes() {
         {/* Catch-all → login */}
         <Route path="*" element={<Navigate to="/welcome" replace />} />
       </Routes>
+    </Suspense>
   );
 }

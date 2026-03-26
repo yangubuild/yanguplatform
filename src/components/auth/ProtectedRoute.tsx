@@ -2,7 +2,7 @@ import { ReactNode, useEffect } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveOrg } from "@/hooks/useActiveOrg";
-import { YanguLoader } from "@/components/YanguLoader";
+import { Loader2 } from "lucide-react";
 import { setActiveContext, getActiveContext } from "@/lib/routing/activeContext";
 
 interface ProtectedRouteProps {
@@ -20,11 +20,11 @@ export function ProtectedRoute({ children, requireOnboarding = true }: Protected
     if (isAuthenticated) setActiveContext("platform");
   }, [isAuthenticated]);
 
-  // Auth is still resolving — show the global Y loader
+  // Auth is still resolving — show spinner (blocks everything)
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <YanguLoader size={40} fullArea={false} />
+        <Loader2 className="h-8 w-8 animate-spin text-accent" />
       </div>
     );
   }
@@ -41,7 +41,7 @@ export function ProtectedRoute({ children, requireOnboarding = true }: Protected
     if (!profile) {
       return (
         <div className="min-h-screen flex items-center justify-center bg-background">
-          <YanguLoader size={40} fullArea={false} />
+          <Loader2 className="h-8 w-8 animate-spin text-accent" />
         </div>
       );
     }
@@ -71,7 +71,7 @@ export function ProtectedRoute({ children, requireOnboarding = true }: Protected
     if (orgLoading && !activeOrg) {
       return (
         <div className="min-h-screen flex items-center justify-center bg-background">
-          <YanguLoader size={40} fullArea={false} />
+          <Loader2 className="h-8 w-8 animate-spin text-accent" />
         </div>
       );
     }

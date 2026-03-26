@@ -2,7 +2,6 @@ import { ReactNode, useEffect } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useRoles } from "@/hooks/useRoles";
-import { YanguLoader } from "@/components/YanguLoader";
 import { setActiveContext } from "@/lib/routing/activeContext";
 import { ShieldX } from "lucide-react";
 
@@ -16,7 +15,7 @@ interface ManagementGuardProps {
 }
 
 export function ManagementGuard({ children }: ManagementGuardProps) {
-  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const {
     hasAnyManageRole,
     hasAnyAgencyRole,
@@ -35,12 +34,9 @@ export function ManagementGuard({ children }: ManagementGuardProps) {
     }
   }, [isAuthenticated, hasAccess]);
 
-  if (authLoading || rolesLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <YanguLoader size={40} fullArea={false} />
-      </div>
-    );
+  // rolesLoading already includes authLoading — no need to check both
+  if (rolesLoading) {
+    return null; // Shell stays mounted during initial boot
   }
 
   if (!isAuthenticated) {
