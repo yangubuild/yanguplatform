@@ -7839,6 +7839,7 @@ export type Database = {
           id: string | null
           social_links: Json | null
           username: string | null
+          verified_tick: string | null
         }
         Insert: {
           avatar_emoji_key?: string | null
@@ -7853,6 +7854,7 @@ export type Database = {
           id?: string | null
           social_links?: Json | null
           username?: string | null
+          verified_tick?: string | null
         }
         Update: {
           avatar_emoji_key?: string | null
@@ -7867,6 +7869,7 @@ export type Database = {
           id?: string | null
           social_links?: Json | null
           username?: string | null
+          verified_tick?: string | null
         }
         Relationships: []
       }
