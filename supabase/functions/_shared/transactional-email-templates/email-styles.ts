@@ -140,16 +140,13 @@ export const buttonSectionLeft = {
 }
 
 export const ctaButton = {
-  background: 'linear-gradient(180deg, #E8943A 0%, #D4731A 100%)',
   backgroundColor: '#D4731A',
   color: '#ffffff',
   fontSize: '16px',
   fontWeight: 'bold' as const,
-  textTransform: 'uppercase' as const,
-  letterSpacing: '1px',
-  padding: '16px 48px',
-  borderRadius: '12px',
-  border: '2px solid #C06515',
+  padding: '14px 40px',
+  borderRadius: '8px',
+  border: 'none',
   textDecoration: 'none',
   display: 'inline-block' as const,
 }
