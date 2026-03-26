@@ -15,28 +15,28 @@ import {
 
 interface Props { name?: string; creditsUrl?: string }
 
-const LowCreditsReminderEmail = ({
+const CreditsExhaustedEmail = ({
   name,
   creditsUrl = 'https://yangu.io/dashboard/credits',
 }: Props) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Your YANGU credits are running low — add funds to avoid interruptions</Preview>
+    <Preview>Your YANGU credits have been exhausted — services may be paused</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={logoSectionLeft}>
           <Img src={LOGO_URL} width="120" height="120" alt="yangu" style={logoImageLeft} />
         </Section>
-        <Section style={badgeRow}><Text style={badge}>Alert ⚠️</Text></Section>
+        <Section style={badgeRow}><Text style={badge}>Urgent 🚨</Text></Section>
         <Section style={contentSection}>
           <Text style={greeting}>Hi{name ? ` ${name}` : ''},</Text>
-          <Text style={bodyTextLeft}>Your <strong>YANGU</strong> account credits are running low.</Text>
-          <Text style={bodyTextLeft}>To avoid interruptions in your services (AI tools, store activity, publishing), please add funds to your account.</Text>
+          <Text style={bodyTextLeft}>Your <strong>YANGU</strong> account credits have been fully exhausted.</Text>
+          <Text style={bodyTextLeft}>Some of your services — including AI tools, store operations, and publishing — may be paused until you add more credits.</Text>
         </Section>
         <Section style={buttonSectionLeft}>
           <Link href={creditsUrl} style={{ display: 'inline-block' }}>
             <table cellPadding="0" cellSpacing="0" style={{ borderCollapse: 'collapse' as const }}>
-              <tr><td align="center" style={ctaButton}>Add Funds</td></tr>
+              <tr><td align="center" style={ctaButton}>Add Funds Now</td></tr>
             </table>
           </Link>
         </Section>
@@ -58,8 +58,8 @@ const LowCreditsReminderEmail = ({
 )
 
 export const template = {
-  component: LowCreditsReminderEmail,
-  subject: 'Your YANGU credits are running low',
-  displayName: 'Low credits reminder',
+  component: CreditsExhaustedEmail,
+  subject: 'Your YANGU credits have been exhausted',
+  displayName: 'Credits exhausted',
   previewData: { name: 'Builder' },
 } satisfies TemplateEntry
