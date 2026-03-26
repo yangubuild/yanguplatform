@@ -14,7 +14,7 @@ import {
   divider, footerTd, footerLink, orangeIcon,
 } from './email-styles.ts'
 
-interface Props { name?: string; planName?: string; dashboardUrl?: string; upgradeUrl?: string }
+interface Props { name?: string; planName?: string; dashboardUrl?: string; upgradeUrl?: string; billingCycle?: string }
 
 const isFree = (plan: string) => plan.toLowerCase() === 'free'
 
