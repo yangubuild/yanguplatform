@@ -34,13 +34,16 @@ export const SignupEmail = ({
     <Preview>Welcome to yangu — confirm your email to get started</Preview>
     <Body style={main}>
       <Container style={container}>
-        {/* Hero banner image */}
-        <Img
-          src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/email-header-welcome.png"
-          width="100%"
-          alt="Welcome to yangu"
-          style={heroImage}
-        />
+        {/* Centered logo */}
+        <Section style={logoSection}>
+          <Img
+            src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/yangu-email-logo.png"
+            width="120"
+            height="120"
+            alt="yangu"
+            style={logoImage}
+          />
+        </Section>
 
         {/* News badge */}
         <Section style={badgeRow}>
@@ -110,12 +113,16 @@ const container = {
   padding: '0',
 }
 
-const heroImage = {
+const logoSection = {
+  textAlign: 'center' as const,
+  padding: '40px 0 8px',
+}
+
+const logoImage = {
   display: 'block' as const,
-  width: '100%',
-  height: 'auto',
-  borderRadius: '0',
   margin: '0 auto',
+  width: '120px',
+  height: '120px',
 }
 
 const badgeRow = {
