@@ -21,6 +21,7 @@ import { template as surfacePublished } from './surface-published.tsx'
 import { template as newOrderReceived } from './new-order-received.tsx'
 import { template as paymentSuccessful } from './payment-successful.tsx'
 import { template as kycApproved } from './kyc-approved.tsx'
+import { template as supportTicketReceived } from './support-ticket-received.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   // TYPE B — System Alerts
@@ -34,4 +35,6 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'new-order-received': newOrderReceived,
   'payment-successful': paymentSuccessful,
   'kyc-approved': kycApproved,
+  // Support
+  'support-ticket-received': supportTicketReceived,
 }
