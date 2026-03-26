@@ -34,8 +34,8 @@ export const MagicLinkEmail = ({
         <Section style={logoSection}>
           <Img
             src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/yangu-email-logo.png"
-            width="120"
-            height="120"
+            width="180"
+            height="180"
             alt="yangu"
             style={logoImage}
           />
@@ -109,14 +109,14 @@ const container = {
 
 const logoSection = {
   textAlign: 'center' as const,
-  padding: '40px 0 8px',
+  padding: '24px 0 0',
 }
 
 const logoImage = {
   display: 'block' as const,
   margin: '0 auto',
-  width: '120px',
-  height: '120px',
+  width: '180px',
+  height: '180px',
 }
 
 const badgeRow = {
@@ -139,7 +139,7 @@ const h1 = {
   fontWeight: 'bold' as const,
   color: '#08120D',
   textAlign: 'center' as const,
-  margin: '24px 0 16px',
+  margin: '8px 0 16px',
 }
 
 const bodyText = {
