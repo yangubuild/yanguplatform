@@ -34,8 +34,8 @@ export const RecoveryEmail = ({
         <Section style={logoSection}>
           <Img
             src="https://xcipuyvcwfytlsjryhvs.supabase.co/storage/v1/object/public/email-assets/yangu-email-logo.png"
-            width="180"
-            height="180"
+            width="140"
+            height="140"
             alt="yangu"
             style={logoImage}
           />
