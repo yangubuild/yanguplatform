@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, MessageSquare, BookOpen, Mail, Newspaper, Users, Shield, ArrowRight, X } from "lucide-react";
+import { Search, MessageSquare, BookOpen, Mail, Newspaper, Users, Shield, ArrowRight } from "lucide-react";
 import { MarketingShell } from "@/components/primitives/MarketingShell";
 import { LandingTestFooter } from "@/components/landing-test/LandingTestFooter";
 import { Button } from "@/components/ui/button";
@@ -40,6 +40,17 @@ function ContactSupportModal({ open, onOpenChange }: { open: boolean; onOpenChan
         priority: "normal",
       });
       if (error) throw error;
+
+      // Send acknowledgement email to support@yangu.io
+      await supabase.functions.invoke("send-transactional-email", {
+        body: {
+          templateName: "support-ticket-confirmation",
+          recipientEmail: user.email,
+          idempotencyKey: `support-confirm-${Date.now()}`,
+          templateData: { subject: subject.trim(), category },
+        },
+      }).catch(() => {});
+
       toast.success("Support request submitted! We'll get back to you soon.");
       setSubject("");
       setMessage("");
@@ -60,6 +71,8 @@ function ContactSupportModal({ open, onOpenChange }: { open: boolean; onOpenChan
         </DialogHeader>
         <p className="text-sm text-muted-foreground -mt-2">
           Estimated response time: instant for AI, within 24 hours for human support.
+          <br />
+          <span className="text-xs">Or email us directly at <a href="mailto:support@yangu.io" className="underline">support@yangu.io</a></span>
         </p>
 
         <div className="space-y-4 mt-2">
@@ -124,12 +137,26 @@ export default function SupportPage() {
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
-      toast.info("Search coming soon — try Support Chat for instant help.");
+      navigate(`/help-center?q=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
 
-  const handleOpenSupportChat = () => {
-    navigate("/dashboard/messages", { state: { openChannel: "support" } });
+  const handleOpenSupportChat = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      navigate("/dashboard/messages", { state: { openChannel: "support" } });
+    } else {
+      navigate("/auth/login", { state: { redirectAfterLogin: "/dashboard/messages", openChannel: "support" } });
+    }
+  };
+
+  const handleOpenCommunity = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      navigate("/dashboard/community");
+    } else {
+      navigate("/auth/login", { state: { redirectAfterLogin: "/dashboard/community" } });
+    }
   };
 
   const cards = [
@@ -145,7 +172,7 @@ export default function SupportPage() {
       title: "Help Center",
       description: "Step-by-step guides, FAQs, onboarding help, and platform documentation.",
       cta: "Open Help Center",
-      action: () => toast.info("Help Center coming soon"),
+      action: () => navigate("/help-center"),
     },
     {
       icon: Mail,
@@ -157,8 +184,8 @@ export default function SupportPage() {
   ];
 
   const resources = [
-    { icon: Newspaper, label: "Platform Updates", description: "Latest features and improvements", action: () => navigate("/blog") },
-    { icon: Users, label: "Community", description: "Connect with other YANGU users", action: () => navigate("/community") },
+    { icon: Newspaper, label: "Platform Updates", description: "Latest features and improvements", action: () => navigate("/updates") },
+    { icon: Users, label: "Community", description: "Connect with other YANGU users", action: handleOpenCommunity },
     { icon: Shield, label: "Safety & Policies", description: "AI Safety, Terms, and Privacy", action: () => navigate("/aisafety") },
   ];
 

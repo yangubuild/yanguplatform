@@ -18,6 +18,8 @@ export function LegalFooter() {
         <span className="text-muted-foreground">yangu 2026</span>
         <span className="mx-1.5 text-muted-foreground">·</span>
         <Link to="/aisafety" className="hover:text-muted-foreground transition-colors">AI Safety</Link>
+        <span className="mx-1.5 text-muted-foreground">·</span>
+        <Link to="/support" className="hover:text-muted-foreground transition-colors">Support</Link>
       </div>
     </footer>
   );

@@ -13,6 +13,7 @@ export function LandingTestFooter() {
           <Link to="/privacypolicy" className="hover:text-muted-foreground transition-colors">Privacy</Link>
           <span style={{ color: 'rgba(255,255,255,0.3)' }}>© yangu 2026</span>
           <Link to="/aisafety" className="hover:text-muted-foreground transition-colors">AI Safety</Link>
+          <Link to="/support" className="hover:text-muted-foreground transition-colors">Support</Link>
         </div>
         <div className="flex items-center gap-4">
           <a href="#" className="text-muted-foreground hover:text-muted-foreground transition-colors"><Youtube className="w-5 h-5" /></a>
