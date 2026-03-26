@@ -13,35 +13,35 @@ import {
   divider, footerTd, footerLink, orangeIcon,
 } from './email-styles.ts'
 
-interface Props { name?: string; creditsUrl?: string }
+interface Props { name?: string; billingUrl?: string }
 
-const LowCreditsReminderEmail = ({
+const PaymentFailedEmail = ({
   name,
-  creditsUrl = 'https://yangu.io/dashboard/credits',
+  billingUrl = 'https://yangu.io/dashboard/billing',
 }: Props) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Your YANGU credits are running low — add funds to avoid interruptions</Preview>
+    <Preview>Your YANGU payment could not be processed — please update your payment method</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={logoSectionLeft}>
           <Img src={LOGO_URL} width="120" height="120" alt="yangu" style={logoImageLeft} />
         </Section>
-        <Section style={badgeRow}><Text style={badge}>Alert ⚠️</Text></Section>
+        <Section style={badgeRow}><Text style={badge}>Action Required ⚠️</Text></Section>
         <Section style={contentSection}>
           <Text style={greeting}>Hi{name ? ` ${name}` : ''},</Text>
-          <Text style={bodyTextLeft}>Your <strong>YANGU</strong> account credits are running low.</Text>
-          <Text style={bodyTextLeft}>To avoid interruptions in your services (AI tools, store activity, publishing), please add funds to your account.</Text>
+          <Text style={bodyTextLeft}>We were unable to process your most recent payment for your <strong>YANGU</strong> subscription.</Text>
+          <Text style={bodyTextLeft}>To keep your account active and avoid any service interruptions, please update your payment method.</Text>
         </Section>
         <Section style={buttonSectionLeft}>
-          <Link href={creditsUrl} style={{ display: 'inline-block' }}>
+          <Link href={billingUrl} style={{ display: 'inline-block' }}>
             <table cellPadding="0" cellSpacing="0" style={{ borderCollapse: 'collapse' as const }}>
-              <tr><td align="center" style={ctaButton}>Add Funds</td></tr>
+              <tr><td align="center" style={ctaButton}>Update Payment</td></tr>
             </table>
           </Link>
         </Section>
         <Section style={contentSection}>
-          <Text style={bodyTextLeft}>If you need help, contact <Link href="mailto:support@yangu.io" style={linkStyle}>support</Link>.</Text>
+          <Text style={bodyTextLeft}>If you believe this is an error, contact <Link href="mailto:support@yangu.io" style={linkStyle}>support</Link>.</Text>
           <Text style={signoff}>Best regards,</Text>
           <Text style={teamLabel}>YANGU Team</Text>
         </Section>
@@ -58,8 +58,8 @@ const LowCreditsReminderEmail = ({
 )
 
 export const template = {
-  component: LowCreditsReminderEmail,
-  subject: 'Your YANGU credits are running low',
-  displayName: 'Low credits reminder',
+  component: PaymentFailedEmail,
+  subject: 'Payment failed — update your YANGU payment method',
+  displayName: 'Payment failed',
   previewData: { name: 'Builder' },
 } satisfies TemplateEntry
