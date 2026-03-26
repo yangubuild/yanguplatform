@@ -8186,6 +8186,10 @@ export type Database = {
         }
         Returns: Json
       }
+      calculate_ai_visibility_score: {
+        Args: { p_days?: number }
+        Returns: Json
+      }
       can_list_on_community: {
         Args: { p_surface_id: string }
         Returns: boolean
