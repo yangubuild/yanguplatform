@@ -59,8 +59,10 @@ export function ManagementGuard({ children }: ManagementGuardProps) {
     );
   }
 
-  // Root "/" — management-only users should go to /management
-  if (location.pathname === "/" && (emailAllowed || hasAnyManageRole) && !hasAnyAgencyRole) {
+  // On manage.yangu.studio, always redirect root to /management
+  if (location.pathname === "/" && (emailAllowed || hasAnyManageRole)) {
+    console.log("ROLE:", { emailAllowed, hasAnyManageRole, hasAnyAgencyRole, isAdmin });
+    console.log("ROUTE TARGET: /management (forced)");
     return <Navigate to="/management" replace />;
   }
 

@@ -552,6 +552,30 @@ const App = () => (
                   {/* System */}
                   <Route path="settings" element={<ManageSettings />} />
                   <Route path="audit-logs" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManageAuditLogs /></ManageRoleGate>} />
+                  <Route path="kyc" element={<ManageRoleGate allowedRoles={["admin"]}><ManageKyc /></ManageRoleGate>} />
+                  <Route path="payments" element={<ManageRoleGate allowedRoles={["admin", "finance_lead"]}><ManagePayments /></ManageRoleGate>} />
+                  <Route path="ai-usage" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAiUsage /></ManageRoleGate>} />
+                  <Route path="incidents" element={<ManageRoleGate allowedRoles={["admin", "engineer"]}><ManageIncidents /></ManageRoleGate>} />
+                  <Route path="command-center" element={<ManageRoleGate allowedRoles={["admin"]}><ManageCommandCenter /></ManageRoleGate>} />
+                  <Route path="media" element={<ManageRoleGate allowedRoles={["admin"]}><ManageMedia /></ManageRoleGate>} />
+                  <Route path="notifications" element={<ManageRoleGate allowedRoles={["admin"]}><ManageNotifications /></ManageRoleGate>} />
+                  <Route path="automation" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAutomation /></ManageRoleGate>} />
+                  <Route path="search" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManageSearch /></ManageRoleGate>} />
+                  <Route path="agencies" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAgencies /></ManageRoleGate>} />
+                  <Route path="smart-alerts" element={<ManageRoleGate allowedRoles={["admin"]}><ManageSmartAlerts /></ManageRoleGate>} />
+                  <Route path="data-integrity" element={<ManageRoleGate allowedRoles={["admin"]}><ManageDataIntegrity /></ManageRoleGate>} />
+                  <Route path="platform-health" element={<ManageRoleGate allowedRoles={["admin", "engineer"]}><ManagePlatformHealth /></ManageRoleGate>} />
+                  <Route path="launch-counter" element={<ManageRoleGate allowedRoles={["admin"]}><ManageLaunchCounter /></ManageRoleGate>} />
+                  <Route path="engineer" element={<ManageRoleGate allowedRoles={["admin", "engineer"]}><ManageEngineer /></ManageRoleGate>} />
+                  <Route path="design-studio" element={<ManageRoleGate allowedRoles={["admin", "designer"]}><ManageDesignStudio /></ManageRoleGate>} />
+                  <Route path="digital-marketing" element={<ManageRoleGate allowedRoles={["admin", "social_digital"]}><ManageDigitalMarketing /></ManageRoleGate>} />
+                  <Route path="department-reports" element={<ManageRoleGate allowedRoles={["admin"]}><ManageDepartmentReports /></ManageRoleGate>} />
+                  <Route path="sales-marketing" element={<ManageRoleGate allowedRoles={["admin", "sales_marketing"]}><ManageSalesMarketing /></ManageRoleGate>} />
+                  <Route path="management-kyc" element={<ManageRoleGate allowedRoles={["admin", "owner"]}><ManageManagementKyc /></ManageRoleGate>} />
+                  <Route path="ai-visibility" element={<ManageRoleGate allowedRoles={["admin", "sales_marketing", "social_digital"]}><ManageAiVisibility /></ManageRoleGate>} />
+                  <Route path="ai-visibility/competitors" element={<ManageRoleGate allowedRoles={["admin", "sales_marketing"]}><ManageAiVisibilityCompetitors /></ManageRoleGate>} />
+                  <Route path="ai-visibility/content-gaps" element={<ManageRoleGate allowedRoles={["admin", "sales_marketing"]}><ManageAiVisibilityContentGaps /></ManageRoleGate>} />
+                  <Route path="surface-moderation" element={<ManageRoleGate allowedRoles={["admin"]}><ManageSurfaceModeration /></ManageRoleGate>} />
                   <Route path="*" element={<ManageNotFound />} />
                 </Route>
                 
