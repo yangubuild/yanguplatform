@@ -72,8 +72,8 @@ export function CreateListModal({ open, onClose, onCreated }: Props) {
     enabled: !!user && normalized.length>= 2,
     queryFn: async (): Promise<SearchProfile[]> => {
       const filter = buildCategoryFilter(normalized);
-      const { data, error } = await supabase
-        .from("public_profile_view")
+      const { data, error } = await (supabase
+        .from("public_profile_view") as any)
         .select("id, display_name, username, business_name, creator_type")
         .or(filter)
         .neq("id", user!.id)
