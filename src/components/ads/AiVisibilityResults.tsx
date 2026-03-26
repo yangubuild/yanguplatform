@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, TrendingUp, AlertTriangle, CheckCircle, XCircle, Crown, Zap, Shield } from "lucide-react";
+import { ArrowLeft, TrendingUp, AlertTriangle, CheckCircle, XCircle, Crown, Zap, Shield, Search, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { YanguLoader } from "@/components/primitives/YanguLoader";
 
 interface Props {
   projectId: string;
@@ -12,11 +13,11 @@ interface Props {
 }
 
 const SCORE_LABELS: Record<string, { label: string; color: string }> = {
-  invisible: { label: "Invisible in AI", color: "text-red-400" },
-  weak: { label: "Weak presence", color: "text-orange-400" },
-  growing: { label: "Growing visibility", color: "text-yellow-400" },
-  strong: { label: "Strong positioning", color: "text-green-400" },
-  dominant: { label: "Dominant AI presence", color: "text-emerald-400" },
+  invisible: { label: "Invisible in AI", color: "text-destructive" },
+  weak: { label: "Weak presence", color: "text-warning" },
+  growing: { label: "Growing visibility", color: "text-warning" },
+  strong: { label: "Strong positioning", color: "text-success" },
+  dominant: { label: "Dominant AI presence", color: "text-success" },
 };
 
 function getScoreInfo(score: number) {
@@ -25,6 +26,21 @@ function getScoreInfo(score: number) {
   if (score < 70) return SCORE_LABELS.growing;
   if (score < 85) return SCORE_LABELS.strong;
   return SCORE_LABELS.dominant;
+}
+
+const BUSINESS_TYPE_LABELS: Record<string, string> = {
+  shop: "shop",
+  bio_page: "bio page",
+  digital_products: "digital products",
+  community: "community",
+  influencer: "creator brand",
+};
+
+const AI_PLATFORMS = ["chatgpt", "perplexity", "gemini"];
+
+function platformLabel(p: string) {
+  const m: Record<string, string> = { chatgpt: "ChatGPT", perplexity: "Perplexity", gemini: "Gemini" };
+  return m[p] || p;
 }
 
 export function AiVisibilityResults({ projectId, onClose }: Props) {
@@ -72,26 +88,86 @@ export function AiVisibilityResults({ projectId, onClose }: Props) {
     }
   };
 
-  // If no results yet, trigger a scan
+  // Auto-trigger first scan
   const shouldScan = !resultsLoading && results.length === 0 && !scanning;
-
   if (shouldScan && project) {
-    // Auto-trigger first scan
     setTimeout(() => runScan(), 500);
   }
 
   const score = project?.score ?? 0;
   const scoreInfo = getScoreInfo(score);
+  const businessType = project?.business_type || "shop";
+  const businessLabel = BUSINESS_TYPE_LABELS[businessType] || businessType.replace("_", " ");
   const mentioned = results.filter((r: any) => r.business_mentioned);
   const mentionRate = results.length > 0 ? Math.round((mentioned.length / results.length) * 100) : 0;
-  const competitors = [...new Set(results.flatMap((r: any) => r.competitors_mentioned || []))];
-  const notMentioned = results.filter((r: any) => !r.business_mentioned);
+
+  // Per-platform breakdown
+  const platformSummary = AI_PLATFORMS.map((p) => {
+    const platformResults = results.filter((r: any) => r.ai_platform === p);
+    const mentionedInPlatform = platformResults.filter((r: any) => r.business_mentioned);
+    const competitors = [...new Set(platformResults.flatMap((r: any) => r.competitors_mentioned || []))];
+    const topQuery = platformResults[0]?.query || null;
+    return {
+      platform: p,
+      scanned: platformResults.length > 0,
+      totalQueries: platformResults.length,
+      mentioned: mentionedInPlatform.length > 0,
+      mentionCount: mentionedInPlatform.length,
+      competitors: competitors.slice(0, 5),
+      topQuery,
+    };
+  });
+
+  // All competitors (already category-filtered by edge function)
+  const allCompetitors = [...new Set(results.flatMap((r: any) => r.competitors_mentioned || []))];
+
+  // Top query findings (source + query + result)
+  const queryFindings = results.slice(0, 8).map((r: any) => ({
+    platform: r.ai_platform,
+    query: r.query,
+    mentioned: r.business_mentioned,
+    position: r.business_position,
+    competitors: (r.competitors_mentioned || []).slice(0, 3),
+    sentiment: r.sentiment,
+  }));
+
+  // Generate real quick fixes from scan gaps
+  const quickFixes: string[] = [];
+  if (mentionRate === 0) {
+    quickFixes.push(`Create content targeting "${businessLabel}" queries to get mentioned by AI platforms`);
+  } else if (mentionRate < 50) {
+    quickFixes.push(`Improve content coverage — only appearing in ${mentionRate}% of ${businessLabel} queries`);
+  }
+
+  const missingPlatforms = platformSummary.filter((p) => p.scanned && !p.mentioned);
+  if (missingPlatforms.length > 0) {
+    quickFixes.push(`Not appearing on ${missingPlatforms.map((p) => platformLabel(p.platform)).join(", ")} — create platform-specific content`);
+  }
+
+  const region = project?.region;
+  if (region === "africa" || region === "middle_east") {
+    const regionLabel = region === "africa" ? "Africa" : "Middle East";
+    quickFixes.push(`Add ${regionLabel}-specific positioning and market language to your content`);
+  }
+
+  if (allCompetitors.length > 2) {
+    quickFixes.push(`Create comparison content against top competitors like ${allCompetitors.slice(0, 3).join(", ")}`);
+  }
+
+  const capabilitiesSeen = [...new Set(results.flatMap((r: any) => r.capability_mentioned || []))];
+  if (capabilitiesSeen.length < 3) {
+    quickFixes.push("Add AI builder / AI selling wording to your YANGU surface to improve capability recognition");
+  }
+
+  if (quickFixes.length === 0) {
+    quickFixes.push("Keep publishing content and monitoring your visibility weekly");
+  }
 
   const isLoading = projectLoading || resultsLoading || scanning;
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="sticky top-0 z-20 border-b border-border">
+      <div className="sticky top-0 z-20 border-b border-border bg-background">
         <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
@@ -99,13 +175,7 @@ export function AiVisibilityResults({ projectId, onClose }: Props) {
             </button>
             <span className="text-foreground font-semibold">AI Visibility Report</span>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={runScan}
-            disabled={scanning}
-            className="text-xs"
-          >
+          <Button variant="outline" size="sm" onClick={runScan} disabled={scanning} className="text-xs">
             {scanning ? "Scanning..." : "Run Scan"}
           </Button>
         </div>
@@ -113,51 +183,100 @@ export function AiVisibilityResults({ projectId, onClose }: Props) {
 
       <div className="max-w-3xl mx-auto px-6 py-8 space-y-8">
         {isLoading && results.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <div className="w-12 h-12 rounded-full border-2 border-accent border-t-transparent animate-spin mb-4" />
-            <p className="text-muted-foreground text-sm">
-              {scanning ? "Running AI visibility scan..." : "Loading results..."}
-            </p>
-            <p className="text-muted-foreground/60 text-xs mt-1">This may take a moment</p>
-          </div>
+          <YanguLoader
+            statusText={scanning ? "Running AI visibility scan…" : "Loading results…"}
+            state="loading"
+            fullScreen={false}
+          />
         ) : (
           <>
             {/* Score Card */}
             <div className="rounded-2xl border border-border bg-card p-8 text-center">
               <p className="text-sm text-muted-foreground mb-2">
-                {project?.business_name || "Your business"} visibility score
+                AI Visibility Score for your {businessLabel}
               </p>
               <div className="text-6xl font-bold text-foreground mb-2">{score}</div>
               <div className="text-sm text-muted-foreground mb-1">/ 100</div>
               <span className={`text-sm font-medium ${scoreInfo.color}`}>{scoreInfo.label}</span>
-            </div>
-
-            {/* Insights */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-foreground">Insights</h3>
-              <div className="space-y-2">
-                {mentionRate === 0 ? (
-                  <InsightRow icon={XCircle} color="text-red-400" text="Not appearing in AI search results" />
-                ) : mentionRate < 50 ? (
-                  <InsightRow icon={AlertTriangle} color="text-orange-400" text={`Appearing in only ${mentionRate}% of relevant queries`} />
-                ) : (
-                  <InsightRow icon={CheckCircle} color="text-green-400" text={`Appearing in ${mentionRate}% of relevant queries`} />
-                )}
-                {competitors.length > 0 && (
-                  <InsightRow icon={AlertTriangle} color="text-orange-400" text={`${competitors.length} competitors dominate results`} />
-                )}
-                {notMentioned.length > 0 && (
-                  <InsightRow icon={XCircle} color="text-red-400" text={`Missing from ${notMentioned.length} key queries`} />
-                )}
+              <div className="flex items-center justify-center gap-4 mt-4 text-xs text-muted-foreground">
+                <span>Mention rate: {mentionRate}%</span>
+                <span>•</span>
+                <span>Queries scanned: {results.length}</span>
               </div>
             </div>
 
-            {/* Competitors */}
-            {competitors.length > 0 && (
+            {/* AI Sources Scanned */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <Globe className="w-4 h-4" /> AI Sources Scanned
+              </h3>
+              <div className="grid gap-3 sm:grid-cols-3">
+                {platformSummary.map((ps) => (
+                  <div key={ps.platform} className="rounded-xl border border-border bg-card p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-foreground">{platformLabel(ps.platform)}</span>
+                      {!ps.scanned ? (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">No data</span>
+                      ) : ps.mentioned ? (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-success/10 text-success">Mentioned</span>
+                      ) : (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-destructive/10 text-destructive">Not mentioned</span>
+                      )}
+                    </div>
+                    {ps.scanned && (
+                      <div className="text-xs text-muted-foreground space-y-1">
+                        <p>{ps.totalQueries} queries scanned</p>
+                        {ps.competitors.length > 0 && (
+                          <p className="truncate">Top: {ps.competitors.slice(0, 3).join(", ")}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Top Query Findings */}
+            {queryFindings.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-foreground">Competitors found</h3>
+                <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <Search className="w-4 h-4" /> Top Query Findings
+                </h3>
+                <div className="space-y-2">
+                  {queryFindings.map((qf, i) => (
+                    <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-card border border-border">
+                      {qf.mentioned ? (
+                        <CheckCircle className="w-4 h-4 shrink-0 text-success mt-0.5" />
+                      ) : (
+                        <XCircle className="w-4 h-4 shrink-0 text-destructive mt-0.5" />
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm text-foreground">
+                          <span className="font-medium">{platformLabel(qf.platform)}:</span>{" "}
+                          For "{qf.query}",{" "}
+                          {qf.mentioned
+                            ? qf.position
+                              ? `you appeared at position #${qf.position}.`
+                              : "you were mentioned."
+                            : "you were not mentioned."}
+                          {qf.competitors.length > 0 &&
+                            ` ${qf.competitors.join(", ")} ${qf.mentioned ? "also " : ""}appeared.`}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Competitors Found */}
+            {allCompetitors.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-foreground">
+                  Competitors found in {businessLabel} queries
+                </h3>
                 <div className="flex flex-wrap gap-2">
-                  {competitors.slice(0, 10).map((c: string) => (
+                  {allCompetitors.slice(0, 12).map((c: string) => (
                     <span key={c} className="px-3 py-1.5 rounded-lg bg-muted text-xs text-muted-foreground capitalize">
                       {c}
                     </span>
@@ -169,11 +288,13 @@ export function AiVisibilityResults({ projectId, onClose }: Props) {
             {/* Quick Fixes */}
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-foreground">Quick fixes</h3>
-              <div className="space-y-2 text-sm text-muted-foreground">
-                <p>• Create content targeting "{project?.business_type?.replace("_", " ")}" queries</p>
-                <p>• Improve positioning for {project?.region === "africa" ? "African" : project?.region === "middle_east" ? "Middle Eastern" : "global"} market</p>
-                <p>• Add capability descriptions to your YANGU surface</p>
-                <p>• Build comparison content vs top competitors</p>
+              <div className="space-y-2">
+                {quickFixes.map((fix, i) => (
+                  <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-card border border-border">
+                    <AlertTriangle className="w-4 h-4 shrink-0 text-warning mt-0.5" />
+                    <p className="text-sm text-foreground">{fix}</p>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -181,7 +302,6 @@ export function AiVisibilityResults({ projectId, onClose }: Props) {
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-foreground">Grow your visibility</h3>
 
-              {/* Free tier info */}
               <div className="rounded-xl border border-border bg-card p-5">
                 <div className="flex items-center gap-2 mb-2">
                   <Zap className="w-4 h-4 text-muted-foreground" />
@@ -194,7 +314,6 @@ export function AiVisibilityResults({ projectId, onClose }: Props) {
                 </ul>
               </div>
 
-              {/* Pro */}
               <div className="rounded-xl border border-accent/50 bg-accent/5 p-5">
                 <div className="flex items-center gap-2 mb-2">
                   <Crown className="w-4 h-4 text-accent" />
@@ -212,7 +331,6 @@ export function AiVisibilityResults({ projectId, onClose }: Props) {
                 </Button>
               </div>
 
-              {/* Done for you */}
               <div className="rounded-xl border border-border bg-card p-5">
                 <div className="flex items-center gap-2 mb-2">
                   <Shield className="w-4 h-4 text-muted-foreground" />
@@ -231,15 +349,6 @@ export function AiVisibilityResults({ projectId, onClose }: Props) {
           </>
         )}
       </div>
-    </div>
-  );
-}
-
-function InsightRow({ icon: Icon, color, text }: { icon: any; color: string; text: string }) {
-  return (
-    <div className="flex items-center gap-3 p-3 rounded-lg bg-card border border-border">
-      <Icon className={`w-4 h-4 shrink-0 ${color}`} />
-      <span className="text-sm text-foreground">{text}</span>
     </div>
   );
 }
