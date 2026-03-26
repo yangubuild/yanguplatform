@@ -82,6 +82,22 @@ export function SupportContactModal({ open, onOpenChange }: SupportContactModalP
         },
       });
 
+      // Notify support team at support@yangu.io
+      await supabase.functions.invoke("send-transactional-email", {
+        body: {
+          templateName: "support-ticket-alert",
+          recipientEmail: "support@yangu.io",
+          idempotencyKey: `support-alert-${ticket.id}`,
+          templateData: {
+            name: name || undefined,
+            email: email || user.email,
+            category: CATEGORIES.find(c => c.value === category)?.label,
+            description,
+            ticketId: ticket.id,
+          },
+        },
+      });
+
       toast.success("Support request submitted! Our team will respond soon.");
       setDescription("");
       onOpenChange(false);
