@@ -7411,6 +7411,113 @@ export type Database = {
         }
         Relationships: []
       }
+      user_ai_visibility_projects: {
+        Row: {
+          business_name: string
+          business_type: string
+          created_at: string | null
+          goal: string
+          id: string
+          last_scan_at: string | null
+          plan: string | null
+          region: string
+          scan_count: number | null
+          score: number | null
+          updated_at: string | null
+          user_id: string
+          website_url: string | null
+        }
+        Insert: {
+          business_name: string
+          business_type: string
+          created_at?: string | null
+          goal?: string
+          id?: string
+          last_scan_at?: string | null
+          plan?: string | null
+          region?: string
+          scan_count?: number | null
+          score?: number | null
+          updated_at?: string | null
+          user_id: string
+          website_url?: string | null
+        }
+        Update: {
+          business_name?: string
+          business_type?: string
+          created_at?: string | null
+          goal?: string
+          id?: string
+          last_scan_at?: string | null
+          plan?: string | null
+          region?: string
+          scan_count?: number | null
+          score?: number | null
+          updated_at?: string | null
+          user_id?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
+      user_ai_visibility_results: {
+        Row: {
+          ai_platform: string
+          business_mentioned: boolean | null
+          business_position: number | null
+          capability_mentioned: string[] | null
+          competitors_mentioned: string[] | null
+          id: string
+          positioning_match: boolean | null
+          project_id: string
+          query: string
+          response_snippet: string | null
+          sentiment: string | null
+          tracked_at: string | null
+          user_id: string
+          yangu_mentioned: boolean | null
+        }
+        Insert: {
+          ai_platform: string
+          business_mentioned?: boolean | null
+          business_position?: number | null
+          capability_mentioned?: string[] | null
+          competitors_mentioned?: string[] | null
+          id?: string
+          positioning_match?: boolean | null
+          project_id: string
+          query: string
+          response_snippet?: string | null
+          sentiment?: string | null
+          tracked_at?: string | null
+          user_id: string
+          yangu_mentioned?: boolean | null
+        }
+        Update: {
+          ai_platform?: string
+          business_mentioned?: boolean | null
+          business_position?: number | null
+          capability_mentioned?: string[] | null
+          competitors_mentioned?: string[] | null
+          id?: string
+          positioning_match?: boolean | null
+          project_id?: string
+          query?: string
+          response_snippet?: string | null
+          sentiment?: string | null
+          tracked_at?: string | null
+          user_id?: string
+          yangu_mentioned?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_ai_visibility_results_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "user_ai_visibility_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_credits: {
         Row: {
           balance: number
