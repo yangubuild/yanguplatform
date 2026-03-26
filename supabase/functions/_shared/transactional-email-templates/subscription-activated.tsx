@@ -22,7 +22,7 @@ const SubscriptionActivatedEmail = ({
   name,
   planName = 'Creator',
   dashboardUrl = 'https://yangu.io/dashboard',
-  upgradeUrl = 'https://yangu.io/subscriptions',
+  upgradeUrl = 'https://yangu.io/dashboard/profile/subscription',
 }: Props) => (
   <Html lang="en" dir="ltr">
     <Head />
