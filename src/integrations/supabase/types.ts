@@ -7834,6 +7834,7 @@ export type Database = {
           country: string | null
           cover_crop: Json | null
           cover_url: string | null
+          created_at: string | null
           creator_type: Database["public"]["Enums"]["creator_type"] | null
           display_name: string | null
           id: string | null
@@ -7849,6 +7850,7 @@ export type Database = {
           country?: string | null
           cover_crop?: Json | null
           cover_url?: string | null
+          created_at?: string | null
           creator_type?: Database["public"]["Enums"]["creator_type"] | null
           display_name?: string | null
           id?: string | null
@@ -7864,6 +7866,7 @@ export type Database = {
           country?: string | null
           cover_crop?: Json | null
           cover_url?: string | null
+          created_at?: string | null
           creator_type?: Database["public"]["Enums"]["creator_type"] | null
           display_name?: string | null
           id?: string | null
