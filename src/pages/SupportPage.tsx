@@ -197,7 +197,7 @@ export default function SupportPage() {
             <img
               src={yanguLogo}
               alt="yangu"
-              className="h-7 w-auto cursor-pointer opacity-80 hover:opacity-100 transition-opacity"
+              className="h-12 w-auto cursor-pointer opacity-80 hover:opacity-100 transition-opacity"
               onClick={() => navigate("/")}
             />
             <Button
