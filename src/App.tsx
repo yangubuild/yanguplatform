@@ -113,6 +113,7 @@ const ManageAppReview = lazy(() => lazyRetry(() => import("./pages/manage/Manage
 const ManageEntities = lazy(() => lazyRetry(() => import("./pages/manage/ManageEntities")));
 const ManageReports = lazy(() => lazyRetry(() => import("./pages/manage/ManageReports")));
 const EntityDetailPage = lazy(() => lazyRetry(() => import("./pages/EntityDetailPage")));
+const Unsubscribe = lazy(() => lazyRetry(() => import("./pages/Unsubscribe")));
 
 // Developer Portal (lazy)
 const PortalLayoutModule = lazy(() => lazyRetry(() => import("./components/developers/portal/PortalLayout").then(m => ({ default: m.PortalLayout }))));
@@ -229,6 +230,7 @@ const App = () => (
               <Suspense fallback={<div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}><img src="/yangu-y-loader.png" alt="Loading" width={40} height={40} style={{ animation: "spin 1.4s linear infinite" }} /></div>}>
               <Routes>
                 {/* Public routes */}
+                <Route path="/unsubscribe" element={<Unsubscribe />} />
                 <Route path="/" element={<Index />} />
                 <Route path="/community/*" element={<Community />} />
                 <Route path="/why-yangu" element={<WhyYangu />} />
