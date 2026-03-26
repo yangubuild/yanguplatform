@@ -795,6 +795,78 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_visibility_settings: {
+        Row: {
+          id: string
+          last_full_scan: string | null
+          scan_frequency: string | null
+          tracked_ai_platforms: string[] | null
+          tracked_queries: string[] | null
+          tracked_regions: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          last_full_scan?: string | null
+          scan_frequency?: string | null
+          tracked_ai_platforms?: string[] | null
+          tracked_queries?: string[] | null
+          tracked_regions?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          last_full_scan?: string | null
+          scan_frequency?: string | null
+          tracked_ai_platforms?: string[] | null
+          tracked_queries?: string[] | null
+          tracked_regions?: string[] | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      ai_visibility_tracking: {
+        Row: {
+          ai_platform: string
+          capability_mentioned: string[] | null
+          competitors_mentioned: string[] | null
+          id: string
+          positioning_match: boolean | null
+          query: string
+          response_snippet: string | null
+          sentiment: string | null
+          tracked_at: string | null
+          yangu_mentioned: boolean | null
+          yangu_position: number | null
+        }
+        Insert: {
+          ai_platform: string
+          capability_mentioned?: string[] | null
+          competitors_mentioned?: string[] | null
+          id?: string
+          positioning_match?: boolean | null
+          query: string
+          response_snippet?: string | null
+          sentiment?: string | null
+          tracked_at?: string | null
+          yangu_mentioned?: boolean | null
+          yangu_position?: number | null
+        }
+        Update: {
+          ai_platform?: string
+          capability_mentioned?: string[] | null
+          competitors_mentioned?: string[] | null
+          id?: string
+          positioning_match?: boolean | null
+          query?: string
+          response_snippet?: string | null
+          sentiment?: string | null
+          tracked_at?: string | null
+          yangu_mentioned?: boolean | null
+          yangu_position?: number | null
+        }
+        Relationships: []
+      }
       announcements: {
         Row: {
           content: string
@@ -2151,6 +2223,39 @@ export type Database = {
           },
         ]
       }
+      competitor_benchmark: {
+        Row: {
+          category: string
+          competitor_name: string
+          id: string
+          last_tracked_at: string | null
+          mention_count: number | null
+          positioning_overlap: string[] | null
+          region: string | null
+          sentiment_score: number | null
+        }
+        Insert: {
+          category: string
+          competitor_name: string
+          id?: string
+          last_tracked_at?: string | null
+          mention_count?: number | null
+          positioning_overlap?: string[] | null
+          region?: string | null
+          sentiment_score?: number | null
+        }
+        Update: {
+          category?: string
+          competitor_name?: string
+          id?: string
+          last_tracked_at?: string | null
+          mention_count?: number | null
+          positioning_overlap?: string[] | null
+          region?: string | null
+          sentiment_score?: number | null
+        }
+        Relationships: []
+      }
       connected_accounts: {
         Row: {
           access_token: string | null
@@ -2243,6 +2348,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      content_gap_recommendations: {
+        Row: {
+          ai_platform: string | null
+          capability_category: string | null
+          created_at: string | null
+          gap_description: string
+          id: string
+          query: string
+          recommended_content_type: string | null
+          recommended_title: string | null
+          status: string | null
+          target_region: string | null
+        }
+        Insert: {
+          ai_platform?: string | null
+          capability_category?: string | null
+          created_at?: string | null
+          gap_description: string
+          id?: string
+          query: string
+          recommended_content_type?: string | null
+          recommended_title?: string | null
+          status?: string | null
+          target_region?: string | null
+        }
+        Update: {
+          ai_platform?: string | null
+          capability_category?: string | null
+          created_at?: string | null
+          gap_description?: string
+          id?: string
+          query?: string
+          recommended_content_type?: string | null
+          recommended_title?: string | null
+          status?: string | null
+          target_region?: string | null
+        }
+        Relationships: []
       }
       creatify_templates: {
         Row: {

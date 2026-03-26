@@ -63,6 +63,9 @@ const ManageDigitalMarketing = lazy(() => lazyRetry(() => import("@/pages/manage
 const ManageDepartmentReports = lazy(() => lazyRetry(() => import("@/pages/manage/ManageDepartmentReports")));
 const ManageSalesMarketing = lazy(() => lazyRetry(() => import("@/pages/manage/ManageSalesMarketing")));
 const ManageManagementKyc = lazy(() => lazyRetry(() => import("@/pages/manage/ManageManagementKyc")));
+const ManageAiVisibility = lazy(() => lazyRetry(() => import("@/pages/manage/ManageAiVisibility")));
+const ManageAiVisibilityCompetitors = lazy(() => lazyRetry(() => import("@/pages/manage/ManageAiVisibilityCompetitors")));
+const ManageAiVisibilityContentGaps = lazy(() => lazyRetry(() => import("@/pages/manage/ManageAiVisibilityContentGaps")));
 
 // Agency pages
 const AgencyDashboard = lazy(() => lazyRetry(() => import("@/pages/manage/agency/AgencyDashboard")));
@@ -150,6 +153,9 @@ export function ManagementRoutes() {
           <Route path="department-reports" element={<ManageRoleGate allowedRoles={["admin"]}><ManageDepartmentReports /></ManageRoleGate>} />
           <Route path="sales-marketing" element={<ManageRoleGate allowedRoles={["admin", "sales_marketing"]}><ManageSalesMarketing /></ManageRoleGate>} />
           <Route path="management-kyc" element={<ManageRoleGate allowedRoles={["admin", "owner"]}><ManageManagementKyc /></ManageRoleGate>} />
+          <Route path="ai-visibility" element={<ManageRoleGate allowedRoles={["admin", "sales_marketing", "social_digital"]}><ManageAiVisibility /></ManageRoleGate>} />
+          <Route path="ai-visibility/competitors" element={<ManageRoleGate allowedRoles={["admin", "sales_marketing"]}><ManageAiVisibilityCompetitors /></ManageRoleGate>} />
+          <Route path="ai-visibility/content-gaps" element={<ManageRoleGate allowedRoles={["admin", "sales_marketing"]}><ManageAiVisibilityContentGaps /></ManageRoleGate>} />
           <Route path="settings" element={<ManageSettings />} />
           <Route path="audit-logs" element={<ManageRoleGate allowedRoles={["admin", "moderator"]}><ManageAuditLogs /></ManageRoleGate>} />
           <Route path="*" element={<ManageNotFound />} />
