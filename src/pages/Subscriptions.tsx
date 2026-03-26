@@ -25,7 +25,7 @@ export default function Subscriptions() {
             <p className="text-muted-foreground max-w-md mx-auto">
               You've reached your monthly generation limit. Upgrade your subscription to unlock more images, videos, and other AI-powered content.
             </p>
-            <PrimaryButton size="lg" onClick={() => navigate("/billing")}>
+            <PrimaryButton size="lg" onClick={() => navigate("/dashboard/profile/subscription")}>
               View Plans & Upgrade
             </PrimaryButton>
           </Card>
