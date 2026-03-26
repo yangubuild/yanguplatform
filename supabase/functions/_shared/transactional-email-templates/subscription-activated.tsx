@@ -33,7 +33,7 @@ const SubscriptionActivatedEmail = ({
           <Img src={LOGO_URL} width="140" height="140" alt="yangu" style={logoImageCentered} />
         </Section>
         <Section style={badgeRow}><Text style={badge}>Welcome 🎉</Text></Section>
-        <Heading style={h1Centered}>{isFree(planName) ? 'Welcome to YANGU!' : "You're In!"}</Heading>
+        <Heading style={h1Centered}>You're In!</Heading>
         <Text style={bodyTextCentered}>
           {name ? `Hey ${name}, your` : 'Your'} <strong>YANGU {planName}</strong> plan is now active.{' '}
           {isFree(planName)
@@ -62,7 +62,7 @@ const SubscriptionActivatedEmail = ({
             </table>
           </Link>
         </Section>
-        <Text style={signoffTextCentered}>{isFree(planName) ? 'Start building with YANGU!' : 'Build, connect, and grow with YANGU!'}</Text>
+        <Text style={signoffTextCentered}>Build, connect, and grow with YANGU!</Text>
         <Text style={signoffLabelCentered}>Your internet business hub,</Text>
         <Text style={teamNameCentered}>Let's go 🚀</Text>
         <Hr style={divider} />
