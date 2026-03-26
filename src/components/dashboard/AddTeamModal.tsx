@@ -37,9 +37,8 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
     queryFn: async () => {
       const term = searchInput.trim().toLowerCase();
       const { data, error } = await supabase
-        .from("profiles")
+        .from("public_profile_view")
         .select("id, username, display_name, avatar_url, avatar_mode, avatar_emoji_key")
-        .eq("account_status", "active")
         .or(`username.ilike.%${term}%,display_name.ilike.%${term}%`)
         .neq("id", user?.id ?? "")
         .limit(8);
@@ -118,7 +117,7 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
 
       // Get sender's profile for the invite DM identity
       const { data: senderProfile } = await supabase
-        .from("profiles")
+        .from("public_profile_view")
         .select("username, display_name")
         .eq("id", user.id)
         .single();

@@ -28,9 +28,8 @@ export function MessagesInfluencersTab({ onSelectCreator }: Props) {
     queryFn: async () => {
       const q = activeQuery.trim().toLowerCase();
       const { data, error } = await supabase
-        .from("profiles")
+        .from("public_profile_view")
         .select("id, display_name, username, avatar_url, avatar_mode, avatar_emoji_key, business_name, creator_type, country")
-        .eq("account_status", "active")
         .or(`business_name.ilike.%${q}%,display_name.ilike.%${q}%,username.ilike.%${q}%,creator_type.ilike.%${q}%`)
         .order("created_at", { ascending: false })
         .limit(20);

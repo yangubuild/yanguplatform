@@ -121,7 +121,7 @@ export default function DashboardHome() {
     (async () => {
       try {
         const { data: prof } = await supabase
-          .from("profiles")
+          .from("public_profile_view")
           .select("id, display_name, username, avatar_url, avatar_mode, avatar_emoji_key, business_name, cover_url")
           .eq("id", viewProfileId)
           .single();

@@ -100,7 +100,7 @@ export function useToggleFollow() {
 
           // Send follow notification to the target user
           const { data: myProfile } = await supabase
-            .from("profiles")
+            .from("public_profile_view")
             .select("display_name, username, avatar_url, avatar_mode, avatar_emoji_key")
             .eq("id", user.id)
             .single();

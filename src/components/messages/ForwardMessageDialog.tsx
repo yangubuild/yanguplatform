@@ -22,7 +22,7 @@ export function ForwardMessageDialog({ content, onClose }: Props) {
     enabled: !!user,
     queryFn: async () => {
       const { data } = await supabase
-        .from("profiles")
+        .from("public_profile_view")
         .select("id, display_name, username, avatar_url, avatar_mode, avatar_emoji_key")
         .neq("id", user!.id)
         .limit(50);

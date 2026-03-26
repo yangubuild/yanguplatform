@@ -7834,11 +7834,13 @@ export type Database = {
           country: string | null
           cover_crop: Json | null
           cover_url: string | null
+          created_at: string | null
           creator_type: Database["public"]["Enums"]["creator_type"] | null
           display_name: string | null
           id: string | null
           social_links: Json | null
           username: string | null
+          verified_tick: string | null
         }
         Insert: {
           avatar_emoji_key?: string | null
@@ -7848,11 +7850,13 @@ export type Database = {
           country?: string | null
           cover_crop?: Json | null
           cover_url?: string | null
+          created_at?: string | null
           creator_type?: Database["public"]["Enums"]["creator_type"] | null
           display_name?: string | null
           id?: string | null
           social_links?: Json | null
           username?: string | null
+          verified_tick?: string | null
         }
         Update: {
           avatar_emoji_key?: string | null
@@ -7862,11 +7866,13 @@ export type Database = {
           country?: string | null
           cover_crop?: Json | null
           cover_url?: string | null
+          created_at?: string | null
           creator_type?: Database["public"]["Enums"]["creator_type"] | null
           display_name?: string | null
           id?: string | null
           social_links?: Json | null
           username?: string | null
+          verified_tick?: string | null
         }
         Relationships: []
       }
@@ -8435,6 +8441,24 @@ export type Database = {
           submitted_at: string
         }[]
       }
+      get_public_profiles: {
+        Args: { p_user_ids: string[] }
+        Returns: {
+          avatar_emoji_key: string
+          avatar_mode: string
+          avatar_url: string
+          business_name: string
+          country: string
+          cover_crop: Json
+          cover_url: string
+          creator_type: string
+          display_name: string
+          id: string
+          social_links: Json
+          username: string
+          verified_tick: string
+        }[]
+      }
       get_published_surface: {
         Args: { p_publish_id?: string; p_surface_id?: string }
         Returns: Json
@@ -8944,6 +8968,21 @@ export type Database = {
           title: string
           trust_score: number
           visibility_tier: string
+        }[]
+      }
+      search_public_profiles: {
+        Args: { p_limit?: number; p_query: string }
+        Returns: {
+          avatar_emoji_key: string
+          avatar_mode: string
+          avatar_url: string
+          business_name: string
+          country: string
+          creator_type: string
+          display_name: string
+          id: string
+          username: string
+          verified_tick: string
         }[]
       }
       send_admin_invite: {

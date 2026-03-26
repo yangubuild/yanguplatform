@@ -27,7 +27,7 @@ function useReactionUsers(postId: string, reactionType: "like" | "love", enabled
       if (!reactions || reactions.length === 0) return [];
       const userIds = [...new Set(reactions.map((r: any) => r.user_id))];
       const { data: profiles } = await supabase
-        .from("profiles")
+        .from("public_profile_view")
         .select("id, display_name, username, avatar_url, avatar_mode, avatar_emoji_key")
         .in("id", userIds);
       return (profiles ?? []).map((p: any) => ({
@@ -303,7 +303,7 @@ function SharePanel({ postId, postContent, onClose }: { postId: string; postCont
         .eq("follower_id", user!.id);
       const followedIds = (follows ?? []).map((f: any) => f.following_id);
       
-      let query = supabase.from("profiles").select("id, display_name, username, avatar_url, avatar_mode, avatar_emoji_key");
+      let query = supabase.from("public_profile_view").select("id, display_name, username, avatar_url, avatar_mode, avatar_emoji_key");
       if (search.trim()) {
         query = query.or(`username.ilike.%${search}%,display_name.ilike.%${search}%`);
       } else if (followedIds.length> 0) {

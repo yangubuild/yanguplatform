@@ -52,7 +52,7 @@ export function useProfileReviews(userId: string | undefined) {
       // Fetch reviewer profiles
       const reviewerIds = [...new Set(reviews.map(r => r.user_id))];
       const { data: profiles } = await supabase
-        .from("profiles")
+        .from("public_profile_view")
         .select("id, display_name, avatar_url, avatar_mode, avatar_emoji_key, username")
         .in("id", reviewerIds);
       const profileMap = Object.fromEntries((profiles ?? []).map(p => [p.id, p]));

@@ -45,7 +45,7 @@ export function useFollowingPosts() {
 
       const authorIds = [...new Set(posts.map(p => p.user_id))];
       const { data: profiles } = await supabase
-        .from("profiles")
+        .from("public_profile_view")
         .select("id, display_name, avatar_url, avatar_mode, avatar_emoji_key, username")
         .in("id", authorIds);
       const profileMap = Object.fromEntries((profiles ?? []).map(p => [p.id, p]));
