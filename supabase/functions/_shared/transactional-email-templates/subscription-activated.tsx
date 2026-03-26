@@ -79,7 +79,12 @@ const SubscriptionActivatedEmail = ({
 
 export const template = {
   component: SubscriptionActivatedEmail,
-  subject: (data) => `Your YANGU ${data.planName ?? 'Creator'} plan is active 🎉`,
+  subject: (data) => {
+    const plan = data.planName ?? 'Creator'
+    return plan.toLowerCase() === 'free'
+      ? 'Welcome to YANGU — your Free plan is active!'
+      : `Your YANGU ${plan} plan is active 🎉`
+  },
   displayName: 'Subscription activated',
-  previewData: { name: 'Builder', planName: 'Creator' },
+  previewData: { name: 'Builder', planName: 'Free' },
 } satisfies TemplateEntry
