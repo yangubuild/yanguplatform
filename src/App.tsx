@@ -70,6 +70,7 @@ const InvoicesPage = lazy(() => lazyRetry(() => import("./pages/dashboard/invoic
 const EmailPreviewPage = lazy(() => lazyRetry(() => import("./pages/dashboard/EmailPreviewPage")));
 
 const BuilderPage = lazy(() => lazyRetry(() => import("./pages/BuilderPage")));
+const SupportPage = lazy(() => lazyRetry(() => import("./pages/SupportPage")));
 
 // Visionaire pages (lazy)
 const VisionaireHome = lazy(() => lazyRetry(() => import("./pages/dashboard/visionaire/VisionaireHome")));
@@ -254,6 +255,7 @@ const App = () => (
                 <Route path="/aisafety" element={<AiSafety />} />
                 
                 <Route path="/builder" element={<BuilderPage />} />
+                <Route path="/support" element={<SupportPage />} />
 
                 {/* Developer platform */}
                 <Route path="/developers" element={<DevelopersLayout />}>

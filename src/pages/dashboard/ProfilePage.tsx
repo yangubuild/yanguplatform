@@ -987,7 +987,7 @@ function ProfileHelpSection() {
   const navigate = useNavigate();
 
   const helpItems = [
-    { icon: HelpCircle, label: "Help Center", description: "FAQs and guides", action: () => toast({ title: "Help center coming soon" }) },
+    { icon: HelpCircle, label: "Help Center", description: "FAQs and guides", action: () => navigate("/support") },
     { icon: MessageCircle, label: "Contact Support", description: "Get help from our team", action: () => navigate("/dashboard/messages") },
     { icon: FileText, label: "Terms of Service", description: "Read our terms", action: () => window.open("/terms", "_blank") },
     { icon: Shield, label: "Privacy Policy", description: "How we protect your data", action: () => window.open("/privacy", "_blank") },

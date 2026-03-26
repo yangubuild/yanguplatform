@@ -351,8 +351,8 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
                       <Settings className="w-4 h-4 mr-2" /> Account settings
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <HelpCircle className="w-4 h-4 mr-2" /> Help and support
+                    <DropdownMenuItem onClick={() => navigate("/support")}>
+                       <HelpCircle className="w-4 h-4 mr-2" /> Help and support
                     </DropdownMenuItem>
                     <DropdownMenuItem>
                       <Languages className="w-4 h-4 mr-2" /> Language
