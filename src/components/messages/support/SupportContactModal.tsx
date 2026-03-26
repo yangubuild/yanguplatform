@@ -68,6 +68,20 @@ export function SupportContactModal({ open, onOpenChange }: SupportContactModalP
         content: `**Contact Form Submission**\n\n**Name:** ${name}\n**Email:** ${email}\n**Category:** ${CATEGORIES.find(c => c.value === category)?.label}\n\n${description}`,
       });
 
+      // Send confirmation email to user
+      await supabase.functions.invoke("send-transactional-email", {
+        body: {
+          templateName: "support-ticket-received",
+          recipientEmail: email || user.email,
+          idempotencyKey: `support-confirm-${ticket.id}`,
+          templateData: {
+            name: name || undefined,
+            category: CATEGORIES.find(c => c.value === category)?.label,
+            ticketId: ticket.id,
+          },
+        },
+      });
+
       toast.success("Support request submitted! Our team will respond soon.");
       setDescription("");
       onOpenChange(false);
