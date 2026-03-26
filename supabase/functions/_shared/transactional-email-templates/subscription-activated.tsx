@@ -14,7 +14,7 @@ import {
   divider, footerTd, footerLink, orangeIcon,
 } from './email-styles.ts'
 
-interface Props { name?: string; planName?: string; dashboardUrl?: string; upgradeUrl?: string }
+interface Props { name?: string; planName?: string; dashboardUrl?: string; upgradeUrl?: string; billingCycle?: string }
 
 const isFree = (plan: string) => plan.toLowerCase() === 'free'
 
@@ -22,7 +22,7 @@ const SubscriptionActivatedEmail = ({
   name,
   planName = 'Creator',
   dashboardUrl = 'https://yangu.io/dashboard',
-  upgradeUrl = 'https://yangu.io/subscriptions',
+  upgradeUrl = 'https://yangu.io/dashboard/profile/subscription',
 }: Props) => (
   <Html lang="en" dir="ltr">
     <Head />
