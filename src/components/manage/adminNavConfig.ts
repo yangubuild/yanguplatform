@@ -132,6 +132,14 @@ export const adminNavGroups: AdminNavGroup[] = [
     ],
   },
   {
+    label: "AI Visibility",
+    items: [
+      { title: "Visibility Dashboard", slug: "ai-visibility", icon: Eye, allowedRoles: ["admin", "sales_marketing", "social_digital"] },
+      { title: "Competitors", slug: "ai-visibility/competitors", icon: BarChart3, allowedRoles: ["admin", "sales_marketing"] },
+      { title: "Content Gaps", slug: "ai-visibility/content-gaps", icon: FileText, allowedRoles: ["admin", "sales_marketing"] },
+    ],
+  },
+  {
     label: "Digital Marketing",
     items: [
       { title: "Social & SEO", slug: "digital-marketing", icon: Share2, allowedRoles: ["admin", "social_digital"] },
@@ -223,3 +231,6 @@ sectionLabels["sales-marketing"] = "Sales & Marketing";
 sectionLabels["digital-marketing"] = "Digital Marketing";
 sectionLabels["department-reports"] = "Department Reports";
 sectionLabels["management-kyc"] = "Management Team KYC";
+sectionLabels["ai-visibility"] = "AI Visibility Dashboard";
+sectionLabels["ai-visibility/competitors"] = "Competitor Benchmark";
+sectionLabels["ai-visibility/content-gaps"] = "Content Gap Recommendations";
