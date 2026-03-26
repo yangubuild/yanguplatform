@@ -5,7 +5,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRoles } from "@/hooks/useRoles";
 import { AgencyShell } from "@/components/manage/AgencyShell";
 import { AgencyGuard } from "@/components/manage/AgencyGuard";
-import { Loader2, ShieldX } from "lucide-react";
+import { YanguLoader } from "@/components/YanguLoader";
+import { ShieldX } from "lucide-react";
 
 // Agency pages
 const AgencyLanding = lazy(() => lazyRetry(() => import("@/pages/auth/AgencyLanding")));
@@ -39,7 +40,7 @@ function AgencyAuthGuard({ children }: { children: React.ReactNode }) {
   if (authLoading || rolesLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+        <YanguLoader size={40} fullArea={false} />
       </div>
     );
   }
