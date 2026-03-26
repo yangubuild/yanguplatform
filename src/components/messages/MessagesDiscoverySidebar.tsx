@@ -21,7 +21,6 @@ export function MessagesDiscoverySidebar({ onUserClick }: Props) {
       const { data, error } = await supabase
         .from("public_profile_view")
         .select("id, display_name, username, avatar_url, avatar_mode, avatar_emoji_key, business_name, cover_url")
-        .eq("account_status", "active")
         .order("created_at", { ascending: false })
         .limit(50);
       if (error) throw error;

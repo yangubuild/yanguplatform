@@ -62,7 +62,6 @@ export function ChatCreationLauncher({ open, onOpenChange, onSelectUser, onOpenG
       const { data, error } = await supabase
         .from("public_profile_view")
         .select("id, display_name, username, avatar_url, avatar_mode, avatar_emoji_key, business_name, creator_type")
-        .eq("account_status", "active")
         .neq("id", user!.id)
         .or(buildSearchFilter(normalizedSearch))
         .order("created_at", { ascending: false })

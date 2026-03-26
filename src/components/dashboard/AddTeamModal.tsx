@@ -39,7 +39,6 @@ export function AddTeamModal({ open, onOpenChange }: AddTeamModalProps) {
       const { data, error } = await supabase
         .from("public_profile_view")
         .select("id, username, display_name, avatar_url, avatar_mode, avatar_emoji_key")
-        .eq("account_status", "active")
         .or(`username.ilike.%${term}%,display_name.ilike.%${term}%`)
         .neq("id", user?.id ?? "")
         .limit(8);

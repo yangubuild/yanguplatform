@@ -42,7 +42,6 @@ function CreateGroupForm({ onCancel, onCreated }: { onCancel: () => void; onCrea
         .from("public_profile_view")
         .select("id, display_name, username, business_name, creator_type")
         .or(`display_name.ilike.%${normalized}%,username.ilike.%${normalized}%,business_name.ilike.%${normalized}%,creator_type.ilike.%${normalized}%`)
-        .eq("account_status", "active")
         .neq("id", user!.id)
         .limit(20);
       if (error) throw error;
