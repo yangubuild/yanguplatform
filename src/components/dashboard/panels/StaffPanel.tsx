@@ -57,7 +57,7 @@ export function StaffPanel() {
 
       const userIds = [...new Set(allMembers.map((m) => m.user_id))];
       const { data: profiles } = await supabase
-        .from("profiles")
+        .from("public_profile_view")
         .select("id, display_name, avatar_url, avatar_mode, avatar_emoji_key, username")
         .in("id", userIds);
 

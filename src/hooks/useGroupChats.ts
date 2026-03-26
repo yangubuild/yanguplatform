@@ -134,7 +134,7 @@ export function useGroupMessages(groupId: string | undefined) {
 
       const userIds = [...new Set(msgs.map(m => m.user_id))];
       const { data: profiles } = await supabase
-        .from("profiles")
+        .from("public_profile_view")
         .select("id, display_name, username, avatar_url, avatar_mode, avatar_emoji_key")
         .in("id", userIds);
       const profileMap = Object.fromEntries((profiles ?? []).map((p: any) => [p.id, p]));
@@ -277,7 +277,7 @@ export function useGroupMembers(groupId: string | undefined) {
 
       const userIds = members.map(m => m.user_id);
       const { data: profiles } = await supabase
-        .from("profiles")
+        .from("public_profile_view")
         .select("id, display_name, username, avatar_url, avatar_mode, avatar_emoji_key")
         .in("id", userIds);
       const profileMap = Object.fromEntries((profiles ?? []).map((p: any) => [p.id, p]));

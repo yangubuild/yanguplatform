@@ -39,7 +39,7 @@ function CreateGroupForm({ onCancel, onCreated }: { onCancel: () => void; onCrea
     enabled: !!user && normalized.length>= 2,
     queryFn: async (): Promise<SearchProfile[]> => {
       const { data, error } = await supabase
-        .from("profiles")
+        .from("public_profile_view")
         .select("id, display_name, username, business_name, creator_type")
         .or(`display_name.ilike.%${normalized}%,username.ilike.%${normalized}%,business_name.ilike.%${normalized}%,creator_type.ilike.%${normalized}%`)
         .eq("account_status", "active")

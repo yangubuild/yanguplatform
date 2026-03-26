@@ -53,7 +53,7 @@ export function DmThreadView({ targetUserId }: Props) {
     queryKey: ["dm-target-profile", targetUserId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("profiles")
+        .from("public_profile_view")
         .select("id, display_name, username, avatar_url, avatar_mode, avatar_emoji_key, business_name")
         .eq("id", targetUserId)
         .maybeSingle();
@@ -67,7 +67,7 @@ export function DmThreadView({ targetUserId }: Props) {
     enabled: !!user,
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("profiles")
+        .from("public_profile_view")
         .select("id, display_name, username, avatar_url, avatar_mode, avatar_emoji_key")
         .eq("id", user!.id)
         .maybeSingle();

@@ -19,7 +19,7 @@ export function MessagesDiscoverySidebar({ onUserClick }: Props) {
     queryKey: ["friends-panel-users"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("profiles")
+        .from("public_profile_view")
         .select("id, display_name, username, avatar_url, avatar_mode, avatar_emoji_key, business_name, cover_url")
         .eq("account_status", "active")
         .order("created_at", { ascending: false })

@@ -168,7 +168,7 @@ export function useUserPosts(userId: string | undefined) {
       if (posts.length === 0) return [];
 
       const { data: profiles } = await supabase
-        .from("profiles")
+        .from("public_profile_view")
         .select(PROFILE_AVATAR_SELECT)
         .eq("id", userId)
         .limit(1);
@@ -221,7 +221,7 @@ export function usePostComments(postId: string | undefined) {
 
       const userIds = [...new Set(comments.map(c => c.user_id))];
       const { data: profiles } = await supabase
-        .from("profiles")
+        .from("public_profile_view")
         .select(PROFILE_AVATAR_SELECT)
         .in("id", userIds);
       const profileMap = Object.fromEntries((profiles ?? []).map(p => [p.id, p]));
@@ -382,7 +382,7 @@ async function sendPostNotification({
   if (actorId === postOwnerId) return; // no self-notifications
   try {
     const { data: actor } = await supabase
-      .from("profiles")
+      .from("public_profile_view")
       .select("display_name, username, avatar_url, avatar_mode, avatar_emoji_key")
       .eq("id", actorId)
       .single();

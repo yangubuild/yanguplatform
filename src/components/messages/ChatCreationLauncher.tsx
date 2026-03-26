@@ -60,7 +60,7 @@ export function ChatCreationLauncher({ open, onOpenChange, onSelectUser, onOpenG
     enabled: open && view === "people" && !!user && normalizedSearch.length>= 2,
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("profiles")
+        .from("public_profile_view")
         .select("id, display_name, username, avatar_url, avatar_mode, avatar_emoji_key, business_name, creator_type")
         .eq("account_status", "active")
         .neq("id", user!.id)

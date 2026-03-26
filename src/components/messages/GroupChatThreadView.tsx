@@ -119,7 +119,7 @@ export function GroupChatThreadView({ group, onBack }: Props) {
     setAddUserSearch(q);
     if (q.trim().length < 2) { setSearchResults([]); return; }
     const { data } = await supabase
-      .from("profiles")
+      .from("public_profile_view")
       .select("id, display_name, username")
       .or(`display_name.ilike.%${q}%,username.ilike.%${q}%`)
       .limit(10);

@@ -30,7 +30,7 @@ function useSinglePost(postId: string) {
 
       // Fetch author profile
       const { data: profiles } = await supabase
-        .from("profiles")
+        .from("public_profile_view")
         .select("id, display_name, avatar_url, avatar_mode, avatar_emoji_key, username")
         .eq("id", post.user_id)
         .limit(1);

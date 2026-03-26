@@ -33,7 +33,7 @@ export function FriendsPanel({ onViewProfile }: FriendsPanelProps) {
     queryKey: ["friends-panel-users"],
     queryFn: async (): Promise<UserRow[]> => {
       const { data, error } = await supabase
-        .from("profiles")
+        .from("public_profile_view")
         .select("id, display_name, username, avatar_url, avatar_mode, avatar_emoji_key, business_name, cover_url")
         .eq("account_status", "active")
         .not("username", "is", null)
@@ -48,7 +48,7 @@ export function FriendsPanel({ onViewProfile }: FriendsPanelProps) {
     queryKey: ["platform-user-count"],
     queryFn: async () => {
       const { count, error } = await supabase
-        .from("profiles")
+        .from("public_profile_view")
         .select("id", { count: "exact", head: true })
         .eq("account_status", "active");
       if (error) throw error;
