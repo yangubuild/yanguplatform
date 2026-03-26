@@ -113,6 +113,7 @@ const ManageAppReview = lazy(() => lazyRetry(() => import("./pages/manage/Manage
 const ManageEntities = lazy(() => lazyRetry(() => import("./pages/manage/ManageEntities")));
 const ManageReports = lazy(() => lazyRetry(() => import("./pages/manage/ManageReports")));
 const EntityDetailPage = lazy(() => lazyRetry(() => import("./pages/EntityDetailPage")));
+const Unsubscribe = lazy(() => lazyRetry(() => import("./pages/Unsubscribe")));
 
 // Developer Portal (lazy)
 const PortalLayoutModule = lazy(() => lazyRetry(() => import("./components/developers/portal/PortalLayout").then(m => ({ default: m.PortalLayout }))));
