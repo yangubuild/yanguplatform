@@ -3,7 +3,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useRoles } from "@/hooks/useRoles";
 import { setActiveContext } from "@/lib/routing/activeContext";
-import { ShieldX } from "lucide-react";
+import { Loader2, ShieldX } from "lucide-react";
 
 const ALLOWED_ADMIN_EMAILS = [
   "yanguabuild@gmail.com",
@@ -15,7 +15,7 @@ interface ManagementGuardProps {
 }
 
 export function ManagementGuard({ children }: ManagementGuardProps) {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const {
     hasAnyManageRole,
     hasAnyAgencyRole,
@@ -34,9 +34,12 @@ export function ManagementGuard({ children }: ManagementGuardProps) {
     }
   }, [isAuthenticated, hasAccess]);
 
-  // rolesLoading already includes authLoading — no need to check both
-  if (rolesLoading) {
-    return null; // Shell stays mounted during initial boot
+  if (authLoading || rolesLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+      </div>
+    );
   }
 
   if (!isAuthenticated) {
