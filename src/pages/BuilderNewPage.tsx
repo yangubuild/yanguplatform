@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { ChatInterface } from "@/components/builder-new/ChatInterface";
 import { SelectionPanel } from "@/components/builder-new/SelectionPanel";
-import { SitePreview } from "@/components/builder-new/SitePreview";
+import { VariantPreviewCarousel } from "@/components/builder-new/VariantPreviewCarousel";
+import { EditablePreview } from "@/components/builder-new/EditablePreview";
 import { useStepController } from "@/components/builder-new/hooks/useStepController";
-import { generateWebsiteHTML } from "@/components/builder-new/utils/websiteGenerator";
+import { generateWebsiteVariants } from "@/components/builder-new/utils/websiteGenerator";
 import type { StepOption } from "@/components/builder-new/hooks/useStepController";
 import type { ChatMessage } from "@/components/builder-new/types/builder.types";
 import type { Selection } from "@/components/builder-new/types/builder.types";
@@ -17,47 +18,44 @@ export default function BuilderNewPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const greetedRef = useRef(false);
 
-  // Helper to add a message
+  // Multi-variant state
+  const [variants, setVariants] = useState<string[]>([]);
+  const [chosenVariant, setChosenVariant] = useState<string | null>(null);
+  const [isChoosingVariant, setIsChoosingVariant] = useState(false);
+
   const addMsg = useCallback((role: "user" | "assistant", content: string) => {
     const msg: ChatMessage = { id: crypto.randomUUID(), role, content, timestamp: Date.now() };
     setMessages(prev => [...prev, msg]);
     return msg;
   }, []);
 
-  // Show Ada's first message for current step
+  // Show Ada's first message
   useEffect(() => {
     if (greetedRef.current && ctrl.currentStep === "greeting") return;
     greetedRef.current = true;
     const config = ctrl.getStepConfig();
-    if (config.adaMessage) {
-      addMsg("assistant", config.adaMessage);
-    }
+    if (config.adaMessage) addMsg("assistant", config.adaMessage);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // When step changes, add Ada's message for that step
+  // When step changes, add Ada's message
   const prevStepRef = useRef(ctrl.currentStep);
   useEffect(() => {
     if (ctrl.currentStep === prevStepRef.current) return;
     prevStepRef.current = ctrl.currentStep;
 
-    // Handle generation step
     if (ctrl.currentStep === "confirmation") {
       handleGenerate();
       return;
     }
 
     const config = ctrl.getStepConfig();
-    if (config.adaMessage) {
-      addMsg("assistant", config.adaMessage);
-    }
+    if (config.adaMessage) addMsg("assistant", config.adaMessage);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ctrl.currentStep]);
 
   const handleOptionSelect = useCallback((option: StepOption) => {
-    // Add user bubble showing what was clicked
     addMsg("user", option.label);
-    // Process selection
     ctrl.handleOptionSelect(option);
   }, [addMsg, ctrl]);
 
@@ -72,15 +70,15 @@ export default function BuilderNewPage() {
   }, [addMsg, ctrl]);
 
   const handleGenerate = useCallback(() => {
-    if (!ctrl.category) {
-      // Default category if not detected
-      ctrl.setCategory("esite");
-    }
+    if (!ctrl.category) ctrl.setCategory("esite");
     ctrl.setIsGenerating(true);
-    addMsg("assistant", "⚡ Generating your website... This will take a moment.");
+    setIsChoosingVariant(true);
+    setChosenVariant(null);
+    setVariants([]);
+    addMsg("assistant", "⚡ Generating 3 unique designs based on your selections...");
 
     const cat = ctrl.category || "esite";
-    const html = generateWebsiteHTML({
+    const htmlVariants = generateWebsiteVariants({
       category: cat,
       businessName: ctrl.businessName || "My Website",
       location: "Dubai, UAE",
@@ -93,18 +91,33 @@ export default function BuilderNewPage() {
     });
 
     setTimeout(() => {
-      ctrl.setGeneratedHtml(html);
+      setVariants(htmlVariants);
       ctrl.setIsGenerating(false);
-      ctrl.setCurrentStep("refinement");
-    }, 1500);
+      addMsg("assistant", "Here are 3 design variants! Browse through them and click **Choose this design** on the one you like best.");
+    }, 2000);
   }, [ctrl, addMsg]);
+
+  const handleChooseVariant = useCallback((index: number) => {
+    const selected = variants[index];
+    setChosenVariant(selected);
+    setIsChoosingVariant(false);
+    ctrl.setGeneratedHtml(selected);
+    ctrl.setCurrentStep("refinement");
+    addMsg("user", `Selected Design ${index + 1}`);
+    addMsg("assistant", "Your website draft is ready! You can now edit text, replace images, add sections, or describe changes in the chat below.");
+  }, [variants, ctrl, addMsg]);
+
+  const handleHtmlChange = useCallback((html: string) => {
+    setChosenVariant(html);
+    ctrl.setGeneratedHtml(html);
+  }, [ctrl]);
 
   const handleFreeText = useCallback((text: string) => {
     addMsg("user", text);
     addMsg("assistant", "I'll work on that refinement for you. (Refinement coming soon!)");
   }, [addMsg]);
 
-  // Build selections list for panel
+  // Build selections list
   const selections: Selection[] = [];
   if (ctrl.selectedScope) selections.push({ type: "scope", label: ctrl.selectedScope, value: ctrl.selectedScope, timestamp: Date.now() });
   if (ctrl.selectedAssets) selections.push({ type: "assets", label: ctrl.selectedAssets, value: ctrl.selectedAssets, timestamp: Date.now() });
@@ -113,11 +126,13 @@ export default function BuilderNewPage() {
   if (ctrl.selectedStyleCategory) selections.push({ type: "style_category", label: ctrl.selectedStyleCategory, value: ctrl.selectedStyleCategory, timestamp: Date.now() });
   if (ctrl.selectedStyleSpecific) selections.push({ type: "style_specific", label: ctrl.selectedStyleSpecific, value: ctrl.selectedStyleSpecific, timestamp: Date.now() });
 
-  const showPreview = !!ctrl.generatedHtml;
+  // Determine center panel state
+  const showVariantCarousel = isChoosingVariant && (variants.length > 0 || ctrl.isGenerating);
+  const showEditablePreview = !!chosenVariant && !isChoosingVariant;
+  const showCenterPanel = showVariantCarousel || showEditablePreview;
 
   return (
     <div className="h-screen flex flex-col bg-background">
-      {/* Header */}
       <header className="flex items-center gap-3 px-4 py-3 border-b border-border shrink-0">
         <button onClick={() => navigate(-1)} className="p-2 rounded-lg hover:bg-muted transition-colors">
           <ArrowLeft className="h-4 w-4 text-foreground" />
@@ -126,10 +141,9 @@ export default function BuilderNewPage() {
         <span className="text-sm font-medium text-foreground">Website Builder</span>
       </header>
 
-      {/* Main content */}
       <div className="flex-1 flex overflow-hidden">
         {/* Chat panel */}
-        <div className={`${showPreview ? "w-[380px]" : "flex-1"} min-w-0 border-r border-border shrink-0 transition-all overflow-visible`}>
+        <div className={`${showCenterPanel ? "w-[380px]" : "flex-1"} min-w-0 border-r border-border shrink-0 transition-all overflow-visible`}>
           <ChatInterface
             messages={messages}
             isLoading={ctrl.isGenerating}
@@ -149,10 +163,23 @@ export default function BuilderNewPage() {
           />
         </div>
 
-        {/* Preview panel */}
-        {showPreview && (
+        {/* Center panel — variant carousel or editable preview */}
+        {showVariantCarousel && (
           <div className="flex-1 min-w-0 border-r border-border">
-            <SitePreview html={ctrl.generatedHtml!} />
+            <VariantPreviewCarousel
+              variants={variants}
+              onChoose={handleChooseVariant}
+              isGenerating={ctrl.isGenerating}
+            />
+          </div>
+        )}
+
+        {showEditablePreview && (
+          <div className="flex-1 min-w-0 border-r border-border">
+            <EditablePreview
+              html={chosenVariant!}
+              onHtmlChange={handleHtmlChange}
+            />
           </div>
         )}
 
