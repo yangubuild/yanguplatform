@@ -145,6 +145,7 @@ function OwnPostsTab({ onAuthorClick }: { onAuthorClick?: (post: Post) => void }
   const [buyNowEnabled, setBuyNowEnabled] = useState(false);
   const [joinNowEnabled, setJoinNowEnabled] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [videoMuted, setVideoMuted] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const avatarUrl = profile ? resolveAvatarUrl(profile) : null;
@@ -259,14 +260,33 @@ function OwnPostsTab({ onAuthorClick }: { onAuthorClick?: (post: Post) => void }
           </div>
           <div className="flex-1">
             <textarea value={text} onChange={(e) => handleEmojiInputChange(e.target.value, e.target.selectionStart ?? undefined)} onKeyDown={(e) => { if (e.key === "Enter" && e.metaKey) handlePost(); }} placeholder="Share an update..." className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none resize-none min-h-[50px]" />
-            {mediaPreviews.length> 0 && (
+            {mediaPreviews.length > 0 && (
               <div className="flex gap-2 mt-2 flex-wrap">
-                {mediaPreviews.map((url, idx) => (
-                  <div key={idx} className="relative w-16 h-16 rounded-lg overflow-hidden">
-                    {mediaFiles[idx]?.type.startsWith("video") ? <video src={url} className="w-16 h-16 object-cover" /> : <img src={url} alt="" className="w-16 h-16 object-cover" />}
-                    <button onClick={() => removeMedia(idx)} className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-black/70 flex items-center justify-center"><X className="w-2.5 h-2.5 text-foreground" /></button>
-                  </div>
-                ))}
+                {mediaPreviews.map((url, idx) => {
+                  const isVideo = mediaFiles[idx]?.type.startsWith("video");
+                  return (
+                    <div key={idx} className="relative rounded-lg overflow-hidden" style={{ width: isVideo ? "100%" : 64, height: isVideo ? "auto" : 64, maxHeight: isVideo ? 240 : 64 }}>
+                      {isVideo ? (
+                        <video src={url} className="w-full max-h-[240px] object-cover rounded-lg" muted={videoMuted} controls />
+                      ) : (
+                        <img src={url} alt="" className="w-16 h-16 object-cover" />
+                      )}
+                      <button onClick={() => removeMedia(idx)} className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 flex items-center justify-center z-10"><X className="w-3 h-3 text-foreground" /></button>
+                      {isVideo && (
+                        <div className="flex items-center gap-1.5 mt-1.5 px-1">
+                          <button
+                            onClick={() => setVideoMuted(!videoMuted)}
+                            className="flex items-center gap-1 text-[10px] px-2 py-1 rounded-md transition-colors"
+                            style={{ background: "rgba(255,255,255,0.06)", color: videoMuted ? "#ef4444" : "rgba(255,255,255,0.5)" }}
+                            title={videoMuted ? "Unmute" : "Mute sound"}>
+                            {videoMuted ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />}
+                            {videoMuted ? "Muted" : "Sound on"}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
             {/* CTA toggles */}
