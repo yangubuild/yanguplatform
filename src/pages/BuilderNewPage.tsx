@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { ChatInterface } from "@/components/builder-new/ChatInterface";
@@ -13,8 +13,11 @@ export default function BuilderNewPage() {
   const { state, addMessage, addSelection, detectCategory, setCategory, updateConfig } = useBuilderState();
   const { sendMessage, isLoading } = useTogetherChat();
 
-  // Send initial greeting on mount
+  // Send initial greeting on mount (guard against strict-mode double fire)
+  const greetedRef = useRef(false);
   useEffect(() => {
+    if (greetedRef.current || state.messages.length > 0) return;
+    greetedRef.current = true;
     const greet = async () => {
       const resp = await sendMessage([], "Hello, I want to build a website.");
       addMessage({
@@ -23,7 +26,7 @@ export default function BuilderNewPage() {
         buttons: resp.buttons,
       });
     };
-    if (state.messages.length === 0) greet();
+    greet();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
