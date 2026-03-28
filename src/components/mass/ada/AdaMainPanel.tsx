@@ -2116,11 +2116,11 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                       ry={16}
                       fill="none"
                       stroke="#F4A83D"
-                      strokeWidth={1.2}
+                      strokeWidth={0.6}
                       strokeDasharray={`${dashLen} ${gapLen}`}
                       strokeDashoffset={0}
-                      opacity={0.18}
-                      style={{ filter: "blur(2px)" }}
+                      opacity={0.12}
+                      style={{ filter: "blur(1px)" }}
                     />
                     <rect
                       ref={traceRef}
@@ -2132,7 +2132,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                       ry={16}
                       fill="none"
                       stroke="#F4A83D"
-                      strokeWidth={0.7}
+                      strokeWidth={0.4}
                       strokeDasharray={`${dashLen} ${gapLen}`}
                       strokeDashoffset={0}
                       opacity={0.8}
