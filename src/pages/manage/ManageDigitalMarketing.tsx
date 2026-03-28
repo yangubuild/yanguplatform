@@ -155,7 +155,6 @@ export default function ManageDigitalMarketing() {
                 {DEFAULT_PLATFORMS.map((platform) => {
                   const conn = connMap.get(platform) as any;
                   const isConnected = conn?.status === "connected";
-                  const Icon = PLATFORM_ICONS[platform] || Globe;
                   return (
                     <div key={platform} className="rounded-lg border border-[hsl(var(--admin-border)/0.3)] p-4">
                       <div className="flex items-center justify-between mb-3">
