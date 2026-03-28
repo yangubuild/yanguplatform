@@ -2178,30 +2178,40 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                     height={boxSize.h}
                     style={{ overflow: "visible" }}
                   >
+                    <defs>
+                      {/* Hidden path for measuring getPointAtLength */}
+                      <path ref={pathMeasureRef} d={glowPath} fill="none" stroke="none" />
+                      {/* Radial gradient for the sharp trace highlight */}
+                      <radialGradient ref={gradRef} id="traceGrad" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="18">
+                        <stop offset="0%" stopColor="#F4A83D" stopOpacity="1" />
+                        <stop offset="60%" stopColor="#F4A83D" stopOpacity="0.4" />
+                        <stop offset="100%" stopColor="#F4A83D" stopOpacity="0" />
+                      </radialGradient>
+                      {/* Radial gradient for the soft glow layer */}
+                      <radialGradient ref={gradGlowRef} id="glowGrad" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="26">
+                        <stop offset="0%" stopColor="#F4A83D" stopOpacity="1" />
+                        <stop offset="40%" stopColor="#F4A83D" stopOpacity="0.3" />
+                        <stop offset="100%" stopColor="#F4A83D" stopOpacity="0" />
+                      </radialGradient>
+                    </defs>
                     <path
                       ref={glowRef}
                       d={glowPath}
-                      pathLength={1}
                       fill="none"
-                      stroke="#F4A83D"
-                      strokeWidth={1}
+                      stroke="url(#glowGrad)"
+                      strokeWidth={1.5}
                       strokeLinecap="round"
-                      strokeDasharray={`${dashFrac} ${gapFrac}`}
-                      strokeDashoffset={0}
                       opacity={0.25}
                       style={{ filter: "blur(1.5px)" }}
                     />
                     <path
                       ref={traceRef}
                       d={glowPath}
-                      pathLength={1}
                       fill="none"
-                      stroke="#F4A83D"
+                      stroke="url(#traceGrad)"
                       strokeWidth={0.5}
                       strokeLinecap="round"
-                      strokeDasharray={`${dashFrac} ${gapFrac}`}
-                      strokeDashoffset={0}
-                      opacity={0.7}
+                      opacity={0.8}
                     />
                   </svg>
                 )}
