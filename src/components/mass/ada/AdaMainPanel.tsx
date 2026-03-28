@@ -2133,7 +2133,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                 </div>
               )}
               <div ref={boxRef} className="relative rounded-2xl outline-none ring-0 [&_*]:focus-visible:outline-none">
-                {/* Animated orange border trace */}
+                {/* Animated border highlight */}
                 {glowPath && (
                   <svg
                     className="pointer-events-none absolute inset-0 z-20"
@@ -2141,42 +2141,35 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                     height={boxSize.h}
                     style={{ overflow: "visible" }}
                   >
-                    {/* Wide soft outer glow */}
+                    {/* Dim base border — always visible */}
                     <path
                       d={glowPath}
-                      pathLength={1}
                       fill="none"
-                      stroke="#F4A83D"
-                      strokeWidth={4}
-                      strokeLinecap="round"
-                      strokeDasharray={`${dashFrac} ${gapFrac}`}
-                      strokeDashoffset={0}
-                      opacity={0}
-                      ref={(el: SVGPathElement | null) => { if (el) glowRef.current = el; }}
-                      style={{ filter: "blur(4px)" }}
+                      stroke="rgba(255,255,255,0.08)"
+                      strokeWidth={1}
                     />
-                    {/* Medium glow layer */}
+                    {/* Soft glow layer behind the highlight */}
                     <path
+                      ref={highlightGlowRef}
                       d={glowPath}
                       pathLength={1}
                       fill="none"
-                      stroke="#F4A83D"
+                      stroke="rgba(255,255,255,0.5)"
                       strokeWidth={2}
                       strokeLinecap="round"
                       strokeDasharray={`${dashFrac} ${gapFrac}`}
                       strokeDashoffset={0}
                       opacity={0}
-                      ref={glowMidRef}
-                      style={{ filter: "blur(1.5px)" }}
+                      style={{ filter: "blur(2px)" }}
                     />
-                    {/* Sharp core trace */}
+                    {/* Sharp highlight core */}
                     <path
-                      ref={traceRef}
+                      ref={highlightRef}
                       d={glowPath}
                       pathLength={1}
                       fill="none"
-                      stroke="#F4A83D"
-                      strokeWidth={0.7}
+                      stroke="rgba(255,255,255,0.9)"
+                      strokeWidth={1}
                       strokeLinecap="round"
                       strokeDasharray={`${dashFrac} ${gapFrac}`}
                       strokeDashoffset={0}
