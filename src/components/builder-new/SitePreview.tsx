@@ -23,8 +23,8 @@ export function SitePreview({ html }: SitePreviewProps) {
       <div className="flex items-center gap-2 px-4 py-2 border-b border-border shrink-0">
         <div className="flex gap-1.5">
           <span className="w-2.5 h-2.5 rounded-full bg-destructive/60" />
-          <span className="w-2.5 h-2.5 rounded-full bg-yellow-400/60" />
-          <span className="w-2.5 h-2.5 rounded-full bg-green-400/60" />
+          <span className="w-2.5 h-2.5 rounded-full bg-primary/40" />
+          <span className="w-2.5 h-2.5 rounded-full bg-primary/60" />
         </div>
         <div className="flex-1 bg-muted rounded-md px-3 py-1 text-xs text-muted-foreground text-center truncate">
           Preview
