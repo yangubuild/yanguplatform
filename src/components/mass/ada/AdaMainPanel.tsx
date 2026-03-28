@@ -1469,7 +1469,10 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
     return () => ro.disconnect();
   }, []);
 
-  const perim = boxSize.w && boxSize.h ? 2 * (boxSize.w + boxSize.h - 4 * 16) + 2 * Math.PI * 16 : 0;
+  const rectW = boxSize.w - 2;
+  const rectH = boxSize.h - 2;
+  const r = 16;
+  const perim = rectW && rectH ? 2 * (rectW - 2 * r) + 2 * (rectH - 2 * r) + 2 * Math.PI * r : 0;
   const dashLen = perim * 0.05;
   const gapLen = perim - dashLen;
 
