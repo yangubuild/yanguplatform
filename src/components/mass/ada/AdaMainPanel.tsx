@@ -627,11 +627,11 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
 
       const reader = res.body.getReader();
 
-      // Throttled scroll during streaming: scroll at most every 300ms
+      // Throttled scroll during streaming: scroll at most every 800ms to reduce jitter
       let lastScrollTime = 0;
       const throttledScroll = () => {
         const now = Date.now();
-        if (now - lastScrollTime> 300) {
+        if (now - lastScrollTime > 800) {
           lastScrollTime = now;
           smartScroll();
         }
