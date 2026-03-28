@@ -136,7 +136,7 @@ function saveAnonChats(chats: { id: string; title: string; messages: ChatMessage
   localStorage.setItem(ANON_CHATS_KEY, JSON.stringify(chats));
 }
 
-// --- SSE stream parser — batched accumulation (no typewriter setTimeout) ---
+// --- SSE stream parser — smooth typing effect via interval-based flushing ---
 async function readSSEStream(
   reader: ReadableStreamDefaultReader<Uint8Array>,
   onChunk: (fullText: string) => void,
@@ -145,16 +145,40 @@ async function readSSEStream(
   const decoder = new TextDecoder();
   let buffer = "";
   let accumulated = "";
-  // Batch tokens and flush at most every 50ms to avoid per-token re-renders
-  let pendingFlush = false;
+  let displayed = "";
+  let flushTimer: ReturnType<typeof setInterval> | null = null;
+  let streamDone = false;
 
-  const scheduleFlush = () => {
-    if (pendingFlush) return;
-    pendingFlush = true;
-    requestAnimationFrame(() => {
-      pendingFlush = false;
-      onChunk(accumulated);
-    });
+  // Flush ~12 chars every 30ms for a natural typing cadence
+  const CHARS_PER_TICK = 12;
+  const TICK_MS = 30;
+
+  const startFlushing = () => {
+    if (flushTimer) return;
+    flushTimer = setInterval(() => {
+      if (displayed.length < accumulated.length) {
+        // Advance by CHARS_PER_TICK, but snap to word boundary to avoid mid-word cuts
+        let end = Math.min(displayed.length + CHARS_PER_TICK, accumulated.length);
+        // Try to snap to next space/newline to keep words whole
+        if (end < accumulated.length) {
+          const nextSpace = accumulated.indexOf(" ", end);
+          const nextNewline = accumulated.indexOf("\n", end);
+          const snap = Math.min(
+            nextSpace === -1 ? accumulated.length : nextSpace + 1,
+            nextNewline === -1 ? accumulated.length : nextNewline + 1,
+          );
+          if (snap - end < 20) end = snap; // only snap if close
+        }
+        displayed = accumulated.slice(0, end);
+        onChunk(displayed);
+      } else if (streamDone) {
+        // All caught up and stream finished
+        if (flushTimer) { clearInterval(flushTimer); flushTimer = null; }
+        displayed = accumulated;
+        onChunk(displayed);
+        onDone();
+      }
+    }, TICK_MS);
   };
 
   while (true) {
@@ -168,29 +192,29 @@ async function readSSEStream(
       if (!line.startsWith("data: ")) continue;
       const data = line.slice(6).trim();
       if (data === "[DONE]") {
-        onChunk(accumulated);
-        onDone();
+        streamDone = true;
+        startFlushing();
         return;
       }
       try {
         const parsed = JSON.parse(data);
         if (parsed.type === "token" && parsed.text) {
           accumulated += parsed.text;
-          scheduleFlush();
+          startFlushing();
         } else if (parsed.type === "done") {
-          onChunk(accumulated);
-          onDone();
+          streamDone = true;
+          startFlushing();
           return;
         } else if (parsed.choices?.[0]?.delta?.content) {
           accumulated += parsed.choices[0].delta.content;
-          scheduleFlush();
+          startFlushing();
         }
       } catch { /* skip non-JSON lines */ }
     }
   }
-  // Final flush
-  onChunk(accumulated);
-  onDone();
+  // Stream reader ended
+  streamDone = true;
+  startFlushing();
 }
 
 // --- SSE stream parser for generation status events ---
