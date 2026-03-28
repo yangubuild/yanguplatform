@@ -1477,82 +1477,46 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
     ? `M${1 + r},1 H${1 + rectW - r} A${r},${r} 0 0 1 ${1 + rectW},${1 + r} V${1 + rectH - r} A${r},${r} 0 0 1 ${1 + rectW - r},${1 + rectH} H${1 + r} A${r},${r} 0 0 1 1,${1 + rectH - r} V${1 + r} A${r},${r} 0 0 1 ${1 + r},1 Z`
     : "";
 
-  // Compute real perimeter and corner boundaries for dynamic highlight sizing
-  const straightTop = rectW - 2 * r;
-  const straightRight = rectH - 2 * r;
-  const straightBottom = rectW - 2 * r;
-  const straightLeft = rectH - 2 * r;
-  const cornerArc = (Math.PI / 2) * r; // quarter circle
-  const totalPerim = straightTop + cornerArc + straightRight + cornerArc + straightBottom + cornerArc + straightLeft + cornerArc;
-
-  // Corner zones as fraction of total perimeter
-  const segLengths = [straightTop, cornerArc, straightRight, cornerArc, straightBottom, cornerArc, straightLeft, cornerArc];
-  const segEnds: number[] = [];
-  { let acc = 0; for (const s of segLengths) { acc += s; segEnds.push(acc / totalPerim); } }
-  const isCorner = (frac: number): boolean => {
-    // segments: 0=straightTop, 1=corner, 2=straightRight, 3=corner, etc.
-    let f = ((frac % 1) + 1) % 1;
-    let prev = 0;
-    for (let i = 0; i < segEnds.length; i++) {
-      if (f >= prev && f < segEnds[i]) return i % 2 === 1; // odd indices are corners
-      prev = segEnds[i];
-    }
-    return false;
-  };
+  // Dash-based highlight: constant visual length everywhere on the path
+  const dashFrac = 0.06; // 6% of perimeter = highlight length
+  const gapFrac = 1 - dashFrac;
 
   // Idle/active state: glow runs when idle, stops when user is typing
   const isGlowActive = !isFocused || (isFocused && inputValue.trim() === "");
   const glowOpacityRef = useRef(1);
-  const lastProgressRef = useRef(0);
-  const gradRef = useRef<SVGRadialGradientElement>(null);
-  const gradGlowRef = useRef<SVGRadialGradientElement>(null);
-  const pathMeasureRef = useRef<SVGPathElement>(null);
+  const lastOffsetRef = useRef(0);
 
   useEffect(() => {
-    if (!glowPath || !pathMeasureRef.current) return;
-    const pathEl = pathMeasureRef.current;
-    const pathLen = pathEl.getTotalLength();
+    if (!glowPath) return;
     let raf: number;
     let start: number | null = null;
-    let currentProgress = lastProgressRef.current;
+    let pausedOffset = lastOffsetRef.current;
     const duration = 6000;
 
     const tick = (ts: number) => {
-      if (!start) start = ts;
+      if (!start) start = ts - (pausedOffset * duration);
 
       const targetOpacity = isGlowActive ? 1 : 0;
       glowOpacityRef.current += (targetOpacity - glowOpacityRef.current) * 0.06;
 
+      let offset: number;
       if (isGlowActive) {
-        currentProgress = ((ts - start) % duration) / duration;
+        offset = ((ts - start) % duration) / duration;
+      } else {
+        offset = pausedOffset;
       }
-      lastProgressRef.current = currentProgress;
+      lastOffsetRef.current = offset;
+      pausedOffset = offset;
 
-      // Get point on path
-      const pt = pathEl.getPointAtLength(currentProgress * pathLen);
+      // strokeDashoffset drives the position (negative = forward motion)
+      const dashOffset = -offset;
 
-      // Highlight radius: smaller on straights, slightly larger at corners
-      const atCorner = isCorner(currentProgress);
-      const baseR = atCorner ? 28 : 18; // px — screen-space radius
-      const glowR = atCorner ? 38 : 26;
-
-      // Update radial gradient positions
-      if (gradRef.current) {
-        gradRef.current.setAttribute("cx", `${pt.x}`);
-        gradRef.current.setAttribute("cy", `${pt.y}`);
-        gradRef.current.setAttribute("r", `${baseR}`);
-      }
-      if (gradGlowRef.current) {
-        gradGlowRef.current.setAttribute("cx", `${pt.x}`);
-        gradGlowRef.current.setAttribute("cy", `${pt.y}`);
-        gradGlowRef.current.setAttribute("r", `${glowR}`);
-      }
-
-      // Update opacity on the path elements
       if (traceRef.current) {
+        traceRef.current.setAttribute("stroke-dashoffset", `${dashOffset}`);
         traceRef.current.style.opacity = `${glowOpacityRef.current * 0.8}`;
       }
       if (glowRef.current) {
+        glowRef.current.setAttribute("stroke-dashoffset", `${dashOffset}`);
         glowRef.current.style.opacity = `${glowOpacityRef.current * 0.25}`;
       }
 
@@ -1560,7 +1524,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [glowPath, isGlowActive, totalPerim]);
+  }, [glowPath, isGlowActive]);
 
   useEffect(() => {
     const ta = textareaRef.current;
