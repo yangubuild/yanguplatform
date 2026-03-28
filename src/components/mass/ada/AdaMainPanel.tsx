@@ -1470,7 +1470,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
   }, []);
 
   const perim = boxSize.w && boxSize.h ? 2 * (boxSize.w + boxSize.h - 4 * 16) + 2 * Math.PI * 16 : 0;
-  const dashLen = perim * 0.03;
+  const dashLen = perim * 0.05;
   const gapLen = perim - dashLen;
 
   // Idle/active state: glow runs when idle, stops when user is typing
