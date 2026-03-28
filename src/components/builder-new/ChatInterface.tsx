@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { Send, Plus } from "lucide-react";
 import type { ChatMessage, SelectionButton } from "./types/builder.types";
 import type { Selection } from "./types/builder.types";
 import { MessageBubble } from "./MessageBubble";
+import { BuilderPinnedNotice } from "./BuilderPinnedNotice";
 
 interface ChatInterfaceProps {
   messages: ChatMessage[];
@@ -10,14 +11,15 @@ interface ChatInterfaceProps {
   onSend: (text: string) => void;
   onButtonClick: (button: SelectionButton) => void;
   selections: Selection[];
+  builderMode?: "new" | "edit";
 }
 
-export function ChatInterface({ messages, isLoading, onSend, onButtonClick, selections }: ChatInterfaceProps) {
+export function ChatInterface({ messages, isLoading, onSend, onButtonClick, selections, builderMode = "new" }: ChatInterfaceProps) {
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const [noticeHeight, setNoticeHeight] = useState(0);
 
-  // Build a set of clicked button keys for visual feedback
   const clickedButtons = useMemo(() => {
     const set = new Set<string>();
     for (const s of selections) {
@@ -54,10 +56,21 @@ export function ChatInterface({ messages, isLoading, onSend, onButtonClick, sele
     ta.style.height = Math.min(ta.scrollHeight, 120) + "px";
   };
 
+  const handleNoticeHeight = useCallback((h: number) => setNoticeHeight(h), []);
+
+  const topPadding = noticeHeight > 0 ? noticeHeight + 28 : 16;
+
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full relative overflow-visible">
+      {/* Pinned floating notice */}
+      <BuilderPinnedNotice mode={builderMode} onHeightChange={handleNoticeHeight} />
+
       {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-6 space-y-5">
+      <div
+        ref={scrollRef}
+        className="flex-1 overflow-y-auto px-4 pb-4 space-y-5"
+        style={{ paddingTop: topPadding + 18 }}
+      >
         {messages.map((msg) => (
           <MessageBubble
             key={msg.id}
