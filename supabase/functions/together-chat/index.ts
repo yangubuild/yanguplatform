@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 // ── Defaults ────────────────────────────────────────────────────────
-const DEFAULT_MODEL = "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo";
+const DEFAULT_MODEL = "meta-llama/Llama-3.3-70B-Instruct-Turbo";
 const DEFAULT_TEMPERATURE = 0.7;
 const DEFAULT_MAX_TOKENS = 800;
 const TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions";
