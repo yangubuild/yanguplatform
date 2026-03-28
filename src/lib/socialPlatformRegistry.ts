@@ -20,6 +20,7 @@ import websiteIcon from "@/assets/icons/website.png";
 import emailIcon from "@/assets/icons/email.png";
 import phoneIcon from "@/assets/icons/phone.png";
 import zillowIcon from "@/assets/icons/zillow.png";
+import linkedinIcon from "@/assets/icons/linkedin.png";
 
 export interface SocialPlatform {
   id: string;
