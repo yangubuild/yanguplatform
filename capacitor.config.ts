@@ -20,6 +20,9 @@ const config: CapacitorConfig = {
       showSpinner: false,
       launchFadeOutDuration: 300,
     },
+    PushNotifications: {
+      presentationOptions: ['badge', 'sound', 'alert'],
+    },
   },
   android: {
     backgroundColor: '#08120D',
