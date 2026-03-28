@@ -160,7 +160,7 @@ export default function ManageDigitalMarketing() {
                     <div key={platform} className="rounded-lg border border-[hsl(var(--admin-border)/0.3)] p-4">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
-                          <Icon className="h-5 w-5 text-muted-foreground" />
+                          <img src={PLATFORM_ICON_MAP[platform] || websiteIcon} alt={platform} className="h-5 w-5 object-contain" />
                           <span className="text-sm font-medium text-[hsl(var(--admin-text))] capitalize">{platform}</span>
                         </div>
                         <Badge variant="outline" className={isConnected ? "text-emerald-500 border-emerald-500/30" : "text-muted-foreground"}>
