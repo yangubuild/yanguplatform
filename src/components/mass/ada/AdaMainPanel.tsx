@@ -1632,7 +1632,14 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
 
     let content = stripThoughts(msg.content);
     if (!content && msg.isStreaming) {
-      return <span className="inline-block w-[2px] h-[1em] bg-[#F4A83D] ml-0.5 align-middle animate-pulse" />;
+      return (
+        <span className="inline-flex items-center gap-1 text-[hsl(var(--accent))]/70 text-sm italic">
+          <span className="animate-pulse">Thinking</span>
+          <span className="animate-bounce [animation-delay:0ms]">.</span>
+          <span className="animate-bounce [animation-delay:150ms]">.</span>
+          <span className="animate-bounce [animation-delay:300ms]">.</span>
+        </span>
+      );
     }
 
     // Detect HTML media tags and convert to components
