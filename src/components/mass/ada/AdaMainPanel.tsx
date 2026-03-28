@@ -1450,10 +1450,15 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
   }, [perim]);
 
   useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 160) + "px";
+    const ta = textareaRef.current;
+    if (!ta) return;
+    // Avoid the "auto" reset flicker: only grow/shrink when needed
+    const maxH = 160;
+    const newH = Math.min(ta.scrollHeight, maxH);
+    if (Math.abs(ta.offsetHeight - newH) > 2) {
+      ta.style.height = newH + "px";
     }
+    ta.style.overflowY = ta.scrollHeight > maxH ? "auto" : "hidden";
   }, [inputValue]);
 
   const rotatingWords = ["Own", "Idea", "Business", "Product", "Community"];
@@ -1831,7 +1836,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                   }
                 }
               }}
-              className="w-full max-w-2xl flex-1 min-h-0 overflow-y-auto mb-4 space-y-4 py-4">
+              className="w-full max-w-2xl flex-1 min-h-0 overflow-y-auto mb-4 space-y-4 py-4 scroll-smooth">
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>
                   {/* Routing pill */}
@@ -1842,7 +1847,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                     </span>
                   )}
                   <div
-                    className={`max-w-[80%] px-4 py-3 text-sm ${
+                    className={`max-w-[85%] px-4 py-3 text-sm break-words overflow-hidden ${
                       msg.role === "user" ? "text-right" : ""
                     }`}
                     style={{
@@ -1852,7 +1857,9 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                       background: msg.role === "assistant"
                         ? "rgba(255,255,255,0.03)"
                         : "transparent",
-                      borderRadius: "12px" }}>
+                      borderRadius: "12px",
+                      wordBreak: "break-word",
+                      overflowWrap: "anywhere" }}>
                     {renderMessageContent(msg)}
                     {msg.metadata && (msg.metadata as any).attachments && (
                       <div className="flex flex-wrap gap-1 mt-2">
