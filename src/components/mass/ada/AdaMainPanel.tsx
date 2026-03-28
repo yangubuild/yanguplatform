@@ -1472,24 +1472,51 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
   const rectW = boxSize.w - 2;
   const rectH = boxSize.h - 2;
   const r = 16;
-  // Build a rounded-rect as a <path> so pathLength="1" gives perfectly continuous motion
+  // Build a rounded-rect as a <path> so we can use getPointAtLength
   const glowPath = rectW > 0 && rectH > 0
     ? `M${1 + r},1 H${1 + rectW - r} A${r},${r} 0 0 1 ${1 + rectW},${1 + r} V${1 + rectH - r} A${r},${r} 0 0 1 ${1 + rectW - r},${1 + rectH} H${1 + r} A${r},${r} 0 0 1 1,${1 + rectH - r} V${1 + r} A${r},${r} 0 0 1 ${1 + r},1 Z`
     : "";
-  const dashFrac = 0.05; // 5% of path
-  const gapFrac = 1 - dashFrac;
+
+  // Compute real perimeter and corner boundaries for dynamic highlight sizing
+  const straightTop = rectW - 2 * r;
+  const straightRight = rectH - 2 * r;
+  const straightBottom = rectW - 2 * r;
+  const straightLeft = rectH - 2 * r;
+  const cornerArc = (Math.PI / 2) * r; // quarter circle
+  const totalPerim = straightTop + cornerArc + straightRight + cornerArc + straightBottom + cornerArc + straightLeft + cornerArc;
+
+  // Corner zones as fraction of total perimeter
+  const segLengths = [straightTop, cornerArc, straightRight, cornerArc, straightBottom, cornerArc, straightLeft, cornerArc];
+  const segEnds: number[] = [];
+  { let acc = 0; for (const s of segLengths) { acc += s; segEnds.push(acc / totalPerim); } }
+  const isCorner = (frac: number): boolean => {
+    // segments: 0=straightTop, 1=corner, 2=straightRight, 3=corner, etc.
+    let f = ((frac % 1) + 1) % 1;
+    let prev = 0;
+    for (let i = 0; i < segEnds.length; i++) {
+      if (f >= prev && f < segEnds[i]) return i % 2 === 1; // odd indices are corners
+      prev = segEnds[i];
+    }
+    return false;
+  };
 
   // Idle/active state: glow runs when idle, stops when user is typing
   const isGlowActive = !isFocused || (isFocused && inputValue.trim() === "");
   const glowOpacityRef = useRef(1);
-  const lastOffsetRef = useRef(0);
+  const lastProgressRef = useRef(0);
+  const gradRef = useRef<SVGRadialGradientElement>(null);
+  const gradGlowRef = useRef<SVGRadialGradientElement>(null);
+  const pathMeasureRef = useRef<SVGPathElement>(null);
 
   useEffect(() => {
-    if (!glowPath) return;
+    if (!glowPath || !pathMeasureRef.current) return;
+    const pathEl = pathMeasureRef.current;
+    const pathLen = pathEl.getTotalLength();
     let raf: number;
     let start: number | null = null;
-    let pausedOffset = lastOffsetRef.current;
+    let currentProgress = lastProgressRef.current;
     const duration = 6000;
+
     const tick = (ts: number) => {
       if (!start) start = ts;
 
@@ -1497,24 +1524,43 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
       glowOpacityRef.current += (targetOpacity - glowOpacityRef.current) * 0.06;
 
       if (isGlowActive) {
-        const progress = ((ts - start) % duration) / duration;
-        pausedOffset = -progress; // pathLength=1, so offset is 0..1
+        currentProgress = ((ts - start) % duration) / duration;
       }
-      lastOffsetRef.current = pausedOffset;
+      lastProgressRef.current = currentProgress;
 
+      // Get point on path
+      const pt = pathEl.getPointAtLength(currentProgress * pathLen);
+
+      // Highlight radius: smaller on straights, slightly larger at corners
+      const atCorner = isCorner(currentProgress);
+      const baseR = atCorner ? 28 : 18; // px — screen-space radius
+      const glowR = atCorner ? 38 : 26;
+
+      // Update radial gradient positions
+      if (gradRef.current) {
+        gradRef.current.setAttribute("cx", `${pt.x}`);
+        gradRef.current.setAttribute("cy", `${pt.y}`);
+        gradRef.current.setAttribute("r", `${baseR}`);
+      }
+      if (gradGlowRef.current) {
+        gradGlowRef.current.setAttribute("cx", `${pt.x}`);
+        gradGlowRef.current.setAttribute("cy", `${pt.y}`);
+        gradGlowRef.current.setAttribute("r", `${glowR}`);
+      }
+
+      // Update opacity on the path elements
       if (traceRef.current) {
-        traceRef.current.style.strokeDashoffset = `${pausedOffset}`;
-        traceRef.current.style.opacity = `${glowOpacityRef.current * 0.7}`;
+        traceRef.current.style.opacity = `${glowOpacityRef.current * 0.8}`;
       }
       if (glowRef.current) {
-        glowRef.current.style.strokeDashoffset = `${pausedOffset}`;
-        glowRef.current.style.opacity = `${glowOpacityRef.current * 0.18}`;
+        glowRef.current.style.opacity = `${glowOpacityRef.current * 0.25}`;
       }
+
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [glowPath, isGlowActive]);
+  }, [glowPath, isGlowActive, totalPerim]);
 
   useEffect(() => {
     const ta = textareaRef.current;
