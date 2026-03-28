@@ -159,7 +159,25 @@ export function AdaSidebar({ isOpen = true, onClose, inline = false }: AdaSideba
     setRenameValue("");
   };
 
-  // Icon action handlers
+  const handlePinChat = async (chatId: string) => {
+    const chat = chatHistory.find(c => c.id === chatId);
+    const newPinned = !chat?.is_pinned;
+    if (isAuthenticated) {
+      await supabase.from("ada_chats").update({ is_pinned: newPinned } as any).eq("id", chatId);
+    }
+    setChatHistory(prev => prev.map(c => c.id === chatId ? { ...c, is_pinned: newPinned } : c));
+    toast.success(newPinned ? "Chat pinned" : "Chat unpinned");
+  };
+
+  const handleArchiveChat = async (chatId: string) => {
+    if (isAuthenticated) {
+      await supabase.from("ada_chats").update({ is_archived: true } as any).eq("id", chatId);
+    }
+    setChatHistory(prev => prev.filter(c => c.id !== chatId));
+    toast.success("Chat archived");
+  };
+
+
   const handleIconAction = (id: string) => {
     window.dispatchEvent(new CustomEvent("ada-command", { detail: id }));
   };
