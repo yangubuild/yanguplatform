@@ -1638,6 +1638,10 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
     }
 
     let content = stripThoughts(msg.content);
+    // Filter out raw JSON action messages like {"action":"image"}
+    if (content.trim().startsWith("{") && content.trim().endsWith("}")) {
+      try { const j = JSON.parse(content.trim()); if (j.action) return null; } catch {}
+    }
     if (!content && msg.isStreaming) {
       return (
         <span className="inline-flex items-center gap-1 text-[hsl(var(--accent))]/70 text-sm italic">
