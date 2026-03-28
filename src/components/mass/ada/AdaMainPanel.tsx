@@ -1472,9 +1472,12 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
   const rectW = boxSize.w - 2;
   const rectH = boxSize.h - 2;
   const r = 16;
-  const perim = rectW && rectH ? 2 * (rectW - 2 * r) + 2 * (rectH - 2 * r) + 2 * Math.PI * r : 0;
-  const dashLen = perim * 0.05;
-  const gapLen = perim - dashLen;
+  // Build a rounded-rect as a <path> so pathLength="1" gives perfectly continuous motion
+  const glowPath = rectW > 0 && rectH > 0
+    ? `M${1 + r},1 H${1 + rectW - r} A${r},${r} 0 0 1 ${1 + rectW},${1 + r} V${1 + rectH - r} A${r},${r} 0 0 1 ${1 + rectW - r},${1 + rectH} H${1 + r} A${r},${r} 0 0 1 1,${1 + rectH - r} V${1 + r} A${r},${r} 0 0 1 ${1 + r},1 Z`
+    : "";
+  const dashFrac = 0.05; // 5% of path
+  const gapFrac = 1 - dashFrac;
 
   // Idle/active state: glow runs when idle, stops when user is typing
   const isGlowActive = !isFocused || (isFocused && inputValue.trim() === "");
@@ -1482,7 +1485,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
   const lastOffsetRef = useRef(0);
 
   useEffect(() => {
-    if (!perim) return;
+    if (!glowPath) return;
     let raf: number;
     let start: number | null = null;
     let pausedOffset = lastOffsetRef.current;
@@ -1490,13 +1493,12 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
     const tick = (ts: number) => {
       if (!start) start = ts;
 
-      // Smoothly fade opacity for transitions
       const targetOpacity = isGlowActive ? 1 : 0;
       glowOpacityRef.current += (targetOpacity - glowOpacityRef.current) * 0.06;
 
       if (isGlowActive) {
         const progress = ((ts - start) % duration) / duration;
-        pausedOffset = -progress * perim;
+        pausedOffset = -progress; // pathLength=1, so offset is 0..1
       }
       lastOffsetRef.current = pausedOffset;
 
@@ -1512,7 +1514,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [perim, isGlowActive]);
+  }, [glowPath, isGlowActive]);
 
   useEffect(() => {
     const ta = textareaRef.current;
@@ -2123,43 +2125,35 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
               )}
               <div ref={boxRef} className="relative rounded-2xl outline-none ring-0 [&_*]:focus-visible:outline-none">
                 {/* Animated orange border trace */}
-                {perim > 0 && (
+                {glowPath && (
                   <svg
                     className="pointer-events-none absolute inset-0 z-20"
                     width={boxSize.w}
                     height={boxSize.h}
                     style={{ overflow: "visible" }}
                   >
-                    <rect
+                    <path
                       ref={glowRef}
-                      x={1}
-                      y={1}
-                      width={boxSize.w - 2}
-                      height={boxSize.h - 2}
-                      rx={16}
-                      ry={16}
+                      d={glowPath}
+                      pathLength={1}
                       fill="none"
                       stroke="#F4A83D"
                       strokeWidth={1.5}
                       strokeLinecap="round"
-                      strokeDasharray={`${dashLen} ${gapLen}`}
+                      strokeDasharray={`${dashFrac} ${gapFrac}`}
                       strokeDashoffset={0}
                       opacity={0.22}
                       style={{ filter: "blur(3px)" }}
                     />
-                    <rect
+                    <path
                       ref={traceRef}
-                      x={1}
-                      y={1}
-                      width={boxSize.w - 2}
-                      height={boxSize.h - 2}
-                      rx={16}
-                      ry={16}
+                      d={glowPath}
+                      pathLength={1}
                       fill="none"
                       stroke="#F4A83D"
                       strokeWidth={0.5}
                       strokeLinecap="round"
-                      strokeDasharray={`${dashLen} ${gapLen}`}
+                      strokeDasharray={`${dashFrac} ${gapFrac}`}
                       strokeDashoffset={0}
                       opacity={0.7}
                     />
