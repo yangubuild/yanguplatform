@@ -1,42 +1,53 @@
-import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Send, Plus } from "lucide-react";
-import type { ChatMessage, SelectionButton } from "./types/builder.types";
+import type { ChatMessage } from "./types/builder.types";
 import type { Selection } from "./types/builder.types";
+import type { StepConfig, StepOption, BuilderStep } from "./hooks/useStepController";
 import { MessageBubble } from "./MessageBubble";
 import { BuilderPinnedNotice } from "./BuilderPinnedNotice";
+import { StepRenderer } from "./StepRenderer";
 
 interface ChatInterfaceProps {
   messages: ChatMessage[];
   isLoading: boolean;
   onSend: (text: string) => void;
-  onButtonClick: (button: SelectionButton) => void;
-  selections: Selection[];
+  stepConfig: StepConfig;
+  onOptionSelect: (option: StepOption) => void;
+  onConfirmMulti: () => void;
+  multiSelected: string[];
+  inputAllowed: boolean;
+  currentStep: BuilderStep;
   builderMode?: "new" | "edit";
+  selections: Selection[];
 }
 
-export function ChatInterface({ messages, isLoading, onSend, onButtonClick, selections, builderMode = "new" }: ChatInterfaceProps) {
+export function ChatInterface({
+  messages,
+  isLoading,
+  onSend,
+  stepConfig,
+  onOptionSelect,
+  onConfirmMulti,
+  multiSelected,
+  inputAllowed,
+  currentStep,
+  builderMode = "new",
+  selections,
+}: ChatInterfaceProps) {
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [noticeHeight, setNoticeHeight] = useState(0);
 
-  const clickedButtons = useMemo(() => {
-    const set = new Set<string>();
-    for (const s of selections) {
-      set.add(`${s.type}:${s.value}`);
-    }
-    return set;
-  }, [selections]);
-
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages, isLoading]);
+  }, [messages, isLoading, currentStep]);
 
   const handleSend = () => {
     const trimmed = input.trim();
-    if (!trimmed || isLoading) return;
+    if (!trimmed || isLoading || !inputAllowed) return;
     onSend(trimmed);
     setInput("");
     if (inputRef.current) inputRef.current.style.height = "auto";
@@ -62,23 +73,30 @@ export function ChatInterface({ messages, isLoading, onSend, onButtonClick, sele
 
   return (
     <div className="flex flex-col h-full relative overflow-visible">
-      {/* Pinned floating notice */}
       <BuilderPinnedNotice mode={builderMode} onHeightChange={handleNoticeHeight} />
 
-      {/* Messages */}
+      {/* Messages + Step UI */}
       <div
         ref={scrollRef}
         className="flex-1 overflow-y-auto px-4 pb-4 space-y-5"
         style={{ paddingTop: topPadding + 18 }}
       >
         {messages.map((msg) => (
-          <MessageBubble
-            key={msg.id}
-            message={msg}
-            onButtonClick={onButtonClick}
-            clickedButtons={clickedButtons}
-          />
+          <MessageBubble key={msg.id} message={msg} />
         ))}
+
+        {/* Step options — always shown at bottom of chat */}
+        {!isLoading && stepConfig.options.length > 0 && (
+          <div className="flex flex-col items-start gap-2 pt-1">
+            <StepRenderer
+              config={stepConfig}
+              onSelect={onOptionSelect}
+              onConfirmMulti={onConfirmMulti}
+              multiSelected={multiSelected}
+              currentStep={currentStep}
+            />
+          </div>
+        )}
 
         {isLoading && (
           <div className="flex items-start gap-2">
@@ -91,8 +109,8 @@ export function ChatInterface({ messages, isLoading, onSend, onButtonClick, sele
         )}
       </div>
 
-      {/* Input */}
-      <div className="border-t border-border px-4 py-3">
+      {/* Input — only visible during refinement */}
+      <div className={`border-t border-border px-4 py-3 ${!inputAllowed ? "opacity-40 pointer-events-none" : ""}`}>
         <div className="flex items-end gap-2 rounded-2xl border border-border bg-background p-2">
           <button className="p-2 text-muted-foreground hover:text-foreground transition-colors shrink-0">
             <Plus className="h-5 w-5" />
@@ -102,13 +120,14 @@ export function ChatInterface({ messages, isLoading, onSend, onButtonClick, sele
             value={input}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
-            placeholder="Type your message..."
+            placeholder={inputAllowed ? "Describe what you'd like to change..." : "Click an option above to continue"}
             rows={1}
-            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground resize-none outline-none py-2 max-h-[120px]"
+            disabled={!inputAllowed}
+            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground resize-none outline-none py-2 max-h-[120px] disabled:cursor-not-allowed"
           />
           <button
             onClick={handleSend}
-            disabled={!input.trim() || isLoading}
+            disabled={!input.trim() || isLoading || !inputAllowed}
             className="p-2 rounded-full bg-foreground text-background disabled:opacity-40 transition-opacity shrink-0"
           >
             <Send className="h-4 w-4" />
