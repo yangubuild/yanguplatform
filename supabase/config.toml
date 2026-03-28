@@ -92,3 +92,5 @@ project_id = "xcipuyvcwfytlsjryhvs"
     verify_jwt = false
   [functions.ai-visibility-scan]
     verify_jwt = false
+  [functions.together-chat]
+    verify_jwt = false
