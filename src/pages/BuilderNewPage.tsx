@@ -116,13 +116,14 @@ export default function BuilderNewPage() {
       {/* Main content */}
       <div className="flex-1 flex overflow-hidden">
         {/* Chat panel */}
-        <div className={`${showPreview ? "w-[380px]" : "flex-1"} min-w-0 border-r border-border shrink-0 transition-all`}>
+        <div className={`${showPreview ? "w-[380px]" : "flex-1"} min-w-0 border-r border-border shrink-0 transition-all overflow-visible`}>
           <ChatInterface
             messages={state.messages}
             isLoading={isLoading}
             onSend={handleSend}
             onButtonClick={handleButtonClick}
             selections={state.selections}
+            builderMode="new"
           />
         </div>
 
