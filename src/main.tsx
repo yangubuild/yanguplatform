@@ -3,10 +3,14 @@ import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App.tsx";
 import { startBuildVersionGuard } from "./lib/lazyRetry";
+import { initCapacitor } from "./lib/capacitor";
 import "./index.css";
 
 // Detect stale builds when user refocuses tab
 startBuildVersionGuard();
+
+// Initialize native plugins when running as a Capacitor app
+initCapacitor();
 
 // --- PWA Service Worker safety ---
 // Never register SW inside iframes or Lovable preview hosts
