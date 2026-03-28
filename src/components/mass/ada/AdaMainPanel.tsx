@@ -283,10 +283,20 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
     if (near) setUserScrolledUp(false);
   }, []);
 
+  // Track whether streaming is active to avoid per-scroll array scan
+  const isStreamingRef = useRef(false);
+  useEffect(() => {
+    isStreamingRef.current = messages.some(m => m.isStreaming);
+  }, [messages]);
+
   const smartScroll = useCallback(() => {
     if (userScrolledUp) return;
     if (isNearBottomRef.current) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      // Use instant scroll during streaming to prevent smooth-scroll jitter
+      const el = scrollContainerRef.current;
+      if (el) {
+        el.scrollTop = el.scrollHeight;
+      }
     }
   }, [userScrolledUp]);
 
@@ -1836,7 +1846,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                   }
                 }
               }}
-              className="w-full max-w-2xl flex-1 min-h-0 overflow-y-auto mb-4 space-y-4 py-4 scroll-smooth">
+              className="w-full max-w-2xl flex-1 min-h-0 overflow-y-auto mb-4 space-y-4 py-4">
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>
                   {/* Routing pill */}
