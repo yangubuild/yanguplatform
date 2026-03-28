@@ -44,22 +44,44 @@ export function useTogetherChat() {
 
       const content = data.content as string;
 
-      // Try to parse JSON response
-      try {
-        // Extract JSON from potential markdown code blocks
-        let jsonStr = content;
-        const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
-        if (jsonMatch) jsonStr = jsonMatch[1].trim();
-        
-        const parsed = JSON.parse(jsonStr);
-        return {
-          text: parsed.text || content,
-          buttons: Array.isArray(parsed.buttons) ? parsed.buttons : [],
-        };
-      } catch {
-        // If not valid JSON, return as plain text
-        return { text: content, buttons: [] };
-      }
+      // Try to extract JSON from the response — it may be:
+      // 1. Pure JSON string
+      // 2. Markdown code block with JSON
+      // 3. Text followed by JSON object
+      // 4. Plain text with no JSON
+      const extractJson = (raw: string): ParsedResponse => {
+        // Try markdown code block first
+        const codeBlock = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
+        if (codeBlock) {
+          try {
+            const parsed = JSON.parse(codeBlock[1].trim());
+            return { text: parsed.text || "", buttons: Array.isArray(parsed.buttons) ? parsed.buttons : [] };
+          } catch { /* fall through */ }
+        }
+
+        // Try to find a JSON object anywhere in the string (first { to last })
+        const firstBrace = raw.indexOf("{");
+        const lastBrace = raw.lastIndexOf("}");
+        if (firstBrace !== -1 && lastBrace > firstBrace) {
+          try {
+            const parsed = JSON.parse(raw.slice(firstBrace, lastBrace + 1));
+            if (parsed.text) {
+              return { text: parsed.text, buttons: Array.isArray(parsed.buttons) ? parsed.buttons : [] };
+            }
+          } catch { /* fall through */ }
+        }
+
+        // Pure JSON
+        try {
+          const parsed = JSON.parse(raw);
+          return { text: parsed.text || raw, buttons: Array.isArray(parsed.buttons) ? parsed.buttons : [] };
+        } catch { /* fall through */ }
+
+        // Plain text fallback
+        return { text: raw, buttons: [] };
+      };
+
+      return extractJson(content);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Unknown error";
       setError(msg);
