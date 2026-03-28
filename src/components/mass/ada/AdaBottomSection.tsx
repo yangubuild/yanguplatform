@@ -341,14 +341,46 @@ export function AdaBottomSection() {
                     <p className="text-muted-foreground text-xs">No chats yet</p>
                   )}
                   {chats.map((chat) => (
-                    <button
-                      key={chat.id}
-                      onClick={() => handleLoadChat(chat.id)}
-                      className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left hover:bg-white/5 transition-colors group">
-                      <MessageCircle className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-                      <span className="text-muted-foreground text-xs truncate flex-1">{chat.title}</span>
-                      <MoreHorizontal className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 flex-shrink-0" />
-                    </button>
+                    <div key={chat.id} className="flex items-center gap-0 group">
+                      <button
+                        onClick={() => handleLoadChat(chat.id)}
+                        className="flex-1 min-w-0 flex items-center gap-2 px-2 py-2 rounded-lg text-left hover:bg-white/5 transition-colors">
+                        <MessageCircle className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                        <span className="text-muted-foreground text-xs truncate flex-1">{chat.title}</span>
+                      </button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            type="button"
+                            onClick={(e) => e.stopPropagation()}
+                            className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-white/10 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <MoreHorizontal className="w-3.5 h-3.5" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" side="right" sideOffset={6} className="z-[9999] w-48" onClick={(e) => e.stopPropagation()}>
+                          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(`${window.location.origin}/dashboard/ada?chat=${chat.id}`); toast.info("Share link copied!"); }}>
+                            <Share className="w-3.5 h-3.5 mr-2" /> Share
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); toast.info("Group chat coming soon"); }}>
+                            <Users className="w-3.5 h-3.5 mr-2" /> Start a group chat
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleRenameChat(chat.id); }}>
+                            <Pencil className="w-3.5 h-3.5 mr-2" /> Rename
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); toast.success("Chat pinned"); }}>
+                            <Pin className="w-3.5 h-3.5 mr-2" /> Pin chat
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); toast.success("Chat archived"); }}>
+                            <Archive className="w-3.5 h-3.5 mr-2" /> Archive
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDeleteChat(chat.id); }} className="text-destructive focus:text-destructive">
+                            <Trash2 className="w-3.5 h-3.5 mr-2" /> Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   ))}
                 </div>
               </>
