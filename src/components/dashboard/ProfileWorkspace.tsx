@@ -41,6 +41,8 @@ import {
   MessageSquare,
   Sparkles,
   Info,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import adaIcon from "@/assets/ada-icon.png";
