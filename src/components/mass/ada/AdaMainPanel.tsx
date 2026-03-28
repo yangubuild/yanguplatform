@@ -1455,9 +1455,8 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
   const [boxSize, setBoxSize] = useState({ w: 0, h: 0 });
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
-  const traceRef = useRef<SVGPathElement>(null);
-  const glowRef = useRef<SVGPathElement>(null);
-  const glowMidRef = useRef<SVGPathElement>(null);
+  const highlightRef = useRef<SVGPathElement>(null);
+  const highlightGlowRef = useRef<SVGPathElement>(null);
 
   useEffect(() => {
     const el = boxRef.current;
@@ -1478,8 +1477,8 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
     ? `M${1 + r},1 H${1 + rectW - r} A${r},${r} 0 0 1 ${1 + rectW},${1 + r} V${1 + rectH - r} A${r},${r} 0 0 1 ${1 + rectW - r},${1 + rectH} H${1 + r} A${r},${r} 0 0 1 1,${1 + rectH - r} V${1 + r} A${r},${r} 0 0 1 ${1 + r},1 Z`
     : "";
 
-  // Dash-based highlight: constant visual length everywhere on the path
-  const dashFrac = 0.06; // 6% of perimeter = highlight length
+  // Highlight: ~15% of perimeter, soft gradient falloff
+  const dashFrac = 0.15;
   const gapFrac = 1 - dashFrac;
 
   // Idle/active state: glow runs when idle, stops when user is typing
@@ -1509,20 +1508,15 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
       lastOffsetRef.current = offset;
       pausedOffset = offset;
 
-      // strokeDashoffset drives the position (negative = forward motion)
       const dashOffset = -offset;
 
-      if (traceRef.current) {
-        traceRef.current.setAttribute("stroke-dashoffset", `${dashOffset}`);
-        traceRef.current.style.opacity = `${glowOpacityRef.current * 0.9}`;
+      if (highlightRef.current) {
+        highlightRef.current.setAttribute("stroke-dashoffset", `${dashOffset}`);
+        highlightRef.current.style.opacity = `${glowOpacityRef.current * 0.7}`;
       }
-      if (glowMidRef.current) {
-        glowMidRef.current.setAttribute("stroke-dashoffset", `${dashOffset}`);
-        glowMidRef.current.style.opacity = `${glowOpacityRef.current * 0.35}`;
-      }
-      if (glowRef.current) {
-        glowRef.current.setAttribute("stroke-dashoffset", `${dashOffset}`);
-        glowRef.current.style.opacity = `${glowOpacityRef.current * 0.15}`;
+      if (highlightGlowRef.current) {
+        highlightGlowRef.current.setAttribute("stroke-dashoffset", `${dashOffset}`);
+        highlightGlowRef.current.style.opacity = `${glowOpacityRef.current * 0.3}`;
       }
 
       raf = requestAnimationFrame(tick);
