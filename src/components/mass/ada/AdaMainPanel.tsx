@@ -1766,7 +1766,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
       )}
 
       {/* Center content — equal gutters so content is visually centered in this container */}
-      <div className="flex-1 flex flex-col items-center justify-center pl-12 pr-4 min-h-0 overflow-hidden">
+      <div className="flex-1 flex flex-col items-center justify-center px-4 min-h-0 overflow-hidden">
         {mode === "voice" ? (
           <>
             {/* Animated particle ring */}
