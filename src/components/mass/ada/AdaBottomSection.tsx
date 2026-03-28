@@ -236,6 +236,26 @@ export function AdaBottomSection() {
     setShowSearch(false);
   };
 
+  const handleDeleteChat = async (chatId: string) => {
+    if (isAuthenticated) {
+      await supabase.from("ada_messages").delete().eq("chat_id", chatId);
+      await supabase.from("ada_chats").delete().eq("id", chatId);
+    }
+    setChats(prev => prev.filter(c => c.id !== chatId));
+    toast.success("Chat deleted");
+  };
+
+  const handleRenameChat = async (chatId: string) => {
+    const chat = chats.find(c => c.id === chatId);
+    const newName = prompt("Rename chat", chat?.title || "");
+    if (!newName?.trim()) return;
+    if (isAuthenticated) {
+      await supabase.from("ada_chats").update({ title: newName.trim() }).eq("id", chatId);
+    }
+    setChats(prev => prev.map(c => c.id === chatId ? { ...c, title: newName.trim() } : c));
+    toast.success("Chat renamed");
+  };
+
   const handleIconAction = (id: string) => {
     window.dispatchEvent(new CustomEvent("ada-command", { detail: id }));
   };
