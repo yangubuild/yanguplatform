@@ -35,10 +35,27 @@ export function useBuilderState() {
   }, []);
 
   const addSelection = useCallback((selection: Omit<Selection, "timestamp">) => {
-    setState((prev) => ({
-      ...prev,
-      selections: [...prev.selections, { ...selection, timestamp: Date.now() }],
-    }));
+    setState((prev) => {
+      // Prevent duplicates: same type+value combo
+      const isDuplicate = prev.selections.some(
+        (s) => s.type === selection.type && s.value === selection.value
+      );
+      if (isDuplicate) return prev;
+
+      // For single-choice types, replace instead of accumulate
+      const singleChoiceTypes = ["scope", "assets", "style_category", "style_specific", "confirm"];
+      let newSelections: Selection[];
+      if (singleChoiceTypes.includes(selection.type)) {
+        newSelections = [
+          ...prev.selections.filter((s) => s.type !== selection.type),
+          { ...selection, timestamp: Date.now() },
+        ];
+      } else {
+        newSelections = [...prev.selections, { ...selection, timestamp: Date.now() }];
+      }
+
+      return { ...prev, selections: newSelections };
+    });
   }, []);
 
   const detectCategory = useCallback((text: string): Category | null => {
