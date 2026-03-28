@@ -36,9 +36,7 @@ export async function initCapacitor() {
 
   // Handle external URLs — open in system browser
   App.addListener('appUrlOpen', ({ url }) => {
-    const isInternal =
-      url.includes('yangu.io') ||
-      url.includes('yanguplatform.lovable.app');
+    const isInternal = url.includes('yangu.io');
     if (!isInternal) {
       window.open(url, '_blank');
     }
