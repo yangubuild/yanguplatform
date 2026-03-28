@@ -278,7 +278,7 @@ export function AdaBottomSection() {
     toast.success("Chat archived");
   };
 
-
+  const handleIconAction = (id: string) => {
     window.dispatchEvent(new CustomEvent("ada-command", { detail: id }));
   };
 
