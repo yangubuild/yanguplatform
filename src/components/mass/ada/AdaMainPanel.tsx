@@ -1455,8 +1455,9 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
   const [boxSize, setBoxSize] = useState({ w: 0, h: 0 });
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
-  const traceRef = useRef<SVGRectElement>(null);
-  const glowRef = useRef<SVGRectElement>(null);
+  const traceRef = useRef<SVGPathElement>(null);
+  const glowRef = useRef<SVGPathElement>(null);
+  const glowMidRef = useRef<SVGPathElement>(null);
 
   useEffect(() => {
     const el = boxRef.current;
@@ -1513,11 +1514,15 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
 
       if (traceRef.current) {
         traceRef.current.setAttribute("stroke-dashoffset", `${dashOffset}`);
-        traceRef.current.style.opacity = `${glowOpacityRef.current * 0.8}`;
+        traceRef.current.style.opacity = `${glowOpacityRef.current * 0.9}`;
+      }
+      if (glowMidRef.current) {
+        glowMidRef.current.setAttribute("stroke-dashoffset", `${dashOffset}`);
+        glowMidRef.current.style.opacity = `${glowOpacityRef.current * 0.35}`;
       }
       if (glowRef.current) {
         glowRef.current.setAttribute("stroke-dashoffset", `${dashOffset}`);
-        glowRef.current.style.opacity = `${glowOpacityRef.current * 0.25}`;
+        glowRef.current.style.opacity = `${glowOpacityRef.current * 0.15}`;
       }
 
       raf = requestAnimationFrame(tick);
@@ -2142,30 +2147,46 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                     height={boxSize.h}
                     style={{ overflow: "visible" }}
                   >
+                    {/* Wide soft outer glow */}
                     <path
-                      ref={glowRef}
                       d={glowPath}
                       pathLength={1}
                       fill="none"
                       stroke="#F4A83D"
-                      strokeWidth={1.5}
+                      strokeWidth={4}
                       strokeLinecap="round"
                       strokeDasharray={`${dashFrac} ${gapFrac}`}
                       strokeDashoffset={0}
-                      opacity={0.25}
-                      style={{ filter: "blur(2px)" }}
+                      opacity={0}
+                      ref={(el: SVGPathElement | null) => { if (el) glowRef.current = el; }}
+                      style={{ filter: "blur(4px)" }}
                     />
+                    {/* Medium glow layer */}
+                    <path
+                      d={glowPath}
+                      pathLength={1}
+                      fill="none"
+                      stroke="#F4A83D"
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeDasharray={`${dashFrac} ${gapFrac}`}
+                      strokeDashoffset={0}
+                      opacity={0}
+                      ref={glowMidRef}
+                      style={{ filter: "blur(1.5px)" }}
+                    />
+                    {/* Sharp core trace */}
                     <path
                       ref={traceRef}
                       d={glowPath}
                       pathLength={1}
                       fill="none"
                       stroke="#F4A83D"
-                      strokeWidth={0.5}
+                      strokeWidth={0.7}
                       strokeLinecap="round"
                       strokeDasharray={`${dashFrac} ${gapFrac}`}
                       strokeDashoffset={0}
-                      opacity={0.8}
+                      opacity={0}
                     />
                   </svg>
                 )}
