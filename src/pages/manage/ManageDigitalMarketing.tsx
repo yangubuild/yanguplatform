@@ -21,13 +21,14 @@ import facebookIcon from "@/assets/icons/facebook.png";
 import xIcon from "@/assets/icons/x.png";
 import youtubeIcon from "@/assets/icons/youtube.png";
 import websiteIcon from "@/assets/icons/website.png";
+import linkedinIcon from "@/assets/icons/linkedin.png";
 
 const PLATFORM_ICON_MAP: Record<string, string> = {
   instagram: instagramIcon,
   tiktok: tiktokIcon,
   facebook: facebookIcon,
   x: xIcon,
-  linkedin: websiteIcon,
+  linkedin: linkedinIcon,
   youtube: youtubeIcon,
 };
 
