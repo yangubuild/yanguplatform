@@ -161,7 +161,10 @@ function OwnPostsTab({ onAuthorClick }: { onAuthorClick?: (post: Post) => void }
   const handleFileSelect = (files: FileList | null) => {
     if (!files || files.length === 0) return;
     const file = files[0];
-    if (file.size> 5 * 1024 * 1024) { toast.error("File too large. Max 5MB."); return; }
+    const isVideo = file.type.startsWith("video");
+    const maxSize = isVideo ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
+    const maxLabel = isVideo ? "50MB" : "5MB";
+    if (file.size > maxSize) { toast.error(`File too large. Max ${maxLabel}.`); return; }
     setMediaFiles(prev => [...prev, file]);
     setMediaPreviews(prev => [...prev, URL.createObjectURL(file)]);
   };
@@ -200,17 +203,43 @@ function OwnPostsTab({ onAuthorClick }: { onAuthorClick?: (post: Post) => void }
   const handleAiGenerate = async () => {
     setAiGenerating(true);
     try {
-      const { data, error } = await supabase.functions.invoke("ada-chat", {
+      // Build a context-aware prompt based on attached media and surface info
+      let contextHint = "";
+      if (mediaFiles.length > 0) {
+        const types = mediaFiles.map(f => f.type.startsWith("video") ? "video" : "image");
+        contextHint = `The user is posting ${types.join(" and ")} content. `;
+      }
+      if (profile?.display_name) contextHint += `Business name: ${profile.display_name}. `;
+      if (profile?.location) contextHint += `Location: ${profile.location}. `;
+
+      // If there's an image attached, convert to data URL for vision analysis
+      let imageDataUrl: string | null = null;
+      if (mediaFiles.length > 0 && mediaFiles[0].type.startsWith("image")) {
+        imageDataUrl = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.readAsDataURL(mediaFiles[0]);
+        });
+      }
+
+      const { data, error } = await supabase.functions.invoke("ad-caption-generate", {
         body: {
-          messages: [{ role: "user", content: "Write a short, engaging social media post for a business owner sharing an update, product, or service. Keep it under 40 words, casual but professional. Return ONLY the post text, no quotes." }],
-          model: "google/gemini-2.5-flash-lite",
-          max_tokens: 80,
+          image_data_url: imageDataUrl,
+          campaign_name: "Social post",
+          product_name: profile?.display_name || "My business",
+          location: profile?.location || "",
+          media_type: mediaFiles.length > 0 ? (mediaFiles[0].type.startsWith("video") ? "video" : "image") : "text",
         },
       });
       if (error) throw error;
-      const reply = (data?.reply || data?.content || "").trim();
-      if (reply) setText(reply);
-      else toast.error("No text generated");
+      const captions = data?.captions;
+      if (captions && captions.length > 0) {
+        // Pick the first caption, strip it to be concise for a post
+        const caption = captions[0].slice(0, 280);
+        setText(caption);
+      } else {
+        toast.error("No caption generated");
+      }
     } catch {
       toast.info("AI generation unavailable — type manually");
     } finally {
