@@ -1514,11 +1514,15 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
 
       if (traceRef.current) {
         traceRef.current.setAttribute("stroke-dashoffset", `${dashOffset}`);
-        traceRef.current.style.opacity = `${glowOpacityRef.current * 0.8}`;
+        traceRef.current.style.opacity = `${glowOpacityRef.current * 0.9}`;
+      }
+      if (glowMidRef.current) {
+        glowMidRef.current.setAttribute("stroke-dashoffset", `${dashOffset}`);
+        glowMidRef.current.style.opacity = `${glowOpacityRef.current * 0.35}`;
       }
       if (glowRef.current) {
         glowRef.current.setAttribute("stroke-dashoffset", `${dashOffset}`);
-        glowRef.current.style.opacity = `${glowOpacityRef.current * 0.25}`;
+        glowRef.current.style.opacity = `${glowOpacityRef.current * 0.15}`;
       }
 
       raf = requestAnimationFrame(tick);
@@ -2154,7 +2158,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                       strokeDasharray={`${dashFrac} ${gapFrac}`}
                       strokeDashoffset={0}
                       opacity={0}
-                      ref={(el) => { if (el) (el as any).__glowOuter = true; glowRef.current = el; }}
+                      ref={(el: SVGPathElement | null) => { if (el) glowRef.current = el; }}
                       style={{ filter: "blur(4px)" }}
                     />
                     {/* Medium glow layer */}
