@@ -122,6 +122,7 @@ export default function BuilderNewPage() {
             isLoading={isLoading}
             onSend={handleSend}
             onButtonClick={handleButtonClick}
+            selections={state.selections}
           />
         </div>
 
