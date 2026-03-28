@@ -2142,30 +2142,46 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                     height={boxSize.h}
                     style={{ overflow: "visible" }}
                   >
+                    {/* Wide soft outer glow */}
                     <path
-                      ref={glowRef}
                       d={glowPath}
                       pathLength={1}
                       fill="none"
                       stroke="#F4A83D"
-                      strokeWidth={1.5}
+                      strokeWidth={4}
                       strokeLinecap="round"
                       strokeDasharray={`${dashFrac} ${gapFrac}`}
                       strokeDashoffset={0}
-                      opacity={0.25}
-                      style={{ filter: "blur(2px)" }}
+                      opacity={0}
+                      ref={(el) => { if (el) (el as any).__glowOuter = true; glowRef.current = el; }}
+                      style={{ filter: "blur(4px)" }}
                     />
+                    {/* Medium glow layer */}
+                    <path
+                      d={glowPath}
+                      pathLength={1}
+                      fill="none"
+                      stroke="#F4A83D"
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeDasharray={`${dashFrac} ${gapFrac}`}
+                      strokeDashoffset={0}
+                      opacity={0}
+                      ref={glowMidRef}
+                      style={{ filter: "blur(1.5px)" }}
+                    />
+                    {/* Sharp core trace */}
                     <path
                       ref={traceRef}
                       d={glowPath}
                       pathLength={1}
                       fill="none"
                       stroke="#F4A83D"
-                      strokeWidth={0.5}
+                      strokeWidth={0.7}
                       strokeLinecap="round"
                       strokeDasharray={`${dashFrac} ${gapFrac}`}
                       strokeDashoffset={0}
-                      opacity={0.8}
+                      opacity={0}
                     />
                   </svg>
                 )}
