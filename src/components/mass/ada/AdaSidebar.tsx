@@ -12,6 +12,10 @@ import {
   MoreHorizontal,
   Trash2,
   Pencil,
+  Share,
+  Users,
+  Pin,
+  Archive,
 } from "lucide-react";
 import adaIcon from "@/assets/ada-icon.png";
 import adaLogo from "@/assets/ada-logo-full.png";
