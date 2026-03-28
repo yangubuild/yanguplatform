@@ -9,19 +9,26 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Share2, Globe, TrendingUp, Eye, MousePointer, BarChart3,
-  Instagram, Calendar, Plug, Search, Activity, Loader2, Plus, Send,
+  Calendar, Plug, Search, Activity, Loader2, Plus, Send,
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
+import { getPlatform } from "@/lib/socialPlatformRegistry";
+import instagramIcon from "@/assets/icons/instagram.png";
+import tiktokIcon from "@/assets/icons/tiktok.png";
+import facebookIcon from "@/assets/icons/facebook.png";
+import xIcon from "@/assets/icons/x.png";
+import youtubeIcon from "@/assets/icons/youtube.png";
+import websiteIcon from "@/assets/icons/website.png";
 
-const PLATFORM_ICONS: Record<string, any> = {
-  instagram: Instagram,
-  tiktok: Activity,
-  facebook: Globe,
-  x: Share2,
-  linkedin: Globe,
-  youtube: Activity,
+const PLATFORM_ICON_MAP: Record<string, string> = {
+  instagram: instagramIcon,
+  tiktok: tiktokIcon,
+  facebook: facebookIcon,
+  x: xIcon,
+  linkedin: websiteIcon,
+  youtube: youtubeIcon,
 };
 
 const DEFAULT_PLATFORMS = ["instagram", "tiktok", "facebook", "x", "linkedin", "youtube"];
