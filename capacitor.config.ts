@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'YANGU',
   webDir: 'dist',
   server: {
-    url: 'https://yanguplatform.lovable.app',
+    url: 'https://yangu.io',
     cleartext: false,
   },
   plugins: {
