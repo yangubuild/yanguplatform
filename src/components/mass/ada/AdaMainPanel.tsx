@@ -1837,13 +1837,9 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
               ref={scrollContainerRef}
               onScroll={() => {
                 checkNearBottom();
-                // Detect user scrolling up during streaming
-                const el = scrollContainerRef.current;
-                if (el) {
-                  const isStreaming = messages.some(m => m.isStreaming);
-                  if (isStreaming && !isNearBottomRef.current) {
-                    setUserScrolledUp(true);
-                  }
+                // Detect user scrolling up during streaming — use ref to avoid array scan
+                if (isStreamingRef.current && !isNearBottomRef.current) {
+                  setUserScrolledUp(true);
                 }
               }}
               className="w-full max-w-2xl flex-1 min-h-0 overflow-y-auto mb-4 space-y-4 py-4">
