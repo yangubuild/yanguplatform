@@ -297,54 +297,42 @@ export function AdaSidebar({ isOpen = true, onClose, inline = false }: AdaSideba
                       setMenuOpenId(menuOpenId === chat.id ? null : chat.id);
                     }}
                     className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-white/10 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <MoreHorizontal className="w-4 h-4" />
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          onClick={(e) => e.stopPropagation()}
+                          className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-white/10 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <MoreHorizontal className="w-4 h-4" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" side="bottom" sideOffset={6} className="z-[9999] w-48">
+                        <DropdownMenuItem onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/dashboard/ada?chat=${chat.id}`); toast.info("Share link copied!"); }}>
+                          <Share className="w-3.5 h-3.5 mr-2" /> Share
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => toast.info("Group chat coming soon")}>
+                          <Users className="w-3.5 h-3.5 mr-2" /> Start a group chat
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleRenameChat(chat.id)}>
+                          <Pencil className="w-3.5 h-3.5 mr-2" /> Rename
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => toast.success("Chat pinned")}>
+                          <Pin className="w-3.5 h-3.5 mr-2" /> Pin chat
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => { toast.success("Chat archived"); handleDeleteChat(chat.id); }}>
+                          <Archive className="w-3.5 h-3.5 mr-2" /> Archive
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => handleDeleteChat(chat.id)} className="text-destructive focus:text-destructive">
+                          <Trash2 className="w-3.5 h-3.5 mr-2" /> Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </button>
-                </button>
-              )}
-
-              {/* Dropdown menu */}
-              {menuOpenId === chat.id && (
-                <div
-                  ref={menuRef}
-                  className="absolute right-2 top-10 z-50 w-48 rounded-lg border border-white/10 py-1 shadow-xl"
-                  style={{ background: "#1a1a1a" }}>
-                  <button
-                    onClick={() => { setMenuOpenId(null); toast.info("Share link copied!"); navigator.clipboard.writeText(`${window.location.origin}/dashboard/ada?chat=${chat.id}`); }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:bg-white/10 transition-colors">
-                    <Share className="w-3.5 h-3.5" /> Share
-                  </button>
-                  <button
-                    onClick={() => { setMenuOpenId(null); toast.info("Group chat coming soon"); }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:bg-white/10 transition-colors">
-                    <Users className="w-3.5 h-3.5" /> Start a group chat
-                  </button>
-                  <button
-                    onClick={() => handleRenameChat(chat.id)}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:bg-white/10 transition-colors">
-                    <Pencil className="w-3.5 h-3.5" /> Rename
-                  </button>
-                  <div className="border-t border-white/10 my-0.5" />
-                  <button
-                    onClick={() => { setMenuOpenId(null); toast.success("Chat pinned"); }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:bg-white/10 transition-colors">
-                    <Pin className="w-3.5 h-3.5" /> Pin chat
-                  </button>
-                  <button
-                    onClick={() => { setMenuOpenId(null); toast.success("Chat archived"); handleDeleteChat(chat.id); }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:bg-white/10 transition-colors">
-                    <Archive className="w-3.5 h-3.5" /> Archive
-                  </button>
-                  <div className="border-t border-white/10 my-0.5" />
-                  <button
-                    onClick={() => handleDeleteChat(chat.id)}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-white/10 transition-colors">
-                    <Trash2 className="w-3.5 h-3.5" /> Delete
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+                )}
+              </div>
+            ))}
+          </div>
       </div>
 
       {/* Bottom spacer */}
