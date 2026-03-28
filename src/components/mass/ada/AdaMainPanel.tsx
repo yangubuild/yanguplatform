@@ -1455,8 +1455,8 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
   const [boxSize, setBoxSize] = useState({ w: 0, h: 0 });
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
-  const traceRef = useRef<SVGPathElement>(null);
-  const glowRef = useRef<SVGPathElement>(null);
+  const traceRef = useRef<SVGRectElement>(null);
+  const glowRef = useRef<SVGRectElement>(null);
 
   useEffect(() => {
     const el = boxRef.current;
@@ -1477,41 +1477,82 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
     ? `M${1 + r},1 H${1 + rectW - r} A${r},${r} 0 0 1 ${1 + rectW},${1 + r} V${1 + rectH - r} A${r},${r} 0 0 1 ${1 + rectW - r},${1 + rectH} H${1 + r} A${r},${r} 0 0 1 1,${1 + rectH - r} V${1 + r} A${r},${r} 0 0 1 ${1 + r},1 Z`
     : "";
 
+  // Compute real perimeter and corner boundaries for dynamic highlight sizing
+  const straightTop = rectW - 2 * r;
+  const straightRight = rectH - 2 * r;
+  const straightBottom = rectW - 2 * r;
+  const straightLeft = rectH - 2 * r;
+  const cornerArc = (Math.PI / 2) * r; // quarter circle
+  const totalPerim = straightTop + cornerArc + straightRight + cornerArc + straightBottom + cornerArc + straightLeft + cornerArc;
+
+  // Corner zones as fraction of total perimeter
+  const segLengths = [straightTop, cornerArc, straightRight, cornerArc, straightBottom, cornerArc, straightLeft, cornerArc];
+  const segEnds: number[] = [];
+  { let acc = 0; for (const s of segLengths) { acc += s; segEnds.push(acc / totalPerim); } }
+  const isCorner = (frac: number): boolean => {
+    // segments: 0=straightTop, 1=corner, 2=straightRight, 3=corner, etc.
+    let f = ((frac % 1) + 1) % 1;
+    let prev = 0;
+    for (let i = 0; i < segEnds.length; i++) {
+      if (f >= prev && f < segEnds[i]) return i % 2 === 1; // odd indices are corners
+      prev = segEnds[i];
+    }
+    return false;
+  };
+
   // Idle/active state: glow runs when idle, stops when user is typing
   const isGlowActive = !isFocused || (isFocused && inputValue.trim() === "");
   const glowOpacityRef = useRef(1);
-  const lastOffsetRef = useRef(0);
-  const lastTimestampRef = useRef<number | null>(null);
+  const lastProgressRef = useRef(0);
+  const gradRef = useRef<SVGRadialGradientElement>(null);
+  const gradGlowRef = useRef<SVGRadialGradientElement>(null);
+  const pathMeasureRef = useRef<SVGPathElement>(null);
 
   useEffect(() => {
-    if (!glowPath) return;
+    if (!glowPath || !pathMeasureRef.current) return;
+    const pathEl = pathMeasureRef.current;
+    const pathLen = pathEl.getTotalLength();
     let raf: number;
-    const duration = 6000; // ms for one full loop
+    let start: number | null = null;
+    let currentProgress = lastProgressRef.current;
+    const duration = 6000;
 
     const tick = (ts: number) => {
-      // Smooth opacity fade
+      if (!start) start = ts;
+
       const targetOpacity = isGlowActive ? 1 : 0;
       glowOpacityRef.current += (targetOpacity - glowOpacityRef.current) * 0.06;
 
-      // Advance offset only when active
       if (isGlowActive) {
-        if (lastTimestampRef.current !== null) {
-          const dt = ts - lastTimestampRef.current;
-          lastOffsetRef.current = (lastOffsetRef.current + dt / duration) % 1;
-        }
-        lastTimestampRef.current = ts;
-      } else {
-        lastTimestampRef.current = null;
+        currentProgress = ((ts - start) % duration) / duration;
+      }
+      lastProgressRef.current = currentProgress;
+
+      // Get point on path
+      const pt = pathEl.getPointAtLength(currentProgress * pathLen);
+
+      // Highlight radius: smaller on straights, slightly larger at corners
+      const atCorner = isCorner(currentProgress);
+      const baseR = atCorner ? 28 : 18; // px — screen-space radius
+      const glowR = atCorner ? 38 : 26;
+
+      // Update radial gradient positions
+      if (gradRef.current) {
+        gradRef.current.setAttribute("cx", `${pt.x}`);
+        gradRef.current.setAttribute("cy", `${pt.y}`);
+        gradRef.current.setAttribute("r", `${baseR}`);
+      }
+      if (gradGlowRef.current) {
+        gradGlowRef.current.setAttribute("cx", `${pt.x}`);
+        gradGlowRef.current.setAttribute("cy", `${pt.y}`);
+        gradGlowRef.current.setAttribute("r", `${glowR}`);
       }
 
-      const offset = -lastOffsetRef.current;
-
+      // Update opacity on the path elements
       if (traceRef.current) {
-        traceRef.current.setAttribute("stroke-dashoffset", `${offset}`);
         traceRef.current.style.opacity = `${glowOpacityRef.current * 0.8}`;
       }
       if (glowRef.current) {
-        glowRef.current.setAttribute("stroke-dashoffset", `${offset}`);
         glowRef.current.style.opacity = `${glowOpacityRef.current * 0.25}`;
       }
 
@@ -1519,7 +1560,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [glowPath, isGlowActive]);
+  }, [glowPath, isGlowActive, totalPerim]);
 
   useEffect(() => {
     const ta = textareaRef.current;
@@ -2137,30 +2178,40 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                     height={boxSize.h}
                     style={{ overflow: "visible" }}
                   >
+                    <defs>
+                      {/* Hidden path for measuring getPointAtLength */}
+                      <path ref={pathMeasureRef} d={glowPath} fill="none" stroke="none" />
+                      {/* Radial gradient for the sharp trace highlight */}
+                      <radialGradient ref={gradRef} id="traceGrad" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="18">
+                        <stop offset="0%" stopColor="#F4A83D" stopOpacity="1" />
+                        <stop offset="60%" stopColor="#F4A83D" stopOpacity="0.4" />
+                        <stop offset="100%" stopColor="#F4A83D" stopOpacity="0" />
+                      </radialGradient>
+                      {/* Radial gradient for the soft glow layer */}
+                      <radialGradient ref={gradGlowRef} id="glowGrad" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="26">
+                        <stop offset="0%" stopColor="#F4A83D" stopOpacity="1" />
+                        <stop offset="40%" stopColor="#F4A83D" stopOpacity="0.3" />
+                        <stop offset="100%" stopColor="#F4A83D" stopOpacity="0" />
+                      </radialGradient>
+                    </defs>
                     <path
                       ref={glowRef}
                       d={glowPath}
-                      pathLength={1}
                       fill="none"
-                      stroke="#F4A83D"
-                      strokeWidth={1.2}
+                      stroke="url(#glowGrad)"
+                      strokeWidth={1.5}
                       strokeLinecap="round"
-                      strokeDasharray="0.06 0.94"
-                      strokeDashoffset={0}
-                      opacity={0.22}
-                      style={{ filter: "blur(2.5px)" }}
+                      opacity={0.25}
+                      style={{ filter: "blur(1.5px)" }}
                     />
                     <path
                       ref={traceRef}
                       d={glowPath}
-                      pathLength={1}
                       fill="none"
-                      stroke="#F4A83D"
+                      stroke="url(#traceGrad)"
                       strokeWidth={0.5}
                       strokeLinecap="round"
-                      strokeDasharray="0.06 0.94"
-                      strokeDashoffset={0}
-                      opacity={0.7}
+                      opacity={0.8}
                     />
                   </svg>
                 )}
