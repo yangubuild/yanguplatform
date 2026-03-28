@@ -279,51 +279,52 @@ export function AdaSidebar({ isOpen = true, onClose, inline = false }: AdaSideba
                   />
                 </form>
               ) : (
-                <button
-                  onClick={() => handleLoadChat(chat.id)}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left hover:bg-white/5 transition-colors">
-                  <MessageCircle className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                  <span className="text-muted-foreground text-sm truncate flex-1">
-                    {highlightMatch(chat.title, debouncedSearch)}
-                  </span>
-                  {chat.updated_at && (
-                    <span className="text-muted-foreground text-xs flex-shrink-0 group-hover:hidden">
-                      {timeAgo(chat.updated_at)}
+                <div className="flex items-center gap-0">
+                  <button
+                    onClick={() => handleLoadChat(chat.id)}
+                    className="flex-1 min-w-0 flex items-center gap-3 px-3 py-2.5 rounded-lg text-left hover:bg-white/5 transition-colors">
+                    <MessageCircle className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                    <span className="text-muted-foreground text-sm truncate flex-1">
+                      {highlightMatch(chat.title, debouncedSearch)}
                     </span>
-                  )}
+                    {chat.updated_at && (
+                      <span className="text-muted-foreground text-xs flex-shrink-0 group-hover:hidden">
+                        {timeAgo(chat.updated_at)}
+                      </span>
+                    )}
+                  </button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <div
-                        role="button"
+                      <button
                         onClick={(e) => e.stopPropagation()}
                         className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-white/10 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                         <MoreHorizontal className="w-4 h-4" />
-                      </div>
+                      </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" side="bottom" sideOffset={6} className="z-[9999] w-48">
-                      <DropdownMenuItem onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/dashboard/ada?chat=${chat.id}`); toast.info("Share link copied!"); }}>
+                    <DropdownMenuContent align="end" side="bottom" sideOffset={6} className="z-[9999] w-48" onClick={(e) => e.stopPropagation()}>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(`${window.location.origin}/dashboard/ada?chat=${chat.id}`); toast.info("Share link copied!"); }}>
                         <Share className="w-3.5 h-3.5 mr-2" /> Share
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => toast.info("Group chat coming soon")}>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); toast.info("Group chat coming soon"); }}>
                         <Users className="w-3.5 h-3.5 mr-2" /> Start a group chat
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleRenameChat(chat.id)}>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleRenameChat(chat.id); }}>
                         <Pencil className="w-3.5 h-3.5 mr-2" /> Rename
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => toast.success("Chat pinned")}>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); toast.success("Chat pinned"); }}>
                         <Pin className="w-3.5 h-3.5 mr-2" /> Pin chat
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => { toast.success("Chat archived"); handleDeleteChat(chat.id); }}>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); toast.success("Chat archived"); handleDeleteChat(chat.id); }}>
                         <Archive className="w-3.5 h-3.5 mr-2" /> Archive
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => handleDeleteChat(chat.id)} className="text-destructive focus:text-destructive">
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDeleteChat(chat.id); }} className="text-destructive focus:text-destructive">
                         <Trash2 className="w-3.5 h-3.5 mr-2" /> Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                </button>
+                </div>
               )}
             </div>
           ))}
