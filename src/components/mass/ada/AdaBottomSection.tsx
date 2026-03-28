@@ -28,6 +28,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { ImageTileActions } from "./ImageTileActions";
 import { DriveConnectModal } from "./DriveConnectModal";
+import { toast } from "sonner";
+import { DriveConnectModal } from "./DriveConnectModal";
 
 const ANON_CHATS_KEY = "ada_anon_chats";
 
