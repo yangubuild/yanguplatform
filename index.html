@@ -2,14 +2,17 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <!-- Lufga self-hosted via public/fonts/ -->
 
     <title>yangu — Build, Sell & Grow Online with AI</title>
     <meta name="description" content="yangu is an AI digital business hub to build, market, and sell online. Create shops, communities, influencer brands, and digital businesses faster with AI tools, live commerce, and creator-first infrastructure." />
     <meta name="author" content="yangu" />
-    <meta name="theme-color" content="#b5622a" />
+    <meta name="theme-color" content="#0a1a10" />
     <link rel="canonical" href="https://yangu.io/" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
 
     <!-- Favicons -->
     <link rel="icon" href="/favicon.ico" sizes="any" />
@@ -18,6 +21,15 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
     <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png" />
+
+    <!-- Apple PWA meta tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="YANGU" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+    <!-- Safe area for notch devices -->
+    <meta name="mobile-web-app-capable" content="yes" />
 
     <!-- Open Graph -->
     <meta property="og:site_name" content="yangu" />
@@ -32,7 +44,15 @@
     <meta name="twitter:title" content="yangu — Build, Sell & Grow Online with AI" />
     <meta name="twitter:description" content="AI digital business hub for creators, sellers, and influencers." />
     <meta name="twitter:image" content="https://yangu.io/yangu-og-image.png" />
-    <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+    <style>@keyframes spin{to{transform:rotate(360deg)}}
+    /* Safe area padding for standalone PWA */
+    :root {
+      --sat: env(safe-area-inset-top, 0px);
+      --sar: env(safe-area-inset-right, 0px);
+      --sab: env(safe-area-inset-bottom, 0px);
+      --sal: env(safe-area-inset-left, 0px);
+    }
+    </style>
   </head>
 
   <body>
