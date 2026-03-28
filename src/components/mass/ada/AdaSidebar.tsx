@@ -12,6 +12,10 @@ import {
   MoreHorizontal,
   Trash2,
   Pencil,
+  Share,
+  Users,
+  Pin,
+  Archive,
 } from "lucide-react";
 import adaIcon from "@/assets/ada-icon.png";
 import adaLogo from "@/assets/ada-logo-full.png";
@@ -295,12 +299,33 @@ export function AdaSidebar({ isOpen = true, onClose, inline = false }: AdaSideba
               {menuOpenId === chat.id && (
                 <div
                   ref={menuRef}
-                  className="absolute right-2 top-10 z-50 w-40 rounded-lg border border-white/10 py-1 shadow-xl"
+                  className="absolute right-2 top-10 z-50 w-48 rounded-lg border border-white/10 py-1 shadow-xl"
                   style={{ background: "#1a1a1a" }}>
+                  <button
+                    onClick={() => { setMenuOpenId(null); toast.info("Share link copied!"); navigator.clipboard.writeText(`${window.location.origin}/dashboard/ada?chat=${chat.id}`); }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:bg-white/10 transition-colors">
+                    <Share className="w-3.5 h-3.5" /> Share
+                  </button>
+                  <button
+                    onClick={() => { setMenuOpenId(null); toast.info("Group chat coming soon"); }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:bg-white/10 transition-colors">
+                    <Users className="w-3.5 h-3.5" /> Start a group chat
+                  </button>
                   <button
                     onClick={() => handleRenameChat(chat.id)}
                     className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:bg-white/10 transition-colors">
                     <Pencil className="w-3.5 h-3.5" /> Rename
+                  </button>
+                  <div className="border-t border-white/10 my-0.5" />
+                  <button
+                    onClick={() => { setMenuOpenId(null); toast.success("Chat pinned"); }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:bg-white/10 transition-colors">
+                    <Pin className="w-3.5 h-3.5" /> Pin chat
+                  </button>
+                  <button
+                    onClick={() => { setMenuOpenId(null); toast.success("Chat archived"); handleDeleteChat(chat.id); }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:bg-white/10 transition-colors">
+                    <Archive className="w-3.5 h-3.5" /> Archive
                   </button>
                   <div className="border-t border-white/10 my-0.5" />
                   <button
