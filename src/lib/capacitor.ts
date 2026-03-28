@@ -2,6 +2,8 @@ import { Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { App } from '@capacitor/app';
+import { initPushNotifications } from './pushNotifications';
+import { initDeepLinking } from './deepLinking';
 
 /**
  * Initialize native Capacitor plugins when running as a native app.
@@ -34,13 +36,15 @@ export async function initCapacitor() {
     }
   });
 
-  // Handle external URLs — open in system browser
-  App.addListener('appUrlOpen', ({ url }) => {
-    const isInternal = url.includes('yangu.io');
-    if (!isInternal) {
-      window.open(url, '_blank');
-    }
-  });
+  // Initialize deep linking (handles yangu.io URLs)
+  initDeepLinking();
+
+  // Initialize push notifications (request permission + register)
+  try {
+    await initPushNotifications();
+  } catch (err) {
+    console.error('[YANGU] Push notification init failed:', err);
+  }
 }
 
 /** True when running inside a native Capacitor shell */
