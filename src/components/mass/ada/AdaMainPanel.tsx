@@ -1455,8 +1455,9 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
   const [boxSize, setBoxSize] = useState({ w: 0, h: 0 });
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
-  const traceRef = useRef<SVGRectElement>(null);
-  const glowRef = useRef<SVGRectElement>(null);
+  const traceRef = useRef<SVGPathElement>(null);
+  const glowRef = useRef<SVGPathElement>(null);
+  const glowMidRef = useRef<SVGPathElement>(null);
 
   useEffect(() => {
     const el = boxRef.current;
