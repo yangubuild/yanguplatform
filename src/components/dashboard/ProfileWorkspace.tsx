@@ -210,7 +210,7 @@ function OwnPostsTab({ onAuthorClick }: { onAuthorClick?: (post: Post) => void }
         contextHint = `The user is posting ${types.join(" and ")} content. `;
       }
       if (profile?.display_name) contextHint += `Business name: ${profile.display_name}. `;
-      if (profile?.location) contextHint += `Location: ${profile.location}. `;
+      if (profile?.country) contextHint += `Location: ${profile.country}. `;
 
       // If there's an image attached, convert to data URL for vision analysis
       let imageDataUrl: string | null = null;
@@ -227,7 +227,7 @@ function OwnPostsTab({ onAuthorClick }: { onAuthorClick?: (post: Post) => void }
           image_data_url: imageDataUrl,
           campaign_name: "Social post",
           product_name: profile?.display_name || "My business",
-          location: profile?.location || "",
+          location: profile?.country || "",
           media_type: mediaFiles.length > 0 ? (mediaFiles[0].type.startsWith("video") ? "video" : "image") : "text",
         },
       });
