@@ -192,29 +192,29 @@ async function readSSEStream(
       if (!line.startsWith("data: ")) continue;
       const data = line.slice(6).trim();
       if (data === "[DONE]") {
-        onChunk(accumulated);
-        onDone();
+        streamDone = true;
+        startFlushing();
         return;
       }
       try {
         const parsed = JSON.parse(data);
         if (parsed.type === "token" && parsed.text) {
           accumulated += parsed.text;
-          scheduleFlush();
+          startFlushing();
         } else if (parsed.type === "done") {
-          onChunk(accumulated);
-          onDone();
+          streamDone = true;
+          startFlushing();
           return;
         } else if (parsed.choices?.[0]?.delta?.content) {
           accumulated += parsed.choices[0].delta.content;
-          scheduleFlush();
+          startFlushing();
         }
       } catch { /* skip non-JSON lines */ }
     }
   }
-  // Final flush
-  onChunk(accumulated);
-  onDone();
+  // Stream reader ended
+  streamDone = true;
+  startFlushing();
 }
 
 // --- SSE stream parser for generation status events ---
