@@ -390,10 +390,10 @@ export function AdaBottomSection() {
                             <Pencil className="w-3.5 h-3.5 mr-2" /> Rename
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); toast.success("Chat pinned"); }}>
-                            <Pin className="w-3.5 h-3.5 mr-2" /> Pin chat
+                          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handlePinChat(chat.id); }}>
+                            <Pin className="w-3.5 h-3.5 mr-2" /> {chat.is_pinned ? "Unpin chat" : "Pin chat"}
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); toast.success("Chat archived"); }}>
+                          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleArchiveChat(chat.id); }}>
                             <Archive className="w-3.5 h-3.5 mr-2" /> Archive
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
