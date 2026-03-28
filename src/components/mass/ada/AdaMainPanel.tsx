@@ -2098,6 +2098,47 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                 </div>
               )}
               <div ref={boxRef} className="relative rounded-2xl outline-none ring-0 [&_*]:focus-visible:outline-none">
+                {/* Animated orange border trace */}
+                {perim > 0 && (
+                  <svg
+                    className="pointer-events-none absolute inset-0 z-10"
+                    width={boxSize.w}
+                    height={boxSize.h}
+                    style={{ overflow: "visible" }}
+                  >
+                    <rect
+                      ref={glowRef}
+                      x={1}
+                      y={1}
+                      width={boxSize.w - 2}
+                      height={boxSize.h - 2}
+                      rx={16}
+                      ry={16}
+                      fill="none"
+                      stroke="#F4A83D"
+                      strokeWidth={3}
+                      strokeDasharray={`${dashLen} ${gapLen}`}
+                      strokeDashoffset={0}
+                      opacity={0.25}
+                      style={{ filter: "blur(4px)" }}
+                    />
+                    <rect
+                      ref={traceRef}
+                      x={1}
+                      y={1}
+                      width={boxSize.w - 2}
+                      height={boxSize.h - 2}
+                      rx={16}
+                      ry={16}
+                      fill="none"
+                      stroke="#F4A83D"
+                      strokeWidth={1.5}
+                      strokeDasharray={`${dashLen} ${gapLen}`}
+                      strokeDashoffset={0}
+                      opacity={0.8}
+                    />
+                  </svg>
+                )}
                 <div className="relative rounded-2xl p-4 outline-none ring-0 focus-within:outline-none" style={{ background: "#050A07", border: "1px solid rgba(255,255,255,0.08)" }}>
                   <textarea
                     ref={textareaRef}
