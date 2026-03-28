@@ -40,7 +40,7 @@ export const PLATFORM_REGISTRY: SocialPlatform[] = [
   { id: "whatsapp",  name: "WhatsApp",    aliases: ["wa"],                      icon: whatsappIcon,  placeholder: "+00000000000",               group: "contact" },
   { id: "youtube",   name: "YouTube",     aliases: ["yt"],                      icon: youtubeIcon,   placeholder: "youtube.com/...",             group: "social" },
   // --- Additional ---
-  { id: "linkedin",  name: "LinkedIn",    aliases: ["li"],                      icon: websiteIcon,   placeholder: "linkedin.com/in/username",   group: "professional" },
+  { id: "linkedin",  name: "LinkedIn",    aliases: ["li"],                      icon: linkedinIcon,  placeholder: "linkedin.com/in/username",   group: "professional" },
   { id: "x",         name: "X (Twitter)", aliases: ["twitter", "tw"],           icon: xIcon,         placeholder: "@username",                  group: "social" },
   { id: "threads",   name: "Threads",     aliases: [],                          icon: threadsIcon,   placeholder: "@username",                  group: "social" },
   { id: "telegram",  name: "Telegram",    aliases: ["tg"],                      icon: telegramIcon,  placeholder: "t.me/username",              group: "contact" },
