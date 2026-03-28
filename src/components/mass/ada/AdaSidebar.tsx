@@ -299,7 +299,7 @@ export function AdaSidebar({ isOpen = true, onClose, inline = false }: AdaSideba
               {menuOpenId === chat.id && (
                 <div
                   ref={menuRef}
-                  className="absolute right-2 top-10 z-50 w-40 rounded-lg border border-white/10 py-1 shadow-xl"
+                  className="absolute right-2 top-10 z-50 w-48 rounded-lg border border-white/10 py-1 shadow-xl"
                   style={{ background: "#1a1a1a" }}>
                   <button
                     onClick={() => { setMenuOpenId(null); toast.info("Share link copied!"); navigator.clipboard.writeText(`${window.location.origin}/dashboard/ada?chat=${chat.id}`); }}
