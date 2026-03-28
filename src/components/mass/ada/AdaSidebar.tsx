@@ -85,11 +85,13 @@ export function AdaSidebar({ isOpen = true, onClose, inline = false }: AdaSideba
     if (isAuthenticated && user) {
       const { data } = await supabase
         .from("ada_chats")
-        .select("id, title, updated_at")
+        .select("id, title, updated_at, is_pinned, is_archived")
         .eq("user_id", user.id)
+        .eq("is_archived", false)
+        .order("is_pinned", { ascending: false })
         .order("updated_at", { ascending: false })
         .limit(50);
-      setChatHistory((data || []).map(c => ({ id: c.id, title: c.title || "Untitled", updated_at: c.updated_at })));
+      setChatHistory((data || []).map(c => ({ id: c.id, title: c.title || "Untitled", updated_at: c.updated_at, is_pinned: c.is_pinned, is_archived: c.is_archived })));
     } else {
       try {
         const chats = JSON.parse(localStorage.getItem(ANON_CHATS_KEY) || "[]");
