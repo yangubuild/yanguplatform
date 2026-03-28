@@ -1477,7 +1477,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
     if (!perim) return;
     let raf: number;
     let start: number | null = null;
-    const duration = 3000;
+    const duration = 6000;
     const tick = (ts: number) => {
       if (!start) start = ts;
       const progress = ((ts - start) % duration) / duration;
