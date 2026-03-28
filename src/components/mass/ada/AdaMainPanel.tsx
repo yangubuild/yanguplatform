@@ -136,7 +136,7 @@ function saveAnonChats(chats: { id: string; title: string; messages: ChatMessage
   localStorage.setItem(ANON_CHATS_KEY, JSON.stringify(chats));
 }
 
-// --- SSE stream parser with typewriter-style token rendering ---
+// --- SSE stream parser — batched accumulation (no typewriter setTimeout) ---
 async function readSSEStream(
   reader: ReadableStreamDefaultReader<Uint8Array>,
   onChunk: (fullText: string) => void,
@@ -145,35 +145,16 @@ async function readSSEStream(
   const decoder = new TextDecoder();
   let buffer = "";
   let accumulated = "";
-  // Token queue for typewriter effect
-  const tokenQueue: string[] = [];
-  let draining = false;
+  // Batch tokens and flush at most every 50ms to avoid per-token re-renders
+  let pendingFlush = false;
 
-  const drainQueue = () => {
-    if (draining || tokenQueue.length === 0) return;
-    draining = true;
-    const processNext = () => {
-      if (tokenQueue.length === 0) { draining = false; return; }
-      const token = tokenQueue.shift()!;
-      // Emit word-by-word within the token
-      const words = token.split(/(\s+)/);
-      let i = 0;
-      const emitWord = () => {
-        if (i>= words.length) {
-          // Small delay between tokens
-          setTimeout(processNext, 10);
-          return;
-        }
-        accumulated += words[i];
-        i++;
-        onChunk(accumulated);
-        // 20-40ms delay between words for typewriter feel
-        const delay = 20 + Math.random() * 20;
-        setTimeout(emitWord, delay);
-      };
-      emitWord();
-    };
-    processNext();
+  const scheduleFlush = () => {
+    if (pendingFlush) return;
+    pendingFlush = true;
+    requestAnimationFrame(() => {
+      pendingFlush = false;
+      onChunk(accumulated);
+    });
   };
 
   while (true) {
@@ -187,39 +168,29 @@ async function readSSEStream(
       if (!line.startsWith("data: ")) continue;
       const data = line.slice(6).trim();
       if (data === "[DONE]") {
-        // Flush remaining queue then done
-        const waitDrain = () => {
-          if (tokenQueue.length === 0 && !draining) { onDone(); return; }
-          setTimeout(waitDrain, 30);
-        };
-        waitDrain();
+        onChunk(accumulated);
+        onDone();
         return;
       }
       try {
         const parsed = JSON.parse(data);
         if (parsed.type === "token" && parsed.text) {
-          tokenQueue.push(parsed.text);
-          drainQueue();
+          accumulated += parsed.text;
+          scheduleFlush();
         } else if (parsed.type === "done") {
-          const waitDrain = () => {
-            if (tokenQueue.length === 0 && !draining) { onDone(); return; }
-            setTimeout(waitDrain, 30);
-          };
-          waitDrain();
+          onChunk(accumulated);
+          onDone();
           return;
         } else if (parsed.choices?.[0]?.delta?.content) {
-          tokenQueue.push(parsed.choices[0].delta.content);
-          drainQueue();
+          accumulated += parsed.choices[0].delta.content;
+          scheduleFlush();
         }
       } catch { /* skip non-JSON lines */ }
     }
   }
-  // Final drain
-  const waitFinalDrain = () => {
-    if (tokenQueue.length === 0 && !draining) { onDone(); return; }
-    setTimeout(waitFinalDrain, 30);
-  };
-  waitFinalDrain();
+  // Final flush
+  onChunk(accumulated);
+  onDone();
 }
 
 // --- SSE stream parser for generation status events ---
@@ -656,11 +627,11 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
 
       const reader = res.body.getReader();
 
-      // Throttled scroll during streaming: scroll at most every 300ms
+      // Throttled scroll during streaming: scroll at most every 800ms to reduce jitter
       let lastScrollTime = 0;
       const throttledScroll = () => {
         const now = Date.now();
-        if (now - lastScrollTime> 300) {
+        if (now - lastScrollTime > 800) {
           lastScrollTime = now;
           smartScroll();
         }
@@ -1479,10 +1450,15 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
   }, [perim]);
 
   useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 160) + "px";
+    const ta = textareaRef.current;
+    if (!ta) return;
+    // Avoid the "auto" reset flicker: only grow/shrink when needed
+    const maxH = 160;
+    const newH = Math.min(ta.scrollHeight, maxH);
+    if (Math.abs(ta.offsetHeight - newH) > 2) {
+      ta.style.height = newH + "px";
     }
+    ta.style.overflowY = ta.scrollHeight > maxH ? "auto" : "hidden";
   }, [inputValue]);
 
   const rotatingWords = ["Own", "Idea", "Business", "Product", "Community"];
@@ -1790,7 +1766,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
       )}
 
       {/* Center content — equal gutters so content is visually centered in this container */}
-      <div className="flex-1 flex flex-col items-center justify-center pl-12 pr-4 min-h-0 overflow-hidden">
+      <div className="flex-1 flex flex-col items-center justify-center px-4 min-h-0 overflow-hidden">
         {mode === "voice" ? (
           <>
             {/* Animated particle ring */}
@@ -1860,7 +1836,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                   }
                 }
               }}
-              className="w-full max-w-2xl flex-1 min-h-0 overflow-y-auto mb-4 space-y-4 py-4">
+              className="w-full max-w-2xl flex-1 min-h-0 overflow-y-auto mb-4 space-y-4 py-4 scroll-smooth">
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>
                   {/* Routing pill */}
@@ -1871,7 +1847,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                     </span>
                   )}
                   <div
-                    className={`max-w-[80%] px-4 py-3 text-sm ${
+                    className={`max-w-[85%] px-4 py-3 text-sm break-words overflow-hidden ${
                       msg.role === "user" ? "text-right" : ""
                     }`}
                     style={{
@@ -1881,7 +1857,9 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                       background: msg.role === "assistant"
                         ? "rgba(255,255,255,0.03)"
                         : "transparent",
-                      borderRadius: "12px" }}>
+                      borderRadius: "12px",
+                      wordBreak: "break-word",
+                      overflowWrap: "anywhere" }}>
                     {renderMessageContent(msg)}
                     {msg.metadata && (msg.metadata as any).attachments && (
                       <div className="flex flex-wrap gap-1 mt-2">
