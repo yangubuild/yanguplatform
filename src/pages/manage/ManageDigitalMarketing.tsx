@@ -9,19 +9,26 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Share2, Globe, TrendingUp, Eye, MousePointer, BarChart3,
-  Instagram, Calendar, Plug, Search, Activity, Loader2, Plus, Send,
+  Calendar, Plug, Search, Activity, Loader2, Plus, Send,
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
+import { getPlatform } from "@/lib/socialPlatformRegistry";
+import instagramIcon from "@/assets/icons/instagram.png";
+import tiktokIcon from "@/assets/icons/tiktok.png";
+import facebookIcon from "@/assets/icons/facebook.png";
+import xIcon from "@/assets/icons/x.png";
+import youtubeIcon from "@/assets/icons/youtube.png";
+import websiteIcon from "@/assets/icons/website.png";
 
-const PLATFORM_ICONS: Record<string, any> = {
-  instagram: Instagram,
-  tiktok: Activity,
-  facebook: Globe,
-  x: Share2,
-  linkedin: Globe,
-  youtube: Activity,
+const PLATFORM_ICON_MAP: Record<string, string> = {
+  instagram: instagramIcon,
+  tiktok: tiktokIcon,
+  facebook: facebookIcon,
+  x: xIcon,
+  linkedin: websiteIcon,
+  youtube: youtubeIcon,
 };
 
 const DEFAULT_PLATFORMS = ["instagram", "tiktok", "facebook", "x", "linkedin", "youtube"];
@@ -148,12 +155,11 @@ export default function ManageDigitalMarketing() {
                 {DEFAULT_PLATFORMS.map((platform) => {
                   const conn = connMap.get(platform) as any;
                   const isConnected = conn?.status === "connected";
-                  const Icon = PLATFORM_ICONS[platform] || Globe;
                   return (
                     <div key={platform} className="rounded-lg border border-[hsl(var(--admin-border)/0.3)] p-4">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
-                          <Icon className="h-5 w-5 text-muted-foreground" />
+                          <img src={PLATFORM_ICON_MAP[platform] || websiteIcon} alt={platform} className="h-5 w-5 object-contain" />
                           <span className="text-sm font-medium text-[hsl(var(--admin-text))] capitalize">{platform}</span>
                         </div>
                         <Badge variant="outline" className={isConnected ? "text-emerald-500 border-emerald-500/30" : "text-muted-foreground"}>
