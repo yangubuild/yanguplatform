@@ -2101,7 +2101,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                 {/* Animated orange border trace */}
                 {perim > 0 && (
                   <svg
-                    className="pointer-events-none absolute inset-0 z-10"
+                    className="pointer-events-none absolute inset-0 z-20"
                     width={boxSize.w}
                     height={boxSize.h}
                     style={{ overflow: "visible" }}
