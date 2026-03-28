@@ -2145,8 +2145,8 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                     <path
                       d={glowPath}
                       fill="none"
-                      stroke="rgba(255,255,255,0.08)"
-                      strokeWidth={1}
+                      stroke="rgba(255,255,255,0.06)"
+                      strokeWidth={0.5}
                     />
                     {/* Soft glow layer behind the highlight */}
                     <path
@@ -2154,13 +2154,13 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                       d={glowPath}
                       pathLength={1}
                       fill="none"
-                      stroke="rgba(255,255,255,0.5)"
-                      strokeWidth={2}
+                      stroke="rgba(212,149,43,0.35)"
+                      strokeWidth={1}
                       strokeLinecap="round"
                       strokeDasharray={`${dashFrac} ${gapFrac}`}
                       strokeDashoffset={0}
                       opacity={0}
-                      style={{ filter: "blur(2px)" }}
+                      style={{ filter: "blur(1.5px)" }}
                     />
                     {/* Sharp highlight core */}
                     <path
@@ -2168,8 +2168,8 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                       d={glowPath}
                       pathLength={1}
                       fill="none"
-                      stroke="rgba(255,255,255,0.9)"
-                      strokeWidth={1}
+                      stroke="rgba(244,168,61,0.85)"
+                      strokeWidth={0.5}
                       strokeLinecap="round"
                       strokeDasharray={`${dashFrac} ${gapFrac}`}
                       strokeDashoffset={0}
