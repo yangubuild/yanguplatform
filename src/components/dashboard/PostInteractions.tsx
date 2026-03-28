@@ -325,11 +325,20 @@ function SharePanel({ postId, postContent, onClose }: { postId: string; postCont
     if (!user) return;
     setSending(receiverId);
     try {
-      const msg = `📎 Shared a post: "${postContent.slice(0, 80)}${postContent.length> 80 ? "…" : ""}"`;
-      await supabase.from("direct_messages" as any).insert({ sender_id: user.id, receiver_id: receiverId, content: msg } as any);
+      const msg = `📎 Shared a post: "${postContent.slice(0, 80)}${postContent.length > 80 ? "…" : ""}"`;
+      const { error: insertErr } = await supabase.from("direct_messages").insert({
+        sender_id: user.id,
+        receiver_id: receiverId,
+        content: msg,
+        metadata: { shared_post_id: postId },
+      });
+      if (insertErr) throw insertErr;
       toast.success("Post shared!");
       onClose();
-    } catch { toast.error("Failed to share"); } finally { setSending(null); }
+    } catch (err) {
+      console.error("Share error:", err);
+      toast.error("Failed to share post");
+    } finally { setSending(null); }
   };
 
   return (
