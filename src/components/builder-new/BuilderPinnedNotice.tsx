@@ -63,7 +63,8 @@ export function BuilderPinnedNotice({
       <img
         src={mascot}
         alt="Ada"
-        className="absolute -top-[34px] left-[34px] h-[54px] w-auto z-[21] pointer-events-none max-md:-top-[30px] max-md:left-[24px] max-md:h-[48px]"
+        className="absolute -top-[30px] left-[28px] h-[48px] w-auto z-[21] pointer-events-none max-md:-top-[26px] max-md:left-[20px] max-md:h-[42px]"
+        style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.15))" }}
       />
 
       {/* Card */}
