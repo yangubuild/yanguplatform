@@ -10,7 +10,20 @@ import {
   MoreHorizontal,
   Image,
   X,
+  Share,
+  Users,
+  Pencil,
+  Pin,
+  Archive,
+  Trash2,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { ImageTileActions } from "./ImageTileActions";
