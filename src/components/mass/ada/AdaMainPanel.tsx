@@ -2138,12 +2138,12 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                       pathLength={1}
                       fill="none"
                       stroke="#F4A83D"
-                      strokeWidth={1.5}
+                      strokeWidth={1}
                       strokeLinecap="round"
                       strokeDasharray={`${dashFrac} ${gapFrac}`}
                       strokeDashoffset={0}
-                      opacity={0.22}
-                      style={{ filter: "blur(3px)" }}
+                      opacity={0.25}
+                      style={{ filter: "blur(1.5px)" }}
                     />
                     <path
                       ref={traceRef}
