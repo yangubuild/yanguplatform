@@ -1412,7 +1412,14 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
           .select("*")
           .eq("chat_id", chatId)
           .order("created_at", { ascending: true });
-        setMessages((data || []).map(m => {
+        setMessages((data || []).filter(m => {
+          // Filter out raw JSON action messages like {"action":"image"}
+          const trimmed = m.content.trim();
+          if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+            try { const j = JSON.parse(trimmed); if (j.action) return false; } catch {}
+          }
+          return true;
+        }).map(m => {
           const meta = m.metadata as Record<string, unknown> | undefined;
           const msg: ChatMessage = {
             id: m.id,
@@ -1429,7 +1436,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
               kind: "image",
               status: "done",
               previewUrl,
-              caption: m.content.slice(0, 50),
+              caption: m.content.replace(/!\[.*?\]\(.*?\)/g, "").trim().slice(0, 50) || undefined,
             };
           }
           return msg;
