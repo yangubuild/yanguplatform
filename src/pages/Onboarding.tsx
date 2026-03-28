@@ -649,9 +649,11 @@ export default function Onboarding() {
               ) : (
                 <User className="w-8 h-8 text-muted-foreground absolute inset-0 m-auto" />
               )}
-              <div className="absolute bottom-0 right-0 bg-accent rounded-full p-1">
-                <Camera className="w-3 h-3 text-accent-foreground" />
-              </div>
+              {!avatarUrl && (
+                <div className="absolute bottom-0 right-0 bg-accent rounded-full p-1">
+                  <Camera className="w-3 h-3 text-accent-foreground" />
+                </div>
+              )}
             </button>
             <span className="text-xs text-muted-foreground">Tap to choose avatar</span>
           </div>
@@ -731,8 +733,30 @@ export default function Onboarding() {
             <p className="text-sm text-muted-foreground">This is how your name will appear on your surfaces</p>
           </div>
 
-          <Button type="submit" variant="accent" className="w-full h-11" disabled={usernameAvailable !== true}>
-            Continue <ArrowRight className="ml-2 h-4 w-4" />
+          {/* Blocker hint */}
+          {isCheckingUsername && username.length >= 3 && (
+            <p className="text-sm text-muted-foreground text-center flex items-center justify-center gap-1.5">
+              <Loader2 className="h-3 w-3 animate-spin" /> Checking username availability…
+            </p>
+          )}
+          {!isCheckingUsername && usernameAvailable === false && (
+            <p className="text-sm text-destructive text-center">Choose a different username to continue</p>
+          )}
+          {!isCheckingUsername && usernameAvailable === null && username.length >= 1 && username.length < 3 && (
+            <p className="text-sm text-muted-foreground text-center">Username must be at least 3 characters</p>
+          )}
+
+          <Button
+            type="submit"
+            variant="accent"
+            className={cn("w-full h-11 transition-opacity", usernameAvailable !== true && "opacity-40 cursor-not-allowed")}
+            disabled={usernameAvailable !== true || isCheckingUsername}
+          >
+            {isCheckingUsername ? (
+              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Checking…</>
+            ) : (
+              <>Continue <ArrowRight className="ml-2 h-4 w-4" /></>
+            )}
           </Button>
         </form>
       </AuthShell>
