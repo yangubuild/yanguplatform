@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { X } from "lucide-react";
-import adaMascot from "@/assets/ada-mascot.png";
+import adaMascot from "@/assets/ada-mascot.png"; // v2
 
 const DEFAULT_TEXT: Record<string, string> = {
   new: "Hello! I'm excited to help you build your website. What kind of website are you thinking of creating? Is it for a business, a personal project, or something else? Perhaps you're looking to create a website for a restaurant, a store, a community, or as an influencer?",
