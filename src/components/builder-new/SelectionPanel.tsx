@@ -1,13 +1,18 @@
 import type { Selection, Category } from "./types/builder.types";
 import { CATEGORY_CONFIGS } from "./types/builder.types";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Sparkles } from "lucide-react";
 
 interface SelectionPanelProps {
   selections: Selection[];
   category: Category | null;
+  generatedHtml: string | null;
+  isGenerating: boolean;
+  onGenerate: () => void;
 }
 
-export function SelectionPanel({ selections, category }: SelectionPanelProps) {
+export function SelectionPanel({ selections, category, generatedHtml, isGenerating, onGenerate }: SelectionPanelProps) {
+  const hasConfirm = selections.some((s) => s.type === "confirm");
+
   if (selections.length === 0 && !category) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-6 text-center">
@@ -17,6 +22,7 @@ export function SelectionPanel({ selections, category }: SelectionPanelProps) {
   }
 
   const grouped = selections.reduce<Record<string, Selection[]>>((acc, s) => {
+    if (s.type === "confirm") return acc;
     (acc[s.type] ??= []).push(s);
     return acc;
   }, {});
@@ -29,7 +35,6 @@ export function SelectionPanel({ selections, category }: SelectionPanelProps) {
     delivery_apps: "Delivery Apps",
     style_category: "Style",
     style_specific: "Specific Style",
-    confirm: "Confirmation",
   };
 
   return (
@@ -62,6 +67,25 @@ export function SelectionPanel({ selections, category }: SelectionPanelProps) {
           </div>
         </div>
       ))}
+
+      {/* Generate button */}
+      {hasConfirm && !generatedHtml && (
+        <button
+          onClick={onGenerate}
+          disabled={isGenerating}
+          className="mt-2 flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-50"
+        >
+          <Sparkles className="h-4 w-4" />
+          {isGenerating ? "Generating..." : "🚀 Generate Website"}
+        </button>
+      )}
+
+      {generatedHtml && (
+        <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-center">
+          <p className="text-sm font-medium text-primary">✅ Website Generated</p>
+          <p className="text-xs text-muted-foreground mt-1">Preview is shown on the right</p>
+        </div>
+      )}
     </div>
   );
 }
