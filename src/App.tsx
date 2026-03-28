@@ -53,6 +53,7 @@ const AiShortsPage = lazy(() => lazyRetry(() => import("./components/studio/ai-s
 const StudioAssetGallery = lazy(() => lazyRetry(() => import("./components/studio/assets/StudioAssetGallery")));
 const PortfolioPage = lazy(() => lazyRetry(() => import("./pages/PortfolioPage")));
 const BuilderEditor = lazy(() => lazyRetry(() => import("./pages/BuilderEditor")));
+const BuilderNewPage = lazy(() => lazyRetry(() => import("./pages/BuilderNewPage")));
 const Community = lazy(() => lazyRetry(() => import("./pages/Community")));
 const AdaAi = lazy(() => lazyRetry(() => import("./pages/AdaAi")));
 const WhyYangu = lazy(() => lazyRetry(() => import("./pages/WhyYangu")));
@@ -281,6 +282,7 @@ const App = () => (
                 <Route path="/aisafety" element={<AiSafety />} />
                 
                 <Route path="/builder" element={<BuilderPage />} />
+                <Route path="/builder/new" element={<BuilderNewPage />} />
                 <Route path="/support" element={<SupportPage />} />
                 <Route path="/help-center" element={<HelpCenter />} />
                 <Route path="/updates" element={<PlatformUpdates />} />
