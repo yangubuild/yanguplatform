@@ -1474,21 +1474,62 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
   const gapLen = perim - dashLen;
 
   useEffect(() => {
-    if (!perim) return;
+    if (!perim || !boxSize.w || !boxSize.h) return;
     let raf: number;
     let start: number | null = null;
     const duration = 6000;
+
+    // Build a non-linear easing map: fast on straights, slow on corners
+    // Rect perimeter segments: top-straight, corner, right-straight, corner, bottom-straight, corner, left-straight, corner
+    const r = 16;
+    const cornerArc = (Math.PI / 2) * r; // quarter-circle arc length
+    const topW = boxSize.w - 2 - 2 * r;
+    const rightH = boxSize.h - 2 - 2 * r;
+    const botW = topW;
+    const leftH = rightH;
+    const segments = [topW, cornerArc, rightH, cornerArc, botW, cornerArc, leftH, cornerArc];
+    const totalLen = segments.reduce((a, b) => a + b, 0);
+
+    // Speed multipliers: straights = fast (2.2x), corners = slow (0.45x)
+    const speedMult = [2.2, 0.45, 2.2, 0.45, 2.2, 0.45, 2.2, 0.45];
+
+    // Build cumulative "time" for each segment boundary
+    const timeCost: number[] = []; // time-cost per segment (length / speed)
+    segments.forEach((len, i) => timeCost.push(len / speedMult[i]));
+    const totalTime = timeCost.reduce((a, b) => a + b, 0);
+
+    // cumDist[i] = distance at start of segment i, cumTime[i] = normalized time at start
+    const cumDist: number[] = [0];
+    const cumTime: number[] = [0];
+    for (let i = 0; i < segments.length; i++) {
+      cumDist.push(cumDist[i] + segments[i]);
+      cumTime.push(cumTime[i] + timeCost[i] / totalTime);
+    }
+
+    // Map uniform time [0,1] → non-uniform distance [0, totalLen]
+    const timeToDistance = (t: number): number => {
+      const tt = t % 1;
+      for (let i = 0; i < segments.length; i++) {
+        if (tt < cumTime[i + 1]) {
+          const localT = (tt - cumTime[i]) / (cumTime[i + 1] - cumTime[i]);
+          return cumDist[i] + localT * segments[i];
+        }
+      }
+      return totalLen;
+    };
+
     const tick = (ts: number) => {
       if (!start) start = ts;
       const progress = ((ts - start) % duration) / duration;
-      const offset = -progress * perim;
+      const dist = timeToDistance(progress);
+      const offset = -dist;
       if (traceRef.current) traceRef.current.style.strokeDashoffset = `${offset}`;
       if (glowRef.current) glowRef.current.style.strokeDashoffset = `${offset}`;
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [perim]);
+  }, [perim, boxSize.w, boxSize.h]);
 
   useEffect(() => {
     const ta = textareaRef.current;
