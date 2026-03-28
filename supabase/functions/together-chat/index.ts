@@ -68,7 +68,7 @@ async function callTogether(opts: TogetherRequestOpts): Promise<TogetherResult> 
   if (!response.ok) {
     const status = response.status;
     const text = await response.text();
-    console.error("Together API error:", status);
+    console.error("Together API error:", status, text);
     return {
       success: false,
       provider: "together",
