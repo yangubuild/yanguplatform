@@ -30,7 +30,7 @@ export function MobileBottomNav({ onMenuToggle }: MobileBottomNavProps) {
     <nav
       className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around lg:hidden"
       style={{
-        height: 56,
+        minHeight: 56,
         background: "linear-gradient(180deg, #1f262b 0%, #1a2025 100%)",
         borderTop: "1px solid rgba(255,255,255,0.06)",
         paddingBottom: "env(safe-area-inset-bottom, 0px)",

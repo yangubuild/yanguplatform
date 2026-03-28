@@ -33,7 +33,7 @@ export function NavigationDashboardPage() {
         className="mt-16 transition-all duration-300 min-h-[calc(100vh-64px)] overflow-y-auto bg-background"
         style={{
           marginLeft: isMobile ? 0 : totalWidth,
-          paddingBottom: isMobile ? 56 : 0 }}>
+          paddingBottom: isMobile ? "calc(56px + env(safe-area-inset-bottom, 0px))" : 0 }}>
         <Suspense fallback={<YanguLoader size={36} />}>
           <Outlet />
         </Suspense>
