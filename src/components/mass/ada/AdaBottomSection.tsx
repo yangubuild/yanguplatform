@@ -36,6 +36,8 @@ interface ChatItem {
   id: string;
   title: string;
   updated_at: string;
+  is_pinned?: boolean;
+  is_archived?: boolean;
 }
 
 interface ImageItem {
@@ -78,11 +80,13 @@ export function AdaBottomSection() {
     if (isAuthenticated && user) {
       const { data } = await supabase
         .from("ada_chats")
-        .select("id, title, updated_at")
+        .select("id, title, updated_at, is_pinned, is_archived")
         .eq("user_id", user.id)
+        .eq("is_archived", false)
+        .order("is_pinned", { ascending: false })
         .order("updated_at", { ascending: false })
         .limit(8);
-      setChats((data || []).map(c => ({ id: c.id, title: c.title || "Untitled", updated_at: c.updated_at })));
+      setChats((data || []).map(c => ({ id: c.id, title: c.title || "Untitled", updated_at: c.updated_at, is_pinned: c.is_pinned, is_archived: c.is_archived })));
     } else {
       try {
         const stored = JSON.parse(localStorage.getItem(ANON_CHATS_KEY) || "[]");
@@ -256,6 +260,24 @@ export function AdaBottomSection() {
     toast.success("Chat renamed");
   };
 
+  const handlePinChat = async (chatId: string) => {
+    const chat = chats.find(c => c.id === chatId);
+    const newPinned = !chat?.is_pinned;
+    if (isAuthenticated) {
+      await supabase.from("ada_chats").update({ is_pinned: newPinned } as any).eq("id", chatId);
+    }
+    setChats(prev => prev.map(c => c.id === chatId ? { ...c, is_pinned: newPinned } : c));
+    toast.success(newPinned ? "Chat pinned" : "Chat unpinned");
+  };
+
+  const handleArchiveChat = async (chatId: string) => {
+    if (isAuthenticated) {
+      await supabase.from("ada_chats").update({ is_archived: true } as any).eq("id", chatId);
+    }
+    setChats(prev => prev.filter(c => c.id !== chatId));
+    toast.success("Chat archived");
+  };
+
   const handleIconAction = (id: string) => {
     window.dispatchEvent(new CustomEvent("ada-command", { detail: id }));
   };
@@ -368,10 +390,10 @@ export function AdaBottomSection() {
                             <Pencil className="w-3.5 h-3.5 mr-2" /> Rename
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); toast.success("Chat pinned"); }}>
-                            <Pin className="w-3.5 h-3.5 mr-2" /> Pin chat
+                          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handlePinChat(chat.id); }}>
+                            <Pin className="w-3.5 h-3.5 mr-2" /> {chat.is_pinned ? "Unpin chat" : "Pin chat"}
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); toast.success("Chat archived"); }}>
+                          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleArchiveChat(chat.id); }}>
                             <Archive className="w-3.5 h-3.5 mr-2" /> Archive
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
