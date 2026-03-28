@@ -1470,25 +1470,46 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
   }, []);
 
   const perim = boxSize.w && boxSize.h ? 2 * (boxSize.w + boxSize.h - 4 * 16) + 2 * Math.PI * 16 : 0;
-  const dashLen = perim * 0.15;
+  const dashLen = perim * 0.08;
   const gapLen = perim - dashLen;
+
+  // Idle/active state: glow runs when idle, stops when user is typing
+  const isGlowActive = !isFocused || (isFocused && inputValue.trim() === "");
+  const glowOpacityRef = useRef(1);
+  const lastOffsetRef = useRef(0);
 
   useEffect(() => {
     if (!perim) return;
     let raf: number;
     let start: number | null = null;
+    let pausedOffset = lastOffsetRef.current;
     const duration = 6000;
     const tick = (ts: number) => {
       if (!start) start = ts;
-      const progress = ((ts - start) % duration) / duration;
-      const offset = -progress * perim;
-      if (traceRef.current) traceRef.current.style.strokeDashoffset = `${offset}`;
-      if (glowRef.current) glowRef.current.style.strokeDashoffset = `${offset}`;
+
+      // Smoothly fade opacity for transitions
+      const targetOpacity = isGlowActive ? 1 : 0;
+      glowOpacityRef.current += (targetOpacity - glowOpacityRef.current) * 0.06;
+
+      if (isGlowActive) {
+        const progress = ((ts - start) % duration) / duration;
+        pausedOffset = -progress * perim;
+      }
+      lastOffsetRef.current = pausedOffset;
+
+      if (traceRef.current) {
+        traceRef.current.style.strokeDashoffset = `${pausedOffset}`;
+        traceRef.current.style.opacity = `${glowOpacityRef.current * 0.7}`;
+      }
+      if (glowRef.current) {
+        glowRef.current.style.strokeDashoffset = `${pausedOffset}`;
+        glowRef.current.style.opacity = `${glowOpacityRef.current * 0.18}`;
+      }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [perim]);
+  }, [perim, isGlowActive]);
 
   useEffect(() => {
     const ta = textareaRef.current;
