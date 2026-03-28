@@ -4,10 +4,12 @@ interface MessageBubbleProps {
   message: ChatMessage;
   onButtonClick?: (button: SelectionButton) => void;
   isLatest?: boolean;
+  clickedButtons?: Set<string>;
 }
 
-export function MessageBubble({ message, onButtonClick, isLatest }: MessageBubbleProps) {
+export function MessageBubble({ message, onButtonClick, isLatest: _isLatest, clickedButtons }: MessageBubbleProps) {
   const isUser = message.role === "user";
+  const hasButtons = message.buttons && message.buttons.length > 0;
 
   return (
     <div className={`flex flex-col ${isUser ? "items-end" : "items-start"} gap-2`}>
@@ -18,12 +20,10 @@ export function MessageBubble({ message, onButtonClick, isLatest }: MessageBubbl
             : "bg-transparent text-foreground"
         }`}
       >
-        {/* Render markdown-like bold */}
         {message.content.split(/(\*\*.*?\*\*)/).map((part, i) => {
           if (part.startsWith("**") && part.endsWith("**")) {
             return <strong key={i}>{part.slice(2, -2)}</strong>;
           }
-          // Handle bullet points
           if (part.includes("\n")) {
             return part.split("\n").map((line, j) => {
               const trimmed = line.trim();
@@ -35,10 +35,7 @@ export function MessageBubble({ message, onButtonClick, isLatest }: MessageBubbl
                   </div>
                 );
               }
-              if (trimmed.startsWith("✅")) {
-                return <div key={`${i}-${j}`}>{trimmed}</div>;
-              }
-              if (trimmed.startsWith("❌")) {
+              if (trimmed.startsWith("✅") || trimmed.startsWith("❌")) {
                 return <div key={`${i}-${j}`}>{trimmed}</div>;
               }
               return j > 0 ? <span key={`${i}-${j}`}><br />{line}</span> : <span key={`${i}-${j}`}>{line}</span>;
@@ -48,18 +45,25 @@ export function MessageBubble({ message, onButtonClick, isLatest }: MessageBubbl
         })}
       </div>
 
-      {/* Selection buttons */}
-      {isLatest && message.buttons && message.buttons.length > 0 && (
+      {/* Buttons stay visible on ALL assistant messages, not just latest */}
+      {hasButtons && (
         <div className="flex flex-wrap gap-2 max-w-[85%]">
-          {message.buttons.map((btn) => (
-            <button
-              key={btn.id}
-              onClick={() => onButtonClick?.(btn)}
-              className="px-4 py-2 text-sm rounded-full border border-border bg-background text-foreground hover:bg-muted transition-colors"
-            >
-              {btn.label}
-            </button>
-          ))}
+          {message.buttons!.map((btn) => {
+            const isClicked = clickedButtons?.has(`${btn.type}:${btn.value}`);
+            return (
+              <button
+                key={btn.id}
+                onClick={() => onButtonClick?.(btn)}
+                className={`px-4 py-2 text-sm rounded-full border transition-colors ${
+                  isClicked
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border bg-background text-foreground hover:bg-muted"
+                }`}
+              >
+                {btn.label}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>
