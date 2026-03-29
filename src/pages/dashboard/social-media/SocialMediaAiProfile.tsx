@@ -15,6 +15,9 @@ export default function SocialMediaAiProfile() {
   const { profile, isLoading, updateProfile, isSaving } = useSocialBrandProfile();
   const { workspace } = useSocialWorkspace();
   const { analyzeUrl, isAnalyzing } = useAIProfileAnalyzer();
+  const { generateTopics } = useAITopicGeneration();
+  const { bulkCreate } = useSocialTopics(workspace?.id);
+  const { createCategory, categories } = useSocialTopicCategories(workspace?.id);
 
   const [localProfile, setLocalProfile] = useState<Record<string, unknown>>({});
 
