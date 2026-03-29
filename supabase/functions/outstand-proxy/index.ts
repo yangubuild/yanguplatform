@@ -9,6 +9,21 @@ const corsHeaders = {
 
 const OUTSTAND_BASE = "https://api.outstand.so/v1";
 
+// Map YANGU provider keys to Outstand network identifiers
+const PROVIDER_TO_NETWORK: Record<string, string> = {
+  facebook: "facebook",
+  instagram: "instagram",
+  instagram_story: "instagram",
+  x: "x",
+  linkedin_company: "linkedin",
+  linkedin_personal: "linkedin",
+  tiktok: "tiktok",
+  youtube: "youtube",
+  threads: "threads",
+  pinterest: "pinterest",
+  snapchat: "snapchat",
+};
+
 function getSupabaseAdmin() {
   return createClient(
     Deno.env.get("SUPABASE_URL")!,
@@ -55,7 +70,7 @@ async function verifyWebhookSignature(req: Request, rawBody: string): Promise<bo
   const secret = Deno.env.get("OUTSTAND_WEBHOOK_SECRET");
   if (!secret) {
     log("webhook_sig_skip", { reason: "OUTSTAND_WEBHOOK_SECRET not set" });
-    return true; // Allow if no secret configured yet
+    return true;
   }
   const sig = req.headers.get("x-outstand-signature") || req.headers.get("x-webhook-signature");
   if (!sig) {
@@ -98,7 +113,6 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Read raw body for both parsing and signature verification
   const rawBody = await req.text();
   let body: Record<string, unknown>;
   try {
@@ -115,7 +129,7 @@ serve(async (req) => {
       case "health": {
         try {
           getApiKey();
-          const res = await fetch(`${OUTSTAND_BASE}/accounts`, {
+          const res = await fetch(`${OUTSTAND_BASE}/social-accounts`, {
             method: "GET",
             headers: {
               Authorization: `Bearer ${getApiKey()}`,
@@ -123,6 +137,8 @@ serve(async (req) => {
             },
           });
           log("health_check", { ok: res.ok, status: res.status });
+          // Consume body
+          await res.text();
           return jsonResponse({
             ok: res.ok,
             status: res.status,
@@ -134,113 +150,121 @@ serve(async (req) => {
       }
 
       // ── Get OAuth connect URL ───────────────────────────
+      // Outstand API: POST /v1/social-networks/{network}/auth-url
       case "get_connect_url": {
         const { provider, redirectUrl, workspaceId } = params;
         if (!provider) return errorResponse("provider is required", 400);
 
-        log("oauth_connect_started", { provider, workspaceId });
+        const network = PROVIDER_TO_NETWORK[provider as string];
+        if (!network) return errorResponse(`Unsupported provider: ${provider}`, 400);
 
-        const res = await outstandFetch("/auth/connect", "POST", {
-          provider,
-          redirect_url: redirectUrl,
-          metadata: { workspace_id: workspaceId },
-        });
+        log("oauth_connect_started", { provider, network, workspaceId });
+
+        const requestBody: Record<string, unknown> = {};
+        if (redirectUrl) requestBody.redirect_uri = redirectUrl;
+        if (workspaceId) requestBody.tenant_id = workspaceId as string;
+
+        const res = await outstandFetch(`/social-networks/${network}/auth-url`, "POST", requestBody);
         const data = await res.json();
+
         return jsonResponse({
-          url: data.url || data.auth_url || data.connect_url,
+          url: data.auth_url || data.url || data.connect_url,
           state: data.state,
         });
       }
 
       // ── OAuth callback exchange ─────────────────────────
+      // Outstand handles callback automatically via redirect_uri.
+      // This action persists the account after user returns.
       case "oauth_callback": {
         const { code, state, workspaceId } = params;
-        if (!code) return errorResponse("code is required", 400);
+        log("oauth_callback_received", { hasCode: !!code, hasState: !!state, workspaceId });
 
-        log("oauth_callback_received", { hasCode: true, hasState: !!state });
-
-        const res = await outstandFetch("/auth/callback", "POST", {
-          code,
-          state,
-        });
+        // After OAuth, the account appears in social-accounts list.
+        // Fetch latest accounts and find the new one.
+        const res = await outstandFetch("/social-accounts", "GET");
         const data = await res.json();
+        const accounts = data.data || data.accounts || [];
 
-        // Persist to DB
-        if (data.account) {
-          const supabase = getSupabaseAdmin();
-          const accountData: Record<string, unknown> = {
-            workspace_id: workspaceId,
-            provider: data.account.provider || "unknown",
-            provider_user_id: data.account.id || data.account.provider_user_id,
-            display_name: data.account.name || data.account.display_name || "",
-            avatar_url: data.account.avatar_url || null,
-            account_type: data.account.account_type || "personal",
-            account_handle: data.account.handle || data.account.username || null,
-            status: "active",
-            scopes: data.account.scopes || [],
-            metadata: data.account.metadata || data.account,
-            last_synced_at: new Date().toISOString(),
-          };
+        // Try to find the most recently connected account
+        const supabase = getSupabaseAdmin();
+        let persistedAccount = null;
 
-          // Check if we already have this account linked
-          const { data: existing } = await supabase
+        if (accounts.length > 0 && workspaceId) {
+          // Get existing account IDs to find the new one
+          const { data: existingAccounts } = await supabase
             .from("social_connected_accounts")
-            .select("id")
-            .eq("workspace_id", workspaceId)
-            .eq("provider_user_id", accountData.provider_user_id)
-            .eq("provider", accountData.provider)
-            .maybeSingle();
+            .select("provider_user_id")
+            .eq("workspace_id", workspaceId);
 
-          if (existing) {
-            await supabase
-              .from("social_connected_accounts")
-              .update({ ...accountData, updated_at: new Date().toISOString() })
-              .eq("id", existing.id);
-            accountData.id = existing.id;
-          } else {
-            const { data: inserted } = await supabase
-              .from("social_connected_accounts")
-              .insert(accountData)
-              .select("id")
-              .single();
-            if (inserted) accountData.id = inserted.id;
+          const existingIds = new Set((existingAccounts || []).map(a => a.provider_user_id));
+
+          for (const acct of accounts) {
+            const acctId = acct.id || acct.provider_user_id;
+            if (!existingIds.has(acctId)) {
+              // New account found - persist it
+              const accountData = {
+                workspace_id: workspaceId,
+                user_id: workspaceId, // workspace_id is user_id in our model
+                provider: acct.platform || acct.provider || "unknown",
+                provider_user_id: acctId,
+                display_name: acct.name || acct.username || acct.display_name || "",
+                avatar_url: acct.picture || acct.avatar_url || null,
+                account_type: acct.account_type || "personal",
+                account_handle: acct.username || acct.handle || null,
+                status: "active",
+                scopes: acct.scopes || [],
+                metadata: acct,
+                last_synced_at: new Date().toISOString(),
+              };
+
+              const { data: inserted } = await supabase
+                .from("social_connected_accounts")
+                .insert(accountData)
+                .select("id")
+                .single();
+
+              if (inserted) {
+                persistedAccount = { ...accountData, id: inserted.id };
+                log("account_persisted", { id: inserted.id, provider: accountData.provider });
+              }
+            }
           }
-
-          log("account_persisted", { id: accountData.id, provider: accountData.provider });
-          return jsonResponse({ account: accountData });
         }
 
-        return jsonResponse({ account: data });
+        return jsonResponse({ account: persistedAccount, accounts_found: accounts.length });
       }
 
       // ── List accounts ───────────────────────────────────
+      // Outstand API: GET /v1/social-accounts
       case "list_accounts": {
-        const res = await outstandFetch("/accounts", "GET");
+        const res = await outstandFetch("/social-accounts", "GET");
         const data = await res.json();
-        return jsonResponse({ accounts: data.accounts || data.data || [] });
+        return jsonResponse({ accounts: data.data || data.accounts || [] });
       }
 
       // ── Refresh account ─────────────────────────────────
       case "refresh_account": {
         const { accountId } = params;
         if (!accountId) return errorResponse("accountId is required", 400);
-        const res = await outstandFetch(`/accounts/${accountId}`, "GET");
+        const res = await outstandFetch(`/social-accounts/${accountId}`, "GET");
         const data = await res.json();
+        const acct = data.data || data;
 
         const supabase = getSupabaseAdmin();
         await supabase
           .from("social_connected_accounts")
           .update({
-            display_name: data.name || data.display_name,
-            avatar_url: data.avatar_url,
-            status: data.status || "active",
+            display_name: acct.name || acct.display_name,
+            avatar_url: acct.picture || acct.avatar_url,
+            status: "active",
             last_synced_at: new Date().toISOString(),
-            metadata: data,
+            metadata: acct,
             updated_at: new Date().toISOString(),
           })
           .eq("provider_user_id", accountId);
 
-        return jsonResponse({ account: data });
+        return jsonResponse({ account: acct });
       }
 
       // ── Disconnect account ──────────────────────────────
@@ -248,9 +272,9 @@ serve(async (req) => {
         const { accountId } = params;
         if (!accountId) return errorResponse("accountId is required", 400);
         try {
-          await outstandFetch(`/accounts/${accountId}/disconnect`, "POST");
+          await outstandFetch(`/social-accounts/${accountId}`, "DELETE");
         } catch {
-          // Outstand may not have a disconnect endpoint
+          // Outstand may not support delete, fall through
         }
 
         const supabase = getSupabaseAdmin();
@@ -264,51 +288,69 @@ serve(async (req) => {
       }
 
       // ── Create / publish post ───────────────────────────
+      // Outstand API: POST /v1/posts with { containers, socialAccountIds }
       case "create_post":
       case "publish_post": {
-        const { accountId, caption, media_urls, platform_payload } = params;
-        if (!accountId) return errorResponse("accountId is required", 400);
+        const { accountId, caption, media_urls, platform_payload, socialAccountIds } = params;
+        const targetIds = (socialAccountIds as string[]) || (accountId ? [accountId as string] : []);
+        if (!targetIds.length) return errorResponse("accountId or socialAccountIds is required", 400);
 
-        log("post_publish_started", { accountId, action });
+        log("post_publish_started", { targetIds, action });
 
-        const res = await outstandFetch("/posts", "POST", {
-          account_id: accountId,
-          content: caption,
-          media_urls: media_urls || [],
-          ...(platform_payload || {}),
-        });
+        const container: Record<string, unknown> = { content: caption };
+        if ((media_urls as string[])?.length) {
+          container.media = (media_urls as string[]).map(url => ({ url }));
+        }
+
+        const postBody: Record<string, unknown> = {
+          containers: [container],
+          socialAccountIds: targetIds,
+          ...(platform_payload as Record<string, unknown> || {}),
+        };
+
+        const res = await outstandFetch("/posts", "POST", postBody);
         const data = await res.json();
+        const post = data.data || data;
 
-        log("post_published", { provider_post_id: data.id || data.post_id });
+        log("post_published", { provider_post_id: post.id });
         return jsonResponse({
-          provider_post_id: data.id || data.post_id,
-          url: data.url,
-          metadata: data,
+          provider_post_id: post.id,
+          url: post.url,
+          metadata: post,
         });
       }
 
       // ── Schedule post ───────────────────────────────────
+      // Outstand: same /posts endpoint with scheduledAt field
       case "schedule_post": {
-        const { accountId, caption, media_urls, scheduled_for, platform_payload } = params;
-        if (!accountId) return errorResponse("accountId is required", 400);
+        const { accountId, caption, media_urls, scheduled_for, platform_payload, socialAccountIds } = params;
+        const targetIds = (socialAccountIds as string[]) || (accountId ? [accountId as string] : []);
+        if (!targetIds.length) return errorResponse("accountId or socialAccountIds is required", 400);
         if (!scheduled_for) return errorResponse("scheduled_for is required", 400);
 
-        log("post_schedule_started", { accountId, scheduled_for });
+        log("post_schedule_started", { targetIds, scheduled_for });
 
-        const res = await outstandFetch("/posts/schedule", "POST", {
-          account_id: accountId,
-          content: caption,
-          media_urls: media_urls || [],
-          scheduled_for,
-          ...(platform_payload || {}),
-        });
+        const container: Record<string, unknown> = { content: caption };
+        if ((media_urls as string[])?.length) {
+          container.media = (media_urls as string[]).map(url => ({ url }));
+        }
+
+        const postBody: Record<string, unknown> = {
+          containers: [container],
+          socialAccountIds: targetIds,
+          scheduledAt: scheduled_for,
+          ...(platform_payload as Record<string, unknown> || {}),
+        };
+
+        const res = await outstandFetch("/posts", "POST", postBody);
         const data = await res.json();
+        const post = data.data || data;
 
-        log("post_scheduled", { provider_post_id: data.id || data.post_id });
+        log("post_scheduled", { provider_post_id: post.id });
         return jsonResponse({
-          provider_post_id: data.id || data.post_id,
-          url: data.url,
-          metadata: data,
+          provider_post_id: post.id,
+          url: post.url,
+          metadata: post,
         });
       }
 
@@ -331,7 +373,6 @@ serve(async (req) => {
 
       // ── Webhook intake (hardened) ───────────────────────
       case "webhook": {
-        // Verify signature
         const sigValid = await verifyWebhookSignature(req, rawBody);
         if (!sigValid) {
           return errorResponse("Invalid webhook signature", 401);
@@ -342,11 +383,9 @@ serve(async (req) => {
         const providerPostId = params.provider_post_id as string | undefined;
         const postId = params.post_id as string | undefined;
 
-        // Build idempotency key to prevent duplicate processing
         const idempotencyKey = params.idempotency_key as string
           || `${eventType}:${providerPostId || postId || ""}:${params.timestamp || Date.now()}`;
 
-        // Check for duplicate
         const { data: existing } = await supabase
           .from("social_publish_events")
           .select("id")
@@ -358,7 +397,6 @@ serve(async (req) => {
           return jsonResponse({ received: true, duplicate: true });
         }
 
-        // Store event
         await supabase.from("social_publish_events").insert({
           event_type: eventType,
           source: "outstand_webhook",
@@ -371,64 +409,34 @@ serve(async (req) => {
 
         log("webhook_received", { eventType, idempotencyKey });
 
-        // Normalize and apply status transitions
         const normalizedStatus = normalizeWebhookStatus(eventType);
 
         if (normalizedStatus && providerPostId) {
-          // Update post targets
           if (["published", "failed", "scheduled"].includes(normalizedStatus)) {
-            const updatePayload: Record<string, unknown> = {
-              status: normalizedStatus,
-            };
-            if (normalizedStatus === "published") {
-              updatePayload.published_at = new Date().toISOString();
-            }
-            if (normalizedStatus === "failed") {
-              updatePayload.error = (params.error as string) || "Provider reported failure";
-            }
-            await supabase
-              .from("social_post_targets")
-              .update(updatePayload)
-              .eq("provider_post_id", providerPostId);
-
+            const updatePayload: Record<string, unknown> = { status: normalizedStatus };
+            if (normalizedStatus === "published") updatePayload.published_at = new Date().toISOString();
+            if (normalizedStatus === "failed") updatePayload.error = (params.error as string) || "Provider reported failure";
+            await supabase.from("social_post_targets").update(updatePayload).eq("provider_post_id", providerPostId);
             log("webhook_target_updated", { providerPostId, status: normalizedStatus });
           }
 
-          // Update parent post status if all targets resolved
           if (postId && ["published", "failed"].includes(normalizedStatus)) {
-            const { data: targets } = await supabase
-              .from("social_post_targets")
-              .select("status")
-              .eq("post_id", postId);
-
+            const { data: targets } = await supabase.from("social_post_targets").select("status").eq("post_id", postId);
             if (targets?.length) {
               const allPublished = targets.every(t => t.status === "published");
               const anyFailed = targets.some(t => t.status === "failed");
               if (allPublished) {
-                await supabase.from("social_posts").update({
-                  status: "published",
-                  published_at: new Date().toISOString(),
-                  updated_at: new Date().toISOString(),
-                }).eq("id", postId);
-                log("webhook_post_status_synced", { postId, status: "published" });
+                await supabase.from("social_posts").update({ status: "published", published_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", postId);
               } else if (anyFailed && targets.every(t => ["published", "failed"].includes(t.status))) {
-                await supabase.from("social_posts").update({
-                  status: "failed",
-                  updated_at: new Date().toISOString(),
-                }).eq("id", postId);
-                log("webhook_post_status_synced", { postId, status: "failed" });
+                await supabase.from("social_posts").update({ status: "failed", updated_at: new Date().toISOString() }).eq("id", postId);
               }
             }
           }
         }
 
-        // Handle account status webhooks
         if (eventType.startsWith("account.") && params.account_id) {
           const accountStatus = normalizedStatus || "error";
-          await supabase
-            .from("social_connected_accounts")
-            .update({ status: accountStatus, updated_at: new Date().toISOString() })
-            .eq("provider_user_id", params.account_id);
+          await supabase.from("social_connected_accounts").update({ status: accountStatus, updated_at: new Date().toISOString() }).eq("provider_user_id", params.account_id);
           log("webhook_account_updated", { accountId: params.account_id, status: accountStatus });
         }
 
