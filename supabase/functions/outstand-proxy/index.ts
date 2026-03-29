@@ -160,6 +160,15 @@ serve(async (req) => {
 
         log("oauth_connect_started", { provider, network, workspaceId });
 
+        // Auto-configure the social network if not already configured
+        try {
+          await outstandFetch(`/social-networks`, "POST", { network });
+          log("network_configured", { network });
+        } catch (configErr) {
+          // 409 or similar means already configured — safe to ignore
+          log("network_configure_skipped", { network, reason: configErr.message });
+        }
+
         const requestBody: Record<string, unknown> = {};
         if (redirectUrl) requestBody.redirect_uri = redirectUrl;
         if (workspaceId) requestBody.tenant_id = workspaceId as string;
