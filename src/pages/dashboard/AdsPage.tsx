@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sparkles, Megaphone } from "lucide-react";
+import { Sparkles, Megaphone, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CampaignWizard } from "@/components/ads/CampaignWizard";
 import { AiVisibilityWizard } from "@/components/ads/AiVisibilityWizard";
