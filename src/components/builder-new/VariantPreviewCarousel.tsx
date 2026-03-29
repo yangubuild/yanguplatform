@@ -1,15 +1,14 @@
-import { useState, useRef, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { useState } from "react";
+import { ChevronLeft, ChevronRight, Check, Loader2 } from "lucide-react";
 
 interface VariantPreviewCarouselProps {
-  variants: string[]; // Array of HTML strings
+  variants: string[];
   onChoose: (index: number) => void;
   isGenerating: boolean;
 }
 
 export function VariantPreviewCarousel({ variants, onChoose, isGenerating }: VariantPreviewCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   const canPrev = activeIndex > 0;
   const canNext = activeIndex < variants.length - 1;
@@ -21,9 +20,8 @@ export function VariantPreviewCarousel({ variants, onChoose, isGenerating }: Var
   if (isGenerating) {
     return (
       <div className="flex flex-col items-center justify-center h-full gap-4">
-        <div className="relative w-16 h-16">
-          <div className="absolute inset-0 rounded-full border-4 border-muted" />
-          <div className="absolute inset-0 rounded-full border-4 border-t-primary animate-spin" />
+        <div className="relative w-14 h-14">
+          <Loader2 className="w-14 h-14 text-primary animate-spin" />
         </div>
         <p className="text-sm font-medium text-foreground">Generating your website variants...</p>
         <p className="text-xs text-muted-foreground">Creating 3 unique designs based on your selections</p>
@@ -61,32 +59,30 @@ export function VariantPreviewCarousel({ variants, onChoose, isGenerating }: Var
       </div>
 
       {/* Preview area */}
-      <div ref={containerRef} className="flex-1 relative overflow-hidden">
-        {/* Navigation arrows */}
+      <div className="flex-1 relative overflow-hidden">
         {canPrev && (
           <button
             onClick={() => goTo(activeIndex - 1)}
-            className="absolute left-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-background/90 border border-border shadow-lg flex items-center justify-center hover:bg-muted transition-colors"
+            className="absolute left-3 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-background/90 border border-border shadow-lg flex items-center justify-center hover:bg-muted transition-colors"
           >
-            <ChevronLeft className="h-5 w-5 text-foreground" />
+            <ChevronLeft className="h-4 w-4 text-foreground" />
           </button>
         )}
         {canNext && (
           <button
             onClick={() => goTo(activeIndex + 1)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-background/90 border border-border shadow-lg flex items-center justify-center hover:bg-muted transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-background/90 border border-border shadow-lg flex items-center justify-center hover:bg-muted transition-colors"
           >
-            <ChevronRight className="h-5 w-5 text-foreground" />
+            <ChevronRight className="h-4 w-4 text-foreground" />
           </button>
         )}
 
-        {/* Slides */}
         <div
           className="flex h-full transition-transform duration-500 ease-out"
           style={{ transform: `translateX(-${activeIndex * 100}%)` }}
         >
           {variants.map((html, i) => (
-            <div key={i} className="w-full h-full shrink-0 flex items-center justify-center p-4">
+            <div key={i} className="w-full h-full shrink-0 flex items-center justify-center p-3">
               <div className="relative w-full h-full rounded-xl overflow-hidden border border-border shadow-xl bg-white">
                 <iframe
                   srcDoc={html}
@@ -102,12 +98,10 @@ export function VariantPreviewCarousel({ variants, onChoose, isGenerating }: Var
 
       {/* Choose CTA */}
       <div className="shrink-0 px-4 py-3 border-t border-border flex items-center justify-between">
-        <p className="text-xs text-muted-foreground">
-          Swipe between designs to compare
-        </p>
+        <p className="text-xs text-muted-foreground">Browse designs to compare</p>
         <button
           onClick={() => onChoose(activeIndex)}
-          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm hover:opacity-90 transition-opacity"
+          className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-primary text-primary-foreground font-semibold text-sm hover:opacity-90 transition-opacity"
         >
           <Check className="h-4 w-4" />
           Choose this design
