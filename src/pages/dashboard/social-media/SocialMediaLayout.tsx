@@ -1,5 +1,6 @@
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft, Plus, Home, FileText, Calendar, BarChart3, BookOpen, MessageCircle, Bot, Settings } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const NAV_ITEMS = [
   { icon: Home, label: "Home", path: "/dashboard/social-media" },
@@ -22,6 +23,7 @@ export default function SocialMediaLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname;
+  const isMobile = useIsMobile();
 
   const isActive = (path: string) => {
     if (path === "/dashboard/social-media") return currentPath === path;
@@ -32,51 +34,63 @@ export default function SocialMediaLayout() {
     <div className="flex flex-col h-full min-h-screen bg-background">
       {/* Internal top navigator */}
       <div className="shrink-0 border-b border-border bg-card/50 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="flex items-center gap-1 h-12 overflow-x-auto scrollbar-none">
+        <div className="max-w-6xl mx-auto px-2 sm:px-4">
+          <nav
+            className="flex items-center gap-1 h-11 sm:h-12 overflow-x-auto"
+            style={{
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+              WebkitOverflowScrolling: "touch",
+            }}
+          >
             {/* Back to Dashboard */}
             <button
               onClick={() => navigate("/dashboard/home")}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors shrink-0"
+              className="flex items-center gap-1 px-2 sm:px-3 py-1.5 text-[11px] sm:text-xs font-medium text-muted-foreground hover:text-foreground transition-colors shrink-0 whitespace-nowrap"
             >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              Dashboard
+              <ArrowLeft className="h-3.5 w-3.5 shrink-0" />
+              {isMobile ? "" : "Dashboard"}
             </button>
 
-            <span className="w-px h-5 bg-border mx-1 shrink-0" />
+            <span className="w-px h-5 bg-border shrink-0" />
 
             {/* Create Post */}
             <button
               onClick={() => navigate("/dashboard/social-media/posts/create")}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-accent/15 text-accent rounded-lg hover:bg-accent/25 transition-colors shrink-0"
+              className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-semibold bg-accent/15 text-accent rounded-lg hover:bg-accent/25 transition-colors shrink-0 whitespace-nowrap"
             >
-              <Plus className="h-3.5 w-3.5" />
+              <Plus className="h-3.5 w-3.5 shrink-0" />
               Create Post
             </button>
 
-            <span className="w-px h-5 bg-border mx-1 shrink-0" />
+            <span className="w-px h-5 bg-border shrink-0" />
 
             {/* Home */}
             {NAV_ITEMS.map((item) => (
               <NavButton key={item.path} item={item} active={isActive(item.path)} onClick={() => navigate(item.path)} />
             ))}
 
-            <span className="w-px h-5 bg-border mx-1 shrink-0" />
-
             {/* CONTENT group */}
-            <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider px-2 shrink-0">Content</span>
+            {!isMobile && <span className="w-px h-5 bg-border shrink-0" />}
+            {!isMobile && (
+              <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider px-1.5 shrink-0 whitespace-nowrap">Content</span>
+            )}
             {CONTENT_ITEMS.map((item) => (
               <NavButton key={item.path} item={item} active={isActive(item.path)} onClick={() => navigate(item.path)} />
             ))}
 
-            <span className="w-px h-5 bg-border mx-1 shrink-0" />
-
             {/* STRATEGY group */}
-            <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider px-2 shrink-0">Strategy</span>
+            {!isMobile && <span className="w-px h-5 bg-border shrink-0" />}
+            {!isMobile && (
+              <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider px-1.5 shrink-0 whitespace-nowrap">Strategy</span>
+            )}
             {STRATEGY_ITEMS.map((item) => (
               <NavButton key={item.path} item={item} active={isActive(item.path)} onClick={() => navigate(item.path)} />
             ))}
-          </div>
+
+            {/* Right padding for scroll end */}
+            <div className="shrink-0 w-2" />
+          </nav>
         </div>
       </div>
 
@@ -93,13 +107,13 @@ function NavButton({ item, active, onClick }: { item: { icon: any; label: string
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg transition-colors shrink-0 ${
+      className={`flex items-center gap-1 px-2 sm:px-2.5 py-1.5 text-[11px] sm:text-xs font-medium rounded-lg transition-colors shrink-0 whitespace-nowrap ${
         active
           ? "bg-accent/15 text-accent"
           : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
       }`}
     >
-      <Icon className="h-3.5 w-3.5" />
+      <Icon className="h-3.5 w-3.5 shrink-0" />
       {item.label}
     </button>
   );
