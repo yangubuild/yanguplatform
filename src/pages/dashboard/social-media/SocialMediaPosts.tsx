@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { FileText, Plus, MoreHorizontal, Trash2, Copy, Archive, Send, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSocialPosts } from "@/hooks/social/useSocialPosts";
-import { CreatePostDialog } from "@/components/social-media/CreatePostDialog";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import type { PostStatus, SocialPost } from "@/types/socialMedia";
