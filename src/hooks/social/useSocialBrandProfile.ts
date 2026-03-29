@@ -53,26 +53,34 @@ export function useSocialBrandProfile(workspaceId?: string) {
   });
 
   const upsertMutation = useMutation({
-    mutationFn: async (input: UpdateBrandProfileInput) => {
+    mutationFn: async (input: UpdateBrandProfileInput & Record<string, unknown>) => {
       if (!user) throw new Error("Not authenticated");
 
-      const payload = {
+      const payload: Record<string, unknown> = {
         user_id: user.id,
         workspace_id: workspaceId || null,
         tone: input.tone_of_voice,
         brand_voice: input.brand_voice,
         target_audience: input.audience_notes,
+        caption_rules: input.caption_rules || [],
+        banned_terms: input.banned_terms || [],
+        preferred_ctas: input.preferred_ctas || [],
+        brand_keywords: input.brand_keywords || [],
+        negative_keywords: input.negative_keywords || [],
+        hashtag_rules: input.hashtag_rules || null,
+        emoji_policy: input.emoji_policy || null,
+        language: input.language || null,
+        positioning: input.positioning || null,
+        visual_style: input.visual_style || null,
         metadata: {
-          caption_rules: input.caption_rules,
-          banned_terms: input.banned_terms,
-          preferred_ctas: input.preferred_ctas,
-          hashtag_rules: input.hashtag_rules,
-          emoji_policy: input.emoji_policy,
-          language: input.language,
-          positioning: input.positioning,
-          visual_style: input.visual_style,
-          brand_keywords: input.brand_keywords,
-          negative_keywords: input.negative_keywords,
+          business_name: input.business_name,
+          industry: input.industry,
+          business_description: input.business_description,
+          website: input.website,
+          email: input.email,
+          phone: input.phone,
+          caption_ending: input.caption_ending,
+          visual_metadata: input.visual_metadata,
         },
         updated_at: new Date().toISOString(),
       };
