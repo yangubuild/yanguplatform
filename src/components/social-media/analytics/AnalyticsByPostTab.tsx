@@ -45,7 +45,7 @@ export function AnalyticsByPostTab({
       // Get published posts with their targets and any snapshot metrics
       let postsQ = supabase
         .from("social_posts")
-        .select("id, content, platform, published_at, primary_media_url, metadata")
+        .select("id, content, platform, published_at, primary_media_url")
         .eq("created_by", user.id)
         .eq("status", "published")
         .gte("published_at", dateRange.start_date)

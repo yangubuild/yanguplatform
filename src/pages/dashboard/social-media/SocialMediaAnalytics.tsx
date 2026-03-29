@@ -17,13 +17,8 @@ export default function SocialMediaAnalytics() {
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<AnalyticsDateRange>(defaultRange);
 
-  const { accounts, activeAccounts } = useConnectedAccounts();
+  const { activeAccounts } = useConnectedAccounts();
   const { summary, isReady, isLoading } = useSocialAnalytics(dateRange, selectedAccountId ?? undefined);
-
-  // Fetch snapshots for chart (reuse analytics service)
-  const { useQuery } = require("@tanstack/react-query");
-  const { useAuth } = require("@/hooks/useAuth");
-  const { analyticsService } = require("@/services/socialMedia");
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
