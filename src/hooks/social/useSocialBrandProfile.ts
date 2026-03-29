@@ -89,13 +89,13 @@ export function useSocialBrandProfile(workspaceId?: string) {
       if (existing) {
         const { error } = await supabase
           .from("social_brand_profiles")
-          .update(payload)
+          .update(payload as any)
           .eq("id", existing.id);
         if (error) throw error;
       } else {
         const { error } = await supabase
           .from("social_brand_profiles")
-          .insert(payload);
+          .insert(payload as any);
         if (error) throw error;
       }
     },
