@@ -489,6 +489,18 @@ const App = () => (
                   <Route path="dashboard/agency/*" element={<Navigate to="/dashboard/agency" replace />} />
                   <Route path="dashboard/*" element={<Navigate to="/dashboard" replace />} />
 
+                  {/* Social Media module */}
+                  <Route path="social-media" element={<SocialMediaLayout />}>
+                    <Route index element={<SocialMediaHome />} />
+                    <Route path="posts" element={<SocialMediaPosts />} />
+                    <Route path="calendar" element={<SocialMediaCalendar />} />
+                    <Route path="analytics" element={<SocialMediaAnalytics />} />
+                    <Route path="library" element={<SocialMediaLibrary />} />
+                    <Route path="topics" element={<SocialMediaTopics />} />
+                    <Route path="ai-profile" element={<SocialMediaAiProfile />} />
+                    <Route path="workspace" element={<SocialMediaWorkspace />} />
+                  </Route>
+
                   {/* Agency routes — agency only */}
                   <Route path="agency" element={<RequireRole allowed={["agency"]}><AgencyLayout /></RequireRole>}>
                     <Route index element={<AgencyHomePage />} />
