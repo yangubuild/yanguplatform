@@ -235,3 +235,35 @@ export function PostCard({ post, onAction, onEdit, onDetails }: Props) {
     </div>
   );
 }
+
+/** Compact multi-image preview — shows main image + thumbnail strip */
+function MultiImagePreview({ urls }: { urls: string[] }) {
+  const [activeIdx, setActiveIdx] = useState(0);
+  return (
+    <div>
+      <div className="w-full overflow-hidden" style={{ aspectRatio: "4/5" }}>
+        <img
+          src={urls[activeIdx]}
+          alt=""
+          className="w-full h-full object-cover"
+          loading="lazy"
+        />
+      </div>
+      {urls.length > 1 && (
+        <div className="flex gap-1 px-3 py-1.5 overflow-x-auto">
+          {urls.map((url, i) => (
+            <button
+              key={i}
+              onClick={() => setActiveIdx(i)}
+              className={`w-10 h-10 rounded overflow-hidden shrink-0 border-2 transition-colors ${
+                i === activeIdx ? "border-accent" : "border-transparent opacity-60"
+              }`}
+            >
+              <img src={url} alt="" className="w-full h-full object-cover" />
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
