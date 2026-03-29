@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useSocialPosts } from "@/hooks/social/useSocialPosts";
 import { useConnectedAccounts } from "@/hooks/social/useConnectedAccounts";
 import { useSocialWorkspace } from "@/hooks/social/useSocialWorkspace";
+import { useSocialBrandProfile } from "@/hooks/social/useSocialBrandProfile";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { DescribePostModal } from "@/components/social-media/create/DescribePostModal";
@@ -109,6 +110,7 @@ function ScratchWorkspace({ onOpenDesign }: { onOpenDesign: () => void }) {
   const { createPost, schedulePost, publishPost, isCreating, isPublishing } = useSocialPosts();
   const { accounts } = useConnectedAccounts();
   const { workspace } = useSocialWorkspace();
+  const { profile: brandProfile } = useSocialBrandProfile();
   const [caption, setCaption] = useState("");
   const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
   const [scheduledFor, setScheduledFor] = useState("");
@@ -131,11 +133,23 @@ function ScratchWorkspace({ onOpenDesign }: { onOpenDesign: () => void }) {
     if (isGenerating) return;
     setIsGenerating(true);
     try {
+      const profileMeta = brandProfile?.metadata as Record<string, unknown> | null;
       const { data, error: fnError } = await supabase.functions.invoke("social-ai-caption", {
         body: {
           topic: caption || "general business post",
           style: "short",
-          business_description: workspace?.business_description || "",
+          business_description: workspace?.business_description || (profileMeta?.business_description as string) || "",
+          brand_profile: brandProfile ? {
+            tone_of_voice: brandProfile.tone_of_voice,
+            brand_voice: brandProfile.brand_voice,
+            caption_rules: brandProfile.caption_rules,
+            preferred_ctas: brandProfile.preferred_ctas,
+            brand_keywords: brandProfile.brand_keywords,
+            hashtag_rules: brandProfile.hashtag_rules,
+            emoji_policy: brandProfile.emoji_policy,
+            target_audience: brandProfile.target_audience,
+            business_description: (profileMeta?.business_description as string) || workspace?.business_description || "",
+          } : undefined,
         },
       });
       if (fnError) throw fnError;

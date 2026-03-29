@@ -12,17 +12,28 @@ serve(async (req) => {
   }
 
   try {
-    const { topic, style, business_description, tone, hashtag_behavior } = await req.json();
+    const { topic, style, business_description, tone, hashtag_behavior, brand_profile } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
+    // Build enhanced system prompt from profile if available
+    const bp = brand_profile || {};
+    const voiceRules = bp.tone_of_voice || tone || "professional yet approachable";
+    const captionRules = Array.isArray(bp.caption_rules) ? bp.caption_rules.join("; ") : "";
+    const ctas = Array.isArray(bp.preferred_ctas) ? bp.preferred_ctas : [];
+    const keywords = Array.isArray(bp.brand_keywords) ? bp.brand_keywords.join(", ") : "";
+
     const systemPrompt = `You are a social media copywriter for a business. Write engaging, platform-ready captions.
-${business_description ? `Business: ${business_description}` : ""}
-${tone ? `Tone: ${tone}` : "Tone: professional yet approachable"}
+${business_description || bp.business_description ? `Business: ${business_description || bp.business_description}` : ""}
+${bp.target_audience ? `Audience: ${bp.target_audience}` : ""}
+Tone/Voice: ${voiceRules}
+${captionRules ? `Caption rules: ${captionRules}` : ""}
+${ctas.length > 0 ? `End with one of these CTAs: ${ctas.join(", ")}` : "Include a clear call-to-action"}
+${keywords ? `Include relevant keywords: ${keywords}` : ""}
 Rules:
 - Keep it concise and engaging
-- Include a clear call-to-action
-- ${hashtag_behavior === "none" ? "Do NOT include hashtags" : "Include 3-5 relevant hashtags at the end"}
+- ${(hashtag_behavior || bp.hashtag_rules) === "none" ? "Do NOT include hashtags" : "Include 3-5 relevant hashtags at the end"}
+- ${bp.emoji_policy === "none" ? "Do NOT use emojis" : bp.emoji_policy === "moderate" ? "Use emojis moderately" : "Use emojis sparingly"}
 - Use line breaks for readability
 - Do NOT use markdown formatting
 - Return ONLY the caption text, nothing else`;
