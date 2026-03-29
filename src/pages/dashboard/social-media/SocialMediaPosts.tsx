@@ -100,9 +100,9 @@ export default function SocialMediaPosts() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
+    <div className="w-full px-4 sm:px-6 py-6 overflow-x-hidden">
       {/* ── Top toolbar ── */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-4 max-w-4xl mx-auto">
         <div className="flex items-center gap-1.5">
           <button className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-border text-xs text-muted-foreground hover:text-foreground transition-colors">
             <List className="h-3.5 w-3.5" />
@@ -116,14 +116,14 @@ export default function SocialMediaPosts() {
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
+        <div className="flex items-center gap-0.5 bg-muted/30 rounded-lg p-0.5 overflow-x-auto shrink-0">
           {TABS.map((tab) => {
             const active = activeTab === tab.key;
             return (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
                   active
                     ? "bg-card text-accent shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
@@ -156,18 +156,20 @@ export default function SocialMediaPosts() {
         </div>
       )}
 
-      {/* ── Tab content ── */}
+      {/* ── Tab content — centered narrow feed column ── */}
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
           <div className="animate-pulse text-sm text-muted-foreground">Loading posts…</div>
         </div>
       ) : activeTab === "scheduled" ? (
-        <ScheduledTab
-          posts={posts}
-          onAction={handleAction}
-          onEdit={setEditPost}
-          onDetails={setDetailPost}
-        />
+        <div className="max-w-[480px] mx-auto">
+          <ScheduledTab
+            posts={posts}
+            onAction={handleAction}
+            onEdit={setEditPost}
+            onDetails={setDetailPost}
+          />
+        </div>
       ) : posts.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20">
           <div className="w-16 h-16 rounded-xl bg-muted/30 flex items-center justify-center mb-4">
@@ -183,7 +185,7 @@ export default function SocialMediaPosts() {
           </p>
         </div>
       ) : (
-        <div className="space-y-4 max-w-2xl mx-auto">
+        <div className="space-y-4 max-w-[480px] mx-auto">
           {posts.map((p) => (
             <PostCard
               key={p.id}
