@@ -130,6 +130,7 @@ const SocialMediaTopics = lazy(() => lazyRetry(() => import("./pages/dashboard/s
 const SocialMediaAiProfile = lazy(() => lazyRetry(() => import("./pages/dashboard/social-media/SocialMediaAiProfile")));
 const SocialMediaWorkspace = lazy(() => lazyRetry(() => import("./pages/dashboard/social-media/SocialMediaWorkspace")));
 const SocialMediaCallback = lazy(() => lazyRetry(() => import("./pages/dashboard/social-media/SocialMediaCallback")));
+const SocialMediaCreatePost = lazy(() => lazyRetry(() => import("./pages/dashboard/social-media/SocialMediaCreatePost")));
 
 // Developer Portal (lazy)
 const PortalLayoutModule = lazy(() => lazyRetry(() => import("./components/developers/portal/PortalLayout").then(m => ({ default: m.PortalLayout }))));
@@ -494,6 +495,7 @@ const App = () => (
                   <Route path="social-media" element={<SocialMediaLayout />}>
                     <Route index element={<SocialMediaHome />} />
                     <Route path="posts" element={<SocialMediaPosts />} />
+                    <Route path="posts/create" element={<SocialMediaCreatePost />} />
                     <Route path="calendar" element={<SocialMediaCalendar />} />
                     <Route path="analytics" element={<SocialMediaAnalytics />} />
                     <Route path="library" element={<SocialMediaLibrary />} />
