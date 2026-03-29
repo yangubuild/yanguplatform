@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { X, Sparkles, Loader2, Calendar as CalendarIcon, Send, Save } from "lucide-react";
+import { useState, useRef } from "react";
+import { X, Sparkles, Loader2, Calendar as CalendarIcon, Send, Save, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useConnectedAccounts } from "@/hooks/social/useConnectedAccounts";
@@ -22,8 +22,16 @@ export function CreatePostDialog({ open, onClose }: Props) {
   const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
   const [scheduledFor, setScheduledFor] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState("");
+  const aiLock = useRef(false);
+  const actionLock = useRef(false);
 
   if (!open) return null;
+
+  // Only show active accounts as valid targets
+  const activeAccounts = accounts.filter(
+    (a) => a.status === "active"
+  );
 
   const toggleAccount = (id: string) => {
     setSelectedAccounts((prev) =>
@@ -32,30 +40,49 @@ export function CreatePostDialog({ open, onClose }: Props) {
   };
 
   const handleGenerateCaption = async () => {
+    if (aiLock.current || isGenerating) return;
+    aiLock.current = true;
     setIsGenerating(true);
+    setError("");
     try {
-      const { data, error } = await supabase.functions.invoke("social-ai-caption", {
+      const { data, error: fnError } = await supabase.functions.invoke("social-ai-caption", {
         body: {
           topic: caption || "general business post",
           style: "short",
           business_description: workspace?.business_description || "",
         },
       });
-      if (error) throw error;
+      if (fnError) throw fnError;
       if (data?.caption) {
         setCaption(data.caption);
         toast.success("Caption generated!");
+      } else if (data?.error) {
+        toast.error(data.error);
       }
     } catch (err) {
       toast.error("Failed to generate caption");
       console.error(err);
     } finally {
       setIsGenerating(false);
+      aiLock.current = false;
     }
   };
 
+  const validateScheduleTime = (): boolean => {
+    if (!scheduledFor) return true;
+    const scheduled = new Date(scheduledFor);
+    if (scheduled <= new Date()) {
+      setError("Schedule time must be in the future");
+      return false;
+    }
+    return true;
+  };
+
   const handleSaveDraft = async () => {
+    if (actionLock.current) return;
     if (!caption.trim()) { toast.error("Enter a caption first"); return; }
+    actionLock.current = true;
+    setError("");
     try {
       await createPost({
         workspace_id: workspace?.id || "",
@@ -67,13 +94,20 @@ export function CreatePostDialog({ open, onClose }: Props) {
       toast.success("Draft saved!");
       resetAndClose();
     } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save draft");
       toast.error("Failed to save draft");
+    } finally {
+      actionLock.current = false;
     }
   };
 
   const handleSchedule = async () => {
+    if (actionLock.current) return;
     if (!caption.trim()) { toast.error("Enter a caption first"); return; }
     if (!scheduledFor) { toast.error("Pick a date and time"); return; }
+    if (!validateScheduleTime()) return;
+    actionLock.current = true;
+    setError("");
     try {
       const post = await createPost({
         workspace_id: workspace?.id || "",
@@ -87,13 +121,23 @@ export function CreatePostDialog({ open, onClose }: Props) {
       toast.success("Post scheduled!");
       resetAndClose();
     } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to schedule post");
       toast.error("Failed to schedule post");
+    } finally {
+      actionLock.current = false;
     }
   };
 
   const handlePublishNow = async () => {
+    if (actionLock.current) return;
     if (!caption.trim()) { toast.error("Enter a caption first"); return; }
-    if (!selectedAccounts.length) { toast.error("Select at least one account"); return; }
+    if (!selectedAccounts.length) {
+      setError("Select at least one connected account to publish");
+      toast.error("Select at least one account");
+      return;
+    }
+    actionLock.current = true;
+    setError("");
     try {
       const post = await createPost({
         workspace_id: workspace?.id || "",
@@ -106,7 +150,17 @@ export function CreatePostDialog({ open, onClose }: Props) {
       toast.success("Post published!");
       resetAndClose();
     } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to publish post";
+      if (msg.includes("No provider configured")) {
+        setError("Publishing is not available — no provider connected. Connect an account first.");
+      } else if (msg.includes("Invalid transition")) {
+        setError("This post cannot be published in its current state. Try saving as draft first.");
+      } else {
+        setError(msg);
+      }
       toast.error("Failed to publish post");
+    } finally {
+      actionLock.current = false;
     }
   };
 
@@ -114,8 +168,11 @@ export function CreatePostDialog({ open, onClose }: Props) {
     setCaption("");
     setSelectedAccounts([]);
     setScheduledFor("");
+    setError("");
     onClose();
   };
+
+  const isBusy = isCreating || isPublishing || actionLock.current;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
@@ -129,6 +186,14 @@ export function CreatePostDialog({ open, onClose }: Props) {
             </button>
           </div>
 
+          {/* Error banner */}
+          {error && (
+            <div className="flex items-start gap-2 p-3 mb-4 rounded-lg bg-destructive/10 border border-destructive/20">
+              <AlertCircle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
+              <p className="text-xs text-destructive">{error}</p>
+            </div>
+          )}
+
           {/* Caption */}
           <div className="mb-4">
             <div className="flex items-center justify-between mb-2">
@@ -141,7 +206,7 @@ export function CreatePostDialog({ open, onClose }: Props) {
                 className="text-accent text-xs"
               >
                 {isGenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Sparkles className="h-3.5 w-3.5 mr-1" />}
-                Generate with AI
+                {isGenerating ? "Generating…" : "Generate with AI"}
               </Button>
             </div>
             <textarea
@@ -156,13 +221,13 @@ export function CreatePostDialog({ open, onClose }: Props) {
           {/* Target accounts */}
           <div className="mb-4">
             <label className="text-sm font-semibold text-foreground block mb-2">Post to</label>
-            {accounts.length === 0 ? (
+            {activeAccounts.length === 0 ? (
               <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg p-3">
-                No accounts connected yet. Connect accounts in Workspace settings.
+                No active accounts connected. Connect accounts in Workspace settings first.
               </p>
             ) : (
               <div className="flex flex-wrap gap-2">
-                {accounts.map((acc: SocialConnectedAccount) => (
+                {activeAccounts.map((acc: SocialConnectedAccount) => (
                   <button
                     key={acc.id}
                     onClick={() => toggleAccount(acc.id)}
@@ -172,6 +237,9 @@ export function CreatePostDialog({ open, onClose }: Props) {
                         : "border-border text-muted-foreground hover:border-accent/40"
                     }`}
                   >
+                    {acc.avatar_url && (
+                      <img src={acc.avatar_url} alt="" className="w-4 h-4 rounded-full" />
+                    )}
                     {acc.provider_account_name || acc.provider}
                   </button>
                 ))}
@@ -185,24 +253,24 @@ export function CreatePostDialog({ open, onClose }: Props) {
             <Input
               type="datetime-local"
               value={scheduledFor}
-              onChange={(e) => setScheduledFor(e.target.value)}
+              onChange={(e) => { setScheduledFor(e.target.value); setError(""); }}
               min={new Date().toISOString().slice(0, 16)}
             />
           </div>
 
           {/* Actions */}
           <div className="flex flex-wrap items-center gap-3 border-t border-border pt-4">
-            <Button variant="outline" onClick={handleSaveDraft} disabled={isCreating}>
-              <Save className="h-4 w-4 mr-1.5" />
+            <Button variant="outline" onClick={handleSaveDraft} disabled={isBusy}>
+              {isCreating ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <Save className="h-4 w-4 mr-1.5" />}
               Save Draft
             </Button>
             {scheduledFor && (
-              <Button variant="outline" onClick={handleSchedule} disabled={isCreating}>
+              <Button variant="outline" onClick={handleSchedule} disabled={isBusy}>
                 <CalendarIcon className="h-4 w-4 mr-1.5" />
                 Schedule
               </Button>
             )}
-            <Button variant="accent" onClick={handlePublishNow} disabled={isCreating || isPublishing} className="ml-auto">
+            <Button variant="accent" onClick={handlePublishNow} disabled={isBusy} className="ml-auto">
               {isPublishing ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <Send className="h-4 w-4 mr-1.5" />}
               Publish Now
             </Button>
