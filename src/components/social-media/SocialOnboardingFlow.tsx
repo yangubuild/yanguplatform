@@ -50,11 +50,46 @@ export function SocialOnboardingFlow({ onComplete }: Props) {
 
   const handleContentPlanNext = () => setStep("connect_socials");
 
+  const providerMap: Record<string, string> = {
+    "Facebook Page": "facebook",
+    "Instagram": "instagram",
+    "Instagram Story": "instagram_story",
+    "X": "x",
+    "LinkedIn Company Page": "linkedin_company",
+    "LinkedIn Personal Profile": "linkedin_personal",
+    "TikTok": "tiktok",
+  };
+
   const handleConnectSocial = (name: string) => {
     if (name === "Instagram" || name === "Instagram Story") {
       setShowInstaHelp(true);
+      return;
     }
-    // Outstand OAuth would be triggered here in phase 2
+    const provider = providerMap[name];
+    if (provider) {
+      initiateConnect(provider);
+    }
+  };
+
+  const initiateConnect = async (provider: string) => {
+    try {
+      const { data } = await import("@/integrations/supabase/client").then(m => ({
+        data: m.supabase.functions.invoke("outstand-proxy", {
+          body: {
+            action: "get_connect_url",
+            provider,
+            redirectUrl: `${window.location.origin}/dashboard/social-media/callback`,
+            workspaceId: "default",
+          },
+        }),
+      }));
+      const result = await data;
+      if (result.data?.url) {
+        window.location.href = result.data.url;
+      }
+    } catch (err) {
+      console.error("Failed to initiate social connect:", err);
+    }
   };
 
   const handleFinish = () => {
