@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useSocialPosts } from "@/hooks/social/useSocialPosts";
 import { useConnectedAccounts } from "@/hooks/social/useConnectedAccounts";
 import { useSocialWorkspace } from "@/hooks/social/useSocialWorkspace";
+import { useSocialBrandProfile } from "@/hooks/social/useSocialBrandProfile";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { DescribePostModal } from "@/components/social-media/create/DescribePostModal";
