@@ -46,8 +46,11 @@ export function useSocialPosts(statusFilter?: PostStatus) {
           .eq("created_by", user.id)
           .eq("status", status);
 
-        const key = status === "draft" ? "drafts" : status;
-        (counts as Record<string, number>)[key] = count || 0;
+        if (status === "draft") counts.drafts = count || 0;
+        else if (status === "scheduled") counts.scheduled = count || 0;
+        else if (status === "published") counts.published = count || 0;
+        else if (status === "failed") counts.failed = count || 0;
+        else if (status === "archived") counts.archived = count || 0;
       }
 
       return counts;
