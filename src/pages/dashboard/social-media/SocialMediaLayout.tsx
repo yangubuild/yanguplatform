@@ -43,57 +43,56 @@ export default function SocialMediaLayout() {
               WebkitOverflowScrolling: "touch",
             }}
           >
-          <nav
-            className="flex items-center gap-1.5 h-11 sm:h-12 w-max min-w-full"
-          >
-            {/* Back to Dashboard */}
-            <button
-              onClick={() => navigate("/dashboard/home")}
-              className="flex items-center gap-1 px-2 sm:px-3 py-1.5 text-[11px] sm:text-xs font-medium text-muted-foreground hover:text-foreground transition-colors shrink-0 whitespace-nowrap"
-            >
-              <ArrowLeft className="h-3.5 w-3.5 shrink-0" />
-              {isMobile ? "" : "Dashboard"}
-            </button>
+            <nav className="flex items-center gap-1.5 h-11 sm:h-12 w-max min-w-full">
+              {/* Back to Dashboard */}
+              <button
+                onClick={() => navigate("/dashboard/home")}
+                className="flex items-center gap-1 px-2 sm:px-3 py-1.5 text-[11px] sm:text-xs font-medium text-muted-foreground hover:text-foreground transition-colors shrink-0 whitespace-nowrap"
+              >
+                <ArrowLeft className="h-3.5 w-3.5 shrink-0" />
+                {isMobile ? "" : "Dashboard"}
+              </button>
 
-            <span className="w-px h-5 bg-border shrink-0" />
+              <span className="w-px h-5 bg-border shrink-0" />
 
-            {/* Create Post */}
-            <button
-              onClick={() => navigate("/dashboard/social-media/posts/create")}
-              className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-semibold bg-accent/15 text-accent rounded-lg hover:bg-accent/25 transition-colors shrink-0 whitespace-nowrap"
-            >
-              <Plus className="h-3.5 w-3.5 shrink-0" />
-              Create Post
-            </button>
+              {/* Create Post */}
+              <button
+                onClick={() => navigate("/dashboard/social-media/posts/create")}
+                className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-semibold bg-accent/15 text-accent rounded-lg hover:bg-accent/25 transition-colors shrink-0 whitespace-nowrap"
+              >
+                <Plus className="h-3.5 w-3.5 shrink-0" />
+                Create Post
+              </button>
 
-            <span className="w-px h-5 bg-border shrink-0" />
+              <span className="w-px h-5 bg-border shrink-0" />
 
-            {/* Home */}
-            {NAV_ITEMS.map((item) => (
-              <NavButton key={item.path} item={item} active={isActive(item.path)} onClick={() => navigate(item.path)} />
-            ))}
+              {/* Home */}
+              {NAV_ITEMS.map((item) => (
+                <NavButton key={item.path} item={item} active={isActive(item.path)} onClick={() => navigate(item.path)} />
+              ))}
 
-            {/* CONTENT group */}
-            {!isMobile && <span className="w-px h-5 bg-border shrink-0" />}
-            {!isMobile && (
-              <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider px-1.5 shrink-0 whitespace-nowrap">Content</span>
-            )}
-            {CONTENT_ITEMS.map((item) => (
-              <NavButton key={item.path} item={item} active={isActive(item.path)} onClick={() => navigate(item.path)} />
-            ))}
+              {/* CONTENT group */}
+              {!isMobile && <span className="w-px h-5 bg-border shrink-0" />}
+              {!isMobile && (
+                <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider px-1.5 shrink-0 whitespace-nowrap">Content</span>
+              )}
+              {CONTENT_ITEMS.map((item) => (
+                <NavButton key={item.path} item={item} active={isActive(item.path)} onClick={() => navigate(item.path)} />
+              ))}
 
-            {/* STRATEGY group */}
-            {!isMobile && <span className="w-px h-5 bg-border shrink-0" />}
-            {!isMobile && (
-              <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider px-1.5 shrink-0 whitespace-nowrap">Strategy</span>
-            )}
-            {STRATEGY_ITEMS.map((item) => (
-              <NavButton key={item.path} item={item} active={isActive(item.path)} onClick={() => navigate(item.path)} />
-            ))}
+              {/* STRATEGY group */}
+              {!isMobile && <span className="w-px h-5 bg-border shrink-0" />}
+              {!isMobile && (
+                <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider px-1.5 shrink-0 whitespace-nowrap">Strategy</span>
+              )}
+              {STRATEGY_ITEMS.map((item) => (
+                <NavButton key={item.path} item={item} active={isActive(item.path)} onClick={() => navigate(item.path)} />
+              ))}
 
-            {/* Right padding for scroll end */}
-            <div className="shrink-0 w-2" />
-          </nav>
+              {/* Right padding for scroll end */}
+              <div className="shrink-0 w-4" />
+            </nav>
+          </div>
         </div>
       </div>
 
@@ -110,7 +109,7 @@ function NavButton({ item, active, onClick }: { item: { icon: any; label: string
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-1 px-2 sm:px-2.5 py-1.5 text-[11px] sm:text-xs font-medium rounded-lg transition-colors shrink-0 whitespace-nowrap ${
+      className={`flex items-center gap-1 px-2.5 py-1.5 text-[11px] sm:text-xs font-medium rounded-lg transition-colors shrink-0 whitespace-nowrap ${
         active
           ? "bg-accent/15 text-accent"
           : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
