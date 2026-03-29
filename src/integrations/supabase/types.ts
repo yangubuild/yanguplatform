@@ -6793,6 +6793,159 @@ export type Database = {
         }
         Relationships: []
       }
+      social_analytics_snapshots: {
+        Row: {
+          account_id: string | null
+          clicks: number | null
+          created_at: string
+          engagement_rate: number | null
+          followers: number | null
+          id: string
+          impressions: number | null
+          metrics: Json | null
+          snapshot_date: string
+          user_id: string
+        }
+        Insert: {
+          account_id?: string | null
+          clicks?: number | null
+          created_at?: string
+          engagement_rate?: number | null
+          followers?: number | null
+          id?: string
+          impressions?: number | null
+          metrics?: Json | null
+          snapshot_date: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string | null
+          clicks?: number | null
+          created_at?: string
+          engagement_rate?: number | null
+          followers?: number | null
+          id?: string
+          impressions?: number | null
+          metrics?: Json | null
+          snapshot_date?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_analytics_snapshots_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "social_connected_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_brand_profiles: {
+        Row: {
+          brand_voice: string | null
+          created_at: string
+          id: string
+          metadata: Json | null
+          target_audience: string | null
+          tone: string | null
+          topics: string[] | null
+          updated_at: string
+          user_id: string
+          workspace_id: string | null
+        }
+        Insert: {
+          brand_voice?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          target_audience?: string | null
+          tone?: string | null
+          topics?: string[] | null
+          updated_at?: string
+          user_id: string
+          workspace_id?: string | null
+        }
+        Update: {
+          brand_voice?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          target_audience?: string | null
+          tone?: string | null
+          topics?: string[] | null
+          updated_at?: string
+          user_id?: string
+          workspace_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_brand_profiles_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "social_workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_connected_accounts: {
+        Row: {
+          access_token: string | null
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          expires_at: string | null
+          id: string
+          metadata: Json | null
+          provider: string
+          provider_user_id: string | null
+          refresh_token: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          workspace_id: string | null
+        }
+        Insert: {
+          access_token?: string | null
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          expires_at?: string | null
+          id?: string
+          metadata?: Json | null
+          provider: string
+          provider_user_id?: string | null
+          refresh_token?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          workspace_id?: string | null
+        }
+        Update: {
+          access_token?: string | null
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          expires_at?: string | null
+          id?: string
+          metadata?: Json | null
+          provider?: string
+          provider_user_id?: string | null
+          refresh_token?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          workspace_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_connected_accounts_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "social_workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       social_connections: {
         Row: {
           access_token_encrypted: string | null
@@ -6841,6 +6994,85 @@ export type Database = {
         }
         Relationships: []
       }
+      social_onboarding: {
+        Row: {
+          completed_steps: string[] | null
+          created_at: string
+          id: string
+          is_completed: boolean | null
+          updated_at: string
+          user_id: string
+          workspace_id: string | null
+        }
+        Insert: {
+          completed_steps?: string[] | null
+          created_at?: string
+          id?: string
+          is_completed?: boolean | null
+          updated_at?: string
+          user_id: string
+          workspace_id?: string | null
+        }
+        Update: {
+          completed_steps?: string[] | null
+          created_at?: string
+          id?: string
+          is_completed?: boolean | null
+          updated_at?: string
+          user_id?: string
+          workspace_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_onboarding_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "social_workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_post_targets: {
+        Row: {
+          account_id: string | null
+          created_at: string
+          error: string | null
+          id: string
+          post_id: string
+          provider_post_id: string | null
+          published_at: string | null
+          status: string
+        }
+        Insert: {
+          account_id?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          post_id: string
+          provider_post_id?: string | null
+          published_at?: string | null
+          status?: string
+        }
+        Update: {
+          account_id?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          post_id?: string
+          provider_post_id?: string | null
+          published_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_post_targets_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "social_connected_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       social_posts: {
         Row: {
           content: string
@@ -6880,6 +7112,118 @@ export type Database = {
           scheduled_for?: string | null
           status?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      social_publish_events: {
+        Row: {
+          created_at: string
+          data: Json | null
+          event_type: string
+          id: string
+          post_target_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          data?: Json | null
+          event_type: string
+          id?: string
+          post_target_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          data?: Json | null
+          event_type?: string
+          id?: string
+          post_target_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_publish_events_post_target_id_fkey"
+            columns: ["post_target_id"]
+            isOneToOne: false
+            referencedRelation: "social_post_targets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_topics: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          sort_order: number | null
+          user_id: string
+          workspace_id: string | null
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          sort_order?: number | null
+          user_id: string
+          workspace_id?: string | null
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          sort_order?: number | null
+          user_id?: string
+          workspace_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_topics_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "social_workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_workspaces: {
+        Row: {
+          business_description: string | null
+          created_at: string
+          goals: string[] | null
+          id: string
+          metadata: Json | null
+          name: string
+          post_frequency: number | null
+          updated_at: string
+          user_id: string
+          website_url: string | null
+        }
+        Insert: {
+          business_description?: string | null
+          created_at?: string
+          goals?: string[] | null
+          id?: string
+          metadata?: Json | null
+          name?: string
+          post_frequency?: number | null
+          updated_at?: string
+          user_id: string
+          website_url?: string | null
+        }
+        Update: {
+          business_description?: string | null
+          created_at?: string
+          goals?: string[] | null
+          id?: string
+          metadata?: Json | null
+          name?: string
+          post_frequency?: number | null
+          updated_at?: string
+          user_id?: string
+          website_url?: string | null
         }
         Relationships: []
       }
