@@ -42,6 +42,35 @@ export default function SocialMediaAiProfile() {
       website: analyzed.website,
       visual_style: analyzed.visual_style,
     });
+
+    // Auto-generate topics in background if none exist
+    if (categories.length === 0) {
+      generateTopics({
+        business_name: analyzed.business_name,
+        industry: analyzed.industry,
+        business_description: analyzed.business_description,
+        target_audience: analyzed.target_audience,
+      }, analyzed.website).then(async (result) => {
+        if (result) {
+          for (const cat of result) {
+            try {
+              const created = await createCategory({ title: cat.title, color: cat.color });
+              if (cat.topics?.length > 0) {
+                await bulkCreate(cat.topics.map((t) => ({
+                  title: t.title,
+                  description: t.description,
+                  category_id: created.id,
+                  source_type: "ai_generated",
+                })));
+              }
+            } catch (e) {
+              console.error("Auto topic creation error:", e);
+            }
+          }
+          toast.success("Topics auto-generated from your business profile");
+        }
+      });
+    }
   };
 
   const handleSave = async () => {
