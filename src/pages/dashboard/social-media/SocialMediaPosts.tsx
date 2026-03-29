@@ -1,187 +1,220 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { FileText, Plus, MoreHorizontal, Trash2, Copy, Archive, Send, RotateCcw } from "lucide-react";
+import {
+  List,
+  SlidersHorizontal,
+  Filter,
+  Bookmark,
+  Clock,
+  CheckSquare,
+  MoreHorizontal,
+  FileText,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSocialPosts } from "@/hooks/social/useSocialPosts";
 import { toast } from "sonner";
-import { format } from "date-fns";
-import type { PostStatus, SocialPost } from "@/types/socialMedia";
+import type { SocialPost, PostStatus } from "@/types/socialMedia";
+import { CreateWithAIMenu } from "@/components/social-media/posts/CreateWithAIMenu";
+import { PostCard } from "@/components/social-media/posts/PostCard";
+import { ScheduledTab } from "@/components/social-media/posts/ScheduledTab";
+import { EditPostModal } from "@/components/social-media/posts/EditPostModal";
+import { PostDetailsModal } from "@/components/social-media/posts/PostDetailsModal";
 
-const TABS: { key: PostStatus | "all"; label: string }[] = [
-  { key: "all", label: "All" },
-  { key: "draft", label: "Drafts" },
-  { key: "scheduled", label: "Scheduled" },
-  { key: "published", label: "Published" },
-  { key: "failed", label: "Failed" },
-  { key: "archived", label: "Archived" },
+type TabKey = "draft" | "scheduled" | "published";
+
+const TABS: { key: TabKey; label: string; icon: typeof Bookmark }[] = [
+  { key: "draft", label: "Drafts", icon: Bookmark },
+  { key: "scheduled", label: "Scheduled", icon: Clock },
+  { key: "published", label: "Published", icon: CheckSquare },
 ];
 
 export default function SocialMediaPosts() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<PostStatus | "all">("all");
-  const statusFilter = activeTab === "all" ? undefined : activeTab;
-  const { posts, counts, isLoading, deletePost, archivePost, duplicatePost, publishPost } = useSocialPosts(statusFilter);
-  const [menuOpen, setMenuOpen] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<TabKey>("draft");
+  const { posts, counts, isLoading, deletePost, duplicatePost, publishPost, archivePost } =
+    useSocialPosts(activeTab === "draft" ? "draft" : activeTab === "scheduled" ? "scheduled" : "published");
 
-  const tabCounts: Record<string, number> = {
-    all: counts.drafts + counts.scheduled + counts.published + counts.failed,
+  const [editPost, setEditPost] = useState<SocialPost | null>(null);
+  const [detailPost, setDetailPost] = useState<SocialPost | null>(null);
+
+  const tabCounts: Record<TabKey, number> = {
     draft: counts.drafts,
     scheduled: counts.scheduled,
     published: counts.published,
-    failed: counts.failed,
-    archived: counts.archived,
   };
 
-  const handleAction = async (action: string, post: SocialPost) => {
-    setMenuOpen(null);
-    try {
-      switch (action) {
-        case "delete":
-          await deletePost(post.id);
-          toast.success("Post deleted");
-          break;
-        case "archive":
-          await archivePost(post.id);
-          toast.success("Post archived");
-          break;
-        case "duplicate":
-          await duplicatePost(post.id);
-          toast.success("Post duplicated");
-          break;
-        case "publish":
-          await publishPost(post.id);
-          toast.success("Post published");
-          break;
-        case "retry":
-          await publishPost(post.id);
-          toast.success("Retrying publish…");
-          break;
+  const handleAction = useCallback(
+    async (action: string, post: SocialPost) => {
+      try {
+        switch (action) {
+          case "delete":
+            await deletePost(post.id);
+            toast.success("Post deleted");
+            break;
+          case "duplicate":
+            await duplicatePost(post.id);
+            toast.success("Post duplicated");
+            break;
+          case "publish":
+            await publishPost(post.id);
+            toast.success("Post published");
+            break;
+          case "retry":
+            await publishPost(post.id);
+            toast.success("Retrying publish…");
+            break;
+          case "archive":
+            await archivePost(post.id);
+            toast.success("Post archived");
+            break;
+          case "schedule":
+            setEditPost(post);
+            break;
+          case "schedule_next":
+            toast.info("Schedule Next — coming soon");
+            break;
+          case "lock_time":
+            toast.info("Lock Time — coming soon");
+            break;
+          case "ingredients":
+            toast.info("Post ingredients — coming soon");
+            break;
+          case "download":
+            if (post.primary_media_url || post.media_urls?.[0]) {
+              window.open(post.primary_media_url || post.media_urls[0], "_blank");
+            }
+            break;
+          case "share":
+            toast.info("Share link — coming soon");
+            break;
+        }
+      } catch {
+        toast.error(`Failed to ${action} post`);
       }
-    } catch {
-      toast.error(`Failed to ${action} post`);
-    }
-  };
+    },
+    [deletePost, duplicatePost, publishPost, archivePost]
+  );
 
-  const statusColor: Record<string, string> = {
-    draft: "bg-muted text-muted-foreground",
-    ready: "bg-blue-500/10 text-blue-600",
-    scheduled: "bg-amber-500/10 text-amber-600",
-    publishing: "bg-accent/10 text-accent",
-    published: "bg-green-500/10 text-green-600",
-    failed: "bg-destructive/10 text-destructive",
-    archived: "bg-muted text-muted-foreground",
+  const handleAICreate = (mode: string) => {
+    navigate(`/dashboard/social-media/posts/create?mode=${mode}`);
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-lg font-semibold text-foreground">Posts</h1>
-        <Button variant="accent" size="sm" onClick={() => navigate("/dashboard/social-media/posts/create")}>
-          <Plus className="h-4 w-4 mr-1" />
-          Create Post
-        </Button>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex gap-1 border-b border-border mb-6 overflow-x-auto">
-        {TABS.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={`pb-2.5 px-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-              activeTab === tab.key
-                ? "border-accent text-foreground"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {tab.label} ({tabCounts[tab.key] ?? 0})
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
+      {/* ── Top toolbar ── */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-1.5">
+          <button className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-border text-xs text-muted-foreground hover:text-foreground transition-colors">
+            <List className="h-3.5 w-3.5" />
           </button>
-        ))}
+          <button className="p-1.5 rounded-lg border border-border text-muted-foreground hover:text-foreground transition-colors">
+            <SlidersHorizontal className="h-3.5 w-3.5" />
+          </button>
+          <button className="p-1.5 rounded-lg border border-border text-muted-foreground hover:text-foreground transition-colors">
+            <Filter className="h-3.5 w-3.5" />
+          </button>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-0.5">
+          {TABS.map((tab) => {
+            const active = activeTab === tab.key;
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                  active
+                    ? "bg-card text-accent shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <tab.icon className="h-3.5 w-3.5" />
+                {tab.label} ({tabCounts[tab.key]})
+              </button>
+            );
+          })}
+        </div>
+
+        <button className="p-1.5 rounded-lg hover:bg-muted transition-colors">
+          <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+        </button>
       </div>
 
-      {/* Posts list */}
+      {/* ── Create buttons ── */}
+      {activeTab === "draft" && (
+        <div className="flex items-center justify-center gap-2 mb-6">
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-xs"
+            onClick={() => navigate("/dashboard/social-media/posts/create")}
+          >
+            Create from Scratch
+          </Button>
+          <CreateWithAIMenu onSelect={handleAICreate} />
+        </div>
+      )}
+
+      {/* ── Tab content ── */}
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
           <div className="animate-pulse text-sm text-muted-foreground">Loading posts…</div>
         </div>
+      ) : activeTab === "scheduled" ? (
+        <ScheduledTab
+          posts={posts}
+          onAction={handleAction}
+          onEdit={setEditPost}
+          onDetails={setDetailPost}
+        />
       ) : posts.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20">
-          <div className="w-20 h-20 rounded-2xl bg-accent/10 flex items-center justify-center mb-5">
-            <FileText className="w-10 h-10 text-accent/60" />
+          <div className="w-16 h-16 rounded-xl bg-muted/30 flex items-center justify-center mb-4">
+            <FileText className="w-8 h-8 text-muted-foreground/50" />
           </div>
-          <h2 className="text-base font-semibold text-foreground mb-2">No posts yet</h2>
-          <p className="text-sm text-muted-foreground text-center max-w-sm mb-6">
-            Create your first post to get started with your social media strategy.
+          <h3 className="text-sm font-semibold text-foreground mb-1">
+            {activeTab === "draft" ? "No posts in Drafts" : "No published posts"}
+          </h3>
+          <p className="text-xs text-muted-foreground text-center max-w-xs">
+            {activeTab === "draft"
+              ? "Create posts manually or let AI generate them from your topics and profile."
+              : "Published posts and their analytics will appear here."}
           </p>
-          <Button variant="accent" onClick={() => navigate("/dashboard/social-media/posts/create")}>Create your first post</Button>
         </div>
       ) : (
-        <div className="space-y-3">
-          {posts.map((post) => (
-            <div key={post.id} className="rounded-xl border border-border bg-card p-4 hover:border-accent/30 transition-colors">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-foreground line-clamp-2 mb-2">
-                    {post.caption || <span className="text-muted-foreground italic">No caption</span>}
-                  </p>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full ${statusColor[post.status] || "bg-muted text-muted-foreground"}`}>
-                      {post.status}
-                    </span>
-                    {post.scheduled_for && (
-                      <span className="text-xs text-muted-foreground">
-                        Scheduled: {format(new Date(post.scheduled_for), "MMM d, h:mm a")}
-                      </span>
-                    )}
-                    <span className="text-xs text-muted-foreground">
-                      {format(new Date(post.created_at), "MMM d, yyyy")}
-                    </span>
-                  </div>
-                </div>
-                <div className="relative">
-                  <button
-                    onClick={() => setMenuOpen(menuOpen === post.id ? null : post.id)}
-                    className="p-1.5 rounded-lg hover:bg-muted transition-colors"
-                  >
-                    <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
-                  </button>
-                  {menuOpen === post.id && (
-                    <div className="absolute right-0 top-8 z-20 bg-card border border-border rounded-lg shadow-lg py-1 min-w-[140px]">
-                      {post.status === "draft" && (
-                        <MenuBtn icon={Send} label="Publish Now" onClick={() => handleAction("publish", post)} />
-                      )}
-                      {post.status === "failed" && (
-                        <MenuBtn icon={RotateCcw} label="Retry" onClick={() => handleAction("retry", post)} />
-                      )}
-                      <MenuBtn icon={Copy} label="Duplicate" onClick={() => handleAction("duplicate", post)} />
-                      {post.status !== "archived" && (
-                        <MenuBtn icon={Archive} label="Archive" onClick={() => handleAction("archive", post)} />
-                      )}
-                      <MenuBtn icon={Trash2} label="Delete" onClick={() => handleAction("delete", post)} destructive />
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+        <div className="space-y-4 max-w-2xl mx-auto">
+          {posts.map((p) => (
+            <PostCard
+              key={p.id}
+              post={p}
+              onAction={handleAction}
+              onEdit={setEditPost}
+              onDetails={setDetailPost}
+            />
           ))}
         </div>
       )}
 
-      
+      {/* Modals */}
+      {editPost && (
+        <EditPostModal
+          post={editPost}
+          open={!!editPost}
+          onClose={() => setEditPost(null)}
+        />
+      )}
+      {detailPost && (
+        <PostDetailsModal
+          post={detailPost}
+          open={!!detailPost}
+          onClose={() => setDetailPost(null)}
+          onDelete={(p) => {
+            handleAction("delete", p);
+            setDetailPost(null);
+          }}
+        />
+      )}
     </div>
-  );
-}
-
-function MenuBtn({ icon: Icon, label, onClick, destructive }: { icon: any; label: string; onClick: () => void; destructive?: boolean }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`flex items-center gap-2 w-full px-3 py-2 text-xs font-medium hover:bg-muted transition-colors ${
-        destructive ? "text-destructive" : "text-foreground"
-      }`}
-    >
-      <Icon className="h-3.5 w-3.5" />
-      {label}
-    </button>
   );
 }
