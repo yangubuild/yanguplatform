@@ -1,6 +1,6 @@
 /**
  * YANGU Social Media — Outstand Provider Adapter
- * First implementation of the SocialProviderAdapter interface.
+ * Live implementation of the SocialProviderAdapter interface.
  */
 
 import { supabase } from "@/integrations/supabase/client";
@@ -29,6 +29,16 @@ async function invokeProxy<T = Record<string, unknown>>(
       provider: "outstand",
       retryable: false,
       raw: error,
+    } as ProviderError;
+  }
+  // Check for application-level errors from the proxy
+  if (data?.error) {
+    throw {
+      code: data.code || "OUTSTAND_API_ERROR",
+      message: data.error,
+      provider: "outstand",
+      retryable: false,
+      raw: data,
     } as ProviderError;
   }
   return data as T;
@@ -123,10 +133,15 @@ export const outstandAdapter: SocialProviderAdapter = {
 
   async healthCheck() {
     try {
-      await invokeProxy({ action: "health" });
-      return { ok: true };
-    } catch {
-      return { ok: false, message: "Outstand proxy unreachable" };
+      const result = await invokeProxy<{ ok: boolean; message?: string }>({
+        action: "health",
+      });
+      return { ok: result.ok, message: result.message };
+    } catch (e) {
+      return {
+        ok: false,
+        message: e instanceof Error ? e.message : "Outstand proxy unreachable",
+      };
     }
   },
 
