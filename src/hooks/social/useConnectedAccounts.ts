@@ -17,7 +17,8 @@ export function useConnectedAccounts(workspaceId?: string) {
       let q = supabase
         .from("social_connected_accounts")
         .select("*")
-        .eq("user_id", user.id);
+        .eq("user_id", user.id)
+        .neq("status", "disconnected");
 
       if (workspaceId) {
         q = q.eq("workspace_id", workspaceId);
@@ -50,12 +51,25 @@ export function useConnectedAccounts(workspaceId?: string) {
     }) => {
       const provider = providerRegistry.getDefault();
       if (!provider) throw new Error("No provider configured");
-      return provider.getConnectUrl(params);
+      const result = await provider.getConnectUrl(params);
+      // Redirect user to OAuth URL
+      if (result.url) {
+        window.location.href = result.url;
+      }
+      return result;
     },
   });
 
   const disconnectMutation = useMutation({
     mutationFn: async (accountId: string) => {
+      const provider = providerRegistry.getDefault();
+      if (provider) {
+        try {
+          await provider.disconnectAccount(accountId);
+        } catch {
+          // Fall back to local status update
+        }
+      }
       const { error } = await supabase
         .from("social_connected_accounts")
         .update({ status: "disconnected" })
@@ -67,6 +81,14 @@ export function useConnectedAccounts(workspaceId?: string) {
     },
   });
 
+  const healthCheckMutation = useMutation({
+    mutationFn: async () => {
+      const provider = providerRegistry.getDefault();
+      if (!provider) return { ok: false, message: "No provider configured" };
+      return provider.healthCheck();
+    },
+  });
+
   return {
     accounts: query.data || [],
     isLoading: query.isLoading,
@@ -74,5 +96,8 @@ export function useConnectedAccounts(workspaceId?: string) {
     connect: connectMutation.mutateAsync,
     disconnect: disconnectMutation.mutateAsync,
     isConnecting: connectMutation.isPending,
+    checkHealth: healthCheckMutation.mutateAsync,
+    healthStatus: healthCheckMutation.data,
+    isCheckingHealth: healthCheckMutation.isPending,
   };
 }
