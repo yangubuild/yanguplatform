@@ -71,6 +71,12 @@ export function ChatInterface({
 
   const topPadding = noticeHeight > 0 ? noticeHeight + 28 : 16;
 
+  const placeholder = currentStep === "greeting"
+    ? "e.g. EZI FOOD, we sell burgers and fries in Dubai..."
+    : currentStep === "refinement"
+    ? "Describe what you'd like to change..."
+    : "Click an option above to continue";
+
   return (
     <div className="flex flex-col h-full relative overflow-visible">
       <BuilderPinnedNotice mode={builderMode} onHeightChange={handleNoticeHeight} />
@@ -78,14 +84,14 @@ export function ChatInterface({
       {/* Messages + Step UI */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto px-4 pb-4 space-y-5"
+        className="flex-1 overflow-y-auto px-4 pb-4 space-y-4"
         style={{ paddingTop: topPadding + 18 }}
       >
         {messages.map((msg) => (
           <MessageBubble key={msg.id} message={msg} />
         ))}
 
-        {/* Step options — always shown at bottom of chat */}
+        {/* Step options */}
         {!isLoading && stepConfig.options.length > 0 && (
           <div className="flex flex-col items-start gap-2 pt-1">
             <StepRenderer
@@ -109,28 +115,28 @@ export function ChatInterface({
         )}
       </div>
 
-      {/* Input — only visible during refinement */}
-      <div className={`border-t border-border px-4 py-3 ${!inputAllowed ? "opacity-40 pointer-events-none" : ""}`}>
-        <div className="flex items-end gap-2 rounded-2xl border border-border bg-background p-2">
-          <button className="p-2 text-muted-foreground hover:text-foreground transition-colors shrink-0">
-            <Plus className="h-5 w-5" />
+      {/* Input */}
+      <div className={`border-t border-border px-3 py-2.5 ${!inputAllowed ? "opacity-40 pointer-events-none" : ""}`}>
+        <div className="flex items-end gap-2 rounded-2xl border border-border bg-background p-1.5">
+          <button className="p-1.5 text-muted-foreground hover:text-foreground transition-colors shrink-0">
+            <Plus className="h-4 w-4" />
           </button>
           <textarea
             ref={inputRef}
             value={input}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
-            placeholder={inputAllowed ? "Describe what you'd like to change..." : "Click an option above to continue"}
+            placeholder={placeholder}
             rows={1}
             disabled={!inputAllowed}
-            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground resize-none outline-none py-2 max-h-[120px] disabled:cursor-not-allowed"
+            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground resize-none outline-none py-1.5 max-h-[120px] disabled:cursor-not-allowed"
           />
           <button
             onClick={handleSend}
             disabled={!input.trim() || isLoading || !inputAllowed}
-            className="p-2 rounded-full bg-foreground text-background disabled:opacity-40 transition-opacity shrink-0"
+            className="p-1.5 rounded-full bg-foreground text-background disabled:opacity-40 transition-opacity shrink-0"
           >
-            <Send className="h-4 w-4" />
+            <Send className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>
