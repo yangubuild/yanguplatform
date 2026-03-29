@@ -37,8 +37,12 @@ export function PostCard({ post, onAction, onEdit, onDetails }: Props) {
   const caption = post.caption || "";
   const isLong = caption.length > 140;
   const displayCaption = expanded ? caption : caption.slice(0, 140);
-  const hasMedia = post.media_urls?.length > 0 || post.primary_media_url;
-  const mainImage = post.primary_media_url || post.media_urls?.[0];
+  const mediaUrls: string[] = [
+    ...(post.primary_media_url ? [post.primary_media_url] : []),
+    ...(post.media_urls || []),
+  ].filter((v, i, a) => a.indexOf(v) === i);
+  const hasMedia = mediaUrls.length > 0;
+  const mainImage = mediaUrls[0];
 
   // Status bar for published / failed
   const statusLine = () => {
@@ -140,8 +144,10 @@ export function PostCard({ post, onAction, onEdit, onDetails }: Props) {
         </div>
       )}
 
-      {/* Media — 4:5 aspect ratio container */}
-      {mainImage ? (
+      {/* Media — preview container */}
+      {mediaUrls.length > 1 ? (
+        <MultiImagePreview urls={mediaUrls} />
+      ) : mainImage ? (
         <div className="w-full overflow-hidden" style={{ aspectRatio: "4/5" }}>
           <img
             src={mainImage}
@@ -151,7 +157,6 @@ export function PostCard({ post, onAction, onEdit, onDetails }: Props) {
           />
         </div>
       ) : (
-        /* Placeholder creative for text-only AI posts */
         <div
           className="w-full bg-gradient-to-br from-muted/40 via-muted/20 to-accent/10 flex items-center justify-center"
           style={{ aspectRatio: "4/5" }}

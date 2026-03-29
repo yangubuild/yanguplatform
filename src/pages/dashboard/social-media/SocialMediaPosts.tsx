@@ -162,7 +162,7 @@ export default function SocialMediaPosts() {
           <div className="animate-pulse text-sm text-muted-foreground">Loading posts…</div>
         </div>
       ) : activeTab === "scheduled" ? (
-        <div className="max-w-[480px] mx-auto">
+        <div className="max-w-[380px] mx-auto">
           <ScheduledTab
             posts={posts}
             onAction={handleAction}
@@ -185,7 +185,7 @@ export default function SocialMediaPosts() {
           </p>
         </div>
       ) : (
-        <div className="space-y-4 max-w-[480px] mx-auto">
+        <div className="space-y-3 max-w-[380px] mx-auto">
           {posts.map((p) => (
             <PostCard
               key={p.id}
