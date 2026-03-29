@@ -89,18 +89,20 @@ export const libraryService = {
 
     const itemType = file.type.startsWith("video/") ? "video" : "image";
 
+    const insertData: Record<string, unknown> = {
+      user_id: userId,
+      title: file.name,
+      file_url: publicUrl,
+      item_type: itemType,
+      source_type: sourceType,
+      mime_type: file.type,
+      file_size: file.size,
+      status: "ready",
+    };
+
     const { data, error } = await supabase
       .from("social_library_items")
-      .insert({
-        user_id: userId,
-        title: file.name,
-        file_url: publicUrl,
-        item_type: itemType,
-        source_type: sourceType,
-        mime_type: file.type,
-        file_size: file.size,
-        status: "ready",
-      })
+      .insert(insertData as any)
       .select()
       .single();
 
@@ -116,17 +118,19 @@ export const libraryService = {
     sourceType: LibrarySourceType,
     metadata?: Record<string, unknown>
   ): Promise<LibraryItem> {
+    const insertData: Record<string, unknown> = {
+      user_id: userId,
+      title,
+      file_url: url,
+      item_type: "image",
+      source_type: sourceType,
+      status: "ready",
+      metadata: metadata || null,
+    };
+
     const { data, error } = await supabase
       .from("social_library_items")
-      .insert({
-        user_id: userId,
-        title,
-        file_url: url,
-        item_type: "image",
-        source_type: sourceType,
-        status: "ready",
-        metadata: metadata || null,
-      })
+      .insert(insertData as any)
       .select()
       .single();
 
