@@ -2,18 +2,18 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { socialKeys } from "./queryKeys";
-import type { SocialHomeSummary } from "@/types/socialMedia";
+import { postLifecycleService } from "@/services/socialMedia";
+import type { SocialHomeSummary, SocialPost } from "@/types/socialMedia";
 
 export function useSocialHomeSummary() {
   const { user } = useAuth();
 
-  return useQuery({
+  const summaryQuery = useQuery({
     queryKey: socialKeys.homeSummary(),
     enabled: !!user,
     queryFn: async (): Promise<SocialHomeSummary> => {
       if (!user) throw new Error("Not authenticated");
 
-      // Parallel fetches
       const [
         onboardingRes,
         accountsRes,
@@ -83,4 +83,28 @@ export function useSocialHomeSummary() {
       };
     },
   });
+
+  // Recent published posts
+  const recentQuery = useQuery({
+    queryKey: [...socialKeys.homeSummary(), "recent"],
+    enabled: !!user,
+    queryFn: async (): Promise<SocialPost[]> => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from("social_posts")
+        .select("*")
+        .eq("created_by", user.id)
+        .eq("status", "published")
+        .order("published_at", { ascending: false })
+        .limit(6);
+      if (error) throw error;
+      return (data || []).map(postLifecycleService.mapToPost);
+    },
+  });
+
+  return {
+    summary: summaryQuery.data,
+    recentPosts: recentQuery.data || [],
+    isLoading: summaryQuery.isLoading,
+  };
 }
