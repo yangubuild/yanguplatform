@@ -1,33 +1,81 @@
-import { BarChart3, Link2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { format, subDays } from "date-fns";
+import { useConnectedAccounts } from "@/hooks/social/useConnectedAccounts";
+import { useSocialAnalytics } from "@/hooks/social/useSocialAnalytics";
+import { AnalyticsFilters } from "@/components/social-media/analytics/AnalyticsFilters";
+import { AnalyticsByPageTab } from "@/components/social-media/analytics/AnalyticsByPageTab";
+import { AnalyticsByPostTab } from "@/components/social-media/analytics/AnalyticsByPostTab";
+import type { AnalyticsDateRange } from "@/types/socialMedia";
+
+const defaultRange = (): AnalyticsDateRange => ({
+  start_date: format(subDays(new Date(), 30), "yyyy-MM-dd"),
+  end_date: format(new Date(), "yyyy-MM-dd"),
+});
 
 export default function SocialMediaAnalytics() {
-  const navigate = useNavigate();
+  const [tab, setTab] = useState<"page" | "post">("page");
+  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
+  const [dateRange, setDateRange] = useState<AnalyticsDateRange>(defaultRange);
+
+  const { activeAccounts } = useConnectedAccounts();
+  const { summary, snapshots, isReady, isLoading } = useSocialAnalytics(dateRange, selectedAccountId ?? undefined);
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
       <h1 className="text-lg font-semibold text-foreground mb-1">Analytics</h1>
-      <p className="text-sm text-muted-foreground mb-6">View your social media performance</p>
+      <p className="text-sm text-muted-foreground mb-6">
+        View your social media performance
+      </p>
 
-      {/* Filters shell */}
-      <div className="flex items-center gap-3 mb-8">
-        <div className="px-3 py-1.5 rounded-lg border border-border text-xs text-muted-foreground">No socials connected</div>
-        <div className="px-3 py-1.5 rounded-lg border border-border text-xs text-muted-foreground">Past 30 Days</div>
+      {/* Tabs */}
+      <div className="flex items-center gap-6 mb-6">
+        <button
+          onClick={() => setTab("page")}
+          className={`text-sm font-medium pb-2 border-b-2 transition-colors ${
+            tab === "page"
+              ? "border-accent text-accent"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          By Page
+        </button>
+        <button
+          onClick={() => setTab("post")}
+          className={`text-sm font-medium pb-2 border-b-2 transition-colors ${
+            tab === "post"
+              ? "border-accent text-accent"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          By Post
+        </button>
       </div>
 
-      {/* Empty state */}
-      <div className="flex flex-col items-center justify-center py-20">
-        <div className="w-20 h-20 rounded-2xl bg-accent/10 flex items-center justify-center mb-5">
-          <BarChart3 className="w-10 h-10 text-accent/60" />
-        </div>
-        <p className="text-sm text-muted-foreground text-center max-w-sm mb-6">
-          Let's get those numbers rolling! Connect your social accounts to track your growth.
-        </p>
-        <Button variant="accent" onClick={() => navigate("/dashboard/social-media/workspace")}>
-          <Link2 className="w-4 h-4 mr-2" />
-          Connect Socials
-        </Button>
-      </div>
+      {/* Filters */}
+      <AnalyticsFilters
+        accounts={activeAccounts}
+        selectedAccountId={selectedAccountId}
+        onAccountChange={setSelectedAccountId}
+        dateRange={dateRange}
+        onDateRangeChange={setDateRange}
+      />
+
+      {/* Tab content */}
+      {tab === "page" ? (
+        <AnalyticsByPageTab
+          summary={summary}
+          snapshots={snapshots}
+          hasAccounts={activeAccounts.length > 0}
+          isLoading={isLoading}
+          isReady={isReady}
+        />
+      ) : (
+        <AnalyticsByPostTab
+          hasAccounts={activeAccounts.length > 0}
+          dateRange={dateRange}
+          selectedAccountId={selectedAccountId}
+        />
+      )}
     </div>
   );
 }

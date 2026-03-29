@@ -18,6 +18,12 @@ export function useSocialAnalytics(dateRange?: AnalyticsDateRange, accountId?: s
     queryFn: () => analyticsService.getWorkspaceSummary(user!.id, range),
   });
 
+  const snapshotsQuery = useQuery({
+    queryKey: [...socialKeys.analytics(), "snapshots", range.start_date, range.end_date, accountId],
+    enabled: !!user,
+    queryFn: () => analyticsService.getSnapshots(user!.id, range, accountId),
+  });
+
   const readyQuery = useQuery({
     queryKey: socialKeys.analyticsReady(),
     enabled: !!user,
@@ -26,6 +32,7 @@ export function useSocialAnalytics(dateRange?: AnalyticsDateRange, accountId?: s
 
   return {
     summary: summaryQuery.data,
+    snapshots: snapshotsQuery.data ?? [],
     isReady: readyQuery.data ?? false,
     isLoading: summaryQuery.isLoading,
     error: summaryQuery.error,
