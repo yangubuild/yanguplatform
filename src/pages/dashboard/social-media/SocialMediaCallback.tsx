@@ -83,8 +83,8 @@ export default function SocialMediaCallback() {
 
       {state === "success" && (
         <>
-          <div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mb-4">
-            <CheckCircle2 className="h-8 w-8 text-green-500" />
+          <div className="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center mb-4">
+            <CheckCircle2 className="h-8 w-8 text-accent" />
           </div>
           <h2 className="text-lg font-semibold text-foreground mb-2">Connected!</h2>
           <p className="text-sm text-muted-foreground mb-6">{message}</p>

@@ -244,7 +244,7 @@ export function SocialOnboardingFlow({ onComplete }: Props) {
               </div>
               <div className="flex items-center gap-3">
                 <Button variant="outline" onClick={() => setShowInstaHelp(false)}>Cancel</Button>
-                <Button variant="accent" className="flex-1" onClick={() => setShowInstaHelp(false)}>Continue</Button>
+                <Button variant="accent" className="flex-1" onClick={() => { setShowInstaHelp(false); initiateConnect("instagram"); }}>Continue</Button>
               </div>
             </div>
           </div>
