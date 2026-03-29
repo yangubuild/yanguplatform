@@ -7079,11 +7079,14 @@ export type Database = {
           description: string | null
           extracted_metadata: Json | null
           extracted_text: string | null
+          file_size: number | null
           file_url: string | null
           id: string
           item_type: string
           metadata: Json | null
+          mime_type: string | null
           processing_error: string | null
+          source_type: string
           source_url: string | null
           status: string | null
           tags: string[] | null
@@ -7098,11 +7101,14 @@ export type Database = {
           description?: string | null
           extracted_metadata?: Json | null
           extracted_text?: string | null
+          file_size?: number | null
           file_url?: string | null
           id?: string
           item_type?: string
           metadata?: Json | null
+          mime_type?: string | null
           processing_error?: string | null
+          source_type?: string
           source_url?: string | null
           status?: string | null
           tags?: string[] | null
@@ -7117,11 +7123,14 @@ export type Database = {
           description?: string | null
           extracted_metadata?: Json | null
           extracted_text?: string | null
+          file_size?: number | null
           file_url?: string | null
           id?: string
           item_type?: string
           metadata?: Json | null
+          mime_type?: string | null
           processing_error?: string | null
+          source_type?: string
           source_url?: string | null
           status?: string | null
           tags?: string[] | null
