@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { FileText, Plus, MoreHorizontal, Trash2, Copy, Archive, Send, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSocialPosts } from "@/hooks/social/useSocialPosts";
-import { CreatePostDialog } from "@/components/social-media/CreatePostDialog";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import type { PostStatus, SocialPost } from "@/types/socialMedia";
@@ -18,11 +17,10 @@ const TABS: { key: PostStatus | "all"; label: string }[] = [
 ];
 
 export default function SocialMediaPosts() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<PostStatus | "all">("all");
   const statusFilter = activeTab === "all" ? undefined : activeTab;
   const { posts, counts, isLoading, deletePost, archivePost, duplicatePost, publishPost } = useSocialPosts(statusFilter);
-  const [showCreate, setShowCreate] = useState(searchParams.get("create") === "true");
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
 
   const tabCounts: Record<string, number> = {
@@ -78,7 +76,7 @@ export default function SocialMediaPosts() {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-lg font-semibold text-foreground">Posts</h1>
-        <Button variant="accent" size="sm" onClick={() => setShowCreate(true)}>
+        <Button variant="accent" size="sm" onClick={() => navigate("/dashboard/social-media/posts/create")}>
           <Plus className="h-4 w-4 mr-1" />
           Create Post
         </Button>
@@ -115,7 +113,7 @@ export default function SocialMediaPosts() {
           <p className="text-sm text-muted-foreground text-center max-w-sm mb-6">
             Create your first post to get started with your social media strategy.
           </p>
-          <Button variant="accent" onClick={() => setShowCreate(true)}>Create your first post</Button>
+          <Button variant="accent" onClick={() => navigate("/dashboard/social-media/posts/create")}>Create your first post</Button>
         </div>
       ) : (
         <div className="space-y-3">
@@ -169,7 +167,7 @@ export default function SocialMediaPosts() {
         </div>
       )}
 
-      <CreatePostDialog open={showCreate} onClose={() => { setShowCreate(false); setSearchParams({}); }} />
+      
     </div>
   );
 }

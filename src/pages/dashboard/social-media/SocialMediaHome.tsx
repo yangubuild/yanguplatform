@@ -14,8 +14,8 @@ const CHECKLIST = [
 ];
 
 const QUICK_LINKS = [
-  { icon: Plus, label: "New Post", desc: "Create a new post from scratch", path: "/dashboard/social-media/posts?create=true" },
-  { icon: Sparkles, label: "Create Posts with AI", desc: "Generate posts with AI", path: "/dashboard/social-media/posts?ai=true" },
+  { icon: Plus, label: "New Post", desc: "Create a new post from scratch", path: "/dashboard/social-media/posts/create" },
+  { icon: Sparkles, label: "Create Posts with AI", desc: "Generate posts with AI", path: "/dashboard/social-media/posts/create?mode=ai" },
   { icon: Link2, label: "Connect Socials", desc: "Connect your social accounts", path: "/dashboard/social-media/workspace" },
   { icon: Calendar, label: "Calendar", desc: "View your content calendar", path: "/dashboard/social-media/calendar" },
   { icon: BarChart3, label: "Analytics", desc: "View your performance", path: "/dashboard/social-media/analytics" },

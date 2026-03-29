@@ -47,7 +47,7 @@ export default function SocialMediaLayout() {
 
             {/* Create Post */}
             <button
-              onClick={() => navigate("/dashboard/social-media/posts?create=true")}
+              onClick={() => navigate("/dashboard/social-media/posts/create")}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-accent/15 text-accent rounded-lg hover:bg-accent/25 transition-colors shrink-0"
             >
               <Plus className="h-3.5 w-3.5" />
