@@ -5,25 +5,24 @@ import { socialKeys } from "./queryKeys";
 import { postLifecycleService } from "@/services/socialMedia";
 import type { SocialPost } from "@/types/socialMedia";
 
-export function useSocialCalendar(month: string) {
+export function useSocialCalendar(startDate: string, endDate: string, showDrafts: boolean) {
   const { user } = useAuth();
 
-  // month format: "2026-03"
-  const startDate = `${month}-01`;
-  const [y, m] = month.split("-").map(Number);
-  const endDate = new Date(y, m, 0).toISOString().split("T")[0];
-
   const query = useQuery({
-    queryKey: socialKeys.calendar(month),
+    queryKey: [...socialKeys.calendar(startDate), endDate, showDrafts],
     enabled: !!user,
     queryFn: async (): Promise<SocialPost[]> => {
       if (!user) return [];
+
+      const statuses = showDrafts
+        ? "status.eq.scheduled,status.eq.published,status.eq.publishing,status.eq.failed,status.eq.draft"
+        : "status.eq.scheduled,status.eq.published,status.eq.publishing,status.eq.failed";
 
       const { data, error } = await supabase
         .from("social_posts")
         .select("*")
         .eq("created_by", user.id)
-        .or(`status.eq.scheduled,status.eq.published`)
+        .or(statuses)
         .gte("scheduled_for", startDate)
         .lte("scheduled_for", endDate + "T23:59:59")
         .order("scheduled_for", { ascending: true });
@@ -37,5 +36,6 @@ export function useSocialCalendar(month: string) {
     posts: query.data || [],
     isLoading: query.isLoading,
     error: query.error,
+    refetch: query.refetch,
   };
 }
