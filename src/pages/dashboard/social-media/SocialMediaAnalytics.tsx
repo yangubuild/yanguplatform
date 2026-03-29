@@ -18,7 +18,7 @@ export default function SocialMediaAnalytics() {
   const [dateRange, setDateRange] = useState<AnalyticsDateRange>(defaultRange);
 
   const { activeAccounts } = useConnectedAccounts();
-  const { summary, isReady, isLoading } = useSocialAnalytics(dateRange, selectedAccountId ?? undefined);
+  const { summary, snapshots, isReady, isLoading } = useSocialAnalytics(dateRange, selectedAccountId ?? undefined);
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
@@ -64,7 +64,7 @@ export default function SocialMediaAnalytics() {
       {tab === "page" ? (
         <AnalyticsByPageTab
           summary={summary}
-          snapshots={[]}
+          snapshots={snapshots}
           hasAccounts={activeAccounts.length > 0}
           isLoading={isLoading}
           isReady={isReady}
