@@ -6,7 +6,10 @@ import { AIProfileWritingTab } from "@/components/social-media/ai-profile/AIProf
 import { AIProfileVisualsTab } from "@/components/social-media/ai-profile/AIProfileVisualsTab";
 import { AIProfileUrlAnalyzer } from "@/components/social-media/ai-profile/AIProfileUrlAnalyzer";
 import { useAIProfileAnalyzer, type AnalyzedProfile } from "@/hooks/social/useAIProfileAnalyzer";
-
+import { useAITopicGeneration } from "@/hooks/social/useAITopicGeneration";
+import { useSocialTopics } from "@/hooks/social/useSocialTopics";
+import { useSocialTopicCategories } from "@/hooks/social/useSocialTopicCategories";
+import { toast } from "sonner";
 export default function SocialMediaAiProfile() {
   const [tab, setTab] = useState("writing");
   const { profile, isLoading, updateProfile, isSaving } = useSocialBrandProfile();
