@@ -119,6 +119,17 @@ const ManageReports = lazy(() => lazyRetry(() => import("./pages/manage/ManageRe
 const EntityDetailPage = lazy(() => lazyRetry(() => import("./pages/EntityDetailPage")));
 const Unsubscribe = lazy(() => lazyRetry(() => import("./pages/Unsubscribe")));
 
+// Social Media module (lazy)
+const SocialMediaLayout = lazy(() => lazyRetry(() => import("./pages/dashboard/social-media/SocialMediaLayout")));
+const SocialMediaHome = lazy(() => lazyRetry(() => import("./pages/dashboard/social-media/SocialMediaHome")));
+const SocialMediaPosts = lazy(() => lazyRetry(() => import("./pages/dashboard/social-media/SocialMediaPosts")));
+const SocialMediaCalendar = lazy(() => lazyRetry(() => import("./pages/dashboard/social-media/SocialMediaCalendar")));
+const SocialMediaAnalytics = lazy(() => lazyRetry(() => import("./pages/dashboard/social-media/SocialMediaAnalytics")));
+const SocialMediaLibrary = lazy(() => lazyRetry(() => import("./pages/dashboard/social-media/SocialMediaLibrary")));
+const SocialMediaTopics = lazy(() => lazyRetry(() => import("./pages/dashboard/social-media/SocialMediaTopics")));
+const SocialMediaAiProfile = lazy(() => lazyRetry(() => import("./pages/dashboard/social-media/SocialMediaAiProfile")));
+const SocialMediaWorkspace = lazy(() => lazyRetry(() => import("./pages/dashboard/social-media/SocialMediaWorkspace")));
+
 // Developer Portal (lazy)
 const PortalLayoutModule = lazy(() => lazyRetry(() => import("./components/developers/portal/PortalLayout").then(m => ({ default: m.PortalLayout }))));
 const PortalOverview = lazy(() => lazyRetry(() => import("./pages/developers/portal/PortalOverview")));
@@ -477,6 +488,18 @@ const App = () => (
                   <Route path="dashboard/agency" element={<Navigate to="/dashboard/agency" replace />} />
                   <Route path="dashboard/agency/*" element={<Navigate to="/dashboard/agency" replace />} />
                   <Route path="dashboard/*" element={<Navigate to="/dashboard" replace />} />
+
+                  {/* Social Media module */}
+                  <Route path="social-media" element={<SocialMediaLayout />}>
+                    <Route index element={<SocialMediaHome />} />
+                    <Route path="posts" element={<SocialMediaPosts />} />
+                    <Route path="calendar" element={<SocialMediaCalendar />} />
+                    <Route path="analytics" element={<SocialMediaAnalytics />} />
+                    <Route path="library" element={<SocialMediaLibrary />} />
+                    <Route path="topics" element={<SocialMediaTopics />} />
+                    <Route path="ai-profile" element={<SocialMediaAiProfile />} />
+                    <Route path="workspace" element={<SocialMediaWorkspace />} />
+                  </Route>
 
                   {/* Agency routes — agency only */}
                   <Route path="agency" element={<RequireRole allowed={["agency"]}><AgencyLayout /></RequireRole>}>

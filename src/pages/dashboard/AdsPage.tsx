@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sparkles, Megaphone } from "lucide-react";
+import { Sparkles, Megaphone, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CampaignWizard } from "@/components/ads/CampaignWizard";
 import { AiVisibilityWizard } from "@/components/ads/AiVisibilityWizard";
@@ -67,13 +67,23 @@ export default function AdsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-lg font-semibold text-foreground">Ads</h1>
-          <Button
-            variant="accent"
-            onClick={() => setShowCampaignWizard(true)}
-            className="px-5 h-10"
-          >
-            Launch new campaign
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => window.location.href = "/dashboard/promo-codes"}
+              className="px-5 h-10"
+            >
+              <Tag className="w-4 h-4 mr-2" />
+              Promo Codes
+            </Button>
+            <Button
+              variant="accent"
+              onClick={() => setShowCampaignWizard(true)}
+              className="px-5 h-10"
+            >
+              Launch new campaign
+            </Button>
+          </div>
         </div>
 
         {/* Tabs */}

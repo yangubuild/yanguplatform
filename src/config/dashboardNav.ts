@@ -143,8 +143,8 @@ export const DASHBOARD_SECTIONS: NavSection[] = [
   {
     title: "MARKETING",
     items: [
+      { icon: Globe, label: "Social Media", to: "/dashboard/social-media" },
       { icon: BarChart3, label: "Ads", to: "/dashboard/ads" },
-      { icon: Tag, label: "Promo Codes", to: "/dashboard/promo-codes" },
       { icon: Users, label: "Affiliates", to: "/dashboard/affiliates" },
     ],
   },
