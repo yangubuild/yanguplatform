@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
@@ -14,8 +14,12 @@ export default function SocialMediaCallback() {
   const qc = useQueryClient();
   const [state, setState] = useState<CallbackState>("loading");
   const [message, setMessage] = useState("");
+  const processed = useRef(false);
 
   useEffect(() => {
+    if (processed.current) return;
+    processed.current = true;
+
     const handleCallback = async () => {
       try {
         const code = searchParams.get("code");
@@ -34,11 +38,23 @@ export default function SocialMediaCallback() {
           return;
         }
 
+        // Extract workspace ID from state if embedded, or fallback
+        let workspaceId = "default";
+        if (stateParam) {
+          try {
+            const parsed = JSON.parse(atob(stateParam));
+            if (parsed.workspace_id) workspaceId = parsed.workspace_id;
+          } catch {
+            // State is opaque; use default
+          }
+        }
+
         const { data, error: fnError } = await supabase.functions.invoke("outstand-proxy", {
           body: {
             action: "oauth_callback",
             code,
             state: stateParam,
+            workspaceId,
             redirectUrl: `${window.location.origin}/dashboard/social-media/callback`,
           },
         });
@@ -51,9 +67,12 @@ export default function SocialMediaCallback() {
           return;
         }
 
-        // Refresh connected accounts
-        await qc.invalidateQueries({ queryKey: socialKeys.accounts() });
-        await qc.invalidateQueries({ queryKey: socialKeys.homeSummary() });
+        // Refresh connected accounts + home summary
+        await Promise.all([
+          qc.invalidateQueries({ queryKey: socialKeys.accounts() }),
+          qc.invalidateQueries({ queryKey: socialKeys.homeSummary() }),
+          qc.invalidateQueries({ queryKey: socialKeys.workspace() }),
+        ]);
 
         setState("success");
         setMessage(data?.account?.display_name
@@ -61,7 +80,7 @@ export default function SocialMediaCallback() {
           : "Account connected successfully!");
 
         // Auto-redirect after success
-        setTimeout(() => navigate("/dashboard/social-media/workspace"), 2000);
+        setTimeout(() => navigate("/dashboard/social-media/workspace"), 2500);
       } catch (err) {
         setState("error");
         setMessage(err instanceof Error ? err.message : "Failed to complete connection.");

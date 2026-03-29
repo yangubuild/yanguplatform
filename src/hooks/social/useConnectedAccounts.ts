@@ -35,7 +35,7 @@ export function useConnectedAccounts(workspaceId?: string) {
         provider_account_id: row.provider_user_id,
         provider_account_name: row.display_name,
         avatar_url: row.avatar_url,
-        status: row.status as SocialConnectedAccount["status"],
+        status: mapAccountStatus(row.status),
         metadata: row.metadata as Record<string, unknown> | null,
         created_at: row.created_at,
         updated_at: row.updated_at,
@@ -52,7 +52,6 @@ export function useConnectedAccounts(workspaceId?: string) {
       const provider = providerRegistry.getDefault();
       if (!provider) throw new Error("No provider configured");
       const result = await provider.getConnectUrl(params);
-      // Redirect user to OAuth URL
       if (result.url) {
         window.location.href = result.url;
       }
@@ -78,6 +77,7 @@ export function useConnectedAccounts(workspaceId?: string) {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: socialKeys.accounts() });
+      qc.invalidateQueries({ queryKey: socialKeys.homeSummary() });
     },
   });
 
@@ -91,6 +91,7 @@ export function useConnectedAccounts(workspaceId?: string) {
 
   return {
     accounts: query.data || [],
+    activeAccounts: (query.data || []).filter(a => a.status === "active"),
     isLoading: query.isLoading,
     error: query.error,
     connect: connectMutation.mutateAsync,
@@ -100,4 +101,15 @@ export function useConnectedAccounts(workspaceId?: string) {
     healthStatus: healthCheckMutation.data,
     isCheckingHealth: healthCheckMutation.isPending,
   };
+}
+
+function mapAccountStatus(status: string | null): SocialConnectedAccount["status"] {
+  switch (status) {
+    case "active": return "active";
+    case "expired": return "expired";
+    case "error": return "error";
+    case "pending": return "pending";
+    case "disconnected": return "disconnected";
+    default: return "active";
+  }
 }

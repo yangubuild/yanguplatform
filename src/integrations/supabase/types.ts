@@ -7375,6 +7375,7 @@ export type Database = {
           data: Json | null
           event_type: string
           id: string
+          idempotency_key: string | null
           post_id: string | null
           post_target_id: string | null
           source: string | null
@@ -7386,6 +7387,7 @@ export type Database = {
           data?: Json | null
           event_type: string
           id?: string
+          idempotency_key?: string | null
           post_id?: string | null
           post_target_id?: string | null
           source?: string | null
@@ -7397,6 +7399,7 @@ export type Database = {
           data?: Json | null
           event_type?: string
           id?: string
+          idempotency_key?: string | null
           post_id?: string | null
           post_target_id?: string | null
           source?: string | null
