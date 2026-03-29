@@ -33,15 +33,18 @@ export default function SocialMediaLayout() {
   return (
     <div className="flex flex-col h-full min-h-screen bg-background">
       {/* Internal top navigator */}
-      <div className="shrink-0 border-b border-border bg-card/50 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-2 sm:px-4">
-          <nav
-            className="flex items-center gap-1 h-11 sm:h-12 overflow-x-auto"
+      <div className="shrink-0 border-b border-border bg-card/50 backdrop-blur-sm overflow-hidden">
+        <div className="w-full px-2 sm:px-4 sm:max-w-6xl sm:mx-auto">
+          <div
+            className="overflow-x-auto"
             style={{
               scrollbarWidth: "none",
               msOverflowStyle: "none",
               WebkitOverflowScrolling: "touch",
             }}
+          >
+          <nav
+            className="flex items-center gap-1.5 h-11 sm:h-12 w-max min-w-full"
           >
             {/* Back to Dashboard */}
             <button
