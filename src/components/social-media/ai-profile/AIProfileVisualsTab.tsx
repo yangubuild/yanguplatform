@@ -6,8 +6,11 @@ import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { SYSTEM_THEMES } from "@/data/socialThemes";
+import { getThemePreviewImage } from "@/data/themePreviewImages";
 import { ChooseThemesModal } from "./ChooseThemesModal";
 import { ThemePreviewCard } from "./ThemePreviewCard";
+import { TemplateEditorModal } from "./TemplateEditorModal";
+import type { TemplateLayer, TemplateColorSlots, LayerOverride } from "@/types/templateDesign";
 
 interface Props {
   profile: Record<string, unknown>;
