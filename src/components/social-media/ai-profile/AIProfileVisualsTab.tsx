@@ -166,8 +166,8 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
             </button>
           </div>
 
-          {selectedThemeKeys.length > 1 && (
-            <p className="text-xs text-muted-foreground">+{selectedThemeKeys.length - 1} more themes selected</p>
+          {selectedThemeKeys.length > 3 && (
+            <p className="text-xs text-muted-foreground">+{selectedThemeKeys.length - 3} more themes selected</p>
           )}
         </CollapsibleSection>
 
