@@ -57,10 +57,34 @@ function isRetryable(category: ErrorCategory): boolean {
 // These need user action, not more retries.
 
 // ── Platform Variant Resolution ──────────────────────────
-function resolveVariantUrl(baseUrl: string | null, platform: string): string | null {
-  // In a full system, this would look up platform-specific rendered URLs.
-  // For now, return the base variant URL (the generation pipeline already
-  // stores the correct aspect ratio variant per job).
+async function resolveVariantUrl(
+  supabaseAdmin: ReturnType<typeof createClient>,
+  baseUrl: string | null,
+  platform: string,
+  postId: string
+): Promise<string | null> {
+  // Try to find platform-specific rendered variant from designs linked to this post
+  try {
+    const { data: post } = await supabaseAdmin
+      .from("social_posts")
+      .select("metadata")
+      .eq("id", postId)
+      .single();
+
+    const designId = (post?.metadata as any)?.design_id;
+    if (designId) {
+      const { data: variant } = await supabaseAdmin
+        .from("social_platform_variants")
+        .select("rendered_url")
+        .eq("design_id", designId)
+        .eq("platform", platform)
+        .single();
+
+      if (variant?.rendered_url) return variant.rendered_url;
+    }
+  } catch {
+    // Fallback to base URL
+  }
   return baseUrl;
 }
 
@@ -345,7 +369,14 @@ serve(async (req) => {
       }
 
       // Resolve correct variant URL for platform
-      const variantUrl = resolveVariantUrl(job.variant_url, job.platform);
+      const variantUrl = await resolveVariantUrl(supabaseAdmin, job.variant_url, job.platform, job.post_id);
+
+      // Guard: block publish without valid media (if job expects media)
+      if (!variantUrl && job.variant_url !== null) {
+        await failJob(supabaseAdmin, job, "No platform variant available — regenerate variants", "invalid_media", false);
+        results.push({ jobId: job.id, status: "failed", error: "Missing platform variant" });
+        continue;
+      }
 
       // Log publishing attempt
       await supabaseAdmin.from("social_post_job_events").insert({

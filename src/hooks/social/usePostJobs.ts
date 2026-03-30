@@ -1,6 +1,7 @@
 /**
  * YANGU Social Media — Post Job Management Hook
  * Query job states + manual actions (retry, cancel, reschedule).
+ * Includes pre-publish validation guards.
  */
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -8,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { socialKeys } from "./queryKeys";
 import { toast } from "sonner";
+import { publishGuards } from "@/services/socialMedia/publishGuards";
 
 // ── Types ────────────────────────────────────────────────
 
@@ -134,6 +136,11 @@ export function usePostJobs(workspaceId: string | null, statusFilter?: PostJobSt
 
   const rescheduleMutation = useMutation({
     mutationFn: async ({ jobId, scheduledAt }: { jobId: string; scheduledAt: string }) => {
+      // Guard: block past scheduling
+      if (new Date(scheduledAt) <= new Date()) {
+        throw new Error("Cannot reschedule to a past time.");
+      }
+
       const { error } = await supabase
         .from("social_post_jobs")
         .update({
@@ -157,9 +164,12 @@ export function usePostJobs(workspaceId: string | null, statusFilter?: PostJobSt
       qc.invalidateQueries({ queryKey: [...socialKeys.all, "jobs"] });
       toast.success("Job rescheduled");
     },
+    onError: (err) => {
+      toast.error(err instanceof Error ? err.message : "Reschedule failed");
+    },
   });
 
-  // ── Create jobs from a scheduled post ────────────────
+  // ── Create jobs with validation ─────────────────────
 
   const createJobsMutation = useMutation({
     mutationFn: async (params: {
@@ -174,6 +184,25 @@ export function usePostJobs(workspaceId: string | null, statusFilter?: PostJobSt
       hashtags?: string[];
       scheduledAt: string;
     }) => {
+      // Run pre-publish validation
+      const validation = await publishGuards.validateBeforePublish({
+        postId: params.postId,
+        workspaceId: params.workspaceId,
+        targets: params.targets.map((t) => ({
+          platform: t.platform,
+          accountId: t.accountId,
+        })),
+        scheduledAt: params.scheduledAt,
+        caption: params.caption,
+      });
+
+      if (!validation.valid) {
+        throw new Error(validation.errors.join("\n"));
+      }
+
+      // Show warnings as toasts
+      validation.warnings.forEach((w) => toast.warning(w));
+
       const jobs = params.targets.map((t) => ({
         post_id: params.postId,
         workspace_id: params.workspaceId,
@@ -194,6 +223,10 @@ export function usePostJobs(workspaceId: string | null, statusFilter?: PostJobSt
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [...socialKeys.all, "jobs"] });
+      toast.success("Jobs created and queued");
+    },
+    onError: (err) => {
+      toast.error(err instanceof Error ? err.message : "Failed to create jobs");
     },
   });
 
@@ -209,5 +242,6 @@ export function usePostJobs(workspaceId: string | null, statusFilter?: PostJobSt
     createJobs: createJobsMutation.mutateAsync,
     isRetrying: retryMutation.isPending,
     isCancelling: cancelMutation.isPending,
+    isCreating: createJobsMutation.isPending,
   };
 }

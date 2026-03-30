@@ -5,3 +5,6 @@ export { SocialFilterBar } from "./SocialFilterBar";
 export { SocialProviderRow } from "./SocialProviderRow";
 export { SocialProgressChecklist } from "./SocialProgressChecklist";
 export { SocialQuickActionCard } from "./SocialQuickActionCard";
+export { JobStatusPill } from "./JobStatusPill";
+export { JobFailureReason } from "./JobFailureReason";
+export { JobActionButtons } from "./JobActionButtons";

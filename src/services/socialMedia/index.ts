@@ -13,6 +13,7 @@ export { templateService, designService, applyBrandToTemplate, resolveLayersWith
 export type { BrandConfig } from "./templateService";
 export { variationGenerationService } from "./variationGenerationService";
 export { resizeEngine, PLATFORM_ASPECT_MAP, CANVAS_SIZES, ALL_PLATFORMS } from "./resizeEngine";
+export { publishGuards } from "./publishGuards";
 
 export {
   brandContextBuilder,
