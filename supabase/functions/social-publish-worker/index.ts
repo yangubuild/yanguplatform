@@ -369,7 +369,14 @@ serve(async (req) => {
       }
 
       // Resolve correct variant URL for platform
-      const variantUrl = resolveVariantUrl(job.variant_url, job.platform);
+      const variantUrl = await resolveVariantUrl(supabaseAdmin, job.variant_url, job.platform, job.post_id);
+
+      // Guard: block publish without valid media (if job expects media)
+      if (!variantUrl && job.variant_url !== null) {
+        await failJob(supabaseAdmin, job, "No platform variant available — regenerate variants", "invalid_media", false);
+        results.push({ jobId: job.id, status: "failed", error: "Missing platform variant" });
+        continue;
+      }
 
       // Log publishing attempt
       await supabaseAdmin.from("social_post_job_events").insert({
