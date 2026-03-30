@@ -7073,6 +7073,197 @@ export type Database = {
         }
         Relationships: []
       }
+      social_design_templates: {
+        Row: {
+          aspect_ratio: string
+          base_image_url: string
+          category: string
+          color_slots: Json
+          created_at: string
+          id: string
+          is_system: boolean
+          metadata: Json | null
+          name: string
+          preview_image_url: string
+          slug: string
+          updated_at: string
+          user_id: string | null
+          workspace_id: string | null
+        }
+        Insert: {
+          aspect_ratio?: string
+          base_image_url: string
+          category?: string
+          color_slots?: Json
+          created_at?: string
+          id?: string
+          is_system?: boolean
+          metadata?: Json | null
+          name: string
+          preview_image_url: string
+          slug: string
+          updated_at?: string
+          user_id?: string | null
+          workspace_id?: string | null
+        }
+        Update: {
+          aspect_ratio?: string
+          base_image_url?: string
+          category?: string
+          color_slots?: Json
+          created_at?: string
+          id?: string
+          is_system?: boolean
+          metadata?: Json | null
+          name?: string
+          preview_image_url?: string
+          slug?: string
+          updated_at?: string
+          user_id?: string | null
+          workspace_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_design_templates_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "social_workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_design_variations: {
+        Row: {
+          caption: string | null
+          color_overrides: Json | null
+          created_at: string
+          id: string
+          layer_overrides: Json
+          metadata: Json | null
+          parent_design_id: string
+          rendered_image_url: string | null
+          status: string
+          variation_index: number
+        }
+        Insert: {
+          caption?: string | null
+          color_overrides?: Json | null
+          created_at?: string
+          id?: string
+          layer_overrides?: Json
+          metadata?: Json | null
+          parent_design_id: string
+          rendered_image_url?: string | null
+          status?: string
+          variation_index?: number
+        }
+        Update: {
+          caption?: string | null
+          color_overrides?: Json | null
+          created_at?: string
+          id?: string
+          layer_overrides?: Json
+          metadata?: Json | null
+          parent_design_id?: string
+          rendered_image_url?: string | null
+          status?: string
+          variation_index?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_design_variations_parent_design_id_fkey"
+            columns: ["parent_design_id"]
+            isOneToOne: false
+            referencedRelation: "social_generated_designs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_generated_designs: {
+        Row: {
+          ai_prompt: string | null
+          aspect_ratio: string
+          color_overrides: Json | null
+          created_at: string
+          font_overrides: Json | null
+          id: string
+          layer_overrides: Json
+          logo_url: string | null
+          metadata: Json | null
+          post_id: string | null
+          rendered_image_url: string | null
+          status: string
+          template_id: string
+          title: string | null
+          updated_at: string
+          user_id: string
+          variation_index: number
+          workspace_id: string
+        }
+        Insert: {
+          ai_prompt?: string | null
+          aspect_ratio?: string
+          color_overrides?: Json | null
+          created_at?: string
+          font_overrides?: Json | null
+          id?: string
+          layer_overrides?: Json
+          logo_url?: string | null
+          metadata?: Json | null
+          post_id?: string | null
+          rendered_image_url?: string | null
+          status?: string
+          template_id: string
+          title?: string | null
+          updated_at?: string
+          user_id: string
+          variation_index?: number
+          workspace_id: string
+        }
+        Update: {
+          ai_prompt?: string | null
+          aspect_ratio?: string
+          color_overrides?: Json | null
+          created_at?: string
+          font_overrides?: Json | null
+          id?: string
+          layer_overrides?: Json
+          logo_url?: string | null
+          metadata?: Json | null
+          post_id?: string | null
+          rendered_image_url?: string | null
+          status?: string
+          template_id?: string
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+          variation_index?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_generated_designs_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "social_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "social_generated_designs_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "social_design_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "social_generated_designs_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "social_workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       social_library_items: {
         Row: {
           created_at: string | null
@@ -7432,6 +7623,71 @@ export type Database = {
           },
         ]
       }
+      social_template_layers: {
+        Row: {
+          content: string | null
+          created_at: string
+          height: number
+          id: string
+          layer_type: string
+          locked: boolean
+          metadata: Json | null
+          role: string | null
+          rotation: number | null
+          sort_order: number
+          src: string | null
+          style: Json | null
+          template_id: string
+          width: number
+          x: number
+          y: number
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          height?: number
+          id?: string
+          layer_type: string
+          locked?: boolean
+          metadata?: Json | null
+          role?: string | null
+          rotation?: number | null
+          sort_order?: number
+          src?: string | null
+          style?: Json | null
+          template_id: string
+          width?: number
+          x?: number
+          y?: number
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          height?: number
+          id?: string
+          layer_type?: string
+          locked?: boolean
+          metadata?: Json | null
+          role?: string | null
+          rotation?: number | null
+          sort_order?: number
+          src?: string | null
+          style?: Json | null
+          template_id?: string
+          width?: number
+          x?: number
+          y?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_template_layers_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "social_design_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       social_topic_categories: {
         Row: {
           color: string | null
@@ -7519,6 +7775,48 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "social_topics_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "social_workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_workspace_templates: {
+        Row: {
+          brand_overrides: Json | null
+          created_at: string
+          id: string
+          is_favorite: boolean
+          template_id: string
+          workspace_id: string
+        }
+        Insert: {
+          brand_overrides?: Json | null
+          created_at?: string
+          id?: string
+          is_favorite?: boolean
+          template_id: string
+          workspace_id: string
+        }
+        Update: {
+          brand_overrides?: Json | null
+          created_at?: string
+          id?: string
+          is_favorite?: boolean
+          template_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_workspace_templates_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "social_design_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "social_workspace_templates_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "social_workspaces"
