@@ -10,6 +10,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { postLifecycleService } from "./postLifecycleService";
+import { resizeEngine } from "./resizeEngine";
 import { designService } from "./templateService";
 import type { LayerOverride, TemplateColorSlots, TemplateAspectRatio } from "@/types/templateDesign";
 import type { SocialPost } from "@/types/socialMedia";
@@ -189,10 +190,23 @@ export const variationGenerationService = {
           scheduled_for: scheduledFor || undefined,
         });
 
-        // Link design to post
+        // Link design to post + generate platform variants
         await designService.updateDesign(design.id, {
           status: "ready",
         });
+
+        // Auto-generate platform-specific resize variants
+        try {
+          const templateData = await supabase
+            .from("social_template_layers")
+            .select("*")
+            .eq("template_id", input.template_id)
+            .order("sort_order");
+          const baseLayers = (templateData.data || []) as unknown as import("@/types/templateDesign").TemplateLayer[];
+          await resizeEngine.generateAllVariants(design.id, baseLayers);
+        } catch (resizeErr) {
+          console.warn(`Variant resize for design ${design.id} failed:`, resizeErr);
+        }
 
         // Update post → link design via metadata
         await supabase
