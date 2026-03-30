@@ -467,7 +467,7 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
                 <>
                   {firstKey && (
                     <div>
-                      <ThemePreviewCard themeKey={firstKey} size="lg" className="aspect-square" />
+                      <ThemePreviewCard themeKey={firstKey} size="lg" className="!h-auto w-full aspect-square" />
                       <p className="text-xs text-muted-foreground mt-1.5">From theme: {firstTheme!.name}</p>
                     </div>
                   )}
