@@ -7379,6 +7379,56 @@ export type Database = {
           },
         ]
       }
+      social_platform_variants: {
+        Row: {
+          aspect_ratio: string
+          created_at: string
+          design_id: string
+          height: number
+          id: string
+          layer_transforms: Json
+          platform: string
+          rendered_url: string | null
+          status: string
+          updated_at: string
+          width: number
+        }
+        Insert: {
+          aspect_ratio?: string
+          created_at?: string
+          design_id: string
+          height?: number
+          id?: string
+          layer_transforms?: Json
+          platform: string
+          rendered_url?: string | null
+          status?: string
+          updated_at?: string
+          width?: number
+        }
+        Update: {
+          aspect_ratio?: string
+          created_at?: string
+          design_id?: string
+          height?: number
+          id?: string
+          layer_transforms?: Json
+          platform?: string
+          rendered_url?: string | null
+          status?: string
+          updated_at?: string
+          width?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_platform_variants_design_id_fkey"
+            columns: ["design_id"]
+            isOneToOne: false
+            referencedRelation: "social_generated_designs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       social_post_job_events: {
         Row: {
           created_at: string
