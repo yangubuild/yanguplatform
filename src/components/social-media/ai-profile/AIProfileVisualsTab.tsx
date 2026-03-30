@@ -453,7 +453,13 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
             <p className="text-[10px] text-muted-foreground">Using placeholder text and photos</p>
           </div>
           <div className="space-y-4">
-            {(selectedThemes.length > 0 ? selectedThemes.slice(0, 3) : SYSTEM_THEMES.slice(0, 3)).map((t) => {
+            {(() => {
+              const base = selectedThemes.length > 0 ? selectedThemes.slice(0, 3) : [];
+              // Fill remaining slots from SYSTEM_THEMES to always show 3
+              const usedKeys = new Set(base.map((t) => ("key" in t ? t.key : t.name)));
+              const filler = SYSTEM_THEMES.filter((t) => !usedKeys.has(t.key)).slice(0, 3 - base.length);
+              return [...base, ...filler];
+            })().map((t) => {
               const key = ("key" in t ? t.key : t.name) as string;
               return (
                 <div key={key}>
