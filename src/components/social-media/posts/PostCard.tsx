@@ -5,7 +5,6 @@ import {
   CheckCircle2,
   AlertCircle,
   ChevronDown,
-  Eye,
   Copy,
   Download,
   Link2,
@@ -14,6 +13,7 @@ import {
   CalendarClock,
   Crown,
   Pencil,
+  Layers,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -35,29 +35,27 @@ interface Props {
 export function PostCard({ post, onAction, onEdit, onDetails }: Props) {
   const [expanded, setExpanded] = useState(false);
   const caption = post.caption || "";
-  const isLong = caption.length > 140;
-  const displayCaption = expanded ? caption : caption.slice(0, 140);
+  const isLong = caption.length > 120;
+  const displayCaption = expanded ? caption : caption.slice(0, 120);
   const mediaUrls: string[] = [
     ...(post.primary_media_url ? [post.primary_media_url] : []),
     ...(post.media_urls || []),
   ].filter((v, i, a) => a.indexOf(v) === i);
   const hasMedia = mediaUrls.length > 0;
   const mainImage = mediaUrls[0];
+  const categoryName = (post.metadata as any)?.category_name || null;
 
   // Status bar for published / failed
   const statusLine = () => {
     if (post.status === "published" && post.published_at) {
       return (
         <div className="flex items-center gap-2 px-3 py-1.5 bg-green-500/10">
-          <CheckCircle2 className="h-3.5 w-3.5 text-green-500 shrink-0" />
-          <span className="text-[11px] font-medium text-green-500 truncate">
+          <CheckCircle2 className="h-3 w-3 text-green-500 shrink-0" />
+          <span className="text-[10px] font-medium text-green-500 truncate">
             Published {format(new Date(post.published_at), "MMM d 'at' h:mm a")}
           </span>
           {onDetails && (
-            <button
-              onClick={() => onDetails(post)}
-              className="text-[11px] text-accent hover:underline ml-auto shrink-0"
-            >
+            <button onClick={() => onDetails(post)} className="text-[10px] text-accent hover:underline ml-auto shrink-0">
               details
             </button>
           )}
@@ -67,12 +65,9 @@ export function PostCard({ post, onAction, onEdit, onDetails }: Props) {
     if (post.status === "failed") {
       return (
         <div className="flex items-center gap-2 px-3 py-1.5 bg-destructive/10">
-          <AlertCircle className="h-3.5 w-3.5 text-destructive shrink-0" />
-          <span className="text-[11px] font-medium text-destructive">Failed</span>
-          <button
-            onClick={() => onAction("retry", post)}
-            className="text-[11px] text-accent hover:underline ml-auto shrink-0"
-          >
+          <AlertCircle className="h-3 w-3 text-destructive shrink-0" />
+          <span className="text-[10px] font-medium text-destructive">Failed</span>
+          <button onClick={() => onAction("retry", post)} className="text-[10px] text-accent hover:underline ml-auto shrink-0">
             Retry
           </button>
         </div>
@@ -85,58 +80,72 @@ export function PostCard({ post, onAction, onEdit, onDetails }: Props) {
     <div className="rounded-xl border border-border bg-card overflow-hidden hover:border-accent/30 transition-colors">
       {statusLine()}
 
-      {/* Category + overflow menu */}
-      <div className="flex items-center justify-between px-3 pt-3 pb-1">
-        {post.category_id ? (
-          <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded border border-accent/30 text-accent tracking-wide truncate max-w-[60%]">
-            {(post.metadata as any)?.category_name || "Category"}
-          </span>
-        ) : (
-          <div />
-        )}
+      {/* Category + AB test icon + overflow menu */}
+      <div className="flex items-center justify-between px-3 pt-2.5 pb-1">
+        {/* Category dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="p-1 rounded hover:bg-muted transition-colors shrink-0">
-              <MoreVertical className="h-4 w-4 text-muted-foreground" />
+            <button className="flex items-center gap-1 text-[10px] font-bold uppercase px-1.5 py-0.5 rounded border border-accent/30 text-accent tracking-wide hover:bg-accent/5 transition-colors">
+              {categoryName || "Category"}
+              <ChevronDown className="h-2.5 w-2.5" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-44">
-            <DropdownMenuItem onClick={() => onAction("ingredients", post)} className="gap-2 text-xs">
-              <Eye className="h-3.5 w-3.5" /> Show ingredients
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onAction("duplicate", post)} className="gap-2 text-xs">
-              <Copy className="h-3.5 w-3.5" /> Duplicate
-            </DropdownMenuItem>
-            {hasMedia && (
-              <DropdownMenuItem onClick={() => onAction("download", post)} className="gap-2 text-xs">
-                <Download className="h-3.5 w-3.5" /> Download Image
+          <DropdownMenuContent align="start" className="w-52">
+            {["DIGITAL COMMUNITY SERVICES", "DIGITAL COMMUNITY APP", "ESHOPS", "ESHOPS CONNECT", "REAL ESTATE", "DIGITAL MENU"].map((cat) => (
+              <DropdownMenuItem key={cat} className="gap-2 text-xs">
+                <span className="w-2 h-2 rounded-full bg-accent shrink-0" />
+                {cat}
               </DropdownMenuItem>
-            )}
-            <DropdownMenuItem onClick={() => onAction("share", post)} className="gap-2 text-xs">
-              <Link2 className="h-3.5 w-3.5" /> Copy share link
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => onAction("delete", post)}
-              className="gap-2 text-xs text-destructive focus:text-destructive"
-            >
-              <Trash2 className="h-3.5 w-3.5" /> Delete post
-            </DropdownMenuItem>
+            ))}
           </DropdownMenuContent>
         </DropdownMenu>
+
+        <div className="flex items-center gap-1">
+          <button className="p-1 rounded hover:bg-muted transition-colors text-muted-foreground" title="A/B test">
+            <Layers className="h-3.5 w-3.5" />
+          </button>
+          {/* Overflow menu — matches reference exactly */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="p-1 rounded hover:bg-muted transition-colors shrink-0">
+                <MoreVertical className="h-3.5 w-3.5 text-muted-foreground" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-44">
+              <DropdownMenuItem onClick={() => onAction("duplicate", post)} className="gap-2 text-xs">
+                <Copy className="h-3.5 w-3.5" /> Duplicate
+              </DropdownMenuItem>
+              {hasMedia && (
+                <DropdownMenuItem onClick={() => onAction("download", post)} className="gap-2 text-xs">
+                  <Download className="h-3.5 w-3.5" /> Download Image
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem onClick={() => onAction("share", post)} className="gap-2 text-xs">
+                <Link2 className="h-3.5 w-3.5" /> Copy share link
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => onAction("delete", post)}
+                className="gap-2 text-xs text-destructive focus:text-destructive"
+              >
+                <Trash2 className="h-3.5 w-3.5" /> Delete post
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
-      {/* Caption — compact, before image like reference */}
+      {/* Caption — compact, before image */}
       {caption && (
-        <div className="px-3 pb-2">
-          <p className="text-[13px] text-foreground leading-snug whitespace-pre-wrap">
+        <div className="px-3 pb-1.5">
+          <p className="text-[12px] text-foreground leading-snug whitespace-pre-wrap">
             {displayCaption}
             {isLong && !expanded && "…"}
           </p>
           {isLong && (
             <button
               onClick={() => setExpanded(!expanded)}
-              className="text-[11px] text-muted-foreground hover:text-foreground mt-0.5"
+              className="text-[10px] text-muted-foreground hover:text-foreground mt-0.5"
             >
               {expanded ? "Show less" : "Show more"}
             </button>
@@ -144,60 +153,55 @@ export function PostCard({ post, onAction, onEdit, onDetails }: Props) {
         </div>
       )}
 
-      {/* Media — preview container */}
+      {/* Media — compact preview */}
       {mediaUrls.length > 1 ? (
         <MultiImagePreview urls={mediaUrls} />
       ) : mainImage ? (
-        <div className="w-full overflow-hidden" style={{ aspectRatio: "4/5" }}>
-          <img
-            src={mainImage}
-            alt=""
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
+        <div className="w-full overflow-hidden" style={{ aspectRatio: "4/5", maxHeight: "320px" }}>
+          <img src={mainImage} alt="" className="w-full h-full object-cover" loading="lazy" />
         </div>
       ) : (
         <div
           className="w-full bg-gradient-to-br from-muted/40 via-muted/20 to-accent/10 flex items-center justify-center"
-          style={{ aspectRatio: "4/5" }}
+          style={{ aspectRatio: "4/5", maxHeight: "280px" }}
         >
-          <div className="text-center px-6 max-w-[80%]">
-            <p className="text-sm font-semibold text-foreground/60 leading-snug line-clamp-4">
-              {caption.slice(0, 100) || "Post creative"}
+          <div className="text-center px-4 max-w-[80%]">
+            <p className="text-xs font-semibold text-foreground/60 leading-snug line-clamp-3">
+              {caption.slice(0, 80) || "Post creative"}
             </p>
           </div>
         </div>
       )}
 
-      {/* Draft actions — edit + schedule */}
+      {/* Draft actions — edit + schedule matching reference */}
       {post.status === "draft" && (
-        <div className="flex items-center justify-between px-3 py-2.5 border-t border-border">
+        <div className="flex items-center justify-between px-3 py-2 border-t border-border">
           {onEdit ? (
             <button
               onClick={() => onEdit(post)}
               className="p-1.5 rounded hover:bg-muted transition-colors"
             >
-              <Pencil className="h-4 w-4 text-muted-foreground" />
+              <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
           ) : (
             <div />
           )}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5">
             <Button
               variant="outline"
               size="sm"
-              className="text-xs h-8"
+              className="text-xs h-7 px-3"
               onClick={() => onAction("schedule", post)}
             >
               Schedule
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="px-1.5 h-8">
+                <Button variant="outline" size="sm" className="px-1.5 h-7">
                   <ChevronDown className="h-3 w-3" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-40">
+              <DropdownMenuContent align="end" className="w-44">
                 <DropdownMenuItem onClick={() => onAction("publish", post)} className="gap-2 text-xs">
                   <Send className="h-3.5 w-3.5" /> Publish Now
                 </DropdownMenuItem>
@@ -215,9 +219,9 @@ export function PostCard({ post, onAction, onEdit, onDetails }: Props) {
 
       {/* Published stats */}
       {post.status === "published" && post.targets && post.targets.length > 0 && (
-        <div className="px-3 py-2 border-t border-border space-y-1">
+        <div className="px-3 py-1.5 border-t border-border space-y-0.5">
           {post.targets.map((t) => (
-            <div key={t.id} className="flex items-center gap-2 text-[11px] text-muted-foreground">
+            <div key={t.id} className="flex items-center gap-2 text-[10px] text-muted-foreground">
               <span className="font-medium capitalize">{t.provider}</span>
               {t.metrics_summary ? (
                 <span>
@@ -236,26 +240,21 @@ export function PostCard({ post, onAction, onEdit, onDetails }: Props) {
   );
 }
 
-/** Compact multi-image preview — shows main image + thumbnail strip */
+/** Compact multi-image preview */
 function MultiImagePreview({ urls }: { urls: string[] }) {
   const [activeIdx, setActiveIdx] = useState(0);
   return (
     <div>
-      <div className="w-full overflow-hidden" style={{ aspectRatio: "4/5" }}>
-        <img
-          src={urls[activeIdx]}
-          alt=""
-          className="w-full h-full object-cover"
-          loading="lazy"
-        />
+      <div className="w-full overflow-hidden" style={{ aspectRatio: "4/5", maxHeight: "320px" }}>
+        <img src={urls[activeIdx]} alt="" className="w-full h-full object-cover" loading="lazy" />
       </div>
       {urls.length > 1 && (
-        <div className="flex gap-1 px-3 py-1.5 overflow-x-auto">
+        <div className="flex gap-1 px-3 py-1 overflow-x-auto">
           {urls.map((url, i) => (
             <button
               key={i}
               onClick={() => setActiveIdx(i)}
-              className={`w-10 h-10 rounded overflow-hidden shrink-0 border-2 transition-colors ${
+              className={`w-8 h-8 rounded overflow-hidden shrink-0 border-2 transition-colors ${
                 i === activeIdx ? "border-accent" : "border-transparent opacity-60"
               }`}
             >

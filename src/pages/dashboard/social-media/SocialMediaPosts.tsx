@@ -185,7 +185,7 @@ export default function SocialMediaPosts() {
           </p>
         </div>
       ) : (
-        <div className="space-y-3 max-w-[380px] mx-auto">
+        <div className="space-y-3 max-w-[360px] mx-auto">
           {posts.map((p) => (
             <PostCard
               key={p.id}
