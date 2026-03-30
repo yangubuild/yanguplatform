@@ -135,25 +135,31 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
             <Button size="sm" variant="outline" onClick={() => setShowThemesPicker(true)}>Choose Themes</Button>
           </div>
 
-          {/* STRICT: 1 selected theme card + Add Theme card */}
-          <div className="flex gap-4 mb-3">
-            {firstSelectedTheme && (
-              <div
-                className="w-40 rounded-xl border border-border bg-muted/20 overflow-hidden cursor-pointer hover:ring-2 hover:ring-accent/40 transition-all"
-                onClick={() => setEditingThemeKey(firstSelectedTheme.key)}
-              >
-                <ThemePreviewCard themeKey={firstSelectedTheme.key} size="lg" showText={false} className="!rounded-none !h-auto aspect-[4/5]" />
-                <div className="p-2.5">
-                  <p className="text-xs font-medium text-foreground">{firstSelectedTheme.name}</p>
-                  <p className="text-[10px] text-muted-foreground">{firstSelectedTheme.templateCount} Designs · Click to edit</p>
+          {/* Selected theme cards (up to 3) + Add Theme card */}
+          <div className="flex gap-4 mb-3 flex-wrap">
+            {selectedThemes.slice(0, 3).map((t) => {
+              const key = ("key" in t ? t.key : "") as string;
+              const name = t.name;
+              const count = ("templateCount" in t ? t.templateCount : 0) || 0;
+              return (
+                <div
+                  key={key}
+                  className="w-40 rounded-xl border border-border bg-muted/20 overflow-hidden cursor-pointer hover:ring-2 hover:ring-accent/40 transition-all"
+                  onClick={() => setEditingThemeKey(key)}
+                >
+                  <ThemePreviewCard themeKey={key} size="lg" showText={false} className="!rounded-none !h-auto aspect-[4/5]" />
+                  <div className="p-2.5">
+                    <p className="text-xs font-medium text-foreground">{name}</p>
+                    <p className="text-[10px] text-muted-foreground">{count} Designs · Click to edit</p>
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })}
 
             {/* + Add Theme card */}
             <button
               onClick={() => setShowThemesPicker(true)}
-              className="w-40 rounded-xl border-2 border-dashed border-border hover:border-accent/30 transition-colors flex flex-col items-center justify-center gap-2"
+              className="w-40 rounded-xl border-2 border-dashed border-border hover:border-accent/30 transition-colors flex flex-col items-center justify-center gap-2 min-h-[200px]"
             >
               <Plus className="h-8 w-8 text-muted-foreground/40" />
               <span className="text-sm font-medium text-muted-foreground">Add Theme</span>
