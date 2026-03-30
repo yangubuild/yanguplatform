@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { X, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SYSTEM_THEMES, type SocialTheme } from "@/data/socialThemes";
 import { ThemePreviewCard } from "./ThemePreviewCard";
+import { TemplateEditorModal } from "./TemplateEditorModal";
+import { getThemePreviewImage } from "@/data/themePreviewImages";
+import type { TemplateLayer, TemplateColorSlots, LayerOverride } from "@/types/templateDesign";
 
 interface Props {
   open: boolean;
@@ -15,12 +18,80 @@ interface Props {
 
 const INITIAL_VISIBLE = 49;
 
+/** Generate placeholder editable layers for templates that aren't yet mapped */
+function generateFallbackLayers(themeKey: string): TemplateLayer[] {
+  const now = new Date().toISOString();
+  return [
+    {
+      id: `${themeKey}-headline`,
+      template_id: themeKey,
+      layer_type: "text",
+      role: "headline",
+      sort_order: 0,
+      x: 10, y: 15, width: 80, height: 12,
+      rotation: 0,
+      style: { fontSize: 32, fontWeight: 700, color: "#ffffff", textAlign: "center" },
+      content: "Your Headline Here",
+      src: null,
+      locked: false,
+      metadata: {},
+      created_at: now,
+    },
+    {
+      id: `${themeKey}-subheadline`,
+      template_id: themeKey,
+      layer_type: "text",
+      role: "subheadline",
+      sort_order: 1,
+      x: 10, y: 30, width: 80, height: 8,
+      rotation: 0,
+      style: { fontSize: 18, fontWeight: 400, color: "#ffffff", textAlign: "center" },
+      content: "Add your subtext here",
+      src: null,
+      locked: false,
+      metadata: {},
+      created_at: now,
+    },
+    {
+      id: `${themeKey}-cta`,
+      template_id: themeKey,
+      layer_type: "cta",
+      role: "cta",
+      sort_order: 2,
+      x: 30, y: 75, width: 40, height: 8,
+      rotation: 0,
+      style: { fontSize: 14, fontWeight: 600, color: "#ffffff", backgroundColor: "#e84672", borderRadius: 8, textAlign: "center" },
+      content: "Learn More",
+      src: null,
+      locked: false,
+      metadata: {},
+      created_at: now,
+    },
+    {
+      id: `${themeKey}-logo`,
+      template_id: themeKey,
+      layer_type: "image",
+      role: "logo",
+      sort_order: 3,
+      x: 5, y: 5, width: 15, height: 10,
+      rotation: 0,
+      style: {},
+      content: null,
+      src: null,
+      locked: false,
+      metadata: {},
+      created_at: now,
+    },
+  ];
+}
+
 export function ChooseThemesModal({ open, onClose, selectedKeys, customThemes, onSave }: Props) {
   const [selected, setSelected] = useState<Set<string>>(new Set(selectedKeys));
   const [customs, setCustoms] = useState(customThemes);
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState("");
   const [showAll, setShowAll] = useState(false);
+  const [editingThemeKey, setEditingThemeKey] = useState<string | null>(null);
 
   if (!open) return null;
 
@@ -55,6 +126,9 @@ export function ChooseThemesModal({ open, onClose, selectedKeys, customThemes, o
   const selectedCount = selected.size;
   const totalTemplates = allThemes.filter((t) => selected.has(t.key)).reduce((s, t) => s + t.templateCount, 0);
 
+  const editingTheme = editingThemeKey ? allThemes.find((t) => t.key === editingThemeKey) : null;
+  const editingImageUrl = editingThemeKey ? getThemePreviewImage(editingThemeKey) : null;
+
   return (
     <div className="fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4">
       <div className="bg-card border border-border rounded-2xl w-full max-w-[1100px] max-h-[85vh] flex flex-col mx-auto">
@@ -70,28 +144,38 @@ export function ChooseThemesModal({ open, onClose, selectedKeys, customThemes, o
             {visibleThemes.map((theme) => {
               const isSelected = selected.has(theme.key);
               return (
-                <button
-                  key={theme.key}
-                  onClick={() => toggle(theme.key)}
-                  className={`relative rounded-xl border-2 transition-colors overflow-hidden text-left ${
-                    isSelected ? "border-accent" : "border-border hover:border-accent/30"
-                  }`}
-                >
-                  <div className="aspect-[3/4] relative overflow-hidden">
-                    <ThemePreviewCard themeKey={theme.key} className="!h-full !rounded-none" size="lg" />
-                    {isSelected && (
-                      <div className="absolute top-2 right-2 w-5 h-5 rounded bg-accent flex items-center justify-center z-10">
-                        <span className="text-white text-[10px] font-bold">✓</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-2.5">
-                    <p className="text-xs font-medium text-foreground">{theme.name}</p>
-                    <p className="text-[10px] text-muted-foreground">
-                      {theme.templateCount > 0 ? `${theme.templateCount} design template${theme.templateCount !== 1 ? "s" : ""}` : "Custom theme"}
-                    </p>
-                  </div>
-                </button>
+                <div key={theme.key} className="relative group">
+                  <button
+                    onClick={() => toggle(theme.key)}
+                    className={`relative rounded-xl border-2 transition-colors overflow-hidden text-left w-full ${
+                      isSelected ? "border-accent" : "border-border hover:border-accent/30"
+                    }`}
+                  >
+                    <div className="aspect-[3/4] relative overflow-hidden">
+                      <ThemePreviewCard themeKey={theme.key} className="!h-full !rounded-none" size="lg" />
+                      {isSelected && (
+                        <div className="absolute top-2 right-2 w-5 h-5 rounded bg-accent flex items-center justify-center z-10">
+                          <span className="text-white text-[10px] font-bold">✓</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-2.5">
+                      <p className="text-xs font-medium text-foreground">{theme.name}</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {theme.templateCount > 0 ? `${theme.templateCount} design template${theme.templateCount !== 1 ? "s" : ""}` : "Custom theme"}
+                      </p>
+                    </div>
+                  </button>
+                  {/* Edit button overlay */}
+                  {!theme.isVideo && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setEditingThemeKey(theme.key); }}
+                      className="absolute bottom-12 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-accent text-white text-[10px] px-2 py-1 rounded-md font-medium shadow-lg z-10"
+                    >
+                      Edit
+                    </button>
+                  )}
+                </div>
               );
             })}
 
@@ -161,6 +245,22 @@ export function ChooseThemesModal({ open, onClose, selectedKeys, customThemes, o
             </div>
           </div>
         </div>
+      )}
+
+      {/* Template Editor Modal */}
+      {editingTheme && editingImageUrl && (
+        <TemplateEditorModal
+          open={!!editingThemeKey}
+          onClose={() => setEditingThemeKey(null)}
+          templateName={editingTheme.name}
+          templateImageUrl={editingImageUrl}
+          baseLayers={generateFallbackLayers(editingTheme.key)}
+          colorSlots={{}}
+          onSave={(layerOverrides, colorOverrides) => {
+            // Future: persist to social_generated_designs
+            console.log("Template edited:", { themeKey: editingThemeKey, layerOverrides, colorOverrides });
+          }}
+        />
       )}
     </div>
   );

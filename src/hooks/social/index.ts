@@ -15,3 +15,13 @@ export { useAITopicGeneration } from "./useAITopicGeneration";
 export { useSocialCalendar } from "./useSocialCalendar";
 export { useSocialLibrary } from "./useSocialLibrary";
 export { useSocialHomeSummary } from "./useSocialHomeSummary";
+export {
+  useSystemTemplates,
+  useTemplateWithLayers,
+  useWorkspaceTemplates,
+  useDesigns,
+  useCreateDesign,
+  useUpdateDesign,
+  useDeleteDesign,
+  useBrandAutoApply,
+} from "./useTemplateDesign";
