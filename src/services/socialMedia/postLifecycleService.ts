@@ -36,6 +36,9 @@ export const postLifecycleService = {
     const { data: user } = await supabase.auth.getUser();
     if (!user.user) throw new Error("Not authenticated");
 
+    const mediaUrls = input.media_urls || [];
+    const primaryMedia = mediaUrls.length > 0 ? mediaUrls[0] : null;
+
     const { data, error } = await supabase
       .from("social_posts")
       .insert({
@@ -43,7 +46,14 @@ export const postLifecycleService = {
         platform: "multi",
         status: "draft",
         created_by: user.user.id,
-        media_urls: input.media_urls || [],
+        media_urls: mediaUrls,
+        primary_media_url: primaryMedia,
+        source_type: input.source_type || "manual",
+        content_type: input.content_type || (mediaUrls.length > 0 ? "image" : "text"),
+        category_id: input.category_id || null,
+        topic_id: input.topic_id || null,
+        ai_generation_mode: input.ai_generation_mode || null,
+        ai_prompt: input.ai_prompt || null,
         scheduled_for: input.scheduled_for || null,
       })
       .select()
@@ -235,19 +245,27 @@ export const postLifecycleService = {
 
   /** Map DB row to domain type */
   mapToPost(row: Record<string, unknown>): SocialPost {
+    const mediaUrls = (row.media_urls as string[]) || [];
+    const primaryMedia = (row.primary_media_url as string) || null;
     return {
       id: row.id as string,
-      workspace_id: "",
+      workspace_id: (row.workspace_id as string) || "",
       created_by: (row.created_by as string) || "",
-      source_type: "manual",
-      content_type: (row.media_urls as string[])?.length ? "image" : "text",
+      source_type: (row.source_type as string as any) || "manual",
+      content_type: (row.content_type as string as any) || (mediaUrls.length ? "image" : "text"),
       caption: row.content as string,
       status: row.status as PostStatus,
-      media_urls: (row.media_urls as string[]) || [],
-      approval_status: "none",
+      primary_media_url: primaryMedia,
+      media_urls: mediaUrls,
+      approval_status: (row.approval_status as string as any) || "none",
       platform: row.platform as string,
+      category_id: (row.category_id as string) || undefined,
+      topic_id: (row.topic_id as string) || undefined,
+      ai_generation_mode: (row.ai_generation_mode as string) || undefined,
+      ai_prompt: (row.ai_prompt as string) || undefined,
       scheduled_for: row.scheduled_for as string | null,
       published_at: row.published_at as string | null,
+      error_message: (row.error_message as string) || undefined,
       created_at: row.created_at as string,
       updated_at: row.updated_at as string,
     };
