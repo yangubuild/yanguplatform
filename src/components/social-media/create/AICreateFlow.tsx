@@ -54,13 +54,43 @@ export function AICreateFlow({ onDone, onBack }: Props) {
     return () => { clearInterval(interval); clearInterval(phaseTimer); };
   }, [state]);
 
+  const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+  const generateImageWithRetry = async (prompt: string, retries = 3): Promise<string | null> => {
+    for (let attempt = 0; attempt < retries; attempt++) {
+      if (attempt > 0) await delay(4000 * attempt); // increasing backoff
+      try {
+        const { data: imgData, error: imgErr } = await supabase.functions.invoke("social-ai-generate-image", {
+          body: {
+            prompt,
+            model: "google/gemini-3.1-flash-image-preview",
+            aspect_ratio: "4:5",
+          },
+        });
+        if (imgErr) {
+          console.warn(`Image attempt ${attempt + 1} error:`, imgErr);
+          continue;
+        }
+        const url = imgData?.image_url;
+        if (url) return url;
+      } catch (e) {
+        console.warn(`Image attempt ${attempt + 1} exception:`, e);
+      }
+    }
+    return null;
+  };
+
   const runAIGeneration = async () => {
     try {
       const businessDesc = workspace?.business_description || "our business";
       const businessName = workspace?.name || "Our Brand";
       let savedCount = 0;
 
-      for (const item of POST_TOPICS) {
+      for (let i = 0; i < POST_TOPICS.length; i++) {
+        const item = POST_TOPICS[i];
+        // Add delay between posts to avoid rate limits
+        if (i > 0) await delay(5000);
+
         try {
           // Stage A: Generate caption
           const { data: captionData, error: captionErr } = await supabase.functions.invoke("social-ai-caption", {
@@ -74,23 +104,13 @@ export function AICreateFlow({ onDone, onBack }: Props) {
           const caption = captionData?.caption || "";
           if (!caption) continue;
 
-          // Stage B: Generate image creative
+          // Stage B: Generate image creative (with retry)
           const imagePrompt = buildImagePrompt(businessName, businessDesc, item.topic, item.goal);
-          let imageUrl: string | undefined;
+          const imageUrl = await generateImageWithRetry(imagePrompt);
 
-          try {
-            const { data: imgData, error: imgErr } = await supabase.functions.invoke("social-ai-generate-image", {
-              body: {
-                prompt: imagePrompt,
-                model: "google/gemini-3.1-flash-image-preview",
-                aspect_ratio: "4:5",
-              },
-            });
-            if (!imgErr && imgData?.image_url) {
-              imageUrl = imgData.image_url;
-            }
-          } catch (imgError) {
-            console.warn("Image generation failed for post, saving text-only:", imgError);
+          if (!imageUrl) {
+            console.warn("Image generation failed after retries for topic:", item.topic);
+            // Still save but as ai_generated so card shows "Generating creative..." state
           }
 
           // Stage C: Save draft with caption + image
