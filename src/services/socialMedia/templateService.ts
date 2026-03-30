@@ -131,9 +131,22 @@ export const designService = {
       status?: string;
     }
   ) {
+    const updateData: Record<string, unknown> = {
+      ...updates,
+      updated_at: new Date().toISOString(),
+    };
+    if (updates.layer_overrides) {
+      updateData.layer_overrides = JSON.parse(JSON.stringify(updates.layer_overrides));
+    }
+    if (updates.color_overrides) {
+      updateData.color_overrides = JSON.parse(JSON.stringify(updates.color_overrides));
+    }
+    if (updates.font_overrides) {
+      updateData.font_overrides = JSON.parse(JSON.stringify(updates.font_overrides));
+    }
     const { error } = await supabase
       .from("social_generated_designs")
-      .update({ ...updates, updated_at: new Date().toISOString() })
+      .update(updateData as any)
       .eq("id", designId);
     if (error) throw error;
   },
