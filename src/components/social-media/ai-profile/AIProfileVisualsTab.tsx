@@ -142,7 +142,7 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
                 className="w-40 rounded-xl border border-border bg-muted/20 overflow-hidden cursor-pointer hover:ring-2 hover:ring-accent/40 transition-all"
                 onClick={() => setEditingThemeKey(firstSelectedTheme.key)}
               >
-                <ThemePreviewCard themeKey={firstSelectedTheme.key} size="md" showText={false} className="!rounded-none aspect-[4/5]" />
+                <ThemePreviewCard themeKey={firstSelectedTheme.key} size="lg" showText={false} className="!rounded-none !h-auto aspect-[4/5]" />
                 <div className="p-2.5">
                   <p className="text-xs font-medium text-foreground">{firstSelectedTheme.name}</p>
                   <p className="text-[10px] text-muted-foreground">{firstSelectedTheme.templateCount} Designs · Click to edit</p>
