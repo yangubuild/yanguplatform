@@ -25,3 +25,4 @@ export {
   useDeleteDesign,
   useBrandAutoApply,
 } from "./useTemplateDesign";
+export { useVariationGeneration } from "./useVariationGeneration";
