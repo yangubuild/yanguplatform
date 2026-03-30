@@ -101,21 +101,8 @@ export default function SocialMediaPosts() {
 
   return (
     <div className="w-full px-4 sm:px-6 py-6 overflow-x-hidden">
-      {/* ── Top toolbar ── */}
-      <div className="flex flex-wrap items-center justify-between gap-2 mb-4 max-w-4xl mx-auto">
-        <div className="flex items-center gap-1.5">
-          <button className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-border text-xs text-muted-foreground hover:text-foreground transition-colors">
-            <List className="h-3.5 w-3.5" />
-          </button>
-          <button className="p-1.5 rounded-lg border border-border text-muted-foreground hover:text-foreground transition-colors">
-            <SlidersHorizontal className="h-3.5 w-3.5" />
-          </button>
-          <button className="p-1.5 rounded-lg border border-border text-muted-foreground hover:text-foreground transition-colors">
-            <Filter className="h-3.5 w-3.5" />
-          </button>
-        </div>
-
-        {/* Tabs */}
+      {/* ── Tabs — always centered ── */}
+      <div className="flex justify-center mb-4">
         <div className="flex items-center gap-0.5 bg-muted/30 rounded-lg p-0.5 overflow-x-auto shrink-0">
           {TABS.map((tab) => {
             const active = activeTab === tab.key;
@@ -135,10 +122,6 @@ export default function SocialMediaPosts() {
             );
           })}
         </div>
-
-        <button className="p-1.5 rounded-lg hover:bg-muted transition-colors">
-          <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
-        </button>
       </div>
 
       {/* ── Create buttons ── */}
