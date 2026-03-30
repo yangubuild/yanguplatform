@@ -14,7 +14,17 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const { prompt, model = "google/gemini-3.1-flash-image-preview", aspect_ratio = "4:5" } = await req.json();
+    const {
+      prompt,
+      model = "google/gemini-3.1-flash-image-preview",
+      aspect_ratio = "4:5",
+      mode = "generate",          // "generate" | "edit_template"
+      template_image_url,         // URL of template to edit
+      brand_colors = [],
+      business_name = "",
+      content_goal = "",
+    } = await req.json();
+
     if (!prompt) {
       return new Response(JSON.stringify({ error: "missing_prompt" }), {
         status: 400,
@@ -22,7 +32,45 @@ serve(async (req) => {
       });
     }
 
-    const fullPrompt = `You are a professional social media graphic designer. Generate a high-quality designed social media post image.
+    // Build messages array based on mode
+    let messages: any[];
+
+    if (mode === "edit_template" && template_image_url) {
+      // TEMPLATE EDITING MODE — edit existing template image
+      const editPrompt = `You are a professional social media designer. You are given an existing social media design template.
+
+Your task: EDIT this template while PRESERVING its layout, composition, and visual structure.
+
+MODIFICATIONS TO MAKE:
+${prompt}
+
+${brand_colors.length > 0 ? `Apply these brand colors: ${brand_colors.join(", ")}` : ""}
+${business_name ? `Business name: "${business_name}"` : ""}
+${content_goal ? `Content goal: ${content_goal}` : ""}
+
+CRITICAL RULES:
+- KEEP the exact same layout structure and element positions
+- KEEP the same visual hierarchy and composition
+- ONLY modify: text content, colors, and swap images if instructed
+- Do NOT redesign from scratch — this is an EDIT of the existing template
+- Do NOT move or resize elements
+- Preserve all decorative elements, shapes, and patterns
+- The output should look like the same template with customized content
+- Make all text legible and professional
+- Maintain the same aspect ratio`;
+
+      messages = [
+        {
+          role: "user",
+          content: [
+            { type: "text", text: editPrompt },
+            { type: "image_url", image_url: { url: template_image_url } },
+          ],
+        },
+      ];
+    } else {
+      // STANDARD GENERATION MODE (fallback)
+      const fullPrompt = `You are a professional social media graphic designer. Generate a high-quality designed social media post image.
 
 Aspect ratio: ${aspect_ratio}
 
@@ -40,6 +88,9 @@ DESIGN RULES:
 - NO stock photo look — this should look DESIGNED, like a Canva/Adobe Express output
 - Ensure all text is fully legible against the background`;
 
+      messages = [{ role: "user", content: fullPrompt }];
+    }
+
     const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -48,7 +99,7 @@ DESIGN RULES:
       },
       body: JSON.stringify({
         model,
-        messages: [{ role: "user", content: fullPrompt }],
+        messages,
         modalities: ["image", "text"],
       }),
     });
