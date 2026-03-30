@@ -27,3 +27,4 @@ export {
 } from "./useTemplateDesign";
 export { useVariationGeneration } from "./useVariationGeneration";
 export { usePostJobs } from "./usePostJobs";
+export { usePlatformVariants } from "./usePlatformVariants";
