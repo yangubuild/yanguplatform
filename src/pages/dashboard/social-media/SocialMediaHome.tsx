@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Plus,
@@ -9,6 +10,7 @@ import {
   Zap,
   Info,
   BarChart3,
+  LayoutGrid,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -16,9 +18,10 @@ import { useSocialOnboarding } from "@/hooks/useSocialOnboarding";
 import { useSocialHomeSummary } from "@/hooks/social/useSocialHomeSummary";
 import { useSocialWorkspace } from "@/hooks/social/useSocialWorkspace";
 import { SocialOnboardingFlow } from "@/components/social-media/SocialOnboardingFlow";
+import { WorkspaceLimitModal } from "@/components/social-media/WorkspaceLimitModal";
 import { useAuth } from "@/hooks/useAuth";
 import { format } from "date-fns";
-import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export default function SocialMediaHome() {
   const navigate = useNavigate();
@@ -27,7 +30,13 @@ export default function SocialMediaHome() {
   const { summary, recentPosts, isLoading } = useSocialHomeSummary();
   const { workspace } = useSocialWorkspace();
 
-  if (!isOnboarded || showOnboarding) {
+  const [showLimitModal, setShowLimitModal] = useState(false);
+  const [isDeletingWorkspace, setIsDeletingWorkspace] = useState(false);
+
+  // Auto-open onboarding if no workspace and not yet onboarded
+  const shouldShowOnboarding = !isOnboarded || showOnboarding;
+
+  if (shouldShowOnboarding) {
     return <SocialOnboardingFlow onComplete={() => setShowOnboarding(false)} />;
   }
 
@@ -61,6 +70,34 @@ export default function SocialMediaHome() {
   const businessName = workspace?.name || "Your Business";
   const userName = user?.email?.split("@")[0] || "there";
 
+  const handleCreateWorkspace = () => {
+    if (workspace) {
+      // User already has a workspace — show limit modal
+      setShowLimitModal(true);
+    } else {
+      // No workspace — open onboarding
+      setShowOnboarding(true);
+    }
+  };
+
+  const handleDeleteAndCreate = async () => {
+    setIsDeletingWorkspace(true);
+    try {
+      const { supabase } = await import("@/integrations/supabase/client");
+      if (workspace?.id) {
+        await supabase.from("social_workspaces").delete().eq("id", workspace.id);
+      }
+      setShowLimitModal(false);
+      toast.success("Workspace deleted. Let's create a new one!");
+      // Reset onboarding so it re-opens
+      setShowOnboarding(true);
+    } catch (err) {
+      toast.error("Failed to delete workspace");
+    } finally {
+      setIsDeletingWorkspace(false);
+    }
+  };
+
   return (
     <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-5 sm:py-8 overflow-x-hidden">
       {/* ── Header ── */}
@@ -82,15 +119,15 @@ export default function SocialMediaHome() {
       {/* ── CTA Cards ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 mb-5 sm:mb-6">
         <button
-          onClick={() => navigate("/dashboard/settings/billing")}
+          onClick={handleCreateWorkspace}
           className="flex items-center gap-3 p-3.5 sm:p-4 rounded-xl border border-border bg-card hover:border-accent/30 transition-colors text-left min-w-0"
         >
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
-            <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
+            <LayoutGrid className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
           </div>
           <div className="min-w-0">
-            <div className="text-sm font-semibold text-foreground truncate">View Plans</div>
-            <div className="text-[11px] text-muted-foreground truncate">Free trial · Unlock more features</div>
+            <div className="text-sm font-semibold text-foreground truncate">Create Workspace</div>
+            <div className="text-[11px] text-muted-foreground truncate">Set up a new social workspace</div>
           </div>
         </button>
         <button
@@ -314,6 +351,14 @@ export default function SocialMediaHome() {
           </div>
         </div>
       )}
+
+      {/* ── Modals ── */}
+      <WorkspaceLimitModal
+        open={showLimitModal}
+        onClose={() => setShowLimitModal(false)}
+        onDeleteAndCreate={handleDeleteAndCreate}
+        isDeleting={isDeletingWorkspace}
+      />
     </div>
   );
 }
