@@ -138,11 +138,14 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
           {/* STRICT: 1 selected theme card + Add Theme card */}
           <div className="flex gap-4 mb-3">
             {firstSelectedTheme && (
-              <div className="w-40 rounded-xl border border-border bg-muted/20 overflow-hidden">
+              <div
+                className="w-40 rounded-xl border border-border bg-muted/20 overflow-hidden cursor-pointer hover:ring-2 hover:ring-accent/40 transition-all"
+                onClick={() => setEditingThemeKey(firstSelectedTheme.key)}
+              >
                 <ThemePreviewCard themeKey={firstSelectedTheme.key} size="md" showText={false} className="!rounded-none aspect-[4/5]" />
                 <div className="p-2.5">
                   <p className="text-xs font-medium text-foreground">{firstSelectedTheme.name}</p>
-                  <p className="text-[10px] text-muted-foreground">{firstSelectedTheme.templateCount} Designs</p>
+                  <p className="text-[10px] text-muted-foreground">{firstSelectedTheme.templateCount} Designs · Click to edit</p>
                 </div>
               </div>
             )}
