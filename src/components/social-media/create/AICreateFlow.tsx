@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Sparkles, Loader2, CheckCircle2, ArrowRight } from "lucide-react";
+import { Sparkles, CheckCircle2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useSocialPosts } from "@/hooks/social/useSocialPosts";
@@ -11,10 +11,16 @@ type AIState = "generating" | "ready" | "error";
 
 const PHASES = [
   "Analyzing your brand profile…",
-  "Creating from your topics…",
-  "Drafting opening lines…",
-  "Coming up with ideas…",
+  "Generating captions…",
+  "Creating post visuals…",
+  "Designing your creatives…",
   "Polishing your posts…",
+];
+
+const POST_TOPICS = [
+  { topic: "product promotion", style: "engaging", goal: "promotion" },
+  { topic: "business update", style: "informative", goal: "awareness" },
+  { topic: "customer engagement", style: "short", goal: "engagement" },
 ];
 
 interface Props {
@@ -37,50 +43,77 @@ export function AICreateFlow({ onDone, onBack }: Props) {
     runAIGeneration();
   }, []);
 
-  // Progress animation
   useEffect(() => {
     if (state !== "generating") return;
     const interval = setInterval(() => {
-      setProgress((p) => {
-        if (p >= 95) return p;
-        const inc = Math.random() * 8 + 2;
-        return Math.min(p + inc, 95);
-      });
-    }, 600);
+      setProgress((p) => (p >= 95 ? p : Math.min(p + Math.random() * 6 + 1, 95)));
+    }, 800);
     const phaseTimer = setInterval(() => {
       setPhaseIdx((i) => (i + 1) % PHASES.length);
-    }, 2500);
+    }, 3000);
     return () => { clearInterval(interval); clearInterval(phaseTimer); };
   }, [state]);
 
   const runAIGeneration = async () => {
     try {
-      // Generate 3 posts from topics/brand
-      const results: string[] = [];
-      for (let i = 0; i < 3; i++) {
-        const { data, error } = await supabase.functions.invoke("social-ai-caption", {
-          body: {
-            topic: `business update #${i + 1}`,
-            style: i === 0 ? "short" : i === 1 ? "engaging" : "informative",
-            business_description: workspace?.business_description || "",
-          },
-        });
-        if (error) throw error;
-        if (data?.caption) results.push(data.caption);
+      const businessDesc = workspace?.business_description || "our business";
+      const businessName = workspace?.name || "Our Brand";
+      let savedCount = 0;
+
+      for (const item of POST_TOPICS) {
+        try {
+          // Stage A: Generate caption
+          const { data: captionData, error: captionErr } = await supabase.functions.invoke("social-ai-caption", {
+            body: {
+              topic: item.topic,
+              style: item.style,
+              business_description: businessDesc,
+            },
+          });
+          if (captionErr) throw captionErr;
+          const caption = captionData?.caption || "";
+          if (!caption) continue;
+
+          // Stage B: Generate image creative
+          const imagePrompt = buildImagePrompt(businessName, businessDesc, item.topic, item.goal);
+          let imageUrl: string | undefined;
+
+          try {
+            const { data: imgData, error: imgErr } = await supabase.functions.invoke("social-ai-generate-image", {
+              body: {
+                prompt: imagePrompt,
+                model: "google/gemini-3.1-flash-image-preview",
+                aspect_ratio: "4:5",
+              },
+            });
+            if (!imgErr && imgData?.image_url) {
+              imageUrl = imgData.image_url;
+            }
+          } catch (imgError) {
+            console.warn("Image generation failed for post, saving text-only:", imgError);
+          }
+
+          // Stage C: Save draft with caption + image
+          await createPost({
+            workspace_id: workspace?.id || "",
+            caption,
+            source_type: "ai_generated",
+            content_type: imageUrl ? "image" : "text",
+            media_urls: imageUrl ? [imageUrl] : [],
+            target_account_ids: [],
+            ai_generation_mode: "auto",
+            ai_prompt: imagePrompt,
+          });
+
+          savedCount++;
+        } catch (postErr) {
+          console.error("Failed to generate post:", postErr);
+        }
       }
 
-      // Save as drafts
-      for (const caption of results) {
-        await createPost({
-          workspace_id: workspace?.id || "",
-          caption,
-          source_type: "ai_generated",
-          content_type: "text",
-          target_account_ids: [],
-        });
-      }
+      if (savedCount === 0) throw new Error("No posts generated");
 
-      setGeneratedCount(results.length);
+      setGeneratedCount(savedCount);
       setProgress(100);
       setState("ready");
     } catch (err) {
@@ -97,7 +130,7 @@ export function AICreateFlow({ onDone, onBack }: Props) {
           <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto mb-5">
             <Sparkles className="h-7 w-7 text-accent" />
           </div>
-          <h2 className="text-lg font-bold text-foreground mb-2">Creating from your topics…</h2>
+          <h2 className="text-lg font-bold text-foreground mb-2">Creating your posts…</h2>
           <p className="text-sm text-muted-foreground mb-6">{PHASES[phaseIdx]}</p>
           <div className="flex items-center gap-3">
             <Progress value={progress} className="flex-1 h-2" />
@@ -133,7 +166,7 @@ export function AICreateFlow({ onDone, onBack }: Props) {
         </div>
         <h2 className="text-lg font-bold text-foreground mb-2">Your posts are ready!</h2>
         <p className="text-sm text-muted-foreground mb-6">
-          {generatedCount} post{generatedCount !== 1 ? "s" : ""} created. Check them out and save the ones you like.
+          {generatedCount} post{generatedCount !== 1 ? "s" : ""} created with images. Review and schedule them.
         </p>
         <div className="flex justify-center gap-3">
           <Button variant="outline" onClick={onBack}>Dismiss</Button>
@@ -145,4 +178,28 @@ export function AICreateFlow({ onDone, onBack }: Props) {
       </div>
     </div>
   );
+}
+
+/** Build a context-aware image generation prompt */
+function buildImagePrompt(
+  businessName: string,
+  businessDesc: string,
+  topic: string,
+  goal: string
+): string {
+  return `Create a professional social media post image for a business called "${businessName}".
+
+Business: ${businessDesc}
+Topic: ${topic}
+Goal: ${goal}
+
+Requirements:
+- Clean, modern social media post design
+- Professional typography with the business name or a short tagline
+- Vibrant colors that match the business type
+- Instagram/Facebook ready format (portrait 4:5)
+- Include visual elements relevant to the business type
+- Do NOT include any placeholder text like "lorem ipsum"
+- Make it look like a real branded social media post, not stock photography
+- Use bold, eye-catching design that would stop someone scrolling`;
 }

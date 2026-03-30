@@ -14,6 +14,7 @@ import {
   Crown,
   Pencil,
   Layers,
+  Loader2,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -162,14 +163,21 @@ export function PostCard({ post, onAction, onEdit, onDetails }: Props) {
         </div>
       ) : (
         <div
-          className="w-full bg-gradient-to-br from-muted/40 via-muted/20 to-accent/10 flex items-center justify-center"
+          className="w-full bg-gradient-to-br from-muted/40 via-muted/20 to-accent/10 flex flex-col items-center justify-center gap-2"
           style={{ aspectRatio: "4/5", maxHeight: "280px" }}
         >
-          <div className="text-center px-4 max-w-[80%]">
-            <p className="text-xs font-semibold text-foreground/60 leading-snug line-clamp-3">
-              {caption.slice(0, 80) || "Post creative"}
-            </p>
-          </div>
+          {post.source_type === "ai_generated" ? (
+            <>
+              <Loader2 className="h-5 w-5 text-accent animate-spin" />
+              <p className="text-[11px] font-medium text-muted-foreground">Generating creative…</p>
+            </>
+          ) : (
+            <div className="text-center px-4 max-w-[80%]">
+              <p className="text-xs font-semibold text-foreground/60 leading-snug line-clamp-3">
+                {caption.slice(0, 80) || "Post creative"}
+              </p>
+            </div>
+          )}
         </div>
       )}
 
