@@ -9,6 +9,9 @@ export { outstandAdapter } from "./outstandAdapter";
 export { postLifecycleService } from "./postLifecycleService";
 export { analyticsService } from "./analyticsService";
 export { libraryService } from "./libraryService";
+export { templateService, designService, applyBrandToTemplate, resolveLayersWithOverrides } from "./templateService";
+export type { BrandConfig } from "./templateService";
+export { libraryService } from "./libraryService";
 
 export {
   brandContextBuilder,
