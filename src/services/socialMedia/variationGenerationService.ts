@@ -10,6 +10,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { postLifecycleService } from "./postLifecycleService";
+import { resizeEngine } from "./resizeEngine";
 import { designService } from "./templateService";
 import type { LayerOverride, TemplateColorSlots, TemplateAspectRatio } from "@/types/templateDesign";
 import type { SocialPost } from "@/types/socialMedia";
