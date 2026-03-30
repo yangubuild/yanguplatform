@@ -1,8 +1,16 @@
 import { useState } from "react";
-import { X, ArrowRight, Globe, CheckSquare, Link2 } from "lucide-react";
+import { X, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSocialOnboarding } from "@/hooks/useSocialOnboarding";
+
+import facebookIcon from "@/assets/icons/facebook.png";
+import instagramIcon from "@/assets/icons/instagram.png";
+import instagramStoryIcon from "@/assets/icons/instagram-2.png";
+import xIcon from "@/assets/icons/x.png";
+import linkedinIcon from "@/assets/icons/linkedin.png";
+import linkedinPersonalIcon from "@/assets/icons/linkedin-2.png";
+import tiktokIcon from "@/assets/icons/tiktok.png";
 
 type Step = "workspace" | "content_plan" | "connect_socials" | "instagram_help";
 
@@ -15,13 +23,13 @@ const GOALS = [
 ];
 
 const SOCIAL_PROVIDERS = [
-  { name: "Facebook Page", icon: "📘" },
-  { name: "Instagram", icon: "📸" },
-  { name: "Instagram Story", icon: "🎬" },
-  { name: "X", icon: "✖️" },
-  { name: "LinkedIn Company Page", icon: "🔗" },
-  { name: "LinkedIn Personal Profile", icon: "👤" },
-  { name: "TikTok", icon: "🎵" },
+  { name: "Facebook Page", icon: facebookIcon },
+  { name: "Instagram", icon: instagramIcon },
+  { name: "Instagram Story", icon: instagramStoryIcon },
+  { name: "X", icon: xIcon },
+  { name: "LinkedIn Company Page", icon: linkedinIcon },
+  { name: "LinkedIn Personal Profile", icon: linkedinPersonalIcon },
+  { name: "TikTok", icon: tiktokIcon },
 ];
 
 interface Props {
@@ -38,6 +46,17 @@ export function SocialOnboardingFlow({ onComplete }: Props) {
   const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
   const [postFrequency, setPostFrequency] = useState("");
   const [showInstaHelp, setShowInstaHelp] = useState(false);
+
+  const STEP_ORDER: Step[] = ["workspace", "content_plan", "connect_socials"];
+
+  const goNextOrFinish = () => {
+    const currentIdx = STEP_ORDER.indexOf(step);
+    if (currentIdx < STEP_ORDER.length - 1) {
+      setStep(STEP_ORDER[currentIdx + 1]);
+    } else {
+      handleFinish();
+    }
+  };
 
   const handleWorkspaceNext = () => {
     if (!showDescribe) {
@@ -100,7 +119,7 @@ export function SocialOnboardingFlow({ onComplete }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-[560px] mx-auto max-h-[90vh] overflow-y-auto">
         {/* STEP: Workspace */}
         {step === "workspace" && (
           <div className="p-6 sm:p-8">
@@ -180,7 +199,7 @@ export function SocialOnboardingFlow({ onComplete }: Props) {
             </div>
 
             <div className="flex items-center gap-3 mt-8">
-              <Button variant="outline" onClick={handleFinish} className="flex-1">Skip</Button>
+              <Button variant="outline" onClick={goNextOrFinish} className="flex-1">Skip</Button>
               <Button variant="accent" className="flex-1" onClick={handleContentPlanNext}>
                 Continue
                 <ArrowRight className="h-4 w-4 ml-2" />
@@ -199,7 +218,7 @@ export function SocialOnboardingFlow({ onComplete }: Props) {
               {SOCIAL_PROVIDERS.map((p) => (
                 <div key={p.name} className="flex items-center justify-between px-4 py-3">
                   <div className="flex items-center gap-3">
-                    <span className="text-xl">{p.icon}</span>
+                    <img src={p.icon} alt={p.name} className="w-6 h-6 object-contain" />
                     <span className="text-sm font-medium text-foreground">{p.name}</span>
                   </div>
                   <Button variant="outline" size="sm" onClick={() => handleConnectSocial(p.name)}>
@@ -218,7 +237,7 @@ export function SocialOnboardingFlow({ onComplete }: Props) {
         {/* Instagram Help Modal Overlay */}
         {showInstaHelp && (
           <div className="fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4">
-            <div className="bg-card rounded-2xl shadow-2xl w-full max-w-lg p-6">
+            <div className="bg-card rounded-2xl shadow-2xl w-full max-w-[480px] mx-auto p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-foreground">Connect your Instagram account</h3>
                 <button onClick={() => setShowInstaHelp(false)}><X className="h-5 w-5 text-muted-foreground" /></button>
