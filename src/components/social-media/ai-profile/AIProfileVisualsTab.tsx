@@ -1,4 +1,6 @@
 import { useState, useRef } from "react";
+import themePreviewBrand2 from "@/assets/theme-preview-brand2.jpg";
+import themePreviewBurger from "@/assets/theme-preview-burger.jpg";
 import { ChevronDown, ChevronUp, Plus, Image, Palette, Layers, Sparkles, Loader2, MoreVertical, ArrowLeft, Search, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -448,29 +450,38 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
       {/* Right column — Design Examples */}
       <div className="hidden lg:block">
         <div className="sticky top-6">
-          <div className="flex items-center justify-between mb-3">
+          <div className="mb-3">
             <h3 className="text-sm font-semibold text-foreground">Design Examples</h3>
-            <p className="text-[10px] text-muted-foreground">Using placeholder text and photos</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">Using placeholder text and photos</p>
           </div>
           <div className="space-y-4">
             {(() => {
-              const base = selectedThemes.length > 0 ? selectedThemes.slice(0, 3) : [];
-              // Fill remaining slots from SYSTEM_THEMES to always show 3
-              const usedKeys = new Set(base.map((t) => ("key" in t ? t.key : t.name)));
-              const filler = SYSTEM_THEMES.filter((t) => !usedKeys.has(t.key)).slice(0, 3 - base.length);
-              return [...base, ...filler];
-            })().map((t) => {
-              const key = ("key" in t ? t.key : t.name) as string;
+              const base = selectedThemes.length > 0 ? selectedThemes.slice(0, 1) : [];
+              const firstTheme = base[0];
+              const firstKey = firstTheme ? (("key" in firstTheme ? firstTheme.key : firstTheme.name) as string) : null;
+              const staticPreviews = [
+                { src: themePreviewBrand2, label: "Brand Creative" },
+                { src: themePreviewBurger, label: "Food & Product" },
+              ];
               return (
-                <div key={key}>
-                  <ThemePreviewCard themeKey={key} size="lg" className="aspect-square" />
-                  <div className="flex items-center justify-between mt-1.5">
-                    <p className="text-xs text-muted-foreground">From theme: {t.name}</p>
-                    <p className="text-[10px] text-muted-foreground">{("templateCount" in t ? t.templateCount : 0) || 0} designs</p>
-                  </div>
-                </div>
+                <>
+                  {firstKey && (
+                    <div>
+                      <ThemePreviewCard themeKey={firstKey} size="lg" className="aspect-square" />
+                      <p className="text-xs text-muted-foreground mt-1.5">From theme: {firstTheme!.name}</p>
+                    </div>
+                  )}
+                  {staticPreviews.map((p) => (
+                    <div key={p.label}>
+                      <div className="rounded-lg overflow-hidden aspect-square">
+                        <img src={p.src} alt={p.label} className="w-full h-full object-cover" loading="lazy" />
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1.5">{p.label}</p>
+                    </div>
+                  ))}
+                </>
               );
-            })}
+            })()}
           </div>
         </div>
       </div>
