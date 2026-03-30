@@ -7379,6 +7379,110 @@ export type Database = {
           },
         ]
       }
+      social_post_job_events: {
+        Row: {
+          created_at: string
+          error_code: string | null
+          event_type: string
+          id: string
+          job_id: string
+          message: string | null
+          metadata: Json | null
+        }
+        Insert: {
+          created_at?: string
+          error_code?: string | null
+          event_type: string
+          id?: string
+          job_id: string
+          message?: string | null
+          metadata?: Json | null
+        }
+        Update: {
+          created_at?: string
+          error_code?: string | null
+          event_type?: string
+          id?: string
+          job_id?: string
+          message?: string | null
+          metadata?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_post_job_events_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "social_post_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_post_jobs: {
+        Row: {
+          account_id: string
+          attempts: number
+          caption: string
+          claimed_at: string | null
+          created_at: string
+          external_post_id: string | null
+          hashtags: string[] | null
+          id: string
+          last_error: string | null
+          max_attempts: number
+          next_retry_at: string | null
+          platform: string
+          post_id: string
+          published_at: string | null
+          scheduled_at: string
+          status: Database["public"]["Enums"]["post_job_status"]
+          updated_at: string
+          variant_url: string | null
+          workspace_id: string
+        }
+        Insert: {
+          account_id: string
+          attempts?: number
+          caption?: string
+          claimed_at?: string | null
+          created_at?: string
+          external_post_id?: string | null
+          hashtags?: string[] | null
+          id?: string
+          last_error?: string | null
+          max_attempts?: number
+          next_retry_at?: string | null
+          platform: string
+          post_id: string
+          published_at?: string | null
+          scheduled_at: string
+          status?: Database["public"]["Enums"]["post_job_status"]
+          updated_at?: string
+          variant_url?: string | null
+          workspace_id: string
+        }
+        Update: {
+          account_id?: string
+          attempts?: number
+          caption?: string
+          claimed_at?: string | null
+          created_at?: string
+          external_post_id?: string | null
+          hashtags?: string[] | null
+          id?: string
+          last_error?: string | null
+          max_attempts?: number
+          next_retry_at?: string | null
+          platform?: string
+          post_id?: string
+          published_at?: string | null
+          scheduled_at?: string
+          status?: Database["public"]["Enums"]["post_job_status"]
+          updated_at?: string
+          variant_url?: string | null
+          workspace_id?: string
+        }
+        Relationships: []
+      }
       social_post_targets: {
         Row: {
           account_id: string | null
@@ -9345,6 +9449,36 @@ export type Database = {
         Returns: boolean
       }
       claim_dashboard_credits: { Args: never; Returns: Json }
+      claim_due_post_jobs: {
+        Args: { limit_count?: number }
+        Returns: {
+          account_id: string
+          attempts: number
+          caption: string
+          claimed_at: string | null
+          created_at: string
+          external_post_id: string | null
+          hashtags: string[] | null
+          id: string
+          last_error: string | null
+          max_attempts: number
+          next_retry_at: string | null
+          platform: string
+          post_id: string
+          published_at: string | null
+          scheduled_at: string
+          status: Database["public"]["Enums"]["post_job_status"]
+          updated_at: string
+          variant_url: string | null
+          workspace_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "social_post_jobs"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       cleanup_rate_limit_log: { Args: never; Returns: undefined }
       complete_dropship_order_sync_job: {
         Args: {
@@ -10410,6 +10544,13 @@ export type Database = {
       kyc_status: "pending" | "submitted" | "approved" | "rejected"
       login_mode: "disabled" | "optional" | "required"
       payment_status: "pending" | "completed" | "failed" | "refunded"
+      post_job_status:
+        | "queued"
+        | "processing"
+        | "published"
+        | "failed"
+        | "retrying"
+        | "cancelled"
       searchable_entity_type:
         | "product"
         | "service"
@@ -10661,6 +10802,14 @@ export const Constants = {
       kyc_status: ["pending", "submitted", "approved", "rejected"],
       login_mode: ["disabled", "optional", "required"],
       payment_status: ["pending", "completed", "failed", "refunded"],
+      post_job_status: [
+        "queued",
+        "processing",
+        "published",
+        "failed",
+        "retrying",
+        "cancelled",
+      ],
       searchable_entity_type: [
         "product",
         "service",
