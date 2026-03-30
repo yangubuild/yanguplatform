@@ -449,7 +449,7 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
 
       {/* Right column — Design Examples */}
       <div className="hidden lg:block">
-        <div className="sticky top-6">
+        <div className="sticky top-6 max-w-[280px]">
           <div className="mb-3">
             <h3 className="text-sm font-semibold text-foreground">Design Examples</h3>
             <p className="text-[10px] text-muted-foreground mt-0.5">Using placeholder text and photos</p>
@@ -467,13 +467,13 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
                 <>
                   {firstKey && (
                     <div>
-                      <ThemePreviewCard themeKey={firstKey} size="lg" className="!h-auto w-full aspect-square" />
+                      <ThemePreviewCard themeKey={firstKey} size="lg" className="aspect-square" />
                       <p className="text-xs text-muted-foreground mt-1.5">From theme: {firstTheme!.name}</p>
                     </div>
                   )}
                   {staticPreviews.map((p) => (
                     <div key={p.label}>
-                      <div className="rounded-lg overflow-hidden aspect-square">
+                      <div className="rounded-lg overflow-hidden h-48">
                         <img src={p.src} alt={p.label} className="w-full h-full object-cover" loading="lazy" />
                       </div>
                       <p className="text-xs text-muted-foreground mt-1.5">{p.label}</p>
