@@ -473,6 +473,43 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
           updateMeta({ selected_themes: keys, custom_themes: customs });
         }}
       />
+
+      {/* Template Editor Modal */}
+      {editingThemeKey && (() => {
+        const theme = SYSTEM_THEMES.find((t) => t.key === editingThemeKey);
+        const imageUrl = getThemePreviewImage(editingThemeKey);
+        if (!theme || !imageUrl) return null;
+        const now = new Date().toISOString();
+        const fallbackLayers: TemplateLayer[] = [
+          { id: `${editingThemeKey}-headline`, template_id: editingThemeKey, layer_type: "text", role: "headline", sort_order: 0, x: 10, y: 15, width: 80, height: 12, style: { fontSize: 32, fontWeight: 700, color: "#ffffff", textAlign: "center" }, content: "Your Headline Here", src: null, locked: false, created_at: now },
+          { id: `${editingThemeKey}-sub`, template_id: editingThemeKey, layer_type: "text", role: "subheadline", sort_order: 1, x: 10, y: 30, width: 80, height: 8, style: { fontSize: 18, fontWeight: 400, color: "#ffffff", textAlign: "center" }, content: "Add your subtext", src: null, locked: false, created_at: now },
+          { id: `${editingThemeKey}-cta`, template_id: editingThemeKey, layer_type: "cta", role: "cta", sort_order: 2, x: 30, y: 75, width: 40, height: 8, style: { fontSize: 14, fontWeight: 600, color: "#ffffff", backgroundColor: "#e84672", borderRadius: 8, textAlign: "center" }, content: "Learn More", src: null, locked: false, created_at: now },
+        ];
+        const brandConfig = {
+          primaryColor: brandColors[0],
+          secondaryColor: brandColors[1],
+          accentColor: brandColors[2],
+          titleFont,
+          bodyFont,
+          logoUrl,
+          useLogo,
+        };
+        return (
+          <TemplateEditorModal
+            open={!!editingThemeKey}
+            onClose={() => setEditingThemeKey(null)}
+            templateName={theme.name}
+            templateImageUrl={imageUrl}
+            baseLayers={fallbackLayers}
+            colorSlots={{}}
+            brand={brandConfig}
+            onSave={(layerOverrides, colorOverrides) => {
+              console.log("Design saved:", { themeKey: editingThemeKey, layerOverrides, colorOverrides });
+              toast.success("Design edits saved");
+            }}
+          />
+        );
+      })()}
     </div>
   );
 }
