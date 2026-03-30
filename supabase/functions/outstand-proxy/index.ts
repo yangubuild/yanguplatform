@@ -160,26 +160,76 @@ serve(async (req) => {
 
         log("oauth_connect_started", { provider, network, workspaceId });
 
-        // Auto-configure the social network if not already configured
+        // Check if network is configured first
+        let networkConfigured = false;
         try {
-          await outstandFetch(`/social-networks`, "POST", { network });
-          log("network_configured", { network });
-        } catch (configErr) {
-          // 409 or similar means already configured — safe to ignore
-          log("network_configure_skipped", { network, reason: configErr.message });
+          const listRes = await outstandFetch(`/social-networks`, "GET");
+          const listData = await listRes.json();
+          const networks = listData.data || listData.networks || listData || [];
+          networkConfigured = Array.isArray(networks) && networks.some(
+            (n: any) => (n.network || n.name || n.id) === network
+          );
+        } catch {
+          // If list fails, try auth-url directly
+          networkConfigured = true;
+        }
+
+        if (!networkConfigured) {
+          // Try to auto-configure with credentials from env
+          const clientKey = Deno.env.get(`${network.toUpperCase()}_CLIENT_KEY`) || Deno.env.get(`${network.toUpperCase()}_CLIENT_ID`);
+          const clientSecret = Deno.env.get(`${network.toUpperCase()}_CLIENT_SECRET`);
+
+          if (clientKey && clientSecret) {
+            try {
+              await outstandFetch(`/social-networks`, "POST", {
+                network,
+                client_key: clientKey,
+                client_secret: clientSecret,
+              });
+              log("network_auto_configured", { network });
+            } catch (configErr) {
+              log("network_configure_failed", { network, reason: configErr.message });
+            }
+          } else {
+            // Try without credentials — Outstand may handle it for managed networks
+            try {
+              await outstandFetch(`/social-networks`, "POST", { network });
+              log("network_configured_managed", { network });
+            } catch (configErr) {
+              log("network_configure_skipped", { network, reason: configErr.message });
+              // Return a readable error instead of crashing later
+              return errorResponse(
+                `Social network "${network}" is not configured. Please configure ${provider} credentials in Outstand or add ${network.toUpperCase()}_CLIENT_KEY and ${network.toUpperCase()}_CLIENT_SECRET secrets.`,
+                400
+              );
+            }
+          }
         }
 
         const requestBody: Record<string, unknown> = {};
         if (redirectUrl) requestBody.redirect_uri = redirectUrl;
         if (workspaceId) requestBody.tenant_id = workspaceId as string;
 
-        const res = await outstandFetch(`/social-networks/${network}/auth-url`, "POST", requestBody);
-        const data = await res.json();
+        try {
+          const res = await outstandFetch(`/social-networks/${network}/auth-url`, "POST", requestBody);
+          const data = await res.json();
 
-        return jsonResponse({
-          url: data.auth_url || data.url || data.connect_url,
-          state: data.state,
-        });
+          const url = data.auth_url || data.url || data.connect_url;
+          if (!url) {
+            return errorResponse("Provider did not return an authorization URL. The social network may not be fully configured.", 502);
+          }
+
+          return jsonResponse({ url, state: data.state });
+        } catch (authErr) {
+          const msg = authErr.message || String(authErr);
+          if (msg.includes("404") || msg.includes("not configured")) {
+            return errorResponse(`${provider} is not configured in your social provider. Please configure it in the Outstand dashboard first.`, 400);
+          }
+          if (msg.includes("401") || msg.includes("403")) {
+            return errorResponse(`Authentication failed for ${provider}. Check your Outstand API key.`, 401);
+          }
+          throw authErr;
+        }
       }
 
       // ── OAuth callback exchange ─────────────────────────
