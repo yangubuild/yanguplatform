@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   X, Loader2, Save, Clock, ChevronDown, Smile, Hash, Mic,
   Undo2, Redo2, ImagePlus, Globe, Instagram, Music2,
+  Upload, FolderOpen, Camera, Film, Sparkles, Linkedin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSocialPosts } from "@/hooks/social/useSocialPosts";
-import { useSocialTopicCategories } from "@/hooks/social/useSocialTopicCategories";
 import { toast } from "sonner";
 import type { SocialPost } from "@/types/socialMedia";
 import {
@@ -15,6 +15,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { PostDesignEditor } from "@/components/social-media/create/PostDesignEditor";
 
 interface Props {
   post: SocialPost;
@@ -26,11 +32,20 @@ const PLATFORM_ICONS = [
   { key: "web", icon: Globe, label: "Web" },
   { key: "instagram", icon: Instagram, label: "Instagram" },
   { key: "tiktok", icon: Music2, label: "TikTok" },
+  { key: "google", icon: Globe, label: "Google" },
+  { key: "linkedin", icon: Linkedin, label: "LinkedIn" },
+];
+
+const MEDIA_SOURCES = [
+  { key: "upload", icon: Upload, label: "Upload" },
+  { key: "library", icon: FolderOpen, label: "Library" },
+  { key: "stock", icon: Camera, label: "Stock" },
+  { key: "giphy", icon: Film, label: "Giphy" },
+  { key: "generate", icon: Sparkles, label: "Generate" },
 ];
 
 export function EditPostModal({ post, open, onClose }: Props) {
-  const { updatePost, schedulePost, publishPost } = useSocialPosts();
-  const { categories } = useSocialTopicCategories();
+  const { updatePost, schedulePost } = useSocialPosts();
   const [caption, setCaption] = useState(post.caption || "");
   const [title, setTitle] = useState(post.title || "");
   const [scheduledFor, setScheduledFor] = useState(
@@ -38,6 +53,8 @@ export function EditPostModal({ post, open, onClose }: Props) {
   );
   const [saving, setSaving] = useState(false);
   const [activePlatform, setActivePlatform] = useState("web");
+  const [showDesignEditor, setShowDesignEditor] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setCaption(post.caption || "");
@@ -48,6 +65,11 @@ export function EditPostModal({ post, open, onClose }: Props) {
   }, [post]);
 
   if (!open) return null;
+
+  // Show design editor full-screen overlay
+  if (showDesignEditor) {
+    return <PostDesignEditor onClose={() => setShowDesignEditor(false)} />;
+  }
 
   const mediaUrls: string[] = [
     ...(post.primary_media_url ? [post.primary_media_url] : []),
@@ -84,6 +106,33 @@ export function EditPostModal({ post, open, onClose }: Props) {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleMediaSource = (key: string) => {
+    switch (key) {
+      case "upload":
+        fileInputRef.current?.click();
+        break;
+      case "library":
+        toast.info("Library picker coming soon");
+        break;
+      case "stock":
+        toast.info("Stock picker coming soon");
+        break;
+      case "giphy":
+        toast.info("Giphy picker coming soon");
+        break;
+      case "generate":
+        toast.info("AI image generation coming soon");
+        break;
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files?.length) return;
+    toast.success(`${files.length} file(s) selected for upload`);
+    // TODO: wire to actual upload logic
   };
 
   return (
@@ -145,7 +194,7 @@ export function EditPostModal({ post, open, onClose }: Props) {
               </div>
             </div>
 
-            {/* Media thumbnails */}
+            {/* Media thumbnails + add media popover */}
             <div className="flex gap-2 flex-wrap">
               {mediaUrls.map((url, i) => (
                 <div
@@ -155,14 +204,46 @@ export function EditPostModal({ post, open, onClose }: Props) {
                   <img src={url} alt="" className="w-full h-full object-cover" />
                 </div>
               ))}
-              <button className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg border border-dashed border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50 transition-colors">
-                <ImagePlus className="h-5 w-5" />
-              </button>
+              {/* Add media — opens source popover */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg border border-dashed border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50 transition-colors">
+                    <ImagePlus className="h-5 w-5" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent align="start" className="w-44 p-1">
+                  {MEDIA_SOURCES.map((src) => (
+                    <button
+                      key={src.key}
+                      onClick={() => handleMediaSource(src.key)}
+                      className="flex items-center gap-2 w-full px-3 py-2 text-xs rounded-md hover:bg-muted transition-colors text-foreground"
+                    >
+                      <src.icon className="h-3.5 w-3.5 text-muted-foreground" />
+                      {src.label}
+                    </button>
+                  ))}
+                </PopoverContent>
+              </Popover>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*,video/*"
+                multiple
+                className="hidden"
+                onChange={handleFileUpload}
+              />
             </div>
 
-            {/* Edit Design */}
+            {/* Edit Design — opens PostDesignEditor */}
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" className="text-xs">Edit Design</Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs"
+                onClick={() => setShowDesignEditor(true)}
+              >
+                Edit Design
+              </Button>
             </div>
 
             {/* Title */}
