@@ -26,3 +26,4 @@ export {
   useBrandAutoApply,
 } from "./useTemplateDesign";
 export { useVariationGeneration } from "./useVariationGeneration";
+export { usePostJobs } from "./usePostJobs";
