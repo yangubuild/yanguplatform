@@ -14,7 +14,7 @@ import {
   Crown,
   Pencil,
   Layers,
-  Loader2,
+  Sparkles,
 } from "lucide-react";
 import {
   DropdownMenu,
