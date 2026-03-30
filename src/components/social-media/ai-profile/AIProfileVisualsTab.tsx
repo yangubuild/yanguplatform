@@ -1,8 +1,9 @@
-import { useState } from "react";
-import { ChevronDown, ChevronUp, Plus, Image, Palette, Layers, Sparkles, Loader2 } from "lucide-react";
+import { useState, useRef } from "react";
+import { ChevronDown, ChevronUp, Plus, Image, Palette, Layers, Sparkles, Loader2, MoreVertical, ArrowLeft, Search, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { SYSTEM_THEMES } from "@/data/socialThemes";
 import { ChooseThemesModal } from "./ChooseThemesModal";
@@ -19,6 +20,17 @@ type MediaType = "Image" | "Design" | "GIF" | "Meme" | "AI Image";
 
 const DEFAULT_SELECTED_KEYS = ["border", "fonts", "influencer", "interface", "threads"];
 
+const COLOR_PRESETS = [
+  ["#ffffff", "#9b87f5", "#000000"],
+  ["#1a1033", "#e84672", "#ffffff"],
+  ["#1a3a5c", "#7cb3e0", "#ffffff"],
+  ["#c9c0f0", "#1a1a2e", "#ffffff"],
+  ["#e8834a", "#ffffff", "#1a1033"],
+  ["#b5472a", "#d4d0cc", "#2a2a2a"],
+  ["#6dc8b5", "#ffffff", "#2a7fb5"],
+  ["#e8a0b0", "#f5f0e8", "#4a4a4a"],
+];
+
 export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Props) {
   const [themesOpen, setThemesOpen] = useState(true);
   const [brandOpen, setBrandOpen] = useState(false);
@@ -27,35 +39,42 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
   const [showThemesPicker, setShowThemesPicker] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  // Brand color state
+  const [colorPickerIndex, setColorPickerIndex] = useState<number | null>(null);
+  const [showPresets, setShowPresets] = useState(false);
+  const [editPaletteMode, setEditPaletteMode] = useState(false);
+  const [paletteMenuOpen, setPaletteMenuOpen] = useState(false);
+
+  // Logo
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
   const metadata = (profile.visual_metadata as Record<string, unknown>) || {};
   const selectedMediaTypes = (metadata.media_types as MediaType[]) || ["Design"];
   const mediaMix = (metadata.media_mix as Record<string, number>) || { Design: 100 };
   const useStock = (metadata.use_stock as boolean) ?? true;
   const useLogo = (metadata.use_logo as boolean) ?? false;
+  const logoUrl = (metadata.logo_url as string) || "";
   const brandColors = (metadata.brand_colors as string[]) || ["#c47a3a", "#ffffff", "#152A20"];
   const selectedThemeKeys = (metadata.selected_themes as string[]) || DEFAULT_SELECTED_KEYS;
   const customThemes = (metadata.custom_themes as { key: string; name: string }[]) || [];
+  const titleFont = (metadata.title_font as string) || "Default (Theme Font)";
+  const bodyFont = (metadata.body_font as string) || "Default (Theme Font)";
 
+  // Get first selected theme for the main display
+  const firstSelectedTheme = selectedThemeKeys.length > 0
+    ? SYSTEM_THEMES.find((t) => t.key === selectedThemeKeys[0])
+    : SYSTEM_THEMES[0];
+
+  // All selected themes for design examples
   const selectedThemes = selectedThemeKeys
     .map((k) => SYSTEM_THEMES.find((t) => t.key === k) || customThemes.find((c) => c.key === k))
     .filter(Boolean) as { key?: string; name: string; templateCount?: number }[];
-
-  const totalTemplates = selectedThemes.reduce((s, t) => s + (("templateCount" in t ? t.templateCount : 0) || 0), 0);
 
   const updateMeta = (patch: Record<string, unknown>) => {
     onUpdate("visual_metadata", { ...metadata, ...patch });
   };
 
   const handleSave = async () => {
-    updateMeta({
-      media_types: selectedMediaTypes,
-      media_mix: mediaMix,
-      use_stock: useStock,
-      use_logo: useLogo,
-      brand_colors: brandColors,
-      selected_themes: selectedThemeKeys,
-      custom_themes: customThemes,
-    });
     await onSave();
     setSaved(true);
     toast.success("Visual settings saved");
@@ -70,15 +89,35 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
     updateMeta({ media_types: current });
   };
 
-  const addColor = () => {
+  const updateColor = (idx: number, color: string) => {
     const colors = [...brandColors];
-    colors.push("#888888");
+    colors[idx] = color;
     updateMeta({ brand_colors: colors });
+  };
+
+  const addColor = () => {
+    updateMeta({ brand_colors: [...brandColors, "#888888"] });
+    setColorPickerIndex(brandColors.length);
   };
 
   const removeColor = (idx: number) => {
     const colors = brandColors.filter((_, i) => i !== idx);
     updateMeta({ brand_colors: colors });
+    if (colorPickerIndex === idx) setColorPickerIndex(null);
+  };
+
+  const applyPreset = (preset: string[]) => {
+    updateMeta({ brand_colors: [...preset] });
+    setShowPresets(false);
+    setEditPaletteMode(false);
+  };
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    updateMeta({ logo_url: url });
+    toast.success("Logo uploaded");
   };
 
   return (
@@ -91,27 +130,37 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
             <p className="text-sm font-semibold text-foreground">Enabled Themes</p>
             <Button size="sm" variant="outline" onClick={() => setShowThemesPicker(true)}>Choose Themes</Button>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
-            {selectedThemes.slice(0, 4).map((t) => {
-              const key = ("key" in t ? t.key : t.name) as string;
-              return (
-                <div key={t.name} className="rounded-xl border border-border bg-muted/20 overflow-hidden">
-                  <ThemePreviewCard themeKey={key} size="sm" showText={false} className="!rounded-none" />
-                  <div className="p-2 text-center">
-                    <p className="text-xs font-medium text-foreground">{t.name}</p>
-                    <p className="text-[10px] text-muted-foreground">{("templateCount" in t ? t.templateCount : 0) || 0} Designs</p>
-                  </div>
+
+          {/* STRICT: 1 selected theme card + Add Theme card */}
+          <div className="flex gap-4 mb-3">
+            {firstSelectedTheme && (
+              <div className="w-40 rounded-xl border border-border bg-muted/20 overflow-hidden">
+                <ThemePreviewCard themeKey={firstSelectedTheme.key} size="md" showText={false} className="!rounded-none aspect-[4/5]" />
+                <div className="p-2.5">
+                  <p className="text-xs font-medium text-foreground">{firstSelectedTheme.name}</p>
+                  <p className="text-[10px] text-muted-foreground">{firstSelectedTheme.templateCount} Designs</p>
                 </div>
-              );
-            })}
+              </div>
+            )}
+
+            {/* + Add Theme card */}
+            <button
+              onClick={() => setShowThemesPicker(true)}
+              className="w-40 rounded-xl border-2 border-dashed border-border hover:border-accent/30 transition-colors flex flex-col items-center justify-center gap-2"
+            >
+              <Plus className="h-8 w-8 text-muted-foreground/40" />
+              <span className="text-sm font-medium text-muted-foreground">Add Theme</span>
+            </button>
           </div>
-          {selectedThemes.length > 4 && (
-            <p className="text-xs text-muted-foreground">+{selectedThemes.length - 4} more themes selected</p>
+
+          {selectedThemeKeys.length > 1 && (
+            <p className="text-xs text-muted-foreground">+{selectedThemeKeys.length - 1} more themes selected</p>
           )}
         </CollapsibleSection>
 
         {/* BRAND STYLES */}
         <CollapsibleSection title="Brand Styles" subtitle="Choose how your business presents itself" open={brandOpen} onToggle={() => setBrandOpen(!brandOpen)} saved={saved}>
+          {/* Logo toggle + upload */}
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-sm font-medium text-foreground">Use logo on post</p>
@@ -120,39 +169,196 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
             <Switch checked={useLogo} onCheckedChange={(v) => updateMeta({ use_logo: v })} />
           </div>
 
-          <p className="text-sm font-semibold text-foreground mb-2">Brand Colors</p>
-          <div className="flex items-center gap-1 mb-4">
-            {brandColors.map((c, i) => (
-              <div key={i} className="h-8 flex-1 rounded relative group cursor-pointer" style={{ backgroundColor: c }}>
-                <button onClick={() => removeColor(i)} className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-destructive text-white text-[8px] items-center justify-center hidden group-hover:flex">×</button>
-              </div>
-            ))}
-            <button onClick={addColor} className="h-8 w-8 rounded border border-dashed border-border flex items-center justify-center text-muted-foreground hover:text-foreground shrink-0">
-              <Plus className="h-3.5 w-3.5" />
-            </button>
-          </div>
+          {useLogo && (
+            <div className="mb-4">
+              {logoUrl ? (
+                <div className="flex items-center gap-3">
+                  <img src={logoUrl} alt="Brand logo" className="h-12 w-12 rounded-lg object-contain border border-border bg-muted/20" />
+                  <Button size="sm" variant="outline" onClick={() => logoInputRef.current?.click()}>Change Logo</Button>
+                </div>
+              ) : (
+                <Button size="sm" variant="outline" onClick={() => logoInputRef.current?.click()}>
+                  Upload Logo
+                </Button>
+              )}
+              <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+            </div>
+          )}
 
-          <p className="text-sm font-semibold text-foreground mb-2">Font</p>
+          {/* Brand Colors */}
+          {!editPaletteMode && !showPresets ? (
+            <>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-semibold text-foreground">Brand Colors</p>
+                <div className="relative">
+                  <button onClick={() => setPaletteMenuOpen(!paletteMenuOpen)} className="p-1 hover:bg-muted/30 rounded">
+                    <MoreVertical className="h-4 w-4 text-muted-foreground" />
+                  </button>
+                  {paletteMenuOpen && (
+                    <div className="absolute right-0 top-full mt-1 bg-card border border-border rounded-lg shadow-lg z-20 py-1 min-w-[120px]">
+                      <button onClick={() => { setEditPaletteMode(true); setPaletteMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-muted/30">
+                        <Pencil className="h-3.5 w-3.5" /> Edit
+                      </button>
+                      <button onClick={() => { applyPreset([...brandColors]); setPaletteMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-muted/30">
+                        <Layers className="h-3.5 w-3.5" /> Duplicate
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+              {/* Color bar display */}
+              <div className="flex items-center gap-1 mb-4">
+                <div className="flex flex-1 h-8 rounded-lg overflow-hidden border border-border">
+                  {brandColors.map((c, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setColorPickerIndex(colorPickerIndex === i ? null : i)}
+                      className="flex-1 relative group"
+                      style={{ backgroundColor: c }}
+                    >
+                      {colorPickerIndex === i && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                          <Pencil className="h-3.5 w-3.5 text-white" />
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+                <button onClick={addColor} className="h-8 w-8 rounded border border-dashed border-border flex items-center justify-center text-muted-foreground hover:text-foreground shrink-0">
+                  <Plus className="h-3.5 w-3.5" />
+                </button>
+              </div>
+
+              {/* Inline color picker */}
+              {colorPickerIndex !== null && colorPickerIndex < brandColors.length && (
+                <div className="mb-4 p-3 rounded-lg border border-border bg-card shadow-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-medium text-foreground">Color Picker</p>
+                    <button onClick={() => setColorPickerIndex(null)} className="text-muted-foreground hover:text-foreground text-xs">✕</button>
+                  </div>
+                  <input
+                    type="color"
+                    value={brandColors[colorPickerIndex]}
+                    onChange={(e) => updateColor(colorPickerIndex, e.target.value)}
+                    className="w-full h-32 rounded cursor-pointer border-0 bg-transparent"
+                  />
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="text-xs text-muted-foreground">HEX</span>
+                    <Input
+                      value={brandColors[colorPickerIndex]}
+                      onChange={(e) => updateColor(colorPickerIndex, e.target.value)}
+                      className="h-7 text-xs font-mono"
+                    />
+                  </div>
+                </div>
+              )}
+            </>
+          ) : showPresets ? (
+            /* Presets view */
+            <>
+              <button onClick={() => setShowPresets(false)} className="flex items-center gap-1.5 text-sm text-foreground mb-3 hover:text-accent">
+                <ArrowLeft className="h-4 w-4" /> Presets
+              </button>
+              <div className="space-y-2">
+                {COLOR_PRESETS.map((preset, i) => (
+                  <div key={i} className="flex items-center gap-1">
+                    <div className="flex flex-1 h-8 rounded-lg overflow-hidden border border-border">
+                      {preset.map((c, j) => (
+                        <div key={j} className="flex-1" style={{ backgroundColor: c }} />
+                      ))}
+                    </div>
+                    <button onClick={() => applyPreset(preset)} className="h-8 w-8 flex items-center justify-center text-muted-foreground hover:text-foreground shrink-0">
+                      <Plus className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            /* Edit palette view */
+            <>
+              <button onClick={() => setEditPaletteMode(false)} className="flex items-center gap-1.5 text-sm text-foreground mb-3 hover:text-accent">
+                <ArrowLeft className="h-4 w-4" /> Edit palette
+              </button>
+              <div className="flex items-center gap-2 mb-3">
+                {brandColors.map((c, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setColorPickerIndex(colorPickerIndex === i ? null : i)}
+                    className={`h-10 w-10 rounded-lg border-2 ${colorPickerIndex === i ? "border-accent" : "border-border"}`}
+                    style={{ backgroundColor: c }}
+                  />
+                ))}
+                <button onClick={addColor} className="h-10 w-10 rounded-lg border border-dashed border-border flex items-center justify-center text-muted-foreground">
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
+
+              {colorPickerIndex !== null && colorPickerIndex < brandColors.length && (
+                <div className="mb-3 p-3 rounded-lg border border-border bg-card shadow-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-medium text-foreground">Color Picker</p>
+                    <button onClick={() => setColorPickerIndex(null)} className="text-muted-foreground hover:text-foreground text-xs">✕</button>
+                  </div>
+                  <input
+                    type="color"
+                    value={brandColors[colorPickerIndex]}
+                    onChange={(e) => updateColor(colorPickerIndex, e.target.value)}
+                    className="w-full h-32 rounded cursor-pointer border-0 bg-transparent"
+                  />
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="text-xs text-muted-foreground">HEX</span>
+                    <Input
+                      value={brandColors[colorPickerIndex]}
+                      onChange={(e) => updateColor(colorPickerIndex, e.target.value)}
+                      className="h-7 text-xs font-mono"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center gap-2">
+                <Button size="sm" variant="outline" onClick={() => setShowPresets(true)}>
+                  <Search className="h-3.5 w-3.5 mr-1" /> Search presets
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => { setEditPaletteMode(false); setColorPickerIndex(null); }}>Cancel</Button>
+                <Button size="sm" onClick={() => { setEditPaletteMode(false); setColorPickerIndex(null); toast.success("Palette saved"); }}>Save</Button>
+              </div>
+            </>
+          )}
+
+          {/* Font section */}
+          <p className="text-sm font-semibold text-foreground mb-2 mt-4">Font</p>
           <p className="text-xs text-muted-foreground mb-2">Choose which fonts to use in your designs.</p>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs text-muted-foreground block mb-1">Title Font</label>
-              <select className="w-full rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-foreground">
-                <option>Default (Theme Font)</option><option>Lufga</option><option>Inter</option><option>Playfair Display</option><option>Montserrat</option>
+              <select
+                value={titleFont}
+                onChange={(e) => updateMeta({ title_font: e.target.value })}
+                className="w-full rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-foreground"
+              >
+                <option>Default (Theme Font)</option><option>Montserrat</option><option>Inter</option><option>Playfair Display</option><option>Lufga</option>
               </select>
             </div>
             <div>
               <label className="text-xs text-muted-foreground block mb-1">Body Font</label>
-              <select className="w-full rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-foreground">
-                <option>Default (Theme Font)</option><option>Inter</option><option>Lufga</option><option>Open Sans</option><option>Roboto</option>
+              <select
+                value={bodyFont}
+                onChange={(e) => updateMeta({ body_font: e.target.value })}
+                className="w-full rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-foreground"
+              >
+                <option>Default (Theme Font)</option><option>Montserrat</option><option>Inter</option><option>Open Sans</option><option>Roboto</option>
               </select>
             </div>
           </div>
-          <div className="mt-3 p-3 rounded-lg border border-border bg-muted/10">
-            <p className="text-sm font-medium text-foreground mb-1">Font Preview</p>
-            <p className="text-lg font-bold text-foreground">The quick brown fox</p>
-            <p className="text-sm text-muted-foreground">jumps over the lazy dog. 0123456789</p>
-          </div>
+          <details className="mt-3">
+            <summary className="text-sm font-medium text-foreground cursor-pointer">Font Preview</summary>
+            <div className="p-3 rounded-lg border border-border bg-muted/10 mt-2">
+              <p className="text-lg font-bold text-foreground">The quick brown fox</p>
+              <p className="text-sm text-muted-foreground">jumps over the lazy dog. 0123456789</p>
+            </div>
+          </details>
         </CollapsibleSection>
 
         {/* DESIGN SETTINGS */}
@@ -181,9 +387,6 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
             <div key={type} className="flex items-center gap-4 mb-3">
               <div className="w-24">
                 <p className="text-sm font-medium text-foreground">{type}</p>
-                <p className="text-[10px] text-muted-foreground">
-                  {type === "Image" ? "Only photo, from library or stock" : type === "Design" ? "Templated graphics with text and photos" : type === "AI Image" ? "AI-generated artwork" : type}
-                </p>
               </div>
               <div className="flex-1">
                 <Slider value={[mediaMix[type] || Math.floor(100 / selectedMediaTypes.length)]} onValueChange={([v]) => updateMeta({ media_mix: { ...mediaMix, [type]: v } })} min={0} max={100} step={5} className="flex-1" />
@@ -221,7 +424,7 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
           </div>
         </CollapsibleSection>
 
-        <div className="flex justify-end pt-2">
+        <div className="flex justify-center pt-2">
           <Button onClick={handleSave} disabled={isSaving}>
             {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> : null}
             Save Visual Settings
@@ -240,7 +443,7 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
             {(selectedThemes.length > 0 ? selectedThemes.slice(0, 3) : SYSTEM_THEMES.slice(0, 3)).map((t) => {
               const key = ("key" in t ? t.key : t.name) as string;
               return (
-                <div key={t.name}>
+                <div key={key}>
                   <ThemePreviewCard themeKey={key} size="lg" className="aspect-square" />
                   <div className="flex items-center justify-between mt-1.5">
                     <p className="text-xs text-muted-foreground">From theme: {t.name}</p>
@@ -261,7 +464,6 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
         customThemes={customThemes}
         onSave={(keys, customs) => {
           updateMeta({ selected_themes: keys, custom_themes: customs });
-          handleSave();
         }}
       />
     </div>
