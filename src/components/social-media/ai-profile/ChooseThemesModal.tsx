@@ -13,11 +13,14 @@ interface Props {
   onSave: (selectedKeys: string[], customThemes: { key: string; name: string }[]) => void;
 }
 
+const INITIAL_VISIBLE = 49;
+
 export function ChooseThemesModal({ open, onClose, selectedKeys, customThemes, onSave }: Props) {
   const [selected, setSelected] = useState<Set<string>>(new Set(selectedKeys));
   const [customs, setCustoms] = useState(customThemes);
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState("");
+  const [showAll, setShowAll] = useState(false);
 
   if (!open) return null;
 
@@ -29,6 +32,9 @@ export function ChooseThemesModal({ open, onClose, selectedKeys, customThemes, o
       isSystem: false, isCustom: true, category: "general" as const,
     })),
   ];
+
+  const visibleThemes = showAll ? allThemes : allThemes.slice(0, INITIAL_VISIBLE);
+  const hasMore = allThemes.length > INITIAL_VISIBLE;
 
   const toggle = (key: string) => {
     const next = new Set(selected);
@@ -61,7 +67,7 @@ export function ChooseThemesModal({ open, onClose, selectedKeys, customThemes, o
         {/* Grid */}
         <div className="flex-1 overflow-y-auto p-6">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {allThemes.map((theme) => {
+            {visibleThemes.map((theme) => {
               const isSelected = selected.has(theme.key);
               return (
                 <button
@@ -82,7 +88,7 @@ export function ChooseThemesModal({ open, onClose, selectedKeys, customThemes, o
                   <div className="p-2.5">
                     <p className="text-xs font-medium text-foreground">{theme.name}</p>
                     <p className="text-[10px] text-muted-foreground">
-                      {theme.templateCount > 0 ? `${theme.templateCount} design templates` : "Custom theme"}
+                      {theme.templateCount > 0 ? `${theme.templateCount} design template${theme.templateCount !== 1 ? "s" : ""}` : "Custom theme"}
                     </p>
                   </div>
                 </button>
@@ -103,12 +109,28 @@ export function ChooseThemesModal({ open, onClose, selectedKeys, customThemes, o
               </div>
             </button>
           </div>
+
+          {/* View All button */}
+          {hasMore && !showAll && (
+            <div className="flex justify-center mt-6">
+              <Button variant="outline" size="sm" onClick={() => setShowAll(true)}>
+                View all ({allThemes.length} templates)
+              </Button>
+            </div>
+          )}
+          {showAll && hasMore && (
+            <div className="flex justify-center mt-6">
+              <Button variant="outline" size="sm" onClick={() => setShowAll(false)}>
+                Show less
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
         <div className="flex items-center justify-between px-6 py-4 border-t border-border shrink-0">
           <p className="text-sm text-muted-foreground">
-            Selected {selectedCount} theme{selectedCount !== 1 ? "s" : ""}, {totalTemplates} templates
+            Selected {selectedCount} theme{selectedCount !== 1 ? "s" : ""}, {totalTemplates} template{totalTemplates !== 1 ? "s" : ""}
           </p>
           <Button
             className="bg-foreground text-background hover:bg-foreground/90"

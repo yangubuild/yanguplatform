@@ -18,7 +18,7 @@ interface Props {
 
 type MediaType = "Image" | "Design" | "GIF" | "Meme" | "AI Image";
 
-const DEFAULT_SELECTED_KEYS = ["border", "fonts", "influencer", "interface", "threads"];
+const DEFAULT_SELECTED_KEYS = ["bold-tech", "classic", "fonts", "era", "influencer"];
 
 const COLOR_PRESETS = [
   ["#ffffff", "#9b87f5", "#000000"],
