@@ -1,9 +1,11 @@
-import { useState } from "react";
-import { ChevronDown, ChevronUp, Plus, Image, Palette, Layers, Sparkles, Loader2, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ChevronDown, ChevronUp, Plus, Image, Palette, Layers, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
+import { SYSTEM_THEMES } from "@/data/socialThemes";
+import { ChooseThemesModal } from "./ChooseThemesModal";
 
 interface Props {
   profile: Record<string, unknown>;
@@ -14,22 +16,7 @@ interface Props {
 
 type MediaType = "Image" | "Design" | "GIF" | "Meme" | "AI Image";
 
-const defaultThemes = [
-  { name: "Border", count: 9, selected: true },
-  { name: "Fonts", count: 18, selected: true },
-  { name: "Influencer", count: 13, selected: true },
-  { name: "Interface", count: 7, selected: true },
-  { name: "Notes", count: 10, selected: false },
-  { name: "Simply Image", count: 1, selected: false },
-  { name: "Threads", count: 9, selected: true },
-  { name: "Tweet", count: 3, selected: false },
-  { name: "Fresh Pop", count: 16, selected: false },
-  { name: "Cyber", count: 8, selected: false },
-  { name: "Dashed", count: 7, selected: false },
-  { name: "Elegance", count: 10, selected: false },
-  { name: "Era", count: 15, selected: false },
-  { name: "Memes 1", count: 23, selected: false },
-];
+const DEFAULT_SELECTED_KEYS = ["border", "fonts", "influencer", "interface", "threads"];
 
 export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Props) {
   const [themesOpen, setThemesOpen] = useState(true);
@@ -45,17 +32,28 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
   const useStock = (metadata.use_stock as boolean) ?? true;
   const useLogo = (metadata.use_logo as boolean) ?? false;
   const brandColors = (metadata.brand_colors as string[]) || ["#c47a3a", "#ffffff", "#152A20"];
-  const [themes, setThemes] = useState(defaultThemes);
+  const selectedThemeKeys = (metadata.selected_themes as string[]) || DEFAULT_SELECTED_KEYS;
+  const customThemes = (metadata.custom_themes as { key: string; name: string }[]) || [];
+
+  const selectedThemes = selectedThemeKeys
+    .map((k) => SYSTEM_THEMES.find((t) => t.key === k) || customThemes.find((c) => c.key === k))
+    .filter(Boolean) as { key?: string; name: string; templateCount?: number }[];
+
+  const totalTemplates = selectedThemes.reduce((s, t) => s + (("templateCount" in t ? t.templateCount : 0) || 0), 0);
+
+  const updateMeta = (patch: Record<string, unknown>) => {
+    onUpdate("visual_metadata", { ...metadata, ...patch });
+  };
 
   const handleSave = async () => {
-    onUpdate("visual_metadata", {
-      ...metadata,
+    updateMeta({
       media_types: selectedMediaTypes,
       media_mix: mediaMix,
       use_stock: useStock,
       use_logo: useLogo,
       brand_colors: brandColors,
-      selected_themes: themes.filter((t) => t.selected).map((t) => t.name),
+      selected_themes: selectedThemeKeys,
+      custom_themes: customThemes,
     });
     await onSave();
     setSaved(true);
@@ -68,11 +66,19 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
     const idx = current.indexOf(type);
     if (idx >= 0 && current.length > 1) current.splice(idx, 1);
     else if (idx < 0) current.push(type);
-    onUpdate("visual_metadata", { ...metadata, media_types: current });
+    updateMeta({ media_types: current });
   };
 
-  const selectedThemes = themes.filter((t) => t.selected);
-  const totalTemplates = selectedThemes.reduce((s, t) => s + t.count, 0);
+  const addColor = () => {
+    const colors = [...brandColors];
+    colors.push("#888888");
+    updateMeta({ brand_colors: colors });
+  };
+
+  const removeColor = (idx: number) => {
+    const colors = brandColors.filter((_, i) => i !== idx);
+    updateMeta({ brand_colors: colors });
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6">
@@ -84,17 +90,20 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
             <p className="text-sm font-semibold text-foreground">Enabled Themes</p>
             <Button size="sm" variant="outline" onClick={() => setShowThemesPicker(true)}>Choose Themes</Button>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
             {selectedThemes.slice(0, 4).map((t) => (
               <div key={t.name} className="rounded-xl border border-border bg-muted/20 p-3 text-center">
                 <div className="w-full h-16 rounded-lg bg-gradient-to-br from-accent/20 to-accent/5 mb-2 flex items-center justify-center">
                   <Layers className="h-6 w-6 text-accent/40" />
                 </div>
                 <p className="text-xs font-medium text-foreground">{t.name}</p>
-                <p className="text-[10px] text-muted-foreground">{t.count} Designs</p>
+                <p className="text-[10px] text-muted-foreground">{("templateCount" in t ? t.templateCount : 0) || 0} Designs</p>
               </div>
             ))}
           </div>
+          {selectedThemes.length > 4 && (
+            <p className="text-xs text-muted-foreground">+{selectedThemes.length - 4} more themes selected</p>
+          )}
         </CollapsibleSection>
 
         {/* BRAND STYLES */}
@@ -104,15 +113,29 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
               <p className="text-sm font-medium text-foreground">Use logo on post</p>
               <p className="text-xs text-muted-foreground">Show logo on generated designs that support logos.</p>
             </div>
-            <Switch checked={useLogo} onCheckedChange={(v) => onUpdate("visual_metadata", { ...metadata, use_logo: v })} />
+            <Switch checked={useLogo} onCheckedChange={(v) => updateMeta({ use_logo: v })} />
           </div>
 
           <p className="text-sm font-semibold text-foreground mb-2">Brand Colors</p>
           <div className="flex items-center gap-1 mb-4">
             {brandColors.map((c, i) => (
-              <div key={i} className="h-8 flex-1 rounded" style={{ backgroundColor: c }} />
+              <div
+                key={i}
+                className="h-8 flex-1 rounded relative group cursor-pointer"
+                style={{ backgroundColor: c }}
+              >
+                <button
+                  onClick={() => removeColor(i)}
+                  className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-destructive text-white text-[8px] items-center justify-center hidden group-hover:flex"
+                >
+                  ×
+                </button>
+              </div>
             ))}
-            <button className="h-8 w-8 rounded border border-dashed border-border flex items-center justify-center text-muted-foreground hover:text-foreground">
+            <button
+              onClick={addColor}
+              className="h-8 w-8 rounded border border-dashed border-border flex items-center justify-center text-muted-foreground hover:text-foreground shrink-0"
+            >
               <Plus className="h-3.5 w-3.5" />
             </button>
           </div>
@@ -124,14 +147,27 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
               <label className="text-xs text-muted-foreground block mb-1">Title Font</label>
               <select className="w-full rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-foreground">
                 <option>Default (Theme Font)</option>
+                <option>Lufga</option>
+                <option>Inter</option>
+                <option>Playfair Display</option>
+                <option>Montserrat</option>
               </select>
             </div>
             <div>
               <label className="text-xs text-muted-foreground block mb-1">Body Font</label>
               <select className="w-full rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-foreground">
                 <option>Default (Theme Font)</option>
+                <option>Inter</option>
+                <option>Lufga</option>
+                <option>Open Sans</option>
+                <option>Roboto</option>
               </select>
             </div>
+          </div>
+          <div className="mt-3 p-3 rounded-lg border border-border bg-muted/10">
+            <p className="text-sm font-medium text-foreground mb-1">Font Preview</p>
+            <p className="text-lg font-bold text-foreground">The quick brown fox</p>
+            <p className="text-sm text-muted-foreground">jumps over the lazy dog. 0123456789</p>
           </div>
         </CollapsibleSection>
 
@@ -145,7 +181,7 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
                 Image: <Image className="h-3.5 w-3.5" />,
                 Design: <Palette className="h-3.5 w-3.5" />,
                 GIF: <Layers className="h-3.5 w-3.5" />,
-                Meme: "😀",
+                Meme: <span className="text-sm">😀</span>,
                 "AI Image": <Sparkles className="h-3.5 w-3.5" />,
               };
               return (
@@ -159,7 +195,7 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
                   }`}
                 >
                   {selectedMediaTypes.includes(type) && <span>✓</span>}
-                  {typeof icons[type] === "string" ? icons[type] : icons[type]}
+                  {icons[type]}
                   {type}
                 </button>
               );
@@ -179,12 +215,14 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
               <div className="flex-1">
                 <Slider
                   value={[mediaMix[type] || Math.floor(100 / selectedMediaTypes.length)]}
-                  onValueChange={([v]) => onUpdate("visual_metadata", { ...metadata, media_mix: { ...mediaMix, [type]: v } })}
+                  onValueChange={([v]) => updateMeta({ media_mix: { ...mediaMix, [type]: v } })}
                   min={0} max={100} step={5}
                   className="flex-1"
                 />
               </div>
-              <span className="text-sm font-medium text-foreground w-12 text-right">{mediaMix[type] || Math.floor(100 / selectedMediaTypes.length)}%</span>
+              <span className="text-sm font-medium text-foreground w-12 text-right">
+                {mediaMix[type] || Math.floor(100 / selectedMediaTypes.length)}%
+              </span>
             </div>
           ))}
 
@@ -201,6 +239,7 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
               <option>16:9 Landscape</option>
             </select>
           </div>
+          <Button size="sm" variant="outline" className="mt-1">Resize per social</Button>
         </CollapsibleSection>
 
         {/* IMAGES */}
@@ -210,7 +249,7 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
               <p className="text-sm font-medium text-foreground">Use stock images</p>
               <p className="text-xs text-muted-foreground">Use stock photos in addition to your library when generating designs</p>
             </div>
-            <Switch checked={useStock} onCheckedChange={(v) => onUpdate("visual_metadata", { ...metadata, use_stock: v })} />
+            <Switch checked={useStock} onCheckedChange={(v) => updateMeta({ use_stock: v })} />
           </div>
           <div className="flex items-center justify-between">
             <div>
@@ -242,7 +281,7 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
                 <div className="rounded-xl border border-border bg-gradient-to-br from-muted/30 to-muted/10 aspect-square flex flex-col items-center justify-center p-4">
                   <Layers className="h-10 w-10 text-muted-foreground/30 mb-2" />
                   <p className="text-xs font-medium text-muted-foreground">{t.name} Template</p>
-                  <p className="text-[10px] text-muted-foreground/60">{t.count} designs</p>
+                  <p className="text-[10px] text-muted-foreground/60">{("templateCount" in t ? t.templateCount : 0) || 0} designs</p>
                 </div>
                 <p className="text-xs text-muted-foreground mt-1.5">From theme: {t.name}</p>
               </div>
@@ -252,55 +291,16 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
       </div>
 
       {/* Theme Picker Modal */}
-      {showThemesPicker && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-          <div className="bg-card border border-border rounded-2xl w-full max-w-4xl max-h-[80vh] flex flex-col">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-              <div>
-                <h2 className="text-base font-bold text-foreground">Choose Themes</h2>
-                <p className="text-xs text-muted-foreground">Select themes for post generation. Click a theme to see its templates.</p>
-              </div>
-              <button onClick={() => setShowThemesPicker(false)} className="p-2 text-muted-foreground hover:text-foreground">
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto p-6">
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {themes.map((theme, idx) => (
-                  <button
-                    key={theme.name}
-                    onClick={() => {
-                      const next = [...themes];
-                      next[idx] = { ...theme, selected: !theme.selected };
-                      setThemes(next);
-                    }}
-                    className={`relative rounded-xl border-2 transition-colors overflow-hidden ${
-                      theme.selected ? "border-accent" : "border-border hover:border-accent/30"
-                    }`}
-                  >
-                    <div className="aspect-[3/4] bg-gradient-to-br from-muted/40 to-muted/10 flex items-center justify-center">
-                      <span className="text-sm font-bold text-foreground/40">{theme.name}</span>
-                    </div>
-                    {theme.selected && (
-                      <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-accent flex items-center justify-center">
-                        <span className="text-white text-[10px]">✓</span>
-                      </div>
-                    )}
-                    <div className="p-2">
-                      <p className="text-xs font-medium text-foreground">{theme.name}</p>
-                      <p className="text-[10px] text-muted-foreground">{theme.count} design templates</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="flex items-center justify-between px-6 py-4 border-t border-border">
-              <p className="text-sm text-muted-foreground">Selected {selectedThemes.length} themes, {totalTemplates} templates</p>
-              <Button onClick={() => { setShowThemesPicker(false); handleSave(); }}>Save and Close</Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ChooseThemesModal
+        open={showThemesPicker}
+        onClose={() => setShowThemesPicker(false)}
+        selectedKeys={selectedThemeKeys}
+        customThemes={customThemes}
+        onSave={(keys, customs) => {
+          updateMeta({ selected_themes: keys, custom_themes: customs });
+          handleSave();
+        }}
+      />
     </div>
   );
 }

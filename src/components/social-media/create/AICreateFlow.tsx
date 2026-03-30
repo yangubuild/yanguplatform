@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useSocialPosts } from "@/hooks/social/useSocialPosts";
 import { useSocialWorkspace } from "@/hooks/social/useSocialWorkspace";
+import { useSocialBrandProfile } from "@/hooks/social/useSocialBrandProfile";
+import { buildThemePromptContext } from "@/data/socialThemes";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -11,8 +13,9 @@ type AIState = "generating" | "ready" | "error";
 
 const PHASES = [
   "Analyzing your brand profile…",
+  "Selecting theme direction…",
   "Generating captions…",
-  "Creating post visuals…",
+  "Creating branded visuals…",
   "Designing your creatives…",
   "Polishing your posts…",
 ];
@@ -31,6 +34,7 @@ interface Props {
 export function AICreateFlow({ onDone, onBack }: Props) {
   const { createPost } = useSocialPosts();
   const { workspace } = useSocialWorkspace();
+  const { profile } = useSocialBrandProfile();
   const [state, setState] = useState<AIState>("generating");
   const [progress, setProgress] = useState(0);
   const [phaseIdx, setPhaseIdx] = useState(0);
@@ -56,9 +60,19 @@ export function AICreateFlow({ onDone, onBack }: Props) {
 
   const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+  /** Extract visual settings from brand profile */
+  const getVisualContext = () => {
+    const meta = (profile?.metadata as Record<string, unknown>) || {};
+    const visualMeta = (meta.visual_metadata as Record<string, unknown>) || {};
+    const selectedThemes = (visualMeta.selected_themes as string[]) || [];
+    const brandColors = (visualMeta.brand_colors as string[]) || [];
+    const useLogo = (visualMeta.use_logo as boolean) ?? false;
+    return { selectedThemes, brandColors, useLogo };
+  };
+
   const generateImageWithRetry = async (prompt: string, retries = 3): Promise<string | null> => {
     for (let attempt = 0; attempt < retries; attempt++) {
-      if (attempt > 0) await delay(4000 * attempt); // increasing backoff
+      if (attempt > 0) await delay(4000 * attempt);
       try {
         const { data: imgData, error: imgErr } = await supabase.functions.invoke("social-ai-generate-image", {
           body: {
@@ -84,11 +98,11 @@ export function AICreateFlow({ onDone, onBack }: Props) {
     try {
       const businessDesc = workspace?.business_description || "our business";
       const businessName = workspace?.name || "Our Brand";
+      const { selectedThemes, brandColors, useLogo } = getVisualContext();
       let savedCount = 0;
 
       for (let i = 0; i < POST_TOPICS.length; i++) {
         const item = POST_TOPICS[i];
-        // Add delay between posts to avoid rate limits
         if (i > 0) await delay(5000);
 
         try {
@@ -104,16 +118,18 @@ export function AICreateFlow({ onDone, onBack }: Props) {
           const caption = captionData?.caption || "";
           if (!caption) continue;
 
-          // Stage B: Generate image creative (with retry)
-          const imagePrompt = buildImagePrompt(businessName, businessDesc, item.topic, item.goal);
+          // Stage B: Generate theme-aware branded image
+          const imagePrompt = buildThemeAwareImagePrompt(
+            businessName, businessDesc, item.topic, item.goal,
+            selectedThemes, brandColors, useLogo
+          );
           const imageUrl = await generateImageWithRetry(imagePrompt);
 
           if (!imageUrl) {
             console.warn("Image generation failed after retries for topic:", item.topic);
-            // Still save but as ai_generated so card shows "Generating creative..." state
           }
 
-          // Stage C: Save draft with caption + image
+          // Stage C: Save draft
           await createPost({
             workspace_id: workspace?.id || "",
             caption,
@@ -200,26 +216,43 @@ export function AICreateFlow({ onDone, onBack }: Props) {
   );
 }
 
-/** Build a context-aware image generation prompt */
-function buildImagePrompt(
+/** Build a theme-aware, brand-aware image generation prompt */
+function buildThemeAwareImagePrompt(
   businessName: string,
   businessDesc: string,
   topic: string,
-  goal: string
+  goal: string,
+  selectedThemes: string[],
+  brandColors: string[],
+  useLogo: boolean,
 ): string {
-  return `Create a professional social media post image for a business called "${businessName}".
+  const themeContext = buildThemePromptContext(selectedThemes);
+  const colorContext = brandColors.length > 0
+    ? `Brand colors to use: ${brandColors.join(", ")}. Incorporate these colors as the primary palette.`
+    : "";
+  const logoContext = useLogo
+    ? `Include the business name "${businessName}" prominently in the design as a logo/brand element.`
+    : "";
+
+  return `Create a professional branded social media post design for "${businessName}".
 
 Business: ${businessDesc}
 Topic: ${topic}
 Goal: ${goal}
 
-Requirements:
-- Clean, modern social media post design
-- Professional typography with the business name or a short tagline
-- Vibrant colors that match the business type
-- Instagram/Facebook ready format (portrait 4:5)
-- Include visual elements relevant to the business type
-- Do NOT include any placeholder text like "lorem ipsum"
-- Make it look like a real branded social media post, not stock photography
-- Use bold, eye-catching design that would stop someone scrolling`;
+${themeContext}
+${colorContext}
+${logoContext}
+
+CRITICAL REQUIREMENTS:
+- This is a DESIGNED social media post, NOT a photograph
+- Use clean, professional typography with a headline or tagline related to the topic
+- Create a polished, branded visual with clear visual hierarchy
+- Use the brand colors as the dominant color scheme
+- Instagram/Facebook ready format (portrait 4:5 ratio)
+- Include relevant visual elements (icons, shapes, patterns) that match the theme
+- Do NOT use placeholder text like "lorem ipsum" — use real copy relevant to "${topic}"
+- The design should look like it was made by a professional social media designer
+- Make it scroll-stopping and visually cohesive
+- Keep text minimal but impactful — max 2-3 lines of text on the image`;
 }

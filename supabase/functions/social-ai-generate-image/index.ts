@@ -22,11 +22,23 @@ serve(async (req) => {
       });
     }
 
-    const fullPrompt = `Generate a high-quality social media post image. Aspect ratio: ${aspect_ratio}. 
+    const fullPrompt = `You are a professional social media graphic designer. Generate a high-quality designed social media post image.
+
+Aspect ratio: ${aspect_ratio}
 
 ${prompt}
 
-Important: Create a polished, professional social media creative. Not a photograph — a designed post with visual hierarchy, clean layout, and eye-catching graphics.`;
+DESIGN RULES:
+- Create a polished, professional social media CREATIVE DESIGN — not a photograph
+- Use strong visual hierarchy: headline, supporting text, and visual elements
+- Apply clean typography — readable, modern, and well-spaced
+- Use bold, cohesive color blocking and shapes
+- Include relevant icons, patterns, or abstract elements that reinforce the message
+- Keep text on the image minimal (2-3 impactful lines maximum)
+- Make it scroll-stopping — this should look like a premium branded post
+- NO random or unrelated text — every word must relate to the topic
+- NO stock photo look — this should look DESIGNED, like a Canva/Adobe Express output
+- Ensure all text is fully legible against the background`;
 
     const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -93,7 +105,6 @@ Important: Create a polished, professional social media creative. Not a photogra
 
         if (uploadErr) {
           console.error("Upload error:", uploadErr);
-          // Fall back to returning the base64 URL
           return new Response(JSON.stringify({ image_url: imageUrl }), {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
@@ -105,7 +116,6 @@ Important: Create a polished, professional social media creative. Not a photogra
         });
       } catch (storageErr) {
         console.error("Storage error:", storageErr);
-        // Fall back to base64
         return new Response(JSON.stringify({ image_url: imageUrl }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
